@@ -4,7 +4,7 @@ const nextConfig = {
         domains: ['cdn.prod.website-files.com'],
       },
       env: {
-        BASE_URL: process.env.BASE_URL,
+        ORG_AND_EMP_URL: process.env.ORG_AND_EMP_URL,
       },
 };
 

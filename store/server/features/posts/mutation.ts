@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient  } from "react-query";
 import { AddPostData } from "./interface";
 import axios from "axios";
-import { BASE_URL } from "@/utils/constants";
+import { ORG_AND_EMP_URL } from "@/utils/constants";
+import { crudRequest } from "@/utils/crudRequest";
 
 /**
  * Function to add a new post by sending a POST request to the API
@@ -9,16 +10,7 @@ import { BASE_URL } from "@/utils/constants";
  * @returns The response data from the API
  */
 const addPost = async (newPost: AddPostData) => {
-    try {
-      const response = await axios.post(`${BASE_URL}/posts`, newPost, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+   return crudRequest({url:`${ORG_AND_EMP_URL}/users` ,  method:"POST" , data:newPost})
   };
 
 /**
@@ -28,7 +20,7 @@ const addPost = async (newPost: AddPostData) => {
  */
 const deletePost = async (postId: string) => {
     try {
-        const response = await axios.delete(`${BASE_URL}/posts/${postId}`);
+        const response = await axios.delete(`${ORG_AND_EMP_URL}/posts/${postId}`);
         return response.data;
       } catch (error) {
         throw error;
