@@ -1,0 +1,60 @@
+// useStore.ts
+import {
+  DeletedId,
+  GroupPermissionkey,
+  ModalType,
+} from '@/types/dashboard/adminManagement';
+import create from 'zustand';
+import { devtools } from 'zustand/middleware';
+interface StoreState {
+  deletedId: DeletedId | null;
+  pageSize: number;
+  roleCurrentPage: number;
+  permissonGroupCurrentPage: number;
+  tabButton: string;
+  setTabButton: (tabButton: string) => void;
+  currentModal: ModalType;
+  selectedPermissionGroup: GroupPermissionkey | null;
+  selectedRole: any;
+  permissionCurrentPage: number;
+  selectedRowKeys: any;
+  setSelectedRowKeys: (selectedRowKeys: any) => void;
+  setPermissionGroupCurrentPage: (permissonGroupCurrentPage: number) => void;
+  setPermissionCurrentPage: (permissonCurrentPage: number) => void;
+  setPageSize: (pageSize: number) => void;
+  setCurrentModal: (currentModal: ModalType) => void;
+  setRoleCurrentPage: (roleCurrentPage: number) => void;
+  setDeletedId: (deletedId: DeletedId | null) => void;
+  setSelectedRole: (selectedRole: any) => void;
+  setSelectedPermissionGroup: (
+    selectedPermissionGroup: GroupPermissionkey | null,
+  ) => void;
+}
+
+export const useSettingStore = create<StoreState>()(
+  devtools((set) => ({
+    tabButton: 'Permission',
+    deletedId: null,
+    pageSize: 10,
+    roleCurrentPage: 1,
+    permissionCurrentPage: 1,
+    permissonGroupCurrentPage: 1,
+    currentModal: null,
+    selectedPermissionGroup: null,
+    selectedRole: null,
+    selectedRowKeys: null,
+    setSelectedRowKeys: (selectedRowKeys) => set({ selectedRowKeys }),
+    setTabButton: (tabButton) => set({ tabButton }),
+    setSelectedRole: (selectedRole) => set({ selectedRole }),
+    setDeletedId: (deletedId) => set({ deletedId }),
+    setPermissionGroupCurrentPage: (permissonGroupCurrentPage) =>
+      set({ permissonGroupCurrentPage }),
+    setPageSize: (pageSize) => set({ pageSize }),
+    setCurrentModal: (currentModal) => set({ currentModal }),
+    setSelectedPermissionGroup: (selectedPermissionGroup) =>
+      set({ selectedPermissionGroup }),
+    setRoleCurrentPage: (roleCurrentPage) => set({ roleCurrentPage }),
+    setPermissionCurrentPage: (permissionCurrentPage) =>
+      set({ permissionCurrentPage }),
+  })),
+);
