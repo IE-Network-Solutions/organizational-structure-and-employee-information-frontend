@@ -9,6 +9,14 @@ import { devtools } from 'zustand/middleware';
 interface StoreState {
   deletedId: DeletedId | null;
   pageSize: number;
+  searchTerm: {
+    termKey: string | null;
+    searchTerm: string | null;
+  };
+  setSearchTerm: (newTerm: {
+    termKey: string | null;
+    searchTerm: string | null;
+  }) => void;
   roleCurrentPage: number;
   permissonGroupCurrentPage: number;
   tabButton: string;
@@ -36,6 +44,8 @@ export const useSettingStore = create<StoreState>()(
     tabButton: 'Permission',
     deletedId: null,
     pageSize: 10,
+    searchTerm: { termKey: null, searchTerm: null },
+    setSearchTerm: (newTerm) => set({ searchTerm: newTerm }),
     roleCurrentPage: 1,
     permissionCurrentPage: 1,
     permissonGroupCurrentPage: 1,

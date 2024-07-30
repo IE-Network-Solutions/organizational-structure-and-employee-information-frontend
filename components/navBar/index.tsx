@@ -31,27 +31,27 @@ const items: MenuItem[] = [
     key: '/organization',
     icon: <CiSettings />,
     label: 'Organization',
-    className:"font-bold"
+    className: 'font-bold',
   },
   {
     key: '/employees',
     icon: <LuUsers2 />,
     label: 'Employees',
-    className:"font-bold",
+    className: 'font-bold',
     children: [
       {
         key: '/employees',
         label: 'Employees',
-        className:"font-bold",
+        className: 'font-bold',
       },
       {
         key: '/employees/manage-employees',
-        className:"font-bold",
+        className: 'font-bold',
         label: 'Manage Employees',
       },
       {
         key: '/employees/settings',
-        className:"font-bold",
+        className: 'font-bold',
         label: 'Settings',
       },
     ],
@@ -59,37 +59,37 @@ const items: MenuItem[] = [
   {
     key: '/recruitment',
     icon: <PiSuitcaseSimpleThin />,
-    className:"font-bold",
+    className: 'font-bold',
     label: 'Recruitment',
   },
   {
     key: '/timesheet',
     icon: <CiCalendar />,
-    className:"font-bold",
+    className: 'font-bold',
     label: 'Timesheet',
   },
   {
     key: '/activity',
     icon: <BarChartOutlined />,
-    className:"font-bold",
+    className: 'font-bold',
     label: 'Activity',
   },
   {
     key: '/feedback ',
     label: 'Feedback',
     icon: <UserOutlined />,
-    className:"font-bold",
+    className: 'font-bold',
     children: [
       {
         key: '/Chart',
         label: 'Clients',
         icon: <UserOutlined />,
-        className:"font-bold",
+        className: 'font-bold',
       },
       {
         key: '/client-management/settings',
         label: 'Settings',
-        className:"font-bold",
+        className: 'font-bold',
         icon: <FiSettings />,
       },
     ],

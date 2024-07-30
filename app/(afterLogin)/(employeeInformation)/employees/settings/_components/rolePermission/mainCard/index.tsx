@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Card, Tabs } from 'antd'; // Assuming Ant Design is being used
-import { AiOutlineUnorderedList } from 'react-icons/ai';
 import { FaPlus } from 'react-icons/fa';
 import GroupPermissionComponent from '../groupPermission';
 import RoleComponent from '../role';
@@ -47,18 +46,6 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
   };
   return (
     <div className="flex gap-2">
-      {/* <Card className="hidden md:block md:w-1/5 lg:w-1/5 bg-white">
-        <div className="flex space-x-2 font-semibold px-2 py-2 bg-gray-100 overflow-scroll rounded">
-          <AiOutlineUnorderedList className="text-xs md:text-sm lg:text-sm text-sky-600 pt-1" />
-          <p className="text-[1px] md:text-sm lg:text-sm">
-            Roles and permissions
-          </p>
-        </div> */}
-        {/* <div className="flex space-x-2 font-semibold px-1 py-2 mt-5">
-          <AiOutlineUnorderedList className="text-sm text-[#949798] pt-1" />
-          <p className="text-xs">Logs</p>
-        </div> */}
-      {/* </Card> */}
       <Card className="w-full md:w-4/5 bg-white top-0">
         <div className="flex flex-col md:flex-row justify-between">
           <CustomBreadcrumb

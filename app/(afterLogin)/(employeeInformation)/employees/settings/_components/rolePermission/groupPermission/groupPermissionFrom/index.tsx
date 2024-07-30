@@ -8,22 +8,26 @@ import {
 } from '@/types/dashboard/adminManagement';
 
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
-import { useAddPermissionGroup, useUpdatePermissionGroup } from '@/store/server/features/employees/settings/groupPermission/mutations';
+import {
+  useAddPermissionGroup,
+  useUpdatePermissionGroup,
+} from '@/store/server/features/employees/settings/groupPermission/mutations';
 import { useGetPermissions } from '@/store/server/features/employees/settings/permission/queries';
 const GroupPermission = () => {
   const {
     selectedPermissionGroup,
     pageSize,
     setSelectedPermissionGroup,
-    permissonGroupCurrentPage,
+    permissionCurrentPage,
     setCurrentModal,
     currentModal,
   } = useSettingStore();
-  const createPermissionGroupMutation=useAddPermissionGroup();
-  const updatePermissionGroupMutation=useUpdatePermissionGroup();
-  const {data: permissionData}=useGetPermissions();
-
-
+  const createPermissionGroupMutation = useAddPermissionGroup();
+  const updatePermissionGroupMutation = useUpdatePermissionGroup();
+  const { data: permissionData } = useGetPermissions(
+    permissionCurrentPage,
+    pageSize,
+  );
   const [form] = Form.useForm();
   useEffect(() => {
     if (currentModal === 'editModal' && selectedPermissionGroup) {
@@ -39,7 +43,7 @@ const GroupPermission = () => {
   }, [currentModal, selectedPermissionGroup, form]);
 
   const children: JSX.Element[] = [];
-  permissionData?.forEach((item: Permission) => {
+  permissionData?.items?.forEach((item: Permission) => {
     children.push(
       <Select.Option key={item.id} className="p-2 text-xs">
         {item.name}
@@ -78,6 +82,7 @@ const GroupPermission = () => {
         form={form}
         name="basic"
         layout="vertical"
+        initialValues={{ tenantId: 'tenantId_1' }}
         onFinish={
           currentModal === 'editModal' ? onUpdatePermissionGroupData : onFinish
         }
@@ -89,6 +94,9 @@ const GroupPermission = () => {
             </Form.Item>
           )}
           <div>
+            <Form.Item name="tenantId" hidden>
+              <Input />
+            </Form.Item>
             <Form.Item
               name="name"
               label={

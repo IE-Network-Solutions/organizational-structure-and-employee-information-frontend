@@ -2,40 +2,47 @@
 
 import React, { useEffect, useState } from 'react';
 import { Form, Input, Select, Modal, Button } from 'antd';
-import {
-  GroupPermissionkey,
-  Permission,
-  Role,
-} from '@/types/dashboard/adminManagement';
+import { Permission, Role } from '@/types/dashboard/adminManagement';
 import { RiErrorWarningFill } from 'react-icons/ri';
-import { useGetRole, useGetRoles } from '@/store/server/features/employees/settings/role/queries';
+import { useGetRole } from '@/store/server/features/employees/settings/role/queries';
 import { useGetPermissions } from '@/store/server/features/employees/settings/permission/queries';
 import { useGetPermissionGroups } from '@/store/server/features/employees/settings/groupPermission/queries';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
-import { useAddRole, useUpdateRole } from '@/store/server/features/employees/settings/role/mutations';
+import {
+  useAddRole,
+  useUpdateRole,
+} from '@/store/server/features/employees/settings/role/mutations';
+import { GroupPermissionItem } from '@/store/server/features/employees/settings/groupPermission/interface';
 
 const ListOfRoles = () => {
   const [form] = Form.useForm();
   const [groupPermissionList, setGroupPermissionList] = useState<any>([]);
   const [permissionList, setPermissionList] = useState<any>([]);
-  const createRoleMutation=useAddRole();
-  const updateRoleMutation=useUpdateRole();
+  const createRoleMutation = useAddRole();
+  const updateRoleMutation = useUpdateRole();
 
   const {
     selectedRole,
     setCurrentModal,
-    roleCurrentPage,
+    permissonGroupCurrentPage,
+    permissionCurrentPage,
     pageSize,
     currentModal,
     setSelectedRole,
   } = useSettingStore();
 
-  const { data: rolePermissionsData,refetch } = useGetRole(selectedRole);
-  const { data: permissionData } = useGetPermissions();
-  const { data: groupPermissionData } = useGetPermissionGroups();
+  const { data: rolePermissionsData, refetch } = useGetRole(selectedRole);
+  const { data: permissionData } = useGetPermissions(
+    permissionCurrentPage,
+    pageSize,
+  );
+  const { data: groupPermissionData } = useGetPermissionGroups(
+    permissonGroupCurrentPage,
+    pageSize,
+  );
 
   useEffect(() => {
-    if (selectedRole) {
+    if (selectedRole !== null) {
       refetch();
     }
   }, [selectedRole, refetch]);
@@ -58,18 +65,19 @@ const ListOfRoles = () => {
     });
   };
   const handleChangeOnGroupSelection = (val: any) => {
-    const newPermissions = groupPermissionData
-      ?.filter((group: any) => val.includes(group.id.toString()))
-      .flatMap((group: any) =>
-        group?.permissions?.map((item: any) => ({
-          value: item.id,
-          label: item.name,
-        })),
-      );
+    const newPermissions =
+      groupPermissionData?.items
+        ?.filter((group: GroupPermissionItem) =>
+          val.includes(group.id.toString()),
+        )
+        .flatMap((group: GroupPermissionItem) =>
+          group.permission.map((item: Permission) => ({
+            value: item.id,
+            label: item.name,
+          })),
+        ) || [];
 
-    // const combinedPermissions = [...permissionList, ...newPermissions];
-    const combinedPermissions = [...permissionList];
-
+    const combinedPermissions = [...permissionList, ...newPermissions];
     const permissionSet = new Set(
       combinedPermissions.map((permission) => permission?.value),
     );
@@ -144,6 +152,7 @@ const ListOfRoles = () => {
         form={form}
         name="basic"
         layout="vertical"
+        initialValues={{ tenantId: 'tenantId_1' }}
         onFinish={
           currentModal === 'editRoleModal' ? handleRoleUpdate : handleCreateRole
         }
@@ -155,6 +164,9 @@ const ListOfRoles = () => {
               <Input type="hidden" />
             </Form.Item>
           )}
+          <Form.Item name="tenantId" hidden>
+            <Input />
+          </Form.Item>
           <div className="mb-1">
             <Form.Item
               name="name"
@@ -196,8 +208,8 @@ const ListOfRoles = () => {
               placeholder="Please select"
               style={{ width: '100%', fontSize: '0.75rem' }}
               onChange={handleChangeOnGroupSelection}
-              options={groupPermissionData?.map(
-                (item: GroupPermissionkey) => ({
+              options={groupPermissionData?.items?.map(
+                (item: GroupPermissionItem) => ({
                   value: item?.id,
                   label: item?.name,
                 }),
@@ -228,7 +240,7 @@ const ListOfRoles = () => {
                 id="rolePermissionIdSelect"
                 placeholder="Please select"
                 style={{ width: '100%', fontSize: '0.75rem' }}
-                options={permissionData?.map((item: Permission) => ({
+                options={permissionData?.items?.map((item: Permission) => ({
                   value: item?.id,
                   label: item?.name,
                 }))}

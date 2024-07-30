@@ -2,36 +2,44 @@
 
 import React, { useEffect, useState } from 'react';
 import { Form, Input, Select, Modal, Button } from 'antd';
-import {
-  GroupPermissionkey,
-  Permission,
-  Role,
-} from '@/types/dashboard/adminManagement';
+import { Permission, Role } from '@/types/dashboard/adminManagement';
 import { RiErrorWarningFill } from 'react-icons/ri';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
-import { useAddRole, useUpdateRole } from '@/store/server/features/employees/settings/role/mutations';
-import { useGetRole, useGetRoles } from '@/store/server/features/employees/settings/role/queries';
+import {
+  useAddRole,
+  useUpdateRole,
+} from '@/store/server/features/employees/settings/role/mutations';
+import { useGetRole } from '@/store/server/features/employees/settings/role/queries';
 import { useGetPermissionGroups } from '@/store/server/features/employees/settings/groupPermission/queries';
+import { GroupPermissionItem } from '@/store/server/features/employees/settings/groupPermission/interface';
+import { useGetPermissions } from '@/store/server/features/employees/settings/permission/queries';
 
 const ListOfRoles = () => {
   const [form] = Form.useForm();
   const [groupPermissionList, setGroupPermissionList] = useState<any>([]);
   const [permissionList, setPermissionList] = useState<any>([]);
-  const createRoleMutation=useAddRole();
-  const updateRoleMutation=useUpdateRole();
+  const createRoleMutation = useAddRole();
+  const updateRoleMutation = useUpdateRole();
 
   const {
     selectedRole,
     setCurrentModal,
-    roleCurrentPage,
+    permissonGroupCurrentPage,
     pageSize,
     currentModal,
     setSelectedRole,
+    permissionCurrentPage,
   } = useSettingStore();
 
-  const { data: permissionData } = useGetRoles();
-  const { data: groupPermissionData } = useGetPermissionGroups();
-  const { data: rolePermissionsData, isLoading: rolePermissionsLoading, refetch } = useGetRole(selectedRole);
+  const { data: permissionData, isLoading: isPermissionLoading } =
+    useGetPermissions(permissionCurrentPage, pageSize);
+  const { data: groupPermissionData, isLoading: isGroupPermissionLoading } =
+    useGetPermissionGroups(permissonGroupCurrentPage, pageSize);
+  const {
+    data: rolePermissionsData,
+    // isLoading: rolePermissionsLoading,
+    refetch,
+  } = useGetRole(selectedRole);
 
   useEffect(() => {
     if (selectedRole) {
@@ -57,17 +65,17 @@ const ListOfRoles = () => {
     });
   };
   const handleChangeOnGroupSelection = (val: any) => {
-    const newPermissions = groupPermissionData
-      ?.filter((group: any) => val.includes(group.id.toString()))
-      .flatMap((group: any) =>
-        group?.permissions?.map((item: any) => ({
-          value: item.id,
-          label: item.name,
-        })),
-      );
+    const newPermissions =
+      groupPermissionData?.items
+        ?.filter((group: any) => val.includes(group.id.toString()))
+        .flatMap((group: any) =>
+          group?.permissions?.map((item: any) => ({
+            value: item.id,
+            label: item.name,
+          })),
+        ) || [];
 
-    // const combinedPermissions = [...permissionList, ...newPermissions];
-    const combinedPermissions = [...permissionList];
+    const combinedPermissions = [...permissionList, ...newPermissions];
 
     const permissionSet = new Set(
       combinedPermissions.map((permission) => permission?.value),
@@ -115,7 +123,7 @@ const ListOfRoles = () => {
       ...values,
       permission: convertPermissions(values.permission),
     };
-    updateRoleMutation.mutate(convertedValues,convertedValues?.id);
+    updateRoleMutation.mutate(convertedValues, convertedValues?.id);
     setCurrentModal(null);
   };
 
@@ -194,9 +202,10 @@ const ListOfRoles = () => {
               size="large"
               placeholder="Please select"
               style={{ width: '100%', fontSize: '0.75rem' }}
+              loading={isGroupPermissionLoading}
               onChange={handleChangeOnGroupSelection}
-              options={groupPermissionData?.map(
-                (item: GroupPermissionkey) => ({
+              options={groupPermissionData?.items?.map(
+                (item: GroupPermissionItem) => ({
                   value: item?.id,
                   label: item?.name,
                 }),
@@ -226,8 +235,9 @@ const ListOfRoles = () => {
                 size="large"
                 id="rolePermissionIdSelect"
                 placeholder="Please select"
+                loading={isPermissionLoading}
                 style={{ width: '100%', fontSize: '0.75rem' }}
-                options={permissionData?.map((item: Permission) => ({
+                options={permissionData?.items?.map((item: Permission) => ({
                   value: item?.id,
                   label: item?.name,
                 }))}

@@ -1,9 +1,13 @@
-import { GroupPermissionkey } from '@/types/dashboard/adminManagement';
 import { Card, Input, Select, Table } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
-import { useGetPermissions } from '@/store/server/features/employees/settings/permission/queries';
-import { useGetPermissionGroups } from '@/store/server/features/employees/settings/groupPermission/queries';
+import {
+  useGetPermissions,
+  useSearchPermissions,
+} from '@/store/server/features/employees/settings/permission/queries';
+import { useGetPermissionGroupsWithOutPagination } from '@/store/server/features/employees/settings/groupPermission/queries';
+import { GroupPermissionItem } from '@/store/server/features/employees/settings/groupPermission/interface';
+import useDebounce from '@/store/uistate/features/useDebounce';
 
 const Permission: React.FC<any> = () => {
   const {
@@ -12,27 +16,35 @@ const Permission: React.FC<any> = () => {
     setPermissionCurrentPage,
     setPageSize,
     selectedRowKeys,
+    searchTerm,
+    setSearchTerm,
   } = useSettingStore();
-  const [searchTerm, setSearchTerm] = useState<{
-    termKey: string | null;
-    searchTerm: string | null;
-  }>({ termKey: null, searchTerm: null });
 
-  const { data: permissionData, isLoading: permissionLoading } = useGetPermissions();
-  const { data: groupPermissionDatawithOutPagination } = useGetPermissionGroups();
-  // const debouncedTerm = useDebouncedSearch(searchTerm?.searchTerm, 2000);
-  const { data: searchUserData, isLoading: isSearching } =useGetPermissions();
-  // const { data: searchUserData, isValidating: isSearching } = useSWR(
-  //   searchTerm?.searchTerm !== 'All' && debouncedTerm
-  //     ? `${BASE_URL}/permissions?columnName=${searchTerm?.termKey}&query=${searchTerm?.searchTerm}`
-  //     : null,
-  // );
+  const { data: permissionData, isLoading: permissionLoading } =
+    useGetPermissions(permissionCurrentPage, pageSize);
+  const { data: groupPermissionDatawithOutPagination } =
+    useGetPermissionGroupsWithOutPagination();
+
+  const debouncedTerm = useDebounce(searchTerm?.searchTerm, 2000); // returns true and false
+  const {
+    data: searchUserData,
+    isLoading: isSearching,
+    refetch,
+  } = useSearchPermissions(searchTerm);
+
   const displayData =
     searchTerm?.searchTerm === null ||
     searchTerm?.searchTerm === '' ||
     searchTerm?.searchTerm === undefined
       ? permissionData
       : searchUserData;
+
+  useEffect(() => {
+    if (debouncedTerm) {
+      refetch();
+    }
+  }, [debouncedTerm, refetch]);
+
   const onPageChange = (page: number, pageSize: number) => {
     setPermissionCurrentPage(page);
     setPageSize(pageSize);
@@ -80,8 +92,8 @@ const Permission: React.FC<any> = () => {
                 .indexOf(input.toLowerCase()) >= 0
             }
           >
-            {groupPermissionDatawithOutPagination?.map(
-              (item: GroupPermissionkey) => (
+            {groupPermissionDatawithOutPagination?.items?.map(
+              (item: GroupPermissionItem) => (
                 <Option key={item?.id} value={item?.id}>
                   {item?.name}
                 </Option>
@@ -103,12 +115,12 @@ const Permission: React.FC<any> = () => {
       </div>
       <Table
         columns={columns}
-        dataSource={displayData}
+        dataSource={displayData?.items}
         loading={permissionLoading || isSearching}
         pagination={{
-          current: 1,
+          current: permissionCurrentPage,
           pageSize: pageSize,
-          total: 4,
+          total: displayData?.meta?.totalItems,
           onChange: (page, pageSize) => onPageChange(page, pageSize),
           showSizeChanger: true,
           onShowSizeChange: (page, pageSize) => onPageChange(page, pageSize),

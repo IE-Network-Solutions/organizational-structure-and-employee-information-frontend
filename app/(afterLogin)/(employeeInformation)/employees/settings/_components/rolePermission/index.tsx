@@ -13,7 +13,6 @@ const SettingsPage = () => {
   const {
     currentModal,
     roleCurrentPage,
-    permissonGroupCurrentPage,
     pageSize,
     setDeletedId,
     setCurrentModal,
@@ -26,12 +25,18 @@ const SettingsPage = () => {
   const handleDeleteConfirm = () => {
     switch (deletedId?.key) {
       case 'groupId':
-            const props={deletedId,setCurrentModal,setDeletedId}
-            deletePermissionGroupMutation.mutate(props);
+        const props = { deletedId, setCurrentModal, setDeletedId };
+        deletePermissionGroupMutation.mutate(props);
         break;
       case 'roleId':
-            const deleteRoleprops={deletedId,roleCurrentPage,pageSize,setCurrentModal,setDeletedId}
-            deleteRoleMutation.mutate(deleteRoleprops);
+        const deleteRoleprops = {
+          deletedId,
+          roleCurrentPage,
+          pageSize,
+          setCurrentModal,
+          setDeletedId,
+        };
+        deleteRoleMutation.mutate(deleteRoleprops);
       default:
     }
   };
@@ -47,10 +52,7 @@ const SettingsPage = () => {
   };
   return (
     <div className="w-full h-auto p-0 sm:p-1 md:p-2 lg:p-3 xl:p-4">
-      <AdminSettingHeader
-        title="Setting"
-        subtitle="Role Permission Settings"
-      />
+      <AdminSettingHeader title="Setting" subtitle="Role Permission Settings" />
       <ParentRolePermissionCards onChange={onChange} />
       <GroupPermission />
       {(currentModal === 'roleModal' || currentModal === 'editRoleModal') && (

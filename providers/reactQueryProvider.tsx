@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { QueryCache, QueryClient, QueryClientProvider } from "react-query";
-import { ReactNode } from "react";
-import NotificationMessage from "@/components/common/notification/notificationMessage";
-import { useRouter } from "next/navigation";
+import { QueryCache, QueryClient, QueryClientProvider } from 'react-query';
+import { ReactNode } from 'react';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useRouter } from 'next/navigation';
 
 /**
  * Interface for the props of the ReactQueryWrapper component
@@ -25,18 +25,18 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
 
   const queryClient = new QueryClient({
     queryCache: new QueryCache({
-      onError(error: any, query) {
+      onError(error: any) {
         if (error.response) {
           if (error.response.status === 401) {
-            router.replace("/authentication/login");
+            router.replace('/authentication/login');
           }
           NotificationMessage.error({
-            message: "Error",
+            message: 'Error',
             description: error.response.data.message,
           });
         } else {
           NotificationMessage.error({
-            message: "Error",
+            message: 'Error',
             description: error.message,
           });
         }

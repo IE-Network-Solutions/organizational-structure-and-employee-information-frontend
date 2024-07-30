@@ -14,7 +14,10 @@ const RoleComponent: React.FC = () => {
   const handleButtonClick = (id: string | null) => {
     setVisibleEditCardId(visibleEditCardId === id ? null : id);
   };
-  const { data: rolePermissionsData, isLoading: roleLoading } = useGetRoles()
+  const { data: rolePermissionsData, isLoading: roleLoading } = useGetRoles(
+    roleCurrentPage,
+    pageSize,
+  );
   const onPageChange = (page: number, pageSize: number) => {
     setRoleCurrentPage(page);
     setPageSize(pageSize);
@@ -22,14 +25,14 @@ const RoleComponent: React.FC = () => {
   return (
     <Card>
       <div className="flex justify-center items-center">
-        {rolePermissionsData?.length === 0 && roleLoading && (
+        {rolePermissionsData?.items?.length === 0 && roleLoading && (
           <Spin size="large" />
         )}
       </div>
-      {rolePermissionsData && rolePermissionsData?.length > 0 ? (
+      {rolePermissionsData && rolePermissionsData?.items?.length > 0 ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-2 lg:gap-4">
-            {rolePermissionsData?.map((item: any, index: number) => (
+            {rolePermissionsData?.items?.map((item: any, index: number) => (
               <div key={index}>
                 <EditAndDeleteButtonCard
                   item={item}

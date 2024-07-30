@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import GroupPermissionCard from './groupPermissionCard';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
-import {useGetPermissionGroups } from '@/store/server/features/employees/settings/groupPermission/queries';
+import { useGetPermissionGroups } from '@/store/server/features/employees/settings/groupPermission/queries';
 
 const GroupPermissionComponent = () => {
   const {
@@ -15,7 +15,8 @@ const GroupPermissionComponent = () => {
   const [visibleEditCardId, setVisibleEditCardId] = useState<string | null>(
     null,
   );
-  const { data: groupPermissionData,isLoading: groupPermissionLoading } = useGetPermissionGroups();
+  const { data: groupPermissionData, isLoading: groupPermissionLoading } =
+    useGetPermissionGroups(permissonGroupCurrentPage, pageSize);
 
   const handleButtonClick = (id: string) => {
     setVisibleEditCardId(visibleEditCardId === id ? null : id);
@@ -24,17 +25,18 @@ const GroupPermissionComponent = () => {
     setPermissionGroupCurrentPage(page);
     setPageSize(pageSize);
   };
+
   return (
     <Card>
       <div className="flex justify-center items-center">
-        {groupPermissionData?.length === 0 && groupPermissionLoading && (
+        {groupPermissionData?.items?.length === 0 && groupPermissionLoading && (
           <Spin size="large" />
         )}
       </div>
-      {groupPermissionData&& groupPermissionData.length > 0 ? (
+      {groupPermissionData && groupPermissionData.items?.length > 0 ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-2 lg:gap-4">
-            {groupPermissionData?.map((item: any, index: number) => (
+            {groupPermissionData?.items?.map((item: any, index: number) => (
               <div key={index}>
                 <GroupPermissionCard
                   item={item}
@@ -48,7 +50,7 @@ const GroupPermissionComponent = () => {
             <Pagination
               current={permissonGroupCurrentPage}
               pageSize={pageSize}
-              total={1}
+              total={groupPermissionData?.meta?.totalPages}
               onChange={(page, pageSize) => onPageChange(page, pageSize)}
               showSizeChanger
               onShowSizeChange={(page, pageSize) =>
