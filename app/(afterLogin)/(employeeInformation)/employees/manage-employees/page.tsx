@@ -22,15 +22,8 @@ const ManageEmployees: React.FC<any> = () => {
     <div className="h-auto w-auto p-4">
       <div className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb
-          title="Admin"
-          subtitle="Manage your admin"
-          items={[
-            { title: 'Home', href: '/' },
-            {
-              title: 'Tenants',
-              href: '/tenant-manuser_typem"098765445676"/tenants',
-            },
-          ]}
+          title="Employees"
+          subtitle="Manage your Employees"
         />
         <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
           <CustomButton
