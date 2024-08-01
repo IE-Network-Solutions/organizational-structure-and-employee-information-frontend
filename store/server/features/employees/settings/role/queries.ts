@@ -6,7 +6,7 @@ import { RoleType } from './interface';
 
 /**
  * Function to fetch a paginated list of roles by sending a GET request to the API.
- * 
+ *
  * @param permissonCurrentPage - The current page number for pagination.
  * @param pageSize - The number of roles to fetch per page.
  * @returns The response data from the API containing the list of roles.
@@ -20,17 +20,16 @@ const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
 
 /**
  * Function to fetch all roles without pagination by sending a GET request to the API.
- * 
+ *
  * @returns The response data from the API containing all roles.
  */
 const getRolesWithOutPagination = async () => {
   return crudRequest({ url: `${ORG_AND_EMP_URL}/roles`, method: 'GET' });
 };
 
-
 /**
  * Function to fetch a single role by its ID by sending a GET request to the API.
- * 
+ *
  * @param id - The ID of the role to fetch. It can be a string or null.
  * @returns The response data from the API containing the role details.
  * @throws Error if the request fails.
@@ -48,11 +47,11 @@ const getRole = async (id: string | null) => {
 
 /**
  * Custom hook to fetch a paginated list of roles using `useQuery` from `react-query`.
- * 
+ *
  * @param permissonCurrentPage - The current page number for pagination.
  * @param pageSize - The number of roles to fetch per page.
  * @returns The query object containing the list of roles, along with loading and error states.
- * 
+ *
  * @description
  * This hook uses `useQuery` to fetch a paginated list of roles from the API. It returns
  * the query object containing roles data and handles loading and error states. It keeps
@@ -67,12 +66,11 @@ export const useGetRoles = (permissonCurrentPage: number, pageSize: number) =>
     },
   );
 
-  
-  /**
+/**
  * Custom hook to fetch all roles without pagination using `useQuery` from `react-query`.
- * 
+ *
  * @returns The query object containing all roles, along with loading and error states.
- * 
+ *
  * @description
  * This hook uses `useQuery` to fetch all roles from the API without pagination. It returns
  * the query object containing all roles data and handles loading and error states.
@@ -80,13 +78,12 @@ export const useGetRoles = (permissonCurrentPage: number, pageSize: number) =>
 export const useGetRolesWithOutPagination = () =>
   useQuery<RoleType>('roles', getRolesWithOutPagination);
 
-
 /**
  * Custom hook to fetch a single role by its ID using `useQuery` from `react-query`.
- * 
+ *
  * @param roleId - The ID of the role to fetch. It can be a string or null.
  * @returns The query object containing the role details, along with loading and error states.
- * 
+ *
  * @description
  * This hook uses `useQuery` to fetch a single role by its ID from the API. It returns
  * the query object containing role details and keeps previous data while fetching new data.

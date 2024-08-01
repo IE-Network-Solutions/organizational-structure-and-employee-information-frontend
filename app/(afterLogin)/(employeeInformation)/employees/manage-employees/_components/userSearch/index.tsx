@@ -8,36 +8,17 @@ import React from 'react';
 const { Option } = Select;
 
 const EmployeeSearch: React.FC = () => {
-  const { data: userData, isLoading: isUserLoading } = useGetEmployees();
+  const { data: userData } = useGetEmployees();
   const { searchParams, setSearchParams } = useEmployeeManagementStore();
 
-  console.log(userData, 'this is userData');
   const handleSearchEmployee = async (
     value: string | undefined,
     keyValue: keyof typeof searchParams,
-    isSelect: boolean,
   ) => {
     setSearchParams(keyValue, value ?? '');
   };
 
   const onSearchChange = useDebounce(handleSearchEmployee, 2000);
-
-  //   const filteredUserData = userData?.filter((user: EmployeeData) => {
-  //     return (
-  //       (searchParams.employee_name
-  //         ? user?.employee_name.includes(searchParams.employee_name)
-  //         : true) ||
-  //       (searchParams.allJobs
-  //         ? user?.office.includes(searchParams.allJobs)
-  //         : true) ||
-  //       (searchParams.allOffices
-  //         ? user?.job_title.includes(searchParams.allOffices)
-  //         : true) ||
-  //       (searchParams.allStatus
-  //         ? user?.employee_status.includes(searchParams.allStatus)
-  //         : true)
-  //     );
-  //   });
 
   const filteredUserData = userData?.filter((user: EmployeeData) => {
     return (
@@ -56,7 +37,6 @@ const EmployeeSearch: React.FC = () => {
     );
   });
 
-  console.log(filteredUserData, 'this is filtereduserdata');
   return (
     <div>
       <Row gutter={[16, 24]} justify="space-between">
@@ -64,9 +44,7 @@ const EmployeeSearch: React.FC = () => {
           <div className="w-full">
             <Input
               placeholder="Search employee"
-              onChange={(e) =>
-                onSearchChange(e.target.value, 'employee_name', false)
-              }
+              onChange={(e) => onSearchChange(e.target.value, 'employee_name')}
               className="w-full h-14"
               allowClear
             />
@@ -78,11 +56,11 @@ const EmployeeSearch: React.FC = () => {
             <Col lg={8} sm={12} xs={24}>
               <Select
                 placeholder="All Offices"
-                onChange={(value) => onSearchChange(value, 'allOffices', true)}
+                onChange={(value) => onSearchChange(value, 'allOffices')}
                 allowClear
                 className="w-full h-14"
               >
-                {userData?.map((offices: EmployeeData) => (
+                {filteredUserData?.map((offices: EmployeeData) => (
                   <Option key={offices?.avatar} value={offices?.office}>
                     {offices?.office}
                   </Option>
@@ -92,7 +70,7 @@ const EmployeeSearch: React.FC = () => {
             <Col lg={8} sm={12} xs={24}>
               <Select
                 placeholder="All Job Titles"
-                onChange={(value) => onSearchChange(value, 'allJobs', true)}
+                onChange={(value) => onSearchChange(value, 'allJobs')}
                 allowClear
                 className="w-full h-14"
               >
@@ -106,7 +84,7 @@ const EmployeeSearch: React.FC = () => {
             <Col lg={8} sm={12} xs={24}>
               <Select
                 placeholder="All Status"
-                onChange={(value) => onSearchChange(value, 'allStatus', true)}
+                onChange={(value) => onSearchChange(value, 'allStatus')}
                 allowClear
                 className="w-full h-14"
               >

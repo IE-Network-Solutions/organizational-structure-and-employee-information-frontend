@@ -2,7 +2,7 @@
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-interface searchParams {
+interface SearchParams {
   employee_name: string;
   allOffices: string;
   allJobs: string;
@@ -31,8 +31,8 @@ interface UserState {
   setPrefix: (prefix: string) => void;
   selectionType: 'checkbox' | 'radio';
   setSelectionType: (selectionType: 'checkbox' | 'radio') => void;
-  searchParams: searchParams;
-  setSearchParams: (key: keyof searchParams, value: string) => void;
+  searchParams: SearchParams;
+  setSearchParams: (key: keyof SearchParams, value: string) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(

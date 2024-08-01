@@ -5,7 +5,6 @@ import React from 'react';
 import UserSidebar from './_components/userSidebar';
 import { FaPlus } from 'react-icons/fa';
 import UserTable from './_components/userTable';
-import ManageEmployeesSearch from '@/components/common/search/manageEmployeesSearch';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import EmployeeSearch from './_components/userSearch';
 
@@ -36,7 +35,6 @@ const ManageEmployees: React.FC<any> = () => {
       </div>
       <div className="w-full h-auto">
         <EmployeeSearch />
-        {/* <ManageEmployeesSearch /> */}
         <UserTable />
       </div>
     </div>

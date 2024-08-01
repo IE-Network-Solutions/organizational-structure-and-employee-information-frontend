@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Radio, Table, TableColumnsType } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { EmployeeData, UserData } from '@/types/dashboard/adminManagement';
+import { EmployeeData } from '@/types/dashboard/adminManagement';
 import { MdOutlineEdit } from 'react-icons/md';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
@@ -150,19 +149,16 @@ const UserTable = () => {
       setPageSize(pageSize);
     }
   };
-  const rowSelection = {
-    onChange: (selectedRowKeys: React.Key[], selectedRows: EmployeeData[]) => {
-      console.log(
-        `selectedRowKeys: ${selectedRowKeys}`,
-        'selectedRows: ',
-        selectedRows,
-      );
-    },
-    getCheckboxProps: (record: EmployeeData) => ({
-      disabled: record.employee_name === 'Disabled User',
-      name: record.employee_name,
-    }),
-  };
+  // const rowSelection = {
+  //   onChange: (
+  //     selectedRowKeys: React.Key[],
+  //     selectedRows: EmployeeData[],
+  //   ) => {},
+  //   getCheckboxProps: (record: EmployeeData) => ({
+  //     disabled: record.employee_name === 'Disabled User',
+  //     name: record.employee_name,
+  //   }),
+  // };
   return (
     <>
       <Radio.Group
@@ -188,10 +184,10 @@ const UserTable = () => {
           onShowSizeChange: onPageChange,
         }}
         loading={isUserLoading}
-        rowSelection={{
-          type: selectionType,
-          ...rowSelection,
-        }}
+        // rowSelection={{
+        //   type: selectionType,
+        //   ...rowSelection,
+        // }}
         scroll={{ x: 1000 }}
       />
       <DeleteModal
