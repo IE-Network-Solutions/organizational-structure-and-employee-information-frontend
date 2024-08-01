@@ -22,9 +22,11 @@ interface UserState {
   deleteModal: boolean;
   prefix: string;
   setPrefix: (prefix: string) => void;
+  selectionType: 'checkbox' | 'radio';
+  setSelectionType: (selectionType: 'checkbox' | 'radio') => void;
 }
 
-export const useEmployeeManagmentStore = create<UserState>()(
+export const useEmployeeManagementStore = create<UserState>()(
   devtools((set) => ({
     open: false,
     deleteModal: false,
@@ -46,5 +48,7 @@ export const useEmployeeManagmentStore = create<UserState>()(
     setSearchTerm: (searchTerm: string | null) => set({ searchTerm }),
     termKey: null,
     setTermKey: (termKey: string | null) => set({ termKey }),
+    selectionType: 'checkbox',
+    setSelectionType: (selectionType) => set({ selectionType }),
   })),
 );

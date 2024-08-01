@@ -132,6 +132,16 @@ export interface UserData {
   account_status: string;
   action: string;
 }
+export interface EmployeeData {
+  employee_name: string;
+  job_title: string;
+  department: string;
+  office: string;
+  employee_status: string;
+  account: string;
+  role: string;
+  action: string;
+}
 export interface GroupPermissionPropsUpdated {
   groupPermissionData: any;
 }

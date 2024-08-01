@@ -7,8 +7,12 @@ import { useQuery } from 'react-query';
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
+
 const getEmployees = async () => {
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/employee`, method: 'GET' });
+  return crudRequest({
+    url: 'https://mocki.io/v1/decec835-2292-4023-adc0-d3d8553a4215',
+    method: 'GET',
+  });
 };
 
 /**
@@ -17,9 +21,10 @@ const getEmployees = async () => {
  * @returns The response data from the API
  */
 
-const getEmployee = async (id: number) => {
+const getEmployee = async (id: string) => {
   try {
-    const response = await axios.get(`${ORG_AND_EMP_URL}/employee/${id}`);
+    const response = await axios.get(`${ORG_AND_EMP_URL}/users/${id}`);
+    console.log(response, 'response for single user');
     return response.data;
   } catch (error) {
     throw error;
@@ -48,7 +53,7 @@ export const useGetEmployees = () => useQuery<any[]>('employee', getEmployees);
  * query object containing the post data, and it keeps the previous data
  * while the new data is being fetched.
  */
-export const useGetEmployee = (postId: number) =>
-  useQuery<any>(['employee', postId], () => getEmployee(postId), {
+export const useGetEmployee = (userId: string) =>
+  useQuery<any>(['employee', userId], () => getEmployee(userId), {
     keepPreviousData: true,
   });

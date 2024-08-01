@@ -6,10 +6,11 @@ import UserSidebar from './_components/userSidebar';
 import { FaPlus } from 'react-icons/fa';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
 import UserTable from './_components/userTable';
-import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
+import ManageEmployeesSearch from '@/components/common/search/manageEmployeesSearch';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const ManageEmployees: React.FC<any> = () => {
-  const { setOpen } = useEmployeeManagmentStore();
+  const { setOpen } = useEmployeeManagementStore();
 
   const showDrawer = () => {
     setOpen(true);
@@ -19,12 +20,9 @@ const ManageEmployees: React.FC<any> = () => {
   };
 
   return (
-    <div className="h-auto w-auto p-4">
+    <div className="h-auto w-full p-4">
       <div className="flex flex-wrap justify-between items-center">
-        <CustomBreadcrumb
-          title="Employees"
-          subtitle="Manage your Employees"
-        />
+        <CustomBreadcrumb title="Employees" subtitle="Manage your Employees" />
         <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
           <CustomButton
             title="Create user"
@@ -37,13 +35,14 @@ const ManageEmployees: React.FC<any> = () => {
         </div>
       </div>
       <div className="w-full h-auto">
-        <EmployeeSearch
+        {/* <EmployeeSearch
         // EmployeeManagment={true}
         // roleListData={rolePermissionsData}
         // onSearchChange={handleSearchChange}
         // onUserTypeChange={handleUserTypeChange}
         // onAccountStatusChange={handleAccountStatusChange}
-        />
+        /> */}
+        <ManageEmployeesSearch />
         <UserTable />
       </div>
     </div>

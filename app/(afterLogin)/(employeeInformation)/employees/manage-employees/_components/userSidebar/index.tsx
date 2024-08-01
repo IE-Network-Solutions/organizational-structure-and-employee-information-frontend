@@ -2,7 +2,6 @@
 
 import React, { useEffect } from 'react';
 import { Button, Col, Form, Input, Row, Select } from 'antd';
-import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
 import {
   useGetRole,
   useGetRolesWithOutPagination,
@@ -13,6 +12,7 @@ import {
   useAddEmployee,
   useUpdateEmployee,
 } from '@/store/server/features/employees/employeeManagment/mutations';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 const { Option } = Select;
 const UserSidebar = (props: any) => {
   const {
@@ -25,7 +25,7 @@ const UserSidebar = (props: any) => {
     open,
     prefix,
     setPrefix,
-  } = useEmployeeManagmentStore();
+  } = useEmployeeManagementStore();
   const [form] = Form.useForm();
 
   const { data: rolePermissionsData } = useGetRolesWithOutPagination();
