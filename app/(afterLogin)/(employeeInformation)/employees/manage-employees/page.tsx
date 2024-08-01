@@ -4,10 +4,10 @@ import CustomButton from '@/components/common/buttons/customButton';
 import React from 'react';
 import UserSidebar from './_components/userSidebar';
 import { FaPlus } from 'react-icons/fa';
-import EmployeeSearch from '@/components/common/search/employeeSearch';
 import UserTable from './_components/userTable';
 import ManageEmployeesSearch from '@/components/common/search/manageEmployeesSearch';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import EmployeeSearch from './_components/userSearch';
 
 const ManageEmployees: React.FC<any> = () => {
   const { setOpen } = useEmployeeManagementStore();
@@ -35,14 +35,8 @@ const ManageEmployees: React.FC<any> = () => {
         </div>
       </div>
       <div className="w-full h-auto">
-        {/* <EmployeeSearch
-        // EmployeeManagment={true}
-        // roleListData={rolePermissionsData}
-        // onSearchChange={handleSearchChange}
-        // onUserTypeChange={handleUserTypeChange}
-        // onAccountStatusChange={handleAccountStatusChange}
-        /> */}
-        <ManageEmployeesSearch />
+        <EmployeeSearch />
+        {/* <ManageEmployeesSearch /> */}
         <UserTable />
       </div>
     </div>

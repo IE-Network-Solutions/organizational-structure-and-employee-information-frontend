@@ -73,7 +73,6 @@ const UserTable = () => {
   } = useEmployeeManagementStore();
   const useEmployeeDeleteMuation = useDeleteEmployee();
   const { data: userData, isLoading: isUserLoading } = useGetEmployees();
-  console.log(userData, 'this is userdata');
   const displayData: any =
     searchTerm === 'Active' || searchTerm === null || searchTerm === ''
       ? userData

@@ -141,6 +141,7 @@ export interface EmployeeData {
   account: string;
   role: string;
   action: string;
+  avatar: string;
 }
 export interface GroupPermissionPropsUpdated {
   groupPermissionData: any;

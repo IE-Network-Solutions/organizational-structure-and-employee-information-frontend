@@ -24,7 +24,6 @@ const getEmployees = async () => {
 const getEmployee = async (id: string) => {
   try {
     const response = await axios.get(`${ORG_AND_EMP_URL}/users/${id}`);
-    console.log(response, 'response for single user');
     return response.data;
   } catch (error) {
     throw error;
