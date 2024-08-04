@@ -4,6 +4,7 @@ interface RequestParams {
   url: string;
   method: Method;
   data?: any;
+  headers?: Record<string, string>; // Add headers to RequestParams
 }
 
 /**
@@ -11,11 +12,13 @@ interface RequestParams {
  * @param params The request parameters including url, method, and optional data
  * @returns The response data from the API
  */
-export const crudRequest = async ({ url, method, data }: RequestParams) => {
+
+export const crudRequest = async ({ url, method, data, headers }: RequestParams) => {
   try {
     const config: AxiosRequestConfig = {
       url,
       method,
+      headers, // Add headers to config
     };
 
     if (data) {

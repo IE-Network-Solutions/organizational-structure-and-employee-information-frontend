@@ -7,6 +7,7 @@ interface CustomDrawerLayoutProps {
   onClose: () => void;
   modalHeader: any;
   children: React.ReactNode;
+  width:string,
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -14,6 +15,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   onClose,
   modalHeader,
   children,
+  width,
 }) => {
   return (
     <div>
@@ -25,7 +27,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         style={{
           display: window.innerWidth <= 768 ? 'none' : 'flex',
           position: 'fixed',
-          right: '32%',
+          right:width ? '42%':'32%',
           width: '50px',
           height: '50px',
           top: '50%',
@@ -35,7 +37,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
       />
       <Drawer
         title={modalHeader}
-        width={window.innerWidth <= 768 ? '90%' : '30%'}
+        width={window.innerWidth <= 768 ? '90%' : width ? width :'30%'}
         closable={false}
         onClose={onClose}
         open={open}

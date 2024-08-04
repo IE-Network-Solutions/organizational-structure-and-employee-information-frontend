@@ -1,5 +1,7 @@
+import { useAddRole } from '@/store/server/features/employees/settings/role/mutations';
+import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import { Button, Table } from 'antd';
-import React, { useState } from 'react';
+import React from 'react';
 import { FaUser } from 'react-icons/fa';
 import { MdOutlineModeEditOutline } from 'react-icons/md';
 const data: any = [
@@ -65,14 +67,6 @@ const data: any = [
   },
 ];
 const TableData = () => {
-  const [filteredInfo, setFilteredInfo] = useState<any>({});
-  const [sortedInfo, setSortedInfo] = useState<any>({});
-
-  const handleChange: any = (pagination: any, filters: any, sorter: any) => {
-    setFilteredInfo(filters);
-    setSortedInfo(sorter as any);
-  };
-
   const columns: any = [
     {
       title: 'Levels',
@@ -82,20 +76,12 @@ const TableData = () => {
         { text: 'Joe', value: 'Joe' },
         { text: 'Jim', value: 'Jim' },
       ],
-      filteredValue: filteredInfo.name || null,
-      onFilter: (value: any, record: any) =>
-        record.name.includes(value as string),
-      sorter: (a: any, b: any) => a.name.length - b.name.length,
-      sortOrder: sortedInfo.columnKey === 'levels' ? sortedInfo.order : null,
       ellipsis: true,
     },
     {
       title: 'Promoted to',
       dataIndex: 'promotedTo',
       key: 'promotedTo',
-      sorter: (a: any, b: any) => a.age - b.age,
-      sortOrder:
-        sortedInfo.columnKey === 'promotedTo' ? sortedInfo.order : null,
       ellipsis: true,
     },
     {
@@ -106,11 +92,6 @@ const TableData = () => {
         { text: 'London', value: 'London' },
         { text: 'New York', value: 'New York' },
       ],
-      filteredValue: filteredInfo.address || null,
-      onFilter: (value: any, record: any) =>
-        record.address.includes(value as string),
-      sorter: (a: any, b: any) => a.address.length - b.address.length,
-      sortOrder: sortedInfo.columnKey === 'status' ? sortedInfo.order : null,
       ellipsis: true,
     },
     {
@@ -121,15 +102,10 @@ const TableData = () => {
         { text: 'London', value: 'London' },
         { text: 'New York', value: 'New York' },
       ],
-      filteredValue: filteredInfo.address || null,
-      onFilter: (value: any, record: any) =>
-        record.address.includes(value as string),
-      sorter: (a: any, b: any) => a.address.length - b.address.length,
-      sortOrder: sortedInfo.columnKey === 'action' ? sortedInfo.order : null,
       ellipsis: true,
     },
   ];
-  return <Table columns={columns} dataSource={data} onChange={handleChange} />;
+  return <Table columns={columns} dataSource={data}/>;
 };
 
 export default TableData;

@@ -1,4 +1,4 @@
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
@@ -27,7 +27,8 @@ const getPermisssions = async (
  * @returns The response data from the API, containing the list of all permissions.
  */
 const getPermisssionsWithOutPagination = async () => {
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/permissions`, method: 'GET' });
+
+  return crudRequest({ url: `${ORG_AND_EMP_URL}/permissions`, method: 'GET' ,headers:{'tenantId':tenantId}});
 };
 
 
@@ -58,7 +59,7 @@ const getSearchPermissions = async (searchTerm: {
  * 
  * @throws Error if the request fails.
  */
-const getPermission = async (id: number) => {
+const getPermission = async (id: string) => {
   try {
     const response = await axios.get(`${ORG_AND_EMP_URL}/permissions/${id}`);
     return response.data;
@@ -141,7 +142,7 @@ export const useGetPermissions = (
  * fetching new data to avoid unnecessary re-renders and provide a smooth user experience.
  */
 
-export const useGetPermission = (postId: number) =>
+export const useGetPermission = (postId: string) =>
   useQuery<Permission>(['permission', postId], () => getPermission(postId), {
     keepPreviousData: true,
   });

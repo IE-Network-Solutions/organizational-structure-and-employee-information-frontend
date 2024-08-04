@@ -30,7 +30,7 @@ const getPermissionGroupswithOutPagination = async () => {
  * @returns The response data from the API
  */
 
-const getPermissionGroup = async (id: number) => {
+const getPermissionGroup = async (id: string) => {
   try {
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/permission-group/${id}`,
@@ -80,7 +80,7 @@ export const useGetPermissionGroupsWithOutPagination = () =>
  * query object containing the post data, and it keeps the previous data
  * while the new data is being fetched.
  */
-export const useGetPermissionGroup = (postId: number) =>
+export const useGetPermissionGroup = (postId: string) =>
   useQuery<any>(['groupPermission', postId], () => getPermissionGroup(postId), {
     keepPreviousData: true,
   });
