@@ -53,11 +53,13 @@ const UserTable = () => {
     setPageSize,
   } = useEmployeeManagmentStore();
   const useEmployeeDeleteMuation = useDeleteEmployee();
-  const { data: userData, isLoading: isUserLoading } = useGetEmployees();
+  // const { data: userData, isLoading: isUserLoading } = useGetEmployees();
+  // const displayData: any =
+  //   searchTerm === 'Active' || searchTerm === null || searchTerm === ''
+  //     ? userData
+  //     : null;
   const displayData: any =
-    searchTerm === 'Active' || searchTerm === null || searchTerm === ''
-      ? userData
-      : null;
+  searchTerm === 'Active' || searchTerm === null || searchTerm === '' && null;
   const data = displayData?.items?.map((item: any, index: number) => ({
     key: index,
     user: item?.name,
@@ -132,7 +134,7 @@ const UserTable = () => {
           showSizeChanger: true,
           onShowSizeChange: onPageChange,
         }}
-        loading={isUserLoading}
+        // loading={isUserLoading}
       />
       <DeleteModal
         open={deleteModal}

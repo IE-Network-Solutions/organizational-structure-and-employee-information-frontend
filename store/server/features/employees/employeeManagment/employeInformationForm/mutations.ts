@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import axios from 'axios';
-import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
@@ -9,35 +9,27 @@ import NotificationMessage from '@/components/common/notification/notificationMe
  * @param newPost The data for the new post
  * @returns The response data from the API
  */
-const createEmployee = async (values: any) => {
+const createEmployeeInformationForm = async (values: any) => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/users`,
+    url: `${ORG_AND_EMP_URL}/empoyee-information-form`,
     method: 'POST',
     data: values,
-    headers:{'tenantId':tenantId}
   });
 };
 
-const updateEmployee = async (values: any) => {
-  return crudRequest({
-    url: `${ORG_AND_EMP_URL}/users/${values?.usersId}`,
-    method: 'patch',
-    data: values,
-  });
-};
 /**
  * Function to delete a post by sending a DELETE request to the API
  * @param postId The ID of the post to delete
  * @returns The response data from the API
  */
-const deleteEmployee = async ({
+const deleteEmployeeInformationForm = async ({
   deletedId,
   setCurrentModal,
   setDeletedId,
 }: any) => {
   try {
     const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/users/${deletedId}`,
+      `${ORG_AND_EMP_URL}/empoyee-information-form/${deletedId}`,
     );
     setCurrentModal(null);
     setDeletedId(null);
@@ -60,26 +52,14 @@ const deleteEmployee = async ({
  * This hook handles the mutation to add a new post. On successful mutation,
  * it invalidates the "groupPermissions" query to refetch the latest data.
  */
-export const useAddEmployee = () => {
+export const useAddEmployeeInformationForm = () => {
   const queryClient = useQueryClient();
-  return useMutation(createEmployee, {
+  return useMutation(createEmployeeInformationForm, {
     onSuccess: () => {
-      queryClient.invalidateQueries('employees');
+      queryClient.invalidateQueries('empoyeInformationForms');
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Employee successfully Created',
-      });
-    },
-  });
-};
-export const useUpdateEmployee = () => {
-  const queryClient = useQueryClient();
-  return useMutation(updateEmployee, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('employees');
-      NotificationMessage.success({
-        message: 'Successfully Updated',
-        description: 'Employee successfully updated',
       });
     },
   });
@@ -96,9 +76,9 @@ export const useUpdateEmployee = () => {
  */
 export const useDeleteEmployee = () => {
   const queryClient = useQueryClient();
-  return useMutation(deleteEmployee, {
+  return useMutation(deleteEmployeeInformationForm, {
     onSuccess: () => {
-      queryClient.invalidateQueries('employees');
+      queryClient.invalidateQueries('empoyeInformationForms');
     },
   });
 };

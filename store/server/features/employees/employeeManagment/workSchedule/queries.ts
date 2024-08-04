@@ -1,3 +1,4 @@
+import { WorkScheduleData } from '@/store/uistate/features/employees/employeeManagment';
 import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
@@ -7,8 +8,16 @@ import { useQuery } from 'react-query';
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
-const getEmployees = async () => {
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/employee`, headers:{'tenantId':tenantId}, method: 'GET' });
+const getWorkSchedules =async (): Promise<WorkScheduleData> => {
+  // const tenantId = localStorage.getItem('tenantId');
+  // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
+  const headers :Record<string, string> | undefined ={ 'tenantId': tenantId }
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/work-schedules`,
+    headers,
+    method: 'GET',
+  });
 };
 
 /**
@@ -17,14 +26,16 @@ const getEmployees = async () => {
  * @returns The response data from the API
  */
 
-const getEmployee = async (id: number) => {
+const getWorkSchedule = async (id: string) => {
   try {
     const headers: Record<string, string> = {
+      // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
       'Content-Type': 'application/json', // Example header
-      'tenantId':tenantId
+      'tenantid':tenantId,
+      // Add other headers here as needed
     };
 
-    const response = await axios.get(`${ORG_AND_EMP_URL}/employee/${id}`,{headers});
+    const response = await axios.get(`${ORG_AND_EMP_URL}/work-schedules/${id}`,{headers});
     return response.data;
   } catch (error) {
     throw error;
@@ -40,7 +51,7 @@ const getEmployee = async (id: number) => {
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetEmployees = () => useQuery<any[]>('employees', getEmployees);
+export const useGetWorkSchedules = () => useQuery<WorkScheduleData, Error>('workSchedules', getWorkSchedules);
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.
@@ -53,7 +64,8 @@ export const useGetEmployees = () => useQuery<any[]>('employees', getEmployees);
  * query object containing the post data, and it keeps the previous data
  * while the new data is being fetched.
  */
-export const useGetEmployee = (postId: number) =>
-  useQuery<any>(['employee', postId], () => getEmployee(postId), {
+export const useGetWorkSchedule = (workScheduleId: string) =>
+  useQuery<any>(['workSchedule', workScheduleId], () => getWorkSchedule(workScheduleId), {
     keepPreviousData: true,
   });
+
