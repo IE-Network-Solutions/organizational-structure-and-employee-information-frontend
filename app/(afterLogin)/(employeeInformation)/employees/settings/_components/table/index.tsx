@@ -1,5 +1,3 @@
-import { useAddRole } from '@/store/server/features/employees/settings/role/mutations';
-import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import { Button, Table } from 'antd';
 import React from 'react';
 import { FaUser } from 'react-icons/fa';
@@ -105,7 +103,7 @@ const TableData = () => {
       ellipsis: true,
     },
   ];
-  return <Table columns={columns} dataSource={data}/>;
+  return <Table columns={columns} dataSource={data} />;
 };
 
 export default TableData;

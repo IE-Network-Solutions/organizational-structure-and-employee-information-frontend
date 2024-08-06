@@ -3,11 +3,11 @@ import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Permission, PermissionDataType } from './interface';
-const headers :Record<string, string> | undefined ={ 'tenantId': tenantId }
+const headers: Record<string, string> | undefined = { tenantId: tenantId };
 
 /**
  * Function to fetch a paginated list of permissions by sending a GET request to the API.
- * 
+ *
  * @param permissonCurrentPage - The current page number for pagination.
  * @param pageSize - The number of permissions to fetch per page.
  * @returns The response data from the API, containing the list of permissions.
@@ -19,24 +19,26 @@ const getPermisssions = async (
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
-    headers:headers
+    headers: headers,
   });
 };
 
 /**
  * Function to fetch a list of permissions without pagination by sending a GET request to the API.
- * 
+ *
  * @returns The response data from the API, containing the list of all permissions.
  */
 const getPermisssionsWithOutPagination = async () => {
-
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/permissions`, method: 'GET' ,headers:headers});
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/permissions`,
+    method: 'GET',
+    headers: { tenantId: tenantId },
+  });
 };
-
 
 /**
  * Function to search for permissions based on a search term by sending a GET request to the API.
- * 
+ *
  * @param searchTerm - An object containing:
  *   - `termKey`: The key of the column to search in (e.g., permission name).
  *   - `searchTerm`: The term to search for.
@@ -50,21 +52,24 @@ const getSearchPermissions = async (searchTerm: {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?columnName=${searchTerm?.termKey}&query=${searchTerm?.searchTerm}`,
     method: 'GET',
-    headers:headers,
+    headers: headers,
   });
 };
 
 /**
  * Function to fetch a single permission by its ID by sending a GET request to the API.
- * 
+ *
  * @param id - The ID of the permission to fetch.
  * @returns The response data from the API, containing the details of the requested permission.
- * 
+ *
  * @throws Error if the request fails.
  */
 const getPermission = async (id: string) => {
   try {
-    const response = await axios.get(`${ORG_AND_EMP_URL}/permissions/${id}`);
+    const response = await axios.get(
+      `${ORG_AND_EMP_URL}/permissions/${id}`,
+      headers,
+    );
     return response.data;
   } catch (error) {
     throw error;
@@ -73,25 +78,23 @@ const getPermission = async (id: string) => {
 
 /**
  * Custom hook to fetch a list of permissions without pagination using `useQuery` from `react-query`.
- * 
+ *
  * @returns The query object for fetching the list of permissions, which includes the permissions data
  *          and any loading or error states.
  */
 
-
 export const useGetPermissionsWithOutPagination = () =>
   useQuery<PermissionDataType>('permissions', getPermisssionsWithOutPagination);
 
-
 /**
  * Custom hook to search for permissions based on a search term using `useQuery` from `react-query`.
- * 
+ *
  * @param searchTerm - An object containing:
  *   - `termKey`: The key of the column to search in (e.g., permission name).
  *   - `searchTerm`: The term to search for.
  * @returns The query object for searching permissions, which includes the search results and
  *          any loading or error states.
- * 
+ *
  * @description
  * This hook uses `useQuery` to fetch permissions based on a search term. It maintains the previous
  * data while fetching new data to avoid unnecessary re-renders.
@@ -109,15 +112,14 @@ export const useSearchPermissions = (searchTerm: {
     },
   );
 
-
-  /**
+/**
  * Custom hook to fetch a paginated list of permissions using `useQuery` from `react-query`.
- * 
+ *
  * @param permissonCurrentPage - The current page number for pagination.
  * @param pageSize - The number of permissions to fetch per page.
  * @returns The query object for fetching a paginated list of permissions, including the data and
  *          any loading or error states.
- * 
+ *
  * @description
  * This hook uses `useQuery` to fetch a paginated list of permissions. It maintains the previous
  * data while fetching new data to enhance the user experience.
@@ -136,10 +138,10 @@ export const useGetPermissions = (
 
 /**
  * Custom hook to fetch a single permission by its ID using `useQuery` from `react-query`.
- * 
+ *
  * @param postId - The ID of the permission to fetch.
  * @returns The query object for fetching the permission, including the data and any loading or error states.
- * 
+ *
  * @description
  * This hook uses `useQuery` to fetch a single permission by its ID. It keeps the previous data while
  * fetching new data to avoid unnecessary re-renders and provide a smooth user experience.
