@@ -1,8 +1,9 @@
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import { GroupPermissionType } from './interface';
+const headers :Record<string, string> | undefined ={ 'tenantId': tenantId }
 
 /**
  * Function to fetch Permission Groups by sending a GET request to the API
@@ -15,13 +16,15 @@ const getPermissionGroups = async (
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permission-group?page=${permissonGroupCurrentPage}&limit=${pageSize}`,
     method: 'GET',
+    headers:headers,
   });
 };
 
-const getPermissionGroupswithOutPagination = async () => {
+const getPermissionGroupswithOutPagination = async ()=>{
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permission-group`,
     method: 'GET',
+    headers:headers
   });
 };
 /**
@@ -33,7 +36,7 @@ const getPermissionGroupswithOutPagination = async () => {
 const getPermissionGroup = async (id: string) => {
   try {
     const response = await axios.get(
-      `${ORG_AND_EMP_URL}/permission-group/${id}`,
+      `${ORG_AND_EMP_URL}/permission-group/${id}`,headers
     );
     return response.data;
   } catch (error) {

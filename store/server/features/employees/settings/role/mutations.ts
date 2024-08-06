@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+const headers :Record<string, string> | undefined ={ 'tenantId': tenantId }
 
 /**
  * Function to create a new role by sending a POST request to the API.
@@ -15,7 +16,7 @@ const createRole = async (values: any) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles`,
     method: 'POST',
-    headers:{tenantId:tenantId},
+    headers:headers,
     data: values,
   });
 };
@@ -58,7 +59,7 @@ const deleteRole = async ({
 }: any) => {
   try {
     const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/roles/${deletedId?.id}`,
+      `${ORG_AND_EMP_URL}/roles/${deletedId?.id}`,headers
     );
     setCurrentModal(null);
     setDeletedId(null);

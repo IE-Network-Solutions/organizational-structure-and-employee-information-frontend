@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Role, RoleType } from './interface';
 
+const headers :Record<string, string> | undefined ={ 'tenantId': tenantId }
+
 /**
  * Function to fetch a paginated list of roles by sending a GET request to the API.
  * 
@@ -11,10 +13,12 @@ import { Role, RoleType } from './interface';
  * @param pageSize - The number of roles to fetch per page.
  * @returns The response data from the API containing the list of roles.
  */
+
 const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
+    headers
   });
 };
 
@@ -60,7 +64,7 @@ const getRolesWithPermisison = async () => {
 const getRole = async (id: string | null) => {
   try {
     const response = await axios.get(
-      `${ORG_AND_EMP_URL}/roles/find-one-role-with-permissions/role-permissions/${id}`,
+      `${ORG_AND_EMP_URL}/roles/find-one-role-with-permissions/role-permissions/${id}`,headers
     );
     return response.data;
   } catch (error) {

@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from 'react-query';
 import axios from 'axios';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { GroupPermissionkey } from '@/types/dashboard/adminManagement';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+const headers :Record<string, string> | undefined ={ 'tenantId': tenantId }
+
 
 /**
  * Function to create a new permission group by sending a POST request to the API.
@@ -30,6 +32,7 @@ const updatePermissionGroup = async (values: any) => {
     url: `${ORG_AND_EMP_URL}/permission-group/${values?.id}`,
     method: 'patch',
     data: values,
+    headers:headers
   });
 };
 /**
@@ -44,7 +47,7 @@ const deleteGroupPermission = async ({
 }: any) => {
   try {
     const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/permission-group/${deletedId?.id}`,
+      `${ORG_AND_EMP_URL}/permission-group/${deletedId?.id}`,headers
     );
     setCurrentModal(null);
     setDeletedId(null);

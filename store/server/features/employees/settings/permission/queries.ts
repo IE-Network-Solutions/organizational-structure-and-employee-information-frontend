@@ -3,6 +3,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Permission, PermissionDataType } from './interface';
+const headers :Record<string, string> | undefined ={ 'tenantId': tenantId }
 
 /**
  * Function to fetch a paginated list of permissions by sending a GET request to the API.
@@ -18,6 +19,7 @@ const getPermisssions = async (
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
+    headers:headers
   });
 };
 
@@ -28,7 +30,7 @@ const getPermisssions = async (
  */
 const getPermisssionsWithOutPagination = async () => {
 
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/permissions`, method: 'GET' ,headers:{'tenantId':tenantId}});
+  return crudRequest({ url: `${ORG_AND_EMP_URL}/permissions`, method: 'GET' ,headers:headers});
 };
 
 
@@ -48,6 +50,7 @@ const getSearchPermissions = async (searchTerm: {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?columnName=${searchTerm?.termKey}&query=${searchTerm?.searchTerm}`,
     method: 'GET',
+    headers:headers,
   });
 };
 
