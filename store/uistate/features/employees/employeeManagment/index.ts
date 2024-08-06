@@ -70,56 +70,55 @@ interface UserState {
   deleteModal: boolean;
   prefix: string;
   setPrefix: (prefix: string) => void;
-  current:number;
-  setCurrent:(curren:number)=>void;
+  current: number;
+  setCurrent: (curren: number) => void;
   // customFormData: FormData | null;
   customFormData: any;
   setCustomFormData: (customFormData: FormData) => void;
 
-  workSchedule:string|null,
-  setWorkSchedule:(WorkSchedule:string|null)=>void;
+  workSchedule: string | null;
+  setWorkSchedule: (WorkSchedule: string | null) => void;
 
-  selectedWorkSchedule:WorkSchedule|null,
-  setSelectedWorkSchedule:(selectedWorkSchedule:WorkSchedule|null)=>void;
+  selectedWorkSchedule: WorkSchedule | null;
+  setSelectedWorkSchedule: (selectedWorkSchedule: WorkSchedule | null) => void;
 
-  profileFileList:any,
-  setProfileFileList:(profileFileList:any)=>void;
+  profileFileList: any;
+  setProfileFileList: (profileFileList: any) => void;
 
-  bankInfoForm:any,
-  setBankInfoForm:(bankInfoForm:any)=>void;
+  bankInfoForm: any;
+  setBankInfoForm: (bankInfoForm: any) => void;
 
-  emergencyContact:any,
-  setEmergencyContact:(emergencyContact:any) =>void;
+  emergencyContact: any;
+  setEmergencyContact: (emergencyContact: any) => void;
 
-  addressForm:any,
-  setAddressForm:(address:any)=>void,
+  addressForm: any;
+  setAddressForm: (address: any) => void;
 
-  additionalInformation:any, 
-  setAdditionalInformation:(additionalInformation:any) => void,
+  additionalInformation: any;
+  setAdditionalInformation: (additionalInformation: any) => void;
 
-  selectedPermissions:string[]|[],
-  setSelectedPermissions:(selectedPermissions:string[]|[])=>void,
+  selectedPermissions: string[] | [];
+  setSelectedPermissions: (selectedPermissions: string[] | []) => void;
 
-  documentFileList:any[],
-  setDocumentFileList:(documentFileList:any)=>void,
-
- 
+  documentFileList: any[];
+  setDocumentFileList: (documentFileList: any) => void;
 }
 
 export const useEmployeeManagmentStore = create<UserState>()(
   devtools((set) => ({
     open: false,
     deleteModal: false,
-    current:0,
-    
-    customFormData:null,
+    current: 0,
+
+    customFormData: null,
     setCustomFormData: (customFormData: FormData) => set({ customFormData }),
 
-    selectedWorkSchedule:null,
-    setSelectedWorkSchedule:(selectedWorkSchedule:WorkSchedule|null)=>set({selectedWorkSchedule}),
+    selectedWorkSchedule: null,
+    setSelectedWorkSchedule: (selectedWorkSchedule: WorkSchedule | null) =>
+      set({ selectedWorkSchedule }),
 
-    workSchedule:null,
-    setWorkSchedule:(workSchedule:string|null)=>set({workSchedule}),
+    workSchedule: null,
+    setWorkSchedule: (workSchedule: string | null) => set({ workSchedule }),
 
     prefix: '251',
     setPrefix: (prefix: string) => set({ prefix }),
@@ -141,25 +140,28 @@ export const useEmployeeManagmentStore = create<UserState>()(
     setTermKey: (termKey: string | null) => set({ termKey }),
     setCurrent: (current: number) => set({ current }),
 
-    profileFileList:[],
-    setProfileFileList:(profileFileList:any[])=>set({profileFileList}),
+    profileFileList: [],
+    setProfileFileList: (profileFileList: any[]) => set({ profileFileList }),
 
-    bankInfoForm:{},
-    setBankInfoForm:(bankInfoForm:any)=>({bankInfoForm}),
-  
-    emergencyContact:{},
-    setEmergencyContact:(emergencyContact:any) =>({emergencyContact}),
-  
-    addressForm:{},
-    setAddressForm:(addressForm:any)=>set({addressForm}),
+    bankInfoForm: {},
+    setBankInfoForm: (bankInfoForm: any) => ({ bankInfoForm }),
 
-  additionalInformation:{}, 
-  setAdditionalInformation:(additionalInformation:any) => ({additionalInformation}),
+    emergencyContact: {},
+    setEmergencyContact: (emergencyContact: any) => ({ emergencyContact }),
 
-  selectedPermissions:[],
-  setSelectedPermissions:(selectedPermissions:string[]|[])=>set({selectedPermissions}),
+    addressForm: {},
+    setAddressForm: (addressForm: any) => set({ addressForm }),
 
-  documentFileList:[],
-  setDocumentFileList:(documentFileList:any[])=>set({documentFileList}),
+    additionalInformation: {},
+    setAdditionalInformation: (additionalInformation: any) => ({
+      additionalInformation,
+    }),
+
+    selectedPermissions: [],
+    setSelectedPermissions: (selectedPermissions: string[] | []) =>
+      set({ selectedPermissions }),
+
+    documentFileList: [],
+    setDocumentFileList: (documentFileList: any[]) => set({ documentFileList }),
   })),
 );

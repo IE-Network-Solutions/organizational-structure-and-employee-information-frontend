@@ -13,7 +13,12 @@ interface RequestParams {
  * @returns The response data from the API
  */
 
-export const crudRequest = async ({ url, method, data, headers }: RequestParams) => {
+export const crudRequest = async ({
+  url,
+  method,
+  data,
+  headers,
+}: RequestParams) => {
   try {
     const config: AxiosRequestConfig = {
       url,

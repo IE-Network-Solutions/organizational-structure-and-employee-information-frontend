@@ -8,10 +8,10 @@ import { useQuery } from 'react-query';
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
-const getWorkSchedules =async (): Promise<WorkScheduleData> => {
+const getWorkSchedules = async (): Promise<WorkScheduleData> => {
   // const tenantId = localStorage.getItem('tenantId');
   // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
-  const headers :Record<string, string> | undefined ={ 'tenantId': tenantId }
+  const headers: Record<string, string> | undefined = { tenantId: tenantId };
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/work-schedules`,
@@ -31,11 +31,14 @@ const getWorkSchedule = async (id: string) => {
     const headers: Record<string, string> = {
       // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
       'Content-Type': 'application/json', // Example header
-      'tenantid':tenantId,
+      tenantid: tenantId,
       // Add other headers here as needed
     };
 
-    const response = await axios.get(`${ORG_AND_EMP_URL}/work-schedules/${id}`,{headers});
+    const response = await axios.get(
+      `${ORG_AND_EMP_URL}/work-schedules/${id}`,
+      { headers },
+    );
     return response.data;
   } catch (error) {
     throw error;
@@ -51,7 +54,8 @@ const getWorkSchedule = async (id: string) => {
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetWorkSchedules = () => useQuery<WorkScheduleData, Error>('workSchedules', getWorkSchedules);
+export const useGetWorkSchedules = () =>
+  useQuery<WorkScheduleData, Error>('workSchedules', getWorkSchedules);
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.
@@ -65,7 +69,10 @@ export const useGetWorkSchedules = () => useQuery<WorkScheduleData, Error>('work
  * while the new data is being fetched.
  */
 export const useGetWorkSchedule = (workScheduleId: string) =>
-  useQuery<any>(['workSchedule', workScheduleId], () => getWorkSchedule(workScheduleId), {
-    keepPreviousData: true,
-  });
-
+  useQuery<any>(
+    ['workSchedule', workScheduleId],
+    () => getWorkSchedule(workScheduleId),
+    {
+      keepPreviousData: true,
+    },
+  );

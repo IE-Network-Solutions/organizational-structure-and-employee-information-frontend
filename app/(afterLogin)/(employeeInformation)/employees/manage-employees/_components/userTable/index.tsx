@@ -6,7 +6,6 @@ import { MdOutlineEdit } from 'react-icons/md';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
-import { useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
 import userTypeButton from '../userTypeButton';
 import { useDeleteEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
 
@@ -53,13 +52,11 @@ const UserTable = () => {
     setPageSize,
   } = useEmployeeManagmentStore();
   const useEmployeeDeleteMuation = useDeleteEmployee();
-  // const { data: userData, isLoading: isUserLoading } = useGetEmployees();
-  // const displayData: any =
-  //   searchTerm === 'Active' || searchTerm === null || searchTerm === ''
-  //     ? userData
-  //     : null;
+
   const displayData: any =
-  searchTerm === 'Active' || searchTerm === null || searchTerm === '' && null;
+    searchTerm === 'Active' ||
+    searchTerm === null ||
+    (searchTerm === '' && null);
   const data = displayData?.items?.map((item: any, index: number) => ({
     key: index,
     user: item?.name,

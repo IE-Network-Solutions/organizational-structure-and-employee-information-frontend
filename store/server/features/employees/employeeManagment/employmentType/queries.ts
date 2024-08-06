@@ -12,10 +12,14 @@ const getEmployeementTypes = async () => {
   const headers: Record<string, string> = {
     // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
     'Content-Type': 'application/json', // Example header
-    'tenantid':tenantId,
+    tenantid: tenantId,
     // Add other headers here as needed
   };
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/employement-type`, method: 'GET',headers:headers });
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/employement-type`,
+    method: 'GET',
+    headers: headers,
+  });
 };
 
 /**
@@ -29,10 +33,13 @@ const getEmployeementType = async (id: string) => {
     const headers: Record<string, string> = {
       // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
       'Content-Type': 'application/json', // Example header
-      'tenantid':tenantId,
+      tenantid: tenantId,
       // Add other headers here as needed
     };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/employement-type/${id}`,{headers});
+    const response = await axios.get(
+      `${ORG_AND_EMP_URL}/employement-type/${id}`,
+      { headers },
+    );
     return response.data;
   } catch (error) {
     throw error;
@@ -48,7 +55,8 @@ const getEmployeementType = async (id: string) => {
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetEmployementTypes = () => useQuery<EmploymentTypeList>('employeementTypes', getEmployeementTypes);
+export const useGetEmployementTypes = () =>
+  useQuery<EmploymentTypeList>('employeementTypes', getEmployeementTypes);
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.
@@ -62,6 +70,10 @@ export const useGetEmployementTypes = () => useQuery<EmploymentTypeList>('employ
  * while the new data is being fetched.
  */
 export const useGetEmployeementType = (employmentTypeId: string) =>
-  useQuery<any>(['employeementType', employmentTypeId], () => getEmployeementType(employmentTypeId), {
-    keepPreviousData: true,
-  });
+  useQuery<any>(
+    ['employeementType', employmentTypeId],
+    () => getEmployeementType(employmentTypeId),
+    {
+      keepPreviousData: true,
+    },
+  );

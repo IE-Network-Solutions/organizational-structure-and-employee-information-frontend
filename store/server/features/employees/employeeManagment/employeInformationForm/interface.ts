@@ -1,4 +1,4 @@
-import { MetaData } from "@/types/dashboard/tenant/clientAdministration";
+import { MetaData } from '@/types/dashboard/tenant/clientAdministration';
 
 export interface DeleteGroupPermissionProps {
   deletedId: string;
@@ -20,7 +20,6 @@ export type NationalityItem = {
   tenantId: string | null;
 };
 
-
 export type NationalityList = {
   items: NationalityItem[];
   meta: MetaData;
@@ -33,7 +32,6 @@ export type EmploymentTypeItem = {
   name: string;
   tenantId: string | null;
 };
-
 
 export type EmploymentTypeList = {
   items: EmploymentTypeItem[];

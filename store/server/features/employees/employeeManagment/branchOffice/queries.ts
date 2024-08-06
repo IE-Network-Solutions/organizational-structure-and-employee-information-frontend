@@ -17,8 +17,6 @@ type Item = {
   tenantId: string;
 };
 
-
-
 type ResponseData = {
   items: Item[];
   meta: Meta;
@@ -32,10 +30,14 @@ const getBranches = async () => {
   const headers: Record<string, string> = {
     // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
     'Content-Type': 'application/json', // Example header
-    'tenantid':tenantId,
+    tenantid: tenantId,
     // Add other headers here as needed
   };
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/branchs`, method: 'GET' ,headers:headers});
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/branchs`,
+    method: 'GET',
+    headers: headers,
+  });
 };
 
 /**
@@ -49,10 +51,12 @@ const getBranch = async (id: number) => {
     const headers: Record<string, string> = {
       // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
       'Content-Type': 'application/json', // Example header
-      'tenantid':tenantId,
+      tenantid: tenantId,
       // Add other headers here as needed
     };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/branchs/${id}`,{headers});
+    const response = await axios.get(`${ORG_AND_EMP_URL}/branchs/${id}`, {
+      headers,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -68,7 +72,8 @@ const getBranch = async (id: number) => {
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetBranches = () => useQuery<ResponseData>('branches', getBranches);
+export const useGetBranches = () =>
+  useQuery<ResponseData>('branches', getBranches);
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.

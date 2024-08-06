@@ -9,12 +9,11 @@ import { NationalityList } from '../employeInformationForm/interface';
  * @returns The response data from the API
  */
 const getNationalities = async () => {
-  const headers: Record<string, string> = {
-    // 'Authorization': token ? `Bearer ${token}` : '',
-    'tenantId':tenantId,
-    'Content-Type': 'application/json',
-  };
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/nationality`, method: 'GET',headers:{'tenantId':tenantId} });
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/nationality`,
+    method: 'GET',
+    headers: { tenantId: tenantId },
+  });
 };
 
 /**
@@ -25,13 +24,14 @@ const getNationalities = async () => {
 
 const getNationality = async (id: string) => {
   try {
-    
     const headers: Record<string, string> = {
       // 'Authorization': token ? `Bearer ${token}` : '',
-      'tenantId':tenantId,
+      tenantId: tenantId,
       'Content-Type': 'application/json',
     };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/nationality/${id}`,{headers});
+    const response = await axios.get(`${ORG_AND_EMP_URL}/nationality/${id}`, {
+      headers,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -47,7 +47,8 @@ const getNationality = async (id: string) => {
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetNationalities = () => useQuery<NationalityList>('nationality', getNationalities);
+export const useGetNationalities = () =>
+  useQuery<NationalityList>('nationality', getNationalities);
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.
@@ -61,6 +62,10 @@ export const useGetNationalities = () => useQuery<NationalityList>('nationality'
  * while the new data is being fetched.
  */
 export const useGetNationality = (nationalityID: string) =>
-  useQuery<any>(['nationality', nationalityID], () => getNationality(nationalityID), {
-    keepPreviousData: true,
-  });
+  useQuery<any>(
+    ['nationality', nationalityID],
+    () => getNationality(nationalityID),
+    {
+      keepPreviousData: true,
+    },
+  );

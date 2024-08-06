@@ -1,5 +1,14 @@
 import React from 'react';
-import { Form, Input, Select, DatePicker, Checkbox, Switch, Row, Col } from 'antd';
+import {
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Checkbox,
+  Switch,
+  Row,
+  Col,
+} from 'antd';
 
 const { Option } = Select;
 
@@ -18,66 +27,80 @@ interface DynamicFormFieldsProps {
 const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ fields }) => {
   const renderField = (field: FormField) => {
     switch (field.fieldType) {
-      case "input":
+      case 'input':
         return (
           <Form.Item
-            className='font-semibold text-xs'
+            className="font-semibold text-xs"
             label={field.fieldName}
             name={field.fieldName}
-            rules={[{ required: true, message: `${field.fieldName} is required` }]}
+            rules={[
+              { required: true, message: `${field.fieldName} is required` },
+            ]}
           >
             <Input />
           </Form.Item>
         );
-      case "select":
+      case 'select':
         return (
           <Form.Item
-            className='font-semibold text-xs'
+            className="font-semibold text-xs"
             label={field.fieldName}
             name={field.fieldName}
-            rules={[{ required: true, message: `${field.fieldName} is required` }]}
+            rules={[
+              { required: true, message: `${field.fieldName} is required` },
+            ]}
           >
             <Select>
               {field.options?.map((option: string) => (
-                <Option key={option} value={option}>{option}</Option>
+                <Option key={option} value={option}>
+                  {option}
+                </Option>
               ))}
             </Select>
           </Form.Item>
         );
-      case "datePicker":
+      case 'datePicker':
         return (
           <Form.Item
-            className='font-semibold text-xs w-full'
+            className="font-semibold text-xs w-full"
             label={field.fieldName}
             name={field.fieldName}
-            rules={[{ required: true, message: `${field.fieldName} is required` }]}
+            rules={[
+              { required: true, message: `${field.fieldName} is required` },
+            ]}
           >
             <DatePicker />
           </Form.Item>
         );
-      case "checkbox":
+      case 'checkbox':
         return (
           <Form.Item
-          className='font-semibold text-xs'
-          label={field.fieldName}
-          name={field.fieldName}
-          rules={[{ required: true, message: `${field.fieldName} is required` }]}
-        >
-          <Checkbox.Group>
-            {field.options.map(option => (
-              <Checkbox key={option} value={option}>{option}</Checkbox>
-            ))}
-          </Checkbox.Group>
-        </Form.Item>
+            className="font-semibold text-xs"
+            label={field.fieldName}
+            name={field.fieldName}
+            rules={[
+              { required: true, message: `${field.fieldName} is required` },
+            ]}
+          >
+            <Checkbox.Group>
+              {field.options.map((option) => (
+                <Checkbox key={option} value={option}>
+                  {option}
+                </Checkbox>
+              ))}
+            </Checkbox.Group>
+          </Form.Item>
         );
-      case "toggle":
+      case 'toggle':
         return (
           <Form.Item
-            className='font-semibold text-xs'
+            className="font-semibold text-xs"
             label={field.fieldName}
             name={field.fieldName}
             valuePropName="checked"
-            rules={[{ required: true, message: `${field.fieldName} is required` }]}
+            rules={[
+              { required: true, message: `${field.fieldName} is required` },
+            ]}
           >
             <Switch />
           </Form.Item>
@@ -98,7 +121,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ fields }) => {
           <Col xs={24} sm={12}>
             {fields[i + 1] && renderField(fields[i + 1])}
           </Col>
-        </Row>
+        </Row>,
       );
     }
     return rows;

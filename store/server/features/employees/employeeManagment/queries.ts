@@ -8,7 +8,11 @@ import { useQuery } from 'react-query';
  * @returns The response data from the API
  */
 const getEmployees = async () => {
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/employee`, headers:{'tenantId':tenantId}, method: 'GET' });
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/employee`,
+    headers: { tenantId: tenantId },
+    method: 'GET',
+  });
 };
 
 /**
@@ -21,10 +25,12 @@ const getEmployee = async (id: number) => {
   try {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json', // Example header
-      'tenantId':tenantId
+      tenantId: tenantId,
     };
 
-    const response = await axios.get(`${ORG_AND_EMP_URL}/employee/${id}`,{headers});
+    const response = await axios.get(`${ORG_AND_EMP_URL}/employee/${id}`, {
+      headers,
+    });
     return response.data;
   } catch (error) {
     throw error;

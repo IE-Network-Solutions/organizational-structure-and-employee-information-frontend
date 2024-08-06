@@ -11,10 +11,14 @@ const getEmpoyeInformationForms = async () => {
   const headers: Record<string, string> = {
     // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
     'Content-Type': 'application/json', // Example header
-    'tenantid':tenantId,
+    tenantid: tenantId,
     // Add other headers here as needed
   };
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/employee-information-form`, method: 'GET',headers:headers });
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/employee-information-form`,
+    method: 'GET',
+    headers: headers,
+  });
 };
 
 /**
@@ -28,10 +32,13 @@ const getEmpoyeInformationForm = async (id: string) => {
     const headers: Record<string, string> = {
       // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
       'Content-Type': 'application/json', // Example header
-      'tenantid':tenantId,
+      tenantid: tenantId,
       // Add other headers here as needed
     };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/employee-information-form/${id}`,{headers});
+    const response = await axios.get(
+      `${ORG_AND_EMP_URL}/employee-information-form/${id}`,
+      { headers },
+    );
     return response.data;
   } catch (error) {
     throw error;
@@ -47,8 +54,8 @@ const getEmpoyeInformationFormForTenant = async () => {
   try {
     // const tenantId = localStorage.getItem('tenantId');
     // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
-    const headers :Record<string, string> | undefined ={ 'tenantId': tenantId }
-  
+    const headers: Record<string, string> | undefined = { tenantId: tenantId };
+
     return crudRequest({
       url: `${ORG_AND_EMP_URL}/employee-information-form/tenant/find-form-fields-by-tenant-id`,
       headers,
@@ -57,16 +64,15 @@ const getEmpoyeInformationFormForTenant = async () => {
   } catch (error) {
     throw error;
   }
-  };
-  
-    // const response = await axios.get(`${ORG_AND_EMP_URL}/employee-information-form/tenant/${id}`);
-  //   const response = await axios.get(`${ORG_AND_EMP_URL}/employee-information-form`);
-  //   return response.data;
-  // } catch (error) {
-  //   throw error;
-  // }
-// };
+};
 
+// const response = await axios.get(`${ORG_AND_EMP_URL}/employee-information-form/tenant/${id}`);
+//   const response = await axios.get(`${ORG_AND_EMP_URL}/employee-information-form`);
+//   return response.data;
+// } catch (error) {
+//   throw error;
+// }
+// };
 
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.
@@ -77,7 +83,8 @@ const getEmpoyeInformationFormForTenant = async () => {
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetEmployeInformationForms = () => useQuery<any[]>('empoyeInformationForms', getEmpoyeInformationForms);
+export const useGetEmployeInformationForms = () =>
+  useQuery<any[]>('empoyeInformationForms', getEmpoyeInformationForms);
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.
@@ -91,11 +98,19 @@ export const useGetEmployeInformationForms = () => useQuery<any[]>('empoyeInform
  * while the new data is being fetched.
  */
 export const useGetEmployeInformationForm = (empoyeInformationFormId: string) =>
-  useQuery<any>(['empoyeInformationForm', empoyeInformationFormId], () => getEmpoyeInformationForm(empoyeInformationFormId), {
-    keepPreviousData: true,
-  });
-
-  export const useGetEmployeInformationFormForTenant = () =>
-    useQuery<any>(['empoyeInformationFormForTenant'], () => getEmpoyeInformationFormForTenant(), {
+  useQuery<any>(
+    ['empoyeInformationForm', empoyeInformationFormId],
+    () => getEmpoyeInformationForm(empoyeInformationFormId),
+    {
       keepPreviousData: true,
-    });
+    },
+  );
+
+export const useGetEmployeInformationFormForTenant = () =>
+  useQuery<any>(
+    ['empoyeInformationFormForTenant'],
+    () => getEmpoyeInformationFormForTenant(),
+    {
+      keepPreviousData: true,
+    },
+  );

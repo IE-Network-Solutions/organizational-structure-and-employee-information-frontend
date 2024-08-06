@@ -14,11 +14,11 @@ const createEmployee = async (values: any) => {
     url: `${ORG_AND_EMP_URL}/users`,
     method: 'POST',
     data: values,
-    headers: { 
-       'tenantId': tenantId,
-       'Content-Type': 'multipart/form-data' 
-      },
-    });
+    headers: {
+      tenantId: tenantId,
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 };
 
 const updateEmployee = async (values: any) => {
