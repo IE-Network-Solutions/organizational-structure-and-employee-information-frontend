@@ -82,6 +82,27 @@ interface UserState {
   selectedWorkSchedule:WorkSchedule|null,
   setSelectedWorkSchedule:(selectedWorkSchedule:WorkSchedule|null)=>void;
 
+  profileFileList:any,
+  setProfileFileList:(profileFileList:any)=>void;
+
+  bankInfoForm:any,
+  setBankInfoForm:(bankInfoForm:any)=>void;
+
+  emergencyContact:any,
+  setEmergencyContact:(emergencyContact:any) =>void;
+
+  addressForm:any,
+  setAddressForm:(address:any)=>void,
+
+  additionalInformation:any, 
+  setAdditionalInformation:(additionalInformation:any) => void,
+
+  selectedPermissions:string[]|[],
+  setSelectedPermissions:(selectedPermissions:string[]|[])=>void,
+
+  documentFileList:any[],
+  setDocumentFileList:(documentFileList:any)=>void,
+
  
 }
 
@@ -119,5 +140,26 @@ export const useEmployeeManagmentStore = create<UserState>()(
     termKey: null,
     setTermKey: (termKey: string | null) => set({ termKey }),
     setCurrent: (current: number) => set({ current }),
+
+    profileFileList:[],
+    setProfileFileList:(profileFileList:any[])=>set({profileFileList}),
+
+    bankInfoForm:{},
+    setBankInfoForm:(bankInfoForm:any)=>({bankInfoForm}),
+  
+    emergencyContact:{},
+    setEmergencyContact:(emergencyContact:any) =>({emergencyContact}),
+  
+    addressForm:{},
+    setAddressForm:(addressForm:any)=>set({addressForm}),
+
+  additionalInformation:{}, 
+  setAdditionalInformation:(additionalInformation:any) => ({additionalInformation}),
+
+  selectedPermissions:[],
+  setSelectedPermissions:(selectedPermissions:string[]|[])=>set({selectedPermissions}),
+
+  documentFileList:[],
+  setDocumentFileList:(documentFileList:any[])=>set({documentFileList}),
   })),
 );

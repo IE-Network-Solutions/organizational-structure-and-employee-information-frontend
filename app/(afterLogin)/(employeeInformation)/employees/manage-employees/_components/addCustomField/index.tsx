@@ -1,75 +1,117 @@
-'use client';
-
 import React, { useState } from 'react';
-import { Card, Row, Col, Form, Input, Select, Switch, Button, Space, Divider, Popover } from 'antd';
-import { v4 as uuidv4 } from 'uuid';
-import { FormField, useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
+import { Form, Input, Button, Select, Switch, Space, Popover, Card, Row, Col, Divider } from 'antd';
+import { v4 as uuidv4 } from 'uuid'; // Ensure uuidv4 is imported
+import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useAddEmployeeInformationForm } from '@/store/server/features/employees/employeeManagment/employeInformationForm/mutations';
+
 const { Option } = Select;
+
+interface FormField {
+  id: string;
+  fieldName: string;
+  fieldType: 'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox';
+  isActive: boolean;
+  options: string[];
+}
 
 interface PropsTypes {
   formTitle: string;
-  customEmployeeInformationForm:any,
+  customEmployeeInformationForm: {
+    form: FormField[];
+    formTitle: string;
+  };
+  setNewValue: (form: FormField[]) => void;
 }
 
-const AddCustomField: React.FC<PropsTypes> = ({ formTitle,customEmployeeInformationForm }) => {
+const AddCustomField: React.FC<any> = ({ setNewValue, formTitle, customEmployeeInformationForm }) => {
+  const [form] = Form.useForm();
   const [fieldName, setFieldName] = useState('');
-  const [fieldType, setFieldType] = useState<'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox'>('input');
+  const [fieldType, setFieldType] = useState<"input" | "datePicker" | "select" | "toggle" | "checkbox">("input");
   const [isActive, setIsActive] = useState(true);
-  const [options, setOptions] = useState<string[]>(['', '']);
+  const [options, setOptions] = useState<string[]>([]);
   const { customFormData, setCustomFormData } = useEmployeeManagmentStore();
+  const createCustomFieldMutation = useAddEmployeeInformationForm();
 
   const handleOptionChange = (index: number, value: string) => {
     const newOptions = [...options];
     newOptions[index] = value;
     setOptions(newOptions);
   };
-  const createCUstomFieldMutation=useAddEmployeeInformationForm();
 
-  const handleFormSubmit = () => {
-    const newField: FormField = {
-      id: uuidv4(),
-      fieldName,
-      fieldType,
-      isActive,
-      options: (fieldType === 'select' || fieldType === 'checkbox' || fieldType === 'toggle') ? options : undefined,
-    };
-
-    const updatedForms = (customFormData?.forms || []).map((form:any) => {
-      if (form.formTitle === formTitle) {
-        return { ...form, form: [...form.form, newField] };
-      }
-      return form;
-    });
-
-    // setCustomFormData({ ...customFormData, forms: updatedForms });
-    const newCustomFormData={ ...customFormData, forms: updatedForms };
-    createCUstomFieldMutation.mutate(newCustomFormData);
-    setFieldName('');
-    setFieldType('input');
-    setIsActive(true);
-    setOptions(['', '']);
+  const addFieldIfNotExists = (formData: any, newField: FormField) => {
+    const fieldExists = formData.some((field: any) => field.fieldName === newField.fieldName);
+    if (!fieldExists) {
+      setNewValue({ ...customEmployeeInformationForm, form: [...customEmployeeInformationForm.form, newField] });
+    }
   };
 
+  const formatFieldName = (name: string) => name.replace(/\s+/g, '_');
+
+  const onFinish = (values: any) => {
+    const formattedFieldName = formatFieldName(values.fieldName);
+    const newField: FormField = {
+      id: uuidv4(),
+      fieldName: formattedFieldName,
+      fieldType: values.fieldType,
+      isActive: values.isActive,
+      options: values.options || [],
+    };
+
+    addFieldIfNotExists(customEmployeeInformationForm.form, newField);
+    form.resetFields();
+    setOptions([]);
+    setFieldName('');
+    setFieldType("input");
+    setIsActive(true);
+  };
+  const handleFormFailed = (errorInfo: any) => {
+    console.log('Failed:', errorInfo);
+  };
   const popoverContent = (
-    <Form layout="vertical">
-      <Form.Item label="Field Name">
+    <Form
+      layout="vertical"
+      form={form}
+      title={formTitle}
+      onFinish={onFinish}
+      onFinishFailed={handleFormFailed}
+      initialValues={{
+        fieldType,
+        isActive,
+        options,
+      }}
+    >
+      <Form.Item
+        label="Field Name"
+        name="fieldName"
+        rules={[{ required: true, message: 'Field Name is required' }]}
+      >
         <Input value={fieldName} onChange={(e) => setFieldName(e.target.value)} />
       </Form.Item>
-      <Form.Item label="Field Type">
+      <Form.Item
+        label="Field Type"
+        name="fieldType"
+        rules={[{ required: true, message: 'Field Type is required' }]}
+      >
         <Select value={fieldType} onChange={(value) => setFieldType(value)}>
           <Option value="input">Input</Option>
-          <Option value="datePicker">Date Picker</Option>
           <Option value="select">Select</Option>
+          <Option value="datePicker">Date Picker</Option>
           <Option value="toggle">Toggle</Option>
           <Option value="checkbox">Checkbox</Option>
         </Select>
       </Form.Item>
-      <Form.Item label="Is Active">
+      <Form.Item
+        label="Is Active"
+        name="isActive"
+        valuePropName="checked"
+      >
         <Switch checked={isActive} onChange={(checked) => setIsActive(checked)} />
       </Form.Item>
-      {(fieldType === 'select' || fieldType === 'checkbox') && (
-        <Form.Item label="Options">
+      {(fieldType === "select" || fieldType === "checkbox") && (
+        <Form.Item
+          label="Options"
+          name="options"
+        >
           {options.map((option, index) => (
             <Space key={index} direction="vertical" style={{ display: 'block', marginBottom: 8 }}>
               <Input
@@ -80,13 +122,20 @@ const AddCustomField: React.FC<PropsTypes> = ({ formTitle,customEmployeeInformat
               />
             </Space>
           ))}
-          <Button type="dashed" onClick={() => setOptions([...options, ''])} style={{ width: '100%' }}>
+          <Button
+            type="dashed"
+            onClick={() => setOptions([...options, ''])}
+            style={{ width: '100%' }}
+          >
             Add Option
           </Button>
         </Form.Item>
       )}
-      {fieldType === 'toggle' && (
-        <Form.Item label="Toggle Options">
+      {fieldType === "toggle" && (
+        <Form.Item
+          label="Toggle Options"
+          name="options"
+        >
           {options.slice(0, 2).map((option, index) => (
             <Space key={index} direction="vertical" style={{ display: 'block', marginBottom: 8 }}>
               <Input
@@ -99,9 +148,15 @@ const AddCustomField: React.FC<PropsTypes> = ({ formTitle,customEmployeeInformat
         </Form.Item>
       )}
       <Divider />
-      <Button type="primary" onClick={handleFormSubmit} style={{ width: '100%' }}>
-        Add Field
-      </Button>
+      <Form.Item>
+        <Button
+          type="primary"
+          htmlType="submit"
+          style={{ width: '100%' }}
+        >
+          Add Field
+        </Button>
+      </Form.Item>
     </Form>
   );
 
@@ -110,7 +165,7 @@ const AddCustomField: React.FC<PropsTypes> = ({ formTitle,customEmployeeInformat
       <Row gutter={16}>
         <Col xs={24} sm={24} className='flex justify-center items-center'>
           <Form.Item className='font-semibold text-xs'>
-            <Popover content={popoverContent} title="Add Custom Field" trigger="click">
+            <Popover content={popoverContent} title={formTitle} trigger="click">
               <Button
                 type="primary"
                 className='text-white text-xs font-semibold'
