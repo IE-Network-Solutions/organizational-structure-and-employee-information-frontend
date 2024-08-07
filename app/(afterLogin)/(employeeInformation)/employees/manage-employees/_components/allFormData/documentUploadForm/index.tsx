@@ -1,7 +1,6 @@
 import React from 'react';
-import { Button, Col, Form, Row, Upload, UploadFile } from 'antd';
+import { Button, Col, Form, Row, Upload, Image, UploadFile } from 'antd';
 import { MdOutlineUploadFile } from 'react-icons/md';
-import { InboxOutlined } from '@ant-design/icons';
 import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const { Dragger } = Upload;
@@ -31,12 +30,13 @@ const DocumentUploadForm = () => {
   };
   return (
     <div>
-      <Row justify="center" style={{ width: '100%' }} className="mx-10">
+      <Row justify="center" style={{ width: '100%' }}>
         <Col span={24}>
           <Form.Item
             className="font-semibold text-xs bg-white"
             style={{ textAlign: 'center' }}
             name="documentName"
+            id="documentNameId"
             rules={[{ required: true, message: 'Please choose the type' }]}
           >
             <Dragger
@@ -53,7 +53,12 @@ const DocumentUploadForm = () => {
                 Documents Upload
               </div>
               <p className="ant-upload-drag-icon">
-                <InboxOutlined />
+                <Image
+                  preview={false}
+                  className="w-full"
+                  src="../Uploading.png"
+                  alt="Loading"
+                />
               </p>
               <p className="ant-upload-hint text-xl font-bold text-gray-950 my-4">
                 Drag & drop here to Upload.

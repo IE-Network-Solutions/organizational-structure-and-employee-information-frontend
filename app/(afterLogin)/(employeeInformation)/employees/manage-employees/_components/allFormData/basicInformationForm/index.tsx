@@ -10,7 +10,6 @@ import {
   Row,
   Select,
   Upload,
-  UploadFile,
   message,
 } from 'antd';
 import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
@@ -19,40 +18,38 @@ import { useGetNationalities } from '@/store/server/features/employees/employeeM
 
 const { Option } = Select;
 const { Dragger } = Upload;
-const BasicInformationForm = () => {
-  const [form] = Form.useForm();
+const BasicInformationForm = ({ form }: any) => {
   const { profileFileList, setProfileFileList } = useEmployeeManagmentStore();
   const { data: nationalities } = useGetNationalities();
+
   const beforeProfileUpload = (file: any) => {
-    const isImage = file.type.startsWith('image/');
+    const isImage = file.type?.startsWith('image/');
     if (!isImage) {
       message.error('You can only upload image files!');
     }
-    return isImage;
+    return isImage || Upload.LIST_IGNORE;
   };
 
-  const handleProfileChange = ({ fileList }: any) => {
-    setProfileFileList(fileList);
-  };
-  const handleProfileRemove = (file: any) => {
-    setProfileFileList((prevFileList: any) =>
-      prevFileList.filter((item: any) => item.uid !== file.uid),
-    );
-    form.setFieldsValue({ profileImage: null });
-  };
-  const getImageUrl = (fileList: UploadFile[]) => {
-    const imageFile = fileList[0];
-    return imageFile?.url || imageFile?.thumbUrl || '';
-  };
-  const customRequest = async ({ file, onSuccess, onError }: any) => {
-    try {
-      // Simulating file upload process
-      const url = URL.createObjectURL(file);
-      file.url = url;
-      onSuccess('ok');
-    } catch (error) {
-      onError(error);
+  const handleProfileChange = (info: any) => {
+    setProfileFileList(info.fileList);
+    if (info.file.status === 'done') {
+      form.setFieldsValue({ profileImage: info.fileList });
     }
+  };
+
+  const handleProfileRemove = (file: any) => {
+    const filterData = profileFileList.filter((item) => item.uid !== file.uid);
+    setProfileFileList(filterData);
+    form.setFieldsValue({
+      profileImage: filterData.length > 0 ? filterData : null,
+    });
+  };
+
+  const getImageUrl = (fileList: any) => {
+    if (fileList.length > 0) {
+      return URL.createObjectURL(fileList[0].originFileObj);
+    }
+    return '';
   };
 
   return (
@@ -64,6 +61,7 @@ const BasicInformationForm = () => {
             label="Upload Profile"
             style={{ textAlign: 'center' }}
             name="profileImage"
+            id="profileImageId"
             rules={[
               { required: true, message: 'Please upload your profile image!' },
             ]}
@@ -74,7 +72,6 @@ const BasicInformationForm = () => {
               beforeUpload={beforeProfileUpload}
               onChange={handleProfileChange}
               onRemove={handleProfileRemove}
-              customRequest={customRequest}
               accept="image/*"
               maxCount={1}
               showUploadList={{
@@ -111,6 +108,7 @@ const BasicInformationForm = () => {
             className="font-semibold text-xs"
             name={'userFirstName'}
             label="First Name"
+            id="userFirstNameId"
             rules={[{ required: true }]}
           >
             <Input />
@@ -121,6 +119,7 @@ const BasicInformationForm = () => {
             className="font-semibold text-xs"
             name={'userMiddleName'}
             label=" Middle Name"
+            id="userMiddleNameId"
             rules={[{ required: true }]}
           >
             <Input />
@@ -131,6 +130,7 @@ const BasicInformationForm = () => {
             className="font-semibold text-xs"
             name={'userLastName'}
             label="Last Name"
+            id="userLastNameId"
             rules={[{ required: true }]}
           >
             <Input />
@@ -143,6 +143,7 @@ const BasicInformationForm = () => {
             className="font-semibold text-xs"
             name={'userEmail'}
             label="Email Address"
+            id="userEmailId"
             rules={[{ required: true }]}
           >
             <Input />
@@ -153,6 +154,7 @@ const BasicInformationForm = () => {
             className="font-semibold text-xs"
             name={'employeeGender'}
             label=" Gender"
+            id="userEmployeeGenderId"
             rules={[{ required: true }]}
           >
             <Select
@@ -171,6 +173,7 @@ const BasicInformationForm = () => {
             className="font-semibold text-xs"
             name={'dateOfBirth'}
             label="Date of Birth"
+            id="userDateOfBirthId"
             rules={[{ required: true }]}
           >
             <DatePicker className="w-full" />
@@ -181,6 +184,7 @@ const BasicInformationForm = () => {
             className="font-semibold text-xs"
             name={'nationalityId'}
             label=" Nationality"
+            id="userNationalityId"
             rules={[{ required: true }]}
           >
             <Select
@@ -202,6 +206,7 @@ const BasicInformationForm = () => {
             className="font-semibold text-xs"
             name={'martialStatus'}
             label="Martial status"
+            id="userMartialStatusId"
             rules={[
               { required: true, message: 'Please select a marital status!' },
             ]}

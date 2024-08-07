@@ -13,6 +13,7 @@ import {
   Divider,
 } from 'antd';
 import { v4 as uuidv4 } from 'uuid'; // Ensure uuidv4 is imported
+import { useAddEmployeeInformationForm } from '@/store/server/features/employees/employeeManagment/employeInformationForm/mutations';
 
 const { Option } = Select;
 
@@ -25,10 +26,11 @@ interface FormField {
 }
 
 const AddCustomField: React.FC<any> = ({
-  setNewValue,
   formTitle,
   customEmployeeInformationForm,
 }) => {
+  const createCustomForm = useAddEmployeeInformationForm();
+
   const [form] = Form.useForm();
   const [fieldName, setFieldName] = useState('');
   const [fieldType, setFieldType] = useState<
@@ -48,10 +50,11 @@ const AddCustomField: React.FC<any> = ({
       (field: any) => field.fieldName === newField.fieldName,
     );
     if (!fieldExists) {
-      setNewValue({
+      const newFormData = {
         ...customEmployeeInformationForm,
         form: [...customEmployeeInformationForm.form, newField],
-      });
+      };
+      createCustomForm.mutate(newFormData);
     }
   };
 
@@ -66,7 +69,6 @@ const AddCustomField: React.FC<any> = ({
       isActive: values.isActive,
       options: values.options || [],
     };
-
     addFieldIfNotExists(customEmployeeInformationForm.form, newField);
     form.resetFields();
     setOptions([]);

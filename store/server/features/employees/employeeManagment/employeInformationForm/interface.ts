@@ -1,4 +1,5 @@
 import { MetaData } from '@/types/dashboard/tenant/clientAdministration';
+import { Meta } from '../../settings/groupPermission/interface';
 
 export interface DeleteGroupPermissionProps {
   deletedId: string;
@@ -37,3 +38,36 @@ export type EmploymentTypeList = {
   items: EmploymentTypeItem[];
   meta: MetaData;
 };
+
+interface FormField {
+  fieldName: string;
+  fieldType: string;
+  isActive: boolean;
+  id: string;
+  options?: string[];
+}
+
+interface FormFieldWithFieldProperty {
+  field: {
+    fieldName: string;
+    fieldType: string;
+    isActive: boolean;
+    options?: string[];
+  };
+  id: string;
+}
+
+export interface FormItem {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  formTitle: string;
+  form: (FormField | FormFieldWithFieldProperty)[];
+  tenantId: string;
+}
+
+export interface EmployeeInformationForm {
+  items: FormItem[];
+  meta: Meta;
+}

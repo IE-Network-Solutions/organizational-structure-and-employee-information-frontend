@@ -2,6 +2,7 @@ import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
+import { EmployeeInformationForm } from './interface';
 
 /**
  * Function to fetch posts by sending a GET request to the API
@@ -9,9 +10,8 @@ import { useQuery } from 'react-query';
  */
 const getEmpoyeInformationForms = async () => {
   const headers: Record<string, string> = {
-    // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
     'Content-Type': 'application/json', // Example header
-    tenantid: tenantId,
+    tenantId: tenantId,
     // Add other headers here as needed
   };
   return crudRequest({
@@ -32,7 +32,7 @@ const getEmpoyeInformationForm = async (id: string) => {
     const headers: Record<string, string> = {
       // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
       'Content-Type': 'application/json', // Example header
-      tenantid: tenantId,
+      tenantId: tenantId,
       // Add other headers here as needed
     };
     const response = await axios.get(
@@ -84,7 +84,10 @@ const getEmpoyeInformationFormForTenant = async () => {
  * the query object containing the posts data and any loading or error states.
  */
 export const useGetEmployeInformationForms = () =>
-  useQuery<any[]>('empoyeInformationForms', getEmpoyeInformationForms);
+  useQuery<EmployeeInformationForm>(
+    'employeInformationForms',
+    getEmpoyeInformationForms,
+  );
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.
@@ -99,7 +102,7 @@ export const useGetEmployeInformationForms = () =>
  */
 export const useGetEmployeInformationForm = (empoyeInformationFormId: string) =>
   useQuery<any>(
-    ['empoyeInformationForm', empoyeInformationFormId],
+    ['employeInformationForms', empoyeInformationFormId],
     () => getEmpoyeInformationForm(empoyeInformationFormId),
     {
       keepPreviousData: true,
@@ -108,7 +111,7 @@ export const useGetEmployeInformationForm = (empoyeInformationFormId: string) =>
 
 export const useGetEmployeInformationFormForTenant = () =>
   useQuery<any>(
-    ['empoyeInformationFormForTenant'],
+    ['employeInformationForms'],
     () => getEmpoyeInformationFormForTenant(),
     {
       keepPreviousData: true,

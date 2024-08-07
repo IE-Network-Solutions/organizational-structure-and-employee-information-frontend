@@ -7,7 +7,6 @@ export const transformData = (data: any) => {
   };
 
   const formData = new FormData();
-
   const result = {
     createUserDto: {
       firstName: data.userFirstName,
@@ -30,29 +29,10 @@ export const transformData = (data: any) => {
       dateOfBirth: formatDate(data.dateOfBirth),
       joinedDate: formatDate(data.joinedDate),
       nationalityId: data.nationalityId,
-      addresses: {
-        country: data.addressCountry,
-        city: data.addressCity,
-        subcity: data.addressSubcity,
-        woreda: data.addressWoreda,
-        primaryAddress: data.addressPrimaryAddress,
-        houseNumber: data.addressHouseNumber,
-      },
-      emergencyContact: {
-        fullName: data.emergencyContactfullName,
-        lastName: data.emergencyContactlastName,
-        emailAddress: data.emergencyContactemailAddress,
-        gender: data.emergencyContactgender,
-        dateOfBirth: formatDate(data.emergencyContactDateOfBirth),
-        nationality: data.emergencyContactNationality,
-      },
-      bankInformation: {
-        bankName: data.bankName,
-        branch: data.branch,
-        accountName: data.accountName,
-        accountNumber: data.accountNumber,
-      },
-      additionalInformation: {},
+      addresses: data?.address,
+      emergencyContact: data?.emergencyContact,
+      bankInformation: data?.bankInformation,
+      additionalInformation: data?.additionalInformation,
     },
     createEmployeeJobInformationDto: {
       jobTitle: data.jobTitle,

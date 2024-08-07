@@ -12,7 +12,7 @@ const ButtonContinue = () => {
           {current !== 0 ? (
             <Button
               name="cancelUserSidebarButton"
-              id="cancelSidebarButtonId"
+              id="BackSidebarButtonId"
               className="px-6 py-3 text-xs font-bold"
               onClick={() => setCurrent(current - 1)}
             >
@@ -31,7 +31,7 @@ const ButtonContinue = () => {
           {current !== 2 ? (
             <Button
               onClick={() => setCurrent(current + 1)}
-              id="sidebarActionCreate"
+              id="sidebarActionSubmitAndContinue"
               className="px-6 py-3 text-xs font-bold"
               htmlType="button"
               type="primary"
@@ -40,7 +40,7 @@ const ButtonContinue = () => {
             </Button>
           ) : (
             <Button
-              id="sidebarActionCreate"
+              id="sidebarActionCreateSubmit"
               className="px-6 py-3 text-xs font-bold"
               htmlType="submit"
               type="primary"

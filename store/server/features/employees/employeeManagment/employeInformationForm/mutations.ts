@@ -1,9 +1,8 @@
 import { useMutation, useQueryClient } from 'react-query';
 import axios from 'axios';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-
 /**
  * Function to add a new post by sending a POST request to the API
  * @param newPost The data for the new post
@@ -11,8 +10,9 @@ import NotificationMessage from '@/components/common/notification/notificationMe
  */
 const createEmployeeInformationForm = async (values: any) => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/empoyee-information-form`,
+    url: `${ORG_AND_EMP_URL}/employee-information-form`,
     method: 'POST',
+    headers: { tenantId: tenantId },
     data: values,
   });
 };
@@ -29,7 +29,7 @@ const deleteEmployeeInformationForm = async ({
 }: any) => {
   try {
     const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/empoyee-information-form/${deletedId}`,
+      `${ORG_AND_EMP_URL}/employee-information-form/${deletedId}`,
     );
     setCurrentModal(null);
     setDeletedId(null);
@@ -56,7 +56,7 @@ export const useAddEmployeeInformationForm = () => {
   const queryClient = useQueryClient();
   return useMutation(createEmployeeInformationForm, {
     onSuccess: () => {
-      queryClient.invalidateQueries('empoyeInformationForms');
+      queryClient.invalidateQueries('employeInformationForms');
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Employee successfully Created',
@@ -78,7 +78,7 @@ export const useDeleteEmployee = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteEmployeeInformationForm, {
     onSuccess: () => {
-      queryClient.invalidateQueries('empoyeInformationForms');
+      queryClient.invalidateQueries('employeInformationForms');
     },
   });
 };

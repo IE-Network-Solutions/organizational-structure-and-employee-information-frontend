@@ -1,11 +1,15 @@
 import { Col, DatePicker, Form, Input, Row, Select } from 'antd';
 import React from 'react';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
+import AddCustomField from '../../addCustomField';
+import DynamicFormFields from '../../dynamicFormDisplayer';
+import UseSetCategorizedFormData from '../../customField';
 
 const { Option } = Select;
 
 const EmergencyContactForm = () => {
   const { data: nationalities } = useGetNationalities();
+  const EmregencyContactForm = UseSetCategorizedFormData('Emergency contact');
 
   return (
     <div>
@@ -16,8 +20,9 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'emergencyContactfullName'}
+            name={['emergencyContact', 'emergencyContactfullName']}
             label="Full Name"
+            id="emergencyContactfullName"
             rules={[{ required: true }]}
           >
             <Input />
@@ -26,7 +31,8 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'emergencyContactlastName'}
+            name={['emergencyContact', 'emergencyContactlastName']}
+            id="emergencyContactlastName"
             label="Last Name"
             rules={[{ required: true }]}
           >
@@ -38,8 +44,9 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'emergencyContactemailAddress'}
+            name={['emergencyContact', 'emergencyContactemailAddress']}
             label="Email Address"
+            id="emergencyContactemailAddress"
             rules={[{ required: true }]}
           >
             <Input />
@@ -48,8 +55,9 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'emergencyContactgender'}
+            name={['emergencyContact', 'emergencyContactgender']}
             label="Gender"
+            id="emergencyContactgender"
             rules={[{ required: true }]}
           >
             <Input />
@@ -60,7 +68,8 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'emergencyContactDateOfBirth'}
+            name={['emergencyContact', 'emergencyContactDateOfBirth']}
+            id="emergencyContactDateOfBirth"
             label="Date Of Birth"
             rules={[{ required: true }]}
           >
@@ -70,8 +79,9 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'emergencyContactNationality'}
+            name={['emergencyContact', 'emergencyContactNationality']}
             label="Nationality"
+            id="emergencyContactNationality"
             rules={[{ required: true }]}
           >
             <Select
@@ -87,6 +97,14 @@ const EmergencyContactForm = () => {
           </Form.Item>
         </Col>
       </Row>
+      <DynamicFormFields
+        formTitle="emergencyContact"
+        fields={EmregencyContactForm.form}
+      />
+      <AddCustomField
+        formTitle="Emergency contact"
+        customEmployeeInformationForm={EmregencyContactForm}
+      />
     </div>
   );
 };

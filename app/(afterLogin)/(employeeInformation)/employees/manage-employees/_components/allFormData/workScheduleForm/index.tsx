@@ -64,6 +64,7 @@ const WorkScheduleForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={'workScheduleId'}
+            id="workScheduleId"
             label="Work Schedule Category"
             rules={[
               { required: true, message: 'Please select a work schedule!' },

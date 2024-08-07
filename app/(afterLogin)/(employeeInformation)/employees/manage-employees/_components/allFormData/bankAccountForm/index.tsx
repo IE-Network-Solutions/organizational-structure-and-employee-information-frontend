@@ -2,12 +2,11 @@ import { Col, Form, Row, Select, Input } from 'antd';
 import React from 'react';
 import DynamicFormFields from '../../dynamicFormDisplayer';
 import AddCustomField from '../../addCustomField';
-import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
+import UseSetCategorizedFormData from '../../customField';
 const { Option } = Select;
 
 const BankInformationForm = () => {
-  const { bankInfoForm, setBankInfoForm } = useEmployeeManagmentStore();
-
+  const currentBankForm = UseSetCategorizedFormData('Bank information');
   return (
     <div>
       <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
@@ -17,7 +16,8 @@ const BankInformationForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'bankName'}
+            name={['bankInformation', 'bankName']}
+            id="bankInformationBankName"
             label="Bank Name"
             rules={[{ required: true }]}
           >
@@ -34,7 +34,8 @@ const BankInformationForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'branch'}
+            name={['bankInformation', 'branch']}
+            id="bankInformationBranch"
             label="Branch"
             rules={[{ required: true }]}
           >
@@ -46,8 +47,9 @@ const BankInformationForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'accountName'}
+            name={['bankInformation', 'accountName']}
             label="Account Name"
+            id="bankInformationAccountName"
             rules={[{ required: true }]}
           >
             <Input />
@@ -56,7 +58,8 @@ const BankInformationForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'accountNumber'}
+            name={['bankInformation', 'accountNumber']}
+            id="bankInformationAccountNumber"
             label="Account Number"
             rules={[{ required: true }]}
           >
@@ -64,14 +67,14 @@ const BankInformationForm = () => {
           </Form.Item>
         </Col>
       </Row>
-      <Row>
-        <DynamicFormFields fields={bankInfoForm.form} />
-        <AddCustomField
-          formTitle="address"
-          setNewValue={setBankInfoForm}
-          customEmployeeInformationForm={bankInfoForm}
-        />
-      </Row>
+      <DynamicFormFields
+        formTitle="bankInformation"
+        fields={currentBankForm.form}
+      />
+      <AddCustomField
+        formTitle="Bank information"
+        customEmployeeInformationForm={currentBankForm}
+      />
     </div>
   );
 };

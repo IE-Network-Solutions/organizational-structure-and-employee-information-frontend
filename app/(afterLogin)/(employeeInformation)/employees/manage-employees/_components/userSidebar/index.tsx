@@ -17,6 +17,7 @@ import WorkScheduleForm from '../allFormData/workScheduleForm';
 import DocumentUploadForm from '../allFormData/documentUploadForm';
 import AdditionalInformationForm from '../allFormData/additionalInformationForm';
 import ButtonContinue from '../allFormData/SaveAndContinueButton';
+import { IoCheckmarkSharp } from 'react-icons/io5';
 
 const { Step } = Steps;
 const UserSidebar = (props: any) => {
@@ -36,9 +37,17 @@ const UserSidebar = (props: any) => {
   const onChange = (value: number) => {
     setCurrent(value);
   };
-  const customDot = (
-    <div className="border-2 rounded-full h-8 w-8">
-      <div style={{ fontSize: '24px', lineHeight: '24px' }}>•</div>
+  const customDot = (step: number) => (
+    <div
+      className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${current >= step && 'bg-indigo-700 text-white'}`}
+    >
+      <div style={{ fontSize: '24px', lineHeight: '24px' }}>
+        {current >= step ? (
+          <IoCheckmarkSharp className="text-xs font-bold" />
+        ) : (
+          '•'
+        )}
+      </div>
     </div>
   );
   return (
@@ -56,9 +65,9 @@ const UserSidebar = (props: any) => {
           onChange={onChange}
           className={`my-10 `}
         >
-          <Step icon={customDot} />
-          <Step icon={customDot} />
-          <Step icon={customDot} />
+          <Step icon={customDot(0)} />
+          <Step icon={customDot(1)} />
+          <Step icon={customDot(2)} />
         </Steps>
         <Form
           form={form}
@@ -75,7 +84,7 @@ const UserSidebar = (props: any) => {
           onFinish={handleCreateUser}
         >
           <Card hidden={current !== 0}>
-            <BasicInformationForm />
+            <BasicInformationForm form={form} />
             <EmployeeAddressForm />
             <EmergencyContactForm />
             <BankInformationForm />
@@ -83,7 +92,7 @@ const UserSidebar = (props: any) => {
           </Card>
           <Card hidden={current !== 1}>
             <JobTimeLineForm />
-            <RolePermissionForm />
+            <RolePermissionForm form={form} />
             <WorkScheduleForm />
             <ButtonContinue />
           </Card>

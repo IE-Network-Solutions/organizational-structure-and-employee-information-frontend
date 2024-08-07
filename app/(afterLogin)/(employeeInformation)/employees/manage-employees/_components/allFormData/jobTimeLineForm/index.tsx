@@ -23,6 +23,7 @@ const JobTimeLineForm = () => {
             className="font-semibold text-xs"
             name={'joinedDate'}
             label="joinedDate"
+            id="joinedDate"
             rules={[{ required: true }]}
           >
             <DatePicker className="w-full" />
@@ -34,6 +35,7 @@ const JobTimeLineForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={'effectiveEndDate'}
+            id="effectiveEndDate"
             label="Effective End Date"
             rules={[{ required: true }]}
           >
@@ -46,6 +48,7 @@ const JobTimeLineForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={'jobTitle'}
+            id="jobTitle"
             label="Position"
             rules={[{ required: true }]}
           >
@@ -56,6 +59,7 @@ const JobTimeLineForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={'employmentTypeId'}
+            id="employmentTypeId"
             label="Employment Type"
             rules={[{ required: true }]}
           >
@@ -72,25 +76,20 @@ const JobTimeLineForm = () => {
           </Form.Item>
         </Col>
       </Row>
-      <Row>
-        <Col xs={24} sm={8}>
-          <div className="font-semibold text-sm">Department Lead or Not</div>
-        </Col>
-        <Col xs={24} sm={16}>
-          <Form.Item name="departmentLeadOrNot" valuePropName="checked">
-            <Switch defaultChecked />
-          </Form.Item>
-        </Col>
-      </Row>
       <Row gutter={16}>
-        <Col xs={24} sm={24}>
+        <Col xs={24} sm={12}>
           <Form.Item
-            className="font-semibold text-xs"
+            className="w-full font-semibold text-xs"
             name={'departmentId'}
+            id="departmentId"
             label="Department"
             rules={[{ required: true }]}
           >
-            <Select placeholder="Select Department" allowClear>
+            <Select
+              className="w-full"
+              placeholder="Select Department"
+              allowClear
+            >
               {departmentData?.map((department: any, index: number) => (
                 <Option key={index} value={department?.id}>
                   {department?.name}
@@ -99,16 +98,19 @@ const JobTimeLineForm = () => {
             </Select>
           </Form.Item>
         </Col>
-      </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={24}>
+        <Col xs={24} sm={12}>
           <Form.Item
-            className="font-semibold text-xs"
+            className="w-full font-semibold text-xs"
             name={'branchId'}
+            id="branchId"
             label="Branch Office"
             rules={[{ required: true }]}
           >
-            <Select placeholder="Select office branch" allowClear>
+            <Select
+              className="w-full"
+              placeholder="Select office branch"
+              allowClear
+            >
               {branchOfficeData?.items?.map((branch, index: number) => (
                 <Option key={index} value={branch?.id}>
                   {branch?.name}
@@ -118,11 +120,27 @@ const JobTimeLineForm = () => {
           </Form.Item>
         </Col>
       </Row>
+      <Row>
+        <Col xs={24} sm={8}>
+          <div className="font-semibold text-sm">Department Lead or Not</div>
+        </Col>
+        <Col xs={24} sm={16}>
+          <Form.Item
+            name="departmentLeadOrNot"
+            valuePropName="checked"
+            id="departmentLeadOrNot"
+          >
+            <Switch defaultChecked />
+          </Form.Item>
+        </Col>
+      </Row>
+
       <Row gutter={16} className="flex justify-center items-center">
         <Col xs={24} className="flex justify-center items-center">
           <Form.Item
             className="font-semibold text-xs"
             label=""
+            id="employmentContractType"
             name={'employmentContractType'}
             rules={[{ required: true, message: 'Please select a job type!' }]}
             initialValue={1}

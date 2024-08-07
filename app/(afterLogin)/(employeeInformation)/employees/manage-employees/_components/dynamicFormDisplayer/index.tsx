@@ -22,9 +22,13 @@ interface FormField {
 
 interface DynamicFormFieldsProps {
   fields: FormField[];
+  formTitle: string;
 }
 
-const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ fields }) => {
+const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
+  formTitle,
+  fields,
+}) => {
   const renderField = (field: FormField) => {
     switch (field.fieldType) {
       case 'input':
@@ -32,7 +36,8 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ fields }) => {
           <Form.Item
             className="font-semibold text-xs"
             label={field.fieldName}
-            name={field.fieldName}
+            name={[formTitle, field.fieldName]}
+            id={`${formTitle}${field.fieldName}`}
             rules={[
               { required: true, message: `${field.fieldName} is required` },
             ]}
@@ -45,7 +50,8 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ fields }) => {
           <Form.Item
             className="font-semibold text-xs"
             label={field.fieldName}
-            name={field.fieldName}
+            name={[formTitle, field.fieldName]}
+            id={`${formTitle}${field.fieldName}`}
             rules={[
               { required: true, message: `${field.fieldName} is required` },
             ]}
@@ -64,7 +70,8 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ fields }) => {
           <Form.Item
             className="font-semibold text-xs w-full"
             label={field.fieldName}
-            name={field.fieldName}
+            name={[formTitle, field.fieldName]}
+            id={`${formTitle}${field.fieldName}`}
             rules={[
               { required: true, message: `${field.fieldName} is required` },
             ]}
@@ -77,7 +84,8 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ fields }) => {
           <Form.Item
             className="font-semibold text-xs"
             label={field.fieldName}
-            name={field.fieldName}
+            name={[formTitle, field.fieldName]}
+            id={`${formTitle}${field.fieldName}`}
             rules={[
               { required: true, message: `${field.fieldName} is required` },
             ]}
@@ -96,7 +104,8 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ fields }) => {
           <Form.Item
             className="font-semibold text-xs"
             label={field.fieldName}
-            name={field.fieldName}
+            name={[formTitle, field.fieldName]}
+            id={`${formTitle}${field.fieldName}`}
             valuePropName="checked"
             rules={[
               { required: true, message: `${field.fieldName} is required` },

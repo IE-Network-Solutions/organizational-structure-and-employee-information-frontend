@@ -1,23 +1,23 @@
 import React from 'react';
 import DynamicFormFields from '../../dynamicFormDisplayer';
 import AddCustomField from '../../addCustomField';
-import { AdditionalInformation } from '../../dummyData';
-import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
+import UseSetCategorizedFormData from '../../customField';
 
 const AdditionalInformationForm = () => {
-  const { additionalInformation, setAdditionalInformation } =
-    useEmployeeManagmentStore();
+  const additionalInfoForm = UseSetCategorizedFormData('Addtional information');
 
   return (
     <div>
       <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
         Additional Information
       </div>
-      <DynamicFormFields fields={AdditionalInformation.form} />
+      <DynamicFormFields
+        formTitle="additionalInformation"
+        fields={additionalInfoForm.form}
+      />
       <AddCustomField
-        formTitle="address"
-        setNewValue={setAdditionalInformation}
-        customEmployeeInformationForm={additionalInformation}
+        formTitle="Addtional information"
+        customEmployeeInformationForm={additionalInfoForm}
       />
     </div>
   );
