@@ -1,8 +1,8 @@
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
-import { RoleType } from './interface';
+import { Role, RoleType } from './interface';
 
 /**
  * Function to fetch a paginated list of roles by sending a GET request to the API.
@@ -24,7 +24,29 @@ const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
  * @returns The response data from the API containing all roles.
  */
 const getRolesWithOutPagination = async () => {
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/roles`, method: 'GET' });
+  // const tenantId = localStorage.getItem('tenantId');
+  // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
+  const headers :Record<string, string> | undefined ={ 'tenantId': tenantId }
+  return crudRequest({ 
+    url: `${ORG_AND_EMP_URL}/roles`,
+    headers,
+    method: 'GET' });
+};
+
+
+/**
+ * Function to fetch all roles without pagination by sending a GET request to the API.
+ * 
+ * @returns The response data from the API containing all roles.
+ */
+const getRolesWithPermisison = async () => {
+  // const tenantId = localStorage.getItem('tenantId');
+  // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
+  const headers :Record<string, string> | undefined ={ 'tenantId': tenantId }
+  return crudRequest({ 
+    url: `${ORG_AND_EMP_URL}/roles/find-all-role-with-permissions/role-permissions`,
+    headers,
+    method: 'GET' });
 };
 
 
@@ -97,3 +119,7 @@ export const useGetRole = (roleId: string | null) =>
     keepPreviousData: true,
     enabled: false,
   });
+
+
+  export const useGetRolesWithPermission = () =>useQuery<Role[]>('rolesWithPermisison', getRolesWithPermisison);
+  

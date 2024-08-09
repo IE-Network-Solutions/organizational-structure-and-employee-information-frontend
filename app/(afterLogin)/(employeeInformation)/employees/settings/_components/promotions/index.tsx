@@ -1,4 +1,4 @@
-'use client';
+// 'use client';
 import { Card } from 'antd';
 import React from 'react';
 import { RiErrorWarningFill } from 'react-icons/ri';

@@ -1,6 +1,55 @@
 // useStore.ts
+import { MetaData } from '@/types/dashboard/tenant/clientAdministration';
+import { UploadFile } from 'antd';
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
+export interface CustomFieldsProps {
+  customFormData: FormData;
+  setCustomFormData: (customFormData: FormData) => void;
+}
+
+export interface FormField {
+  fieldName: string;
+  fieldType: 'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox';
+  isActive: boolean;
+  id: string;
+  options?: string[]; // Optional field for 'select' and 'checkbox' types
+}
+
+export interface Form {
+  formTitle: string;
+  form: FormField[];
+}
+
+export interface FormData {
+  tenantId: string;
+  forms: Form[];
+}
+export interface WorkScheduleDetail {
+  id: string;
+  dayOfWeek: string;
+  startTime: string;
+  breakStartTime: string;
+  breakEndTime: string;
+  endTime: string;
+  hours: number;
+  status: boolean;
+}
+
+export interface WorkSchedule {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  name: string;
+  detail: WorkScheduleDetail[];
+  standardHours: number;
+  tenantId: string;
+}
+export interface WorkScheduleData {
+  items: WorkSchedule[];
+  meta: MetaData;
+}
 interface UserState {
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -22,12 +71,56 @@ interface UserState {
   deleteModal: boolean;
   prefix: string;
   setPrefix: (prefix: string) => void;
+  current: number;
+  setCurrent: (curren: number) => void;
+  // customFormData: FormData | null;
+  customFormData: any;
+  setCustomFormData: (customFormData: FormData) => void;
+
+  workSchedule: string | null;
+  setWorkSchedule: (WorkSchedule: string | null) => void;
+
+  selectedWorkSchedule: WorkSchedule | null;
+  setSelectedWorkSchedule: (selectedWorkSchedule: WorkSchedule | null) => void;
+
+  profileFileList: UploadFile[];
+  setProfileFileList: (profileFileList: UploadFile[]) => void;
+
+  bankInfoForm: any;
+  setBankInfoForm: (bankInfoForm: any) => void;
+
+  emergencyContact: any;
+  setEmergencyContact: (emergencyContact: any) => void;
+
+  addressForm: any;
+  setAddressForm: (address: any) => void;
+
+  additionalInformation: any;
+  setAdditionalInformation: (additionalInformation: any) => void;
+
+  selectedPermissions: string[] | [];
+  setSelectedPermissions: (selectedPermissions: string[] | []) => void;
+
+  documentFileList: any[];
+  setDocumentFileList: (documentFileList: any) => void;
 }
 
 export const useEmployeeManagmentStore = create<UserState>()(
   devtools((set) => ({
     open: false,
     deleteModal: false,
+    current: 0,
+
+    customFormData: null,
+    setCustomFormData: (customFormData: FormData) => set({ customFormData }),
+
+    selectedWorkSchedule: null,
+    setSelectedWorkSchedule: (selectedWorkSchedule: WorkSchedule | null) =>
+      set({ selectedWorkSchedule }),
+
+    workSchedule: null,
+    setWorkSchedule: (workSchedule: string | null) => set({ workSchedule }),
+
     prefix: '251',
     setPrefix: (prefix: string) => set({ prefix }),
     deletedItem: null,
@@ -46,5 +139,31 @@ export const useEmployeeManagmentStore = create<UserState>()(
     setSearchTerm: (searchTerm: string | null) => set({ searchTerm }),
     termKey: null,
     setTermKey: (termKey: string | null) => set({ termKey }),
+    setCurrent: (current: number) => set({ current }),
+
+    profileFileList: [],
+    setProfileFileList: (profileFileList: UploadFile[]) =>
+      set({ profileFileList }),
+
+    bankInfoForm: {},
+    setBankInfoForm: (bankInfoForm: any) => ({ bankInfoForm }),
+
+    emergencyContact: {},
+    setEmergencyContact: (emergencyContact: any) => ({ emergencyContact }),
+
+    addressForm: {},
+    setAddressForm: (addressForm: any) => set({ addressForm }),
+
+    additionalInformation: {},
+    setAdditionalInformation: (additionalInformation: any) => ({
+      additionalInformation,
+    }),
+
+    selectedPermissions: [],
+    setSelectedPermissions: (selectedPermissions: string[] | []) =>
+      set({ selectedPermissions }),
+
+    documentFileList: [],
+    setDocumentFileList: (documentFileList: any[]) => set({ documentFileList }),
   })),
 );

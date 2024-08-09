@@ -1,22 +1,42 @@
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
+import { Meta } from '../../settings/groupPermission/interface';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
+type Item = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  name: string;
+  description: string;
+  location: string;
+  contactNumber: string;
+  contactEmail: string;
+  tenantId: string;
+};
+
+type ResponseData = {
+  items: Item[];
+  meta: Meta;
+};
+
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
-const getEmployees = async () => {
+const getBranches = async () => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/employee`,
+    url: `${ORG_AND_EMP_URL}/branchs`,
+    method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
-    method: 'GET',
   });
 };
 
@@ -26,13 +46,13 @@ const getEmployees = async () => {
  * @returns The response data from the API
  */
 
-const getEmployee = async (id: number) => {
+const getBranch = async (id: number) => {
   try {
     const headers = {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/employee/${id}`, {
+    const response = await axios.get(`${ORG_AND_EMP_URL}/branchs/${id}`, {
       headers,
     });
     return response.data;
@@ -50,7 +70,8 @@ const getEmployee = async (id: number) => {
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetEmployees = () => useQuery<any[]>('employees', getEmployees);
+export const useGetBranches = () =>
+  useQuery<ResponseData>('branches', getBranches);
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.
@@ -63,7 +84,7 @@ export const useGetEmployees = () => useQuery<any[]>('employees', getEmployees);
  * query object containing the post data, and it keeps the previous data
  * while the new data is being fetched.
  */
-export const useGetEmployee = (postId: number) =>
-  useQuery<any>(['employee', postId], () => getEmployee(postId), {
+export const useGetBranch = (postId: number) =>
+  useQuery<Item>(['branch', postId], () => getBranch(postId), {
     keepPreviousData: true,
   });

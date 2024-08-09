@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import axios from 'axios';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
@@ -15,6 +15,7 @@ const createRole = async (values: any) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles`,
     method: 'POST',
+    headers:{tenantId:tenantId},
     data: values,
   });
 };
@@ -33,6 +34,7 @@ const updateRole = async ({ values, roleId }: any) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles/${roleId}`,
     method: 'patch',
+    headers:{tenantId:tenantId},
     data: values,
   });
 };
