@@ -31,6 +31,20 @@ const items: MenuItem[] = [
     key: '/organization',
     icon: <CiSettings />,
     label: 'Organization',
+    children: [
+      {
+        key: '/organization/org-structure',
+        label: 'Org Structure',
+      },
+      {
+        key: '/organization/org-chart',
+        label: 'Org Chart',
+      },
+      {
+        key: '/organization/settings',
+        label: 'Settings',
+      },
+    ],
   },
   {
     key: '/employees',
