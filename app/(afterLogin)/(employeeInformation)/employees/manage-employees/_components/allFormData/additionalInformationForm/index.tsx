@@ -4,7 +4,9 @@ import AddCustomField from '../../addCustomField';
 import UseSetCategorizedFormData from '../../customField';
 
 const AdditionalInformationForm = () => {
-  const additionalInfoForm = UseSetCategorizedFormData('Additional information');
+  const additionalInfoForm = UseSetCategorizedFormData(
+    'Additional information',
+  );
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">

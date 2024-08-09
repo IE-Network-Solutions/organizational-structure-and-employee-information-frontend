@@ -30,15 +30,14 @@ type ResponseData = {
  * @returns The response data from the API
  */
 const getBranches = async () => {
-
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/branchs`,
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     },
-    });
+  });
 };
 
 /**
@@ -49,9 +48,9 @@ const getBranches = async () => {
 
 const getBranch = async (id: number) => {
   try {
-    const headers={
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     };
     const response = await axios.get(`${ORG_AND_EMP_URL}/branchs/${id}`, {
       headers,

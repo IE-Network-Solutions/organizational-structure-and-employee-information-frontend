@@ -15,8 +15,8 @@ const getEmpoyeInformationForms = async () => {
     url: `${ORG_AND_EMP_URL}/employee-information-form`,
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     },
   });
 };
@@ -29,9 +29,9 @@ const getEmpoyeInformationForms = async () => {
 
 const getEmpoyeInformationForm = async (id: string) => {
   try {
-    const headers={
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     };
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/employee-information-form/${id}`,
@@ -56,8 +56,8 @@ const getEmpoyeInformationFormForTenant = async () => {
     return crudRequest({
       url: `${ORG_AND_EMP_URL}/employee-information-form/tenant/find-form-fields-by-tenant-id`,
       headers: {
-        Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-        tenantId: tenantId,               // Pass tenantId in the headers
+        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+        tenantId: tenantId, // Pass tenantId in the headers
       },
       method: 'GET',
     });

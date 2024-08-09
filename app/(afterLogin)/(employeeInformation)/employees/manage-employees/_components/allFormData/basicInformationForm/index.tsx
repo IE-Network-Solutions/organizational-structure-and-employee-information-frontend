@@ -158,10 +158,7 @@ const BasicInformationForm = ({ form }: any) => {
             id="userEmployeeGenderId"
             rules={[{ required: true }]}
           >
-            <Select
-              placeholder="Select an option"
-              allowClear
-            >
+            <Select placeholder="Select an option" allowClear>
               <Option value="male">Male</Option>
               <Option value="female">Female</Option>
             </Select>
@@ -188,10 +185,7 @@ const BasicInformationForm = ({ form }: any) => {
             id="userNationalityId"
             rules={[{ required: true }]}
           >
-            <Select
-              placeholder="Select an option"
-              allowClear
-            >
+            <Select placeholder="Select an option" allowClear>
               {nationalities?.items?.map((nationality: any, index: number) => (
                 <Option key={index} value={nationality?.id}>
                   {nationality?.name}
@@ -212,10 +206,7 @@ const BasicInformationForm = ({ form }: any) => {
               { required: true, message: 'Please select a marital status!' },
             ]}
           >
-            <Select
-              placeholder="Select an option"
-              allowClear
-            >
+            <Select placeholder="Select an option" allowClear>
               <Option value="single">Single</Option>
               <Option value="married">Married</Option>
               <Option value="divorced">Divorced</Option>

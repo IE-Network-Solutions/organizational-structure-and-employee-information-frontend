@@ -17,8 +17,8 @@ const createEmployeeInformationForm = async (values: any) => {
     url: `${ORG_AND_EMP_URL}/employee-information-form`,
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     },
     data: values,
   });
@@ -35,13 +35,14 @@ const deleteEmployeeInformationForm = async ({
   setDeletedId,
 }: any) => {
   try {
-    const headers={
-        Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-        tenantId: tenantId,               // Pass tenantId in the headers
-      };
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
 
     const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/employee-information-form/${deletedId}`,{headers}
+      `${ORG_AND_EMP_URL}/employee-information-form/${deletedId}`,
+      { headers },
     );
     setCurrentModal(null);
     setDeletedId(null);

@@ -1,5 +1,14 @@
 import React from 'react';
-import { Form, Input, Select, DatePicker, Checkbox, Switch, Row, Col } from 'antd';
+import {
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Checkbox,
+  Switch,
+  Row,
+  Col,
+} from 'antd';
 
 const { Option } = Select;
 
@@ -16,12 +25,15 @@ interface DynamicFormFieldsProps {
   formTitle: string;
 }
 
-const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ formTitle, fields }) => {
+const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
+  formTitle,
+  fields,
+}) => {
   const renderField = (field: FormField) => {
     if (!field.isActive) return null; // Skip inactive fields
 
     const commonProps = {
-      className: "font-semibold text-xs",
+      className: 'font-semibold text-xs',
       label: field.fieldName,
       name: [formTitle, field.fieldName],
       id: `${formTitle}${field.fieldName}`,
@@ -39,7 +51,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ formTitle, fields
         return (
           <Form.Item {...commonProps}>
             <Select>
-              {field.options?.map(option => (
+              {field.options?.map((option) => (
                 <Option key={option} value={option}>
                   {option}
                 </Option>
@@ -57,7 +69,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ formTitle, fields
         return (
           <Form.Item {...commonProps}>
             <Checkbox.Group>
-              {field.options?.map(option => (
+              {field.options?.map((option) => (
                 <Checkbox key={option} value={option}>
                   {option}
                 </Checkbox>
@@ -87,7 +99,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ formTitle, fields
           <Col xs={24} sm={12}>
             {fields[i + 1] && renderField(fields[i + 1])}
           </Col>
-        </Row>
+        </Row>,
       );
     }
     return rows;

@@ -16,10 +16,10 @@ const getNationalities = async () => {
     url: `${ORG_AND_EMP_URL}/nationality`,
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     },
-    });
+  });
 };
 
 /**
@@ -30,9 +30,9 @@ const getNationalities = async () => {
 
 const getNationality = async (id: string) => {
   try {
-    const headers={
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     };
     const response = await axios.get(`${ORG_AND_EMP_URL}/nationality/${id}`, {
       headers,

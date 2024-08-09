@@ -13,8 +13,8 @@ const getEmployees = async () => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee`,
     headers: {
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     },
     method: 'GET',
   });
@@ -28,9 +28,9 @@ const getEmployees = async () => {
 
 const getEmployee = async (id: number) => {
   try {
-    const headers={
-      Authorization: `Bearer ${token}`,  
-      tenantId: tenantId,              
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
     };
     const response = await axios.get(`${ORG_AND_EMP_URL}/employee/${id}`, {
       headers,

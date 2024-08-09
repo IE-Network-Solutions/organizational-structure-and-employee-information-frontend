@@ -12,7 +12,7 @@ const JobTimeLineForm = () => {
   const { data: branchOfficeData } = useGetBranches();
   const [contractType, setContractType] = useState<string>('Permanent');
 
-  const handleContractTypeChange = (e:any) => {
+  const handleContractTypeChange = (e: any) => {
     setContractType(e.target.value);
   };
 
@@ -28,13 +28,15 @@ const JobTimeLineForm = () => {
             name={'joinedDate'}
             label="Joined Date"
             id="joinedDate"
-            rules={[{ required: true, message: 'Please select the joined date' }]}
+            rules={[
+              { required: true, message: 'Please select the joined date' },
+            ]}
           >
             <DatePicker className="w-full" />
           </Form.Item>
         </Col>
       </Row>
-   
+
       <Row gutter={16}>
         <Col xs={24} sm={12}>
           <Form.Item
@@ -53,12 +55,11 @@ const JobTimeLineForm = () => {
             name={'employmentTypeId'}
             id="employmentTypeId"
             label="Employment Type"
-            rules={[{ required: true, message: 'Please select an employment type' }]}
+            rules={[
+              { required: true, message: 'Please select an employment type' },
+            ]}
           >
-            <Select
-              placeholder="Select an employment type"
-              allowClear
-            >
+            <Select placeholder="Select an employment type" allowClear>
               {employementType?.items?.map((item: any, index: number) => (
                 <Option key={index} value={item?.id}>
                   {item?.name}
@@ -96,7 +97,9 @@ const JobTimeLineForm = () => {
             name={'branchId'}
             id="branchId"
             label="Branch Office"
-            rules={[{ required: true, message: 'Please select a branch office' }]}
+            rules={[
+              { required: true, message: 'Please select a branch office' },
+            ]}
           >
             <Select
               className="w-full"
@@ -114,18 +117,24 @@ const JobTimeLineForm = () => {
       </Row>
       {contractType === 'Contractual' && (
         <Row gutter={16}>
-        <Col xs={24}>
-          <Form.Item
-            className="font-semibold text-xs"
-            name={'effectiveEndDate'}
-            id="effectiveEndDate"
-            label="Effective End Date"
-            rules={[{ required: true, message: 'Please select the effective end date' }]}
-          >
-            <DatePicker className="w-full" />
-          </Form.Item>
-        </Col>
-      </Row>)}
+          <Col xs={24}>
+            <Form.Item
+              className="font-semibold text-xs"
+              name={'effectiveEndDate'}
+              id="effectiveEndDate"
+              label="Effective End Date"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select the effective end date',
+                },
+              ]}
+            >
+              <DatePicker className="w-full" />
+            </Form.Item>
+          </Col>
+        </Row>
+      )}
       <Row gutter={16}>
         <Col xs={24} sm={8}>
           <div className="font-semibold text-sm">Department Lead</div>

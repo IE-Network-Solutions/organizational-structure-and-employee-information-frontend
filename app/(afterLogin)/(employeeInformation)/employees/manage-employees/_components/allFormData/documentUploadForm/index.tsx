@@ -8,7 +8,7 @@ const { Dragger } = Upload;
 const DocumentUploadForm = () => {
   const { documentFileList, setDocumentFileList } = useEmployeeManagmentStore();
 
-  const beforeDocumentUpload = (file: UploadFile) => {
+  const beforeDocumentUpload = () => {
     // Allow all file types by default
     return true;
   };
@@ -19,7 +19,7 @@ const DocumentUploadForm = () => {
 
   const handleDocumentRemove = (file: UploadFile) => {
     setDocumentFileList((prevFileList: UploadFile[]) =>
-      prevFileList.filter((item: UploadFile) => item.uid !== file.uid)
+      prevFileList.filter((item: UploadFile) => item.uid !== file.uid),
     );
   };
 
@@ -43,7 +43,9 @@ const DocumentUploadForm = () => {
             style={{ textAlign: 'center' }}
             name="documentName"
             id="documentNameId"
-            rules={[{ required: true, message: 'Please choose the document type' }]}
+            rules={[
+              { required: true, message: 'Please choose the document type' },
+            ]}
           >
             <Dragger
               name="documentName"

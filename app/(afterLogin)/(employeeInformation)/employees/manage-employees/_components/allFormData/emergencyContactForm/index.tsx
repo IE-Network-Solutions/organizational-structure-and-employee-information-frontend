@@ -60,10 +60,7 @@ const EmergencyContactForm = () => {
             id="emergencyContactGender"
             rules={[{ required: true }]}
           >
-            <Select
-              placeholder="Select gender"
-              allowClear
-            >
+            <Select placeholder="Select gender" allowClear>
               <Option value="male">Male</Option>
               <Option value="female">Female</Option>
             </Select>
@@ -90,10 +87,7 @@ const EmergencyContactForm = () => {
             id="emergencyContactNationality"
             rules={[{ required: true }]}
           >
-            <Select
-              placeholder="Select nationality"
-              allowClear
-            >
+            <Select placeholder="Select nationality" allowClear>
               {nationalities?.items?.map((nationality: any, index: number) => (
                 <Option key={index} value={nationality?.id}>
                   {nationality?.name}

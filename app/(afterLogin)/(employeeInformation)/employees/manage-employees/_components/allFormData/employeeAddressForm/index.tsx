@@ -6,7 +6,7 @@ import UseSetCategorizedFormData from '../../customField';
 
 const EmployeeAddressForm = () => {
   const currentAddressForm = UseSetCategorizedFormData('Address');
-  
+
   return (
     <div>
       <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
@@ -18,7 +18,7 @@ const EmployeeAddressForm = () => {
             className="font-semibold text-xs"
             name={['address', 'addressCountry']}
             label="Country"
-            id='addressCountryId'
+            id="addressCountryId"
             rules={[{ required: true, message: 'Please enter the country' }]}
           >
             <Input />
@@ -29,7 +29,7 @@ const EmployeeAddressForm = () => {
             className="font-semibold text-xs"
             name={['address', 'addressCity']}
             label="City"
-            id='addressCityId'
+            id="addressCityId"
             rules={[{ required: true, message: 'Please enter the city' }]}
           >
             <Input />

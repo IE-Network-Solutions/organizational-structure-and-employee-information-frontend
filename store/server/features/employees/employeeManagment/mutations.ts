@@ -18,8 +18,8 @@ const createEmployee = async (values: any) => {
     method: 'POST',
     data: values,
     headers: {
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     },
   });
 };
@@ -29,8 +29,8 @@ const updateEmployee = async (values: any) => {
     url: `${ORG_AND_EMP_URL}/users/${values?.usersId}`,
     method: 'patch',
     headers: {
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     },
     data: values,
   });
@@ -45,13 +45,14 @@ const deleteEmployee = async ({
   setCurrentModal,
   setDeletedId,
 }: any) => {
-  const headers={
-    Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-    tenantId: tenantId,               // Pass tenantId in the headers
+  const headers = {
+    Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+    tenantId: tenantId, // Pass tenantId in the headers
   };
   try {
     const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/users/${deletedId}`,{headers}
+      `${ORG_AND_EMP_URL}/users/${deletedId}`,
+      { headers },
     );
     setCurrentModal(null);
     setDeletedId(null);
@@ -84,12 +85,12 @@ export const useAddEmployee = () => {
         description: 'Employee successfully Created',
       });
     },
-    onError:()=>{
+    onError: () => {
       NotificationMessage.error({
         message: 'Creating Failed',
         description: 'Employee Created Failed',
       });
-    }
+    },
   });
 };
 export const useUpdateEmployee = () => {

@@ -4,7 +4,6 @@ import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
-
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
@@ -15,9 +14,9 @@ const getDepartments = async () => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/tenant/departments`,
     method: 'GET',
-    headers:{
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     },
   });
 };
@@ -30,9 +29,9 @@ const getDepartments = async () => {
 
 const getDepartment = async (id: string) => {
   try {
-    const headers={
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     };
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/departments/tenant/departments/${id}`,

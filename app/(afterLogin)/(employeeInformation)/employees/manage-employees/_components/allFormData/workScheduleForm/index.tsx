@@ -43,21 +43,23 @@ const WorkScheduleForm: React.FC = () => {
     },
   ];
 
-  const data: DataType[] = (selectedWorkSchedule?.detail || []).map((schedule, index) => ({
-    key: index.toString(), // Use index or another unique identifier
-    workingDay: (
-      <div className="flex space-x-2 justify-start">
-        <Switch checked={schedule?.status} disabled />
-        <span>{schedule.dayOfWeek}</span>
-      </div>
-    ),
-    time: (
-      <TimePicker
-        defaultValue={dayjs(schedule.hours || '00:00:00', 'HH:mm:ss')}
-        disabled
-      />
-    ),
-  }));
+  const data: DataType[] = (selectedWorkSchedule?.detail || []).map(
+    (schedule, index) => ({
+      key: index.toString(), // Use index or another unique identifier
+      workingDay: (
+        <div className="flex space-x-2 justify-start">
+          <Switch checked={schedule?.status} disabled />
+          <span>{schedule.dayOfWeek}</span>
+        </div>
+      ),
+      time: (
+        <TimePicker
+          defaultValue={dayjs(schedule.hours || '00:00:00', 'HH:mm:ss')}
+          disabled
+        />
+      ),
+    }),
+  );
 
   return (
     <div>
@@ -71,7 +73,9 @@ const WorkScheduleForm: React.FC = () => {
             name="workScheduleId"
             id="workScheduleId"
             label="Work Schedule Category"
-            rules={[{ required: true, message: 'Please select a work schedule!' }]}
+            rules={[
+              { required: true, message: 'Please select a work schedule!' },
+            ]}
           >
             <Select
               placeholder="Select an option"

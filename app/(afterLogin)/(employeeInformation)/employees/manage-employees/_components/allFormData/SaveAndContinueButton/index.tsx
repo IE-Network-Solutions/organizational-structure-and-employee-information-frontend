@@ -1,10 +1,10 @@
 import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Button, Form } from 'antd';
 import React from 'react';
- interface props{
-  isLoading?:boolean
- }
-const ButtonContinue: React.FC<props> = ({isLoading}) => {
+interface Props {
+  isLoading?: boolean;
+}
+const ButtonContinue: React.FC<Props> = ({ isLoading }) => {
   const { setCurrent, current, setOpen } = useEmployeeManagmentStore();
 
   const handleBackClick = () => {
@@ -27,8 +27,10 @@ const ButtonContinue: React.FC<props> = ({isLoading}) => {
     <Form.Item className="font-semibold text-xs">
       <div className="w-full flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-6 sm:mt-8">
         <Button
-          name={current !== 0 ? "cancelUserSidebarButton" : "cancelSidebarButtonId"}
-          id={current !== 0 ? "BackSidebarButtonId" : "cancelSidebarButtonId"}
+          name={
+            current !== 0 ? 'cancelUserSidebarButton' : 'cancelSidebarButtonId'
+          }
+          id={current !== 0 ? 'BackSidebarButtonId' : 'cancelSidebarButtonId'}
           className="px-6 py-3 text-xs font-bold"
           onClick={handleBackClick}
         >
@@ -37,15 +39,19 @@ const ButtonContinue: React.FC<props> = ({isLoading}) => {
         <Button
           loading={isLoading}
           onClick={handleContinueClick}
-          id={isFinalStep ? "sidebarActionCreateSubmit" : "sidebarActionSubmitAndContinue"}
+          id={
+            isFinalStep
+              ? 'sidebarActionCreateSubmit'
+              : 'sidebarActionSubmitAndContinue'
+          }
           className="px-6 py-3 text-xs font-bold"
-          htmlType={isFinalStep ? "submit" : "button"}
+          htmlType={isFinalStep ? 'submit' : 'button'}
           type="primary"
         >
           {isFinalStep ? 'Submit' : 'Save and Continue'}
         </Button>
       </div>
-    </Form.Item> 
+    </Form.Item>
   );
 };
 

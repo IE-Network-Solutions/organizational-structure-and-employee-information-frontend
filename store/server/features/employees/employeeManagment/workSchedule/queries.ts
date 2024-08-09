@@ -17,8 +17,8 @@ const getWorkSchedules = async (): Promise<WorkScheduleData> => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/work-schedules`,
     headers: {
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     },
     method: 'GET',
   });
@@ -32,9 +32,9 @@ const getWorkSchedules = async (): Promise<WorkScheduleData> => {
 
 const getWorkSchedule = async (id: string) => {
   try {
-    const headers={
-      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
-      tenantId: tenantId,               // Pass tenantId in the headers
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
     };
 
     const response = await axios.get(

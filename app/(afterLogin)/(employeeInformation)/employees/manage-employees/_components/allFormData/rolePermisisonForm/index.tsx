@@ -12,26 +12,50 @@ interface RolePermissionFormProps {
 }
 
 const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
-  const { data: permissionList, error: permissionError } = useGetPermissionsWithOutPagination();
-  const { data: rolesWithPermission, error: roleError } = useGetRolesWithPermission();
-  const { setSelectedRoleOnOption, setSelectedRoleOnList, selectedRoleOnOption } = useSettingStore();
-  const { selectedPermissions, setSelectedPermissions } = useEmployeeManagmentStore();
+  const { data: permissionList, error: permissionError } =
+    useGetPermissionsWithOutPagination();
+  const { data: rolesWithPermission, error: roleError } =
+    useGetRolesWithPermission();
+  const {
+    setSelectedRoleOnOption,
+    setSelectedRoleOnList,
+    selectedRoleOnOption,
+  } = useSettingStore();
+  const { selectedPermissions, setSelectedPermissions } =
+    useEmployeeManagmentStore();
 
-  const onRoleChangeHandler = useCallback((value: string) => {
-    const selectedRole = rolesWithPermission?.find((role) => role.id === value);
-    setSelectedRoleOnList(selectedRole);
-    setSelectedRoleOnOption(value);
+  const onRoleChangeHandler = useCallback(
+    (value: string) => {
+      const selectedRole = rolesWithPermission?.find(
+        (role) => role.id === value,
+      );
+      setSelectedRoleOnList(selectedRole);
+      setSelectedRoleOnOption(value);
 
-    const newPermissions = selectedRole?.permissions?.map((item: any) => item.id) || [];
-    setSelectedPermissions(newPermissions);
-  }, [rolesWithPermission, setSelectedRoleOnList, setSelectedRoleOnOption, setSelectedPermissions]);
+      const newPermissions =
+        selectedRole?.permissions?.map((item: any) => item.id) || [];
+      setSelectedPermissions(newPermissions);
+    },
+    [
+      rolesWithPermission,
+      setSelectedRoleOnList,
+      setSelectedRoleOnOption,
+      setSelectedPermissions,
+    ],
+  );
 
-  const handlePermissionChange = useCallback((value: string[]) => {
-    setSelectedPermissions(value);
-  }, [setSelectedPermissions]);
+  const handlePermissionChange = useCallback(
+    (value: string[]) => {
+      setSelectedPermissions(value);
+    },
+    [setSelectedPermissions],
+  );
 
   useEffect(() => {
-    form.setFieldsValue({ setOfPermission: selectedPermissions, set: 'ahmedin' });
+    form.setFieldsValue({
+      setOfPermission: selectedPermissions,
+      set: 'ahmedin',
+    });
   }, [selectedPermissions, form]);
 
   if (permissionError || roleError) {
@@ -75,7 +99,10 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
             id="setOfPermission"
             label="Set of Permissions"
             rules={[
-              { required: true, message: 'Please select at least one permission!' }
+              {
+                required: true,
+                message: 'Please select at least one permission!',
+              },
             ]}
           >
             <Select
