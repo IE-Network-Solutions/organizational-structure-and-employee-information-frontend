@@ -13,8 +13,7 @@ interface WorkScheduleProps {
 }
 
 const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
-  const { name, standardHours, detail, setName, setStandardHours, setDetail } =
-    useScheduleStore();
+  const { name, detail, setName, setDetail } = useScheduleStore();
   /* eslint-disable @typescript-eslint/naming-convention */
 
   const columns: ColumnsType<ScheduleDetail> = [
@@ -156,7 +155,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
               }}
             />
           </FormItem>
-          <Form.Item
+          {/* <Form.Item
             name="standardHours"
             label="Standard working hours/day"
             className="w-full font-normal text-lg md:text-xl mt-6 md:mt-12"
@@ -185,7 +184,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
                 form.validateFields(['standardHours']);
               }}
             />
-          </Form.Item>
+          </Form.Item> */}
 
           <div className="overflow-x-auto">
             <Table

@@ -17,7 +17,6 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
   ],
   standardHours: 0,
   setName: (name) => set({ name }),
-  setStandardHours: (hours) => set({ standardHours: hours }),
   setDetail: (dayOfWeek, data) =>
     set((state) => ({
       detail: state.detail.map((day) =>
@@ -39,7 +38,6 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
     const state = get();
     return {
       name: state.name,
-      standardHours: state.standardHours,
       detail: state.detail,
     };
   },

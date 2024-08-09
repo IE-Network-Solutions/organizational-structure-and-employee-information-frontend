@@ -4,4 +4,4 @@ export const TENANT_MGMT_URL = process.env.TENANT_MGMT_URL;
 
 export const BASE_FRONT_URL = process.env.BASE_FRONT_URL
 
-export const tenantId = '627eb17e-e60c-47db-a0ae-fe4beab893c0'
+export const tenantId = '3f8e6067-ff4e-464c-b70c-17f36a9dc80f'
