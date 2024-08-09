@@ -2,6 +2,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
 import { FiscalYear } from './interface';
+import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const headers = {
   tenantId: tenantId,
@@ -22,8 +23,10 @@ const deleteFiscalYear = async (id: string) => {
 export const useCreateFiscalYear = () => {
   const queryClient = useQueryClient();
   return useMutation(createFiscalYear, {
-    onSuccess: () => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('fiscalYears');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
   });
 };
@@ -31,8 +34,10 @@ export const useCreateFiscalYear = () => {
 export const useUpdateFiscalYear = () => {
   const queryClient = useQueryClient();
   return useMutation((data: { id: string; fiscalYear: FiscalYear }) => updateFiscalYear(data.id, data.fiscalYear), {
-    onSuccess: () => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('fiscalYears');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
   });
 };
@@ -40,8 +45,10 @@ export const useUpdateFiscalYear = () => {
 export const useDeleteFiscalYear = () => {
   const queryClient = useQueryClient();
   return useMutation((id: string) => deleteFiscalYear(id), {
-    onSuccess: () => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('fiscalYears');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
   });
 };

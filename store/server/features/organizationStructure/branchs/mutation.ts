@@ -3,6 +3,8 @@ import { useMutation, useQueryClient } from "react-query";
 import { Branch } from "./interface";
 import { ORG_AND_EMP_URL, tenantId } from "@/utils/constants";
 import NotificationMessage from "@/components/common/notification/notificationMessage";
+import { handleNetworkError } from "@/utils/showErrorResponse";
+import { handleSuccessMessage } from "@/utils/showSuccessMessage";
 
 
 /**
@@ -44,13 +46,11 @@ const deleteBranch = async (id: string) => {
 export const useCreateBranch = () => {
   const queryClient = useQueryClient();
   return useMutation(createBranch, {
-    onSuccess: (data:any) => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries("branches");
-      NotificationMessage.success({message:`Success` , description:"Successfully Created"})
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
-    onError:(error:any) =>{
-      NotificationMessage.error(error)
-    }
   });
 };
 
@@ -65,8 +65,10 @@ export const useUpdateBranch = () => {
     return useMutation(
       (data: { id: string; branch: Branch }) => updateBranch(data.id, data.branch),
       {
-        onSuccess: () => {
+        onSuccess: (_, variables: any) => {
           queryClient.invalidateQueries("branches");
+          const method = variables?.method?.toUpperCase();
+          handleSuccessMessage(method);
         },
       }
     );
@@ -80,8 +82,10 @@ export const useUpdateBranch = () => {
   export const useDeleteBranch = () => {
     const queryClient = useQueryClient();
     return useMutation(deleteBranch, {
-      onSuccess: () => {
+      onSuccess: (_, variables: any) => {
         queryClient.invalidateQueries("branches");
+        const method = variables?.method?.toUpperCase();
+        handleSuccessMessage(method);
       },
     });
   };

@@ -2,6 +2,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { TENANT_MGMT_URL, tenantId } from '@/utils/constants';
 import { CompanyInformation, CompanyProfileImage } from '@/store/uistate/features/organizationStructure/companyProfile/interface';
+import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const headers = {
   tenantId: tenantId,
@@ -63,8 +64,11 @@ export const useGetCompanyProfileByTenantId = (tenantId: string) => {
 export const useUpdateCompanyProfile = () => {
   const queryClient = useQueryClient();
   return useMutation(updateCompanyProfile, {
-    onSuccess: () => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('companyProfile');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+      
     },
   });
 };

@@ -2,6 +2,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { CompanyInfo } from './interface';
 import { TENANT_MGMT_URL, tenantId } from '@/utils/constants';
+import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const headers = {
   tenantId: tenantId,
@@ -56,8 +57,10 @@ const deleteCompanyInfo = async (id: string) => {
 export const useCreateCompanyInfo = () => {
   const queryClient = useQueryClient();
   return useMutation(createCompanyInfo, {
-    onSuccess: () => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('companyInfo');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
   });
 };
@@ -70,8 +73,10 @@ export const useCreateCompanyInfo = () => {
 export const useUpdateCompanyInfo = () => {
   const queryClient = useQueryClient();
   return useMutation(updateCompanyInfo, {
-    onSuccess: () => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('companyInfo');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
   });
 };
@@ -84,8 +89,10 @@ export const useUpdateCompanyInfo = () => {
 export const useDeleteCompanyInfo = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteCompanyInfo, {
-    onSuccess: () => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('companyInfo');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
   });
 };

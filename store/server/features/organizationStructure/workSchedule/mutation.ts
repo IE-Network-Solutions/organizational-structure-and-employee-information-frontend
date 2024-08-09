@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { Schedule } from './interface';
 import { crudRequest } from '@/utils/crudRequest';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const headers = {
   tenantId: '8f2e3691-423f-4f21-b676-ba3a932b7c7f',
@@ -42,8 +43,10 @@ const deleteSchedule = async (id: string) => {
 export const useCreateSchedule = () => {
   const queryClient = useQueryClient();
   return useMutation(createSchedule, {
-    onSuccess: () => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('schedule');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
   });
 };
@@ -51,8 +54,10 @@ export const useCreateSchedule = () => {
 export const useUpdateSchedule = () => {
   const queryClient = useQueryClient();
   return useMutation(updateSchedule, {
-    onSuccess: () => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('schedule');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
   });
 };
@@ -60,8 +65,10 @@ export const useUpdateSchedule = () => {
 export const useDeleteSchedule = () => {
   const queryClient = useQueryClient();
   return useMutation((id: string) => deleteSchedule(id), {
-    onSuccess: () => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('schedule');
+      const method = variables?.method?.toUpperCase();
+        handleSuccessMessage(method);
     },
   });
 };

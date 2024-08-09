@@ -4,6 +4,7 @@ import { OrgChart } from "./interface";
 import { ORG_AND_EMP_URL, tenantId } from "@/utils/constants";
 import { OrgData } from "@/types/dashboard/organization";
 import NotificationMessage from "@/components/common/notification/notificationMessage";
+import { handleSuccessMessage } from "@/utils/showSuccessMessage";
 
 /**
  * Create a new organization chart.
@@ -44,8 +45,10 @@ const deleteOrgChart = async (id: string) => {
 export const useCreateOrgChart = () => {
   const queryClient = useQueryClient();
   return useMutation(createOrgChart, {
-    onSuccess: () => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries("orgcharts");
+      const method = variables?.method?.toUpperCase();
+        handleSuccessMessage(method);
     },
   });
 };
@@ -60,8 +63,10 @@ export const useUpdateOrgChart = () => {
   return useMutation(
     (data: { id: string; orgChart: OrgChart }) => updateOrgChart(data.id, data.orgChart),
     {
-      onSuccess: () => {
+      onSuccess: (_, variables: any) => {
         queryClient.invalidateQueries("orgcharts");
+        const method = variables?.method?.toUpperCase();
+        handleSuccessMessage(method);
       },
     }
   );
@@ -75,11 +80,11 @@ export const useUpdateOrgChart = () => {
 export const useDeleteOrgChart = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteOrgChart, {
-    onSuccess: () => {
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries("orgcharts");
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
-    onError:(error:any)=>{
-      NotificationMessage.error(error)
-    }
+   
   });
 };
