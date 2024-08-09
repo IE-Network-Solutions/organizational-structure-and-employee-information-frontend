@@ -4,23 +4,28 @@ import { MdOutlineUploadFile } from 'react-icons/md';
 import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const { Dragger } = Upload;
+
 const DocumentUploadForm = () => {
   const { documentFileList, setDocumentFileList } = useEmployeeManagmentStore();
 
-  const beforeDocumentUpload = () => {
-    return true; // Allow all file types by default
+  const beforeDocumentUpload = (file: UploadFile) => {
+    // Allow all file types by default
+    return true;
   };
+
   const handleDocumentChange = ({ fileList }: { fileList: UploadFile[] }) => {
     setDocumentFileList(fileList);
   };
+
   const handleDocumentRemove = (file: UploadFile) => {
-    setDocumentFileList((prevFileList: any) =>
-      prevFileList.filter((item: any) => item.uid !== file.uid),
+    setDocumentFileList((prevFileList: UploadFile[]) =>
+      prevFileList.filter((item: UploadFile) => item.uid !== file.uid)
     );
   };
+
   const customRequest = async ({ file, onSuccess, onError }: any) => {
     try {
-      // Simulating file upload process
+      // Simulate file upload process
       const url = URL.createObjectURL(file);
       file.url = url;
       onSuccess('ok');
@@ -28,16 +33,17 @@ const DocumentUploadForm = () => {
       onError(error);
     }
   };
+
   return (
-    <div>
+    <div className="p-4 sm:p-6 lg:p-8">
       <Row justify="center" style={{ width: '100%' }}>
         <Col span={24}>
           <Form.Item
-            className="font-semibold text-xs bg-white"
+            className="font-semibold text-xs"
             style={{ textAlign: 'center' }}
             name="documentName"
             id="documentNameId"
-            rules={[{ required: true, message: 'Please choose the type' }]}
+            rules={[{ required: true, message: 'Please choose the document type' }]}
           >
             <Dragger
               name="documentName"
@@ -46,32 +52,32 @@ const DocumentUploadForm = () => {
               onChange={handleDocumentChange}
               onRemove={handleDocumentRemove}
               customRequest={customRequest}
-              listType="picture" // List type can be adjusted based on your needs
-              accept="*/*" // Accept all file types
+              listType="picture"
+              accept="*/*"
             >
-              <div className="flex justify-start text-xl font-semibold text-gray-950">
-                Documents Upload
+              <div className="flex justify-start items-center text-xl font-semibold text-gray-950">
+                <p>Documents Upload</p>
               </div>
               <p className="ant-upload-drag-icon">
                 <Image
                   preview={false}
-                  className="w-full"
+                  className="w-full max-w-xs"
                   src="../Uploading.png"
                   alt="Loading"
                 />
               </p>
               <p className="ant-upload-hint text-xl font-bold text-gray-950 my-4">
-                Drag & drop here to Upload.
+                Drag & drop here to Upload
               </p>
               <p className="ant-upload-hint text-xs text-gray-950">
-                or select file from your computer.
+                or select a file from your computer
               </p>
               <Button
-                className="ant-upload-text font-semibold text-white py-6 text-sm my-4"
+                className="ant-upload-text font-semibold text-white py-3 px-6 text-sm my-4 bg-blue-500 hover:bg-blue-600"
                 type="primary"
               >
-                <MdOutlineUploadFile className="text-white text-xl" />
-                Upload file
+                <MdOutlineUploadFile className="text-white text-xl mr-2" />
+                Upload File
               </Button>
             </Dragger>
           </Form.Item>

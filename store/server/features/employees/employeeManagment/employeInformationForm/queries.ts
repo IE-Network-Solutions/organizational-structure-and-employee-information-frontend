@@ -1,23 +1,23 @@
-import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import { EmployeeInformationForm } from './interface';
-
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
 const getEmpoyeInformationForms = async () => {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json', // Example header
-    tenantId: tenantId,
-    // Add other headers here as needed
-  };
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information-form`,
     method: 'GET',
-    headers: headers,
+    headers: {
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
+    },
   });
 };
 
@@ -29,11 +29,9 @@ const getEmpoyeInformationForms = async () => {
 
 const getEmpoyeInformationForm = async (id: string) => {
   try {
-    const headers: Record<string, string> = {
-      // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
-      'Content-Type': 'application/json', // Example header
-      tenantId: tenantId,
-      // Add other headers here as needed
+    const headers={
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
     };
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/employee-information-form/${id}`,
@@ -54,11 +52,13 @@ const getEmpoyeInformationFormForTenant = async () => {
   try {
     // const tenantId = localStorage.getItem('tenantId');
     // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
-    const headers: Record<string, string> | undefined = { tenantId: tenantId };
 
     return crudRequest({
       url: `${ORG_AND_EMP_URL}/employee-information-form/tenant/find-form-fields-by-tenant-id`,
-      headers,
+      headers: {
+        Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+        tenantId: tenantId,               // Pass tenantId in the headers
+      },
       method: 'GET',
     });
   } catch (error) {

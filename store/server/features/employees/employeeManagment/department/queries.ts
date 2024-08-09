@@ -1,8 +1,12 @@
-import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
+
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
@@ -11,7 +15,10 @@ const getDepartments = async () => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/tenant/departments`,
     method: 'GET',
-    headers: { tenantId: tenantId },
+    headers:{
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
+    },
   });
 };
 
@@ -21,12 +28,11 @@ const getDepartments = async () => {
  * @returns The response data from the API
  */
 
-const getNationality = async (id: string) => {
+const getDepartment = async (id: string) => {
   try {
-    const headers: Record<string, string> = {
-      // 'Authorization': token ? `Bearer ${token}` : '',
-      tenantId: tenantId,
-      'Content-Type': 'application/json',
+    const headers={
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
     };
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/departments/tenant/departments/${id}`,
@@ -63,8 +69,8 @@ export const useGetDepartments = () =>
  */
 export const useGetDepartment = (departmentID: string) =>
   useQuery<any>(
-    ['departments', departmentID],
-    () => getNationality(departmentID),
+    ['department', departmentID],
+    () => getDepartment(departmentID),
     {
       keepPreviousData: true,
     },

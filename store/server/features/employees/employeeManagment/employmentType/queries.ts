@@ -1,24 +1,24 @@
-import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import { EmploymentTypeList } from '../employeInformationForm/interface';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
 const getEmployeementTypes = async () => {
-  const headers: Record<string, string> = {
-    // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
-    'Content-Type': 'application/json', // Example header
-    tenantid: tenantId,
-    // Add other headers here as needed
-  };
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employement-type`,
     method: 'GET',
-    headers: headers,
+    headers: {
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
+    },
   });
 };
 
@@ -30,11 +30,9 @@ const getEmployeementTypes = async () => {
 
 const getEmployeementType = async (id: string) => {
   try {
-    const headers: Record<string, string> = {
-      // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
-      'Content-Type': 'application/json', // Example header
-      tenantid: tenantId,
-      // Add other headers here as needed
+    const headers={
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
     };
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/employement-type/${id}`,

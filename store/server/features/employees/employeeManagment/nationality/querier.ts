@@ -1,9 +1,12 @@
-import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import { NationalityList } from '../employeInformationForm/interface';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
@@ -12,8 +15,11 @@ const getNationalities = async () => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/nationality`,
     method: 'GET',
-    headers: { tenantId: tenantId },
-  });
+    headers: {
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
+    },
+    });
 };
 
 /**
@@ -24,10 +30,9 @@ const getNationalities = async () => {
 
 const getNationality = async (id: string) => {
   try {
-    const headers: Record<string, string> = {
-      // 'Authorization': token ? `Bearer ${token}` : '',
-      tenantId: tenantId,
-      'Content-Type': 'application/json',
+    const headers={
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
     };
     const response = await axios.get(`${ORG_AND_EMP_URL}/nationality/${id}`, {
       headers,

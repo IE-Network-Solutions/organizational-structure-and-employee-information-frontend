@@ -1,9 +1,11 @@
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { WorkScheduleData } from '@/store/uistate/features/employees/employeeManagment';
-import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
-
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
@@ -11,11 +13,13 @@ import { useQuery } from 'react-query';
 const getWorkSchedules = async (): Promise<WorkScheduleData> => {
   // const tenantId = localStorage.getItem('tenantId');
   // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
-  const headers: Record<string, string> | undefined = { tenantId: tenantId };
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/work-schedules`,
-    headers,
+    headers: {
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
+    },
     method: 'GET',
   });
 };
@@ -28,11 +32,9 @@ const getWorkSchedules = async (): Promise<WorkScheduleData> => {
 
 const getWorkSchedule = async (id: string) => {
   try {
-    const headers: Record<string, string> = {
-      // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
-      'Content-Type': 'application/json', // Example header
-      tenantid: tenantId,
-      // Add other headers here as needed
+    const headers={
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
     };
 
     const response = await axios.get(

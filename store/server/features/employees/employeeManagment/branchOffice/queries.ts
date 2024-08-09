@@ -1,9 +1,12 @@
-import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Meta } from '../../settings/groupPermission/interface';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 type Item = {
   id: string;
   createdAt: string;
@@ -27,17 +30,15 @@ type ResponseData = {
  * @returns The response data from the API
  */
 const getBranches = async () => {
-  const headers: Record<string, string> = {
-    // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
-    'Content-Type': 'application/json', // Example header
-    tenantid: tenantId,
-    // Add other headers here as needed
-  };
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/branchs`,
     method: 'GET',
-    headers: headers,
-  });
+    headers: {
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
+    },
+    });
 };
 
 /**
@@ -48,11 +49,9 @@ const getBranches = async () => {
 
 const getBranch = async (id: number) => {
   try {
-    const headers: Record<string, string> = {
-      // 'Authorization': `Bearer ${localStorage.getItem('token')}`, // Example header
-      'Content-Type': 'application/json', // Example header
-      tenantid: tenantId,
-      // Add other headers here as needed
+    const headers={
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
     };
     const response = await axios.get(`${ORG_AND_EMP_URL}/branchs/${id}`, {
       headers,

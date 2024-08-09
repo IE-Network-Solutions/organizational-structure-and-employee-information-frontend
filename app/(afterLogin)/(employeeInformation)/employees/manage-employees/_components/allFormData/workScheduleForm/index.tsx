@@ -4,13 +4,16 @@ import { Col, Form, Row, Select, Switch, Table, TimePicker } from 'antd';
 import { TableProps } from 'antd/lib';
 import dayjs from 'dayjs';
 import React from 'react';
+
 const { Option } = Select;
+
 interface DataType {
   key: string;
-  workingDay: any;
-  time: any;
+  workingDay: React.ReactNode;
+  time: React.ReactNode;
 }
-const WorkScheduleForm = () => {
+
+const WorkScheduleForm: React.FC = () => {
   const { data: workSchedules } = useGetWorkSchedules();
   const {
     selectedWorkSchedule,
@@ -26,12 +29,12 @@ const WorkScheduleForm = () => {
     setSelectedWorkSchedule(selectedValue || null);
     setWorkSchedule(value);
   };
+
   const columns: TableProps<DataType>['columns'] = [
     {
       title: 'Working Day',
       dataIndex: 'workingDay',
       key: 'workingDay',
-      render: (text) => <a>{text}</a>,
     },
     {
       title: 'Time',
@@ -39,21 +42,23 @@ const WorkScheduleForm = () => {
       key: 'time',
     },
   ];
-  const data = selectedWorkSchedule?.detail?.map((schedule) => ({
-    key: '1',
+
+  const data: DataType[] = (selectedWorkSchedule?.detail || []).map((schedule, index) => ({
+    key: index.toString(), // Use index or another unique identifier
     workingDay: (
       <div className="flex space-x-2 justify-start">
-        <Switch defaultChecked disabled />
-        <span>{schedule?.dayOfWeek}</span>
+        <Switch checked={schedule?.status} disabled />
+        <span>{schedule.dayOfWeek}</span>
       </div>
     ),
     time: (
       <TimePicker
-        defaultValue={dayjs(schedule?.hours || '00:00:00', 'HH:mm:ss')}
+        defaultValue={dayjs(schedule.hours || '00:00:00', 'HH:mm:ss')}
         disabled
       />
     ),
   }));
+
   return (
     <div>
       <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
@@ -63,12 +68,10 @@ const WorkScheduleForm = () => {
         <Col xs={24} sm={24}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'workScheduleId'}
+            name="workScheduleId"
             id="workScheduleId"
             label="Work Schedule Category"
-            rules={[
-              { required: true, message: 'Please select a work schedule!' },
-            ]}
+            rules={[{ required: true, message: 'Please select a work schedule!' }]}
           >
             <Select
               placeholder="Select an option"
@@ -76,7 +79,7 @@ const WorkScheduleForm = () => {
               allowClear
               value={workSchedule}
             >
-              {workSchedules?.items.map((schedule: any) => (
+              {workSchedules?.items.map((schedule) => (
                 <Option key={schedule.id} value={schedule.id}>
                   {schedule.name}
                 </Option>

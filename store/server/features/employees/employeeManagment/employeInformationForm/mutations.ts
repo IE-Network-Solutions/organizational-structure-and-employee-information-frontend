@@ -1,8 +1,12 @@
 import { useMutation, useQueryClient } from 'react-query';
 import axios from 'axios';
-import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to add a new post by sending a POST request to the API
  * @param newPost The data for the new post
@@ -12,7 +16,10 @@ const createEmployeeInformationForm = async (values: any) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information-form`,
     method: 'POST',
-    headers: { tenantId: tenantId },
+    headers: {
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
+    },
     data: values,
   });
 };
@@ -28,8 +35,13 @@ const deleteEmployeeInformationForm = async ({
   setDeletedId,
 }: any) => {
   try {
+    const headers={
+        Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+        tenantId: tenantId,               // Pass tenantId in the headers
+      };
+
     const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/employee-information-form/${deletedId}`,
+      `${ORG_AND_EMP_URL}/employee-information-form/${deletedId}`,{headers}
     );
     setCurrentModal(null);
     setDeletedId(null);

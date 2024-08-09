@@ -18,6 +18,7 @@ import { useGetNationalities } from '@/store/server/features/employees/employeeM
 
 const { Option } = Select;
 const { Dragger } = Upload;
+
 const BasicInformationForm = ({ form }: any) => {
   const { profileFileList, setProfileFileList } = useEmployeeManagmentStore();
   const { data: nationalities } = useGetNationalities();
@@ -53,7 +54,7 @@ const BasicInformationForm = ({ form }: any) => {
   };
 
   return (
-    <>
+    <div className="">
       <Row justify="center" style={{ width: '100%' }}>
         <Col span={24}>
           <Form.Item
@@ -106,7 +107,7 @@ const BasicInformationForm = ({ form }: any) => {
         <Col xs={24} sm={8}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'userFirstName'}
+            name="userFirstName"
             label="First Name"
             id="userFirstNameId"
             rules={[{ required: true }]}
@@ -117,8 +118,8 @@ const BasicInformationForm = ({ form }: any) => {
         <Col xs={24} sm={8}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'userMiddleName'}
-            label=" Middle Name"
+            name="userMiddleName"
+            label="Middle Name"
             id="userMiddleNameId"
             rules={[{ required: true }]}
           >
@@ -128,7 +129,7 @@ const BasicInformationForm = ({ form }: any) => {
         <Col xs={24} sm={8}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'userLastName'}
+            name="userLastName"
             label="Last Name"
             id="userLastNameId"
             rules={[{ required: true }]}
@@ -141,7 +142,7 @@ const BasicInformationForm = ({ form }: any) => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'userEmail'}
+            name="userEmail"
             label="Email Address"
             id="userEmailId"
             rules={[{ required: true }]}
@@ -152,13 +153,13 @@ const BasicInformationForm = ({ form }: any) => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'employeeGender'}
-            label=" Gender"
+            name="employeeGender"
+            label="Gender"
             id="userEmployeeGenderId"
             rules={[{ required: true }]}
           >
             <Select
-              placeholder="Select an option and change input text above"
+              placeholder="Select an option"
               allowClear
             >
               <Option value="male">Male</Option>
@@ -171,7 +172,7 @@ const BasicInformationForm = ({ form }: any) => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'dateOfBirth'}
+            name="dateOfBirth"
             label="Date of Birth"
             id="userDateOfBirthId"
             rules={[{ required: true }]}
@@ -182,13 +183,13 @@ const BasicInformationForm = ({ form }: any) => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'nationalityId'}
-            label=" Nationality"
+            name="nationalityId"
+            label="Nationality"
             id="userNationalityId"
             rules={[{ required: true }]}
           >
             <Select
-              placeholder="Select an option and change input text above"
+              placeholder="Select an option"
               allowClear
             >
               {nationalities?.items?.map((nationality: any, index: number) => (
@@ -204,15 +205,15 @@ const BasicInformationForm = ({ form }: any) => {
         <Col xs={24} sm={24}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'martialStatus'}
-            label="Martial status"
+            name="martialStatus"
+            label="Marital Status"
             id="userMartialStatusId"
             rules={[
               { required: true, message: 'Please select a marital status!' },
             ]}
           >
             <Select
-              placeholder="Select an option and change input text above"
+              placeholder="Select an option"
               allowClear
             >
               <Option value="single">Single</Option>
@@ -222,7 +223,7 @@ const BasicInformationForm = ({ form }: any) => {
           </Form.Item>
         </Col>
       </Row>
-    </>
+    </div>
   );
 };
 

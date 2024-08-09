@@ -1,8 +1,10 @@
-import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
-
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
@@ -10,7 +12,10 @@ import { useQuery } from 'react-query';
 const getEmployees = async () => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee`,
-    headers: { tenantId: tenantId },
+    headers: {
+      Authorization: `Bearer ${token}`,  // Pass the token in the Authorization header
+      tenantId: tenantId,               // Pass tenantId in the headers
+    },
     method: 'GET',
   });
 };
@@ -23,11 +28,10 @@ const getEmployees = async () => {
 
 const getEmployee = async (id: number) => {
   try {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json', // Example header
-      tenantId: tenantId,
+    const headers={
+      Authorization: `Bearer ${token}`,  
+      tenantId: tenantId,              
     };
-
     const response = await axios.get(`${ORG_AND_EMP_URL}/employee/${id}`, {
       headers,
     });

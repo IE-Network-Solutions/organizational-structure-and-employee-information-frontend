@@ -1,9 +1,8 @@
 import { useGetBranches } from '@/store/server/features/employees/employeeManagment/branchOffice/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
-import { Col, DatePicker, Form, Input, Radio, Row, Switch } from 'antd';
-import { Select } from 'antd/lib';
-import React from 'react';
+import { Col, DatePicker, Form, Input, Radio, Row, Select, Switch } from 'antd';
+import React, { useState } from 'react';
 
 const { Option } = Select;
 
@@ -11,38 +10,31 @@ const JobTimeLineForm = () => {
   const { data: departmentData } = useGetDepartments();
   const { data: employementType } = useGetEmployementTypes();
   const { data: branchOfficeData } = useGetBranches();
+  const [contractType, setContractType] = useState<string>('Permanent');
+
+  const handleContractTypeChange = (e:any) => {
+    setContractType(e.target.value);
+  };
 
   return (
     <div>
       <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
-        Job TimeLine
+        Job Timeline
       </div>
       <Row gutter={16}>
-        <Col xs={24} sm={24}>
+        <Col xs={24}>
           <Form.Item
             className="font-semibold text-xs"
             name={'joinedDate'}
-            label="joinedDate"
+            label="Joined Date"
             id="joinedDate"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Please select the joined date' }]}
           >
             <DatePicker className="w-full" />
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={24}>
-          <Form.Item
-            className="font-semibold text-xs"
-            name={'effectiveEndDate'}
-            id="effectiveEndDate"
-            label="Effective End Date"
-            rules={[{ required: true }]}
-          >
-            <DatePicker className="w-full" />
-          </Form.Item>
-        </Col>
-      </Row>
+   
       <Row gutter={16}>
         <Col xs={24} sm={12}>
           <Form.Item
@@ -50,7 +42,7 @@ const JobTimeLineForm = () => {
             name={'jobTitle'}
             id="jobTitle"
             label="Position"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Please enter the job title' }]}
           >
             <Input />
           </Form.Item>
@@ -61,10 +53,10 @@ const JobTimeLineForm = () => {
             name={'employmentTypeId'}
             id="employmentTypeId"
             label="Employment Type"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Please select an employment type' }]}
           >
             <Select
-              placeholder="Select a option and change input text above"
+              placeholder="Select an employment type"
               allowClear
             >
               {employementType?.items?.map((item: any, index: number) => (
@@ -83,11 +75,11 @@ const JobTimeLineForm = () => {
             name={'departmentId'}
             id="departmentId"
             label="Department"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Please select a department' }]}
           >
             <Select
               className="w-full"
-              placeholder="Select Department"
+              placeholder="Select a department"
               allowClear
             >
               {departmentData?.map((department: any, index: number) => (
@@ -104,11 +96,11 @@ const JobTimeLineForm = () => {
             name={'branchId'}
             id="branchId"
             label="Branch Office"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Please select a branch office' }]}
           >
             <Select
               className="w-full"
-              placeholder="Select office branch"
+              placeholder="Select a branch office"
               allowClear
             >
               {branchOfficeData?.items?.map((branch, index: number) => (
@@ -120,9 +112,23 @@ const JobTimeLineForm = () => {
           </Form.Item>
         </Col>
       </Row>
-      <Row>
+      {contractType === 'Contractual' && (
+        <Row gutter={16}>
+        <Col xs={24}>
+          <Form.Item
+            className="font-semibold text-xs"
+            name={'effectiveEndDate'}
+            id="effectiveEndDate"
+            label="Effective End Date"
+            rules={[{ required: true, message: 'Please select the effective end date' }]}
+          >
+            <DatePicker className="w-full" />
+          </Form.Item>
+        </Col>
+      </Row>)}
+      <Row gutter={16}>
         <Col xs={24} sm={8}>
-          <div className="font-semibold text-sm">Department Lead or Not</div>
+          <div className="font-semibold text-sm">Department Lead</div>
         </Col>
         <Col xs={24} sm={16}>
           <Form.Item
@@ -130,28 +136,28 @@ const JobTimeLineForm = () => {
             valuePropName="checked"
             id="departmentLeadOrNot"
           >
-            <Switch defaultChecked />
+            <Switch />
           </Form.Item>
         </Col>
       </Row>
 
       <Row gutter={16} className="flex justify-center items-center">
-        <Col xs={24} className="flex justify-center items-center">
+        <Col xs={24} className="flex justify-center items-center mt-2">
           <Form.Item
             className="font-semibold text-xs"
-            label=""
+            // label=" "
             id="employmentContractType"
             name={'employmentContractType'}
-            rules={[{ required: true, message: 'Please select a job type!' }]}
-            initialValue={1}
+            rules={[{ required: true, message: 'Please select a job type' }]}
+            initialValue="Permanent"
           >
-            <Radio.Group>
+            <Radio.Group onChange={handleContractTypeChange}>
               <Row>
                 <Col xs={24} sm={12}>
                   <Radio value="Permanent">Permanent</Radio>
                 </Col>
                 <Col xs={24} sm={12}>
-                  <Radio value="Contractual">Contract</Radio>
+                  <Radio value="Contractual">Contractual</Radio>
                 </Col>
               </Row>
             </Radio.Group>

@@ -3,39 +3,40 @@ import { useGetRolesWithPermission } from '@/store/server/features/employees/set
 import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import { Col, Form, Row, Select } from 'antd';
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 
 const { Option } = Select;
 
-const RolePermissionForm = ({ form }: any) => {
-  const { data: Permissionlist } = useGetPermissionsWithOutPagination();
-  const { data: rolesWithPermission } = useGetRolesWithPermission();
-  const {
-    setSelectedRoleOnOption,
-    setSelectedRoleOnList,
-    selectedRoleOnOption,
-  } = useSettingStore();
-  const { selectedPermissions, setSelectedPermissions } =
-    useEmployeeManagmentStore();
+interface RolePermissionFormProps {
+  form: any; // Define a proper type for the form if possible
+}
 
-  const onRoleChangeHandler = (value: string) => {
+const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
+  const { data: permissionList, error: permissionError } = useGetPermissionsWithOutPagination();
+  const { data: rolesWithPermission, error: roleError } = useGetRolesWithPermission();
+  const { setSelectedRoleOnOption, setSelectedRoleOnList, selectedRoleOnOption } = useSettingStore();
+  const { selectedPermissions, setSelectedPermissions } = useEmployeeManagmentStore();
+
+  const onRoleChangeHandler = useCallback((value: string) => {
     const selectedRole = rolesWithPermission?.find((role) => role.id === value);
     setSelectedRoleOnList(selectedRole);
     setSelectedRoleOnOption(value);
 
-    const newPermissions =
-      selectedRole?.permissions?.map((item: any) => item.id) || [];
+    const newPermissions = selectedRole?.permissions?.map((item: any) => item.id) || [];
     setSelectedPermissions(newPermissions);
-  };
+  }, [rolesWithPermission, setSelectedRoleOnList, setSelectedRoleOnOption, setSelectedPermissions]);
 
-  const handlePermissionChange = (value: string[]) => {
+  const handlePermissionChange = useCallback((value: string[]) => {
     setSelectedPermissions(value);
-  };
+  }, [setSelectedPermissions]);
 
   useEffect(() => {
-    form.setFieldValue('setOfPermission', selectedPermissions);
-    form.setFieldValue('set', 'ahmedin');
+    form.setFieldsValue({ setOfPermission: selectedPermissions, set: 'ahmedin' });
   }, [selectedPermissions, form]);
+
+  if (permissionError || roleError) {
+    return <div>Error loading data</div>; // Handle errors gracefully
+  }
 
   return (
     <div>
@@ -49,7 +50,7 @@ const RolePermissionForm = ({ form }: any) => {
             name="roleId"
             id="roleId"
             label="Role"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Please select a role!' }]}
           >
             <Select
               placeholder="Select a role"
@@ -57,7 +58,7 @@ const RolePermissionForm = ({ form }: any) => {
               allowClear
               value={selectedRoleOnOption}
             >
-              {rolesWithPermission?.map((role: any) => (
+              {rolesWithPermission?.map((role) => (
                 <Option key={role.id} value={role.id}>
                   {role.name}
                 </Option>
@@ -74,17 +75,14 @@ const RolePermissionForm = ({ form }: any) => {
             id="setOfPermission"
             label="Set of Permissions"
             rules={[
-              {
-                required: true,
-                message: 'Please select at least one permission!',
-              },
+              { required: true, message: 'Please select at least one permission!' }
             ]}
           >
             <Select
               mode="tags"
               style={{ width: '100%' }}
               onChange={handlePermissionChange}
-              options={Permissionlist?.items.map((option) => ({
+              options={permissionList?.items.map((option) => ({
                 label: option.name,
                 value: option.id,
               }))}

@@ -1,5 +1,5 @@
-import { Col, DatePicker, Form, Input, Row, Select } from 'antd';
 import React from 'react';
+import { Col, DatePicker, Form, Input, Row, Select } from 'antd';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import AddCustomField from '../../addCustomField';
 import DynamicFormFields from '../../dynamicFormDisplayer';
@@ -9,7 +9,7 @@ const { Option } = Select;
 
 const EmergencyContactForm = () => {
   const { data: nationalities } = useGetNationalities();
-  const EmregencyContactForm = UseSetCategorizedFormData('Emergency contact');
+  const emergencyContactForm = UseSetCategorizedFormData('Emergency contact');
 
   return (
     <div>
@@ -20,9 +20,9 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactfullName']}
+            name={['emergencyContact', 'emergencyContactFullName']}
             label="Full Name"
-            id="emergencyContactfullName"
+            id="emergencyContactFullName"
             rules={[{ required: true }]}
           >
             <Input />
@@ -31,9 +31,9 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactlastName']}
-            id="emergencyContactlastName"
+            name={['emergencyContact', 'emergencyContactLastName']}
             label="Last Name"
+            id="emergencyContactLastName"
             rules={[{ required: true }]}
           >
             <Input />
@@ -44,9 +44,9 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactemailAddress']}
+            name={['emergencyContact', 'emergencyContactEmailAddress']}
             label="Email Address"
-            id="emergencyContactemailAddress"
+            id="emergencyContactEmailAddress"
             rules={[{ required: true }]}
           >
             <Input />
@@ -55,12 +55,18 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactgender']}
+            name={['emergencyContact', 'emergencyContactGender']}
             label="Gender"
-            id="emergencyContactgender"
+            id="emergencyContactGender"
             rules={[{ required: true }]}
           >
-            <Input />
+            <Select
+              placeholder="Select gender"
+              allowClear
+            >
+              <Option value="male">Male</Option>
+              <Option value="female">Female</Option>
+            </Select>
           </Form.Item>
         </Col>
       </Row>
@@ -69,8 +75,8 @@ const EmergencyContactForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'emergencyContactDateOfBirth']}
+            label="Date of Birth"
             id="emergencyContactDateOfBirth"
-            label="Date Of Birth"
             rules={[{ required: true }]}
           >
             <DatePicker className="w-full" />
@@ -85,7 +91,7 @@ const EmergencyContactForm = () => {
             rules={[{ required: true }]}
           >
             <Select
-              placeholder="Select an option and change input text above"
+              placeholder="Select nationality"
               allowClear
             >
               {nationalities?.items?.map((nationality: any, index: number) => (
@@ -99,11 +105,11 @@ const EmergencyContactForm = () => {
       </Row>
       <DynamicFormFields
         formTitle="emergencyContact"
-        fields={EmregencyContactForm.form}
+        fields={emergencyContactForm.form}
       />
       <AddCustomField
         formTitle="Emergency contact"
-        customEmployeeInformationForm={EmregencyContactForm}
+        customEmployeeInformationForm={emergencyContactForm}
       />
     </div>
   );

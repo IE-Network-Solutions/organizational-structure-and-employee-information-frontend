@@ -20,26 +20,29 @@ import ButtonContinue from '../allFormData/SaveAndContinueButton';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 
 const { Step } = Steps;
+
 const UserSidebar = (props: any) => {
   const [form] = Form.useForm();
   const { setCurrent, current, open } = useEmployeeManagmentStore();
-  const useCreateEmployeeMutation = useAddEmployee();
+  const { mutate: createEmployee, isLoading } = useAddEmployee();
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 ">
-      {' '}
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Add New Employee
     </div>
   );
+
   const handleCreateUser = (values: any) => {
-    useCreateEmployeeMutation?.mutate(transformData(values));
+    createEmployee(transformData(values));
   };
+
   const onChange = (value: number) => {
     setCurrent(value);
   };
+
   const customDot = (step: number) => (
     <div
-      className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${current >= step && 'bg-indigo-700 text-white'}`}
+      className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${current >= step ? 'bg-indigo-700 text-white' : 'bg-white border-gray-300 text-gray-500'}`}
     >
       <div style={{ fontSize: '24px', lineHeight: '24px' }}>
         {current >= step ? (
@@ -50,6 +53,7 @@ const UserSidebar = (props: any) => {
       </div>
     </div>
   );
+
   return (
     open && (
       <CustomDrawerLayout
@@ -58,12 +62,11 @@ const UserSidebar = (props: any) => {
         modalHeader={modalHeader}
         width="40%"
       >
-        {/* //${current === 0 ? 'bg-red-600' : ''} */}
         <Steps
           current={current}
           size="small"
           onChange={onChange}
-          className={`my-10 `}
+          className="my-6 sm:my-10"
         >
           <Step icon={customDot(0)} />
           <Step icon={customDot(1)} />
@@ -77,29 +80,29 @@ const UserSidebar = (props: any) => {
           layout="vertical"
           onFinishFailed={() =>
             NotificationMessage.error({
-              message: 'some thing wrong or unfilled',
-              description: 'check back again',
+              message: 'Something went wrong or unfilled',
+              description: 'Please check the form again.',
             })
           }
           onFinish={handleCreateUser}
         >
-          <Card hidden={current !== 0}>
+          <Card hidden={current !== 0} className="p-4 sm:p-6">
             <BasicInformationForm form={form} />
             <EmployeeAddressForm />
             <EmergencyContactForm />
             <BankInformationForm />
             <ButtonContinue />
           </Card>
-          <Card hidden={current !== 1}>
+          <Card hidden={current !== 1} className="p-4 sm:p-6">
             <JobTimeLineForm />
             <RolePermissionForm form={form} />
             <WorkScheduleForm />
             <ButtonContinue />
           </Card>
-          <Card hidden={current !== 2}>
+          <Card hidden={current !== 2} className="p-4 sm:p-6">
             <AdditionalInformationForm />
             <DocumentUploadForm />
-            <ButtonContinue />
+            <ButtonContinue isLoading={isLoading} />
           </Card>
         </Form>
       </CustomDrawerLayout>

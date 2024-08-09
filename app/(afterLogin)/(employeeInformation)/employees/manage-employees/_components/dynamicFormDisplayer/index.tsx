@@ -1,23 +1,14 @@
 import React from 'react';
-import {
-  Form,
-  Input,
-  Select,
-  DatePicker,
-  Checkbox,
-  Switch,
-  Row,
-  Col,
-} from 'antd';
+import { Form, Input, Select, DatePicker, Checkbox, Switch, Row, Col } from 'antd';
 
 const { Option } = Select;
 
 interface FormField {
   id: string;
-  fieldType: string;
+  fieldType: 'input' | 'select' | 'datePicker' | 'checkbox' | 'toggle';
   isActive: boolean;
   fieldName: string;
-  options: any[];
+  options?: string[]; // Options for 'select', 'checkbox'
 }
 
 interface DynamicFormFieldsProps {
@@ -25,39 +16,30 @@ interface DynamicFormFieldsProps {
   formTitle: string;
 }
 
-const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
-  formTitle,
-  fields,
-}) => {
+const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ formTitle, fields }) => {
   const renderField = (field: FormField) => {
+    if (!field.isActive) return null; // Skip inactive fields
+
+    const commonProps = {
+      className: "font-semibold text-xs",
+      label: field.fieldName,
+      name: [formTitle, field.fieldName],
+      id: `${formTitle}${field.fieldName}`,
+      rules: [{ required: true, message: `${field.fieldName} is required` }],
+    };
+
     switch (field.fieldType) {
       case 'input':
         return (
-          <Form.Item
-            className="font-semibold text-xs"
-            label={field.fieldName}
-            name={[formTitle, field.fieldName]}
-            id={`${formTitle}${field.fieldName}`}
-            rules={[
-              { required: true, message: `${field.fieldName} is required` },
-            ]}
-          >
+          <Form.Item {...commonProps}>
             <Input />
           </Form.Item>
         );
       case 'select':
         return (
-          <Form.Item
-            className="font-semibold text-xs"
-            label={field.fieldName}
-            name={[formTitle, field.fieldName]}
-            id={`${formTitle}${field.fieldName}`}
-            rules={[
-              { required: true, message: `${field.fieldName} is required` },
-            ]}
-          >
+          <Form.Item {...commonProps}>
             <Select>
-              {field.options?.map((option: string) => (
+              {field.options?.map(option => (
                 <Option key={option} value={option}>
                   {option}
                 </Option>
@@ -67,31 +49,15 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
         );
       case 'datePicker':
         return (
-          <Form.Item
-            className="font-semibold text-xs w-full"
-            label={field.fieldName}
-            name={[formTitle, field.fieldName]}
-            id={`${formTitle}${field.fieldName}`}
-            rules={[
-              { required: true, message: `${field.fieldName} is required` },
-            ]}
-          >
+          <Form.Item {...commonProps} className="w-full">
             <DatePicker />
           </Form.Item>
         );
       case 'checkbox':
         return (
-          <Form.Item
-            className="font-semibold text-xs"
-            label={field.fieldName}
-            name={[formTitle, field.fieldName]}
-            id={`${formTitle}${field.fieldName}`}
-            rules={[
-              { required: true, message: `${field.fieldName} is required` },
-            ]}
-          >
+          <Form.Item {...commonProps}>
             <Checkbox.Group>
-              {field.options.map((option) => (
+              {field.options?.map(option => (
                 <Checkbox key={option} value={option}>
                   {option}
                 </Checkbox>
@@ -101,16 +67,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
         );
       case 'toggle':
         return (
-          <Form.Item
-            className="font-semibold text-xs"
-            label={field.fieldName}
-            name={[formTitle, field.fieldName]}
-            id={`${formTitle}${field.fieldName}`}
-            valuePropName="checked"
-            rules={[
-              { required: true, message: `${field.fieldName} is required` },
-            ]}
-          >
+          <Form.Item {...commonProps} valuePropName="checked">
             <Switch />
           </Form.Item>
         );
@@ -130,7 +87,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
           <Col xs={24} sm={12}>
             {fields[i + 1] && renderField(fields[i + 1])}
           </Col>
-        </Row>,
+        </Row>
       );
     }
     return rows;
