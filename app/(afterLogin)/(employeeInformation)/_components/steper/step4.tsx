@@ -155,37 +155,6 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
               }}
             />
           </FormItem>
-          {/* <Form.Item
-            name="standardHours"
-            label="Standard working hours/day"
-            className="w-full font-normal text-lg md:text-xl mt-6 md:mt-12"
-            initialValue={standardHours}
-            rules={[
-              {
-                required: true,
-                message: 'Please input standard working hours!',
-              },
-              {
-                pattern: /^(2[0-4]|1[0-9]|[1-9])$/,
-                message: 'The number must be between 1 and 24!',
-              },
-            ]}
-          >
-            <Input
-              size="large"
-              className="mt-2 w-full font-normal text-sm md:text-base"
-              placeholder="0-24"
-              type="number"
-              value={standardHours}
-              onChange={(e) => {
-                const value = e.target.value ? Number(e.target.value) : 0;
-                setStandardHours(value);
-                form.setFieldsValue({ standardHours: value });
-                form.validateFields(['standardHours']);
-              }}
-            />
-          </Form.Item> */}
-
           <div className="overflow-x-auto">
             <Table
               columns={columns}
