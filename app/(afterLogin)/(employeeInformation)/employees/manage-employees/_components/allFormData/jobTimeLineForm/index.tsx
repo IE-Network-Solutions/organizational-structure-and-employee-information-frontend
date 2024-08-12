@@ -1,6 +1,7 @@
 import { useGetBranches } from '@/store/server/features/employees/employeeManagment/branchOffice/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
+import { validateName } from '@/utils/validation';
 import { Col, DatePicker, Form, Input, Radio, Row, Select, Switch } from 'antd';
 import React, { useState } from 'react';
 
@@ -44,7 +45,14 @@ const JobTimeLineForm = () => {
             name={'jobTitle'}
             id="jobTitle"
             label="Position"
-            rules={[{ required: true, message: 'Please enter the job title' }]}
+            rules={[
+              {
+                validator: (_, value) =>
+                  !validateName('job title',value)
+                    ? Promise.resolve()
+                    : Promise.reject(new Error(validateName('job title',value) || '')),
+              },
+            ]} 
           >
             <Input />
           </Form.Item>

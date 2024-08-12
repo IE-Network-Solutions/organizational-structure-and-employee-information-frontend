@@ -4,6 +4,7 @@ import { useGetNationalities } from '@/store/server/features/employees/employeeM
 import AddCustomField from '../../addCustomField';
 import DynamicFormFields from '../../dynamicFormDisplayer';
 import UseSetCategorizedFormData from '../../customField';
+import { validateEmail, validateName } from '@/utils/validation';
 
 const { Option } = Select;
 
@@ -23,7 +24,14 @@ const EmergencyContactForm = () => {
             name={['emergencyContact', 'emergencyContactFullName']}
             label="Full Name"
             id="emergencyContactFullName"
-            rules={[{ required: true }]}
+            rules={[
+              {
+                validator: (_, value) =>
+                  !validateName('Full Name',value)
+                    ? Promise.resolve()
+                    : Promise.reject(new Error(validateName('Full Name',value) || '')),
+              },
+            ]} 
           >
             <Input />
           </Form.Item>
@@ -34,8 +42,14 @@ const EmergencyContactForm = () => {
             name={['emergencyContact', 'emergencyContactLastName']}
             label="Last Name"
             id="emergencyContactLastName"
-            rules={[{ required: true }]}
-          >
+            rules={[
+              {
+                validator: (_, value) =>
+                  !validateName('Last Name',value)
+                    ? Promise.resolve()
+                    : Promise.reject(new Error(validateName('Last Name',value) || '')),
+              },
+            ]}>
             <Input />
           </Form.Item>
         </Col>
@@ -47,7 +61,14 @@ const EmergencyContactForm = () => {
             name={['emergencyContact', 'emergencyContactEmailAddress']}
             label="Email Address"
             id="emergencyContactEmailAddress"
-            rules={[{ required: true }]}
+            rules={[
+              {
+                validator: (_, value) =>
+                  !validateEmail(value)
+                    ? Promise.resolve()
+                    : Promise.reject(new Error(validateEmail(value) || '')),
+              },
+            ]}
           >
             <Input />
           </Form.Item>

@@ -41,8 +41,8 @@ const ButtonContinue: React.FC<Props> = ({ isLoading }) => {
           onClick={handleContinueClick}
           id={
             isFinalStep
-              ? 'sidebarActionCreateSubmit'
-              : 'sidebarActionSubmitAndContinue'
+              ? `sidebarActionCreateSubmit${current}`
+              : `sidebarActionSubmitAndContinue${current}`
           }
           className="px-6 py-3 text-xs font-bold"
           htmlType={isFinalStep ? 'submit' : 'button'}
