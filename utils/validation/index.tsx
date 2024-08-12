@@ -68,9 +68,9 @@ export const validateName = (key:string,name: string): string | null => {
     return `${key} is required.`;
   }
     // Allow spaces and alphabetic characters, counting spaces as part of the length
-    // const regex = /^[A-Za-z\s]{3,19}$/;
+    const regex = /^[A-Za-z\s]{3,19}$/;
 
-  const regex = /^[A-Za-z]{2,20}$/; //does not allow spaces
+  // const regex = /^[A-Za-z]{2,20}$/; //does not allow spaces
 
   if (!regex.test(name)) {
     return `${key} must be between 2 and 20 alphabetic characters.`;

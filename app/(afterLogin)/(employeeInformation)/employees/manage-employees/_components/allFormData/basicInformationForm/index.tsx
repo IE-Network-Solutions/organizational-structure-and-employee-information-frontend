@@ -53,7 +53,6 @@ const BasicInformationForm = ({ form }: any) => {
     }
     return '';
   };
-
   return (
     <div className="">
       <Row justify="center" style={{ width: '100%' }}>

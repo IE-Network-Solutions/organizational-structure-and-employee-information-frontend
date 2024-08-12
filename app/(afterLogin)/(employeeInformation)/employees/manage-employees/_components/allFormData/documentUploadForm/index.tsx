@@ -17,6 +17,12 @@ const DocumentUploadForm = () => {
     setDocumentFileList(fileList);
   };
 
+  const handleDocumentRemove = (file: UploadFile) => {
+    setDocumentFileList((prevFileList: UploadFile[]) =>
+      prevFileList.filter((item: UploadFile) => item.uid !== file.uid),
+    );
+  };
+
   const customRequest = async ({ file, onSuccess, onError }: any) => {
     try {
       // Simulate file upload process
@@ -43,8 +49,10 @@ const DocumentUploadForm = () => {
           >
             <Dragger
               name="documentName"
+              fileList={documentFileList}
               beforeUpload={beforeDocumentUpload}
               onChange={handleDocumentChange}
+              onRemove={handleDocumentRemove}
               customRequest={customRequest}
               listType="picture"
               accept="*/*"

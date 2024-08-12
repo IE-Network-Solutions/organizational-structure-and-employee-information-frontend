@@ -33,6 +33,7 @@ const UserSidebar = (props: any) => {
   );
 
   const handleCreateUser = (values: any) => {
+    // console.log(values,"values")
     createEmployee(transformData(values));
   };
 
@@ -100,7 +101,7 @@ const UserSidebar = (props: any) => {
             <ButtonContinue />
           </Card>
           <Card hidden={current !== 2} className="p-4 sm:p-6">
-            <AdditionalInformationForm />
+            {/* <AdditionalInformationForm /> */}
             <DocumentUploadForm />
             <ButtonContinue isLoading={isLoading} />
           </Card>

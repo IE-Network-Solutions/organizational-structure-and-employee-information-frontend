@@ -118,10 +118,10 @@ const EmergencyContactForm = () => {
           </Form.Item>
         </Col>
       </Row>
-      <DynamicFormFields
+      {/* <DynamicFormFields
         formTitle="emergencyContact"
         fields={emergencyContactForm.form}
-      />
+      /> */}
       <AddCustomField
         formTitle="Emergency contact"
         customEmployeeInformationForm={emergencyContactForm}
