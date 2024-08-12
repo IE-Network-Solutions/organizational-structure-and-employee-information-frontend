@@ -22,6 +22,7 @@ const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
   });
 };
 
+
 /**
  * Function to fetch all roles without pagination by sending a GET request to the API.
  *
