@@ -38,7 +38,7 @@ const updateRole = async ({ values, roleId }: any) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles/${roleId}`,
     method: 'patch',
-    headers:{
+    headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
@@ -70,7 +70,7 @@ const deleteRole = async ({
     };
     const response = await axios.delete(
       `${ORG_AND_EMP_URL}/roles/${deletedId?.id}`,
-      {headers},
+      { headers },
     );
     setCurrentModal(null);
     setDeletedId(null);

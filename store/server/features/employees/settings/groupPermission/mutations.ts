@@ -19,7 +19,7 @@ const createPermissionGroup = async (values: GroupPermissionkey) => {
     url: `${ORG_AND_EMP_URL}/permission-group`,
     method: 'POST',
     data: values,
-    headers:{
+    headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
@@ -37,7 +37,7 @@ const updatePermissionGroup = async (values: any) => {
     url: `${ORG_AND_EMP_URL}/permission-group/${values?.id}`,
     method: 'patch',
     data: values,
-    headers:{
+    headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
@@ -60,7 +60,7 @@ const deleteGroupPermission = async ({
     };
     const response = await axios.delete(
       `${ORG_AND_EMP_URL}/permission-group/${deletedId?.id}`,
-      {headers},
+      { headers },
     );
     setCurrentModal(null);
     setDeletedId(null);

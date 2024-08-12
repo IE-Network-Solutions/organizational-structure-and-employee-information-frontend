@@ -4,7 +4,6 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Role, RoleType } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/employees/authentication';
-import { headers } from 'next/headers';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -20,13 +19,12 @@ const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
-    headers:{
+    headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
   });
 };
-
 
 /**
  * Function to fetch all roles without pagination by sending a GET request to the API.
@@ -38,7 +36,7 @@ const getRolesWithOutPagination = async () => {
   // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles`,
-    headers:{
+    headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
@@ -56,7 +54,7 @@ const getRolesWithPermisison = async () => {
   // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles/find-all-role-with-permissions/role-permissions`,
-    headers:{
+    headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
@@ -79,7 +77,7 @@ const getRole = async (id: string | null) => {
     };
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/roles/find-one-role-with-permissions/role-permissions/${id}`,
-      {headers},
+      { headers },
     );
     return response.data;
   } catch (error) {

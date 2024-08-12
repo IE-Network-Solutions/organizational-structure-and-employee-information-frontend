@@ -18,7 +18,7 @@ const getPermissionGroups = async (
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permission-group?page=${permissonGroupCurrentPage}&limit=${pageSize}`,
     method: 'GET',
-    headers:{
+    headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
@@ -29,7 +29,7 @@ const getPermissionGroupswithOutPagination = async () => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permission-group`,
     method: 'GET',
-    headers:{
+    headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
@@ -49,7 +49,7 @@ const getPermissionGroup = async (id: string) => {
     };
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/permission-group/${id}`,
-      {headers},
+      { headers },
     );
     return response.data;
   } catch (error) {

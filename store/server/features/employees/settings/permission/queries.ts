@@ -20,7 +20,7 @@ const getPermisssions = async (
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
-    headers:{
+    headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
@@ -36,11 +36,11 @@ const getPermisssionsWithOutPagination = async () => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions`,
     method: 'GET',
-    headers:{
+    headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
-    });
+  });
 };
 
 /**
@@ -59,7 +59,7 @@ const getSearchPermissions = async (searchTerm: {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?columnName=${searchTerm?.termKey}&query=${searchTerm?.searchTerm}`,
     method: 'GET',
-    headers:{
+    headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
@@ -80,10 +80,9 @@ const getPermission = async (id: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/permissions/${id}`,
-      {headers},
-    );
+    const response = await axios.get(`${ORG_AND_EMP_URL}/permissions/${id}`, {
+      headers,
+    });
     return response.data;
   } catch (error) {
     throw error;
