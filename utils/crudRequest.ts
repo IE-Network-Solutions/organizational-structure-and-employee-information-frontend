@@ -4,7 +4,7 @@ interface RequestParams {
   url: string;
   method: Method;
   data?: any;
-  headers?: { tenantId?: string | null; Authorization?: string | null }; // Add headers to RequestParams
+  headers?: Record<string, string>;
 }
 
 /**
@@ -23,7 +23,7 @@ export const crudRequest = async ({
     const config: AxiosRequestConfig = {
       url,
       method,
-      headers, // Add headers to config
+      headers
     };
 
     if (data) {
