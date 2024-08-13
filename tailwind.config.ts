@@ -11,13 +11,13 @@ const config: Config = {
   theme: {
     extend: {
       screens: {
-        'custom': '741px',
+        custom: '741px',
         'mobile-sm': '320px',
         'mobile-md': '480px',
         'mobile-lg': '640px',
         'tablet-sm': '768px',
-        'tablet-md': '900px', 
-        'tablet-lg': '1024px', 
+        'tablet-md': '900px',
+        'tablet-lg': '1024px',
       },
       colors: {
         primary: '#3636F0',
@@ -32,11 +32,10 @@ const config: Config = {
       fontFamily: {
         sans: ['Manrope', 'sans-serif'],
       },
-   
-       height: {
-          'half-vw': 'calc(50vw)',
-        },
-    
+
+      height: {
+        'half-vw': 'calc(50vw)',
+      },
     },
   },
   variants: {

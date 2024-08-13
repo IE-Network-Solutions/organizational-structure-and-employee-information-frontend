@@ -1,4 +1,4 @@
-import NotificationMessage from "@/components/common/notification/notificationMessage";
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 /**
  * Handles success messages for different types of operations (POST, UPDATE, DELETE).

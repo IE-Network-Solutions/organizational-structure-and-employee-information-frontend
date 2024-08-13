@@ -1,17 +1,26 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-import { OrgChartResponse, OrgChart } from './interface';
-import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
+import { OrgChart } from './interface';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
+const headers = {
+  tenantId: tenantId,
+  Authorization: `Bearer ${token}`,
+};
 /**
  * Fetch all organization charts from the API.
  * @returns Promise with the list of organization charts.
  */
-const headers = {
-  tenantId: tenantId
-};
+
 const getAllOrgCharts = async () => {
-  return await crudRequest({ url: `${ORG_AND_EMP_URL}/departments`, method: 'GET', headers });
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/departments`,
+    method: 'GET',
+    headers,
+  });
 };
 
 /**
@@ -20,7 +29,11 @@ const getAllOrgCharts = async () => {
  * @returns Promise with the organization chart data.
  */
 const getOrgChart = async (id: string) => {
-  return await crudRequest({ url: `${ORG_AND_EMP_URL}/departments/${id}`, method: 'GET', headers });
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/departments/${id}`,
+    method: 'GET',
+    headers,
+  });
 };
 
 /**

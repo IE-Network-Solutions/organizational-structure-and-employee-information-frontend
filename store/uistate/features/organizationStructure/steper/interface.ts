@@ -1,5 +1,5 @@
 export interface StepState {
-    currentStep: number;
-    nextStep: () => void;
-    prevStep: () => void;
-  }
+  currentStep: number;
+  nextStep: () => void;
+  prevStep: () => void;
+}

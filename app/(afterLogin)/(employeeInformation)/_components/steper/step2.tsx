@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 import { Button, Input, Form } from 'antd';
 import './styles.css';
 import { useStep2Store } from '@/store/uistate/features/organizationStructure/comanyInfo/useStore';
-import { tenantId } from '@/utils/constants';
 import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import RadioButtonGroup from '../radioGroup';
 import { FormInstance, RadioChangeEvent } from 'antd/lib';
 import useStepStore from '@/store/uistate/features/organizationStructure/steper/useStore';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface IndustrySelectProps {
   form: FormInstance;
@@ -20,6 +20,7 @@ const IndustrySelect: React.FC<IndustrySelectProps> = ({ form }) => {
       <p style={{ width: 'auto' }}>.pep.com</p>
     </Form.Item>
   );
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
   const { data: companyProfile } = useGetCompanyProfileByTenantId(tenantId);
   useEffect(() => {

@@ -1,12 +1,16 @@
-// mutations.ts
+/* eslint-disable @typescript-eslint/naming-convention */
 import { useMutation, useQueryClient } from 'react-query';
 import { Schedule } from './interface';
 import { crudRequest } from '@/utils/crudRequest';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
-  tenantId: '8f2e3691-423f-4f21-b676-ba3a932b7c7f',
+  tenantId: tenantId,
+  Authorization: `Bearer ${token}`,
 };
 
 const createSchedule = async (schedule: Schedule) => {
@@ -19,11 +23,11 @@ const createSchedule = async (schedule: Schedule) => {
 };
 
 interface updateData {
-    id:string;
-    schedule: Schedule
+  id: string;
+  schedule: Schedule;
 }
-const updateSchedule = async (data:updateData) => {
-    const {id , schedule} = data
+const updateSchedule = async (data: updateData) => {
+  const { id, schedule } = data;
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/work-schedules/${id}`,
     method: 'PATCH',
@@ -68,7 +72,8 @@ export const useDeleteSchedule = () => {
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('schedule');
       const method = variables?.method?.toUpperCase();
-        handleSuccessMessage(method);
+      handleSuccessMessage(method);
     },
   });
 };
+/* eslint-enable @typescript-eslint/naming-convention */

@@ -1,11 +1,16 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { TENANT_MGMT_URL, tenantId } from '@/utils/constants';
-import { CompanyInformation, CompanyProfileImage } from '@/store/uistate/features/organizationStructure/companyProfile/interface';
+import { TENANT_MGMT_URL } from '@/utils/constants';
+import { CompanyProfileImage } from '@/store/uistate/features/organizationStructure/companyProfile/interface';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+/* eslint-disable @typescript-eslint/naming-convention */
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
-  tenantId: tenantId,
+  tenantId,
+  Authorization: `Bearer ${token}`,
 };
 
 /**
@@ -27,18 +32,24 @@ const getCompanyProfileByTenantId = async (tenantId: string) => {
  * @returns Promise with the updated company profile.
  */
 
-
 const multiPartFormDataheaders = {
-    tenantId: tenantId,
-    'Content-Type': 'multipart/form-data',
-  };
+  tenantId: tenantId,
+  'Content-Type': 'multipart/form-data',
+  Authorization: `Bearer ${token}`,
+};
 
-const updateCompanyProfile = async ({ id, companyProfileImage }: { id: string; companyProfileImage: CompanyProfileImage }) => {
+const updateCompanyProfile = async ({
+  id,
+  companyProfileImage,
+}: {
+  id: string;
+  companyProfileImage: CompanyProfileImage;
+}) => {
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${id}`,
     method: 'PATCH',
-    headers:multiPartFormDataheaders,
-    data:{ companyProfileImage:companyProfileImage?.originFileObj},
+    headers: multiPartFormDataheaders,
+    data: { companyProfileImage: companyProfileImage?.originFileObj },
   });
 };
 
@@ -49,11 +60,15 @@ const updateCompanyProfile = async ({ id, companyProfileImage }: { id: string; c
  * @returns Query object for fetching company profile.
  */
 export const useGetCompanyProfileByTenantId = (tenantId: string) => {
-  return useQuery(['companyProfile', tenantId], () => getCompanyProfileByTenantId(tenantId), {
-    enabled: !!tenantId, // Fetch only if tenantId is provided
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    cacheTime: 1000 * 60 * 10, // 10 minutes
-  });
+  return useQuery(
+    ['companyProfile', tenantId],
+    () => getCompanyProfileByTenantId(tenantId),
+    {
+      enabled: !!tenantId, // Fetch only if tenantId is provided
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      cacheTime: 1000 * 60 * 10, // 10 minutes
+    },
+  );
 };
 
 /**
@@ -68,7 +83,8 @@ export const useUpdateCompanyProfile = () => {
       queryClient.invalidateQueries('companyProfile');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
-      
     },
   });
 };
+
+/* eslint-enable @typescript-eslint/naming-convention */

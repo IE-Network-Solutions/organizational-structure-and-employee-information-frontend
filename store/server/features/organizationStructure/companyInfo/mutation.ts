@@ -1,11 +1,16 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { CompanyInfo } from './interface';
-import { TENANT_MGMT_URL, tenantId } from '@/utils/constants';
+import { TENANT_MGMT_URL } from '@/utils/constants';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+/* eslint-disable @typescript-eslint/naming-convention */
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
   tenantId: tenantId,
+  Authorization: `Bearer ${token}`,
 };
 
 /**
@@ -27,7 +32,13 @@ const createCompanyInfo = async (data: CompanyInfo) => {
  * @param data - Data containing the ID and updated company info.
  * @returns Promise with the updated company info.
  */
-const updateCompanyInfo = async ({ id, companyInfo }: { id: string; companyInfo: CompanyInfo }) => {
+const updateCompanyInfo = async ({
+  id,
+  companyInfo,
+}: {
+  id: string;
+  companyInfo: CompanyInfo;
+}) => {
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${id}`,
     method: 'PATCH',
@@ -96,3 +107,4 @@ export const useDeleteCompanyInfo = () => {
     },
   });
 };
+/* eslint-enable @typescript-eslint/naming-convention */

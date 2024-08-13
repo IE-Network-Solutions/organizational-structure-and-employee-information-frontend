@@ -29,13 +29,15 @@ import {
 } from '@/store/server/features/organizationStructure/companyInfo/mutation';
 import { useUpdateCompanyProfile } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
-import { tenantId } from '@/utils/constants';
 import { Form } from 'antd';
 import IndustrySelect from './step2';
 import CompanyProfile from './step1';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { showValidationErrors } from '@/utils/showValidationErrors';
 import CustomModal from '../sucessModal/successModal';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
+const tenantId = useAuthenticationStore.getState().tenantId;
 
 const OnboaringSteper: React.FC = () => {
   const [form1] = Form.useForm();

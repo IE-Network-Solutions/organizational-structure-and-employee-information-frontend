@@ -1,4 +1,4 @@
-import NotificationMessage from "@/components/common/notification/notificationMessage";
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 /**
  * Handles network errors and displays a descriptive notification message.
@@ -16,7 +16,6 @@ export const handleNetworkError = (error: any) => {
         ${data?.message ? `Details: ${data.message}` : 'An unexpected error occurred.'}
       `,
     });
-
   } else if (error?.request) {
     // The request was made but no response was received
     NotificationMessage.error({
@@ -25,7 +24,6 @@ export const handleNetworkError = (error: any) => {
         No response received from the server. Please check your network connection.
       `,
     });
-
   } else {
     // An error occurred while setting up the request
     NotificationMessage.error({

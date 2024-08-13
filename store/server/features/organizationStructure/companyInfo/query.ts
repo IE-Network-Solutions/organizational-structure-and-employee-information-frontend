@@ -1,19 +1,25 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-import {  CompanyInfoResponse } from './interface';
-import { TENANT_MGMT_URL, tenantId } from '@/utils/constants';
-import axios from 'axios';
+import { CompanyInfoResponse } from './interface';
+import { TENANT_MGMT_URL } from '@/utils/constants';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
   tenantId: tenantId,
+  Authorization: `Bearer ${token}`,
 };
-
 /**
  * Fetch all company info from the API.
  * @returns Promise with the list of company info.
  */
 const getAllCompanyInfo = async () => {
-  return await crudRequest({ url: `${TENANT_MGMT_URL}/company-info`, method: 'GET', headers });
+  return await crudRequest({
+    url: `${TENANT_MGMT_URL}/company-info`,
+    method: 'GET',
+    headers,
+  });
 };
 
 /**
@@ -22,7 +28,11 @@ const getAllCompanyInfo = async () => {
  * @returns Promise with the company info data.
  */
 const getCompanyInfo = async (id: string) => {
-  return await crudRequest({ url: `${TENANT_MGMT_URL}/company-info/${id}`, method: 'GET', headers });
+  return await crudRequest({
+    url: `${TENANT_MGMT_URL}/company-info/${id}`,
+    method: 'GET',
+    headers,
+  });
 };
 
 /**

@@ -8,18 +8,16 @@ interface FiscalYear {
   endDate: Dayjs | null;
 }
 
-
 interface FiscalYearState extends FiscalYear {
-
   setFiscalYearName: (name: string) => void;
   setFiscalYearStartDate: (startDate: Dayjs | null | null) => void;
   setFiscalYearEndDate: (endDate: Dayjs | null) => void;
-  setFiscalDescriptionName:(description :string ) => void
-  getFiscalYear:() =>any
+  setFiscalDescriptionName: (description: string) => void;
+  getFiscalYear: () => any;
 }
-const useFiscalYearStore = create<FiscalYearState>((set , get) => ({
+const useFiscalYearStore = create<FiscalYearState>((set, get) => ({
   name: '',
-  description:'',
+  description: '',
   startDate: null,
   endDate: null,
   setFiscalYearName: (name) => set({ name: name }),

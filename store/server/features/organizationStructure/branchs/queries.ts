@@ -1,18 +1,26 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { BranchResponse } from './interface';
-import { ORG_AND_EMP_URL, tenantId } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
+const headers = {
+  tenantId: tenantId,
+  Authorization: `Bearer ${token}`,
+};
 /**
  * Fetch all branches from the API.
  * @returns Promise with the list of branches.
  */
 
-const headers = {
-  tenantId:  tenantId
-};
 const getAllBranches = async () => {
-  return await crudRequest({ url: `${ORG_AND_EMP_URL}/branchs`, method: 'GET' , headers });
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/branchs`,
+    method: 'GET',
+    headers,
+  });
 };
 
 /**
@@ -21,7 +29,11 @@ const getAllBranches = async () => {
  * @returns Promise with the branch data.
  */
 const getBranch = async (id: string) => {
-  return await crudRequest({ url: `${ORG_AND_EMP_URL}/branches/${id}`, method: 'GET' });
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/branches/${id}`,
+    method: 'GET',
+    headers,
+  });
 };
 
 /**

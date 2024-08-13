@@ -6,8 +6,9 @@ import { useCompanyProfile } from '@/store/uistate/features/organizationStructur
 import Image from 'next/image';
 import { UploadFile } from 'antd/es/upload/interface';
 import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
-import { tenantId } from '@/utils/constants';
+
 import { FormInstance } from 'antd/lib';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface CompanyProfileProps {
   form: FormInstance;
@@ -56,6 +57,8 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
       <p style={{ width: 'auto' }}>.pep.com</p>
     </Form.Item>
   );
+
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
   const { data: companyInfo } = useGetCompanyProfileByTenantId(tenantId);
 

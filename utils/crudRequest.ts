@@ -23,7 +23,7 @@ export const crudRequest = async ({
     const config: AxiosRequestConfig = {
       url,
       method,
-      headers
+      headers,
     };
 
     if (data) {

@@ -9,11 +9,19 @@ const headers = {
 };
 
 const fetchSchedule = async () => {
-  return await crudRequest({ url: `${ORG_AND_EMP_URL}/schedule`, method: 'GET', headers });
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/schedule`,
+    method: 'GET',
+    headers,
+  });
 };
 
 const fetchScheduleById = async (id: string) => {
-  return await crudRequest({ url: `${ORG_AND_EMP_URL}/schedule/${id}`, method: 'GET', headers });
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/schedule/${id}`,
+    method: 'GET',
+    headers,
+  });
 };
 
 export const useFetchSchedule = () => {
@@ -21,7 +29,11 @@ export const useFetchSchedule = () => {
 };
 
 export const useFetchScheduleById = (id: string) => {
-  return useQuery<ScheduleResponse>(['schedule', id], () => fetchScheduleById(id), {
-    keepPreviousData: true,
-  });
+  return useQuery<ScheduleResponse>(
+    ['schedule', id],
+    () => fetchScheduleById(id),
+    {
+      keepPreviousData: true,
+    },
+  );
 };
