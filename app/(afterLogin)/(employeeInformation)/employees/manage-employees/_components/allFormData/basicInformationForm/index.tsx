@@ -16,6 +16,8 @@ import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/em
 import { InboxOutlined } from '@ant-design/icons';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import { validateEmail, validateName } from '@/utils/validation';
+import { UploadFile } from 'antd/lib';
+import { RcFile } from 'antd/es/upload';
 
 const { Option } = Select;
 const { Dragger } = Upload;
@@ -24,32 +26,41 @@ const BasicInformationForm = ({ form }: any) => {
   const { profileFileList, setProfileFileList } = useEmployeeManagmentStore();
   const { data: nationalities,isLoading:isLoadingNationality } = useGetNationalities();
 
-  const beforeProfileUpload = (file: any) => {
-    const isImage = file.type?.startsWith('image/');
+  
+  type FileInfo = {
+    file: UploadFile; // File being uploaded
+    fileList: UploadFile[]; // List of all files
+  };
+  
+  
+  const beforeProfileUpload = (file: RcFile): boolean => {
+    const isImage = file.type.startsWith('image/');
     if (!isImage) {
       message.error('You can only upload image files!');
     }
-    return isImage || Upload.LIST_IGNORE;
+    return isImage;
   };
-
-  const handleProfileChange = (info: any) => {
+  
+  const handleProfileChange = (info: FileInfo) => {
     setProfileFileList(info.fileList);
     if (info.file.status === 'done') {
-      form.setFieldsValue({ profileImage: info.fileList });
+      form.setFieldsValue({ profileImage: info });
     }
   };
-
-  const handleProfileRemove = (file: any) => {
-    const filterData = profileFileList.filter((item) => item.uid !== file.uid);
-    setProfileFileList(filterData);
+  
+  const handleProfileRemove = (file: UploadFile) => {
+    const updatedFileList = profileFileList.filter((item:any) => item.uid !== file.uid);
+    setProfileFileList(updatedFileList);
+  
     form.setFieldsValue({
-      profileImage: filterData.length > 0 ? filterData : null,
+      profileImage: updatedFileList.length > 0 ? updatedFileList : null,
     });
   };
-
-  const getImageUrl = (fileList: any) => {
+  
+  const getImageUrl = (fileList: UploadFile[]): string => {
     if (fileList.length > 0) {
-      return URL.createObjectURL(fileList[0].originFileObj);
+      const imageFile = fileList[0];
+      return imageFile?.url || imageFile?.thumbUrl || URL.createObjectURL(imageFile.originFileObj as RcFile) || '';
     }
     return '';
   };

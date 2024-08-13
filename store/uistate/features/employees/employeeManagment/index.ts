@@ -83,8 +83,8 @@ interface UserState {
   selectedWorkSchedule: WorkSchedule | null;
   setSelectedWorkSchedule: (selectedWorkSchedule: WorkSchedule | null) => void;
 
-  profileFileList: UploadFile[];
-  setProfileFileList: (profileFileList: UploadFile[]) => void;
+  profileFileList: any;
+  setProfileFileList: (profileFileList: any) => void;
 
   bankInfoForm: any;
   setBankInfoForm: (bankInfoForm: any) => void;
@@ -102,7 +102,8 @@ interface UserState {
   setSelectedPermissions: (selectedPermissions: string[] | []) => void;
 
   documentFileList: any[];
-  setDocumentFileList: (documentFileList: any) => void;
+  setDocumentFileList: (fileList: any[]) => void;
+  removeDocument: (uid: string) => void;
 }
 
 export const useEmployeeManagmentStore = create<UserState>()(
@@ -142,7 +143,7 @@ export const useEmployeeManagmentStore = create<UserState>()(
     setCurrent: (current: number) => set({ current }),
 
     profileFileList: [],
-    setProfileFileList: (profileFileList: UploadFile[]) =>
+    setProfileFileList: (profileFileList: any) =>
       set({ profileFileList }),
 
     bankInfoForm: {},
@@ -164,6 +165,10 @@ export const useEmployeeManagmentStore = create<UserState>()(
       set({ selectedPermissions }),
 
     documentFileList: [],
-    setDocumentFileList: (documentFileList: any[]) => set({ documentFileList }),
+    setDocumentFileList: (fileList) => set({ documentFileList: fileList }),
+    removeDocument: (uid) =>
+      set((state) => ({
+        documentFileList: state.documentFileList.filter((file) => file.uid !== uid),
+      })),
   })),
 );
