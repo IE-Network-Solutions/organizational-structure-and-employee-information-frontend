@@ -3,6 +3,10 @@ import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
+const header = {
+  tenantId: '8f2e3691-423f-4f21-b676-ba3a932b7c7f',
+};
+
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
@@ -17,9 +21,11 @@ const getEmployees = async () => {
  * @returns The response data from the API
  */
 
-const getEmployee = async (id: number) => {
+const getEmployee = async (id: string) => {
   try {
-    const response = await axios.get(`${ORG_AND_EMP_URL}/employee/${id}`);
+    const response = await axios.get(`${ORG_AND_EMP_URL}/users/${id}`, {
+      headers: header,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -48,7 +54,7 @@ export const useGetEmployees = () => useQuery<any[]>('employee', getEmployees);
  * query object containing the post data, and it keeps the previous data
  * while the new data is being fetched.
  */
-export const useGetEmployee = (postId: number) =>
-  useQuery<any>(['employee', postId], () => getEmployee(postId), {
+export const useGetEmployee = (empId: string) =>
+  useQuery<any>(['employee', empId], () => getEmployee(empId), {
     keepPreviousData: true,
   });
