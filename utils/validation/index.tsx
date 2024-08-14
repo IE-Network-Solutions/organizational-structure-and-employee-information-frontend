@@ -1,4 +1,4 @@
-import moment, { Moment } from "moment";
+import moment, { Moment } from 'moment';
 
 export const validatePhoneNumber = (rule: any, value: any) => {
   if (!value) {

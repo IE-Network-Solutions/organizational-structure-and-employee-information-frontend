@@ -56,8 +56,7 @@ const AddCustomField: React.FC<any> = ({
         form: [...customEmployeeInformationForm.form, newField],
       };
       createCustomForm.mutate(newFormData);
-    }
-    else{
+    } else {
       message.error(`The field ${newField.fieldName} already exists!`);
     }
   };

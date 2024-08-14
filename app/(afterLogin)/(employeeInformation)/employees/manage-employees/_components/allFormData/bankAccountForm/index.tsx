@@ -22,12 +22,14 @@ const BankInformationForm = () => {
             label="Bank Name"
             rules={[
               {
-                validator: (_, value) =>
-                  !validateName('Bank Name',value)
+                validator: (rule, value) =>
+                  !validateName('Bank Name', value)
                     ? Promise.resolve()
-                    : Promise.reject(new Error(validateName('Bank Name',value) || '')),
+                    : Promise.reject(
+                        new Error(validateName('Bank Name', value) || ''),
+                      ),
               },
-            ]} 
+            ]}
           >
             <Input />
           </Form.Item>
@@ -40,12 +42,14 @@ const BankInformationForm = () => {
             label="Branch"
             rules={[
               {
-                validator: (_, value) =>
-                  !validateName('Branch',value)
+                validator: (rule, value) =>
+                  !validateName('Branch', value)
                     ? Promise.resolve()
-                    : Promise.reject(new Error(validateName('Branch',value) || '')),
+                    : Promise.reject(
+                        new Error(validateName('Branch', value) || ''),
+                      ),
               },
-            ]} 
+            ]}
           >
             <Input />
           </Form.Item>
@@ -60,12 +64,14 @@ const BankInformationForm = () => {
             id="bankInformationAccountName"
             rules={[
               {
-                validator: (_, value) =>
-                  !validateName('Account Name',value)
+                validator: (rule, value) =>
+                  !validateName('Account Name', value)
                     ? Promise.resolve()
-                    : Promise.reject(new Error(validateName('Account Name',value) || '')),
+                    : Promise.reject(
+                        new Error(validateName('Account Name', value) || ''),
+                      ),
               },
-            ]} 
+            ]}
           >
             <Input />
           </Form.Item>

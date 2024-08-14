@@ -47,12 +47,14 @@ const JobTimeLineForm = () => {
             label="Position"
             rules={[
               {
-                validator: (_, value) =>
-                  !validateName('job title',value)
+                validator: (rule, value) =>
+                  !validateName('job title', value)
                     ? Promise.resolve()
-                    : Promise.reject(new Error(validateName('job title',value) || '')),
+                    : Promise.reject(
+                        new Error(validateName('job title', value) || ''),
+                      ),
               },
-            ]} 
+            ]}
           >
             <Input />
           </Form.Item>

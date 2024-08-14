@@ -5,7 +5,7 @@ export const transformData = (data: any) => {
     }
     return date;
   };
-  
+
   const formData = new FormData();
   const result = {
     createUserDto: {

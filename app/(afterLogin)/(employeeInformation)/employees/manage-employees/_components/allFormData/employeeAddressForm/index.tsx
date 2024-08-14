@@ -22,10 +22,12 @@ const EmployeeAddressForm = () => {
             id="addressCountryId"
             rules={[
               {
-                validator: (_, value) =>
-                  !validateName('country',value)
+                validator: (rule, value) =>
+                  !validateName('country', value)
                     ? Promise.resolve()
-                    : Promise.reject(new Error(validateName('country',value) || '')),
+                    : Promise.reject(
+                        new Error(validateName('country', value) || ''),
+                      ),
               },
             ]}
           >
@@ -40,10 +42,12 @@ const EmployeeAddressForm = () => {
             id="addressCityId"
             rules={[
               {
-                validator: (_, value) =>
-                  !validateName('city',value)
+                validator: (rule, value) =>
+                  !validateName('city', value)
                     ? Promise.resolve()
-                    : Promise.reject(new Error(validateName('city',value) || '')),
+                    : Promise.reject(
+                        new Error(validateName('city', value) || ''),
+                      ),
               },
             ]}
           >
@@ -51,7 +55,7 @@ const EmployeeAddressForm = () => {
           </Form.Item>
         </Col>
       </Row>
-      {/* <DynamicFormFields formTitle="address" fields={currentAddressForm.form} /> */}
+      <DynamicFormFields formTitle="address" fields={currentAddressForm.form} />
       <AddCustomField
         formTitle="Address"
         customEmployeeInformationForm={currentAddressForm}

@@ -1,6 +1,5 @@
 // useStore.ts
 import { MetaData } from '@/types/dashboard/tenant/clientAdministration';
-import { UploadFile } from 'antd';
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
 export interface CustomFieldsProps {
@@ -143,8 +142,7 @@ export const useEmployeeManagmentStore = create<UserState>()(
     setCurrent: (current: number) => set({ current }),
 
     profileFileList: [],
-    setProfileFileList: (profileFileList: any) =>
-      set({ profileFileList }),
+    setProfileFileList: (profileFileList: any) => set({ profileFileList }),
 
     bankInfoForm: {},
     setBankInfoForm: (bankInfoForm: any) => ({ bankInfoForm }),
@@ -168,7 +166,9 @@ export const useEmployeeManagmentStore = create<UserState>()(
     setDocumentFileList: (fileList) => set({ documentFileList: fileList }),
     removeDocument: (uid) =>
       set((state) => ({
-        documentFileList: state.documentFileList.filter((file) => file.uid !== uid),
+        documentFileList: state.documentFileList.filter(
+          (file) => file.uid !== uid,
+        ),
       })),
   })),
 );
