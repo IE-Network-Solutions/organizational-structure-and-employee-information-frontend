@@ -22,7 +22,7 @@ function Job({ id }: { id: string }) {
       title: 'Employment Type',
       dataIndex: 'employmentTypeId',
       key: 'employmentTypeId',
-      render: (_: any, record: any) => <>{record.employmentType.name}</>,
+      render: (_: any, record: any) => <>{record?.employmentType?.name}</>,
     },
     {
       title: 'Manager',
@@ -33,7 +33,7 @@ function Job({ id }: { id: string }) {
       title: 'Department',
       dataIndex: 'department',
       key: 'address',
-      render: (_: any, record: any) => <>{record.department.name}</>,
+      render: (_: any, record: any) => <>{record?.department?.name}</>,
     },
   ];
   return (

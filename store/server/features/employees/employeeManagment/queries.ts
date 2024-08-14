@@ -32,7 +32,7 @@ const getEmployee = async (id: string) => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/employee/${id}`, {
+    const response = await axios.get(`${ORG_AND_EMP_URL}/users/${id}`, {
       headers,
     });
     return response.data;
