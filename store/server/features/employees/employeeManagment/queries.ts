@@ -26,7 +26,7 @@ const getEmployees = async () => {
  * @returns The response data from the API
  */
 
-const getEmployee = async (id: number) => {
+const getEmployee = async (id: string) => {
   try {
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -63,7 +63,7 @@ export const useGetEmployees = () => useQuery<any[]>('employees', getEmployees);
  * query object containing the post data, and it keeps the previous data
  * while the new data is being fetched.
  */
-export const useGetEmployee = (postId: number) =>
-  useQuery<any>(['employee', postId], () => getEmployee(postId), {
+export const useGetEmployee = (empId: string) =>
+  useQuery<any>(['employee', empId], () => getEmployee(empId), {
     keepPreviousData: true,
   });
