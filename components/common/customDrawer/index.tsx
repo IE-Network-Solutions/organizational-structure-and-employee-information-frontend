@@ -8,6 +8,7 @@ interface CustomDrawerLayoutProps {
   modalHeader: any;
   children: React.ReactNode;
   width?: string;
+
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({

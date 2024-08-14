@@ -1,3 +1,5 @@
+import moment, { Moment } from 'moment';
+
 export const validatePhoneNumber = (rule: any, value: any) => {
   if (!value) {
     return Promise.reject(new Error('Please enter a phone number'));
@@ -56,4 +58,44 @@ export const validateEmailURL = (rule: any, value: any) => {
   }
 
   return Promise.resolve();
+};
+
+// validation.ts
+
+// Function to validate name
+export const validateName = (key: string, name: string): string | null => {
+  if (!name) {
+    return `${key} is required.`;
+  }
+
+  // Check if the name length is between 3 and 20 characters
+  if (name.length < 3 || name.length > 20) {
+    return `${key} must be between 3 and 20 characters long.`;
+  }
+
+  // Allow only alphabetic characters and spaces
+  const regex = /^[A-Za-z\s]+$/;
+
+  if (!regex.test(name)) {
+    return `${key} must contain only alphabetic characters and spaces.`;
+  }
+
+  return null;
+};
+
+// Function to validate email
+export const validateEmail = (email: string): string | null => {
+  if (!email) {
+    return 'Email is required.';
+  }
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!regex.test(email) || email.split('@')[1].split('.').length !== 2) {
+    return 'Invalid email format. Email must contain only one dot after @.';
+  }
+  return null;
+};
+
+export const disabledDate = (current: Moment) => {
+  // Can not select days before today
+  return current && current < moment().startOf('day');
 };

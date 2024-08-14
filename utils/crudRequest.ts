@@ -4,7 +4,7 @@ interface RequestParams {
   url: string;
   method: Method;
   data?: any;
-  headers?: Record<string, string>; // Add headers to RequestParams
+  headers?: { tenantId?: string | null; Authorization?: string | null }; // Add headers to RequestParams
 }
 
 /**

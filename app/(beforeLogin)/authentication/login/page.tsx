@@ -2,11 +2,15 @@
 'use client';
 import React, { useState } from 'react';
 import { Form, Input, Button, Checkbox } from 'antd';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
+  const { setTenantId, setToken } = useAuthenticationStore();
 
   const onFinish = async () => {
+    setTenantId('9fdb9540-607e-4cc5-aebf-0879400d1f69');
+    setToken('765456789opkjhc');
     setLoading(true);
     try {
     } catch (error) {}

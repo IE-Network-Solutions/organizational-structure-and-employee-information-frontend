@@ -21,10 +21,7 @@ const ManageEmployees: React.FC<any> = () => {
   return (
     <div className="h-auto w-auto p-4">
       <div className="flex flex-wrap justify-between items-center">
-        <CustomBreadcrumb
-          title="Employees"
-          subtitle="Manage your Employees"
-        />
+        <CustomBreadcrumb title="Employees" subtitle="Manage your Employees" />
         <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
           <CustomButton
             title="Create user"
