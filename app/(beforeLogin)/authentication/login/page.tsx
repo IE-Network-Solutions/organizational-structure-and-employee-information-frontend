@@ -82,7 +82,7 @@ const Login: React.FC = () => {
               },
             ]}
           >
-            <Input 
+            <Input
               placeholder="type your email"
               className="w-full h-10"
               allowClear
@@ -94,10 +94,10 @@ const Login: React.FC = () => {
             name="password"
             rules={[{ required: true, message: 'Please input your password!' }]}
           >
-            <Input.Password 
-                placeholder="type your email"
-                className="w-full h-10"
-                allowClear
+            <Input.Password
+              placeholder="type your email"
+              className="w-full h-10"
+              allowClear
             />
           </Form.Item>
 
