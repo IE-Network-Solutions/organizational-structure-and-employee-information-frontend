@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import {
   auth,
@@ -22,10 +22,8 @@ type FieldType = {
 };
 
 const Login: React.FC = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
 
-  const { setToken, localId, setLocalId, setTenantId } =
+  const { error,setError,loading,setLoading,setToken, localId, setLocalId, setTenantId } =
     useAuthenticationStore();
 
   // Call the React Query hook
