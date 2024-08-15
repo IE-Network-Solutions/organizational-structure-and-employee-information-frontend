@@ -34,8 +34,8 @@ import IndustrySelect from './step2';
 import CompanyProfile from './step1';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { showValidationErrors } from '@/utils/showValidationErrors';
-import CustomModal from '../sucessModal/successModal';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 

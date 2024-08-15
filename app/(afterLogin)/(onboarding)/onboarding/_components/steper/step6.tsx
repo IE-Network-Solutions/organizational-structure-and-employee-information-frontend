@@ -9,8 +9,8 @@ import {
 } from '@ant-design/icons';
 
 import { Department } from '@/types/dashboard/organization';
-import DepartmentForm from '../departmentForm.tsx';
-import useOrganizationStore from '../../../../../store/uistate/features/organizationStructure/orgState';
+import useOrganizationStore from '../../../../../../store/uistate/features/organizationStructure/orgState/index.js';
+import DepartmentForm from '../departmentForm.tsx/index.jsx';
 
 interface DepartmentNodeProps {
   data: Department;

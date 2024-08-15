@@ -7,11 +7,11 @@ import {
   useDeleteBranch,
   useUpdateBranch,
 } from '@/store/server/features/organizationStructure/branchs/mutation';
-import BranchForm from '../branchForm';
 import { Branch } from '@/store/server/features/organizationStructure/branchs/interface';
 import { useBranchStore } from '@/store/uistate/features/organizationStructure/branchStore';
 import DeleteModal from '@/components/common/deleteModal';
 import { BiPlus } from 'react-icons/bi';
+import BranchForm from '@/app/(afterLogin)/(employeeInformation)/_components/branchForm';
 
 const Branches = () => {
   const { data: branches, isLoading } = useGetBranches();

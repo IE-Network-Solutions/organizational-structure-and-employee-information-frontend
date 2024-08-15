@@ -2,7 +2,7 @@ export interface DayOfWeek {
   day: string;
   key: string;
   workDay: boolean;
-  startingTime?: string | null;
+  startTime?: string | null;
   endTime?: string | null;
   duration?: string;
 }
@@ -10,9 +10,10 @@ export interface DayOfWeek {
 export interface Schedule {
   scheduleName: string;
   standardHours: number;
-  daysOfWeek: DayOfWeek[];
+  detail: DayOfWeek[];
 }
 
 export interface ScheduleResponse {
-  data: Schedule;
+  items: Schedule[];
+  meta: any;
 }

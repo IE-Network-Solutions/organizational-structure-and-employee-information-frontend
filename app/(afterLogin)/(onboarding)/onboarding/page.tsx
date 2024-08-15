@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 
-const Onboarding = dynamic(() => import('../_components/steper'), {
+const Onboarding = dynamic(() => import('./_components/steper/index'), {
   ssr: false,
 });
 function OnboardingPage() {

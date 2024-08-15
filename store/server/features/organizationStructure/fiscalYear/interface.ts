@@ -6,5 +6,6 @@ export interface FiscalYear {
 }
 
 export interface FiscalYearResponse {
-  data: FiscalYear[];
+  items: FiscalYear[];
+  meta: any;
 }
