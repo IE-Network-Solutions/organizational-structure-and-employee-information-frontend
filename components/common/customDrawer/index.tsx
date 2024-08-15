@@ -7,7 +7,8 @@ interface CustomDrawerLayoutProps {
   onClose: () => void;
   modalHeader: any;
   children: React.ReactNode;
-  width: string;
+  width?: string;
+
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({

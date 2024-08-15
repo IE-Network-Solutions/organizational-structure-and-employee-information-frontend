@@ -1,4 +1,4 @@
-import moment, { Moment } from "moment";
+import moment, { Moment } from 'moment';
 
 export const validatePhoneNumber = (rule: any, value: any) => {
   if (!value) {
@@ -63,18 +63,23 @@ export const validateEmailURL = (rule: any, value: any) => {
 // validation.ts
 
 // Function to validate name
-export const validateName = (key:string,name: string): string | null => {
+export const validateName = (key: string, name: string): string | null => {
   if (!name) {
     return `${key} is required.`;
   }
-    // Allow spaces and alphabetic characters, counting spaces as part of the length
-    const regex = /^[A-Za-z\s]{3,19}$/;
 
-  // const regex = /^[A-Za-z]{2,20}$/; //does not allow spaces
+  // Check if the name length is between 3 and 20 characters
+  if (name.length < 3 || name.length > 20) {
+    return `${key} must be between 3 and 20 characters long.`;
+  }
+
+  // Allow only alphabetic characters and spaces
+  const regex = /^[A-Za-z\s]+$/;
 
   if (!regex.test(name)) {
-    return `${key} must be between 2 and 20 alphabetic characters.`;
+    return `${key} must contain only alphabetic characters and spaces.`;
   }
+
   return null;
 };
 
