@@ -16,10 +16,6 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  */
 
 const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
-  const headers: Record<string, string> | undefined = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles?page=${permissonCurrentPage}&limit=${pageSize}`,
