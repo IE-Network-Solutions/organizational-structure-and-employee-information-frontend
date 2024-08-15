@@ -12,7 +12,7 @@ const getTenantId = async (id: string) => {
   const token = useAuthenticationStore.getState().token; // Access the latest token
   try {
     const headers = {
-      Authorization: `Bearer 0987654567890-09876567890-098765434567890987656789098765567${token}`,
+      Authorization: `Bearer ${token}`,
     };
     const response = await axios.get(`${ORG_AND_EMP_URL}/users/firebase/${id}`, { headers });
     return response.data;

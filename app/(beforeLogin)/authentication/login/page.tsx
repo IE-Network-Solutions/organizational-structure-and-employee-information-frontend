@@ -13,6 +13,7 @@ import { Microsoft } from '@/components/Icons/microsoft';
 import { Google } from '@/components/Icons/google';
 import { useGetTenantId } from '@/store/server/features/employees/authentication/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { redirect } from 'next/navigation'
 
 type FieldType = {
   email: string;
@@ -32,6 +33,7 @@ const Login: React.FC = () => {
   useEffect(() => {
     if (fetchedTenantId) {
       setTenantId(fetchedTenantId?.tenantId);
+      redirect(`/employees/manage-employees`) 
     }
   }, [fetchedTenantId, setTenantId]);
 
