@@ -8,7 +8,7 @@ import {
 } from '@/utils/firebaseConfig';
 
 import type { FormProps } from 'antd';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input, message } from 'antd';
 import { Microsoft } from '@/components/Icons/microsoft';
 import { Google } from '@/components/Icons/google';
 
@@ -27,8 +27,16 @@ const Login: React.FC = () => {
   ) => {
     setLoading(true);
     setError('');
+
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+
+      // Handle successful sign-in
+      const user = userCredential.user;
+    console.log(userCredential,"response")
+
+      message.success(`Welcome back, ${user.displayName || 'User'}!`);
+  
     } catch (err: any) {
       setError(err.message);
     }
