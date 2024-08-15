@@ -7,9 +7,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  Authorization: `Bearer ${token}`,
-};
+
 /**
  * Function to fetch a paginated list of permissions by sending a GET request to the API.
  *
@@ -24,7 +22,12 @@ const getPermisssions = async (
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
-    headers,
+
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+
   });
 };
 
@@ -37,7 +40,11 @@ const getPermisssionsWithOutPagination = async () => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions`,
     method: 'GET',
-    headers: { tenantId: tenantId },
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+
   });
 };
 
@@ -57,6 +64,10 @@ const getSearchPermissions = async (searchTerm: {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?columnName=${searchTerm?.termKey}&query=${searchTerm?.searchTerm}`,
     method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
   });
 };
 
@@ -70,7 +81,13 @@ const getSearchPermissions = async (searchTerm: {
  */
 const getPermission = async (id: string) => {
   try {
-    const response = await axios.get(`${ORG_AND_EMP_URL}/permissions/${id}`);
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
+    const response = await axios.get(`${ORG_AND_EMP_URL}/permissions/${id}`, {
+      headers,
+    });
     return response.data;
   } catch (error) {
     throw error;

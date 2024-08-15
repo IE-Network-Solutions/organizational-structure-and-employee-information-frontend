@@ -4,7 +4,10 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { GroupPermissionkey } from '@/types/dashboard/adminManagement';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to create a new permission group by sending a POST request to the API.
  *
@@ -16,6 +19,10 @@ const createPermissionGroup = async (values: GroupPermissionkey) => {
     url: `${ORG_AND_EMP_URL}/permission-group`,
     method: 'POST',
     data: values,
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
   });
 };
 
@@ -30,6 +37,10 @@ const updatePermissionGroup = async (values: any) => {
     url: `${ORG_AND_EMP_URL}/permission-group/${values?.id}`,
     method: 'patch',
     data: values,
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
   });
 };
 /**
@@ -43,8 +54,13 @@ const deleteGroupPermission = async ({
   setDeletedId,
 }: any) => {
   try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
     const response = await axios.delete(
       `${ORG_AND_EMP_URL}/permission-group/${deletedId?.id}`,
+      { headers },
     );
     setCurrentModal(null);
     setDeletedId(null);
