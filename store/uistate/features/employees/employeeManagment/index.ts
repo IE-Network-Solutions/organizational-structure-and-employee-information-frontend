@@ -6,7 +6,7 @@ interface SearchParams {
   employee_name: string;
   allOffices: string;
   allJobs: string;
-  allStatus: string;
+  allStatus: string | null;
 }
 interface UserState {
   open: boolean;
@@ -15,6 +15,8 @@ interface UserState {
   setUserCurrentPage: (userCurrentPage: number) => void;
   pageSize: number;
   setPageSize: (pageSize: number) => void;
+  totalCount: number;
+  setTotalCount: (pageSize: number) => void;
   modalType: string | null;
   setModalType: (modalType: string | null) => void;
   searchTerm: string | null;
@@ -32,7 +34,7 @@ interface UserState {
   selectionType: 'checkbox' | 'radio';
   setSelectionType: (selectionType: 'checkbox' | 'radio') => void;
   searchParams: SearchParams;
-  setSearchParams: (key: keyof SearchParams, value: string) => void;
+  setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -48,6 +50,8 @@ export const useEmployeeManagementStore = create<UserState>()(
     setDeleteModal: (deleteModal: boolean) => set({ deleteModal }),
     setUserCurrentPage: (userCurrentPage: number) => set({ userCurrentPage }),
     pageSize: 10,
+    totalCount: 0,
+    setTotalCount: (totalCount: number) => set({ totalCount }),
     selectedItem: { key: null, id: null },
     setSelectedItem: (selectedItem: any) => set({ selectedItem }),
     setPageSize: (pageSize: number) => set({ pageSize }),
