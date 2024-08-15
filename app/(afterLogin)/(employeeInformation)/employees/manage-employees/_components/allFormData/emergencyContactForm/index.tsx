@@ -26,12 +26,14 @@ const EmergencyContactForm = () => {
             id="emergencyContactFullName"
             rules={[
               {
-                validator: (_, value) =>
-                  !validateName('Full Name',value)
+                validator: (rule, value) =>
+                  !validateName('Full Name', value)
                     ? Promise.resolve()
-                    : Promise.reject(new Error(validateName('Full Name',value) || '')),
+                    : Promise.reject(
+                        new Error(validateName('Full Name', value) || ''),
+                      ),
               },
-            ]} 
+            ]}
           >
             <Input />
           </Form.Item>
@@ -44,12 +46,15 @@ const EmergencyContactForm = () => {
             id="emergencyContactLastName"
             rules={[
               {
-                validator: (_, value) =>
-                  !validateName('Last Name',value)
+                validator: (rule, value) =>
+                  !validateName('Last Name', value)
                     ? Promise.resolve()
-                    : Promise.reject(new Error(validateName('Last Name',value) || '')),
+                    : Promise.reject(
+                        new Error(validateName('Last Name', value) || ''),
+                      ),
               },
-            ]}>
+            ]}
+          >
             <Input />
           </Form.Item>
         </Col>
@@ -63,7 +68,7 @@ const EmergencyContactForm = () => {
             id="emergencyContactEmailAddress"
             rules={[
               {
-                validator: (_, value) =>
+                validator: (rule, value) =>
                   !validateEmail(value)
                     ? Promise.resolve()
                     : Promise.reject(new Error(validateEmail(value) || '')),
@@ -118,10 +123,10 @@ const EmergencyContactForm = () => {
           </Form.Item>
         </Col>
       </Row>
-      {/* <DynamicFormFields
+      <DynamicFormFields
         formTitle="emergencyContact"
         fields={emergencyContactForm.form}
-      /> */}
+      />
       <AddCustomField
         formTitle="Emergency contact"
         customEmployeeInformationForm={emergencyContactForm}

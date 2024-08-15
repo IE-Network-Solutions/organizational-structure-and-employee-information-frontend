@@ -39,16 +39,17 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
       name: [formTitle, field.fieldName],
       id: `${formTitle}${field.fieldName}`,
       rules: [
-        field.fieldType === 'input' ?
-        {
-          validator: (_: any, value: any) =>
-            validateName(field.fieldName, value)
-              ? Promise.reject(new Error(validateName(field.fieldName, value) || ''))
-              : Promise.resolve(),
-        }:
-        { required: true, message: `${field.fieldName} is required` },
+        field.fieldType === 'input'
+          ? {
+              validator: (rule: any, value: any) =>
+                validateName(field.fieldName, value)
+                  ? Promise.reject(
+                      new Error(validateName(field.fieldName, value) || ''),
+                    )
+                  : Promise.resolve(),
+            }
+          : { required: true, message: `${field.fieldName} is required` },
       ],
-    
     };
 
     switch (field.fieldType) {
@@ -90,7 +91,11 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
         );
       case 'toggle':
         return (
-          <Form.Item  key={field.fieldName} {...commonProps} valuePropName="checked">
+          <Form.Item
+            key={field.fieldName}
+            {...commonProps}
+            valuePropName="checked"
+          >
             <Switch />
           </Form.Item>
         );

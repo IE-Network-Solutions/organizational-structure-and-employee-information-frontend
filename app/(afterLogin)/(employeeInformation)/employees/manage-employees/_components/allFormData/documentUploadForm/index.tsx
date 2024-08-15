@@ -1,37 +1,27 @@
 import React from 'react';
-import { Button, Col, Form, Row, Upload, Image, UploadFile } from 'antd';
+import { Button, Col, Form, Row, Upload, Image } from 'antd';
 import { MdOutlineUploadFile } from 'react-icons/md';
 import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const { Dragger } = Upload;
 
 const DocumentUploadForm = () => {
-  const { documentFileList, setDocumentFileList } = useEmployeeManagmentStore();
+  const { documentFileList, setDocumentFileList, removeDocument } =
+    useEmployeeManagmentStore();
 
-  const beforeDocumentUpload = () => {
-    // Allow all file types by default
-    return true;
-  };
-
-  const handleDocumentChange = ({ fileList }: { fileList: UploadFile[] }) => {
+  const handleDocumentChange = (info: any) => {
+    const fileList = Array.isArray(info.fileList) ? info.fileList : [];
     setDocumentFileList(fileList);
   };
 
-  const handleDocumentRemove = (file: UploadFile) => {
-    setDocumentFileList((prevFileList: UploadFile[]) =>
-      prevFileList.filter((item: UploadFile) => item.uid !== file.uid),
-    );
+  const handleDocumentRemove = (file: any) => {
+    removeDocument(file.uid);
   };
 
-  const customRequest = async ({ file, onSuccess, onError }: any) => {
-    try {
-      // Simulate file upload process
-      const url = URL.createObjectURL(file);
-      file.url = url;
+  const customRequest = ({ onSuccess }: any) => {
+    setTimeout(() => {
       onSuccess('ok');
-    } catch (error) {
-      onError(error);
-    }
+    }, 0);
   };
 
   return (
@@ -50,7 +40,6 @@ const DocumentUploadForm = () => {
             <Dragger
               name="documentName"
               fileList={documentFileList}
-              beforeUpload={beforeDocumentUpload}
               onChange={handleDocumentChange}
               onRemove={handleDocumentRemove}
               customRequest={customRequest}
