@@ -1,7 +1,6 @@
 import create from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
-// Define your store's state interface
 interface StoreState {
   token: string;
   setToken: (token: string) => void;
@@ -9,12 +8,13 @@ interface StoreState {
   setTenantId: (tenantId: string) => void;
   localId: string;
   setLocalId: (tenantId: string) => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+  error: string | null;
+  setError: (error: string | null) => void;
 }
 
-// Define the StateCreator type with the middlewares you are using
-
-// Create the store using the middleware-enhanced state creator
-export const useAuthenticationStore = create<StoreState>(
+export const useAuthenticationStore = create<StoreState>()(
   devtools(
     persist(
       (set) => ({
@@ -24,11 +24,22 @@ export const useAuthenticationStore = create<StoreState>(
         setTenantId: (tenantId: string) => set({ tenantId }),
         localId:'',
         setLocalId: (localId:string) =>set({ localId }),
+        loading: false, // Non-persistent state
+        setLoading: (loading: boolean) => set({ loading }), // Non-persistent method
+        error: null, // Non-persistent state
+        setError: (error: string | null) => set({ error }), // Non-persistent method
       }),
       {
         name: 'authentication-storage', // Unique name for the storage
         getStorage: () => localStorage, // Use localStorage for persistence
+        partialize: (state) => ({
+          token: state.token,
+          tenantId: state.tenantId,
+          localId:state.localId,
+          
+          // 'loading' and 'error' are not included here, so they won't be persisted
+        }),
       },
     ),
-  ) as any, // Cast to the middleware-enhanced state creator type
+  ),
 );
