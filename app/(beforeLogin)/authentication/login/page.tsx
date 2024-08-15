@@ -13,7 +13,7 @@ import { Microsoft } from '@/components/Icons/microsoft';
 import { Google } from '@/components/Icons/google';
 import { useGetTenantId } from '@/store/server/features/employees/authentication/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { redirect } from 'next/navigation'
+import { redirect } from 'next/navigation';
 
 type FieldType = {
   email: string;
@@ -25,27 +25,28 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  const { setToken, localId, setLocalId, setTenantId } = useAuthenticationStore();
+  const { setToken, localId, setLocalId, setTenantId } =
+    useAuthenticationStore();
 
   // Call the React Query hook
   const { data: fetchedTenantId, refetch } = useGetTenantId(localId);
-  
+
   // Update tenantId in store when fetched
   useEffect(() => {
     if (fetchedTenantId) {
       setTenantId(fetchedTenantId?.tenantId);
-      message.loading({ content: "Redirecting...", key: "redirect" });
+      message.loading({ content: 'Redirecting...', key: 'redirect' });
       redirect(`/employees/manage-employees`);
     }
   }, [fetchedTenantId, setTenantId]);
-  
+
   // Trigger refetch when localId is set
   useEffect(() => {
     if (localId) {
       refetch();
     }
   }, [localId, refetch]);
-  
+
   // Handle Google sign-in
   const handleGoogleSignIn = async () => {
     setError('');
@@ -53,16 +54,16 @@ const Login: React.FC = () => {
       const response = await signInWithPopup(auth, googleProvider);
       const user = response.user;
       const uId = user.uid;
-      
+
       // Get the ID token
       const idToken = await user.getIdToken();
       setToken(idToken);
       setLocalId(uId);
-      
-      message.success("Successfully logged in!");
+
+      message.success('Successfully logged in!');
     } catch (err: any) {
       setError(err.message);
-      message.error("Failed to log in. Please try again.");
+      message.error('Failed to log in. Please try again.');
     }
   };
   const handleEmailPasswordSignIn: FormProps<FieldType>['onFinish'] = async (
@@ -72,20 +73,20 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password,
+      );
 
       // Handle successful sign-in
       const user = userCredential.user;
-      console.log(userCredential,"response")
-
       message.success(`Welcome back, ${user.displayName || 'User'}!`);
-  
     } catch (err: any) {
       setError(err.message);
     }
     setLoading(false);
   };
-
 
   const handleMicrosoftSignIn = async () => {
     setError('');
