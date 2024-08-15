@@ -7,6 +7,8 @@ interface StoreState {
   setToken: (token: string) => void;
   tenantId: string;
   setTenantId: (tenantId: string) => void;
+  localId: string;
+  setLocalId: (tenantId: string) => void;
 }
 
 // Define the StateCreator type with the middlewares you are using
@@ -16,10 +18,12 @@ export const useAuthenticationStore = create<StoreState>(
   devtools(
     persist(
       (set) => ({
-        token: 'ahmedinoumer0987643234567890',
+        token: '',
         setToken: (token: string) => set({ token }),
-        tenantId: '9fdb9540-607e-4cc5-aebf-0879400d1f69',
+        tenantId: '',
         setTenantId: (tenantId: string) => set({ tenantId }),
+        localId:'',
+        setLocalId: (localId:string) =>set({ localId }),
       }),
       {
         name: 'authentication-storage', // Unique name for the storage

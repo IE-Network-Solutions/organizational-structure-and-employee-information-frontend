@@ -4,7 +4,7 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { GroupPermissionkey } from '@/types/dashboard/adminManagement';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { useAuthenticationStore } from '@/store/uistate/features/employees/authentication';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;

@@ -3,7 +3,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Permission, PermissionDataType } from './interface';
-import { useAuthenticationStore } from '@/store/uistate/features/employees/authentication';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
