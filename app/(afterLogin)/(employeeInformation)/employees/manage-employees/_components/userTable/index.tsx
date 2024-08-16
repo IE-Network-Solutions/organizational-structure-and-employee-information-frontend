@@ -135,17 +135,17 @@ const UserTable = () => {
           </div>
         </Tooltip>
       ),
-      job_title: item?.employeeJobInformation?.jobTitle
-        ? item?.employeeJobInformation?.jobTitle
+      job_title: item?.employeeJobInformation[0]?.jobTitle
+        ? item?.employeeJobInformation[0]?.jobTitle
         : '-',
-      department: item?.employeeJobInformation?.department?.name
-        ? item?.employeeJobInformation?.department?.name
+      department: item?.employeeJobInformation[0]?.department?.name
+        ? item?.employeeJobInformation[0]?.department?.name
         : '-',
-      office: item?.employeeJobInformation?.branch?.name
-        ? item?.employeeJobInformation?.branch?.name
+      office: item?.employeeJobInformation[0]?.branch?.name
+        ? item?.employeeJobInformation[0]?.branch?.name
         : '-',
       employee_status: userTypeButton(
-        item?.employeeJobInformation?.employementType?.name,
+        item?.employeeJobInformation[0]?.employementType?.name,
       ),
       account: (
         <span className="text-sm text-gray-900">
