@@ -1,11 +1,10 @@
 export interface StepState {
   currentStep: number;
-  loading:boolean, 
-  toggleLoading:()=>void;
+  loading: boolean;
+  toggleLoading: () => void;
   nextStep: () => void;
   prevStep: () => void;
 
-  isModalVisible:boolean, 
-  togleIsModalVisible:()=>void
-
+  isModalVisible: boolean;
+  togleIsModalVisible: () => void;
 }

@@ -10,7 +10,6 @@ interface CustomDrawerLayoutProps {
   children: React.ReactNode;
   width: string;
   footer?: React.ReactNode;
-
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({

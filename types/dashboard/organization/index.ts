@@ -1,5 +1,3 @@
-
-
 export interface BranchType {
   id: string;
   name: string;
@@ -7,7 +5,7 @@ export interface BranchType {
 }
 
 export interface DepartmentType {
-  id?: string; 
+  id?: string;
   name: string;
   branchId: string;
   description?: string;
@@ -24,7 +22,7 @@ export interface DepartmentFormProps {
 export interface OrgData {
   name: string;
   description: string;
-  branchId?: string | null; 
+  branchId?: string | null;
   department: Department[];
   [key: string]: any;
 }
@@ -46,7 +44,7 @@ export interface OrganizationState {
   parentId: string | null;
 
   setOrgData: (orgData: OrgData) => void;
-  addDepartment: (parentId: string, department: Omit<Department, 'id'>) => void; 
+  addDepartment: (parentId: string, department: Omit<Department, 'id'>) => void;
   updateDepartment: (updatedDepartment: Department) => void;
   deleteDepartment: (departmentId: string) => void;
   setIsFormVisible: (isFormVisible: boolean) => void;

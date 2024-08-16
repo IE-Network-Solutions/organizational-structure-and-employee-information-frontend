@@ -16,7 +16,6 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  */
 
 const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
-
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
@@ -33,7 +32,6 @@ const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
  * @returns The response data from the API containing all roles.
  */
 const getRolesWithOutPagination = async () => {
-
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles`,
     headers: {

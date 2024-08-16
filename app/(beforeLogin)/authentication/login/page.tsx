@@ -22,9 +22,16 @@ type FieldType = {
 };
 
 const Login: React.FC = () => {
-
-  const { error,setError,loading,setLoading,setToken, localId, setLocalId, setTenantId } =
-    useAuthenticationStore();
+  const {
+    error,
+    setError,
+    loading,
+    setLoading,
+    setToken,
+    localId,
+    setLocalId,
+    setTenantId,
+  } = useAuthenticationStore();
 
   // Call the React Query hook
   const { data: fetchedTenantId, refetch } = useGetTenantId(localId);
