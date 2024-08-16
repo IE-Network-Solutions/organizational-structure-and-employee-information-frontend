@@ -19,8 +19,8 @@ const EmployeeSearch: React.FC = () => {
     userCurrentPage,
     searchParams.allOffices ? searchParams.allOffices : '',
     searchParams.allJobs ? searchParams.allJobs : '',
-    searchParams.allStatus ? searchParams.allStatus : '',
     searchParams.employee_name ? searchParams.employee_name : '',
+    searchParams.allStatus ? searchParams.allStatus : '',
   );
 
   const { data: EmployeeBranches } = useEmployeeBranches();
@@ -58,9 +58,11 @@ const EmployeeSearch: React.FC = () => {
   const activeStatusValue =
     allFilterData?.items?.find((item: any) => item.deletedAt === null)
       ?.deletedAt || 'null';
-  const inactiveStatusValue = allFilterData?.items?.find(
+  const inactiveStatusValue = allFilterData?.items?.some(
     (item: any) => item.deletedAt !== null,
-  )?.deletedAt;
+  )
+    ? 'notNull'
+    : 'notNull';
 
   return (
     <div>

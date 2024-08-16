@@ -41,7 +41,7 @@ const employeeAllFilter = async (
   isDeleted: string,
 ) => {
   const response = await crudRequest({
-    url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedat=${isDeleted}&page=${currentPage}&limit=${pageSize}`,
+    url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted}&page=${currentPage}&limit=${pageSize}`,
     method: 'GET',
     headers: {
       tenantId: tenantId,

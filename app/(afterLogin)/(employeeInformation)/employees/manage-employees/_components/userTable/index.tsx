@@ -73,8 +73,8 @@ const UserTable = () => {
       userCurrentPage,
       searchParams.allOffices ? searchParams.allOffices : '',
       searchParams.allJobs ? searchParams.allJobs : '',
-      searchParams.allStatus ? searchParams.allStatus : '',
       searchParams.employee_name,
+      searchParams.allStatus ? searchParams.allStatus : '',
     );
   const useEmployeeDeleteMuation = useDeleteEmployee();
 
