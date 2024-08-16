@@ -247,7 +247,7 @@ const OrgChartComponent: React.FC = () => {
         </div>
       }
     >
-      <div className="w-full py-7 overflow-x-auto lg:overflow-x-visible">
+      <div className="w-full py-7 overflow-x-auto">
         <div className="p-4 sm:p-2 md:p-6 lg:p-8">
           <Tree
             label={
