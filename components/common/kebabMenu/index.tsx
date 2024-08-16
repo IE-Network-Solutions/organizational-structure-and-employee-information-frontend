@@ -4,17 +4,17 @@ import { Card } from 'antd';
 const KebabMenu: React.FC<any> = (props) => {
   const cardRef = useRef<HTMLDivElement | null>(null);
 
-  const handleClickOutside = (event: any) => {
-    if (cardRef.current && !cardRef.current.contains(event.target)) {
-      props?.handleButtonClick(null);
-    }
-  };
   useEffect(() => {
+    const handleClickOutside = (event: any) => {
+      if (cardRef.current && !cardRef.current.contains(event.target)) {
+        props?.handleButtonClick(null);
+      }
+    };
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [handleClickOutside]);
+  }, [props]);
 
   return (
     <Card

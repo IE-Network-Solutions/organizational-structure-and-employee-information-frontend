@@ -16,6 +16,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  */
 
 const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
@@ -32,8 +33,7 @@ const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
  * @returns The response data from the API containing all roles.
  */
 const getRolesWithOutPagination = async () => {
-  // const tenantId = localStorage.getItem('tenantId');
-  // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles`,
     headers: {
@@ -50,14 +50,13 @@ const getRolesWithOutPagination = async () => {
  * @returns The response data from the API containing all roles.
  */
 const getRolesWithPermisison = async () => {
-  // const tenantId = localStorage.getItem('tenantId');
-  // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles/find-all-role-with-permissions/role-permissions`,
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
+
     method: 'GET',
   });
 };
