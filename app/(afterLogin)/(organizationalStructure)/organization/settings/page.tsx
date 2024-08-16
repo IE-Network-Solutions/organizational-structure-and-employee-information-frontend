@@ -6,7 +6,7 @@ import { TbNotes } from 'react-icons/tb';
 import WorkScheduleTab from './_components/workSchedule/workSchduleComponent';
 import FiscalYearListCard from './_components/fiscalYear/fiscalYearCard';
 import CustomWorkingScheduleDrawer from './_components/fiscalYear/customDrawer';
-import Branches from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/step5';
+import Branches from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/branches';
 
 function Settings() {
   const [tabPosition, setTabPosition] = useState<'left' | 'top'>('left');

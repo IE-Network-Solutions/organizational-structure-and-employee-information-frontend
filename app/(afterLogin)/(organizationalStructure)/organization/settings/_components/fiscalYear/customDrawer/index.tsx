@@ -1,4 +1,4 @@
-import WorkSchedule from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/step4';
+import WorkSchedule from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/workSchedule';
 import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
