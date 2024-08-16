@@ -1,9 +1,8 @@
 import { Avatar, Card, Divider, List, Tag } from 'antd';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { HiOutlineMail } from 'react-icons/hi';
-import { LuPhone } from 'react-icons/lu';
-import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import Link from 'next/link';
+import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 function BasicInfo({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
 
@@ -32,11 +31,15 @@ function BasicInfo({ id }: { id: string }) {
         <HiOutlineMail color="#BFBFBF" />
         <p className="font-semibold">{employeeData?.email}</p>
       </div>
-    
-      <Divider className="my-2" />
+
+      <Divider className="my-2" key="arrows" />
       <List split={false} size="small">
-        <List.Item actions={[<MdKeyboardArrowRight />]}>
+        <List.Item
+          key={'department'}
+          actions={[<MdKeyboardArrowRight key="arrow" />]}
+        >
           <List.Item.Meta
+            key={'department1'}
             title={<p className="text-xs font-light">Department</p>}
             description={
               <p className="font-bold text-black text-sm">
@@ -47,8 +50,12 @@ function BasicInfo({ id }: { id: string }) {
             }
           />
         </List.Item>
-        <List.Item actions={[<MdKeyboardArrowRight />]}>
+        <List.Item
+          key={'office'}
+          actions={[<MdKeyboardArrowRight key="arrow" />]}
+        >
           <List.Item.Meta
+            key={'office1'}
             title={<p className="text-xs font-light">Office</p>}
             description={
               <p className="font-bold text-black text-sm">
@@ -62,8 +69,12 @@ function BasicInfo({ id }: { id: string }) {
         <Link
           href={`/employees/manage-employees/${employeeData?.reportingTo?.id}`}
         >
-          <List.Item actions={[<MdKeyboardArrowRight />]}>
+          <List.Item
+            key={'Manager'}
+            actions={[<MdKeyboardArrowRight key="arrow" />]}
+          >
             <List.Item.Meta
+              key={'Manager1'}
               title={<p className="text-xs font-light">Manager</p>}
               description={
                 <p className="font-bold text-black text-sm">

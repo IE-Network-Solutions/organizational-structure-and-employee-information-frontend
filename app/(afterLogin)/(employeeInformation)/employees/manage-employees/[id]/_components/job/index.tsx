@@ -3,6 +3,7 @@ import { Card, Col, Row, Table } from 'antd';
 import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../common/infoLine';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import WorkScheduleComponent from './workSchedule';
 
 function Job({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -22,7 +23,9 @@ function Job({ id }: { id: string }) {
       title: 'Employment Type',
       dataIndex: 'employmentTypeId',
       key: 'employmentTypeId',
-      render: (_: any, record: any) => <>{record?.employmentType?.name}</>,
+      render: (ruleData: any, record: any) => (
+        <>{record?.employmentType?.name}</>
+      ),
     },
     {
       title: 'Manager',
@@ -33,7 +36,7 @@ function Job({ id }: { id: string }) {
       title: 'Department',
       dataIndex: 'department',
       key: 'address',
-      render: (_: any, record: any) => <>{record?.department?.name}</>,
+      render: (ruleData: any, record: any) => <>{record?.department?.name}</>,
     },
   ];
   return (
@@ -89,37 +92,7 @@ function Job({ id }: { id: string }) {
           pagination={{ hideOnSinglePage: true }}
         />
       </Card>
-      <Card title="Work Schedule" extra={<LuPencil />} className="my-6">
-        <Row gutter={[16, 24]}>
-          <Col lg={16}>
-            <InfoLine
-              title="Current schedule"
-              value={
-                employeeData?.employeeJobInformation?.find(
-                  (e: any) => e.isPositionActive === true,
-                )?.workSchedule?.name || '-'
-              }
-            />
-
-            <InfoLine
-              title="Daily working hours"
-              value={
-                employeeData?.employeeJobInformation
-                  ?.find((e: any) => e.isPositionActive === true)
-                  ?.workSchedule?.detail?.map((e: any) => (
-                    <div>
-                      <div className="font-bold">
-                        {' '}
-                        {e?.dayOfWeek}{' '}
-                        <span className="font-light ml-2">{e?.hours}</span>
-                      </div>
-                    </div>
-                  )) || '-'
-              }
-            />
-          </Col>
-        </Row>
-      </Card>
+      <WorkScheduleComponent id={id} />
     </>
   );
 }

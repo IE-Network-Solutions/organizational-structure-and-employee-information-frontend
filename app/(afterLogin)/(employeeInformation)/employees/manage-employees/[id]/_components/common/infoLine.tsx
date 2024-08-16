@@ -6,7 +6,7 @@ interface InfoLineType {
   value: string | ReactNode;
 }
 export const InfoLine = ({ title, value }: InfoLineType) => (
-  <Row className='my-3'>
+  <Row className="my-3">
     <Col span={12}>
       {' '}
       <p className="font-light">{title}</p>
