@@ -4,9 +4,9 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Role, RoleType } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
-
 /**
  * Function to fetch a paginated list of roles by sending a GET request to the API.
  *
@@ -14,16 +14,16 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @param pageSize - The number of roles to fetch per page.
  * @returns The response data from the API containing the list of roles.
  */
+
 const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
-  const headers: Record<string, string> | undefined = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
-    headers,
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
   });
 };
 
@@ -33,13 +33,13 @@ const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
  * @returns The response data from the API containing all roles.
  */
 const getRolesWithOutPagination = async () => {
-  const headers: Record<string, string> | undefined = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles`,
-    headers,
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
     method: 'GET',
   });
 };
@@ -50,13 +50,13 @@ const getRolesWithOutPagination = async () => {
  * @returns The response data from the API containing all roles.
  */
 const getRolesWithPermisison = async () => {
-  const headers: Record<string, string> = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles/find-all-role-with-permissions/role-permissions`,
-    headers,
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+
     method: 'GET',
   });
 };
@@ -70,8 +70,13 @@ const getRolesWithPermisison = async () => {
  */
 const getRole = async (id: string | null) => {
   try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/roles/find-one-role-with-permissions/role-permissions/${id}`,
+      { headers },
     );
     return response.data;
   } catch (error) {

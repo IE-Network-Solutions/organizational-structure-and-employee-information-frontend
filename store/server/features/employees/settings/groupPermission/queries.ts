@@ -3,7 +3,10 @@ import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import { GroupPermissionType } from './interface';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch Permission Groups by sending a GET request to the API
  * @returns The response data from the API
@@ -15,6 +18,10 @@ const getPermissionGroups = async (
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permission-group?page=${permissonGroupCurrentPage}&limit=${pageSize}`,
     method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
   });
 };
 
@@ -22,6 +29,10 @@ const getPermissionGroupswithOutPagination = async () => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permission-group`,
     method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
   });
 };
 /**
@@ -32,8 +43,13 @@ const getPermissionGroupswithOutPagination = async () => {
 
 const getPermissionGroup = async (id: string) => {
   try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/permission-group/${id}`,
+      { headers },
     );
     return response.data;
   } catch (error) {

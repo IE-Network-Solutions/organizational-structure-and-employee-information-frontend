@@ -1,4 +1,5 @@
 'use client';
+
 import { Button, Card, Table } from 'antd';
 import React from 'react';
 import { FaPlus, FaUser } from 'react-icons/fa';
@@ -34,7 +35,7 @@ const EmploymentType = () => {
       ),
     },
     {
-      key: '2',
+      key: '3',
       name: (
         <div className="flex space-x-2 font-semibold">
           <FaUser className="mt-3 text-gray-500" />
@@ -48,24 +49,30 @@ const EmploymentType = () => {
       ),
     },
   ];
+
   const columns: any = [
     {
       dataIndex: 'name',
       key: 'name',
     },
   ];
+
   return (
     <>
-      <Card className="border-b-0 py-4">
-        <div className="flex justify-between mr-4">
-          <div className="text-black font-bold text-lg">Employment Type</div>
-          <Button className="flex space-x-1 px-6 py-6 font-bold bg-[#3636F0] text-white">
-            <FaPlus className="text-white font-bold" />
-            Add New Type
+      <Card className="border-b-0 py-4 px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+          <div className="text-black font-bold text-lg mb-2 sm:mb-0">
+            Employment Type
+          </div>
+          <Button className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]">
+            <FaPlus className="text-white" />
+            <span>Add New Type</span>
           </Button>
         </div>
       </Card>
-      <Table columns={columns} dataSource={data} />
+      <div className="overflow-x-auto">
+        <Table columns={columns} dataSource={data} className="min-w-[320px]" />
+      </div>
     </>
   );
 };
