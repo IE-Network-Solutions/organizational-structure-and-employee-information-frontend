@@ -33,6 +33,7 @@ const UserSidebar = (props: any) => {
   );
 
   const handleCreateUser = (values: any) => {
+    // console.log(values,"values")
     createEmployee(transformData(values));
   };
 

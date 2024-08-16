@@ -3,6 +3,7 @@ import { Col, Form, Input, Row } from 'antd';
 import DynamicFormFields from '../../dynamicFormDisplayer';
 import AddCustomField from '../../addCustomField';
 import UseSetCategorizedFormData from '../../customField';
+import { validateName } from '@/utils/validation';
 
 const EmployeeAddressForm = () => {
   const currentAddressForm = UseSetCategorizedFormData('Address');
@@ -19,7 +20,16 @@ const EmployeeAddressForm = () => {
             name={['address', 'addressCountry']}
             label="Country"
             id="addressCountryId"
-            rules={[{ required: true, message: 'Please enter the country' }]}
+            rules={[
+              {
+                validator: (rule, value) =>
+                  !validateName('country', value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(validateName('country', value) || ''),
+                      ),
+              },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -30,7 +40,16 @@ const EmployeeAddressForm = () => {
             name={['address', 'addressCity']}
             label="City"
             id="addressCityId"
-            rules={[{ required: true, message: 'Please enter the city' }]}
+            rules={[
+              {
+                validator: (rule, value) =>
+                  !validateName('city', value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(validateName('city', value) || ''),
+                      ),
+              },
+            ]}
           >
             <Input />
           </Form.Item>

@@ -11,6 +11,7 @@ import {
   Row,
   Col,
   Divider,
+  message,
 } from 'antd';
 import { v4 as uuidv4 } from 'uuid'; // Ensure uuidv4 is imported
 import { useAddEmployeeInformationForm } from '@/store/server/features/employees/employeeManagment/employeInformationForm/mutations';
@@ -55,6 +56,8 @@ const AddCustomField: React.FC<any> = ({
         form: [...customEmployeeInformationForm.form, newField],
       };
       createCustomForm.mutate(newFormData);
+    } else {
+      message.error(`The field ${newField.fieldName} already exists!`);
     }
   };
 

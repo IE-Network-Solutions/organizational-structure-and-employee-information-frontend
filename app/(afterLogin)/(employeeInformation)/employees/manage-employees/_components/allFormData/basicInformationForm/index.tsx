@@ -15,44 +15,61 @@ import {
 import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
 import { InboxOutlined } from '@ant-design/icons';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
+import { validateEmail, validateName } from '@/utils/validation';
+import { UploadFile } from 'antd/lib';
+import { RcFile } from 'antd/es/upload';
 
 const { Option } = Select;
 const { Dragger } = Upload;
 
 const BasicInformationForm = ({ form }: any) => {
   const { profileFileList, setProfileFileList } = useEmployeeManagmentStore();
-  const { data: nationalities } = useGetNationalities();
+  const { data: nationalities, isLoading: isLoadingNationality } =
+    useGetNationalities();
 
-  const beforeProfileUpload = (file: any) => {
-    const isImage = file.type?.startsWith('image/');
+  type FileInfo = {
+    file: UploadFile; // File being uploaded
+    fileList: UploadFile[]; // List of all files
+  };
+
+  const beforeProfileUpload = (file: RcFile): boolean => {
+    const isImage = file.type.startsWith('image/');
     if (!isImage) {
       message.error('You can only upload image files!');
     }
-    return isImage || Upload.LIST_IGNORE;
+    return isImage;
   };
 
-  const handleProfileChange = (info: any) => {
+  const handleProfileChange = (info: FileInfo) => {
     setProfileFileList(info.fileList);
     if (info.file.status === 'done') {
-      form.setFieldsValue({ profileImage: info.fileList });
+      form.setFieldsValue({ profileImage: info });
     }
   };
 
-  const handleProfileRemove = (file: any) => {
-    const filterData = profileFileList.filter((item) => item.uid !== file.uid);
-    setProfileFileList(filterData);
+  const handleProfileRemove = (file: UploadFile) => {
+    const updatedFileList = profileFileList.filter(
+      (item: any) => item.uid !== file.uid,
+    );
+    setProfileFileList(updatedFileList);
+
     form.setFieldsValue({
-      profileImage: filterData.length > 0 ? filterData : null,
+      profileImage: updatedFileList.length > 0 ? updatedFileList : null,
     });
   };
 
-  const getImageUrl = (fileList: any) => {
+  const getImageUrl = (fileList: UploadFile[]): string => {
     if (fileList.length > 0) {
-      return URL.createObjectURL(fileList[0].originFileObj);
+      const imageFile = fileList[0];
+      return (
+        imageFile?.url ||
+        imageFile?.thumbUrl ||
+        URL.createObjectURL(imageFile.originFileObj as RcFile) ||
+        ''
+      );
     }
     return '';
   };
-
   return (
     <div className="">
       <Row justify="center" style={{ width: '100%' }}>
@@ -110,7 +127,16 @@ const BasicInformationForm = ({ form }: any) => {
             name="userFirstName"
             label="First Name"
             id="userFirstNameId"
-            rules={[{ required: true }]}
+            rules={[
+              {
+                validator: (rule, value) =>
+                  !validateName('name', value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(validateName('name', value) || ''),
+                      ),
+              },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -121,7 +147,16 @@ const BasicInformationForm = ({ form }: any) => {
             name="userMiddleName"
             label="Middle Name"
             id="userMiddleNameId"
-            rules={[{ required: true }]}
+            rules={[
+              {
+                validator: (rule, value) =>
+                  !validateName('Middle Name', value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(validateName('Middle Name', value) || ''),
+                      ),
+              },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -132,7 +167,16 @@ const BasicInformationForm = ({ form }: any) => {
             name="userLastName"
             label="Last Name"
             id="userLastNameId"
-            rules={[{ required: true }]}
+            rules={[
+              {
+                validator: (rule, value) =>
+                  !validateName('Last Name', value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(validateName('Last Name', value) || ''),
+                      ),
+              },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -145,7 +189,14 @@ const BasicInformationForm = ({ form }: any) => {
             name="userEmail"
             label="Email Address"
             id="userEmailId"
-            rules={[{ required: true }]}
+            rules={[
+              {
+                validator: (rule, value) =>
+                  !validateEmail(value)
+                    ? Promise.resolve()
+                    : Promise.reject(new Error(validateEmail(value) || '')),
+              },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -185,7 +236,11 @@ const BasicInformationForm = ({ form }: any) => {
             id="userNationalityId"
             rules={[{ required: true }]}
           >
-            <Select placeholder="Select an option" allowClear>
+            <Select
+              loading={isLoadingNationality}
+              placeholder="Select an option"
+              allowClear
+            >
               {nationalities?.items?.map((nationality: any, index: number) => (
                 <Option key={index} value={nationality?.id}>
                   {nationality?.name}
