@@ -16,9 +16,10 @@ const { Dragger } = Upload;
 const Documents = ({ id }: { id: string }) => {
   const { documentFileList, setDocumentFileList, removeDocument } =
     useEmployeeManagmentStore();
-  const {  data: employeeData } = useGetEmployee(id);
+  const { data: employeeData } = useGetEmployee(id);
   const { mutate: deleteEmployeeDocument } = useDeleteEmployeeDocument();
-  const { isLoading:addEmployee,mutate: AddEmployeeDocument } = useAddEmployeeDocument();
+  const { isLoading: addEmployee, mutate: AddEmployeeDocument } =
+    useAddEmployeeDocument();
   const [form] = Form.useForm();
 
   const handleDocumentChange = (info: any) => {
