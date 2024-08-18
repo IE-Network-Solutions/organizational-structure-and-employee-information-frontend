@@ -45,6 +45,13 @@ export interface WorkSchedule {
   standardHours: number;
   tenantId: string;
 }
+export type EditState = {
+  addresses: boolean;
+  workSchedule: boolean;
+  general: boolean;
+  emergencyContact: boolean;
+  bankInformation: boolean;
+};
 export interface WorkScheduleData {
   items: WorkSchedule[];
   meta: MetaData;
@@ -103,6 +110,9 @@ interface UserState {
   documentFileList: any[];
   setDocumentFileList: (fileList: any[]) => void;
   removeDocument: (uid: string) => void;
+
+  edit: EditState;
+  setEdit: (key: keyof EditState) => void;
 }
 
 export const useEmployeeManagmentStore = create<UserState>()(
@@ -110,6 +120,20 @@ export const useEmployeeManagmentStore = create<UserState>()(
     open: false,
     deleteModal: false,
     current: 0,
+    edit: {
+      addresses: false,
+      workSchedule: false,
+      general: false,
+      emergencyContact: false,
+      bankInformation: false,
+    },
+    setEdit: (key: keyof EditState) =>
+      set((state) => ({
+        edit: {
+          ...state.edit,
+          [key]: !state.edit[key],
+        },
+      })),
 
     customFormData: null,
     setCustomFormData: (customFormData: FormData) => set({ customFormData }),

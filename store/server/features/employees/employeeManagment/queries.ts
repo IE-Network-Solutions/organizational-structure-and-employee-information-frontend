@@ -26,13 +26,13 @@ const getEmployees = async () => {
  * @returns The response data from the API
  */
 
-const getEmployee = async (id: number) => {
+const getEmployee = async (id: string) => {
   try {
     const headers = {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/employee/${id}`, {
+    const response = await axios.get(`${ORG_AND_EMP_URL}/users/${id}`, {
       headers,
     });
     return response.data;
@@ -63,7 +63,7 @@ export const useGetEmployees = () => useQuery<any[]>('employees', getEmployees);
  * query object containing the post data, and it keeps the previous data
  * while the new data is being fetched.
  */
-export const useGetEmployee = (postId: number) =>
-  useQuery<any>(['employee', postId], () => getEmployee(postId), {
+export const useGetEmployee = (empId: string) =>
+  useQuery<any>(['employee', empId], () => getEmployee(empId), {
     keepPreviousData: true,
   });
