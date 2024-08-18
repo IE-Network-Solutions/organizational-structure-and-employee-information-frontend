@@ -10,7 +10,8 @@ import {
 
 import { Department } from '@/types/dashboard/organization';
 import DepartmentForm from '../departmentForm.tsx';
-import useOrganizationStore from '../../../../../store/uistate/features/organizationStructure/orgState';
+// import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState/index.js';
+import useOrganizationStore from '../../../../../../store/uistate/features/organizationStructure/orgState';
 
 interface DepartmentNodeProps {
   data: Department;

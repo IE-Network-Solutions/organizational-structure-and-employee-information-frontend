@@ -1,7 +1,16 @@
-import React from 'react';
-
+import dynamic from 'next/dynamic';
+const OrgChartComponent = dynamic(
+  () => import('./_components/orgDepartmentPage'),
+  {
+    ssr: false,
+  },
+);
 function OrgChart() {
-  return <div>page</div>;
+  return (
+    <div>
+      <OrgChartComponent />
+    </div>
+  );
 }
 
 export default OrgChart;

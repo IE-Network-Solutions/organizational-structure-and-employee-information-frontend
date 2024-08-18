@@ -3,14 +3,18 @@ import { useQuery } from 'react-query';
 import { ScheduleResponse } from './interface';
 import { crudRequest } from '@/utils/crudRequest';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
-  tenantId: '8f2e3691-423f-4f21-b676-ba3a932b7c7f',
+  tenantId: tenantId,
+  Authorization: `Bearer ${token}`,
 };
 
 const fetchSchedule = async () => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/schedule`,
+    url: `${ORG_AND_EMP_URL}/work-schedules`,
     method: 'GET',
     headers,
   });
@@ -18,7 +22,7 @@ const fetchSchedule = async () => {
 
 const fetchScheduleById = async (id: string) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/schedule/${id}`,
+    url: `${ORG_AND_EMP_URL}/work-schedules/${id}`,
     method: 'GET',
     headers,
   });

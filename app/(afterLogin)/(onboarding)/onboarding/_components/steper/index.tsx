@@ -1,12 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Spin } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import useStepStore from '@/store/uistate/features/organizationStructure/steper/useStore';
-import FiscalYear from './step3';
-import WorkSchedule from './step4';
-import Branches from './step5';
-import OrgChartComponent from './step6';
+import FiscalYear from './fiscalYear';
+import WorkSchedule from './workSchedule';
+import Branches from './branches';
+import OrgChartComponent from './orgChartComponent';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import useFiscalYearStore from '@/store/uistate/features/organizationStructure/fiscalYear/fiscalYearStore';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
@@ -30,12 +30,12 @@ import {
 import { useUpdateCompanyProfile } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 import { Form } from 'antd';
-import IndustrySelect from './step2';
-import CompanyProfile from './step1';
+import IndustrySelect from './industrySelect';
+import CompanyProfile from './companyProfile';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { showValidationErrors } from '@/utils/showValidationErrors';
-import CustomModal from '../sucessModal/successModal';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -73,9 +73,15 @@ const OnboaringSteper: React.FC = () => {
     },
   ];
 
-  const { currentStep, nextStep, prevStep } = useStepStore((state) => state);
-
-  const [loading, setLoading] = useState(false);
+  const {
+    currentStep,
+    nextStep,
+    prevStep,
+    loading,
+    toggleLoading,
+    isModalVisible,
+    togleIsModalVisible,
+  } = useStepStore((state) => state);
 
   const { createWorkSchedule, getSchedule } = useScheduleStore();
   const { orgData } = useOrganizationStore();
@@ -126,7 +132,7 @@ const OnboaringSteper: React.FC = () => {
   }
 
   const onSubmitOnboarding = async () => {
-    setLoading(true);
+    toggleLoading();
     createWorkSchedule();
     const fiscalYear = getFiscalYear();
     const schedule = getSchedule();
@@ -151,7 +157,7 @@ const OnboaringSteper: React.FC = () => {
         if (deleteFn) {
           successfulRequests.push({ id, deleteFn });
         } else {
-          setIsModalVisible(true);
+          togleIsModalVisible();
         }
       }
       NotificationMessage.success({
@@ -159,16 +165,11 @@ const OnboaringSteper: React.FC = () => {
         description: `All Requests Successfully Created`,
       });
     } catch (error: any) {
-      NotificationMessage.error({
-        message: 'Error',
-        description: `Error happened: ${error.message}`,
-      });
-
       await Promise.all(
         successfulRequests.map(({ id, deleteFn }) => deleteFn(id)),
       );
     }
-    setLoading(false);
+    toggleLoading();
   };
 
   const handleNextStep = () => {
@@ -186,10 +187,8 @@ const OnboaringSteper: React.FC = () => {
     }
   };
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
   const handleClose = () => {
-    setIsModalVisible(false);
+    togleIsModalVisible();
   };
 
   return (

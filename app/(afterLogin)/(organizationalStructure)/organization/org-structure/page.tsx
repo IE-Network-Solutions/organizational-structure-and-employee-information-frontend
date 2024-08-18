@@ -1,7 +1,17 @@
-import React from 'react';
+import dynamic from 'next/dynamic';
+const OrgPeoplesComponent = dynamic(
+  () => import('./_components/orgStructurePeoples'),
+  {
+    ssr: false,
+  },
+);
 
-function OrgStrucutre() {
-  return <div>page</div>;
+function OrgStructure() {
+  return (
+    <div>
+      <OrgPeoplesComponent />
+    </div>
+  );
 }
 
-export default OrgStrucutre;
+export default OrgStructure;

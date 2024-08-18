@@ -22,8 +22,8 @@ export const useAuthenticationStore = create<StoreState>()(
         setToken: (token: string) => set({ token }),
         tenantId: '',
         setTenantId: (tenantId: string) => set({ tenantId }),
-        localId:'',
-        setLocalId: (localId:string) =>set({ localId }),
+        localId: '',
+        setLocalId: (localId: string) => set({ localId }),
         loading: false, // Non-persistent state
         setLoading: (loading: boolean) => set({ loading }), // Non-persistent method
         error: null, // Non-persistent state
@@ -35,8 +35,8 @@ export const useAuthenticationStore = create<StoreState>()(
         partialize: (state) => ({
           token: state.token,
           tenantId: state.tenantId,
-          localId:state.localId,
-          
+          localId: state.localId,
+
           // 'loading' and 'error' are not included here, so they won't be persisted
         }),
       },

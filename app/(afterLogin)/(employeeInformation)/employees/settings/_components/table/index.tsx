@@ -104,7 +104,6 @@ const TableData = () => {
       />
     </div>
   );
-
 };
 
 export default TableData;

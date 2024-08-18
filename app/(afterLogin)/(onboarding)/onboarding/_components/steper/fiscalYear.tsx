@@ -82,7 +82,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
               className={'h-32 font-normal text-sm mt-2'}
               size="large"
               placeholder="Enter a description"
-              onChange={(e) => setFiscalDescriptionName(e.target.value || 'jh')}
+              onChange={(e) => setFiscalDescriptionName(e.target.value || '')}
               value={description}
               autoSize={{ minRows: 4, maxRows: 6 }}
             />

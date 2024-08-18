@@ -1,10 +1,10 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
-import { OrgChart } from './interface';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { OrgData } from '@/types/dashboard/organization';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { OrgChart } from './interface';
 /* eslint-disable @typescript-eslint/naming-convention */
 
 const token = useAuthenticationStore.getState().token;
@@ -80,7 +80,7 @@ export const useCreateOrgChart = () => {
 export const useUpdateOrgChart = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    (data: { id: string; orgChart: OrgChart }) =>
+    (data: { id: string; orgChart: OrgChart | any }) =>
       updateOrgChart(data.id, data.orgChart),
     {
       onSuccess: (_, variables: any) => {

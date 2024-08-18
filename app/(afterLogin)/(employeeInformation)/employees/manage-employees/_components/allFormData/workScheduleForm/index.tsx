@@ -45,7 +45,7 @@ const WorkScheduleForm: React.FC = () => {
 
   const data: DataType[] = (selectedWorkSchedule?.detail || []).map(
     (schedule, index) => ({
-      key: index.toString(), // Use index or another unique identifier
+      key: index.toString(),
       workingDay: (
         <div className="flex space-x-2 justify-start">
           <Switch checked={schedule?.status} disabled />

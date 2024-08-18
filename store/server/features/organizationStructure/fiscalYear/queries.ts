@@ -1,6 +1,6 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-import { TENANT_MGMT_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { FiscalYear, FiscalYearResponse } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
@@ -13,7 +13,7 @@ const headers = {
 
 const getAllFiscalYears = async () => {
   return await crudRequest({
-    url: `${TENANT_MGMT_URL}/calendars`,
+    url: `${ORG_AND_EMP_URL}/calendars`,
     method: 'GET',
     headers,
   });
@@ -21,7 +21,7 @@ const getAllFiscalYears = async () => {
 
 const getFiscalYear = async (id: string) => {
   return await crudRequest({
-    url: `${TENANT_MGMT_URL}/calendars/${id}`,
+    url: `${ORG_AND_EMP_URL}/calendars/${id}`,
     method: 'GET',
     headers,
   });
