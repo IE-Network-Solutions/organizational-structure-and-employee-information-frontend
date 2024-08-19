@@ -32,6 +32,17 @@ const getEmployeeDepartments = async () => {
   });
 };
 
+/**
+ * Function to fetch a filtered list of employees.
+ *
+ * @param pageSize - The number of items per page.
+ * @param currentPage - The current page number.
+ * @param branchId - The branch ID for filtering.
+ * @param departmentId - The department ID for filtering.
+ * @param searchString - The search string for filtering.
+ * @param isDeleted - The deletion status for filtering.
+ * @returns The response data from the API.
+ */
 const employeeAllFilter = async (
   pageSize: number,
   currentPage: number,
@@ -68,6 +79,17 @@ export const useEmployeeDepartments = () => {
   return useQuery<any>('department', getEmployeeDepartments);
 };
 
+/**
+ * Custom hook to fetch a filtered list of employees using useQuery from react-query.
+ *
+ * @param pageSize - The number of items to display per page.
+ * @param currentPage - The current page number.
+ * @param searchString - The search string for filtering employees.
+ * @param branch - The branch ID to filter employees by.
+ * @param isDeleted - The deletion status to filter employees.
+ * @param department - The department ID to filter employees by.
+ * @returns The query object containing the fetched data, loading status, and error information.
+ */
 export const useEmployeeAllFilter = (
   pageSize: number,
   currentPage: number,
