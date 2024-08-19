@@ -1,23 +1,56 @@
-import WorkSchedule from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/workSchedule';
+import FiscalYear from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/fiscalYear';
 import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { useDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
+import { useUpdateFiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
+import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
+import useFiscalYearStore from '@/store/uistate/features/organizationStructure/fiscalYear/fiscalYearStore';
 import { Form } from 'antd';
-import React from 'react';
+import dayjs from 'dayjs';
+import React, { useEffect } from 'react';
 
-const CustomWorkingScheduleDrawer: React.FC = () => {
-  const { isFiscalYearOpen, workingHour, closeFiscalYearDrawer } =
-    useDrawerStore();
+const CustomWorFiscalYearDrawer: React.FC = () => {
+  const {
+    workingHour,
+    isFiscalYearOpen,
+    closeFiscalYearDrawer,
+    isEditMode,
+    selectedFiscalYear,
+  } = useFiscalYearDrawerStore();
+  const { name, startDate, endDate, description } = useFiscalYearStore();
 
   const handleCancel = () => {
     closeFiscalYearDrawer();
   };
 
+  const { mutate: updateFiscalYear } = useUpdateFiscalYear();
   const handleSubmit = () => {
+    if (isEditMode) {
+      updateFiscalYear({
+        id: selectedFiscalYear?.id,
+        fiscalYear: {
+          name: name,
+          description: description,
+          endDate: endDate,
+          startDate: startDate,
+        },
+      });
+    }
     closeFiscalYearDrawer();
   };
 
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (isEditMode && selectedFiscalYear) {
+      form.setFieldsValue({
+        ...selectedFiscalYear,
+        startDate: dayjs(selectedFiscalYear?.startDate),
+        endDate: dayjs(selectedFiscalYear?.endDate),
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [isEditMode, selectedFiscalYear, form]);
 
   return (
     <CustomDrawerLayout
@@ -28,21 +61,24 @@ const CustomWorkingScheduleDrawer: React.FC = () => {
       open={isFiscalYearOpen}
       width="50%"
       footer={
-        <div className="flex justify-stretch items-center">
+        <div className="flex justify-between items-center w-full">
           <div className="flex justify items-center gap-2">
             <span>Total Working hours:</span>
             <span>{workingHour ?? '-'}</span>
           </div>
           <div className="flex justify-between items-center gap-4">
             <CustomButton title="Cancel" onClick={handleCancel} />
-            <CustomButton title="Create" onClick={handleSubmit} />
+            <CustomButton
+              title={isEditMode ? 'Update' : 'Create'}
+              onClick={handleSubmit}
+            />
           </div>
         </div>
       }
     >
-      <WorkSchedule form={form} />
+      <FiscalYear form={form} />
     </CustomDrawerLayout>
   );
 };
 
-export default CustomWorkingScheduleDrawer;
+export default CustomWorFiscalYearDrawer;

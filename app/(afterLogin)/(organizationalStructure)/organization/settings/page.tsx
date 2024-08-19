@@ -5,8 +5,11 @@ import React, { useEffect, useState } from 'react';
 import { TbNotes } from 'react-icons/tb';
 import WorkScheduleTab from './_components/workSchedule/workSchduleComponent';
 import FiscalYearListCard from './_components/fiscalYear/fiscalYearCard';
-import CustomWorkingScheduleDrawer from './_components/fiscalYear/customDrawer';
 import Branches from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/branches';
+import CustomWorFiscalYearDrawer from './_components/fiscalYear/customDrawer';
+import CustomWorkingScheduleDrawer from './_components/workSchedule/customDrawer';
+import CustomDeleteWorkingSchduel from './_components/workSchedule/deleteModal';
+import CustomDeleteFiscalYear from './_components/fiscalYear/deleteModal';
 
 function Settings() {
   const [tabPosition, setTabPosition] = useState<'left' | 'top'>('left');
@@ -86,6 +89,9 @@ function Settings() {
         tabPosition={tabPosition}
       />
       <CustomWorkingScheduleDrawer />
+      <CustomWorFiscalYearDrawer />
+      <CustomDeleteWorkingSchduel />
+      <CustomDeleteFiscalYear />
     </>
   );
 }

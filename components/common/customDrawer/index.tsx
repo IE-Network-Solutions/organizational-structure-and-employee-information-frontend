@@ -42,7 +42,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
 
       <Drawer
         title={modalHeader}
-        // width={window.innerWidth <= 768 ? '90%' : width ? width : '30%'}
+        width={window.innerWidth <= 768 ? '90%' : width ? width : '30%'}
         closable={false}
         onClose={onClose}
         open={open}
