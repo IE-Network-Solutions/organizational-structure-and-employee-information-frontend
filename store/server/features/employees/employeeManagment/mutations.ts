@@ -3,7 +3,10 @@ import axios from 'axios';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to add a new post by sending a POST request to the API
  * @param newPost The data for the new post
@@ -11,16 +14,24 @@ import NotificationMessage from '@/components/common/notification/notificationMe
  */
 const createEmployee = async (values: any) => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/employee`,
+    url: `${ORG_AND_EMP_URL}/users`,
     method: 'POST',
     data: values,
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
   });
 };
 
 const updateEmployee = async (values: any) => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/employee/${values?.usersId}`,
+    url: `${ORG_AND_EMP_URL}/users/${values?.usersId}`,
     method: 'patch',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
     data: values,
   });
 };
@@ -34,9 +45,14 @@ const deleteEmployee = async ({
   setCurrentModal,
   setDeletedId,
 }: any) => {
+  const headers = {
+    Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+    tenantId: tenantId, // Pass tenantId in the headers
+  };
   try {
     const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/employee/${deletedId}`,
+      `${ORG_AND_EMP_URL}/users/${deletedId}`,
+      { headers },
     );
     setCurrentModal(null);
     setDeletedId(null);
@@ -67,6 +83,12 @@ export const useAddEmployee = () => {
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Employee successfully Created',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Creating Failed',
+        description: 'Employee Created Failed',
       });
     },
   });

@@ -34,15 +34,15 @@ export const removeSession = (key: string): void => {
  * @param value The value of the cookie
  * @param days The number of days until the cookie expires (optional)
  */
-export const setCookie = (key: string, value: any, days?: number): void => {
-  let expires = '';
-  if (days) {
-    const date = new Date();
-    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-    expires = '; expires=' + date.toUTCString();
-  }
-  document.cookie = key + '=' + (value || '') + expires + '; path=/';
-};
+// export const setCookie = (key: string, value: any, days?: number): void => {
+// 	let expires = ""
+// 	if (days) {
+// 		const date = new Date()
+// 		date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000)
+// 		expires = "; expires=" + date.toUTCString()
+// 	}
+// 	document.cookie = key + "=" + (value || "") + expires + "; path=/"
+// }
 
 /**
  * Retrieves a cookie value by key from the request
@@ -62,6 +62,6 @@ export const getCookie = (key: string, request: NextRequest): string | null => {
  * @param key The key of the cookie to remove
  */
 
-export const removeCookie = (key: string): void => {
-  document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-};
+// export const removeCookie = (key: string): void => {
+// 	document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`
+// }

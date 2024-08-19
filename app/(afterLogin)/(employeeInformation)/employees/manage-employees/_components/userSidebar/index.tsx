@@ -1,248 +1,110 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { Button, Col, Form, Input, Row, Select } from 'antd';
-import {
-  useGetRole,
-  useGetRolesWithOutPagination,
-} from '@/store/server/features/employees/settings/role/queries';
-import { validateEmailURL, validatePhoneNumber } from '@/utils/validation';
+import React from 'react';
+import { Card, Form, Steps } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import {
-  useAddEmployee,
-  useUpdateEmployee,
-} from '@/store/server/features/employees/employeeManagment/mutations';
+import { useAddEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
+import { transformData } from '../formData';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import BasicInformationForm from '../allFormData/basicInformationForm';
+import EmployeeAddressForm from '../allFormData/employeeAddressForm';
+import EmergencyContactForm from '../allFormData/emergencyContactForm';
+import JobTimeLineForm from '../allFormData/jobTimeLineForm';
+import BankInformationForm from '../allFormData/bankAccountForm';
+import RolePermissionForm from '../allFormData/rolePermisisonForm';
+import WorkScheduleForm from '../allFormData/workScheduleForm';
+import DocumentUploadForm from '../allFormData/documentUploadForm';
+import AdditionalInformationForm from '../allFormData/additionalInformationForm';
+import ButtonContinue from '../allFormData/SaveAndContinueButton';
+import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-const { Option } = Select;
+
+const { Step } = Steps;
+
 const UserSidebar = (props: any) => {
-  const {
-    setOpen,
-    setModalType,
-    setSelectedItem,
-    modalType,
-    userCurrentPage,
-    pageSize,
-    open,
-    prefix,
-    setPrefix,
-  } = useEmployeeManagementStore();
   const [form] = Form.useForm();
+  const { setCurrent, current, open } = useEmployeeManagementStore();
+  const { mutate: createEmployee, isLoading } = useAddEmployee();
 
-  const { data: rolePermissionsData } = useGetRolesWithOutPagination();
-  const { data: userListData } = useGetRole('865345678gfghd-nsdcbsd');
-  const useCreateEmployeeMutation = useAddEmployee();
-  const useUpdateEmployeeMutation = useUpdateEmployee();
-
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        disabled={true}
-        defaultValue={prefix}
-        onChange={(value) => setPrefix(value)}
-        style={{ width: 80 }}
-      >
-        <Option value="+251">+251</Option>
-        <Option value="87">+87</Option>
-      </Select>
-    </Form.Item>
-  );
-
-  useEffect(() => {
-    form.setFieldsValue({
-      id: userListData?.id,
-      name: userListData?.name,
-      email: userListData?.email,
-      phone: userListData?.contactInformation?.phone?.substring(3),
-      roleId:
-        userListData?.role?.deletedAt === null ? userListData?.roleId : null,
-    });
-  }, [form, userListData]);
-
-  const handleCreateUser = (values: any) => {
-    const modifiedValues = {
-      ...values,
-      contactInformation: {
-        phone: `${prefix}${values.phone}`,
-      },
-    };
-    delete modifiedValues.prefix;
-    delete modifiedValues.phone;
-    useCreateEmployeeMutation.mutate({
-      userCurrentPage,
-      values: modifiedValues,
-      pageSize,
-      setOpen,
-    });
-    form.resetFields();
-  };
-  const handleUpdateUser = (values: any) => {
-    const modifiedValues = {
-      ...values,
-      email: `${values?.email}`,
-      contactInformation: {
-        phone: `${prefix}${values?.phone}`,
-      },
-    };
-
-    delete modifiedValues.prefix;
-    delete modifiedValues.phone;
-    useUpdateEmployeeMutation.mutate({
-      values: modifiedValues,
-      setOpen,
-      userCurrentPage,
-      pageSize,
-    });
-    // updateUser({
-    //   values: modifiedValues,
-    //   setOpen,
-    //   userCurrentPage,
-    //   pageSize,
-    // });
-    form.resetFields();
-    setSelectedItem(null);
-    setModalType(null);
-  };
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 ">
-      {modalType !== 'edit' ? 'Admin Creation' : 'Admin Edit'}
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+      Add New Employee
     </div>
   );
+
+  const handleCreateUser = (values: any) => {
+    // console.log(values,"values")
+    createEmployee(transformData(values));
+  };
+
+  const onChange = (value: number) => {
+    setCurrent(value);
+  };
+
+  const customDot = (step: number) => (
+    <div
+      className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${current >= step ? 'bg-indigo-700 text-white' : 'bg-white border-gray-300 text-gray-500'}`}
+    >
+      <div style={{ fontSize: '24px', lineHeight: '24px' }}>
+        {current >= step ? (
+          <IoCheckmarkSharp className="text-xs font-bold" />
+        ) : (
+          '•'
+        )}
+      </div>
+    </div>
+  );
+
   return (
     open && (
       <CustomDrawerLayout
         open={open}
         onClose={props?.onClose}
         modalHeader={modalHeader}
+        width="40%"
       >
+        <Steps
+          current={current}
+          size="small"
+          onChange={onChange}
+          className="my-6 sm:my-10"
+        >
+          <Step icon={customDot(0)} />
+          <Step icon={customDot(1)} />
+          <Step icon={customDot(2)} />
+        </Steps>
         <Form
           form={form}
           name="dependencies"
           autoComplete="off"
           style={{ maxWidth: '100%' }}
           layout="vertical"
-          onFinish={modalType !== 'edit' ? handleCreateUser : handleUpdateUser}
+          onFinishFailed={() =>
+            NotificationMessage.error({
+              message: 'Something went wrong or unfilled',
+              description: 'Please check the form again.',
+            })
+          }
+          onFinish={handleCreateUser}
         >
-          <Row>
-            {modalType === 'edit' && (
-              <Form.Item name="id">
-                <Input type="hidden" />
-              </Form.Item>
-            )}
-          </Row>
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name="name"
-                label={
-                  <p className="text-xs font-bold text-gray-600">Admin Name</p>
-                }
-                rules={[
-                  { required: true, message: 'Enter group name!' },
-                  { max: 30, message: 'Too long character!' },
-                  { min: 5, message: 'Set more than 5 characters!' },
-                  {
-                    validator: (rule, value) =>
-                      value && /\d/.test(value)
-                        ? Promise.reject(
-                            new Error('Name should not contain numbers!'),
-                          )
-                        : Promise.resolve(),
-                  },
-                ]}
-              >
-                <Input
-                  id="adminNameId"
-                  className="h-10 text-xs text-gray-600"
-                  placeholder="Enter group name"
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name="email"
-                label={
-                  <p className="text-xs font-bold text-gray-600">Admin Email</p>
-                }
-                rules={[{ validator: validateEmailURL }]}
-              >
-                <Input
-                  id="adminEmailId"
-                  type="email"
-                  className="h-10 text-xs text-gray-600"
-                  placeholder="Enter Email"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name="phone"
-                label={
-                  <p className="text-xs font-bold text-gray-600">
-                    Phone Number
-                  </p>
-                }
-                rules={[{ validator: validatePhoneNumber }]}
-              >
-                <Input
-                  id="adminPhoneNumber"
-                  className="h-10 text-xs text-gray-600"
-                  addonBefore={prefixSelector}
-                  placeholder="Phone Number"
-                  type="tel"
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name="roleId"
-                label={
-                  <p className="text-xs font-bold text-gray-600">User Type</p>
-                }
-                rules={[{ required: true, message: 'Please choose the type' }]}
-              >
-                <Select
-                  className="h-10 text-xs font-bold text-gray-600"
-                  placeholder="Please choose the type"
-                  id="adminUserType"
-                >
-                  {rolePermissionsData?.items?.map((item: any) => (
-                    <Option
-                      key={item.id}
-                      className="text-xs font-bold text-gray-600"
-                      value={item.id}
-                    >
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item>
-            <div className="w-full flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-6 sm:mt-8">
-              <Button
-                name="cancelUserSidebarButton"
-                id="cancelSidebarButtonId"
-                className="px-6 py-3 text-xs font-bold"
-                onClick={() => {
-                  form.resetFields();
-                  props?.onClose();
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                id="sidebarActionCreate"
-                className="px-6 py-3 text-xs font-bold"
-                htmlType="submit"
-                type="primary"
-              >
-                {modalType !== 'edit' ? 'Create' : 'Edit'}
-              </Button>
-            </div>
-          </Form.Item>
+          <Card hidden={current !== 0} className="p-4 sm:p-6">
+            <BasicInformationForm form={form} />
+            <EmployeeAddressForm />
+            <EmergencyContactForm />
+            <BankInformationForm />
+            <ButtonContinue />
+          </Card>
+          <Card hidden={current !== 1} className="p-4 sm:p-6">
+            <JobTimeLineForm />
+            <RolePermissionForm form={form} />
+            <WorkScheduleForm />
+            <ButtonContinue />
+          </Card>
+          <Card hidden={current !== 2} className="p-4 sm:p-6">
+            <AdditionalInformationForm />
+            <DocumentUploadForm />
+            <ButtonContinue isLoading={isLoading} />
+          </Card>
         </Form>
       </CustomDrawerLayout>
     )

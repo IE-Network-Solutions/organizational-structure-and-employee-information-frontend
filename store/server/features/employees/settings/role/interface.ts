@@ -19,3 +19,25 @@ export interface RolePermissionkey {
   permissions?: Permission[];
   rolePermissions?: Permission;
 }
+
+export type Permissions = {
+  id: string;
+  createdAt: string; // ISO 8601 format date string
+  updatedAt: string; // ISO 8601 format date string
+  deletedAt: string | null; // ISO 8601 format date string or null
+  name: string;
+  slug: string;
+  description: string;
+  permissionGroupId: string;
+};
+
+export type Role = {
+  id: string;
+  createdAt: string; // ISO 8601 format date string
+  updatedAt: string; // ISO 8601 format date string
+  deletedAt: string | null; // ISO 8601 format date string or null
+  name: string;
+  description: string;
+  tenantId: string;
+  permissions: Permissions[]; // Array of permissions
+};

@@ -2,18 +2,44 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
-import { RoleType } from './interface';
+import { Role, RoleType } from './interface';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch a paginated list of roles by sending a GET request to the API.
+ *
  *
  * @param permissonCurrentPage - The current page number for pagination.
  * @param pageSize - The number of roles to fetch per page.
  * @returns The response data from the API containing the list of roles.
  */
+
 const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles?page=${permissonCurrentPage}&limit=${pageSize}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+  });
+};
+
+/**
+ * Function to fetch all roles without pagination by sending a GET request to the API.
+ *
+ *
+ * @returns The response data from the API containing all roles.
+ */
+const getRolesWithOutPagination = async () => {
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/roles`,
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
     method: 'GET',
   });
 };
@@ -23,8 +49,16 @@ const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
  *
  * @returns The response data from the API containing all roles.
  */
-const getRolesWithOutPagination = async () => {
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/roles`, method: 'GET' });
+const getRolesWithPermisison = async () => {
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/roles/find-all-role-with-permissions/role-permissions`,
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+
+    method: 'GET',
+  });
 };
 
 /**
@@ -36,8 +70,13 @@ const getRolesWithOutPagination = async () => {
  */
 const getRole = async (id: string | null) => {
   try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/roles/find-one-role-with-permissions/role-permissions/${id}`,
+      { headers },
     );
     return response.data;
   } catch (error) {
@@ -94,3 +133,6 @@ export const useGetRole = (roleId: string | null) =>
     keepPreviousData: true,
     enabled: false,
   });
+
+export const useGetRolesWithPermission = () =>
+  useQuery<Role[]>('rolesWithPermisison', getRolesWithPermisison);

@@ -4,7 +4,7 @@ interface RequestParams {
   url: string;
   method: Method;
   data?: any;
-  headers?: { [key: string]: string };
+  headers?: Record<string, string>;
 }
 
 /**
@@ -12,6 +12,7 @@ interface RequestParams {
  * @param params The request parameters including url, method, and optional data
  * @returns The response data from the API
  */
+
 export const crudRequest = async ({
   url,
   method,

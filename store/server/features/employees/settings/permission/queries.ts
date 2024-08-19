@@ -3,6 +3,10 @@ import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Permission, PermissionDataType } from './interface';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 
 /**
  * Function to fetch a paginated list of permissions by sending a GET request to the API.
@@ -18,6 +22,11 @@ const getPermisssions = async (
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
+
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
   });
 };
 
@@ -27,7 +36,14 @@ const getPermisssions = async (
  * @returns The response data from the API, containing the list of all permissions.
  */
 const getPermisssionsWithOutPagination = async () => {
-  return crudRequest({ url: `${ORG_AND_EMP_URL}/permissions`, method: 'GET' });
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/permissions`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+  });
 };
 
 /**
@@ -46,6 +62,10 @@ const getSearchPermissions = async (searchTerm: {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?columnName=${searchTerm?.termKey}&query=${searchTerm?.searchTerm}`,
     method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
   });
 };
 
@@ -57,9 +77,15 @@ const getSearchPermissions = async (searchTerm: {
  *
  * @throws Error if the request fails.
  */
-const getPermission = async (id: number) => {
+const getPermission = async (id: string) => {
   try {
-    const response = await axios.get(`${ORG_AND_EMP_URL}/permissions/${id}`);
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
+    const response = await axios.get(`${ORG_AND_EMP_URL}/permissions/${id}`, {
+      headers,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -137,7 +163,7 @@ export const useGetPermissions = (
  * fetching new data to avoid unnecessary re-renders and provide a smooth user experience.
  */
 
-export const useGetPermission = (postId: number) =>
+export const useGetPermission = (postId: string) =>
   useQuery<Permission>(['permission', postId], () => getPermission(postId), {
     keepPreviousData: true,
   });

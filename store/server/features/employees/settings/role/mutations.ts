@@ -3,6 +3,9 @@ import axios from 'axios';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
 
 /**
  * Function to create a new role by sending a POST request to the API.
@@ -15,6 +18,10 @@ const createRole = async (values: any) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles`,
     method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
     data: values,
   });
 };
@@ -32,6 +39,11 @@ const updateRole = async ({ values, roleId }: any) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles/${roleId}`,
     method: 'patch',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+
     data: values,
   });
 };
@@ -54,8 +66,13 @@ const deleteRole = async ({
   setDeletedId,
 }: any) => {
   try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
     const response = await axios.delete(
       `${ORG_AND_EMP_URL}/roles/${deletedId?.id}`,
+      { headers },
     );
     setCurrentModal(null);
     setDeletedId(null);
