@@ -101,21 +101,3 @@ export const useDeleteEmployee = () => {
     },
   });
 };
-
-// export const useEmployeeStatusFilter = () => {
-//   const queryClient = useQueryClient();
-//   return useMutation(employeeStatusFilter, {
-//     onSuccess: (data) => {
-//       queryClient.setQueryData(['employees', { page: 1, limit: 10 }], data);
-//     },
-//   });
-// };
-
-// export const useEmployeeNameFilter = () => {
-//   const queryClient = useQueryClient();
-//   return useMutation(employeeNameFilter, {
-//     onSuccess: (data) => {
-//       queryClient.setQueryData(['employees', { page: 1, limit: 10 }], data);
-//     },
-//   });
-// };

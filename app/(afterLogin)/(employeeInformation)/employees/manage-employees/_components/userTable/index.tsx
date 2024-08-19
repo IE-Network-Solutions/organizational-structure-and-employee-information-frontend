@@ -198,10 +198,7 @@ const UserTable = () => {
     }
   };
   const rowSelection = {
-    onChange: () =>
-      // selectedRowKeys: React.Key[],
-      // selectedRows: EmployeeData[],
-      {},
+    onChange: () => {},
     getCheckboxProps: (record: EmployeeData) => ({
       disabled: record.employee_name === 'Disabled User',
       name: record.employee_name,
