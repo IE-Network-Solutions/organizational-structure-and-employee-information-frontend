@@ -2,11 +2,11 @@
 
 import dynamic from 'next/dynamic';
 
-const SettinsComponent = dynamic(() => import('./settingsPage'), {
+const SettingsComponent = dynamic(() => import('./settingsPage'), {
   ssr: false,
 });
 
 function Settings() {
-  return <SettinsComponent />;
+  return <SettingsComponent />;
 }
 export default Settings;
