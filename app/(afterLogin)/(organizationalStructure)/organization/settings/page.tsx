@@ -8,7 +8,7 @@ import FiscalYearListCard from './_components/fiscalYear/fiscalYearCard';
 import CustomWorkingScheduleDrawer from './_components/fiscalYear/customDrawer';
 import Branches from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/branches';
 
-function Settings() {
+const Settings = () => {
   const [tabPosition, setTabPosition] = useState<'left' | 'top'>('left');
 
   useEffect(() => {
@@ -88,6 +88,6 @@ function Settings() {
       <CustomWorkingScheduleDrawer />
     </>
   );
-}
+};
 
 export default Settings;
