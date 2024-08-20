@@ -2,7 +2,6 @@
 import React from 'react';
 import { Button, Col, Form, Row, Upload, Image, Space, Table } from 'antd';
 import { MdOutlineUploadFile } from 'react-icons/md';
-import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { AiOutlineDelete, AiOutlineDownload } from 'react-icons/ai';
 import {
@@ -10,12 +9,13 @@ import {
   useDeleteEmployeeDocument,
 } from '@/store/server/features/employees/employeeDetail/mutations';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const { Dragger } = Upload;
 
 const Documents = ({ id }: { id: string }) => {
   const { documentFileList, setDocumentFileList, removeDocument } =
-    useEmployeeManagmentStore();
+    useEmployeeManagementStore();
   const { data: employeeData } = useGetEmployee(id);
   const { mutate: deleteEmployeeDocument } = useDeleteEmployeeDocument();
   const { isLoading: addEmployee, mutate: AddEmployeeDocument } =

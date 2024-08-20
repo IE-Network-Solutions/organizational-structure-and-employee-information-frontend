@@ -47,7 +47,7 @@ const AddCustomField: React.FC<any> = ({
   };
 
   const addFieldIfNotExists = (formData: any, newField: FormField) => {
-    const fieldExists = formData.some(
+    const fieldExists = formData?.some(
       (field: any) => field.fieldName === newField.fieldName,
     );
     if (!fieldExists) {

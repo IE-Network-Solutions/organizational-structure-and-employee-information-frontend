@@ -56,6 +56,13 @@ export interface WorkScheduleData {
   items: WorkSchedule[];
   meta: MetaData;
 }
+
+interface SearchParams {
+  employee_name: string;
+  allOffices: string;
+  allJobs: string;
+  allStatus: string | null;
+}
 interface UserState {
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -63,6 +70,8 @@ interface UserState {
   setUserCurrentPage: (userCurrentPage: number) => void;
   pageSize: number;
   setPageSize: (pageSize: number) => void;
+  totalCount: number;
+  setTotalCount: (pageSize: number) => void;
   modalType: string | null;
   setModalType: (modalType: string | null) => void;
   searchTerm: string | null;
@@ -78,7 +87,7 @@ interface UserState {
   prefix: string;
   setPrefix: (prefix: string) => void;
   current: number;
-  setCurrent: (curren: number) => void;
+  setCurrent: (current: number) => void;
   // customFormData: FormData | null;
   customFormData: any;
   setCustomFormData: (customFormData: FormData) => void;
@@ -113,9 +122,13 @@ interface UserState {
 
   edit: EditState;
   setEdit: (key: keyof EditState) => void;
+  selectionType: 'checkbox' | 'radio';
+  setSelectionType: (selectionType: 'checkbox' | 'radio') => void;
+  searchParams: SearchParams;
+  setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
 }
 
-export const useEmployeeManagmentStore = create<UserState>()(
+export const useEmployeeManagementStore = create<UserState>()(
   devtools((set) => ({
     open: false,
     deleteModal: false,
@@ -154,6 +167,8 @@ export const useEmployeeManagmentStore = create<UserState>()(
     setDeleteModal: (deleteModal: boolean) => set({ deleteModal }),
     setUserCurrentPage: (userCurrentPage: number) => set({ userCurrentPage }),
     pageSize: 10,
+    totalCount: 0,
+    setTotalCount: (totalCount: number) => set({ totalCount }),
     selectedItem: { key: null, id: null },
     setSelectedItem: (selectedItem: any) => set({ selectedItem }),
     setPageSize: (pageSize: number) => set({ pageSize }),
@@ -193,6 +208,18 @@ export const useEmployeeManagmentStore = create<UserState>()(
         documentFileList: state.documentFileList.filter(
           (file) => file.uid !== uid,
         ),
+      })),
+    selectionType: 'checkbox',
+    setSelectionType: (selectionType) => set({ selectionType }),
+    searchParams: {
+      employee_name: '',
+      allOffices: '',
+      allJobs: '',
+      allStatus: '',
+    },
+    setSearchParams: (key, value) =>
+      set((state) => ({
+        searchParams: { ...state.searchParams, [key]: value },
       })),
   })),
 );
