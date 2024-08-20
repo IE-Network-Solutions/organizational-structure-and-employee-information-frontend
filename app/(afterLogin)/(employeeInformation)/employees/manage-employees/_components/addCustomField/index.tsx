@@ -40,18 +40,28 @@ const AddCustomField: React.FC<any> = ({
   const [options, setOptions] = useState<string[]>([]);
 
   const addFieldIfNotExists = (formData: any, newField: FormField) => {
-    const fieldExists = formData?.some(
+    
+if(formData.length < 1){
+         const newFormDataValue = {
+              formTitle:formTitle,
+              form: [newField],
+            };
+            createCustomForm.mutate(newFormDataValue);
+      }
+  else{
+    const fieldExists = formData?.form?.some(
       (field: any) => field.fieldName === newField.fieldName,
     );
     if (!fieldExists) {
       const newFormData = {
         ...customEmployeeInformationForm,
-        form: [...customEmployeeInformationForm.form, newField],
+        form: [...customEmployeeInformationForm?.form, newField],
       };
       createCustomForm.mutate(newFormData);
     } else {
       message.error(`The field ${newField.fieldName} already exists!`);
     }
+  }
   };
 
   const formatFieldName = (name: string) => name.replace(/\s+/g, '_');
@@ -65,7 +75,8 @@ const AddCustomField: React.FC<any> = ({
       isActive: values.isActive,
       options: values.options || [],
     };
-    addFieldIfNotExists(customEmployeeInformationForm.form, newField);
+
+    addFieldIfNotExists(customEmployeeInformationForm, newField);
     form.resetFields();
     setOptions([]);
     setFieldName('');
