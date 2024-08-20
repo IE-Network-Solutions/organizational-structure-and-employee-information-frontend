@@ -1,19 +1,35 @@
 export interface DayOfWeek {
   day: string;
-  key: string;
+  key?: string;
+  id?: string;
   workDay: boolean;
   startTime?: string | null;
   endTime?: string | null;
-  duration?: string;
+  duration?: number;
 }
 
 export interface Schedule {
-  scheduleName: string;
-  standardHours: number;
+  name?: string;
+  scheduleName?: string;
+  standardHours?: number;
   detail: DayOfWeek[];
 }
 
+export interface DayOfWeekResponse {
+  id: string;
+  dayOfWeek: string;
+  startTime?: string | null;
+  endTime?: string | null;
+  hours?: string;
+}
+
+export interface ResponseSchedule {
+  name: string;
+  standardHours: number;
+  detail: DayOfWeekResponse[];
+}
+
 export interface ScheduleResponse {
-  items: Schedule[];
+  items: ResponseSchedule[];
   meta: any;
 }
