@@ -5,7 +5,6 @@ import './globals.css';
 import AntdConfigProvider from '@/providers/antdProvider';
 import ReactQueryWrapper from '@/providers/reactQueryProvider';
 import ConditionalNav from '@/providers/conditionalNav';
-import { Suspense } from 'react';
 
 const manrope = Manrope({ subsets: ['latin'] });
 
@@ -22,15 +21,13 @@ export default function RootLayout({
   return (
     <html lang="en" data-test="layout">
       <body className={manrope.className}>
-        <Suspense fallback={<>Loading...</>}>
-          <ReactQueryWrapper>
-            <AntdRegistry>
-              <AntdConfigProvider>
-                <ConditionalNav>{children}</ConditionalNav>
-              </AntdConfigProvider>
-            </AntdRegistry>
-          </ReactQueryWrapper>
-        </Suspense>
+        <ReactQueryWrapper>
+          <AntdRegistry>
+            <AntdConfigProvider>
+              <ConditionalNav>{children}</ConditionalNav>
+            </AntdConfigProvider>
+          </AntdRegistry>
+        </ReactQueryWrapper>
       </body>
     </html>
   );
