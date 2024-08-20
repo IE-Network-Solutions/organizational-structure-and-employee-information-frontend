@@ -1,8 +1,10 @@
+import { Dayjs } from 'dayjs';
+
 export interface FiscalYear {
   name: string;
   description: string;
-  startDate: Date | null;
-  endDate: Date | null;
+  startDate: Dayjs | null;
+  endDate: Dayjs | null;
 }
 
 export interface FiscalYearResponse {
