@@ -3,7 +3,7 @@ import { useUpdateEmployeeRolePermission } from '@/store/server/features/employe
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetPermissionsWithOutPagination } from '@/store/server/features/employees/settings/permission/queries';
 import { useGetRolesWithPermission } from '@/store/server/features/employees/settings/role/queries';
-import { EditState, useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
+import { EditState, useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import { Button, Card, Col, Form, Row, Select } from 'antd';
 import React, { useEffect, useCallback } from 'react';
@@ -28,7 +28,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
   } = useSettingStore();
   const {mutate:employeeRolePermissionUpdate,isLoading:rolePermissionUpdateLoading}=useUpdateEmployeeRolePermission()
   const { setEdit, edit,selectedPermissions, setSelectedPermissions } =
-    useEmployeeManagmentStore();
+    useEmployeeManagementStore();
 
   const onRoleChangeHandler = useCallback(
     (value: string) => {
