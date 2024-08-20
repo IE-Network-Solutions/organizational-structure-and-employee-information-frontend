@@ -5,12 +5,12 @@ import {
   Button,
   Select,
   Switch,
-  Space,
   Popover,
   Card,
   Row,
   Col,
   Divider,
+  message,
 } from 'antd';
 import { v4 as uuidv4 } from 'uuid'; // Ensure uuidv4 is imported
 import { useAddEmployeeInformationForm } from '@/store/server/features/employees/employeeManagment/employeInformationForm/mutations';
@@ -39,23 +39,29 @@ const AddCustomField: React.FC<any> = ({
   const [isActive, setIsActive] = useState(true);
   const [options, setOptions] = useState<string[]>([]);
 
-  const handleOptionChange = (index: number, value: string) => {
-    const newOptions = [...options];
-    newOptions[index] = value;
-    setOptions(newOptions);
-  };
-
   const addFieldIfNotExists = (formData: any, newField: FormField) => {
-    const fieldExists = formData.some(
+    
+if(formData.length < 1){
+         const newFormDataValue = {
+              formTitle:formTitle,
+              form: [newField],
+            };
+            createCustomForm.mutate(newFormDataValue);
+      }
+  else{
+    const fieldExists = formData?.form?.some(
       (field: any) => field.fieldName === newField.fieldName,
     );
     if (!fieldExists) {
       const newFormData = {
         ...customEmployeeInformationForm,
-        form: [...customEmployeeInformationForm.form, newField],
+        form: [...customEmployeeInformationForm?.form, newField],
       };
       createCustomForm.mutate(newFormData);
+    } else {
+      message.error(`The field ${newField.fieldName} already exists!`);
     }
+  }
   };
 
   const formatFieldName = (name: string) => name.replace(/\s+/g, '_');
@@ -69,7 +75,8 @@ const AddCustomField: React.FC<any> = ({
       isActive: values.isActive,
       options: values.options || [],
     };
-    addFieldIfNotExists(customEmployeeInformationForm.form, newField);
+
+    addFieldIfNotExists(customEmployeeInformationForm, newField);
     form.resetFields();
     setOptions([]);
     setFieldName('');
@@ -107,10 +114,6 @@ const AddCustomField: React.FC<any> = ({
       >
         <Select value={fieldType} onChange={(value) => setFieldType(value)}>
           <Option value="input">Input</Option>
-          <Option value="select">Select</Option>
-          <Option value="datePicker">Date Picker</Option>
-          <Option value="toggle">Toggle</Option>
-          <Option value="checkbox">Checkbox</Option>
         </Select>
       </Form.Item>
       <Form.Item label="Is Active" name="isActive" valuePropName="checked">
@@ -119,48 +122,6 @@ const AddCustomField: React.FC<any> = ({
           onChange={(checked) => setIsActive(checked)}
         />
       </Form.Item>
-      {(fieldType === 'select' || fieldType === 'checkbox') && (
-        <Form.Item label="Options" name="options">
-          {options.map((option, index) => (
-            <Space
-              key={index}
-              direction="vertical"
-              style={{ display: 'block', marginBottom: 8 }}
-            >
-              <Input
-                value={option}
-                placeholder={`Option ${index + 1}`}
-                onChange={(e) => handleOptionChange(index, e.target.value)}
-                style={{ marginBottom: 8 }}
-              />
-            </Space>
-          ))}
-          <Button
-            type="dashed"
-            onClick={() => setOptions([...options, ''])}
-            style={{ width: '100%' }}
-          >
-            Add Option
-          </Button>
-        </Form.Item>
-      )}
-      {fieldType === 'toggle' && (
-        <Form.Item label="Toggle Options" name="options">
-          {options.slice(0, 2).map((option, index) => (
-            <Space
-              key={index}
-              direction="vertical"
-              style={{ display: 'block', marginBottom: 8 }}
-            >
-              <Input
-                value={option}
-                placeholder={`Toggle ${index + 1} Value`}
-                onChange={(e) => handleOptionChange(index, e.target.value)}
-              />
-            </Space>
-          ))}
-        </Form.Item>
-      )}
       <Divider />
       <Form.Item>
         <Button type="primary" htmlType="submit" style={{ width: '100%' }}>

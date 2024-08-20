@@ -132,6 +132,31 @@ export interface UserData {
   account_status: string;
   action: string;
 }
+export interface EmployeeData {
+  id: string;
+  employee_name: string;
+  job_title: string;
+  department: string;
+  office: string;
+  employee_status: string;
+  account: string;
+  role: string;
+  action: string;
+  avatar: string;
+  deletedAt: string;
+}
+export interface TableEmployeeData {
+  key: string;
+  employee_name: React.ReactNode;
+  job_title: string;
+  department: string;
+  office: string;
+  employee_status: React.ReactNode;
+  account: React.ReactNode;
+  role: string;
+  action: React.ReactNode;
+}
+
 export interface GroupPermissionPropsUpdated {
   groupPermissionData: any;
 }
