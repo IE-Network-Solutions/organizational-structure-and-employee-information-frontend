@@ -51,6 +51,7 @@ export type EditState = {
   general: boolean;
   emergencyContact: boolean;
   bankInformation: boolean;
+  rolePermission:boolean;
 };
 export interface WorkScheduleData {
   items: WorkSchedule[];
@@ -126,6 +127,7 @@ export const useEmployeeManagmentStore = create<UserState>()(
       general: false,
       emergencyContact: false,
       bankInformation: false,
+      rolePermission:false,
     },
     setEdit: (key: keyof EditState) =>
       set((state) => ({

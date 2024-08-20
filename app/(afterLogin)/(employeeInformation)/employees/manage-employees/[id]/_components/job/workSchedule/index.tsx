@@ -21,6 +21,7 @@ import {
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 import { useUpdateEmployeeJobInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+import { LuPencil } from 'react-icons/lu';
 interface DataType {
   key: string;
   workingDay: React.ReactNode;
@@ -41,7 +42,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
   } = useEmployeeManagmentStore();
   const { mutate: updateEmployeeJobInformation } =
     useUpdateEmployeeJobInformation();
-  const { data: employeeData } = useGetEmployee(id);
+  const { data: employeeData,isLoading } = useGetEmployee(id);
   const { data: workSchedules } = useGetWorkSchedules();
   const [form] = Form.useForm();
 
@@ -83,6 +84,9 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
     }),
   );
 
+  const handleEditChange = (editKey: keyof EditState) => {
+    setEdit(editKey);
+  };
   const workScheduleColumns: TableProps<DataType>['columns'] = [
     {
       title: 'Working Day',
@@ -113,12 +117,17 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
     }));
   };
   return (
-    <Card>
+    <Card
+        loading={isLoading}
+        title="Work Schedule"
+        extra={<LuPencil className='cursor-pointer' onClick={() => handleEditChange('workSchedule')} />}
+        className="my-6 mt-0"
+    >
       {!edit.workSchedule ? (
         <Row gutter={[16, 24]}>
           <Col lg={16}>
             <InfoLine
-              title="Current schedule"
+              title=""
               value={
                 employeeData?.employeeJobInformation?.find(
                   (e: any) => e.isPositionActive === true,
