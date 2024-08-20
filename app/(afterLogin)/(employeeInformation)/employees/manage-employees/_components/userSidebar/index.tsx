@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Card, Form, Steps } from 'antd';
-import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useAddEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
 import { transformData } from '../formData';
@@ -18,12 +17,13 @@ import DocumentUploadForm from '../allFormData/documentUploadForm';
 import AdditionalInformationForm from '../allFormData/additionalInformationForm';
 import ButtonContinue from '../allFormData/SaveAndContinueButton';
 import { IoCheckmarkSharp } from 'react-icons/io5';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const { Step } = Steps;
 
 const UserSidebar = (props: any) => {
   const [form] = Form.useForm();
-  const { setCurrent, current, open } = useEmployeeManagmentStore();
+  const { setCurrent, current, open } = useEmployeeManagementStore();
   const { mutate: createEmployee, isLoading } = useAddEmployee();
 
   const modalHeader = (

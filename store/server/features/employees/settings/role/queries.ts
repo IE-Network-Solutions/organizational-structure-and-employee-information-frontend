@@ -10,6 +10,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch a paginated list of roles by sending a GET request to the API.
  *
+ *
  * @param permissonCurrentPage - The current page number for pagination.
  * @param pageSize - The number of roles to fetch per page.
  * @returns The response data from the API containing the list of roles.
@@ -29,11 +30,10 @@ const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
 /**
  * Function to fetch all roles without pagination by sending a GET request to the API.
  *
+ *
  * @returns The response data from the API containing all roles.
  */
 const getRolesWithOutPagination = async () => {
-  // const tenantId = localStorage.getItem('tenantId');
-  // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles`,
     headers: {
@@ -50,14 +50,13 @@ const getRolesWithOutPagination = async () => {
  * @returns The response data from the API containing all roles.
  */
 const getRolesWithPermisison = async () => {
-  // const tenantId = localStorage.getItem('tenantId');
-  // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles/find-all-role-with-permissions/role-permissions`,
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
+
     method: 'GET',
   });
 };

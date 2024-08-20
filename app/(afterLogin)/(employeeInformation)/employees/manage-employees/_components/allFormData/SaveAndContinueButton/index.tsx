@@ -1,11 +1,11 @@
-import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Button, Form } from 'antd';
 import React from 'react';
 interface Props {
   isLoading?: boolean;
 }
 const ButtonContinue: React.FC<Props> = ({ isLoading }) => {
-  const { setCurrent, current, setOpen } = useEmployeeManagmentStore();
+  const { setCurrent, current, setOpen } = useEmployeeManagementStore();
 
   const handleBackClick = () => {
     if (current !== 0) {

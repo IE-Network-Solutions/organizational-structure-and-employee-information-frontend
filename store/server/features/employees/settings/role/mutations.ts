@@ -6,6 +6,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
+
 /**
  * Function to create a new role by sending a POST request to the API.
  *
@@ -42,6 +43,7 @@ const updateRole = async ({ values, roleId }: any) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
+
     data: values,
   });
 };

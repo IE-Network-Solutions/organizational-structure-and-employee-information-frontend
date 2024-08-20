@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Col, Form, Row, Button, DatePicker, Select } from 'antd';
 import {
   EditState,
-  useEmployeeManagmentStore,
+  useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { LuPencil } from 'react-icons/lu';
@@ -17,7 +17,7 @@ function PersonalDataComponent({
   id: string;
   handleSaveChanges: any;
 }) {
-  const { setEdit, edit } = useEmployeeManagmentStore();
+  const { setEdit, edit } = useEmployeeManagementStore();
   const [form] = Form.useForm();
   const { isLoading, data: employeeData } = useGetEmployee(id);
   const { data: nationalities, isLoading: isLoadingNationality } =

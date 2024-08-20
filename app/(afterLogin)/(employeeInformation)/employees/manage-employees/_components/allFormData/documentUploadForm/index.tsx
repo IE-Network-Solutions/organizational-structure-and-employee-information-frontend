@@ -1,13 +1,13 @@
 import React from 'react';
 import { Button, Col, Form, Row, Upload, Image } from 'antd';
 import { MdOutlineUploadFile } from 'react-icons/md';
-import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const { Dragger } = Upload;
 
 const DocumentUploadForm = () => {
   const { documentFileList, setDocumentFileList, removeDocument } =
-    useEmployeeManagmentStore();
+    useEmployeeManagementStore();
 
   const handleDocumentChange = (info: any) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];

@@ -16,7 +16,7 @@ import { InfoLine } from '../../common/infoLine';
 import dayjs from 'dayjs';
 import {
   EditState,
-  useEmployeeManagmentStore,
+  useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
@@ -39,7 +39,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
     setWorkSchedule,
     edit,
     setEdit,
-  } = useEmployeeManagmentStore();
+  } = useEmployeeManagementStore();
   const { mutate: updateEmployeeJobInformation } =
     useUpdateEmployeeJobInformation();
   const { data: employeeData,isLoading } = useGetEmployee(id);

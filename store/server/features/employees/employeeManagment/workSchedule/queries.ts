@@ -11,9 +11,6 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @returns The response data from the API
  */
 const getWorkSchedules = async (): Promise<WorkScheduleData> => {
-  // const tenantId = localStorage.getItem('tenantId');
-  // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
-
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/work-schedules`,
     headers: {

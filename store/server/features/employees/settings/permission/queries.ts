@@ -4,8 +4,10 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Permission, PermissionDataType } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
+
 /**
  * Function to fetch a paginated list of permissions by sending a GET request to the API.
  *
@@ -20,6 +22,7 @@ const getPermisssions = async (
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
+
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers

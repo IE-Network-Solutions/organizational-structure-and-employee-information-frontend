@@ -2,14 +2,14 @@ import React from 'react';
 import { Card, Col, Input, Form, Row, Button } from 'antd';
 import {
   EditState,
-  useEmployeeManagmentStore,
+  useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../../common/infoLine';
 
 function EmergencyContact({ handleSaveChanges, id }: any) {
-  const { setEdit, edit } = useEmployeeManagmentStore();
+  const { setEdit, edit } = useEmployeeManagementStore();
   const { isLoading, data: employeeData } = useGetEmployee(id);
 
   const [form] = Form.useForm();

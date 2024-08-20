@@ -4,7 +4,7 @@ import { useUpdateEmployee } from '@/store/server/features/employees/employeeDet
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import {
   EditState,
-  useEmployeeManagmentStore,
+  useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import BankInformationComponent from './bankInformationComponent';
 import PersonalDataComponent from './personalDataComponent';
@@ -13,7 +13,7 @@ import AddressComponent from './AddressComponent';
 
 function General({ id }: { id: string }) {
   const { data: employeeData } = useGetEmployee(id);
-  const { setEdit } = useEmployeeManagmentStore();
+  const { setEdit } = useEmployeeManagementStore();
   const [form] = Form.useForm();
 
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();

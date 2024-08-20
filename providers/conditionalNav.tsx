@@ -13,7 +13,12 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const pathname = usePathname();
-  const excludeNavPaths = ['/authentication/login', '/signup', '/not-found'];
+  const excludeNavPaths = [
+    '/authentication/login',
+    '/onboarding',
+    '/signup',
+    '/not-found',
+  ];
 
   return (
     <>{excludeNavPaths.includes(pathname) ? children : <Nav>{children}</Nav>}</>

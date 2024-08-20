@@ -14,7 +14,10 @@ const getTenantId = async (id: string) => {
     const headers = {
       Authorization: `Bearer ${token}`,
     };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/users/firebase/${id}`, { headers });
+    const response = await axios.get(
+      `${ORG_AND_EMP_URL}/users/firebase/${id}`,
+      { headers },
+    );
     return response.data;
   } catch (error) {
     throw error;
