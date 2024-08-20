@@ -25,7 +25,7 @@ const AddressComponent = ({
     <Card
       loading={isLoading}
       title="Address"
-      extra={<LuPencil onClick={() => handleEditChange('addresses')} />}
+      extra={<LuPencil className='cursor-pointer' onClick={() => handleEditChange('addresses')} />}
       className="my-6"
     >
       {edit.addresses ? (

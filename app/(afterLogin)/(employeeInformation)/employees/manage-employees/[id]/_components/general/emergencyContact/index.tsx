@@ -20,7 +20,7 @@ function EmergencyContact({ handleSaveChanges, id }: any) {
     <Card
       loading={isLoading}
       title="Emergency Contact"
-      extra={<LuPencil onClick={() => handleEditChange('emergencyContact')} />}
+      extra={<LuPencil className='cursor-pointer' onClick={() => handleEditChange('emergencyContact')} />}
       className="my-6"
     >
       {edit.emergencyContact ? (

@@ -7,7 +7,6 @@ import { validateName } from '@/utils/validation';
 
 const EmployeeAddressForm = () => {
   const currentAddressForm = UseSetCategorizedFormData('Address');
-
   return (
     <div>
       <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">

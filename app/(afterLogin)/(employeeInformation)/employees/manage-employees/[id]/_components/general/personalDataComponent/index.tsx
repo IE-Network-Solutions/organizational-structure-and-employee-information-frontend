@@ -31,7 +31,7 @@ function PersonalDataComponent({
       loading={isLoading}
       title="Personal Info"
       extra={
-        <LuPencil color="#BFBFBF" onClick={() => handleEditChange('general')} />
+        <LuPencil className='cursor-pointer text-black' color="#BFBFBF" onClick={() => handleEditChange('general')} />
       }
       className="my-6 mt-0"
     >
