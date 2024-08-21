@@ -9,7 +9,7 @@ import { useEmployeeAllFilter } from '@/store/server/features/employees/employee
 import userTypeButton from '../userTypeButton';
 import { useDeleteEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
 import Image from 'next/image';
-import Avatar from '@/public/gender-neutral-avatar.jpg';
+import Avatar from '@/public/gender_neutral_avatar.jpg';
 
 const columns: TableColumnsType<EmployeeData> = [
   {
