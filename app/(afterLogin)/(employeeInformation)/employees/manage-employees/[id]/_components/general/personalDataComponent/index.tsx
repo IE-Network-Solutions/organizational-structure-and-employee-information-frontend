@@ -31,15 +31,25 @@ function PersonalDataComponent({
       loading={isLoading}
       title="Personal Info"
       extra={
-        <LuPencil className='cursor-pointer text-black' color="#BFBFBF" onClick={() => handleEditChange('general')} />
+        <LuPencil
+          className="cursor-pointer text-black"
+          color="#BFBFBF"
+          onClick={() => handleEditChange('general')}
+        />
       }
       className="my-6 mt-0"
     >
       <Form
         form={form}
         layout="vertical"
-        onFinish={() => handleSaveChanges('general')}
-        initialValues={employeeData?.employeeInformation?.addresses || {}}
+        onFinish={(values) => handleSaveChanges('general', values)}
+        initialValues={{
+            dateOfBirth:employeeData?.employeeInformation?.dateOfBirth,
+            nationalityId:employeeData?.employeeInformation?.nationalityId,
+            maritalStatus:employeeData?.employeeInformation?.maritalStatus,
+            joinedDate:employeeData?.employeeInformation?.joinedDate,
+            gender:employeeData?.employeeInformation?.gender
+          }}
       >
         <Row gutter={[16, 24]}>
           {edit.general ? (
@@ -48,7 +58,7 @@ function PersonalDataComponent({
                 <Form.Item
                   name="dateOfBirth"
                   label="Date of Birth"
-                  className="text-gray-950 text-xs"
+                  className="text-gray-950 text-xs w-full"
                   rules={[
                     {
                       required: true,
@@ -56,7 +66,7 @@ function PersonalDataComponent({
                     },
                   ]}
                 >
-                  <DatePicker />
+                  <DatePicker className='w-full'/>
                 </Form.Item>
                 <Form.Item
                   name="nationalityId"
@@ -116,12 +126,12 @@ function PersonalDataComponent({
                 <Form.Item
                   name="joinedDate"
                   label="Joined Date"
-                  className="text-gray-950 text-xs"
+                  className="text-gray-950 text-xs w-full"
                   rules={[
                     { required: true, message: 'Please enter the joined date' },
                   ]}
                 >
-                  <DatePicker />
+                  <DatePicker className='w-full' />
                 </Form.Item>
               </Col>
               <Col span={24} style={{ textAlign: 'right' }}>
