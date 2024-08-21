@@ -59,7 +59,6 @@ function General({ id }: { id: string }) {
       <EmergencyContact id={id} handleSaveChanges={handleSaveChanges} />
       <AddressComponent id={id} handleSaveChanges={handleSaveChanges} />
       <BankInformationComponent id={id} handleSaveChanges={handleSaveChanges} />
-      <BankInformationComponent handleSaveChanges={handleSaveChanges} id={id} />
     </>
   );
 }

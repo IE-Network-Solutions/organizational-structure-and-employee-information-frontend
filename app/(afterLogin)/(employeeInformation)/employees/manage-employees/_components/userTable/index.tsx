@@ -153,9 +153,10 @@ const UserTable = () => {
         <div className="flex gap-4 text-white">
           <Link href={`manage-employees/${item?.id}`}>
             <Button
+              
               id={`editUserButton${item?.id}`}
               disabled={item?.deletedAt !== null}
-              className="bg-sky-600 px-[10px]  text-white "
+              className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
             >
               <FaEye />
             </Button>
@@ -164,7 +165,7 @@ const UserTable = () => {
           <Button
             id={`deleteUserButton${item?.id}`}
             disabled={item?.deletedAt !== null}
-            className="bg-red-600 px-[8%] text-white"
+            className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
             onClick={() => {
               setDeleteModal(true);
               setDeletedItem(item?.id);

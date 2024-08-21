@@ -97,7 +97,6 @@ const Documents = ({ id }: { id: string }) => {
   const handleCreateUser = (values: any) => {
     AddEmployeeDocument({ id: employeeData?.id, values });
   };
-
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <Row justify="center" style={{ width: '100%' }}>
