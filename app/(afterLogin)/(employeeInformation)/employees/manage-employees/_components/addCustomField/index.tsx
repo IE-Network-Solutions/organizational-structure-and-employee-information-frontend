@@ -40,28 +40,26 @@ const AddCustomField: React.FC<any> = ({
   const [options, setOptions] = useState<string[]>([]);
 
   const addFieldIfNotExists = (formData: any, newField: FormField) => {
-    
-if(formData.length < 1){
-         const newFormDataValue = {
-              formTitle:formTitle,
-              form: [newField],
-            };
-            createCustomForm.mutate(newFormDataValue);
-      }
-  else{
-    const fieldExists = formData?.form?.some(
-      (field: any) => field.fieldName === newField.fieldName,
-    );
-    if (!fieldExists) {
-      const newFormData = {
-        ...customEmployeeInformationForm,
-        form: [...customEmployeeInformationForm?.form, newField],
+    if (formData?.length < 1) {
+      const newFormDataValue = {
+        formTitle: formTitle,
+        form: [newField],
       };
-      createCustomForm.mutate(newFormData);
+      createCustomForm.mutate(newFormDataValue);
     } else {
-      message.error(`The field ${newField.fieldName} already exists!`);
+      const fieldExists = formData?.form?.some(
+        (field: any) => field.fieldName === newField.fieldName,
+      );
+      if (!fieldExists) {
+        const newFormData = {
+          ...customEmployeeInformationForm,
+          form: [...customEmployeeInformationForm?.form, newField],
+        };
+        createCustomForm.mutate(newFormData);
+      } else {
+        message.error(`The field ${newField.fieldName} already exists!`);
+      }
     }
-  }
   };
 
   const formatFieldName = (name: string) => name.replace(/\s+/g, '_');
@@ -124,7 +122,12 @@ if(formData.length < 1){
       </Form.Item>
       <Divider />
       <Form.Item>
-        <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+        <Button
+          type="primary"
+          id={`addField${formTitle}`}
+          htmlType="submit"
+          style={{ width: '100%' }}
+        >
           Add Field
         </Button>
       </Form.Item>
@@ -136,8 +139,9 @@ if(formData.length < 1){
       <Row gutter={16}>
         <Col xs={24} sm={24} className="flex justify-center items-center">
           <Form.Item className="font-semibold text-xs">
-            <Popover content={popoverContent} title={formTitle} trigger="click">
+            <Popover content={popoverContent} title={formTitle} trigger="hover">
               <Button
+                id={`addCustomField${formTitle}`}
                 type="primary"
                 className="text-white text-xs font-semibold"
                 style={{ width: '100%' }}

@@ -6,7 +6,7 @@ import UseSetCategorizedFormData from '../../customField';
 import { validateName } from '@/utils/validation';
 
 const EmployeeAddressForm = () => {
-  const currentAddressForm = UseSetCategorizedFormData('Address');
+  const currentAddressForm = UseSetCategorizedFormData('address');
   return (
     <div>
       <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
@@ -56,7 +56,7 @@ const EmployeeAddressForm = () => {
       </Row>
       <DynamicFormFields formTitle="address" fields={currentAddressForm.form} />
       <AddCustomField
-        formTitle="Address"
+        formTitle="address"
         customEmployeeInformationForm={currentAddressForm}
       />
     </div>

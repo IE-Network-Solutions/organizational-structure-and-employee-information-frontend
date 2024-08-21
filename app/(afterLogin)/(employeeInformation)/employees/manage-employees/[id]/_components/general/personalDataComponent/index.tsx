@@ -31,14 +31,18 @@ function PersonalDataComponent({
       loading={isLoading}
       title="Personal Info"
       extra={
-        <LuPencil className='cursor-pointer text-black' color="#BFBFBF" onClick={() => handleEditChange('general')} />
+        <LuPencil
+          className="cursor-pointer text-black"
+          color="#BFBFBF"
+          onClick={() => handleEditChange('general')}
+        />
       }
       className="my-6 mt-0"
     >
       <Form
         form={form}
         layout="vertical"
-        onFinish={() => handleSaveChanges('general')}
+        onFinish={(values) => handleSaveChanges('general', values)}
         initialValues={employeeData?.employeeInformation?.addresses || {}}
       >
         <Row gutter={[16, 24]}>

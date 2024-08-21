@@ -79,12 +79,12 @@ const UserSidebar = (props: any) => {
           style={{ maxWidth: '100%' }}
           layout="vertical"
           onFinish={handleCreateUser}
-          onFinishFailed={()=>(
-              NotificationMessage.error({
-                message:'Something wrong or unfilled',
-                description:"please back and check the unfilled fields"
-              })
-          )}
+          onFinishFailed={() =>
+            NotificationMessage.error({
+              message: 'Something wrong or unfilled',
+              description: 'please back and check the unfilled fields',
+            })
+          }
         >
           <Card hidden={current !== 0} className="p-4 sm:p-6">
             <BasicInformationForm form={form} />

@@ -21,13 +21,18 @@ const BankInformationComponent = ({ handleSaveChanges, id }: any) => {
     <Card
       loading={isLoading}
       title="Bank Information"
-      extra={<LuPencil className='cursor-pointer' onClick={() => handleEditChange('bankInformation')} />}
+      extra={
+        <LuPencil
+          className="cursor-pointer"
+          onClick={() => handleEditChange('bankInformation')}
+        />
+      }
       className="my-6"
     >
       {edit.bankInformation ? (
         <Form
           form={form}
-          onFinish={() => handleSaveChanges('bankInformation')}
+          onFinish={(values) => handleSaveChanges('bankInformation', values)}
           layout="vertical"
           style={{ display: edit ? 'block' : 'none' }} // Hide form when not in edit mode
           initialValues={
