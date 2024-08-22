@@ -192,7 +192,7 @@ const OffboardingFormControl: React.FC<any> = () => {
         onCancel={() => setIsTerminationModalVisible(false)}
       >
         <Input
-          value={newOption}
+          value={newTerminationOption}
           onChange={(e) => setNewTerminationOption(e.target.value)}
           placeholder="Enter new termination reason"
         />

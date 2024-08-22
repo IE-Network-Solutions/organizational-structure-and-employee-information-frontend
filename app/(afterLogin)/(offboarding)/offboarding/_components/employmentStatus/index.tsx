@@ -25,7 +25,7 @@ const EmploymentStatus: React.FC = () => {
       </div> */}
 
       <div className="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
-        <Row gutter={16} align="middle" className="bg-blue-100 p-2">
+        <Row gutter={16} align="middle" className="bg-gray-100 p-2 rounded-sm">
           <Col>
             <Image
               src={employeeData?.avatar || avatar}
@@ -45,7 +45,7 @@ const EmploymentStatus: React.FC = () => {
                 : 'Jr. Software Developer'}
             </p>
             <p className="text-sm text-gray-900 mb-0">
-              Reports Directly to
+              Reports Directly to {''}
               {employeeData?.manager
                 ? employeeData?.manager
                 : 'Abeselom G/kidan'}
