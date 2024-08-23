@@ -25,7 +25,7 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
 
   const queryClient = new QueryClient({
     queryCache: new QueryCache({
-      onError(error: any, query) {
+      onError(error: any) {
         if (error.response) {
           if (error.response.status === 401) {
             router.replace('/authentication/login');

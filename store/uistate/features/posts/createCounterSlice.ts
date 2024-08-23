@@ -1,10 +1,12 @@
-import { GetState, SetState } from 'zustand';
+import { SetState } from 'zustand';
+// import { GetState, SetState } from 'zustand';
+
 import { MyState } from './interface';
 
 const counter = 0;
 const createCounterSlice = (
   set: SetState<MyState>,
-  get: GetState<MyState>,
+  // get: GetState<MyState>,
 ) => ({
   counter,
   incrementCounter: () =>

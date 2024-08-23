@@ -21,8 +21,8 @@ import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
 import { FiSettings } from 'react-icons/fi';
 import { CiCalendar, CiSettings } from 'react-icons/ci';
-import { LuUsers } from 'react-icons/lu';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
+import { LuUsers2 } from 'react-icons/lu';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -31,20 +31,41 @@ const items: MenuItem[] = [
     key: '/organization',
     icon: <CiSettings />,
     label: 'Organization',
+    className: 'font-bold',
   },
   {
     key: '/employees',
-    icon: <LuUsers />,
+    icon: <LuUsers2 />,
     label: 'Employees',
+    className: 'font-bold',
+    children: [
+      {
+        key: '/employees',
+        label: 'Employees',
+        className: 'font-bold',
+      },
+      {
+        key: '/employees/manage-employees',
+        className: 'font-bold',
+        label: 'Manage Employees',
+      },
+      {
+        key: '/employees/settings',
+        className: 'font-bold',
+        label: 'Settings',
+      },
+    ],
   },
   {
     key: '/recruitment',
     icon: <PiSuitcaseSimpleThin />,
+    className: 'font-bold',
     label: 'Recruitment',
   },
   {
     key: '/timesheet',
     icon: <CiCalendar />,
+    className: 'font-bold',
     label: 'Timesheet',
     children: [
       {
@@ -68,21 +89,25 @@ const items: MenuItem[] = [
   {
     key: '/activity',
     icon: <BarChartOutlined />,
+    className: 'font-bold',
     label: 'Activity',
   },
   {
     key: '/feedback ',
     label: 'Feedback',
     icon: <UserOutlined />,
+    className: 'font-bold',
     children: [
       {
         key: '/Chart',
         label: 'Clients',
         icon: <UserOutlined />,
+        className: 'font-bold',
       },
       {
         key: '/client-management/settings',
         label: 'Settings',
+        className: 'font-bold',
         icon: <FiSettings />,
       },
     ],
@@ -234,7 +259,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           <NavBar page="Home" userid="12345" />
         </Header>
         <Content
-          className="m-6"
+          className="mt-6"
           style={{
             paddingTop: isMobile ? 64 : 24,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,

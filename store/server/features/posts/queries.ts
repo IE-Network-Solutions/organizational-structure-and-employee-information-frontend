@@ -1,8 +1,8 @@
 import { useQuery } from 'react-query';
 import { Post } from './interface';
-import { useMutation, useQueryClient } from 'react-query';
-import { BASE_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import axios from 'axios';
+import { crudRequest } from '@/utils/crudRequest';
 // import axiosInstance from "@/providers/axiosContext";
 
 /**
@@ -10,12 +10,7 @@ import axios from 'axios';
  * @returns The response data from the API
  */
 const getPosts = async () => {
-  try {
-    const response = await axios.get(`/userbbbbb`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  return crudRequest({ url: `${ORG_AND_EMP_URL}/users`, method: 'GET' });
 };
 
 /**
@@ -26,7 +21,7 @@ const getPosts = async () => {
 
 const getPost = async (id: number) => {
   try {
-    const response = await axios.get(`${BASE_URL}/posts/${id}`);
+    const response = await axios.get(`${ORG_AND_EMP_URL}/posts/${id}`);
     return response.data;
   } catch (error) {
     throw error;
