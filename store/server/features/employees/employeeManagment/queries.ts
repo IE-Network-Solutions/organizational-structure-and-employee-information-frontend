@@ -47,13 +47,13 @@ const getEmployeeDepartments = async () => {
  * @param isDeleted - The deletion status for filtering.
  * @returns The response data from the API.
  */
-const employeeAllFilter = async (
+export const employeeAllFilter = async (
   pageSize: number,
   currentPage: number,
-  branchId: string,
   departmentId: string,
-  searchString: string,
   isDeleted: string,
+  branchId: string,
+  searchString: string,
 ) => {
   const response = await crudRequest({
     url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted ? isDeleted : null}&page=${currentPage}&limit=${pageSize}`,
@@ -104,15 +104,23 @@ export const useEmployeeAllFilter = (
   department: string,
 ) => {
   return useQuery<any>(
-    ['all', pageSize, currentPage, searchString, branch, isDeleted, department],
+    [
+      'employees',
+      pageSize,
+      currentPage,
+      searchString,
+      branch,
+      isDeleted,
+      department,
+    ],
     () =>
       employeeAllFilter(
         pageSize,
         currentPage,
-        searchString,
         branch,
-        isDeleted,
         department,
+        searchString,
+        isDeleted,
       ),
     {
       keepPreviousData: true,

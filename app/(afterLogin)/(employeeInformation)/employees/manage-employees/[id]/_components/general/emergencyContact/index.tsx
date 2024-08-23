@@ -16,17 +16,23 @@ function EmergencyContact({ handleSaveChanges, id }: any) {
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
   };
+
   return (
     <Card
       loading={isLoading}
       title="Emergency Contact"
-      extra={<LuPencil onClick={() => handleEditChange('emergencyContact')} />}
+      extra={
+        <LuPencil
+          className="cursor-pointer"
+          onClick={() => handleEditChange('emergencyContact')}
+        />
+      }
       className="my-6"
     >
       {edit.emergencyContact ? (
         <Form
           form={form}
-          onFinish={() => handleSaveChanges('emergencyContact')}
+          onFinish={(values) => handleSaveChanges('emergencyContact', values)}
           layout="vertical"
           style={{ display: edit ? 'block' : 'none' }} // Hide form when not in edit mode
           initialValues={

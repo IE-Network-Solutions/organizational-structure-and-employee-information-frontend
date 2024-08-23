@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Table, TableColumnsType, Tooltip } from 'antd';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
-import { MdOutlineEdit } from 'react-icons/md';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
@@ -10,6 +9,8 @@ import userTypeButton from '../userTypeButton';
 import { useDeleteEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
 import Image from 'next/image';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
+import { FaEye } from 'react-icons/fa';
+import Link from 'next/link';
 
 const columns: TableColumnsType<EmployeeData> = [
   {
@@ -52,21 +53,16 @@ const columns: TableColumnsType<EmployeeData> = [
 ];
 const UserTable = () => {
   const {
-    setOpen,
-    setModalType,
     setDeletedItem,
     deleteModal,
     setDeleteModal,
-    setSelectedItem,
     userCurrentPage,
     pageSize,
-    deletedItem,
     setUserCurrentPage,
     setPageSize,
     selectionType,
   } = useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
-
   const { data: allFilterData, isLoading: isEmployeeLoading } =
     useEmployeeAllFilter(
       pageSize,
@@ -76,7 +72,7 @@ const UserTable = () => {
       searchParams.employee_name,
       searchParams.allStatus ? searchParams.allStatus : '',
     );
-  const useEmployeeDeleteMuation = useDeleteEmployee();
+  const { mutate: employeeDeleteMuation } = useDeleteEmployee();
 
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
@@ -155,22 +151,21 @@ const UserTable = () => {
       role: item?.role?.name ? item?.role?.name : ' - ',
       action: (
         <div className="flex gap-4 text-white">
-          <Button
-            id={`editUserButton${item?.id}`}
-            disabled={item?.deletedAt !== null}
-            className="bg-sky-600 px-[8%]  text-white "
-            onClick={() => {
-              setModalType('edit');
-              setSelectedItem({ key: 'edit', id: item?.id });
-              setOpen(true);
-            }}
-          >
-            <MdOutlineEdit />
-          </Button>
+          <Link href={`manage-employees/${item?.id}`}>
+            <Button
+              
+              id={`editUserButton${item?.id}`}
+              disabled={item?.deletedAt !== null}
+              className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
+            >
+              <FaEye />
+            </Button>
+          </Link>
+
           <Button
             id={`deleteUserButton${item?.id}`}
             disabled={item?.deletedAt !== null}
-            className="bg-red-600 px-[8%] text-white"
+            className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
             onClick={() => {
               setDeleteModal(true);
               setDeletedItem(item?.id);
@@ -183,13 +178,7 @@ const UserTable = () => {
     };
   });
   const handleDeleteConfirm = () => {
-    useEmployeeDeleteMuation.mutate({
-      userCurrentPage,
-      pageSize,
-      deletedItem,
-      setDeleteModal,
-      setDeletedItem,
-    });
+    employeeDeleteMuation();
   };
   const onPageChange = (page: number, pageSize?: number) => {
     setUserCurrentPage(page);

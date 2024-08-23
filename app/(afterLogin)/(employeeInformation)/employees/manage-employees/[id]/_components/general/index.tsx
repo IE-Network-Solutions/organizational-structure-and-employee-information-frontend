@@ -18,10 +18,10 @@ function General({ id }: { id: string }) {
 
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   useGetNationalities();
-  const handleSaveChanges = (editKey: keyof EditState) => {
+  const handleSaveChanges = (editKey: keyof EditState, values: any) => {
     form
       .validateFields()
-      .then((values) => {
+      .then(() => {
         switch (editKey) {
           case 'general':
             updateEmployeeInformation({
@@ -59,7 +59,6 @@ function General({ id }: { id: string }) {
       <EmergencyContact id={id} handleSaveChanges={handleSaveChanges} />
       <AddressComponent id={id} handleSaveChanges={handleSaveChanges} />
       <BankInformationComponent id={id} handleSaveChanges={handleSaveChanges} />
-      <BankInformationComponent handleSaveChanges={handleSaveChanges} id={id} />
     </>
   );
 }
