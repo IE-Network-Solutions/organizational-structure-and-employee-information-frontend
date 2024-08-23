@@ -46,6 +46,24 @@ const items: MenuItem[] = [
     key: '/timesheet',
     icon: <CiCalendar />,
     label: 'Timesheet',
+    children: [
+      {
+        key: '/my-timesheet',
+        label: 'My timesheet',
+      },
+      {
+        key: '/employee-attendance',
+        label: 'Employee Attendance',
+      },
+      {
+        key: '/leave-management',
+        label: 'Leave Management',
+      },
+      {
+        key: '/settings',
+        label: 'Settings',
+      },
+    ],
   },
   {
     key: '/activity',
@@ -224,10 +242,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           <div
-            className="p-6"
             style={{
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
               marginTop: '2.5rem',
             }}
           >
