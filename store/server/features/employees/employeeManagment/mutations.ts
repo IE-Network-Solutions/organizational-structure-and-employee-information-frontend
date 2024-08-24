@@ -4,6 +4,7 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -40,22 +41,24 @@ const updateEmployee = async (values: any) => {
  * @param postId The ID of the post to delete
  * @returns The response data from the API
  */
-const deleteEmployee = async ({
-  deletedId,
-  setCurrentModal,
-  setDeletedId,
-}: any) => {
+const deleteEmployee = async () => {
+  const deletedItem = useEmployeeManagementStore.getState().deletedItem;
+  const setDeleteModal = useEmployeeManagementStore.getState().setDeleteModal;
+  const setDeletedItem = useEmployeeManagementStore.getState().setDeletedItem;
+  const pageSize = useEmployeeManagementStore.getState().pageSize;
+  const userCurrentPage = useEmployeeManagementStore.getState().userCurrentPage;
+
   const headers = {
     Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
     tenantId: tenantId, // Pass tenantId in the headers
   };
   try {
     const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/users/${deletedId}`,
+      `${ORG_AND_EMP_URL}/users/${deletedItem}?limit=${pageSize}&&page=${userCurrentPage}`,
       { headers },
     );
-    setCurrentModal(null);
-    setDeletedId(null);
+    setDeleteModal(false);
+    setDeletedItem(null);
     NotificationMessage.success({
       message: 'Successfully Deleted',
       description: 'Employee successfully deleted.',

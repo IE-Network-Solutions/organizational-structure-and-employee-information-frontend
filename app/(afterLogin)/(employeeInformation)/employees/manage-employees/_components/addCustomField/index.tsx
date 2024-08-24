@@ -5,7 +5,6 @@ import {
   Button,
   Select,
   Switch,
-  Space,
   Popover,
   Card,
   Row,
@@ -40,24 +39,26 @@ const AddCustomField: React.FC<any> = ({
   const [isActive, setIsActive] = useState(true);
   const [options, setOptions] = useState<string[]>([]);
 
-  const handleOptionChange = (index: number, value: string) => {
-    const newOptions = [...options];
-    newOptions[index] = value;
-    setOptions(newOptions);
-  };
-
   const addFieldIfNotExists = (formData: any, newField: FormField) => {
-    const fieldExists = formData?.some(
-      (field: any) => field.fieldName === newField.fieldName,
-    );
-    if (!fieldExists) {
-      const newFormData = {
-        ...customEmployeeInformationForm,
-        form: [...customEmployeeInformationForm.form, newField],
+    if (formData?.length < 1) {
+      const newFormDataValue = {
+        formTitle: formTitle,
+        form: [newField],
       };
-      createCustomForm.mutate(newFormData);
+      createCustomForm.mutate(newFormDataValue);
     } else {
-      message.error(`The field ${newField.fieldName} already exists!`);
+      const fieldExists = formData?.form?.some(
+        (field: any) => field.fieldName === newField.fieldName,
+      );
+      if (!fieldExists) {
+        const newFormData = {
+          ...customEmployeeInformationForm,
+          form: [...customEmployeeInformationForm?.form, newField],
+        };
+        createCustomForm.mutate(newFormData);
+      } else {
+        message.error(`The field ${newField.fieldName} already exists!`);
+      }
     }
   };
 
@@ -72,7 +73,8 @@ const AddCustomField: React.FC<any> = ({
       isActive: values.isActive,
       options: values.options || [],
     };
-    addFieldIfNotExists(customEmployeeInformationForm.form, newField);
+
+    addFieldIfNotExists(customEmployeeInformationForm, newField);
     form.resetFields();
     setOptions([]);
     setFieldName('');
@@ -110,10 +112,6 @@ const AddCustomField: React.FC<any> = ({
       >
         <Select value={fieldType} onChange={(value) => setFieldType(value)}>
           <Option value="input">Input</Option>
-          <Option value="select">Select</Option>
-          <Option value="datePicker">Date Picker</Option>
-          <Option value="toggle">Toggle</Option>
-          <Option value="checkbox">Checkbox</Option>
         </Select>
       </Form.Item>
       <Form.Item label="Is Active" name="isActive" valuePropName="checked">
@@ -122,51 +120,14 @@ const AddCustomField: React.FC<any> = ({
           onChange={(checked) => setIsActive(checked)}
         />
       </Form.Item>
-      {(fieldType === 'select' || fieldType === 'checkbox') && (
-        <Form.Item label="Options" name="options">
-          {options.map((option, index) => (
-            <Space
-              key={index}
-              direction="vertical"
-              style={{ display: 'block', marginBottom: 8 }}
-            >
-              <Input
-                value={option}
-                placeholder={`Option ${index + 1}`}
-                onChange={(e) => handleOptionChange(index, e.target.value)}
-                style={{ marginBottom: 8 }}
-              />
-            </Space>
-          ))}
-          <Button
-            type="dashed"
-            onClick={() => setOptions([...options, ''])}
-            style={{ width: '100%' }}
-          >
-            Add Option
-          </Button>
-        </Form.Item>
-      )}
-      {fieldType === 'toggle' && (
-        <Form.Item label="Toggle Options" name="options">
-          {options.slice(0, 2).map((option, index) => (
-            <Space
-              key={index}
-              direction="vertical"
-              style={{ display: 'block', marginBottom: 8 }}
-            >
-              <Input
-                value={option}
-                placeholder={`Toggle ${index + 1} Value`}
-                onChange={(e) => handleOptionChange(index, e.target.value)}
-              />
-            </Space>
-          ))}
-        </Form.Item>
-      )}
       <Divider />
       <Form.Item>
-        <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+        <Button
+          type="primary"
+          id={`addField${formTitle}`}
+          htmlType="submit"
+          style={{ width: '100%' }}
+        >
           Add Field
         </Button>
       </Form.Item>
@@ -178,8 +139,9 @@ const AddCustomField: React.FC<any> = ({
       <Row gutter={16}>
         <Col xs={24} sm={24} className="flex justify-center items-center">
           <Form.Item className="font-semibold text-xs">
-            <Popover content={popoverContent} title={formTitle} trigger="click">
+            <Popover content={popoverContent} title={formTitle} trigger="hover">
               <Button
+                id={`addCustomField${formTitle}`}
                 type="primary"
                 className="text-white text-xs font-semibold"
                 style={{ width: '100%' }}

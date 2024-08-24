@@ -33,7 +33,6 @@ const UserSidebar = (props: any) => {
   );
 
   const handleCreateUser = (values: any) => {
-    // console.log(values,"values")
     createEmployee(transformData(values));
   };
 
@@ -79,31 +78,31 @@ const UserSidebar = (props: any) => {
           autoComplete="off"
           style={{ maxWidth: '100%' }}
           layout="vertical"
+          onFinish={handleCreateUser}
           onFinishFailed={() =>
             NotificationMessage.error({
-              message: 'Something went wrong or unfilled',
-              description: 'Please check the form again.',
+              message: 'Something wrong or unfilled',
+              description: 'please back and check the unfilled fields',
             })
           }
-          onFinish={handleCreateUser}
         >
           <Card hidden={current !== 0} className="p-4 sm:p-6">
             <BasicInformationForm form={form} />
             <EmployeeAddressForm />
             <EmergencyContactForm />
             <BankInformationForm />
-            <ButtonContinue />
+            <ButtonContinue form={form} />
           </Card>
           <Card hidden={current !== 1} className="p-4 sm:p-6">
             <JobTimeLineForm />
             <RolePermissionForm form={form} />
             <WorkScheduleForm />
-            <ButtonContinue />
+            <ButtonContinue form={form} />
           </Card>
           <Card hidden={current !== 2} className="p-4 sm:p-6">
             <AdditionalInformationForm />
             <DocumentUploadForm />
-            <ButtonContinue isLoading={isLoading} />
+            <ButtonContinue isLoading={isLoading} form={form} />
           </Card>
         </Form>
       </CustomDrawerLayout>

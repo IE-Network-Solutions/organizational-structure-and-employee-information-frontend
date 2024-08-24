@@ -9,7 +9,20 @@ const tenantId = useAuthenticationStore.getState().tenantId;
 
 const addOffboardingItem = async (values: any) => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/items`,
+    url: 'https://jsonplaceholder.typicode.com/posts',
+    // url: `${ORG_AND_EMP_URL}/items`,
+    method: 'POST',
+    data: values,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+const addTerminationItem = async (values: any) => {
+  return crudRequest({
+    url: 'https://jsonplaceholder.typicode.com/posts',
+    // url: `${ORG_AND_EMP_URL}/items`,
     method: 'POST',
     data: values,
     headers: {
@@ -31,9 +44,9 @@ const updateOffboardingItem = async (values: any) => {
   });
 };
 
-const deleteOffboardingItem = async (values: any) => {
+const deleteOffboardingItem = async () => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/items/${values?.itemId}`,
+    url: `${ORG_AND_EMP_URL}/items`,
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -42,6 +55,24 @@ const deleteOffboardingItem = async (values: any) => {
   });
 };
 export const useAddOffboardingItem = () => {
+  const queryClient = useQueryClient();
+  return useMutation(addOffboardingItem, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('offboardItems');
+      NotificationMessage.success({
+        message: 'Successfully Created',
+        description: 'Item successfully Created',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Creating Failed',
+        description: 'Item creation Failed',
+      });
+    },
+  });
+};
+export const useAddTerminationItem = () => {
   const queryClient = useQueryClient();
   return useMutation(addOffboardingItem, {
     onSuccess: () => {

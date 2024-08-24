@@ -25,13 +25,18 @@ const AddressComponent = ({
     <Card
       loading={isLoading}
       title="Address"
-      extra={<LuPencil onClick={() => handleEditChange('addresses')} />}
+      extra={
+        <LuPencil
+          className="cursor-pointer"
+          onClick={() => handleEditChange('addresses')}
+        />
+      }
       className="my-6"
     >
       {edit.addresses ? (
         <Form
           form={form}
-          onFinish={() => handleSaveChanges('addresses')}
+          onFinish={(values) => handleSaveChanges('addresses', values)}
           layout="vertical"
           style={{ display: edit ? 'block' : 'none' }} // Hide form when not in edit mode
           initialValues={employeeData?.employeeInformation?.addresses || {}}

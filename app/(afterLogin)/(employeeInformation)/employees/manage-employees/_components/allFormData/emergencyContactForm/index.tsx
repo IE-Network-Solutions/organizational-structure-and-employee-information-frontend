@@ -10,7 +10,7 @@ const { Option } = Select;
 
 const EmergencyContactForm = () => {
   const { data: nationalities } = useGetNationalities();
-  const emergencyContactForm = UseSetCategorizedFormData('Emergency contact');
+  const emergencyContactForm = UseSetCategorizedFormData('emergencyContact');
 
   return (
     <div>
@@ -128,7 +128,7 @@ const EmergencyContactForm = () => {
         fields={emergencyContactForm.form}
       />
       <AddCustomField
-        formTitle="Emergency contact"
+        formTitle="emergencyContact"
         customEmployeeInformationForm={emergencyContactForm}
       />
     </div>

@@ -6,7 +6,7 @@ import UseSetCategorizedFormData from '../../customField';
 import { validateName } from '@/utils/validation';
 
 const BankInformationForm = () => {
-  const currentBankForm = UseSetCategorizedFormData('Bank information');
+  const currentBankForm = UseSetCategorizedFormData('bankInformation');
 
   return (
     <div>
@@ -93,7 +93,7 @@ const BankInformationForm = () => {
         fields={currentBankForm.form}
       />
       <AddCustomField
-        formTitle="Bank information"
+        formTitle="bankInformation"
         customEmployeeInformationForm={currentBankForm}
         className="mt-4"
       />
