@@ -8,12 +8,11 @@ import Job from './_components/job';
 import Documents from './_components/documents';
 import RolePermission from './_components/rolePermission';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
-import { AddTaskModal } from './(offboarding)/_components/addTaskModal';
+import { AddTaskModal } from './offboarding/_components/addTaskModal';
 
 interface Params {
   id: string;
 }
-
 interface EmployeeDetailsProps {
   params: Params;
 }

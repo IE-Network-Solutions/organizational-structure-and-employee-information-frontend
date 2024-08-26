@@ -58,7 +58,8 @@ export const employeeAllFilter = async (
   searchString: string,
 ) => {
   const response = await crudRequest({
-    url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted ? isDeleted : null}&page=${currentPage}&limit=${pageSize}`,
+    url: 'https://mocki.io/v1/55a3e4b9-10e7-4164-88b1-236d160228d7',
+    // url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted ? isDeleted : null}&page=${currentPage}&limit=${pageSize}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
