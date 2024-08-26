@@ -61,8 +61,8 @@ const OffboardingTemplate: React.FC = () => {
           </Button>
           <Button>Cancel</Button>
         </div>
+        <AddTaskModal />
       </Modal>
-      <AddTaskModal />
     </>
   );
 };
