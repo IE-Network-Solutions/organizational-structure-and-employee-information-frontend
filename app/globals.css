@@ -144,3 +144,7 @@ h6 {
     margin: 2rem 0;
   }
 }
+
+.ant-upload {
+  width: 100%;
+}

@@ -2,10 +2,16 @@ import { create, StateCreator } from 'zustand';
 
 type MyTimesheetState = {
   isShowViewSidebar: boolean;
+  isShowNewLeaveRequestSidebar: boolean;
+  isShowCheckOutSidebar: boolean;
 };
 
 type MyTimesheetAction = {
   setIsShowViewSidebar: (isShowViewSidebar: boolean) => void;
+  setIsShowNewLeaveRequestSidebar: (
+    isShowNewLeaveRequestSidebar: boolean,
+  ) => void;
+  setIsShowCheckOutSidebar: (isShowCheckOutSidebar: boolean) => void;
 };
 
 const useMyTimesheetSlice: StateCreator<
@@ -14,6 +20,16 @@ const useMyTimesheetSlice: StateCreator<
   isShowViewSidebar: false,
   setIsShowViewSidebar: (isShowViewSidebar) => {
     set({ isShowViewSidebar });
+  },
+
+  isShowNewLeaveRequestSidebar: false,
+  setIsShowNewLeaveRequestSidebar: (isShowNewLeaveRequestSidebar) => {
+    set({ isShowNewLeaveRequestSidebar });
+  },
+
+  isShowCheckOutSidebar: false,
+  setIsShowCheckOutSidebar: (isShowCheckOutSidebar) => {
+    set({ isShowCheckOutSidebar });
   },
 });
 

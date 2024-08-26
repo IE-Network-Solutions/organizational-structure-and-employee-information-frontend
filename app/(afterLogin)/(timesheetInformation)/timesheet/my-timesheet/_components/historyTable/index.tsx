@@ -4,6 +4,7 @@ import { TableColumnsType } from '@/types/table/table';
 import { Button, Table } from 'antd';
 import { TbFileDownload } from 'react-icons/tb';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+import StatusBadge from '@/components/common/statusBadge/statusBadge';
 
 const columns: TableColumnsType<any> = [
   {
@@ -45,9 +46,7 @@ const columns: TableColumnsType<any> = [
     title: 'Status',
     dataIndex: 'status',
     key: 'status',
-    render: (text: string) => (
-      <span className="bg-red-200 text-red-600 px-2 py-1 rounded">{text}</span>
-    ),
+    render: (text: string) => <StatusBadge>{text}</StatusBadge>,
   },
   {
     title: '',

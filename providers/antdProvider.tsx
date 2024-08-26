@@ -29,6 +29,10 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
             defaultColor: '#111827',
             defaultBorderColor: '#111827',
           },
+          Select: {
+            colorText: '#111827',
+            colorBorder: '#E9EAEC',
+          },
         },
         token: {
           colorPrimary: '#3636F0',

@@ -10,7 +10,7 @@ const ViewAttendanceSidebar = () => {
   const { isShowViewSidebar, setIsShowViewSidebar } = useMyTimesheetStore();
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div className="flex justify-center text-xl font-extrabold text-gray-800">
       View Attendance
     </div>
   );
