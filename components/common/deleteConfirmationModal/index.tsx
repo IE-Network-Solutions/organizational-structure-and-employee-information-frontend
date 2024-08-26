@@ -8,12 +8,14 @@ interface DeleteModalProps {
   open: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  customMessage?: React.ReactNode;
 }
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
   open,
   onConfirm,
   onCancel,
+  customMessage,
 }) => {
   const deleteModalFooter = (
     <div className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6">
@@ -33,6 +35,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       </Button>
     </div>
   );
+  console.log(customMessage, 'this si customMessage');
 
   return (
     <Modal
@@ -51,9 +54,11 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           alt="Picture of the author"
         />
       </p>
+
       <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
         Are you sure to Delete?
       </p>
+      {customMessage && <div className="mt-4 text-center">{customMessage}</div>}
     </Modal>
   );
 };
