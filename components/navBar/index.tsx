@@ -40,7 +40,7 @@ const items: MenuItem[] = [
     className: 'font-bold',
     children: [
       {
-        key: '/employees',
+        key: '/employees/main',
         label: 'Employees',
         className: 'font-bold',
       },
@@ -69,20 +69,24 @@ const items: MenuItem[] = [
     label: 'Timesheet',
     children: [
       {
-        key: '/my-timesheet',
+        key: '/timesheet/my-timesheet',
         label: 'My timesheet',
+        className: 'font-bold',
       },
       {
-        key: '/employee-attendance',
+        key: '/timesheet/employee-attendance',
         label: 'Employee Attendance',
+        className: 'font-bold',
       },
       {
-        key: '/leave-management',
+        key: '/timesheet/leave-management',
         label: 'Leave Management',
+        className: 'font-bold',
       },
       {
-        key: '/settings',
+        key: '/timesheet/settings',
         label: 'Settings',
+        className: 'font-bold',
       },
     ],
   },
@@ -120,7 +124,7 @@ interface MyComponentProps {
 
 const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgContainer },
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);

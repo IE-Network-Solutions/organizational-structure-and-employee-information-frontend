@@ -1,12 +1,13 @@
+'use client';
 import React from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import EmployeeAttendanceTable from '@/app/(afterLogin)/employee-attendance/_components/table';
 import { Button, Space } from 'antd';
 import { TbFileDownload, TbFileUpload } from 'react-icons/tb';
+import EmployeeAttendanceTable from './_components/employeeAttendanceTable';
 const Page = () => {
   return (
-    <>
+    <div className="h-auto w-auto pr-6 pb-6 pl-3">
       <PageHeader
         title="Employee Attendance"
         description="Manage your Team Attendance"
@@ -27,7 +28,7 @@ const Page = () => {
       <BlockWrapper className="mt-8">
         <EmployeeAttendanceTable />
       </BlockWrapper>
-    </>
+    </div>
   );
 };
 

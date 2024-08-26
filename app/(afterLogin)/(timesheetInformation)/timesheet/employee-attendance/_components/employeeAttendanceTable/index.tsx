@@ -1,10 +1,10 @@
-'use client';
 import React from 'react';
-import { Avatar, DatePicker, Table, TableProps } from 'antd';
+import { Avatar, Table } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { TableRowSelection } from 'antd/es/table/interface';
-
-type ColumnsType<T extends object> = TableProps<T>['columns'];
+import { TableColumnsType } from '@/types/table/table';
+import TableFilter from '@/app/(afterLogin)/(timesheetInformation)/timesheet/employee-attendance/_components/employeeAttendanceTable/tableFilter';
+import StatusBadge from '@/components/common/statusBadge/statusBadge';
 
 interface DataTableEmployee {
   img: string;
@@ -24,7 +24,7 @@ interface TableData {
   approvalStatus: string;
 }
 
-const columns: ColumnsType<TableData> = [
+const columns: TableColumnsType<TableData> = [
   {
     title: 'Employee Name',
     dataIndex: 'employee',
@@ -63,7 +63,7 @@ const columns: ColumnsType<TableData> = [
     title: 'Status',
     dataIndex: 'status',
     key: 'status',
-    render: (text: string) => <div>{text}</div>,
+    render: (text: string) => <StatusBadge theme="success">{text}</StatusBadge>,
   },
   {
     title: 'Over-time',
@@ -81,7 +81,7 @@ const columns: ColumnsType<TableData> = [
     title: 'Approval Status',
     dataIndex: 'approvalStatus',
     key: 'approvalStatus',
-    render: (text: string) => <div>{text}</div>,
+    render: (text: string) => <StatusBadge>{text}</StatusBadge>,
   },
 ];
 
@@ -194,8 +194,8 @@ const rowSelection: TableRowSelection<TableData> = {
 const EmployeeAttendanceTable = () => {
   return (
     <>
-      <div className="flex mb-6">
-        <DatePicker.RangePicker separator={'-'} format="DD MMM YYYY" />
+      <div className="mb-6">
+        <TableFilter />
       </div>
       <Table
         columns={columns}

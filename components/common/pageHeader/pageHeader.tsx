@@ -13,15 +13,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   children,
 }) => {
   return (
-    <>
-      <div className="flex justify-between items-center">
+    <div className="flex justify-between items-center">
+      <div className="flex-1">
         <h2 className="text-2xl text-gray-900">{title}</h2>
-        <div>{children}</div>
+        {description && (
+          <div className="mt-2 text-sm text-gray-600 font-medium">
+            {description}
+          </div>
+        )}
       </div>
-      {description && (
-        <div className="mt-2 text-sm text-gray-600">{description}</div>
-      )}
-    </>
+      <div>{children}</div>
+    </div>
   );
 };
 

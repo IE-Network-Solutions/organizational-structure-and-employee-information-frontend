@@ -7,7 +7,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 
 /**
  * Function to create a new permission group by sending a POST request to the API.
- * 
+ *
  * @param values - The data for the new permission group.
  * @returns The response data from the API, which contains details of the created permission group.
  */
@@ -21,7 +21,7 @@ const createPermissionGroup = async (values: GroupPermissionkey) => {
 
 /**
  * Function to update an existing permission group by sending a PATCH request to the API.
- * 
+ *
  * @param values - The data for updating the permission group, including its ID.
  * @returns The response data from the API, which contains details of the updated permission group.
  */
@@ -60,9 +60,9 @@ const deleteGroupPermission = async ({
 
 /**
  * Custom hook to handle adding a new permission group using `useMutation` from `react-query`.
- * 
+ *
  * @returns The mutation object for adding a new permission group.
- * 
+ *
  * @description
  * This hook manages the process of adding a new permission group. After a successful
  * mutation, it invalidates the "groupPermissions" query to refetch the updated list of permission groups.
@@ -82,9 +82,9 @@ export const useAddPermissionGroup = () => {
 
 /**
  * Custom hook to handle updating an existing permission group using `useMutation` from `react-query`.
- * 
+ *
  * @returns The mutation object for updating a permission group.
- * 
+ *
  * @description
  * This hook manages the process of updating an existing permission group. After a successful
  * mutation, it invalidates the "groupPermissions" query to refetch the updated list of permission groups.
@@ -104,9 +104,9 @@ export const useUpdatePermissionGroup = () => {
 
 /**
  * Custom hook to handle deleting a permission group using `useMutation` from `react-query`.
- * 
+ *
  * @returns The mutation object for deleting a permission group.
- * 
+ *
  * @description
  * This hook manages the process of deleting a permission group. After a successful
  * mutation, it invalidates the "groupPermissions" query to ensure the list of permission groups is updated.
