@@ -74,7 +74,7 @@ export const useAddOffboardingItem = () => {
 };
 export const useAddTerminationItem = () => {
   const queryClient = useQueryClient();
-  return useMutation(addOffboardingItem, {
+  return useMutation(addTerminationItem, {
     onSuccess: () => {
       queryClient.invalidateQueries('offboardItems');
       NotificationMessage.success({

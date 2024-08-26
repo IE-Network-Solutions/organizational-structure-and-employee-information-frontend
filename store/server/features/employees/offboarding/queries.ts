@@ -1,5 +1,4 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useQuery } from 'react-query';
 
@@ -8,7 +7,8 @@ const tenantId = useAuthenticationStore.getState().tenantId;
 
 const fetchOffboardItems = async () => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/`,
+    url: 'https://mocki.io/v1/83642422-0148-4378-9213-ff7625c1157d',
+    // url: `${ORG_AND_EMP_URL}/`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,

@@ -35,8 +35,6 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       </Button>
     </div>
   );
-  console.log(customMessage, 'this si customMessage');
-
   return (
     <Modal
       open={open}

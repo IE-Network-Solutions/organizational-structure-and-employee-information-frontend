@@ -6,6 +6,5 @@ export default defineConfig({
       // on, config
     },
     baseUrl: 'http://172.16.33.163:3000',
-    
   },
 });

@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Card, Checkbox, Button, Divider, Menu, Dropdown } from 'antd';
+import { Card, Checkbox, Button, Divider, Dropdown } from 'antd';
 import { DownOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import {
   Task,
@@ -48,7 +48,6 @@ const OffboardingTasks: React.FC = () => {
 
   const { mutate: offboardingTaskDeleteMutation } = useDeleteOffboardingItem();
   const { data: offboardingTasks, isLoading, error } = useFetchOffboardItems();
-  console.log(offboardingTasks, 'this is offboardingTasks');
 
   const handleAddTaskClick = () => setIsAddTaskModalVisible(true);
   const handleTaskTemplate = () => setIsTaskTemplateVisible(true);

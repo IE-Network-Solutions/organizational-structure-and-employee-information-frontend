@@ -73,7 +73,6 @@ const UserTable = () => {
       searchParams.allStatus ? searchParams.allStatus : '',
     );
   const { mutate: employeeDeleteMuation } = useDeleteEmployee();
-
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
 

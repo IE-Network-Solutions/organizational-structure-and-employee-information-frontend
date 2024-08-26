@@ -4,7 +4,6 @@ import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import { AddTaskModal } from '../addTaskModal';
-import { FaPlus } from 'react-icons/fa';
 
 const OffboardingTemplate: React.FC = () => {
   const {
@@ -33,14 +32,24 @@ const OffboardingTemplate: React.FC = () => {
         footer={null}
         width={400}
       >
+        <div className="mb-4 bg-gray-100 p-3 rounded">
+          <div className="flex items-center">
+            <Avatar icon={<UserOutlined />} />
+            <div className="ml-3">
+              <div className="font-bold">Gelila Tegegne</div>
+              <div className="text-sm text-gray-600">
+                Jr. Software Developer
+              </div>
+            </div>
+          </div>
+        </div>
         <Button
-          className="bg-blue-600 mr-2 my-3 "
+          type="primary"
+          className="bg-blue-600 mr-2 mb-2"
           onClick={handleAddTaskClick}
-          icon={<FaPlus />}
         >
           Add Task List
         </Button>
-
         {items.map((item, index) => (
           <Checkbox key={index} className="flex mb-2">
             {item}
@@ -52,8 +61,8 @@ const OffboardingTemplate: React.FC = () => {
           </Button>
           <Button>Cancel</Button>
         </div>
-        <AddTaskModal />
       </Modal>
+      <AddTaskModal />
     </>
   );
 };
