@@ -1,10 +1,7 @@
 import React from 'react';
-import { Modal, Input, Select, DatePicker, Button, Upload, Form } from 'antd';
-import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
-import {
-  Task,
-  useOffboardingStore,
-} from '@/store/uistate/features/offboarding';
+import { Modal, Input, Select, Button, Form } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import { useAddOffboardingItem } from '@/store/server/features/employees/offboarding/mutation';
 
 const { TextArea } = Input;
@@ -16,15 +13,12 @@ export const AddTaskModal: React.FC = () => {
   const { mutate: createTaskList } = useAddOffboardingItem();
   const {
     isAddTaskModalVisible,
-    taskForm,
     setTaskForm,
     addTask,
     resetTaskForm,
     setIsAddTaskModalVisible,
     addCustomOption,
     customOptions,
-    newTaskList,
-    setNewTaskList,
     isAddListVisible,
     setIsAddListVisible,
     newAssign,
@@ -46,14 +40,14 @@ export const AddTaskModal: React.FC = () => {
       form.resetFields();
     });
   };
-  const handleAddTaskList = () => {
-    if (newTaskList) {
-      addCustomOption(newTaskList);
-      createTaskList({ name: newTaskList });
-      setNewTaskList('');
-      setIsAddTaskModalVisible(false);
-    }
-  };
+  // const handleAddTaskList = () => {
+  //   if (newTaskList) {
+  //     addCustomOption(newTaskList);
+  //     createTaskList({ name: newTaskList });
+  //     setNewTaskList('');
+  //     setIsAddTaskModalVisible(false);
+  //   }
+  // };
   const handleAddList = () => {
     if (newAssign) {
       addCustomOption(newAssign);

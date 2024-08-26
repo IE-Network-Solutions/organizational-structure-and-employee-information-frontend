@@ -27,7 +27,6 @@ const getEmployeeBranches = async () => {
  * @returns The response data from the API.
  */
 const getEmployeeDepartments = async () => {
-  console.log(tenantId, 'tenant id in function ');
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/tenant/departments`,
     method: 'GET',
@@ -49,25 +48,25 @@ const getEmployeeDepartments = async () => {
  * @param isDeleted - The deletion status for filtering.
  * @returns The response data from the API.
  */
-export const employeeAllFilter = async (
-  pageSize: number,
-  currentPage: number,
-  departmentId: string,
-  isDeleted: string,
-  branchId: string,
-  searchString: string,
-) => {
-  const response = await crudRequest({
-    url: 'https://mocki.io/v1/55a3e4b9-10e7-4164-88b1-236d160228d7',
-    // url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted ? isDeleted : null}&page=${currentPage}&limit=${pageSize}`,
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
-  });
-  return response;
-};
+export const employeeAllFilter = async () =>
+  // pageSize: number,
+  // currentPage: number,
+  // departmentId: string,
+  // isDeleted: string,
+  // branchId: string,
+  // searchString: string,
+  {
+    const response = await crudRequest({
+      url: 'https://mocki.io/v1/55a3e4b9-10e7-4164-88b1-236d160228d7',
+      // url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted ? isDeleted : null}&page=${currentPage}&limit=${pageSize}`,
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+    return response;
+  };
 
 /**
  * Custom hook to fetch a list of employee branches using useQuery from react-query.
@@ -117,14 +116,13 @@ export const useEmployeeAllFilter = (
       department,
     ],
     () =>
-      employeeAllFilter(
-        pageSize,
-        currentPage,
-        branch,
-        department,
-        searchString,
-        isDeleted,
-      ),
+      employeeAllFilter(),
+      // pageSize,
+      // currentPage,
+      // branch,
+      // department,
+      // searchString,
+      // isDeleted,
     {
       keepPreviousData: true,
     },
