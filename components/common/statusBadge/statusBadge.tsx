@@ -11,23 +11,29 @@ export enum StatusBadgeTheme {
 interface StatusBadgeProps extends PropsWithChildren {
   theme?: StatusBadgeTheme;
   className?: string;
+  transparentBg?: boolean;
 }
 
 const StatusBadge: FC<StatusBadgeProps> = ({
   theme = StatusBadgeTheme.secondary,
   className = '',
+  transparentBg = false,
   children,
 }) => {
   const badgeClass = classNames(
     'min-h-6 py-1 px-4 flex items-center justify-center rounded-lg font-bold text-[10px] w-max',
     {
-      ['bg-success-second/20']: theme === StatusBadgeTheme.success,
+      ['bg-success-second/20']:
+        theme === StatusBadgeTheme.success && !transparentBg,
       ['text-success']: theme === StatusBadgeTheme.success,
-      ['bg-warning-second/20']: theme === StatusBadgeTheme.warning,
+      ['bg-warning-second/20']:
+        theme === StatusBadgeTheme.warning && !transparentBg,
       ['text-warning']: theme === StatusBadgeTheme.warning,
-      ['bg-error-second/20']: theme === StatusBadgeTheme.danger,
+      ['bg-error-second/20']:
+        theme === StatusBadgeTheme.danger && !transparentBg,
       ['text-error']: theme === StatusBadgeTheme.danger,
-      ['bg-secondary/20']: theme === StatusBadgeTheme.secondary,
+      ['bg-secondary/20']:
+        theme === StatusBadgeTheme.secondary && !transparentBg,
       ['text-secondary']: theme === StatusBadgeTheme.secondary,
     },
     [className],

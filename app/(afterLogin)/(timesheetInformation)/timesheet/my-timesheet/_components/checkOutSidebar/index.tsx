@@ -7,6 +7,7 @@ import CustomLabel from '@/components/form/customLabel/customLabel';
 import StatusBadge, {
   StatusBadgeTheme,
 } from '@/components/common/statusBadge/statusBadge';
+import { AiOutlineCamera } from 'react-icons/ai';
 
 type LabelRender = SelectProps['labelRender'];
 
@@ -130,7 +131,8 @@ const CheckOutSidebar = () => {
                     </div>
                     <StatusBadge
                       theme={option.status.theme}
-                      className="p-0 bg-transparent"
+                      transparentBg={true}
+                      className="p-0"
                     >
                       {option.status.text}
                     </StatusBadge>
@@ -138,6 +140,15 @@ const CheckOutSidebar = () => {
                 </Select.Option>
               ))}
             </Select>
+          </Form.Item>
+          <Form.Item name="photo">
+            <button className="w-full py-3.5 px-4 flex justify-center items-center flex-col rounded-[10px] border border-gray-300 hover:border-primary transition duration-150">
+              <AiOutlineCamera size={50} className="text-primary" />
+              <div className="text-sm font-bold text-gray-900 mt-1">Camera</div>
+              <div className="text-xs font-semibold text-gray-400">
+                Please allow your camera
+              </div>
+            </button>
           </Form.Item>
         </Form>
       </CustomDrawerLayout>
