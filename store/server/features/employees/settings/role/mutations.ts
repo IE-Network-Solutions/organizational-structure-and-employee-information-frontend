@@ -6,7 +6,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 
 /**
  * Function to create a new role by sending a POST request to the API.
- *
+ * 
  * @param values - The data for the new role.
  * @returns The response data from the API containing the created role.
  */
@@ -15,14 +15,15 @@ const createRole = async (values: any) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles`,
     method: 'POST',
-    headers: { tenantId: tenantId },
+    headers:{tenantId:tenantId},
     data: values,
   });
 };
 
+
 /**
  * Function to update an existing role by sending a PATCH request to the API.
- *
+ * 
  * @param params - An object containing:
  *   - `values`: The updated data for the role.
  *   - `roleId`: The ID of the role to be updated.
@@ -33,20 +34,20 @@ const updateRole = async ({ values, roleId }: any) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles/${roleId}`,
     method: 'patch',
-    headers: { tenantId: tenantId },
+    headers:{tenantId:tenantId},
     data: values,
   });
 };
 
 /**
  * Function to delete a role by sending a DELETE request to the API.
- *
+ * 
  * @param params - An object containing:
  *   - `deletedId`: The ID of the role to be deleted.
  *   - `setCurrentModal`: Function to close the current modal.
  *   - `setDeletedId`: Function to reset the deleted ID state.
  * @returns The response data from the API confirming the deletion.
- *
+ * 
  * @throws Error if the request fails.
  */
 
@@ -69,9 +70,9 @@ const deleteRole = async ({
 
 /**
  * Custom hook to create a new role using `useMutation` from `react-query`.
- *
+ * 
  * @returns The mutation object for adding a new role.
- *
+ * 
  * @description
  * This hook handles the mutation to add a new role. On successful mutation,
  * it invalidates the 'roles' query to refetch the latest roles data, and shows
@@ -90,11 +91,12 @@ export const useAddRole = () => {
   });
 };
 
+
 /**
  * Custom hook to update an existing role using `useMutation` from `react-query`.
- *
+ * 
  * @returns The mutation object for updating a role.
- *
+ * 
  * @description
  * This hook handles the mutation to update an existing role. On successful mutation,
  * it invalidates the 'roles' query to refetch the latest roles data, and shows
@@ -115,9 +117,9 @@ export const useUpdateRole = () => {
 
 /**
  * Custom hook to delete a role using `useMutation` from `react-query`.
- *
+ * 
  * @returns The mutation object for deleting a role.
- *
+ * 
  * @description
  * This hook handles the mutation to delete a role. On successful mutation,
  * it invalidates the 'roles' query to ensure the latest roles data is refetched,

@@ -38,11 +38,11 @@ interface StoreState {
     selectedPermissionGroup: GroupPermissionkey | null,
   ) => void;
 
-  selectedRoleOnList: any;
-  setSelectedRoleOnList: (selectedRoleOnList: any) => void;
+  selectedRoleOnList:any,
+  setSelectedRoleOnList:(selectedRoleOnList:any)=>void,
 
-  selectedRoleOnOption: any;
-  setSelectedRoleOnOption: (selectedRoleOnOption: any) => void;
+  selectedRoleOnOption:any,
+  setSelectedRoleOnOption:(selectedRoleOnOption:any)=>void,
 }
 
 export const useSettingStore = create<StoreState>()(
@@ -60,13 +60,11 @@ export const useSettingStore = create<StoreState>()(
     selectedRole: null,
     selectedRowKeys: null,
 
-    selectedRoleOnList: null,
-    setSelectedRoleOnList: (selectedRoleOnList: any) =>
-      set({ selectedRoleOnList }),
+    selectedRoleOnList:null,
+    setSelectedRoleOnList:(selectedRoleOnList:any)=>set({selectedRoleOnList}),
 
-    selectedRoleOnOption: null,
-    setSelectedRoleOnOption: (selectedRoleOnOption: any) =>
-      set({ selectedRoleOnOption }),
+  selectedRoleOnOption:null,
+  setSelectedRoleOnOption:(selectedRoleOnOption:any)=>set({selectedRoleOnOption}),
 
     setSelectedRowKeys: (selectedRowKeys) => set({ selectedRowKeys }),
     setTabButton: (tabButton) => set({ tabButton }),
