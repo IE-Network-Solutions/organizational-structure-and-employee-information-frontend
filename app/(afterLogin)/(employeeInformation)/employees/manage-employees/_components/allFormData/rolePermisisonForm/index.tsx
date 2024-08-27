@@ -1,6 +1,6 @@
 import { useGetPermissionsWithOutPagination } from '@/store/server/features/employees/settings/permission/queries';
 import { useGetRolesWithPermission } from '@/store/server/features/employees/settings/role/queries';
-import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import { Col, Form, Row, Select } from 'antd';
 import React, { useEffect, useCallback } from 'react';
@@ -22,7 +22,7 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
     selectedRoleOnOption,
   } = useSettingStore();
   const { selectedPermissions, setSelectedPermissions } =
-    useEmployeeManagmentStore();
+    useEmployeeManagementStore();
 
   const onRoleChangeHandler = useCallback(
     (value: string) => {
