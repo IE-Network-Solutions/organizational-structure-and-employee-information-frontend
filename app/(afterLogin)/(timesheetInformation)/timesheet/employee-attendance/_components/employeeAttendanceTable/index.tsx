@@ -4,7 +4,9 @@ import { UserOutlined } from '@ant-design/icons';
 import { TableRowSelection } from 'antd/es/table/interface';
 import { TableColumnsType } from '@/types/table/table';
 import TableFilter from '@/app/(afterLogin)/(timesheetInformation)/timesheet/employee-attendance/_components/employeeAttendanceTable/tableFilter';
-import StatusBadge from '@/components/common/statusBadge/statusBadge';
+import StatusBadge, {
+  StatusBadgeTheme,
+} from '@/components/common/statusBadge/statusBadge';
 
 interface DataTableEmployee {
   img: string;
@@ -63,7 +65,9 @@ const columns: TableColumnsType<TableData> = [
     title: 'Status',
     dataIndex: 'status',
     key: 'status',
-    render: (text: string) => <StatusBadge theme="success">{text}</StatusBadge>,
+    render: (text: string) => (
+      <StatusBadge theme={StatusBadgeTheme.success}>{text}</StatusBadge>
+    ),
   },
   {
     title: 'Over-time',
