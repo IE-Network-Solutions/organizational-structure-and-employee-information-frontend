@@ -1,9 +1,17 @@
 import { create, StateCreator } from 'zustand';
 
+export enum CheckStatus {
+  notStarted = 'notStarted',
+  started = 'started',
+  breaking = 'breaking',
+  finished = 'finished',
+}
+
 type MyTimesheetState = {
   isShowViewSidebar: boolean;
   isShowNewLeaveRequestSidebar: boolean;
   isShowCheckOutSidebar: boolean;
+  checkStatus: CheckStatus;
 };
 
 type MyTimesheetAction = {
@@ -12,6 +20,7 @@ type MyTimesheetAction = {
     isShowNewLeaveRequestSidebar: boolean,
   ) => void;
   setIsShowCheckOutSidebar: (isShowCheckOutSidebar: boolean) => void;
+  setCheckStatus: (checkStatus: CheckStatus) => void;
 };
 
 const useMyTimesheetSlice: StateCreator<
@@ -30,6 +39,11 @@ const useMyTimesheetSlice: StateCreator<
   isShowCheckOutSidebar: false,
   setIsShowCheckOutSidebar: (isShowCheckOutSidebar) => {
     set({ isShowCheckOutSidebar });
+  },
+
+  checkStatus: CheckStatus.notStarted,
+  setCheckStatus: (checkStatus: CheckStatus) => {
+    set({ checkStatus });
   },
 });
 

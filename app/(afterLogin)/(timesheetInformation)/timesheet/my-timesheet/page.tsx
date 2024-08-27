@@ -1,8 +1,7 @@
 'use client';
 import React from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { Button, Space } from 'antd';
-import { GoClock } from 'react-icons/go';
+import { Button } from 'antd';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { AiOutlineReload } from 'react-icons/ai';
 import { LuPlus } from 'react-icons/lu';
@@ -13,32 +12,16 @@ import ViewAttendanceSidebar from '@/app/(afterLogin)/(timesheetInformation)/tim
 import NewLeaveRequestSidebar from '@/app/(afterLogin)/(timesheetInformation)/timesheet/my-timesheet/_components/newLeaveRequestSidebar';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import CheckOutSidebar from '@/app/(afterLogin)/(timesheetInformation)/timesheet/my-timesheet/_components/checkOutSidebar';
+import CheckControl from '@/app/(afterLogin)/(timesheetInformation)/timesheet/my-timesheet/_components/checkControls/inedx';
 
-const Page = () => {
-  const { setIsShowNewLeaveRequestSidebar, setIsShowCheckOutSidebar } =
-    useMyTimesheetStore();
+const MyTimesheet = () => {
+  const { setIsShowNewLeaveRequestSidebar } = useMyTimesheetStore();
 
   return (
     <>
       <div className="h-auto w-auto pr-6 pb-6 pl-3">
         <PageHeader title="My Attendance" description="Manage your Attendance">
-          <Space>
-            <Button
-              className="h-14 text-base px-2"
-              size="large"
-              icon={<GoClock size={20} />}
-            >
-              Break Check Out
-            </Button>
-            <Button
-              className="h-14 text-base"
-              size="large"
-              icon={<GoClock size={20} />}
-              onClick={() => setIsShowCheckOutSidebar(true)}
-            >
-              Check out
-            </Button>
-          </Space>
+          <CheckControl />
         </PageHeader>
 
         <div className="mt-6">
@@ -93,4 +76,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default MyTimesheet;

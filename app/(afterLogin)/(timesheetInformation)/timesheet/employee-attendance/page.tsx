@@ -5,7 +5,7 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { Button, Space } from 'antd';
 import { TbFileDownload, TbFileUpload } from 'react-icons/tb';
 import EmployeeAttendanceTable from './_components/employeeAttendanceTable';
-const Page = () => {
+const EmployeeAttendance = () => {
   return (
     <div className="h-auto w-auto pr-6 pb-6 pl-3">
       <PageHeader
@@ -32,4 +32,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default EmployeeAttendance;
