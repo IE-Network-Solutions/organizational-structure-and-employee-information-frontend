@@ -4,7 +4,9 @@ import React from 'react';
 import UserCard from '@/components/common/userCard/userCard';
 import { Button, Col, Row } from 'antd';
 import InfoItem from '@/app/(afterLogin)/(timesheetInformation)/timesheet/my-timesheet/_components/viewAttendanceSidebar/infoItem';
-import StatusBadge from '@/components/common/statusBadge/statusBadge';
+import StatusBadge, {
+  StatusBadgeTheme,
+} from '@/components/common/statusBadge/statusBadge';
 
 const ViewAttendanceSidebar = () => {
   const { isShowViewSidebar, setIsShowViewSidebar } = useMyTimesheetStore();
@@ -102,7 +104,10 @@ const ViewAttendanceSidebar = () => {
 
         <div className="mt-12 mb-6">
           <div className="text-sm text-gray-900 font-medium mb-2.5">Status</div>
-          <StatusBadge className="w-[155px] h-[25px]" theme="success">
+          <StatusBadge
+            className="w-[155px] h-[25px]"
+            theme={StatusBadgeTheme.success}
+          >
             Present
           </StatusBadge>
         </div>
