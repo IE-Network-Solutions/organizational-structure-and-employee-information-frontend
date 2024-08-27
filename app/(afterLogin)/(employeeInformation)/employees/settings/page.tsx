@@ -1,8 +1,8 @@
-// 'use client';
+'use client';
 
 import { Card, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import SettingsPage from './_components/rolePermission';
 import { TbNotes } from 'react-icons/tb';
 import { IoMdSettings } from 'react-icons/io';
@@ -13,6 +13,30 @@ import Resignation from './_components/resignation';
 import EmploymentType from './_components/employementType';
 
 function Settings() {
+  const [tabPosition, setTabPosition] = useState<'left' | 'top'>('left');
+
+  // Update tab position based on screen width
+  useEffect(() => {
+    const updateTabPosition = () => {
+      if (window.innerWidth < 768) {
+        setTabPosition('top');
+      } else {
+        setTabPosition('left');
+      }
+    };
+
+    // Initial check
+    updateTabPosition();
+
+    // Add resize listener
+    window.addEventListener('resize', updateTabPosition);
+
+    // Clean up listener on component unmount
+    return () => {
+      window.removeEventListener('resize', updateTabPosition);
+    };
+  }, []);
+
   const items: TabsProps['items'] = [
     {
       key: '1',
@@ -65,6 +89,7 @@ function Settings() {
       children: <SettingsPage />,
     },
   ];
+
   return (
     <>
       <div className="flex justify-start bg-[#F5F5F5] -mt-2 -ml-2">
@@ -78,7 +103,7 @@ function Settings() {
         moreIcon={false}
         className="bg-white min-w-full"
         items={items}
-        tabPosition="left"
+        tabPosition={tabPosition}
       />
     </>
   );

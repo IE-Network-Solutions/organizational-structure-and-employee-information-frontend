@@ -9,6 +9,7 @@ import {
   Row,
   Col,
 } from 'antd';
+import { validateName } from '@/utils/validation';
 
 const { Option } = Select;
 
@@ -37,19 +38,30 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
       label: field.fieldName,
       name: [formTitle, field.fieldName],
       id: `${formTitle}${field.fieldName}`,
-      rules: [{ required: true, message: `${field.fieldName} is required` }],
+      rules: [
+        field.fieldType === 'input'
+          ? {
+              validator: (rule: any, value: any) =>
+                validateName(field.fieldName, value)
+                  ? Promise.reject(
+                      new Error(validateName(field.fieldName, value) || ''),
+                    )
+                  : Promise.resolve(),
+            }
+          : { required: true, message: `${field.fieldName} is required` },
+      ],
     };
 
     switch (field.fieldType) {
       case 'input':
         return (
-          <Form.Item {...commonProps}>
+          <Form.Item key={field.fieldName} {...commonProps}>
             <Input />
           </Form.Item>
         );
       case 'select':
         return (
-          <Form.Item {...commonProps}>
+          <Form.Item key={field.fieldName} {...commonProps}>
             <Select>
               {field.options?.map((option) => (
                 <Option key={option} value={option}>
@@ -61,13 +73,13 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
         );
       case 'datePicker':
         return (
-          <Form.Item {...commonProps} className="w-full">
+          <Form.Item key={field.fieldName} {...commonProps} className="w-full">
             <DatePicker />
           </Form.Item>
         );
       case 'checkbox':
         return (
-          <Form.Item {...commonProps}>
+          <Form.Item key={field.fieldName} {...commonProps}>
             <Checkbox.Group>
               {field.options?.map((option) => (
                 <Checkbox key={option} value={option}>
@@ -79,7 +91,11 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
         );
       case 'toggle':
         return (
-          <Form.Item {...commonProps} valuePropName="checked">
+          <Form.Item
+            key={field.fieldName}
+            {...commonProps}
+            valuePropName="checked"
+          >
             <Switch />
           </Form.Item>
         );

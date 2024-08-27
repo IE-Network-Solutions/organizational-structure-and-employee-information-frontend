@@ -1,9 +1,11 @@
-"use client";
+'use client';
 
-import { QueryCache, QueryClient, QueryClientProvider } from "react-query";
-import { ReactNode } from "react";
-import NotificationMessage from "@/components/common/notification/notificationMessage";
-import { useRouter } from "next/navigation";
+import { QueryCache, QueryClient, QueryClientProvider } from 'react-query';
+import { ReactNode, Suspense } from 'react';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useRouter } from 'next/navigation';
+import { handleNetworkError } from '@/utils/showErrorResponse';
+import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 /**
  * Interface for the props of the ReactQueryWrapper component
@@ -24,6 +26,23 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   const router = useRouter();
 
   const queryClient = new QueryClient({
+    defaultOptions: {
+      mutations: {
+        onError(error: any) {
+          if (error?.response?.status === 401) {
+            router.replace('/authentication/login');
+          }
+          handleNetworkError(error);
+        },
+        onSuccess: (data: any, variables: any, context: any) => {
+          const method =
+            context?.method?.toUpperCase() || variables?.method?.toUpperCase();
+          const customMessage = context?.customMessage || undefined;
+
+          handleSuccessMessage(method, customMessage);
+        },
+      },
+    },
     queryCache: new QueryCache({
       onError(error: any, query) {
         if (error.response) {
@@ -40,11 +59,14 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
             description: error.message,
           });
         }
+        handleNetworkError(error);
       },
     }),
   });
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <Suspense fallback={<>Loading...</>}>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </Suspense>
   );
 };
 

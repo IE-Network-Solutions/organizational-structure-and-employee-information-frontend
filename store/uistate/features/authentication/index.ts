@@ -1,30 +1,44 @@
 import create from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
-// Define your store's state interface
 interface StoreState {
   token: string;
   setToken: (token: string) => void;
   tenantId: string;
   setTenantId: (tenantId: string) => void;
+  localId: string;
+  setLocalId: (tenantId: string) => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+  error: string | null;
+  setError: (error: string | null) => void;
 }
 
-// Define the StateCreator type with the middlewares you are using
-
-// Create the store using the middleware-enhanced state creator
-export const useAuthenticationStore = create<StoreState>(
+export const useAuthenticationStore = create<StoreState>()(
   devtools(
     persist(
       (set) => ({
-        token: 'ahmedinoumer0987643234567890',
+        token:'',
         setToken: (token: string) => set({ token }),
-        tenantId: '9fdb9540-607e-4cc5-aebf-0879400d1f69',
+        tenantId:'',
         setTenantId: (tenantId: string) => set({ tenantId }),
+        localId: '',
+        setLocalId: (localId: string) => set({ localId }),
+        loading: false, // Non-persistent state
+        setLoading: (loading: boolean) => set({ loading }), // Non-persistent method
+        error: null, // Non-persistent state
+        setError: (error: string | null) => set({ error }), // Non-persistent method
       }),
       {
         name: 'authentication-storage', // Unique name for the storage
         getStorage: () => localStorage, // Use localStorage for persistence
+        partialize: (state) => ({
+          token: state.token,
+          tenantId: state.tenantId,
+          localId: state.localId,
+          // 'loading' and 'error' are not included here, so they won't be persisted
+        }),
       },
     ),
-  ) as any, // Cast to the middleware-enhanced state creator type
+  ),
 );

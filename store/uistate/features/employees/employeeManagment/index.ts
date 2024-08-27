@@ -1,6 +1,5 @@
 // useStore.ts
 import { MetaData } from '@/types/dashboard/tenant/clientAdministration';
-import { UploadFile } from 'antd';
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
 export interface CustomFieldsProps {
@@ -46,9 +45,24 @@ export interface WorkSchedule {
   standardHours: number;
   tenantId: string;
 }
+export type EditState = {
+  addresses: boolean;
+  workSchedule: boolean;
+  general: boolean;
+  emergencyContact: boolean;
+  bankInformation: boolean;
+  rolePermission:boolean;
+};
 export interface WorkScheduleData {
   items: WorkSchedule[];
   meta: MetaData;
+}
+
+interface SearchParams {
+  employee_name: string;
+  allOffices: string;
+  allJobs: string;
+  allStatus: string | null;
 }
 interface UserState {
   open: boolean;
@@ -57,6 +71,8 @@ interface UserState {
   setUserCurrentPage: (userCurrentPage: number) => void;
   pageSize: number;
   setPageSize: (pageSize: number) => void;
+  totalCount: number;
+  setTotalCount: (pageSize: number) => void;
   modalType: string | null;
   setModalType: (modalType: string | null) => void;
   searchTerm: string | null;
@@ -72,7 +88,7 @@ interface UserState {
   prefix: string;
   setPrefix: (prefix: string) => void;
   current: number;
-  setCurrent: (curren: number) => void;
+  setCurrent: (current: number) => void;
   // customFormData: FormData | null;
   customFormData: any;
   setCustomFormData: (customFormData: FormData) => void;
@@ -83,8 +99,8 @@ interface UserState {
   selectedWorkSchedule: WorkSchedule | null;
   setSelectedWorkSchedule: (selectedWorkSchedule: WorkSchedule | null) => void;
 
-  profileFileList: UploadFile[];
-  setProfileFileList: (profileFileList: UploadFile[]) => void;
+  profileFileList: any;
+  setProfileFileList: (profileFileList: any) => void;
 
   bankInfoForm: any;
   setBankInfoForm: (bankInfoForm: any) => void;
@@ -102,14 +118,37 @@ interface UserState {
   setSelectedPermissions: (selectedPermissions: string[] | []) => void;
 
   documentFileList: any[];
-  setDocumentFileList: (documentFileList: any) => void;
+  setDocumentFileList: (fileList: any[]) => void;
+  removeDocument: (uid: string) => void;
+
+  edit: EditState;
+  setEdit: (key: keyof EditState) => void;
+  selectionType: 'checkbox' | 'radio';
+  setSelectionType: (selectionType: 'checkbox' | 'radio') => void;
+  searchParams: SearchParams;
+  setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
 }
 
-export const useEmployeeManagmentStore = create<UserState>()(
+export const useEmployeeManagementStore = create<UserState>()(
   devtools((set) => ({
     open: false,
     deleteModal: false,
     current: 0,
+    edit: {
+      addresses: false,
+      workSchedule: false,
+      general: false,
+      emergencyContact: false,
+      bankInformation: false,
+      rolePermission:false,
+    },
+    setEdit: (key: keyof EditState) =>
+      set((state) => ({
+        edit: {
+          ...state.edit,
+          [key]: !state.edit[key],
+        },
+      })),
 
     customFormData: null,
     setCustomFormData: (customFormData: FormData) => set({ customFormData }),
@@ -130,6 +169,8 @@ export const useEmployeeManagmentStore = create<UserState>()(
     setDeleteModal: (deleteModal: boolean) => set({ deleteModal }),
     setUserCurrentPage: (userCurrentPage: number) => set({ userCurrentPage }),
     pageSize: 10,
+    totalCount: 0,
+    setTotalCount: (totalCount: number) => set({ totalCount }),
     selectedItem: { key: null, id: null },
     setSelectedItem: (selectedItem: any) => set({ selectedItem }),
     setPageSize: (pageSize: number) => set({ pageSize }),
@@ -142,8 +183,7 @@ export const useEmployeeManagmentStore = create<UserState>()(
     setCurrent: (current: number) => set({ current }),
 
     profileFileList: [],
-    setProfileFileList: (profileFileList: UploadFile[]) =>
-      set({ profileFileList }),
+    setProfileFileList: (profileFileList: any) => set({ profileFileList }),
 
     bankInfoForm: {},
     setBankInfoForm: (bankInfoForm: any) => ({ bankInfoForm }),
@@ -164,6 +204,24 @@ export const useEmployeeManagmentStore = create<UserState>()(
       set({ selectedPermissions }),
 
     documentFileList: [],
-    setDocumentFileList: (documentFileList: any[]) => set({ documentFileList }),
+    setDocumentFileList: (fileList) => set({ documentFileList: fileList }),
+    removeDocument: (uid) =>
+      set((state) => ({
+        documentFileList: state.documentFileList.filter(
+          (file) => file.uid !== uid,
+        ),
+      })),
+    selectionType: 'checkbox',
+    setSelectionType: (selectionType) => set({ selectionType }),
+    searchParams: {
+      employee_name: '',
+      allOffices: '',
+      allJobs: '',
+      allStatus: '',
+    },
+    setSearchParams: (key, value) =>
+      set((state) => ({
+        searchParams: { ...state.searchParams, [key]: value },
+      })),
   })),
 );

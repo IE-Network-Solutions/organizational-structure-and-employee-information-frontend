@@ -1,5 +1,5 @@
 import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
-import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Col, Form, Row, Select, Switch, Table, TimePicker } from 'antd';
 import { TableProps } from 'antd/lib';
 import dayjs from 'dayjs';
@@ -20,7 +20,7 @@ const WorkScheduleForm: React.FC = () => {
     setSelectedWorkSchedule,
     workSchedule,
     setWorkSchedule,
-  } = useEmployeeManagmentStore();
+  } = useEmployeeManagementStore();
 
   const workscheduleChangeHandler = (value: string) => {
     const selectedValue = workSchedules?.items.find(
@@ -45,7 +45,7 @@ const WorkScheduleForm: React.FC = () => {
 
   const data: DataType[] = (selectedWorkSchedule?.detail || []).map(
     (schedule, index) => ({
-      key: index.toString(), // Use index or another unique identifier
+      key: index.toString(),
       workingDay: (
         <div className="flex space-x-2 justify-start">
           <Switch checked={schedule?.status} disabled />

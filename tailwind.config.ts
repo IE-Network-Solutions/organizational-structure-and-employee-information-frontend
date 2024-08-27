@@ -10,6 +10,15 @@ const config: Config = {
 
   theme: {
     extend: {
+      screens: {
+        custom: '741px',
+        'mobile-sm': '320px',
+        'mobile-md': '480px',
+        'mobile-lg': '640px',
+        'tablet-sm': '768px',
+        'tablet-md': '900px',
+        'tablet-lg': '1024px',
+      },
       colors: {
         primary: '#3636F0',
         secondary: '#1D9BF0',
@@ -25,6 +34,9 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Manrope', 'sans-serif'],
+      },
+      height: {
+        'half-vw': 'calc(50vw)',
       },
       gridTemplateColumns: {
         'leave-balance-slider': '40px minmax(0, 1fr) 40px',

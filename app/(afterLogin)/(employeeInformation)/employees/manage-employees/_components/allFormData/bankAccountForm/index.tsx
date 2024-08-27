@@ -3,9 +3,10 @@ import React from 'react';
 import DynamicFormFields from '../../dynamicFormDisplayer';
 import AddCustomField from '../../addCustomField';
 import UseSetCategorizedFormData from '../../customField';
+import { validateName } from '@/utils/validation';
 
 const BankInformationForm = () => {
-  const currentBankForm = UseSetCategorizedFormData('Bank information');
+  const currentBankForm = UseSetCategorizedFormData('bankInformation');
 
   return (
     <div>
@@ -19,7 +20,16 @@ const BankInformationForm = () => {
             name={['bankInformation', 'bankName']}
             id="bankInformationBankName"
             label="Bank Name"
-            rules={[{ required: true }]}
+            rules={[
+              {
+                validator: (rule, value) =>
+                  !validateName('Bank Name', value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(validateName('Bank Name', value) || ''),
+                      ),
+              },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -30,7 +40,16 @@ const BankInformationForm = () => {
             name={['bankInformation', 'branch']}
             id="bankInformationBranch"
             label="Branch"
-            rules={[{ required: true }]}
+            rules={[
+              {
+                validator: (rule, value) =>
+                  !validateName('Branch', value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(validateName('Branch', value) || ''),
+                      ),
+              },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -43,7 +62,16 @@ const BankInformationForm = () => {
             name={['bankInformation', 'accountName']}
             label="Account Name"
             id="bankInformationAccountName"
-            rules={[{ required: true }]}
+            rules={[
+              {
+                validator: (rule, value) =>
+                  !validateName('Account Name', value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(validateName('Account Name', value) || ''),
+                      ),
+              },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -65,7 +93,7 @@ const BankInformationForm = () => {
         fields={currentBankForm.form}
       />
       <AddCustomField
-        formTitle="Bank information"
+        formTitle="bankInformation"
         customEmployeeInformationForm={currentBankForm}
         className="mt-4"
       />
