@@ -35,7 +35,7 @@ const ViewAttendanceSidebar = () => {
         open={isShowViewSidebar}
         onClose={() => setIsShowViewSidebar(false)}
         modalHeader={modalHeader}
-        modalFooter={modalFooter}
+        footer={modalFooter}
         width="50%"
       >
         <div className="mb-6">

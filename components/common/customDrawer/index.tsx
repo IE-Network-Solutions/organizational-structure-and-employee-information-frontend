@@ -6,7 +6,6 @@ interface CustomDrawerLayoutProps {
   open: boolean;
   onClose: () => void;
   modalHeader: any;
-  modalFooter?: any;
   children: React.ReactNode;
   width?: string;
   footer?: React.ReactNode;
@@ -16,7 +15,6 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   open,
   onClose,
   modalHeader,
-  modalFooter,
   children,
   width,
   footer,
@@ -41,7 +39,6 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
       />
       <Drawer
         title={modalHeader}
-        footer={modalFooter}
         width={window.innerWidth <= 768 ? '90%' : width ? width : '30%'}
         closable={false}
         onClose={onClose}

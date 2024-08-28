@@ -100,7 +100,7 @@ const CheckOutSidebar = () => {
         open={isShowCheckOutSidebar}
         onClose={() => setIsShowCheckOutSidebar(false)}
         modalHeader={modalHeader}
-        modalFooter={modalFooter}
+        footer={modalFooter}
         width="400px"
       >
         <Form layout="vertical" requiredMark={CustomLabel} autoComplete="off">

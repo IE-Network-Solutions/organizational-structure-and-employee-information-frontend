@@ -5,6 +5,7 @@ import { TableColumnsType } from '@/types/table/table';
 import { UserOutlined } from '@ant-design/icons';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { TbFileDownload } from 'react-icons/tb';
+import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
 
 interface DataTableEmployee {
   img: string;
@@ -132,6 +133,7 @@ const TABLE_DATA = [
 ];
 
 const LeaveManagementTable = () => {
+  const { setIsShowLeaveRequestManagementSidebar } = useLeaveManagementStore();
   return (
     <div className="mt-6">
       <LeaveManagementTableFilter />
@@ -142,6 +144,11 @@ const LeaveManagementTable = () => {
         dataSource={TABLE_DATA}
         rowSelection={{ checkStrictly: false }}
         pagination={{ position: ['none', 'bottomLeft'] }}
+        onRow={() => {
+          return {
+            onClick: () => setIsShowLeaveRequestManagementSidebar(true),
+          };
+        }}
       />
     </div>
   );

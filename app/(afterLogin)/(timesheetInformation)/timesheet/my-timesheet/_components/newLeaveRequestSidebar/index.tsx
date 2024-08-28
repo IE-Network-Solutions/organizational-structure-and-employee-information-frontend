@@ -84,7 +84,7 @@ const NewLeaveRequestSidebar = () => {
         open={isShowNewLeaveRequestSidebar}
         onClose={() => setIsShowNewLeaveRequestSidebar(false)}
         modalHeader={modalHeader}
-        modalFooter={modalFooter}
+        footer={modalFooter}
         width="400px"
       >
         <Form
