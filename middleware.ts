@@ -1,24 +1,23 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getCookie } from './helpers/storageHelper';
+import { useAuthenticationStore } from './store/uistate/features/authentication';
 
 export function middleware(req: NextRequest) {
-  const token = getCookie('token', req);
-  const url = req.nextUrl;
 
-  const excludePaths = ['/home', '/authentication/login', '/signup', '/about'];
-
-  const isExcludedPath = excludePaths.some((path) =>
-    url.pathname.startsWith(path),
-  );
-
-  if (!isExcludedPath && !token) {
-    return NextResponse.redirect(new URL('/authentication/login', req.url));
+  try {
+    const { token } = useAuthenticationStore.getState(); // Access the Zustand store state directly
+    const url = req.nextUrl;
+    const excludePath = '/authentication/login';
+    const isExcludedPath = url.pathname.startsWith(excludePath);
+    if (!isExcludedPath && token === '') {
+      return NextResponse.redirect(new URL('/authentication/login', req.url));
+    }
+    return NextResponse.next();
+  } catch (error) {
+    return NextResponse.next(); // Proceed to next response in case of error
   }
-
-  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

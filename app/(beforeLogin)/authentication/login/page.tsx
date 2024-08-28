@@ -33,12 +33,17 @@ const Login: React.FC = () => {
     setTenantId,
   } = useAuthenticationStore();
 
-  // Call the React Query hook
   const { data: fetchedTenantId, refetch } = useGetTenantId(localId);
+
+  useEffect(() => {
+    if (localId === '') {
+      refetch(); // Manually trigger the query
+    }
+  }, [localId]);
 
   // Update tenantId in store when fetched
   useEffect(() => {
-    if (fetchedTenantId) {
+    if (fetchedTenantId?.tenantId) {
       setTenantId(fetchedTenantId?.tenantId);
       message.loading({ content: 'Redirecting...', key: 'redirect' });
       redirect(`/employees/manage-employees`);
@@ -46,11 +51,6 @@ const Login: React.FC = () => {
   }, [fetchedTenantId, setTenantId]);
 
   // Trigger refetch when localId is set
-  useEffect(() => {
-    if (localId) {
-      refetch();
-    }
-  }, [localId, refetch]);
 
   // Handle Google sign-in
   const handleGoogleSignIn = async () => {
@@ -64,13 +64,13 @@ const Login: React.FC = () => {
       const idToken = await user.getIdToken();
       setToken(idToken);
       setLocalId(uId);
-
       message.success('Successfully logged in!');
     } catch (err: any) {
       setError(err.message);
       message.error('Failed to log in. Please try again.');
     }
   };
+
   const handleEmailPasswordSignIn: FormProps<FieldType>['onFinish'] = async (
     values,
   ) => {

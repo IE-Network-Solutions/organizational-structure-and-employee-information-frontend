@@ -7,7 +7,7 @@ interface StoreState {
   tenantId: string;
   setTenantId: (tenantId: string) => void;
   localId: string;
-  setLocalId: (tenantId: string) => void;
+  setLocalId: (localId: string) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
   error: string | null;
