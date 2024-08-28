@@ -1,5 +1,8 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
+import {
+  CheckStatus,
+  useMyTimesheetStore,
+} from '@/store/uistate/features/timesheet/myTimesheet';
 import { Button, Col, Form, Row, Select } from 'antd';
 import type { SelectProps } from 'antd';
 import React, { useState } from 'react';
@@ -21,7 +24,7 @@ interface CustomSelectOption {
 }
 
 const CheckOutSidebar = () => {
-  const { isShowCheckOutSidebar, setIsShowCheckOutSidebar } =
+  const { isShowCheckOutSidebar, setIsShowCheckOutSidebar, setCheckStatus } =
     useMyTimesheetStore();
 
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -73,7 +76,10 @@ const CheckOutSidebar = () => {
           className="w-full h-[56px] text-base"
           size="large"
           type="primary"
-          onClick={() => setIsShowCheckOutSidebar(false)}
+          onClick={() => {
+            setIsShowCheckOutSidebar(false);
+            setCheckStatus(CheckStatus.breaking);
+          }}
         >
           Check-out
         </Button>

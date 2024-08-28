@@ -30,7 +30,7 @@ const CheckControl = () => {
             className="h-14 text-base px-2"
             size="large"
             icon={<GoClock size={20} />}
-            onClick={() => setCheckStatus(CheckStatus.breaking)}
+            onClick={() => setIsShowCheckOutSidebar(true)}
           >
             Break Check Out
           </Button>
@@ -38,7 +38,7 @@ const CheckControl = () => {
             className="h-14 text-base"
             size="large"
             icon={<GoClock size={20} />}
-            onClick={() => setIsShowCheckOutSidebar(true)}
+            onClick={() => setCheckStatus(CheckStatus.notStarted)}
           >
             Check out
           </Button>
