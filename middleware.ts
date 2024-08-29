@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { useAuthenticationStore } from './store/uistate/features/authentication';
 import { getCookie } from './helpers/storageHelper';
 
 export function middleware(req: NextRequest) {

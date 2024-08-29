@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import {
   auth,
@@ -13,7 +13,7 @@ import { Microsoft } from '@/components/Icons/microsoft';
 import { Google } from '@/components/Icons/google';
 import { useGetTenantId } from '@/store/server/features/employees/authentication/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { redirect, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 type FieldType = {
   email: string;
@@ -27,7 +27,6 @@ const Login: React.FC = () => {
     setError,
     loading,
     setLoading,
-    token,
     setToken,
     setLocalId,
     setTenantId,
