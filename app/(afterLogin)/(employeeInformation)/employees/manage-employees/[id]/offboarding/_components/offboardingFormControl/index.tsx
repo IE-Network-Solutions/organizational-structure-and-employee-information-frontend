@@ -6,19 +6,22 @@ import {
   useUpdateOffboardingItem,
 } from '@/store/server/features/employees/offboarding/mutation';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
-import { Form, DatePicker, Select, Button, Modal, Input, Divider } from 'antd';
+import { Form, DatePicker, Select, Button, Modal, Input, Divider, Row } from 'antd';
 import React from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
+import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import { Dayjs } from 'dayjs';
+import moment from 'moment';
 
 const { Option } = Select;
 
-const OffboardingFormControl: React.FC<any> = () => {
+const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) => {
   const [form] = Form.useForm();
   const { mutate: updateOffboardingItem } = useUpdateOffboardingItem();
   const { mutate: createOffboardingItem } = useAddOffboardingItem();
   const { mutate: createTerminationItem } = useAddTerminationItem();
-
+  const { data: employeeData } = useGetEmployee(userId);
   const {
     setIsModalVisible,
     newOption,
@@ -43,14 +46,14 @@ const OffboardingFormControl: React.FC<any> = () => {
     }
   };
 
-  const handleAddEmploymentStatus = () => {
-    if (newOption) {
-      addCustomOption(newOption);
-      createOffboardingItem({ name: newOption });
-      setNewOption('');
-      setIsModalVisible(false);
-    }
-  };
+  // const handleAddEmploymentStatus = () => {
+  //   if (newOption) {
+  //     addCustomOption(newOption);
+  //     createOffboardingItem({ name: newOption });
+  //     setNewOption('');
+  //     setIsModalVisible(false);
+  //   }
+  // };
   const handleAddTerminationReason = () => {
     if (newTerminationOption) {
       addCustomTerminationOption(newTerminationOption);
@@ -61,14 +64,18 @@ const OffboardingFormControl: React.FC<any> = () => {
   };
 
   const onFinish = (values: any) => {
-    updateOffboardingItem(values);
+    values['effectiveDate'] = moment(values.effectiveDate).format("YYYY-MM-DD")
+    values['userId'] = userId
+    values['jobInformationId'] = employeeData.employeeJobInformation[0].id
+
+    createOffboardingItem(values);
   };
   return (
     <Modal
       title="Add Employment Status"
-      okText="Submit"
+
       open={isEmploymentFormVisible}
-      onOk={handleAddTerminationReason}
+      footer={false}
       onCancel={() => setIsEmploymentFormVisible(false)}
     >
       <Form form={form} onFinish={onFinish} layout="vertical">
@@ -77,16 +84,17 @@ const OffboardingFormControl: React.FC<any> = () => {
           label="Effective Date"
           rules={[{ required: true }]}
         >
-          <DatePicker className="w-[250px]" />
+          <DatePicker className="w-full" />
         </Form.Item>
-        <Form.Item name="terminationType" label="Termination Type">
-          <Select id="selectTerminationType" allowClear className="w-[250px]">
-            <Option value="voluntary">Voluntary</Option>
-            <Option value="involuntary">Involuntary</Option>
+        <Form.Item name="type" label="Termination Type" rules={[{ required: true, message: "Termination Type is Required " }]}>
+          <Select id="selectTerminationType" allowClear className="w-full">
+            <Option value="Resignation">Resignation</Option>
+            <Option value="Termination">Termination</Option>
+            <Option value="Death">Death</Option>
           </Select>
         </Form.Item>
-        <Form.Item name="terminationReason" label="Termination Reason">
-          <Select
+        <Form.Item name="reason" label="Termination Reason" rules={[{ required: true, message: "Termination Reason is Required " }]}>
+          {/* <Select
             id="selectTerminationReason"
             allowClear
             className="w-[250px]"
@@ -105,10 +113,21 @@ const OffboardingFormControl: React.FC<any> = () => {
             >
               <PlusOutlined size={20} /> Add Item
             </Option>
-          </Select>
+          </Select> */}
+
+
+          <Input
+            id="selectTerminationReason"
+            allowClear
+            className="w-full"
+
+          />
+
+
+
         </Form.Item>
-        <Form.Item name="eligibleForRehire" label="Eligible for Rehire">
-          <Select id="selectEligibleForHire" allowClear className="w-[250px]">
+        <Form.Item name="eligibleForRehire" label="Eligible for Rehire" rules={[{ required: true, message: "Eligible for Rehire is Required " }]}>
+          <Select id="selectEligibleForHire" allowClear className="w-full">
             <Option value="yes">Yes</Option>
             <Option value="no">No</Option>
           </Select>
@@ -116,29 +135,19 @@ const OffboardingFormControl: React.FC<any> = () => {
         <Form.Item name="comment" label="Comment">
           <TextArea rows={4} />
         </Form.Item>
-        <Divider dashed />
-        <Form.Item
-          name="commentForApprover"
-          label="Comment for the Approver(s)"
-        >
-          <TextArea rows={4} />
+        <Form.Item name="comment" label="Comment">
+          <Row className='flex justify-end gap-3'>
+            <Button className='text-indigo-500' htmlType='submit' value={"submit"} name='submit' >Submit</Button >
+            <Button className='text-indigo-500' htmlType='button' value={"cancel"} name='cancel' >Cancel </Button >
+          </Row>
         </Form.Item>
-        <div className="flex justify-end space-x-4">
-          <Button type="default">Cancel</Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            Submit
-          </Button>
-        </div>
       </Form>
       <Modal
         title="Add New Employment Status"
         okText="Add"
         open={isModalVisible}
-        onOk={handleAddEmploymentStatus}
+
+        footer={false}
         onCancel={() => setIsModalVisible(false)}
       >
         <Input
@@ -161,6 +170,7 @@ const OffboardingFormControl: React.FC<any> = () => {
         />
       </Modal>
     </Modal>
+
   );
 };
 

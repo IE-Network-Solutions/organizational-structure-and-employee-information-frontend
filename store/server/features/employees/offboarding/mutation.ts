@@ -3,14 +3,14 @@ import { crudRequest } from '@/utils/crudRequest';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { EmploymentStatusUpdate } from './interface';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
-const addOffboardingItem = async (values: any) => {
+const addOffboardingItem = async (values: EmploymentStatusUpdate) => {
   return crudRequest({
-    url: 'https://jsonplaceholder.typicode.com/posts',
-    // url: `${ORG_AND_EMP_URL}/items`,
+    url: `${ORG_AND_EMP_URL}/employee-termination`,
     method: 'POST',
     data: values,
     headers: {
@@ -19,7 +19,7 @@ const addOffboardingItem = async (values: any) => {
     },
   });
 };
-const addTerminationItem = async (values: any) => {
+const addTerminationTask = async (values: any) => {
   return crudRequest({
     url: 'https://jsonplaceholder.typicode.com/posts',
     // url: `${ORG_AND_EMP_URL}/items`,

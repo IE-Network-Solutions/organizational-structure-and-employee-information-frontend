@@ -3,6 +3,8 @@ import { Modal, Input, Select, Button, Form } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import { useAddOffboardingItem } from '@/store/server/features/employees/offboarding/mutation';
+import { useEmployeeAllFilter, useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -11,6 +13,22 @@ export const AddTaskModal: React.FC = () => {
   const [form] = Form.useForm();
 
   const { mutate: createTaskList } = useAddOffboardingItem();
+
+  const {
+    searchParams,
+    userCurrentPage,
+    pageSize,
+
+  } = useEmployeeManagementStore();
+  const { data: allFilterData, isLoading: isEmployeeLoading } =
+    useEmployeeAllFilter(
+      pageSize,
+      userCurrentPage,
+      searchParams.allOffices ? searchParams.allOffices : '',
+      searchParams.allJobs ? searchParams.allJobs : '',
+      searchParams.employee_name,
+      searchParams.allStatus ? searchParams.allStatus : '',
+    );
   const {
     isAddTaskModalVisible,
     setTaskForm,
@@ -68,7 +86,7 @@ export const AddTaskModal: React.FC = () => {
     setIsAddTaskModalVisible(false);
     resetTaskForm();
   };
-
+  //  / console.log(employeeData, "l")
   return (
     <>
       <Modal
@@ -87,23 +105,27 @@ export const AddTaskModal: React.FC = () => {
       >
         <Form form={form} layout="vertical">
           <Form.Item
-            name="taskName"
+            name="title"
             rules={[{ required: true, message: 'Please enter a task name' }]}
           >
             <Input placeholder="Task Name" allowClear />
           </Form.Item>
           <div className="flex space-x-2">
             <Form.Item
-              name="approver"
-              className="w-1/2"
+              name="approverId"
+              id='approver'
+              className="w-full"
               rules={[{ required: true, message: 'Please select approver' }]}
             >
               <Select placeholder="Approver" allowClear>
-                <Option value="IT">Gelila</Option>
-                <Option value="HR">Selam</Option>
+                {allFilterData?.items?.map((approver) => (
+                  <Option key={approver.id} value={approver.id}>
+                    {approver.name}
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
-            <Form.Item
+            {/* <Form.Item
               name="category"
               className="w-1/2"
               rules={[{ required: true, message: 'Please select a category' }]}
@@ -125,9 +147,11 @@ export const AddTaskModal: React.FC = () => {
                   <PlusOutlined size={20} /> Add Item
                 </Option>
               </Select>
-            </Form.Item>
+            </Form.Item> */}
           </div>
-          <Form.Item name="description">
+          <Form.Item name="description"
+            id='description'
+          >
             <TextArea
               rows={4}
               allowClear

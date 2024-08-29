@@ -9,7 +9,10 @@ export interface EmployeeData {
 export interface EmploymentStatusUpdate {
   effectiveDate: string;
   status: string;
-  terminationType?: string;
-  terminationReason?: string;
-  eligibleForRehire?: string;
+  type: string;
+  reason: string;
+  eligibleForRehire: string;
+  comment?: string
+  userId: string
+
 }

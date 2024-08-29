@@ -9,6 +9,8 @@ import Documents from './_components/documents';
 import RolePermission from './_components/rolePermission';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import { AddTaskModal } from './offboarding/_components/addTaskModal';
+import OffboardingFormControl from './offboarding/_components/offboardingFormControl';
+import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 
 interface Params {
   id: string;
@@ -18,7 +20,8 @@ interface EmployeeDetailsProps {
 }
 
 function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
-  const { setIsAddTaskModalVisible } = useOffboardingStore();
+  const { setIsEmploymentFormVisible } = useOffboardingStore();
+
   const items = [
     {
       key: '1',
@@ -42,7 +45,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
     },
   ];
   const handleEndEmploymentClick = () => {
-    setIsAddTaskModalVisible(true);
+    setIsEmploymentFormVisible(true);
   };
   return (
     <div className="bg-[#F5F5F5] px-2 h-auto min-h-screen">
@@ -68,7 +71,8 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
           </Card>
         </Col>
       </Row>
-      <AddTaskModal />
+      <OffboardingFormControl userId={id} />
+
     </div>
   );
 }

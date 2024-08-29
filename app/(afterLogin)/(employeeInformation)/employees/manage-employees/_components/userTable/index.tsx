@@ -105,17 +105,17 @@ const UserTable = () => {
                 src={
                   item?.profileImage && typeof item?.profileImage === 'string'
                     ? (() => {
-                        try {
-                          const parsed = JSON.parse(item.profileImage);
-                          return parsed.url && parsed.url.startsWith('http')
-                            ? parsed.url
-                            : Avatar;
-                        } catch {
-                          return item.profileImage.startsWith('http')
-                            ? item.profileImage
-                            : Avatar;
-                        }
-                      })()
+                      try {
+                        const parsed = JSON.parse(item.profileImage);
+                        return parsed.url && parsed.url.startsWith('http')
+                          ? parsed.url
+                          : Avatar;
+                      } catch {
+                        return item.profileImage.startsWith('http')
+                          ? item.profileImage
+                          : Avatar;
+                      }
+                    })()
                     : Avatar
                 }
                 alt="Description of image"
@@ -185,7 +185,7 @@ const UserTable = () => {
     }
   };
   const rowSelection = {
-    onChange: () => {},
+    onChange: () => { },
     getCheckboxProps: (record: EmployeeData) => ({
       disabled: record.employee_name === 'Disabled User',
       name: record.employee_name,
