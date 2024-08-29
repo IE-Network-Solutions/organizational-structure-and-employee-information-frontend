@@ -1,7 +1,7 @@
 'use client';
 import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { useCategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
+import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import { Col, DatePicker, Form, Input, Row, Select, Switch } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import React from 'react';
@@ -9,7 +9,7 @@ import { CalendarOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 const SubcategoryDrawer: React.FC<any> = (props) => {
-  const { open, setOpen } = useCategoriesManagementStore();
+  const { open, setOpen } = CategoriesManagementStore();
 
   const drawerHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
