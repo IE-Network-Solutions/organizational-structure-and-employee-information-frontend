@@ -8,14 +8,15 @@ import { useQuery } from 'react-query';
  * @param id The ID of the localId which fetch from firebase to fetch
  * @returns The response data from the API
  */
-const getTenantId = async (id: string) => {
+const getTenantId = async () => {
   const token = useAuthenticationStore.getState().token; // Access the latest token
+  const localId = useAuthenticationStore.getState().localId;
   try {
     const headers = {
       Authorization: `Bearer ${token}`,
     };
     const response = await axios.get(
-      `${ORG_AND_EMP_URL}/users/firebase/${id}`,
+      `${ORG_AND_EMP_URL}/users/firebase/${localId}`,
       { headers },
     );
     return response.data;
@@ -35,8 +36,8 @@ const getTenantId = async (id: string) => {
  * query object containing the post data, and it keeps the previous data
  * while the new data is being fetched.
  */
-export const useGetTenantId = (localId: string) =>
-  useQuery<any>(['tenantId', localId], () => getTenantId(localId), {
+export const useGetTenantId = () =>
+  useQuery<any>(['tenantId'], () => getTenantId(), {
     keepPreviousData: true,
     enabled: false, // Disabled by default, will be triggered manually
   });

@@ -1,3 +1,4 @@
+import { setCookie } from '@/helpers/storageHelper';
 import create from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
@@ -7,7 +8,7 @@ interface StoreState {
   tenantId: string;
   setTenantId: (tenantId: string) => void;
   localId: string;
-  setLocalId: (tenantId: string) => void;
+  setLocalId: (localId: string) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
   error: string | null;
@@ -18,8 +19,11 @@ export const useAuthenticationStore = create<StoreState>()(
   devtools(
     persist(
       (set) => ({
+        
         token:'',
-        setToken: (token: string) => set({ token }),
+        setToken: (token: string) => {
+          setCookie('token' , token ,30 ),
+          set({ token })},
         tenantId:'',
         setTenantId: (tenantId: string) => set({ tenantId }),
         localId: '',
