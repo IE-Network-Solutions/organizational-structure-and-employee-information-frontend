@@ -3,13 +3,17 @@ import { create, StateCreator } from 'zustand';
 type TimesheetSettingsState = {
   isShowLocationSidebar: boolean;
   isShowRulesAddTypeSidebar: boolean;
-  isShowCreateRule: boolean;
+  isShowCreateRuleSidebar: boolean;
+  isShowNewAccrualRuleSidebar: boolean;
 };
 
 type TimesheetSettingsStateAction = {
   setIsShowLocationSidebar: (isShowLocationSidebar: boolean) => void;
   setIsShowRulesAddTypeSidebar: (isShowRulesAddTypeSidebar: boolean) => void;
-  setIsShowCreateRule: (isShowCreateRule: boolean) => void;
+  setIsShowCreateRuleSidebar: (isShowCreateRuleSidebar: boolean) => void;
+  setIsShowNewAccrualRuleSidebar: (
+    isShowNewAccrualRuleSidebar: boolean,
+  ) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
@@ -25,9 +29,14 @@ const timesheetSettingsSlice: StateCreator<
     set({ isShowRulesAddTypeSidebar });
   },
 
-  isShowCreateRule: false,
-  setIsShowCreateRule: (isShowCreateRule: boolean) => {
-    set({ isShowCreateRule });
+  isShowCreateRuleSidebar: false,
+  setIsShowCreateRuleSidebar: (isShowCreateRuleSidebar: boolean) => {
+    set({ isShowCreateRuleSidebar });
+  },
+
+  isShowNewAccrualRuleSidebar: false,
+  setIsShowNewAccrualRuleSidebar: (isShowNewAccrualRuleSidebar: boolean) => {
+    set({ isShowNewAccrualRuleSidebar });
   },
 });
 

@@ -8,7 +8,8 @@ import { ReactNode, useState } from 'react';
 import AllowedAreas from './_components/allowedAreas';
 import { classNames } from '@/utils/classNames';
 import AttendanceRules from './_components/attendanceRules';
-import ImportedLogs from '@/app/(afterLogin)/(timesheetInformation)/timesheet/settings/_components/importedLogs';
+import ImportedLogs from './_components/importedLogs';
+import AccrualRule from './_components/accrualRule';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -63,6 +64,20 @@ const TimesheetSettings = () => {
       label: <p className="font-bold text-sm text-gray-900">Imported Logs</p>,
       className: currentItem === 'imported-logs' ? 'px-4' : 'px-1',
       itemComponent: <ImportedLogs />,
+    },
+    {
+      key: 'accrual-rule',
+      icon: (
+        <TbLayoutList
+          className={classNames('', {
+            'text-[#4DAEF0]': currentItem === 'accrual-rule',
+            'text-gray-500': currentItem !== 'accrual-rule',
+          })}
+        />
+      ),
+      label: <p className="font-bold text-sm text-gray-900">Accrual Rule</p>,
+      className: currentItem === 'accrual-rule' ? 'px-4' : 'px-1',
+      itemComponent: <AccrualRule />,
     },
   ];
 

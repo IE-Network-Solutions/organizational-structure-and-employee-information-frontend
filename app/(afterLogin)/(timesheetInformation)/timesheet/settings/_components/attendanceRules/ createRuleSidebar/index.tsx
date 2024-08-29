@@ -8,8 +8,10 @@ import CustomDrawerFooterButton, {
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 
 const CreateRuleSidebar = () => {
-  const { isShowCreateRule: isShow, setIsShowCreateRule: setIsShow } =
-    useTimesheetSettingsStore();
+  const {
+    isShowCreateRuleSidebar: isShow,
+    setIsShowCreateRuleSidebar: setIsShow,
+  } = useTimesheetSettingsStore();
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
