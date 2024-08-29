@@ -73,17 +73,19 @@ const Login: React.FC = () => {
   ) => {
     setLoading(true);
     setError('');
-
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         values.email,
         values.password,
       );
-
-      // Handle successful sign-in
       const user = userCredential.user;
-      message.success(`Welcome back, ${user.displayName || 'User'}!`);
+      const idToken = await user.getIdToken();
+      setToken(idToken);
+      setLocalId(user.uid);
+      fetchTenantId(); // Pass the correct parameter
+
+      message.success(`Welcome back`);
     } catch (err: any) {
       setError(err.message);
     }
