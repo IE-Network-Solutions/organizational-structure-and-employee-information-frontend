@@ -10,6 +10,7 @@ import { classNames } from '@/utils/classNames';
 import AttendanceRules from './_components/attendanceRules';
 import ImportedLogs from './_components/importedLogs';
 import AccrualRule from './_components/accrualRule';
+import CarryOverRule from './_components/carryOverRule';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -78,6 +79,20 @@ const TimesheetSettings = () => {
       label: <p className="font-bold text-sm text-gray-900">Accrual Rule</p>,
       className: currentItem === 'accrual-rule' ? 'px-4' : 'px-1',
       itemComponent: <AccrualRule />,
+    },
+    {
+      key: 'carry-over-rule',
+      icon: (
+        <TbLayoutList
+          className={classNames('', {
+            'text-[#4DAEF0]': currentItem === 'carry-over-rule',
+            'text-gray-500': currentItem !== 'carry-over-rule',
+          })}
+        />
+      ),
+      label: <p className="font-bold text-sm text-gray-900">Carry-over Rule</p>,
+      className: currentItem === 'carry-over-rule' ? 'px-4' : 'px-1',
+      itemComponent: <CarryOverRule />,
     },
   ];
 
