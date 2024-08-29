@@ -6,6 +6,7 @@ type TimesheetSettingsState = {
   isShowCreateRuleSidebar: boolean;
   isShowNewAccrualRuleSidebar: boolean;
   isShowCarryOverRuleSidebar: boolean;
+  isShowTypeAndPoliciesSidebar: boolean;
 };
 
 type TimesheetSettingsStateAction = {
@@ -16,6 +17,9 @@ type TimesheetSettingsStateAction = {
     isShowNewAccrualRuleSidebar: boolean,
   ) => void;
   setIsShowCarryOverRuleSidebar: (isShowCarryOverRuleSidebar: boolean) => void;
+  setIsShowTypeAndPoliciesSidebar: (
+    isShowTypeAndPoliciesSidebar: boolean,
+  ) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
@@ -44,6 +48,11 @@ const timesheetSettingsSlice: StateCreator<
   isShowCarryOverRuleSidebar: false,
   setIsShowCarryOverRuleSidebar: (isShowCarryOverRuleSidebar: boolean) => {
     set({ isShowCarryOverRuleSidebar });
+  },
+
+  isShowTypeAndPoliciesSidebar: false,
+  setIsShowTypeAndPoliciesSidebar: (isShowTypeAndPoliciesSidebar: boolean) => {
+    set({ isShowTypeAndPoliciesSidebar });
   },
 });
 

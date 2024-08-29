@@ -8,7 +8,7 @@ import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/se
 import CreateRuleSidebar from './ createRuleSidebar';
 
 const AttendanceRules = () => {
-  const { setIsShowRulesAddTypeSidebar, setIsShowCreateRule } =
+  const { setIsShowRulesAddTypeSidebar, setIsShowCreateRuleSidebar } =
     useTimesheetSettingsStore();
 
   return (
@@ -26,7 +26,7 @@ const AttendanceRules = () => {
             size="large"
             type="primary"
             icon={<LuPlus size={18} />}
-            onClick={() => setIsShowCreateRule(true)}
+            onClick={() => setIsShowCreateRuleSidebar(true)}
           >
             New Rule
           </Button>

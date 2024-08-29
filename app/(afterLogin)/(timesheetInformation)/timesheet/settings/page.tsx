@@ -11,6 +11,8 @@ import AttendanceRules from './_components/attendanceRules';
 import ImportedLogs from './_components/importedLogs';
 import AccrualRule from './_components/accrualRule';
 import CarryOverRule from './_components/carryOverRule';
+import { FiFileText } from 'react-icons/fi';
+import LeaveTypesAndPolicies from './_components/leaveTypesAndPolicies';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -22,6 +24,24 @@ const TimesheetSettings = () => {
   const [currentItem, setCurrentItem] = useState<string>('allowed-areas');
 
   const menuItems: MenuItemComponent[] = [
+    {
+      key: 'leave-types-adn-policies',
+      icon: (
+        <FiFileText
+          className={classNames('', {
+            'text-[#4DAEF0]': currentItem === 'leave-types-adn-policies',
+            'text-gray-500': currentItem !== 'leave-types-adn-policies',
+          })}
+        />
+      ),
+      label: (
+        <p className="font-bold text-sm text-gray-900">
+          Leave Types & Policies
+        </p>
+      ),
+      className: currentItem === 'leave-types-adn-policies' ? 'px-4' : 'px-1',
+      itemComponent: <LeaveTypesAndPolicies />,
+    },
     {
       key: 'allowed-areas',
       icon: (
