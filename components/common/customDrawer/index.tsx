@@ -21,25 +21,27 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   footer,
 }) => {
   return (
-    <div className="">
-      {open && (
-        <Button
-          id="closeSidebarButton"
-          className="bg-white text-lg text-grey-9 rounded-full mr-8 hidden md:flex"
-          icon={<FaAngleRight />}
-          onClick={onClose}
-          style={{
-            position: 'fixed',
-            right: width,
-            width: '50px',
-            height: '50px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 1001,
-          }}
-        />
-      )}
-
+    <div>
+      <>
+        {' '}
+        {open && (
+          <Button
+            id="closeSidebarButton"
+            className="bg-white text-lg text-grey-9 rounded-full mr-8 hidden md:flex"
+            icon={<FaAngleRight />}
+            onClick={onClose}
+            style={{
+              position: 'fixed',
+              right: width,
+              width: '50px',
+              height: '50px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 1001,
+            }}
+          />
+        )}
+      </>
       <Drawer
         title={modalHeader}
         width={window.innerWidth <= 768 ? '90%' : width ? width : '30%'}
