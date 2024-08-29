@@ -3,13 +3,13 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
-import { useCategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
+import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import CategorySideDrawer from './_components/categorySideDrawer';
 import CategorySearch from './_components/categorySearch';
 import CategoriesCard from './_components/categoriesCard';
 
 const Categories: React.FC = () => {
-  const { setOpen } = useCategoriesManagementStore();
+  const { setOpen } = CategoriesManagementStore();
 
   const showDrawer = () => {
     setOpen(true);
