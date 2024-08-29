@@ -23,10 +23,7 @@ import {
   useDeleteOrgChart,
 } from '@/store/server/features/organizationStructure/organizationalChart/mutation';
 import { useStep2Store } from '@/store/uistate/features/organizationStructure/comanyInfo/useStore';
-import {
-  useCreateCompanyInfo,
-  useDeleteCompanyInfo,
-} from '@/store/server/features/organizationStructure/companyInfo/mutation';
+import { useCreateCompanyInfo } from '@/store/server/features/organizationStructure/companyInfo/mutation';
 import { useUpdateCompanyProfile } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 import { Form } from 'antd';
@@ -93,7 +90,7 @@ const OnboaringSteper: React.FC = () => {
   const createOrgChart = useCreateOrgChart();
   const deleteOrgChart = useDeleteOrgChart();
   const createCompanyInfo = useCreateCompanyInfo();
-  const deleteCompanyInfo = useDeleteCompanyInfo();
+  // const deleteCompanyInfo = useDeleteCompanyInfo();
   const { companyInfo } = useStep2Store();
   const updateCompanyProfile = useUpdateCompanyProfile();
   const { companyProfileImage } = useCompanyProfile();
@@ -122,7 +119,7 @@ const OnboaringSteper: React.FC = () => {
     };
     yield {
       createFn: createCompanyInfo.mutateAsync,
-      deleteFn: deleteCompanyInfo.mutateAsync,
+      // deleteFn: deleteCompanyInfo.mutateAsync,
       data: companyInfo,
     };
     yield {
