@@ -1,17 +1,19 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import React from 'react';
+import { Form, Input, Space } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Form, Input, InputNumber, Select, Space } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import { GoLocation } from 'react-icons/go';
+import React from 'react';
+import CustomRadio from '@/components/form/customRadio';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 
-const LocationSidebar = () => {
-  const { isShowLocationSidebar: isShow, setIsShowLocationSidebar: setIsShow } =
-    useTimesheetSettingsStore();
+const AddTypesSidebar = () => {
+  const {
+    isShowRulesAddTypeSidebar: isShow,
+    setIsShowRulesAddTypeSidebar: setIsShow,
+  } = useTimesheetSettingsStore();
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -22,8 +24,8 @@ const LocationSidebar = () => {
       onClick: () => setIsShow(false),
     },
     {
-      label: 'Create',
-      key: 'create',
+      label: 'Add',
+      key: 'add',
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
@@ -39,7 +41,7 @@ const LocationSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => setIsShow(false)}
-        modalHeader={<CustomDrawerHeader>New Location</CustomDrawerHeader>}
+        modalHeader={<CustomDrawerHeader>Add Type</CustomDrawerHeader>}
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"
       >
@@ -50,37 +52,11 @@ const LocationSidebar = () => {
           className={itemClass}
         >
           <Space direction="vertical" className="w-full" size={24}>
-            <Form.Item label="Name of Location" required name="name">
+            <Form.Item label="Type Name" required name="name">
               <Input className={controlClass} />
             </Form.Item>
-            <Form.Item label="Select the locatiopn" required name="location">
-              <Select
-                className={controlClass}
-                showSearch
-                suffixIcon={<GoLocation size={20} />}
-                filterOption={false}
-                options={[
-                  {
-                    value: '1',
-                    label: 'area 1',
-                  },
-                  {
-                    value: '2',
-                    label: 'area 2',
-                  },
-                  {
-                    value: '3',
-                    label: 'new place 3',
-                  },
-                ]}
-              />
-            </Form.Item>
-            <Form.Item label="Radius" required name="radius">
-              <InputNumber
-                min={1}
-                className="w-full py-[11px] mt-2.5"
-                placeholder="Enter radius in km"
-              />
+            <Form.Item label="Unit" required name="unit">
+              <CustomRadio label="Days" className="mt-2.5" value="days" />
             </Form.Item>
           </Space>
         </Form>
@@ -89,4 +65,4 @@ const LocationSidebar = () => {
   );
 };
 
-export default LocationSidebar;
+export default AddTypesSidebar;

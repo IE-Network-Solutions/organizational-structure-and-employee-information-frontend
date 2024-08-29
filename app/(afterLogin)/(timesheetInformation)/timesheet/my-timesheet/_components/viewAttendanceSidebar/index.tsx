@@ -2,40 +2,46 @@ import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesh
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import React from 'react';
 import UserCard from '@/components/common/userCard/userCard';
-import { Button, Col, Row } from 'antd';
-import InfoItem from '@/app/(afterLogin)/(timesheetInformation)/timesheet/my-timesheet/_components/viewAttendanceSidebar/infoItem';
+import { Col, Row } from 'antd';
+import InfoItem from './infoItem';
 import StatusBadge, {
   StatusBadgeTheme,
 } from '@/components/common/statusBadge/statusBadge';
+import CustomDrawerFooterButton, {
+  CustomDrawerFooterButtonProps,
+} from '@/components/common/customDrawer/customDrawerFooterButton';
+import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 
 const ViewAttendanceSidebar = () => {
   const { isShowViewSidebar, setIsShowViewSidebar } = useMyTimesheetStore();
 
-  const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800">
-      View Attendance
-    </div>
-  );
-
-  const modalFooter = (
-    <div className="flex justify-center">
-      <Button
-        className="w-1/2 h-14 text-base"
-        size="large"
-        onClick={() => setIsShowViewSidebar(false)}
-      >
-        Cancel
-      </Button>
-    </div>
-  );
+  const footerModalItems: CustomDrawerFooterButtonProps[] = [
+    {
+      label: 'Cancel',
+      key: 'cancel',
+      className: 'h-14',
+      size: 'large',
+      onClick: () => setIsShowViewSidebar(false),
+    },
+  ];
 
   return (
     isShowViewSidebar && (
       <CustomDrawerLayout
         open={isShowViewSidebar}
         onClose={() => setIsShowViewSidebar(false)}
-        modalHeader={modalHeader}
-        footer={modalFooter}
+        modalHeader={
+          <CustomDrawerHeader className="flex justify-center">
+            {' '}
+            View Attendance
+          </CustomDrawerHeader>
+        }
+        footer={
+          <CustomDrawerFooterButton
+            className="w-1/2 mx-auto"
+            buttons={footerModalItems}
+          />
+        }
         width="50%"
       >
         <div className="mb-6">

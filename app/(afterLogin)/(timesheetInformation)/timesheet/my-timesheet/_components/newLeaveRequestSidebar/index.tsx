@@ -16,42 +16,33 @@ import {
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { classNames } from '@/utils/classNames';
 import { TbFileUpload } from 'react-icons/tb';
+import CustomRadio from '@/components/form/customRadio';
+import CustomDrawerFooterButton, {
+  CustomDrawerFooterButtonProps,
+} from '@/components/common/customDrawer/customDrawerFooterButton';
+import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 
 const NewLeaveRequestSidebar = () => {
   const { isShowNewLeaveRequestSidebar, setIsShowNewLeaveRequestSidebar } =
     useMyTimesheetStore();
 
-  const [isHalfDay, setIsHalfDay] = useState(false);
-
-  const modalHeader = (
-    <div className="text-xl font-extrabold text-gray-800">
-      Add New Leave Request
-    </div>
-  );
-
-  const modalFooter = (
-    <Row gutter={20}>
-      <Col span={12}>
-        <Button
-          className="w-full h-[56px] text-base"
-          size="large"
-          onClick={() => setIsShowNewLeaveRequestSidebar(false)}
-        >
-          Cancel
-        </Button>
-      </Col>
-      <Col span={12}>
-        <Button
-          className="w-full h-[56px] text-base"
-          size="large"
-          type="primary"
-          onClick={() => setIsShowNewLeaveRequestSidebar(false)}
-        >
-          Create
-        </Button>
-      </Col>
-    </Row>
-  );
+  const footerModalItems: CustomDrawerFooterButtonProps[] = [
+    {
+      label: 'Cancel',
+      key: 'cancel',
+      className: 'h-[56px] text-base',
+      size: 'large',
+      onClick: () => setIsShowNewLeaveRequestSidebar(false),
+    },
+    {
+      label: 'Create',
+      key: 'create',
+      className: 'h-[56px] text-base',
+      size: 'large',
+      type: 'primary',
+      onClick: () => setIsShowNewLeaveRequestSidebar(false),
+    },
+  ];
 
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[54px] w-full';
@@ -74,17 +65,15 @@ const NewLeaveRequestSidebar = () => {
     'w-full',
   ]);
 
-  const onChaneIsHalfDay = () => {
-    setIsHalfDay((prev) => !prev);
-  };
-
   return (
     isShowNewLeaveRequestSidebar && (
       <CustomDrawerLayout
         open={isShowNewLeaveRequestSidebar}
         onClose={() => setIsShowNewLeaveRequestSidebar(false)}
-        modalHeader={modalHeader}
-        footer={modalFooter}
+        modalHeader={
+          <CustomDrawerHeader>Add New Leave Request</CustomDrawerHeader>
+        }
+        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"
       >
         <Form
@@ -113,10 +102,7 @@ const NewLeaveRequestSidebar = () => {
               />
             </Form.Item>
             <Form.Item name="isHalfDay" className={itemClass}>
-              <div className={customFieldsClass} onClick={onChaneIsHalfDay}>
-                Half Day
-                <Radio checked={isHalfDay} />
-              </div>
+              <CustomRadio value="isHalf" label="Half Day" />
             </Form.Item>
             <Row gutter={16}>
               <Col span={12}>

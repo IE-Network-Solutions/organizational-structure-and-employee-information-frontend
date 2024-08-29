@@ -6,10 +6,12 @@ import { UserOutlined } from '@ant-design/icons';
 import { classNames } from '@/utils/classNames';
 import { TbFileDownload } from 'react-icons/tb';
 import Image from 'next/image';
-import ApprovalCard, {
-  ApprovalCardProps,
-} from '@/app/(afterLogin)/(timesheetInformation)/timesheet/leave-management/_components/leaveRequestManagementSidebar/approvalCard';
-import CommentCard from '@/app/(afterLogin)/(timesheetInformation)/timesheet/leave-management/_components/leaveRequestManagementSidebar/commentCard';
+import ApprovalCard, { ApprovalCardProps } from './approvalCard';
+import CommentCard from './commentCard';
+import CustomDrawerFooterButton, {
+  CustomDrawerFooterButtonProps,
+} from '@/components/common/customDrawer/customDrawerFooterButton';
+import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 
 const LeaveRequestManagementSidebar = () => {
   const {
@@ -17,35 +19,24 @@ const LeaveRequestManagementSidebar = () => {
     setIsShowLeaveRequestManagementSidebar: setIsShow,
   } = useLeaveManagementStore();
 
-  const modalHeader = (
-    <div className="text-xl font-extrabold text-gray-800">
-      Leave Requests Management
-    </div>
-  );
-  const modalFooter = (
-    <Row gutter={20}>
-      <Col span={12}>
-        <Button
-          className="w-full h-[56px] text-base bg-error"
-          size="large"
-          type="primary"
-          onClick={() => setIsShow(false)}
-        >
-          Reject
-        </Button>
-      </Col>
-      <Col span={12}>
-        <Button
-          className="w-full h-[56px] text-base bg-success"
-          size="large"
-          type="primary"
-          onClick={() => setIsShow(false)}
-        >
-          Approve
-        </Button>
-      </Col>
-    </Row>
-  );
+  const footerModalItems: CustomDrawerFooterButtonProps[] = [
+    {
+      label: 'Reject',
+      key: 'reject',
+      className: 'h-[56px] text-base bg-error',
+      size: 'large',
+      type: 'primary',
+      onClick: () => setIsShow(false),
+    },
+    {
+      label: 'Approve',
+      key: 'approve',
+      className: 'h-[56px] text-base bg-success',
+      size: 'large',
+      type: 'primary',
+      onClick: () => setIsShow(false),
+    },
+  ];
 
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
 
@@ -88,8 +79,10 @@ const LeaveRequestManagementSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => setIsShow(false)}
-        modalHeader={modalHeader}
-        footer={modalFooter}
+        modalHeader={
+          <CustomDrawerHeader>Leave Requests Management</CustomDrawerHeader>
+        }
+        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="40%"
       >
         <div className="flex items-center gap-[15px] mb-8">

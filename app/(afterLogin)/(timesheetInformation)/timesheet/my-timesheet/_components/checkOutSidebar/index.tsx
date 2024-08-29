@@ -11,6 +11,10 @@ import StatusBadge, {
   StatusBadgeTheme,
 } from '@/components/common/statusBadge/statusBadge';
 import { AiOutlineCamera } from 'react-icons/ai';
+import CustomDrawerFooterButton, {
+  CustomDrawerFooterButtonProps,
+} from '@/components/common/customDrawer/customDrawerFooterButton';
+import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 
 type LabelRender = SelectProps['labelRender'];
 
@@ -56,36 +60,26 @@ const CheckOutSidebar = () => {
     },
   ];
 
-  const modalHeader = (
-    <div className="text-xl font-extrabold text-gray-800">Check-out</div>
-  );
-
-  const modalFooter = (
-    <Row gutter={20}>
-      <Col span={12}>
-        <Button
-          className="w-full h-[56px] text-base"
-          size="large"
-          onClick={() => setIsShowCheckOutSidebar(false)}
-        >
-          Cancel
-        </Button>
-      </Col>
-      <Col span={12}>
-        <Button
-          className="w-full h-[56px] text-base"
-          size="large"
-          type="primary"
-          onClick={() => {
-            setIsShowCheckOutSidebar(false);
-            setCheckStatus(CheckStatus.breaking);
-          }}
-        >
-          Check-out
-        </Button>
-      </Col>
-    </Row>
-  );
+  const footerModalItems: CustomDrawerFooterButtonProps[] = [
+    {
+      label: 'Cancel',
+      key: 'cancel',
+      className: 'h-[56px] text-base',
+      size: 'large',
+      onClick: () => setIsShowCheckOutSidebar(false),
+    },
+    {
+      label: 'Check-out',
+      key: 'checkOut',
+      className: 'h-[56px] text-base',
+      size: 'large',
+      type: 'primary',
+      onClick: () => {
+        setIsShowCheckOutSidebar(false);
+        setCheckStatus(CheckStatus.breaking);
+      },
+    },
+  ];
 
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[54px] w-full';
@@ -105,8 +99,8 @@ const CheckOutSidebar = () => {
       <CustomDrawerLayout
         open={isShowCheckOutSidebar}
         onClose={() => setIsShowCheckOutSidebar(false)}
-        modalHeader={modalHeader}
-        footer={modalFooter}
+        modalHeader={<CustomDrawerHeader>Check-out</CustomDrawerHeader>}
+        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"
       >
         <Form layout="vertical" requiredMark={CustomLabel} autoComplete="off">

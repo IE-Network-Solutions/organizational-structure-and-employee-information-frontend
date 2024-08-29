@@ -5,8 +5,9 @@ import { ConfigProvider, Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { ReactNode, useState } from 'react';
-import AllowedAreas from '@/app/(afterLogin)/(timesheetInformation)/timesheet/settings/_components/allowedAreas';
+import AllowedAreas from './_components/allowedAreas';
 import { classNames } from '@/utils/classNames';
+import AttendanceRules from './_components/attendanceRules';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -20,40 +21,40 @@ const TimesheetSettings = () => {
   const menuItems: MenuItemComponent[] = [
     {
       key: 'allowed-areas',
-      label: (
-        <div className="flex items-center gap-1.5">
-          <TbLayoutList
-            className={classNames('', {
-              'text-[#4DAEF0]': currentItem === 'allowed-areas',
-              'text-gray-500': currentItem !== 'allowed-areas',
-            })}
-          />
-          <p className="font-bold text-sm text-gray-900">Allowed Areas</p>
-        </div>
+      icon: (
+        <TbLayoutList
+          className={classNames('', {
+            'text-[#4DAEF0]': currentItem === 'allowed-areas',
+            'text-gray-500': currentItem !== 'allowed-areas',
+          })}
+        />
       ),
+      label: <p className="font-bold text-sm text-gray-900">Allowed Areas</p>,
       className: currentItem === 'allowed-areas' ? 'px-4' : 'px-1',
       itemComponent: <AllowedAreas />,
     },
     {
-      key: 'allowed-areas-2',
-      label: (
-        <div className="flex items-center gap-1.5">
-          <TbLayoutList
-            className={classNames('', {
-              'text-[#4DAEF0]': currentItem === 'allowed-areas-2',
-              'text-gray-500': currentItem !== 'allowed-areas-2',
-            })}
-          />
-          <p className="font-bold text-sm text-gray-900">Allowed Areas 2</p>
-        </div>
+      key: 'attendance-rules',
+      icon: (
+        <TbLayoutList
+          className={classNames('', {
+            'text-[#4DAEF0]': currentItem === 'attendance-rules',
+            'text-gray-500': currentItem !== 'attendance-rules',
+          })}
+        />
       ),
-      className: currentItem === 'allowed-areas-2' ? 'px-4' : 'px-1',
-      itemComponent: <AllowedAreas />,
+      label: (
+        <p className="font-bold text-sm text-gray-900">Attendance Rules</p>
+      ),
+      className: currentItem === 'attendance-rules' ? 'px-4' : 'px-1',
+      itemComponent: <AttendanceRules />,
     },
   ];
 
-  const itemComponent = () =>
-    menuItems.find((item) => item.key === currentItem)!.itemComponent;
+  const itemComponent = () => {
+    const item = menuItems.find((item) => item.key === currentItem);
+    return item ? item.itemComponent : menuItems[0].itemComponent;
+  };
 
   return (
     <div className="h-auto w-auto pr-6 pb-6 pl-3">
