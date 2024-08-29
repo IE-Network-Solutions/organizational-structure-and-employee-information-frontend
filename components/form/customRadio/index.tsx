@@ -24,7 +24,6 @@ const CustomRadio: FC<CustomRadioProps> = ({
     'rounded-lg',
     'border',
     'border-gray-200',
-    'flex',
     'items-center',
     'justify-between',
     'hover:border-primary',
@@ -33,6 +32,8 @@ const CustomRadio: FC<CustomRadioProps> = ({
     'px-[11px]',
     'cursor-pointer',
     'w-full',
+    'flex-row-reverse',
+    'after:content-[none]',
   ]);
 
   const handleChange = () => {
@@ -43,10 +44,14 @@ const CustomRadio: FC<CustomRadioProps> = ({
   };
 
   return (
-    <div className={radioClass} onClick={handleChange}>
-      {label}
-      <Radio checked={isChecked} value={value} />
-    </div>
+    <Radio
+      className={radioClass}
+      checked={isChecked}
+      value={value}
+      onClick={handleChange}
+    >
+      <div>{label}</div>
+    </Radio>
   );
 };
 
