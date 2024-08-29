@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Form, Input, Select, Button, Space, Modal } from 'antd';
 import { DepartmentFormProps } from '@/types/dashboard/organization';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { showValidationErrors } from '@/utils/showValidationErrors';
 
 const { Option } = Select;
 
@@ -38,10 +38,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
         form.resetFields();
       })
       .catch((info) => {
-        NotificationMessage.warning({
-          message: 'Validation Error',
-          description: `Error : ${info}`,
-        });
+        showValidationErrors(info?.errorFields);
       });
   };
 

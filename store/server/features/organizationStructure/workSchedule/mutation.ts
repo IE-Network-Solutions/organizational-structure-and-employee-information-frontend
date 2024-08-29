@@ -47,10 +47,10 @@ const deleteSchedule = async (id: string) => {
 export const useCreateSchedule = () => {
   const queryClient = useQueryClient();
   return useMutation(createSchedule, {
-    onSuccess: (_, variables: any) => {
+    onSuccess: () => {
       queryClient.invalidateQueries('schedule');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      // const method = variables?.method?.toUpperCase();
+      // handleSuccessMessage(method);
     },
   });
 };
@@ -69,10 +69,10 @@ export const useUpdateSchedule = () => {
 export const useDeleteSchedule = () => {
   const queryClient = useQueryClient();
   return useMutation((id: string) => deleteSchedule(id), {
-    onSuccess: (_, variables: any) => {
+    onSuccess: () => {
       queryClient.invalidateQueries('schedule');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      // const method = variables?.method?.toUpperCase();
+      // handleSuccessMessage(method);
     },
   });
 };
