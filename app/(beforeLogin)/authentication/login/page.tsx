@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import {
   auth,
@@ -13,7 +13,7 @@ import { Microsoft } from '@/components/Icons/microsoft';
 import { Google } from '@/components/Icons/google';
 import { useGetTenantId } from '@/store/server/features/employees/authentication/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 
 type FieldType = {
   email: string;
@@ -27,31 +27,25 @@ const Login: React.FC = () => {
     setError,
     loading,
     setLoading,
+    token,
     setToken,
-    localId,
     setLocalId,
     setTenantId,
   } = useAuthenticationStore();
 
-  const { data: fetchedTenantId, refetch } = useGetTenantId(localId);
-
-  useEffect(() => {
-    if (localId === '') {
-      refetch(); // Manually trigger the query
-    }
-  }, [localId]);
-
+  const { data: fetchedTenantId, refetch: fetchTenantId } = useGetTenantId();
+  const router=useRouter()
   // Update tenantId in store when fetched
   useEffect(() => {
     if (fetchedTenantId?.tenantId) {
       setTenantId(fetchedTenantId?.tenantId);
       message.loading({ content: 'Redirecting...', key: 'redirect' });
-      redirect(`/employees/manage-employees`);
+      router.push(`/employees/manage-employees`);
     }
   }, [fetchedTenantId, setTenantId]);
+  
 
-  // Trigger refetch when localId is set
-
+  
   // Handle Google sign-in
   const handleGoogleSignIn = async () => {
     setError('');
@@ -59,12 +53,16 @@ const Login: React.FC = () => {
       const response = await signInWithPopup(auth, googleProvider);
       const user = response.user;
       const uId = user.uid;
-
+  
       // Get the ID token
       const idToken = await user.getIdToken();
+
       setToken(idToken);
       setLocalId(uId);
+      fetchTenantId(); // Pass the correct parameter
+
       message.success('Successfully logged in!');
+      message.loading({ content: 'Redirecting...', key: 'redirect' });
     } catch (err: any) {
       setError(err.message);
       message.error('Failed to log in. Please try again.');
@@ -105,7 +103,7 @@ const Login: React.FC = () => {
   return (
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
-      style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
+      // style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
     >
       <div className="bg-[#F1F2F3] w-full max-w-md py-4 px-6 rounded-lg my-5">
         <p className="text-center font-semibold">PEP</p>
