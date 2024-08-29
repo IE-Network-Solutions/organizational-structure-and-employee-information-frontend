@@ -8,6 +8,7 @@ import { ReactNode, useState } from 'react';
 import AllowedAreas from './_components/allowedAreas';
 import { classNames } from '@/utils/classNames';
 import AttendanceRules from './_components/attendanceRules';
+import ImportedLogs from '@/app/(afterLogin)/(timesheetInformation)/timesheet/settings/_components/importedLogs';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -48,6 +49,20 @@ const TimesheetSettings = () => {
       ),
       className: currentItem === 'attendance-rules' ? 'px-4' : 'px-1',
       itemComponent: <AttendanceRules />,
+    },
+    {
+      key: 'imported-logs',
+      icon: (
+        <TbLayoutList
+          className={classNames('', {
+            'text-[#4DAEF0]': currentItem === 'imported-logs',
+            'text-gray-500': currentItem !== 'imported-logs',
+          })}
+        />
+      ),
+      label: <p className="font-bold text-sm text-gray-900">Imported Logs</p>,
+      className: currentItem === 'imported-logs' ? 'px-4' : 'px-1',
+      itemComponent: <ImportedLogs />,
     },
   ];
 
