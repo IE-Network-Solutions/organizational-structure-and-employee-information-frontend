@@ -1,6 +1,6 @@
 import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Avatar, Button, Col, Divider, Row } from 'antd';
+import { Avatar, Button, Col, Divider, Input, Row, Upload } from 'antd';
 import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { classNames } from '@/utils/classNames';
@@ -15,6 +15,7 @@ import ApprovalStatusCard, {
   ApprovalStatusCardProps,
 } from '@/components/common/approvalStatuses/approvalStatusCard';
 import UserCard from '@/components/common/userCard/userCard';
+import CommentInput from '@/app/(afterLogin)/(timesheetInformation)/timesheet/leave-management/_components/leaveRequestManagementSidebar/commentInput';
 
 const LeaveRequestManagementSidebar = () => {
   const {
@@ -104,23 +105,25 @@ const LeaveRequestManagementSidebar = () => {
             <div className={labelClass}>
               Attachment <span className="text-error">*</span>
             </div>
-            <button className="w-full h-[54px] border border-gray-200 rounded-[10px] flex items-center justify-between px-5">
-              <div className="text-sm font-medium text-gray-900">
-                Sick_Leave.pdf
-              </div>
+            <Upload>
+              <button className="w-full h-[54px] border border-gray-200 rounded-[10px] flex items-center justify-between px-5 mt-2.5">
+                <div className="text-sm font-medium text-gray-900">
+                  Select File
+                </div>
 
-              <TbFileDownload size={20} />
-            </button>
+                <TbFileDownload size={20} />
+              </button>
+            </Upload>
           </Col>
           <Col span={24}>
             <div className={labelClass}>
               Note <span className="text-error">*</span>
             </div>
-            <div className="h-36 border border-gray-200 rounded-[10px] px-5 py-4 text-xs text-gray-900">
-              I am feeling not normal which I am feeling not normal which I am
-              feeling not normal which I am feeling not normal which I am
-              feeling not normal which
-            </div>
+            <Input.TextArea
+              className="w-full py-4 px-5 mt-2.5"
+              placeholder="Input note"
+              rows={6}
+            />
           </Col>
         </Row>
         <Divider className="my-8 h-[5px] bg-gray-200" />
@@ -149,6 +152,8 @@ const LeaveRequestManagementSidebar = () => {
           <div className="pl-10">
             <CommentCard />
           </div>
+
+          <CommentInput />
         </div>
       </CustomDrawerLayout>
     )
