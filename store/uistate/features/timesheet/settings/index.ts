@@ -7,6 +7,7 @@ type TimesheetSettingsState = {
   isShowNewAccrualRuleSidebar: boolean;
   isShowCarryOverRuleSidebar: boolean;
   isShowTypeAndPoliciesSidebar: boolean;
+  isShowClosedDateSidebar: boolean;
 };
 
 type TimesheetSettingsStateAction = {
@@ -20,6 +21,7 @@ type TimesheetSettingsStateAction = {
   setIsShowTypeAndPoliciesSidebar: (
     isShowTypeAndPoliciesSidebar: boolean,
   ) => void;
+  setIsShowClosedDateSidebar: (isShowClosedDateSidebar: boolean) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
@@ -53,6 +55,11 @@ const timesheetSettingsSlice: StateCreator<
   isShowTypeAndPoliciesSidebar: false,
   setIsShowTypeAndPoliciesSidebar: (isShowTypeAndPoliciesSidebar: boolean) => {
     set({ isShowTypeAndPoliciesSidebar });
+  },
+
+  isShowClosedDateSidebar: false,
+  setIsShowClosedDateSidebar: (isShowClosedDateSidebar: boolean) => {
+    set({ isShowClosedDateSidebar });
   },
 });
 

@@ -13,6 +13,8 @@ import AccrualRule from './_components/accrualRule';
 import CarryOverRule from './_components/carryOverRule';
 import { FiFileText } from 'react-icons/fi';
 import LeaveTypesAndPolicies from './_components/leaveTypesAndPolicies';
+import { CiCalendarDate } from 'react-icons/ci';
+import ClosedDate from './_components/closedDate';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -21,9 +23,23 @@ type MenuItemComponent = MenuItem & {
 };
 
 const TimesheetSettings = () => {
-  const [currentItem, setCurrentItem] = useState<string>('allowed-areas');
+  const [currentItem, setCurrentItem] = useState<string>('closed-date');
 
   const menuItems: MenuItemComponent[] = [
+    {
+      key: 'closed-date',
+      icon: (
+        <CiCalendarDate
+          className={classNames('', {
+            'text-[#4DAEF0]': currentItem === 'closed-date',
+            'text-gray-500': currentItem !== 'closed-date',
+          })}
+        />
+      ),
+      label: <p className="font-bold text-sm text-gray-900">Closed Date</p>,
+      className: currentItem === 'closed-date' ? 'px-4' : 'px-1',
+      itemComponent: <ClosedDate />,
+    },
     {
       key: 'leave-types-adn-policies',
       icon: (
