@@ -1,18 +1,7 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import {
-  Avatar,
-  Col,
-  Divider,
-  Form,
-  Input,
-  Row,
-  Select,
-  Space,
-  Upload,
-} from 'antd';
+import { Avatar, Divider, Form, Input, Select, Space, Upload } from 'antd';
 import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
-import { classNames } from '@/utils/classNames';
 import { TbFileDownload } from 'react-icons/tb';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -24,6 +13,7 @@ import ApprovalStatusCard, {
 } from '@/components/common/approvalStatuses/approvalStatusCard';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import CustomLabel from '@/components/form/customLabel/customLabel';
+import UserCard from '@/components/common/userCard/userCard';
 
 const LeaveRequestManagementSidebar = () => {
   const {
@@ -84,12 +74,7 @@ const LeaveRequestManagementSidebar = () => {
       >
         <div className="flex items-center gap-[15px] mb-8">
           <div className="text-xs text-gray-900">Requester:</div>
-          <div className="flex items-center gap-2.5">
-            <Avatar size={24} icon={<UserOutlined />} />
-            <div className="text-[10px] text-gray-900 font-semibold">
-              Abeselom G/kidan
-            </div>
-          </div>
+          <UserCard name="Name" size="small" />
         </div>
 
         <Form

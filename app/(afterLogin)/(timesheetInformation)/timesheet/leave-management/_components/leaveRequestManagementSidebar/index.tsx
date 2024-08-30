@@ -14,6 +14,7 @@ import ApprovalStatusesInfo from '@/components/common/approvalStatuses/approvalS
 import ApprovalStatusCard, {
   ApprovalStatusCardProps,
 } from '@/components/common/approvalStatuses/approvalStatusCard';
+import UserCard from '@/components/common/userCard/userCard';
 
 const LeaveRequestManagementSidebar = () => {
   const {
@@ -74,12 +75,7 @@ const LeaveRequestManagementSidebar = () => {
       >
         <div className="flex items-center gap-[15px] mb-8">
           <div className="text-xs text-gray-900">Requester:</div>
-          <div className="flex items-center gap-2.5">
-            <Avatar size={24} icon={<UserOutlined />} />
-            <div className="text-[10px] text-gray-900 font-semibold">
-              Abeselom G/kidan
-            </div>
-          </div>
+          <UserCard name="Name" size="small" />
         </div>
         <Row gutter={[32, 32]}>
           <Col span={12}>
