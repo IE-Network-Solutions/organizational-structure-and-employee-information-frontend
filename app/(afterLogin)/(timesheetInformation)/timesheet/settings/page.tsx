@@ -15,6 +15,7 @@ import { FiFileText } from 'react-icons/fi';
 import LeaveTypesAndPolicies from './_components/leaveTypesAndPolicies';
 import { CiCalendarDate } from 'react-icons/ci';
 import ClosedDate from './_components/closedDate';
+import ApprovalLevels from './_components/approvalLevels';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -129,6 +130,20 @@ const TimesheetSettings = () => {
       label: <p className="font-bold text-sm text-gray-900">Carry-over Rule</p>,
       className: currentItem === 'carry-over-rule' ? 'px-4' : 'px-1',
       itemComponent: <CarryOverRule />,
+    },
+    {
+      key: 'approval-levels',
+      icon: (
+        <TbLayoutList
+          className={classNames('', {
+            'text-[#4DAEF0]': currentItem === 'approval-levels',
+            'text-gray-500': currentItem !== 'approval-levels',
+          })}
+        />
+      ),
+      label: <p className="font-bold text-sm text-gray-900">Approval Levels</p>,
+      className: currentItem === 'approval-levels' ? 'px-4' : 'px-1',
+      itemComponent: <ApprovalLevels />,
     },
   ];
 
