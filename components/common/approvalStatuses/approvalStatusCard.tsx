@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import Image from 'next/image';
 import UserCard from '@/components/common/userCard/userCard';
 
-export interface ApprovalCardProps {
+export interface ApprovalStatusCardProps {
   employee: {
     img?: string;
     name: string;
@@ -12,7 +12,11 @@ export interface ApprovalCardProps {
   reason?: string;
 }
 
-const ApprovalCard: FC<ApprovalCardProps> = ({ employee, reason, status }) => {
+const ApprovalStatusCard: FC<ApprovalStatusCardProps> = ({
+  employee,
+  reason,
+  status,
+}) => {
   return (
     <div className="border-b border-gray-200">
       <div className="flex items-center px-3 py-4 gap-4">
@@ -34,4 +38,4 @@ const ApprovalCard: FC<ApprovalCardProps> = ({ employee, reason, status }) => {
   );
 };
 
-export default ApprovalCard;
+export default ApprovalStatusCard;

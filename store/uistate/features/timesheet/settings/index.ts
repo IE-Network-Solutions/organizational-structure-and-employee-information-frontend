@@ -8,6 +8,7 @@ type TimesheetSettingsState = {
   isShowCarryOverRuleSidebar: boolean;
   isShowTypeAndPoliciesSidebar: boolean;
   isShowClosedDateSidebar: boolean;
+  isShowLeaveRequestSidebar: boolean;
 };
 
 type TimesheetSettingsStateAction = {
@@ -22,6 +23,7 @@ type TimesheetSettingsStateAction = {
     isShowTypeAndPoliciesSidebar: boolean,
   ) => void;
   setIsShowClosedDateSidebar: (isShowClosedDateSidebar: boolean) => void;
+  setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
@@ -60,6 +62,11 @@ const timesheetSettingsSlice: StateCreator<
   isShowClosedDateSidebar: false,
   setIsShowClosedDateSidebar: (isShowClosedDateSidebar: boolean) => {
     set({ isShowClosedDateSidebar });
+  },
+
+  isShowLeaveRequestSidebar: false,
+  setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => {
+    set({ isShowLeaveRequestSidebar });
   },
 });
 

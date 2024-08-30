@@ -1,11 +1,19 @@
-import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Avatar, Button, Col, Divider, Row } from 'antd';
+import {
+  Avatar,
+  Col,
+  Divider,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  Upload,
+} from 'antd';
 import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { classNames } from '@/utils/classNames';
 import { TbFileDownload } from 'react-icons/tb';
-import CommentCard from './commentCard';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
@@ -14,18 +22,21 @@ import ApprovalStatusesInfo from '@/components/common/approvalStatuses/approvalS
 import ApprovalStatusCard, {
   ApprovalStatusCardProps,
 } from '@/components/common/approvalStatuses/approvalStatusCard';
+import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
+import CustomLabel from '@/components/form/customLabel/customLabel';
 
 const LeaveRequestManagementSidebar = () => {
   const {
-    isShowLeaveRequestManagementSidebar: isShow,
-    setIsShowLeaveRequestManagementSidebar: setIsShow,
-  } = useLeaveManagementStore();
+    isShowLeaveRequestSidebar: isShow,
+    setIsShowLeaveRequestSidebar: setIsShow,
+  } = useTimesheetSettingsStore();
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Reject',
       key: 'reject',
-      className: 'h-[56px] text-base bg-error',
+      className: 'h-[56px] text-base',
+      danger: true,
       size: 'large',
       type: 'primary',
       onClick: () => setIsShow(false),
@@ -40,7 +51,8 @@ const LeaveRequestManagementSidebar = () => {
     },
   ];
 
-  const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
+  const itemClass = 'font-semibold text-xs';
+  const controlClass = 'mt-2.5 h-[54px] w-full';
 
   const approvalCards: ApprovalStatusCardProps[] = [
     {
@@ -66,11 +78,9 @@ const LeaveRequestManagementSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => setIsShow(false)}
-        modalHeader={
-          <CustomDrawerHeader>Leave Requests Management</CustomDrawerHeader>
-        }
+        modalHeader={<CustomDrawerHeader>Leave Requests</CustomDrawerHeader>}
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
-        width="40%"
+        width="400px"
       >
         <div className="flex items-center gap-[15px] mb-8">
           <div className="text-xs text-gray-900">Requester:</div>
@@ -81,53 +91,46 @@ const LeaveRequestManagementSidebar = () => {
             </div>
           </div>
         </div>
-        <Row gutter={[32, 32]}>
-          <Col span={12}>
-            <div className={labelClass}>Leave Type</div>
-            <div
-              className={classNames(labelClass, undefined, [
-                'font-semibold',
-                'mb-0',
-              ])}
-            >
-              Sick Leave
-            </div>
-          </Col>
-          <Col span={12}>
-            <div className={labelClass}>Date</div>
-            <div
-              className={classNames(labelClass, undefined, [
-                'font-semibold',
-                'mb-0',
-              ])}
-            >
-              Sick Leave
-            </div>
-          </Col>
-          <Col span={24}>
-            <div className={labelClass}>
-              Attachment <span className="text-error">*</span>
-            </div>
-            <button className="w-full h-[54px] border border-gray-200 rounded-[10px] flex items-center justify-between px-5">
-              <div className="text-sm font-medium text-gray-900">
-                Sick_Leave.pdf
-              </div>
 
-              <TbFileDownload size={20} />
-            </button>
-          </Col>
-          <Col span={24}>
-            <div className={labelClass}>
-              Note <span className="text-error">*</span>
-            </div>
-            <div className="h-36 border border-gray-200 rounded-[10px] px-5 py-4 text-xs text-gray-900">
-              I am feeling not normal which I am feeling not normal which I am
-              feeling not normal which I am feeling not normal which I am
-              feeling not normal which
-            </div>
-          </Col>
-        </Row>
+        <Form
+          layout="vertical"
+          requiredMark={CustomLabel}
+          autoComplete="off"
+          className={itemClass}
+        >
+          <Space direction="vertical" className="w-full" size={24}>
+            <Form.Item label="Leave Type" required name="type">
+              <Select
+                className={controlClass}
+                options={[
+                  { value: 'day', label: 'Day' },
+                  { value: 'month', label: 'Month' },
+                ]}
+              />
+            </Form.Item>
+            <Form.Item label="Attachment" required name="attachment">
+              <Upload>
+                <button className="w-full h-[54px] border border-gray-200 rounded-[10px] flex items-center justify-between px-5 mt-2.5">
+                  <div className="text-sm font-medium text-gray-900">
+                    Select File
+                  </div>
+
+                  <TbFileDownload size={20} />
+                </button>
+              </Upload>
+            </Form.Item>
+            <Form.Item label="Note" required name="note">
+              <Input.TextArea
+                className="w-full py-4 px-5 mt-2.5"
+                placeholder="Input note"
+                rows={6}
+              />
+            </Form.Item>
+          </Space>
+        </Form>
+
         <Divider className="my-8 h-[5px] bg-gray-200" />
+
         <div>
           <div className="text-lg font-semibold text-gray-900">
             Approval Levels Status
@@ -140,19 +143,6 @@ const LeaveRequestManagementSidebar = () => {
           {approvalCards.map((approvalCard, idx) => (
             <ApprovalStatusCard key={idx} {...approvalCard} />
           ))}
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between mt-[54px] mb-4">
-            <div className="text-sm font-semibold text-gray-900">Comments</div>
-            <Button type="primary" size="large">
-              Comment
-            </Button>
-          </div>
-
-          <div className="pl-10">
-            <CommentCard />
-          </div>
         </div>
       </CustomDrawerLayout>
     )

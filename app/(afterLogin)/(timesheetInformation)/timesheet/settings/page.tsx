@@ -16,6 +16,7 @@ import LeaveTypesAndPolicies from './_components/leaveTypesAndPolicies';
 import { CiCalendarDate } from 'react-icons/ci';
 import ClosedDate from './_components/closedDate';
 import ApprovalLevels from './_components/approvalLevels';
+import LeaveRequest from './_components/leaveRequest';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -144,6 +145,20 @@ const TimesheetSettings = () => {
       label: <p className="font-bold text-sm text-gray-900">Approval Levels</p>,
       className: currentItem === 'approval-levels' ? 'px-4' : 'px-1',
       itemComponent: <ApprovalLevels />,
+    },
+    {
+      key: 'leave-request',
+      icon: (
+        <TbLayoutList
+          className={classNames('', {
+            'text-[#4DAEF0]': currentItem === 'leave-request',
+            'text-gray-500': currentItem !== 'leave-request',
+          })}
+        />
+      ),
+      label: <p className="font-bold text-sm text-gray-900">Leave Requests</p>,
+      className: currentItem === 'leave-request' ? 'px-4' : 'px-1',
+      itemComponent: <LeaveRequest />,
     },
   ];
 

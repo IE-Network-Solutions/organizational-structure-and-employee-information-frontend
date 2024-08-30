@@ -6,7 +6,7 @@ import { classNames } from '@/utils/classNames';
 interface UserCardProps {
   avatar?: string;
   name: string;
-  description: string;
+  description?: string;
   size?: 'small' | 'medium';
 }
 
@@ -33,7 +33,9 @@ const UserCard: FC<UserCardProps> = ({
         >
           {name}
         </div>
-        <div className="text-[10px] text-gray-500 mt-0.5">{description}</div>
+        {description && (
+          <div className="text-[10px] text-gray-500 mt-0.5">{description}</div>
+        )}
       </div>
     </div>
   );
