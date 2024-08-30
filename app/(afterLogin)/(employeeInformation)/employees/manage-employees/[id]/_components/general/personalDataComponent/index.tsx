@@ -43,12 +43,12 @@ function PersonalDataComponent({
         form={form}
         layout="vertical"
         onFinish={(values) => handleSaveChanges('general', values)}
-        initialValues={{
-            dateOfBirth:employeeData?.employeeInformation?.dateOfBirth,
-            nationalityId:employeeData?.employeeInformation?.nationalityId,
-            maritalStatus:employeeData?.employeeInformation?.maritalStatus,
-            joinedDate:employeeData?.employeeInformation?.joinedDate,
-            gender:employeeData?.employeeInformation?.gender
+          initialValues={{
+            dateOfBirth: employeeData?.employeeInformation?.dateOfBirth ? dayjs(employeeData.employeeInformation.dateOfBirth) : null,
+            nationalityId: employeeData?.employeeInformation?.nationalityId,
+            maritalStatus: employeeData?.employeeInformation?.maritalStatus,
+            joinedDate: employeeData?.employeeInformation?.joinedDate ? dayjs(employeeData.employeeInformation.joinedDate) : null,
+            gender: employeeData?.employeeInformation?.gender,
           }}
       >
         <Row gutter={[16, 24]}>

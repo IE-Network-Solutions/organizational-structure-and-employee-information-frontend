@@ -255,7 +255,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           <NavBar page="Home" userid="12345" />
         </Header>
         <Content
-          className="mt-6"
+          className="mt-6 min-h-screen"
           style={{
             paddingTop: isMobile ? 64 : 24,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
@@ -265,8 +265,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           <div
             className="p-2"
             style={{
-              background: colorBgContainer,
-              // background:'#F5F5F5',
               borderRadius: borderRadiusLG,
               marginTop: '2.5rem',
             }}
