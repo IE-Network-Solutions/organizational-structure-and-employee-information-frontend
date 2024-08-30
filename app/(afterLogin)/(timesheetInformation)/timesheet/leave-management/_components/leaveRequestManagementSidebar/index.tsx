@@ -1,8 +1,7 @@
 import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Avatar, Button, Col, Divider, Input, Row, Upload } from 'antd';
+import { Button, Col, Divider, Input, Row, Upload } from 'antd';
 import React from 'react';
-import { UserOutlined } from '@ant-design/icons';
 import { classNames } from '@/utils/classNames';
 import { TbFileDownload } from 'react-icons/tb';
 import CommentCard from './commentCard';

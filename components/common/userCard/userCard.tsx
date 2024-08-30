@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Avatar } from 'antd';
+import { Avatar, Image } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { classNames } from '@/utils/classNames';
 
@@ -16,12 +16,13 @@ const UserCard: FC<UserCardProps> = ({
   description = '',
   size = 'medium',
 }) => {
+  const sizeWH = size === 'medium' ? 40 : 24;
   return (
     <div className="flex items-center gap-3">
       <Avatar
         icon={<UserOutlined />}
-        src={avatar && <img src={avatar} alt={name} />}
-        size={size === 'medium' ? 40 : 24}
+        src={avatar && <Image src={avatar} alt={name} />}
+        size={sizeWH}
       />
 
       <div>

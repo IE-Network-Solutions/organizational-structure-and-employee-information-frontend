@@ -1,7 +1,6 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Avatar, Divider, Form, Input, Select, Space, Upload } from 'antd';
+import { Divider, Form, Input, Select, Space, Upload } from 'antd';
 import React from 'react';
-import { UserOutlined } from '@ant-design/icons';
 import { TbFileDownload } from 'react-icons/tb';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,

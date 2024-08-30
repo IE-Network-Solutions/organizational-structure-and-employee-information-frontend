@@ -19,7 +19,6 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import { RadioChangeEvent } from 'antd/lib';
 
 const TypesAndPoliciesSidebar = () => {
   const {

@@ -3,7 +3,7 @@ import { Avatar, Table } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { TableRowSelection } from 'antd/es/table/interface';
 import { TableColumnsType } from '@/types/table/table';
-import TableFilter from '@/app/(afterLogin)/(timesheetInformation)/timesheet/employee-attendance/_components/employeeAttendanceTable/tableFilter';
+import TableFilter from './tableFilter';
 import StatusBadge, {
   StatusBadgeTheme,
 } from '@/components/common/statusBadge/statusBadge';
@@ -183,16 +183,16 @@ const TABLE_DATA: TableData[] = [
 ];
 
 const rowSelection: TableRowSelection<TableData> = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(
-      `selectedRowKeys: ${selectedRowKeys}`,
-      'selectedRows: ',
-      selectedRows,
-    );
-  },
-  onSelect: (record, selected, selectedRows) => {
-    console.log({ record, selected, selectedRows });
-  },
+  // onChange: (selectedRowKeys, selectedRows) => {
+  //   console.log(
+  //     `selectedRowKeys: ${selectedRowKeys}`,
+  //     'selectedRows: ',
+  //     selectedRows,
+  //   );
+  // },
+  // onSelect: (record, selected, selectedRows) => {
+  //   console.log({ record, selected, selectedRows });
+  // },
 };
 
 const EmployeeAttendanceTable = () => {
