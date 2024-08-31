@@ -1,4 +1,3 @@
-'use client';
 import { Button, Drawer } from 'antd';
 import React from 'react';
 import { FaAngleRight } from 'react-icons/fa';
@@ -8,7 +7,7 @@ interface CustomDrawerLayoutProps {
   onClose: () => void;
   modalHeader: any;
   children: React.ReactNode;
-  width: string;
+  width?: string;
   footer?: React.ReactNode;
 }
 
@@ -22,6 +21,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
 }) => {
   return (
     <div>
+
       <>
         {' '}
         {open && (
@@ -31,6 +31,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
             icon={<FaAngleRight />}
             onClick={onClose}
             style={{
+              display: window.innerWidth <= 768 ? 'none' : 'flex',
               position: 'fixed',
               right: width,
               width: '50px',

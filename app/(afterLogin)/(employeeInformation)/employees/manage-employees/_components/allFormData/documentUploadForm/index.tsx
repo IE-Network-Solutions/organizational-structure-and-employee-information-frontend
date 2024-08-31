@@ -1,28 +1,28 @@
 import React from 'react';
 import { Button, Col, Form, Row, Upload, Image } from 'antd';
 import { MdOutlineUploadFile } from 'react-icons/md';
-import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const { Dragger } = Upload;
 
 const DocumentUploadForm = () => {
-  const { documentFileList, setDocumentFileList, removeDocument } =
-    useEmployeeManagmentStore();
+    const { documentFileList, setDocumentFileList, removeDocument } =
+      useEmployeeManagementStore();
 
-  const handleDocumentChange = (info: any) => {
-    const fileList = Array.isArray(info.fileList) ? info.fileList : [];
-    setDocumentFileList(fileList);
-  };
+    const handleDocumentChange = (info: any) => {
+      const fileList = Array.isArray(info.fileList) ? info.fileList : [];
+      setDocumentFileList(fileList);
+    };
 
-  const handleDocumentRemove = (file: any) => {
-    removeDocument(file.uid);
-  };
+    const handleDocumentRemove = (file: any) => {
+      removeDocument(file.uid);
+    };
 
-  const customRequest = ({ onSuccess }: any) => {
-    setTimeout(() => {
-      onSuccess('ok');
-    }, 0);
-  };
+    const customRequest = ({ onSuccess }: any) => {
+      setTimeout(() => {
+        onSuccess('ok');
+      }, 0);
+    };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -44,7 +44,8 @@ const DocumentUploadForm = () => {
               onRemove={handleDocumentRemove}
               customRequest={customRequest}
               listType="picture"
-              accept="*/*"
+              // accept="*/*"
+              accept="audio/*,video/*"
             >
               <div className="flex justify-start items-center text-xl font-semibold text-gray-950">
                 <p>Documents Upload</p>

@@ -1,7 +1,7 @@
 'use client';
 
 import { QueryCache, QueryClient, QueryClientProvider } from 'react-query';
-import { ReactNode } from 'react';
+import { ReactNode, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { handleNetworkError } from '@/utils/showErrorResponse';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -52,7 +52,9 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
     }),
   });
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <Suspense fallback={<>Loading...</>}>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </Suspense>
   );
 };
 

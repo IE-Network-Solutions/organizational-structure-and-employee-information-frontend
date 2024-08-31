@@ -29,7 +29,6 @@ export const crudRequest = async ({
     if (data) {
       config.data = data;
     }
-
     const response = await axios(config);
     return response.data;
   } catch (error) {
