@@ -18,7 +18,7 @@ const Categories: React.FC = () => {
     setOpen(false);
   };
   return (
-    <div className="h-auto w-full p-4">
+    <div className="h-auto w-full p-4 bg-white rounded-md">
       <div className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb
           title="Categories"

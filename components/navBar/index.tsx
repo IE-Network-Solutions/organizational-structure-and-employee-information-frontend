@@ -95,13 +95,13 @@ const items: MenuItem[] = [
     className: 'font-bold',
     children: [
       {
-        key: '/Chart',
-        label: 'Clients',
+        key: '/feedback/categories',
+        label: 'Category',
         icon: <UserOutlined />,
         className: 'font-bold',
       },
       {
-        key: '/client-management/settings',
+        key: '/feedback/settings',
         label: 'Settings',
         className: 'font-bold',
         icon: <FiSettings />,

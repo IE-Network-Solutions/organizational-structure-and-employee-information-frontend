@@ -8,7 +8,7 @@ const { Option } = Select;
 const CategorySearch = () => {
   return (
     <div className="my-2">
-      <Row gutter={[16, 24]} justify="space-between" className="bg-white py-4">
+      <Row gutter={[16, 24]} justify="space-between" className="py-4">
         <Col xs={24} sm={24} lg={10}>
           <Input
             allowClear

@@ -1,89 +1,123 @@
 'use client';
 import React from 'react';
-import { Card, Typography, Dropdown, Avatar } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
-import { FaEllipsisVertical } from 'react-icons/fa6';
+import { Spin } from 'antd';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
-import { FaCircle } from 'react-icons/fa';
 import CategoryPagination from '../categoryPagination';
-import Link from 'next/link';
-
-const { Title, Paragraph } = Typography;
+import { useFetchCategories } from '@/store/server/features/feedback/category/queries';
+import {
+  useDeleteFormCategory,
+  useUpdateFormCategory,
+} from '@/store/server/features/feedback/category/mutation';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
+import CategoryCard from './categoryCard';
+import EditCategoryModal from './editCategoryModal';
 
 const CategoriesCard: React.FC = () => {
-  const { current, pageSize, totalPages, setCurrent, setPageSize } =
-    CategoriesManagementStore();
-  const id = 'qwerty45678';
-  const menu = [
-    {
-      key: 'edit',
-      label: 'Edit',
-      onClick: () => handleMenuClick('edit'),
-    },
-    {
-      key: 'delete',
-      label: 'Delete',
-      onClick: () => handleMenuClick('delete'),
-    },
-  ];
+  const {
+    pageSize,
+    current,
+    deleteModal,
+    setCurrent,
+    setPageSize,
+    setDeleteModal,
+    setDeletedItem,
+    setEditModal,
+    setEditingCategory,
+  } = CategoriesManagementStore();
 
-  const handleChange = (page: number, pageSize: number) => {
-    setCurrent(page);
-    setPageSize(pageSize);
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useFetchCategories(pageSize, current);
+  const updateCategory = useUpdateFormCategory();
+  const deleteCategory = useDeleteFormCategory();
+
+  const userOptions = React.useMemo(() => {
+    if (!categories?.items) return [];
+
+    const uniqueUsers = new Map();
+    categories.items.forEach((category: any) => {
+      category.users?.forEach((user: any) => {
+        if (user && user.id) {
+          uniqueUsers.set(user.id, {
+            value: user.id,
+            label: user.name || user.email || user.id,
+          });
+        }
+      });
+    });
+
+    return Array.from(uniqueUsers.values());
+  }, [categories]);
+
+  const handleMenuClick = (key: string, category: any) => {
+    if (key === 'edit') {
+      setEditingCategory({
+        ...category,
+        users: Array.isArray(category.users)
+          ? category.items.map((user: any) => user.id || user)
+          : [],
+      });
+      setEditModal(true);
+    } else if (key === 'delete') {
+      setDeletedItem(category.id);
+      setDeleteModal(true);
+    }
+  };
+  const handleUpdate = (values: any) => {
+    const editingCategory =
+      CategoriesManagementStore.getState().editingCategory;
+    if (editingCategory) {
+      updateCategory.mutate({
+        id: editingCategory.id,
+        data: {
+          name: values.name,
+          description: values.description,
+          users: values.users,
+        },
+      });
+    }
   };
 
-  const handleShowSizeChange = (size: number) => {
-    setPageSize(size);
-    setCurrent(1);
+  const handleDelete = () => {
+    deleteCategory.mutate(CategoriesManagementStore.getState().deletedItem);
+    setDeleteModal(false);
   };
-  const handleMenuClick = (key: string) => {
-    <div>{key}</div>;
-  };
+
+  if (isCategoriesLoading)
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spin size="large" />
+      </div>
+    );
 
   return (
     <>
-      <Card hoverable className="w-[300px] relative bg-gray-100">
-        <div className="flex justify-between items-center mb-2">
-          <Title level={4} className="m-0">
-            Survey
-          </Title>
-          <Dropdown
-            menu={{ items: menu }}
-            trigger={['click']}
-            placement="bottomRight"
-          >
-            <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
-          </Dropdown>
-        </div>
-        <Link href={`/feedback/categories/${id}`}>
-          <Paragraph className="text-gray-600">
-            This is test description. This is test description. This is test
-            description. This is test description.
-          </Paragraph>
-          <div className="flex items-center mt-4">
-            <Avatar icon={<UserOutlined />} />
-            <div className="ml-2 flex flex-col">
-              <div className="flex items-center justify-start gap-1">
-                <Typography.Text strong>John Doe</Typography.Text>
-                <FaCircle size={8} color="#3636f0" />
-                <Typography.Text className="text-xs font-normal text-gray-400">
-                  Creator
-                </Typography.Text>
-              </div>
-
-              <Typography.Text type="secondary">
-                Marketing Manager
-              </Typography.Text>
-            </div>
-          </div>
-        </Link>
-      </Card>
+      <div className="flex flex-wrap gap-4 mb-[80px]">
+        {categories?.items.map((category: any) => (
+          <CategoryCard
+            key={category.id}
+            category={category}
+            onMenuClick={handleMenuClick}
+          />
+        ))}
+      </div>
+      <EditCategoryModal onConfirm={handleUpdate} userOptions={userOptions} />
+      <DeleteModal
+        open={deleteModal}
+        onCancel={() => setDeleteModal(false)}
+        onConfirm={handleDelete}
+      />
       <CategoryPagination
         current={current}
-        total={totalPages}
+        total={categories?.meta?.totalItems ?? 1}
         pageSize={pageSize}
-        onChange={handleChange}
-        onShowSizeChange={handleShowSizeChange}
+        onChange={(page, pageSize) => {
+          setCurrent(page);
+          setPageSize(pageSize);
+        }}
+        onShowSizeChange={(size) => {
+          setPageSize(size);
+          setCurrent(1);
+        }}
       />
     </>
   );

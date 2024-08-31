@@ -18,7 +18,7 @@ const subCategory: React.FC = () => {
     setOpen(false);
   };
   return (
-    <div className="h-auto w-full p-4">
+    <div className="h-auto w-full p-4 bg-white rounded-md">
       <div className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb title="Survey" subtitle="Manage your survey" />
         <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
