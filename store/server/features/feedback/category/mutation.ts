@@ -57,8 +57,6 @@ const updateFormCategory = async (data: CategoryData, id: string) => {
  */
 const deleteFormCategory = async () => {
   const deletedItem = CategoriesManagementStore.getState().deletedItem;
-  const setDeleteModal = CategoriesManagementStore.getState().setDeleteModal;
-  const setDeletedItem = CategoriesManagementStore.getState().setDeletedItem;
   const pageSize = CategoriesManagementStore.getState().pageSize;
   const current = CategoriesManagementStore.getState().current;
   return await crudRequest({
@@ -75,6 +73,7 @@ const deleteFormCategory = async () => {
 export const useAddCategory = () => {
   const queryClient = useQueryClient();
   return useMutation(addCategory, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('categories');
       const method = variables?.method?.toUpperCase();
@@ -93,6 +92,7 @@ export const useUpdateFormCategory = () => {
     ({ data, id }: { data: CategoryData; id: string }) =>
       updateFormCategory(data, id),
     {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       onSuccess: (_, variables: any) => {
         queryClient.invalidateQueries('categories');
         const method = variables?.method?.toUpperCase();
@@ -109,6 +109,7 @@ export const useUpdateFormCategory = () => {
 export const useDeleteFormCategory = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteFormCategory, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('categories');
       const method = variables?.method?.toUpperCase();

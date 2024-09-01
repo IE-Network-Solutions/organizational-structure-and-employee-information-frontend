@@ -4,7 +4,6 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import { Button, Form, Input, Select } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import CustomButton from '@/components/common/buttons/customButton';
 import { useAddCategory } from '@/store/server/features/feedback/category/mutation';
 import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { useFetchUsers } from '@/store/server/features/feedback/category/queries';

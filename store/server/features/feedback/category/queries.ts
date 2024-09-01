@@ -6,7 +6,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-import { ResponseData } from './interface';
 
 /**
  * Authentication headers for API requests

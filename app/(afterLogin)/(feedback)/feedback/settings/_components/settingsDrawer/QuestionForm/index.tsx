@@ -25,7 +25,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 }) => {
   return (
     <Form layout="vertical">
-      {questions.map((question, index) => (
+      {questions.map((question) => (
         <div key={question.id} className="mb-6">
           <Form.Item
             required

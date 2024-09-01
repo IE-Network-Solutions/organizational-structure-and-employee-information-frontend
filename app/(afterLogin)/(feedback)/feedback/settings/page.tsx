@@ -5,7 +5,6 @@ import { OrganizationalDevelopmentSettingsStore } from '@/store/uistate/features
 import { Card, Col, Row, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
-import { SlCalender } from 'react-icons/sl';
 import OrganizationalDevelopmentSettingsDrawer from './_components/settingsDrawer';
 import ODQuestionsDisplay from './_components/ODQuestionsDisplay';
 import { CalendarDays } from 'lucide-react';
