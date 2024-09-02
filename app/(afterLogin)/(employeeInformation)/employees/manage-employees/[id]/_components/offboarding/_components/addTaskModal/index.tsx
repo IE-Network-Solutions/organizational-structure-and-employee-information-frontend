@@ -6,7 +6,7 @@ import {
   useAddTerminationTasks,
 } from '@/store/server/features/employees/offboarding/mutation';
 import { useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
-import { userFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
+import { useFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -18,7 +18,7 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
 
   const { mutate: createTaskTemplate } = useAddOffboardingTasksTemplate();
   const { mutate: createTaskList } = useAddTerminationTasks();
-  const { data: offboardingTermination } = userFetchUserTerminationByUserId(id);
+  const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
   const { data: users } = useGetEmployees();
   const {
     isAddTaskModalVisible,
