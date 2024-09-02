@@ -1,33 +1,26 @@
 'use client';
 
-import {
-  useAddOffboardingItem,
-  // useAddTerminationItem,
-  useUpdateOffboardingItem,
-} from '@/store/server/features/employees/offboarding/mutation';
+import { useAddOffboardingItem } from '@/store/server/features/employees/offboarding/mutation';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
-import { Form, DatePicker, Select, Button, Modal, Input, Divider, Row } from 'antd';
+import { Form, DatePicker, Select, Button, Modal, Input, Row } from 'antd';
 import React from 'react';
-import { PlusOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { Dayjs } from 'dayjs';
 import moment from 'moment';
-import { useFetchOffboardItems } from '@/store/server/features/employees/offboarding/queries';
-
 const { Option } = Select;
 
-const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) => {
+const OffboardingFormControl: React.FC<any> = ({
+  userId,
+}: {
+  userId: string;
+}) => {
   const [form] = Form.useForm();
-  const { mutate: updateOffboardingItem } = useUpdateOffboardingItem();
   const { mutate: createOffboardingItem } = useAddOffboardingItem();
   const { data: employeeData } = useGetEmployee(userId);
 
   const {
     setIsModalVisible,
     newOption,
-    addCustomOption,
-    customOptions,
     isModalVisible,
     newTerminationOption,
     setNewOption,
@@ -38,14 +31,6 @@ const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) =
     setNewTerminationOption,
     addCustomTerminationOption,
   } = useOffboardingStore();
-
-  const handleStatusChange = (value: string) => {
-    if (value === 'addItem') {
-      setIsModalVisible(true);
-    } else if (value === 'addTerminationOption') {
-      setIsTerminationModalVisible(true);
-    }
-  };
 
   // const handleAddEmploymentStatus = () => {
   //   if (newOption) {
@@ -65,16 +50,15 @@ const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) =
   };
 
   const onFinish = (values: any) => {
-    values['effectiveDate'] = moment(values.effectiveDate).format("YYYY-MM-DD")
-    values['userId'] = userId
-    values['jobInformationId'] = employeeData.employeeJobInformation[0].id
-    setIsEmploymentFormVisible(false)
+    values['effectiveDate'] = moment(values.effectiveDate).format('YYYY-MM-DD');
+    values['userId'] = userId;
+    values['jobInformationId'] = employeeData.employeeJobInformation[0].id;
+    setIsEmploymentFormVisible(false);
     createOffboardingItem(values);
   };
   return (
     <Modal
       title="Add Employment Status"
-
       open={isEmploymentFormVisible}
       footer={false}
       onCancel={() => setIsEmploymentFormVisible(false)}
@@ -87,14 +71,24 @@ const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) =
         >
           <DatePicker className="w-full" />
         </Form.Item>
-        <Form.Item name="type" label="Termination Type" rules={[{ required: true, message: "Termination Type is Required " }]}>
+        <Form.Item
+          name="type"
+          label="Termination Type"
+          rules={[{ required: true, message: 'Termination Type is Required ' }]}
+        >
           <Select id="selectTerminationType" allowClear className="w-full">
             <Option value="Resignation">Resignation</Option>
             <Option value="Termination">Termination</Option>
             <Option value="Death">Death</Option>
           </Select>
         </Form.Item>
-        <Form.Item name="reason" label="Termination Reason" rules={[{ required: true, message: "Termination Reason is Required " }]}>
+        <Form.Item
+          name="reason"
+          label="Termination Reason"
+          rules={[
+            { required: true, message: 'Termination Reason is Required ' },
+          ]}
+        >
           {/* <Select
             id="selectTerminationReason"
             allowClear
@@ -116,18 +110,15 @@ const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) =
             </Option>
           </Select> */}
 
-
-          <Input
-            id="selectTerminationReason"
-            allowClear
-            className="w-full"
-
-          />
-
-
-
+          <Input id="selectTerminationReason" allowClear className="w-full" />
         </Form.Item>
-        <Form.Item name="eligibleForRehire" label="Eligible for Rehire" rules={[{ required: true, message: "Eligible for Rehire is Required " }]}>
+        <Form.Item
+          name="eligibleForRehire"
+          label="Eligible for Rehire"
+          rules={[
+            { required: true, message: 'Eligible for Rehire is Required ' },
+          ]}
+        >
           <Select id="selectEligibleForHire" allowClear className="w-full">
             <Option value="yes">Yes</Option>
             <Option value="no">No</Option>
@@ -137,9 +128,24 @@ const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) =
           <TextArea rows={4} />
         </Form.Item>
         <Form.Item>
-          <Row className='flex justify-end gap-3'>
-            <Button type='primary' htmlType='submit' value={"submit"} name='submit' >Submit</Button >
-            <Button className='text-indigo-500' htmlType='button' value={"cancel"} name='cancel' onClick={() => setIsEmploymentFormVisible(false)}>Cancel </Button >
+          <Row className="flex justify-end gap-3">
+            <Button
+              type="primary"
+              htmlType="submit"
+              value={'submit'}
+              name="submit"
+            >
+              Submit
+            </Button>
+            <Button
+              className="text-indigo-500"
+              htmlType="button"
+              value={'cancel'}
+              name="cancel"
+              onClick={() => setIsEmploymentFormVisible(false)}
+            >
+              Cancel{' '}
+            </Button>
           </Row>
         </Form.Item>
       </Form>
@@ -147,7 +153,6 @@ const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) =
         title="Add New Employment Status"
         okText="Add"
         open={isModalVisible}
-
         footer={false}
         onCancel={() => setIsModalVisible(false)}
       >
@@ -171,7 +176,6 @@ const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) =
         />
       </Modal>
     </Modal>
-
   );
 };
 

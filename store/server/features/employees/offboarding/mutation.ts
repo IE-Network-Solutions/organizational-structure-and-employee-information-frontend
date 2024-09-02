@@ -44,8 +44,9 @@ const addTerminationTasks = async (values: EmployeeOffBoardingTasks[]) => {
   });
 };
 
-
-const addOffboardingTasksTemplate = async (values: EmployeeOffBoardingTasks) => {
+const addOffboardingTasksTemplate = async (
+  values: EmployeeOffBoardingTasks,
+) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/offboarding-tasks-template`,
 
@@ -166,7 +167,6 @@ export const useDeleteOffboardingItem = () => {
   });
 };
 
-
 export const useDeleteOffboardingTemplateTasksItem = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteOffboardingTemplateTasksItem, {
@@ -223,4 +223,3 @@ export const useRehireTerminatedEmployee = () => {
     },
   });
 };
-

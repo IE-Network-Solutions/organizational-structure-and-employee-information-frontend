@@ -28,25 +28,22 @@ const Login: React.FC = () => {
     loading,
     setLoading,
     setToken,
-    userId,
     setUserId,
     setLocalId,
     setTenantId,
   } = useAuthenticationStore();
 
   const { data: fetchedTenantId, refetch: fetchTenantId } = useGetTenantId();
-  const router = useRouter()
+  const router = useRouter();
   // Update tenantId in store when fetched
   useEffect(() => {
     if (fetchedTenantId?.tenantId) {
       setTenantId(fetchedTenantId?.tenantId);
-      setUserId(fetchedTenantId.id)
+      setUserId(fetchedTenantId.id);
       message.loading({ content: 'Redirecting...', key: 'redirect' });
       router.push(`/employees/manage-employees`);
     }
   }, [fetchedTenantId, setTenantId]);
-
-
 
   // Handle Google sign-in
   const handleGoogleSignIn = async () => {
@@ -107,7 +104,7 @@ const Login: React.FC = () => {
   return (
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
-    // style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
+      // style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
     >
       <div className="bg-[#F1F2F3] w-full max-w-md py-4 px-6 rounded-lg my-5">
         <p className="text-center font-semibold">PEP</p>

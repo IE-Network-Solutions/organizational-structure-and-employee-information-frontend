@@ -1,11 +1,17 @@
 'use client';
 import { Modal, Checkbox, Button, Avatar } from 'antd';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import { AddTaskModal } from '../addTaskModal';
-import { useFetchOffBoardingTasksTemplate, userFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
-import { useAddTerminationTasks, useDeleteOffboardingTemplateTasksItem } from '@/store/server/features/employees/offboarding/mutation';
+import {
+  useFetchOffBoardingTasksTemplate,
+  useFetchUserTerminationByUserId,
+} from '@/store/server/features/employees/offboarding/queries';
+import {
+  useAddTerminationTasks,
+  useDeleteOffboardingTemplateTasksItem,
+} from '@/store/server/features/employees/offboarding/mutation';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { MdDelete } from 'react-icons/md';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
@@ -25,40 +31,34 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
     setIsDeleteModalVisible,
   } = useOffboardingStore();
 
-
-  const { data: offboardingTasksTemplate } = useFetchOffBoardingTasksTemplate()
+  const { data: offboardingTasksTemplate } = useFetchOffBoardingTasksTemplate();
   const { mutate: createTaskList } = useAddTerminationTasks();
-  const { data: offboardingTermination, isSuccess: terminationSuccess, refetch } = userFetchUserTerminationByUserId(id);
-  const { isLoading, data: employeeData } = useGetEmployee(id);
-  const { mutate: offboardingTemplateTaskDelete } = useDeleteOffboardingTemplateTasksItem();
-  // useEffect(() => {
-  //   if (id) {
-  //     // Fetch data only when id is provided
-  //     refetch();
-  //   }
-  // }, [id, refetch]);
+  const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
+  const { data: employeeData } = useGetEmployee(id);
+  const { mutate: offboardingTemplateTaskDelete } =
+    useDeleteOffboardingTemplateTasksItem();
+
   const handleAddTaskClick = () => {
     setIsAddTaskModalVisible(true);
   };
 
   const handelSelectedTemplateTasks = (item: any) => {
-    item.employeTerminationId = offboardingTermination?.id
+    item.employeTerminationId = offboardingTermination?.id;
     if (selectedTemplateTasks.includes(item)) {
       setselectedTemplateTasks(
-        selectedTemplateTasks.filter((task: any) => task !== item)
+        selectedTemplateTasks.filter((task: any) => task !== item),
       );
     } else {
       setselectedTemplateTasks([...selectedTemplateTasks, item]);
     }
   };
   const handelAddToTask = () => {
-    setIsTaskTemplateVisible(false)
-    createTaskList(selectedTemplateTasks)
-
-  }
+    setIsTaskTemplateVisible(false);
+    createTaskList(selectedTemplateTasks);
+  };
   const handelTaskDelete = (value: string) => {
-    offboardingTemplateTaskDelete(value)
-  }
+    offboardingTemplateTaskDelete(value);
+  };
 
   return (
     <>
@@ -74,7 +74,10 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
           <div className="flex items-center">
             <Avatar icon={<UserOutlined />} />
             <div className="ml-3">
-              <div className="font-bold">  {`${employeeData?.firstName || ''} ${employeeData?.middleName || ''} ${employeeData?.lastName || ''}`.trim()}</div>
+              <div className="font-bold">
+                {' '}
+                {`${employeeData?.firstName || ''} ${employeeData?.middleName || ''} ${employeeData?.lastName || ''}`.trim()}
+              </div>
               <div className="text-sm text-gray-600">
                 {employeeData?.employeeJobInformation[0]?.jobTitle}
               </div>
@@ -89,11 +92,13 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
           Add Task List
         </Button>
         {offboardingTasksTemplate?.map((item: any, index: any) => (
-          <div className="flex justify-between items-center my-3">
+          <div key={index} className="flex justify-between items-center my-3">
             <div>
-              <Checkbox onClick={() => handelSelectedTemplateTasks(item)}
-                key={index} className="flex mb-2">
-
+              <Checkbox
+                onClick={() => handelSelectedTemplateTasks(item)}
+                key={index}
+                className="flex mb-2"
+              >
                 {item.title}
               </Checkbox>
             </div>
@@ -139,10 +144,14 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
         <div className="mt-6 pt-4 border-t">
           <Button
             onClick={() => handelAddToTask()}
-            type="primary" className="bg-blue-600 mr-2">
+            type="primary"
+            className="bg-blue-600 mr-2"
+          >
             Add Selected Items
           </Button>
-          <Button onClick={() => setIsTaskTemplateVisible(false)}>Cancel</Button>
+          <Button onClick={() => setIsTaskTemplateVisible(false)}>
+            Cancel
+          </Button>
         </div>
         <AddTaskModal id={id} />
       </Modal>

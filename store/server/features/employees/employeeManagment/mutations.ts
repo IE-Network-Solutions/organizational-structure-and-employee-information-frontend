@@ -25,7 +25,6 @@ const createEmployee = async (values: any) => {
   });
 };
 
-
 const createJobInformation = async (values: any) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/EmployeeJobInformation`,
@@ -138,8 +137,6 @@ export const useDeleteEmployee = () => {
     },
   });
 };
-
-
 
 export const useCreateJobInformation = () => {
   const queryClient = useQueryClient();

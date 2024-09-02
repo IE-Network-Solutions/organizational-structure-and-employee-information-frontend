@@ -1,6 +1,6 @@
 'use client';
-import React, { useEffect } from 'react';
-import { Card, Checkbox, Button, Divider, Dropdown, Empty } from 'antd';
+import React from 'react';
+import { Card, Checkbox, Button, Dropdown, Empty } from 'antd';
 import { DownOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import {
   Task,
@@ -9,32 +9,36 @@ import {
 import { AddTaskModal } from '../addTaskModal';
 import OffboardingTemplate from '../offboardingTemplate';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
-import { useDeleteOffboardingItem, useUpdateOffboardingItem } from '@/store/server/features/employees/offboarding/mutation';
-import { useFetchOffboardingTasks, userFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
-import { MdDelete } from "react-icons/md";
+import {
+  useDeleteOffboardingItem,
+  useUpdateOffboardingItem,
+} from '@/store/server/features/employees/offboarding/mutation';
+import {
+  useFetchOffboardingTasks,
+  userFetchUserTerminationByUserId,
+} from '@/store/server/features/employees/offboarding/queries';
+import { MdDelete } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { offBoardingTasksUpdateStatus } from '@/store/server/features/employees/offboarding/interface';
 import { EmptyImage } from '@/components/emptyIndicator';
+import { OffBoardingTasksUpdateStatus } from '@/store/server/features/employees/offboarding/interface';
 const TaskItem: React.FC<{ task: Task; onToggle: () => void }> = ({
   task,
   onToggle,
 }) => {
-  const { userId } = useAuthenticationStore()
-  const { completedTask, setCompletedTask } = useOffboardingStore()
+  const { userId } = useAuthenticationStore();
   const { mutate: updateOffboardingItem } = useUpdateOffboardingItem();
   const handelCehckBox = (task: any) => {
-    // setCompletedTask(!completedTask)
-    let data: offBoardingTasksUpdateStatus = {
+    const data: OffBoardingTasksUpdateStatus = {
       id: '',
-      isCompleted: false
-    }
-    data["id"] = task.id
-    data["isCompleted"] = !task.isCompleted
+      isCompleted: false,
+    };
+    data['id'] = task.id;
+    data['isCompleted'] = !task.isCompleted;
 
-    updateOffboardingItem(data)
-  }
+    updateOffboardingItem(data);
+  };
   return (
-    < div className="flex items-center mb-2" >
+    <div className="flex items-center mb-2">
       <Checkbox
         onClick={() => handelCehckBox(task)}
         checked={task?.isCompleted}
@@ -46,26 +50,19 @@ const TaskItem: React.FC<{ task: Task; onToggle: () => void }> = ({
       <span className={task?.isCompleted ? 'line-through text-gray-500' : ''}>
         {task.title}
       </span>
-      {
-        task.isCompleted && task.approverId && task.completedDate && (
-          <span className="ml-2 text-sm text-gray-500">
-            Completed by {task.approverId} on {task.completedDate}
-          </span>
-        )
-      }
-      {
-        !task.isCompleted && task.completedDate && (
-          <span className="ml-2 text-sm text-gray-500">Due: {task.completedDate}</span>
-        )
-      }
-
-
-    </div >
-
+      {task.isCompleted && task.approverId && task.completedDate && (
+        <span className="ml-2 text-sm text-gray-500">
+          Completed by {task.approverId} on {task.completedDate}
+        </span>
+      )}
+      {!task.isCompleted && task.completedDate && (
+        <span className="ml-2 text-sm text-gray-500">
+          Due: {task.completedDate}
+        </span>
+      )}
+    </div>
   );
-
-
-}
+};
 interface Ids {
   id: string;
 }
@@ -83,18 +80,14 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
   const { mutate: offboardingTaskDelete } = useDeleteOffboardingItem();
 
   const { data: offboardingTermination } = userFetchUserTerminationByUserId(id);
-  const { data: offboardingTasks, isLoading, error } = useFetchOffboardingTasks(id);
+  const {
+    data: offboardingTasks,
+    isLoading,
+    error,
+  } = useFetchOffboardingTasks(id);
 
-  // useEffect(() => {
-  //   if (terminationSuccess && offboardingTermination?.id) {
-  //     refetch();
-  //   }
-  // }, [terminationSuccess, offboardingTermination?.id, refetch]);
   const handleAddTaskClick = () => setIsAddTaskModalVisible(true);
   const handleTaskTemplate = () => setIsTaskTemplateVisible(true);
-  const handleDeleteTask = () => setIsDeleteModalVisible(true);
-  const handleDeleteConfirm = () => { };
-
   // const groupedTasks: Record<string, Task[]> = offboardingTasks?.reduce(
   //   (acc: any, task: any) => {
   //     (acc[task.category] = acc[task.category] || []).push(task);
@@ -108,12 +101,11 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
       label: 'Add Items from Menu',
       onClick: handleTaskTemplate,
     },
-
   ];
 
   const handelTaskDelete = (value: string) => {
-    offboardingTaskDelete(value)
-  }
+    offboardingTaskDelete(value);
+  };
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading tasks</div>;
 
@@ -161,30 +153,34 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
               ))}
             </React.Fragment>
           ))} */}
-        {offboardingTasks.length > 0 ? (offboardingTasks as Task[])?.map((task: Task) => (
-          <div key={task?.id} className="flex justify-between items-center my-3">
-            <div>
-              <TaskItem
-                task={task}
-                onToggle={() => toggleTask(task?.id)}
-              />
-            </div>
+        {offboardingTasks.length > 0 ? (
+          (offboardingTasks as Task[])?.map((task: Task) => (
+            <div
+              key={task?.id}
+              className="flex justify-between items-center my-3"
+            >
+              <div>
+                <TaskItem task={task} onToggle={() => toggleTask(task?.id)} />
+              </div>
 
-            <div>
-              <Button
-                onClick={() => {
-                  setIsDeleteModalVisible(true);
-                  setTaskToDelete(task); // Track the task to be deleted
-                }}
-                danger
-                icon={<MdDelete />}
-              />
+              <div>
+                <Button
+                  onClick={() => {
+                    setIsDeleteModalVisible(true);
+                    setTaskToDelete(task); // Track the task to be deleted
+                  }}
+                  danger
+                  icon={<MdDelete />}
+                />
+              </div>
             </div>
+          ))
+        ) : (
+          <div className="flex justify-center items-center">
+            {' '}
+            <Empty description={'data not found'} image={<EmptyImage />} />
           </div>
-        )) : (<div className="flex justify-center items-center">
-          {' '}
-          <Empty description={'data not found'} image={<EmptyImage />} />
-        </div>)}
+        )}
         {/* Render the delete modal conditionally based on the state */}
         {isDeleteModalVisible && taskToDelete && (
           <DeleteModal
@@ -217,7 +213,6 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
         <AddTaskModal id={id} />
       </Card>
       <OffboardingTemplate id={id} />
-
     </div>
   );
 };

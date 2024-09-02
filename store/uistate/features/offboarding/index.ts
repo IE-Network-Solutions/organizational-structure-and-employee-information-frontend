@@ -3,17 +3,15 @@ import { Dayjs } from 'dayjs';
 import { EmployeeOffBoardingTasks } from '@/store/server/features/employees/offboarding/interface';
 
 export interface Task {
-  approverId: string
-  completedDate: string
-  description: string
+  approverId: string;
+  completedDate: string;
+  description: string;
 
-  employeTerminationId: string
-  isCompleted: boolean,
+  employeTerminationId: string;
+  isCompleted: boolean;
 
-  id: string
-  title: string
-
-
+  id: string;
+  title: string;
 }
 interface TaskForm {
   taskName: string;
@@ -37,14 +35,9 @@ const initialTask: Task = {
   employeTerminationId: '',
   isCompleted: false,
   id: '',
-  title: ''
+  title: '',
 };
 
-interface TemplateTasks {
-  approverId: string
-  description: string,
-  title: string,
-}
 interface OffboardingState {
   taskForm: TaskForm;
   newTaskList: string;
@@ -67,7 +60,7 @@ interface OffboardingState {
   isEmploymentFormVisible: boolean;
   selectedTemplateTasks: EmployeeOffBoardingTasks[];
   completedTask: boolean;
-  taskToDelete: Task
+  taskToDelete: Task;
   setTaskToDelete: (task: Task) => void;
   setCompletedTask: (visible: boolean) => void;
   setselectedTemplateTasks: (templateTasks: EmployeeOffBoardingTasks[]) => void;
@@ -110,8 +103,7 @@ export const useOffboardingStore = create<OffboardingState>((set) => ({
   selectedTemplateTasks: [],
   completedTask: false,
   taskToDelete: initialTask,
-  setTaskToDelete: (task) =>
-    set({ taskToDelete: task }),
+  setTaskToDelete: (task) => set({ taskToDelete: task }),
 
   setCompletedTask: (visible) => set({ completedTask: visible }),
 
@@ -160,5 +152,4 @@ export const useOffboardingStore = create<OffboardingState>((set) => ({
   resetTaskForm: () => set({ taskForm: initialTaskForm }),
   setselectedTemplateTasks: (templateTasks) =>
     set({ selectedTemplateTasks: templateTasks }),
-
 }));

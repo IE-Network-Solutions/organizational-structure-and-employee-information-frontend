@@ -12,30 +12,23 @@ export interface EmploymentStatusUpdate {
   type: string;
   reason: string;
   eligibleForRehire: string;
-  comment?: string
-  userId: string
-
+  comment?: string;
+  userId: string;
 }
 
 export interface EmployeeOffBoardingTasks {
-  approverId: string
-  description: string,
-  title: string,
-  employeeeTerminationId: string
-
+  approverId: string;
+  description: string;
+  title: string;
+  employeeeTerminationId: string;
 }
 
 export interface EmployeeOffBoardingTemplateTasks {
-  approverId: string
-  description: string,
-  title: string,
-
-
+  approverId: string;
+  description: string;
+  title: string;
 }
-export interface offBoardingTasksUpdateStatus {
-  id: string
-  isCompleted: boolean
-
-
+export interface OffBoardingTasksUpdateStatus {
+  id: string;
+  isCompleted: boolean;
 }
-

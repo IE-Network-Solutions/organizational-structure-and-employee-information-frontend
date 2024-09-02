@@ -9,7 +9,6 @@ const tenantId = useAuthenticationStore.getState().tenantId;
 
 const fetchOffBoardingTemplateTasks = async () => {
   return crudRequest({
-
     url: `${ORG_AND_EMP_URL}/offboarding-tasks-template`,
     method: 'GET',
     headers: {
@@ -18,7 +17,6 @@ const fetchOffBoardingTemplateTasks = async () => {
     },
   });
 };
-
 
 const fetchOffBoardingTasks = async (userId: string) => {
   try {
@@ -36,8 +34,6 @@ const fetchOffBoardingTasks = async (userId: string) => {
   }
 };
 
-
-
 const fetchUserTermination = async (userId: string) => {
   try {
     const headers = {
@@ -54,11 +50,9 @@ const fetchUserTermination = async (userId: string) => {
   }
 };
 
-
 export const useFetchOffboardItems = () => {
   return useQuery<any>('offboardItems', fetchOffBoardingTemplateTasks);
 };
-
 
 export const useFetchOffboardingTasks = (userId: string) =>
   useQuery<any>(
@@ -66,12 +60,12 @@ export const useFetchOffboardingTasks = (userId: string) =>
     () => fetchOffBoardingTasks(userId),
     {
       keepPreviousData: true,
-
     },
   );
 export const useFetchOffBoardingTasksTemplate = () => {
   return useQuery<any>('offboardItemsTemplate', fetchOffBoardingTemplateTasks);
-}
-export const userFetchUserTerminationByUserId = (userId: string) =>
-  useQuery<any>(['offboardingActiveTermiantionsByUserId', userId], () => fetchUserTermination(userId)
+};
+export const useFetchUserTerminationByUserId = (userId: string) =>
+  useQuery<any>(['offboardingActiveTermiantionsByUserId', userId], () =>
+    fetchUserTermination(userId),
   );

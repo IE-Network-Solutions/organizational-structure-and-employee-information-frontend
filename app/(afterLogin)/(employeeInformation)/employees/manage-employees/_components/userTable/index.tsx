@@ -1,5 +1,13 @@
 import React from 'react';
-import { Button, Card, Form, Modal, Popconfirm, Row, Table, TableColumnsType, Tooltip } from 'antd';
+import {
+  Button,
+  Form,
+  Modal,
+  Row,
+  Table,
+  TableColumnsType,
+  Tooltip,
+} from 'antd';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
@@ -12,8 +20,7 @@ import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { FaEye } from 'react-icons/fa';
 import Link from 'next/link';
 import { useRehireTerminatedEmployee } from '@/store/server/features/employees/offboarding/mutation';
-import { VscActivateBreakpoints } from "react-icons/vsc";
-import { AiOutlineUserAdd } from "react-icons/ai";
+import { AiOutlineUserAdd } from 'react-icons/ai';
 import JobTimeLineForm from '../allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../allFormData/workScheduleForm';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -70,8 +77,7 @@ const UserTable = () => {
     setPageSize,
     selectionType,
     userToRehire,
-    setUserToRehire
-
+    setUserToRehire,
   } = useEmployeeManagementStore();
   const [form] = Form.useForm();
   const { searchParams } = useEmployeeManagementStore();
@@ -119,17 +125,17 @@ const UserTable = () => {
                 src={
                   item?.profileImage && typeof item?.profileImage === 'string'
                     ? (() => {
-                      try {
-                        const parsed = JSON.parse(item.profileImage);
-                        return parsed.url && parsed.url.startsWith('http')
-                          ? parsed.url
-                          : Avatar;
-                      } catch {
-                        return item.profileImage.startsWith('http')
-                          ? item.profileImage
-                          : Avatar;
-                      }
-                    })()
+                        try {
+                          const parsed = JSON.parse(item.profileImage);
+                          return parsed.url && parsed.url.startsWith('http')
+                            ? parsed.url
+                            : Avatar;
+                        } catch {
+                          return item.profileImage.startsWith('http')
+                            ? item.profileImage
+                            : Avatar;
+                        }
+                      })()
                     : Avatar
                 }
                 alt="Description of image"
@@ -189,18 +195,20 @@ const UserTable = () => {
             </Button>
           </Tooltip>
 
-          {item.deletedAt !== null && <Tooltip title={'Activate Employee'}>
-            <Button
-              type="primary" htmlType='submit' value={"submit"} name='submit' onClick={() => handelRehireModal(item)}
-              disabled={item.deletedAt === null}
-
-            >
-              <AiOutlineUserAdd />
-            </Button>
-          </Tooltip>}
-
-
-
+          {item.deletedAt !== null && (
+            <Tooltip title={'Activate Employee'}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                value={'submit'}
+                name="submit"
+                onClick={() => handelRehireModal(item)}
+                disabled={item.deletedAt === null}
+              >
+                <AiOutlineUserAdd />
+              </Button>
+            </Tooltip>
+          )}
         </div>
       ),
     };
@@ -215,25 +223,26 @@ const UserTable = () => {
     }
   };
   const rowSelection = {
-    onChange: () => { },
+    onChange: () => {},
     getCheckboxProps: (record: EmployeeData) => ({
       disabled: record.employee_name === 'Disabled User',
       name: record.employee_name,
     }),
   };
 
-
   const handleActivateEmployee = (values: any) => {
-    values['userId'] = userToRehire?.id
-    values.joinedDate = moment(values.joinedDate).format("YYYY-MM-DD")
+    values['userId'] = userToRehire?.id;
+    values.joinedDate = moment(values.joinedDate).format('YYYY-MM-DD');
 
-    values.departmentLeadOrNot = !values.departmentLeadOrNot ? false : values.departmentLeadOrNot
-    rehireEmployee(values)
-  }
+    values.departmentLeadOrNot = !values.departmentLeadOrNot
+      ? false
+      : values.departmentLeadOrNot;
+    rehireEmployee(values);
+  };
   const handelRehireModal = (user: any) => {
-    setUserToRehire(user)
-    setReHireModalVisible(true)
-  }
+    setUserToRehire(user);
+    setReHireModalVisible(true);
+  };
   return (
     <div className="mt-2">
       <Table
@@ -263,11 +272,11 @@ const UserTable = () => {
       <Modal
         open={reHireModal}
         onCancel={() => {
-          setReHireModalVisible(false)
+          setReHireModalVisible(false);
           setUserToRehire(null);
         }}
         footer={false}
-      //  onConfirm={() => handleActivateEmployee(userToRehire)}
+        //  onConfirm={() => handleActivateEmployee(userToRehire)}
       >
         <Form
           form={form}
@@ -281,23 +290,35 @@ const UserTable = () => {
               message: 'Something wrong or unfilled',
               description: 'please back and check the unfilled fields',
             })
-          }>
-
-
+          }
+        >
           <JobTimeLineForm />
 
           <WorkScheduleForm />
-          <Form.Item >
-            <Row className='flex justify-end gap-3'>
-              <Button type="primary" htmlType='submit' value={"submit"} name='submit' onClick={() => setReHireModalVisible(false)} >Submit</Button >
-              <Button className='text-indigo-500' htmlType='button' value={"cancel"} name='cancel' onClick={() => setReHireModalVisible(false)} >Cancel </Button >
+          <Form.Item>
+            <Row className="flex justify-end gap-3">
+              <Button
+                type="primary"
+                htmlType="submit"
+                value={'submit'}
+                name="submit"
+                onClick={() => setReHireModalVisible(false)}
+              >
+                Submit
+              </Button>
+              <Button
+                className="text-indigo-500"
+                htmlType="button"
+                value={'cancel'}
+                name="cancel"
+                onClick={() => setReHireModalVisible(false)}
+              >
+                Cancel{' '}
+              </Button>
             </Row>
           </Form.Item>
         </Form>
-
       </Modal>
-
-
     </div>
   );
 };

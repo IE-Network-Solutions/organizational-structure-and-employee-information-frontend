@@ -11,8 +11,6 @@ import OffboardingTask from './_components/offboarding';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import OffboardingFormControl from './_components/offboarding/_components/offboardingFormControl';
 import { userFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
-import { useRehireTerminatedEmployee } from '@/store/server/features/employees/offboarding/mutation';
-
 interface Params {
   id: string;
 }
@@ -24,7 +22,6 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   const { setIsEmploymentFormVisible } = useOffboardingStore();
 
   const { data: offboardingTermination } = userFetchUserTerminationByUserId(id);
-  const { mutate: rehireEmployee } = useRehireTerminatedEmployee();
 
   const items = [
     {
@@ -57,9 +54,6 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
     setIsEmploymentFormVisible(true);
   };
 
-  const handleActivateEmployee = (userId: string) => {
-    rehireEmployee(userId)
-  }
   return (
     <div className="bg-[#F5F5F5] px-2 h-auto min-h-screen">
       <div className="flex gap-2 items-center mb-4">
@@ -69,9 +63,14 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       <Row gutter={[16, 24]}>
         <Col lg={8} md={10} xs={24}>
           <BasicInfo id={id} />
-          <div className='flex gap-3'>
+          <div className="flex gap-3">
             <div>
-              <Button type="primary" htmlType='submit' value={"submit"} name='submit' onClick={handleEndEmploymentClick}
+              <Button
+                type="primary"
+                htmlType="submit"
+                value={'submit'}
+                name="submit"
+                onClick={handleEndEmploymentClick}
                 disabled={offboardingTermination?.isActive}
               >
                 End Employment
@@ -91,7 +90,6 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
         </Col>
       </Row>
       <OffboardingFormControl userId={id} />
-
     </div>
   );
 }

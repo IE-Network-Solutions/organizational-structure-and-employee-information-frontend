@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
-import { Modal, Input, Select, Button, Form, Row, Col } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import React from 'react';
+import { Modal, Input, Select, Button, Form, Row } from 'antd';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
-import { useAddOffboardingItem, useAddOffboardingTasksTemplate, useAddTerminationTasks } from '@/store/server/features/employees/offboarding/mutation';
-import { useEmployeeAllFilter, useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
-import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import {
+  useAddOffboardingTasksTemplate,
+  useAddTerminationTasks,
+} from '@/store/server/features/employees/offboarding/mutation';
+import { useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
 import { userFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
 
 const { TextArea } = Input;
@@ -17,25 +18,14 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
 
   const { mutate: createTaskTemplate } = useAddOffboardingTasksTemplate();
   const { mutate: createTaskList } = useAddTerminationTasks();
-  const { data: offboardingTermination, isSuccess: terminationSuccess } = userFetchUserTerminationByUserId(id);
-
-  const {
-    searchParams,
-    userCurrentPage,
-    pageSize,
-
-  } = useEmployeeManagementStore();
-  const { data: users, isLoading: isEmployeeLoading } =
-    useGetEmployees()
+  const { data: offboardingTermination } = userFetchUserTerminationByUserId(id);
+  const { data: users } = useGetEmployees();
   const {
     isAddTaskModalVisible,
     isTaskTemplateVisible,
-    setTaskForm,
-    addTask,
     resetTaskForm,
     setIsAddTaskModalVisible,
     addCustomOption,
-    customOptions,
     isAddListVisible,
     setIsAddListVisible,
     newAssign,
@@ -58,7 +48,6 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
   //   });
   // };
 
-
   // const handleAddTaskList = () => {
   //   if (newTaskList) {
   //     addCustomOption(newTaskList);
@@ -67,7 +56,6 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
   //     setIsAddTaskModalVisible(false);
   //   }
   // };
-
 
   // useEffect(() => {
   //   if (id) {
@@ -85,28 +73,20 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
     }
   };
 
-  const handleListStatusChange = (value: any) => {
-    if (value === 'addList') {
-      setIsAddListVisible(true);
-    } else {
-      setTaskForm({ category: value });
-    }
-  };
   const handleClose = () => {
     setIsAddTaskModalVisible(false);
     resetTaskForm();
   };
   const createTsks = (values: any) => {
     if (offboardingTermination) {
-      values.employeTerminationId = offboardingTermination?.id
-      createTaskList([values])
+      values.employeTerminationId = offboardingTermination?.id;
+      createTaskList([values]);
     }
-  }
+  };
 
   const createTsksTemplate = (values: any) => {
-    createTaskTemplate(values)
-
-  }
+    createTaskTemplate(values);
+  };
   return (
     <>
       <Modal
@@ -116,9 +96,11 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
         onCancel={handleClose}
         footer={false}
       >
-        <Form form={form}
+        <Form
+          form={form}
           onFinish={isTaskTemplateVisible ? createTsksTemplate : createTsks}
-          layout="vertical">
+          layout="vertical"
+        >
           <Form.Item
             name="title"
             rules={[{ required: true, message: 'Please enter a task name' }]}
@@ -128,7 +110,7 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
           <div className="flex space-x-2">
             <Form.Item
               name="approverId"
-              id='approver'
+              id="approver"
               className="w-full"
               rules={[{ required: true, message: 'Please select approver' }]}
             >
@@ -165,9 +147,7 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
             </Form.Item> */}
           </div>
 
-          <Form.Item name="description"
-            id='description'
-          >
+          <Form.Item name="description" id="description">
             <TextArea
               rows={4}
               allowClear
@@ -175,14 +155,28 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
             />
           </Form.Item>
 
-
-          <Form.Item >
-            <Row className='flex justify-end gap-3'>
-              <Button type="primary" htmlType='submit' value={"submit"} name='submit' onClick={handleClose} >Submit</Button >
-              <Button className='text-indigo-500' htmlType='button' value={"cancel"} name='cancel' onClick={handleClose} >Cancel </Button >
+          <Form.Item>
+            <Row className="flex justify-end gap-3">
+              <Button
+                type="primary"
+                htmlType="submit"
+                value={'submit'}
+                name="submit"
+                onClick={handleClose}
+              >
+                Submit
+              </Button>
+              <Button
+                className="text-indigo-500"
+                htmlType="button"
+                value={'cancel'}
+                name="cancel"
+                onClick={handleClose}
+              >
+                Cancel{' '}
+              </Button>
             </Row>
           </Form.Item>
-
         </Form>
       </Modal>
       <Modal

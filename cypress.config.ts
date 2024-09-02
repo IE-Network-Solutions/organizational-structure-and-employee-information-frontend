@@ -8,4 +8,3 @@ export default defineConfig({
     baseUrl: 'http://172.16.33.163:3000',
   },
 });
-

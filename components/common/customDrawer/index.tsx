@@ -21,7 +21,6 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
 }) => {
   return (
     <div>
-
       <>
         {' '}
         {open && (

@@ -127,11 +127,10 @@ interface UserState {
   setSelectionType: (selectionType: 'checkbox' | 'radio') => void;
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
-  reHireModal: boolean,
+  reHireModal: boolean;
   setReHireModalVisible: (reHireModal: boolean) => void;
-  userToRehire: any,
+  userToRehire: any;
   setUserToRehire: (userToRehire: any) => void;
-
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -231,8 +230,6 @@ export const useEmployeeManagementStore = create<UserState>()(
     setSearchParams: (key, value) =>
       set((state) => ({
         searchParams: { ...state.searchParams, [key]: value },
-
       })),
   })),
-
 );
