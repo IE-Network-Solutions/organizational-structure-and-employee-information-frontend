@@ -7,10 +7,11 @@ import General from './_components/general';
 import Job from './_components/job';
 import Documents from './_components/documents';
 import RolePermission from './_components/rolePermission';
+import OffboardingTask from './_components/offboarding';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
-import { AddTaskModal } from './offboarding/_components/addTaskModal';
-import OffboardingFormControl from './offboarding/_components/offboardingFormControl';
-import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import OffboardingFormControl from './_components/offboarding/_components/offboardingFormControl';
+import { userFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
+import { useRehireTerminatedEmployee } from '@/store/server/features/employees/offboarding/mutation';
 
 interface Params {
   id: string;
@@ -21,6 +22,9 @@ interface EmployeeDetailsProps {
 
 function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   const { setIsEmploymentFormVisible } = useOffboardingStore();
+
+  const { data: offboardingTermination } = userFetchUserTerminationByUserId(id);
+  const { mutate: rehireEmployee } = useRehireTerminatedEmployee();
 
   const items = [
     {
@@ -43,10 +47,19 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       label: 'Role Permission',
       children: <RolePermission id={id} />,
     },
+    {
+      key: '5',
+      label: 'OffBoarding',
+      children: <OffboardingTask id={id} />,
+    },
   ];
   const handleEndEmploymentClick = () => {
     setIsEmploymentFormVisible(true);
   };
+
+  const handleActivateEmployee = (userId: string) => {
+    rehireEmployee(userId)
+  }
   return (
     <div className="bg-[#F5F5F5] px-2 h-auto min-h-screen">
       <div className="flex gap-2 items-center mb-4">
@@ -56,9 +69,15 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       <Row gutter={[16, 24]}>
         <Col lg={8} md={10} xs={24}>
           <BasicInfo id={id} />
-          <Button type="primary" onClick={handleEndEmploymentClick}>
-            End Employment
-          </Button>
+          <div className='flex gap-3'>
+            <div>
+              <Button type="primary" htmlType='submit' value={"submit"} name='submit' onClick={handleEndEmploymentClick}
+                disabled={offboardingTermination?.isActive}
+              >
+                End Employment
+              </Button>
+            </div>
+          </div>
         </Col>
         <Col lg={16} md={14} xs={24}>
           <Card>

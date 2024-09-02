@@ -1,16 +1,19 @@
 import { create } from 'zustand';
 import { Dayjs } from 'dayjs';
+import { EmployeeOffBoardingTasks } from '@/store/server/features/employees/offboarding/interface';
 
 export interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
-  completedBy?: string;
-  completedDate?: string;
-  category: string;
-  dueDate?: string;
-  assignedTo?: string;
-  description?: string;
+  approverId: string
+  completedDate: string
+  description: string
+
+  employeTerminationId: string
+  isCompleted: boolean,
+
+  id: string
+  title: string
+
+
 }
 interface TaskForm {
   taskName: string;
@@ -26,6 +29,22 @@ const initialTaskForm: TaskForm = {
   description: '',
   category: null,
 };
+const initialTask: Task = {
+  approverId: '',
+  completedDate: '',
+  description: '',
+
+  employeTerminationId: '',
+  isCompleted: false,
+  id: '',
+  title: ''
+};
+
+interface TemplateTasks {
+  approverId: string
+  description: string,
+  title: string,
+}
 interface OffboardingState {
   taskForm: TaskForm;
   newTaskList: string;
@@ -46,6 +65,12 @@ interface OffboardingState {
   isTaskTemplateVisible: boolean;
   isDeleteModalVisible: boolean;
   isEmploymentFormVisible: boolean;
+  selectedTemplateTasks: EmployeeOffBoardingTasks[];
+  completedTask: boolean;
+  taskToDelete: Task
+  setTaskToDelete: (task: Task) => void;
+  setCompletedTask: (visible: boolean) => void;
+  setselectedTemplateTasks: (templateTasks: EmployeeOffBoardingTasks[]) => void;
   setIsEmploymentFormVisible: (visible: boolean) => void;
   setIsDeleteModalVisible: (visible: boolean) => void;
   setIsTaskTemplateVisible: (visible: boolean) => void;
@@ -82,6 +107,14 @@ export const useOffboardingStore = create<OffboardingState>((set) => ({
   isTaskTemplateVisible: false,
   isDeleteModalVisible: false,
   isEmploymentFormVisible: false,
+  selectedTemplateTasks: [],
+  completedTask: false,
+  taskToDelete: initialTask,
+  setTaskToDelete: (task) =>
+    set({ taskToDelete: task }),
+
+  setCompletedTask: (visible) => set({ completedTask: visible }),
+
   setIsEmploymentFormVisible: (visible) =>
     set({ isEmploymentFormVisible: visible }),
   setIsDeleteModalVisible: (visible) => set({ isDeleteModalVisible: visible }),
@@ -91,9 +124,10 @@ export const useOffboardingStore = create<OffboardingState>((set) => ({
   toggleTask: (id) =>
     set((state) => ({
       tasks: state.tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task,
+        task.id === id ? { ...task, completed: !task.isCompleted } : task,
       ),
     })),
+
   setIsModalVisible: (visible) => set({ isModalVisible: visible }),
   setIsAddListVisible: (visible) => set({ isAddListVisible: visible }),
   setIsTerminationModalVisible: (visible) =>
@@ -124,4 +158,7 @@ export const useOffboardingStore = create<OffboardingState>((set) => ({
       taskForm: { ...state.taskForm, ...updates },
     })),
   resetTaskForm: () => set({ taskForm: initialTaskForm }),
+  setselectedTemplateTasks: (templateTasks) =>
+    set({ selectedTemplateTasks: templateTasks }),
+
 }));

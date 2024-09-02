@@ -127,6 +127,11 @@ interface UserState {
   setSelectionType: (selectionType: 'checkbox' | 'radio') => void;
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
+  reHireModal: boolean,
+  setReHireModalVisible: (reHireModal: boolean) => void;
+  userToRehire: any,
+  setUserToRehire: (userToRehire: any) => void;
+
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -151,6 +156,8 @@ export const useEmployeeManagementStore = create<UserState>()(
       })),
 
     customFormData: null,
+    reHireModal: false,
+    setReHireModalVisible: (reHireModal: boolean) => set({ reHireModal }),
     setCustomFormData: (customFormData: FormData) => set({ customFormData }),
 
     selectedWorkSchedule: null,
@@ -181,6 +188,8 @@ export const useEmployeeManagementStore = create<UserState>()(
     termKey: null,
     setTermKey: (termKey: string | null) => set({ termKey }),
     setCurrent: (current: number) => set({ current }),
+    userToRehire: {},
+    setUserToRehire: (userToRehire: any) => set({ userToRehire }),
 
     profileFileList: [],
     setProfileFileList: (profileFileList: any) => set({ profileFileList }),
@@ -222,6 +231,8 @@ export const useEmployeeManagementStore = create<UserState>()(
     setSearchParams: (key, value) =>
       set((state) => ({
         searchParams: { ...state.searchParams, [key]: value },
+
       })),
   })),
+
 );

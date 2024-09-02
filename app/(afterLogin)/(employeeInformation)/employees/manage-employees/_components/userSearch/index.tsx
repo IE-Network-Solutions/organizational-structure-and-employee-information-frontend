@@ -23,7 +23,7 @@ const EmployeeSearch: React.FC = () => {
     searchParams.allStatus ? searchParams.allStatus : '',
   );
 
-  const { data: EmployeeBranches } = useEmployeeBranches();
+  const { data: EmployeeBranches, isLoading: sdbnsc } = useEmployeeBranches();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
 
   const handleSearchEmployee = async (

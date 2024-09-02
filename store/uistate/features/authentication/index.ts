@@ -7,6 +7,8 @@ interface StoreState {
   setToken: (token: string) => void;
   tenantId: string;
   setTenantId: (tenantId: string) => void;
+  userId: string;
+  setUserId: (userId: string) => void;
   localId: string;
   setLocalId: (localId: string) => void;
   loading: boolean;
@@ -27,6 +29,8 @@ export const useAuthenticationStore = create<StoreState>()(
         },
         tenantId: '',
         setTenantId: (tenantId: string) => set({ tenantId }),
+        userId: 'd05d69eb-4e1c-4589-b776-5c9fb44ddd0b',
+        setUserId: (userId: string) => set({ userId }),
         localId: '',
         setLocalId: (localId: string) => set({ localId }),
         loading: false, // Non-persistent state
@@ -41,6 +45,7 @@ export const useAuthenticationStore = create<StoreState>()(
           token: state.token,
           tenantId: state.tenantId,
           localId: state.localId,
+          userId: 'd05d69eb-4e1c-4589-b776-5c9fb44ddd0b'
           // 'loading' and 'error' are not included here, so they won't be persisted
         }),
       },

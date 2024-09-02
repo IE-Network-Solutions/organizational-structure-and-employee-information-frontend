@@ -2,7 +2,7 @@
 
 import {
   useAddOffboardingItem,
-  useAddTerminationItem,
+  // useAddTerminationItem,
   useUpdateOffboardingItem,
 } from '@/store/server/features/employees/offboarding/mutation';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
@@ -13,6 +13,7 @@ import TextArea from 'antd/es/input/TextArea';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { Dayjs } from 'dayjs';
 import moment from 'moment';
+import { useFetchOffboardItems } from '@/store/server/features/employees/offboarding/queries';
 
 const { Option } = Select;
 
@@ -20,8 +21,8 @@ const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) =
   const [form] = Form.useForm();
   const { mutate: updateOffboardingItem } = useUpdateOffboardingItem();
   const { mutate: createOffboardingItem } = useAddOffboardingItem();
-  const { mutate: createTerminationItem } = useAddTerminationItem();
   const { data: employeeData } = useGetEmployee(userId);
+
   const {
     setIsModalVisible,
     newOption,
@@ -57,7 +58,7 @@ const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) =
   const handleAddTerminationReason = () => {
     if (newTerminationOption) {
       addCustomTerminationOption(newTerminationOption);
-      createTerminationItem({ name: newTerminationOption });
+      // createTerminationItem({ name: newTerminationOption });
       setNewTerminationOption('');
       setIsTerminationModalVisible(false);
     }
@@ -67,7 +68,7 @@ const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) =
     values['effectiveDate'] = moment(values.effectiveDate).format("YYYY-MM-DD")
     values['userId'] = userId
     values['jobInformationId'] = employeeData.employeeJobInformation[0].id
-
+    setIsEmploymentFormVisible(false)
     createOffboardingItem(values);
   };
   return (
@@ -82,7 +83,7 @@ const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) =
         <Form.Item
           name="effectiveDate"
           label="Effective Date"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: 'Effective Date is Required' }]}
         >
           <DatePicker className="w-full" />
         </Form.Item>
@@ -135,10 +136,10 @@ const OffboardingFormControl: React.FC<any> = ({ userId }: { userId: string }) =
         <Form.Item name="comment" label="Comment">
           <TextArea rows={4} />
         </Form.Item>
-        <Form.Item name="comment" label="Comment">
+        <Form.Item>
           <Row className='flex justify-end gap-3'>
-            <Button className='text-indigo-500' htmlType='submit' value={"submit"} name='submit' >Submit</Button >
-            <Button className='text-indigo-500' htmlType='button' value={"cancel"} name='cancel' >Cancel </Button >
+            <Button type='primary' htmlType='submit' value={"submit"} name='submit' >Submit</Button >
+            <Button className='text-indigo-500' htmlType='button' value={"cancel"} name='cancel' onClick={() => setIsEmploymentFormVisible(false)}>Cancel </Button >
           </Row>
         </Form.Item>
       </Form>

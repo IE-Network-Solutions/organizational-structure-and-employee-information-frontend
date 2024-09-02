@@ -16,3 +16,26 @@ export interface EmploymentStatusUpdate {
   userId: string
 
 }
+
+export interface EmployeeOffBoardingTasks {
+  approverId: string
+  description: string,
+  title: string,
+  employeeeTerminationId: string
+
+}
+
+export interface EmployeeOffBoardingTemplateTasks {
+  approverId: string
+  description: string,
+  title: string,
+
+
+}
+export interface offBoardingTasksUpdateStatus {
+  id: string
+  isCompleted: boolean
+
+
+}
+

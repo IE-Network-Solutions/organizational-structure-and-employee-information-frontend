@@ -25,6 +25,18 @@ const createEmployee = async (values: any) => {
   });
 };
 
+
+const createJobInformation = async (values: any) => {
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/EmployeeJobInformation`,
+    method: 'POST',
+    data: values,
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+  });
+};
 const updateEmployee = async (values: any) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/${values?.usersId}`,
@@ -123,6 +135,27 @@ export const useDeleteEmployee = () => {
   return useMutation(deleteEmployee, {
     onSuccess: () => {
       queryClient.invalidateQueries('employees');
+    },
+  });
+};
+
+
+
+export const useCreateJobInformation = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createJobInformation, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('employeesJb');
+      NotificationMessage.success({
+        message: 'Successfully Created',
+        description: 'Employee successfully Created',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Creating Failed',
+        description: 'Employee Created Failed',
+      });
     },
   });
 };

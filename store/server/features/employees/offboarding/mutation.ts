@@ -3,7 +3,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { EmploymentStatusUpdate } from './interface';
+import { EmployeeOffBoardingTasks, EmploymentStatusUpdate } from './interface';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -19,10 +19,36 @@ const addOffboardingItem = async (values: EmploymentStatusUpdate) => {
     },
   });
 };
-const addTerminationTask = async (values: any) => {
+
+const rehireTerminatedEmployee = async (values: any) => {
   return crudRequest({
-    url: 'https://jsonplaceholder.typicode.com/posts',
-    // url: `${ORG_AND_EMP_URL}/items`,
+    url: `${ORG_AND_EMP_URL}/employee-termination/rehireUser/${values?.userId}`,
+    method: 'PATCH',
+    data: values,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+const addTerminationTasks = async (values: EmployeeOffBoardingTasks[]) => {
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/offboarding-employee-tasks`,
+
+    method: 'POST',
+    data: values,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+
+const addOffboardingTasksTemplate = async (values: EmployeeOffBoardingTasks) => {
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/offboarding-tasks-template`,
+
     method: 'POST',
     data: values,
     headers: {
@@ -34,7 +60,7 @@ const addTerminationTask = async (values: any) => {
 
 const updateOffboardingItem = async (values: any) => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/items/${values?.itemId}`,
+    url: `${ORG_AND_EMP_URL}/offboarding-employee-tasks/${values?.id}`,
     method: 'PATCH',
     data: values,
     headers: {
@@ -44,9 +70,20 @@ const updateOffboardingItem = async (values: any) => {
   });
 };
 
-const deleteOffboardingItem = async () => {
+const deleteOffboardingItem = async (id: string) => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/items`,
+    url: `${ORG_AND_EMP_URL}/offboarding-employee-tasks/${id}`,
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+const deleteOffboardingTemplateTasksItem = async (id: string) => {
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/offboarding-tasks-template/${id}`,
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -58,7 +95,7 @@ export const useAddOffboardingItem = () => {
   const queryClient = useQueryClient();
   return useMutation(addOffboardingItem, {
     onSuccess: () => {
-      queryClient.invalidateQueries('offboardItems');
+      queryClient.invalidateQueries('offboardingActiveTermiantionsByUserId');
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Item successfully Created',
@@ -72,9 +109,9 @@ export const useAddOffboardingItem = () => {
     },
   });
 };
-export const useAddTerminationItem = () => {
+export const useAddTerminationTasks = () => {
   const queryClient = useQueryClient();
-  return useMutation(addTerminationItem, {
+  return useMutation(addTerminationTasks, {
     onSuccess: () => {
       queryClient.invalidateQueries('offboardItems');
       NotificationMessage.success({
@@ -128,3 +165,62 @@ export const useDeleteOffboardingItem = () => {
     },
   });
 };
+
+
+export const useDeleteOffboardingTemplateTasksItem = () => {
+  const queryClient = useQueryClient();
+  return useMutation(deleteOffboardingTemplateTasksItem, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('offboardItemsTemplate');
+      NotificationMessage.success({
+        message: 'Successfully Deleted',
+        description: 'Item successfully deleted',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Deleting Failed',
+        description: 'Item deletion Failed',
+      });
+    },
+  });
+};
+
+export const useAddOffboardingTasksTemplate = () => {
+  const queryClient = useQueryClient();
+  return useMutation(addOffboardingTasksTemplate, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('offboardItemsTemplate');
+      NotificationMessage.success({
+        message: 'Successfully Created',
+        description: 'Item successfully Created',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Creating Failed',
+        description: 'Item creation Failed',
+      });
+    },
+  });
+};
+
+export const useRehireTerminatedEmployee = () => {
+  const queryClient = useQueryClient();
+  return useMutation(rehireTerminatedEmployee, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('offboardingActiveTermiantionsByUserId');
+      NotificationMessage.success({
+        message: 'Successfully Updated',
+        description: 'Item successfully updated',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Updating Failed',
+        description: 'Item update Failed',
+      });
+    },
+  });
+};
+

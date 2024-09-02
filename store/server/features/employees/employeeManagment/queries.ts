@@ -135,7 +135,7 @@ export const useEmployeeAllFilter = (
  */
 const getEmployees = async () => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/users`,
+    url: `${ORG_AND_EMP_URL}/users?deletedAt=null`,
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
