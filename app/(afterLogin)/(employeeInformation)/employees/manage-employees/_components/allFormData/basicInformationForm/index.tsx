@@ -12,18 +12,18 @@ import {
   Upload,
   message,
 } from 'antd';
-import { useEmployeeManagmentStore } from '@/store/uistate/features/employees/employeeManagment';
 import { InboxOutlined } from '@ant-design/icons';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import { validateEmail, validateName } from '@/utils/validation';
 import { UploadFile } from 'antd/lib';
 import { RcFile } from 'antd/es/upload';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const { Option } = Select;
 const { Dragger } = Upload;
 
 const BasicInformationForm = ({ form }: any) => {
-  const { profileFileList, setProfileFileList } = useEmployeeManagmentStore();
+  const { profileFileList, setProfileFileList } = useEmployeeManagementStore();
   const { data: nationalities, isLoading: isLoadingNationality } =
     useGetNationalities();
 

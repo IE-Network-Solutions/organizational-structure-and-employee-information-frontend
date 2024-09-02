@@ -10,6 +10,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch a paginated list of roles by sending a GET request to the API.
  *
+ *
  * @param permissonCurrentPage - The current page number for pagination.
  * @param pageSize - The number of roles to fetch per page.
  * @returns The response data from the API containing the list of roles.
@@ -28,6 +29,7 @@ const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
 
 /**
  * Function to fetch all roles without pagination by sending a GET request to the API.
+ *
  *
  * @returns The response data from the API containing all roles.
  */
