@@ -27,7 +27,7 @@ export const useAuthenticationStore = create<StoreState>()(
         },
         tenantId: '',
         setTenantId: (tenantId: string) => set({ tenantId }),
-        userId: 'd05d69eb-4e1c-4589-b776-5c9fb44ddd0b',
+        userId: '',
         setUserId: (userId: string) => set({ userId }),
         localId: '',
         setLocalId: (localId: string) => set({ localId }),
@@ -43,7 +43,7 @@ export const useAuthenticationStore = create<StoreState>()(
           token: state.token,
           tenantId: state.tenantId,
           localId: state.localId,
-          userId: 'd05d69eb-4e1c-4589-b776-5c9fb44ddd0b',
+          userId: state.userId,
           // 'loading' and 'error' are not included here, so they won't be persisted
         }),
       },

@@ -15,7 +15,7 @@ import {
 } from '@/store/server/features/employees/offboarding/mutation';
 import {
   useFetchOffboardingTasks,
-  userFetchUserTerminationByUserId,
+  useFetchUserTerminationByUserId,
 } from '@/store/server/features/employees/offboarding/queries';
 import { MdDelete } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -79,7 +79,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
 
   const { mutate: offboardingTaskDelete } = useDeleteOffboardingItem();
 
-  const { data: offboardingTermination } = userFetchUserTerminationByUserId(id);
+  const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
   const {
     data: offboardingTasks,
     isLoading,

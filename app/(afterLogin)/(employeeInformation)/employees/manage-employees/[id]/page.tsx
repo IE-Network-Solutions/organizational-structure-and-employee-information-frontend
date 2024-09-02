@@ -10,7 +10,7 @@ import RolePermission from './_components/rolePermission';
 import OffboardingTask from './_components/offboarding';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import OffboardingFormControl from './_components/offboarding/_components/offboardingFormControl';
-import { userFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
+import { useFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
 interface Params {
   id: string;
 }
@@ -21,7 +21,7 @@ interface EmployeeDetailsProps {
 function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   const { setIsEmploymentFormVisible } = useOffboardingStore();
 
-  const { data: offboardingTermination } = userFetchUserTerminationByUserId(id);
+  const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
 
   const items = [
     {
