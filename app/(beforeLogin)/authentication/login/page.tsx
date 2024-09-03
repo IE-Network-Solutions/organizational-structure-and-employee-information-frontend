@@ -118,7 +118,7 @@ const Login: React.FC = () => {
           autoComplete="off"
         >
           <Form.Item
-            label="Email"
+            label="Emails"
             name="email"
             rules={[
               {

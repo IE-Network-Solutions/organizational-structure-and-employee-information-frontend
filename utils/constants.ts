@@ -1,4 +1,6 @@
 export const ORG_AND_EMP_URL = process.env.ORG_AND_EMP_URL;
+export const NAHOME_URL = process.env.NAHOME_URL;
+
 
 export const TENANT_MGMT_URL = process.env.TENANT_MGMT_URL;
 

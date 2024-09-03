@@ -89,6 +89,29 @@ const items: MenuItem[] = [
     label: 'Activity',
   },
   {
+    key: '/organizational-development',
+    icon: <BarChartOutlined />,
+    label: 'Organizational Development',
+    className: 'font-bold',
+    children: [
+      {
+        key: '/organizational-development/categories',
+        label: 'Categories',
+        className: 'font-bold',
+      },
+      {
+        key: '/organizational-development/succession',
+        className: 'font-bold',
+        label: 'Succession Plan',
+      },
+      {
+        key: '/organizational-development/settings',
+        className: 'font-bold',
+        label: 'Settings',
+      },
+    ],
+  },
+  {
     key: '/feedback ',
     label: 'Feedback',
     icon: <UserOutlined />,
