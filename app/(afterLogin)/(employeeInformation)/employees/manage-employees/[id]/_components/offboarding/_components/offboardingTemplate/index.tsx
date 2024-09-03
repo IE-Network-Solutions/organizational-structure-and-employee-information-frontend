@@ -120,11 +120,11 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
             onConfirm={() => {
               handelTaskDelete(taskToDelete.id);
               setIsDeleteModalVisible(false);
-              setTaskToDelete(null); // Reset the task after deletion
+              setTaskToDelete(null as any); // Reset the task after deletion
             }}
             onCancel={() => {
               setIsDeleteModalVisible(false);
-              setTaskToDelete(null); // Reset the task if canceled
+              setTaskToDelete(null as any); // Reset the task if canceled
             }}
             customMessage={
               <>

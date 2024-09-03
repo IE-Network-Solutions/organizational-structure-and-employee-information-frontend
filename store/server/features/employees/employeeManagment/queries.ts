@@ -174,7 +174,7 @@ const getEmployee = async (id: string) => {
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetEmployees = () => useQuery<any[]>('employees', getEmployees);
+export const useGetEmployees = () => useQuery<any>('employees', getEmployees);
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.

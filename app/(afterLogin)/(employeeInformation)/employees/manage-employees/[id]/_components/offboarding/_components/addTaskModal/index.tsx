@@ -25,11 +25,6 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
     isTaskTemplateVisible,
     resetTaskForm,
     setIsAddTaskModalVisible,
-    addCustomOption,
-    isAddListVisible,
-    setIsAddListVisible,
-    newAssign,
-    setNewAssign,
   } = useOffboardingStore();
 
   // const handleAddTask = () => {
@@ -64,14 +59,16 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
   //   }
   // }, [id, refetch]);
 
-  const handleAddList = () => {
-    if (newAssign) {
-      addCustomOption(newAssign);
-      createTaskList({ name: newAssign });
-      setNewAssign('');
-      setIsAddListVisible(false);
-    }
-  };
+  // const handleAddList = () => {
+
+  //   console.log(newAssign, "new assign")
+  //   if (newAssign) {
+  //     addCustomOption(newAssign);
+  //     // createTaskList({ name: newAssign });
+  //     setNewAssign('');
+  //     setIsAddListVisible(false);
+  //   }
+  // };
 
   const handleClose = () => {
     setIsAddTaskModalVisible(false);
@@ -179,7 +176,7 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
           </Form.Item>
         </Form>
       </Modal>
-      <Modal
+      {/* <Modal
         title="Add a New List"
         centered
         okText="Create List"
@@ -193,7 +190,7 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
           onChange={(e) => setNewAssign(e.target.value)}
           placeholder="Enter new list"
         />
-      </Modal>
+      </Modal> */}
     </>
   );
 };

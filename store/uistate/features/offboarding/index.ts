@@ -12,6 +12,11 @@ export interface Task {
 
   id: string;
   title: string;
+  approver?: {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+  };
 }
 interface TaskForm {
   taskName: string;
