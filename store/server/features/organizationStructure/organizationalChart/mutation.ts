@@ -64,10 +64,10 @@ const deleteOrgChart = async (id: string) => {
 export const useCreateOrgChart = () => {
   const queryClient = useQueryClient();
   return useMutation(createOrgChart, {
-    onSuccess: (_, variables: any) => {
+    onSuccess: () => {
       queryClient.invalidateQueries('orgcharts');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      // const method = variables?.method?.toUpperCase();
+      // handleSuccessMessage(method);
     },
   });
 };
@@ -100,10 +100,10 @@ export const useUpdateOrgChart = () => {
 export const useDeleteOrgChart = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteOrgChart, {
-    onSuccess: (_, variables: any) => {
+    onSuccess: () => {
       queryClient.invalidateQueries('orgcharts');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      // const method = variables?.method?.toUpperCase();
+      // handleSuccessMessage(method);
     },
   });
 };

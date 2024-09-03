@@ -13,7 +13,7 @@ import { Microsoft } from '@/components/Icons/microsoft';
 import { Google } from '@/components/Icons/google';
 import { useGetTenantId } from '@/store/server/features/employees/authentication/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 type FieldType = {
   email: string;
@@ -28,29 +28,22 @@ const Login: React.FC = () => {
     loading,
     setLoading,
     setToken,
-    localId,
+    setUserId,
     setLocalId,
     setTenantId,
   } = useAuthenticationStore();
 
-  // Call the React Query hook
-  const { data: fetchedTenantId, refetch } = useGetTenantId(localId);
-
+  const { data: fetchedTenantId, refetch: fetchTenantId } = useGetTenantId();
+  const router = useRouter();
   // Update tenantId in store when fetched
   useEffect(() => {
-    if (fetchedTenantId) {
+    if (fetchedTenantId?.tenantId) {
       setTenantId(fetchedTenantId?.tenantId);
+      setUserId(fetchedTenantId.id);
       message.loading({ content: 'Redirecting...', key: 'redirect' });
-      redirect(`/employees/manage-employees`);
+      router.push(`/employees/manage-employees`);
     }
   }, [fetchedTenantId, setTenantId]);
-
-  // Trigger refetch when localId is set
-  useEffect(() => {
-    if (localId) {
-      refetch();
-    }
-  }, [localId, refetch]);
 
   // Handle Google sign-in
   const handleGoogleSignIn = async () => {
@@ -62,31 +55,37 @@ const Login: React.FC = () => {
 
       // Get the ID token
       const idToken = await user.getIdToken();
+
       setToken(idToken);
       setLocalId(uId);
+      fetchTenantId(); // Pass the correct parameter
 
       message.success('Successfully logged in!');
+      message.loading({ content: 'Redirecting...', key: 'redirect' });
     } catch (err: any) {
       setError(err.message);
       message.error('Failed to log in. Please try again.');
     }
   };
+
   const handleEmailPasswordSignIn: FormProps<FieldType>['onFinish'] = async (
     values,
   ) => {
     setLoading(true);
     setError('');
-
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         values.email,
         values.password,
       );
-
-      // Handle successful sign-in
       const user = userCredential.user;
-      message.success(`Welcome back, ${user.displayName || 'User'}!`);
+      const idToken = await user.getIdToken();
+      setToken(idToken);
+      setLocalId(user.uid);
+      fetchTenantId(); // Pass the correct parameter
+
+      message.success(`Welcome back`);
     } catch (err: any) {
       setError(err.message);
     }
@@ -105,7 +104,7 @@ const Login: React.FC = () => {
   return (
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
-      style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
+      // style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
     >
       <div className="bg-[#F1F2F3] w-full max-w-md py-4 px-6 rounded-lg my-5">
         <p className="text-center font-semibold">PEP</p>

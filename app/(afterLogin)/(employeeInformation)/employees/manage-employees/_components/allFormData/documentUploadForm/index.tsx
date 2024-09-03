@@ -44,7 +44,8 @@ const DocumentUploadForm = () => {
               onRemove={handleDocumentRemove}
               customRequest={customRequest}
               listType="picture"
-              accept="*/*"
+              // accept="*/*"
+              accept="/*"
             >
               <div className="flex justify-start items-center text-xl font-semibold text-gray-950">
                 <p>Documents Upload</p>
