@@ -88,13 +88,6 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
 
   const handleAddTaskClick = () => setIsAddTaskModalVisible(true);
   const handleTaskTemplate = () => setIsTaskTemplateVisible(true);
-  // const groupedTasks: Record<string, Task[]> = offboardingTasks?.reduce(
-  //   (acc: any, task: any) => {
-  //     (acc[task.category] = acc[task.category] || []).push(task);
-  //     return acc;
-  //   },
-  //   {} as Record<string, typeof offboardingTasks>,
-  // );
   const menuItems = [
     {
       key: '1',
@@ -138,21 +131,6 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
         }
         className="w-full"
       >
-        {/* {groupedTasks &&
-          Object.entries(groupedTasks).map(([category, tasks]) => (
-            <React.Fragment key={category}>
-              <Divider orientation="left">
-                <span className="text-blue-200">{category}</span>
-              </Divider>
-              {(tasks as Task[]).map((task: Task) => (
-                <TaskItem
-                  key={task.id}
-                  task={task}
-                  onToggle={() => toggleTask(task.id)}
-                />
-              ))}
-            </React.Fragment>
-          ))} */}
         {offboardingTasks.length > 0 ? (
           (offboardingTasks as Task[])?.map((task: Task) => (
             <div

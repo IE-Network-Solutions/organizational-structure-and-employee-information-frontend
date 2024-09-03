@@ -32,14 +32,6 @@ const OffboardingFormControl: React.FC<any> = ({
     addCustomTerminationOption,
   } = useOffboardingStore();
 
-  // const handleAddEmploymentStatus = () => {
-  //   if (newOption) {
-  //     addCustomOption(newOption);
-  //     createOffboardingItem({ name: newOption });
-  //     setNewOption('');
-  //     setIsModalVisible(false);
-  //   }
-  // };
   const handleAddTerminationReason = () => {
     if (newTerminationOption) {
       addCustomTerminationOption(newTerminationOption);
@@ -89,27 +81,6 @@ const OffboardingFormControl: React.FC<any> = ({
             { required: true, message: 'Termination Reason is Required ' },
           ]}
         >
-          {/* <Select
-            id="selectTerminationReason"
-            allowClear
-            className="w-[250px]"
-            onChange={handleStatusChange}
-          >
-            <Option value="resignation">Resignation</Option>
-            <Option value="layoff">Layoff</Option>
-            {customOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
-              </Option>
-            ))}
-            <Option
-              value="addTerminationOption"
-              className="text-blue border-t-[1px]"
-            >
-              <PlusOutlined size={20} /> Add Item
-            </Option>
-          </Select> */}
-
           <Input id="selectTerminationReason" allowClear className="w-full" />
         </Form.Item>
         <Form.Item

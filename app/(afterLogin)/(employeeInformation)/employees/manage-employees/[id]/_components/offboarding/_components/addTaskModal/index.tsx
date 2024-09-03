@@ -27,49 +27,6 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
     setIsAddTaskModalVisible,
   } = useOffboardingStore();
 
-  // const handleAddTask = () => {
-  //   form.validateFields().then((values: any) => {
-  //     addTask({
-  //       id: Date.now().toString(),
-  //       title: values.taskName,
-  //       isCompleted: false,
-  //    //   category: values.category,
-  //       dueDate: values.dueDate?.toISOString(),
-  //       assignedTo: values.assignedTo,
-  //       description: values.description,
-  //     });
-  //     setIsAddTaskModalVisible(false);
-  //     form.resetFields();
-  //   });
-  // };
-
-  // const handleAddTaskList = () => {
-  //   if (newTaskList) {
-  //     addCustomOption(newTaskList);
-  //     createTaskList({ name: newTaskList });
-  //     setNewTaskList('');
-  //     setIsAddTaskModalVisible(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (id) {
-  //     // Fetch data only when id is provided
-  //     refetch();
-  //   }
-  // }, [id, refetch]);
-
-  // const handleAddList = () => {
-
-  //   console.log(newAssign, "new assign")
-  //   if (newAssign) {
-  //     addCustomOption(newAssign);
-  //     // createTaskList({ name: newAssign });
-  //     setNewAssign('');
-  //     setIsAddListVisible(false);
-  //   }
-  // };
-
   const handleClose = () => {
     setIsAddTaskModalVisible(false);
     resetTaskForm();
@@ -119,29 +76,6 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
                 ))}
               </Select>
             </Form.Item>
-            {/* <Form.Item
-              name="category"
-              className="w-1/2"
-              rules={[{ required: true, message: 'Please select a category' }]}
-            >
-              <Select
-                allowClear
-                placeholder="-List-"
-                onChange={handleListStatusChange}
-              >
-                <Option value="IT">IT</Option>
-                <Option value="HR">HR</Option>
-                <Option value="Manager">Manager</Option>
-                {customOptions.map((option) => (
-                  <Option key={option} value={option}>
-                    {option}
-                  </Option>
-                ))}
-                <Option value="addList" className="text-blue border-t-[1px]">
-                  <PlusOutlined size={20} /> Add Item
-                </Option>
-              </Select>
-            </Form.Item> */}
           </div>
 
           <Form.Item name="description" id="description">
@@ -176,21 +110,6 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
           </Form.Item>
         </Form>
       </Modal>
-      {/* <Modal
-        title="Add a New List"
-        centered
-        okText="Create List"
-        open={isAddListVisible}
-        onOk={handleAddList}
-        onCancel={() => setIsAddListVisible(false)}
-        style={{ backgroundColor: 'rgba(243, 244, 246)' }}
-      >
-        <Input
-          value={newAssign}
-          onChange={(e) => setNewAssign(e.target.value)}
-          placeholder="Enter new list"
-        />
-      </Modal> */}
     </>
   );
 };
