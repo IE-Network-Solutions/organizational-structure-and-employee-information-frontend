@@ -12,6 +12,12 @@ export enum CarryOverPeriod {
   DAYS = 'days',
 }
 
+export enum AccrualRulePeriod {
+  MONTHLY = 'monthly',
+  YEAR = 'year',
+  QUARTER = 'quarter',
+}
+
 export interface AllowedArea extends DateInfo {
   id: string;
   tenantId: string;
@@ -69,6 +75,6 @@ export interface AccrualRule extends DateInfo {
   id: string;
   tenantId: string;
   title: string;
-  period: CarryOverPeriod;
+  period: AccrualRulePeriod;
   isActive: boolean;
 }

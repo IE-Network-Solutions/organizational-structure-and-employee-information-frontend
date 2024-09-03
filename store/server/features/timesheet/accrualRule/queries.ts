@@ -22,7 +22,7 @@ const getAccrualRule = async (id: string) => {
   });
 };
 
-export const useGetAccrualRules = async () => {
+export const useGetAccrualRules = () => {
   return useQuery<ApiResponse<AccrualRule>>(
     'accrual-rules',
     () => getAccrualRules(),
@@ -32,7 +32,7 @@ export const useGetAccrualRules = async () => {
   );
 };
 
-export const useGetAccrualRule = async (id: string) => {
+export const useGetAccrualRule = (id: string) => {
   return useQuery<ApiResponse<AccrualRule>>(
     ['accrual-rule', id],
     () => getAccrualRule(id),

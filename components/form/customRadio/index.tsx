@@ -1,4 +1,4 @@
-import { FC, ReactNode, useEffect, useState } from 'react';
+import { FC, ReactNode, useState } from 'react';
 import { Radio } from 'antd';
 import { classNames } from '@/utils/classNames';
 
@@ -44,10 +44,6 @@ const CustomRadio: FC<CustomRadioProps> = ({
       'after:content-[none]',
     ],
   );
-
-  useEffect(() => {
-    console.log({ isError });
-  }, [isError]);
 
   const handleChange = () => {
     setIsChecked((prev) => !prev);

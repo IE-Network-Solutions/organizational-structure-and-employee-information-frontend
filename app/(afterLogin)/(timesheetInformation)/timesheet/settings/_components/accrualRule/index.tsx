@@ -4,39 +4,45 @@ import { LuPlus } from 'react-icons/lu';
 import React from 'react';
 import { TableColumnsType } from '@/types/table/table';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import NewAccrualRuleSidebar from '@/app/(afterLogin)/(timesheetInformation)/timesheet/settings/_components/accrualRule/newAccrualRuleSidebar';
+import NewAccrualRuleSidebar from './newAccrualRuleSidebar';
+import { useGetAccrualRules } from '@/store/server/features/timesheet/accrualRule/queries';
+import dayjs from 'dayjs';
+import { DATE_FORMAT } from '@/utils/constants';
 
 const AccrualRule = () => {
   const { setIsShowNewAccrualRuleSidebar } = useTimesheetSettingsStore();
+  const { data } = useGetAccrualRules();
   const columns: TableColumnsType<any> = [
     {
       title: 'Accrual Rule',
-      dataIndex: 'accrualRule',
-      key: 'accrualRule',
+      dataIndex: 'title',
+      key: 'title',
       render: (text: string) => <div>{text}</div>,
     },
     {
       title: 'Accrual Period',
-      dataIndex: 'accrualPeriod',
-      key: 'accrualPeriod',
+      dataIndex: 'period',
+      key: 'period',
       render: (text: string) => <div>{text}</div>,
     },
     {
       title: 'Submitted Date',
-      dataIndex: 'submittedDate',
-      key: 'submittedDate',
-      render: (text: string) => <div>{text}</div>,
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (text: string) => <div>{dayjs(text).format(DATE_FORMAT)}</div>,
     },
   ];
 
-  const data = [
-    {
-      key: '1',
-      accrualRule: 'Offer',
-      accrualPeriod: 'Monthly',
-      submittedDate: '13 Jul 2022',
-    },
-  ];
+  const tableData = () => {
+    return data
+      ? data.items.map((item) => ({
+          key: item.id,
+          title: item.title,
+          period: item.period,
+          createdAt: item.createdAt,
+        }))
+      : [];
+  };
 
   return (
     <>
@@ -54,7 +60,7 @@ const AccrualRule = () => {
       <Table
         columns={columns}
         className="mt-6"
-        dataSource={data}
+        dataSource={tableData()}
         pagination={false}
       />
 
