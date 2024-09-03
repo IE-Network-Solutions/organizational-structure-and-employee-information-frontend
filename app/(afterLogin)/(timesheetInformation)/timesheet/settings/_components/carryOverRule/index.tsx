@@ -5,9 +5,11 @@ import React from 'react';
 import CarryOverCard from './carryOverCard';
 import CarryOverSidebar from './carryOverSidebar';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
+import { useCarryOverRules } from '@/store/server/features/timesheet/carryOverRule/queries';
 
 const CarryOverRule = () => {
   const { setIsShowCarryOverRuleSidebar } = useTimesheetSettingsStore();
+  const { data } = useCarryOverRules();
   return (
     <>
       <PageHeader title="Carry-over Rule" size="small">
@@ -21,8 +23,8 @@ const CarryOverRule = () => {
         </Button>
       </PageHeader>
 
-      <CarryOverCard />
-      <CarryOverCard />
+      {data &&
+        data.items.map((item) => <CarryOverCard key={item.id} item={item} />)}
 
       <CarryOverSidebar />
     </>

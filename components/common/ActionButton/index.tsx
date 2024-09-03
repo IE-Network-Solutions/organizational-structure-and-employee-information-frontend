@@ -19,8 +19,10 @@ const ActionButton: FC<ActionButtonProps> = ({
 }) => {
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
 
-  const items: MenuProps['items'] = [
-    {
+  const items: MenuProps['items'] = [];
+
+  if (onEdit) {
+    items.push({
       key: '0',
       label: (
         <Button
@@ -33,8 +35,11 @@ const ActionButton: FC<ActionButtonProps> = ({
         </Button>
       ),
       className: 'p-0 hover:bg-transparent',
-    },
-    {
+    });
+  }
+
+  if (onDelete) {
+    items.push({
       key: '1',
       label: (
         <Popover
@@ -77,8 +82,8 @@ const ActionButton: FC<ActionButtonProps> = ({
         </Popover>
       ),
       className: 'p-0 hover:bg-transparent',
-    },
-  ];
+    });
+  }
 
   return (
     <Dropdown

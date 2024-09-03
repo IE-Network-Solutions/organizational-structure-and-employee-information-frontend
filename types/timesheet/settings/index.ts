@@ -6,10 +6,9 @@ export enum LeaveRequestStatus {
   DECLINED = 'declined',
 }
 
-export enum Period {
+export enum CarryOverPeriod {
   MONTH = 'month',
   YEARS = 'years',
-  QUARTER = 'quarter',
   DAYS = 'days',
 }
 
@@ -27,7 +26,7 @@ export interface CarryOverRule extends DateInfo {
   tenantId: string;
   limit: number;
   expiration: number;
-  expirationPeriod: Period;
+  expirationPeriod: CarryOverPeriod;
   isActive: boolean;
 }
 
@@ -70,6 +69,6 @@ export interface AccrualRule extends DateInfo {
   id: string;
   tenantId: string;
   title: string;
-  period: Period;
+  period: CarryOverPeriod;
   isActive: boolean;
 }
