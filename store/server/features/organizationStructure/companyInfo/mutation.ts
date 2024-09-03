@@ -54,7 +54,7 @@ const updateCompanyInfo = async ({
  */
 const deleteCompanyInfo = async (id: string) => {
   return await crudRequest({
-    url: `${TENANT_MGMT_URL}/company-info/${id}`,
+    url: `${TENANT_MGMT_URL}/clients/${id}`,
     method: 'DELETE',
     headers,
   });
@@ -68,10 +68,10 @@ const deleteCompanyInfo = async (id: string) => {
 export const useCreateCompanyInfo = () => {
   const queryClient = useQueryClient();
   return useMutation(createCompanyInfo, {
-    onSuccess: (_, variables: any) => {
+    onSuccess: () => {
       queryClient.invalidateQueries('companyInfo');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      // const method = variables?.method?.toUpperCase();
+      // handleSuccessMessage(method);
     },
   });
 };
@@ -100,10 +100,10 @@ export const useUpdateCompanyInfo = () => {
 export const useDeleteCompanyInfo = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteCompanyInfo, {
-    onSuccess: (_, variables: any) => {
+    onSuccess: () => {
       queryClient.invalidateQueries('companyInfo');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      // const method = variables?.method?.toUpperCase();
+      // handleSuccessMessage(method);
     },
   });
 };
