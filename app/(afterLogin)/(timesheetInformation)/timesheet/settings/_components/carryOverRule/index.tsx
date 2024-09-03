@@ -5,11 +5,11 @@ import React from 'react';
 import CarryOverCard from './carryOverCard';
 import CarryOverSidebar from './carryOverSidebar';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { useCarryOverRules } from '@/store/server/features/timesheet/carryOverRule/queries';
+import { useGetCarryOverRules } from '@/store/server/features/timesheet/carryOverRule/queries';
 
 const CarryOverRule = () => {
   const { setIsShowCarryOverRuleSidebar } = useTimesheetSettingsStore();
-  const { data } = useCarryOverRules();
+  const { data } = useGetCarryOverRules();
   return (
     <>
       <PageHeader title="Carry-over Rule" size="small">

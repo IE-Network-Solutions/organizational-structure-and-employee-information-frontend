@@ -19,7 +19,7 @@ const deleteLeaveType = async (id: string) => {
     url: `${ORG_AND_EMP_URL}/leave-type`,
     method: 'DELETE',
     headers: requestHeader(),
-    data: { id },
+    params: { id },
   });
 };
 

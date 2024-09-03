@@ -62,8 +62,8 @@ export interface LeaveType extends DateInfo {
   isPaid: boolean;
   accrualRule: AccrualRule;
   accrualRuleId: string;
-  caryOverRule: CarryOverRule;
-  caryOverRuleId: string;
+  carryOverRule: CarryOverRule;
+  carryOverRuleId: string;
   maximumAllowedConsecutiveDays: number;
   minimumNotifyingDays: number;
   entitledDaysPerYear: number;
