@@ -6,12 +6,21 @@ import { Button, Col, Input, Popover, Row, Space } from 'antd';
 import { IoSearchOutline } from 'react-icons/io5';
 import CustomButton from '@/components/common/buttons/customButton';
 import { TbFileDownload, TbLayoutList } from 'react-icons/tb';
-import React from 'react';
 import { LuBookmark } from 'react-icons/lu';
 import LeaveRequestManagementSidebar from './_components/leaveRequestManagementSidebar';
 
 const LeaveManagement = () => {
+  // const [page, setPage] = useState<number>(1);
+  // const { data } = useGetLeaveRequest(
+  //   { limit: '20', page: page.toString() },
+  //   {},
+  // );
+
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
+
+  // useEffect(() => {
+  //   console.log({ data });
+  // });
 
   return (
     <>
