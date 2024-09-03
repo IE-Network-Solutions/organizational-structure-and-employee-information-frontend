@@ -6,8 +6,10 @@ export interface ResponseMeta {
   currentPage: number;
 }
 
-export interface ApiResponse {
+export interface ApiResponse<T> {
   statusCode: number;
   message: string;
   error: string;
+  meta: ResponseMeta;
+  items: T[];
 }
