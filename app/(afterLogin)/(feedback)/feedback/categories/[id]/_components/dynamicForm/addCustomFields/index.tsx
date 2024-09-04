@@ -1,4 +1,3 @@
-import CustomButton from '@/components/common/buttons/customButton';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import { Form, Input, Button, Select, Checkbox } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
@@ -6,8 +5,12 @@ import React from 'react';
 
 const { Option } = Select;
 
-const AddCustomFields: React.FC<any> = () => {
+const AddCustomFields: React.FC<{ onSkip: () => void; onNext: () => void }> = ({
+  onSkip,
+  onNext,
+}) => {
   const { customFields, setCustomFields } = CategoriesManagementStore();
+
   const [form] = Form.useForm();
 
   const handleCustomFieldChange = (fieldName: string, checked: boolean) => {
@@ -35,7 +38,7 @@ const AddCustomFields: React.FC<any> = () => {
     </div>
   );
   return (
-    <div>
+    <div className="flex flex-col gap-9 justify-between items-between">
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item
           name="customFields"
@@ -77,33 +80,17 @@ const AddCustomFields: React.FC<any> = () => {
               <Input allowClear placeholder={field.name} />
             </Form.Item>
           ))}
-        <div></div>
-
-        <div className="flex flex-col items-center justify-center my-8">
-          <div className="rounded-full bg-primary w-8 h-8 flex items-center justify-center">
-            <PlusOutlined size={30} className="text-white" />
-          </div>
-          <p className="text-xs font-light text-gray-400"> Add Question</p>
-        </div>
-        <Form.Item className="flex items-center justify-center font-semibold text-medium">
-          <Button type="link">Skip</Button>
-        </Form.Item>
-        <div className="flex flex-col items-center justify-center">
-          <Button className="py-1 px-12 h-8 flex item-center justify-center bg-primary text-white">
-            Save Draft
+        <div className="flex items-center justify-center font-semibold text-medium">
+          <Button type="link" onClick={onSkip}>
+            Skip
           </Button>
-          <div className="flex items-center justify-center my-3 gap-4 py-3 px-6">
-            <CustomButton
-              title="Cancel"
-              className="px-12 bg-gray-100 text-gray-400 text-normal font-normal"
-            />
-            <CustomButton
-              title="Next"
-              className="px-12 text-normal font-normal bg-primary"
-            />
-          </div>
         </div>
       </Form>
+      <div className="flex flex-col items-center">
+        <Button className="py-1 px-12 h-8 flex item-center justify-center bg-primary text-white">
+          Save Draft
+        </Button>
+      </div>
     </div>
   );
 };

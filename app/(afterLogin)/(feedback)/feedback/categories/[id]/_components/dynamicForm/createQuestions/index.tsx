@@ -1,26 +1,21 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import { Form, Input, Select, Button, Modal, Checkbox, TimePicker } from 'antd';
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
-import { useSurveyStore } from '@/store/uistate/features/feedback/dynamicForm';
-import CustomButton from '@/components/common/buttons/customButton';
+import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
 
-const { Option } = Select;
 const { TextArea } = Input;
+const { Option } = Select;
 
-const CreateQuestions: React.FC = () => {
+const CreateQuestions: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [form] = Form.useForm();
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
   const {
     questions,
     addQuestion,
     updateQuestion,
     updateOption,
-    generatedUrl,
-    publishSurvey,
     deleteQuestion,
-  } = useSurveyStore();
+  } = useDynamicFormStore();
 
   const handleTypeChange = (value: string, questionId: number) => {
     updateQuestion(questionId, { type: value });
@@ -41,10 +36,7 @@ const CreateQuestions: React.FC = () => {
   const handleDeleteQuestion = (questionId: number) => {
     deleteQuestion(questionId);
   };
-  const handlePublish = () => {
-    publishSurvey();
-    setIsModalVisible(true);
-  };
+
   const renderOptionInput = (question: any, field: any, optionIndex: any) => {
     switch (question.type) {
       case 'Multiple Choice':
@@ -242,32 +234,9 @@ const CreateQuestions: React.FC = () => {
             <Button className="py-1 px-12 h-8 flex item-center justify-center bg-primary text-white">
               Save Draft
             </Button>
-            <div className="flex items-center justify-center my-3 gap-4 py-3 px-6">
-              <CustomButton
-                title="Back"
-                className="px-12 bg-gray-100 text-gray-400 text-normal font-normal"
-              />
-              <CustomButton
-                title="Publish"
-                onClick={handlePublish}
-                className="px-12 text-normal font-normal bg-primary"
-              />
-            </div>
           </div>
         </Form.Item>
       </Form>
-
-      <Modal
-        title="Survey Published"
-        open={isModalVisible}
-        onOk={() => setIsModalVisible(false)}
-        onCancel={() => setIsModalVisible(false)}
-      >
-        <p>Your survey has been published. Here&apos;s the URL:</p>{' '}
-        <p>
-          <strong>{generatedUrl}</strong>
-        </p>
-      </Modal>
     </div>
   );
 };

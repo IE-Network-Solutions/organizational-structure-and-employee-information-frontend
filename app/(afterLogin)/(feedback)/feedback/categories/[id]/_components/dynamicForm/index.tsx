@@ -1,21 +1,38 @@
+'use client';
 import React from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
-import { Steps, Form } from 'antd';
+import { Steps, Form, Button, Modal } from 'antd';
 import { IoIosInformationCircleOutline } from 'react-icons/io';
-
+import { CopyOutlined } from '@ant-design/icons';
 import AddCustomFields from './addCustomFields';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { useCreateQuestions } from '@/store/server/features/feedback/dynamicForm/queries';
 import CreateQuestionsForm from './createQuestions';
+import { useCreateDynamicForm } from '@/store/server/features/feedback/dynamicForm/mutation';
+import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
+import { useFetchDynamicForms } from '@/store/server/features/feedback/dynamicForm/queries';
 
 const { Step } = Steps;
 
 const DynamicForm: React.FC<any> = (props) => {
   const [form] = Form.useForm();
+  const { isAddOpen, current, setCurrent, setIsAddOpen } =
+    CategoriesManagementStore();
 
-  const { isAddOpen, current, setCurrent } = CategoriesManagementStore();
-  const { mutate: CreateQuestions } = useCreateQuestions();
+  const { mutate: CreateQuestions } = useCreateDynamicForm();
+
+  const { isModalVisible, setIsModalVisible, setGeneratedUrl } =
+    useDynamicFormStore();
+
+  const { questions, customFields, generatedUrl, publishSurvey } =
+    useDynamicFormStore((state) => ({
+      questions: state.questions,
+      customFields: state.customFields || [],
+      publishSurvey: state.publishSurvey,
+      generatedUrl: state.generatedUrl,
+    }));
+
+  const { data: questionsData } = useFetchDynamicForms();
 
   const onChange = (value: number) => {
     setCurrent(value);
@@ -29,9 +46,67 @@ const DynamicForm: React.FC<any> = (props) => {
       </div>
     </div>
   );
-  const handleCreateQuestions = (values: any) => {
-    CreateQuestions(values);
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(generatedUrl);
+    NotificationMessage.success({
+      message: 'URL Copied',
+      description: 'The generated URL has been copied to your clipboard.',
+    });
   };
+
+  const handlePublish = async () => {
+    try {
+      const formattedValues = {
+        formId: props?.selectedFormId,
+        questions: [
+          ...questions.map((question: any, index: number) => ({
+            id: question.id,
+            question: question.question,
+            type: question.type,
+            options: question.options.length > 0 ? question.options : [],
+            required: true,
+            order: question.order || index + 1,
+          })),
+          ...customFields
+            .filter((field: any) => field.selected)
+            .map((field: any) => ({
+              id: field.id,
+              question: field.name,
+              type: 'Custom',
+              options: field.options || [],
+              required: false,
+            })),
+        ],
+      };
+
+      CreateQuestions(formattedValues);
+      const generatedUrl = `${window.location.origin}/questions/${props?.selectedFormId}`;
+
+      publishSurvey();
+      setIsModalVisible(true);
+
+      setGeneratedUrl(generatedUrl);
+
+      NotificationMessage.success({
+        message: 'Survey Published',
+        description: `Your survey has been published successfully. URL: ${generatedUrl}`,
+      });
+
+      navigator.clipboard.writeText(generatedUrl);
+    } catch (error) {
+      console.error('Error publishing survey:', error);
+      NotificationMessage.error({
+        message: 'Publish Failed',
+        description: 'There was an error publishing the survey.',
+      });
+    }
+  };
+
+  const handleCreateQuestions = () => {
+    handlePublish();
+  };
+
   const drawerHeader = (
     <div className="flex flex-col items-center justify-center">
       <Steps
@@ -55,36 +130,107 @@ const DynamicForm: React.FC<any> = (props) => {
     </div>
   );
 
+  const handleNext = () => {
+    setCurrent(1);
+  };
+
+  const handleBack = () => {
+    setCurrent(0);
+  };
+
+  const renderFooter = () => {
+    switch (current) {
+      case 0:
+        return (
+          <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
+            <Button
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              type="link"
+              onClick={() => setIsAddOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+              type="link"
+              onClick={handleNext}
+            >
+              Next
+            </Button>
+          </div>
+        );
+      case 1:
+        return (
+          <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
+            <Button
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              type="link"
+              onClick={handleBack}
+            >
+              Back
+            </Button>
+            <Button
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+              type="primary"
+              onClick={handleCreateQuestions}
+            >
+              Publish
+            </Button>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     isAddOpen && (
-      <CustomDrawerLayout
-        open={isAddOpen}
-        onClose={props?.onClose}
-        modalHeader={drawerHeader}
-        width="40%"
-      >
-        <Form
-          form={form}
-          name="dependencies"
-          autoComplete="off"
-          style={{ maxWidth: '100%' }}
-          layout="vertical"
-          onFinish={handleCreateQuestions}
-          onFinishFailed={() =>
-            NotificationMessage.error({
-              message: 'Something wrong or unfilled',
-              description: 'please back and check the unfilled fields',
-            })
-          }
+      <>
+        <CustomDrawerLayout
+          open={isAddOpen}
+          onClose={props?.onClose}
+          modalHeader={drawerHeader}
+          width="40%"
+          footer={renderFooter()}
         >
-          <div hidden={current !== 0} className="p-4 sm:p-6">
-            <AddCustomFields />
-          </div>
-          <div hidden={current !== 1} className="p-4 sm:p-6">
-            <CreateQuestionsForm />
-          </div>
-        </Form>
-      </CustomDrawerLayout>
+          <Form
+            form={form}
+            name="dependencies"
+            autoComplete="off"
+            style={{ maxWidth: '100%' }}
+            layout="vertical"
+            onFinish={handleCreateQuestions}
+            onFinishFailed={() =>
+              NotificationMessage.error({
+                message: 'Something wrong or unfilled',
+                description: 'please back and check the unfilled fields',
+              })
+            }
+          >
+            <div hidden={current !== 0} className="p-4 sm:p-6">
+              <AddCustomFields onSkip={handleNext} onNext={handleNext} />{' '}
+            </div>
+            <div hidden={current !== 1} className="p-4 sm:p-6">
+              <CreateQuestionsForm onBack={() => setCurrent(0)} />
+            </div>
+          </Form>
+        </CustomDrawerLayout>
+        <Modal
+          title="Survey Published"
+          open={isModalVisible}
+          onOk={() => setIsModalVisible(false)}
+          onCancel={() => setIsModalVisible(false)}
+        >
+          <p>Your survey has been published. Here&apos;s the URL:</p>
+          <p>
+            <strong>{generatedUrl}</strong>
+            <CopyOutlined
+              onClick={handleCopyUrl}
+              className="ml-2 cursor-pointer"
+            />
+          </p>
+        </Modal>
+      </>
     )
   );
 };

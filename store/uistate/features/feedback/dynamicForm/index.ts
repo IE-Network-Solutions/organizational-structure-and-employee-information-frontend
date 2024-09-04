@@ -8,8 +8,15 @@ interface Question {
   answer?: string;
 }
 
-interface SurveyStore {
+interface CustomField {
+  name: string;
+  selected: boolean;
+  index?: number;
+}
+
+interface DynamicFormStore {
   questions: Question[];
+  customFields: CustomField[];
   isModalVisible: boolean;
   setIsModalVisible: (value: boolean) => void;
   addQuestion: () => void;
@@ -20,15 +27,25 @@ interface SurveyStore {
     value: string,
   ) => void;
   generatedUrl: string;
+  deletedItem: string | null;
+  current: number;
+  pageSize: number;
   setGeneratedUrl: (url: string) => void;
   publishSurvey: () => void;
   deleteQuestion: (id: number) => void;
   deleteOption: (questionId: number, optionIndex: number) => void;
+  setDeletedItem: (itemId: string | null) => void;
+  setCurrent: (value: number) => void;
+  setPageSize: (pageSize: number) => void;
 }
 
-export const useSurveyStore = create<SurveyStore>((set) => ({
+export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
   questions: [{ id: 1, type: 'Multiple Choice', question: '', options: [] }],
   isModalVisible: false,
+  current: 1,
+  pageSize: 4,
+  deletedItem: null,
+  customFields: [],
   setIsModalVisible: (value) => set({ isModalVisible: value }),
   addQuestion: () =>
     set((state) => ({
@@ -84,4 +101,7 @@ export const useSurveyStore = create<SurveyStore>((set) => ({
           : q,
       ),
     })),
+  setPageSize: (pageSize) => set({ pageSize }),
+  setCurrent: (value) => set({ current: value }),
+  setDeletedItem: (itemId) => set({ deletedItem: itemId }),
 }));
