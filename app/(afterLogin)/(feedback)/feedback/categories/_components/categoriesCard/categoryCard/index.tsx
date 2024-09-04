@@ -3,6 +3,7 @@ import { Card, Typography, Dropdown, Avatar } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { FaEllipsisVertical, FaCircle } from 'react-icons/fa6';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const { Title, Paragraph } = Typography;
 
@@ -44,10 +45,27 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
     <Link href={`/feedback/categories/${category?.id}`}>
       <Paragraph className="text-gray-600">{category?.description}</Paragraph>
       <div className="flex items-center mt-4">
-        <Avatar icon={<UserOutlined />} />
+        <Image
+          src={
+            category?.createdBy?.profileImage ? (
+              category?.createdBy?.profileImage
+            ) : (
+              <Avatar icon={<UserOutlined />} />
+            )
+          }
+          alt="Profile pic"
+          width={30}
+          height={50}
+          className="rounded-full object-fit"
+        />
+
         <div className="ml-2 flex flex-col">
           <div className="flex items-center justify-start gap-1">
-            <Typography.Text strong>John Doe</Typography.Text>
+            <Typography.Text strong>
+              {category?.createdBy?.firstName}
+              {'  '}
+              {category?.createdBy?.middleName}
+            </Typography.Text>
             <FaCircle size={8} color="#3636f0" />
             <Typography.Text className="text-xs font-normal text-gray-400">
               Creator

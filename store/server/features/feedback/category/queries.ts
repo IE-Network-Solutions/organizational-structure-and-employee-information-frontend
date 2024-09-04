@@ -13,7 +13,7 @@ import { useQuery } from 'react-query';
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
-  tenantId: tenantId ? tenantId : '9fdb9540-607e-4cc5-aebf-0879400d1f69',
+  tenantId: tenantId ? tenantId : '179055e7-a27c-4d9d-9538-2b2a115661bd',
   Authorization: `Bearer ${token}`,
 };
 
@@ -33,9 +33,18 @@ const fetchCategories = async (pageSize: number, currentPage: number) => {
  * Fetch all users from the API.
  * @returns {Promise<any>} Promise with the list of users.
  */
-const fetchUsers = async () => {
+const fetchCatUsers = async () => {
   return await crudRequest({
-    url: 'https://mocki.io/v1/23b636da-7246-412a-baf8-e3f6abdea634',
+    // url: 'https://mocki.io/v1/23b636da-7246-412a-baf8-e3f6abdea634',
+    url: 'http://172.16.34.161:8008/api/v1/users?deletedAt=null',
+    method: 'GET',
+    headers,
+  });
+};
+
+const getFormCategoriesById = async (formCatsId: string) => {
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/form-categories/${formCatsId}`,
     method: 'GET',
     headers,
   });
@@ -60,5 +69,15 @@ export const useFetchCategories = (pageSize: number, currentPage: number) => {
  * @returns {UseQueryResult<any>} The Query object for fetching users
  */
 export const useFetchUsers = () => {
-  return useQuery<any>('users', fetchUsers);
+  return useQuery<any>('catUsers', fetchCatUsers);
+};
+
+export const useGetFormCategories = (formCatsId: string) => {
+  return useQuery<any>(
+    ['categories', formCatsId],
+    () => getFormCategoriesById(formCatsId),
+    {
+      keepPreviousData: true,
+    },
+  );
 };

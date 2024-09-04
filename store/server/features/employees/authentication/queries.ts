@@ -16,7 +16,7 @@ const getTenantId = async () => {
       Authorization: `Bearer ${token}`,
     };
     const response = await axios.get(
-      `${ORG_AND_EMP_URL}/users/firebase/${localId}`,
+      `http://172.16.34.164:8008/api/v1/users/firebase/${localId}`,
       { headers },
     );
     return response.data;

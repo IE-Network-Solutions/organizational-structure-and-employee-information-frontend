@@ -17,7 +17,7 @@ import { CategoriesManagementStore } from '@/store/uistate/features/feedback/cat
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
-  tenantId: tenantId,
+  tenantId: tenantId ? tenantId : '179055e7-a27c-4d9d-9538-2b2a115661bd',
   Authorization: `Bearer ${token}`,
 };
 
@@ -52,7 +52,6 @@ const updateFormCategory = async (data: CategoryData, id: string) => {
 
 /**
  * Deletes a category
- * @param {string} id - The ID of the category to delete
  * @returns {Promise<any>} The response from the API
  */
 const deleteFormCategory = async () => {

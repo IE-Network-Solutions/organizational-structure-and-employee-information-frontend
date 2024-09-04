@@ -17,6 +17,7 @@ const Categories: React.FC = () => {
   const onClose = () => {
     setOpen(false);
   };
+
   return (
     <div className="h-auto w-full p-4 bg-white rounded-md">
       <div className="flex flex-wrap justify-between items-center">

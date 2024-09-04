@@ -9,6 +9,12 @@ interface User {
   userId: string;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+}
+
 export interface CategoriesUseState {
   expanded: boolean;
   open: boolean;
@@ -20,6 +26,12 @@ export interface CategoriesUseState {
   customFields: CustomField[];
   editModal: boolean;
   editingCategory: any | null;
+  selectedCategory: Category | null;
+  isEditModalVisible: boolean;
+  selectedFormId: string | null;
+  setSelectedFormId: (value: string | null) => void;
+  setIsEditModalVisible: (value: boolean) => void;
+  setSelectedCategory: (category: Category | null) => void;
   setIsAddOpen: (isAddOpen: boolean) => void;
   toggleCustomField: (index: number) => void;
   setCustomFields: (fields: CustomField[]) => void;
@@ -35,6 +47,10 @@ export interface CategoriesUseState {
   clearSelectedUsers: () => void;
   deleteModal: boolean;
   deletedItem: string | null;
+  deleteFormModal: boolean;
+  deletedFormItem: string | null;
+  setDeleteFormModal: (isOpen: boolean) => void;
+  setDeletedFormItem: (itemId: string | null) => void;
   setDeleteModal: (isOpen: boolean) => void;
   setDeletedItem: (itemId: string | null) => void;
   setEditModal: (open: boolean) => void;
@@ -54,10 +70,17 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
     { name: 'Custom Field Two', selected: false },
     { name: 'Custom Field Three', selected: false },
   ],
+  selectedFormId: null,
+  setSelectedFormId: (value) => set({ selectedFormId: value }),
   deleteModal: false,
   deletedItem: null,
+  deleteFormModal: false,
+  deletedFormItem: null,
   editModal: false,
   editingCategory: null,
+  selectedCategory: null,
+  isEditModalVisible: false,
+  setIsEditModalVisible: (value) => set({ isEditModalVisible: value }),
   setIsAddOpen: (isAddOpen) => set({ isAddOpen }),
   setSelectedGroups: (value) => set({ selectedGroups: value }),
   setPageSize: (pageSize) => set({ pageSize }),
@@ -85,7 +108,10 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
     })),
   clearSelectedUsers: () => set({ selectedUsers: [] }),
   setDeleteModal: (isOpen) => set({ deleteModal: isOpen }),
+  setDeletedFormItem: (itemId) => set({ deletedItem: itemId }),
+  setDeleteFormModal: (isOpen) => set({ deleteModal: isOpen }),
   setDeletedItem: (itemId) => set({ deletedItem: itemId }),
   setEditModal: (open) => set({ editModal: open }),
   setEditingCategory: (category) => set({ editingCategory: category }),
+  setSelectedCategory: (category) => set({ selectedCategory: category }),
 }));

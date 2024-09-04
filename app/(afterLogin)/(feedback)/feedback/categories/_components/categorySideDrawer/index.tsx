@@ -49,7 +49,7 @@ const CategorySideDrawer: React.FC<any> = (props) => {
     <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
       <Button
         onClick={handleCloseDrawer}
-        className="flex justify-center text-sm font-medium text-gray-600 bg-gray-200 p-4 px-10 h-12 hover:border-gray-400"
+        className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
       >
         Cancel
       </Button>
@@ -141,9 +141,9 @@ const CategorySideDrawer: React.FC<any> = (props) => {
                     setSelectedUsers(userIds.map((id) => ({ userId: id })))
                   }
                 >
-                  {employees?.employees.map((employee: any) => (
+                  {employees?.items.map((employee: any) => (
                     <Option key={employee.id} value={employee.id}>
-                      {employee.name}
+                      {employee?.firstName + ' ' + employee?.middleName}
                     </Option>
                   ))}
                 </Select>
