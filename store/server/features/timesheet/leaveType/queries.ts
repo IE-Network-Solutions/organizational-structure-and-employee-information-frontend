@@ -22,13 +22,13 @@ const getLeaveType = async (id: string) => {
   });
 };
 
-export const useLeaveTypes = () => {
+export const useGetLeaveTypes = () => {
   return useQuery<ApiResponse<LeaveType>>('leave-type', () => getLeaveTypes(), {
     keepPreviousData: true,
   });
 };
 
-export const useLeaveTypeById = (id: string) => {
+export const useGetLeaveTypeById = (id: string) => {
   return useQuery<ApiResponse<LeaveType>>(
     ['leave-type', id],
     () => getLeaveType(id),

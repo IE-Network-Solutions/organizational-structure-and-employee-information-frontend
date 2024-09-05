@@ -22,7 +22,7 @@ const getBreakType = async (id: string) => {
   });
 };
 
-export const useGetBreakTypes = async () => {
+export const useGetBreakTypes = () => {
   return useQuery<ApiResponse<BreakType>>(
     'break-types',
     () => getBreakTypes(),
@@ -32,7 +32,7 @@ export const useGetBreakTypes = async () => {
   );
 };
 
-export const useGetBreakType = async (id: string) => {
+export const useGetBreakType = (id: string) => {
   return useQuery<ApiResponse<BreakType>>(
     ['break-type', id],
     () => getBreakType(id),

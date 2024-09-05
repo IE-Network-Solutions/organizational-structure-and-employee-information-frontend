@@ -5,12 +5,12 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
-const setAllowedArea = async (data: Partial<AllowedArea>) => {
+const setAllowedArea = async (item: Partial<AllowedArea>) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/geofencing/allowed-area`,
     method: 'POST',
     headers: requestHeader(),
-    data,
+    data: { item },
   });
 };
 

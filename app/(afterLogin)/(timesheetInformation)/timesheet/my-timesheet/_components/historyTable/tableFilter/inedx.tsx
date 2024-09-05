@@ -1,27 +1,58 @@
-import React from 'react';
-import { Col, DatePicker, Row, Select } from 'antd';
+import React, { FC } from 'react';
+import { Col, DatePicker, Form, Row, Select } from 'antd';
+import { DATE_FORMAT } from '@/utils/constants';
+import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
+import { formatToOptions } from '@/helpers/formatTo';
+import { CommonObject } from '@/types/commons/commonObject';
+import { LeaveRequestStatusOption } from '@/types/timesheet/settings';
 
-const HistoryTableFilter = () => {
+interface HistoryTableFilterProps {
+  onChange: (val: CommonObject) => void;
+}
+
+const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
+  const { leaveTypes } = useMyTimesheetStore();
+  const [form] = Form.useForm();
+
   return (
-    <Row gutter={16}>
-      <Col span={8}>
-        <DatePicker.RangePicker
-          className="w-full h-[54px]"
-          separator={'-'}
-          format="DD MMM YYYY"
-        />
-      </Col>
-      <Col span={8}>
-        <Select placeholder="Select Type" className="w-full h-[54px]">
-          <Select.Option value="all">All Type</Select.Option>
-        </Select>
-      </Col>
-      <Col span={8}>
-        <Select placeholder="Select Status" className="w-full h-[54px]">
-          <Select.Option value="all">All Statuses</Select.Option>
-        </Select>
-      </Col>
-    </Row>
+    <Form
+      form={form}
+      onFieldsChange={() => {
+        onChange(form.getFieldsValue());
+      }}
+    >
+      <Row gutter={16}>
+        <Col span={8}>
+          <Form.Item name="dateRange">
+            <DatePicker.RangePicker
+              className="w-full h-[54px]"
+              separator={'-'}
+              format={DATE_FORMAT}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item name="type">
+            <Select
+              placeholder="Select Type"
+              className="w-full h-[54px]"
+              allowClear={true}
+              options={formatToOptions(leaveTypes ?? [], 'title', 'id')}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item name="status">
+            <Select
+              placeholder="Select Status"
+              className="w-full h-[54px]"
+              allowClear={true}
+              options={LeaveRequestStatusOption}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+    </Form>
   );
 };
 

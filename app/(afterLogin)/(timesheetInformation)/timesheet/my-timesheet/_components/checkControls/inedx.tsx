@@ -1,14 +1,36 @@
 import { Button, Space } from 'antd';
 import { GoClock } from 'react-icons/go';
-import React from 'react';
 import {
   CheckStatus,
   useMyTimesheetStore,
 } from '@/store/uistate/features/timesheet/myTimesheet';
+import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
+import { localUserID } from '@/utils/constants';
+import { useEffect, useState } from 'react';
+import {
+  calculateAttendanceRecordToTotalWorkTime,
+  timeToHour,
+  timeToLastMinute,
+} from '@/helpers/calculateHelper';
 
 const CheckControl = () => {
-  const { checkStatus, setIsShowCheckOutSidebar, setCheckStatus } =
-    useMyTimesheetStore();
+  const [workTime, setWorkTime] = useState<string>('');
+  const {
+    checkStatus,
+    setIsShowCheckOutSidebar,
+    setCheckStatus,
+    currentAttendance,
+  } = useMyTimesheetStore();
+
+  const { mutate: setCurrentAttendance } = useSetCurrentAttendance();
+
+  useEffect(() => {
+    if (checkStatus === CheckStatus.breaking && currentAttendance) {
+      const calcTime =
+        calculateAttendanceRecordToTotalWorkTime(currentAttendance);
+      setWorkTime(`${timeToHour(calcTime)}:${timeToLastMinute(calcTime)}`);
+    }
+  }, [checkStatus, currentAttendance]);
 
   switch (checkStatus) {
     case CheckStatus.notStarted:
@@ -18,7 +40,15 @@ const CheckControl = () => {
           size="large"
           type="primary"
           icon={<GoClock size={20} />}
-          onClick={() => setCheckStatus(CheckStatus.started)}
+          onClick={() => {
+            setCurrentAttendance({
+              latitude: 23.5,
+              longitude: 44.5,
+              isSignIn: true,
+              userId: localUserID,
+            });
+            setCheckStatus(CheckStatus.started);
+          }}
         >
           Check in
         </Button>
@@ -38,7 +68,15 @@ const CheckControl = () => {
             className="h-14 text-base"
             size="large"
             icon={<GoClock size={20} />}
-            onClick={() => setCheckStatus(CheckStatus.notStarted)}
+            onClick={() => {
+              setCurrentAttendance({
+                latitude: 23.5,
+                longitude: 44.5,
+                isSignIn: false,
+                userId: localUserID,
+              });
+              setCheckStatus(CheckStatus.notStarted);
+            }}
           >
             Check out
           </Button>
@@ -47,12 +85,25 @@ const CheckControl = () => {
     case CheckStatus.breaking:
       return (
         <Space size={32}>
-          <div className="text-[28px] text-primary font-bold">09:30 hrs</div>
+          {workTime && (
+            <div className="text-[28px] text-primary font-bold">
+              {workTime} hrs
+            </div>
+          )}
+
           <Button
             className="h-14 text-base"
             size="large"
             icon={<GoClock size={20} />}
-            onClick={() => setCheckStatus(CheckStatus.started)}
+            onClick={() => {
+              setCurrentAttendance({
+                latitude: 23.5,
+                longitude: 44.5,
+                isSignIn: true,
+                userId: localUserID,
+              });
+              setCheckStatus(CheckStatus.started);
+            }}
           >
             Check in
           </Button>

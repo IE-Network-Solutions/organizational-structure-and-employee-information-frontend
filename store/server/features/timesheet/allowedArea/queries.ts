@@ -6,11 +6,12 @@ import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import { AllowedArea } from '@/types/timesheet/settings';
 
-const getAllowedAreas = async () => {
+const getAllowedAreas = async (lat: number, lng: number) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/geofencing/allowed-area`,
     method: 'GET',
     headers: requestHeader(),
+    params: { latitude: lat, longitude: lng },
   });
 };
 
@@ -23,19 +24,17 @@ const getAllowedArea = async (queryData: Partial<AllowedAreaQueryData>) => {
   });
 };
 
-export const useGetAllowedAreas = async () => {
+export const useGetAllowedAreas = (lat: number, lng: number) => {
   return useQuery<ApiResponse<AllowedArea>>(
     'allowed-areas',
-    () => getAllowedAreas(),
+    () => getAllowedAreas(lat, lng),
     {
       keepPreviousData: true,
     },
   );
 };
 
-export const useGetAllowedArea = async (
-  queryData: Partial<AllowedAreaQueryData>,
-) => {
+export const useGetAllowedArea = (queryData: Partial<AllowedAreaQueryData>) => {
   return useQuery<ApiResponse<AllowedArea>>(
     ['allowed-area', queryData],
     () => getAllowedArea(queryData),

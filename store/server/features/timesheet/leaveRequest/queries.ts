@@ -23,12 +23,15 @@ const getLeaveRequest = async (
 export const useGetLeaveRequest = (
   queryData: RequestCommonQueryData,
   data: LeaveRequestBody,
+  isKeepData: boolean = true,
+  isEnabled: boolean = true,
 ) => {
   return useQuery<ApiResponse<LeaveRequest>>(
-    ['leave-request', queryData],
+    ['leave-request', queryData, data],
     () => getLeaveRequest(queryData, data),
     {
-      keepPreviousData: true,
+      keepPreviousData: isKeepData,
+      enabled: isEnabled,
     },
   );
 };

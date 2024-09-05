@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button } from 'antd';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
@@ -8,14 +8,43 @@ import { LuPlus } from 'react-icons/lu';
 import HistoryTable from './_components/historyTable';
 import AttendanceTable from './_components/attendanceTable';
 import LeaveBalance from './_components/leaveBalance';
-import ViewAttendanceSidebar from '@/app/(afterLogin)/(timesheetInformation)/timesheet/my-timesheet/_components/viewAttendanceSidebar';
-import NewLeaveRequestSidebar from '@/app/(afterLogin)/(timesheetInformation)/timesheet/my-timesheet/_components/newLeaveRequestSidebar';
+import ViewAttendanceSidebar from './_components/viewAttendanceSidebar';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
-import CheckOutSidebar from '@/app/(afterLogin)/(timesheetInformation)/timesheet/my-timesheet/_components/checkOutSidebar';
-import CheckControl from '@/app/(afterLogin)/(timesheetInformation)/timesheet/my-timesheet/_components/checkControls/inedx';
+import CheckOutSidebar from './_components/checkOutSidebar';
+import CheckControl from './_components/checkControls/inedx';
+import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
+import { useGetAllowedAreas } from '@/store/server/features/timesheet/allowedArea/queries';
+import LeaveRequestSidebar from './_components/leaveRequestSidebar';
+import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
+import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 
 const MyTimesheet = () => {
-  const { setIsShowNewLeaveRequestSidebar } = useMyTimesheetStore();
+  const {
+    setLeaveTypes,
+    setAllowedAreas,
+    setCurrentAttendance,
+    setBreakTypes,
+  } = useMyTimesheetStore();
+  const { data: leaveTypesData } = useGetLeaveTypes();
+  const { data: allowAreasData } = useGetAllowedAreas(23.5, 44.5);
+  const { data: currentAttendance } = useGetCurrentAttendance();
+  const { data: breakTypeData } = useGetBreakTypes();
+
+  useEffect(() => {
+    setLeaveTypes(leaveTypesData?.items ?? []);
+  }, [leaveTypesData]);
+
+  useEffect(() => {
+    setAllowedAreas(allowAreasData?.items ?? []);
+  }, [allowAreasData]);
+
+  useEffect(() => {
+    setCurrentAttendance(currentAttendance ? currentAttendance.item : null);
+  }, [currentAttendance]);
+
+  useEffect(() => {
+    setBreakTypes(breakTypeData?.items ?? []);
+  }, [breakTypeData]);
 
   return (
     <>
@@ -29,48 +58,16 @@ const MyTimesheet = () => {
         </div>
 
         <BlockWrapper className="mt-[30px]">
-          <div className="flex items-center mb-6">
-            <div className="flex-1 flex items-center gap-0.5">
-              <div className="text-2xl font-bold text-gray-900">
-                Leave History
-              </div>
-              <Button
-                type="text"
-                size="small"
-                icon={<AiOutlineReload size={14} className="text-gray-600" />}
-              ></Button>
-            </div>
-
-            <Button
-              size="large"
-              type="primary"
-              icon={<LuPlus size={16} />}
-              className="h-12"
-              onClick={() => setIsShowNewLeaveRequestSidebar(true)}
-            >
-              Add New Request
-            </Button>
-          </div>
-
           <HistoryTable />
         </BlockWrapper>
 
         <BlockWrapper className="mt-6">
-          <div className="flex items-center gap-0.5 mb-6">
-            <div className="text-2xl font-bold text-gray-900">Attendance</div>
-            <Button
-              type="text"
-              size="small"
-              icon={<AiOutlineReload size={14} className="text-gray-600" />}
-            ></Button>
-          </div>
-
           <AttendanceTable />
         </BlockWrapper>
       </div>
 
       <ViewAttendanceSidebar />
-      <NewLeaveRequestSidebar />
+      <LeaveRequestSidebar />
       <CheckOutSidebar />
     </>
   );

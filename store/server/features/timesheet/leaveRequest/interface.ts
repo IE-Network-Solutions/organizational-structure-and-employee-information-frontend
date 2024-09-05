@@ -3,14 +3,14 @@ import { LeaveRequestStatus } from '@/types/timesheet/settings';
 export interface LeaveRequestBody {
   isExport?: boolean;
   filter?: {
-    leaveRequestIds: string[];
-    userIds: string[];
-    status: LeaveRequestStatus;
-    date: {
+    leaveRequestsIds?: string[];
+    userIds?: string[];
+    status?: LeaveRequestStatus;
+    date?: {
       from: string;
       to: string;
     };
-    leaveTypesIds: string[];
+    leaveTypesIds?: string[];
   };
 }
 

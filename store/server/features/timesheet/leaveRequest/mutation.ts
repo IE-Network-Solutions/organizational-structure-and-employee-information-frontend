@@ -1,6 +1,6 @@
 import { LeaveRequest } from '@/types/timesheet/settings';
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { localUserID, ORG_AND_EMP_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { requestHeader } from '@/helpers/requestHeader';
@@ -11,13 +11,13 @@ const setLeaveRequest = async (item: Partial<LeaveRequest>) => {
     url: `${ORG_AND_EMP_URL}/leave-request/make`,
     method: 'POST',
     headers: requestHeader(),
-    data: { item },
+    data: { item: { ...item, user: localUserID } },
   });
 };
 
 const deleteLeaveRequest = async (id: string) => {
   return await crudRequest({
-    url: `/${ORG_AND_EMP_URL}/leave-request/make`,
+    url: `${ORG_AND_EMP_URL}/leave-request/make`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },

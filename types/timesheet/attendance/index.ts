@@ -1,5 +1,34 @@
 import { DateInfo } from '@/types/timesheet/dateInfo';
 import { BreakType } from '@/types/timesheet/breakType';
+import { StatusBadgeTheme } from '@/components/common/statusBadge';
+import { Geolocation } from '@/types/timesheet/geolocation';
+
+export enum AttendanceRecordType {
+  LATE = 'late',
+  EARLY = 'early',
+  ABSENT = 'absent',
+  PRESENT = 'present',
+}
+
+export const AttendanceRecordTypeBadgeTheme: Record<
+  AttendanceRecordType,
+  StatusBadgeTheme
+> = {
+  [AttendanceRecordType.LATE]: StatusBadgeTheme.warning,
+  [AttendanceRecordType.EARLY]: StatusBadgeTheme.warning,
+  [AttendanceRecordType.ABSENT]: StatusBadgeTheme.danger,
+  [AttendanceRecordType.PRESENT]: StatusBadgeTheme.secondary,
+};
+
+export const attendanceRecordTypeOption: {
+  label: string;
+  value: AttendanceRecordType;
+}[] = [
+  { label: 'Late', value: AttendanceRecordType.LATE },
+  { label: 'Early', value: AttendanceRecordType.EARLY },
+  { label: 'Present', value: AttendanceRecordType.PRESENT },
+  { label: 'Absent', value: AttendanceRecordType.ABSENT },
+];
 
 export interface AttendanceRecord extends DateInfo {
   id: string;
@@ -40,10 +69,18 @@ export interface AttendanceImport extends DateInfo {
   AttendanceRecordId: string;
 }
 
+export enum AttendanceTypeUnit {
+  HOURS = 'hours',
+  DAYS = 'days',
+  WEEKS = 'weeks',
+  QUARTALS = 'quartals',
+  YEARS = 'years',
+}
+
 export interface AttendanceNotificationType extends DateInfo {
   id: string;
   title: string;
-  unit: 'hours' | 'days' | 'weeks' | 'quartals' | 'years';
+  unit: AttendanceTypeUnit;
   attendanceNotificationRule: AttendanceNotificationRule[];
   isActive: boolean;
 }

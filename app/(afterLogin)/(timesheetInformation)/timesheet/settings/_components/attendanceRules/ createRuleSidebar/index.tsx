@@ -6,12 +6,17 @@ import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
+import { useSetAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/mutation';
 
 const CreateRuleSidebar = () => {
   const {
     isShowCreateRuleSidebar: isShow,
     setIsShowCreateRuleSidebar: setIsShow,
   } = useTimesheetSettingsStore();
+
+  const { mutate: setAttendanceRule } = useSetAttendanceNotificationRule();
+
+  const [form] = Form.useForm();
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -27,12 +32,21 @@ const CreateRuleSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
-      onClick: () => setIsShow(false),
+      onClick: () => form.submit(),
     },
   ];
 
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[54px] w-full';
+
+  const onFinish = () => {
+    const value = form.getFieldsValue();
+    setAttendanceRule({
+      title: value.title,
+    });
+    form.resetFields();
+    setIsShow(false);
+  };
 
   return (
     isShow && (
@@ -52,16 +66,26 @@ const CreateRuleSidebar = () => {
           layout="vertical"
           requiredMark={CustomLabel}
           autoComplete="off"
+          form={form}
           className={itemClass}
+          onFinish={onFinish}
         >
           <Row gutter={[24, 24]}>
             <Col span={12}>
-              <Form.Item label="Rule Name" required name="name">
+              <Form.Item
+                label="Rule Name"
+                rules={[{ required: true, message: 'Required' }]}
+                name="title"
+              >
                 <Input className={controlClass} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="Type" required name="type">
+              <Form.Item
+                label="Type"
+                rules={[{ required: true, message: 'Required' }]}
+                name="type"
+              >
                 <Select
                   className={controlClass}
                   options={[
@@ -72,7 +96,11 @@ const CreateRuleSidebar = () => {
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item label="Days Set" required name="daysSet">
+              <Form.Item
+                label="Days Set"
+                rules={[{ required: true, message: 'Required' }]}
+                name="daysSet"
+              >
                 <InputNumber
                   min={1}
                   className="w-full py-[11px] mt-2.5"
@@ -81,7 +109,11 @@ const CreateRuleSidebar = () => {
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item label="Description" required name="description">
+              <Form.Item
+                label="Description"
+                rules={[{ required: true, message: 'Required' }]}
+                name="description"
+              >
                 <Input.TextArea className="w-full py-4 px-5 mt-2.5" rows={6} />
               </Form.Item>
             </Col>

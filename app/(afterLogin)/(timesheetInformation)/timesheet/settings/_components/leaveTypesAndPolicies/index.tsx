@@ -3,12 +3,12 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import TypesAndPoliciesSidebar from './typesAndPoliciesSidebar';
-import { useLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import LeaveTypeCard from './leaveTypeCard';
+import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 
 const LeaveTypesAndPolicies = () => {
   const { setIsShowTypeAndPoliciesSidebar } = useTimesheetSettingsStore();
-  const { data } = useLeaveTypes();
+  const { data } = useGetLeaveTypes();
   return (
     <>
       <PageHeader title="Types and Policies" size="small">

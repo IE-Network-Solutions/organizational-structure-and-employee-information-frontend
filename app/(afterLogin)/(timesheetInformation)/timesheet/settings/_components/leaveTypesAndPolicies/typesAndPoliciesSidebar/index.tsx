@@ -22,7 +22,7 @@ import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useCreateLeaveType } from '@/store/server/features/timesheet/leaveType/mutation';
 import { useGetCarryOverRules } from '@/store/server/features/timesheet/carryOverRule/queries';
 import { useGetAccrualRules } from '@/store/server/features/timesheet/accrualRule/queries';
-import { formatToOptions } from '@/helpers/formatToOptions';
+import { formatToOptions } from '@/helpers/formatTo';
 
 const TypesAndPoliciesSidebar = () => {
   const [isErrorPlan, setIsErrorPlan] = useState(false);
@@ -79,15 +79,8 @@ const TypesAndPoliciesSidebar = () => {
       isDeductible: !!value.isDeductible,
       minimumNotifyingDays: value.min,
       maximumAllowedConsecutiveDays: value.max,
-      accrualRule:
-        accrualRulesData!.items!.find(
-          (item) => item.id === value.accrualRule,
-        ) ?? undefined,
-      accrualRuleId: value.accrualRule,
-      carryOverRule:
-        carryOverData!.items!.find((item) => item.id === value.carryOverRule) ??
-        undefined,
-      carryOverRuleId: value.carryOverRule,
+      accrualRule: value.accrualRule,
+      carryOverRule: value.carryOverRule,
       description: value.description,
     });
     form.resetFields();

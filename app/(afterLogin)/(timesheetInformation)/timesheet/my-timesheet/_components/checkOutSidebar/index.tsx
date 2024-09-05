@@ -5,60 +5,50 @@ import {
 } from '@/store/uistate/features/timesheet/myTimesheet';
 import { Form, Select } from 'antd';
 import type { SelectProps } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import StatusBadge, {
-  StatusBadgeTheme,
-} from '@/components/common/statusBadge/statusBadge';
 import { AiOutlineCamera } from 'react-icons/ai';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
+import { BreakTypeStatus, formatBreakTypeToStatus } from '@/helpers/formatTo';
+import StatusBadge from '@/components/common/statusBadge/statusBadge';
+import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
+import { localUserID } from '@/utils/constants';
 
 type LabelRender = SelectProps['labelRender'];
 
-interface CustomSelectOption {
+interface CustomSelectOption extends BreakTypeStatus {
   label: string;
   value: string;
-  status: {
-    text: string;
-    theme: StatusBadgeTheme;
-  };
 }
 
 const CheckOutSidebar = () => {
-  const { isShowCheckOutSidebar, setIsShowCheckOutSidebar, setCheckStatus } =
-    useMyTimesheetStore();
-
+  const [options, setOptions] = useState<CustomSelectOption[]>([]);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const {
+    isShowCheckOutSidebar,
+    setIsShowCheckOutSidebar,
+    setCheckStatus,
+    breakTypes,
+  } = useMyTimesheetStore();
 
-  const selectOptions: CustomSelectOption[] = [
-    {
-      label: 'Lunch break-out',
-      value: 'lunch-break-out',
-      status: {
-        text: 'Checked',
-        theme: StatusBadgeTheme.success,
-      },
-    },
-    {
-      label: 'Lunch break-out',
-      value: 'lunch-break-out-missed',
-      status: {
-        text: 'missed',
-        theme: StatusBadgeTheme.danger,
-      },
-    },
-    {
-      label: 'Break-out',
-      value: 'break-out',
-      status: {
-        text: 'Not Yet',
-        theme: StatusBadgeTheme.warning,
-      },
-    },
-  ];
+  const { mutate: setCurrentAttendance } = useSetCurrentAttendance();
+
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    const nOptions: CustomSelectOption[] = breakTypes.map((item) => {
+      return {
+        label: item.title,
+        value: item.id,
+        ...formatBreakTypeToStatus(item),
+      };
+    });
+
+    setOptions(nOptions);
+  }, [breakTypes]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -74,10 +64,7 @@ const CheckOutSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
-      onClick: () => {
-        setIsShowCheckOutSidebar(false);
-        setCheckStatus(CheckStatus.breaking);
-      },
+      onClick: () => form.submit(),
     },
   ];
 
@@ -86,12 +73,26 @@ const CheckOutSidebar = () => {
 
   const selectLabel: LabelRender = (props) => {
     const { value } = props;
-    const option = selectOptions.find((item) => item.value === value);
+    const option = options.find((item) => item.value === value);
     return option ? (
       <div className="font-bold text-gray-900">{option.label}</div>
     ) : (
       ''
     );
+  };
+
+  const onFinish = () => {
+    const value = form.getFieldsValue();
+    setCurrentAttendance({
+      latitude: 23.5,
+      longitude: 44.5,
+      userId: localUserID,
+      isSignIn: false,
+      breakTypeId: value.type,
+    });
+    setCheckStatus(CheckStatus.breaking);
+    form.resetFields();
+    setIsShowCheckOutSidebar(false);
   };
 
   return (
@@ -103,11 +104,17 @@ const CheckOutSidebar = () => {
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"
       >
-        <Form layout="vertical" requiredMark={CustomLabel} autoComplete="off">
+        <Form
+          layout="vertical"
+          form={form}
+          requiredMark={CustomLabel}
+          onFinish={onFinish}
+          autoComplete="off"
+        >
           <Form.Item
             name="type"
             label="Checkin type"
-            required
+            rules={[{ required: true, message: 'Required' }]}
             className={itemClass}
           >
             <Select
@@ -116,8 +123,12 @@ const CheckOutSidebar = () => {
               labelRender={selectLabel}
               onChange={setSelectedType}
             >
-              {selectOptions.map((option) => (
-                <Select.Option value={option.value} key={option.value}>
+              {options.map((option) => (
+                <Select.Option
+                  value={option.value}
+                  key={option.value}
+                  disabled={option.disabled}
+                >
                   <div className="p-4 pr-1.5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {selectedType === option.value ? (

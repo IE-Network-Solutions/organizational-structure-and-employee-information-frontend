@@ -16,7 +16,7 @@ const attendanceImport = async (file: string) => {
 
 const setCurrentAttendance = async (data: AttendanceSetShiftRequestBody) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/attendance/import`,
+    url: `${ORG_AND_EMP_URL}/attendance/shift`,
     method: 'POST',
     headers: requestHeader(),
     data,

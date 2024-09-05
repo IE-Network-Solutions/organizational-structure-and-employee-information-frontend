@@ -1,13 +1,14 @@
-import { FC, ReactNode, useState } from 'react';
+import { FC, ReactNode, useEffect, useState } from 'react';
 import { Radio } from 'antd';
 import { classNames } from '@/utils/classNames';
 
 export interface CustomRadioProps {
   className?: string;
-  value?: string | number;
+  value?: string | number | boolean;
   label: ReactNode;
   onChange?: (count: boolean) => void;
   isError?: boolean;
+  initialValue?: string | number | boolean;
 }
 
 const CustomRadio: FC<CustomRadioProps> = ({
@@ -16,8 +17,9 @@ const CustomRadio: FC<CustomRadioProps> = ({
   label,
   onChange,
   isError = false,
+  initialValue = false,
 }) => {
-  const [isChecked, setIsChecked] = useState<boolean>(false);
+  const [isChecked, setIsChecked] = useState<boolean>();
 
   const radioClass = classNames(
     className,
@@ -47,10 +49,17 @@ const CustomRadio: FC<CustomRadioProps> = ({
 
   const handleChange = () => {
     setIsChecked((prev) => !prev);
-    if (onChange) {
-      onChange(isChecked);
-    }
   };
+
+  useEffect(() => {
+    setIsChecked(!!initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(!!isChecked);
+    }
+  }, [isChecked]);
 
   return (
     <Radio
