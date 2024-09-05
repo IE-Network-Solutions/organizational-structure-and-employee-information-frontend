@@ -60,7 +60,9 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
         </div>
         <div className="flex text-sm text-gray-900 gap-4 even:justify-end">
           <span className="font-bold">Accrual Rule-</span>
-          <span>{item.accrualRule.title}</span>
+          <span>
+            {typeof item.accrualRule !== 'string' && item.accrualRule.title}
+          </span>
         </div>
         <div className="flex text-sm text-gray-900 gap-4 col-span-2">
           <span className="font-bold">Description</span>
