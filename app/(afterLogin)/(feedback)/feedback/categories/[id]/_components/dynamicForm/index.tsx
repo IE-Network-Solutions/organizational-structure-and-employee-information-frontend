@@ -18,6 +18,7 @@ const DynamicForm: React.FC<any> = (props) => {
   const { isAddOpen, current, setCurrent, setIsAddOpen } =
     CategoriesManagementStore();
 
+  console.log(props, 'this is props');
   const { mutate: CreateQuestions } = useCreateDynamicForm();
 
   const { isModalVisible, setIsModalVisible, setGeneratedUrl } =
@@ -52,57 +53,56 @@ const DynamicForm: React.FC<any> = (props) => {
     });
   };
 
-  const handlePublish = async () => {
-    try {
-      const formattedValues = {
-        formId: props?.selectedFormId,
-        questions: [
-          ...questions.map((question: any, index: number) => ({
-            id: question.id,
-            question: question.question,
-            type: question.type,
-            options: question.options.length > 0 ? question.options : [],
-            required: true,
-            order: question.order || index + 1,
-          })),
-          ...customFields
-            .filter((field: any) => field.selected)
-            .map((field: any) => ({
-              id: field.id,
-              question: field.name,
-              type: 'Custom',
-              options: field.options || [],
-              required: false,
-            })),
-        ],
-      };
+  // const handlePublish = async () => {
+  //   try {
+  //     const formattedValues = {
+  //       formId: props?.selectedFormId,
+  //       questions: [
+  //         ...questions.map((question: any, index: number) => ({
+  //           id: question.id,
+  //           question: question.question,
+  //           type: question.type,
+  //           options: question.options.length > 0 ? question.options : [],
+  //           required: true,
+  //           order: question.order || index + 1,
+  //         })),
+  //         ...customFields
+  //           .filter((field: any) => field.selected)
+  //           .map((field: any) => ({
+  //             id: field.id,
+  //             question: field.name,
+  //             type: 'Custom',
+  //             options: field.options || [],
+  //             required: false,
+  //           })),
+  //       ],
+  //     };
 
-      CreateQuestions(formattedValues);
-      const generatedUrl = `${window.location.origin}/questions/${props?.selectedFormId}`;
+  //     CreateQuestions(formattedValues);
+  //     const generatedUrl = `${window.location.origin}/questions/${props?.selectedFormId}`;
 
-      publishSurvey();
-      setIsModalVisible(true);
+  //     publishSurvey();
+  //     setIsModalVisible(true);
 
-      setGeneratedUrl(generatedUrl);
+  //     setGeneratedUrl(generatedUrl);
 
-      NotificationMessage.success({
-        message: 'Survey Published',
-        description: `Your survey has been published successfully. URL: ${generatedUrl}`,
-      });
+  //     NotificationMessage.success({
+  //       message: 'Survey Published',
+  //       description: `Your survey has been published successfully. URL: ${generatedUrl}`,
+  //     });
 
-      navigator.clipboard.writeText(generatedUrl);
-    } catch (error) {
-      console.error('Error publishing survey:', error);
-      NotificationMessage.error({
-        message: 'Publish Failed',
-        description: 'There was an error publishing the survey.',
-      });
-    }
-  };
+  //     navigator.clipboard.writeText(generatedUrl);
+  //   } catch (error) {
+  //     console.error('Error publishing survey:', error);
+  //     NotificationMessage.error({
+  //       message: 'Publish Failed',
+  //       description: 'There was an error publishing the survey.',
+  //     });
+  //   }
+  // };
 
   const handleCreateQuestions = (e: any) => {
-    // handlePublish();
-    console.log(e);
+    // console.log(e);
   };
 
   const drawerHeader = (
@@ -189,10 +189,13 @@ const DynamicForm: React.FC<any> = (props) => {
           onClose={props?.onClose}
           modalHeader={drawerHeader}
           width="40%"
-          footer={renderFooter()}
+          // footer={renderFooter()}
         >
           {/* <AddCustomFields onSkip={handleNext} onNext={handleNext} />{' '} */}
-          <CreateQuestionsForm onBack={() => setCurrent(0)} />
+          <CreateQuestionsForm
+            selectedFormId={props?.selectedFormId}
+            onBack={() => setCurrent(0)}
+          />
 
           {/* <div hidden={current !== 1} className="p-4 sm:p-6"></div> */}
         </CustomDrawerLayout>

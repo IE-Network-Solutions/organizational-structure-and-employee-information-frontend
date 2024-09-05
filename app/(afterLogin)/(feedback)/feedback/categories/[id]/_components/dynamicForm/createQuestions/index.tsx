@@ -20,12 +20,18 @@ import {
 } from '@ant-design/icons';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useCreateDynamicForm } from '@/store/server/features/feedback/dynamicForm/mutation';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
-const CreateQuestions: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+const CreateQuestions: React.FC<{
+  onBack: () => void;
+  selectedFormId: string;
+}> = ({ onBack, selectedFormId }) => {
   const [form] = Form.useForm();
+
+  const { mutate: AddQuestion } = useCreateDynamicForm();
 
   const {
     questions,
@@ -33,6 +39,9 @@ const CreateQuestions: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     updateQuestion,
     updateOption,
     deleteQuestion,
+    setIsModalVisible,
+    setGeneratedUrl,
+    publishSurvey,
   } = useDynamicFormStore();
 
   const handleTypeChange = (value: string, questionId: number) => {
@@ -41,6 +50,32 @@ const CreateQuestions: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const handleQuestionChange = (value: string, questionId: number) => {
     updateQuestion(questionId, { question: value });
+  };
+
+  const handlePublish = async () => {
+    try {
+      const formattedValues = {
+        formId: selectedFormId,
+        questions: questions.map((e, i) => {
+          return { ...e, order: i + 1 };
+        }),
+      };
+      AddQuestion(formattedValues);
+      const generatedUrl = `${window.location.origin}/questions/${selectedFormId}`;
+
+      // publishSurvey();
+      setIsModalVisible(true);
+
+      setGeneratedUrl(generatedUrl);
+
+      navigator.clipboard.writeText(generatedUrl);
+    } catch (error) {
+      console.error('Error publishing survey:', error);
+      NotificationMessage.error({
+        message: 'Publish Failed',
+        description: 'There was an error publishing the survey.',
+      });
+    }
   };
 
   const handleOptionChange = (
@@ -58,18 +93,12 @@ const CreateQuestions: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const renderOptionInput = (type: any) => {
     switch (type) {
       case 'multiple_choice':
-        return <Radio className="mr-2" />;
+        return <Radio className="mr-2" disabled value="" />;
       case 'checkbox':
-        return <Checkbox className="mr-2" />;
+        return <Checkbox className="mr-2" disabled value="" />;
       default:
         return null;
     }
-  };
-
-  const onFinish = () => {
-    console.log((e: any) => {
-      e;
-    });
   };
 
   return (
@@ -79,8 +108,15 @@ const CreateQuestions: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       autoComplete="off"
       style={{ maxWidth: '100%' }}
       layout="vertical"
-      onFinish={(e) => {
+      onChange={(e) => {
         console.log(e);
+        //
+      }}
+      onFinish={(e) => {
+        console.log(e, 'eventssssssssss');
+
+        addQuestion(e.questions);
+        handlePublish();
       }}
       onFinishFailed={() =>
         NotificationMessage.error({
@@ -97,46 +133,70 @@ const CreateQuestions: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 <Space
                   key={key}
                   align="baseline"
-                  className="flex flex-col mb-2 "
+                  className="flex flex-col mb-2"
                 >
                   <div className="text-md font-semibold text-gray-800 mb-2 block">
                     Question
                     <span className="text-red-500">*</span>
                   </div>
-                  <div className="flex items-center sm:flex-col gap-2">
-                    <Form.Item
-                      label=""
-                      name={[name, 'name']}
-                      rules={[
-                        {
-                          required: true,
-                          message: 'This field is required',
-                        },
-                      ]}
-                      className="mb-0 flex-grow"
-                    >
-                      <div className="flex items-center">
-                        <Input
-                          placeholder="Enter your question here"
-                          allowClear
-                          className="flex-grow w-80"
-                        />
-                      </div>
-                    </Form.Item>
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'type']}
-                      className="mb-0 flex-grow"
-                    >
-                      <Select className="ml-5 w-40" placeholder="Select type">
-                        <Option value="multiple_choice">Multiple Choice</Option>
-                        <Option value="checkbox">Checkbox</Option>
-                        <Option value="short_text">Short Text</Option>
-                        <Option value="paragraph">Paragraph</Option>
-                        <Option value="time">Time</Option>
-                      </Select>
-                    </Form.Item>
-                    <MinusCircleOutlined onClick={() => remove(name)} />
+                  <div className="flex items-center gap-2">
+                    <Row gutter={[16, 24]}>
+                      <Col lg={16} md={14} xs={24}>
+                        <Form.Item
+                          label=""
+                          name={[name, 'question']}
+                          rules={[
+                            {
+                              required: true,
+                              message: 'This field is required',
+                            },
+                          ]}
+                          className="mb-0 flex-grow"
+                        >
+                          <div className="flex items-center">
+                            <Input
+                              placeholder="Enter your question here"
+                              allowClear
+                              // className="flex-grow w-80"
+                            />
+                          </div>
+                        </Form.Item>
+                      </Col>
+                      <Col lg={8} md={10} xs={24}>
+                        <Form.Item
+                          label=""
+                          name={[name, 'required']}
+                          className="mb-0 flex-grow"
+                        >
+                          <div className="flex items-center">
+                            <Checkbox defaultChecked={false}>
+                              Is Required
+                            </Checkbox>
+                          </div>
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'type']}
+                          // className="mb-0 flex-grow"
+                        >
+                          <Select
+                            className="ml-5 w-40"
+                            placeholder="Select type"
+                          >
+                            <Option value="multiple_choice">
+                              Multiple Choice
+                            </Option>
+                            <Option value="checkbox">Checkbox</Option>
+                            <Option value="short_text">Short Text</Option>
+                            <Option value="paragraph">Paragraph</Option>
+                            <Option value="time">Time</Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                      <Col>
+                        <MinusCircleOutlined onClick={() => remove(name)} />
+                      </Col>
+                    </Row>
                   </div>
                 </Space>
                 <Form.List
@@ -169,7 +229,7 @@ const CreateQuestions: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     ]);
                     console.log(questionType);
                     return (
-                      <div className="ml-8">
+                      <>
                         {fields.map((field, index) => (
                           <Form.Item
                             label={index === 0 ? 'Answer Options' : ''}
@@ -177,20 +237,20 @@ const CreateQuestions: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             key={field.key}
                           >
                             <div className="flex items-center gap-3">
+                              {renderOptionInput(questionType)}
+
                               <Form.Item
                                 {...field}
-                                validateTrigger={['onChange', 'onBlur']}
                                 rules={[
                                   {
                                     required: true,
-                                    whitespace: true,
+                                    // whitespace: true,
                                     message:
                                       'Please input something or delete this field.',
                                   },
                                 ]}
                                 noStyle
                               >
-                                {renderOptionInput(questionType)}
                                 <Input placeholder="" />
                               </Form.Item>
                               {fields.length > 1 ? (
@@ -210,7 +270,7 @@ const CreateQuestions: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             <PlusOutlined size={30} className="text-white" />
                           </div>
                         </Form.Item>
-                      </div>
+                      </>
                     );
                   }}
                 </Form.List>
@@ -224,10 +284,7 @@ const CreateQuestions: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 >
                   <PlusOutlined size={30} className="text-white" />
                 </div>
-                <p className="text-xs font-light text-gray-400">
-                  {' '}
-                  Add Question
-                </p>
+                <p className="text-xs font-light text-gray-400">Add Question</p>
               </div>
             </Form.Item>
           </>
