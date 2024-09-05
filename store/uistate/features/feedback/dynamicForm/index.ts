@@ -19,7 +19,7 @@ interface DynamicFormStore {
   customFields: CustomField[];
   isModalVisible: boolean;
   setIsModalVisible: (value: boolean) => void;
-  addQuestion: () => void;
+  addQuestion: (questions: Array<any>) => void;
   updateQuestion: (id: number, updates: Partial<Question>) => void;
   updateOption: (
     questionId: number,
@@ -40,25 +40,15 @@ interface DynamicFormStore {
 }
 
 export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
-  questions: [{ id: 1, type: 'multiple_choice', question: '', options: [] }],
+  questions: [],
   isModalVisible: false,
   current: 1,
   pageSize: 4,
   deletedItem: null,
   customFields: [],
   setIsModalVisible: (value) => set({ isModalVisible: value }),
-  addQuestion: () =>
-    set((state) => ({
-      questions: [
-        ...state.questions,
-        {
-          id: state.questions.length + 1,
-          type: 'multiple_choice',
-          question: '',
-          options: [],
-        },
-      ],
-    })),
+
+  addQuestion: (questions) => set({ questions }),
   updateQuestion: (id, updates) =>
     set((state) => ({
       questions: state.questions.map((q) =>
