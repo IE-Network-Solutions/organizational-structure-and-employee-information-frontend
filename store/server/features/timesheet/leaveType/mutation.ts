@@ -1,13 +1,13 @@
 import { LeaveType } from '@/types/timesheet/settings';
 import { crudRequest } from '@/utils/crudRequest';
-import { TIME_AND_ATTENDANCE_MODE_ULR } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const createLeaveType = async (item: Partial<LeaveType>) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/leave-type`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/leave-type`,
     method: 'POST',
     headers: requestHeader(),
     data: { ...item },
@@ -16,7 +16,7 @@ const createLeaveType = async (item: Partial<LeaveType>) => {
 
 const deleteLeaveType = async (id: string) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/leave-type`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/leave-type`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },

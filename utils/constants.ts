@@ -8,6 +8,6 @@ export const tenantId = '9fdb9540-607e-4cc5-aebf-0879400d1f69';
 export const DATE_FORMAT = 'DD MMM YYYY';
 export const DATETIME_FORMAT = 'DD MMM YYYY HH:mm';
 
-export const localUserID = process.env.LOCAL_USER_ID ?? '';
-export const TIME_AND_ATTENDANCE_MODE_ULR =
-  process.env.TIME_AND_ATTENDANCE_MODE_ULR;
+export const localUserID = process.env.NEXT_PUBLIC_LOCAL_USER_ID ?? '';
+export const TIME_AND_ATTENDANCE_MODE_URL =
+  process.env.NEXT_PUBLIC_TIME_AND_ATTENDANCE_MODE_URL;

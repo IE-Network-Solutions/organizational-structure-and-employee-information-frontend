@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { TIME_AND_ATTENDANCE_MODE_ULR } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -7,7 +7,7 @@ import { AccrualRule } from '@/types/timesheet/settings';
 
 const setAccrualRule = async (data: Partial<AccrualRule>) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/accrual-rules`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/accrual-rules`,
     method: 'POST',
     headers: requestHeader(),
     data,
@@ -16,7 +16,7 @@ const setAccrualRule = async (data: Partial<AccrualRule>) => {
 
 const deleteAccrualRule = async (id: string) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/accrual-rules`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/accrual-rules`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },
