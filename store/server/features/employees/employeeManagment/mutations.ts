@@ -141,8 +141,9 @@ export const useDeleteEmployee = () => {
 export const useCreateJobInformation = () => {
   const queryClient = useQueryClient();
   return useMutation(createJobInformation, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('employeesJb');
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries(['employee', data.userId]);
+      queryClient.invalidateQueries('employees');
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Employee successfully Created',
