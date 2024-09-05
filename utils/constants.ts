@@ -8,4 +8,5 @@ export const tenantId = '9fdb9540-607e-4cc5-aebf-0879400d1f69';
 export const DATE_FORMAT = 'DD MMM YYYY';
 export const DATETIME_FORMAT = 'DD MMM YYYY HH:mm';
 
-export const localUserID = '2112077b-3403-4c2c-b9f6-7cf4bdea2302';
+export const localUserID = process.env.LOCAL_USER_ID;
+export const LOBSTER_URL = process.env.LOBSTER_URL;

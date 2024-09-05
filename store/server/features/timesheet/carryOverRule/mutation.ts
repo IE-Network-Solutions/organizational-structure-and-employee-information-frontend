@@ -1,13 +1,13 @@
 import { CarryOverRule } from '@/types/timesheet/settings';
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { LOBSTER_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const createCarryOverRule = async (item: Partial<CarryOverRule>) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/carry-over-rule`,
+    url: `${LOBSTER_URL}/carry-over-rule`,
     method: 'POST',
     headers: requestHeader(),
     data: { ...item },
@@ -16,7 +16,7 @@ const createCarryOverRule = async (item: Partial<CarryOverRule>) => {
 
 const deleteCarryOverRule = async (id: string) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/carry-over-rule`,
+    url: `${LOBSTER_URL}/carry-over-rule`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },

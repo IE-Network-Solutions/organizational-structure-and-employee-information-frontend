@@ -1,13 +1,13 @@
 import { LeaveType } from '@/types/timesheet/settings';
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { LOBSTER_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const createLeaveType = async (item: Partial<LeaveType>) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/leave-type`,
+    url: `${LOBSTER_URL}/leave-type`,
     method: 'POST',
     headers: requestHeader(),
     data: { ...item },
@@ -16,7 +16,7 @@ const createLeaveType = async (item: Partial<LeaveType>) => {
 
 const deleteLeaveType = async (id: string) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/leave-type`,
+    url: `${LOBSTER_URL}/leave-type`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },

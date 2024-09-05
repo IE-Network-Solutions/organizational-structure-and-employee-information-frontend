@@ -1,6 +1,6 @@
 import { RequestCommonQueryData } from '@/types/commons/requesTypes';
 import { crudRequest } from '@/utils/crudRequest';
-import { localUserID, ORG_AND_EMP_URL } from '@/utils/constants';
+import { localUserID, LOBSTER_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import {
   AttendanceImportLogsBody,
@@ -15,7 +15,7 @@ const getAttendances = async (
   data: Partial<AttendanceRequestBody>,
 ) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/attendance`,
+    url: `${LOBSTER_URL}/attendance`,
     method: 'POST',
     headers: requestHeader(),
     data,
@@ -25,7 +25,7 @@ const getAttendances = async (
 
 const getCurrentAttendance = async () => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/attendance/shift`,
+    url: `${LOBSTER_URL}/attendance/shift`,
     method: 'GET',
     headers: requestHeader(),
     params: { userId: localUserID },
@@ -37,7 +37,7 @@ const getAttendanceImportLogs = async (
   data: Partial<AttendanceImportLogsBody>,
 ) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/attendance/import-logs`,
+    url: `${LOBSTER_URL}/attendance/import-logs`,
     method: 'POST',
     headers: requestHeader(),
     data,

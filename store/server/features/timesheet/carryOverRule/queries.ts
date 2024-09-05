@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { LOBSTER_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
@@ -7,7 +7,7 @@ import { CarryOverRule } from '@/types/timesheet/settings';
 
 const getCarryOverRules = async () => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/carry-over-rule`,
+    url: `${LOBSTER_URL}/carry-over-rule`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -15,7 +15,7 @@ const getCarryOverRules = async () => {
 
 const getCarryOverRule = async (id: string) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/carry-over-rule`,
+    url: `${LOBSTER_URL}/carry-over-rule`,
     method: 'GET',
     headers: requestHeader(),
     params: { id },
