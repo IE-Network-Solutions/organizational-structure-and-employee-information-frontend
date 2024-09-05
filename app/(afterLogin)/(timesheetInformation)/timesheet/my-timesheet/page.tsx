@@ -1,10 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { Button } from 'antd';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import { AiOutlineReload } from 'react-icons/ai';
-import { LuPlus } from 'react-icons/lu';
 import HistoryTable from './_components/historyTable';
 import AttendanceTable from './_components/attendanceTable';
 import LeaveBalance from './_components/leaveBalance';

@@ -26,12 +26,13 @@ import {
 } from '@/helpers/calculateHelper';
 
 const AttendanceTable = () => {
-  const userFilter = {
-    userIds: [localUserID],
+  const userFilter: Partial<AttendanceRequestBody['filter']> = {
+    userIds: [localUserID ?? ''],
   };
   const { setIsShowViewSidebar } = useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
-  const [page, setPage] = useState('1');
+  // const [page, setPage] = useState('1');
+  const page = '1';
   const [filter, setFilter] =
     useState<Partial<AttendanceRequestBody['filter']>>(userFilter);
   const { data, isFetching, refetch } = useGetAttendances(

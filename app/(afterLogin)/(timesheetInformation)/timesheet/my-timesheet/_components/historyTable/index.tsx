@@ -21,13 +21,14 @@ import { AiOutlineReload } from 'react-icons/ai';
 import { LuPlus } from 'react-icons/lu';
 
 const HistoryTable = () => {
-  const userFilter = {
-    userIds: [localUserID],
+  const userFilter: Partial<LeaveRequestBody['filter']> = {
+    userIds: [localUserID ?? ''],
   };
   const { setIsShowLeaveRequestSidebar: isShow, setLeaveRequestSidebarData } =
     useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
-  const [page, setPage] = useState('1');
+  // const [page, setPage] = useState('1');
+  const page = '1';
   const [filter, setFilter] =
     useState<Partial<LeaveRequestBody['filter']>>(userFilter);
   const { data, isFetching, refetch } = useGetLeaveRequest(

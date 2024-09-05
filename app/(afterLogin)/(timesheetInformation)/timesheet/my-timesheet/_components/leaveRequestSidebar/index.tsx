@@ -27,7 +27,6 @@ import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';
 import { useEffect, useState } from 'react';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
-import { RuleObject } from 'rc-field-form/lib/interface';
 
 const LeaveRequestSidebar = () => {
   const [filter, setFilter] = useState<Partial<LeaveRequestBody['filter']>>({});

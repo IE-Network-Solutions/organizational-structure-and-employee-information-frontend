@@ -1,9 +1,5 @@
 import { create, StateCreator } from 'zustand';
-import {
-  AllowedArea,
-  LeaveRequest,
-  LeaveType,
-} from '@/types/timesheet/settings';
+import { AllowedArea, LeaveType } from '@/types/timesheet/settings';
 import { AttendanceRecord } from '@/types/timesheet/attendance';
 import { BreakType } from '@/types/timesheet/breakType';
 
