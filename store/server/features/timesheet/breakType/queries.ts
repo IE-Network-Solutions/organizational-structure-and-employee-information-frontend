@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { LOBSTER_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_ULR } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
@@ -7,7 +7,7 @@ import { BreakType } from '@/types/timesheet/breakType';
 
 const getBreakTypes = async () => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/attendance/break-type`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/attendance/break-type`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -15,7 +15,7 @@ const getBreakTypes = async () => {
 
 const getBreakType = async (id: string) => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/attendance/break-type`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/attendance/break-type`,
     method: 'GET',
     headers: requestHeader(),
     params: { id },

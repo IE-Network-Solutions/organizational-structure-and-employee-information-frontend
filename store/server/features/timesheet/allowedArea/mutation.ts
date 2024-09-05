@@ -1,13 +1,13 @@
 import { AllowedArea } from '@/types/timesheet/settings';
 import { crudRequest } from '@/utils/crudRequest';
-import { LOBSTER_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_ULR } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const setAllowedArea = async (item: Partial<AllowedArea>) => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/geofencing/allowed-area`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/geofencing/allowed-area`,
     method: 'POST',
     headers: requestHeader(),
     data: { item },
@@ -16,7 +16,7 @@ const setAllowedArea = async (item: Partial<AllowedArea>) => {
 
 const deleteAllowedArea = async (id: string) => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/geofencing/allowed-area`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/geofencing/allowed-area`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },

@@ -1,6 +1,6 @@
 import { LeaveRequest } from '@/types/timesheet/settings';
 import { crudRequest } from '@/utils/crudRequest';
-import { localUserID, LOBSTER_URL } from '@/utils/constants';
+import { localUserID, TIME_AND_ATTENDANCE_MODE_ULR } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { requestHeader } from '@/helpers/requestHeader';
@@ -8,7 +8,7 @@ import { LeaveRequestStatusBody } from '@/store/server/features/timesheet/leaveR
 
 const setLeaveRequest = async (item: Partial<LeaveRequest>) => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/leave-request/make`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/leave-request/make`,
     method: 'POST',
     headers: requestHeader(),
     data: { item: { ...item, user: localUserID } },
@@ -17,7 +17,7 @@ const setLeaveRequest = async (item: Partial<LeaveRequest>) => {
 
 const deleteLeaveRequest = async (id: string) => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/leave-request/make`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/leave-request/make`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },
@@ -26,7 +26,7 @@ const deleteLeaveRequest = async (id: string) => {
 
 const setStatusToLeaveRequest = async (data: LeaveRequestStatusBody) => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/leave-request/escalate`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/leave-request/escalate`,
     method: 'POST',
     headers: requestHeader(),
     data,

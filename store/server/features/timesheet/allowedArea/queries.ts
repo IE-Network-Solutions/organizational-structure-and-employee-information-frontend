@@ -1,6 +1,6 @@
 import { AllowedAreaQueryData } from '@/store/server/features/timesheet/allowedArea/interface';
 import { crudRequest } from '@/utils/crudRequest';
-import { LOBSTER_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_ULR } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
@@ -8,7 +8,7 @@ import { AllowedArea } from '@/types/timesheet/settings';
 
 const getAllowedAreas = async (lat: number, lng: number) => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/geofencing/allowed-area`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/geofencing/allowed-area`,
     method: 'GET',
     headers: requestHeader(),
     params: { latitude: lat, longitude: lng },
@@ -17,7 +17,7 @@ const getAllowedAreas = async (lat: number, lng: number) => {
 
 const getAllowedArea = async (queryData: Partial<AllowedAreaQueryData>) => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/geofencing/allowed-area`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/geofencing/allowed-area`,
     method: 'GET',
     headers: requestHeader(),
     params: queryData,

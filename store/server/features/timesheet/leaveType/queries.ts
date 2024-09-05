@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { LOBSTER_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_ULR } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import { LeaveType } from '@/types/timesheet/settings';
@@ -7,7 +7,7 @@ import { requestHeader } from '@/helpers/requestHeader';
 
 const getLeaveTypes = async () => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/leave-type`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/leave-type`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -15,7 +15,7 @@ const getLeaveTypes = async () => {
 
 const getLeaveType = async (id: string) => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/leave-type`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/leave-type`,
     method: 'GET',
     headers: requestHeader(),
     params: { id },

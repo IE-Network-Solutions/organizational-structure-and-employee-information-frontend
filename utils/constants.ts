@@ -9,4 +9,5 @@ export const DATE_FORMAT = 'DD MMM YYYY';
 export const DATETIME_FORMAT = 'DD MMM YYYY HH:mm';
 
 export const localUserID = process.env.LOCAL_USER_ID;
-export const LOBSTER_URL = process.env.LOBSTER_URL;
+export const TIME_AND_ATTENDANCE_MODE_ULR =
+  process.env.TIME_AND_ATTENDANCE_MODE_ULR;

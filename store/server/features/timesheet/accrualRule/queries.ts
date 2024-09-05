@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { LOBSTER_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_ULR } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
@@ -7,7 +7,7 @@ import { AccrualRule } from '@/types/timesheet/settings';
 
 const getAccrualRules = async () => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/accrual-rules`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/accrual-rules`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -15,7 +15,7 @@ const getAccrualRules = async () => {
 
 const getAccrualRule = async (id: string) => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/accrual-rules`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/accrual-rules`,
     method: 'GET',
     headers: requestHeader(),
     params: { id },

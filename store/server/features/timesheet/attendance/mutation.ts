@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { LOBSTER_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_ULR } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -7,7 +7,7 @@ import { AttendanceSetShiftRequestBody } from '@/store/server/features/timesheet
 
 const attendanceImport = async (file: string) => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/attendance/import`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/attendance/import`,
     method: 'POST',
     headers: requestHeader(),
     data: { file },
@@ -16,7 +16,7 @@ const attendanceImport = async (file: string) => {
 
 const setCurrentAttendance = async (data: AttendanceSetShiftRequestBody) => {
   return await crudRequest({
-    url: `${LOBSTER_URL}/attendance/shift`,
+    url: `${TIME_AND_ATTENDANCE_MODE_ULR}/attendance/shift`,
     method: 'POST',
     headers: requestHeader(),
     data,
