@@ -40,7 +40,7 @@ interface DynamicFormStore {
 }
 
 export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
-  questions: [{ id: 1, type: 'Multiple Choice', question: '', options: [] }],
+  questions: [{ id: 1, type: 'multiple_choice', question: '', options: [] }],
   isModalVisible: false,
   current: 1,
   pageSize: 4,
@@ -53,7 +53,7 @@ export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
         ...state.questions,
         {
           id: state.questions.length + 1,
-          type: 'Multiple Choice',
+          type: 'multiple_choice',
           question: '',
           options: [],
         },
@@ -82,7 +82,7 @@ export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
   setGeneratedUrl: (url) => set({ generatedUrl: url }),
   publishSurvey: () => {
     const uniqueId = Math.random().toString(36).substring(7);
-    const url = `${window.location.origin}/survey/${uniqueId}`;
+    const url = `${window.location.origin}/questions/${uniqueId}`;
     set({ generatedUrl: url });
   },
   deleteQuestion: (id) =>

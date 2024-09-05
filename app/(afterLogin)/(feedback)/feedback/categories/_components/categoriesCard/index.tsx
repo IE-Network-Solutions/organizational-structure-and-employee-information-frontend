@@ -27,6 +27,7 @@ const CategoriesCard: React.FC = () => {
 
   const { data: categories, isLoading: isCategoriesLoading } =
     useFetchCategories(pageSize, current);
+
   const updateCategory = useUpdateFormCategory();
   const deleteCategory = useDeleteFormCategory();
 

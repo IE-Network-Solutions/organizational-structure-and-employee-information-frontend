@@ -41,6 +41,7 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
 
   const { data: subcategories } = useFetchedForms(pageSize, current);
   const { data: Forms } = useGetFormsByCategoryID(id, pageSize, current);
+  console.log(Forms, 'forms');
 
   const handleChange = (page: number = 1, pageSize: number) => {
     setCurrent(page);
@@ -83,7 +84,7 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
       <Progress
         type="circle"
         percent={percent}
-        width={80}
+        size={80}
         strokeColor={getStrokeColor(percent)}
         format={(percent) => `${Math.round(percent ?? 0)}%`}
       />
@@ -100,16 +101,16 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
     <>
       <Row gutter={[16, 24]}>
         {Forms &&
-          Forms.map((forms: any) => (
+          Forms.map((forms: any, index: number) => (
             <div className="flex justify-start items-center gap-[13px]">
-              <Col key={forms.id} lg={12} md={12} xs={24} className="h-full">
+              <Col key={index} lg={12} md={12} xs={24} className="h-full">
                 <Card
                   hoverable
                   className="w-[280px] h-full relative bg-gray-100"
                 >
                   <div className="flex justify-between items-start mb-2">
                     <Title level={5} className="m-0">
-                      {forms?.title}
+                      {forms?.name}
                     </Title>
                     <Dropdown
                       menu={{
@@ -161,7 +162,7 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
                   </Flex>
                 </Card>
               </Col>
-              <Col key={forms.id} lg={12} md={12} xs={24} className="h-full">
+              <Col key={index + 1} lg={12} md={12} xs={24} className="h-full">
                 <Card
                   hoverable
                   className="w-[260px] h-full relative bg-gray-100"

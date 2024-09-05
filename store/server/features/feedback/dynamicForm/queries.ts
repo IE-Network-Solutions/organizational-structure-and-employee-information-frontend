@@ -7,14 +7,14 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
-  tenantId: tenantId,
+  tenantId: tenantId ? tenantId : '179055e7-a27c-4d9d-9538-2b2a115661bd',
   Authorization: `Bearer ${token}`,
 };
 
 const fetchDynamicForms = async () => {
   return await crudRequest({
-    url: 'https://mocki.io/v1/51dcdb2a-999f-4ceb-b7e0-cc62964f4685',
-    // url: `${ORG_AND_EMP_URL}/questions`,
+    // url: 'https://mocki.io/v1/51dcdb2a-999f-4ceb-b7e0-cc62964f4685',
+    url: `${ORG_AND_EMP_URL}/questions`,
     method: 'GET',
     headers,
   });

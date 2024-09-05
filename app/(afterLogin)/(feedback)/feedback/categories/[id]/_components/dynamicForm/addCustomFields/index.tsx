@@ -1,13 +1,11 @@
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import { Form, Input, Button, Select, Checkbox } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
 import React from 'react';
 
 const { Option } = Select;
 
 const AddCustomFields: React.FC<{ onSkip: () => void; onNext: () => void }> = ({
   onSkip,
-  onNext,
 }) => {
   const { customFields, setCustomFields } = CategoriesManagementStore();
 
@@ -39,7 +37,11 @@ const AddCustomFields: React.FC<{ onSkip: () => void; onNext: () => void }> = ({
   );
   return (
     <div className="flex flex-col gap-9 justify-between items-between">
-      <Form form={form} layout="vertical" onFinish={onFinish}>
+      <Form
+        // form={form}
+        layout="vertical"
+        onFinish={onFinish}
+      >
         <Form.Item
           name="customFields"
           label={

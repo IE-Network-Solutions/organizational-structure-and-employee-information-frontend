@@ -1,15 +1,15 @@
 import { useFetchDynamicForms } from '@/store/server/features/feedback/dynamicForm/queries';
-import { useRouter } from 'next/router';
 import React from 'react';
+interface Params {
+  id: string;
+}
+interface QuestionProps {
+  params: Params;
+}
 
-const QuestionDisplay = () => {
-  const router = useRouter();
-  const { id } = router.query;
-
+const QuestionDisplay = ({ params: { id } }: QuestionProps) => {
   const { data: dynamicForms, isLoading } = useFetchDynamicForms();
   const questionData = dynamicForms?.find((form: any) => form.id === id);
-
-  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div>

@@ -15,6 +15,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
   tenantId: tenantId ? tenantId : '179055e7-a27c-4d9d-9538-2b2a115661bd',
   Authorization: `Bearer ${token}`,
+  createdById: 'c9624522-40af-4f10-ba44-8697b36e7a1c',
 };
 
 /**
@@ -35,7 +36,6 @@ const fetchCategories = async (pageSize: number, currentPage: number) => {
  */
 const fetchCatUsers = async () => {
   return await crudRequest({
-    // url: 'https://mocki.io/v1/23b636da-7246-412a-baf8-e3f6abdea634',
     url: 'http://172.16.34.161:8008/api/v1/users?deletedAt=null',
     method: 'GET',
     headers,
@@ -45,6 +45,14 @@ const fetchCatUsers = async () => {
 const getFormCategoriesById = async (formCatsId: string) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/form-categories/${formCatsId}`,
+    method: 'GET',
+    headers,
+  });
+};
+
+const fetchCatUsersById = async (createdById: string) => {
+  return await crudRequest({
+    url: `http://172.16.34.161:8008/api/v1/users/${createdById}?deletedAt=null`,
     method: 'GET',
     headers,
   });
@@ -76,6 +84,16 @@ export const useGetFormCategories = (formCatsId: string) => {
   return useQuery<any>(
     ['categories', formCatsId],
     () => getFormCategoriesById(formCatsId),
+    {
+      keepPreviousData: true,
+    },
+  );
+};
+
+export const useGetUsersById = (createdById: string) => {
+  return useQuery<any>(
+    ['categories', createdById],
+    () => fetchCatUsersById(createdById),
     {
       keepPreviousData: true,
     },

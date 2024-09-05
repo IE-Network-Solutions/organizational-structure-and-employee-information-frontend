@@ -10,7 +10,6 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import CreateQuestionsForm from './createQuestions';
 import { useCreateDynamicForm } from '@/store/server/features/feedback/dynamicForm/mutation';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
-import { useFetchDynamicForms } from '@/store/server/features/feedback/dynamicForm/queries';
 
 const { Step } = Steps;
 
@@ -31,8 +30,6 @@ const DynamicForm: React.FC<any> = (props) => {
       publishSurvey: state.publishSurvey,
       generatedUrl: state.generatedUrl,
     }));
-
-  const { data: questionsData } = useFetchDynamicForms();
 
   const onChange = (value: number) => {
     setCurrent(value);
@@ -103,8 +100,9 @@ const DynamicForm: React.FC<any> = (props) => {
     }
   };
 
-  const handleCreateQuestions = () => {
-    handlePublish();
+  const handleCreateQuestions = (e: any) => {
+    // handlePublish();
+    console.log(e);
   };
 
   const drawerHeader = (
@@ -193,27 +191,10 @@ const DynamicForm: React.FC<any> = (props) => {
           width="40%"
           footer={renderFooter()}
         >
-          <Form
-            form={form}
-            name="dependencies"
-            autoComplete="off"
-            style={{ maxWidth: '100%' }}
-            layout="vertical"
-            onFinish={handleCreateQuestions}
-            onFinishFailed={() =>
-              NotificationMessage.error({
-                message: 'Something wrong or unfilled',
-                description: 'please back and check the unfilled fields',
-              })
-            }
-          >
-            <div hidden={current !== 0} className="p-4 sm:p-6">
-              <AddCustomFields onSkip={handleNext} onNext={handleNext} />{' '}
-            </div>
-            <div hidden={current !== 1} className="p-4 sm:p-6">
-              <CreateQuestionsForm onBack={() => setCurrent(0)} />
-            </div>
-          </Form>
+          {/* <AddCustomFields onSkip={handleNext} onNext={handleNext} />{' '} */}
+          <CreateQuestionsForm onBack={() => setCurrent(0)} />
+
+          {/* <div hidden={current !== 1} className="p-4 sm:p-6"></div> */}
         </CustomDrawerLayout>
         <Modal
           title="Survey Published"

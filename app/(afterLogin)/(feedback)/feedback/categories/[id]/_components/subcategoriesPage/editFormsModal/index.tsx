@@ -40,7 +40,7 @@ const EditFormsModal: React.FC<EditFormsModalProps> = ({ form }) => {
   return (
     <Modal
       title="Edit Form"
-      visible={isEditModalVisible}
+      open={isEditModalVisible}
       onCancel={() => setIsEditModalVisible(false)}
       footer={null}
       width={800}
