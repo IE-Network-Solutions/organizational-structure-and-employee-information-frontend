@@ -14,7 +14,6 @@ import { useGetAllowedAreas } from '@/store/server/features/timesheet/allowedAre
 import LeaveRequestSidebar from './_components/leaveRequestSidebar';
 import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
-import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
 
 const MyTimesheet = () => {
   const {
@@ -43,10 +42,6 @@ const MyTimesheet = () => {
   useEffect(() => {
     setBreakTypes(breakTypeData?.items ?? []);
   }, [breakTypeData]);
-
-  useEffect(() => {
-    console.log({ TIME_AND_ATTENDANCE_MODE_ULR: TIME_AND_ATTENDANCE_MODE_URL });
-  });
 
   return (
     <>
