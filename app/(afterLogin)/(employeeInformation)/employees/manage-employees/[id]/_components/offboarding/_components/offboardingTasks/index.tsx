@@ -103,7 +103,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
   if (error) return <div>Error loading tasks</div>;
 
   return (
-    <div className="p-4">
+    <div className="p-4 max-h-[418px] overflow-y-scroll">
       <Card
         title="Offboarding Tasks"
         extra={

@@ -41,10 +41,13 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
   const handleAddTaskClick = () => {
     setIsAddTaskModalVisible(true);
   };
-
   const handelSelectedTemplateTasks = (item: any) => {
     item.employeTerminationId = offboardingTermination?.id;
-    if (selectedTemplateTasks.includes(item)) {
+
+    if (
+      selectedTemplateTasks.length > 0 &&
+      selectedTemplateTasks.some((task: any) => task.id === item.id)
+    ) {
       setselectedTemplateTasks(
         selectedTemplateTasks.filter((task: any) => task !== item),
       );
@@ -53,8 +56,14 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
     }
   };
   const handelAddToTask = () => {
-    setIsTaskTemplateVisible(false);
-    createTaskList(selectedTemplateTasks);
+    if (selectedTemplateTasks?.length > 0) {
+      createTaskList(selectedTemplateTasks, {
+        onSuccess: () => {
+          setselectedTemplateTasks([]);
+          setIsTaskTemplateVisible(false);
+        },
+      });
+    }
   };
   const handelTaskDelete = (value: string) => {
     offboardingTemplateTaskDelete(value);
@@ -66,7 +75,10 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
         title="Add Items"
         centered
         open={isTaskTemplateVisible}
-        onCancel={() => setIsTaskTemplateVisible(false)}
+        onCancel={() => {
+          setIsTaskTemplateVisible(false);
+          setselectedTemplateTasks([]);
+        }}
         footer={null}
         width={400}
       >
@@ -91,29 +103,34 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
         >
           Add Task List
         </Button>
-        {offboardingTasksTemplate?.map((item: any, index: any) => (
-          <div key={index} className="flex justify-between items-center my-3">
-            <div>
-              <Checkbox
-                onClick={() => handelSelectedTemplateTasks(item)}
-                key={index}
-                className="flex mb-2"
-              >
-                {item.title}
-              </Checkbox>
+        <div className="max-h-[200px] overflow-y-scroll">
+          {offboardingTasksTemplate?.map((item: any, index: any) => (
+            <div key={index} className="flex justify-between items-center my-3">
+              <div>
+                <Checkbox
+                  onClick={() => handelSelectedTemplateTasks(item)}
+                  key={index}
+                  className="flex mb-2"
+                  checked={selectedTemplateTasks.some(
+                    (task: any) => task.id === item.id,
+                  )}
+                >
+                  {item.title}
+                </Checkbox>
+              </div>
+              <div>
+                <Button
+                  onClick={() => {
+                    setIsDeleteModalVisible(true);
+                    setTaskToDelete(item); // Track the task to be deleted
+                  }}
+                  danger
+                  icon={<MdDelete />}
+                />
+              </div>
             </div>
-            <div>
-              <Button
-                onClick={() => {
-                  setIsDeleteModalVisible(true);
-                  setTaskToDelete(item); // Track the task to be deleted
-                }}
-                danger
-                icon={<MdDelete />}
-              />
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
         {isDeleteModalVisible && taskToDelete && (
           <DeleteModal
             open={isDeleteModalVisible}
@@ -143,13 +160,19 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
         )}
         <div className="mt-6 pt-4 border-t">
           <Button
+            disabled={selectedTemplateTasks?.length < 1}
             onClick={() => handelAddToTask()}
             type="primary"
             className="bg-blue-600 mr-2"
           >
             Add Selected Items
           </Button>
-          <Button onClick={() => setIsTaskTemplateVisible(false)}>
+          <Button
+            onClick={() => {
+              setIsTaskTemplateVisible(false);
+              setselectedTemplateTasks([]);
+            }}
+          >
             Cancel
           </Button>
         </div>
