@@ -174,7 +174,6 @@ const UserTable = () => {
             <Tooltip title={'View Employee Detail'}>
               <Button
                 id={`editUserButton${item?.id}`}
-                //disabled={item?.deletedAt !== null}
                 className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
               >
                 <FaEye />
