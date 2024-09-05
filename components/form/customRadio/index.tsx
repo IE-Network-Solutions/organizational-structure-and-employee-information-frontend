@@ -7,6 +7,7 @@ export interface CustomRadioProps {
   value?: string | number;
   label: ReactNode;
   onChange?: (count: boolean) => void;
+  isError?: boolean;
 }
 
 const CustomRadio: FC<CustomRadioProps> = ({
@@ -14,27 +15,35 @@ const CustomRadio: FC<CustomRadioProps> = ({
   value,
   label,
   onChange,
+  isError = false,
 }) => {
   const [isChecked, setIsChecked] = useState<boolean>(false);
-  const radioClass = classNames(className, undefined, [
-    'font-semibold',
-    'text-sm',
-    'text-gray-900',
-    'h-[54px]',
-    'rounded-lg',
-    'border',
-    'border-gray-200',
-    'items-center',
-    'justify-between',
-    'hover:border-primary',
-    'transition-colors',
-    'duration-150',
-    'px-[11px]',
-    'cursor-pointer',
-    'w-full',
-    'flex-row-reverse',
-    'after:content-[none]',
-  ]);
+
+  const radioClass = classNames(
+    className,
+    {
+      'border-gray-200': !isError,
+      'border-error': isError,
+    },
+    [
+      'font-semibold',
+      'text-sm',
+      'text-gray-900',
+      'h-[54px]',
+      'rounded-lg',
+      'border',
+      'items-center',
+      'justify-between',
+      'hover:border-primary',
+      'transition-colors',
+      'duration-150',
+      'px-[11px]',
+      'cursor-pointer',
+      'w-full',
+      'flex-row-reverse',
+      'after:content-[none]',
+    ],
+  );
 
   const handleChange = () => {
     setIsChecked((prev) => !prev);

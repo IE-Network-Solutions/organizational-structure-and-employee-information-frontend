@@ -19,7 +19,7 @@ const deleteCarryOverRule = async (id: string) => {
     url: `${ORG_AND_EMP_URL}/carry-over-rule`,
     method: 'DELETE',
     headers: requestHeader(),
-    data: { id },
+    params: { id },
   });
 };
 

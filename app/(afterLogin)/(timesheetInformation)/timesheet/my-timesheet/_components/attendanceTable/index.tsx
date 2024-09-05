@@ -5,7 +5,9 @@ import { Button, Table } from 'antd';
 import { IoEyeOutline } from 'react-icons/io5';
 import { GoLocation } from 'react-icons/go';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
-import StatusBadge from '@/components/common/statusBadge/statusBadge';
+import StatusBadge, {
+  StatusBadgeTheme,
+} from '@/components/common/statusBadge/statusBadge';
 
 const AttendanceTable = () => {
   const { setIsShowViewSidebar } = useMyTimesheetStore();
@@ -54,7 +56,7 @@ const AttendanceTable = () => {
       dataIndex: 'status',
       key: 'status',
       render: (text: string) => (
-        <StatusBadge theme="warning">
+        <StatusBadge theme={StatusBadgeTheme.warning}>
           <div className="text-center">
             <div>{text}</div>
             <div className="font-normal">00 hr 1 min</div>

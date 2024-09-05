@@ -6,11 +6,16 @@ export enum LeaveRequestStatus {
   DECLINED = 'declined',
 }
 
-export enum Period {
+export enum CarryOverPeriod {
   MONTH = 'month',
   YEARS = 'years',
-  QUARTER = 'quarter',
   DAYS = 'days',
+}
+
+export enum AccrualRulePeriod {
+  MONTHLY = 'monthly',
+  YEAR = 'year',
+  QUARTER = 'quarter',
 }
 
 export interface AllowedArea extends DateInfo {
@@ -27,7 +32,7 @@ export interface CarryOverRule extends DateInfo {
   tenantId: string;
   limit: number;
   expiration: number;
-  expirationPeriod: Period;
+  expirationPeriod: CarryOverPeriod;
   isActive: boolean;
 }
 
@@ -57,8 +62,8 @@ export interface LeaveType extends DateInfo {
   isPaid: boolean;
   accrualRule: AccrualRule;
   accrualRuleId: string;
-  caryOverRule: CarryOverRule;
-  caryOverRuleId: string;
+  carryOverRule: CarryOverRule;
+  carryOverRuleId: string;
   maximumAllowedConsecutiveDays: number;
   minimumNotifyingDays: number;
   entitledDaysPerYear: number;
@@ -70,6 +75,6 @@ export interface AccrualRule extends DateInfo {
   id: string;
   tenantId: string;
   title: string;
-  period: Period;
+  period: AccrualRulePeriod;
   isActive: boolean;
 }

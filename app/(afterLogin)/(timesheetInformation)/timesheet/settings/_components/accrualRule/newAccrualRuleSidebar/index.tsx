@@ -6,12 +6,18 @@ import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
+import { useSetAccrualRule } from '@/store/server/features/timesheet/accrualRule/mutation';
+import { AccrualRulePeriod } from '@/types/timesheet/settings';
 
 const AddTypesSidebar = () => {
   const {
     isShowNewAccrualRuleSidebar: isShow,
     setIsShowNewAccrualRuleSidebar: setIsShow,
   } = useTimesheetSettingsStore();
+
+  const { mutate: createAccrualRule } = useSetAccrualRule();
+
+  const [form] = Form.useForm();
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -27,12 +33,37 @@ const AddTypesSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
-      onClick: () => setIsShow(false),
+      onClick: () => form.submit(),
     },
   ];
 
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[54px] w-full';
+
+  const onFinish = () => {
+    const value = form.getFieldsValue();
+    createAccrualRule({
+      title: value.title,
+      period: value.period,
+    });
+    form.resetFields();
+    setIsShow(false);
+  };
+
+  const periodOption = [
+    {
+      value: AccrualRulePeriod.MONTHLY,
+      label: 'Monthly',
+    },
+    {
+      value: AccrualRulePeriod.QUARTER,
+      label: 'Quarter',
+    },
+    {
+      value: AccrualRulePeriod.YEAR,
+      label: 'Year',
+    },
+  ];
 
   return (
     isShow && (
@@ -47,20 +78,24 @@ const AddTypesSidebar = () => {
           layout="vertical"
           requiredMark={CustomLabel}
           autoComplete="off"
+          form={form}
           className={itemClass}
+          onFinish={onFinish}
         >
           <Space direction="vertical" className="w-full" size={24}>
-            <Form.Item label="Accrual Name" required name="name">
+            <Form.Item
+              label="Accrual Name"
+              rules={[{ required: true, message: 'Required' }]}
+              name="title"
+            >
               <Input className={controlClass} />
             </Form.Item>
-            <Form.Item label="Accrual Period" required name="unit">
-              <Select
-                className={controlClass}
-                options={[
-                  { value: 'days', label: 'Days' },
-                  { value: 'week', label: 'Week' },
-                ]}
-              />
+            <Form.Item
+              label="Accrual Period"
+              rules={[{ required: true, message: 'Required' }]}
+              name="period"
+            >
+              <Select className={controlClass} options={periodOption} />
             </Form.Item>
           </Space>
         </Form>

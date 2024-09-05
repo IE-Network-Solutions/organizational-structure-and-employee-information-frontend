@@ -22,7 +22,7 @@ const getCarryOverRule = async (id: string) => {
   });
 };
 
-export const useCarryOverRules = () => {
+export const useGetCarryOverRules = () => {
   return useQuery<ApiResponse<CarryOverRule>>(
     'carry-over-rule',
     () => getCarryOverRules(),
@@ -32,7 +32,7 @@ export const useCarryOverRules = () => {
   );
 };
 
-export const useCarryOverRuleById = (id: string) => {
+export const useGetCarryOverRuleById = (id: string) => {
   return useQuery<ApiResponse<CarryOverRule>>(
     ['carry-over-rule', id],
     () => getCarryOverRule(id),
