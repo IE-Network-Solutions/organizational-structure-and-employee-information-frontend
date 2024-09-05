@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ReactNode, useState, useEffect } from 'react';
+import React, { ReactNode, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   AppstoreOutlined,
@@ -23,6 +23,8 @@ import { FiSettings } from 'react-icons/fi';
 import { CiCalendar, CiSettings } from 'react-icons/ci';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuUsers2 } from 'react-icons/lu';
+import { removeCookie } from '@/helpers/storageHelper';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -122,6 +124,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
+  const {setLocalId, setTenantId, setToken} = useAuthenticationStore();
 
   useEffect(() => {
     const handleResize = () => {
@@ -147,6 +150,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setMobileCollapsed(true);
     }
   };
+
+  const handleLogout = useCallback(() => {
+    setToken("");
+    setTenantId("");
+    setLocalId("");
+    removeCookie("token");
+    router.push(`/authentication/login`);
+  }, []);
 
   return (
     <Layout>
@@ -252,7 +263,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           )}
 
-          <NavBar page="Home" userid="12345" />
+          <NavBar page="Home" userid="12345" handleLogout={handleLogout}/>
         </Header>
         <Content
           className="mt-6 min-h-screen"
