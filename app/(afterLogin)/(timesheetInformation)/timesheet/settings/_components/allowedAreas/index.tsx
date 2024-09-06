@@ -9,7 +9,7 @@ import { useGetAllowedAreas } from '@/store/server/features/timesheet/allowedAre
 
 const AllowedAreas = () => {
   const { setIsShowLocationSidebar } = useTimesheetSettingsStore();
-  const { data } = useGetAllowedAreas(23.5, 44.5);
+  const { data } = useGetAllowedAreas();
   return (
     <>
       <PageHeader title="Allowed Areas" size="small">
