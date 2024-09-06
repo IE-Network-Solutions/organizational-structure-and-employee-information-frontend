@@ -91,16 +91,7 @@ function Job({ id }: { id: string }) {
           </Col>
         </Row>
       </Card>{' '}
-      <Card
-        title={
-          <div
-            className="flex justify-end bg-blue-600 mr-2 mb-2 cursor-pointer"
-            onClick={handleAddEmployeeJobInformation}
-          >
-            <FaPlus />
-          </div>
-        }
-      >
+      <Card extra={<FaPlus onClick={handleAddEmployeeJobInformation} />}>
         <Table
           dataSource={employeeData?.employeeJobInformation}
           columns={columns}
