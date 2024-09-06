@@ -100,7 +100,7 @@ const items: MenuItem[] = [
         className: 'font-bold',
       },
       {
-        key: '/organizational-development/succession',
+        key: '/organizational-development/succession-plan',
         className: 'font-bold',
         label: 'Succession Plan',
       },

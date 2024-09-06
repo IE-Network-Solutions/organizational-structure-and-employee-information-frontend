@@ -1,4 +1,4 @@
-import moment, { Moment } from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
 
 export const validatePhoneNumber = (rule: any, value: any) => {
   if (!value) {
@@ -95,7 +95,11 @@ export const validateEmail = (email: string): string | null => {
   return null;
 };
 
-export const disabledDate = (current: Moment) => {
+// export const disabledDate = (current: Moment) => {
+//   // Can not select days before today
+//   return current && current < moment().startOf('day');
+// };
+export const disabledDate = (current: Dayjs) => {
   // Can not select days before today
-  return current && current < moment().startOf('day');
+  return current && current.isBefore(dayjs().startOf('day'));
 };

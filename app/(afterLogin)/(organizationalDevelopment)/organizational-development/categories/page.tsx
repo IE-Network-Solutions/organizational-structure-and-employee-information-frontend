@@ -5,56 +5,56 @@ import CustomButton from '@/components/common/buttons/customButton'
 import React from 'react'
 import { PlusOutlined } from '@ant-design/icons';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
-import { Col, Flex, Row, Select, Tabs } from 'antd';
+import { Col, DatePicker, Flex, Row, Select, Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import { Input } from 'antd'
 import Questions from './_components/questions'
 import Individualresponses from './_components/individualResponses'
 import SummaryResponses from './_components/summaryResponses'
 import ActionPlans from './_components/actionPlans'
-import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment'
 import CreateActionPlan from './_components/createActionPlan'
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment'
 
 const {Option}=Select;
 
 function page(){
-    const {activeTab,setActiveTab}=useOrganizationalDevelopment();
-    const { setOpen } = useEmployeeManagementStore();
+    const {activeTab,setActiveTab,open,setOpen}=useOrganizationalDevelopment();
+    // const { setOpen } = useEmployeeManagementStore();
 
-    const items: TabsProps['items'] = [
-        {
-          key: '1',
-          label: (<span className="flex gap-2 mt-4">
-                    <p className="font-semibold">Questions</p>
-                  </span>),
-          children: <Questions/>,
-          className:"text-gray-950 font-semibold"
-        },
-        {
-          key: '2',
-          label: (<span className="flex gap-2 mt-4">
-            <p className="font-semibold">Individual Responses</p>
-          </span>),
-          children: <Individualresponses/>,
-          className:"text-gray-950 font-semibold",
-        },
-        {
-          key: '3',
-          label: (<span className="flex gap-2 mt-4">
-            <p className="font-semibold">Summary Responses</p>
-          </span>),
-          children: <SummaryResponses/>,
-          className:"text-gray-950 font-semibold"
-        },
-        {
-            key: '4',
-            label:(<span className="flex gap-2 mt-4">
-              <p className="font-semibold">Action Plans</p>
+  const items: TabsProps['items'] = [
+  {
+    key: '1',
+    label: (<span className="mt-4">
+              <p className="font-semibold">Questions</p>
             </span>),
-            children: <ActionPlans />,
-            className:"text-gray-950 font-semibold"
-          },
-      ];
+    children: <Questions/>,
+    className:"text-gray-950 font-semibold"
+  },
+  {
+    key: '2',
+    label: (<span className="mt-4">
+      <p className="font-semibold">Individual Responses</p>
+    </span>),
+    children: <Individualresponses/>,
+    className:"text-gray-950 font-semibold",
+  },
+  {
+    key: '3',
+    label: (<span className="mt-4">
+      <p className="font-semibold">Summary Responses</p>
+    </span>),
+    children: <SummaryResponses/>,
+    className:"text-gray-950 font-semibold"
+  },
+  {
+      key: '4',
+      label:(<span className="mt-4">
+        <p className="font-semibold">Action Plans</p>
+      </span>),
+      children: <ActionPlans />,
+      className:"text-gray-950 font-semibold"
+    },
+  ];
  const showDrawer = () => {
     setOpen(true);
   };
@@ -77,6 +77,7 @@ function page(){
             },
           ]}
         />
+        
         <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
           <CustomButton
             title="Create New Action Plan"
@@ -125,7 +126,7 @@ function page(){
                 </Option>
               </Select>
               </div>}
-              </div>
+            </div>
       </div>
   )
 }

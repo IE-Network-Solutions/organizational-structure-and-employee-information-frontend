@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Col, Form, Input, Popconfirm, Row, Select} from 'antd';
+import { Button, Card, Col, Form, Input, Popconfirm, Row, Select} from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAddEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
@@ -7,13 +7,18 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import { validateName } from '@/utils/validation';
 import { FaPlus } from 'react-icons/fa';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
+import { useCreateActionPlan } from '@/store/server/features/organization-development/categories/mutation';
+import { DataItem } from '@/store/server/features/organization-development/categories/interface';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { TiDeleteOutline } from 'react-icons/ti';
 
 const {Option}=Select;
 
 const CreateActionPlan = (props: any) => {
   const [form] = Form.useForm();
-  const {open,setOpen } = useEmployeeManagementStore();
-  const {numberOfActionPlan,setNumberOfActionPlan } = useOrganizationalDevelopment();
+  const {numberOfActionPlan,setNumberOfActionPlan,open,setOpen } = useOrganizationalDevelopment();
+  const {mutate:createActionPlan,isLoading}=useCreateActionPlan();
+  const { data: employeeData,isLoading:userLoading } = useGetAllUsers();
 
 
   const modalHeader = (
@@ -25,10 +30,20 @@ const CreateActionPlan = (props: any) => {
   const plusOnClickHandler = () => {
    setNumberOfActionPlan(numberOfActionPlan+1)
   };
-  const handleCreateAction = () => {
-    // setNumberOfActionPlan(numberOfActionPlan+1)
+  const handleCancel = () => {
+    form.resetFields();
+    setOpen(false);
+    setNumberOfActionPlan(1);
    };
-
+  const handleCreateActionPlan = (values:DataItem[]) => {
+    const arrayOfObjects = Object.keys(values).map((key:any) => values[key]);
+    createActionPlan(arrayOfObjects,{
+      onSuccess:()=>{
+          form.resetFields();
+          setOpen(false)
+      }
+    })
+   };
 
 
   return (
@@ -45,29 +60,25 @@ const CreateActionPlan = (props: any) => {
           autoComplete="off"
           style={{ maxWidth: '100%' }}
           layout="vertical"
-          onFinish={handleCreateAction}
-          onFinishFailed={() =>
-            NotificationMessage.error({
-              message: 'Something wrong or unfilled',
-              description: 'please back and check the unfilled fields',
-            })
-          }
+          onFinish={handleCreateActionPlan}
         >
       {Array.from({ length: numberOfActionPlan }, (_, index) => (
-        <><Row gutter={16}>
+        <Card  title={<div className='flex justify-end text-red-600 cursor-pointer'
+         onClick={()=>setNumberOfActionPlan(numberOfActionPlan-1)}><TiDeleteOutline /></div>}>
+        <Row gutter={16}>
             <Col xs={24} sm={24}>
               <Form.Item
                 className="font-semibold text-xs"
-                name={`actionPlan${index+1}`}
+                name={[`${index}`, 'actionToBeTaken']}
                 label={`Action plan ${index+1}`}
                 id={`actionPlanId${index+1}`}
                 rules={[
                   {
                     validator: (rule, value) =>
-                      !validateName('name', value)
+                      !validateName('actionPlan', value)
                         ? Promise.resolve()
                         : Promise.reject(
-                            new Error(validateName('name', value) || ''),
+                            new Error(validateName('actionPlan', value) || ''),
                           ),
                   },
                 ]}
@@ -80,16 +91,16 @@ const CreateActionPlan = (props: any) => {
             <Col xs={24} sm={24}>
               <Form.Item
                 className="font-semibold text-xs"
-                name={`description${index+1}`}
+                name={[`${index}`, 'description']}
                 label={`Description`}
                 id={`actionPlanDescription${index+1}`}
                 rules={[
                   {
                     validator: (rule, value) =>
-                      !validateName('Middle Name', value)
+                      !validateName('description', value)
                         ? Promise.resolve()
                         : Promise.reject(
-                            new Error(validateName(`Responsible person for action plan`, value) || ''),
+                            new Error(validateName(`description`, value) || ''),
                           ),
                   },
                 ]}
@@ -102,37 +113,64 @@ const CreateActionPlan = (props: any) => {
             <Col xs={24} sm={24}>
               <Form.Item
                 className="font-semibold text-xs"
-                name={`responsiblePerson${index+1}`}
+                name={[`${index}`, 'responsiblePerson']}
                 label={`Responsible Person`}
                 id={`responsiblePersonId${index+1}`}
                 rules={[
                   {
-                    validator: (rule, value) =>
-                      !validateName('Middle Name', value)
-                        ? Promise.resolve()
-                        : Promise.reject(
-                            new Error(validateName('Middle Name', value) || ''),
-                          ),
+                    required:true,message:"Responsible Person is required"
                   },
                 ]}
               >
                 <Select
                     id={`selectStatusChartType`}
-                    placeholder="All Status"
+                    placeholder="Responsible Person"
                     allowClear
-                    className="w-full h-[48px] my-4"
+                    loading={userLoading}
+                    className="w-full my-4"
                   >
-                    <Option key="active" value={"pieChart"}>
-                    Person 1
-                    </Option>
-                    <Option key="inactive" value={"lineGraph"}>
-                    Person 2
-                    </Option>
+                    {employeeData?.items?.map((item:any)=>(
+                        <Option key="active" value={item.id}>
+                            <div className='flex space-x-3 p-1 rounded'>
+                              <img src={`${item?.profileImage}`} alt="pep" className='rounded-full w-4 h-4 mt-2' />
+                              <span className='flex justify-center items-center'>{item?.firstName + " " + " " + item?.middleName}</span></div>
+                        </Option>
+                    ))}
                 </Select>
               </Form.Item>
             </Col>
         </Row>
-        </>
+        <Row gutter={16}>
+            <Col xs={24} sm={24}>
+              <Form.Item
+                className="font-semibold text-xs"
+                name={[`${index}`, 'status']}
+                label={`Status`}
+                id={`statusId${index+1}`}
+                rules={[
+                  {
+                    required:true,message:"Status required"
+                  },
+                ]}
+              >
+                <Select
+                    id={`selectStatusChartType`}
+                    placeholder="select status"
+                    allowClear
+                    className="w-full my-4"
+                  >
+                   
+                        <Option key="active" value={"pending"}>
+                           Pending
+                        </Option>
+                        <Option key="active" value={"solved"}>
+                           Solved
+                        </Option>
+                </Select>
+              </Form.Item>
+            </Col>
+        </Row>
+        </Card>
       ))}
         <Row gutter={16} className='my-5'>
           <Col className='flex justify-center' xs={24} sm={24}>
@@ -142,9 +180,9 @@ const CreateActionPlan = (props: any) => {
         <Row gutter={16}>
           <Col xs={24} sm={12} className='flex justify-end'>
           <Popconfirm
-            title="reset all you field"
+            title="reset all you filled"
             description="Are you sure to reset all fields value ?"
-            onConfirm={()=>setOpen(false)}
+            onConfirm={handleCancel}
             okText="Yes"
             cancelText="No"
           >
@@ -155,6 +193,7 @@ const CreateActionPlan = (props: any) => {
           </Col>
           <Col xs={24} sm={12}>
           <Button
+            loading={isLoading}
             htmlType='submit'
             name="createActionButton"
             id="createActionButtonId"
