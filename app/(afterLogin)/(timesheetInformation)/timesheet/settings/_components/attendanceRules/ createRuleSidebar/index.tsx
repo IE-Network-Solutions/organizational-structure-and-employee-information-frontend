@@ -7,16 +7,48 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useSetAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/mutation';
+import { formatToOptions } from '@/helpers/formatTo';
+import { useGetAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
+import { useEffect, useState } from 'react';
 
 const CreateRuleSidebar = () => {
+  const [ruleId, setRuleId] = useState('');
   const {
     isShowCreateRuleSidebar: isShow,
     setIsShowCreateRuleSidebar: setIsShow,
+    attendanceNotificationType,
+    attendanceRuleId,
+    setAttendanceRuleId,
   } = useTimesheetSettingsStore();
 
+  const {
+    data: attendanceRuleData,
+    isFetching,
+    refetch,
+  } = useGetAttendanceNotificationRule(ruleId);
   const { mutate: setAttendanceRule } = useSetAttendanceNotificationRule();
 
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    setRuleId(attendanceRuleId ?? '');
+  }, [attendanceRuleId]);
+
+  useEffect(() => {
+    if (ruleId) {
+      refetch();
+    }
+  }, [ruleId]);
+
+  useEffect(() => {
+    if (attendanceRuleData) {
+      const item = attendanceRuleData.item;
+      form.setFieldValue('title', item.title);
+      form.setFieldValue('type', item.attendanceNotificationTypeId);
+      form.setFieldValue('count', item.value);
+      form.setFieldValue('description', item.description);
+    }
+  }, [attendanceRuleData]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -24,7 +56,7 @@ const CreateRuleSidebar = () => {
       key: 'cancel',
       className: 'h-[56px] text-base',
       size: 'large',
-      onClick: () => setIsShow(false),
+      onClick: () => onClose(),
     },
     {
       label: 'Create',
@@ -42,9 +74,18 @@ const CreateRuleSidebar = () => {
   const onFinish = () => {
     const value = form.getFieldsValue();
     setAttendanceRule({
+      ...(attendanceRuleId && attendanceRuleData!.item),
       title: value.title,
+      attendanceNotificationType: value.type,
+      value: value.count,
+      description: value.description,
     });
+    onClose();
+  };
+
+  const onClose = () => {
     form.resetFields();
+    setAttendanceRuleId(null);
     setIsShow(false);
   };
 
@@ -52,7 +93,7 @@ const CreateRuleSidebar = () => {
     isShow && (
       <CustomDrawerLayout
         open={isShow}
-        onClose={() => setIsShow(false)}
+        onClose={() => onClose()}
         modalHeader={<CustomDrawerHeader>Create Rule</CustomDrawerHeader>}
         footer={
           <CustomDrawerFooterButton
@@ -88,10 +129,11 @@ const CreateRuleSidebar = () => {
               >
                 <Select
                   className={controlClass}
-                  options={[
-                    { value: '1', label: '1' },
-                    { value: '2', label: '2' },
-                  ]}
+                  options={formatToOptions(
+                    attendanceNotificationType,
+                    'title',
+                    'id',
+                  )}
                 />
               </Form.Item>
             </Col>
@@ -99,12 +141,12 @@ const CreateRuleSidebar = () => {
               <Form.Item
                 label="Days Set"
                 rules={[{ required: true, message: 'Required' }]}
-                name="daysSet"
+                name="count"
               >
                 <InputNumber
                   min={1}
                   className="w-full py-[11px] mt-2.5"
-                  placeholder="Enter radius in km"
+                  placeholder="Enter days"
                 />
               </Form.Item>
             </Col>

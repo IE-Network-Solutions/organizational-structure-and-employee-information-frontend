@@ -6,13 +6,13 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { AttendanceNotificationRule } from '@/types/timesheet/attendance';
 
 const setAttendanceNotificationRule = async (
-  data: Partial<AttendanceNotificationRule>,
+  item: Partial<AttendanceNotificationRule>,
 ) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-type`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-rule`,
     method: 'POST',
     headers: requestHeader(),
-    data,
+    data: { item },
   });
 };
 
@@ -31,6 +31,7 @@ export const useSetAttendanceNotificationRule = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('attendance-notification-rules');
+      queryClient.invalidateQueries('attendance-notification-types');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

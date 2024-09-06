@@ -6,13 +6,13 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { AttendanceNotificationType } from '@/types/timesheet/attendance';
 
 const setAttendanceNotificationType = async (
-  data: Partial<AttendanceNotificationType>,
+  item: Partial<AttendanceNotificationType>,
 ) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-type`,
     method: 'POST',
     headers: requestHeader(),
-    data,
+    data: { item },
   });
 };
 

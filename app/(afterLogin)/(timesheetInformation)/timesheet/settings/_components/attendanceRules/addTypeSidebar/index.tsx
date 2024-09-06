@@ -1,8 +1,8 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Form, Input, Radio, Space } from 'antd';
+import { Form, Input, Radio, Space, Spin } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CustomRadio from '@/components/form/customRadio';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -10,17 +10,43 @@ import CustomDrawerFooterButton, {
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useSetAttendanceNotificationType } from '@/store/server/features/timesheet/attendanceNotificationType/mutation';
 import { AttendanceTypeUnit } from '@/types/timesheet/attendance';
+import { useGetAttendanceNotificationType } from '@/store/server/features/timesheet/attendanceNotificationType/queries';
 
 const AddTypesSidebar = () => {
   const [isErrorUnit, setIsErrorUnit] = useState(false);
+  const [typeId, setTypeId] = useState('');
   const {
     isShowRulesAddTypeSidebar: isShow,
     setIsShowRulesAddTypeSidebar: setIsShow,
+    attendanceTypeId,
+    setAttendanceTypeId,
   } = useTimesheetSettingsStore();
-
+  const {
+    data: attendanceTypeData,
+    isFetching,
+    refetch,
+  } = useGetAttendanceNotificationType(typeId);
   const { mutate: setAttendanceType } = useSetAttendanceNotificationType();
 
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    setTypeId(attendanceTypeId ?? '');
+  }, [attendanceTypeId]);
+
+  useEffect(() => {
+    if (typeId) {
+      refetch();
+    }
+  }, [typeId]);
+
+  useEffect(() => {
+    if (attendanceTypeData) {
+      const item = attendanceTypeData.item;
+      form.setFieldValue('title', item.title);
+      form.setFieldValue('unit', item.unit);
+    }
+  }, [attendanceTypeData]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -28,10 +54,10 @@ const AddTypesSidebar = () => {
       key: 'cancel',
       className: 'h-[56px] text-base',
       size: 'large',
-      onClick: () => setIsShow(false),
+      onClick: () => onClose(),
     },
     {
-      label: 'Add',
+      label: attendanceTypeId ? 'Edit' : 'Add',
       key: 'add',
       className: 'h-[56px] text-base',
       size: 'large',
@@ -69,11 +95,11 @@ const AddTypesSidebar = () => {
   const onFinish = () => {
     const value = form.getFieldsValue();
     setAttendanceType({
+      ...(attendanceTypeId && attendanceTypeData!.item),
       title: value.title,
       unit: value.unit,
     });
-    form.resetFields();
-    setIsShow(false);
+    onClose();
   };
 
   const onFinishFailed = () => {
@@ -84,53 +110,65 @@ const AddTypesSidebar = () => {
     setIsErrorUnit(!!form.getFieldError('unit').length);
   };
 
+  const onClose = () => {
+    form.resetFields();
+    setAttendanceTypeId(null);
+    setIsShow(false);
+  };
+
   return (
     isShow && (
       <CustomDrawerLayout
         open={isShow}
-        onClose={() => setIsShow(false)}
-        modalHeader={<CustomDrawerHeader>Add Type</CustomDrawerHeader>}
+        onClose={() => onClose()}
+        modalHeader={
+          <CustomDrawerHeader>
+            {attendanceTypeId ? 'Edit' : 'Add'} Type
+          </CustomDrawerHeader>
+        }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"
       >
-        <Form
-          layout="vertical"
-          requiredMark={CustomLabel}
-          autoComplete="off"
-          className={itemClass}
-          form={form}
-          onFieldsChange={onFieldChange}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-        >
-          <Space direction="vertical" className="w-full" size={24}>
-            <Form.Item
-              label="Type Name"
-              rules={[{ required: true, message: 'Required' }]}
-              name="title"
-            >
-              <Input className={controlClass} />
-            </Form.Item>
-            <Form.Item
-              label="Unit"
-              rules={[{ required: true, message: 'Required' }]}
-              name="unit"
-            >
-              <Radio.Group className="w-full mt-2.5">
-                <Space direction="vertical" size={12} className="w-full">
-                  {unitOptions.map((option) => (
-                    <CustomRadio
-                      key={option.value}
-                      label={option.label}
-                      value={option.value}
-                      isError={isErrorUnit}
-                    />
-                  ))}
-                </Space>
-              </Radio.Group>
-            </Form.Item>
-          </Space>
-        </Form>
+        <Spin spinning={isFetching}>
+          <Form
+            layout="vertical"
+            requiredMark={CustomLabel}
+            autoComplete="off"
+            className={itemClass}
+            form={form}
+            onFieldsChange={onFieldChange}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+          >
+            <Space direction="vertical" className="w-full" size={24}>
+              <Form.Item
+                label="Type Name"
+                rules={[{ required: true, message: 'Required' }]}
+                name="title"
+              >
+                <Input className={controlClass} />
+              </Form.Item>
+              <Form.Item
+                label="Unit"
+                rules={[{ required: true, message: 'Required' }]}
+                name="unit"
+              >
+                <Radio.Group className="w-full mt-2.5">
+                  <Space direction="vertical" size={12} className="w-full">
+                    {unitOptions.map((option) => (
+                      <CustomRadio
+                        key={option.value}
+                        label={option.label}
+                        value={option.value}
+                        isError={isErrorUnit}
+                      />
+                    ))}
+                  </Space>
+                </Radio.Group>
+              </Form.Item>
+            </Space>
+          </Form>
+        </Spin>
       </CustomDrawerLayout>
     )
   );

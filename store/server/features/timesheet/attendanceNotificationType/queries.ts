@@ -22,7 +22,7 @@ const getAttendanceNotificationType = async (id: string) => {
   });
 };
 
-export const useGetAttendanceNotificationTypes = async () => {
+export const useGetAttendanceNotificationTypes = () => {
   return useQuery<ApiResponse<AttendanceNotificationType>>(
     'attendance-notification-types',
     () => getAttendanceNotificationTypes(),
@@ -32,12 +32,13 @@ export const useGetAttendanceNotificationTypes = async () => {
   );
 };
 
-export const useGetAttendanceNotificationType = async (id: string) => {
+export const useGetAttendanceNotificationType = (id: string) => {
   return useQuery<ApiResponse<AttendanceNotificationType>>(
     ['attendance-notification-type', id],
     () => getAttendanceNotificationType(id),
     {
-      keepPreviousData: true,
+      keepPreviousData: false,
+      enabled: false,
     },
   );
 };

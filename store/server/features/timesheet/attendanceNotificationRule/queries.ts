@@ -22,7 +22,7 @@ const getAttendanceNotificationRule = async (id: string) => {
   });
 };
 
-export const useGetAttendanceNotificationRules = async () => {
+export const useGetAttendanceNotificationRules = () => {
   return useQuery<ApiResponse<AttendanceNotificationRule>>(
     'attendance-notification-rules',
     () => getAttendanceNotificationRules(),
@@ -32,12 +32,13 @@ export const useGetAttendanceNotificationRules = async () => {
   );
 };
 
-export const useGetAttendanceNotificationRule = async (id: string) => {
+export const useGetAttendanceNotificationRule = (id: string) => {
   return useQuery<ApiResponse<AttendanceNotificationRule>>(
     ['attendance-notification-rule', id],
     () => getAttendanceNotificationRule(id),
     {
-      keepPreviousData: true,
+      keepPreviousData: false,
+      enabled: false,
     },
   );
 };

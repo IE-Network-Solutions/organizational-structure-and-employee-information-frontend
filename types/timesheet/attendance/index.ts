@@ -81,7 +81,7 @@ export interface AttendanceNotificationType extends DateInfo {
   id: string;
   title: string;
   unit: AttendanceTypeUnit;
-  attendanceNotificationRule: AttendanceNotificationRule[];
+  attendanceNotificationRules: AttendanceNotificationRule[];
   isActive: boolean;
 }
 
@@ -89,6 +89,7 @@ export interface AttendanceNotificationRule extends DateInfo {
   id: string;
   title: string;
   description: string;
-  attendanceNotificationId: string;
+  attendanceNotificationType: string;
+  attendanceNotificationTypeId: string;
   value: number;
 }
