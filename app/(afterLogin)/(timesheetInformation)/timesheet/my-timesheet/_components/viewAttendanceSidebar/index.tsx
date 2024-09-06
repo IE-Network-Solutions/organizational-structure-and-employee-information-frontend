@@ -4,9 +4,7 @@ import React, { useEffect, useState } from 'react';
 import UserCard from '@/components/common/userCard/userCard';
 import { Col, Row, Spin } from 'antd';
 import InfoItem from './infoItem';
-import StatusBadge, {
-  StatusBadgeTheme,
-} from '@/components/common/statusBadge/statusBadge';
+import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
