@@ -1,15 +1,5 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import {
-  Col,
-  Divider,
-  Form,
-  Input,
-  Row,
-  Select,
-  Space,
-  Spin,
-  Upload,
-} from 'antd';
+import { Col, Divider, Row, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { TbFileDownload } from 'react-icons/tb';
 import CustomDrawerFooterButton, {
@@ -21,7 +11,6 @@ import ApprovalStatusCard, {
   ApprovalStatusCardProps,
 } from '@/components/common/approvalStatuses/approvalStatusCard';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import CustomLabel from '@/components/form/customLabel/customLabel';
 import UserCard from '@/components/common/userCard/userCard';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';

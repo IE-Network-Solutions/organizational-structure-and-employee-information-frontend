@@ -3,6 +3,7 @@ import LeaveRequestCard from './leaveRequestCard';
 import LeaveRequestSidebar from './leaveRequestSidebar';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
+import { Spin } from 'antd';
 
 const LeaveRequest = () => {
   const { data, isFetching } = useGetLeaveRequest(
@@ -20,7 +21,9 @@ const LeaveRequest = () => {
       {data &&
         data.items?.map((item) => (
           <div className="mt-6" key={item.id}>
-            <LeaveRequestCard item={item} />
+            <Spin spinning={isFetching}>
+              <LeaveRequestCard item={item} />
+            </Spin>
           </div>
         ))}
 

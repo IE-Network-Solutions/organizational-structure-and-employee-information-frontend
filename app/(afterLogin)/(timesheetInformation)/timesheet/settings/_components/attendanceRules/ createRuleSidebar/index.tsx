@@ -1,5 +1,5 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Col, Form, Input, InputNumber, Row, Select } from 'antd';
+import { Col, Form, Input, InputNumber, Row, Select, Spin } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
@@ -56,6 +56,7 @@ const CreateRuleSidebar = () => {
       key: 'cancel',
       className: 'h-[56px] text-base',
       size: 'large',
+      loading: isFetching,
       onClick: () => onClose(),
     },
     {
@@ -64,6 +65,7 @@ const CreateRuleSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
+      loading: isFetching,
       onClick: () => form.submit(),
     },
   ];
@@ -103,64 +105,69 @@ const CreateRuleSidebar = () => {
         }
         width="50%"
       >
-        <Form
-          layout="vertical"
-          requiredMark={CustomLabel}
-          autoComplete="off"
-          form={form}
-          className={itemClass}
-          onFinish={onFinish}
-        >
-          <Row gutter={[24, 24]}>
-            <Col span={12}>
-              <Form.Item
-                label="Rule Name"
-                rules={[{ required: true, message: 'Required' }]}
-                name="title"
-              >
-                <Input className={controlClass} />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Type"
-                rules={[{ required: true, message: 'Required' }]}
-                name="type"
-              >
-                <Select
-                  className={controlClass}
-                  options={formatToOptions(
-                    attendanceNotificationType,
-                    'title',
-                    'id',
-                  )}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              <Form.Item
-                label="Days Set"
-                rules={[{ required: true, message: 'Required' }]}
-                name="count"
-              >
-                <InputNumber
-                  min={1}
-                  className="w-full py-[11px] mt-2.5"
-                  placeholder="Enter days"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              <Form.Item
-                label="Description"
-                rules={[{ required: true, message: 'Required' }]}
-                name="description"
-              >
-                <Input.TextArea className="w-full py-4 px-5 mt-2.5" rows={6} />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
+        <Spin spinning={isFetching}>
+          <Form
+            layout="vertical"
+            requiredMark={CustomLabel}
+            autoComplete="off"
+            form={form}
+            className={itemClass}
+            onFinish={onFinish}
+          >
+            <Row gutter={[24, 24]}>
+              <Col span={12}>
+                <Form.Item
+                  label="Rule Name"
+                  rules={[{ required: true, message: 'Required' }]}
+                  name="title"
+                >
+                  <Input className={controlClass} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label="Type"
+                  rules={[{ required: true, message: 'Required' }]}
+                  name="type"
+                >
+                  <Select
+                    className={controlClass}
+                    options={formatToOptions(
+                      attendanceNotificationType,
+                      'title',
+                      'id',
+                    )}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  label="Days Set"
+                  rules={[{ required: true, message: 'Required' }]}
+                  name="count"
+                >
+                  <InputNumber
+                    min={1}
+                    className="w-full py-[11px] mt-2.5"
+                    placeholder="Enter days"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  label="Description"
+                  rules={[{ required: true, message: 'Required' }]}
+                  name="description"
+                >
+                  <Input.TextArea
+                    className="w-full py-4 px-5 mt-2.5"
+                    rows={6}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </Spin>
       </CustomDrawerLayout>
     )
   );
