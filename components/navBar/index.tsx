@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ReactNode, useState, useEffect, useCallback } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   AppstoreOutlined,
