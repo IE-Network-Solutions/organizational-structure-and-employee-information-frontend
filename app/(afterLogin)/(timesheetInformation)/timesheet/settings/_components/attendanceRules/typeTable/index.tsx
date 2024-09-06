@@ -2,14 +2,19 @@ import { Button, Space, Spin, Switch, Table } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import ActionButton from '@/components/common/ActionButton';
 import { TableColumnsType } from '@/types/table/table';
-import { FiEdit2 } from 'react-icons/fi';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import {
   AttendanceNotificationRule,
   AttendanceNotificationType,
 } from '@/types/timesheet/attendance';
-import { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { useSetAttendanceNotificationType } from '@/store/server/features/timesheet/attendanceNotificationType/mutation';
+import {
+  useDeleteAttendanceNotificationType,
+  useSetAttendanceNotificationType,
+} from '@/store/server/features/timesheet/attendanceNotificationType/mutation';
+import DeletePopover from '@/components/common/ActionButton/deletePopover';
+import { useDeleteAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/mutation';
 
 export interface TypeTableProps {
   type: AttendanceNotificationType;
@@ -25,6 +30,10 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
   const [tableData, setTableData] = useState<any[]>([]);
   const { mutate: activeUpdate, isLoading } =
     useSetAttendanceNotificationType();
+  const { mutate: deleteRule, isLoading: isLoadingDeleteRule } =
+    useDeleteAttendanceNotificationRule();
+  const { mutate: deleteType, isLoading: isLoadingDeleteType } =
+    useDeleteAttendanceNotificationType();
 
   const columns: TableColumnsType<any> = [
     {
@@ -50,15 +59,32 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
       dataIndex: 'action',
       key: 'action',
       render: (item: AttendanceNotificationRule) => (
-        <Button
-          icon={<FiEdit2 size={16} />}
-          type="primary"
-          className="w-[30px] h-[30px]"
-          onClick={() => {
-            setAttendanceRuleId(item.id);
-            setIsShowCreateRuleSidebar(true);
-          }}
-        />
+        <Space size={24}>
+          <Button
+            icon={<FiEdit2 size={16} />}
+            type="primary"
+            className="w-[30px] h-[30px]"
+            loading={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
+            onClick={() => {
+              setAttendanceRuleId(item.id);
+              setIsShowCreateRuleSidebar(true);
+            }}
+          />
+
+          <DeletePopover
+            onDelete={() => {
+              deleteRule(item.id);
+            }}
+          >
+            <Button
+              className="w-[30px] h-[30px]"
+              danger
+              loading={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
+              icon={<FiTrash2 size={16} />}
+              type="primary"
+            />
+          </DeletePopover>
+        </Space>
       ),
     },
   ];
@@ -86,7 +112,7 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
   };
 
   return (
-    <Spin spinning={isLoading}>
+    <Spin spinning={isLoading || isLoadingDeleteRule || isLoadingDeleteType}>
       <div className="p-6 border rounded-2xl border-gray-200 mt-6">
         <div className="flex items-center gap-2.5 mb-4">
           <div className="text-lg text-gray-900 font-bold flex-1">
@@ -103,6 +129,9 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
               onEdit={() => {
                 setAttendanceTypeId(type.id);
                 setIsShowRulesAddTypeSidebar(true);
+              }}
+              onDelete={() => {
+                deleteType(type.id);
               }}
             />
           </Space>

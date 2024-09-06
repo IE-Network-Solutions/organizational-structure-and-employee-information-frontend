@@ -19,6 +19,7 @@ import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRe
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { AiOutlineReload } from 'react-icons/ai';
 import { LuPlus } from 'react-icons/lu';
+import DeletePopover from '@/components/common/ActionButton/deletePopover';
 
 const HistoryTable = () => {
   const userFilter: Partial<LeaveRequestBody['filter']> = {
@@ -117,15 +118,18 @@ const HistoryTable = () => {
               }}
             />
 
-            <Button
-              className="w-[30px] h-[30px]"
-              danger
-              icon={<FiTrash2 size={16} />}
-              type="primary"
-              onClick={() => {
+            <DeletePopover
+              onDelete={() => {
                 deleteLeaveRequest(item.id);
               }}
-            />
+            >
+              <Button
+                className="w-[30px] h-[30px]"
+                danger
+                icon={<FiTrash2 size={16} />}
+                type="primary"
+              />
+            </DeletePopover>
           </Space>
         ),
     },

@@ -47,7 +47,7 @@ const LeaveBalance = () => {
           {data.items.map((item) => (
             <SwiperSlide key={item.id}>
               <LeaveBalanceCard
-                title={item.leaveType.title}
+                title={item?.leaveType?.title ?? ''}
                 duration={item.totalBalance}
               />
             </SwiperSlide>
