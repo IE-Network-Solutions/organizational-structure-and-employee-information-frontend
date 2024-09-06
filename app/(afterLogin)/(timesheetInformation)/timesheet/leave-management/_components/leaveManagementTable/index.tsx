@@ -17,7 +17,8 @@ import {
 import { CommonObject } from '@/types/commons/commonObject';
 
 const LeaveManagementTable = () => {
-  const { setIsShowLeaveRequestManagementSidebar } = useLeaveManagementStore();
+  const { setIsShowLeaveRequestManagementSidebar, setLeaveRequestId } =
+    useLeaveManagementStore();
   const [tableData, setTableData] = useState<any[]>([]);
   // const [page, setPage] = useState('1');
   const page = '1';
@@ -144,9 +145,12 @@ const LeaveManagementTable = () => {
         loading={isFetching}
         rowSelection={{ checkStrictly: false }}
         pagination={{ position: ['none', 'bottomLeft'] }}
-        onRow={() => {
+        onRow={(rowData: CommonObject) => {
           return {
-            onClick: () => setIsShowLeaveRequestManagementSidebar(true),
+            onClick: () => {
+              setLeaveRequestId(rowData.key);
+              setIsShowLeaveRequestManagementSidebar(true);
+            },
           };
         }}
       />

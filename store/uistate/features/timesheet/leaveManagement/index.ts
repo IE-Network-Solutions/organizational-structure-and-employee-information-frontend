@@ -4,6 +4,7 @@ import { LeaveType } from '@/types/timesheet/settings';
 type LeaveManagementState = {
   isShowLeaveRequestManagementSidebar: boolean;
   leaveTypes: LeaveType[];
+  leaveRequestId: string | null;
 };
 
 type LeaveManagementAction = {
@@ -11,6 +12,7 @@ type LeaveManagementAction = {
     isShowLeaveRequestManagementSidebar: boolean,
   ) => void;
   setLeaveTypes: (leaveTypes: LeaveType[]) => void;
+  setLeaveRequestId: (leaveRequestId: string | null) => void;
 };
 
 const leaveManagementSlice: StateCreator<
@@ -24,6 +26,11 @@ const leaveManagementSlice: StateCreator<
   leaveTypes: [],
   setLeaveTypes: (leaveTypes: LeaveType[]) => {
     set({ leaveTypes });
+  },
+
+  leaveRequestId: null,
+  setLeaveRequestId: (leaveRequestId: string | null) => {
+    set({ leaveRequestId });
   },
 });
 
