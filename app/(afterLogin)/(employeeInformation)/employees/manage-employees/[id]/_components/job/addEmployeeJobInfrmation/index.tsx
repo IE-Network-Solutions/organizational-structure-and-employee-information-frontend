@@ -27,6 +27,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
       : (values.departmentLeadOrNot = false);
     createJobInformation(values);
     form.resetFields();
+    setIsAddEmployeeJobInfoModalVisible(false);
   };
 
   return (
@@ -45,12 +46,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
 
           <Form.Item>
             <Row className="flex justify-end gap-3">
-              <Button
-                type="primary"
-                htmlType="submit"
-                name="submit"
-                onClick={handleClose}
-              >
+              <Button type="primary" htmlType="submit" name="submit">
                 Submit
               </Button>
               <Button
