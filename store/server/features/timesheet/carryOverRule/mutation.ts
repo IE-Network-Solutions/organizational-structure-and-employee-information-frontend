@@ -10,7 +10,7 @@ const createCarryOverRule = async (item: Partial<CarryOverRule>) => {
     url: `${TIME_AND_ATTENDANCE_MODE_URL}/carry-over-rule`,
     method: 'POST',
     headers: requestHeader(),
-    data: { ...item },
+    data: { item },
   });
 };
 

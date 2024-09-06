@@ -5,12 +5,12 @@ import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { AccrualRule } from '@/types/timesheet/settings';
 
-const setAccrualRule = async (data: Partial<AccrualRule>) => {
+const setAccrualRule = async (item: Partial<AccrualRule>) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_MODE_URL}/accrual-rules`,
     method: 'POST',
     headers: requestHeader(),
-    data,
+    data: { item },
   });
 };
 

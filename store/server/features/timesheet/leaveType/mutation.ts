@@ -10,7 +10,7 @@ const createLeaveType = async (item: Partial<LeaveType>) => {
     url: `${TIME_AND_ATTENDANCE_MODE_URL}/leave-type`,
     method: 'POST',
     headers: requestHeader(),
-    data: { ...item },
+    data: { item },
   });
 };
 
