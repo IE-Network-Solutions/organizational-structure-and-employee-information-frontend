@@ -23,23 +23,31 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
   const {
     isAddTaskModalVisible,
     isTaskTemplateVisible,
-    resetTaskForm,
     setIsAddTaskModalVisible,
   } = useOffboardingStore();
-
   const handleClose = () => {
     setIsAddTaskModalVisible(false);
-    resetTaskForm();
+    form.resetFields();
   };
   const createTsks = (values: any) => {
     if (offboardingTermination) {
       values.employeTerminationId = offboardingTermination?.id;
-      createTaskList([values]);
+      createTaskList([values], {
+        onSuccess: () => {
+          form.resetFields();
+          setIsAddTaskModalVisible(false);
+        },
+      });
     }
   };
 
   const createTsksTemplate = (values: any) => {
-    createTaskTemplate(values);
+    createTaskTemplate(values, {
+      onSuccess: () => {
+        form.resetFields();
+        setIsAddTaskModalVisible(false);
+      },
+    });
   };
   return (
     <>
@@ -56,13 +64,17 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
           layout="vertical"
         >
           <Form.Item
+            label={'Task Name'}
+            required
             name="title"
             rules={[{ required: true, message: 'Please enter a task name' }]}
           >
-            <Input placeholder="Task Name" allowClear />
+            <Input placeholder="Task Name" />
           </Form.Item>
           <div className="flex space-x-2">
             <Form.Item
+              label={'Approver'}
+              required
               name="approverId"
               id="approver"
               className="w-full"
@@ -93,7 +105,6 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
                 htmlType="submit"
                 value={'submit'}
                 name="submit"
-                onClick={handleClose}
               >
                 Submit
               </Button>
