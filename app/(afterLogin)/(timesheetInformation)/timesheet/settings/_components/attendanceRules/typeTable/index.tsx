@@ -77,6 +77,7 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
   }, [type]);
 
   const activeChange = (e: boolean) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { attendanceNotificationRules, ...otherType } = type;
     activeUpdate({
       ...otherType,
