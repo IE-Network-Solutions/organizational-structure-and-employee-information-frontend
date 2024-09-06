@@ -67,6 +67,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
                 startTime: time ? dayjs(time).format('h:mm A') : '',
               });
             }}
+            disabled={!record.status}
           />
         </FormItem>
       ),
@@ -98,6 +99,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
                 endTime: time ? dayjs(time).format('h:mm A') : '',
               });
             }}
+            disabled={!record.status}
           />
         </FormItem>
       ),
