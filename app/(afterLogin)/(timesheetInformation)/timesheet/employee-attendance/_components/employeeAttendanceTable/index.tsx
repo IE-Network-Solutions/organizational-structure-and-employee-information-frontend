@@ -1,210 +1,179 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Avatar, Table } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
-import { TableRowSelection } from 'antd/es/table/interface';
-import { TableColumnsType } from '@/types/table/table';
+
 import TableFilter from './tableFilter';
-import StatusBadge, {
-  StatusBadgeTheme,
-} from '@/components/common/statusBadge/statusBadge';
 
-interface DataTableEmployee {
-  img: string;
-  name: string;
-  email: string;
-}
-
-interface TableData {
-  key: React.ReactNode;
-  employee: DataTableEmployee;
-  date: string;
-  clockIn: string;
-  clockOut: string;
-  status: string;
-  overTime: string;
-  totalTime: string;
-  approvalStatus: string;
-}
-
-const columns: TableColumnsType<TableData> = [
-  {
-    title: 'Employee Name',
-    dataIndex: 'employee',
-    key: 'employee',
-    render: (employee: DataTableEmployee) => (
-      <div className="flex items-center gap-1.5">
-        <Avatar size={24} icon={<UserOutlined />} />
-        <div className="flex-1">
-          <div className="text-xs text-gray-900">{employee.name}</div>
-          <div className="text-[10px] leading-4	text-gray-600">
-            {employee.email}
-          </div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    title: 'Date',
-    dataIndex: 'date',
-    key: 'date',
-    render: (date: string) => <div>{date}</div>,
-  },
-  {
-    title: 'Clock In',
-    dataIndex: 'clockIn',
-    key: 'clockIn',
-    render: (text: string) => <div>{text}</div>,
-  },
-  {
-    title: 'Clock Out',
-    dataIndex: 'clockOut',
-    key: 'clockOut',
-    render: (text: string) => <div>{text}</div>,
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    render: (text: string) => (
-      <StatusBadge theme={StatusBadgeTheme.success}>{text}</StatusBadge>
-    ),
-  },
-  {
-    title: 'Over-time',
-    dataIndex: 'overTime',
-    key: 'overTime',
-    render: (text: string) => <div>{text}</div>,
-  },
-  {
-    title: 'Total time',
-    dataIndex: 'totalTime',
-    key: 'totalTime',
-    render: (text: string) => <div>{text}</div>,
-  },
-  {
-    title: 'Approval Status',
-    dataIndex: 'approvalStatus',
-    key: 'approvalStatus',
-    render: (text: string) => <StatusBadge>{text}</StatusBadge>,
-  },
-];
-
-const TABLE_DATA: TableData[] = [
-  {
-    key: '1',
-    employee: {
-      img: '',
-      email: 'tyest@agas.ss',
-      name: 'Hanna Baptista',
-    },
-    date: '08:00',
-    clockIn: '08:00 AM',
-    clockOut: '08:00 PM',
-    status: 'active',
-    overTime: '-',
-    totalTime: '-',
-    approvalStatus: 'Pending',
-  },
-  {
-    key: '2',
-    employee: {
-      img: '',
-      email: 'tyest@agas.ss',
-      name: 'Hanna Baptista',
-    },
-    date: '08:00',
-    clockIn: '08:00 AM',
-    clockOut: '08:00 PM',
-    status: 'active',
-    overTime: '-',
-    totalTime: '-',
-    approvalStatus: 'Pending',
-  },
-  {
-    key: '3',
-    employee: {
-      img: '',
-      email: 'tyest@agas.ss',
-      name: 'Hanna Baptista',
-    },
-    date: '08:00',
-    clockIn: '08:00 AM',
-    clockOut: '08:00 PM',
-    status: 'active',
-    overTime: '-',
-    totalTime: '-',
-    approvalStatus: 'Pending',
-  },
-  {
-    key: '4',
-    employee: {
-      img: '',
-      email: 'tyest@agas.ss',
-      name: 'Hanna Baptista',
-    },
-    date: '08:00',
-    clockIn: '08:00 AM',
-    clockOut: '08:00 PM',
-    status: 'active',
-    overTime: '-',
-    totalTime: '-',
-    approvalStatus: 'Pending',
-  },
-  {
-    key: '5',
-    employee: {
-      img: '',
-      email: 'tyest@agas.ss',
-      name: 'Hanna Baptista',
-    },
-    date: '08:00',
-    clockIn: '08:00 AM',
-    clockOut: '08:00 PM',
-    status: 'active',
-    overTime: '-',
-    totalTime: '-',
-    approvalStatus: 'Pending',
-  },
-  {
-    key: '6',
-    employee: {
-      img: '',
-      email: 'tyest@agas.ss',
-      name: 'Hanna Baptista',
-    },
-    date: '08:00',
-    clockIn: '08:00 AM',
-    clockOut: '08:00 PM',
-    status: 'active',
-    overTime: '-',
-    totalTime: '-',
-    approvalStatus: 'Pending',
-  },
-];
-
-const rowSelection: TableRowSelection<TableData> = {
-  // onChange: (selectedRowKeys, selectedRows) => {
-  //   console.log(
-  //     `selectedRowKeys: ${selectedRowKeys}`,
-  //     'selectedRows: ',
-  //     selectedRows,
-  //   );
-  // },
-  // onSelect: (record, selected, selectedRows) => {
-  //   console.log({ record, selected, selectedRows });
-  // },
-};
+import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
+import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
+import {
+  calculateAttendanceRecordToTotalWorkTime,
+  timeToHour,
+  timeToLastMinute,
+} from '@/helpers/calculateHelper';
+import { TableColumnsType } from '@/types/table/table';
+import { UserOutlined } from '@ant-design/icons';
+import StatusBadge from '@/components/common/statusBadge/statusBadge';
+import dayjs from 'dayjs';
+import { DATE_FORMAT, DATETIME_FORMAT } from '@/utils/constants';
+import {
+  AttendanceRecord,
+  AttendanceRecordType,
+  AttendanceRecordTypeBadgeTheme,
+  attendanceRecordTypeOption,
+} from '@/types/timesheet/attendance';
+import { formatToAttendanceType } from '@/helpers/formatTo';
+import { CommonObject } from '@/types/commons/commonObject';
 
 const EmployeeAttendanceTable = () => {
+  const [tableData, setTableData] = useState<any[]>([]);
+  // const [page, setPage] = useState('1');
+  const page = '1';
+  const [filter, setFilter] =
+    useState<Partial<AttendanceRequestBody['filter']>>();
+  const { data, isFetching } = useGetAttendances(
+    { page, limit: '20' },
+    { filter },
+  );
+
+  const columns: TableColumnsType<any> = [
+    {
+      title: 'Employee Name',
+      dataIndex: 'employee',
+      key: 'employee',
+      render: (employee: any) =>
+        employee ? (
+          <div className="flex items-center gap-1.5">
+            <Avatar size={24} icon={<UserOutlined />} />
+            <div className="flex-1">
+              <div className="text-xs text-gray-900">{employee.name}</div>
+              <div className="text-[10px] leading-4	text-gray-600">
+                {employee.email}
+              </div>
+            </div>
+          </div>
+        ) : (
+          '-'
+        ),
+    },
+    {
+      title: 'Date',
+      dataIndex: 'date',
+      key: 'date',
+      render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
+    },
+    {
+      title: 'Clock In',
+      dataIndex: 'clockIn',
+      key: 'clockIn',
+      render: (date: string) => (
+        <div>{dayjs(date).format(DATETIME_FORMAT)}</div>
+      ),
+    },
+    {
+      title: 'Clock Out',
+      dataIndex: 'clockOut',
+      key: 'clockOut',
+      render: (date: string) => (
+        <div>{date ? dayjs(date).format(DATETIME_FORMAT) : '-'}</div>
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (item: AttendanceRecord) => {
+        const type = formatToAttendanceType(item);
+        const title = attendanceRecordTypeOption.find(
+          (item) => item.value === type,
+        )!.label;
+        const min =
+          type === AttendanceRecordType.EARLY
+            ? item.earlyByMinutes
+            : type === AttendanceRecordType.LATE
+              ? item.lateByMinutes
+              : 0;
+        return (
+          <StatusBadge theme={AttendanceRecordTypeBadgeTheme[type]}>
+            <div className="text-center">
+              <div>{title}</div>
+              {min &&
+                [
+                  AttendanceRecordType.EARLY,
+                  AttendanceRecordType.LATE,
+                ].includes(type) && (
+                  <div className="font-normal">{min} min</div>
+                )}
+            </div>
+          </StatusBadge>
+        );
+      },
+    },
+    {
+      title: 'Over-time',
+      dataIndex: 'overTime',
+      key: 'overTime',
+      render: (text: string) => <div>{text}</div>,
+    },
+    {
+      title: 'Total time',
+      dataIndex: 'totalTime',
+      key: 'totalTime',
+      render: (text: string) => <div>{text}</div>,
+    },
+    {
+      title: 'Approval Status',
+      dataIndex: 'approvalStatus',
+      key: 'approvalStatus',
+      render: () => <div>-</div>,
+    },
+  ];
+
+  useEffect(() => {
+    if (data && data.items) {
+      const nData = data.items.map((item) => {
+        const calcTotal = calculateAttendanceRecordToTotalWorkTime(item);
+        return {
+          key: item.id,
+          employee: item.createdBy,
+          date: item.createdAt,
+          clockIn: item.startAt,
+          clockOut: item.endAt,
+          status: item,
+          totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
+          overTime: item.overTimeMinutes + ' min',
+          approvalStatus: item,
+        };
+      });
+      setTableData(nData);
+    }
+  }, [data]);
+
+  const onFilterChange = (val: CommonObject) => {
+    const nFilter: Partial<AttendanceRequestBody['filter']> = {};
+    if (val.date) {
+      nFilter['date'] = {
+        from: val.date[0],
+        to: val.date[1],
+      };
+    }
+
+    if (val.type) {
+      nFilter['type'] = val.type;
+    }
+
+    setFilter(nFilter);
+  };
+
   return (
     <>
       <div className="mb-6">
-        <TableFilter />
+        <TableFilter onChange={onFilterChange} />
       </div>
       <Table
+        loading={isFetching}
         columns={columns}
-        dataSource={TABLE_DATA}
-        rowSelection={{ ...rowSelection, checkStrictly: false }}
+        dataSource={tableData}
+        rowSelection={{ checkStrictly: false }}
         pagination={{ position: ['none', 'bottomLeft'] }}
       />
     </>

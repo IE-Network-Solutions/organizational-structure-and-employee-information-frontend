@@ -4,6 +4,7 @@ import { CommonObject } from '@/types/commons/commonObject';
 import { formatToOptions } from '@/helpers/formatTo';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { attendanceRecordTypeOption } from '@/types/timesheet/attendance';
+import { DATE_FORMAT } from '@/utils/constants';
 
 interface AttendanceTableFilterProps {
   onChange: (val: CommonObject) => void;
@@ -23,7 +24,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
             <DatePicker.RangePicker
               className="w-full h-[54px]"
               separator={'-'}
-              format="DD MMM YYYY"
+              format={DATE_FORMAT}
             />
           </Form.Item>
         </Col>
