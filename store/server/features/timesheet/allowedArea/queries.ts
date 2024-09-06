@@ -39,7 +39,8 @@ export const useGetAllowedArea = (queryData: Partial<AllowedAreaQueryData>) => {
     ['allowed-area', queryData],
     () => getAllowedArea(queryData),
     {
-      keepPreviousData: true,
+      keepPreviousData: false,
+      enabled: false,
     },
   );
 };

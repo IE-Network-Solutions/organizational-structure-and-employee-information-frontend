@@ -14,6 +14,7 @@ type TimesheetSettingsState = {
   attendanceNotificationType: AttendanceNotificationType[];
   attendanceTypeId: string | null;
   attendanceRuleId: string | null;
+  allowedAreaId: string | null;
 };
 
 type TimesheetSettingsStateAction = {
@@ -35,6 +36,7 @@ type TimesheetSettingsStateAction = {
   ) => void;
   setAttendanceTypeId: (attendanceId: string | null) => void;
   setAttendanceRuleId: (attendanceRuleId: string | null) => void;
+  setAllowedAreaId: (allowedAreaId: string | null) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
@@ -93,6 +95,11 @@ const timesheetSettingsSlice: StateCreator<
   attendanceRuleId: null,
   setAttendanceRuleId: (attendanceRuleId) => {
     set({ attendanceRuleId });
+  },
+
+  allowedAreaId: null,
+  setAllowedAreaId: (allowedAreaId: string | null) => {
+    set({ allowedAreaId });
   },
 });
 
