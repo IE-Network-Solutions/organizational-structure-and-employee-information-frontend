@@ -141,7 +141,7 @@ const HistoryTable = () => {
     }
 
     if (val.type) {
-      nFilter['leaveTypesIds'] = [val.type];
+      nFilter['leaveTypeIds'] = [val.type];
     }
 
     if (val.status) {

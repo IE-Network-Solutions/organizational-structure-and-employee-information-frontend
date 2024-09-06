@@ -1,13 +1,16 @@
 import { create, StateCreator } from 'zustand';
+import { LeaveType } from '@/types/timesheet/settings';
 
 type LeaveManagementState = {
   isShowLeaveRequestManagementSidebar: boolean;
+  leaveTypes: LeaveType[];
 };
 
 type LeaveManagementAction = {
   setIsShowLeaveRequestManagementSidebar: (
     isShowLeaveRequestManagementSidebar: boolean,
   ) => void;
+  setLeaveTypes: (leaveTypes: LeaveType[]) => void;
 };
 
 const leaveManagementSlice: StateCreator<
@@ -16,6 +19,11 @@ const leaveManagementSlice: StateCreator<
   isShowLeaveRequestManagementSidebar: false,
   setIsShowLeaveRequestManagementSidebar: (isShow) => {
     set({ isShowLeaveRequestManagementSidebar: isShow });
+  },
+
+  leaveTypes: [],
+  setLeaveTypes: (leaveTypes: LeaveType[]) => {
+    set({ leaveTypes });
   },
 });
 

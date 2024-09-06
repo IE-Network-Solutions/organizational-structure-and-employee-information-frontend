@@ -10,7 +10,7 @@ export interface LeaveRequestBody {
       from: string;
       to: string;
     };
-    leaveTypesIds?: string[];
+    leaveTypeIds?: string[];
   };
 }
 

@@ -8,19 +8,19 @@ import CustomButton from '@/components/common/buttons/customButton';
 import { TbFileDownload, TbLayoutList } from 'react-icons/tb';
 import { LuBookmark } from 'react-icons/lu';
 import LeaveRequestManagementSidebar from './_components/leaveRequestManagementSidebar';
+import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
+import { useEffect } from 'react';
+import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
 
 const LeaveManagement = () => {
-  // const [page, setPage] = useState<number>(1);
-  // const { data } = useGetLeaveRequest(
-  //   { limit: '20', page: page.toString() },
-  //   {},
-  // );
+  const { setLeaveTypes } = useLeaveManagementStore();
+  const { data: leaveTypesData } = useGetLeaveTypes();
 
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
 
-  // useEffect(() => {
-  //   console.log({ data });
-  // });
+  useEffect(() => {
+    setLeaveTypes(leaveTypesData?.items ?? []);
+  }, [leaveTypesData]);
 
   return (
     <>
