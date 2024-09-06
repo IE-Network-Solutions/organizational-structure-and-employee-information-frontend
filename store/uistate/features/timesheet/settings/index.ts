@@ -15,6 +15,7 @@ type TimesheetSettingsState = {
   attendanceTypeId: string | null;
   attendanceRuleId: string | null;
   allowedAreaId: string | null;
+  leaveRequestId: string | null;
 };
 
 type TimesheetSettingsStateAction = {
@@ -37,6 +38,7 @@ type TimesheetSettingsStateAction = {
   setAttendanceTypeId: (attendanceId: string | null) => void;
   setAttendanceRuleId: (attendanceRuleId: string | null) => void;
   setAllowedAreaId: (allowedAreaId: string | null) => void;
+  setLeaveRequestId: (leaveRequestId: string | null) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
@@ -100,6 +102,11 @@ const timesheetSettingsSlice: StateCreator<
   allowedAreaId: null,
   setAllowedAreaId: (allowedAreaId: string | null) => {
     set({ allowedAreaId });
+  },
+
+  leaveRequestId: null,
+  setLeaveRequestId: (leaveRequestId) => {
+    set({ leaveRequestId });
   },
 });
 

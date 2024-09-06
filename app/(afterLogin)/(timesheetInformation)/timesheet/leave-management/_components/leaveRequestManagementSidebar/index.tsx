@@ -104,6 +104,7 @@ const LeaveRequestManagementSidebar = () => {
       className: 'h-[56px] text-base bg-error',
       size: 'large',
       type: 'primary',
+      loading: isLoading || isLoadingUpdate,
       onClick: () => {
         onClose(true);
       },
@@ -114,6 +115,7 @@ const LeaveRequestManagementSidebar = () => {
       className: 'h-[56px] text-base bg-success',
       size: 'large',
       type: 'primary',
+      loading: isLoading || isLoadingUpdate,
       onClick: () => {
         onClose(true, true);
       },
@@ -168,7 +170,7 @@ const LeaveRequestManagementSidebar = () => {
             <Spin />
           </div>
         ) : (
-          <Spin spinning={isFetching}>
+          <Spin spinning={isFetching || isLoading || isLoadingUpdate}>
             <div className="flex items-center gap-[15px] mb-8">
               <div className="text-xs text-gray-900">Requester:</div>
               <UserCard name="Name" size="small" />
