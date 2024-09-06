@@ -44,6 +44,7 @@ export const useDeleteAttendanceNotificationRule = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('attendance-notification-rules');
+      queryClient.invalidateQueries('attendance-notification-types');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
