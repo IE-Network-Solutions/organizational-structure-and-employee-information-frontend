@@ -224,10 +224,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             alignItems: 'center',
             position: 'fixed',
             width: isMobile
-              ? '100%' 
+              ? '100%'
               : collapsed
-              ? 'calc(100% - 80px)'
-              : 'calc(100% - 280px)',
+                ? 'calc(100% - 80px)'
+                : 'calc(100% - 280px)',
             zIndex: 1000,
             top: 0,
             left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
