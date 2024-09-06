@@ -57,6 +57,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
         >
           <TimePicker
             format="h:mm A"
+            disabled={!record.status}
             use12Hours
             defaultValue={
               record.startTime ? dayjs(record.startTime, 'h:mm A') : null
@@ -67,7 +68,6 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
                 startTime: time ? dayjs(time).format('h:mm A') : '',
               });
             }}
-            disabled={!record.status}
           />
         </FormItem>
       ),
@@ -89,6 +89,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
         >
           <TimePicker
             format="h:mm A"
+            disabled={!record.status}
             className="min-w-[100px]"
             use12Hours
             defaultValue={
@@ -99,7 +100,6 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
                 endTime: time ? dayjs(time).format('h:mm A') : '',
               });
             }}
-            disabled={!record.status}
           />
         </FormItem>
       ),
