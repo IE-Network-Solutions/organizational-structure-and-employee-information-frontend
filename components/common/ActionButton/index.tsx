@@ -3,6 +3,7 @@ import { Button, Col, Dropdown, Popover, Row } from 'antd';
 import type { MenuProps } from 'antd';
 import { HiOutlineDotsVertical } from 'react-icons/hi';
 import { classNames } from '@/utils/classNames';
+import DeletePopover from '@/components/common/ActionButton/deletePopover';
 
 export interface ActionButtonProps {
   onEdit?: () => void;
@@ -17,8 +18,6 @@ const ActionButton: FC<ActionButtonProps> = ({
   onCancelDelete,
   className = '',
 }) => {
-  const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
-
   const items: MenuProps['items'] = [];
 
   if (onEdit) {
@@ -42,44 +41,11 @@ const ActionButton: FC<ActionButtonProps> = ({
     items.push({
       key: '1',
       label: (
-        <Popover
-          trigger="hover"
-          placement="bottomRight"
-          title={
-            <div className="text-base text-gray-900 font-bold">
-              Are you sure you want to delete
-            </div>
-          }
-          content={
-            <div className="pt-4">
-              <Row gutter={20}>
-                <Col span={12}>
-                  <Button
-                    size="small"
-                    className={buttonClass}
-                    onClick={onCancelDelete}
-                  >
-                    Cancel
-                  </Button>
-                </Col>
-                <Col span={12}>
-                  <Button
-                    size="small"
-                    className={buttonClass}
-                    type="primary"
-                    onClick={onDelete}
-                  >
-                    Delete
-                  </Button>
-                </Col>
-              </Row>
-            </div>
-          }
-        >
+        <DeletePopover onCancel={onCancelDelete} onDelete={onDelete}>
           <Button size="large" className="w-full justify-normal" type="text">
             Delete
           </Button>
-        </Popover>
+        </DeletePopover>
       ),
       className: 'p-0 hover:bg-transparent',
     });
