@@ -5,7 +5,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { CreateEmployeeJobInformation } from './interface';
+import { CreateEmployeeJobInformationInterface } from './interface';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -142,7 +142,7 @@ export const useDeleteEmployee = () => {
 export const useCreateJobInformation = () => {
   const queryClient = useQueryClient();
   return useMutation(createJobInformation, {
-    onSuccess: (data: CreateEmployeeJobInformation) => {
+    onSuccess: (data: CreateEmployeeJobInformationInterface) => {
       queryClient.invalidateQueries(['employee', data.userId]);
       queryClient.invalidateQueries('employees');
       NotificationMessage.success({

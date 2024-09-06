@@ -3,6 +3,7 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import { useCreateJobInformation } from '@/store/server/features/employees/employeeManagment/mutations';
 import JobTimeLineForm from '../../../../_components/allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../../../../_components/allFormData/workScheduleForm';
+import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 
 interface Ids {
   id: string;
@@ -20,7 +21,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
     setIsAddEmployeeJobInfoModalVisible(false);
   };
 
-  const createTsks = (values: any) => {
+  const createTsks = (values: CreateEmployeeJobInformationInterface) => {
     values.userId = id;
     values.departmentLeadOrNot
       ? values.departmentLeadOrNot

@@ -9,7 +9,7 @@ export interface UpdatePermissionGroupArgs {
   permissionGroupId: string;
 }
 
-export interface CreateEmployeeJobInformation {
+export interface CreateEmployeeJobInformationInterface {
   userId: string;
   branchId: string;
   departmentId: string;
