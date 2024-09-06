@@ -29,7 +29,7 @@ const AttendanceTable = () => {
   const userFilter: Partial<AttendanceRequestBody['filter']> = {
     userIds: [localUserID ?? ''],
   };
-  const { setIsShowViewSidebar } = useMyTimesheetStore();
+  const { setIsShowViewSidebar, setViewAttendanceId } = useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
   // const [page, setPage] = useState('1');
   const page = '1';
@@ -130,12 +130,15 @@ const AttendanceTable = () => {
       title: '',
       dataIndex: 'action',
       key: 'action',
-      render: () => (
+      render: (item: AttendanceRecord) => (
         <Button
           className="w-[30px] h-[30px]"
           icon={<IoEyeOutline size={16} />}
           type="primary"
-          onClick={() => setIsShowViewSidebar(true)}
+          onClick={() => {
+            setViewAttendanceId(item.id);
+            setIsShowViewSidebar(true);
+          }}
         />
       ),
     },

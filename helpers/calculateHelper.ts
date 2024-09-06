@@ -11,6 +11,14 @@ export const timeToLastMinute = (time: number): string => {
   );
 };
 
+export const minuteToHour = (minute: number): string => {
+  return String(Math.floor(minute / 60)).padStart(2, '0');
+};
+
+export const minuteToLastMinute = (minute: number): string => {
+  return String(Math.floor(minute % 60)).padStart(2, '0');
+};
+
 export const calculateAttendanceRecordToTotalWorkTime = (
   item: AttendanceRecord,
 ): number => {

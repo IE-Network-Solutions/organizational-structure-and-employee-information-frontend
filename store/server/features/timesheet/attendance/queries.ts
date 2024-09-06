@@ -48,12 +48,15 @@ const getAttendanceImportLogs = async (
 export const useGetAttendances = (
   query: RequestCommonQueryData,
   data: Partial<AttendanceRequestBody>,
+  isKeepData: boolean = true,
+  isEnabled: boolean = true,
 ) => {
   return useQuery<ApiResponse<AttendanceRecord>>(
     ['attendance', query, data],
     () => getAttendances(query, data),
     {
-      keepPreviousData: true,
+      keepPreviousData: isKeepData,
+      enabled: isEnabled,
     },
   );
 };

@@ -20,6 +20,7 @@ type MyTimesheetState = {
   allowedAreas: AllowedArea[];
   currentAttendance: AttendanceRecord | null;
   breakTypes: BreakType[];
+  viewAttendanceId: string | null;
 };
 
 type MyTimesheetAction = {
@@ -32,6 +33,7 @@ type MyTimesheetAction = {
   setAllowedAreas: (allowedAreas: AllowedArea[]) => void;
   setCurrentAttendance: (currentAttendance: AttendanceRecord | null) => void;
   setBreakTypes: (breakTypes: BreakType[]) => void;
+  setViewAttendanceId: (viewAttendanceId: string | null) => void;
 };
 
 const useMyTimesheetSlice: StateCreator<
@@ -90,6 +92,11 @@ const useMyTimesheetSlice: StateCreator<
   breakTypes: [],
   setBreakTypes: (breakTypes: BreakType[]) => {
     set({ breakTypes });
+  },
+
+  viewAttendanceId: null,
+  setViewAttendanceId: (viewAttendanceId: string | null) => {
+    set({ viewAttendanceId });
   },
 });
 
