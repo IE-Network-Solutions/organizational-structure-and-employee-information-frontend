@@ -151,13 +151,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     }
   };
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = () => {
     setToken("");
     setTenantId("");
     setLocalId("");
     removeCookie("token");
     router.push(`/authentication/login`);
-  }, []);
+  };
 
   return (
     <Layout>
