@@ -2,7 +2,7 @@ import { TablePaginationConfig } from 'antd';
 
 export const defaultTablePagination = (
   total: number = 1,
-  onChange: (page: number, pageSize: number) => void,
+  onChange?: (page: number, pageSize: number) => void,
 ): TablePaginationConfig => {
   return {
     position: ['none', 'bottomLeft'],
@@ -12,6 +12,6 @@ export const defaultTablePagination = (
     showSizeChanger: true,
     total: total,
     showTotal: (total: number) => `${total} Result`,
-    onChange,
+    ...(onChange && onChange),
   };
 };
