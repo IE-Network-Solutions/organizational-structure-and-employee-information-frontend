@@ -170,6 +170,10 @@ const LeaveRequestSidebar = () => {
     return Promise.resolve();
   };
 
+  const handleChange = () => {
+    form.validateFields(['startDate', 'endDate']);
+  };
+
   return (
     isShowLeaveRequestSidebar && (
       <CustomDrawerLayout
@@ -220,7 +224,11 @@ const LeaveRequestSidebar = () => {
                     ]}
                     className={itemClass}
                   >
-                    <DatePicker className={controlClass} format={DATE_FORMAT} />
+                    <DatePicker
+                      className={controlClass}
+                      onChange={handleChange}
+                      format={DATE_FORMAT}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -233,7 +241,11 @@ const LeaveRequestSidebar = () => {
                     ]}
                     className={itemClass}
                   >
-                    <DatePicker className={controlClass} format={DATE_FORMAT} />
+                    <DatePicker
+                      className={controlClass}
+                      onChange={handleChange}
+                      format={DATE_FORMAT}
+                    />
                   </Form.Item>
                 </Col>
               </Row>
