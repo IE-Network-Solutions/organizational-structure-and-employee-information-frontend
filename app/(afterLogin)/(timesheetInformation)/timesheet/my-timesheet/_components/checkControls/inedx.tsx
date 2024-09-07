@@ -13,7 +13,6 @@ import {
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
 import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
-import { Simulate } from 'react-dom/test-utils';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const CheckControl = () => {

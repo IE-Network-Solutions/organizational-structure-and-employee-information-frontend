@@ -1,8 +1,5 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import {
-  CheckStatus,
-  useMyTimesheetStore,
-} from '@/store/uistate/features/timesheet/myTimesheet';
+import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { Form, Select } from 'antd';
 import type { SelectProps } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -31,7 +28,6 @@ const CheckOutSidebar = () => {
   const {
     isShowCheckOutSidebar,
     setIsShowCheckOutSidebar,
-    setCheckStatus,
     breakTypes,
     currentAttendance,
   } = useMyTimesheetStore();
