@@ -20,6 +20,8 @@ import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesh
 import { AiOutlineReload } from 'react-icons/ai';
 import { LuPlus } from 'react-icons/lu';
 import DeletePopover from '@/components/common/ActionButton/deletePopover';
+import usePagination from '@/utils/usePagination';
+import { defaultTablePagination } from '@/utils/defaultTablePagination';
 
 const HistoryTable = () => {
   const userFilter: Partial<LeaveRequestBody['filter']> = {
@@ -28,12 +30,11 @@ const HistoryTable = () => {
   const { setIsShowLeaveRequestSidebar: isShow, setLeaveRequestSidebarData } =
     useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
-  // const [page, setPage] = useState('1');
-  const page = '1';
+  const { page, limit, setPage, setLimit } = usePagination(1, 10);
   const [filter, setFilter] =
     useState<Partial<LeaveRequestBody['filter']>>(userFilter);
   const { data, isFetching, refetch } = useGetLeaveRequest(
-    { page, limit: '20' },
+    { page, limit },
     { filter },
   );
   const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
@@ -186,7 +187,13 @@ const HistoryTable = () => {
         columns={columns}
         loading={isFetching}
         dataSource={tableData}
-        pagination={{ position: ['none', 'bottomLeft'] }}
+        pagination={defaultTablePagination(
+          data?.meta?.totalItems,
+          (page, pageSize) => {
+            setPage(page);
+            setLimit(pageSize);
+          },
+        )}
       />
     </>
   );

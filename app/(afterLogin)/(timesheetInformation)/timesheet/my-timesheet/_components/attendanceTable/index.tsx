@@ -24,6 +24,8 @@ import {
   timeToHour,
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
+import usePagination from '@/utils/usePagination';
+import { defaultTablePagination } from '@/utils/defaultTablePagination';
 
 const AttendanceTable = () => {
   const userFilter: Partial<AttendanceRequestBody['filter']> = {
@@ -31,12 +33,11 @@ const AttendanceTable = () => {
   };
   const { setIsShowViewSidebar, setViewAttendanceId } = useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
-  // const [page, setPage] = useState('1');
-  const page = '1';
+  const { page, limit, setPage, setLimit } = usePagination(1, 10);
   const [filter, setFilter] =
     useState<Partial<AttendanceRequestBody['filter']>>(userFilter);
   const { data, isFetching, refetch } = useGetAttendances(
-    { page, limit: '20' },
+    { page, limit },
     { filter },
   );
 
@@ -206,7 +207,13 @@ const AttendanceTable = () => {
         columns={columns}
         dataSource={tableData}
         loading={isFetching}
-        pagination={{ position: ['none', 'bottomLeft'] }}
+        pagination={defaultTablePagination(
+          data?.meta?.totalItems,
+          (page, pageSize) => {
+            setPage(page);
+            setLimit(pageSize);
+          },
+        )}
       />
     </>
   );

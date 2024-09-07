@@ -23,17 +23,15 @@ import {
 } from '@/types/timesheet/attendance';
 import { formatToAttendanceType } from '@/helpers/formatTo';
 import { CommonObject } from '@/types/commons/commonObject';
+import usePagination from '@/utils/usePagination';
+import { defaultTablePagination } from '@/utils/defaultTablePagination';
 
 const EmployeeAttendanceTable = () => {
   const [tableData, setTableData] = useState<any[]>([]);
-  // const [page, setPage] = useState('1');
-  const page = '1';
+  const { page, limit, setPage, setLimit } = usePagination(1, 10);
   const [filter, setFilter] =
     useState<Partial<AttendanceRequestBody['filter']>>();
-  const { data, isFetching } = useGetAttendances(
-    { page, limit: '20' },
-    { filter },
-  );
+  const { data, isFetching } = useGetAttendances({ page, limit }, { filter });
 
   const columns: TableColumnsType<any> = [
     {
@@ -174,7 +172,13 @@ const EmployeeAttendanceTable = () => {
         columns={columns}
         dataSource={tableData}
         rowSelection={{ checkStrictly: false }}
-        pagination={{ position: ['none', 'bottomLeft'] }}
+        pagination={defaultTablePagination(
+          data?.meta?.totalItems,
+          (page, pageSize) => {
+            setPage(page);
+            setLimit(pageSize);
+          },
+        )}
       />
     </>
   );
