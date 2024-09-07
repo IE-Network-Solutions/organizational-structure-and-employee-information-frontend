@@ -17,9 +17,7 @@ import dayjs from 'dayjs';
 import { DATE_FORMAT, DATETIME_FORMAT } from '@/utils/constants';
 import {
   AttendanceRecord,
-  AttendanceRecordType,
   AttendanceRecordTypeBadgeTheme,
-  attendanceRecordTypeOption,
 } from '@/types/timesheet/attendance';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import { CommonObject } from '@/types/commons/commonObject';

@@ -12,9 +12,7 @@ import { useGetAttendances } from '@/store/server/features/timesheet/attendance/
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import {
   AttendanceRecord,
-  AttendanceRecordType,
   AttendanceRecordTypeBadgeTheme,
-  attendanceRecordTypeOption,
 } from '@/types/timesheet/attendance';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import dayjs from 'dayjs';

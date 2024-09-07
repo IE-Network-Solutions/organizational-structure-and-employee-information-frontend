@@ -16,7 +16,6 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import React, { useState } from 'react';
-import { set } from '@firebase/database';
 
 const ClosedDateSidebar = () => {
   const [isTo, setIsTo] = useState<boolean>(false);

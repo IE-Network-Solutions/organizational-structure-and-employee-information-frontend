@@ -14,7 +14,6 @@ import {
 } from '@/helpers/calculateHelper';
 import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
 import { Simulate } from 'react-dom/test-utils';
-import error = Simulate.error;
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const CheckControl = () => {
