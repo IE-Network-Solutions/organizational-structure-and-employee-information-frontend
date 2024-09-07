@@ -236,7 +236,12 @@ const UserTable = () => {
     values.departmentLeadOrNot = !values.departmentLeadOrNot
       ? false
       : values.departmentLeadOrNot;
-    rehireEmployee(values);
+    rehireEmployee(values, {
+      onSuccess: () => {
+        setReHireModalVisible(false);
+        form.resetFields();
+      },
+    });
   };
   const handelRehireModal = (user: any) => {
     setUserToRehire(user);
@@ -300,7 +305,6 @@ const UserTable = () => {
                 htmlType="submit"
                 value={'submit'}
                 name="submit"
-                onClick={() => setReHireModalVisible(false)}
               >
                 Submit
               </Button>
@@ -309,7 +313,10 @@ const UserTable = () => {
                 htmlType="button"
                 value={'cancel'}
                 name="cancel"
-                onClick={() => setReHireModalVisible(false)}
+                onClick={() => {
+                  setReHireModalVisible(false);
+                  form.resetFields();
+                }}
               >
                 Cancel{' '}
               </Button>

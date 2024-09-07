@@ -21,10 +21,10 @@ function Job({ id }: { id: string }) {
     },
     {
       title: 'Employment Type',
-      dataIndex: 'employmentTypeId',
-      key: 'employmentTypeId',
+      dataIndex: 'employementTypeId',
+      key: 'employementTypeId',
       render: (ruleData: any, record: any) => (
-        <>{record?.employmentType?.name}</>
+        <>{record?.employementType?.name}</>
       ),
     },
     {
