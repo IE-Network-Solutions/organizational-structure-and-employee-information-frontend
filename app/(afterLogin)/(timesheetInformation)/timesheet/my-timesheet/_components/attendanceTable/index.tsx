@@ -113,7 +113,7 @@ const AttendanceTable = () => {
           <StatusBadge theme={AttendanceRecordTypeBadgeTheme[type]}>
             <div className="text-center">
               <div>{title}</div>
-              {min &&
+              {min > 0 &&
                 [
                   AttendanceRecordType.EARLY,
                   AttendanceRecordType.LATE,
