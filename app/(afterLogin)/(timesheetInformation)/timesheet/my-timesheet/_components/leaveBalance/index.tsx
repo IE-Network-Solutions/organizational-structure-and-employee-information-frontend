@@ -40,6 +40,7 @@ const LeaveBalance = () => {
           slidesPerView={4}
           spaceBetween={16}
           modules={[Navigation]}
+          loop={true}
           onInit={(swiper) => {
             setSwiper(swiper);
           }}

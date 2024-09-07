@@ -27,8 +27,11 @@ const LeaveRequestManagementSidebar = () => {
     leaveRequestId,
     setLeaveRequestId,
   } = useTimesheetSettingsStore();
-  const { mutate: changeStatus, isLoading: isLoadingUpdate } =
-    useSetStatusToLeaveRequest();
+  const {
+    mutate: changeStatus,
+    isLoading: isLoadingUpdate,
+    isSuccess,
+  } = useSetStatusToLeaveRequest();
 
   const {
     data: requestData,
@@ -55,26 +58,28 @@ const LeaveRequestManagementSidebar = () => {
   }, [leaveRequestId]);
 
   useEffect(() => {
+    if (isSuccess) {
+      onClose();
+    }
+  }, [isSuccess]);
+
+  useEffect(() => {
     const item = requestData?.items?.length ? requestData?.items[0] : undefined;
     setLeaveRequest(item);
   }, [requestData]);
 
   const onClose = (isEdit: boolean = false, isApprove: boolean = false) => {
     if (isEdit && leaveRequestId) {
-      if (isApprove) {
-        changeStatus({
-          leaveRequestId: leaveRequestId,
-          status: LeaveRequestStatus.APPROVED,
-        });
-      } else {
-        changeStatus({
-          leaveRequestId: leaveRequestId,
-          status: LeaveRequestStatus.DECLINED,
-        });
-      }
+      changeStatus({
+        leaveRequestId: leaveRequestId,
+        status: isApprove
+          ? LeaveRequestStatus.APPROVED
+          : LeaveRequestStatus.DECLINED,
+      });
+    } else {
+      setLeaveRequestId(null);
+      setIsShow(false);
     }
-    setLeaveRequestId(null);
-    setIsShow(false);
   };
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [

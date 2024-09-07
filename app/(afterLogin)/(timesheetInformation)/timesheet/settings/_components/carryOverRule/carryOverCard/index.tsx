@@ -32,7 +32,7 @@ const CarryOverCard: FC<CarryOverCardProps> = ({ item }) => {
             <Switch
               checkedChildren={<CheckOutlined />}
               unCheckedChildren={<CloseOutlined />}
-              defaultChecked={item.isActive}
+              value={item.isActive}
               onChange={(isActive) => {
                 setActive({
                   isActive,

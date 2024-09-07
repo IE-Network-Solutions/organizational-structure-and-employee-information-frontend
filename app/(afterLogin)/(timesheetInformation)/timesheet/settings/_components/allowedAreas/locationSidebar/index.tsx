@@ -19,7 +19,7 @@ const LocationSidebar = () => {
     setAllowedAreaId,
   } = useTimesheetSettingsStore();
 
-  const { mutate: setAllowedArea } = useSetAllowedArea();
+  const { mutate: setAllowedArea, isSuccess, isLoading } = useSetAllowedArea();
   const {
     data: allowedAreaData,
     isFetching,
@@ -44,7 +44,7 @@ const LocationSidebar = () => {
       form.setFieldValue('title', item.title);
       form.setFieldValue('latitude', item.latitude);
       form.setFieldValue('longitude', item.longitude);
-      form.setFieldValue('distance', item.distance);
+      form.setFieldValue('distance', Number(item.distance) / 1000);
     }
   }, [allowedAreaData]);
 
@@ -60,6 +60,7 @@ const LocationSidebar = () => {
       key: 'cancel',
       className: 'h-[56px] text-base',
       size: 'large',
+      loading: isLoading,
       onClick: () => onClose(),
     },
     {
@@ -68,10 +69,16 @@ const LocationSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
-      loading: isFetching,
+      loading: isFetching || isLoading,
       onClick: () => form.submit(),
     },
   ];
+
+  useEffect(() => {
+    if (isSuccess) {
+      onClose();
+    }
+  }, [isSuccess]);
 
   const onFinish = () => {
     const value = form.getFieldsValue();
@@ -80,9 +87,8 @@ const LocationSidebar = () => {
       title: value.title,
       latitude: value.latitude,
       longitude: value.longitude,
-      distance: value.distance,
+      distance: Number(value.distance) * 1000,
     });
-    onClose();
   };
 
   const itemClass = 'font-semibold text-xs';
@@ -101,7 +107,7 @@ const LocationSidebar = () => {
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"
       >
-        <Spin spinning={isFetching}>
+        <Spin spinning={isFetching || isLoading}>
           <Form
             layout="vertical"
             requiredMark={CustomLabel}
@@ -146,7 +152,7 @@ const LocationSidebar = () => {
                 <InputNumber
                   min={1}
                   className="w-full py-[11px] mt-2.5"
-                  placeholder="Enter radius"
+                  placeholder="Enter radius in km"
                 />
               </Form.Item>
             </Space>

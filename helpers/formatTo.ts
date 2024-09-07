@@ -6,6 +6,7 @@ import {
 } from '@/types/timesheet/attendance';
 import { BreakType } from '@/types/timesheet/breakType';
 import { StatusBadgeTheme } from '@/components/common/statusBadge';
+import { minuteToHour, minuteToLastMinute } from '@/helpers/calculateHelper';
 
 type Options = SelectProps['options'];
 
@@ -20,22 +21,50 @@ export const formatToOptions = <T extends CommonObject>(
   }));
 };
 
-export const formatToAttendanceType = (
+export const formatToAttendanceStatuses = (
   item: AttendanceRecord,
-): AttendanceRecordType => {
+): { status: AttendanceRecordType; text: string }[] => {
   if (item.isAbsent) {
-    return AttendanceRecordType.ABSENT;
+    return [{ status: AttendanceRecordType.ABSENT, text: '' }];
+  }
+
+  if (item.earlyByMinutes > 0 && item.lateByMinutes > 0) {
+    return [
+      {
+        status: AttendanceRecordType.EARLY,
+        text: `${minuteToHour(item.earlyByMinutes)} hr ${minuteToLastMinute(item.earlyByMinutes)} min`,
+      },
+      {
+        status: AttendanceRecordType.LATE,
+        text: `${minuteToHour(item.lateByMinutes)} hr ${minuteToLastMinute(item.lateByMinutes)} min`,
+      },
+    ];
   }
 
   if (item.earlyByMinutes > 0) {
-    return AttendanceRecordType.EARLY;
+    return [
+      {
+        status: AttendanceRecordType.EARLY,
+        text: `${minuteToHour(item.earlyByMinutes)} hr ${minuteToLastMinute(item.earlyByMinutes)} min`,
+      },
+    ];
   }
 
   if (item.lateByMinutes > 0) {
-    return AttendanceRecordType.LATE;
+    return [
+      {
+        status: AttendanceRecordType.LATE,
+        text: `${minuteToHour(item.lateByMinutes)} hr ${minuteToLastMinute(item.lateByMinutes)} min`,
+      },
+    ];
   }
 
-  return AttendanceRecordType.PRESENT;
+  return [
+    {
+      status: AttendanceRecordType.PRESENT,
+      text: ``,
+    },
+  ];
 };
 
 export interface BreakTypeStatus {

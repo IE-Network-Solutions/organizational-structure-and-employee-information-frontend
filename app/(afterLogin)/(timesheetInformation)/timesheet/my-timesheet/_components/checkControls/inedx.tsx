@@ -13,6 +13,9 @@ import {
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
 import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
+import { Simulate } from 'react-dom/test-utils';
+import error = Simulate.error;
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
@@ -21,7 +24,6 @@ const CheckControl = () => {
     setIsShowCheckOutSidebar,
     currentAttendance,
     setCurrentAttendance,
-    location,
   } = useMyTimesheetStore();
 
   const { data: currentAttendanceData, isFetching } = useGetCurrentAttendance();
@@ -42,16 +44,36 @@ const CheckControl = () => {
     }
   }, [checkStatus, currentAttendance]);
 
+  const getCoords = (setLocation: (position: GeolocationPosition) => void) => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation(position);
+        },
+        () => {
+          NotificationMessage.error({
+            message: `No access to geolocation`,
+            description: `To check-in/check-out we need to have access to geolocation.`,
+          });
+        },
+      );
+    } else {
+      NotificationMessage.error({
+        message: `No access to geolocation`,
+        description: `To check-in/check-out we need to have access to geolocation.`,
+      });
+    }
+  };
+
   const setAttendance = (isSignIn: boolean) => {
-    // TODO: notify about enable geolocation
-    if (location.lat && location.lng) {
+    getCoords((pos) => {
       setCurrentAttendanceData({
-        latitude: location.lat,
-        longitude: location.lng,
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
         isSignIn,
         userId: localUserID,
       });
-    }
+    });
   };
 
   switch (checkStatus) {
@@ -78,7 +100,11 @@ const CheckControl = () => {
             size="large"
             icon={<GoClock size={20} />}
             loading={isLoading || isFetching}
-            onClick={() => setIsShowCheckOutSidebar(true)}
+            onClick={() => {
+              getCoords(() => {
+                setIsShowCheckOutSidebar(true);
+              });
+            }}
           >
             Break Check Out
           </Button>

@@ -26,7 +26,11 @@ const AddTypesSidebar = () => {
     isFetching,
     refetch,
   } = useGetAttendanceNotificationType(typeId);
-  const { mutate: setAttendanceType } = useSetAttendanceNotificationType();
+  const {
+    mutate: setAttendanceType,
+    isLoading,
+    isSuccess,
+  } = useSetAttendanceNotificationType();
 
   const [form] = Form.useForm();
 
@@ -48,12 +52,19 @@ const AddTypesSidebar = () => {
     }
   }, [attendanceTypeData]);
 
+  useEffect(() => {
+    if (isSuccess) {
+      onClose();
+    }
+  }, [isSuccess]);
+
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
       key: 'cancel',
       className: 'h-[56px] text-base',
       size: 'large',
+      loading: isLoading,
       onClick: () => onClose(),
     },
     {
@@ -62,6 +73,7 @@ const AddTypesSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
+      loading: isLoading,
       onClick: () => form.submit(),
     },
   ];
@@ -99,7 +111,6 @@ const AddTypesSidebar = () => {
       title: value.title,
       unit: value.unit,
     });
-    onClose();
   };
 
   const onFinishFailed = () => {
@@ -129,7 +140,7 @@ const AddTypesSidebar = () => {
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"
       >
-        <Spin spinning={isFetching}>
+        <Spin spinning={isFetching || isLoading}>
           <Form
             layout="vertical"
             requiredMark={CustomLabel}

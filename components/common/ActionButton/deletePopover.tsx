@@ -6,6 +6,7 @@ interface DeletePopoverProps {
   onCancel?: () => void;
   onDelete?: () => void;
   children: ReactNode;
+  disabled?: boolean;
 }
 
 const DeletePopover: FC<DeletePopoverProps> = ({
@@ -13,8 +14,12 @@ const DeletePopover: FC<DeletePopoverProps> = ({
   onCancel,
   onDelete,
   children,
+  disabled = false,
 }) => {
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
+  if (disabled) {
+    return children;
+  }
   return (
     <Popover
       trigger="hover"

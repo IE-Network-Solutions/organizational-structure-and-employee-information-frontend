@@ -1,5 +1,5 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Form, Input, Select, Space } from 'antd';
+import { Form, Input, Select, Space, Spin } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
@@ -8,6 +8,7 @@ import CustomDrawerFooterButton, {
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useSetAccrualRule } from '@/store/server/features/timesheet/accrualRule/mutation';
 import { AccrualRulePeriod } from '@/types/timesheet/settings';
+import { useEffect } from 'react';
 
 const AddTypesSidebar = () => {
   const {
@@ -15,7 +16,17 @@ const AddTypesSidebar = () => {
     setIsShowNewAccrualRuleSidebar: setIsShow,
   } = useTimesheetSettingsStore();
 
-  const { mutate: createAccrualRule } = useSetAccrualRule();
+  const {
+    mutate: createAccrualRule,
+    isLoading,
+    isSuccess,
+  } = useSetAccrualRule();
+
+  useEffect(() => {
+    if (isSuccess) {
+      onClose();
+    }
+  }, [isSuccess]);
 
   const [form] = Form.useForm();
 
@@ -25,7 +36,8 @@ const AddTypesSidebar = () => {
       key: 'cancel',
       className: 'h-[56px] text-base',
       size: 'large',
-      onClick: () => setIsShow(false),
+      loading: isLoading,
+      onClick: () => onClose(),
     },
     {
       label: 'Add',
@@ -33,6 +45,7 @@ const AddTypesSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
+      loading: isLoading,
       onClick: () => form.submit(),
     },
   ];
@@ -46,6 +59,9 @@ const AddTypesSidebar = () => {
       title: value.title,
       period: value.period,
     });
+  };
+
+  const onClose = () => {
     form.resetFields();
     setIsShow(false);
   };
@@ -69,36 +85,38 @@ const AddTypesSidebar = () => {
     isShow && (
       <CustomDrawerLayout
         open={isShow}
-        onClose={() => setIsShow(false)}
+        onClose={() => onClose()}
         modalHeader={<CustomDrawerHeader>Accrual Rule</CustomDrawerHeader>}
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"
       >
-        <Form
-          layout="vertical"
-          requiredMark={CustomLabel}
-          autoComplete="off"
-          form={form}
-          className={itemClass}
-          onFinish={onFinish}
-        >
-          <Space direction="vertical" className="w-full" size={24}>
-            <Form.Item
-              label="Accrual Name"
-              rules={[{ required: true, message: 'Required' }]}
-              name="title"
-            >
-              <Input className={controlClass} />
-            </Form.Item>
-            <Form.Item
-              label="Accrual Period"
-              rules={[{ required: true, message: 'Required' }]}
-              name="period"
-            >
-              <Select className={controlClass} options={periodOption} />
-            </Form.Item>
-          </Space>
-        </Form>
+        <Spin spinning={isLoading}>
+          <Form
+            layout="vertical"
+            requiredMark={CustomLabel}
+            autoComplete="off"
+            form={form}
+            className={itemClass}
+            onFinish={onFinish}
+          >
+            <Space direction="vertical" className="w-full" size={24}>
+              <Form.Item
+                label="Accrual Name"
+                rules={[{ required: true, message: 'Required' }]}
+                name="title"
+              >
+                <Input className={controlClass} />
+              </Form.Item>
+              <Form.Item
+                label="Accrual Period"
+                rules={[{ required: true, message: 'Required' }]}
+                name="period"
+              >
+                <Select className={controlClass} options={periodOption} />
+              </Form.Item>
+            </Space>
+          </Form>
+        </Spin>
       </CustomDrawerLayout>
     )
   );

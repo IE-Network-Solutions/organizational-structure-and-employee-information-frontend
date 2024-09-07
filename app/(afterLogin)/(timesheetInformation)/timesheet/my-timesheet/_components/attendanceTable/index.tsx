@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AttendanceTableFilter from './tableFilter/inedx';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Table } from 'antd';
+import { Button, Space, Table } from 'antd';
 import { IoEyeOutline } from 'react-icons/io5';
 import { GoLocation } from 'react-icons/go';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
@@ -16,7 +16,7 @@ import {
   AttendanceRecordTypeBadgeTheme,
   attendanceRecordTypeOption,
 } from '@/types/timesheet/attendance';
-import { formatToAttendanceType } from '@/helpers/formatTo';
+import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import dayjs from 'dayjs';
 import { AiOutlineReload } from 'react-icons/ai';
 import {
@@ -99,29 +99,23 @@ const AttendanceTable = () => {
       dataIndex: 'status',
       key: 'status',
       render: (item: AttendanceRecord) => {
-        const type = formatToAttendanceType(item);
-        const title = attendanceRecordTypeOption.find(
-          (item) => item.value === type,
-        )!.label;
-        const min =
-          type === AttendanceRecordType.EARLY
-            ? item.earlyByMinutes
-            : type === AttendanceRecordType.LATE
-              ? item.lateByMinutes
-              : 0;
+        const statuses = formatToAttendanceStatuses(item);
         return (
-          <StatusBadge theme={AttendanceRecordTypeBadgeTheme[type]}>
-            <div className="text-center">
-              <div>{title}</div>
-              {min > 0 &&
-                [
-                  AttendanceRecordType.EARLY,
-                  AttendanceRecordType.LATE,
-                ].includes(type) && (
-                  <div className="font-normal">{min} min</div>
-                )}
-            </div>
-          </StatusBadge>
+          <Space>
+            {statuses.map((status) => (
+              <StatusBadge
+                theme={AttendanceRecordTypeBadgeTheme[status.status]}
+                key={status.status}
+              >
+                <div className="text-center">
+                  <div>{status.status}</div>
+                  {status.text && (
+                    <div className="font-normal">{status.text}</div>
+                  )}
+                </div>
+              </StatusBadge>
+            ))}
+          </Space>
         );
       },
     },

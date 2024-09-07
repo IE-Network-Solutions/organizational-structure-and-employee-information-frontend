@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Table } from 'antd';
+import { Avatar, Space, Table } from 'antd';
 
 import TableFilter from './tableFilter';
 
@@ -21,7 +21,7 @@ import {
   AttendanceRecordTypeBadgeTheme,
   attendanceRecordTypeOption,
 } from '@/types/timesheet/attendance';
-import { formatToAttendanceType } from '@/helpers/formatTo';
+import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import { CommonObject } from '@/types/commons/commonObject';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
@@ -94,29 +94,23 @@ const EmployeeAttendanceTable = () => {
       dataIndex: 'status',
       key: 'status',
       render: (item: AttendanceRecord) => {
-        const type = formatToAttendanceType(item);
-        const title = attendanceRecordTypeOption.find(
-          (item) => item.value === type,
-        )!.label;
-        const min =
-          type === AttendanceRecordType.EARLY
-            ? item.earlyByMinutes
-            : type === AttendanceRecordType.LATE
-              ? item.lateByMinutes
-              : 0;
+        const statuses = formatToAttendanceStatuses(item);
         return (
-          <StatusBadge theme={AttendanceRecordTypeBadgeTheme[type]}>
-            <div className="text-center">
-              <div>{title}</div>
-              {min &&
-                [
-                  AttendanceRecordType.EARLY,
-                  AttendanceRecordType.LATE,
-                ].includes(type) && (
-                  <div className="font-normal">{min} min</div>
-                )}
-            </div>
-          </StatusBadge>
+          <Space>
+            {statuses.map((status) => (
+              <StatusBadge
+                theme={AttendanceRecordTypeBadgeTheme[status.status]}
+                key={status.status}
+              >
+                <div className="text-center">
+                  <div>{status.status}</div>
+                  {status.text && (
+                    <div className="font-normal">{status.text}</div>
+                  )}
+                </div>
+              </StatusBadge>
+            ))}
+          </Space>
         );
       },
     },
@@ -152,7 +146,7 @@ const EmployeeAttendanceTable = () => {
           clockOut: item.endAt,
           status: item,
           totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
-          overTime: item.overTimeMinutes + ' min',
+          overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,
           approvalStatus: item,
         };
       });

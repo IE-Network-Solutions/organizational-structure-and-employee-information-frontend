@@ -32,8 +32,11 @@ const LeaveRequestManagementSidebar = () => {
     leaveRequestId,
     setLeaveRequestId,
   } = useLeaveManagementStore();
-  const { mutate: changeStatus, isLoading: isLoadingUpdate } =
-    useSetStatusToLeaveRequest();
+  const {
+    mutate: changeStatus,
+    isLoading: isLoadingUpdate,
+    isSuccess,
+  } = useSetStatusToLeaveRequest();
 
   const {
     data: requestData,
@@ -64,30 +67,29 @@ const LeaveRequestManagementSidebar = () => {
     setLeaveRequest(item);
   }, [requestData]);
 
+  useEffect(() => {
+    if (isSuccess) {
+      onClose();
+    }
+  }, [isSuccess]);
+
   const onClose = (isEdit: boolean = false, isApprove: boolean = false) => {
     if (isEdit) {
-      if (isApprove) {
-        changeStatus({
-          ...(enableComment &&
-            comment &&
-            leaveRequest && { comment: comment.text }),
-          leaveRequestId: leaveRequestId ?? '',
-          status: LeaveRequestStatus.APPROVED,
-        });
-      } else {
-        changeStatus({
-          ...(enableComment &&
-            comment &&
-            leaveRequest && { comment: comment.text }),
-          leaveRequestId: leaveRequestId ?? '',
-          status: LeaveRequestStatus.DECLINED,
-        });
-      }
+      changeStatus({
+        ...(enableComment &&
+          comment &&
+          leaveRequest && { comment: comment.text }),
+        leaveRequestId: leaveRequestId ?? '',
+        status: isApprove
+          ? LeaveRequestStatus.APPROVED
+          : LeaveRequestStatus.DECLINED,
+      });
+    } else {
+      setComment(undefined);
+      setEnableComment(false);
+      setLeaveRequestId(null);
+      setIsShow(false);
     }
-    setComment(undefined);
-    setEnableComment(false);
-    setLeaveRequestId(null);
-    setIsShow(false);
   };
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
@@ -232,32 +234,35 @@ const LeaveRequestManagementSidebar = () => {
               ))}
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mt-[54px] mb-4">
-                <div className="text-sm font-semibold text-gray-900">
-                  Comments
+            {(leaveRequest.status === LeaveRequestStatus.PENDING ||
+              leaveRequest.comment) && (
+              <div>
+                <div className="flex items-center justify-between mt-[54px] mb-4">
+                  <div className="text-sm font-semibold text-gray-900">
+                    Comments
+                  </div>
+                  {leaveRequest.status === LeaveRequestStatus.PENDING && (
+                    <Button
+                      type="primary"
+                      size="large"
+                      onClick={() => {
+                        setEnableComment((prev) => !prev);
+                      }}
+                    >
+                      Comment
+                    </Button>
+                  )}
                 </div>
-                {leaveRequest.status === LeaveRequestStatus.PENDING && (
-                  <Button
-                    type="primary"
-                    size="large"
-                    onClick={() => {
-                      setEnableComment((prev) => !prev);
-                    }}
-                  >
-                    Comment
-                  </Button>
+
+                {leaveRequest.comment && (
+                  <div className="pl-10">
+                    <CommentCard text={leaveRequest.comment} />
+                  </div>
                 )}
+
+                {enableComment && <CommentInput onChange={onChangeComment} />}
               </div>
-
-              {leaveRequest.comment && (
-                <div className="pl-10">
-                  <CommentCard text={leaveRequest.comment} />
-                </div>
-              )}
-
-              {enableComment && <CommentInput onChange={onChangeComment} />}
-            </div>
+            )}
           </Spin>
         )}
       </CustomDrawerLayout>

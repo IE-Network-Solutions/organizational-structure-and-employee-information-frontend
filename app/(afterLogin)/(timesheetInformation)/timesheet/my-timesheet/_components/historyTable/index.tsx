@@ -99,7 +99,6 @@ const HistoryTable = () => {
       title: 'Attachment',
       dataIndex: 'justificationDocument',
       key: 'justificationDocument',
-      sorter: true,
       render: (text: string) =>
         text ? (
           <div className="flex justify-between align-middle">
@@ -124,33 +123,35 @@ const HistoryTable = () => {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
-      render: (item: LeaveRequest) =>
-        item.status !== LeaveRequestStatus.APPROVED && (
-          <Space size={10}>
+      render: (item: LeaveRequest) => (
+        <Space size={10}>
+          <Button
+            className="w-[30px] h-[30px]"
+            icon={<FiEdit2 size={16} />}
+            type="primary"
+            disabled={item.status === LeaveRequestStatus.APPROVED}
+            onClick={() => {
+              isShow(true);
+              setLeaveRequestSidebarData(item.id);
+            }}
+          />
+
+          <DeletePopover
+            onDelete={() => {
+              deleteLeaveRequest(item.id);
+            }}
+            disabled={item.status === LeaveRequestStatus.APPROVED}
+          >
             <Button
               className="w-[30px] h-[30px]"
-              icon={<FiEdit2 size={16} />}
+              danger
+              disabled={item.status === LeaveRequestStatus.APPROVED}
+              icon={<FiTrash2 size={16} />}
               type="primary"
-              onClick={() => {
-                isShow(true);
-                setLeaveRequestSidebarData(item.id);
-              }}
             />
-
-            <DeletePopover
-              onDelete={() => {
-                deleteLeaveRequest(item.id);
-              }}
-            >
-              <Button
-                className="w-[30px] h-[30px]"
-                danger
-                icon={<FiTrash2 size={16} />}
-                type="primary"
-              />
-            </DeletePopover>
-          </Space>
-        ),
+          </DeletePopover>
+        </Space>
+      ),
     },
   ];
 

@@ -44,8 +44,11 @@ const LeaveRequestSidebar = () => {
     false,
   );
 
-  const { mutate: updateLeaveRequest, isLoading: isLoadingRequest } =
-    useSetLeaveRequest();
+  const {
+    mutate: updateLeaveRequest,
+    isLoading: isLoadingRequest,
+    isSuccess: isSuccessUpdate,
+  } = useSetLeaveRequest();
   const [leaveRequest, setLeaveRequest] = useState<LeaveRequest>();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -86,6 +89,12 @@ const LeaveRequestSidebar = () => {
       form.setFieldValue('note', leaveRequest.justificationNote);
     }
   }, [leaveRequest]);
+
+  useEffect(() => {
+    if (isSuccessUpdate) {
+      onClose();
+    }
+  }, [isSuccessUpdate]);
 
   const onClose = () => {
     form.resetFields();
@@ -128,8 +137,6 @@ const LeaveRequestSidebar = () => {
       justificationNote: value.note,
       status: LeaveRequestStatus.PENDING,
     });
-    form.resetFields();
-    onClose();
   };
 
   const typeOptions = () => formatToOptions(leaveTypes ?? [], 'title', 'id');
@@ -227,6 +234,7 @@ const LeaveRequestSidebar = () => {
                     <DatePicker
                       className={controlClass}
                       onChange={handleChange}
+                      minDate={dayjs()}
                       format={DATE_FORMAT}
                     />
                   </Form.Item>
@@ -244,6 +252,7 @@ const LeaveRequestSidebar = () => {
                     <DatePicker
                       className={controlClass}
                       onChange={handleChange}
+                      minDate={dayjs()}
                       format={DATE_FORMAT}
                     />
                   </Form.Item>

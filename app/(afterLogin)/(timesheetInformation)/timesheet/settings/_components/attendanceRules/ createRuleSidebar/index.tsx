@@ -9,10 +9,9 @@ import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHea
 import { useSetAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/mutation';
 import { formatToOptions } from '@/helpers/formatTo';
 import { useGetAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 const CreateRuleSidebar = () => {
-  const [ruleId, setRuleId] = useState('');
   const {
     isShowCreateRuleSidebar: isShow,
     setIsShowCreateRuleSidebar: setIsShow,
@@ -25,20 +24,20 @@ const CreateRuleSidebar = () => {
     data: attendanceRuleData,
     isFetching,
     refetch,
-  } = useGetAttendanceNotificationRule(ruleId);
-  const { mutate: setAttendanceRule } = useSetAttendanceNotificationRule();
+  } = useGetAttendanceNotificationRule(attendanceRuleId ?? '');
+  const {
+    mutate: setAttendanceRule,
+    isLoading,
+    isSuccess,
+  } = useSetAttendanceNotificationRule();
 
   const [form] = Form.useForm();
 
   useEffect(() => {
-    setRuleId(attendanceRuleId ?? '');
-  }, [attendanceRuleId]);
-
-  useEffect(() => {
-    if (ruleId) {
+    if (attendanceRuleId) {
       refetch();
     }
-  }, [ruleId]);
+  }, [attendanceRuleId]);
 
   useEffect(() => {
     if (attendanceRuleData) {
@@ -50,13 +49,19 @@ const CreateRuleSidebar = () => {
     }
   }, [attendanceRuleData]);
 
+  useEffect(() => {
+    if (isSuccess) {
+      onClose();
+    }
+  }, [isSuccess]);
+
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
       key: 'cancel',
       className: 'h-[56px] text-base',
       size: 'large',
-      loading: isFetching,
+      loading: isFetching || isLoading,
       onClick: () => onClose(),
     },
     {
@@ -65,7 +70,7 @@ const CreateRuleSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
-      loading: isFetching,
+      loading: isFetching || isLoading,
       onClick: () => form.submit(),
     },
   ];
@@ -82,7 +87,6 @@ const CreateRuleSidebar = () => {
       value: value.count,
       description: value.description,
     });
-    onClose();
   };
 
   const onClose = () => {
@@ -105,7 +109,7 @@ const CreateRuleSidebar = () => {
         }
         width="50%"
       >
-        <Spin spinning={isFetching}>
+        <Spin spinning={isFetching || isLoading}>
           <Form
             layout="vertical"
             requiredMark={CustomLabel}

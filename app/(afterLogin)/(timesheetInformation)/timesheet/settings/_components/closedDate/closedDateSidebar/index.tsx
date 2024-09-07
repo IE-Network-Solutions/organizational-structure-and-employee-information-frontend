@@ -1,14 +1,25 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Col, DatePicker, Form, Input, Radio, Row, Select, Space } from 'antd';
+import {
+  Checkbox,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+} from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import React from 'react';
+import React, { useState } from 'react';
+import { set } from '@firebase/database';
 
 const ClosedDateSidebar = () => {
+  const [isTo, setIsTo] = useState<boolean>(false);
   const {
     isShowClosedDateSidebar: isShow,
     setIsShowClosedDateSidebar: setIsShow,
@@ -77,8 +88,24 @@ const ClosedDateSidebar = () => {
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item label={<Radio>To</Radio>} name="to">
-                  <DatePicker className={controlClass} format="DD MMM YYYY" />
+                <Form.Item
+                  label={
+                    <Checkbox
+                      checked={isTo}
+                      onChange={() => {
+                        setIsTo((prev) => !prev);
+                      }}
+                    >
+                      To
+                    </Checkbox>
+                  }
+                  name="to"
+                >
+                  <DatePicker
+                    className={controlClass}
+                    disabled={!isTo}
+                    format="DD MMM YYYY"
+                  />
                 </Form.Item>
               </Col>
             </Row>

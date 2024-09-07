@@ -12,7 +12,7 @@ import {
 } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CustomRadio from '@/components/form/customRadio';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -34,7 +34,11 @@ const TypesAndPoliciesSidebar = () => {
   const { data: carryOverData } = useGetCarryOverRules();
   const { data: accrualRulesData } = useGetAccrualRules();
 
-  const { mutate: createLeaveType } = useCreateLeaveType();
+  const {
+    mutate: createLeaveType,
+    isLoading,
+    isSuccess,
+  } = useCreateLeaveType();
 
   const [form] = Form.useForm();
 
@@ -44,7 +48,8 @@ const TypesAndPoliciesSidebar = () => {
       key: 'cancel',
       className: 'h-[56px] text-base',
       size: 'large',
-      onClick: () => setIsShow(false),
+      loading: isLoading,
+      onClick: () => onClose(),
     },
     {
       label: 'Add',
@@ -52,6 +57,7 @@ const TypesAndPoliciesSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
+      loading: isLoading,
       onClick: () => {
         form.submit();
       },
@@ -70,6 +76,17 @@ const TypesAndPoliciesSidebar = () => {
       ? formatToOptions(accrualRulesData.items, 'title', 'id')
       : [];
 
+  const onClose = () => {
+    form.resetFields();
+    setIsShow(false);
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      onClose();
+    }
+  }, [isSuccess]);
+
   const onFinish = () => {
     const value = form.getFieldsValue();
     createLeaveType({
@@ -83,8 +100,6 @@ const TypesAndPoliciesSidebar = () => {
       carryOverRule: value.carryOverRule,
       description: value.description,
     });
-    form.resetFields();
-    setIsShow(false);
   };
 
   const onFinishFailed = () => {
@@ -99,7 +114,7 @@ const TypesAndPoliciesSidebar = () => {
     isShow && (
       <CustomDrawerLayout
         open={isShow}
-        onClose={() => setIsShow(false)}
+        onClose={() => onClose()}
         modalHeader={<CustomDrawerHeader>Leave Type</CustomDrawerHeader>}
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"

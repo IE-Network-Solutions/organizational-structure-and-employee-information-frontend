@@ -16,6 +16,7 @@ import { BreakTypeStatus, formatBreakTypeToStatus } from '@/helpers/formatTo';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
 import { localUserID } from '@/utils/constants';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 type LabelRender = SelectProps['labelRender'];
 
@@ -35,7 +36,7 @@ const CheckOutSidebar = () => {
     currentAttendance,
   } = useMyTimesheetStore();
 
-  const { mutate: setCurrentAttendance } = useSetCurrentAttendance();
+  const { mutate: setCurrentAttendance, isSuccess } = useSetCurrentAttendance();
 
   const [form] = Form.useForm();
 
@@ -81,19 +82,39 @@ const CheckOutSidebar = () => {
       ''
     );
   };
+  useEffect(() => {
+    if (isSuccess) {
+      form.resetFields();
+      setIsShowCheckOutSidebar(false);
+    }
+  }, [isSuccess]);
 
   const onFinish = () => {
-    const value = form.getFieldsValue();
-    setCurrentAttendance({
-      latitude: 23.5,
-      longitude: 44.5,
-      userId: localUserID,
-      isSignIn: false,
-      breakTypeId: value.type,
-    });
-    setCheckStatus(CheckStatus.breaking);
-    form.resetFields();
-    setIsShowCheckOutSidebar(false);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const value = form.getFieldsValue();
+          setCurrentAttendance({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            userId: localUserID,
+            isSignIn: false,
+            breakTypeId: value.type,
+          });
+        },
+        () => {
+          NotificationMessage.error({
+            message: `No access to geolocation`,
+            description: `To check-in/check-out we need to have access to geolocation.`,
+          });
+        },
+      );
+    } else {
+      NotificationMessage.error({
+        message: `No access to geolocation`,
+        description: `To check-in/check-out we need to have access to geolocation.`,
+      });
+    }
   };
 
   return (

@@ -122,7 +122,7 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
             <Switch
               checkedChildren={<CheckOutlined />}
               unCheckedChildren={<CloseOutlined />}
-              defaultChecked={type.isActive}
+              value={type.isActive}
               onChange={activeChange}
             />
             <ActionButton

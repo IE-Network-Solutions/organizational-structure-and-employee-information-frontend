@@ -2,7 +2,7 @@ import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesh
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import React, { useEffect, useState } from 'react';
 import UserCard from '@/components/common/userCard/userCard';
-import { Col, Row, Spin } from 'antd';
+import { Col, Row, Space, Spin } from 'antd';
 import InfoItem from './infoItem';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import CustomDrawerFooterButton, {
@@ -24,7 +24,7 @@ import {
   timeToHour,
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
-import { formatToAttendanceType } from '@/helpers/formatTo';
+import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 
 const ViewAttendanceSidebar = () => {
   const {
@@ -199,16 +199,22 @@ const ViewAttendanceSidebar = () => {
               <div className="text-sm text-gray-900 font-medium mb-2.5">
                 Status
               </div>
-              <StatusBadge
-                className="w-[155px] h-[25px]"
-                theme={
-                  AttendanceRecordTypeBadgeTheme[
-                    formatToAttendanceType(attendance)
-                  ]
-                }
-              >
-                {formatToAttendanceType(attendance)}
-              </StatusBadge>
+              <Space>
+                {formatToAttendanceStatuses(attendance).map((status) => (
+                  <StatusBadge
+                    className="w-[155px]"
+                    theme={AttendanceRecordTypeBadgeTheme[status.status]}
+                    key={status.status}
+                  >
+                    <div className="text-center">
+                      <div>{status.status}</div>
+                      {status.text && (
+                        <div className="font-normal">{status.text}</div>
+                      )}
+                    </div>
+                  </StatusBadge>
+                ))}
+              </Space>
             </div>
 
             <Row className="mb-6" gutter={24}>

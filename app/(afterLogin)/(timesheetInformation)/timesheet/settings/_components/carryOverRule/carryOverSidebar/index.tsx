@@ -1,8 +1,8 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Form, Input, InputNumber, Select, Space } from 'antd';
+import { Form, Input, InputNumber, Select, Space, Spin } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import React from 'react';
+import React, { useEffect } from 'react';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
@@ -16,7 +16,17 @@ const CarryOverSidebar = () => {
     setIsShowCarryOverRuleSidebar: setIsShow,
   } = useTimesheetSettingsStore();
 
-  const { mutate: createCarryOverRule } = useCreateCarryOverRule();
+  const {
+    mutate: createCarryOverRule,
+    isLoading,
+    isSuccess,
+  } = useCreateCarryOverRule();
+
+  useEffect(() => {
+    if (isSuccess) {
+      onClose();
+    }
+  }, [isSuccess]);
 
   const [form] = Form.useForm();
 
@@ -26,7 +36,8 @@ const CarryOverSidebar = () => {
       key: 'cancel',
       className: 'h-[56px] text-base',
       size: 'large',
-      onClick: () => setIsShow(false),
+      loading: isLoading,
+      onClick: () => onClose(),
     },
     {
       label: 'Add',
@@ -34,6 +45,7 @@ const CarryOverSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
+      loading: isLoading,
       onClick: () => form.submit(),
     },
   ];
@@ -56,6 +68,11 @@ const CarryOverSidebar = () => {
     },
   ];
 
+  const onClose = () => {
+    form.resetFields();
+    setIsShow(false);
+  };
+
   const onFinish = () => {
     const value = form.getFieldsValue();
     createCarryOverRule({
@@ -64,66 +81,66 @@ const CarryOverSidebar = () => {
       expiration: value.expiration,
       expirationPeriod: value.expirationPeriod,
     });
-    form.resetFields();
-    setIsShow(false);
   };
 
   return (
     isShow && (
       <CustomDrawerLayout
         open={isShow}
-        onClose={() => setIsShow(false)}
+        onClose={() => onClose()}
         modalHeader={<CustomDrawerHeader>Add Type</CustomDrawerHeader>}
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"
       >
-        <Form
-          layout="vertical"
-          requiredMark={CustomLabel}
-          autoComplete="off"
-          form={form}
-          className={itemClass}
-          onFinish={onFinish}
-        >
-          <Space direction="vertical" className="w-full" size={24}>
-            <Form.Item
-              label="Carry-over Name"
-              rules={[{ required: true, message: 'Required' }]}
-              name="title"
-            >
-              <Input className={controlClass} />
-            </Form.Item>
-            <Form.Item
-              label="Carry-over Limit"
-              rules={[{ required: true, message: 'Required' }]}
-              name="limit"
-            >
-              <InputNumber
-                min={1}
-                className="w-full py-[11px] mt-2.5"
-                placeholder="Input entitled days"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Carry-over Expiration"
-              rules={[{ required: true, message: 'Required' }]}
-              name="expiration"
-            >
-              <InputNumber
-                min={1}
-                className="w-full py-[11px] mt-2.5"
-                placeholder="Enter your days"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Carry-over Period"
-              rules={[{ required: true, message: 'Required' }]}
-              name="expirationPeriod"
-            >
-              <Select className={controlClass} options={periodOption} />
-            </Form.Item>
-          </Space>
-        </Form>
+        <Spin spinning={isLoading}>
+          <Form
+            layout="vertical"
+            requiredMark={CustomLabel}
+            autoComplete="off"
+            form={form}
+            className={itemClass}
+            onFinish={onFinish}
+          >
+            <Space direction="vertical" className="w-full" size={24}>
+              <Form.Item
+                label="Carry-over Name"
+                rules={[{ required: true, message: 'Required' }]}
+                name="title"
+              >
+                <Input className={controlClass} />
+              </Form.Item>
+              <Form.Item
+                label="Carry-over Limit"
+                rules={[{ required: true, message: 'Required' }]}
+                name="limit"
+              >
+                <InputNumber
+                  min={1}
+                  className="w-full py-[11px] mt-2.5"
+                  placeholder="Input entitled days"
+                />
+              </Form.Item>
+              <Form.Item
+                label="Carry-over Expiration"
+                rules={[{ required: true, message: 'Required' }]}
+                name="expiration"
+              >
+                <InputNumber
+                  min={1}
+                  className="w-full py-[11px] mt-2.5"
+                  placeholder="Enter your days"
+                />
+              </Form.Item>
+              <Form.Item
+                label="Carry-over Period"
+                rules={[{ required: true, message: 'Required' }]}
+                name="expirationPeriod"
+              >
+                <Select className={controlClass} options={periodOption} />
+              </Form.Item>
+            </Space>
+          </Form>
+        </Spin>
       </CustomDrawerLayout>
     )
   );
