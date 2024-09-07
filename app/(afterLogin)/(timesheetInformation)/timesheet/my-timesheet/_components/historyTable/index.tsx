@@ -30,11 +30,20 @@ const HistoryTable = () => {
   const { setIsShowLeaveRequestSidebar: isShow, setLeaveRequestSidebarData } =
     useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
-  const { page, limit, setPage, setLimit } = usePagination(1, 10);
+  const {
+    page,
+    limit,
+    orderBy,
+    orderDirection,
+    setPage,
+    setLimit,
+    setOrderBy,
+    setOrderDirection,
+  } = usePagination(1, 10);
   const [filter, setFilter] =
     useState<Partial<LeaveRequestBody['filter']>>(userFilter);
   const { data, isFetching, refetch } = useGetLeaveRequest(
-    { page, limit },
+    { page, limit, orderBy, orderDirection },
     { filter },
   );
   const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
@@ -44,11 +53,12 @@ const HistoryTable = () => {
       setTableData(() =>
         data.items.map((item) => ({
           key: item.id,
-          from: item.startAt,
-          to: item.endAt,
-          total: item.days,
-          type: typeof item.leaveType === 'string' ? '' : item.leaveType.title,
-          attachment: item.justificationDocument,
+          startAt: item.startAt,
+          endAt: item.endAt,
+          days: item.days,
+          leaveType:
+            typeof item.leaveType === 'string' ? '' : item.leaveType.title,
+          justificationDocument: item.justificationDocument,
           status: item.status,
           action: item,
         })),
@@ -59,38 +69,46 @@ const HistoryTable = () => {
   const columns: TableColumnsType<any> = [
     {
       title: 'From',
-      dataIndex: 'from',
-      key: 'from',
+      dataIndex: 'startAt',
+      key: 'startAt',
+      sorter: true,
       render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
     },
     {
       title: 'To',
-      dataIndex: 'to',
-      key: 'to',
+      dataIndex: 'endAt',
+      key: 'endAt',
+      sorter: true,
       render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
     },
     {
       title: 'Total',
-      dataIndex: 'total',
-      key: 'total',
+      dataIndex: 'days',
+      key: 'days',
+      sorter: true,
       render: (text: string) => <div>{text}</div>,
     },
     {
       title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
+      dataIndex: 'leaveType',
+      key: 'leaveType',
+      sorter: true,
       render: (text: string) => <div>{text}</div>,
     },
     {
       title: 'Attachment',
-      dataIndex: 'attachment',
-      key: 'attachment',
-      render: (text: string) => (
-        <div className="flex justify-between align-middle">
-          <div>{text}</div>
-          <TbFileDownload size={14} />
-        </div>
-      ),
+      dataIndex: 'justificationDocument',
+      key: 'justificationDocument',
+      sorter: true,
+      render: (text: string) =>
+        text ? (
+          <div className="flex justify-between align-middle">
+            <div>{text}</div>
+            <TbFileDownload size={14} />
+          </div>
+        ) : (
+          '-'
+        ),
     },
     {
       title: 'Status',
@@ -103,7 +121,7 @@ const HistoryTable = () => {
       ),
     },
     {
-      title: '',
+      title: 'Action',
       dataIndex: 'action',
       key: 'action',
       render: (item: LeaveRequest) =>
@@ -187,13 +205,14 @@ const HistoryTable = () => {
         columns={columns}
         loading={isFetching}
         dataSource={tableData}
-        pagination={defaultTablePagination(
-          data?.meta?.totalItems,
-          (page, pageSize) => {
-            setPage(page);
-            setLimit(pageSize);
-          },
-        )}
+        pagination={defaultTablePagination(data?.meta?.totalItems)}
+        onChange={(pagination, filters, sorter: any) => {
+          console.log({ pagination, filters, sorter });
+          setPage(pagination.current ?? 1);
+          setLimit(pagination.pageSize ?? 10);
+          setOrderDirection(sorter['order']);
+          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+        }}
       />
     </>
   );
