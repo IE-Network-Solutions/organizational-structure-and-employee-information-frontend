@@ -44,7 +44,7 @@ const CheckControl = () => {
 
   const setAttendance = (isSignIn: boolean) => {
     // TODO: notify about enable geolocation
-    if (location.lat && location.lon) {
+    if (location.lat && location.lng) {
       setCurrentAttendanceData({
         latitude: location.lat,
         longitude: location.lng,
