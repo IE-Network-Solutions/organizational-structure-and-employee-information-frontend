@@ -21,6 +21,7 @@ type MyTimesheetState = {
   currentAttendance: AttendanceRecord | null;
   breakTypes: BreakType[];
   viewAttendanceId: string | null;
+  location: { lat: null | number; lng: null | number };
 };
 
 type MyTimesheetAction = {
@@ -34,6 +35,7 @@ type MyTimesheetAction = {
   setCurrentAttendance: (currentAttendance: AttendanceRecord | null) => void;
   setBreakTypes: (breakTypes: BreakType[]) => void;
   setViewAttendanceId: (viewAttendanceId: string | null) => void;
+  setLocation: (location: { lat: null | number; lng: null | number }) => void;
 };
 
 const useMyTimesheetSlice: StateCreator<
@@ -99,6 +101,11 @@ const useMyTimesheetSlice: StateCreator<
   viewAttendanceId: null,
   setViewAttendanceId: (viewAttendanceId: string | null) => {
     set({ viewAttendanceId });
+  },
+
+  location: { lat: null, lng: null },
+  setLocation: (location) => {
+    set({ location });
   },
 });
 

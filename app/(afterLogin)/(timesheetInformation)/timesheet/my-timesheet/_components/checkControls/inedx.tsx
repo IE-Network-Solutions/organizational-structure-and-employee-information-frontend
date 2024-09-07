@@ -15,16 +15,13 @@ import {
 import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
 
 const CheckControl = () => {
-  const [location, setLocation] = useState<{
-    lat: null | number;
-    lon: null | number;
-  }>({ lat: null, lon: null });
   const [workTime, setWorkTime] = useState<string>('');
   const {
     checkStatus,
     setIsShowCheckOutSidebar,
     currentAttendance,
     setCurrentAttendance,
+    location,
   } = useMyTimesheetStore();
 
   const { data: currentAttendanceData, isFetching } = useGetCurrentAttendance();
@@ -45,25 +42,12 @@ const CheckControl = () => {
     }
   }, [checkStatus, currentAttendance]);
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setLocation({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
-        });
-      });
-    } else {
-      // TODO: notify about no geolocation
-    }
-  }, []);
-
   const setAttendance = (isSignIn: boolean) => {
     // TODO: notify about enable geolocation
     if (location.lat && location.lon) {
       setCurrentAttendanceData({
         latitude: location.lat,
-        longitude: location.lon,
+        longitude: location.lng,
         isSignIn,
         userId: localUserID,
       });

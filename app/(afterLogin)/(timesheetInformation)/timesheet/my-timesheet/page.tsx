@@ -15,10 +15,18 @@ import LeaveRequestSidebar from './_components/leaveRequestSidebar';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 
 const MyTimesheet = () => {
-  const { setLeaveTypes, setAllowedAreas, setBreakTypes } =
-    useMyTimesheetStore();
+  const {
+    setLeaveTypes,
+    setAllowedAreas,
+    setBreakTypes,
+    location,
+    setLocation,
+  } = useMyTimesheetStore();
   const { data: leaveTypesData } = useGetLeaveTypes();
-  const { data: allowAreasData } = useGetAllowedAreas(23.5, 44.5);
+  const { data: allowAreasData } = useGetAllowedAreas({
+    lat: location.lat,
+    lng: location.lng,
+  });
   const { data: breakTypeData } = useGetBreakTypes();
 
   useEffect(() => {
@@ -32,6 +40,19 @@ const MyTimesheet = () => {
   useEffect(() => {
     setBreakTypes(breakTypeData?.items ?? []);
   }, [breakTypeData]);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      });
+    } else {
+      // TODO: notify about no geolocation
+    }
+  }, []);
 
   return (
     <>
