@@ -35,7 +35,6 @@ const LeaveRequestManagementSidebar = () => {
     leaveRequestId,
     setLeaveRequestId,
   } = useLeaveManagementStore();
-  const { mutate: updateLeaveRequest, isLoading } = useSetLeaveRequest();
   const { mutate: changeStatus, isLoading: isLoadingUpdate } =
     useSetStatusToLeaveRequest();
 
@@ -70,22 +69,19 @@ const LeaveRequestManagementSidebar = () => {
 
   const onClose = (isEdit: boolean = false, isApprove: boolean = false) => {
     if (isEdit) {
-      // TODO: refactor changeStatus. Need add comment on data
-      if (enableComment && comment && leaveRequest) {
-        const { leaveType, ...other } = leaveRequest;
-        updateLeaveRequest({
-          ...other,
-          leaveType: typeof leaveType === 'string' ? leaveType : leaveType.id,
-          comment: comment.text,
-        });
-      }
       if (isApprove) {
         changeStatus({
+          ...(enableComment &&
+            comment &&
+            leaveRequest && { comment: comment.text }),
           leaveRequestId: leaveRequestId ?? '',
           status: LeaveRequestStatus.APPROVED,
         });
       } else {
         changeStatus({
+          ...(enableComment &&
+            comment &&
+            leaveRequest && { comment: comment.text }),
           leaveRequestId: leaveRequestId ?? '',
           status: LeaveRequestStatus.DECLINED,
         });
@@ -104,7 +100,7 @@ const LeaveRequestManagementSidebar = () => {
       className: 'h-[56px] text-base bg-error',
       size: 'large',
       type: 'primary',
-      loading: isLoading || isLoadingUpdate,
+      loading: isLoadingUpdate,
       onClick: () => {
         onClose(true);
       },
@@ -115,7 +111,7 @@ const LeaveRequestManagementSidebar = () => {
       className: 'h-[56px] text-base bg-success',
       size: 'large',
       type: 'primary',
-      loading: isLoading || isLoadingUpdate,
+      loading: isLoadingUpdate,
       onClick: () => {
         onClose(true, true);
       },
@@ -170,7 +166,7 @@ const LeaveRequestManagementSidebar = () => {
             <Spin />
           </div>
         ) : (
-          <Spin spinning={isFetching || isLoading || isLoadingUpdate}>
+          <Spin spinning={isFetching || isLoadingUpdate}>
             <div className="flex items-center gap-[15px] mb-8">
               <div className="text-xs text-gray-900">Requester:</div>
               <UserCard name="Name" size="small" />
