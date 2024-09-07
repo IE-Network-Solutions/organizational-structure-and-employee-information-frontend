@@ -12,19 +12,13 @@ import CheckControl from './_components/checkControls/inedx';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import { useGetAllowedAreas } from '@/store/server/features/timesheet/allowedArea/queries';
 import LeaveRequestSidebar from './_components/leaveRequestSidebar';
-import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 
 const MyTimesheet = () => {
-  const {
-    setLeaveTypes,
-    setAllowedAreas,
-    setCurrentAttendance,
-    setBreakTypes,
-  } = useMyTimesheetStore();
+  const { setLeaveTypes, setAllowedAreas, setBreakTypes } =
+    useMyTimesheetStore();
   const { data: leaveTypesData } = useGetLeaveTypes();
   const { data: allowAreasData } = useGetAllowedAreas(23.5, 44.5);
-  const { data: currentAttendance } = useGetCurrentAttendance();
   const { data: breakTypeData } = useGetBreakTypes();
 
   useEffect(() => {
@@ -34,10 +28,6 @@ const MyTimesheet = () => {
   useEffect(() => {
     setAllowedAreas(allowAreasData?.items ?? []);
   }, [allowAreasData]);
-
-  useEffect(() => {
-    setCurrentAttendance(currentAttendance ? currentAttendance.item : null);
-  }, [currentAttendance]);
 
   useEffect(() => {
     setBreakTypes(breakTypeData?.items ?? []);

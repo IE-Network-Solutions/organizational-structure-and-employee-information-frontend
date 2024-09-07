@@ -12,13 +12,30 @@ import {
   timeToHour,
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
+import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
 
 const CheckControl = () => {
+  const [location, setLocation] = useState<{
+    lat: null | number;
+    lon: null | number;
+  }>({ lat: null, lon: null });
   const [workTime, setWorkTime] = useState<string>('');
-  const { checkStatus, setIsShowCheckOutSidebar, currentAttendance } =
-    useMyTimesheetStore();
+  const {
+    checkStatus,
+    setIsShowCheckOutSidebar,
+    currentAttendance,
+    setCurrentAttendance,
+  } = useMyTimesheetStore();
 
-  const { mutate: setCurrentAttendance, isLoading } = useSetCurrentAttendance();
+  const { data: currentAttendanceData, isFetching } = useGetCurrentAttendance();
+  const { mutate: setCurrentAttendanceData, isLoading } =
+    useSetCurrentAttendance();
+
+  useEffect(() => {
+    setCurrentAttendance(
+      currentAttendanceData ? currentAttendanceData.item : null,
+    );
+  }, [currentAttendanceData]);
 
   useEffect(() => {
     if (checkStatus === CheckStatus.breaking && currentAttendance) {
@@ -28,6 +45,31 @@ const CheckControl = () => {
     }
   }, [checkStatus, currentAttendance]);
 
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setLocation({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        });
+      });
+    } else {
+      // TODO: notify about no geolocation
+    }
+  }, []);
+
+  const setAttendance = (isSignIn: boolean) => {
+    // TODO: notify about enable geolocation
+    if (location.lat && location.lon) {
+      setCurrentAttendanceData({
+        latitude: location.lat,
+        longitude: location.lon,
+        isSignIn,
+        userId: localUserID,
+      });
+    }
+  };
+
   switch (checkStatus) {
     case CheckStatus.notStarted:
       return (
@@ -36,14 +78,9 @@ const CheckControl = () => {
           size="large"
           type="primary"
           icon={<GoClock size={20} />}
-          loading={isLoading}
+          loading={isLoading || isFetching}
           onClick={() => {
-            setCurrentAttendance({
-              latitude: 23.5,
-              longitude: 44.5,
-              isSignIn: true,
-              userId: localUserID,
-            });
+            setAttendance(true);
           }}
         >
           Check in
@@ -56,7 +93,7 @@ const CheckControl = () => {
             className="h-14 text-base px-2"
             size="large"
             icon={<GoClock size={20} />}
-            loading={isLoading}
+            loading={isLoading || isFetching}
             onClick={() => setIsShowCheckOutSidebar(true)}
           >
             Break Check Out
@@ -65,14 +102,9 @@ const CheckControl = () => {
             className="h-14 text-base"
             size="large"
             icon={<GoClock size={20} />}
-            loading={isLoading}
+            loading={isLoading || isFetching}
             onClick={() => {
-              setCurrentAttendance({
-                latitude: 23.5,
-                longitude: 44.5,
-                isSignIn: false,
-                userId: localUserID,
-              });
+              setAttendance(false);
             }}
           >
             Check out
@@ -92,14 +124,9 @@ const CheckControl = () => {
             className="h-14 text-base"
             size="large"
             icon={<GoClock size={20} />}
-            loading={isLoading}
+            loading={isLoading || isFetching}
             onClick={() => {
-              setCurrentAttendance({
-                latitude: 23.5,
-                longitude: 44.5,
-                isSignIn: true,
-                userId: localUserID,
-              });
+              setAttendance(true);
             }}
           >
             Check in
