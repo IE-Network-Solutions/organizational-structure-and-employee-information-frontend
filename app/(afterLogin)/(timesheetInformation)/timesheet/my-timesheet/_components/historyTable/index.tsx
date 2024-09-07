@@ -207,7 +207,6 @@ const HistoryTable = () => {
         dataSource={tableData}
         pagination={defaultTablePagination(data?.meta?.totalItems)}
         onChange={(pagination, filters, sorter: any) => {
-          console.log({ pagination, filters, sorter });
           setPage(pagination.current ?? 1);
           setLimit(pagination.pageSize ?? 10);
           setOrderDirection(sorter['order']);

@@ -33,19 +33,29 @@ const AttendanceTable = () => {
   };
   const { setIsShowViewSidebar, setViewAttendanceId } = useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
-  const { page, limit, setPage, setLimit } = usePagination(1, 10);
+  const {
+    page,
+    limit,
+    orderBy,
+    orderDirection,
+    setPage,
+    setLimit,
+    setOrderBy,
+    setOrderDirection,
+  } = usePagination(1, 10);
   const [filter, setFilter] =
     useState<Partial<AttendanceRequestBody['filter']>>(userFilter);
   const { data, isFetching, refetch } = useGetAttendances(
-    { page, limit },
+    { page, limit, orderBy, orderDirection },
     { filter },
   );
 
   const columns: TableColumnsType<any> = [
     {
       title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      sorter: true,
       render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
     },
     {
@@ -151,7 +161,7 @@ const AttendanceTable = () => {
         const calcTotal = calculateAttendanceRecordToTotalWorkTime(item);
         return {
           key: item.id,
-          date: item.createdAt,
+          createdAt: item.createdAt,
           clockIn: item.startAt,
           locationIn: item?.geolocations[0]?.allowedArea?.title ?? '',
           clockOut: item.endAt,
@@ -207,13 +217,13 @@ const AttendanceTable = () => {
         columns={columns}
         dataSource={tableData}
         loading={isFetching}
-        pagination={defaultTablePagination(
-          data?.meta?.totalItems,
-          (page, pageSize) => {
-            setPage(page);
-            setLimit(pageSize);
-          },
-        )}
+        pagination={defaultTablePagination(data?.meta?.totalItems)}
+        onChange={(pagination, filters, sorter: any) => {
+          setPage(pagination.current ?? 1);
+          setLimit(pagination.pageSize ?? 10);
+          setOrderDirection(sorter['order']);
+          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+        }}
       />
     </>
   );

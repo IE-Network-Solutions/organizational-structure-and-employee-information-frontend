@@ -28,16 +28,29 @@ import { defaultTablePagination } from '@/utils/defaultTablePagination';
 
 const EmployeeAttendanceTable = () => {
   const [tableData, setTableData] = useState<any[]>([]);
-  const { page, limit, setPage, setLimit } = usePagination(1, 10);
+  const {
+    page,
+    limit,
+    orderBy,
+    orderDirection,
+    setPage,
+    setLimit,
+    setOrderBy,
+    setOrderDirection,
+  } = usePagination(1, 10);
   const [filter, setFilter] =
     useState<Partial<AttendanceRequestBody['filter']>>();
-  const { data, isFetching } = useGetAttendances({ page, limit }, { filter });
+  const { data, isFetching } = useGetAttendances(
+    { page, limit, orderBy, orderDirection },
+    { filter },
+  );
 
   const columns: TableColumnsType<any> = [
     {
       title: 'Employee Name',
-      dataIndex: 'employee',
-      key: 'employee',
+      dataIndex: 'createdBy',
+      key: 'createdBy',
+      sorter: true,
       render: (employee: any) =>
         employee ? (
           <div className="flex items-center gap-1.5">
@@ -55,8 +68,9 @@ const EmployeeAttendanceTable = () => {
     },
     {
       title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      sorter: true,
       render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
     },
     {
@@ -132,8 +146,8 @@ const EmployeeAttendanceTable = () => {
         const calcTotal = calculateAttendanceRecordToTotalWorkTime(item);
         return {
           key: item.id,
-          employee: item.createdBy,
-          date: item.createdAt,
+          createdBy: item.createdBy,
+          createdAt: item.createdAt,
           clockIn: item.startAt,
           clockOut: item.endAt,
           status: item,
@@ -172,13 +186,13 @@ const EmployeeAttendanceTable = () => {
         columns={columns}
         dataSource={tableData}
         rowSelection={{ checkStrictly: false }}
-        pagination={defaultTablePagination(
-          data?.meta?.totalItems,
-          (page, pageSize) => {
-            setPage(page);
-            setLimit(pageSize);
-          },
-        )}
+        pagination={defaultTablePagination(data?.meta?.totalItems)}
+        onChange={(pagination, filters, sorter: any) => {
+          setPage(pagination.current ?? 1);
+          setLimit(pagination.pageSize ?? 10);
+          setOrderDirection(sorter['order']);
+          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+        }}
       />
     </>
   );

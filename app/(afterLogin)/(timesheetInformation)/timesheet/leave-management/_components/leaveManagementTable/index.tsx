@@ -22,15 +22,28 @@ const LeaveManagementTable = () => {
   const { setIsShowLeaveRequestManagementSidebar, setLeaveRequestId } =
     useLeaveManagementStore();
   const [tableData, setTableData] = useState<any[]>([]);
-  const { page, limit, setPage, setLimit } = usePagination(1, 10);
+  const {
+    page,
+    limit,
+    orderBy,
+    orderDirection,
+    setPage,
+    setLimit,
+    setOrderBy,
+    setOrderDirection,
+  } = usePagination(1, 10);
   const [filter, setFilter] = useState<Partial<LeaveRequestBody['filter']>>({});
-  const { data, isFetching } = useGetLeaveRequest({ page, limit }, { filter });
+  const { data, isFetching } = useGetLeaveRequest(
+    { page, limit, orderBy, orderDirection },
+    { filter },
+  );
 
   const columns: TableColumnsType<any> = [
     {
       title: 'Employee Name',
-      dataIndex: 'employee',
-      key: 'employee',
+      dataIndex: 'createdBy',
+      key: 'createdBy',
+      sorter: true,
       render: (employee: any) =>
         employee ? (
           <div className="flex items-center gap-1.5">
@@ -48,26 +61,30 @@ const LeaveManagementTable = () => {
     },
     {
       title: 'from',
-      dataIndex: 'from',
-      key: 'from',
+      dataIndex: 'startAt',
+      key: 'startAt',
+      sorter: true,
       render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
     },
     {
       title: 'to',
-      dataIndex: 'to',
-      key: 'to',
+      dataIndex: 'endAt',
+      key: 'endAt',
+      sorter: true,
       render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
     },
     {
       title: 'total',
-      dataIndex: 'total',
-      key: 'total',
+      dataIndex: 'days',
+      key: 'days',
+      sorter: true,
       render: (text: string) => <div>{text}</div>,
     },
     {
       title: 'type',
-      dataIndex: 'type',
-      key: 'type',
+      dataIndex: 'leaveType',
+      key: 'leaveType',
+      sorter: true,
       render: (text: string) => <div>{text}</div>,
     },
     {
@@ -101,10 +118,12 @@ const LeaveManagementTable = () => {
       setTableData(() =>
         data.items.map((item) => ({
           key: item.id,
-          from: item.startAt,
-          to: item.endAt,
-          total: item.days,
-          type: typeof item.leaveType === 'string' ? '' : item.leaveType.title,
+          createdBy: item.createdBy,
+          startAt: item.startAt,
+          endAt: item.endAt,
+          days: item.days,
+          leaveType:
+            typeof item.leaveType === 'string' ? '' : item.leaveType.title,
           attachment: item.justificationDocument,
           status: item.status,
         })),
@@ -142,13 +161,13 @@ const LeaveManagementTable = () => {
         dataSource={tableData}
         loading={isFetching}
         rowSelection={{ checkStrictly: false }}
-        pagination={defaultTablePagination(
-          data?.meta?.totalItems,
-          (page, pageSize) => {
-            setPage(page);
-            setLimit(pageSize);
-          },
-        )}
+        pagination={defaultTablePagination(data?.meta?.totalItems)}
+        onChange={(pagination, filters, sorter: any) => {
+          setPage(pagination.current ?? 1);
+          setLimit(pagination.pageSize ?? 10);
+          setOrderDirection(sorter['order']);
+          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+        }}
         onRow={(rowData: CommonObject) => {
           return {
             onClick: () => {
