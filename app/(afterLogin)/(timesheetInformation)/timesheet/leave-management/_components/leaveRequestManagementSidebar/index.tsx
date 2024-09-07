@@ -20,10 +20,7 @@ import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
 import { CommonObject } from '@/types/commons/commonObject';
-import {
-  useSetLeaveRequest,
-  useSetStatusToLeaveRequest,
-} from '@/store/server/features/timesheet/leaveRequest/mutation';
+import { useSetStatusToLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 
 const LeaveRequestManagementSidebar = () => {
   const [leaveRequest, setLeaveRequest] = useState<LeaveRequest>();

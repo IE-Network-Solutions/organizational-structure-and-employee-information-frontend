@@ -23,6 +23,19 @@ const deleteCarryOverRule = async (id: string) => {
   });
 };
 
+const updateCarryOverRuleActive = async (data: {
+  id: string;
+  isActive: boolean;
+}) => {
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/carry-over-rule/active`,
+    method: 'POST',
+    headers: requestHeader(),
+    params: { id: data.id },
+    data: { isActive: data.isActive },
+  });
+};
+
 export const useCreateCarryOverRule = () => {
   const queryClient = useQueryClient();
   return useMutation(createCarryOverRule, {
@@ -38,6 +51,18 @@ export const useCreateCarryOverRule = () => {
 export const useDeleteCarryOverRule = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteCarryOverRule, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('carry-over-rule');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+
+export const useUpdateCarryOverRuleActive = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateCarryOverRuleActive, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('carry-over-rule');

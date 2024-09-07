@@ -23,6 +23,19 @@ const deleteLeaveType = async (id: string) => {
   });
 };
 
+const updateLeaveTypeActive = async (data: {
+  id: string;
+  isActive: boolean;
+}) => {
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/leave-type/active`,
+    method: 'POST',
+    headers: requestHeader(),
+    params: { id: data.id },
+    data: { isActive: data.isActive },
+  });
+};
+
 export const useCreateLeaveType = () => {
   const queryClient = useQueryClient();
   return useMutation(createLeaveType, {
@@ -38,6 +51,18 @@ export const useCreateLeaveType = () => {
 export const useDeleteLeaveType = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteLeaveType, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('leave-type');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+
+export const useUpdateLeaveTypeActive = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateLeaveTypeActive, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('leave-type');
