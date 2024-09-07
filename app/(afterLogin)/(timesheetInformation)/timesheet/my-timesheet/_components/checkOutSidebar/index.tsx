@@ -32,6 +32,7 @@ const CheckOutSidebar = () => {
     setIsShowCheckOutSidebar,
     setCheckStatus,
     breakTypes,
+    currentAttendance,
   } = useMyTimesheetStore();
 
   const { mutate: setCurrentAttendance } = useSetCurrentAttendance();
@@ -43,12 +44,12 @@ const CheckOutSidebar = () => {
       return {
         label: item.title,
         value: item.id,
-        ...formatBreakTypeToStatus(item),
+        ...formatBreakTypeToStatus(item, currentAttendance),
       };
     });
 
     setOptions(nOptions);
-  }, [breakTypes]);
+  }, [breakTypes, currentAttendance]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {

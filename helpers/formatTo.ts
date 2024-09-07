@@ -46,10 +46,28 @@ export interface BreakTypeStatus {
   disabled: boolean;
 }
 
-export const formatBreakTypeToStatus = (item: BreakType): BreakTypeStatus => {
+export const formatBreakTypeToStatus = (
+  item: BreakType,
+  currentAttendance: AttendanceRecord | null,
+): BreakTypeStatus => {
   const itemStartAt = new Date();
   const itemEndAt = new Date();
   const now = Date.now();
+
+  if (currentAttendance) {
+    const takenBreak = currentAttendance.attendanceBreaks?.find(
+      (itemBreak) => itemBreak.breakTypeId === item.id,
+    );
+    if (takenBreak) {
+      return {
+        status: {
+          text: 'Checked',
+          theme: StatusBadgeTheme.success,
+        },
+        disabled: true,
+      };
+    }
+  }
 
   const splitTime = (time: string) => time.split(':');
   itemStartAt.setHours(
