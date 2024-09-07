@@ -85,6 +85,8 @@ const useMyTimesheetSlice: StateCreator<
       } else {
         set({ checkStatus: CheckStatus.started });
       }
+    } else {
+      set({ checkStatus: CheckStatus.notStarted });
     }
     set({ currentAttendance });
   },

@@ -15,14 +15,10 @@ import {
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
-  const {
-    checkStatus,
-    setIsShowCheckOutSidebar,
-    setCheckStatus,
-    currentAttendance,
-  } = useMyTimesheetStore();
+  const { checkStatus, setIsShowCheckOutSidebar, currentAttendance } =
+    useMyTimesheetStore();
 
-  const { mutate: setCurrentAttendance } = useSetCurrentAttendance();
+  const { mutate: setCurrentAttendance, isLoading } = useSetCurrentAttendance();
 
   useEffect(() => {
     if (checkStatus === CheckStatus.breaking && currentAttendance) {
@@ -40,6 +36,7 @@ const CheckControl = () => {
           size="large"
           type="primary"
           icon={<GoClock size={20} />}
+          loading={isLoading}
           onClick={() => {
             setCurrentAttendance({
               latitude: 23.5,
@@ -47,7 +44,6 @@ const CheckControl = () => {
               isSignIn: true,
               userId: localUserID,
             });
-            setCheckStatus(CheckStatus.started);
           }}
         >
           Check in
@@ -60,6 +56,7 @@ const CheckControl = () => {
             className="h-14 text-base px-2"
             size="large"
             icon={<GoClock size={20} />}
+            loading={isLoading}
             onClick={() => setIsShowCheckOutSidebar(true)}
           >
             Break Check Out
@@ -68,6 +65,7 @@ const CheckControl = () => {
             className="h-14 text-base"
             size="large"
             icon={<GoClock size={20} />}
+            loading={isLoading}
             onClick={() => {
               setCurrentAttendance({
                 latitude: 23.5,
@@ -75,7 +73,6 @@ const CheckControl = () => {
                 isSignIn: false,
                 userId: localUserID,
               });
-              setCheckStatus(CheckStatus.notStarted);
             }}
           >
             Check out
@@ -95,6 +92,7 @@ const CheckControl = () => {
             className="h-14 text-base"
             size="large"
             icon={<GoClock size={20} />}
+            loading={isLoading}
             onClick={() => {
               setCurrentAttendance({
                 latitude: 23.5,
@@ -102,7 +100,6 @@ const CheckControl = () => {
                 isSignIn: true,
                 userId: localUserID,
               });
-              setCheckStatus(CheckStatus.started);
             }}
           >
             Check in
