@@ -17,7 +17,10 @@ const CommentCard: FC<CommentCardProps> = ({ text, attachments }) => {
           <span className="text-gray-900 font-bold">Caleb Abreham</span>
           <span className="text-gray-500">Commented</span>
         </div>
-        <div className="text-xs text-gray-800 leading-5">{text}</div>
+        <div
+          className="text-xs text-gray-800 leading-5"
+          dangerouslySetInnerHTML={{ __html: text }}
+        ></div>
         <div className="flex flex-wrap items-center gap-1 mt-2">
           {attachments &&
             attachments.map((item) => (
