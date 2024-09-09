@@ -33,7 +33,7 @@ const Login: React.FC = () => {
   } = useAuthenticationStore();
 
   const { data: fetchedTenantId, refetch: fetchTenantId } = useGetTenantId();
-  const router=useRouter()
+  const router = useRouter();
   // Update tenantId in store when fetched
   useEffect(() => {
     if (fetchedTenantId?.tenantId) {
@@ -42,9 +42,7 @@ const Login: React.FC = () => {
       router.push(`/employees/manage-employees`);
     }
   }, [fetchedTenantId, setTenantId]);
-  
 
-  
   // Handle Google sign-in
   const handleGoogleSignIn = async () => {
     setError('');
@@ -52,7 +50,7 @@ const Login: React.FC = () => {
       const response = await signInWithPopup(auth, googleProvider);
       const user = response.user;
       const uId = user.uid;
-  
+
       // Get the ID token
       const idToken = await user.getIdToken();
 

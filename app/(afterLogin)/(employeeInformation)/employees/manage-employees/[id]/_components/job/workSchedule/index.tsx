@@ -42,7 +42,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
   } = useEmployeeManagementStore();
   const { mutate: updateEmployeeJobInformation } =
     useUpdateEmployeeJobInformation();
-  const { data: employeeData,isLoading } = useGetEmployee(id);
+  const { data: employeeData, isLoading } = useGetEmployee(id);
   const { data: workSchedules } = useGetWorkSchedules();
   const [form] = Form.useForm();
 
@@ -118,10 +118,15 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
   };
   return (
     <Card
-        loading={isLoading}
-        title="Work Schedule"
-        extra={<LuPencil className='cursor-pointer' onClick={() => handleEditChange('workSchedule')} />}
-        className="my-6 mt-0"
+      loading={isLoading}
+      title="Work Schedule"
+      extra={
+        <LuPencil
+          className="cursor-pointer"
+          onClick={() => handleEditChange('workSchedule')}
+        />
+      }
+      className="my-6 mt-0"
     >
       {!edit.workSchedule ? (
         <Row gutter={[16, 24]}>

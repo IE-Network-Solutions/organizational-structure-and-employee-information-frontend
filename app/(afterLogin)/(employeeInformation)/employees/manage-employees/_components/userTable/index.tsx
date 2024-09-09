@@ -153,7 +153,6 @@ const UserTable = () => {
         <div className="flex gap-4 text-white">
           <Link href={`manage-employees/${item?.id}`}>
             <Button
-              
               id={`editUserButton${item?.id}`}
               disabled={item?.deletedAt !== null}
               className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "

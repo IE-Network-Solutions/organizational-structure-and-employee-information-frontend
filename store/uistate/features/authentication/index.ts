@@ -19,12 +19,11 @@ export const useAuthenticationStore = create<StoreState>()(
   devtools(
     persist(
       (set) => ({
-        
-        token:'',
+        token: '',
         setToken: (token: string) => {
-          setCookie('token' , token ,30 ),
-          set({ token })},
-        tenantId:'',
+          setCookie('token', token, 30), set({ token });
+        },
+        tenantId: '',
         setTenantId: (tenantId: string) => set({ tenantId }),
         localId: '',
         setLocalId: (localId: string) => set({ localId }),
