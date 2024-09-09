@@ -133,25 +133,6 @@ const LeaveRequestSidebar = () => {
 
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[54px] w-full';
-  const customFieldsClass = classNames('', undefined, [
-    'font-semibold',
-    'text-sm',
-    'text-gray-900',
-    'h-[54px]',
-    'rounded-lg',
-    'border',
-    'border-gray-200',
-    'flex',
-    'items-center',
-    'justify-between',
-    'hover:border-primary',
-    'transition-colors',
-    'duration-150',
-    'px-[11px]',
-    'cursor-pointer',
-    'w-full',
-  ]);
-
   const onChangeIsHalfDay = (isHalf: any) => {
     form.setFieldValue('isHalfDay', !!isHalf);
   };
