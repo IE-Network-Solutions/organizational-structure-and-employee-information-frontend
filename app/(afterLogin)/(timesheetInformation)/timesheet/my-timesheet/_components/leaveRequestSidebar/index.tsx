@@ -27,6 +27,7 @@ import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';
 import { useEffect, useState } from 'react';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
+import CustomUpload from '@/components/form/customUpload';
 
 const LeaveRequestSidebar = () => {
   const [filter, setFilter] = useState<Partial<LeaveRequestBody['filter']>>({});
@@ -266,24 +267,17 @@ const LeaveRequestSidebar = () => {
                 label="Attachment"
                 valuePropName="fileList"
                 className={itemClass}
+                getValueFromEvent={(e) => {
+                  return Array.isArray(e) ? e : e && e.fileList;
+                }}
               >
-                <Upload
+                <CustomUpload
                   className="w-full"
-                  accept=".pdf,.docx,.png,.jpeg"
+                  accept=".pdf,.docx,.png,.jpeg,.jpg"
                   name="attachment"
                   listType="text"
                   maxCount={1}
-                >
-                  <button
-                    type="button"
-                    className={classNames('mt-2.5', undefined, [
-                      customFieldsClass,
-                    ])}
-                  >
-                    Upload attachment
-                    <TbFileUpload size={18} className="text-gray-900" />
-                  </button>
-                </Upload>
+                />
               </Form.Item>
               <div className="text-xs font-medium text-gray-600 text-center">
                 Max file size : 5MB. File format : pdf, docx, png, and jpeg
