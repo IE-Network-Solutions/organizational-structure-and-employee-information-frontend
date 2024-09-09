@@ -8,7 +8,10 @@ import {
 } from '@/store/server/features/timesheet/attendance/interface';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
-import { AttendanceRecord } from '@/types/timesheet/attendance';
+import {
+  AttendanceImport,
+  AttendanceRecord,
+} from '@/types/timesheet/attendance';
 
 const getAttendances = async (
   query: RequestCommonQueryData,
@@ -75,8 +78,8 @@ export const useGetAttendanceImportLogs = (
   query: RequestCommonQueryData,
   data: Partial<AttendanceImportLogsBody>,
 ) => {
-  return useQuery<ApiResponse<AttendanceRecord>>(
-    ['attendance-import-logs', query],
+  return useQuery<ApiResponse<AttendanceImport>>(
+    ['attendance-import-logs', query, data],
     () => getAttendanceImportLogs(query, data),
     { keepPreviousData: true },
   );

@@ -1,8 +1,18 @@
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { DatePicker } from 'antd';
-import LogCard from '@/app/(afterLogin)/(timesheetInformation)/timesheet/settings/_components/importedLogs/logCard';
+import { DatePicker, Spin } from 'antd';
+import LogCard from './logCard';
+import { useGetAttendanceImportLogs } from '@/store/server/features/timesheet/attendance/queries';
+import { useState } from 'react';
+import { AttendanceImportLogsBody } from '@/store/server/features/timesheet/attendance/interface';
+import { DATE_FORMAT } from '@/utils/constants';
 
 const ImportedLogs = () => {
+  const [filter, setFilter] = useState<AttendanceImportLogsBody['filter']>();
+  const { data, isFetching } = useGetAttendanceImportLogs(
+    { page: 1, limit: 100 },
+    { filter },
+  );
+
   return (
     <>
       <PageHeader title="Imported Logs" size="small" />
@@ -10,15 +20,29 @@ const ImportedLogs = () => {
         <DatePicker.RangePicker
           className="w-1/2 h-[54px]"
           separator={'-'}
-          format="DD MMM YYYY"
+          format={DATE_FORMAT}
+          onChange={(value) => {
+            if (value && value.length) {
+              setFilter({
+                date: {
+                  from: value[0]!.format(),
+                  to: value[1]!.format(),
+                },
+              });
+            } else {
+              setFilter(undefined);
+            }
+          }}
         />
       </div>
 
-      <div className="rounded-lg border border-gray-200 py-5 px-4">
-        <LogCard />
-        <LogCard />
-        <LogCard />
-      </div>
+      {data && (
+        <Spin spinning={isFetching}>
+          <div className="rounded-lg border border-gray-200 py-5 px-4 empty:hidden">
+            {data.items?.map((item) => <LogCard key={item.id} item={item} />)}
+          </div>
+        </Spin>
+      )}
     </>
   );
 };
