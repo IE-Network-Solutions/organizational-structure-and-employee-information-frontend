@@ -1,4 +1,4 @@
-import { Button, Form, Input, Upload } from 'antd';
+import { Button, Form, Upload } from 'antd';
 import { ImAttachment } from 'react-icons/im';
 import { CommonObject } from '@/types/commons/commonObject';
 import { FC } from 'react';
@@ -20,7 +20,6 @@ const CommentInput: FC<CommentInputProps> = ({ onChange }) => {
       <Form
         form={form}
         onFieldsChange={() => {
-          console.log({ v: form.getFieldsValue() });
           onChange(form.getFieldsValue());
         }}
       >
