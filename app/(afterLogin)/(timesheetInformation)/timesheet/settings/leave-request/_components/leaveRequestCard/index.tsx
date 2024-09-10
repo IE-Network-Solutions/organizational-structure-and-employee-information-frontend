@@ -88,7 +88,11 @@ const LeaveRequestCard: FC<LeaveRequestCardProps> = ({ item }) => {
           <div className="flex item-center gap-3 mb-1">
             <div className="text-xs text-gray-500">Leave type:</div>
             <div className="text-sm text-gray-900">
-              {typeof item.leaveType !== 'string' ? item.leaveType.title : ''}
+              {item.leaveType
+                ? typeof item.leaveType !== 'string'
+                  ? item.leaveType.title
+                  : ''
+                : ''}
             </div>
           </div>
 

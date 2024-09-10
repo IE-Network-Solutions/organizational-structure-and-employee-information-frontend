@@ -57,8 +57,11 @@ const HistoryTable = () => {
           startAt: item.startAt,
           endAt: item.endAt,
           days: item.days,
-          leaveType:
-            typeof item.leaveType === 'string' ? '' : item.leaveType.title,
+          leaveType: item.leaveType
+            ? typeof item.leaveType === 'string'
+              ? ''
+              : item.leaveType.title
+            : '-',
           justificationDocument: item.justificationDocument,
           status: item.status,
           action: item,

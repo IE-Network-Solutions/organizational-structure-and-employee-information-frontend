@@ -180,8 +180,10 @@ const LeaveRequestManagementSidebar = () => {
                     'mb-0',
                   ])}
                 >
-                  {typeof leaveRequest.leaveType !== 'string'
-                    ? leaveRequest.leaveType.title
+                  {leaveRequest.leaveType
+                    ? typeof leaveRequest.leaveType !== 'string'
+                      ? leaveRequest.leaveType.title
+                      : ''
                     : ''}
                 </div>
               </Col>
