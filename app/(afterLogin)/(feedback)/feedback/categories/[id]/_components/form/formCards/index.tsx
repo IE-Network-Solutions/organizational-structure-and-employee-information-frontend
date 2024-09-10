@@ -23,6 +23,7 @@ import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicFo
 import FeedbackPagination from '@/app/(afterLogin)/(feedback)/feedback/_components/feedbackPagination';
 import EditFormsModal from './editFormCard';
 import Question from '../../questions';
+import Link from 'next/link';
 
 const { Title, Paragraph } = Typography;
 
@@ -158,6 +159,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                       <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
                     </Dropdown>
                   </div>
+                  <Link href={`/feedback/categories/${id}/survey/${forms.id}`}>
                   <Paragraph className="text-gray-600">
                     {forms?.description}
                   </Paragraph>
@@ -166,6 +168,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                     <p>{forms?.endDate}</p>
                   </div>
                   <Divider className="text-gray-300" />
+                  </Link>
                   <Flex gap="small" wrap justify="center">
                     {renderProgress(
                       ((forms?.completedCount ?? 0) /
@@ -215,6 +218,8 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                       <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
                     </Dropdown>
                   </div>
+                  <Link href={`/feedback/categories/${id}/survey/${forms.id}`}>
+
                   <Paragraph className="text-gray-600">
                     {forms?.description}
                   </Paragraph>
@@ -223,6 +228,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                     <p>{forms?.endDate}</p>
                   </div>
                   <Divider className="text-gray-300" />
+                  </Link>
                   {forms?.endDate < currentDate ? (
                     <div className="flex items-center justify-center mx-5">
                       <CustomButton

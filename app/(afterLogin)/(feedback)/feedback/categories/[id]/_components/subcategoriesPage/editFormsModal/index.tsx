@@ -4,7 +4,7 @@ import { CalendarOutlined } from '@ant-design/icons';
 import { useFetchUsers } from '@/store/server/features/feedback/category/queries';
 import { useUpdateForm } from '@/store/server/features/feedback/form/mutation';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -46,8 +46,8 @@ const EditFormsModal: React.FC<EditFormsModalProps> = ({ form }) => {
         layout="vertical"
         initialValues={{
           ...form?.items,
-          surveyStartDate: moment(form?.startDate),
-          surveyEndDate: moment(form?.endDate),
+          surveyStartDate: dayjs(form?.startDate),
+          surveyEndDate: dayjs(form?.endDate),
           users: form?.formPermissions?.map((p: any) => p.userId) || [],
         }}
       >
