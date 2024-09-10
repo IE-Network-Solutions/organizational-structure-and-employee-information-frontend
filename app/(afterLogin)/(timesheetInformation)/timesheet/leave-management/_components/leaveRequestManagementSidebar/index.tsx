@@ -21,6 +21,7 @@ import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useSetStatusToLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
+import { formatLinkToUploadFile } from '@/helpers/formatTo';
 
 const LeaveRequestManagementSidebar = () => {
   const [leaveRequest, setLeaveRequest] = useState<LeaveRequest>();
@@ -201,13 +202,21 @@ const LeaveRequestManagementSidebar = () => {
                   <div className={labelClass}>
                     Attachment <span className="text-error">*</span>
                   </div>
-                  <button className="w-full h-[54px] border border-gray-200 rounded-[10px] flex items-center justify-between px-5">
-                    <div className="text-sm font-medium text-gray-900">
-                      Sick_Leave.pdf
+                  <a
+                    href={leaveRequest.justificationDocument}
+                    target="_blank"
+                    className="w-full h-[54px] border border-gray-200 rounded-[10px] flex items-center justify-between px-5 text-gray-900"
+                  >
+                    <div className="text-sm font-medium">
+                      {
+                        formatLinkToUploadFile(
+                          leaveRequest.justificationDocument,
+                        ).name
+                      }
                     </div>
 
                     <TbFileDownload size={20} />
-                  </button>
+                  </a>
                 </Col>
               )}
               <Col span={24}>
