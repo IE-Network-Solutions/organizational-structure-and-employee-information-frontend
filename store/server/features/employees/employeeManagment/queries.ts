@@ -1,5 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_AND_EMP_URL, teantI } from '@/utils/constants';
+import { ORG_AND_EMP_URL} from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
@@ -43,7 +43,7 @@ const getAllUsersWithOutPagination = async () => {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
-      tenantId: teantI,
+      tenantId: tenantId,
     },
   });
 };
@@ -149,8 +149,7 @@ const getEmployees = async () => {
     url: `${ORG_AND_EMP_URL}/users?deletedAt=null`,
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      // tenantId: tenantId, // Pass tenantId in the headers
-      tenantId: teantI
+      tenantId: tenantId, // Pass tenantId in the headers
     },
     method: 'GET',
   });
@@ -177,8 +176,8 @@ const getEmployee = async (id: string) => {
   }
 };
 
-
-export const useGetAllUsers = () => useQuery<any>('employeesWithOutPagination', getAllUsersWithOutPagination);
+export const useGetAllUsers = () =>
+  useQuery<any>('employeesWithOutPagination', getAllUsersWithOutPagination);
 
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.

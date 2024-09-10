@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table, TableColumnsType } from 'antd';
+import { Table, TableColumnsType } from 'antd';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
 const columns: TableColumnsType<EmployeeData> = [
@@ -42,10 +42,7 @@ const columns: TableColumnsType<EmployeeData> = [
   },
 ];
 const SuccesseionPlanTable = () => {
-
-  const {  } = useOrganizationalDevelopment();
-
-
+  const {} = useOrganizationalDevelopment();
 
   return (
     <div className="mt-2">

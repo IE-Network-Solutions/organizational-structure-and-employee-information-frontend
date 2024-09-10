@@ -8,10 +8,24 @@ const { Dragger } = Upload;
 const DocumentUploadForm = () => {
   const { documentFileList, setDocumentFileList, removeDocument } =
     useEmployeeManagementStore();
-    const handleDocumentChange = (info: any) => {
-      const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
-      const fileList = Array.isArray(info.fileList) ? info.fileList.filter((file:any) => allowedTypes.includes(file.type)) : [];
-      setDocumentFileList(fileList);
+
+  // const handleDocumentChange = (info: any) => {
+  //   const fileList = Array.isArray(info.fileList) ? info.fileList : [];
+  //   setDocumentFileList(fileList);
+  // };
+  const handleDocumentChange = (info: any) => {
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+    const fileList = Array.isArray(info.fileList)
+      ? info.fileList.filter((file: any) => allowedTypes.includes(file.type))
+      : [];
+    setDocumentFileList(fileList);
   };
 
   const handleDocumentRemove = (file: any) => {
@@ -45,7 +59,8 @@ const DocumentUploadForm = () => {
               customRequest={customRequest}
               listType="picture"
               // accept="*/*"
-              accept="image/*, text/*, application/pdf, application/msword, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"            >
+              accept="image/*, text/*, application/pdf, application/msword, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            >
               <div className="flex justify-start items-center text-xl font-semibold text-gray-950">
                 <p>Documents Upload</p>
               </div>
