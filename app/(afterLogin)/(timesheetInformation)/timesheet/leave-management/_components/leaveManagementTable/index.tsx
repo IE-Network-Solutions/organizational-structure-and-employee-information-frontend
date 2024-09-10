@@ -23,6 +23,7 @@ import {
 import { CommonObject } from '@/types/commons/commonObject';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { formatLinkToUploadFile } from '@/helpers/formatTo';
 
 interface LeaveManagementTableProps {
   setBodyRequest: Dispatch<SetStateAction<LeaveRequestBody>>;
@@ -103,10 +104,10 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       title: 'Attachment',
       dataIndex: 'attachment',
       key: 'attachment',
-      render: (file: any) =>
-        file ? (
+      render: (link: string) =>
+        link ? (
           <div className="flex justify-between align-middle">
-            <div>-</div>
+            <div>{formatLinkToUploadFile(link).name}</div>
             <TbFileDownload size={14} />
           </div>
         ) : (
