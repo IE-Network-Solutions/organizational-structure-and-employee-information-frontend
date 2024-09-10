@@ -3,8 +3,8 @@ import { ImAttachment } from 'react-icons/im';
 import { CommonObject } from '@/types/commons/commonObject';
 import { FC } from 'react';
 
-// import 'react-quill/dist/quill.snow.css';
-// import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill';
 
 interface CommentInputProps {
   onChange: (value: CommonObject) => void;
@@ -13,7 +13,7 @@ interface CommentInputProps {
 const CommentInput: FC<CommentInputProps> = ({ onChange }) => {
   const [form] = Form.useForm();
 
-  // const toolbar = { container: '#inputToolbar' };
+  const toolbar = { container: '#inputToolbar' };
 
   return (
     <div className="border rounded-lg border-gray-200 p-4 mt-6">
@@ -24,7 +24,7 @@ const CommentInput: FC<CommentInputProps> = ({ onChange }) => {
         }}
       >
         <Form.Item name="comment">
-          {/*<ReactQuill modules={{ toolbar }} />*/}
+          <ReactQuill modules={{ toolbar }} />
         </Form.Item>
         <div className="border-b border-gray-200 mb-3"></div>
         <div id="inputToolbar" className="border-0">
