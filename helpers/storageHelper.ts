@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { openDB } from 'idb';
 
 /**
  * Stores a value in session storage under a given key
@@ -66,3 +67,35 @@ export const getCookie = (key: string , request:NextRequest): string | null => {
 export const removeCookie = (key: string): void => {
 document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`
 }
+
+
+
+
+
+const DB_NAME = 'myZustandDB';
+const STORE_NAME = 'authenticationStore';
+
+const initDB = async () => {
+  return openDB(DB_NAME, 1, {
+    upgrade(db) {
+      db.createObjectStore(STORE_NAME);
+    },
+  });
+};
+
+export const getItem = async (key:string) => {
+  const db = await initDB();
+  return db.get(STORE_NAME, key);
+};
+
+export const setItem = async (key:string, value:string) => {
+  const db = await initDB();
+  return db.put(STORE_NAME, value, key);
+};
+
+export const deleteItem = async (key:string) => {
+  const db = await initDB();
+  return db.delete(STORE_NAME, key);
+};
+
+
