@@ -75,7 +75,7 @@ const Notifications = () => {
               <List.Item
                 key={item?.id}
                 actions={[
-                  <Tooltip title="Mark as read">
+                  <Tooltip key={item?.id} title="Mark as read">
                     <CgCloseO
                       className="text-3xl"
                       onClick={(e) => {
