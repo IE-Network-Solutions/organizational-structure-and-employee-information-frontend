@@ -23,14 +23,15 @@ const EditFormsModal: React.FC<EditFormsModalProps> = ({ form }) => {
   const handleSubmit = async () => {
     try {
       const values = await formInstance.validateFields();
+      console.log(values, 'this is values');
+
       const updatedData = {
         ...values,
         startDate: values.surveyStartDate.toISOString(),
         endDate: values.surveyEndDate.toISOString(),
         formPermissions: values.users.map((userId: string) => ({ userId })),
       };
-
-      updateForm({ data: updatedData, id: form.id });
+      updateForm({ data: updatedData, id: form?.items[0]?.id });
       setIsEditModalVisible(false);
     } catch (error) {
       console.error('Validation failed:', error);
@@ -49,17 +50,13 @@ const EditFormsModal: React.FC<EditFormsModalProps> = ({ form }) => {
         form={formInstance}
         layout="vertical"
         initialValues={{
-          ...form,
+          ...form?.items,
           surveyStartDate: moment(form?.startDate),
           surveyEndDate: moment(form?.endDate),
           users: form?.formPermissions?.map((p: any) => p.userId) || [],
         }}
       >
-        <Form.Item
-          name="name"
-          label="Form Name"
-          rules={[{ required: true, message: 'Please input the form name!' }]}
-        >
+        <Form.Item name="name" label="Form Name">
           <Input />
         </Form.Item>
         <Form.Item

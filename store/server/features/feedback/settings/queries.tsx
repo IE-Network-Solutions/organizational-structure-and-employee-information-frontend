@@ -10,14 +10,16 @@ const headers = {
   Authorization: `Bearer ${token}`,
 };
 
-const fetchDynamicForms = async (formId: string) => {
+const fetchQuestionTemplate = async (pageSize: number, current: number) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/forms/public/${formId}`,
+    url: `${ORG_AND_EMP_URL}/custom-fields?page=${current}&limit=${pageSize}`,
     method: 'GET',
     headers,
   });
 };
 
-export const useFetchDynamicForms = (formId: string) => {
-  return useQuery(['dynamicForms', formId], () => fetchDynamicForms(formId));
+export const useFetchQuestionTemplate = (pageSize: number, current: number) => {
+  return useQuery(['questionTemplate', pageSize, current], () =>
+    fetchQuestionTemplate(pageSize, current),
+  );
 };

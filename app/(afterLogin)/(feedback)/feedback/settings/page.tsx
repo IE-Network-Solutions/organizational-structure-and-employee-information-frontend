@@ -1,18 +1,18 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
-import { OrganizationalDevelopmentSettingsStore } from '@/store/uistate/features/feedback/settings';
+import { useCustomQuestionTemplateStore } from '@/store/uistate/features/feedback/settings';
 import { Card, Col, Row, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
-import OrganizationalDevelopmentSettingsDrawer from './_components/settingsDrawer';
 import ODQuestionsDisplay from './_components/ODQuestionsDisplay';
 import { CalendarDays } from 'lucide-react';
+import ODSettingsDrawer from './_components/settingsDrawer';
 
 const { Title } = Typography;
 
 const OrganizationalDevelopmentSettings: React.FC = () => {
-  const { setIsOpen } = OrganizationalDevelopmentSettingsStore();
+  const { setIsOpen } = useCustomQuestionTemplateStore();
 
   const showDrawer = () => {
     setIsOpen(true);
@@ -48,7 +48,7 @@ const OrganizationalDevelopmentSettings: React.FC = () => {
                 onClick={showDrawer}
                 className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
               />
-              <OrganizationalDevelopmentSettingsDrawer onClose={onClose} />
+              <ODSettingsDrawer onClose={onClose} />
             </div>
             <ODQuestionsDisplay />
           </Card>

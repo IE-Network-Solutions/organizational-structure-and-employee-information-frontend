@@ -9,7 +9,9 @@ interface QuestionProps {
 }
 
 const QuestionDisplay = ({ params: { id } }: QuestionProps) => {
-  const { data: dynamicForms, isLoading } = useFetchDynamicForms();
+  console.log('first', id);
+
+  const { data: dynamicForms, isLoading } = useFetchDynamicForms(id);
   const questionData = dynamicForms?.items?.find(
     (form: any) => form.formId === id,
   );
