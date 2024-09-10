@@ -148,7 +148,7 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
                       <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
                     </Dropdown>
                   </div>
-                  <Link href={`/feedback/categories/${id}/subcategories`}>
+                  <Link href={`/feedback/categories/${id}/survey/${forms.id}`}>
                     <Paragraph className="text-gray-600">
                       {forms?.description}
                     </Paragraph>

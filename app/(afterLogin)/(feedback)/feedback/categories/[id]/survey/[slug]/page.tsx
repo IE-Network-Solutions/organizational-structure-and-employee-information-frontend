@@ -15,12 +15,12 @@ import Questions from './_components/questions';
 
 const { Option } = Select;
 interface Params {
-  id: string;
+  slug: string;
 }
 interface FormDetailProps {
   params: Params;
 }
-function Page({ params: { id } }: FormDetailProps) {
+function Page({ params: { slug } }: FormDetailProps) {
   const { activeTab, setActiveTab, setOpen } = useOrganizationalDevelopment();
   const items: TabsProps['items'] = [
     {
@@ -30,7 +30,7 @@ function Page({ params: { id } }: FormDetailProps) {
           <p className="font-semibold">Questions</p>
         </span>
       ),
-      children: <Questions id={id} />,
+      children: <Questions id={slug} />,
       className: 'text-gray-950 font-semibold',
     },
     {
@@ -40,7 +40,7 @@ function Page({ params: { id } }: FormDetailProps) {
           <p className="font-semibold">Individual Responses</p>
         </span>
       ),
-      children: <IndividualResponses id={id} />,
+      children: <IndividualResponses id={slug} />,
       className: 'text-gray-950 font-semibold',
     },
     {
@@ -50,7 +50,7 @@ function Page({ params: { id } }: FormDetailProps) {
           <p className="font-semibold">Summary Responses</p>
         </span>
       ),
-      children: <SummaryResponses id={id} />,
+      children: <SummaryResponses id={slug} />,
       className: 'text-gray-950 font-semibold',
     },
     {
@@ -60,7 +60,7 @@ function Page({ params: { id } }: FormDetailProps) {
           <p className="font-semibold">Action Plans</p>
         </span>
       ),
-      children: <ActionPlans id={id} />,
+      children: <ActionPlans id={slug} />,
       className: 'text-gray-950 font-semibold',
     },
   ];
