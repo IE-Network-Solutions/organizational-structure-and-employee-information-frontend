@@ -20,152 +20,188 @@ import LeaveRequest from './_components/leaveRequest';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
-type MenuItemComponent = MenuItem & {
+type MenuItemType = {
+  item: MenuItem;
   itemComponent: ReactNode;
 };
+
+class NMenuItem {
+  items: MenuItemType[];
+  constructor(items: MenuItemType[]) {
+    this.items = items;
+  }
+
+  get onlyItems(): MenuItem[] {
+    return this.items.map((item) => item.item);
+  }
+
+  findItemComponent(itemKey: string): ReactNode {
+    const iComponent = this.items.find((item) => item.item!.key === itemKey);
+    return iComponent ? iComponent.itemComponent : this.items[0].itemComponent;
+  }
+}
 
 const TimesheetSettings = () => {
   const [currentItem, setCurrentItem] = useState<string>('closed-date');
 
-  const menuItems: MenuItemComponent[] = [
+  const menuItems = new NMenuItem([
     {
-      key: 'closed-date',
-      icon: (
-        <CiCalendarDate
-          className={classNames('', {
-            'text-[#4DAEF0]': currentItem === 'closed-date',
-            'text-gray-500': currentItem !== 'closed-date',
-          })}
-        />
-      ),
-      label: <p className="font-bold text-sm text-gray-900">Closed Date</p>,
-      className: currentItem === 'closed-date' ? 'px-4' : 'px-1',
+      item: {
+        key: 'closed-date',
+        icon: (
+          <CiCalendarDate
+            className={classNames('', {
+              'text-[#4DAEF0]': currentItem === 'closed-date',
+              'text-gray-500': currentItem !== 'closed-date',
+            })}
+          />
+        ),
+        label: <p className="font-bold text-sm text-gray-900">Closed Date</p>,
+        className: currentItem === 'closed-date' ? 'px-4' : 'px-1',
+      },
       itemComponent: <ClosedDate />,
     },
     {
-      key: 'leave-types-adn-policies',
-      icon: (
-        <FiFileText
-          className={classNames('', {
-            'text-[#4DAEF0]': currentItem === 'leave-types-adn-policies',
-            'text-gray-500': currentItem !== 'leave-types-adn-policies',
-          })}
-        />
-      ),
-      label: (
-        <p className="font-bold text-sm text-gray-900">
-          Leave Types & Policies
-        </p>
-      ),
-      className: currentItem === 'leave-types-adn-policies' ? 'px-4' : 'px-1',
+      item: {
+        key: 'leave-types-adn-policies',
+        icon: (
+          <FiFileText
+            className={classNames('', {
+              'text-[#4DAEF0]': currentItem === 'leave-types-adn-policies',
+              'text-gray-500': currentItem !== 'leave-types-adn-policies',
+            })}
+          />
+        ),
+        label: (
+          <p className="font-bold text-sm text-gray-900">
+            Leave Types & Policies
+          </p>
+        ),
+        className: currentItem === 'leave-types-adn-policies' ? 'px-4' : 'px-1',
+      },
       itemComponent: <LeaveTypesAndPolicies />,
     },
     {
-      key: 'allowed-areas',
-      icon: (
-        <TbLayoutList
-          className={classNames('', {
-            'text-[#4DAEF0]': currentItem === 'allowed-areas',
-            'text-gray-500': currentItem !== 'allowed-areas',
-          })}
-        />
-      ),
-      label: <p className="font-bold text-sm text-gray-900">Allowed Areas</p>,
-      className: currentItem === 'allowed-areas' ? 'px-4' : 'px-1',
+      item: {
+        key: 'allowed-areas',
+        icon: (
+          <TbLayoutList
+            className={classNames('', {
+              'text-[#4DAEF0]': currentItem === 'allowed-areas',
+              'text-gray-500': currentItem !== 'allowed-areas',
+            })}
+          />
+        ),
+        label: <p className="font-bold text-sm text-gray-900">Allowed Areas</p>,
+        className: currentItem === 'allowed-areas' ? 'px-4' : 'px-1',
+      },
       itemComponent: <AllowedAreas />,
     },
     {
-      key: 'attendance-rules',
-      icon: (
-        <TbLayoutList
-          className={classNames('', {
-            'text-[#4DAEF0]': currentItem === 'attendance-rules',
-            'text-gray-500': currentItem !== 'attendance-rules',
-          })}
-        />
-      ),
-      label: (
-        <p className="font-bold text-sm text-gray-900">Attendance Rules</p>
-      ),
-      className: currentItem === 'attendance-rules' ? 'px-4' : 'px-1',
+      item: {
+        key: 'attendance-rules',
+        icon: (
+          <TbLayoutList
+            className={classNames('', {
+              'text-[#4DAEF0]': currentItem === 'attendance-rules',
+              'text-gray-500': currentItem !== 'attendance-rules',
+            })}
+          />
+        ),
+        label: (
+          <p className="font-bold text-sm text-gray-900">Attendance Rules</p>
+        ),
+        className: currentItem === 'attendance-rules' ? 'px-4' : 'px-1',
+      },
       itemComponent: <AttendanceRules />,
     },
     {
-      key: 'imported-logs',
-      icon: (
-        <TbLayoutList
-          className={classNames('', {
-            'text-[#4DAEF0]': currentItem === 'imported-logs',
-            'text-gray-500': currentItem !== 'imported-logs',
-          })}
-        />
-      ),
-      label: <p className="font-bold text-sm text-gray-900">Imported Logs</p>,
-      className: currentItem === 'imported-logs' ? 'px-4' : 'px-1',
+      item: {
+        key: 'imported-logs',
+        icon: (
+          <TbLayoutList
+            className={classNames('', {
+              'text-[#4DAEF0]': currentItem === 'imported-logs',
+              'text-gray-500': currentItem !== 'imported-logs',
+            })}
+          />
+        ),
+        label: <p className="font-bold text-sm text-gray-900">Imported Logs</p>,
+        className: currentItem === 'imported-logs' ? 'px-4' : 'px-1',
+      },
       itemComponent: <ImportedLogs />,
     },
     {
-      key: 'accrual-rule',
-      icon: (
-        <TbLayoutList
-          className={classNames('', {
-            'text-[#4DAEF0]': currentItem === 'accrual-rule',
-            'text-gray-500': currentItem !== 'accrual-rule',
-          })}
-        />
-      ),
-      label: <p className="font-bold text-sm text-gray-900">Accrual Rule</p>,
-      className: currentItem === 'accrual-rule' ? 'px-4' : 'px-1',
+      item: {
+        key: 'accrual-rule',
+        icon: (
+          <TbLayoutList
+            className={classNames('', {
+              'text-[#4DAEF0]': currentItem === 'accrual-rule',
+              'text-gray-500': currentItem !== 'accrual-rule',
+            })}
+          />
+        ),
+        label: <p className="font-bold text-sm text-gray-900">Accrual Rule</p>,
+        className: currentItem === 'accrual-rule' ? 'px-4' : 'px-1',
+      },
       itemComponent: <AccrualRule />,
     },
     {
-      key: 'carry-over-rule',
-      icon: (
-        <TbLayoutList
-          className={classNames('', {
-            'text-[#4DAEF0]': currentItem === 'carry-over-rule',
-            'text-gray-500': currentItem !== 'carry-over-rule',
-          })}
-        />
-      ),
-      label: <p className="font-bold text-sm text-gray-900">Carry-over Rule</p>,
-      className: currentItem === 'carry-over-rule' ? 'px-4' : 'px-1',
+      item: {
+        key: 'carry-over-rule',
+        icon: (
+          <TbLayoutList
+            className={classNames('', {
+              'text-[#4DAEF0]': currentItem === 'carry-over-rule',
+              'text-gray-500': currentItem !== 'carry-over-rule',
+            })}
+          />
+        ),
+        label: (
+          <p className="font-bold text-sm text-gray-900">Carry-over Rule</p>
+        ),
+        className: currentItem === 'carry-over-rule' ? 'px-4' : 'px-1',
+      },
       itemComponent: <CarryOverRule />,
     },
     {
-      key: 'approval-levels',
-      icon: (
-        <TbLayoutList
-          className={classNames('', {
-            'text-[#4DAEF0]': currentItem === 'approval-levels',
-            'text-gray-500': currentItem !== 'approval-levels',
-          })}
-        />
-      ),
-      label: <p className="font-bold text-sm text-gray-900">Approval Levels</p>,
-      className: currentItem === 'approval-levels' ? 'px-4' : 'px-1',
+      item: {
+        key: 'approval-levels',
+        icon: (
+          <TbLayoutList
+            className={classNames('', {
+              'text-[#4DAEF0]': currentItem === 'approval-levels',
+              'text-gray-500': currentItem !== 'approval-levels',
+            })}
+          />
+        ),
+        label: (
+          <p className="font-bold text-sm text-gray-900">Approval Levels</p>
+        ),
+        className: currentItem === 'approval-levels' ? 'px-4' : 'px-1',
+      },
       itemComponent: <ApprovalLevels />,
     },
     {
-      key: 'leave-request',
-      icon: (
-        <TbLayoutList
-          className={classNames('', {
-            'text-[#4DAEF0]': currentItem === 'leave-request',
-            'text-gray-500': currentItem !== 'leave-request',
-          })}
-        />
-      ),
-      label: <p className="font-bold text-sm text-gray-900">Leave Requests</p>,
-      className: currentItem === 'leave-request' ? 'px-4' : 'px-1',
+      item: {
+        key: 'leave-request',
+        icon: (
+          <TbLayoutList
+            className={classNames('', {
+              'text-[#4DAEF0]': currentItem === 'leave-request',
+              'text-gray-500': currentItem !== 'leave-request',
+            })}
+          />
+        ),
+        label: (
+          <p className="font-bold text-sm text-gray-900">Leave Requests</p>
+        ),
+        className: currentItem === 'leave-request' ? 'px-4' : 'px-1',
+      },
       itemComponent: <LeaveRequest />,
     },
-  ];
-
-  const itemComponent = () => {
-    const item = menuItems.find((item) => item.key === currentItem);
-    return item ? item.itemComponent : menuItems[0].itemComponent;
-  };
+  ]);
 
   return (
     <div className="h-auto w-auto pr-6 pb-6 pl-3">
@@ -191,14 +227,16 @@ const TimesheetSettings = () => {
         >
           <Menu
             className="w-[300px] rounded-2xl py-2 px-6 h-max"
-            items={menuItems}
+            items={menuItems.onlyItems}
             mode="inline"
             defaultSelectedKeys={[currentItem]}
             onClick={(e) => setCurrentItem(e.key)}
           />
         </ConfigProvider>
 
-        <BlockWrapper className="flex-1 h-max">{itemComponent()}</BlockWrapper>
+        <BlockWrapper className="flex-1 h-max">
+          {menuItems.findItemComponent(currentItem)}
+        </BlockWrapper>
       </div>
     </div>
   );
