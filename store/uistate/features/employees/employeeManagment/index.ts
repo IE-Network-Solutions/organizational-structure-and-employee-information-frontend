@@ -51,7 +51,7 @@ export type EditState = {
   general: boolean;
   emergencyContact: boolean;
   bankInformation: boolean;
-  rolePermission:boolean;
+  rolePermission: boolean;
 };
 export interface WorkScheduleData {
   items: WorkSchedule[];
@@ -127,6 +127,10 @@ interface UserState {
   setSelectionType: (selectionType: 'checkbox' | 'radio') => void;
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
+  reHireModal: boolean;
+  setReHireModalVisible: (reHireModal: boolean) => void;
+  userToRehire: any;
+  setUserToRehire: (userToRehire: any) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -140,7 +144,7 @@ export const useEmployeeManagementStore = create<UserState>()(
       general: false,
       emergencyContact: false,
       bankInformation: false,
-      rolePermission:false,
+      rolePermission: false,
     },
     setEdit: (key: keyof EditState) =>
       set((state) => ({
@@ -151,6 +155,8 @@ export const useEmployeeManagementStore = create<UserState>()(
       })),
 
     customFormData: null,
+    reHireModal: false,
+    setReHireModalVisible: (reHireModal: boolean) => set({ reHireModal }),
     setCustomFormData: (customFormData: FormData) => set({ customFormData }),
 
     selectedWorkSchedule: null,
@@ -181,6 +187,8 @@ export const useEmployeeManagementStore = create<UserState>()(
     termKey: null,
     setTermKey: (termKey: string | null) => set({ termKey }),
     setCurrent: (current: number) => set({ current }),
+    userToRehire: {},
+    setUserToRehire: (userToRehire: any) => set({ userToRehire }),
 
     profileFileList: [],
     setProfileFileList: (profileFileList: any) => set({ profileFileList }),

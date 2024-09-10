@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
 import 'cypress-file-upload';
 
-
 Cypress.Commands.add('getBySel', (selector, ...args) => {
   return cy.get(`[data-test=${selector}]`, ...args);
 });
@@ -10,31 +9,29 @@ Cypress.Commands.add('getBySelLike', (selector, ...args) => {
   return cy.get(`[data-test*=${selector}]`, ...args);
 });
 
+// Define a custom command to scroll and select an option using the ID
+Cypress.Commands.add('scrollToSelect', (dropdownId, optionText) => {
+  cy.get(`#${dropdownId}`).then(($dropdown) => {
+    const scrollableDiv = $dropdown[0];
+    const scrollHeight = scrollableDiv.scrollHeight;
+    const clientHeight = scrollableDiv.clientHeight;
 
-    // Define a custom command to scroll and select an option using the ID
-    Cypress.Commands.add('scrollToSelect', (dropdownId, optionText) => {
-      cy.get(`#${dropdownId}`).then($dropdown => {
-        const scrollableDiv = $dropdown[0];
-        const scrollHeight = scrollableDiv.scrollHeight;
-        const clientHeight = scrollableDiv.clientHeight;
+    let currentPosition = 0;
+    const step = 10;
 
-        let currentPosition = 0;
-        const step = 10;
+    function scroll() {
+      if (currentPosition + clientHeight < scrollHeight) {
+        cy.wrap(scrollableDiv).scrollTo(0, currentPosition);
+        currentPosition += step;
+        setTimeout(scroll, 50);
+      }
+    }
 
-        function scroll() {
-          if (currentPosition + clientHeight < scrollHeight) {
-            cy.wrap(scrollableDiv).scrollTo(0, currentPosition);
-            currentPosition += step;
-            setTimeout(scroll, 50);
-          }
-        }
+    scroll();
 
-        scroll();
-
-        cy.wrap(scrollableDiv).contains(optionText).click();
-      });
-    });
-
+    cy.wrap(scrollableDiv).contains(optionText).click();
+  });
+});
 
 Cypress.Commands.add('selectDropdown', (testId, optionText) => {
   // Open the dropdown by clicking on the element with the given test ID
@@ -51,21 +48,34 @@ Cypress.Commands.add('selectDropdown', (testId, optionText) => {
 });
 
 Cypress.Commands.add('selectTime', (id, hour, minute, period) => {
-  cy.get(`#${id}`).click().then(() => {
-    // Ensure we're working within the opened time picker context
-    cy.get('.ant-picker-dropdown').last().within(() => {
-      cy.get('.ant-picker-time-panel-column[data-type="hour"] .ant-picker-time-panel-cell-inner')
-        .contains(hour).click({ force: true, multiple: true });
-      
-      cy.get('.ant-picker-time-panel-column[data-type="minute"] .ant-picker-time-panel-cell-inner')
-        .contains(minute).click({ force: true, multiple: true });
-      
-      cy.get('.ant-picker-time-panel-column[data-type="meridiem"] .ant-picker-time-panel-cell-inner')
-        .contains(period).click({ force: true, multiple: true });
-      
-      cy.get('.ant-picker-ok button').click();
+  cy.get(`#${id}`)
+    .click()
+    .then(() => {
+      // Ensure we're working within the opened time picker context
+      cy.get('.ant-picker-dropdown')
+        .last()
+        .within(() => {
+          cy.get(
+            '.ant-picker-time-panel-column[data-type="hour"] .ant-picker-time-panel-cell-inner',
+          )
+            .contains(hour)
+            .click({ force: true, multiple: true });
+
+          cy.get(
+            '.ant-picker-time-panel-column[data-type="minute"] .ant-picker-time-panel-cell-inner',
+          )
+            .contains(minute)
+            .click({ force: true, multiple: true });
+
+          cy.get(
+            '.ant-picker-time-panel-column[data-type="meridiem"] .ant-picker-time-panel-cell-inner',
+          )
+            .contains(period)
+            .click({ force: true, multiple: true });
+
+          cy.get('.ant-picker-ok button').click();
+        });
     });
-  });
 });
 
 Cypress.Commands.add('selectBranch', (branchName) => {
@@ -75,5 +85,3 @@ Cypress.Commands.add('selectBranch', (branchName) => {
     .contains(branchName)
     .click(); // Select the branch by its text
 });
-
-

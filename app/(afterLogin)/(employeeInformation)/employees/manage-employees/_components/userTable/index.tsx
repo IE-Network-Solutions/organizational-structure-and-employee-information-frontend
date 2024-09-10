@@ -1,5 +1,13 @@
 import React from 'react';
-import { Button, Table, TableColumnsType, Tooltip } from 'antd';
+import {
+  Button,
+  Form,
+  Modal,
+  Row,
+  Table,
+  TableColumnsType,
+  Tooltip,
+} from 'antd';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
@@ -8,10 +16,15 @@ import { useEmployeeAllFilter } from '@/store/server/features/employees/employee
 import userTypeButton from '../userTypeButton';
 import { useDeleteEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
 import Image from 'next/image';
-import Avatar from '@/public/gender-neutral-avatar.jpg';
+import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { FaEye } from 'react-icons/fa';
 import Link from 'next/link';
-
+import { useRehireTerminatedEmployee } from '@/store/server/features/employees/offboarding/mutation';
+import { AiOutlineUserAdd } from 'react-icons/ai';
+import JobTimeLineForm from '../allFormData/jobTimeLineForm';
+import WorkScheduleForm from '../allFormData/workScheduleForm';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import moment from 'moment';
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Employee Name',
@@ -58,10 +71,15 @@ const UserTable = () => {
     setDeleteModal,
     userCurrentPage,
     pageSize,
+    reHireModal,
+    setReHireModalVisible,
     setUserCurrentPage,
     setPageSize,
     selectionType,
+    userToRehire,
+    setUserToRehire,
   } = useEmployeeManagementStore();
+  const [form] = Form.useForm();
   const { searchParams } = useEmployeeManagementStore();
   const { data: allFilterData, isLoading: isEmployeeLoading } =
     useEmployeeAllFilter(
@@ -73,6 +91,7 @@ const UserTable = () => {
       searchParams.allStatus ? searchParams.allStatus : '',
     );
   const { mutate: employeeDeleteMuation } = useDeleteEmployee();
+  const { mutate: rehireEmployee } = useRehireTerminatedEmployee();
 
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
@@ -152,27 +171,43 @@ const UserTable = () => {
       action: (
         <div className="flex gap-4 text-white">
           <Link href={`manage-employees/${item?.id}`}>
-            <Button
-              
-              id={`editUserButton${item?.id}`}
-              disabled={item?.deletedAt !== null}
-              className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
-            >
-              <FaEye />
-            </Button>
+            <Tooltip title={'View Employee Detail'}>
+              <Button
+                id={`editUserButton${item?.id}`}
+                className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
+              >
+                <FaEye />
+              </Button>
+            </Tooltip>
           </Link>
+          <Tooltip title={'Delete Employee'}>
+            <Button
+              id={`deleteUserButton${item?.id}`}
+              disabled={item?.deletedAt !== null}
+              className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
+              onClick={() => {
+                setDeleteModal(true);
+                setDeletedItem(item?.id);
+              }}
+            >
+              <RiDeleteBin6Line />
+            </Button>
+          </Tooltip>
 
-          <Button
-            id={`deleteUserButton${item?.id}`}
-            disabled={item?.deletedAt !== null}
-            className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
-            onClick={() => {
-              setDeleteModal(true);
-              setDeletedItem(item?.id);
-            }}
-          >
-            <RiDeleteBin6Line />
-          </Button>
+          {item.deletedAt !== null && (
+            <Tooltip title={'Activate Employee'}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                value={'submit'}
+                name="submit"
+                onClick={() => handelRehireModal(item)}
+                disabled={item.deletedAt === null}
+              >
+                <AiOutlineUserAdd />
+              </Button>
+            </Tooltip>
+          )}
         </div>
       ),
     };
@@ -192,6 +227,25 @@ const UserTable = () => {
       disabled: record.employee_name === 'Disabled User',
       name: record.employee_name,
     }),
+  };
+
+  const handleActivateEmployee = (values: any) => {
+    values['userId'] = userToRehire?.id;
+    values.joinedDate = moment(values.joinedDate).format('YYYY-MM-DD');
+
+    values.departmentLeadOrNot = !values.departmentLeadOrNot
+      ? false
+      : values.departmentLeadOrNot;
+    rehireEmployee(values, {
+      onSuccess: () => {
+        setReHireModalVisible(false);
+        form.resetFields();
+      },
+    });
+  };
+  const handelRehireModal = (user: any) => {
+    setUserToRehire(user);
+    setReHireModalVisible(true);
   };
   return (
     <div className="mt-2">
@@ -219,6 +273,57 @@ const UserTable = () => {
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteModal(false)}
       />
+      <Modal
+        open={reHireModal}
+        onCancel={() => {
+          setReHireModalVisible(false);
+          setUserToRehire(null);
+        }}
+        footer={false}
+      >
+        <Form
+          form={form}
+          name="dependencies"
+          autoComplete="off"
+          style={{ maxWidth: '100%' }}
+          layout="vertical"
+          onFinish={(values) => handleActivateEmployee(values)}
+          onFinishFailed={() =>
+            NotificationMessage.error({
+              message: 'Something wrong or unfilled',
+              description: 'please back and check the unfilled fields',
+            })
+          }
+        >
+          <JobTimeLineForm />
+
+          <WorkScheduleForm />
+          <Form.Item>
+            <Row className="flex justify-end gap-3">
+              <Button
+                type="primary"
+                htmlType="submit"
+                value={'submit'}
+                name="submit"
+              >
+                Submit
+              </Button>
+              <Button
+                className="text-indigo-500"
+                htmlType="button"
+                value={'cancel'}
+                name="cancel"
+                onClick={() => {
+                  setReHireModalVisible(false);
+                  form.resetFields();
+                }}
+              >
+                Cancel{' '}
+              </Button>
+            </Row>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
