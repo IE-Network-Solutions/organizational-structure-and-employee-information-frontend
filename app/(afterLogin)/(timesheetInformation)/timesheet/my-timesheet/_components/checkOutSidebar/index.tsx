@@ -4,7 +4,6 @@ import { Form, Select } from 'antd';
 import type { SelectProps } from 'antd';
 import React, { useEffect, useState } from 'react';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import { AiOutlineCamera } from 'react-icons/ai';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
