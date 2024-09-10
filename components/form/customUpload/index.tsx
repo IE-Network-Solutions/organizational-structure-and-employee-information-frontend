@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 import { RcFile, UploadProps } from 'antd/es/upload';
 import { fileUpload } from '@/utils/fileUpload';
 import { Upload } from 'antd';
@@ -8,17 +8,26 @@ import { TbFileUpload } from 'react-icons/tb';
 interface CustomUploadProps extends UploadProps {
   children?: ReactNode;
   className?: string;
+  setIsLoading?: Dispatch<SetStateAction<boolean>>;
 }
 
 const CustomUpload: FC<CustomUploadProps> = ({
   className = '',
   children,
+  setIsLoading,
   ...otherProps
 }) => {
   const handleUpload = async (options: any): Promise<void> => {
+    if (setIsLoading) {
+      setIsLoading(true);
+    }
     const { file, onSuccess } = options;
     const rcFile = file as RcFile;
+
     const response = await fileUpload(rcFile);
+    if (setIsLoading) {
+      setIsLoading(false);
+    }
     if (onSuccess && response) {
       onSuccess(response.data['viewImage']);
     }

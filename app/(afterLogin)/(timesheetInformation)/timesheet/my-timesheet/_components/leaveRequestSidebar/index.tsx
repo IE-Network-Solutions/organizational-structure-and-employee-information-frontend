@@ -67,7 +67,6 @@ const LeaveRequestSidebar = () => {
 
   useEffect(() => {
     if (leaveRequest) {
-      console.log({ leaveRequest });
       form.setFieldValue(
         'type',
         typeof leaveRequest?.leaveType !== 'string' &&
@@ -77,12 +76,12 @@ const LeaveRequestSidebar = () => {
       form.setFieldValue('startDate', dayjs(leaveRequest.startAt));
       form.setFieldValue('endDate', dayjs(leaveRequest.endAt));
       form.setFieldValue('note', leaveRequest.justificationNote);
-      form.setFieldValue(
-        'attachment',
-        leaveRequest.justificationDocument
-          ? [formatLinkToUploadFile(leaveRequest.justificationDocument)]
-          : null,
-      );
+
+      if (leaveRequest.justificationDocument) {
+        form.setFieldValue('attachment', [
+          formatLinkToUploadFile(leaveRequest.justificationDocument),
+        ]);
+      }
     }
   }, [leaveRequest]);
 
@@ -107,6 +106,7 @@ const LeaveRequestSidebar = () => {
       key: 'cancel',
       className: 'h-[56px] text-base',
       size: 'large',
+      loading: isLoadingRequest || isLoading,
       onClick: () => onClose(),
     },
     {
@@ -115,8 +115,7 @@ const LeaveRequestSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
-      disabled: isLoading,
-      loading: isLoadingRequest,
+      loading: isLoadingRequest || isLoading,
       onClick: () => form.submit(),
     },
   ];
@@ -129,8 +128,9 @@ const LeaveRequestSidebar = () => {
       isHalfday: !!value.isHalfday,
       startAt: dayjs(value.startDate).format('YYYY-MM-DD'),
       endAt: dayjs(value.endDate).format('YYYY-MM-DD'),
-      justificationDocument:
-        value.attachment?.length && (value.attachment[0]['response'] || null),
+      justificationDocument: !!value.attachment?.length
+        ? value.attachment[0]['response']
+        : null,
       justificationNote: value.note,
       status: LeaveRequestStatus.PENDING,
     });
@@ -254,6 +254,7 @@ const LeaveRequestSidebar = () => {
                   name="attachment"
                   listType="text"
                   maxCount={1}
+                  setIsLoading={setIsLoading}
                 />
               </Form.Item>
               <div className="text-xs font-medium text-gray-600 text-center">
