@@ -73,6 +73,7 @@ const Notifications = () => {
             dataSource={unReadNotification}
             renderItem={(item: NotificationType) => (
               <List.Item
+                key={item?.id}
                 actions={[
                   <Tooltip title="Mark as read">
                     <CgCloseO

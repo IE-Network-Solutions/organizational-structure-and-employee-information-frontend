@@ -148,7 +148,7 @@ const NavBar = ({ page, userid }: NavBarProps) => {
         }}
       >
         <p>{page}</p>
-        <div className="flex items-center">
+        <div className="flex items-center gap-5">
           <Badge count={5} className="mx-4">
             <MailOutlined style={{ fontSize: '20px' }} />
           </Badge>
