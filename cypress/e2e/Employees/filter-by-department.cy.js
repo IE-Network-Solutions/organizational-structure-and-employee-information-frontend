@@ -1,9 +1,8 @@
 describe('Employee', () => {
-    beforeEach(() => {
-        cy.visit('/employees/manage-employees');
-    });
-    
-    
+  beforeEach(() => {
+    cy.visit('/employees/manage-employees');
+  });
+
   it('should filter by Department type Sub Department 1', () => {
     // Select 'Premium' from the subscription type dropdown
     // cy.get('select[placeholder="subscriptionTypeFilter"]').select('Premium');
@@ -13,5 +12,4 @@ describe('Employee', () => {
     // cy.get('table').contains('td', 'Premium').should('be.visible');
     cy.get('table').contains('td', 'Sub Department 1').should('be.visible');
   });
-    
 });

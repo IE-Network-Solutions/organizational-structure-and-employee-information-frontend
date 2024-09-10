@@ -43,13 +43,17 @@ function PersonalDataComponent({
         form={form}
         layout="vertical"
         onFinish={(values) => handleSaveChanges('general', values)}
-          initialValues={{
-            dateOfBirth: employeeData?.employeeInformation?.dateOfBirth ? dayjs(employeeData.employeeInformation.dateOfBirth) : null,
-            nationalityId: employeeData?.employeeInformation?.nationalityId,
-            maritalStatus: employeeData?.employeeInformation?.maritalStatus,
-            joinedDate: employeeData?.employeeInformation?.joinedDate ? dayjs(employeeData.employeeInformation.joinedDate) : null,
-            gender: employeeData?.employeeInformation?.gender,
-          }}
+        initialValues={{
+          dateOfBirth: employeeData?.employeeInformation?.dateOfBirth
+            ? dayjs(employeeData.employeeInformation.dateOfBirth)
+            : null,
+          nationalityId: employeeData?.employeeInformation?.nationalityId,
+          maritalStatus: employeeData?.employeeInformation?.maritalStatus,
+          joinedDate: employeeData?.employeeInformation?.joinedDate
+            ? dayjs(employeeData.employeeInformation.joinedDate)
+            : null,
+          gender: employeeData?.employeeInformation?.gender,
+        }}
       >
         <Row gutter={[16, 24]}>
           {edit.general ? (
@@ -66,7 +70,7 @@ function PersonalDataComponent({
                     },
                   ]}
                 >
-                  <DatePicker className='w-full'/>
+                  <DatePicker className="w-full" />
                 </Form.Item>
                 <Form.Item
                   name="nationalityId"
@@ -131,7 +135,7 @@ function PersonalDataComponent({
                     { required: true, message: 'Please enter the joined date' },
                   ]}
                 >
-                  <DatePicker className='w-full' />
+                  <DatePicker className="w-full" />
                 </Form.Item>
               </Col>
               <Col span={24} style={{ textAlign: 'right' }}>

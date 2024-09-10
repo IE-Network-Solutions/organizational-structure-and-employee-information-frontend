@@ -22,7 +22,10 @@ const updateEmployeeMutation = async (id: string, values: any) => {
 };
 
 // Mutation function
-const updateEmployeeRolePermissionMutation = async (id: string, values: any) => {
+const updateEmployeeRolePermissionMutation = async (
+  id: string,
+  values: any,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 

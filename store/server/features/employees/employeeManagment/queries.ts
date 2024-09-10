@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
+
 /**
  * Function to fetch a list of employee branches by sending a GET request to the API.
  *
@@ -28,6 +29,17 @@ const getEmployeeBranches = async () => {
 const getEmployeeDepartments = async () => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/tenant/departments`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+const getAllUsersWithOutPagination = async () => {
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -134,7 +146,7 @@ export const useEmployeeAllFilter = (
  */
 const getEmployees = async () => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/employee`,
+    url: `${ORG_AND_EMP_URL}/users?deletedAt=null`,
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
@@ -164,6 +176,9 @@ const getEmployee = async (id: string) => {
   }
 };
 
+export const useGetAllUsers = () =>
+  useQuery<any>('employeesWithOutPagination', getAllUsersWithOutPagination);
+
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.
  *
@@ -173,7 +188,7 @@ const getEmployee = async (id: string) => {
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetEmployees = () => useQuery<any[]>('employees', getEmployees);
+export const useGetEmployees = () => useQuery<any>('employees', getEmployees);
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.

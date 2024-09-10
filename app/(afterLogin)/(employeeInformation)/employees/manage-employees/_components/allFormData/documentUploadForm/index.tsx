@@ -6,23 +6,37 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 const { Dragger } = Upload;
 
 const DocumentUploadForm = () => {
-    const { documentFileList, setDocumentFileList, removeDocument } =
-      useEmployeeManagementStore();
+  const { documentFileList, setDocumentFileList, removeDocument } =
+    useEmployeeManagementStore();
 
-    const handleDocumentChange = (info: any) => {
-      const fileList = Array.isArray(info.fileList) ? info.fileList : [];
-      setDocumentFileList(fileList);
-    };
+  // const handleDocumentChange = (info: any) => {
+  //   const fileList = Array.isArray(info.fileList) ? info.fileList : [];
+  //   setDocumentFileList(fileList);
+  // };
+  const handleDocumentChange = (info: any) => {
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+    const fileList = Array.isArray(info.fileList)
+      ? info.fileList.filter((file: any) => allowedTypes.includes(file.type))
+      : [];
+    setDocumentFileList(fileList);
+  };
 
-    const handleDocumentRemove = (file: any) => {
-      removeDocument(file.uid);
-    };
+  const handleDocumentRemove = (file: any) => {
+    removeDocument(file.uid);
+  };
 
-    const customRequest = ({ onSuccess }: any) => {
-      setTimeout(() => {
-        onSuccess('ok');
-      }, 0);
-    };
+  const customRequest = ({ onSuccess }: any) => {
+    setTimeout(() => {
+      onSuccess('ok');
+    }, 0);
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -45,7 +59,7 @@ const DocumentUploadForm = () => {
               customRequest={customRequest}
               listType="picture"
               // accept="*/*"
-              accept="audio/*,video/*"
+              accept="image/*, text/*, application/pdf, application/msword, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             >
               <div className="flex justify-start items-center text-xl font-semibold text-gray-950">
                 <p>Documents Upload</p>

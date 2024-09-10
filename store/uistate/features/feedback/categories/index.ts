@@ -50,6 +50,7 @@ export interface CategoriesUseState {
   setCurrent: (value: number) => void;
   setOpen: (value: boolean) => void;
   setExpanded: (value: boolean) => void;
+
   selectedUsers: User[];
   setSelectedUsers: (users: User[]) => void;
   addUser: (userId: string) => void;
@@ -111,6 +112,7 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
       ),
     })),
   setCustomFields: (fields) => set({ customFields: fields }),
+
   selectedUsers: [],
   setSelectedUsers: (users) => set({ selectedUsers: users }),
   addUser: (userId) =>
