@@ -1,8 +1,7 @@
 'use client';
 import React from 'react';
 import { Badge, Avatar, Menu, Dropdown, Layout, Tooltip, Spin } from 'antd';
-import { MailOutlined, BellOutlined, UserOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
+import { MailOutlined, UserOutlined } from '@ant-design/icons';
 import { useNotificationDetailStore } from '@/store/uistate/features/notification';
 import { NotificationDetailVisible } from '../../app/(afterLogin)/(employeeInformation)/employees/notification/_component/notificationDetail';
 import Link from 'next/link';
@@ -70,8 +69,8 @@ const NavBar = ({ page, userid }: NavBarProps) => {
           {unReadNotification
             ?.slice(0, 6)
             ?.map((notification: NotificationType) => (
-              <div className="flex justify-between gap-4">
-                <Menu.Item key={notification.id}>
+              <div className="flex justify-between gap-4" key={notification.id}>
+                <Menu.Item>
                   <div
                     className="flex items-center p-2 cursor-pointer"
                     onClick={() => {
