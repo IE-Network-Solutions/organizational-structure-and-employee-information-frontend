@@ -14,6 +14,7 @@ import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
 import { localUserID } from '@/utils/constants';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import TakePicture from '@/components/common/takePicture';
 
 type LabelRender = SelectProps['labelRender'];
 
@@ -96,6 +97,7 @@ const CheckOutSidebar = () => {
             userId: localUserID,
             isSignIn: false,
             breakTypeId: value.type,
+            file: value.photo,
           });
         },
         () => {
@@ -145,7 +147,7 @@ const CheckOutSidebar = () => {
                 <Select.Option
                   value={option.value}
                   key={option.value}
-                  disabled={option.disabled}
+                  // disabled={option.disabled}
                 >
                   <div className="p-4 pr-1.5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -171,13 +173,11 @@ const CheckOutSidebar = () => {
             </Select>
           </Form.Item>
           <Form.Item name="photo">
-            <button className="w-full py-3.5 px-4 flex justify-center items-center flex-col rounded-[10px] border border-gray-300 hover:border-primary transition duration-150">
-              <AiOutlineCamera size={50} className="text-primary" />
-              <div className="text-sm font-bold text-gray-900 mt-1">Camera</div>
-              <div className="text-xs font-semibold text-gray-400">
-                Please allow your camera
-              </div>
-            </button>
+            <TakePicture
+              onChange={(imgSrc) => {
+                form.setFieldValue('photo', imgSrc);
+              }}
+            />
           </Form.Item>
         </Form>
       </CustomDrawerLayout>
