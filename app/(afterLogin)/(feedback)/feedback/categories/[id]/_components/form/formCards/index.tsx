@@ -11,23 +11,22 @@ import {
   Progress,
 } from 'antd';
 import { FaEllipsisVertical, FaArrowRightLong, FaPlus } from 'react-icons/fa6';
-import Link from 'next/link';
 import {
   useFetchedForms,
   useGetFormsByCategoryID,
 } from '@/store/server/features/feedback/form/queries';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import CustomButton from '@/components/common/buttons/customButton';
-import EditFormsModal from './editFormsModal';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteQuestions } from '@/store/server/features/feedback/question/mutation';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
-import Question from '../questions';
-import FeedbackPagination from '../../../../_components/feedbackPagination';
+import FeedbackPagination from '@/app/(afterLogin)/(feedback)/feedback/_components/feedbackPagination';
+import EditFormsModal from './editFormCard';
+import Question from '../../questions';
 
 const { Title, Paragraph } = Typography;
 
-const Subcategories: React.FC<{ id: string }> = ({ id }) => {
+const FormCard: React.FC<{ id: string }> = ({ id }) => {
   const {
     current,
     pageSize,
@@ -45,9 +44,10 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
     deleteFormModal,
     setDeleteFormModal,
     setIsAddOpen,
+    setEditQuestionsModal,
   } = useDynamicFormStore();
 
-  const { data: subcategories } = useFetchedForms(pageSize, current);
+  const { data: forms } = useFetchedForms(pageSize, current);
   const { data: Forms } = useGetFormsByCategoryID(id, pageSize, current);
   const { mutate: deleteForm } = useDeleteQuestions();
   const handleChange = (page: number = 1, pageSize: number) => {
@@ -78,6 +78,8 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
     } else if (key === 'delete') {
       setDeletedItem(category.id);
       setDeleteFormModal(true);
+    } else if ((key = 'editQuestions')) {
+      setEditQuestionsModal(true);
     }
   };
 
@@ -109,6 +111,8 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
     </div>
   );
 
+  const currentDate = new Date();
+
   return (
     <>
       <Row gutter={[16, 24]}>
@@ -132,8 +136,14 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
                         items: [
                           {
                             key: 'edit',
-                            label: 'Edit',
+                            label: 'Edit Form',
                             onClick: () => handleMenuClick('edit', forms),
+                          },
+                          {
+                            key: 'editQuestions',
+                            label: 'Edit Questions',
+                            onClick: () =>
+                              handleMenuClick('editQuestions', forms),
                           },
                           {
                             key: 'delete',
@@ -148,16 +158,14 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
                       <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
                     </Dropdown>
                   </div>
-                  <Link href={`/feedback/categories/${id}/subcategories`}>
-                    <Paragraph className="text-gray-600">
-                      {forms?.description}
-                    </Paragraph>
-                    <div className="flex flex-wrap items-center justify-between gap-1 text-gray-400 mx-5">
-                      <p>{forms?.startDate}</p> <FaArrowRightLong />
-                      <p>{forms?.endDate}</p>
-                    </div>
-                    <Divider className="text-gray-300" />
-                  </Link>
+                  <Paragraph className="text-gray-600">
+                    {forms?.description}
+                  </Paragraph>
+                  <div className="flex flex-wrap items-center justify-between gap-1 text-gray-400 mx-5">
+                    <p>{forms?.startDate}</p> <FaArrowRightLong />
+                    <p>{forms?.endDate}</p>
+                  </div>
+                  <Divider className="text-gray-300" />
                   <Flex gap="small" wrap justify="center">
                     {renderProgress(
                       ((forms?.completedCount ?? 0) /
@@ -207,24 +215,28 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
                       <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
                     </Dropdown>
                   </div>
-                  <Link href={`/feedback/categories/${id}/subcategories`}>
-                    <Paragraph className="text-gray-600">
-                      {forms?.description}
-                    </Paragraph>
-                    <div className="flex flex-wrap items-center justify-between gap-1 text-gray-400 mx-5">
-                      <p>{forms?.startDate}</p> <FaArrowRightLong />{' '}
-                      <p>{forms?.endDate}</p>
-                    </div>
-                    <Divider className="text-gray-300" />
-                  </Link>
-                  <div className="flex items-center justify-center mx-5">
-                    <CustomButton
-                      title="Add Questions"
-                      icon={<FaPlus size={13} className="mr-2" />}
-                      onClick={() => showDrawer(forms.id)}
-                      className="text-gray-800 border-1 border-gray-500 bg-white font-light mx-5"
-                    />
+                  <Paragraph className="text-gray-600">
+                    {forms?.description}
+                  </Paragraph>
+                  <div className="flex flex-wrap items-center justify-between gap-1 text-gray-400 mx-5">
+                    <p>{forms?.startDate}</p> <FaArrowRightLong />{' '}
+                    <p>{forms?.endDate}</p>
                   </div>
+                  <Divider className="text-gray-300" />
+                  {forms?.endDate < currentDate ? (
+                    <div className="flex items-center justify-center mx-5">
+                      <CustomButton
+                        title="Add Questions"
+                        icon={<FaPlus size={13} className="mr-2" />}
+                        onClick={() => showDrawer(forms.id)}
+                        className="text-gray-800 border-1 border-gray-500 bg-white font-light mx-5"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center mx-5">
+                      Form has expired
+                    </div>
+                  )}
                 </Card>
               </Col>
             </div>
@@ -237,7 +249,7 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
         onChange={handleChange}
         onShowSizeChange={handleShowSizeChange}
       />
-      <EditFormsModal form={subcategories} />
+      <EditFormsModal form={forms} />
       <Question
         selectedFormId={selectedFormId}
         onClose={() => setIsAddOpen(false)}
@@ -251,4 +263,4 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
   );
 };
 
-export default Subcategories;
+export default FormCard;

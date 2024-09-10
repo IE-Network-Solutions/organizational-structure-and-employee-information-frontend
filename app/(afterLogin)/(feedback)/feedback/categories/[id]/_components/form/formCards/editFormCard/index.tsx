@@ -22,7 +22,6 @@ const EditFormsModal: React.FC<EditFormsModalProps> = ({ form }) => {
 
   const handleSubmit = async () => {
     const values = await formInstance.validateFields();
-
     const updatedData = {
       ...values,
       startDate: values.surveyStartDate.toISOString(),

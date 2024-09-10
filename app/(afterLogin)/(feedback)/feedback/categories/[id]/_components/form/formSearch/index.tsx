@@ -8,7 +8,7 @@ import { useDebounce } from '@/utils/useDebounce';
 
 const { Option } = Select;
 
-const SubcategorySearch: React.FC = () => {
+const FormSearch: React.FC = () => {
   const { searchFormParams, setSearchFormParams } = CategoriesManagementStore();
 
   const { data: users } = useFetchUsers();
@@ -63,4 +63,4 @@ const SubcategorySearch: React.FC = () => {
   );
 };
 
-export default SubcategorySearch;
+export default FormSearch;

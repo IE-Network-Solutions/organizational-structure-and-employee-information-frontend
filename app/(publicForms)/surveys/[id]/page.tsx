@@ -1,5 +1,5 @@
 'use client';
-import { useFetchDynamicForms } from '@/store/server/features/feedback/dynamicForm/queries';
+import { useFetchQuestions } from '@/store/server/features/feedback/question/queries';
 import React from 'react';
 interface Params {
   id: string;
@@ -9,14 +9,10 @@ interface QuestionProps {
 }
 
 const QuestionDisplay = ({ params: { id } }: QuestionProps) => {
-  console.log('first', id);
-
-  const { data: dynamicForms, isLoading } = useFetchDynamicForms(id);
-  const questionData = dynamicForms?.items?.find(
+  const { data: questions, isLoading } = useFetchQuestions(id);
+  const questionData = questions?.items?.find(
     (form: any) => form.formId === id,
   );
-
-  console.log('first', dynamicForms);
 
   return isLoading ? (
     <div>IsLoading....</div>

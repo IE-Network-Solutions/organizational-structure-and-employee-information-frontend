@@ -21,7 +21,7 @@ import TextArea from 'antd/es/input/TextArea';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
 
 const { Option } = Select;
-function SubcategoryDrawer({ onClose, id }: { onClose: any; id: string }) {
+function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
   const { data: employees } = useFetchUsers();
   const { data: formCategories } = useGetFormCategories(id);
   const { mutate: addForm } = useAddForm();
@@ -228,4 +228,4 @@ function SubcategoryDrawer({ onClose, id }: { onClose: any; id: string }) {
   );
 }
 
-export default SubcategoryDrawer;
+export default FormDrawer;

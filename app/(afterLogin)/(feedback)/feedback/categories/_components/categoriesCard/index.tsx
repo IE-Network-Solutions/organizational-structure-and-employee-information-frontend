@@ -2,7 +2,6 @@
 import React from 'react';
 import { Spin } from 'antd';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
-import CategoryPagination from '../categoryPagination';
 import { useFetchCategories } from '@/store/server/features/feedback/category/queries';
 import {
   useDeleteFormCategory,
@@ -10,7 +9,8 @@ import {
 } from '@/store/server/features/feedback/category/mutation';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import CategoryCard from './categoryCard';
-import EditCategoryModal from './editCategoryModal';
+import EditCategoryModal from './editCategory';
+import FeedbackPagination from '../../../_components/feedbackPagination';
 
 const CategoriesCard: React.FC = () => {
   const {
@@ -23,10 +23,17 @@ const CategoriesCard: React.FC = () => {
     setDeletedItem,
     setEditModal,
     setEditingCategory,
+    searchParams,
   } = CategoriesManagementStore();
 
   const { data: categories, isLoading: isCategoriesLoading } =
-    useFetchCategories(pageSize, current);
+    useFetchCategories(
+      pageSize,
+      current,
+      searchParams?.category_name,
+      searchParams?.category_description,
+      searchParams?.createdBy,
+    );
 
   const updateCategory = useUpdateFormCategory();
   const deleteCategory = useDeleteFormCategory();
@@ -107,7 +114,7 @@ const CategoriesCard: React.FC = () => {
         onCancel={() => setDeleteModal(false)}
         onConfirm={handleDelete}
       />
-      <CategoryPagination
+      <FeedbackPagination
         current={current}
         total={categories?.meta?.totalItems ?? 1}
         pageSize={pageSize}

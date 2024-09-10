@@ -1,13 +1,10 @@
 import { create } from 'zustand';
-import { v4 as uuidv4 } from 'uuid';
-
 interface Question {
   id: number;
   fieldType: string;
   question: string;
   required: boolean;
   field: Record<string, string>[];
-  answer?: string;
 }
 
 interface CustomField {
@@ -16,10 +13,20 @@ interface CustomField {
   index?: number;
 }
 
+interface User {
+  userId: string;
+}
+
 interface DynamicFormStore {
+  isDrawerOpen: boolean;
+  setIsDrawerOpen: (isDrawerOpen: boolean) => void;
+  selectedUsers: User[];
+  setSelectedUsers: (users: User[]) => void;
+  clearSelectedUsers: () => void;
   questions: Question[];
-  open: boolean;
-  setOpen(value: boolean): void;
+  isEditQuestionModal: boolean;
+  setEditQuestionsModal: (value: boolean) => void;
+
   customFields: CustomField[];
   isModalVisible: boolean;
   setIsModalVisible: (value: boolean) => void;
@@ -41,6 +48,11 @@ interface DynamicFormStore {
 }
 
 export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
+  isDrawerOpen: false,
+  setIsDrawerOpen: (value: boolean) => set({ isDrawerOpen: value }),
+  selectedUsers: [],
+  setSelectedUsers: (users) => set({ selectedUsers: users }),
+  clearSelectedUsers: () => set({ selectedUsers: [] }),
   questions: [
     {
       id: 1,
@@ -51,9 +63,10 @@ export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
       answer: '',
     },
   ],
+  isEditQuestionModal: false,
+  setEditQuestionsModal: (value) => set({ isEditQuestionModal: value }),
+
   isModalVisible: false,
-  open: false,
-  setOpen: (value) => set({ open: value }),
   isAddOpen: false,
   setIsAddOpen: (value) => set({ isAddOpen: value }),
   current: 1,

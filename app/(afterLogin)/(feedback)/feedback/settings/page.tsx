@@ -5,13 +5,13 @@ import { useCustomQuestionTemplateStore } from '@/store/uistate/features/feedbac
 import { Card, Col, Row, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
-import ODQuestionsDisplay from './_components/ODQuestionsDisplay';
 import { CalendarDays } from 'lucide-react';
-import ODSettingsDrawer from './_components/settingsDrawer';
+import QuestionTemplateDrawer from './_components/questionsTemplate/questionTemplateDrawer';
+import QuestionTemplateCard from './_components/questionsTemplate/questionTemplateCard';
 
 const { Title } = Typography;
 
-const OrganizationalDevelopmentSettings: React.FC = () => {
+const QuestionTemplate: React.FC = () => {
   const { setIsOpen } = useCustomQuestionTemplateStore();
 
   const showDrawer = () => {
@@ -48,9 +48,9 @@ const OrganizationalDevelopmentSettings: React.FC = () => {
                 onClick={showDrawer}
                 className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
               />
-              <ODSettingsDrawer onClose={onClose} />
+              <QuestionTemplateDrawer onClose={onClose} />
             </div>
-            <ODQuestionsDisplay />
+            <QuestionTemplateCard />
           </Card>
         </Col>
       </Row>
@@ -58,4 +58,4 @@ const OrganizationalDevelopmentSettings: React.FC = () => {
   );
 };
 
-export default OrganizationalDevelopmentSettings;
+export default QuestionTemplate;

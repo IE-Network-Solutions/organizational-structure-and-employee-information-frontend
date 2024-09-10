@@ -5,9 +5,9 @@ import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { useGetFormCategories } from '@/store/server/features/feedback/category/queries';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
-import FormDrawer from './_components/form/formDrawer';
-import FormSearch from './_components/form/formSearch';
-import FormCard from './_components/form/formCards';
+import FormDrawer from './formDrawer';
+import FormSearch from './formSearch';
+import FormCard from './formCards';
 
 interface Params {
   id: string;
