@@ -34,17 +34,6 @@ const CommentInput: FC<CommentInputProps> = ({ onChange }) => {
           <button type="button" className="ql-italic"></button>
           <button type="button" className="ql-link"></button>
         </div>
-        <div className="flex justify-between">
-          <Form.Item name="commentAttachment" valuePropName="fileList">
-            <Upload className="felx-1">
-              <Button
-                icon={<ImAttachment size={20} />}
-                type="primary"
-                className="bg-transparent text-gray-500 shadow-none"
-              />
-            </Upload>
-          </Form.Item>
-        </div>
       </Form>
     </div>
   );
