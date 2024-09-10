@@ -18,6 +18,7 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
     '/onboarding',
     '/signup',
     '/not-found',
+    '/surveys/[id]',
   ];
 
   return (
