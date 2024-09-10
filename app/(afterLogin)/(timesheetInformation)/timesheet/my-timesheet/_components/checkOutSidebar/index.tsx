@@ -146,7 +146,7 @@ const CheckOutSidebar = () => {
                 <Select.Option
                   value={option.value}
                   key={option.value}
-                  // disabled={option.disabled}
+                  disabled={option.disabled}
                 >
                   <div className="p-4 pr-1.5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
