@@ -1,10 +1,12 @@
+'use client';
 import { Button, Form, Upload } from 'antd';
 import { ImAttachment } from 'react-icons/im';
 import { CommonObject } from '@/types/commons/commonObject';
 import { FC } from 'react';
 
 import 'react-quill/dist/quill.snow.css';
-import ReactQuill from 'react-quill';
+import dynamic from 'next/dynamic';
+const QuillEditor = dynamic(() => import('react-quill'), { ssr: false });
 
 interface CommentInputProps {
   onChange: (value: CommonObject) => void;
@@ -24,7 +26,7 @@ const CommentInput: FC<CommentInputProps> = ({ onChange }) => {
         }}
       >
         <Form.Item name="comment">
-          <ReactQuill modules={{ toolbar }} />
+          <QuillEditor modules={{ toolbar }} />
         </Form.Item>
         <div className="border-b border-gray-200 mb-3"></div>
         <div id="inputToolbar" className="border-0">
