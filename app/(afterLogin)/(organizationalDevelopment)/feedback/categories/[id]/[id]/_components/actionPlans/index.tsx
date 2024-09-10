@@ -12,7 +12,7 @@ import { RiDeleteBin5Line } from 'react-icons/ri';
 interface Params {
   id: string;
 }
-function ActionPlans({id}:Params) {
+function ActionPlans({ id }: Params) {
   const { data: actionPlanData } = useGetAllActionPlan(id);
   const { data: employeeData, isLoading: userLoading } = useGetAllUsers();
   const { setSelectedActionPlan, selectedActionPlan, setOpen } =

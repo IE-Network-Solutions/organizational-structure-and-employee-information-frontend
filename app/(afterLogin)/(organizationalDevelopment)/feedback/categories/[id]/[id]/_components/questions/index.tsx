@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, Form, Pagination, Row } from 'antd';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
-import { useFetchedQuestions, useFetchedQuestionsByFormId } from '@/store/server/features/organization-development/categories/queries';
+import { useFetchedQuestionsByFormId } from '@/store/server/features/organization-development/categories/queries';
 import { QuestionsType } from '@/store/server/features/organization-development/categories/interface';
 import ShortTextField from './shortTextField';
 import MultipleChoiceField from './multipleChoiceField';
@@ -15,11 +15,11 @@ import { FieldType } from '@/types/enumTypes';
 interface Params {
   id: string;
 }
-const Questions = ({id}:Params) => {
+const Questions = ({ id }: Params) => {
   const { current, setCurrent, pageSize, setPageSize, searchTitle } =
     useOrganizationalDevelopment();
   // const { data: questionsData } = useFetchedQuestions(id,searchTitle);
-  const { data: questionsData } = useFetchedQuestionsByFormId(id,searchTitle);
+  const { data: questionsData } = useFetchedQuestionsByFormId(id, searchTitle);
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrent(page);

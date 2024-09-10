@@ -20,7 +20,10 @@ const fetchQuestions = async (searchTitle: string | null) => {
     },
   });
 };
-const fetchQuestionsByFormId = async (formId:string,searchTitle: string | null) => {
+const fetchQuestionsByFormId = async (
+  formId: string,
+  searchTitle: string | null,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const current = useOrganizationalDevelopment.getState().current;
@@ -35,7 +38,10 @@ const fetchQuestionsByFormId = async (formId:string,searchTitle: string | null) 
     },
   });
 };
-const fetchIndividualResponses = async (formId:string,userId: string | null) => {
+const fetchIndividualResponses = async (
+  formId: string,
+  userId: string | null,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
@@ -94,16 +100,22 @@ export const useFetchedQuestions = (searchTitle: string | null) => {
     fetchQuestions(searchTitle),
   );
 };
-export const useFetchedQuestionsByFormId = (formId:string,searchTitle: string | null) => {
-  return useQuery<QuestionData>(['questions',formId, searchTitle], () =>
-    fetchQuestionsByFormId(formId,searchTitle),
+export const useFetchedQuestionsByFormId = (
+  formId: string,
+  searchTitle: string | null,
+) => {
+  return useQuery<QuestionData>(['questions', formId, searchTitle], () =>
+    fetchQuestionsByFormId(formId, searchTitle),
   );
 };
 
-export const useFetchedIndividualResponses = (formId:string,userId: string | null) => {
+export const useFetchedIndividualResponses = (
+  formId: string,
+  userId: string | null,
+) => {
   return useQuery<any>(
-    ['individualResponses',formId, userId],
-    () => fetchIndividualResponses(formId,userId),
+    ['individualResponses', formId, userId],
+    () => fetchIndividualResponses(formId, userId),
     {
       enabled: !!userId, // Only run the query when userId is not null or undefined
     },
@@ -114,5 +126,7 @@ export const useFetchedAllIndividualResponses = () => {
   return useQuery<any>('allIndividualResponses', fetchAllIndividualResponses);
 };
 export const useFetchedAllIndividualResponsesByFormId = (formId: string) => {
-  return useQuery<any>(['allIndividualResponses',formId], ()=>fetchAllIndividualResponsesByformId(formId));
+  return useQuery<any>(['allIndividualResponses', formId], () =>
+    fetchAllIndividualResponsesByformId(formId),
+  );
 };

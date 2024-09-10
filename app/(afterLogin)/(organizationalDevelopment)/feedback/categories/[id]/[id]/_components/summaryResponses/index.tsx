@@ -3,7 +3,7 @@ import { Col, Form, Progress, Row } from 'antd';
 interface Params {
   id: string;
 }
-function SummaryResponses({id}:Params) {
+function SummaryResponses({ id }: Params) {
   const [questions] = useState([
     {
       id: 1,
@@ -21,7 +21,7 @@ function SummaryResponses({id}:Params) {
 
   return (
     <div>
-      <Form layout="vertical" style={{ maxWidth: 600 }}>
+      <Form id={id} layout="vertical" style={{ maxWidth: 600 }}>
         {questions.map((q) => (
           <Form.Item label={q.question} key={q.id} required>
             <Row
@@ -29,7 +29,7 @@ function SummaryResponses({id}:Params) {
               style={{ marginLeft: '10px' }}
               className="flex justify-between"
             >
-               {/* eslint-disable @typescript-eslint/naming-convention  */}
+              {/* eslint-disable @typescript-eslint/naming-convention  */}
               {q.choices.map((choice, index) => (
                 <Row key={index} style={{ marginBottom: '10px' }}>
                   <Col span={24}>

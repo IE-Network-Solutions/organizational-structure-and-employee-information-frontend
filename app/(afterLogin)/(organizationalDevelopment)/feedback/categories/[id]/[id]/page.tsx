@@ -40,7 +40,7 @@ function Page({ params: { id } }: FormDetailProps) {
           <p className="font-semibold">Individual Responses</p>
         </span>
       ),
-      children: <IndividualResponses id={id}/>,
+      children: <IndividualResponses id={id} />,
       className: 'text-gray-950 font-semibold',
     },
     {

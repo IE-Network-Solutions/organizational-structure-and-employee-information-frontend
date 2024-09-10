@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Col, Form, Pagination, Row } from 'antd';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import {
-  useFetchedAllIndividualResponses,
   useFetchedAllIndividualResponsesByFormId,
   useFetchedIndividualResponses,
 } from '@/store/server/features/organization-development/categories/queries';
@@ -21,13 +20,16 @@ interface Params {
   id: string;
 }
 
-const IndividualResponses = ({id}:Params) => {
+const IndividualResponses = ({ id }: Params) => {
   const { setCurrent, current, pageSize, selectedUser, setPageSize } =
     useOrganizationalDevelopment();
-  const { data: individualresponses, refetch } =
-    useFetchedIndividualResponses(id,selectedUser);
+  const { data: individualresponses, refetch } = useFetchedIndividualResponses(
+    id,
+    selectedUser,
+  );
   // const { data: allIndividualresponses } = useFetchedAllIndividualResponses();
-  const { data: allIndividualresponsesByFromId } = useFetchedAllIndividualResponsesByFormId(id);
+  const { data: allIndividualresponsesByFromId } =
+    useFetchedAllIndividualResponsesByFormId(id);
 
   useEffect(() => {
     if (selectedUser) {
