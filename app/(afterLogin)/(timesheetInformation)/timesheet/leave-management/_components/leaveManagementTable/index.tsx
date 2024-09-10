@@ -1,4 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
 import LeaveManagementTableFilter from './tableFilter';
 import { Avatar, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
@@ -18,7 +24,13 @@ import { CommonObject } from '@/types/commons/commonObject';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
 
-const LeaveManagementTable = () => {
+interface LeaveManagementTableProps {
+  setBodyRequest: Dispatch<SetStateAction<LeaveRequestBody>>;
+}
+
+const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
+  setBodyRequest,
+}) => {
   const { setIsShowLeaveRequestManagementSidebar, setLeaveRequestId } =
     useLeaveManagementStore();
   const [tableData, setTableData] = useState<any[]>([]);
@@ -149,6 +161,11 @@ const LeaveManagementTable = () => {
     }
 
     setFilter(nFilter);
+
+    setBodyRequest((prev) => ({
+      ...prev,
+      filter: nFilter,
+    }));
   };
 
   return (

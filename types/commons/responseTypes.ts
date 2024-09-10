@@ -13,4 +13,5 @@ export interface ApiResponse<T> {
   meta: ResponseMeta;
   items: T[];
   item: T;
+  file?: string;
 }

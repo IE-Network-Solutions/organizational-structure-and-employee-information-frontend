@@ -1,7 +1,7 @@
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
 
 export interface LeaveRequestBody {
-  isExport?: boolean;
+  exportType?: 'PDF' | 'EXCEL';
   filter?: {
     leaveRequestsIds?: string[];
     userIds?: string[];

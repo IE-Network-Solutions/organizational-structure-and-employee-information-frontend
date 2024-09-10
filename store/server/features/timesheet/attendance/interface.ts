@@ -1,9 +1,9 @@
 export interface AttendanceRequestBody {
-  isExport: boolean;
+  exportType?: 'PDF' | 'EXCEL';
   filter: {
     attendanceRecordIds?: string[];
     userIds?: string[];
-    type?: 'late' | 'early' | 'absent';
+    type?: 'late' | 'early' | 'absent' | 'present';
     date?: {
       from: string;
       to: string;

@@ -1,6 +1,6 @@
 export interface RequestCommonQueryData {
-  limit: number | string;
-  page: number | string;
+  limit?: number | string;
+  page?: number | string;
   cacheQueries?: string;
   countQueries?: string;
   orderBy?: string;

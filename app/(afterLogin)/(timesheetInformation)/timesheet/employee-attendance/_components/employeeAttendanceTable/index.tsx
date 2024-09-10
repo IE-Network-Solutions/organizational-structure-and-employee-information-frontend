@@ -1,4 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
 import { Avatar, Space, Table } from 'antd';
 
 import TableFilter from './tableFilter';
@@ -24,7 +30,13 @@ import { CommonObject } from '@/types/commons/commonObject';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
 
-const EmployeeAttendanceTable = () => {
+interface EmployeeAttendanceTableProps {
+  setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
+}
+
+const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
+  setBodyRequest,
+}) => {
   const [tableData, setTableData] = useState<any[]>([]);
   const {
     page,
@@ -166,6 +178,10 @@ const EmployeeAttendanceTable = () => {
     }
 
     setFilter(nFilter);
+    setBodyRequest((prev) => ({
+      ...prev,
+      filter: nFilter,
+    }));
   };
 
   return (
