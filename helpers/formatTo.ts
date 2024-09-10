@@ -7,6 +7,7 @@ import {
 import { BreakType } from '@/types/timesheet/breakType';
 import { StatusBadgeTheme } from '@/components/common/statusBadge';
 import { minuteToHour, minuteToLastMinute } from '@/helpers/calculateHelper';
+import { UploadFile } from 'antd/es/upload/interface';
 
 type Options = SelectProps['options'];
 
@@ -122,4 +123,16 @@ export const formatBreakTypeToStatus = (
       disabled: true,
     };
   }
+};
+
+export const formatLinkToUploadFile = (link: string): UploadFile => {
+  const splitedLink = link.split('/');
+  const fileName = splitedLink[splitedLink.length - 1];
+
+  return {
+    uid: fileName,
+    name: fileName,
+    status: 'done',
+    response: link,
+  };
 };

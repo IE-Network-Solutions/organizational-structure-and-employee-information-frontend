@@ -22,6 +22,7 @@ import { LuPlus } from 'react-icons/lu';
 import DeletePopover from '@/components/common/ActionButton/deletePopover';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { formatLinkToUploadFile } from '@/helpers/formatTo';
 
 const HistoryTable = () => {
   const userFilter: Partial<LeaveRequestBody['filter']> = {
@@ -99,10 +100,10 @@ const HistoryTable = () => {
       title: 'Attachment',
       dataIndex: 'justificationDocument',
       key: 'justificationDocument',
-      render: (text: string) =>
-        text ? (
+      render: (link: string) =>
+        link ? (
           <div className="flex justify-between align-middle">
-            <div>{text}</div>
+            <div>{formatLinkToUploadFile(link).name}</div>
             <TbFileDownload size={14} />
           </div>
         ) : (

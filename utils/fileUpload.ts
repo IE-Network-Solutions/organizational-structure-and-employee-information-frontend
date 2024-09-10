@@ -12,8 +12,8 @@ export const fileUpload = async (
 ): Promise<AxiosResponse<CustomFile>> => {
   try {
     const formData = new FormData();
-    formData.append('file', file);
     formData.append('tenantId', useAuthenticationStore.getState().tenantId);
+    formData.append('file', file);
 
     const config = {
       headers: {
@@ -26,6 +26,7 @@ export const fileUpload = async (
       formData,
       config,
     );
+
     return response;
   } catch (error) {
     NotificationMessage.error({

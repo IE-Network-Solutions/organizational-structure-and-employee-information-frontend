@@ -20,7 +20,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
     const rcFile = file as RcFile;
     const response = await fileUpload(rcFile);
     if (onSuccess && response) {
-      onSuccess(response.data);
+      onSuccess(response.data['viewImage']);
     }
   };
 

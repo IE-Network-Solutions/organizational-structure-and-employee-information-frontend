@@ -8,7 +8,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useSetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
-import { formatToOptions } from '@/helpers/formatTo';
+import { formatLinkToUploadFile, formatToOptions } from '@/helpers/formatTo';
 import { DATE_FORMAT } from '@/utils/constants';
 import dayjs from 'dayjs';
 import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';
@@ -67,6 +67,7 @@ const LeaveRequestSidebar = () => {
 
   useEffect(() => {
     if (leaveRequest) {
+      console.log({ leaveRequest });
       form.setFieldValue(
         'type',
         typeof leaveRequest?.leaveType !== 'string' &&
@@ -76,6 +77,12 @@ const LeaveRequestSidebar = () => {
       form.setFieldValue('startDate', dayjs(leaveRequest.startAt));
       form.setFieldValue('endDate', dayjs(leaveRequest.endAt));
       form.setFieldValue('note', leaveRequest.justificationNote);
+      form.setFieldValue(
+        'attachment',
+        leaveRequest.justificationDocument
+          ? [formatLinkToUploadFile(leaveRequest.justificationDocument)]
+          : null,
+      );
     }
   }, [leaveRequest]);
 
@@ -122,7 +129,8 @@ const LeaveRequestSidebar = () => {
       isHalfday: !!value.isHalfday,
       startAt: dayjs(value.startDate).format('YYYY-MM-DD'),
       endAt: dayjs(value.endDate).format('YYYY-MM-DD'),
-      justificationDocument: value.attachment && value.attachment.file,
+      justificationDocument:
+        value.attachment?.length && (value.attachment[0]['response'] || null),
       justificationNote: value.note,
       status: LeaveRequestStatus.PENDING,
     });
