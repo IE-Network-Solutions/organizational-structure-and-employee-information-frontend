@@ -15,10 +15,6 @@ const Notifications = () => {
   const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
 
   const {
-    pageSize,
-    currentPage,
-    setCurrentPage,
-    setPageSize,
     selectedNotificationId,
     setIsNotificationDetailVisible,
     setSelectedNotificationId,
@@ -31,7 +27,7 @@ const Notifications = () => {
   const updateNotification = (id: string) => {
     updateNotificationStatus(id);
   };
-  const { data, isLoading } = useGetNotifications(pageSize);
+  const { data, isLoading } = useGetNotifications();
   const unReadNotification = data?.filter(
     (item: NotificationType) => item.status == 'ACTIVE',
   );
