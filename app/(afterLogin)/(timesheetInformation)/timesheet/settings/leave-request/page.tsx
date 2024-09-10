@@ -4,8 +4,8 @@ import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveReque
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Spin } from 'antd';
-import LeaveRequestCard from '@/app/(afterLogin)/(timesheetInformation)/timesheet/settings/_components/leaveRequest/leaveRequestCard';
-import LeaveRequestSidebar from '@/app/(afterLogin)/(timesheetInformation)/timesheet/settings/_components/leaveRequest/leaveRequestSidebar';
+import LeaveRequestCard from './_components/leaveRequestCard';
+import LeaveRequestSidebar from './_components/leaveRequestSidebar';
 
 const Page = () => {
   const { data, isFetching } = useGetLeaveRequest(
