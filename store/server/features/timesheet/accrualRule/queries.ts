@@ -4,12 +4,14 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import { AccrualRule } from '@/types/timesheet/settings';
+import { RequestCommonQueryData } from '@/types/commons/requesTypes';
 
-const getAccrualRules = async () => {
+const getAccrualRules = async (params?: Partial<RequestCommonQueryData>) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_MODE_URL}/accrual-rules`,
     method: 'GET',
     headers: requestHeader(),
+    params,
   });
 };
 
@@ -22,10 +24,12 @@ const getAccrualRule = async (id: string) => {
   });
 };
 
-export const useGetAccrualRules = () => {
+export const useGetAccrualRules = (
+  params?: Partial<RequestCommonQueryData>,
+) => {
   return useQuery<ApiResponse<AccrualRule>>(
-    'accrual-rules',
-    () => getAccrualRules(),
+    ['accrual-rules', params],
+    () => getAccrualRules(params),
     {
       keepPreviousData: true,
     },

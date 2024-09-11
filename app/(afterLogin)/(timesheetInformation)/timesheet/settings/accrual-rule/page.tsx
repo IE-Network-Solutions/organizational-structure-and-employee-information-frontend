@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import { useGetAccrualRules } from '@/store/server/features/timesheet/accrualRule/queries';
 import { TableColumnsType } from '@/types/table/table';
@@ -9,15 +9,34 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button, Table } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import NewAccrualRuleSidebar from './_components/newAccrualRuleSidebar';
+import usePagination from '@/utils/usePagination';
+import { defaultTablePagination } from '@/utils/defaultTablePagination';
 
 const Page = () => {
-  const { setIsShowNewAccrualRuleSidebar } = useTimesheetSettingsStore();
-  const { data } = useGetAccrualRules();
+  const {
+    page,
+    limit,
+    orderBy,
+    orderDirection,
+    setPage,
+    setLimit,
+    setOrderBy,
+    setOrderDirection,
+  } = usePagination();
+  const { setIsShowNewAccrualRuleSidebar, isShowNewAccrualRuleSidebar } =
+    useTimesheetSettingsStore();
+  const { data, isFetching, refetch } = useGetAccrualRules({
+    page,
+    limit,
+    orderBy,
+    orderDirection,
+  });
   const columns: TableColumnsType<any> = [
     {
       title: 'Accrual Rule',
       dataIndex: 'title',
       key: 'title',
+      sorter: true,
       render: (text: string) => <div>{text}</div>,
     },
     {
@@ -45,6 +64,12 @@ const Page = () => {
       : [];
   };
 
+  useEffect(() => {
+    if (!isShowNewAccrualRuleSidebar) {
+      refetch();
+    }
+  }, [isShowNewAccrualRuleSidebar]);
+
   return (
     <>
       <PageHeader title="Accrual Rule" size="small">
@@ -61,8 +86,15 @@ const Page = () => {
       <Table
         columns={columns}
         className="mt-6"
+        loading={isFetching}
         dataSource={tableData()}
-        pagination={false}
+        pagination={defaultTablePagination(data?.meta?.totalItems)}
+        onChange={(pagination, filters, sorter: any) => {
+          setPage(pagination.current ?? 1);
+          setLimit(pagination.pageSize ?? 10);
+          setOrderDirection(sorter['order']);
+          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+        }}
       />
 
       <NewAccrualRuleSidebar />
