@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { Button, Col, Popover, Row, Space } from 'antd';
@@ -9,8 +9,13 @@ import { LuBookmark } from 'react-icons/lu';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
+import { useAttendanceImport } from '@/store/server/features/timesheet/attendance/mutation';
+import { fileUpload } from '@/utils/fileUpload';
 const EmployeeAttendance = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
+  const importAttendance = useRef<HTMLInputElement | null>(null);
+  const [file, setFile] = useState<any>();
   const [bodyRequest, setBodyRequest] = useState<AttendanceRequestBody>(
     {} as AttendanceRequestBody,
   );
@@ -20,6 +25,8 @@ const EmployeeAttendance = () => {
     true,
     false,
   );
+  const { mutate: uploadImport, isLoading: isLoadingImport } =
+    useAttendanceImport();
 
   useEffect(() => {
     if (data && data.file) {
@@ -39,6 +46,17 @@ const EmployeeAttendance = () => {
     }
   }, [bodyRequest]);
 
+  useEffect(() => {
+    if (file) {
+      setIsLoading(true);
+      fileUpload(file).then((res) => {
+        setFile(null);
+        setIsLoading(false);
+        uploadImport(res.data['viewImage']);
+      });
+    }
+  }, [file]);
+
   const onExport = (type: 'PDF' | 'EXCEL') => {
     setBodyRequest((prev) => ({
       ...prev,
@@ -56,10 +74,28 @@ const EmployeeAttendance = () => {
           <Button
             icon={<TbFileUpload size={18} />}
             size="large"
-            loading={isFetching}
+            loading={isFetching || isLoading || isLoadingImport}
+            onClick={() => {
+              if (importAttendance) {
+                importAttendance.current?.click();
+              }
+            }}
           >
             Import
           </Button>
+
+          <input
+            type="file"
+            ref={importAttendance}
+            accept=".xlsx, .xls"
+            onChange={(e) => {
+              if (e.target.files?.length) {
+                setFile(e.target.files[0]);
+              }
+            }}
+            hidden
+          />
+
           <Popover
             trigger="click"
             placement="bottomRight"
@@ -101,7 +137,7 @@ const EmployeeAttendance = () => {
               icon={<TbFileDownload size={18} />}
               size="large"
               type="primary"
-              loading={isFetching}
+              loading={isFetching || isLoading || isLoadingImport}
             >
               Export
             </Button>
