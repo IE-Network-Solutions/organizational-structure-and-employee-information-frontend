@@ -8,7 +8,7 @@ import EmployeeAttendanceTable from './_components/employeeAttendanceTable';
 import { LuBookmark } from 'react-icons/lu';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
-import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
+import { NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useAttendanceImport } from '@/store/server/features/timesheet/attendance/mutation';
 import { fileUpload } from '@/utils/fileUpload';
 const EmployeeAttendance = () => {
@@ -30,7 +30,7 @@ const EmployeeAttendance = () => {
 
   useEffect(() => {
     if (data && data.file) {
-      const url = new URL(TIME_AND_ATTENDANCE_MODE_URL!);
+      const url = new URL(NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL!);
       window.open(`${url.origin}/${data.file}`, '_blank');
     }
   }, [data]);
