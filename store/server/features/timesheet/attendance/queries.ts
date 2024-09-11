@@ -1,9 +1,6 @@
 import { RequestCommonQueryData } from '@/types/commons/requesTypes';
 import { crudRequest } from '@/utils/crudRequest';
-import {
-  localUserID,
-  NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL,
-} from '@/utils/constants';
+import { localUserID, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import {
   AttendanceImportLogsBody,
@@ -21,7 +18,7 @@ const getAttendances = async (
   data: Partial<AttendanceRequestBody>,
 ) => {
   return await crudRequest({
-    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/attendance`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
     method: 'POST',
     headers: requestHeader(),
     data,
@@ -31,7 +28,7 @@ const getAttendances = async (
 
 const getCurrentAttendance = async () => {
   return await crudRequest({
-    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/attendance/shift`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/shift`,
     method: 'GET',
     headers: requestHeader(),
     params: { userId: localUserID },
@@ -43,7 +40,7 @@ const getAttendanceImportLogs = async (
   data: Partial<AttendanceImportLogsBody>,
 ) => {
   return await crudRequest({
-    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/attendance/import-logs`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/import-logs`,
     method: 'POST',
     headers: requestHeader(),
     data,
