@@ -1,22 +1,22 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { AccrualRule } from '@/types/timesheet/settings';
 
-const setAccrualRule = async (data: Partial<AccrualRule>) => {
+const setAccrualRule = async (item: Partial<AccrualRule>) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/accrual-rules`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/accrual-rules`,
     method: 'POST',
     headers: requestHeader(),
-    data,
+    data: { item },
   });
 };
 
 const deleteAccrualRule = async (id: string) => {
   return await crudRequest({
-    url: `/${ORG_AND_EMP_URL}/accrual-rules`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/accrual-rules`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },

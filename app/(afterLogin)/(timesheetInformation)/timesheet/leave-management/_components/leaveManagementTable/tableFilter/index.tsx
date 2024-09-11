@@ -1,39 +1,69 @@
-import { Col, DatePicker, Row, Select } from 'antd';
-import React from 'react';
+import { Col, DatePicker, Form, Row, Select } from 'antd';
+import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
+import { CommonObject } from '@/types/commons/commonObject';
+import React, { FC } from 'react';
+import { DATE_FORMAT } from '@/utils/constants';
+import { formatToOptions } from '@/helpers/formatTo';
+import { LeaveRequestStatusOption } from '@/types/timesheet/settings';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
-const LeaveManagementTableFilter = () => {
+interface LeaveManagementTableFilterProps {
+  onChange: (val: CommonObject) => void;
+}
+
+const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
+  onChange,
+}) => {
+  const { leaveTypes } = useLeaveManagementStore();
+  const [form] = Form.useForm();
+
   const filterClass = 'w-full h-[54px]';
 
   return (
-    <Row gutter={16}>
-      <Col span={8}>
-        <DatePicker.RangePicker
-          className={filterClass}
-          separator={'-'}
-          format="DD MMM YYYY"
-        />
-      </Col>
-      <Col span={8}>
-        <Select
-          className="w-full h-[54px]"
-          placeholder="Select Type"
-          options={[
-            { value: 'all', label: 'All' },
-            { value: 'engagement', label: 'Engagement' },
-          ]}
-        />
-      </Col>
-      <Col span={8}>
-        <Select
-          className="w-full h-[54px]"
-          placeholder="Select Status"
-          options={[
-            { value: 'all', label: 'All' },
-            { value: 'pending', label: 'Pending' },
-          ]}
-        />
-      </Col>
-    </Row>
+    <Form
+      form={form}
+      onFieldsChange={() => {
+        onChange(form.getFieldsValue());
+      }}
+    >
+      <Row gutter={16}>
+        <Col span={8}>
+          <Form.Item name="dateRange">
+            <DatePicker.RangePicker
+              className={filterClass}
+              separator={'-'}
+              format={DATE_FORMAT}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item name="type">
+            <Select
+              className="w-full h-[54px]"
+              placeholder="Select Type"
+              allowClear={true}
+              suffixIcon={
+                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+              }
+              options={formatToOptions(leaveTypes ?? [], 'title', 'id')}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item name="status">
+            <Select
+              className="w-full h-[54px]"
+              placeholder="Select Status"
+              allowClear={true}
+              suffixIcon={
+                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+              }
+              options={LeaveRequestStatusOption}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+    </Form>
   );
 };
 

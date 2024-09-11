@@ -1,64 +1,53 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import {
-  CheckStatus,
-  useMyTimesheetStore,
-} from '@/store/uistate/features/timesheet/myTimesheet';
+import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { Form, Select } from 'antd';
 import type { SelectProps } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import StatusBadge, {
-  StatusBadgeTheme,
-} from '@/components/common/statusBadge/statusBadge';
-import { AiOutlineCamera } from 'react-icons/ai';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
+import { BreakTypeStatus, formatBreakTypeToStatus } from '@/helpers/formatTo';
+import StatusBadge from '@/components/common/statusBadge/statusBadge';
+import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
+import { localUserID } from '@/utils/constants';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import TakePicture from '@/components/common/takePicture';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
 type LabelRender = SelectProps['labelRender'];
 
-interface CustomSelectOption {
+interface CustomSelectOption extends BreakTypeStatus {
   label: string;
   value: string;
-  status: {
-    text: string;
-    theme: StatusBadgeTheme;
-  };
 }
 
 const CheckOutSidebar = () => {
-  const { isShowCheckOutSidebar, setIsShowCheckOutSidebar, setCheckStatus } =
-    useMyTimesheetStore();
-
+  const [options, setOptions] = useState<CustomSelectOption[]>([]);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const {
+    isShowCheckOutSidebar,
+    setIsShowCheckOutSidebar,
+    breakTypes,
+    currentAttendance,
+  } = useMyTimesheetStore();
 
-  const selectOptions: CustomSelectOption[] = [
-    {
-      label: 'Lunch break-out',
-      value: 'lunch-break-out',
-      status: {
-        text: 'Checked',
-        theme: StatusBadgeTheme.success,
-      },
-    },
-    {
-      label: 'Lunch break-out',
-      value: 'lunch-break-out-missed',
-      status: {
-        text: 'missed',
-        theme: StatusBadgeTheme.danger,
-      },
-    },
-    {
-      label: 'Break-out',
-      value: 'break-out',
-      status: {
-        text: 'Not Yet',
-        theme: StatusBadgeTheme.warning,
-      },
-    },
-  ];
+  const { mutate: setCurrentAttendance, isSuccess } = useSetCurrentAttendance();
+
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    const nOptions: CustomSelectOption[] = breakTypes.map((item) => {
+      return {
+        label: item.title,
+        value: item.id,
+        ...formatBreakTypeToStatus(item, currentAttendance),
+      };
+    });
+
+    setOptions(nOptions);
+  }, [breakTypes, currentAttendance]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -74,10 +63,7 @@ const CheckOutSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
-      onClick: () => {
-        setIsShowCheckOutSidebar(false);
-        setCheckStatus(CheckStatus.breaking);
-      },
+      onClick: () => form.submit(),
     },
   ];
 
@@ -86,12 +72,47 @@ const CheckOutSidebar = () => {
 
   const selectLabel: LabelRender = (props) => {
     const { value } = props;
-    const option = selectOptions.find((item) => item.value === value);
+    const option = options.find((item) => item.value === value);
     return option ? (
       <div className="font-bold text-gray-900">{option.label}</div>
     ) : (
       ''
     );
+  };
+  useEffect(() => {
+    if (isSuccess) {
+      form.resetFields();
+      setIsShowCheckOutSidebar(false);
+    }
+  }, [isSuccess]);
+
+  const onFinish = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const value = form.getFieldsValue();
+          setCurrentAttendance({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            userId: localUserID,
+            isSignIn: false,
+            breakTypeId: value.type,
+            file: value.photo,
+          });
+        },
+        () => {
+          NotificationMessage.error({
+            message: `No access to geolocation`,
+            description: `To check-in/check-out we need to have access to geolocation.`,
+          });
+        },
+      );
+    } else {
+      NotificationMessage.error({
+        message: `No access to geolocation`,
+        description: `To check-in/check-out we need to have access to geolocation.`,
+      });
+    }
   };
 
   return (
@@ -103,21 +124,34 @@ const CheckOutSidebar = () => {
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"
       >
-        <Form layout="vertical" requiredMark={CustomLabel} autoComplete="off">
+        <Form
+          layout="vertical"
+          form={form}
+          requiredMark={CustomLabel}
+          onFinish={onFinish}
+          autoComplete="off"
+        >
           <Form.Item
             name="type"
             label="Checkin type"
-            required
+            rules={[{ required: true, message: 'Required' }]}
             className={itemClass}
           >
             <Select
               className={controlClass}
               value={selectedType}
               labelRender={selectLabel}
+              suffixIcon={
+                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+              }
               onChange={setSelectedType}
             >
-              {selectOptions.map((option) => (
-                <Select.Option value={option.value} key={option.value}>
+              {options.map((option) => (
+                <Select.Option
+                  value={option.value}
+                  key={option.value}
+                  disabled={option.disabled}
+                >
                   <div className="p-4 pr-1.5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {selectedType === option.value ? (
@@ -142,13 +176,11 @@ const CheckOutSidebar = () => {
             </Select>
           </Form.Item>
           <Form.Item name="photo">
-            <button className="w-full py-3.5 px-4 flex justify-center items-center flex-col rounded-[10px] border border-gray-300 hover:border-primary transition duration-150">
-              <AiOutlineCamera size={50} className="text-primary" />
-              <div className="text-sm font-bold text-gray-900 mt-1">Camera</div>
-              <div className="text-xs font-semibold text-gray-400">
-                Please allow your camera
-              </div>
-            </button>
+            <TakePicture
+              onChange={(imgSrc) => {
+                form.setFieldValue('photo', imgSrc);
+              }}
+            />
           </Form.Item>
         </Form>
       </CustomDrawerLayout>

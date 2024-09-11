@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import { LeaveRequest } from '@/types/timesheet/settings';
@@ -12,7 +12,7 @@ const getLeaveRequest = async (
   data: LeaveRequestBody,
 ) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/leave-request`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/leave-request`,
     method: 'POST',
     headers: requestHeader(),
     data,
@@ -23,12 +23,15 @@ const getLeaveRequest = async (
 export const useGetLeaveRequest = (
   queryData: RequestCommonQueryData,
   data: LeaveRequestBody,
+  isKeepData: boolean = true,
+  isEnabled: boolean = true,
 ) => {
   return useQuery<ApiResponse<LeaveRequest>>(
-    ['leave-request', queryData],
+    ['leave-request', queryData, data],
     () => getLeaveRequest(queryData, data),
     {
-      keepPreviousData: true,
+      keepPreviousData: isKeepData,
+      enabled: isEnabled,
     },
   );
 };

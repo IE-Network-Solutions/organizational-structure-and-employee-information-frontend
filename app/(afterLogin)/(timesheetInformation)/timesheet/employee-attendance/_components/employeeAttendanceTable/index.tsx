@@ -1,211 +1,206 @@
-import React from 'react';
-import { Avatar, Table } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
-import { TableRowSelection } from 'antd/es/table/interface';
-import { TableColumnsType } from '@/types/table/table';
+import React, {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
+import { Avatar, Space, Table } from 'antd';
+
 import TableFilter from './tableFilter';
-import StatusBadge, {
-  StatusBadgeTheme,
-} from '@/components/common/statusBadge/statusBadge';
 
-interface DataTableEmployee {
-  img: string;
-  name: string;
-  email: string;
+import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
+import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
+import {
+  calculateAttendanceRecordToTotalWorkTime,
+  timeToHour,
+  timeToLastMinute,
+} from '@/helpers/calculateHelper';
+import { TableColumnsType } from '@/types/table/table';
+import { UserOutlined } from '@ant-design/icons';
+import StatusBadge from '@/components/common/statusBadge/statusBadge';
+import dayjs from 'dayjs';
+import { DATE_FORMAT, DATETIME_FORMAT } from '@/utils/constants';
+import {
+  AttendanceRecord,
+  AttendanceRecordTypeBadgeTheme,
+} from '@/types/timesheet/attendance';
+import { formatToAttendanceStatuses } from '@/helpers/formatTo';
+import { CommonObject } from '@/types/commons/commonObject';
+import usePagination from '@/utils/usePagination';
+import { defaultTablePagination } from '@/utils/defaultTablePagination';
+
+interface EmployeeAttendanceTableProps {
+  setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
 }
 
-interface TableData {
-  key: React.ReactNode;
-  employee: DataTableEmployee;
-  date: string;
-  clockIn: string;
-  clockOut: string;
-  status: string;
-  overTime: string;
-  totalTime: string;
-  approvalStatus: string;
-}
+const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
+  setBodyRequest,
+}) => {
+  const [tableData, setTableData] = useState<any[]>([]);
+  const {
+    page,
+    limit,
+    orderBy,
+    orderDirection,
+    setPage,
+    setLimit,
+    setOrderBy,
+    setOrderDirection,
+  } = usePagination(1, 10);
+  const [filter, setFilter] =
+    useState<Partial<AttendanceRequestBody['filter']>>();
+  const { data, isFetching } = useGetAttendances(
+    { page, limit, orderBy, orderDirection },
+    { filter },
+  );
 
-const columns: TableColumnsType<TableData> = [
-  {
-    title: 'Employee Name',
-    dataIndex: 'employee',
-    key: 'employee',
-    render: (employee: DataTableEmployee) => (
-      <div className="flex items-center gap-1.5">
-        <Avatar size={24} icon={<UserOutlined />} />
-        <div className="flex-1">
-          <div className="text-xs text-gray-900">{employee.name}</div>
-          <div className="text-[10px] leading-4	text-gray-600">
-            {employee.email}
+  const columns: TableColumnsType<any> = [
+    {
+      title: 'Employee Name',
+      dataIndex: 'createdBy',
+      key: 'createdBy',
+      sorter: true,
+      render: (employee: any) =>
+        employee ? (
+          <div className="flex items-center gap-1.5">
+            <Avatar size={24} icon={<UserOutlined />} />
+            <div className="flex-1">
+              <div className="text-xs text-gray-900">{employee.name}</div>
+              <div className="text-[10px] leading-4	text-gray-600">
+                {employee.email}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    title: 'Date',
-    dataIndex: 'date',
-    key: 'date',
-    render: (date: string) => <div>{date}</div>,
-  },
-  {
-    title: 'Clock In',
-    dataIndex: 'clockIn',
-    key: 'clockIn',
-    render: (text: string) => <div>{text}</div>,
-  },
-  {
-    title: 'Clock Out',
-    dataIndex: 'clockOut',
-    key: 'clockOut',
-    render: (text: string) => <div>{text}</div>,
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    render: (text: string) => (
-      <StatusBadge theme={StatusBadgeTheme.success}>{text}</StatusBadge>
-    ),
-  },
-  {
-    title: 'Over-time',
-    dataIndex: 'overTime',
-    key: 'overTime',
-    render: (text: string) => <div>{text}</div>,
-  },
-  {
-    title: 'Total time',
-    dataIndex: 'totalTime',
-    key: 'totalTime',
-    render: (text: string) => <div>{text}</div>,
-  },
-  {
-    title: 'Approval Status',
-    dataIndex: 'approvalStatus',
-    key: 'approvalStatus',
-    render: (text: string) => <StatusBadge>{text}</StatusBadge>,
-  },
-];
+        ) : (
+          '-'
+        ),
+    },
+    {
+      title: 'Date',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      sorter: true,
+      render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
+    },
+    {
+      title: 'Clock In',
+      dataIndex: 'clockIn',
+      key: 'clockIn',
+      render: (date: string) => (
+        <div>{dayjs(date).format(DATETIME_FORMAT)}</div>
+      ),
+    },
+    {
+      title: 'Clock Out',
+      dataIndex: 'clockOut',
+      key: 'clockOut',
+      render: (date: string) => (
+        <div>{date ? dayjs(date).format(DATETIME_FORMAT) : '-'}</div>
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (item: AttendanceRecord) => {
+        const statuses = formatToAttendanceStatuses(item);
+        return (
+          <Space>
+            {statuses.map((status) => (
+              <StatusBadge
+                theme={AttendanceRecordTypeBadgeTheme[status.status]}
+                key={status.status}
+              >
+                <div className="text-center">
+                  <div>{status.status}</div>
+                  {status.text && (
+                    <div className="font-normal">{status.text}</div>
+                  )}
+                </div>
+              </StatusBadge>
+            ))}
+          </Space>
+        );
+      },
+    },
+    {
+      title: 'Over-time',
+      dataIndex: 'overTime',
+      key: 'overTime',
+      render: (text: string) => <div>{text}</div>,
+    },
+    {
+      title: 'Total time',
+      dataIndex: 'totalTime',
+      key: 'totalTime',
+      render: (text: string) => <div>{text}</div>,
+    },
+    {
+      title: 'Approval Status',
+      dataIndex: 'approvalStatus',
+      key: 'approvalStatus',
+      render: () => <div>-</div>,
+    },
+  ];
 
-const TABLE_DATA: TableData[] = [
-  {
-    key: '1',
-    employee: {
-      img: '',
-      email: 'tyest@agas.ss',
-      name: 'Hanna Baptista',
-    },
-    date: '08:00',
-    clockIn: '08:00 AM',
-    clockOut: '08:00 PM',
-    status: 'active',
-    overTime: '-',
-    totalTime: '-',
-    approvalStatus: 'Pending',
-  },
-  {
-    key: '2',
-    employee: {
-      img: '',
-      email: 'tyest@agas.ss',
-      name: 'Hanna Baptista',
-    },
-    date: '08:00',
-    clockIn: '08:00 AM',
-    clockOut: '08:00 PM',
-    status: 'active',
-    overTime: '-',
-    totalTime: '-',
-    approvalStatus: 'Pending',
-  },
-  {
-    key: '3',
-    employee: {
-      img: '',
-      email: 'tyest@agas.ss',
-      name: 'Hanna Baptista',
-    },
-    date: '08:00',
-    clockIn: '08:00 AM',
-    clockOut: '08:00 PM',
-    status: 'active',
-    overTime: '-',
-    totalTime: '-',
-    approvalStatus: 'Pending',
-  },
-  {
-    key: '4',
-    employee: {
-      img: '',
-      email: 'tyest@agas.ss',
-      name: 'Hanna Baptista',
-    },
-    date: '08:00',
-    clockIn: '08:00 AM',
-    clockOut: '08:00 PM',
-    status: 'active',
-    overTime: '-',
-    totalTime: '-',
-    approvalStatus: 'Pending',
-  },
-  {
-    key: '5',
-    employee: {
-      img: '',
-      email: 'tyest@agas.ss',
-      name: 'Hanna Baptista',
-    },
-    date: '08:00',
-    clockIn: '08:00 AM',
-    clockOut: '08:00 PM',
-    status: 'active',
-    overTime: '-',
-    totalTime: '-',
-    approvalStatus: 'Pending',
-  },
-  {
-    key: '6',
-    employee: {
-      img: '',
-      email: 'tyest@agas.ss',
-      name: 'Hanna Baptista',
-    },
-    date: '08:00',
-    clockIn: '08:00 AM',
-    clockOut: '08:00 PM',
-    status: 'active',
-    overTime: '-',
-    totalTime: '-',
-    approvalStatus: 'Pending',
-  },
-];
+  useEffect(() => {
+    if (data && data.items) {
+      const nData = data.items.map((item) => {
+        const calcTotal = calculateAttendanceRecordToTotalWorkTime(item);
+        return {
+          key: item.id,
+          createdBy: item.createdBy,
+          createdAt: item.createdAt,
+          clockIn: item.startAt,
+          clockOut: item.endAt,
+          status: item,
+          totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
+          overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,
+          approvalStatus: item,
+        };
+      });
+      setTableData(nData);
+    }
+  }, [data]);
 
-const rowSelection: TableRowSelection<TableData> = {
-  // onChange: (selectedRowKeys, selectedRows) => {
-  //   console.log(
-  //     `selectedRowKeys: ${selectedRowKeys}`,
-  //     'selectedRows: ',
-  //     selectedRows,
-  //   );
-  // },
-  // onSelect: (record, selected, selectedRows) => {
-  //   console.log({ record, selected, selectedRows });
-  // },
-};
+  const onFilterChange = (val: CommonObject) => {
+    const nFilter: Partial<AttendanceRequestBody['filter']> = {};
+    if (val.date) {
+      nFilter['date'] = {
+        from: val.date[0],
+        to: val.date[1],
+      };
+    }
 
-const EmployeeAttendanceTable = () => {
+    if (val.type) {
+      nFilter['type'] = val.type;
+    }
+
+    setFilter(nFilter);
+    setBodyRequest((prev) => ({
+      ...prev,
+      filter: nFilter,
+    }));
+  };
+
   return (
     <>
       <div className="mb-6">
-        <TableFilter />
+        <TableFilter onChange={onFilterChange} />
       </div>
       <Table
+        loading={isFetching}
         columns={columns}
-        dataSource={TABLE_DATA}
-        rowSelection={{ ...rowSelection, checkStrictly: false }}
-        pagination={{ position: ['none', 'bottomLeft'] }}
+        dataSource={tableData}
+        rowSelection={{ checkStrictly: false }}
+        pagination={defaultTablePagination(data?.meta?.totalItems)}
+        onChange={(pagination, filters, sorter: any) => {
+          setPage(pagination.current ?? 1);
+          setLimit(pagination.pageSize ?? 10);
+          setOrderDirection(sorter['order']);
+          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+        }}
       />
     </>
   );

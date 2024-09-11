@@ -1,7 +1,5 @@
-
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { getCookie } from './helpers/storageHelper';
+import { NextRequest, NextResponse } from 'next/server';
+import { getCookie } from '@/helpers/storageHelper';
 
 export function middleware(req: NextRequest) {
   try {
@@ -25,6 +23,9 @@ export function middleware(req: NextRequest) {
   }
 }
 
+/*export function middleware() {
+  return NextResponse.next();
+}*/
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],

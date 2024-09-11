@@ -98,7 +98,7 @@ const items: MenuItem[] = [
         className: 'font-bold',
       },
       {
-        key: '/timesheet/settings',
+        key: '/timesheet/settings/closed-date',
         label: 'Settings',
         className: 'font-bold',
       },
@@ -138,7 +138,7 @@ interface MyComponentProps {
 
 const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const {
-    token: { colorBgContainer },
+    token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);

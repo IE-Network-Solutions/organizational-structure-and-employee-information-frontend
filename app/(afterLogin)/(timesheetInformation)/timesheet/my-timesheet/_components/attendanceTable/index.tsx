@@ -1,27 +1,68 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import AttendanceTableFilter from './tableFilter/inedx';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Table } from 'antd';
+import { Button, Space, Table } from 'antd';
 import { IoEyeOutline } from 'react-icons/io5';
 import { GoLocation } from 'react-icons/go';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
+import { CommonObject } from '@/types/commons/commonObject';
+import { DATE_FORMAT, DATETIME_FORMAT, localUserID } from '@/utils/constants';
+import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
+import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
+import {
+  AttendanceRecord,
+  AttendanceRecordTypeBadgeTheme,
+} from '@/types/timesheet/attendance';
+import { formatToAttendanceStatuses } from '@/helpers/formatTo';
+import dayjs from 'dayjs';
+import { AiOutlineReload } from 'react-icons/ai';
+import {
+  calculateAttendanceRecordToTotalWorkTime,
+  timeToHour,
+  timeToLastMinute,
+} from '@/helpers/calculateHelper';
+import usePagination from '@/utils/usePagination';
+import { defaultTablePagination } from '@/utils/defaultTablePagination';
 
 const AttendanceTable = () => {
-  const { setIsShowViewSidebar } = useMyTimesheetStore();
+  const userFilter: Partial<AttendanceRequestBody['filter']> = {
+    userIds: [localUserID ?? ''],
+  };
+  const { setIsShowViewSidebar, setViewAttendanceId } = useMyTimesheetStore();
+  const [tableData, setTableData] = useState<any[]>([]);
+  const {
+    page,
+    limit,
+    orderBy,
+    orderDirection,
+    setPage,
+    setLimit,
+    setOrderBy,
+    setOrderDirection,
+  } = usePagination(1, 10);
+  const [filter, setFilter] =
+    useState<Partial<AttendanceRequestBody['filter']>>(userFilter);
+  const { data, isFetching, refetch } = useGetAttendances(
+    { page, limit, orderBy, orderDirection },
+    { filter },
+  );
 
   const columns: TableColumnsType<any> = [
     {
       title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
-      render: (text: string) => <div>{text}</div>,
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      sorter: true,
+      render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
     },
     {
       title: 'Clock In',
       dataIndex: 'clockIn',
       key: 'clockIn',
-      render: (text: string) => <div>{text}</div>,
+      render: (date: string) => (
+        <div>{dayjs(date).format(DATETIME_FORMAT)}</div>
+      ),
     },
     {
       title: 'Location-in',
@@ -37,7 +78,9 @@ const AttendanceTable = () => {
       title: 'Clock Out',
       dataIndex: 'clockOut',
       key: 'clockOut',
-      render: (text: string) => <div>{text}</div>,
+      render: (date: string) => (
+        <div>{dayjs(date).format(DATETIME_FORMAT)}</div>
+      ),
     },
     {
       title: 'Location-Out',
@@ -53,14 +96,26 @@ const AttendanceTable = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (text: string) => (
-        <StatusBadge theme="warning">
-          <div className="text-center">
-            <div>{text}</div>
-            <div className="font-normal">00 hr 1 min</div>
-          </div>
-        </StatusBadge>
-      ),
+      render: (item: AttendanceRecord) => {
+        const statuses = formatToAttendanceStatuses(item);
+        return (
+          <Space>
+            {statuses.map((status) => (
+              <StatusBadge
+                theme={AttendanceRecordTypeBadgeTheme[status.status]}
+                key={status.status}
+              >
+                <div className="text-center">
+                  <div>{status.status}</div>
+                  {status.text && (
+                    <div className="font-normal">{status.text}</div>
+                  )}
+                </div>
+              </StatusBadge>
+            ))}
+          </Space>
+        );
+      },
     },
     {
       title: 'Total time',
@@ -78,64 +133,89 @@ const AttendanceTable = () => {
       title: '',
       dataIndex: 'action',
       key: 'action',
-      render: () => (
+      render: (item: AttendanceRecord) => (
         <Button
           className="w-[30px] h-[30px]"
           icon={<IoEyeOutline size={16} />}
           type="primary"
-          onClick={() => setIsShowViewSidebar(true)}
+          onClick={() => {
+            setViewAttendanceId(item.id);
+            setIsShowViewSidebar(true);
+          }}
         />
       ),
     },
   ];
 
-  const TABLE_DATA: any[] = [
-    {
-      key: '1',
-      date: '01 Mar 2024',
-      clockIn: '08:00 AM',
-      locationIn: 'Remote',
-      clockOut: '05:00 PM',
-      locationOut: 'Remote',
-      status: 'rejected',
-      totalTime: '8h',
-      overTime: '1 h 4 min',
-      preview: '',
-    },
-    {
-      key: '3',
-      date: '01 Mar 2024',
-      clockIn: '08:00 AM',
-      locationIn: 'Remote',
-      clockOut: '05:00 PM',
-      locationOut: 'Remote',
-      status: 'rejected',
-      totalTime: '8h',
-      overTime: '1 h 4 min',
-      preview: '',
-    },
-    {
-      key: '2',
-      date: '01 Mar 2024',
-      clockIn: '08:00 AM',
-      locationIn: 'Remote',
-      clockOut: '05:00 PM',
-      locationOut: 'Remote',
-      status: 'rejected',
-      totalTime: '8h',
-      overTime: '1 h 4 min',
-      preview: '',
-    },
-  ];
+  useEffect(() => {
+    if (data && data.items) {
+      const nData = data.items.map((item) => {
+        const calcTotal = calculateAttendanceRecordToTotalWorkTime(item);
+        return {
+          key: item.id,
+          createdAt: item.createdAt,
+          clockIn: item.startAt,
+          locationIn: item?.geolocations[0]?.allowedArea?.title ?? '',
+          clockOut: item.endAt,
+          locationOut:
+            item?.geolocations[item?.geolocations.length - 1]?.allowedArea
+              ?.title ?? '',
+          status: item,
+          totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
+          overTime: item.overTimeMinutes + ' min',
+          action: item,
+        };
+      });
+      setTableData(nData);
+    }
+  }, [data]);
+
+  const onFilterChange = (val: CommonObject) => {
+    const nFilter: Partial<AttendanceRequestBody['filter']> = { ...userFilter };
+    if (val.date) {
+      nFilter['date'] = {
+        from: val.date[0],
+        to: val.date[1],
+      };
+    }
+
+    if (val.location) {
+      nFilter['locations'] = [val.location];
+    }
+
+    if (val.type) {
+      nFilter['type'] = val.type;
+    }
+
+    setFilter(nFilter);
+  };
 
   return (
     <>
-      <AttendanceTableFilter />
+      <div className="flex items-center gap-0.5 mb-6">
+        <div className="text-2xl font-bold text-gray-900">Attendance</div>
+        <Button
+          type="text"
+          size="small"
+          icon={<AiOutlineReload size={14} className="text-gray-600" />}
+          onClick={() => {
+            refetch();
+          }}
+        ></Button>
+      </div>
+      <AttendanceTableFilter onChange={onFilterChange} />
       <Table
         className="mt-6"
         columns={columns}
-        dataSource={TABLE_DATA}
-        pagination={{ position: ['none', 'bottomLeft'] }}
+        dataSource={tableData}
+        loading={isFetching}
+        pagination={defaultTablePagination(data?.meta?.totalItems)}
+        onChange={(pagination, filters, sorter: any) => {
+          setPage(pagination.current ?? 1);
+          setLimit(pagination.pageSize ?? 10);
+          setOrderDirection(sorter['order']);
+          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+        }}
       />
     </>
   );

@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
@@ -7,7 +7,7 @@ import { AttendanceNotificationType } from '@/types/timesheet/attendance';
 
 const getAttendanceNotificationTypes = async () => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/attendance/attendance-notification-type`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-type`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -15,14 +15,14 @@ const getAttendanceNotificationTypes = async () => {
 
 const getAttendanceNotificationType = async (id: string) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/attendance/attendance-notification-type`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-type`,
     method: 'GET',
     headers: requestHeader(),
     params: { id },
   });
 };
 
-export const useGetAttendanceNotificationTypes = async () => {
+export const useGetAttendanceNotificationTypes = () => {
   return useQuery<ApiResponse<AttendanceNotificationType>>(
     'attendance-notification-types',
     () => getAttendanceNotificationTypes(),
@@ -32,12 +32,13 @@ export const useGetAttendanceNotificationTypes = async () => {
   );
 };
 
-export const useGetAttendanceNotificationType = async (id: string) => {
+export const useGetAttendanceNotificationType = (id: string) => {
   return useQuery<ApiResponse<AttendanceNotificationType>>(
     ['attendance-notification-type', id],
     () => getAttendanceNotificationType(id),
     {
-      keepPreviousData: true,
+      keepPreviousData: false,
+      enabled: false,
     },
   );
 };

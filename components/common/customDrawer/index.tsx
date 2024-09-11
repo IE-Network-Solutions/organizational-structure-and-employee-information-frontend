@@ -42,13 +42,13 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
           />
         )}
       </>
+      {/* removed the padding because it is not needed for Drawer */}
       <Drawer
         title={modalHeader}
         width={window.innerWidth <= 768 ? '90%' : width ? width : '30%'}
         closable={false}
         onClose={onClose}
         open={open}
-        style={{ paddingBottom: 100 }}
         footer={footer}
       >
         {children}

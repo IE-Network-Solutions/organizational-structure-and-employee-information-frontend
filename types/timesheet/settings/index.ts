@@ -1,4 +1,5 @@
 import { DateInfo } from '@/types/timesheet/dateInfo';
+import { StatusBadgeTheme } from '@/components/common/statusBadge';
 
 export enum LeaveRequestStatus {
   PENDING = 'pending',
@@ -6,15 +7,39 @@ export enum LeaveRequestStatus {
   DECLINED = 'declined',
 }
 
-export enum Period {
+export const LeaveRequestStatusBadgeTheme: Record<
+  LeaveRequestStatus,
+  StatusBadgeTheme
+> = {
+  [LeaveRequestStatus.PENDING]: StatusBadgeTheme.secondary,
+  [LeaveRequestStatus.APPROVED]: StatusBadgeTheme.success,
+  [LeaveRequestStatus.DECLINED]: StatusBadgeTheme.danger,
+};
+
+export const LeaveRequestStatusOption: {
+  label: string;
+  value: LeaveRequestStatus;
+}[] = [
+  { label: 'Pending', value: LeaveRequestStatus.PENDING },
+  { label: 'Approved', value: LeaveRequestStatus.APPROVED },
+  { label: 'Declined', value: LeaveRequestStatus.DECLINED },
+];
+
+export enum CarryOverPeriod {
   MONTH = 'month',
   YEARS = 'years',
-  QUARTER = 'quarter',
   DAYS = 'days',
+}
+
+export enum AccrualRulePeriod {
+  MONTHLY = 'monthly',
+  YEAR = 'year',
+  QUARTER = 'quarter',
 }
 
 export interface AllowedArea extends DateInfo {
   id: string;
+  title: string;
   tenantId: string;
   distance: number;
   latitude: number;
@@ -27,19 +52,18 @@ export interface CarryOverRule extends DateInfo {
   tenantId: string;
   limit: number;
   expiration: number;
-  expirationPeriod: Period;
+  expirationPeriod: CarryOverPeriod;
   isActive: boolean;
 }
 
 export interface LeaveRequest extends DateInfo {
   id: string;
   tenantId: string;
-  userId: string;
-  leaveType: LeaveType;
-  leaveTypeId: string;
+  user: string;
+  leaveType: LeaveType | string;
   startAt: string;
   endAt: string;
-  isHalfDay: boolean;
+  isHalfday: boolean;
   justificationNote: string | null;
   justificationDocument: string | null;
   managedBy: string | null;
@@ -55,10 +79,8 @@ export interface LeaveType extends DateInfo {
   title: string;
   description: string;
   isPaid: boolean;
-  accrualRule: AccrualRule;
-  accrualRuleId: string;
-  caryOverRule: CarryOverRule;
-  caryOverRuleId: string;
+  accrualRule: AccrualRule | string;
+  carryOverRule: CarryOverRule | string;
   maximumAllowedConsecutiveDays: number;
   minimumNotifyingDays: number;
   entitledDaysPerYear: number;
@@ -70,6 +92,6 @@ export interface AccrualRule extends DateInfo {
   id: string;
   tenantId: string;
   title: string;
-  period: Period;
+  period: AccrualRulePeriod;
   isActive: boolean;
 }

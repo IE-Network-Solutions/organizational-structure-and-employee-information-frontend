@@ -1,24 +1,24 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { AttendanceNotificationRule } from '@/types/timesheet/attendance';
 
 const setAttendanceNotificationRule = async (
-  data: Partial<AttendanceNotificationRule>,
+  item: Partial<AttendanceNotificationRule>,
 ) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/attendance/attendance-notification-type`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-rule`,
     method: 'POST',
     headers: requestHeader(),
-    data,
+    data: { item },
   });
 };
 
 const deleteAttendanceNotificationRule = async (id: string) => {
   return await crudRequest({
-    url: `/${ORG_AND_EMP_URL}/attendance/attendance-notification-rule`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-rule`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },
@@ -31,6 +31,7 @@ export const useSetAttendanceNotificationRule = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('attendance-notification-rules');
+      queryClient.invalidateQueries('attendance-notification-types');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -43,6 +44,7 @@ export const useDeleteAttendanceNotificationRule = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('attendance-notification-rules');
+      queryClient.invalidateQueries('attendance-notification-types');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

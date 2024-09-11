@@ -1,14 +1,14 @@
 export interface AttendanceRequestBody {
-  isExport: boolean;
+  exportType?: 'PDF' | 'EXCEL';
   filter: {
-    attendanceRecordIds: string[];
-    userIds: string[];
-    type: 'late' | 'early' | 'absent';
-    date: {
+    attendanceRecordIds?: string[];
+    userIds?: string[];
+    type?: 'late' | 'early' | 'absent' | 'present';
+    date?: {
       from: string;
       to: string;
     };
-    locations: string[];
+    locations?: string[];
   };
 }
 
@@ -25,6 +25,7 @@ export interface AttendanceSetShiftRequestBody {
   latitude: number;
   longitude: number;
   file?: string;
-  isSighIn: boolean;
+  isSignIn?: boolean;
   breakTypeId?: string;
+  userId: string;
 }

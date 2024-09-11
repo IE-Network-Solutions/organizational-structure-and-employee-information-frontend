@@ -6,6 +6,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useRouter } from 'next/navigation';
 import { handleNetworkError } from '@/utils/showErrorResponse';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
+import { ReactQueryDevtools } from 'react-query/devtools';
 
 /**
  * Interface for the props of the ReactQueryWrapper component
@@ -65,7 +66,10 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   });
   return (
     <Suspense fallback={<>Loading...</>}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        <ReactQueryDevtools />
+      </QueryClientProvider>
     </Suspense>
   );
 };

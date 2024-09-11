@@ -1,24 +1,24 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { AttendanceNotificationType } from '@/types/timesheet/attendance';
 
 const setAttendanceNotificationType = async (
-  data: Partial<AttendanceNotificationType>,
+  item: Partial<AttendanceNotificationType>,
 ) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/attendance/attendance-notification-type`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-type`,
     method: 'POST',
     headers: requestHeader(),
-    data,
+    data: { item },
   });
 };
 
 const deleteAttendanceNotificationType = async (id: string) => {
   return await crudRequest({
-    url: `/${ORG_AND_EMP_URL}/attendance/attendance-notification-type`,
+    url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-type`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },

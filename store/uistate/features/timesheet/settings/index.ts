@@ -1,4 +1,5 @@
 import { create, StateCreator } from 'zustand';
+import { AttendanceNotificationType } from '@/types/timesheet/attendance';
 
 type TimesheetSettingsState = {
   isShowLocationSidebar: boolean;
@@ -9,6 +10,12 @@ type TimesheetSettingsState = {
   isShowTypeAndPoliciesSidebar: boolean;
   isShowClosedDateSidebar: boolean;
   isShowLeaveRequestSidebar: boolean;
+
+  attendanceNotificationType: AttendanceNotificationType[];
+  attendanceTypeId: string | null;
+  attendanceRuleId: string | null;
+  allowedAreaId: string | null;
+  leaveRequestId: string | null;
 };
 
 type TimesheetSettingsStateAction = {
@@ -24,6 +31,14 @@ type TimesheetSettingsStateAction = {
   ) => void;
   setIsShowClosedDateSidebar: (isShowClosedDateSidebar: boolean) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
+
+  setAttendanceNotificationType: (
+    attendanceNotificationType: AttendanceNotificationType[],
+  ) => void;
+  setAttendanceTypeId: (attendanceId: string | null) => void;
+  setAttendanceRuleId: (attendanceRuleId: string | null) => void;
+  setAllowedAreaId: (allowedAreaId: string | null) => void;
+  setLeaveRequestId: (leaveRequestId: string | null) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
@@ -67,6 +82,31 @@ const timesheetSettingsSlice: StateCreator<
   isShowLeaveRequestSidebar: false,
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => {
     set({ isShowLeaveRequestSidebar });
+  },
+
+  attendanceNotificationType: [],
+  setAttendanceNotificationType: (attendanceNotificationType) => {
+    set({ attendanceNotificationType });
+  },
+
+  attendanceTypeId: null,
+  setAttendanceTypeId: (attendanceTypeId) => {
+    set({ attendanceTypeId });
+  },
+
+  attendanceRuleId: null,
+  setAttendanceRuleId: (attendanceRuleId) => {
+    set({ attendanceRuleId });
+  },
+
+  allowedAreaId: null,
+  setAllowedAreaId: (allowedAreaId: string | null) => {
+    set({ allowedAreaId });
+  },
+
+  leaveRequestId: null,
+  setLeaveRequestId: (leaveRequestId) => {
+    set({ leaveRequestId });
   },
 });
 
