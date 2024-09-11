@@ -2,7 +2,6 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { TENANT_MGMT_URL } from '@/utils/constants';
 import { CompanyProfileImage } from '@/store/uistate/features/organizationStructure/companyProfile/interface';
-import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 /* eslint-disable @typescript-eslint/naming-convention */
 
@@ -79,10 +78,10 @@ export const useGetCompanyProfileByTenantId = (tenantId: string) => {
 export const useUpdateCompanyProfile = () => {
   const queryClient = useQueryClient();
   return useMutation(updateCompanyProfile, {
-    onSuccess: (_, variables: any) => {
+    onSuccess: () => {
       queryClient.invalidateQueries('companyProfile');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      // const method = variables?.method?.toUpperCase();
+      // handleSuccessMessage(method);
     },
   });
 };

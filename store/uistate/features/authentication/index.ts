@@ -1,3 +1,4 @@
+import { setCookie } from '@/helpers/storageHelper';
 import create from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
@@ -6,8 +7,10 @@ interface StoreState {
   setToken: (token: string) => void;
   tenantId: string;
   setTenantId: (tenantId: string) => void;
+  userId: string;
+  setUserId: (userId: string) => void;
   localId: string;
-  setLocalId: (tenantId: string) => void;
+  setLocalId: (localId: string) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
   error: string | null;
@@ -18,10 +21,14 @@ export const useAuthenticationStore = create<StoreState>()(
   devtools(
     persist(
       (set) => ({
-        token:'',
-        setToken: (token: string) => set({ token }),
-        tenantId:'',
+        token: '',
+        setToken: (token: string) => {
+          setCookie('token', token, 30), set({ token });
+        },
+        tenantId: '',
         setTenantId: (tenantId: string) => set({ tenantId }),
+        userId: '',
+        setUserId: (userId: string) => set({ userId }),
         localId: '',
         setLocalId: (localId: string) => set({ localId }),
         loading: false, // Non-persistent state
@@ -36,6 +43,7 @@ export const useAuthenticationStore = create<StoreState>()(
           token: state.token,
           tenantId: state.tenantId,
           localId: state.localId,
+          userId: state.userId,
           // 'loading' and 'error' are not included here, so they won't be persisted
         }),
       },

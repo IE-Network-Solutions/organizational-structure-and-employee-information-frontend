@@ -4,7 +4,7 @@ import { FiInfo } from 'react-icons/fi';
 
 interface LeaveBalanceCardProps {
   title: string;
-  duration: string;
+  duration: string | number;
 }
 
 const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({

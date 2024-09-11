@@ -6,12 +6,57 @@ import { Button, Col, Input, Popover, Row, Space } from 'antd';
 import { IoSearchOutline } from 'react-icons/io5';
 import CustomButton from '@/components/common/buttons/customButton';
 import { TbFileDownload, TbLayoutList } from 'react-icons/tb';
-import React from 'react';
 import { LuBookmark } from 'react-icons/lu';
 import LeaveRequestManagementSidebar from './_components/leaveRequestManagementSidebar';
+import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
+import { useEffect, useState } from 'react';
+import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
+import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
+import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
+import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
 
 const LeaveManagement = () => {
+  const [bodyRequest, setBodyRequest] = useState<LeaveRequestBody>(
+    {} as LeaveRequestBody,
+  );
+  const { setLeaveTypes } = useLeaveManagementStore();
+  const { data: leaveTypesData } = useGetLeaveTypes();
+  const {
+    data: leaveRequestData,
+    isFetching,
+    refetch,
+  } = useGetLeaveRequest({}, bodyRequest, true, false);
+
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
+
+  useEffect(() => {
+    setLeaveTypes(leaveTypesData?.items ?? []);
+  }, [leaveTypesData]);
+
+  useEffect(() => {
+    if (leaveRequestData && leaveRequestData.file) {
+      const url = new URL(TIME_AND_ATTENDANCE_MODE_URL!);
+      window.open(`${url.origin}/${leaveRequestData.file}`, '_blank');
+    }
+  }, [leaveRequestData]);
+
+  useEffect(() => {
+    if (bodyRequest.exportType) {
+      refetch().finally(() => {
+        setBodyRequest((prev) => ({
+          ...prev,
+          exportType: undefined,
+        }));
+      });
+    }
+  }, [bodyRequest]);
+
+  const onExport = (type: 'PDF' | 'EXCEL') => {
+    setBodyRequest((prev) => ({
+      ...prev,
+      exportType: type,
+    }));
+  };
 
   return (
     <>
@@ -42,6 +87,7 @@ const LeaveManagement = () => {
                           className={buttonClass}
                           type="primary"
                           icon={<TbLayoutList size={16} />}
+                          onClick={() => onExport('EXCEL')}
                         >
                           Excel
                         </Button>
@@ -52,6 +98,7 @@ const LeaveManagement = () => {
                           className={buttonClass}
                           type="primary"
                           icon={<LuBookmark size={16} />}
+                          onClick={() => onExport('PDF')}
                         >
                           PDF
                         </Button>
@@ -63,12 +110,13 @@ const LeaveManagement = () => {
                 <CustomButton
                   title="Download CSV"
                   icon={<TbFileDownload size={20} />}
+                  loading={isFetching}
                 />
               </Popover>
             </Space>
           </PageHeader>
 
-          <LeaveManagementTable />
+          <LeaveManagementTable setBodyRequest={setBodyRequest} />
         </BlockWrapper>
       </div>
 

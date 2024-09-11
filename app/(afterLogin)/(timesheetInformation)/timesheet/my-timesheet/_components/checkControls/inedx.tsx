@@ -1,14 +1,78 @@
 import { Button, Space } from 'antd';
 import { GoClock } from 'react-icons/go';
-import React from 'react';
 import {
   CheckStatus,
   useMyTimesheetStore,
 } from '@/store/uistate/features/timesheet/myTimesheet';
+import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
+import { localUserID } from '@/utils/constants';
+import { useEffect, useState } from 'react';
+import {
+  calculateAttendanceRecordToTotalWorkTime,
+  timeToHour,
+  timeToLastMinute,
+} from '@/helpers/calculateHelper';
+import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const CheckControl = () => {
-  const { checkStatus, setIsShowCheckOutSidebar, setCheckStatus } =
-    useMyTimesheetStore();
+  const [workTime, setWorkTime] = useState<string>('');
+  const {
+    checkStatus,
+    setIsShowCheckOutSidebar,
+    currentAttendance,
+    setCurrentAttendance,
+  } = useMyTimesheetStore();
+
+  const { data: currentAttendanceData, isFetching } = useGetCurrentAttendance();
+  const { mutate: setCurrentAttendanceData, isLoading } =
+    useSetCurrentAttendance();
+
+  useEffect(() => {
+    setCurrentAttendance(
+      currentAttendanceData ? currentAttendanceData.item : null,
+    );
+  }, [currentAttendanceData]);
+
+  useEffect(() => {
+    if (checkStatus === CheckStatus.breaking && currentAttendance) {
+      const calcTime =
+        calculateAttendanceRecordToTotalWorkTime(currentAttendance);
+      setWorkTime(`${timeToHour(calcTime)}:${timeToLastMinute(calcTime)}`);
+    }
+  }, [checkStatus, currentAttendance]);
+
+  const getCoords = (setLocation: (position: GeolocationPosition) => void) => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation(position);
+        },
+        () => {
+          NotificationMessage.error({
+            message: `No access to geolocation`,
+            description: `To check-in/check-out we need to have access to geolocation.`,
+          });
+        },
+      );
+    } else {
+      NotificationMessage.error({
+        message: `No access to geolocation`,
+        description: `To check-in/check-out we need to have access to geolocation.`,
+      });
+    }
+  };
+
+  const setAttendance = (isSignIn: boolean) => {
+    getCoords((pos) => {
+      setCurrentAttendanceData({
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+        isSignIn,
+        userId: localUserID,
+      });
+    });
+  };
 
   switch (checkStatus) {
     case CheckStatus.notStarted:
@@ -18,7 +82,10 @@ const CheckControl = () => {
           size="large"
           type="primary"
           icon={<GoClock size={20} />}
-          onClick={() => setCheckStatus(CheckStatus.started)}
+          loading={isLoading || isFetching}
+          onClick={() => {
+            setAttendance(true);
+          }}
         >
           Check in
         </Button>
@@ -30,7 +97,12 @@ const CheckControl = () => {
             className="h-14 text-base px-2"
             size="large"
             icon={<GoClock size={20} />}
-            onClick={() => setIsShowCheckOutSidebar(true)}
+            loading={isLoading || isFetching}
+            onClick={() => {
+              getCoords(() => {
+                setIsShowCheckOutSidebar(true);
+              });
+            }}
           >
             Break Check Out
           </Button>
@@ -38,7 +110,10 @@ const CheckControl = () => {
             className="h-14 text-base"
             size="large"
             icon={<GoClock size={20} />}
-            onClick={() => setCheckStatus(CheckStatus.notStarted)}
+            loading={isLoading || isFetching}
+            onClick={() => {
+              setAttendance(false);
+            }}
           >
             Check out
           </Button>
@@ -47,12 +122,20 @@ const CheckControl = () => {
     case CheckStatus.breaking:
       return (
         <Space size={32}>
-          <div className="text-[28px] text-primary font-bold">09:30 hrs</div>
+          {workTime && (
+            <div className="text-[28px] text-primary font-bold">
+              {workTime} hrs
+            </div>
+          )}
+
           <Button
             className="h-14 text-base"
             size="large"
             icon={<GoClock size={20} />}
-            onClick={() => setCheckStatus(CheckStatus.started)}
+            loading={isLoading || isFetching}
+            onClick={() => {
+              setAttendance(true);
+            }}
           >
             Check in
           </Button>
