@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
+import { NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
@@ -7,7 +7,7 @@ import { AttendanceNotificationType } from '@/types/timesheet/attendance';
 
 const getAttendanceNotificationTypes = async () => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-type`,
+    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-type`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -15,7 +15,7 @@ const getAttendanceNotificationTypes = async () => {
 
 const getAttendanceNotificationType = async (id: string) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-type`,
+    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-type`,
     method: 'GET',
     headers: requestHeader(),
     params: { id },

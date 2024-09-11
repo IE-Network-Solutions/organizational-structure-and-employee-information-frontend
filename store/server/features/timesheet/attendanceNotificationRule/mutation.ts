@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { TIME_AND_ATTENDANCE_MODE_URL } from '@/utils/constants';
+import { NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -9,7 +9,7 @@ const setAttendanceNotificationRule = async (
   item: Partial<AttendanceNotificationRule>,
 ) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-rule`,
+    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-rule`,
     method: 'POST',
     headers: requestHeader(),
     data: { item },
@@ -18,7 +18,7 @@ const setAttendanceNotificationRule = async (
 
 const deleteAttendanceNotificationRule = async (id: string) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_MODE_URL}/attendance/attendance-notification-rule`,
+    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-rule`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },
