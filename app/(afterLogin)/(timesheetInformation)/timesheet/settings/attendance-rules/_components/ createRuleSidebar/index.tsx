@@ -9,7 +9,8 @@ import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHea
 import { useSetAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/mutation';
 import { formatToOptions } from '@/helpers/formatTo';
 import { useGetAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
 const CreateRuleSidebar = () => {
   const {
@@ -136,6 +137,12 @@ const CreateRuleSidebar = () => {
                 >
                   <Select
                     className={controlClass}
+                    suffixIcon={
+                      <MdKeyboardArrowDown
+                        size={16}
+                        className="text-gray-900"
+                      />
+                    }
                     options={formatToOptions(
                       attendanceNotificationType,
                       'title',

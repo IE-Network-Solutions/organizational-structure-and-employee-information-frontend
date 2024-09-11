@@ -8,7 +8,8 @@ import CustomDrawerFooterButton, {
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useSetAccrualRule } from '@/store/server/features/timesheet/accrualRule/mutation';
 import { AccrualRulePeriod } from '@/types/timesheet/settings';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
 const AddTypesSidebar = () => {
   const {
@@ -112,7 +113,13 @@ const AddTypesSidebar = () => {
                 rules={[{ required: true, message: 'Required' }]}
                 name="period"
               >
-                <Select className={controlClass} options={periodOption} />
+                <Select
+                  className={controlClass}
+                  suffixIcon={
+                    <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                  }
+                  options={periodOption}
+                />
               </Form.Item>
             </Space>
           </Form>

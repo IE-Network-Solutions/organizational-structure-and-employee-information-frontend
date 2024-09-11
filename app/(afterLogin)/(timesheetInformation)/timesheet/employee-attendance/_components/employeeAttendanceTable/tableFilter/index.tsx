@@ -3,6 +3,7 @@ import { Button, Col, DatePicker, Form, Row, Select } from 'antd';
 import { attendanceRecordTypeOption } from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
 import { CommonObject } from '@/types/commons/commonObject';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
 interface TableFilterProps {
   onChange: (val: CommonObject) => void;
@@ -29,6 +30,9 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
               placeholder="Select Status"
               allowClear={true}
               className="w-full h-[54px]"
+              suffixIcon={
+                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+              }
               options={attendanceRecordTypeOption}
             />
           </Form.Item>

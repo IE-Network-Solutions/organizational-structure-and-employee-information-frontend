@@ -5,6 +5,7 @@ import { formatToOptions } from '@/helpers/formatTo';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { attendanceRecordTypeOption } from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
 interface AttendanceTableFilterProps {
   onChange: (val: CommonObject) => void;
@@ -34,6 +35,9 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
               placeholder="Select area"
               allowClear={true}
               className="w-full h-[54px]"
+              suffixIcon={
+                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+              }
               options={formatToOptions(allowedAreas, 'title', 'id')}
             />
           </Form.Item>
@@ -44,6 +48,9 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
               placeholder="Select Status"
               allowClear={true}
               className="w-full h-[54px]"
+              suffixIcon={
+                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+              }
               options={attendanceRecordTypeOption}
             />
           </Form.Item>

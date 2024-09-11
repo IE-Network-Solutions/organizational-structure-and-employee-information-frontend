@@ -14,6 +14,7 @@ import { useSetCurrentAttendance } from '@/store/server/features/timesheet/atten
 import { localUserID } from '@/utils/constants';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import TakePicture from '@/components/common/takePicture';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
 type LabelRender = SelectProps['labelRender'];
 
@@ -140,6 +141,9 @@ const CheckOutSidebar = () => {
               className={controlClass}
               value={selectedType}
               labelRender={selectLabel}
+              suffixIcon={
+                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+              }
               onChange={setSelectedType}
             >
               {options.map((option) => (

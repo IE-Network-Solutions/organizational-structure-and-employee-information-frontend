@@ -1,10 +1,11 @@
 import { Col, DatePicker, Form, Row, Select } from 'antd';
 import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
 import { CommonObject } from '@/types/commons/commonObject';
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { DATE_FORMAT } from '@/utils/constants';
 import { formatToOptions } from '@/helpers/formatTo';
 import { LeaveRequestStatusOption } from '@/types/timesheet/settings';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
 interface LeaveManagementTableFilterProps {
   onChange: (val: CommonObject) => void;
@@ -41,6 +42,9 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
               className="w-full h-[54px]"
               placeholder="Select Type"
               allowClear={true}
+              suffixIcon={
+                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+              }
               options={formatToOptions(leaveTypes ?? [], 'title', 'id')}
             />
           </Form.Item>
@@ -51,6 +55,9 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
               className="w-full h-[54px]"
               placeholder="Select Status"
               allowClear={true}
+              suffixIcon={
+                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+              }
               options={LeaveRequestStatusOption}
             />
           </Form.Item>

@@ -12,7 +12,7 @@ import {
 } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CustomRadio from '@/components/form/customRadio';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -23,6 +23,7 @@ import { useCreateLeaveType } from '@/store/server/features/timesheet/leaveType/
 import { useGetCarryOverRules } from '@/store/server/features/timesheet/carryOverRule/queries';
 import { useGetAccrualRules } from '@/store/server/features/timesheet/accrualRule/queries';
 import { formatToOptions } from '@/helpers/formatTo';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
 const TypesAndPoliciesSidebar = () => {
   const [isErrorPlan, setIsErrorPlan] = useState(false);
@@ -212,7 +213,13 @@ const TypesAndPoliciesSidebar = () => {
               rules={[{ required: true, message: 'Required' }]}
               name="accrualRule"
             >
-              <Select className={controlClass} options={accrualRuleOptions()} />
+              <Select
+                className={controlClass}
+                suffixIcon={
+                  <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                }
+                options={accrualRuleOptions()}
+              />
             </Form.Item>
             <Form.Item
               label="Carry-Over Rule"
@@ -222,6 +229,9 @@ const TypesAndPoliciesSidebar = () => {
               <Select
                 className={controlClass}
                 options={carryOverRuleOptions()}
+                suffixIcon={
+                  <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                }
               />
             </Form.Item>
             <Form.Item

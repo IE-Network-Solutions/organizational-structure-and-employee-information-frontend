@@ -12,10 +12,11 @@ import { formatLinkToUploadFile, formatToOptions } from '@/helpers/formatTo';
 import { DATE_FORMAT } from '@/utils/constants';
 import dayjs from 'dayjs';
 import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import CustomUpload from '@/components/form/customUpload';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
 const LeaveRequestSidebar = () => {
   const [filter, setFilter] = useState<Partial<LeaveRequestBody['filter']>>({});
@@ -189,6 +190,9 @@ const LeaveRequestSidebar = () => {
                   className={controlClass}
                   options={typeOptions()}
                   placeholder="Select Type"
+                  suffixIcon={
+                    <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                  }
                 />
               </Form.Item>
               <Form.Item name="isHalfday" className={itemClass}>

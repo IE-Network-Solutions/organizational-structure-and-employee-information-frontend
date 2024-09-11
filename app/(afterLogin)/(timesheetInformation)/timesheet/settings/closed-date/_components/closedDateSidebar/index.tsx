@@ -1,14 +1,5 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import {
-  Checkbox,
-  Col,
-  DatePicker,
-  Form,
-  Input,
-  Row,
-  Select,
-  Space,
-} from 'antd';
+import { Col, DatePicker, Form, Input, Radio, Row, Select, Space } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
@@ -16,6 +7,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import React, { useState } from 'react';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
 const ClosedDateSidebar = () => {
   const [isTo, setIsTo] = useState<boolean>(false);
@@ -23,6 +15,8 @@ const ClosedDateSidebar = () => {
     isShowClosedDateSidebar: isShow,
     setIsShowClosedDateSidebar: setIsShow,
   } = useTimesheetSettingsStore();
+
+  const [form] = Form.useForm();
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -38,7 +32,7 @@ const ClosedDateSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
-      onClick: () => setIsShow(false),
+      onClick: () => form.submit(),
     },
   ];
 
@@ -58,6 +52,7 @@ const ClosedDateSidebar = () => {
           layout="vertical"
           requiredMark={CustomLabel}
           autoComplete="off"
+          form={form}
           className={itemClass}
         >
           <Space direction="vertical" className="w-full" size={24}>
@@ -67,6 +62,9 @@ const ClosedDateSidebar = () => {
             <Form.Item label="Type" required name="type">
               <Select
                 className={controlClass}
+                suffixIcon={
+                  <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                }
                 options={[
                   { value: 'day', label: 'Day' },
                   { value: 'month', label: 'Month' },
@@ -76,7 +74,7 @@ const ClosedDateSidebar = () => {
             <Form.Item label="Holiday Description" required name="description">
               <Input.TextArea
                 className="w-full py-4 px-5 mt-2.5"
-                placeholder="Input description"
+                placeholder="Description"
                 rows={6}
               />
             </Form.Item>
@@ -89,14 +87,14 @@ const ClosedDateSidebar = () => {
               <Col span={12}>
                 <Form.Item
                   label={
-                    <Checkbox
+                    <Radio
                       checked={isTo}
-                      onChange={() => {
+                      onClick={() => {
                         setIsTo((prev) => !prev);
                       }}
                     >
                       To
-                    </Checkbox>
+                    </Radio>
                   }
                   name="to"
                 >

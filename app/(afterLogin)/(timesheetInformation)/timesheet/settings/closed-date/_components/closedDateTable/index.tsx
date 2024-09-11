@@ -11,30 +11,35 @@ const ClosedDateTable = () => {
       title: 'Date Naming',
       dataIndex: 'dateNaming',
       key: 'dateNaming',
+      sorter: true,
       render: (text: string) => <div>{text}</div>,
     },
     {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
+      sorter: true,
       render: (text: string) => <div>{text}</div>,
     },
     {
       title: 'Type',
       dataIndex: 'type',
       key: 'type',
+      sorter: true,
       render: (text: string) => <div>{text}</div>,
     },
     {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
+      sorter: true,
       render: (text: string) => <div>{text}</div>,
     },
     {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
+      sorter: true,
       render: () => (
         <Space size={10}>
           <Button

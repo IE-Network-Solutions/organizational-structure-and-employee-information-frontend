@@ -9,6 +9,7 @@ import CustomDrawerFooterButton, {
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { CarryOverPeriod } from '@/types/timesheet/settings';
 import { useCreateCarryOverRule } from '@/store/server/features/timesheet/carryOverRule/mutation';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
 const CarryOverSidebar = () => {
   const {
@@ -136,7 +137,13 @@ const CarryOverSidebar = () => {
                 rules={[{ required: true, message: 'Required' }]}
                 name="expirationPeriod"
               >
-                <Select className={controlClass} options={periodOption} />
+                <Select
+                  className={controlClass}
+                  suffixIcon={
+                    <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                  }
+                  options={periodOption}
+                />
               </Form.Item>
             </Space>
           </Form>
