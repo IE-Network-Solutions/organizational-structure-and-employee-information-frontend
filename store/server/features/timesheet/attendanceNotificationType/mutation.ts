@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -9,7 +9,7 @@ const setAttendanceNotificationType = async (
   item: Partial<AttendanceNotificationType>,
 ) => {
   return await crudRequest({
-    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-type`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-type`,
     method: 'POST',
     headers: requestHeader(),
     data: { item },
@@ -18,7 +18,7 @@ const setAttendanceNotificationType = async (
 
 const deleteAttendanceNotificationType = async (id: string) => {
   return await crudRequest({
-    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-type`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-type`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },

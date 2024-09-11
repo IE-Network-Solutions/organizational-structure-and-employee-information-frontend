@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
-import { NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 
 const LeaveManagement = () => {
   const [bodyRequest, setBodyRequest] = useState<LeaveRequestBody>(
@@ -35,7 +35,7 @@ const LeaveManagement = () => {
 
   useEffect(() => {
     if (leaveRequestData && leaveRequestData.file) {
-      const url = new URL(NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL!);
+      const url = new URL(TIME_AND_ATTENDANCE_URL!);
       window.open(`${url.origin}/${leaveRequestData.file}`, '_blank');
     }
   }, [leaveRequestData]);

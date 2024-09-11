@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import { LeaveRequest } from '@/types/timesheet/settings';
@@ -12,7 +12,7 @@ const getLeaveRequest = async (
   data: LeaveRequestBody,
 ) => {
   return await crudRequest({
-    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/leave-request`,
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request`,
     method: 'POST',
     headers: requestHeader(),
     data,

@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -7,7 +7,7 @@ import { AttendanceSetShiftRequestBody } from '@/store/server/features/timesheet
 
 const attendanceImport = async (file: string) => {
   return await crudRequest({
-    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/attendance/import`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/import`,
     method: 'POST',
     headers: requestHeader(),
     data: { file },
@@ -16,7 +16,7 @@ const attendanceImport = async (file: string) => {
 
 const setCurrentAttendance = async (data: AttendanceSetShiftRequestBody) => {
   return await crudRequest({
-    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/attendance/shift`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/shift`,
     method: 'POST',
     headers: requestHeader(),
     data,
