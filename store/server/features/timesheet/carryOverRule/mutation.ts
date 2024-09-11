@@ -1,13 +1,13 @@
 import { CarryOverRule } from '@/types/timesheet/settings';
 import { crudRequest } from '@/utils/crudRequest';
-import { NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const createCarryOverRule = async (item: Partial<CarryOverRule>) => {
   return await crudRequest({
-    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/carry-over-rule`,
+    url: `${TIME_AND_ATTENDANCE_URL}/carry-over-rule`,
     method: 'POST',
     headers: requestHeader(),
     data: { item },
@@ -16,7 +16,7 @@ const createCarryOverRule = async (item: Partial<CarryOverRule>) => {
 
 const deleteCarryOverRule = async (id: string) => {
   return await crudRequest({
-    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/carry-over-rule`,
+    url: `${TIME_AND_ATTENDANCE_URL}/carry-over-rule`,
     method: 'DELETE',
     headers: requestHeader(),
     params: { id },
@@ -28,7 +28,7 @@ const updateCarryOverRuleActive = async (data: {
   isActive: boolean;
 }) => {
   return await crudRequest({
-    url: `${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}/carry-over-rule/active`,
+    url: `${TIME_AND_ATTENDANCE_URL}/carry-over-rule/active`,
     method: 'POST',
     headers: requestHeader(),
     params: { id: data.id },
