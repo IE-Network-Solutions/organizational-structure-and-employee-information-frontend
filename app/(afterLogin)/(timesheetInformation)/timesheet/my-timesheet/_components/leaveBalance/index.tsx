@@ -45,14 +45,16 @@ const LeaveBalance = () => {
             setSwiper(swiper);
           }}
         >
-          {data.items.map((item) => (
-            <SwiperSlide key={item.id}>
-              <LeaveBalanceCard
-                title={item?.leaveType?.title ?? ''}
-                duration={item.totalBalance}
-              />
-            </SwiperSlide>
-          ))}
+          {data.items
+            .filter((item) => item.leaveType)
+            .map((item) => (
+              <SwiperSlide key={item.id}>
+                <LeaveBalanceCard
+                  title={item?.leaveType?.title ?? ''}
+                  duration={item.totalBalance}
+                />
+              </SwiperSlide>
+            ))}
         </Swiper>
 
         {data.items.length > 4 && (
