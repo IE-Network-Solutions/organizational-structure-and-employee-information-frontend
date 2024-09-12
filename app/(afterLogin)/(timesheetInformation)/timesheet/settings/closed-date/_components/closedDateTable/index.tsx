@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button, Space, Table } from 'antd';
+import { Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
-import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
+import ActionButtons from '@/components/common/actionButton/actionButtons';
 
 const ClosedDateTable = () => {
   const { setIsShowClosedDateSidebar } = useTimesheetSettingsStore();
@@ -41,20 +41,10 @@ const ClosedDateTable = () => {
       key: 'action',
       sorter: true,
       render: () => (
-        <Space size={10}>
-          <Button
-            icon={<FiEdit2 size={16} />}
-            type="primary"
-            className="w-[30px] h-[30px]"
-            onClick={() => setIsShowClosedDateSidebar(true)}
-          />
-          <Button
-            className="w-[30px] h-[30px]"
-            danger
-            icon={<FiTrash2 size={16} />}
-            type="primary"
-          />
-        </Space>
+        <ActionButtons
+          onEdit={() => setIsShowClosedDateSidebar(true)}
+          onDelete={() => setIsShowClosedDateSidebar(true)}
+        />
       ),
     },
   ];

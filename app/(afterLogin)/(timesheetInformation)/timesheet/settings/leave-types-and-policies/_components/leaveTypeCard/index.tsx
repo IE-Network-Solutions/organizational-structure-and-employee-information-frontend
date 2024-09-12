@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { Space, Spin, Switch } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import ActionButton from '@/components/common/ActionButton';
+import ActionButton from '@/components/common/actionButton';
 import StatusBadge, {
   StatusBadgeTheme,
 } from '@/components/common/statusBadge/statusBadge';

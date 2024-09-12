@@ -3,7 +3,7 @@ import { Button, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { HiOutlineDotsVertical } from 'react-icons/hi';
 import { classNames } from '@/utils/classNames';
-import DeletePopover from '@/components/common/ActionButton/deletePopover';
+import DeletePopover from '@/components/common/actionButton/deletePopover';
 
 export interface ActionButtonProps {
   onEdit?: () => void;
