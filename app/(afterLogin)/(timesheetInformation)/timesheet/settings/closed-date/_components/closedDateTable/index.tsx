@@ -39,7 +39,6 @@ const ClosedDateTable = () => {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
-      sorter: true,
       render: () => (
         <Space size={10}>
           <Button

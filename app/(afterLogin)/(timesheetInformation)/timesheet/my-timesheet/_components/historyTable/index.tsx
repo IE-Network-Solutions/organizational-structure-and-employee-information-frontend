@@ -103,6 +103,7 @@ const HistoryTable = () => {
       title: 'Attachment',
       dataIndex: 'justificationDocument',
       key: 'justificationDocument',
+      sorter: true,
       render: (link: string) =>
         link ? (
           <div className="flex justify-between align-middle">
