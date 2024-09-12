@@ -192,7 +192,7 @@ const TypesAndPoliciesSidebar = () => {
               name="min"
             >
               <InputNumber
-                min={1}
+                min={0}
                 className={inputNumberClass}
                 placeholder="Enter your days"
               />
