@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button, Col, Form, Row, Spin } from 'antd';
 import { useFetchPublicForms } from '@/store/server/features/feedback/dynamicForm/queries';
-import { usePublicFormStore } from '@/store/uistate/features/feedback/publicForm';
 import RenderOptions from './_components/fieldTypes';
+// import { usePublicFormStore } from '@/store/uistate/features/feedback/publicForm';
 // import { useCreateFormResponse } from '@/store/server/features/feedback/dynamicForm/mutation';
 
 interface Params {
@@ -19,7 +19,7 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
   // const { mutate: createFormResponse, isLoading: responseLoading } =
   //   useCreateFormResponse();
 
-  const { selectedAnswer } = usePublicFormStore();
+  // const { selectedAnswer } = usePublicFormStore();
 
   return (
     <div>
@@ -29,9 +29,9 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
         wrapperCol={{ span: 14 }}
         layout="vertical"
         style={{ width: '100%' }}
-        onFinish={(e) => {
-          // createFormResponse(selectedAnswer);
-        }}
+        // onFinish={(e) => {
+        //    createFormResponse(selectedAnswer);
+        // }}
         form={form}
       >
         <h2>{publicForm?.name}</h2>

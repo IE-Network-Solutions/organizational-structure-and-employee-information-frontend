@@ -11,7 +11,7 @@ const headers = {
   Authorization: `Bearer ${token}`,
 };
 
-const createQuestions = async (data: any) => {
+const createQuestions = async () => {
   return await crudRequest({
     url: `${ORG_DEV_URL}/questions`,
     method: 'GET',

@@ -86,7 +86,7 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
           key={questionId}
           style={{ width: '100%' }}
           onChange={(e: string[]) => {
-            let checkedValues = e.map((el) => {
+            const checkedValues = e.map((el) => {
               return {
                 value: el,
                 id: uuidv4(),

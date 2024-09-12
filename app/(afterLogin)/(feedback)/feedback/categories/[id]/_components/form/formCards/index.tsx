@@ -160,14 +160,14 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                     </Dropdown>
                   </div>
                   <Link href={`/feedback/categories/${id}/survey/${forms.id}`}>
-                  <Paragraph className="text-gray-600">
-                    {forms?.description}
-                  </Paragraph>
-                  <div className="flex flex-wrap items-center justify-between gap-1 text-gray-400 mx-5">
-                    <p>{forms?.startDate}</p> <FaArrowRightLong />
-                    <p>{forms?.endDate}</p>
-                  </div>
-                  <Divider className="text-gray-300" />
+                    <Paragraph className="text-gray-600">
+                      {forms?.description}
+                    </Paragraph>
+                    <div className="flex flex-wrap items-center justify-between gap-1 text-gray-400 mx-5">
+                      <p>{forms?.startDate}</p> <FaArrowRightLong />
+                      <p>{forms?.endDate}</p>
+                    </div>
+                    <Divider className="text-gray-300" />
                   </Link>
                   <Flex gap="small" wrap justify="center">
                     {renderProgress(
@@ -219,15 +219,14 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                     </Dropdown>
                   </div>
                   <Link href={`/feedback/categories/${id}/survey/${forms.id}`}>
-
-                  <Paragraph className="text-gray-600">
-                    {forms?.description}
-                  </Paragraph>
-                  <div className="flex flex-wrap items-center justify-between gap-1 text-gray-400 mx-5">
-                    <p>{forms?.startDate}</p> <FaArrowRightLong />{' '}
-                    <p>{forms?.endDate}</p>
-                  </div>
-                  <Divider className="text-gray-300" />
+                    <Paragraph className="text-gray-600">
+                      {forms?.description}
+                    </Paragraph>
+                    <div className="flex flex-wrap items-center justify-between gap-1 text-gray-400 mx-5">
+                      <p>{forms?.startDate}</p> <FaArrowRightLong />{' '}
+                      <p>{forms?.endDate}</p>
+                    </div>
+                    <Divider className="text-gray-300" />
                   </Link>
                   {forms?.endDate < currentDate ? (
                     <div className="flex items-center justify-center mx-5">
