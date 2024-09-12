@@ -1,7 +1,7 @@
 import { Button, Space } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
-import { FC, MouseEventHandler } from 'react';
+import { FC } from 'react';
 
 interface ActionButtonsProps {
   disabled?: boolean;
