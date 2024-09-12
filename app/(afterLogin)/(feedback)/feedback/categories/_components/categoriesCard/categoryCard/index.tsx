@@ -18,8 +18,6 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   onMenuClick,
 }) => {
   const { data: userData } = useGetUsersById(category?.createdBy);
-  console.log(userData, 'somedata');
-
   return (
     <Card hoverable className="w-[280px] relative bg-gray-100">
       <div className="flex justify-between items-center mb-2">
@@ -67,7 +65,9 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           <div className="ml-2 flex flex-col">
             <div className="flex items-center justify-start gap-1">
               <Typography.Text strong>
-                {userData?.firstName + ' ' + userData?.middleName}
+                {userData?.createdBy?.firstName +
+                  ' ' +
+                  userData?.createdBy?.middleName}
               </Typography.Text>
               <FaCircle size={8} color="#3636f0" />
               <Typography.Text className="text-xs font-normal text-gray-400">

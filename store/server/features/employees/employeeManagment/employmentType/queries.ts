@@ -67,10 +67,10 @@ export const useGetEmployementTypes = () =>
  * query object containing the post data, and it keeps the previous data
  * while the new data is being fetched.
  */
-export const useGetEmployeementType = (employmentTypeId: string) =>
+export const useGetEmployeementType = (employementTypeId: string) =>
   useQuery<any>(
-    ['employeementType', employmentTypeId],
-    () => getEmployeementType(employmentTypeId),
+    ['employeementType', employementTypeId],
+    () => getEmployeementType(employementTypeId),
     {
       keepPreviousData: true,
     },

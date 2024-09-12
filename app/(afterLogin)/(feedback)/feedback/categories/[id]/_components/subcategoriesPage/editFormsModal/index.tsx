@@ -2,9 +2,9 @@ import React from 'react';
 import { Modal, Form, Input, DatePicker, Select, Switch, Button } from 'antd';
 import { CalendarOutlined } from '@ant-design/icons';
 import { useFetchUsers } from '@/store/server/features/feedback/category/queries';
-import { useUpdateForm } from '@/store/server/features/feedback/subcategory/mutation';
+import { useUpdateForm } from '@/store/server/features/feedback/form/mutation';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -21,20 +21,16 @@ const EditFormsModal: React.FC<EditFormsModalProps> = ({ form }) => {
     CategoriesManagementStore();
 
   const handleSubmit = async () => {
-    try {
-      const values = await formInstance.validateFields();
-      const updatedData = {
-        ...values,
-        startDate: values.surveyStartDate.toISOString(),
-        endDate: values.surveyEndDate.toISOString(),
-        formPermissions: values.users.map((userId: string) => ({ userId })),
-      };
+    const values = await formInstance.validateFields();
 
-      updateForm({ data: updatedData, id: form.id });
-      setIsEditModalVisible(false);
-    } catch (error) {
-      console.error('Validation failed:', error);
-    }
+    const updatedData = {
+      ...values,
+      startDate: values.surveyStartDate.toISOString(),
+      endDate: values.surveyEndDate.toISOString(),
+      formPermissions: values.users.map((userId: string) => ({ userId })),
+    };
+    updateForm({ data: updatedData, id: form?.items[0]?.id });
+    setIsEditModalVisible(false);
   };
 
   return (
@@ -49,17 +45,13 @@ const EditFormsModal: React.FC<EditFormsModalProps> = ({ form }) => {
         form={formInstance}
         layout="vertical"
         initialValues={{
-          ...form,
-          surveyStartDate: moment(form?.startDate),
-          surveyEndDate: moment(form?.endDate),
+          ...form?.items,
+          surveyStartDate: dayjs(form?.startDate),
+          surveyEndDate: dayjs(form?.endDate),
           users: form?.formPermissions?.map((p: any) => p.userId) || [],
         }}
       >
-        <Form.Item
-          name="name"
-          label="Form Name"
-          rules={[{ required: true, message: 'Please input the form name!' }]}
-        >
+        <Form.Item name="name" label="Form Name">
           <Input />
         </Form.Item>
         <Form.Item

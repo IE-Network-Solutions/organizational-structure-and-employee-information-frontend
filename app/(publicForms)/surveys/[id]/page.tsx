@@ -3,7 +3,7 @@ import { Button, Col, Form, Row, Spin } from 'antd';
 import { useFetchPublicForms } from '@/store/server/features/feedback/dynamicForm/queries';
 import { usePublicFormStore } from '@/store/uistate/features/feedback/publicForm';
 import RenderOptions from './_components/fieldTypes';
-import { useCreateFormResponse } from '@/store/server/features/feedback/dynamicForm/mutation';
+// import { useCreateFormResponse } from '@/store/server/features/feedback/dynamicForm/mutation';
 
 interface Params {
   id: string;
@@ -16,8 +16,8 @@ interface PublicQuestionProps {
 const Questions = ({ params: { id } }: PublicQuestionProps) => {
   const [form] = Form.useForm();
   const { data: publicForm, isLoading } = useFetchPublicForms(id);
-  const { mutate: createFormResponse, isLoading: responseLoading } =
-    useCreateFormResponse();
+  // const { mutate: createFormResponse, isLoading: responseLoading } =
+  //   useCreateFormResponse();
 
   const { selectedAnswer } = usePublicFormStore();
 
@@ -30,7 +30,7 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
         layout="vertical"
         style={{ width: '100%' }}
         onFinish={(e) => {
-          createFormResponse(selectedAnswer);
+          // createFormResponse(selectedAnswer);
         }}
         form={form}
       >

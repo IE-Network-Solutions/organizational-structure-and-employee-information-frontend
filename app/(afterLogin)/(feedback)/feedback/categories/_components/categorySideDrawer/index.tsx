@@ -41,26 +41,8 @@ const CategorySideDrawer: React.FC<any> = (props) => {
       description,
       users: selectedUsers,
     });
-
     handleCloseDrawer();
   };
-
-  const CustomFooter = () => (
-    <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
-      <Button
-        onClick={handleCloseDrawer}
-        className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
-      >
-        Cancel
-      </Button>
-      <Button
-        onClick={handleSubmit}
-        className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
-      >
-        Submit
-      </Button>
-    </div>
-  );
 
   return (
     open && (
@@ -69,7 +51,6 @@ const CategorySideDrawer: React.FC<any> = (props) => {
         onClose={props?.onClose}
         modalHeader={drawerHeader}
         width="40%"
-        footer={<CustomFooter />}
       >
         <div className="flex flex-col h-full">
           <div className="flex-grow overflow-y-auto">
@@ -147,6 +128,22 @@ const CategorySideDrawer: React.FC<any> = (props) => {
                     </Option>
                   ))}
                 </Select>
+              </Form.Item>
+              <Form.Item>
+                <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
+                  <Button
+                    onClick={handleCloseDrawer}
+                    className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSubmit}
+                    className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+                  >
+                    Submit
+                  </Button>
+                </div>
               </Form.Item>
             </Form>
             <div className="flex items-center justify-start gap-1 mx-2 mt-0">

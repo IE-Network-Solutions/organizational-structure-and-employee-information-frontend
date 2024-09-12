@@ -1,13 +1,13 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
-import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
-import SubcategoryDrawer from './_components/subcategoryDrawer';
-import SubcategorySearch from './_components/subcategorySearch';
-import SubcategoriesPage from './_components/subcategoriesPage';
 import { useGetFormCategories } from '@/store/server/features/feedback/category/queries';
+import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
+import FormDrawer from './_components/form/formDrawer';
+import FormSearch from './_components/form/formSearch';
+import FormCard from './_components/form/formCards';
 
 interface Params {
   id: string;
@@ -15,15 +15,15 @@ interface Params {
 interface CategoryForms {
   params: Params;
 }
-function subCategory({ params: { id } }: CategoryForms) {
-  const { setOpen } = CategoriesManagementStore();
+function Form({ params: { id } }: CategoryForms) {
+  const { setIsDrawerOpen } = useDynamicFormStore();
   const { data: formCategories } = useGetFormCategories(id);
 
   const showDrawer = () => {
-    setOpen(true);
+    setIsDrawerOpen(true);
   };
   const onClose = () => {
-    setOpen(false);
+    setIsDrawerOpen(false);
   };
 
   return (
@@ -41,15 +41,15 @@ function subCategory({ params: { id } }: CategoryForms) {
             onClick={showDrawer}
             className="bg-blue-600 hover:bg-blue-700"
           />
-          <SubcategoryDrawer onClose={onClose} id={id} />
+          <FormDrawer onClose={onClose} id={id} />
         </div>
         <div className="w-full h-auto">
-          <SubcategorySearch />
-          <SubcategoriesPage id={id} />
+          <FormSearch />
+          <FormCard id={id} />
         </div>
       </div>
     </div>
   );
 }
 
-export default subCategory;
+export default Form;

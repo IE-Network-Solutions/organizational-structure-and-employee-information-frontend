@@ -28,23 +28,23 @@ const Login: React.FC = () => {
     loading,
     setLoading,
     setToken,
+    setUserId,
     setLocalId,
     setTenantId,
   } = useAuthenticationStore();
 
   const { data: fetchedTenantId, refetch: fetchTenantId } = useGetTenantId();
-  const router=useRouter()
+  const router = useRouter();
   // Update tenantId in store when fetched
   useEffect(() => {
     if (fetchedTenantId?.tenantId) {
       setTenantId(fetchedTenantId?.tenantId);
+      setUserId(fetchedTenantId.id);
       message.loading({ content: 'Redirecting...', key: 'redirect' });
       router.push(`/employees/manage-employees`);
     }
   }, [fetchedTenantId, setTenantId]);
-  
 
-  
   // Handle Google sign-in
   const handleGoogleSignIn = async () => {
     setError('');
@@ -52,7 +52,7 @@ const Login: React.FC = () => {
       const response = await signInWithPopup(auth, googleProvider);
       const user = response.user;
       const uId = user.uid;
-  
+
       // Get the ID token
       const idToken = await user.getIdToken();
 
@@ -118,7 +118,7 @@ const Login: React.FC = () => {
           autoComplete="off"
         >
           <Form.Item
-            label="Email"
+            label="Emails"
             name="email"
             rules={[
               {

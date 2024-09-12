@@ -15,12 +15,15 @@ import Link from 'next/link';
 import {
   useFetchedForms,
   useGetFormsByCategoryID,
-} from '@/store/server/features/feedback/subcategory/queries';
-import CategoryPagination from '../../../_components/categoryPagination';
+} from '@/store/server/features/feedback/form/queries';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import CustomButton from '@/components/common/buttons/customButton';
 import EditFormsModal from './editFormsModal';
-import DynamicForm from '../dynamicForm';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
+import { useDeleteQuestions } from '@/store/server/features/feedback/question/mutation';
+import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
+import Question from '../questions';
+import FeedbackPagination from '../../../../_components/feedbackPagination';
 
 const { Title, Paragraph } = Typography;
 
@@ -30,19 +33,23 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
     pageSize,
     totalPages,
     selectedFormId,
-    setIsAddOpen,
     setCurrent,
     setPageSize,
     setIsEditModalVisible,
-    setDeleteFormModal,
-    setDeletedFormItem,
     setSelectedFormId,
   } = CategoriesManagementStore();
 
+  const {
+    deletedItem,
+    setDeletedItem,
+    deleteFormModal,
+    setDeleteFormModal,
+    setIsAddOpen,
+  } = useDynamicFormStore();
+
   const { data: subcategories } = useFetchedForms(pageSize, current);
   const { data: Forms } = useGetFormsByCategoryID(id, pageSize, current);
-  console.log(Forms, 'forms');
-
+  const { mutate: deleteForm } = useDeleteQuestions();
   const handleChange = (page: number = 1, pageSize: number) => {
     setCurrent(page);
     setPageSize(pageSize);
@@ -51,6 +58,11 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
   const handleShowSizeChange = (size: number) => {
     setPageSize(size);
     setCurrent(1);
+  };
+
+  const handleFormDelete = () => {
+    deleteForm(deletedItem);
+    setDeleteFormModal(false);
   };
 
   const getStrokeColor = (percent: number) => {
@@ -64,7 +76,7 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
     if (key === 'edit') {
       setIsEditModalVisible(true);
     } else if (key === 'delete') {
-      setDeletedFormItem(category.id);
+      setDeletedItem(category.id);
       setDeleteFormModal(true);
     }
   };
@@ -102,7 +114,10 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
       <Row gutter={[16, 24]}>
         {Forms &&
           Forms.map((forms: any, index: number) => (
-            <div className="flex justify-start items-center gap-[13px]">
+            <div
+              key={index}
+              className="flex justify-start items-center gap-[13px]"
+            >
               <Col key={index} lg={12} md={12} xs={24} className="h-full">
                 <Card
                   hoverable
@@ -133,7 +148,7 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
                       <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
                     </Dropdown>
                   </div>
-                  <Link href={`/feedback/categories/${id}/subcategories`}>
+                  <Link href={`/feedback/categories/${id}/survey/${forms.id}`}>
                     <Paragraph className="text-gray-600">
                       {forms?.description}
                     </Paragraph>
@@ -215,7 +230,7 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
             </div>
           ))}
       </Row>
-      <CategoryPagination
+      <FeedbackPagination
         current={current}
         total={totalPages}
         pageSize={pageSize}
@@ -223,7 +238,15 @@ const Subcategories: React.FC<{ id: string }> = ({ id }) => {
         onShowSizeChange={handleShowSizeChange}
       />
       <EditFormsModal form={subcategories} />
-      <DynamicForm selectedFormId={selectedFormId} />
+      <Question
+        selectedFormId={selectedFormId}
+        onClose={() => setIsAddOpen(false)}
+      />
+      <DeleteModal
+        open={deleteFormModal}
+        onConfirm={handleFormDelete}
+        onCancel={() => setDeleteFormModal(false)}
+      />
     </>
   );
 };

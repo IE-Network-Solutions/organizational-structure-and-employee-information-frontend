@@ -15,6 +15,16 @@ interface Category {
   description: string;
 }
 
+interface SearchParams {
+  category_name: string;
+  category_description: string;
+  createdBy: string;
+}
+interface SearchFormParams {
+  form_name: string;
+  form_description: string;
+  createdBy: string;
+}
 export interface CategoriesUseState {
   expanded: boolean;
   open: boolean;
@@ -40,6 +50,7 @@ export interface CategoriesUseState {
   setCurrent: (value: number) => void;
   setOpen: (value: boolean) => void;
   setExpanded: (value: boolean) => void;
+
   selectedUsers: User[];
   setSelectedUsers: (users: User[]) => void;
   addUser: (userId: string) => void;
@@ -55,6 +66,13 @@ export interface CategoriesUseState {
   setDeletedItem: (itemId: string | null) => void;
   setEditModal: (open: boolean) => void;
   setEditingCategory: (category: any | null) => void;
+  searchParams: SearchParams;
+  setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
+  searchFormParams: SearchFormParams;
+  setSearchFormParams: (
+    key: keyof SearchFormParams,
+    value: string | boolean,
+  ) => void;
 }
 
 export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
@@ -94,6 +112,7 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
       ),
     })),
   setCustomFields: (fields) => set({ customFields: fields }),
+
   selectedUsers: [],
   setSelectedUsers: (users) => set({ selectedUsers: users }),
   addUser: (userId) =>
@@ -114,4 +133,22 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
   setEditModal: (open) => set({ editModal: open }),
   setEditingCategory: (category) => set({ editingCategory: category }),
   setSelectedCategory: (category) => set({ selectedCategory: category }),
+  searchParams: {
+    category_name: '',
+    category_description: '',
+    createdBy: '',
+  },
+  setSearchParams: (key, value) =>
+    set((state) => ({
+      searchParams: { ...state.searchParams, [key]: value },
+    })),
+  searchFormParams: {
+    form_name: '',
+    form_description: '',
+    createdBy: '',
+  },
+  setSearchFormParams: (key, value) =>
+    set((state) => ({
+      searchParams: { ...state.searchParams, [key]: value },
+    })),
 }));

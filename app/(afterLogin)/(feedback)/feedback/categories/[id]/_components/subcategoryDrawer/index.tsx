@@ -1,6 +1,5 @@
 'use client';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import {
   Button,
   Col,
@@ -17,14 +16,9 @@ import {
   useFetchUsers,
   useGetFormCategories,
 } from '@/store/server/features/feedback/category/queries';
-import { useAddForm } from '@/store/server/features/feedback/subcategory/mutation';
+import { useAddForm } from '@/store/server/features/feedback/form/mutation';
 import TextArea from 'antd/es/input/TextArea';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-
-const tenantIdFromLocal = useAuthenticationStore.getState().tenantId;
-const tenantId = tenantIdFromLocal
-  ? tenantIdFromLocal
-  : '179055e7-a27c-4d9d-9538-2b2a115661bd';
+import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
 
 const { Option } = Select;
 function SubcategoryDrawer({ onClose, id }: { onClose: any; id: string }) {
@@ -32,8 +26,14 @@ function SubcategoryDrawer({ onClose, id }: { onClose: any; id: string }) {
   const { data: formCategories } = useGetFormCategories(id);
   const { mutate: addForm } = useAddForm();
 
-  const { open, setOpen, selectedUsers, setSelectedUsers, clearSelectedUsers } =
-    CategoriesManagementStore();
+  const {
+    isDrawerOpen,
+    setIsDrawerOpen,
+    selectedUsers,
+    setSelectedUsers,
+    clearSelectedUsers,
+  } = useDynamicFormStore();
+
   const [form] = Form.useForm();
 
   const drawerHeader = (
@@ -42,39 +42,16 @@ function SubcategoryDrawer({ onClose, id }: { onClose: any; id: string }) {
     </div>
   );
 
-  const CustomFooter = () => (
-    <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
-      <Button
-        onClick={handleCloseDrawer}
-        className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
-      >
-        Cancel
-      </Button>
-      <Button
-        onClick={handleSubmit}
-        className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
-      >
-        Submit
-      </Button>
-    </div>
-  );
-
   const handleCloseDrawer = () => {
-    setOpen(false);
+    setIsDrawerOpen(false);
     form.resetFields();
     clearSelectedUsers();
   };
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
-    const {
-      name,
-      description,
-      surveyStartDate,
-      surveyEndDate,
-      Select,
-      isAnonymous,
-    } = values;
+    const { name, description, surveyStartDate, surveyEndDate, Select } =
+      values;
 
     const startDate = surveyStartDate.toISOString();
     const endDate = surveyEndDate.toISOString();
@@ -87,21 +64,18 @@ function SubcategoryDrawer({ onClose, id }: { onClose: any; id: string }) {
       endDate,
       isAnonymous: Select ?? false,
       formCategoryId: id,
-      tenantId: tenantId,
       status: 'published',
     });
-
     handleCloseDrawer();
   };
 
   return (
-    open && (
+    isDrawerOpen && (
       <CustomDrawerLayout
-        open={open}
+        open={isDrawerOpen}
         onClose={onClose}
         modalHeader={drawerHeader}
         width="40%"
-        footer={<CustomFooter />}
       >
         <div className="flex flex-col h-full">
           <Form form={form} layout="vertical">
@@ -233,6 +207,20 @@ function SubcategoryDrawer({ onClose, id }: { onClose: any; id: string }) {
             >
               <Switch size="small" />
             </Form.Item>
+            <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
+              <Button
+                onClick={handleCloseDrawer}
+                className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+              >
+                Submit
+              </Button>
+            </div>
           </Form>
         </div>
       </CustomDrawerLayout>

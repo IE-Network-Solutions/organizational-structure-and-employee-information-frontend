@@ -1,60 +1,55 @@
 import { create } from 'zustand';
 
 interface Question {
-  id: number;
-  type: string;
+  fieldType: string;
   question: string;
-  options: string[];
-  answer?: string;
+  field: Record<string, string>[];
+  customFieldName: string;
+  required: boolean;
 }
 
-interface OrganizationalDevelopmentSettings {
+export interface CustomTemplates {
   isOpen: boolean;
   setIsOpen: (Value: boolean) => void;
-  questions: Question[];
-  addQuestion: () => void;
-  updateQuestion: (id: number, updates: Partial<Question>) => void;
-  updateOption: (
-    questionId: number,
-    optionIndex: number,
-    value: string,
-  ) => void;
+  templateQuestions: Question;
+  addTemplateQuestion: (question: Question) => void;
+  templatePageSize: number;
+  templateCurrentPage: number;
+  setTemplateCurrentPage: (value: number) => void;
+  setTemplatePageSize: (page: number) => void;
+  editingQuestion: any;
+  setEditingQuestion: (value: any) => void;
+  deletingQuestionId: string | null;
+  setDeletingQuestionId: (value: string | null) => void;
+  questionModal: boolean;
+  setQuestionModal: (value: boolean) => void;
+  deleteModal: boolean;
+  setDeleteModal: (value: boolean) => void;
 }
 
-export const OrganizationalDevelopmentSettingsStore =
-  create<OrganizationalDevelopmentSettings>((set) => ({
+export const useCustomQuestionTemplateStore = create<CustomTemplates>(
+  (set) => ({
     isOpen: false,
+    templatePageSize: 4,
+    templateCurrentPage: 1,
+    setTemplateCurrentPage: (value) => set({ templateCurrentPage: value }),
+    setTemplatePageSize: (page) => set({ templatePageSize: page }),
     setIsOpen: (value) => set({ isOpen: value }),
-    questions: [],
-    addQuestion: () =>
-      set((state) => ({
-        questions: [
-          ...state.questions,
-          {
-            id: state.questions.length + 1,
-            type: 'Multiple Choice',
-            question: '',
-            options: [],
-          },
-        ],
-      })),
-    updateQuestion: (id, updates) =>
-      set((state) => ({
-        questions: state.questions.map((q) =>
-          q.id === id ? { ...q, ...updates } : q,
-        ),
-      })),
-    updateOption: (questionId, optionIndex, value) =>
-      set((state) => ({
-        questions: state.questions.map((q) =>
-          q.id === questionId
-            ? {
-                ...q,
-                options: q.options.map((opt, idx) =>
-                  idx === optionIndex ? value : opt,
-                ),
-              }
-            : q,
-        ),
-      })),
-  }));
+    templateQuestions: {
+      fieldType: '',
+      question: '',
+      field: [],
+      customFieldName: '',
+      required: false,
+    },
+    addTemplateQuestion: (question) => set({ templateQuestions: question }),
+    editingQuestion: null,
+    setEditingQuestion: (value) => set({ editingQuestion: value }),
+    deletingQuestionId: null,
+    setDeletingQuestionId: (value) => set({ deletingQuestionId: value }),
+    questionModal: false,
+    setQuestionModal: (value) => set({ questionModal: value }),
+    deleteModal: false,
+    setDeleteModal: (value) => set({ deleteModal: value }),
+  }),
+);

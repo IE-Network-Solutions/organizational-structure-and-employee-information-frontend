@@ -89,6 +89,29 @@ const items: MenuItem[] = [
     label: 'Activity',
   },
   {
+    key: '/organizational-development',
+    icon: <BarChartOutlined />,
+    label: 'Organizational Development',
+    className: 'font-bold',
+    children: [
+      {
+        key: '/organizational-development/categories',
+        label: 'Categories',
+        className: 'font-bold',
+      },
+      {
+        key: '/organizational-development/succession-plan',
+        className: 'font-bold',
+        label: 'Succession Plan',
+      },
+      {
+        key: '/organizational-development/settings',
+        className: 'font-bold',
+        label: 'Settings',
+      },
+    ],
+  },
+  {
     key: '/feedback ',
     label: 'Feedback',
     icon: <UserOutlined />,
@@ -223,11 +246,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             display: 'flex',
             alignItems: 'center',
             position: 'fixed',
-            width: '100%',
+            width: isMobile
+              ? '100%'
+              : collapsed
+                ? 'calc(100% - 80px)'
+                : 'calc(100% - 280px)',
             zIndex: 1000,
             top: 0,
             left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
-            transition: 'left 0.3s ease',
+            transition: 'left 0.3s ease, width 0.3s ease',
           }}
         >
           {isMobile && (
