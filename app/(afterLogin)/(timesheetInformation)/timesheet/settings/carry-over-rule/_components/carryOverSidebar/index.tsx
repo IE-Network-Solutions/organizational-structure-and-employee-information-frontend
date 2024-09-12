@@ -116,7 +116,7 @@ const CarryOverSidebar = () => {
                 name="limit"
               >
                 <InputNumber
-                  min={1}
+                  min={0}
                   className="w-full py-[11px] mt-2.5"
                   placeholder="Input entitled days"
                 />
@@ -127,7 +127,7 @@ const CarryOverSidebar = () => {
                 name="expiration"
               >
                 <InputNumber
-                  min={1}
+                  min={0}
                   className="w-full py-[11px] mt-2.5"
                   placeholder="Enter your days"
                 />
