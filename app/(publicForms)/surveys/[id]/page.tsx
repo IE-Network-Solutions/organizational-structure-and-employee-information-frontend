@@ -1,50 +1,88 @@
-'use client';
-import { useFetchDynamicForms } from '@/store/server/features/feedback/dynamicForm/queries';
 import React from 'react';
+import { Button, Col, Form, Row, Spin } from 'antd';
+import { useFetchPublicForms } from '@/store/server/features/feedback/dynamicForm/queries';
+import { usePublicFormStore } from '@/store/uistate/features/feedback/publicForm';
+import RenderOptions from './_components/fieldTypes';
+import { useCreateFormResponse } from '@/store/server/features/feedback/dynamicForm/mutation';
+
 interface Params {
   id: string;
 }
-interface QuestionProps {
+
+interface PublicQuestionProps {
   params: Params;
 }
 
-const QuestionDisplay = ({ params: { id } }: QuestionProps) => {
-  const { data: dynamicForms, isLoading } = useFetchDynamicForms();
-  const questionData = dynamicForms?.items?.find(
-    (form: any) => form.formId === id,
-  );
+const Questions = ({ params: { id } }: PublicQuestionProps) => {
+  const [form] = Form.useForm();
+  const { data: publicForm, isLoading } = useFetchPublicForms(id);
+  const { mutate: createFormResponse, isLoading: responseLoading } =
+    useCreateFormResponse();
 
-  console.log('first', dynamicForms);
+  const { selectedAnswer } = usePublicFormStore();
 
-  return isLoading ? (
-    <div>IsLoading....</div>
-  ) : (
+  return (
     <div>
-      <div>{questionData?.question}</div>
-
-      <div key={questionData.id} className="mb-4">
-        <h2 className="font-semibold">{questionData.question}</h2>
-        <ul className="list-decimal pl-5">
-          {questionData?.field?.map((option: any, index: any) => (
-            <li key={option.id} className="my-2">
-              <input
-                type="radio"
-                id={`question-${questionData.id}-option-${index}`}
-                name={`question-${questionData.id}`}
-                value={option.text}
-              />
-              <label
-                htmlFor={`question-${questionData?.id}-option-${index}`}
-                className="ml-2"
+      {isLoading ?? <Spin className="flex justify-center align-middle" />}
+      <Form
+        labelCol={{ span: 4 }}
+        wrapperCol={{ span: 14 }}
+        layout="vertical"
+        style={{ width: '100%' }}
+        onFinish={(e) => {
+          createFormResponse(selectedAnswer);
+        }}
+        form={form}
+      >
+        <h2>{publicForm?.name}</h2>
+        {publicForm?.questions?.map((q: any, index: number) => (
+          <Row gutter={16} key={q.id}>
+            <Col xs={24} sm={24}>
+              <Form.Item
+                label={
+                  <div className="my-2 font-semibold">
+                    <span>{index + 1}.</span> {q.question}
+                  </div>
+                }
+                key={q.id}
+                name={`question_${q.id}`}
+                required={q.required}
+                labelCol={{ span: 24 }} // Label spans full width
+                wrapperCol={{ span: 24 }} // Wrapper spans full width (if needed)
+                rules={[
+                  {
+                    required: q.required,
+                    message: 'This field is required.',
+                  },
+                  {
+                    min: 1,
+                    message: 'This field is required.',
+                  },
+                ]}
               >
-                {option.text}
-              </label>
-            </li>
-          ))}
-        </ul>
-      </div>
+                <RenderOptions
+                  key={q.id}
+                  type={q?.fieldType}
+                  questionId={q?.id}
+                  field={q?.field}
+                  form={form}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        ))}
+        <Form.Item>
+          {publicForm ? (
+            <Button htmlType="submit" type="primary">
+              Submit
+            </Button>
+          ) : (
+            <></>
+          )}
+        </Form.Item>
+      </Form>
     </div>
   );
 };
 
-export default QuestionDisplay;
+export default Questions;

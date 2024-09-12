@@ -1,5 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { ORG_DEV_BASE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
@@ -13,8 +13,15 @@ const headers = {
 
 const fetchDynamicForms = async () => {
   return await crudRequest({
-    // url: 'https://mocki.io/v1/51dcdb2a-999f-4ceb-b7e0-cc62964f4685',
-    url: `${ORG_AND_EMP_URL}/questions`,
+    url: `${ORG_DEV_BASE_URL}/questions`,
+    method: 'GET',
+    headers,
+  });
+};
+
+const fetchPublicForms = async (id: string) => {
+  return await crudRequest({
+    url: `${ORG_DEV_BASE_URL}/forms/public/${id}`,
     method: 'GET',
     headers,
   });
@@ -23,3 +30,6 @@ const fetchDynamicForms = async () => {
 export const useFetchDynamicForms = () => {
   return useQuery('dynamicForms', fetchDynamicForms);
 };
+
+export const useFetchPublicForms = (empId: string) =>
+  useQuery<any>('publicForms', () => fetchPublicForms(empId));

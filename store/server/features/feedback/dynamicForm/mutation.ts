@@ -41,6 +41,14 @@ const deleteDynamicForm = async () => {
   });
 };
 
+const createFormResponse = async (data: any) => {
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/response`,
+    method: 'POST',
+    data,
+    headers,
+  });
+};
 export const useCreateDynamicForm = () => {
   const queryClient = useQueryClient();
   return useMutation(createDynamicForm, {
@@ -71,6 +79,17 @@ export const useDeleteDynamicForm = () => {
   return useMutation(deleteDynamicForm, {
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('dynamicForms');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+
+export const useCreateFormResponse = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createFormResponse, {
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('formResponse');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

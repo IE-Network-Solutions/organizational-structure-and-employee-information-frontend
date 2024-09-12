@@ -113,8 +113,6 @@ const CreateQuestions: React.FC<{
         //
       }}
       onFinish={(e) => {
-        console.log(e, 'eventssssssssss');
-
         addQuestion(e.questions);
         handlePublish();
       }}
