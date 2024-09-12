@@ -33,6 +33,10 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
             colorText: '#111827',
             colorBorder: '#E9EAEC',
           },
+          Collapse: {
+            headerBg: '#FFF',
+            contentBg: 'FFF',
+          },
         },
         token: {
           colorPrimary: '#3636F0',

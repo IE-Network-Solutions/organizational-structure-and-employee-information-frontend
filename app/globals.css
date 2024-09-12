@@ -179,3 +179,7 @@ h6 {
 .menu-item-icon {
   @apply text-[#4DAEF0] !important;
 }
+
+.ant-collapse>.ant-collapse-item >.ant-collapse-header {
+  align-items: center !important;
+}

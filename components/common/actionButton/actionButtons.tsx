@@ -1,13 +1,13 @@
 import { Button, Space } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
-import { FC } from 'react';
+import { FC, MouseEventHandler } from 'react';
 
 interface ActionButtonsProps {
   disabled?: boolean;
   loading?: boolean;
-  onEdit?: () => void;
-  onDelete?: () => void;
+  onEdit?: (e?: any) => void;
+  onDelete?: (e?: any) => void;
 }
 
 const ActionButtons: FC<ActionButtonsProps> = ({
