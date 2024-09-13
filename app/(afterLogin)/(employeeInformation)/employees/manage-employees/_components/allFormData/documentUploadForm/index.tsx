@@ -45,7 +45,7 @@ const DocumentUploadForm = () => {
               customRequest={customRequest}
               listType="picture"
               // accept="*/*"
-              accept="audio/*,video/*"
+              accept="/*"
             >
               <div className="flex justify-start items-center text-xl font-semibold text-gray-950">
                 <p>Documents Upload</p>
