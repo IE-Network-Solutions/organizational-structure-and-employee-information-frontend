@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Button, Col, Form, Row, Spin } from 'antd';
 import { useFetchPublicForms } from '@/store/server/features/feedback/dynamicForm/queries';
