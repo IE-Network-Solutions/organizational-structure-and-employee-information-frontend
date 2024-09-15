@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Spin } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import useStepStore from '@/store/uistate/features/organizationStructure/steper/useStore';
@@ -33,6 +33,8 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useRouter } from 'next/navigation';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -42,6 +44,14 @@ const OnboaringSteper: React.FC = () => {
   const [form3] = Form.useForm();
   const [form4] = Form.useForm();
   const forms = [form1, form2, form3, form4];
+
+  const { data: departments } = useGetDepartments();
+  const router = useRouter();
+  useEffect(() => {
+    if (departments?.length > 0) {
+      router.push('/organization/org-structure');
+    }
+  }, [departments?.length]);
 
   const steps = [
     {

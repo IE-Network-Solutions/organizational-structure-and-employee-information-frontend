@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
+
 /**
  * Function to fetch a list of employee branches by sending a GET request to the API.
  *
@@ -145,7 +146,7 @@ export const useEmployeeAllFilter = (
  */
 const getEmployees = async () => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/employee`,
+    url: `${ORG_AND_EMP_URL}/users?deletedAt=null`,
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       // tenantId: tenantId, // Pass tenantId in the headers
@@ -188,7 +189,7 @@ export const useGetAllUsers = () => useQuery<any>('employeesWithOutPagination', 
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetEmployees = () => useQuery<any[]>('employees', getEmployees);
+export const useGetEmployees = () => useQuery<any>('employees', getEmployees);
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.
