@@ -54,11 +54,6 @@ const items: MenuItem[] = [
     className: 'font-bold',
     children: [
       {
-        key: '/employees',
-        label: 'Employees',
-        className: 'font-bold',
-      },
-      {
         key: '/employees/manage-employees',
         className: 'font-bold',
         label: 'Manage Employees',
