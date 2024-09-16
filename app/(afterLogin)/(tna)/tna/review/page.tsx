@@ -14,8 +14,11 @@ import { FiEdit2 } from 'react-icons/fi';
 import ActionButton from '@/components/common/actionButton';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import TnaRequestSidebar from '@/app/(afterLogin)/(tna)/tna/review/_components/tnaRequestSidebar';
+import { useRouter } from 'next/navigation';
 
 const TnaReviewPage = () => {
+  const router = useRouter();
+
   const { setIsShowTnaReviewSidebar } = useTnaReviewStore();
   const tableColumns: TableColumnsType<any> = [
     {
@@ -79,9 +82,26 @@ const TnaReviewPage = () => {
             icon={<FiEdit2 size={16} />}
             type="primary"
           />
-          <ActionButton />
+          <ActionButton
+            onOpen={() => {
+              router.push('/tna/review/1');
+            }}
+          />
         </Space>
       ),
+    },
+  ];
+
+  const tableData = [
+    {
+      key: '1',
+      tna: 'Tna 1',
+      requestedBy: 'requestedBy',
+      completedDate: Date.now(),
+      attachment: '',
+      status: 'Success',
+      certStatus: 'Pending',
+      action: '',
     },
   ];
 
@@ -107,7 +127,7 @@ const TnaReviewPage = () => {
           </Space>
         </PageHeader>
 
-        <Table className="mt-6" columns={tableColumns} />
+        <Table className="mt-6" columns={tableColumns} dataSource={tableData} />
       </BlockWrapper>
 
       <TnaRequestSidebar />

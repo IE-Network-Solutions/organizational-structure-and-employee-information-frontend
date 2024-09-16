@@ -6,6 +6,7 @@ import { classNames } from '@/utils/classNames';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
 
 export interface ActionButtonProps {
+  onOpen?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
   onCancelDelete?: () => void;
@@ -13,6 +14,7 @@ export interface ActionButtonProps {
 }
 
 const ActionButton: FC<ActionButtonProps> = ({
+  onOpen,
   onEdit,
   onDelete,
   onCancelDelete,
@@ -20,9 +22,26 @@ const ActionButton: FC<ActionButtonProps> = ({
 }) => {
   const items: MenuProps['items'] = [];
 
-  if (onEdit) {
+  if (onOpen) {
     items.push({
       key: '0',
+      label: (
+        <Button
+          size="large"
+          className="w-full justify-normal"
+          type="text"
+          onClick={onOpen}
+        >
+          Open
+        </Button>
+      ),
+      className: 'p-0 hover:bg-transparent',
+    });
+  }
+
+  if (onEdit) {
+    items.push({
+      key: '1',
       label: (
         <Button
           size="large"
@@ -39,7 +58,7 @@ const ActionButton: FC<ActionButtonProps> = ({
 
   if (onDelete) {
     items.push({
-      key: '1',
+      key: '2',
       label: (
         <DeletePopover onCancel={onCancelDelete} onDelete={onDelete}>
           <Button size="large" className="w-full justify-normal" type="text">
