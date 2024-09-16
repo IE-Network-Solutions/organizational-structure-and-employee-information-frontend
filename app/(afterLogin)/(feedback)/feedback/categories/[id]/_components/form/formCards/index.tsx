@@ -113,6 +113,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
   );
 
   const currentDate = new Date();
+  console.log('firstForms', Forms);
 
   return (
     <>

@@ -6,19 +6,18 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { Form } from './interface';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
-
 /**
  * Adds a new form.
  * @param data - The form data to be added.
  * @returns The response from the server.
  */
 const addForm = async (data: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_DEV_URL}/forms`,
     method: 'POST',
@@ -34,6 +33,12 @@ const addForm = async (data: any) => {
  * @returns The response from the server.
  */
 const updateForm = async (data: Form, id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_DEV_URL}/forms/${id}`,
     method: 'PUT',
@@ -47,6 +52,12 @@ const updateForm = async (data: Form, id: string) => {
  * @returns The response from the server.
  */
 const deleteForm = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   const deletedItem = CategoriesManagementStore.getState().deletedItem;
   const pageSize = CategoriesManagementStore.getState().pageSize;
   const current = CategoriesManagementStore.getState().current;
