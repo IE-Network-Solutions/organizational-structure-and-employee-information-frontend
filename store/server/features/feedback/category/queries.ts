@@ -34,6 +34,15 @@ const fetchCategories = async (
   description: string,
   createdBy: string,
 ) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+    createdById: 'c9624522-40af-4f10-ba44-8697b36e7a1c',
+  };
+  console.log('first', tenantId);
+
   return await crudRequest({
     url: `${ORG_DEV_URL}/form-categories?name=${name}&description=${description}&createdBy=${createdBy}&limit=${pageSize}&page=${currentPage}`,
     method: 'GET',
@@ -46,6 +55,14 @@ const fetchCategories = async (
  * @returns {Promise<any>} Promise with the list of users.
  */
 const fetchUsers = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+    createdById: 'c9624522-40af-4f10-ba44-8697b36e7a1c',
+  };
+
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/users?deletedAt=null`,
     method: 'GET',
@@ -59,6 +76,14 @@ const fetchUsers = async () => {
  * @returns {Promise<any>} Promise with the category data.
  */
 const getFormCategoriesById = async (formCatsId: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+    createdById: 'c9624522-40af-4f10-ba44-8697b36e7a1c',
+  };
+
   return crudRequest({
     url: `${ORG_DEV_URL}/form-categories/${formCatsId}`,
     method: 'GET',
@@ -72,8 +97,18 @@ const getFormCategoriesById = async (formCatsId: string) => {
  * @returns {Promise<any>} Promise with the user data.
  */
 const fetchCatUsersById = async (createdById: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId || '';
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+    createdById: userId,
+  };
+
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/users/${createdById}?deletedAt=null`,
+    url: `${ORG_AND_EMP_URL}/users/${userId}?deletedAt=null`,
     method: 'GET',
     headers,
   });

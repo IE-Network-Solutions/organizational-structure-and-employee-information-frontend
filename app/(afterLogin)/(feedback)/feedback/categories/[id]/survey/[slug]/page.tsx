@@ -12,6 +12,7 @@ import SummaryResponses from './_components/summaryResponses';
 import ActionPlans from './_components/actionPlans';
 import CreateActionPlan from './_components/createActionPlan';
 import Questions from './_components/questions';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const { Option } = Select;
 interface Params {
@@ -21,7 +22,12 @@ interface FormDetailProps {
   params: Params;
 }
 function Page({ params: { slug } }: FormDetailProps) {
-  const { activeTab, setActiveTab, setOpen } = useOrganizationalDevelopment();
+  const { activeTab, setActiveTab, setOpen, setSelectedUser } =
+    useOrganizationalDevelopment();
+  const { data: employeeData, isLoading: userLoading } = useGetAllUsers();
+  const handleUserChange = (val: string) => {
+    setSelectedUser(val);
+  };
   const items: TabsProps['items'] = [
     {
       key: '1',
@@ -98,13 +104,41 @@ function Page({ params: { slug } }: FormDetailProps) {
         <CreateActionPlan onClose={onClose} />
       </div>
       <Row justify="center" style={{ width: '100%' }}>
-        <Col span={activeTab === '2' ? 16 : 24}>
+        <Col span={activeTab === '2' || activeTab === '3' ? 16 : 24}>
           <Input
             className="w-full h-[48px] my-4"
             placeholder="search questions"
           />
         </Col>
+
         {activeTab === '2' && (
+          <Col span={8}>
+            <Select
+              id={`selectStatusChartType`}
+              placeholder="All Users"
+              loading={userLoading}
+              onChange={handleUserChange}
+              allowClear
+              className="w-full h-[48px] my-4"
+            >
+              {employeeData?.items?.map((item: any) => (
+                <Option key="active" value={item.id}>
+                  <div className="flex space-x-3 p-1 rounded">
+                    <img
+                      src={`${item?.profileImage}`}
+                      alt="pep"
+                      className="rounded-full w-4 h-4 mt-2"
+                    />
+                    <span className="flex justify-center items-center">
+                      {item?.firstName + ' ' + ' ' + item?.middleName}
+                    </span>
+                  </div>
+                </Option>
+              ))}
+            </Select>
+          </Col>
+        )}
+        {activeTab === '3' && (
           <Col span={8}>
             <Select
               id={`selectStatusChartType`}
@@ -113,11 +147,11 @@ function Page({ params: { slug } }: FormDetailProps) {
               allowClear
               className="w-full h-[48px] my-4"
             >
+              <Option key="active" value={'barGraph'}>
+                Bar graph
+              </Option>
               <Option key="active" value={'pieChart'}>
                 Pie chart
-              </Option>
-              <Option key="inactive" value={'lineGraph'}>
-                Line Graph
               </Option>
             </Select>
           </Col>

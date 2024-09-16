@@ -18,8 +18,9 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   onMenuClick,
 }) => {
   const { data: userData } = useGetUsersById(category?.createdBy);
+  console.log('fivhvhgrst', category, userData);
   return (
-    <Card hoverable className="w-[280px] relative bg-gray-100">
+    <Card hoverable className="w-[280px] relative bg-gray-100 ">
       <div className="flex justify-between items-center mb-2">
         <Title level={4} className="m-0">
           {category?.name}
@@ -50,8 +51,8 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
         <div className="flex items-center mt-4">
           <Image
             src={
-              category?.createdBy?.profileImage ? (
-                category?.createdBy?.profileImage
+              userData?.profileImage ? (
+                userData?.profileImage
               ) : (
                 <Avatar icon={<UserOutlined />} />
               )
@@ -65,14 +66,16 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           <div className="ml-2 flex flex-col">
             <div className="flex items-center justify-start gap-1">
               <Typography.Text strong>
-                {userData?.createdBy?.firstName +
+                {(userData?.createdBy?.firstName ?? 'Unkown') +
                   ' ' +
-                  userData?.createdBy?.middleName}
+                  (userData?.createdBy?.middleName ?? '-')}
               </Typography.Text>
-              <FaCircle size={8} color="#3636f0" />
-              <Typography.Text className="text-xs font-normal text-gray-400">
-                Creator
-              </Typography.Text>
+              <div className="flex justify-end items-center">
+                <FaCircle size={8} color="#3636f0" />
+                <Typography.Text className="text-xs font-normal text-gray-400">
+                  Creator
+                </Typography.Text>
+              </div>
             </div>
             <Typography.Text type="secondary">
               Marketing Manager

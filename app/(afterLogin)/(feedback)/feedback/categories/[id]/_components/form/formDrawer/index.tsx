@@ -28,6 +28,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
 
   const {
     isDrawerOpen,
+    isAddOpen,
     setIsDrawerOpen,
     selectedUsers,
     setSelectedUsers,
@@ -68,11 +69,12 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
     });
     handleCloseDrawer();
   };
+  console.log(employees, 'employeeemployee');
 
   return (
-    isDrawerOpen && (
+    isAddOpen && (
       <CustomDrawerLayout
-        open={isDrawerOpen}
+        open={isAddOpen}
         onClose={onClose}
         modalHeader={drawerHeader}
         width="40%"

@@ -16,14 +16,14 @@ interface CategoryForms {
   params: Params;
 }
 function Form({ params: { id } }: CategoryForms) {
-  const { setIsDrawerOpen } = useDynamicFormStore();
+  const { setIsAddOpen } = useDynamicFormStore();
   const { data: formCategories } = useGetFormCategories(id);
 
   const showDrawer = () => {
-    setIsDrawerOpen(true);
+    setIsAddOpen(true);
   };
   const onClose = () => {
-    setIsDrawerOpen(false);
+    setIsAddOpen(false);
   };
 
   return (

@@ -11,6 +11,13 @@ const headers = {
   tenantId: tenantId,
 };
 const fetchForms = async (pageSize: number, currentPage: number) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
   return crudRequest({
     url: `${ORG_DEV_URL}/forms?limit=${pageSize}&page=${currentPage}`,
     method: 'GET',
@@ -23,6 +30,13 @@ const getFormsByCategoryId = async (
   pageSize: number,
   current: number,
 ) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
   return crudRequest({
     url: `${ORG_DEV_URL}/forms/category/${formCategoryId}?limit=${pageSize}&page=${current}`,
     method: 'GET',
