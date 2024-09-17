@@ -7,7 +7,7 @@ export interface Choice {
 }
 export interface SelectedAnswer {
   id: string;
-  response: string;
+  value: string;
 }
 interface MultipleChoiceFieldProps {
   choices: Choice[];

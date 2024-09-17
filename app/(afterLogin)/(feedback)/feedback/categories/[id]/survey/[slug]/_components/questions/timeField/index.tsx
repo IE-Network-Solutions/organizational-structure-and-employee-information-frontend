@@ -9,7 +9,8 @@ interface TimeFieldProps {
 
 const TimeField: React.FC<TimeFieldProps> = ({ value }) => (
   <TimePicker
-    value={value ? dayjs(value.response, 'HH:mm') : null}
+    disabled
+    value={value ? dayjs(value.value, 'HH:mm') : null}
     format="HH:mm"
   />
 );

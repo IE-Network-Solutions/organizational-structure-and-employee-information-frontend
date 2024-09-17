@@ -34,12 +34,16 @@ const CreateActionPlan = (props: any) => {
   };
   const handleCreateActionPlan = (values: DataItem[]) => {
     const arrayOfObjects = Object.keys(values).map((key: any) => values[key]);
-    createActionPlanData(arrayOfObjects, {
-      onSuccess: () => {
-        form.resetFields();
-        setOpen(false);
-      },
-    });
+  
+    createActionPlanData(
+      { formId: props?.id, values: arrayOfObjects }, // Pass both formId and values together
+      {
+        onSuccess: () => {
+          form.resetFields(); // Resets the form after successful creation
+          setOpen(false); // Closes the modal or form
+        },
+      }
+    );
   };
 
   return (
