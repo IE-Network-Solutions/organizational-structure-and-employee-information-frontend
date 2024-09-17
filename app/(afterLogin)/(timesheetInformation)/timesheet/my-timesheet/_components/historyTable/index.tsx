@@ -138,7 +138,6 @@ const HistoryTable = () => {
             className="w-[30px] h-[30px]"
             icon={<FiEdit2 size={16} />}
             type="primary"
-            disabled={item.status === LeaveRequestStatus.APPROVED}
             onClick={() => {
               isShow(true);
               setLeaveRequestSidebarData(item.id);
