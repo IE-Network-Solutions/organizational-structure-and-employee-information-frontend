@@ -10,11 +10,12 @@ import { DataItem } from './interface';
  * @param newPost The data for the new post
  * @returns The response data from the API
  */
-const createActionPlan = async (values: DataItem[]) => {
+const createActionPlan = async ({ formId, values }: { formId: string, values: DataItem[] }) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
+
   return crudRequest({
-    url: `${ORG_DEV_URL}/action-plans/many/8aa45ab7-87e9-4d12-bb1b-fa613cf91411`,
+    url: `${ORG_DEV_URL}/action-plans/many/${formId}`,
     method: 'POST',
     data: values,
     headers: {
@@ -37,18 +38,19 @@ const deleteActionPlan = async (id: string) => {
 };
 export const useCreateActionPlan = () => {
   const queryClient = useQueryClient();
+
   return useMutation(createActionPlan, {
     onSuccess: () => {
       queryClient.invalidateQueries('actionPlans');
       NotificationMessage.success({
         message: 'Successfully Created',
-        description: 'action plan successfully Created',
+        description: 'Action plan successfully created',
       });
     },
     onError: () => {
       NotificationMessage.error({
-        message: 'Creating Failed',
-        description: 'action plan Created Failed',
+        message: 'Creation Failed',
+        description: 'Action plan creation failed',
       });
     },
   });

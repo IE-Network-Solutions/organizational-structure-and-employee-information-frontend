@@ -45,7 +45,7 @@ const fetchIndividualResponses = async (
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${ORG_DEV_URL}/responses/by-user/${formId}/${userId}`,
+    url: `${ORG_DEV_URL}/responses/by-user/${formId}/""`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -116,9 +116,9 @@ export const useFetchedIndividualResponses = (
   return useQuery<any>(
     ['individualResponses', formId, userId],
     () => fetchIndividualResponses(formId, userId),
-    {
-      enabled: !!userId, // Only run the query when userId is not null or undefined
-    },
+    // {
+    //   enabled: !!userId, // Only run the query when userId is not null or undefined
+    // },
   );
 };
 

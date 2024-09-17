@@ -8,9 +8,9 @@ interface RadioFieldProps {
 }
 
 const RadioField: React.FC<RadioFieldProps> = ({ options, selectedValue }) => (
-  <Radio.Group value={selectedValue?.id}>
+  <Radio.Group  value={selectedValue?.id}>
     {options?.map((option, index) => (
-      <Radio key={index} value={option}>
+      <Radio disabled key={index} value={option}>
         {option}
       </Radio>
     ))}
