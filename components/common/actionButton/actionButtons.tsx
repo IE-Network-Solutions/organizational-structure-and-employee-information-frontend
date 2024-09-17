@@ -4,14 +4,16 @@ import DeletePopover from '@/components/common/actionButton/deletePopover';
 import { FC } from 'react';
 
 interface ActionButtonsProps {
-  disabled?: boolean;
+  disableEdit?: boolean;
+  disableDelete?: boolean;
   loading?: boolean;
   onEdit?: (e?: any) => void;
   onDelete?: (e?: any) => void;
 }
 
 const ActionButtons: FC<ActionButtonsProps> = ({
-  disabled = false,
+  disableEdit = false,
+  disableDelete = false,
   loading = false,
   onEdit,
   onDelete,
@@ -24,17 +26,17 @@ const ActionButtons: FC<ActionButtonsProps> = ({
           icon={<FiEdit2 size={16} />}
           type="primary"
           loading={loading}
-          disabled={disabled}
+          disabled={disableEdit}
           onClick={onEdit}
         />
       )}
 
       {onDelete && (
-        <DeletePopover onDelete={onDelete} disabled={disabled}>
+        <DeletePopover onDelete={onDelete} disabled={disableDelete}>
           <Button
             className="w-[30px] h-[30px]"
             danger
-            disabled={disabled}
+            disabled={disableDelete}
             loading={loading}
             icon={<FiTrash2 size={16} />}
             type="primary"

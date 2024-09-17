@@ -133,7 +133,7 @@ const HistoryTable = () => {
       key: 'action',
       render: (item: LeaveRequest) => (
         <ActionButtons
-          disabled={item.status === LeaveRequestStatus.APPROVED}
+          disableDelete={item.status === LeaveRequestStatus.APPROVED}
           onEdit={() => {
             isShow(true);
             setLeaveRequestSidebarData(item.id);
