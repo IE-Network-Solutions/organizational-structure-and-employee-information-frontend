@@ -17,10 +17,9 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   category,
   onMenuClick,
 }) => {
-  const { data: userData } = useGetUsersById(category?.createdBy);
-  console.log('fivhvhgrst', category, userData);
+  const { data: userData } = useGetUsersById();
   return (
-    <Card hoverable className="w-[280px] relative bg-gray-100 ">
+    <Card hoverable className="w-[280px] relative bg-gray-100">
       <div className="flex justify-between items-center mb-2">
         <Title level={4} className="m-0">
           {category?.name}
@@ -50,13 +49,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
         <Paragraph className="text-gray-600">{category?.description}</Paragraph>
         <div className="flex items-center mt-4">
           <Image
-            src={
-              userData?.profileImage ? (
-                userData?.profileImage
-              ) : (
-                <Avatar icon={<UserOutlined />} />
-              )
-            }
+            src={userData?.profileImage ?? <Avatar icon={<UserOutlined />} />}
             alt="Profile pic"
             width={30}
             height={50}
@@ -64,13 +57,15 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           />
 
           <div className="ml-2 flex flex-col">
-            <div className="flex items-center justify-start gap-1">
-              <Typography.Text strong>
-                {(userData?.createdBy?.firstName ?? 'Unkown') +
-                  ' ' +
-                  (userData?.createdBy?.middleName ?? '-')}
-              </Typography.Text>
-              <div className="flex justify-end items-center">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <Typography.Text strong>
+                  {(userData?.createdBy?.firstName ?? 'Unknown') +
+                    ' ' +
+                    (userData?.createdBy?.middleName ?? '-')}
+                </Typography.Text>
+              </div>
+              <div className="flex justify-center items-center gap-1">
                 <FaCircle size={8} color="#3636f0" />
                 <Typography.Text className="text-xs font-normal text-gray-400">
                   Creator

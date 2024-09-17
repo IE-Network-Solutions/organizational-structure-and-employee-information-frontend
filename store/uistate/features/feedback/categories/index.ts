@@ -38,8 +38,8 @@ export interface CategoriesUseState {
   editingCategory: any | null;
   selectedCategory: Category | null;
   isEditModalVisible: boolean;
-  selectedFormId: string | null;
-  setSelectedFormId: (value: string | null) => void;
+  selectedFormId: string;
+  setSelectedFormId: (value: string) => void;
   setIsEditModalVisible: (value: boolean) => void;
   setSelectedCategory: (category: Category | null) => void;
   setIsAddOpen: (isAddOpen: boolean) => void;
@@ -88,7 +88,7 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
     { name: 'Custom Field Two', selected: false },
     { name: 'Custom Field Three', selected: false },
   ],
-  selectedFormId: null,
+  selectedFormId: '',
   setSelectedFormId: (value) => set({ selectedFormId: value }),
   deleteModal: false,
   deletedItem: null,
@@ -149,6 +149,6 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
   },
   setSearchFormParams: (key, value) =>
     set((state) => ({
-      searchParams: { ...state.searchParams, [key]: value },
+      searchFormParams: { ...state.searchFormParams, [key]: value },
     })),
 }));

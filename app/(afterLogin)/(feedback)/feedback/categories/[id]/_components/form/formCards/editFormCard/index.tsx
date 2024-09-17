@@ -1,25 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Modal, Form, Input, DatePicker, Select, Switch, Button } from 'antd';
 import { CalendarOutlined } from '@ant-design/icons';
 import { useFetchUsers } from '@/store/server/features/feedback/category/queries';
 import { useUpdateForm } from '@/store/server/features/feedback/form/mutation';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import dayjs from 'dayjs';
+import { useGetFormsByID } from '@/store/server/features/feedback/form/queries';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
-interface EditFormsModalProps {
-  form: any;
-}
-
-const EditFormsModal: React.FC<EditFormsModalProps> = ({ form }) => {
+const EditFormsModal: React.FC = () => {
   const [formInstance] = Form.useForm();
+
   const { data: employees } = useFetchUsers();
   const { mutate: updateForm } = useUpdateForm();
-  const { isEditModalVisible, setIsEditModalVisible } =
+
+  const { isEditModalVisible, setIsEditModalVisible, selectedFormId } =
     CategoriesManagementStore();
 
+  const { data: formDataByID } = useGetFormsByID(selectedFormId);
   const handleSubmit = async () => {
     const values = await formInstance.validateFields();
     const updatedData = {
@@ -28,9 +28,21 @@ const EditFormsModal: React.FC<EditFormsModalProps> = ({ form }) => {
       endDate: values.surveyEndDate.toISOString(),
       formPermissions: values.users.map((userId: string) => ({ userId })),
     };
-    updateForm({ data: updatedData, id: form?.items[0]?.id });
+    updateForm({ data: updatedData, id: selectedFormId });
     setIsEditModalVisible(false);
   };
+
+  useEffect(() => {
+    const formValues = {
+      name: formDataByID?.name,
+      description: formDataByID?.description,
+      surveyStartDate: dayjs(formDataByID?.startDate),
+      surveyEndDate: dayjs(formDataByID?.endDate),
+      users: formDataByID?.formPermissions?.map((p: any) => p.userId) || [],
+    };
+
+    formInstance.setFieldsValue(formValues);
+  }, [isEditModalVisible, formDataByID]);
 
   return (
     <Modal
@@ -40,16 +52,7 @@ const EditFormsModal: React.FC<EditFormsModalProps> = ({ form }) => {
       footer={null}
       width={800}
     >
-      <Form
-        form={formInstance}
-        layout="vertical"
-        initialValues={{
-          ...form?.items,
-          surveyStartDate: dayjs(form?.startDate),
-          surveyEndDate: dayjs(form?.endDate),
-          users: form?.formPermissions?.map((p: any) => p.userId) || [],
-        }}
-      >
+      <Form form={formInstance} layout="vertical" onFinish={handleSubmit}>
         <Form.Item name="name" label="Form Name">
           <Input />
         </Form.Item>
@@ -103,7 +106,7 @@ const EditFormsModal: React.FC<EditFormsModalProps> = ({ form }) => {
           <Switch />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleSubmit}>
+          <Button type="primary" htmlType="submit">
             Update Form
           </Button>
         </Form.Item>

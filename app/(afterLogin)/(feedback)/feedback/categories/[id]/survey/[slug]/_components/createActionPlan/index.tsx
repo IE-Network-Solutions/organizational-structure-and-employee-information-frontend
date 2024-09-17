@@ -7,6 +7,7 @@ import { useCreateActionPlan } from '@/store/server/features/organization-develo
 import { DataItem } from '@/store/server/features/organization-development/categories/interface';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { TiDeleteOutline } from 'react-icons/ti';
+import Image from 'next/image';
 
 const { Option } = Select;
 
@@ -125,7 +126,7 @@ const CreateActionPlan = (props: any) => {
                       {employeeData?.items?.map((item: any) => (
                         <Option key="active" value={item.id}>
                           <div className="flex space-x-3 p-1 rounded">
-                            <img
+                            <Image
                               src={`${item?.profileImage}`}
                               alt="pep"
                               className="rounded-full w-4 h-4 mt-2"

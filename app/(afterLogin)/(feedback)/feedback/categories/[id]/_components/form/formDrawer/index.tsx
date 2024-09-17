@@ -27,9 +27,8 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
   const { mutate: addForm } = useAddForm();
 
   const {
-    isDrawerOpen,
     isAddOpen,
-    setIsDrawerOpen,
+    setIsAddOpen,
     selectedUsers,
     setSelectedUsers,
     clearSelectedUsers,
@@ -44,7 +43,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
   );
 
   const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
+    setIsAddOpen(false);
     form.resetFields();
     clearSelectedUsers();
   };
@@ -69,7 +68,6 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
     });
     handleCloseDrawer();
   };
-  console.log(employees, 'employeeemployee');
 
   return (
     isAddOpen && (
@@ -209,20 +207,22 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
             >
               <Switch size="small" />
             </Form.Item>
-            <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
-              <Button
-                onClick={handleCloseDrawer}
-                className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
-              >
-                Submit
-              </Button>
-            </div>
+            <Form.Item>
+              <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
+                <Button
+                  onClick={handleCloseDrawer}
+                  className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+                >
+                  Submit
+                </Button>
+              </div>
+            </Form.Item>
           </Form>
         </div>
       </CustomDrawerLayout>

@@ -1,20 +1,8 @@
 'use client';
 import React from 'react';
-import {
-  Row,
-  Col,
-  Card,
-  Typography,
-  Dropdown,
-  Divider,
-  Flex,
-  Progress,
-} from 'antd';
+import { Card, Typography, Dropdown, Divider, Flex, Progress } from 'antd';
 import { FaEllipsisVertical, FaArrowRightLong, FaPlus } from 'react-icons/fa6';
-import {
-  useFetchedForms,
-  useGetFormsByCategoryID,
-} from '@/store/server/features/feedback/form/queries';
+import { useGetFormsByCategoryID } from '@/store/server/features/feedback/form/queries';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import CustomButton from '@/components/common/buttons/customButton';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
@@ -44,12 +32,15 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
     setDeletedItem,
     deleteFormModal,
     setDeleteFormModal,
-    setIsAddOpen,
-    setEditQuestionsModal,
+    setIsDrawerOpen,
   } = useDynamicFormStore();
 
-  const { data: forms } = useFetchedForms(pageSize, current);
-  const { data: Forms } = useGetFormsByCategoryID(id, pageSize, current);
+  const { data: formsByCategoryId } = useGetFormsByCategoryID(
+    id,
+    pageSize,
+    current,
+  );
+
   const { mutate: deleteForm } = useDeleteQuestions();
   const handleChange = (page: number = 1, pageSize: number) => {
     setCurrent(page);
@@ -75,17 +66,16 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
 
   const handleMenuClick = (key: string, category: any) => {
     if (key === 'edit') {
+      setSelectedFormId(category.id);
       setIsEditModalVisible(true);
     } else if (key === 'delete') {
       setDeletedItem(category.id);
       setDeleteFormModal(true);
-    } else if ((key = 'editQuestions')) {
-      setEditQuestionsModal(true);
     }
   };
 
   const showDrawer = (formId: string) => {
-    setIsAddOpen(true);
+    setIsDrawerOpen(true);
     setSelectedFormId(formId);
   };
 
@@ -112,45 +102,35 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
     </div>
   );
 
-  const currentDate = new Date();
-  console.log('firstForms', Forms);
+  const currentDate = new Date().toISOString().slice(0, 10);
 
   return (
     <>
-      <Row gutter={[16, 24]}>
-        {Forms &&
-          Forms.map((forms: any, index: number) => (
-            <div
-              key={index}
-              className="flex justify-start items-center gap-[13px]"
-            >
-              <Col key={index} lg={12} md={12} xs={24} className="h-full">
+      <div className="flex items-center flex-wrap justify-start gap-2 h-full">
+        {formsByCategoryId &&
+          formsByCategoryId.map((form: any, index: number) => (
+            <div key={index} className="flex justify-start items-center h-full">
+              {form?.actionPlan === '' || form?.questions === '' ? (
                 <Card
                   hoverable
-                  className="w-[280px] h-full relative bg-gray-100"
+                  className="w-[280px] relative bg-gray-100 h-fit"
                 >
                   <div className="flex justify-between items-start mb-2">
                     <Title level={5} className="m-0">
-                      {forms?.name}
+                      {form?.name}
                     </Title>
                     <Dropdown
                       menu={{
                         items: [
                           {
                             key: 'edit',
-                            label: 'Edit Form',
-                            onClick: () => handleMenuClick('edit', forms),
-                          },
-                          {
-                            key: 'editQuestions',
-                            label: 'Edit Questions',
-                            onClick: () =>
-                              handleMenuClick('editQuestions', forms),
+                            label: 'Edit ',
+                            onClick: () => handleMenuClick('edit', form),
                           },
                           {
                             key: 'delete',
                             label: 'Delete',
-                            onClick: () => handleMenuClick('delete', forms),
+                            onClick: () => handleMenuClick('delete', form),
                           },
                         ],
                       }}
@@ -160,43 +140,46 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                       <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
                     </Dropdown>
                   </div>
-                  <Link href={`/feedback/categories/${id}/survey/${forms.id}`}>
+                  <Link href={`/feedback/categories/${id}/survey/${form.id}`}>
                     <Paragraph className="text-gray-600">
-                      {forms?.description}
+                      {form?.description}
                     </Paragraph>
-                    <div className="flex flex-wrap items-center justify-between gap-1 text-gray-400 mx-5">
-                      <p>{forms?.startDate}</p> <FaArrowRightLong />
-                      <p>{forms?.endDate}</p>
+                    <div className="flex flex-wrap items-center justify-around gap-1 text-gray-400 mx-3">
+                      <p>{form?.startDate}</p> <FaArrowRightLong />
+                      <p>{form?.endDate}</p>
                     </div>
                     <Divider className="text-gray-300" />
                   </Link>
                   <Flex gap="small" wrap justify="center">
                     {renderProgress(
-                      ((forms?.completedCount ?? 0) /
-                        (forms?.totalCount ?? 1)) *
+                      ((form?.completedCount ?? 0) / (form?.totalCount ?? 1)) *
                         100,
-                      forms?.completedCount ?? 0,
-                      forms?.totalCount ?? 1,
+                      form?.completedCount ?? 0,
+                      form?.totalCount ?? 1,
                       'Completed',
                     )}
                     {renderProgress(
-                      ((forms?.resolvedCount ?? 0) / (forms?.totalCount ?? 1)) *
+                      ((form?.resolvedCount ?? 0) / (form?.totalCount ?? 1)) *
                         100,
-                      forms?.resolvedCount ?? 0,
-                      forms?.totalCount ?? 1,
+                      form?.resolvedCount ?? 0,
+                      form?.totalCount ?? 1,
                       'Resolved',
                     )}
                   </Flex>
                 </Card>
-              </Col>
-              <Col key={index + 1} lg={12} md={12} xs={24} className="h-full">
+              ) : (
                 <Card
                   hoverable
-                  className="w-[260px] h-full relative bg-gray-100"
+                  className="w-[260px] relative bg-gray-100"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: '100%',
+                  }}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <Title level={5} className="m-0">
-                      {forms?.title}
+                      {form?.name}
                     </Title>
                     <Dropdown
                       menu={{
@@ -204,12 +187,12 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                           {
                             key: 'edit',
                             label: 'Edit',
-                            onClick: () => handleMenuClick('edit', forms),
+                            onClick: () => handleMenuClick('edit', form),
                           },
                           {
                             key: 'delete',
                             label: 'Delete',
-                            onClick: () => handleMenuClick('delete', forms),
+                            onClick: () => handleMenuClick('delete', form),
                           },
                         ],
                       }}
@@ -219,35 +202,37 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                       <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
                     </Dropdown>
                   </div>
-                  <Link href={`/feedback/categories/${id}/survey/${forms.id}`}>
+                  <Link href={`/feedback/categories/${id}/survey/${form.id}`}>
                     <Paragraph className="text-gray-600">
-                      {forms?.description}
+                      {form?.description}
                     </Paragraph>
-                    <div className="flex flex-wrap items-center justify-between gap-1 text-gray-400 mx-5">
-                      <p>{forms?.startDate}</p> <FaArrowRightLong />{' '}
-                      <p>{forms?.endDate}</p>
+                    <div className="flex flex-wrap items-center justify-around gap-1 text-gray-400 mx-3">
+                      <p>{form?.startDate}</p> <FaArrowRightLong />
+                      <p>{form?.endDate}</p>
                     </div>
                     <Divider className="text-gray-300" />
                   </Link>
-                  {forms?.endDate < currentDate ? (
+                  {form?.endDate > currentDate ? (
                     <div className="flex items-center justify-center mx-5">
                       <CustomButton
                         title="Add Questions"
                         icon={<FaPlus size={13} className="mr-2" />}
-                        onClick={() => showDrawer(forms.id)}
+                        onClick={() => showDrawer(form?.id)}
                         className="text-gray-800 border-1 border-gray-500 bg-white font-light mx-5"
                       />
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center mx-5">
+                    <div className="flex items-center justify-center mx-5 text-red-500">
                       Form has expired
                     </div>
                   )}
                 </Card>
-              </Col>
+              )}
             </div>
           ))}
-      </Row>
+      </div>
+
+      {/* </Row> */}
       <FeedbackPagination
         current={current}
         total={totalPages}
@@ -255,10 +240,10 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
         onChange={handleChange}
         onShowSizeChange={handleShowSizeChange}
       />
-      <EditFormsModal form={forms} />
+      <EditFormsModal />
       <Question
         selectedFormId={selectedFormId}
-        onClose={() => setIsAddOpen(false)}
+        onClose={() => setIsDrawerOpen(false)}
       />
       <DeleteModal
         open={deleteFormModal}

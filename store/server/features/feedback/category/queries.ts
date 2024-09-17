@@ -8,17 +8,6 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
 /**
- * Authentication headers for API requests
- */
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-  createdById: 'c9624522-40af-4f10-ba44-8697b36e7a1c',
-};
-
-/**
  * Fetch all categories from the API.
  * @param {number} pageSize - The number of categories to fetch per page.
  * @param {number} currentPage - The current page number.
@@ -36,13 +25,12 @@ const fetchCategories = async (
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
+
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
     createdById: 'c9624522-40af-4f10-ba44-8697b36e7a1c',
   };
-  console.log('first', tenantId);
-
   return await crudRequest({
     url: `${ORG_DEV_URL}/form-categories?name=${name}&description=${description}&createdBy=${createdBy}&limit=${pageSize}&page=${currentPage}`,
     method: 'GET',
@@ -57,10 +45,12 @@ const fetchCategories = async (
 const fetchUsers = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId || '';
+
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
-    createdById: 'c9624522-40af-4f10-ba44-8697b36e7a1c',
+    createdById: userId,
   };
 
   return await crudRequest({
@@ -78,10 +68,12 @@ const fetchUsers = async () => {
 const getFormCategoriesById = async (formCatsId: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId || '';
+
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
-    createdById: 'c9624522-40af-4f10-ba44-8697b36e7a1c',
+    createdById: userId,
   };
 
   return crudRequest({
@@ -96,7 +88,7 @@ const getFormCategoriesById = async (formCatsId: string) => {
  * @param {string} createdById - The ID of the user to fetch.
  * @returns {Promise<any>} Promise with the user data.
  */
-const fetchCatUsersById = async (createdById: string) => {
+const fetchCatUsersById = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId || '';
@@ -167,12 +159,8 @@ export const useGetFormCategories = (formCatsId: string) => {
  * @param {string} createdById - The ID of the user to fetch.
  * @returns {UseQueryResult<any>} The Query object for fetching the user.
  */
-export const useGetUsersById = (createdById: string) => {
-  return useQuery<any>(
-    ['categories', createdById],
-    () => fetchCatUsersById(createdById),
-    {
-      keepPreviousData: true,
-    },
-  );
+export const useGetUsersById = () => {
+  return useQuery<any>('categories', fetchCatUsersById, {
+    keepPreviousData: true,
+  });
 };

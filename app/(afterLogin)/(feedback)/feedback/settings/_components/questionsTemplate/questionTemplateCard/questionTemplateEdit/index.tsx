@@ -37,16 +37,17 @@ const EditQuestion: React.FC<{ question: any; onClose: () => void }> = ({
     onClose();
   };
 
-  useEffect(() => {}, [
-    questionModal,
-    form.setFieldsValue({
+  useEffect(() => {
+    const formValues = {
       customFieldName: question?.customFieldName,
       fieldType: question?.fieldType,
       question: question?.question,
       required: question?.required,
       field: question?.field?.map((e: any) => e.value) || [],
-    }),
-  ]);
+    };
+
+    form.setFieldsValue(formValues);
+  }, [questionModal, question]);
 
   return (
     questionModal && (

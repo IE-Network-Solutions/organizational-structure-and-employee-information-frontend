@@ -3,13 +3,6 @@ import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
-
-const headers = {
-  Authorization: `Bearer ${token}`,
-  tenantId: tenantId,
-};
 const fetchForms = async (pageSize: number, currentPage: number) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -44,6 +37,21 @@ const getFormsByCategoryId = async (
   });
 };
 
+const getFormsById = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
+  return crudRequest({
+    url: `${ORG_DEV_URL}/forms/${id}`,
+    method: 'GET',
+    headers,
+  });
+};
+
 export const useFetchedForms = (pageSize: number, currentPage: number) => {
   return useQuery<any>(
     ['forms', pageSize, currentPage],
@@ -66,4 +74,9 @@ export const useGetFormsByCategoryID = (
       keepPreviousData: true,
     },
   );
+};
+export const useGetFormsByID = (id: string) => {
+  return useQuery<any>(['forms', id], () => getFormsById(id), {
+    keepPreviousData: true,
+  });
 };

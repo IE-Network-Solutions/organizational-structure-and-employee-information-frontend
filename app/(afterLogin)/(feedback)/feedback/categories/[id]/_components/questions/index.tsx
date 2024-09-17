@@ -48,7 +48,6 @@ const Question: React.FC<any> = (props) => {
       const generatedUrl = `${window.location.origin}/questions/${props?.selectedFormId}`;
       setGeneratedUrl(generatedUrl);
       setIsDrawerOpen(false);
-      // navigator.clipboard.writeText(generatedUrl);
     } catch (error) {
       NotificationMessage.error({
         message: 'Publish Failed',

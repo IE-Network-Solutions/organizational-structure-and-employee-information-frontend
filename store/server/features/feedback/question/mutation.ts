@@ -11,26 +11,6 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
 /**
- * @constant {string} token - The authentication token retrieved from the authentication store.
- */
-const token = useAuthenticationStore.getState().token;
-
-/**
- * @constant {string} tenantId - The tenant ID retrieved from the authentication store.
- */
-const tenantId = useAuthenticationStore.getState().tenantId;
-
-/**
- * @constant {Object} headers - Headers for API requests, including tenant ID and Bearer token for authorization.
- * @property {string} tenantId - Tenant ID for API requests.
- * @property {string} Authorization - Authorization header with Bearer token.
- */
-const headers = {
-  tenantId,
-  Authorization: `Bearer ${token}`,
-};
-
-/**
  * Creates a new dynamic form by sending a POST request to the API.
  *
  * @async
@@ -39,6 +19,14 @@ const headers = {
  * @returns {Promise<any>} The response from the API.
  */
 const createQuestions = async (data: any) => {
+  const token = useAuthenticationStore.getState().token;
+
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_DEV_URL}/questions`,
     method: 'POST',
@@ -57,6 +45,14 @@ const createQuestions = async (data: any) => {
  * @returns {Promise<any>} The response from the API.
  */
 const updateQuestions = async (data: any, id: string) => {
+  const token = useAuthenticationStore.getState().token;
+
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_DEV_URL}/questions/${id}`,
     method: 'PUT',
@@ -74,6 +70,14 @@ const updateQuestions = async (data: any, id: string) => {
  * @returns {Promise<any>} The response from the API.
  */
 const deleteQuestion = async () => {
+  const token = useAuthenticationStore.getState().token;
+
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   const { deletedItem, pageSize, current } = useDynamicFormStore.getState();
   return await crudRequest({
     url: `${ORG_DEV_URL}/forms/${deletedItem}?limit=${pageSize}&&page=${current}`,
