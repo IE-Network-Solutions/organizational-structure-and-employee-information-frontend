@@ -12,11 +12,7 @@ import CustomUpload from '@/components/form/customUpload';
 import { LuPlus } from 'react-icons/lu';
 import RemoveFormFieldButton from '@/components/common/formButtons/removeFormFieldButton';
 import { useGetTna } from '@/store/server/features/tna/review/queries';
-import {
-  TrainingNeedAssessment,
-  trainingNeedAssessmentCertStatusOptions,
-  TrainingProof,
-} from '@/types/tna';
+import { trainingNeedAssessmentCertStatusOptions } from '@/types/tna';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useSetTna } from '@/store/server/features/tna/review/mutation';
 import dayjs from 'dayjs';
@@ -84,7 +80,7 @@ const TnaUpdateSidebar = () => {
       key: 'cancel',
       className: 'h-14',
       size: 'large',
-      loading: isFetching,
+      loading: isFetching || isLoading,
       onClick: () => onClose(),
     },
     {
@@ -93,7 +89,7 @@ const TnaUpdateSidebar = () => {
       className: 'h-14',
       type: 'primary',
       size: 'large',
-      loading: isFetching,
+      loading: isFetching || isLoading,
       onClick: () => form.submit(),
     },
   ];
@@ -155,7 +151,7 @@ const TnaUpdateSidebar = () => {
           form={form}
           requiredMark={CustomLabel}
           onFinish={onFinish}
-          disabled={isFetching}
+          disabled={isFetching || isLoading}
           initialValues={{ trainingProofs: [{}] }}
         >
           <Form.Item
