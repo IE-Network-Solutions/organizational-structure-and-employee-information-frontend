@@ -31,12 +31,12 @@ const TnaCategorySidebar = () => {
   }, [tnaCategoryId]);
 
   useEffect(() => {
-    if (data?.items && form) {
+    if (tnaCategoryId && data && data?.items?.length) {
       const item = data.items[0];
       form.setFieldValue('name', item.name);
       form.setFieldValue('description', item.description);
     }
-  }, [data, form]);
+  }, [data]);
 
   useEffect(() => {
     if (isSuccess) {

@@ -183,3 +183,7 @@ h6 {
 .ant-collapse>.ant-collapse-item >.ant-collapse-header {
   align-items: center !important;
 }
+
+.page-wrap {
+  @apply h-auto w-auto pr-6 pb-6 pl-3;
+}

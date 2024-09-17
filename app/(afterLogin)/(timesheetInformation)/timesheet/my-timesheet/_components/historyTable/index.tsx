@@ -108,7 +108,7 @@ const HistoryTable = () => {
           <a
             href={link}
             target="_blank"
-            className="flex justify-between align-middle text-gray-900"
+            className="flex justify-between items-center text-gray-900"
           >
             <div>{formatLinkToUploadFile(link).name}</div>
             <TbFileDownload size={14} />

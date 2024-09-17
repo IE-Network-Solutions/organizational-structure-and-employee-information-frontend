@@ -41,7 +41,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
     },
   ]);
   return (
-    <div className="h-auto w-auto pr-6 pb-6 pl-3">
+    <div className="page-wrap">
       <PageHeader
         title="Settings"
         description="Training & Learning Settings"
