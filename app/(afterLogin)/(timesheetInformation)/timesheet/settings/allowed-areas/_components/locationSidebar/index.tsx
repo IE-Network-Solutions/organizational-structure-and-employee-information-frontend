@@ -44,7 +44,7 @@ const LocationSidebar = () => {
       form.setFieldValue('title', item.title);
       form.setFieldValue('latitude', item.latitude);
       form.setFieldValue('longitude', item.longitude);
-      form.setFieldValue('distance', Number(item.distance) / 1000);
+      form.setFieldValue('distance', Number(item.distance));
     }
   }, [allowedAreaData]);
 
@@ -87,7 +87,7 @@ const LocationSidebar = () => {
       title: value.title,
       latitude: value.latitude,
       longitude: value.longitude,
-      distance: Number(value.distance) * 1000,
+      distance: Number(value.distance),
     });
   };
 

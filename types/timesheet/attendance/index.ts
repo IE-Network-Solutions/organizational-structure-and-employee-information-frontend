@@ -1,7 +1,7 @@
-import { DateInfo } from '@/types/timesheet/dateInfo';
 import { BreakType } from '@/types/timesheet/breakType';
 import { StatusBadgeTheme } from '@/components/common/statusBadge';
 import { Geolocation } from '@/types/timesheet/geolocation';
+import { DateInfo } from '@/types/commons/dateInfo';
 
 export enum AttendanceRecordType {
   LATE = 'late',

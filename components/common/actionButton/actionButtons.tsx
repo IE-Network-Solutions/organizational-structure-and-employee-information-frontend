@@ -38,6 +38,9 @@ const ActionButtons: FC<ActionButtonsProps> = ({
             loading={loading}
             icon={<FiTrash2 size={16} />}
             type="primary"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           />
         </DeletePopover>
       )}

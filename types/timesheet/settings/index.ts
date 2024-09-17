@@ -1,5 +1,5 @@
-import { DateInfo } from '@/types/timesheet/dateInfo';
 import { StatusBadgeTheme } from '@/components/common/statusBadge';
+import { DateInfo } from '@/types/commons/dateInfo';
 
 export enum LeaveRequestStatus {
   PENDING = 'pending',

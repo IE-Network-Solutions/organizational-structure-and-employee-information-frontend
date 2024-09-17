@@ -3,21 +3,54 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Input } from 'antd';
+import { Form, Input, Spin } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
+import { useSetTnaCategory } from '@/store/server/features/tna/category/mutation';
+import { useEffect } from 'react';
+import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
 
 const TnaCategorySidebar = () => {
   const {
+    tnaCategoryId,
+    setTnaCategoryId,
     isShowTnaCategorySidebar: isShow,
     setIsShowTnaCategorySidebar: setIsShow,
   } = useTnaSettingsStore();
+  const { data, isFetching, refetch } = useGetTnaCategory(
+    tnaCategoryId ? { filter: { id: [tnaCategoryId] } } : {},
+    false,
+    false,
+  );
+  const { mutate: setCategory, isLoading, isSuccess } = useSetTnaCategory();
+  const [form] = Form.useForm();
+  useEffect(() => {
+    if (tnaCategoryId) {
+      refetch();
+    }
+  }, [tnaCategoryId]);
+
+  useEffect(() => {
+    if (data?.items && form) {
+      const item = data.items[0];
+      form.setFieldValue('name', item.name);
+      form.setFieldValue('description', item.description);
+    }
+  }, [data, form]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      onClose();
+    }
+  }, [isSuccess]);
+
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
       key: 'cancel',
       className: 'h-14',
       size: 'large',
+      loading: isLoading || isFetching,
       onClick: () => onClose(),
     },
     {
@@ -26,12 +59,25 @@ const TnaCategorySidebar = () => {
       className: 'h-14',
       type: 'primary',
       size: 'large',
-      onClick: () => onClose(),
+      loading: isLoading || isFetching,
+      onClick: () => form.submit(),
     },
   ];
 
   const onClose = () => {
+    form.resetFields();
+    setTnaCategoryId(null);
     setIsShow(false);
+  };
+
+  const onFinish = () => {
+    const value = form.getFieldsValue();
+    setCategory([
+      {
+        name: value.name,
+        description: value.description,
+      },
+    ]);
   };
 
   return (
@@ -47,28 +93,35 @@ const TnaCategorySidebar = () => {
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"
       >
-        <Form layout="vertical" requiredMark={CustomLabel}>
-          <Form.Item
-            name="title"
-            label="TNA Name"
-            rules={[{ required: true, message: 'Required' }]}
-            className="form-item"
+        <Spin spinning={isLoading || isFetching}>
+          <Form
+            layout="vertical"
+            form={form}
+            onFinish={onFinish}
+            requiredMark={CustomLabel}
           >
-            <Input className="control" />
-          </Form.Item>
-          <Form.Item
-            name="description"
-            label="Description"
-            rules={[{ required: true, message: 'Required' }]}
-            className="form-item"
-          >
-            <Input.TextArea
-              className="control-tarea"
-              rows={6}
-              placeholder="Enter the Description"
-            />
-          </Form.Item>
-        </Form>
+            <Form.Item
+              name="name"
+              label="TNA Name"
+              rules={[{ required: true, message: 'Required' }]}
+              className="form-item"
+            >
+              <Input className="control" />
+            </Form.Item>
+            <Form.Item
+              name="description"
+              label="Description"
+              rules={[{ required: true, message: 'Required' }]}
+              className="form-item"
+            >
+              <Input.TextArea
+                className="control-tarea"
+                rows={6}
+                placeholder="Enter the Description"
+              />
+            </Form.Item>
+          </Form>
+        </Spin>
       </CustomDrawerLayout>
     )
   );

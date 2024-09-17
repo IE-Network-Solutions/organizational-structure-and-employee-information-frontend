@@ -2,13 +2,24 @@
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { LuPlus } from 'react-icons/lu';
 import CustomButton from '@/components/common/buttons/customButton';
-import React from 'react';
+import React, { useEffect } from 'react';
 import CommitmentCard from './_components/commitmentCard';
 import TnaCommitmentSidebar from '@/app/(afterLogin)/(tna)/tna/settings/commitment-rule/_components/commitmentSidebar';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
+import { useGetTnaCommitment } from '@/store/server/features/tna/commitment/queries';
+import { Spin } from 'antd';
 
 const TnaCommitmentRulePage = () => {
-  const { setIsShowCommitmentSidebar } = useTnaSettingsStore();
+  const { isShowCommitmentSidebar, setIsShowCommitmentSidebar } =
+    useTnaSettingsStore();
+  const { data, isLoading, refetch } = useGetTnaCommitment({});
+
+  useEffect(() => {
+    if (!isShowCommitmentSidebar) {
+      refetch();
+    }
+  }, [isShowCommitmentSidebar]);
+
   return (
     <>
       <PageHeader title="Commitment Rules" size="small">
@@ -23,7 +34,13 @@ const TnaCommitmentRulePage = () => {
         />
       </PageHeader>
 
-      <CommitmentCard />
+      <Spin spinning={isLoading}>
+        {data?.items ? (
+          data.items.map((item) => <CommitmentCard key={item.id} item={item} />)
+        ) : (
+          <div className="p-5"></div>
+        )}
+      </Spin>
 
       <TnaCommitmentSidebar />
     </>

@@ -1,76 +1,96 @@
-import { Collapse, CollapseProps } from 'antd';
+import { Collapse, CollapseProps, Spin } from 'antd';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
+import { CommitmentRule } from '@/types/tna';
+import { FC, useEffect, useState } from 'react';
+import { useDeleteTnaCommitment } from '@/store/server/features/tna/commitment/mutation';
+import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
 
-const CommitmentCard = () => {
-  const items: CollapseProps['items'] = [
-    {
-      key: '1',
-      label: (
-        <div className="text-lg text-gray-900 font-semibold flex items-center">
-          Commitment 1
-        </div>
-      ),
-      extra: (
-        <ActionButtons
-          onEdit={(e: MouseEvent) => {
-            e.stopPropagation();
-          }}
-          onDelete={(e: MouseEvent) => {
-            e.stopPropagation();
-          }}
-        />
-      ),
-      children: (
-        <div>
-          <div className="flex  mt-4 first:mt-0">
-            <div className="text-sm text-gray-600 w-[160px]">Name</div>
-            <div className="text-sm text-gray-900 font-semibold flex-1">
-              Commitment 1
+interface CommitmentCardProps {
+  item: CommitmentRule;
+}
+
+const CommitmentCard: FC<CommitmentCardProps> = ({ item }) => {
+  const { setTnaCommitmentId, setIsShowCommitmentSidebar } =
+    useTnaSettingsStore();
+  const [items, setItems] = useState<CollapseProps['items']>([]);
+  const { mutate: deleteCommitment, isLoading } = useDeleteTnaCommitment();
+
+  useEffect(() => {
+    if (item) {
+      setItems([
+        {
+          key: item.id,
+          label: (
+            <div className="text-lg text-gray-900 font-semibold flex items-center">
+              {item.name}
             </div>
-          </div>
-          <div className="flex  mt-4 first:mt-0">
-            <div className="text-sm text-gray-600 w-[160px]">Amount</div>
-            <div className="text-sm text-gray-900 font-semibold flex-1">
-              10,000 Br - 25,000 Br.
+          ),
+          extra: (
+            <ActionButtons
+              onEdit={(e: MouseEvent) => {
+                e.stopPropagation();
+                setTnaCommitmentId(item.id);
+                setIsShowCommitmentSidebar(true);
+              }}
+              onDelete={(e: MouseEvent) => {
+                e.stopPropagation();
+                deleteCommitment([item.id]);
+              }}
+            />
+          ),
+          children: (
+            <div>
+              <div className="flex  mt-4 first:mt-0">
+                <div className="text-sm text-gray-600 w-[160px]">Name</div>
+                <div className="text-sm text-gray-900 font-semibold flex-1">
+                  {item.name}
+                </div>
+              </div>
+              <div className="flex  mt-4 first:mt-0">
+                <div className="text-sm text-gray-600 w-[160px]">Amount</div>
+                <div className="text-sm text-gray-900 font-semibold flex-1">
+                  {item.amountMin} - {item.amountMax}
+                </div>
+              </div>
+              <div className="flex  mt-4 first:mt-0">
+                <div className="text-sm text-gray-600 w-[160px]">
+                  Commitment Period
+                </div>
+                <div className="text-sm text-gray-900 font-semibold flex-1">
+                  {item.commitmentPeriodDays} days
+                </div>
+              </div>
+              <div className="flex  mt-4 first:mt-0">
+                <div className="text-sm text-gray-600 w-[160px]">
+                  Description
+                </div>
+                <div className="text-sm text-gray-900 font-semibold flex-1">
+                  {item.description}
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="flex  mt-4 first:mt-0">
-            <div className="text-sm text-gray-600 w-[160px]">
-              Commitment Period
-            </div>
-            <div className="text-sm text-gray-900 font-semibold flex-1">
-              1 year
-            </div>
-          </div>
-          <div className="flex  mt-4 first:mt-0">
-            <div className="text-sm text-gray-600 w-[160px]">Description</div>
-            <div className="text-sm text-gray-900 font-semibold flex-1">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-              vel urna euismod, vehicula libero a, ultrices neque. Integer sit
-              amet urna nec turpis tincidunt congue ac sit amet purus. Nullam
-              facilisis, nunc ut commodo pharetra, orci libero laoreet lacus, at
-              ultrices mi leo at est.
-            </div>
-          </div>
-        </div>
-      ),
-    },
-  ];
+          ),
+        },
+      ]);
+    }
+  }, [item]);
 
   return (
-    <Collapse
-      className="mt-6"
-      items={items}
-      style={{ borderColor: 'rgb(229 231 235)' }}
-      expandIcon={({ isActive }) =>
-        !isActive ? (
-          <IoIosArrowDown size={24} className="text-gray-500" />
-        ) : (
-          <IoIosArrowUp size={24} className="text-gray-500" />
-        )
-      }
-    />
+    <Spin spinning={isLoading}>
+      <Collapse
+        className="mt-6"
+        items={items}
+        style={{ borderColor: 'rgb(229 231 235)' }}
+        expandIcon={({ isActive }) =>
+          !isActive ? (
+            <IoIosArrowDown size={24} className="text-gray-500" />
+          ) : (
+            <IoIosArrowUp size={24} className="text-gray-500" />
+          )
+        }
+      />
+    </Spin>
   );
 };
 

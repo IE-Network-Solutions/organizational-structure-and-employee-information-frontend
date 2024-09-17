@@ -12,3 +12,4 @@ export const TIME_FORMAT = 'hh:mm A';
 export const localUserID = process.env.NEXT_PUBLIC_LOCAL_USER_ID ?? '';
 export const TIME_AND_ATTENDANCE_URL =
   process.env.NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL;
+export const TNA_URL = process.env.NEXT_PUBLIC_TNA_URL ?? '';
