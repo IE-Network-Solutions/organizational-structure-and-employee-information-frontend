@@ -9,6 +9,7 @@ export interface CustomRadioProps {
   onChange?: (count: boolean) => void;
   isError?: boolean;
   initialValue?: string | number | boolean;
+  disabled?: boolean;
 }
 
 const CustomRadio: FC<CustomRadioProps> = ({
@@ -18,6 +19,7 @@ const CustomRadio: FC<CustomRadioProps> = ({
   onChange,
   isError = false,
   initialValue = false,
+  disabled = false,
 }) => {
   const [isChecked, setIsChecked] = useState<boolean>();
 
@@ -26,6 +28,9 @@ const CustomRadio: FC<CustomRadioProps> = ({
     {
       'border-gray-200': !isError,
       'border-error': isError,
+      'transition-none': disabled,
+      'opacity-70': disabled,
+      'hover:border-gray-200': disabled,
     },
     [
       'font-semibold',
@@ -66,6 +71,7 @@ const CustomRadio: FC<CustomRadioProps> = ({
       className={radioClass}
       checked={isChecked}
       value={value}
+      disabled={disabled}
       onClick={handleChange}
     >
       <div>{label}</div>
