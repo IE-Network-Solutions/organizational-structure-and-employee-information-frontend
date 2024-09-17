@@ -1,3 +1,4 @@
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { usePublicFormStore } from '@/store/uistate/features/feedback/publicForm';
 import { useDebounce } from '@/utils/useDebounce';
 import { Checkbox, Col, Input, Row } from 'antd';
@@ -15,21 +16,23 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
   questionId,
   form,
 }) => {
+  const userId = useAuthenticationStore.getState().userId || null;
+
   const { setSelectedAnswer, selectedAnswer } = usePublicFormStore();
   const handleSelection = (choice: Record<string, string>[]) => {
     setSelectedAnswer({
       questionId,
-      respondentId: '',
+      respondentId: userId,
       responseDetail: choice,
     });
     form.setFieldsValue({
-      [`question_${questionId}`]: choice,
+      [`question_${questionId}`]: choice[0]?.value,
     });
   };
   const onValuesChange = useDebounce(handleSelection, 1500);
 
   return (
-    <>
+    <div key={questionId}>
       {type === 'multiple_choice' && (
         <Row key={questionId} gutter={16} className="ml-1 mt-2">
           {field?.map((choice, index) => {
@@ -55,7 +58,7 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
               <>
                 {' '}
                 <Row
-                  key={index}
+                  key={index + questionId}
                   className="flex justify-start mb-3 w-full border-primary cursor-pointer"
                   onClick={() => handleSelection([choice])}
                 >
@@ -138,7 +141,7 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
           }}
         />
       )}
-    </>
+    </div>
   );
 };
 
