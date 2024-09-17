@@ -71,7 +71,7 @@ const LeaveRequestSidebar = () => {
       form.setFieldValue(
         'type',
         typeof leaveRequest?.leaveType !== 'string' &&
-          leaveRequest.leaveType.id,
+          leaveRequest.leaveType?.id,
       );
       form.setFieldValue('isHalfday', leaveRequest.isHalfday);
       form.setFieldValue('startDate', dayjs(leaveRequest.startAt));
@@ -190,6 +190,9 @@ const LeaveRequestSidebar = () => {
                   className={controlClass}
                   options={typeOptions()}
                   placeholder="Select Type"
+                  disabled={
+                    leaveRequest?.status === LeaveRequestStatus.APPROVED
+                  }
                   suffixIcon={
                     <MdKeyboardArrowDown size={16} className="text-gray-900" />
                   }
@@ -199,6 +202,9 @@ const LeaveRequestSidebar = () => {
                 <CustomRadio
                   label="Half Day"
                   initialValue={leaveRequest?.isHalfday}
+                  disabled={
+                    leaveRequest?.status === LeaveRequestStatus.APPROVED
+                  }
                   onChange={onChangeIsHalfDay}
                 />
               </Form.Item>
@@ -217,6 +223,9 @@ const LeaveRequestSidebar = () => {
                       className={controlClass}
                       onChange={handleChange}
                       minDate={dayjs()}
+                      disabled={
+                        leaveRequest?.status === LeaveRequestStatus.APPROVED
+                      }
                       format={DATE_FORMAT}
                     />
                   </Form.Item>
@@ -235,13 +244,21 @@ const LeaveRequestSidebar = () => {
                       className={controlClass}
                       onChange={handleChange}
                       minDate={dayjs()}
+                      disabled={
+                        leaveRequest?.status === LeaveRequestStatus.APPROVED
+                      }
                       format={DATE_FORMAT}
                     />
                   </Form.Item>
                 </Col>
               </Row>
               <Form.Item name="note" label="Note" className={itemClass}>
-                <Input className={controlClass} />
+                <Input
+                  className={controlClass}
+                  disabled={
+                    leaveRequest?.status === LeaveRequestStatus.APPROVED
+                  }
+                />
               </Form.Item>
               <Form.Item
                 name="attachment"
