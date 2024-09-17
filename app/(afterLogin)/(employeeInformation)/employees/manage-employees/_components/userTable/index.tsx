@@ -24,7 +24,7 @@ import { AiOutlineUserAdd } from 'react-icons/ai';
 import JobTimeLineForm from '../allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../allFormData/workScheduleForm';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import moment from 'moment';
+import dayjs from 'dayjs';
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Employee Name',
@@ -231,7 +231,7 @@ const UserTable = () => {
 
   const handleActivateEmployee = (values: any) => {
     values['userId'] = userToRehire?.id;
-    values.joinedDate = moment(values.joinedDate).format('YYYY-MM-DD');
+    values.joinedDate = dayjs(values.joinedDate).format('YYYY-MM-DD');
 
     values.departmentLeadOrNot = !values.departmentLeadOrNot
       ? false

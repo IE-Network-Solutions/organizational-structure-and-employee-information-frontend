@@ -42,7 +42,7 @@ const OffboardingFormControl: React.FC<any> = ({
   };
 
   const onFinish = (values: any) => {
-    values['effectiveDate'] = moment(values.effectiveDate).format('YYYY-MM-DD');
+    values['effectiveDate'] = dayjs(values.effectiveDate).format('YYYY-MM-DD');
     values['userId'] = userId;
 
     values['jobInformationId'] = employeeData.employeeJobInformation[0].id;
