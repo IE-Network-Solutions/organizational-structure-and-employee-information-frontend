@@ -41,7 +41,7 @@ const Login: React.FC = () => {
       setTenantId(fetchedTenantId?.tenantId);
       setUserId(fetchedTenantId.id);
       message.loading({ content: 'Redirecting...', key: 'redirect' });
-      router.push(`/employees/manage-employees`);
+      // router.push(`/employees/manage-employees`);
     }
   }, [fetchedTenantId, setTenantId]);
 
