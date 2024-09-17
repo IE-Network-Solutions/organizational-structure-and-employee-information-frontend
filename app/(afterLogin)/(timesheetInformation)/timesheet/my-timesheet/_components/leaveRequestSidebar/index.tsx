@@ -111,7 +111,7 @@ const LeaveRequestSidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: 'Create',
+      label: leaveRequest ? 'Update' : 'Create',
       key: 'create',
       className: 'h-[56px] text-base',
       size: 'large',
@@ -166,7 +166,9 @@ const LeaveRequestSidebar = () => {
         open={isShowLeaveRequestSidebar}
         onClose={onClose}
         modalHeader={
-          <CustomDrawerHeader>Add New Leave Request</CustomDrawerHeader>
+          <CustomDrawerHeader>
+            {leaveRequest ? 'Update' : 'Add New'} Leave Request
+          </CustomDrawerHeader>
         }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="400px"
