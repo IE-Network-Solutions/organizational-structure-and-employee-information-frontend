@@ -106,10 +106,14 @@ const HistoryTable = () => {
       sorter: true,
       render: (link: string) =>
         link ? (
-          <div className="flex justify-between align-middle">
+          <a
+            href={link}
+            target="_blank"
+            className="flex justify-between align-middle text-gray-900"
+          >
             <div>{formatLinkToUploadFile(link).name}</div>
             <TbFileDownload size={14} />
-          </div>
+          </a>
         ) : (
           '-'
         ),
