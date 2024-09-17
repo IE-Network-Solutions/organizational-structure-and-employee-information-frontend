@@ -7,7 +7,7 @@ interface ShortTextFieldProps {
 }
 
 const ShortTextField: React.FC<ShortTextFieldProps> = ({ value }) => (
-  <Input value={value?.response} />
+  <Input disabled value={value?.value} />
 );
 
 export default ShortTextField;

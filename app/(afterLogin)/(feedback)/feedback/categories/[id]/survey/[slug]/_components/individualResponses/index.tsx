@@ -23,19 +23,19 @@ interface Params {
 const IndividualResponses = ({ id }: Params) => {
   const { setCurrent, current, pageSize, selectedUser, setPageSize } =
     useOrganizationalDevelopment();
-  const { data: individualresponses, refetch } = useFetchedIndividualResponses(
+  const { data: individualresponses } = useFetchedIndividualResponses(
     id,
-    selectedUser,
+    null,
   );
   // const { data: allIndividualresponses } = useFetchedAllIndividualResponses();
-  const { data: allIndividualresponsesByFromId } =
-    useFetchedAllIndividualResponsesByFormId(id);
+  // const { data: allIndividualresponsesByFromId } =
+  //   useFetchedAllIndividualResponsesByFormId(id);
 
-  useEffect(() => {
-    if (selectedUser) {
-      refetch();
-    }
-  }, [selectedUser, refetch]);
+  // useEffect(() => {
+  //   if (selectedUser) {
+  //     refetch();
+  //   }
+  // }, [selectedUser, refetch]);
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrent(page);
@@ -43,9 +43,8 @@ const IndividualResponses = ({ id }: Params) => {
       setPageSize(pageSize);
     }
   };
-  const data = selectedUser
-    ? individualresponses
-    : allIndividualresponsesByFromId?.items;
+  const data =  individualresponses
+    // : allIndividualresponsesByFromId?.items;
   return (
     <div>
       <Form
