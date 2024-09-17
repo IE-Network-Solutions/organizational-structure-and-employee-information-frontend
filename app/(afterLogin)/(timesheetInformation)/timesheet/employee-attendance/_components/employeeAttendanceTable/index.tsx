@@ -32,10 +32,12 @@ import { defaultTablePagination } from '@/utils/defaultTablePagination';
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
+  isImport: boolean;
 }
 
 const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   setBodyRequest,
+  isImport,
 }) => {
   const [tableData, setTableData] = useState<any[]>([]);
   const {
@@ -50,7 +52,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   } = usePagination(1, 10);
   const [filter, setFilter] =
     useState<Partial<AttendanceRequestBody['filter']>>();
-  const { data, isFetching } = useGetAttendances(
+  const { data, isFetching, refetch } = useGetAttendances(
     { page, limit, orderBy, orderDirection },
     { filter },
   );
@@ -143,6 +145,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       render: () => <div>-</div>,
     },
   ];
+
+  useEffect(() => {
+    if (isImport) {
+      refetch();
+    }
+  }, [isImport]);
 
   useEffect(() => {
     if (data && data.items) {

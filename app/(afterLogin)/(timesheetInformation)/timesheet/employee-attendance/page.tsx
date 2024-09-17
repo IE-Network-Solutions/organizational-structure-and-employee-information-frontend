@@ -25,8 +25,11 @@ const EmployeeAttendance = () => {
     true,
     false,
   );
-  const { mutate: uploadImport, isLoading: isLoadingImport } =
-    useAttendanceImport();
+  const {
+    mutate: uploadImport,
+    isLoading: isLoadingImport,
+    isSuccess,
+  } = useAttendanceImport();
 
   useEffect(() => {
     if (data && data.file) {
@@ -145,7 +148,10 @@ const EmployeeAttendance = () => {
         </Space>
       </PageHeader>
       <BlockWrapper className="mt-8">
-        <EmployeeAttendanceTable setBodyRequest={setBodyRequest} />
+        <EmployeeAttendanceTable
+          setBodyRequest={setBodyRequest}
+          isImport={isSuccess}
+        />
       </BlockWrapper>
     </div>
   );
