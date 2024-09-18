@@ -17,7 +17,6 @@ const CustomWorkingScheduleDrawer: React.FC = () => {
     closeDrawer,
     selectedSchedule,
     isEditMode,
-    scheduleName,
   } = useWorkScheduleDrawerStore();
 
   const { name, detail } = useScheduleStore();
