@@ -11,7 +11,7 @@ import {
   TrainingNeedAssessmentCertStatus,
   TrainingNeedAssessmentCertStatusBadgeTheme,
   TrainingNeedAssessmentStatusBadgeTheme,
-} from '@/types/tna';
+} from '@/types/tna/tna';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
 import CustomButton from '@/components/common/buttons/customButton';

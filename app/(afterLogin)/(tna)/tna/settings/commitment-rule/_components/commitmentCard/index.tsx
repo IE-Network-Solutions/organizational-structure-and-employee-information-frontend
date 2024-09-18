@@ -1,7 +1,7 @@
 import { Collapse, CollapseProps, Spin } from 'antd';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
-import { CommitmentRule } from '@/types/tna';
+import { CommitmentRule } from '@/types/tna/tna';
 import { FC, useEffect, useState } from 'react';
 import { useDeleteTnaCommitment } from '@/store/server/features/tna/commitment/mutation';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';

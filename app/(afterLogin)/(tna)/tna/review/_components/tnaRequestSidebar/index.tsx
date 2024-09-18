@@ -13,7 +13,7 @@ import { useSetTna } from '@/store/server/features/tna/review/mutation';
 import {
   TrainingNeedAssessmentCertStatus,
   TrainingNeedAssessmentStatus,
-} from '@/types/tna';
+} from '@/types/tna/tna';
 import { localUserID } from '@/utils/constants';
 import { useGetTna } from '@/store/server/features/tna/review/queries';
 

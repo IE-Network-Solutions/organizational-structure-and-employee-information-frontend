@@ -5,7 +5,7 @@ import { TNA_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
-import { TrainingNeedAssessment } from '@/types/tna';
+import { TrainingNeedAssessment } from '@/types/tna/tna';
 
 const getTna = async (
   query: Partial<RequestCommonQueryData>,

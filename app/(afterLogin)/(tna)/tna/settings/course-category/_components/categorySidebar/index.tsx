@@ -6,34 +6,34 @@ import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHea
 import { Form, Input, Spin } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
-import { useSetTnaCategory } from '@/store/server/features/tna/category/mutation';
 import { useEffect } from 'react';
-import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
+import { useSetCourseCategory } from '@/store/server/features/tna/courseCategory/mutation';
+import { useGetCourseCategory } from '@/store/server/features/tna/courseCategory/queries';
 
-const TnaCategorySidebar = () => {
+const CourseCategorySidebar = () => {
   const {
-    tnaCategoryId,
-    setTnaCategoryId,
-    isShowTnaCategorySidebar: isShow,
-    setIsShowTnaCategorySidebar: setIsShow,
+    courseCategoryId,
+    setCourseCategoryId,
+    isShowCourseCategorySidebar: isShow,
+    setIsShowCourseCategorySidebar: setIsShow,
   } = useTnaSettingsStore();
-  const { data, isFetching, refetch } = useGetTnaCategory(
-    tnaCategoryId ? { filter: { id: [tnaCategoryId] } } : {},
+  const { data, isFetching, refetch } = useGetCourseCategory(
+    courseCategoryId ? { filter: { id: [courseCategoryId] } } : {},
     false,
     false,
   );
-  const { mutate: setCategory, isLoading, isSuccess } = useSetTnaCategory();
+  const { mutate: setCategory, isLoading, isSuccess } = useSetCourseCategory();
   const [form] = Form.useForm();
   useEffect(() => {
-    if (tnaCategoryId) {
+    if (courseCategoryId) {
       refetch();
     }
-  }, [tnaCategoryId]);
+  }, [courseCategoryId]);
 
   useEffect(() => {
-    if (tnaCategoryId && data && data?.items?.length) {
+    if (courseCategoryId && data && data?.items?.length) {
       const item = data.items[0];
-      form.setFieldValue('name', item.name);
+      form.setFieldValue('title', item.title);
       form.setFieldValue('description', item.description);
     }
   }, [data]);
@@ -66,7 +66,7 @@ const TnaCategorySidebar = () => {
 
   const onClose = () => {
     form.resetFields();
-    setTnaCategoryId(null);
+    setCourseCategoryId(null);
     setIsShow(false);
   };
 
@@ -75,8 +75,8 @@ const TnaCategorySidebar = () => {
     const item = data?.items[0] || {};
     setCategory([
       {
-        ...(tnaCategoryId && item),
-        name: value.name,
+        ...(courseCategoryId && item),
+        title: value.title,
         description: value.description,
       },
     ]);
@@ -89,7 +89,7 @@ const TnaCategorySidebar = () => {
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            Add TNA Category
+            Add Course Category
           </CustomDrawerHeader>
         }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
@@ -103,8 +103,8 @@ const TnaCategorySidebar = () => {
             requiredMark={CustomLabel}
           >
             <Form.Item
-              name="name"
-              label="TNA Name"
+              name="title"
+              label="Category Name"
               rules={[{ required: true, message: 'Required' }]}
               className="form-item"
             >
@@ -129,4 +129,4 @@ const TnaCategorySidebar = () => {
   );
 };
 
-export default TnaCategorySidebar;
+export default CourseCategorySidebar;

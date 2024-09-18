@@ -26,7 +26,7 @@ import {
   TrainingNeedAssessmentStatus,
   TrainingNeedAssessmentStatusBadgeTheme,
   TrainingProof,
-} from '@/types/tna';
+} from '@/types/tna/tna';
 import FileButton from '@/components/common/fileButton';
 
 const TnaReviewPage = () => {

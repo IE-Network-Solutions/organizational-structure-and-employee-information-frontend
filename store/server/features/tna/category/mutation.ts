@@ -1,4 +1,4 @@
-import { TrainingNeedCategory } from '@/types/tna';
+import { TrainingNeedCategory } from '@/types/tna/tna';
 import { crudRequest } from '@/utils/crudRequest';
 import { TNA_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';

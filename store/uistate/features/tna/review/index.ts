@@ -1,5 +1,5 @@
 import { create, StateCreator } from 'zustand';
-import { TrainingNeedCategory } from '@/types/tna';
+import { TrainingNeedCategory } from '@/types/tna/tna';
 
 type TnaReviewState = {
   isShowTnaReviewSidebar: boolean;

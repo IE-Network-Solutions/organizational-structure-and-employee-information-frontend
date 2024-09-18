@@ -1,24 +1,24 @@
 import ActionButtons from '@/components/common/actionButton/actionButtons';
-import { TrainingNeedCategory } from '@/types/tna/tna';
 import { FC } from 'react';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
-import { useDeleteTnaCategory } from '@/store/server/features/tna/category/mutation';
 import { Spin } from 'antd';
+import { CourseCategory } from '@/types/tna/course';
+import { useDeleteCourseCategory } from '@/store/server/features/tna/courseCategory/mutation';
 
-interface TnaCategoryCardProps {
-  item: TrainingNeedCategory;
+interface CourseCategoryCardProps {
+  item: CourseCategory;
 }
 
-const TnaCategoryCard: FC<TnaCategoryCardProps> = ({ item }) => {
-  const { setIsShowTnaCategorySidebar, setTnaCategoryId } =
+const CourseCategoryCard: FC<CourseCategoryCardProps> = ({ item }) => {
+  const { setIsShowCourseCategorySidebar, setCourseCategoryId } =
     useTnaSettingsStore();
-  const { mutate: deleteCategory, isLoading } = useDeleteTnaCategory();
+  const { mutate: deleteCategory, isLoading } = useDeleteCourseCategory();
 
   return (
     <Spin spinning={isLoading}>
       <div className="flex justify-between items-center p-6 rounded-2xl border border-gray-200 mt-6 gap-2.5">
         <div className="text-lg font-semibold text-gray-900 flex-1">
-          {item.name}
+          {item.title}
         </div>
 
         <ActionButtons
@@ -26,8 +26,8 @@ const TnaCategoryCard: FC<TnaCategoryCardProps> = ({ item }) => {
             deleteCategory([item.id]);
           }}
           onEdit={() => {
-            setTnaCategoryId(item.id);
-            setIsShowTnaCategorySidebar(true);
+            setCourseCategoryId(item.id);
+            setIsShowCourseCategorySidebar(true);
           }}
         />
       </div>
@@ -35,4 +35,4 @@ const TnaCategoryCard: FC<TnaCategoryCardProps> = ({ item }) => {
   );
 };
 
-export default TnaCategoryCard;
+export default CourseCategoryCard;

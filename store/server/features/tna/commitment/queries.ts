@@ -3,7 +3,7 @@ import { TNA_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
-import { CommitmentRule } from '@/types/tna';
+import { CommitmentRule } from '@/types/tna/tna';
 import { TnaCommitmentRequestBody } from '@/store/server/features/tna/commitment/interface';
 
 const getTnaCommitment = async (data: Partial<TnaCommitmentRequestBody>) => {

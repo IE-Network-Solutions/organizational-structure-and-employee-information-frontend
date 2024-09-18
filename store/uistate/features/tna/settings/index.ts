@@ -5,6 +5,8 @@ type TnaSettingsState = {
   tnaCategoryId: string | null;
   isShowCommitmentSidebar: boolean;
   tnaCommitmentId: string | null;
+  isShowCourseCategorySidebar: boolean;
+  courseCategoryId: string | null;
 };
 
 type TnaSettingsAction = {
@@ -12,6 +14,10 @@ type TnaSettingsAction = {
   setTnaCategoryId: (tnaCategoryId: string | null) => void;
   setIsShowCommitmentSidebar: (isShowCommitmentSidebar: boolean) => void;
   setTnaCommitmentId: (tnaCommitmentId: string | null) => void;
+  setIsShowCourseCategorySidebar: (
+    isShowCourseCategorySidebar: boolean,
+  ) => void;
+  setCourseCategoryId: (courseCategoryId: string | null) => void;
 };
 
 const tnaSettingsSlice: StateCreator<TnaSettingsState & TnaSettingsAction> = (
@@ -35,6 +41,16 @@ const tnaSettingsSlice: StateCreator<TnaSettingsState & TnaSettingsAction> = (
   tnaCommitmentId: null,
   setTnaCommitmentId: (tnaCommitmentId: string | null) => {
     set({ tnaCommitmentId });
+  },
+
+  isShowCourseCategorySidebar: false,
+  setIsShowCourseCategorySidebar: (isShowCourseCategorySidebar: boolean) => {
+    set({ isShowCourseCategorySidebar });
+  },
+
+  courseCategoryId: null,
+  setCourseCategoryId: (courseCategoryId) => {
+    set({ courseCategoryId });
   },
 });
 

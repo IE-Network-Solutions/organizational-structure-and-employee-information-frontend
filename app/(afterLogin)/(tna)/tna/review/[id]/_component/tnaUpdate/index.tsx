@@ -12,7 +12,7 @@ import CustomUpload from '@/components/form/customUpload';
 import { LuPlus } from 'react-icons/lu';
 import RemoveFormFieldButton from '@/components/common/formButtons/removeFormFieldButton';
 import { useGetTna } from '@/store/server/features/tna/review/queries';
-import { trainingNeedAssessmentCertStatusOptions } from '@/types/tna';
+import { trainingNeedAssessmentCertStatusOptions } from '@/types/tna/tna';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useSetTna } from '@/store/server/features/tna/review/mutation';
 import dayjs from 'dayjs';

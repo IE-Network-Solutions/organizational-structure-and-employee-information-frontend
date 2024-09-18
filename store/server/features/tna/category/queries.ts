@@ -4,7 +4,7 @@ import { TNA_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
-import { TrainingNeedCategory } from '@/types/tna';
+import { TrainingNeedCategory } from '@/types/tna/tna';
 
 const getTnaCategory = async (data: Partial<TnaCategoryRequestBody>) => {
   return await crudRequest({
