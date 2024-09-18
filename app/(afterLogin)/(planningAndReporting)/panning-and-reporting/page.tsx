@@ -7,11 +7,10 @@ import { Radio, Tabs } from 'antd';
 import { RadioChangeEvent } from 'antd/lib';
 import Planning from './_components/planning';
 import { useAllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
-import { planningPeriods } from './_components/dummyData';
 
 function page() {
   const {setOpen,setActiveTab,activeTab,setActivePlanPeriod}=usePlanningAndReportingStore()
-  // const {data:planningPeriods}=useAllPlanningPeriods()
+  const {data:planningPeriods}=useAllPlanningPeriods()
 
   const onChange = (e: RadioChangeEvent) => {
     setActiveTab(e.target.value);
