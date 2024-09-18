@@ -48,7 +48,7 @@ const UserSidebar = (props: any) => {
         {current >= step ? (
           <IoCheckmarkSharp className="text-xs font-bold" />
         ) : (
-          '•'
+          '•' 
         )}
       </div>
     </div>

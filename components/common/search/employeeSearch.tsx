@@ -4,8 +4,17 @@ import { Input, Select } from 'antd';
 import { useDebounce } from '@/utils/useDebounce';
 
 const { Option } = Select;
+interface Option {
+  key: string;
+  value: string;
+}
 
-const EmployeeSearch: React.FC = () => {
+interface EmployeeSearchProps {
+  optionArray1?:Option[];
+  optionArray2?:Option[];
+}
+
+const EmployeeSearch: React.FC<EmployeeSearchProps> = ({ optionArray2,optionArray1 }) => {
   /*eslint-disable @typescript-eslint/no-unused-vars */
 
   const handleSearchEmployee = async (
@@ -24,35 +33,39 @@ const EmployeeSearch: React.FC = () => {
       <div className="flex flex-wrap w-full">
         <div className="w-full md:w-1/2 p-2">
           <Input
-            placeholder="Search company"
-            onChange={(e) => onSearchChange(e, 'companyName', false)}
+            placeholder="Search"
+            onChange={(e) => onSearchChange(e, 'search', false)}
             className="w-full h-14"
             allowClear
           />
         </div>
         <div className="w-full md:w-1/4 p-2" id="subscriptionTypeFilter">
           <Select
-            placeholder="Subscription Type"
+            placeholder="Select Type"
             onChange={(value) =>
-              onSearchChange(value, 'subscriptionType', true)
+              onSearchChange(value, 'type', true)
             }
             allowClear
             className="w-full h-14"
           >
-            <Option value="Premium">Premium</Option>
+            {optionArray1?.map(item=>(
+                  <Option value={item.key}>{item.value}</Option>
+            ))}
           </Select>
         </div>
         <div className="w-full md:w-1/4 p-2" id="subscriptionStatusFilter">
           <Select
-            placeholder="Subscription Status"
+            placeholder="status"
             onChange={(value) =>
-              onSearchChange(value, 'subscriptionStatus', true)
+              onSearchChange(value, 'status', true)
             }
             allowClear
             className="w-full h-14"
           >
-            <Option value="Active">Active</Option>
-            <Option value="Inactive">Inactive</Option>
+            {optionArray2?.map(item=>(
+                  <Option value={item.key}>{item.value}</Option>
+            ))}
+
           </Select>
         </div>
       </div>
