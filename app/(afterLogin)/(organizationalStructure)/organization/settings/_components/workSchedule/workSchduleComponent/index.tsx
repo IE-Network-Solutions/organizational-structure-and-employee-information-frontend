@@ -99,7 +99,6 @@ function WorkScheduleTab() {
                 </Dropdown>
               }
             >
-              setName
               <div className="mt-1">
                 <p className="text-sm">
                   Standard working hours/day:{' '}
