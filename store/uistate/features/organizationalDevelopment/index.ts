@@ -27,6 +27,16 @@ interface StoreState {
 
   searchTitle: string | null;
   setSearchTitle: (questionTitle: string | null) => void;
+
+  isEditModalOpen: boolean;
+  setIsEditModalOpen: (value: boolean) => void;
+  editItemId: string;
+  setEditItemId: (itemId: string) => void;
+
+  isDeleteModalOpen: boolean;
+  setIsDeleteModalOpen: (value: boolean) => void;
+  deleteItemId: string;
+  setDeleteItemId: (itemId: string) => void;
 }
 
 export const useOrganizationalDevelopment = create<StoreState>()(
@@ -64,5 +74,15 @@ export const useOrganizationalDevelopment = create<StoreState>()(
     numberOfActionPlan: 1,
     setNumberOfActionPlan: (numberOfActionPlan: number) =>
       set({ numberOfActionPlan }),
+
+    isEditModalOpen: false,
+    setIsEditModalOpen: (value) => set({ isEditModalOpen: value }),
+    editItemId: '',
+    setEditItemId: (itemId: string) => set({ editItemId: itemId }),
+
+    isDeleteModalOpen: false,
+    setIsDeleteModalOpen: (value) => set({ isDeleteModalOpen: value }),
+    deleteItemId: '',
+    setDeleteItemId: (itemId: string) => set({ deleteItemId: itemId }),
   })),
 );

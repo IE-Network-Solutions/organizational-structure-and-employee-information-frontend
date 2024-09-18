@@ -13,14 +13,28 @@ import RadioField from './radioField';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { FieldType } from '@/types/enumTypes';
 import { Pencil, Trash2 } from 'lucide-react';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
+import EditQuestion from './editQuestions';
+import { useDeleteQuestions } from '@/store/server/features/feedback/question/mutation';
 interface Params {
   id: string;
 }
 const Questions = ({ id }: Params) => {
-  const { current, setCurrent, pageSize, setPageSize, searchTitle } =
-    useOrganizationalDevelopment();
-  // const { data: questionsData } = useFetchedQuestions(id,searchTitle);
+  const {
+    current,
+    setCurrent,
+    pageSize,
+    setPageSize,
+    searchTitle,
+    setIsEditModalOpen,
+    isDeleteModalOpen,
+    deleteItemId,
+    setIsDeleteModalOpen,
+    setEditItemId,
+    setDeleteItemId,
+  } = useOrganizationalDevelopment();
   const { data: questionsData } = useFetchedQuestionsByFormId(id, searchTitle);
+  const { mutate: deleteQuestion } = useDeleteQuestions();
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrent(page);
@@ -28,8 +42,24 @@ const Questions = ({ id }: Params) => {
       setPageSize(pageSize);
     }
   };
+
+  const handleEditModal = (question: any) => {
+    setIsEditModalOpen(true);
+    setEditItemId(question?.id);
+  };
+
+  const handleDeleteModal = (question: any) => {
+    setDeleteItemId(question?.id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDelete = () => {
+    setIsDeleteModalOpen(false);
+    deleteQuestion(deleteItemId);
+  };
+
   return (
-    <div>
+    <div className="bg-white h-auto w-full p-4">
       <Form
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 14 }}
@@ -41,13 +71,31 @@ const Questions = ({ id }: Params) => {
             questionsData?.items?.map((q: QuestionsType) => (
               <Row gutter={16} key={q.id}>
                 <Col xs={24} sm={24}>
-                  <div className="flex items-center justify-start">
+                  <div className="flex flex-col justify-center items-start w-full h-auto">
+                    <div className="flex items-center justify-end gap-8 pb-3">
+                      <div> {q.question}</div>
+                      <div className="flex items-center justify-center gap-1">
+                        <div className="bg-white w-5 h-5 rounded-md border border-[#2f78ee] flex items-center justify-center">
+                          <Pencil
+                            size={12}
+                            className="text-[#2f78ee] cursor-pointer"
+                            onClick={() => handleEditModal(q)}
+                          />
+                        </div>
+                        <div className="bg-white w-5 h-5 rounded-md border border-red-500 flex items-center justify-center">
+                          <Trash2
+                            size={12}
+                            className="text-red-400 cursor-pointer"
+                            onClick={() => handleDeleteModal(q)}
+                          />
+                        </div>
+                      </div>
+                    </div>
                     <Form.Item
-                      label={q.question}
                       key={q.id}
-                      required
                       labelCol={{ span: 24 }}
                       wrapperCol={{ span: 24 }}
+                      className="mx-3 mb-8"
                     >
                       {q?.fieldType === FieldType.MULTIPLE_CHOICE && (
                         <MultipleChoiceField
@@ -71,24 +119,7 @@ const Questions = ({ id }: Params) => {
                       {q?.fieldType === FieldType.RADIO && (
                         <RadioField options={q?.field} />
                       )}
-                      <div className="flex items-center justify-end gap-2">
-                        <div className="bg-[#2f78ee] w-5 h-5 rounded-md flex items-center justify-center">
-                          <Pencil
-                            size={12}
-                            className="text-white cursor-pointer"
-                            // onClick={() => handleQuestionModalOpen(questions)}
-                          />
-                        </div>
-                        <div className="bg-[#e03137] w-5 h-5 rounded-md flex items-center justify-center">
-                          <Trash2
-                            size={12}
-                            className="text-white cursor-pointer"
-                            // onClick={() => handleDeleteModalOpen(questions)}
-                          />
-                        </div>
-                      </div>
                     </Form.Item>
-                    <Form.Item>Hello</Form.Item>
                   </div>
                 </Col>
               </Row>
@@ -109,6 +140,13 @@ const Questions = ({ id }: Params) => {
           )}
         </>
       </Form>
+
+      <EditQuestion id={id} />
+      <DeleteModal
+        open={isDeleteModalOpen}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 };

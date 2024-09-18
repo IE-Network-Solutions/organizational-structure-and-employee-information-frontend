@@ -5,6 +5,7 @@
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
+import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -78,9 +79,10 @@ const deleteQuestion = async () => {
     tenantId,
     Authorization: `Bearer ${token}`,
   };
-  const { deletedItem, pageSize, current } = useDynamicFormStore.getState();
+  const { pageSize, current } = useDynamicFormStore.getState();
+  const { deleteItemId } = useOrganizationalDevelopment.getState();
   return await crudRequest({
-    url: `${ORG_DEV_URL}/forms/${deletedItem}?limit=${pageSize}&&page=${current}`,
+    url: `${ORG_DEV_URL}/questions/${deleteItemId}?limit=${pageSize}&&page=${current}`,
     method: 'DELETE',
     headers,
   });
@@ -96,8 +98,8 @@ export const useCreateQuestion = () => {
   const queryClient = useQueryClient();
   return useMutation(createQuestions, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('questions');
+    onSuccess: (data, variables: any) => {
+      queryClient.invalidateQueries(['questions', data?.formId]);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -116,9 +118,8 @@ export const useUpdateQuestions = () => {
   return useMutation(
     ({ data, id }: { data: any; id: string }) => updateQuestions(data, id),
     {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      onSuccess: (_, variables: any) => {
-        queryClient.invalidateQueries('questions');
+      onSuccess: (data, variables: any) => {
+        queryClient.invalidateQueries(['questions', data?.formId]);
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method);
       },
@@ -136,9 +137,8 @@ export const useUpdateQuestions = () => {
 export const useDeleteQuestions = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteQuestion, {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('questions');
+    onSuccess: (data, variables: any) => {
+      queryClient.invalidateQueries(['questions', data?.formId]);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

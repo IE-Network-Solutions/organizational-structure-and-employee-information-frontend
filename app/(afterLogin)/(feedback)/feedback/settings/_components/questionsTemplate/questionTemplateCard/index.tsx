@@ -6,7 +6,7 @@ import { useCustomQuestionTemplateStore } from '@/store/uistate/features/feedbac
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteQuestionTemplate } from '@/store/server/features/feedback/settings/mutation';
 import FeedbackPagination from '../../../../_components/feedbackPagination';
-import EditQuestion from './questionTemplateEdit';
+import EditQuestionTemplate from './questionTemplateEdit';
 
 const QuestionTemplateCard: React.FC<any> = () => {
   const {
@@ -93,7 +93,7 @@ const QuestionTemplateCard: React.FC<any> = () => {
           setTemplateCurrentPage(1);
         }}
       />
-      <EditQuestion
+      <EditQuestionTemplate
         question={editingQuestion}
         onClose={handleQuestionModalClose}
       />

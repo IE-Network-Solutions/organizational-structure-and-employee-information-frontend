@@ -29,7 +29,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ onConfirm }) => {
         users: selectedUsers.map((user) => user.userId),
       });
     }
-  }, [editingCategory, form, selectedUsers]);
+  }, [editingCategory, form]);
 
   const handleCancel = () => {
     form.resetFields();

@@ -4,7 +4,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { Form } from './interface';
-import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
+import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
 
 /**
  * Adds a new form.
@@ -58,9 +58,9 @@ const deleteForm = async () => {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
-  const deletedItem = CategoriesManagementStore.getState().deletedItem;
-  const pageSize = CategoriesManagementStore.getState().pageSize;
-  const current = CategoriesManagementStore.getState().current;
+  const deletedItem = useDynamicFormStore.getState().deletedItem;
+  const pageSize = useDynamicFormStore.getState().pageSize;
+  const current = useDynamicFormStore.getState().current;
   return await crudRequest({
     url: `${ORG_DEV_URL}/forms/${deletedItem}?limit=${pageSize}&&page=${current}`,
     method: 'DELETE',

@@ -98,7 +98,7 @@ const CategoriesCard: React.FC = () => {
     );
 
   return (
-    <div className="h-[500px]">
+    <div>
       <div className="flex flex-wrap gap-4 mb-[80px]">
         {categories?.items.map((category: any) => (
           <CategoryCard

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Card, Typography, Dropdown, Avatar } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Card, Typography, Dropdown } from 'antd';
 import { FaEllipsisVertical, FaCircle } from 'react-icons/fa6';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useGetUsersById } from '@/store/server/features/feedback/category/queries';
+import Avatar from '@/public/gender_neutral_avatar.jpg';
 
 const { Title, Paragraph } = Typography;
 
@@ -19,7 +19,10 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 }) => {
   const { data: userData } = useGetUsersById();
   return (
-    <Card hoverable className="w-[280px] relative bg-gray-100">
+    <Card
+      hoverable
+      className="w-[280px] relative bg-gray-100 h-min-screen flex flex-col justify-between"
+    >
       <div className="flex justify-between items-center mb-2">
         <Title level={4} className="m-0">
           {category?.name}
@@ -49,20 +52,19 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
         <Paragraph className="text-gray-600">{category?.description}</Paragraph>
         <div className="flex items-center mt-4">
           <Image
-            src={userData?.profileImage ?? <Avatar icon={<UserOutlined />} />}
+            src={userData?.profileImage ?? Avatar}
             alt="Profile pic"
             width={30}
             height={50}
             className="rounded-full object-fit"
           />
-
           <div className="ml-2 flex flex-col">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap md:gap-0 items-center justify-between gap-4 ">
               <div>
                 <Typography.Text strong>
-                  {(userData?.createdBy?.firstName ?? 'Unknown') +
+                  {(userData?.firstName ?? 'Unknown') +
                     ' ' +
-                    (userData?.createdBy?.middleName ?? '-')}
+                    (userData?.middleName ?? '-')}
                 </Typography.Text>
               </div>
               <div className="flex justify-center items-center gap-1">

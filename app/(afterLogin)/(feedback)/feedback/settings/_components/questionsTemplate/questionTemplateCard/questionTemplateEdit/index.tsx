@@ -7,10 +7,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 const { Option } = Select;
 
-const EditQuestion: React.FC<{ question: any; onClose: () => void }> = ({
-  question,
-  onClose,
-}) => {
+const EditQuestionTemplate: React.FC<{
+  question: any;
+  onClose: () => void;
+}> = ({ question, onClose }) => {
   const [form] = Form.useForm();
 
   const { questionModal, editingQuestion } = useCustomQuestionTemplateStore();
@@ -49,6 +49,7 @@ const EditQuestion: React.FC<{ question: any; onClose: () => void }> = ({
     form.setFieldsValue(formValues);
   }, [questionModal, question]);
 
+  console.log(question, 'question');
   return (
     questionModal && (
       <Modal
@@ -167,4 +168,4 @@ const EditQuestion: React.FC<{ question: any; onClose: () => void }> = ({
   );
 };
 
-export default EditQuestion;
+export default EditQuestionTemplate;

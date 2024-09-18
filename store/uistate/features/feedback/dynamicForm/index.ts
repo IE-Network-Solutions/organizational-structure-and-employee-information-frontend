@@ -27,7 +27,8 @@ interface DynamicFormStore {
   questions: Question[];
   isEditQuestionModal: boolean;
   setEditQuestionsModal: (value: boolean) => void;
-
+  isCopyURLModalOpen: boolean;
+  setIsCopyModalOpen: (value: boolean) => void;
   customFields: CustomField[];
   isModalVisible: boolean;
   setIsModalVisible: (value: boolean) => void;
@@ -66,7 +67,8 @@ export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
   ],
   isEditQuestionModal: false,
   setEditQuestionsModal: (value) => set({ isEditQuestionModal: value }),
-
+  isCopyURLModalOpen: false,
+  setIsCopyModalOpen: (value) => set({ isCopyURLModalOpen: value }),
   isModalVisible: false,
   isAddOpen: false,
   setIsAddOpen: (value) => set({ isAddOpen: value }),

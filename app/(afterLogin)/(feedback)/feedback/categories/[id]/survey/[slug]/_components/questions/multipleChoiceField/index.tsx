@@ -37,7 +37,7 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({
         </Col>
         <Col
           span={22}
-          className="flex justify-start items-center rounded ml-2 border-2 px-1 py-1 w-1/2"
+          className="flex justify-start items-center rounded ml-2 border-[1px] px-1 py-1 w-1/2 font-normal"
         >
           {choice.value}
         </Col>

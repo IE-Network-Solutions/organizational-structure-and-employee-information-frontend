@@ -14,7 +14,7 @@ const { Option } = Select;
 const QuestionTemplateDrawer: React.FC<any> = (props) => {
   const [form] = Form.useForm();
 
-  const { isOpen } = useCustomQuestionTemplateStore();
+  const { isOpen, setIsOpen } = useCustomQuestionTemplateStore();
 
   const { mutate: createQuestion } = useCreateQuestionTemplate();
   const { addTemplateQuestion, templateQuestions } =
@@ -37,6 +37,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
       };
 
       createQuestion(formattedValue);
+      setIsOpen(false);
     } catch (error) {
       NotificationMessage.error({
         message: 'Publish Failed',
@@ -232,16 +233,16 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
               </div>
               <div className="mt-40">
                 <Form.Item>
-                  <div className="flex items-center justify-center gap-4">
+                  <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
                     <Button
-                      htmlType="reset"
-                      className="py-1 px-12 h-8 flex item-center justify-center bg-white text-gary-500"
+                      onClick={() => setIsOpen(false)}
+                      className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
                     >
                       Cancel
                     </Button>
                     <Button
                       htmlType="submit"
-                      className="py-1 px-12 h-8 flex item-center justify-center bg-primary text-white"
+                      className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
                     >
                       Create
                     </Button>

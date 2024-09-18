@@ -1,17 +1,27 @@
 'use client';
-import React from 'react';
-import { Card, Typography, Dropdown, Divider, Flex, Progress } from 'antd';
+import React, { useEffect } from 'react';
+import {
+  Card,
+  Typography,
+  Dropdown,
+  Divider,
+  Flex,
+  Progress,
+  Modal,
+} from 'antd';
 import { FaEllipsisVertical, FaArrowRightLong, FaPlus } from 'react-icons/fa6';
 import { useGetFormsByCategoryID } from '@/store/server/features/feedback/form/queries';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import CustomButton from '@/components/common/buttons/customButton';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
-import { useDeleteQuestions } from '@/store/server/features/feedback/question/mutation';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
 import FeedbackPagination from '@/app/(afterLogin)/(feedback)/feedback/_components/feedbackPagination';
 import EditFormsModal from './editFormCard';
 import Question from '../../questions';
 import Link from 'next/link';
+import { useDeleteForm } from '@/store/server/features/feedback/form/mutation';
+import { Copy } from 'lucide-react';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const { Title, Paragraph } = Typography;
 
@@ -33,6 +43,10 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
     deleteFormModal,
     setDeleteFormModal,
     setIsDrawerOpen,
+    isCopyURLModalOpen,
+    setIsCopyModalOpen,
+    generatedUrl,
+    setGeneratedUrl,
   } = useDynamicFormStore();
 
   const { data: formsByCategoryId } = useGetFormsByCategoryID(
@@ -41,7 +55,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
     current,
   );
 
-  const { mutate: deleteForm } = useDeleteQuestions();
+  const { mutate: deleteForm } = useDeleteForm();
   const handleChange = (page: number = 1, pageSize: number) => {
     setCurrent(page);
     setPageSize(pageSize);
@@ -71,6 +85,9 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
     } else if (key === 'delete') {
       setDeletedItem(category.id);
       setDeleteFormModal(true);
+    } else if (key === 'copy') {
+      setSelectedFormId(category.id);
+      setIsCopyModalOpen(true);
     }
   };
 
@@ -104,9 +121,31 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
 
   const currentDate = new Date().toISOString().slice(0, 10);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = `${window.location.origin}/surveys/${selectedFormId}`;
+      setGeneratedUrl(url);
+    }
+  }, [selectedFormId]);
+
+  const handleCopy = () => {
+    navigator.clipboard
+      .writeText(generatedUrl)
+      .then(() => {
+        NotificationMessage.success({
+          message: 'Success',
+          description: `Question URL copied to clipboard`,
+        });
+        setIsCopyModalOpen(false);
+      })
+      .catch((err) => {
+        console.error('Failed to copy: ', err);
+      });
+  };
+
   return (
     <>
-      <div className="flex items-center flex-wrap justify-start gap-2 h-full">
+      <div className="flex items-center flex-wrap justify-start gap-4 h-full">
         {formsByCategoryId &&
           formsByCategoryId.map((form: any, index: number) => (
             <div key={index} className="flex justify-start items-center h-full">
@@ -122,6 +161,11 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                     <Dropdown
                       menu={{
                         items: [
+                          {
+                            key: 'copy',
+                            label: 'Copy Question URL ',
+                            onClick: () => handleMenuClick('copy', form),
+                          },
                           {
                             key: 'edit',
                             label: 'Edit ',
@@ -170,7 +214,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
               ) : (
                 <Card
                   hoverable
-                  className="w-[260px] relative bg-gray-100"
+                  className="w-[280px] relative bg-gray-100"
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -184,6 +228,11 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                     <Dropdown
                       menu={{
                         items: [
+                          {
+                            key: 'copy',
+                            label: 'Copy Question URL ',
+                            onClick: () => handleMenuClick('copy', form),
+                          },
                           {
                             key: 'edit',
                             label: 'Edit',
@@ -231,7 +280,6 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
             </div>
           ))}
       </div>
-
       {/* </Row> */}
       <FeedbackPagination
         current={current}
@@ -240,7 +288,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
         onChange={handleChange}
         onShowSizeChange={handleShowSizeChange}
       />
-      <EditFormsModal />
+      <EditFormsModal id={id} />
       <Question
         selectedFormId={selectedFormId}
         onClose={() => setIsDrawerOpen(false)}
@@ -250,6 +298,21 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
         onConfirm={handleFormDelete}
         onCancel={() => setDeleteFormModal(false)}
       />
+      <Modal
+        title="Copy Question URL"
+        open={isCopyURLModalOpen}
+        onCancel={() => setIsCopyModalOpen(false)}
+        footer={null}
+        centered
+      >
+        <div className="flex items-center justify-center gap-3 border-[1px] p-2 rounded-md">
+          <div className="font-semibold"> {generatedUrl}</div>
+          <Divider type="vertical" />
+          <div onClick={handleCopy}>
+            <Copy size={20} strokeWidth={1.5} />
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };

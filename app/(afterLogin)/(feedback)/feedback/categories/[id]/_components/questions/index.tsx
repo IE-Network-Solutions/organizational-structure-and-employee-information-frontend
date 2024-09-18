@@ -8,21 +8,19 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useCreateQuestion } from '@/store/server/features/feedback/question/mutation';
 import { useDebounce } from '@/utils/useDebounce';
 import { v4 as uuidv4 } from 'uuid';
+import CustomQuestionTemplate from './customQuestionTemplate';
 
 const { Option } = Select;
 
 const Question: React.FC<any> = (props) => {
   const [form] = Form.useForm();
+
   const { mutate: AddQuestion } = useCreateQuestion();
-  const {
-    isDrawerOpen,
-    questions,
-    addQuestion,
-    setGeneratedUrl,
-    setIsDrawerOpen,
-  } = useDynamicFormStore();
+  const { isDrawerOpen, questions, addQuestion, setIsDrawerOpen } =
+    useDynamicFormStore();
 
   const handleQuestionStateUpdate = useDebounce(addQuestion, 1500);
+  console.log(props, 'props');
 
   const handlePublish = async () => {
     try {
@@ -45,8 +43,6 @@ const Question: React.FC<any> = (props) => {
         ),
       };
       AddQuestion(formattedValues);
-      const generatedUrl = `${window.location.origin}/questions/${props?.selectedFormId}`;
-      setGeneratedUrl(generatedUrl);
       setIsDrawerOpen(false);
     } catch (error) {
       NotificationMessage.error({
@@ -103,6 +99,9 @@ const Question: React.FC<any> = (props) => {
               handlePublish();
             }}
           >
+            <Form.Item>
+              <CustomQuestionTemplate id={props?.selectedFormId} />
+            </Form.Item>
             <Form.List
               name="questions"
               initialValue={[
@@ -154,7 +153,7 @@ const Question: React.FC<any> = (props) => {
                                 {...restField}
                                 name={[name, 'fieldType']}
                               >
-                                <Select placeholder="Select type">
+                                <Select placeholder="Select type" allowClear>
                                   <Option value="multiple_choice">
                                     Multiple Choice
                                   </Option>
@@ -298,16 +297,16 @@ const Question: React.FC<any> = (props) => {
               )}
             </Form.List>
             <Form.Item>
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
                 <Button
                   onClick={() => setIsDrawerOpen(false)}
-                  className="py-1 px-12 h-8 flex item-center justify-center bg-white text-gray-500"
+                  className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
                 >
                   Cancel
                 </Button>
                 <Button
                   htmlType="submit"
-                  className="py-1 px-12 h-8 flex item-center justify-center bg-primary text-white"
+                  className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
                 >
                   Create
                 </Button>

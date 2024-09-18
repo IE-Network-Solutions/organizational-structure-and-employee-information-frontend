@@ -37,7 +37,7 @@ function Page({ params: { slug } }: FormDetailProps) {
         </span>
       ),
       children: <Questions id={slug} />,
-      className: 'text-gray-950 font-semibold',
+      className: 'text-gray-950 font-semibold ',
     },
     {
       key: '2',
@@ -101,7 +101,7 @@ function Page({ params: { slug } }: FormDetailProps) {
           onClick={showDrawer}
           className="bg-blue-600 hover:bg-blue-700"
         />
-        <CreateActionPlan onClose={onClose} id={slug}/>
+        <CreateActionPlan onClose={onClose} id={slug} />
       </div>
       <Row justify="center" style={{ width: '100%' }}>
         <Col span={activeTab === '2' || activeTab === '3' ? 16 : 24}>

@@ -1,5 +1,14 @@
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, DatePicker, Select, Switch, Button } from 'antd';
+import {
+  Modal,
+  Form,
+  Input,
+  DatePicker,
+  Select,
+  Switch,
+  Button,
+  ModalProps,
+} from 'antd';
 import { CalendarOutlined } from '@ant-design/icons';
 import { useFetchUsers } from '@/store/server/features/feedback/category/queries';
 import { useUpdateForm } from '@/store/server/features/feedback/form/mutation';
@@ -9,8 +18,10 @@ import { useGetFormsByID } from '@/store/server/features/feedback/form/queries';
 
 const { TextArea } = Input;
 const { Option } = Select;
-
-const EditFormsModal: React.FC = () => {
+interface EditFormModalProps {
+  id: string;
+}
+const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
   const [formInstance] = Form.useForm();
 
   const { data: employees } = useFetchUsers();
@@ -24,8 +35,10 @@ const EditFormsModal: React.FC = () => {
     const values = await formInstance.validateFields();
     const updatedData = {
       ...values,
+      formCategoryId: id,
       startDate: values.surveyStartDate.toISOString(),
       endDate: values.surveyEndDate.toISOString(),
+      isAnonymous: values.isAnonymous,
       formPermissions: values.users.map((userId: string) => ({ userId })),
     };
     updateForm({ data: updatedData, id: selectedFormId });
@@ -38,7 +51,9 @@ const EditFormsModal: React.FC = () => {
       description: formDataByID?.description,
       surveyStartDate: dayjs(formDataByID?.startDate),
       surveyEndDate: dayjs(formDataByID?.endDate),
-      users: formDataByID?.formPermissions?.map((p: any) => p.userId) || [],
+      isAnonymous: formDataByID?.isAnonymous,
+      formPermissions:
+        formDataByID?.formPermissions?.map((p: any) => p.userId) || [],
     };
 
     formInstance.setFieldsValue(formValues);

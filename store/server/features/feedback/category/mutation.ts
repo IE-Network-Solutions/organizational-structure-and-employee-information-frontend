@@ -1,6 +1,9 @@
 /**
- * This module contains mutation hooks for managing form categories using react-query.
- * It includes functions for adding, updating, and deleting categories.
+ * This module provides mutation hooks for managing form categories using React Query.
+ * It includes functions for adding, updating, and deleting categories in a form management system.
+ *
+ * The hooks make use of React Query's `useMutation` to handle API requests and automatically
+ * update the query cache for 'categories' after each successful mutation.
  *
  * @module CategoryMutation
  */
@@ -14,16 +17,21 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 
 /**
- * Adds a new category to the system.
+ * Sends a request to add a new category to the system.
+ *
+ * @function
+ * @async
  * @param {CategoryData} data - The category data to be added.
- * @returns {Promise<any>} The response from the API indicating success or failure.
+ * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const addCategory = async (data: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const createdBy = useAuthenticationStore.getState().userId;
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
+    createdByUserId: createdBy || '',
   };
   return await crudRequest({
     url: `${ORG_DEV_URL}/form-categories`,
@@ -34,10 +42,13 @@ const addCategory = async (data: any) => {
 };
 
 /**
- * Updates an existing category in the system.
+ * Sends a request to update an existing category in the system.
+ *
+ * @function
+ * @async
  * @param {CategoryData} data - The updated category data.
- * @param {string} id - The ID of the category to update.
- * @returns {Promise<any>} The response from the API indicating success or failure.
+ * @param {string} id - The ID of the category to be updated.
+ * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const updateFormCategory = async (data: CategoryData, id: string) => {
   const token = useAuthenticationStore.getState().token;
@@ -55,8 +66,11 @@ const updateFormCategory = async (data: CategoryData, id: string) => {
 };
 
 /**
- * Deletes a category from the system.
- * @returns {Promise<any>} The response from the API indicating success or failure.
+ * Sends a request to delete a category from the system.
+ *
+ * @function
+ * @async
+ * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const deleteFormCategory = async () => {
   const token = useAuthenticationStore.getState().token;
@@ -76,8 +90,11 @@ const deleteFormCategory = async () => {
 };
 
 /**
- * Hook for adding a new category.
- * @returns {UseMutationResult} Mutation result object containing the status and methods for the mutation.
+ * Custom hook to add a new category using React Query.
+ * Automatically invalidates the 'categories' query cache on success.
+ *
+ * @function
+ * @returns {UseMutationResult} The mutation result object with methods to execute the mutation and handle its status.
  */
 export const useAddCategory = () => {
   const queryClient = useQueryClient();
@@ -93,8 +110,11 @@ export const useAddCategory = () => {
 // eslint-enable-next-line @typescript-eslint/naming-convention
 
 /**
- * Hook for updating an existing category.
- * @returns {UseMutationResult} Mutation result object containing the status and methods for the mutation.
+ * Custom hook to update an existing category using React Query.
+ * Automatically invalidates the 'categories' query cache on success.
+ *
+ * @function
+ * @returns {UseMutationResult} The mutation result object with methods to execute the mutation and handle its status.
  */
 export const useUpdateFormCategory = () => {
   const queryClient = useQueryClient();
@@ -114,8 +134,11 @@ export const useUpdateFormCategory = () => {
 // eslint-enable-next-line @typescript-eslint/naming-convention
 
 /**
- * Hook for deleting a category.
- * @returns {UseMutationResult} Mutation result object containing the status and methods for the mutation.
+ * Custom hook to delete a category using React Query.
+ * Automatically invalidates the 'categories' query cache on success.
+ *
+ * @function
+ * @returns {UseMutationResult} The mutation result object with methods to execute the mutation and handle its status.
  */
 export const useDeleteFormCategory = () => {
   const queryClient = useQueryClient();
