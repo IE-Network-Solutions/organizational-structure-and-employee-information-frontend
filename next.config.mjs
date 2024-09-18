@@ -10,6 +10,7 @@ const nextConfig = {
   env: {
     ORG_AND_EMP_URL: process.env.ORG_AND_EMP_URL,
     TENANT_MGMT_URL: process.env.TENANT_MGMT_URL,
+    NOTIFICATION_URL: process.env.NOTIFICATION_URL,
   },
 };
 
