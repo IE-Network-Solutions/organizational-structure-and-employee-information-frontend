@@ -117,6 +117,11 @@ const items: MenuItem[] = [
     label: 'Training & Learning',
     children: [
       {
+        key: '/tna/management',
+        className: 'font-bold',
+        label: 'Training Management',
+      },
+      {
         key: '/tna/review',
         className: 'font-bold',
         label: 'TNA',
