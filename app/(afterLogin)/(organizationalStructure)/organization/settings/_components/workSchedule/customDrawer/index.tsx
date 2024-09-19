@@ -10,16 +10,7 @@ import { Form } from 'antd';
 import React, { useEffect } from 'react';
 
 const CustomWorkingScheduleDrawer: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  const {
-    isOpen,
-    workingHour,
-    closeDrawer,
-    selectedSchedule,
-    isEditMode,
-    scheduleName,
-  } = useWorkScheduleDrawerStore();
-  // eslint-enable-next-line @typescript-eslint/naming-convention
+  const {isOpen,workingHour,closeDrawer,selectedSchedule,isEditMode,scheduleName} = useWorkScheduleDrawerStore();
 
   const { detail } = useScheduleStore();
 
@@ -38,15 +29,13 @@ const CustomWorkingScheduleDrawer: React.FC = () => {
           duration: item.hours,
           workDay: item.status,
           day: item.dayOfWeek,
-        }),
-      );
+        }));
       updateSchedule({
         id: selectedSchedule?.id || '',
         schedule: {
           name: scheduleName,
           detail: transformedDetails,
-        },
-      });
+        }});
     }
     closeDrawer();
   };
