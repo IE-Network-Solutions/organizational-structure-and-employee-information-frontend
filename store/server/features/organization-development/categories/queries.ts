@@ -44,7 +44,7 @@ const fetchIndividualResponses = async (
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
- 
+
   return crudRequest({
     url: `${ORG_DEV_URL}/responses/by-user/${formId}/${userId}`,
     method: 'GET',
@@ -139,8 +139,8 @@ export const useFetchedIndividualResponses = (
   userId: string | null,
 ) => {
   return useQuery<any>(
-    ['individualResponses', formId,userId],
-    () => fetchIndividualResponses(formId,userId),
+    ['individualResponses', formId, userId],
+    () => fetchIndividualResponses(formId, userId),
     // {
     //   enabled: !!userId, // Only run the query when userId is not null or undefined
     // },

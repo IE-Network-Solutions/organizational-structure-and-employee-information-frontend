@@ -88,7 +88,7 @@ const items: MenuItem[] = [
     className: 'font-bold',
     label: 'Activity',
   },
- 
+
   {
     key: '/feedback ',
     label: 'Feedback',
