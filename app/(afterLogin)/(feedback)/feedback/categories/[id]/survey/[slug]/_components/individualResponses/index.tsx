@@ -18,9 +18,9 @@ interface Params {
 }
 
 const IndividualResponses = ({ id }: Params) => {
-  const { setCurrent, current, pageSize, setPageSize } =
+  const { setCurrent, current, pageSize,selectedUser, setPageSize } =
     useOrganizationalDevelopment();
-  const { data: individualresponses } = useFetchedIndividualResponses(id, null);
+  const { data: individualresponses } = useFetchedIndividualResponses(id, selectedUser);
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrent(page);
     if (pageSize) {

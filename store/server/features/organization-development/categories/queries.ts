@@ -40,12 +40,16 @@ const fetchQuestionsByFormId = async (
 };
 const fetchIndividualResponses = async (
   formId: string,
-  // userId: string | null,
+  userId: string | null,
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
+  let userIdValue=""
+  if(userId!=null){
+    userIdValue=userId
+  }
   return crudRequest({
-    url: `${ORG_DEV_URL}/responses/by-user/${formId}/""`,
+    url: `${ORG_DEV_URL}/responses/by-user/${formId}/${userIdValue}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -138,8 +142,8 @@ export const useFetchedIndividualResponses = (
   userId: string | null,
 ) => {
   return useQuery<any>(
-    ['individualResponses', formId],
-    () => fetchIndividualResponses(formId),
+    ['individualResponses', formId,userId],
+    () => fetchIndividualResponses(formId,userId),
     // {
     //   enabled: !!userId, // Only run the query when userId is not null or undefined
     // },
