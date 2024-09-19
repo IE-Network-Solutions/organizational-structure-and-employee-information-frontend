@@ -1,8 +1,7 @@
-import { Button, Space, Spin, Switch, Table } from 'antd';
+import { Space, Spin, Switch, Table } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import ActionButton from '@/components/common/ActionButton';
+import ActionButton from '@/components/common/actionButton';
 import { TableColumnsType } from '@/types/table/table';
-import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import {
   AttendanceNotificationRule,
   AttendanceNotificationType,
@@ -13,8 +12,8 @@ import {
   useDeleteAttendanceNotificationType,
   useSetAttendanceNotificationType,
 } from '@/store/server/features/timesheet/attendanceNotificationType/mutation';
-import DeletePopover from '@/components/common/ActionButton/deletePopover';
 import { useDeleteAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/mutation';
+import ActionButtons from '@/components/common/actionButton/actionButtons';
 
 export interface TypeTableProps {
   type: AttendanceNotificationType;
@@ -59,32 +58,16 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
       dataIndex: 'action',
       key: 'action',
       render: (item: AttendanceNotificationRule) => (
-        <Space size={24}>
-          <Button
-            icon={<FiEdit2 size={16} />}
-            type="primary"
-            className="w-[30px] h-[30px]"
-            loading={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
-            onClick={() => {
-              setAttendanceRuleId(item.id);
-              setIsShowCreateRuleSidebar(true);
-            }}
-          />
-
-          <DeletePopover
-            onDelete={() => {
-              deleteRule(item.id);
-            }}
-          >
-            <Button
-              className="w-[30px] h-[30px]"
-              danger
-              loading={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
-              icon={<FiTrash2 size={16} />}
-              type="primary"
-            />
-          </DeletePopover>
-        </Space>
+        <ActionButtons
+          loading={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
+          onEdit={() => {
+            setAttendanceRuleId(item.id);
+            setIsShowCreateRuleSidebar(true);
+          }}
+          onDelete={() => {
+            deleteRule(item.id);
+          }}
+        />
       ),
     },
   ];

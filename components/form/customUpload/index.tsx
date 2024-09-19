@@ -4,10 +4,14 @@ import { fileUpload } from '@/utils/fileUpload';
 import { Upload } from 'antd';
 import { classNames } from '@/utils/classNames';
 import { TbFileUpload } from 'react-icons/tb';
+import { FaRegImage } from 'react-icons/fa6';
 
 interface CustomUploadProps extends UploadProps {
   children?: ReactNode;
   className?: string;
+  dragable?: boolean;
+  dragIcon?: ReactNode;
+  dragLabel?: ReactNode;
   setIsLoading?: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -15,6 +19,9 @@ const CustomUpload: FC<CustomUploadProps> = ({
   className = '',
   children,
   setIsLoading,
+  dragable = false,
+  dragIcon = <FaRegImage size={24} />,
+  dragLabel = 'Upload Your Certification',
   ...otherProps
 }) => {
   const handleUpload = async (options: any): Promise<void> => {
@@ -33,7 +40,19 @@ const CustomUpload: FC<CustomUploadProps> = ({
     }
   };
 
-  return (
+  return dragable ? (
+    <Upload.Dragger
+      customRequest={handleUpload}
+      className={classNames(className)}
+      {...otherProps}
+    >
+      <div className="flex flex-col items-center p-3 gap-1">
+        <div className="text-primary">{dragIcon}</div>
+        <div className="text-xs text-gray-900 font-semibold">{dragLabel}</div>
+        <div className="text-xs text-gray-500">or drag and drop it here</div>
+      </div>
+    </Upload.Dragger>
+  ) : (
     <Upload
       customRequest={handleUpload}
       className={classNames(className)}
