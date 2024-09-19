@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import HistoryTableFilter from './tableFilter/inedx';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Space, Table } from 'antd';
+import { Button, Table } from 'antd';
 import { TbFileDownload } from 'react-icons/tb';
-import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
@@ -19,10 +18,10 @@ import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRe
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { AiOutlineReload } from 'react-icons/ai';
 import { LuPlus } from 'react-icons/lu';
-import DeletePopover from '@/components/common/ActionButton/deletePopover';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
+import ActionButtons from '@/components/common/actionButton/actionButtons';
 
 const HistoryTable = () => {
   const userFilter: Partial<LeaveRequestBody['filter']> = {
@@ -109,7 +108,7 @@ const HistoryTable = () => {
           <a
             href={link}
             target="_blank"
-            className="flex justify-between align-middle text-gray-900"
+            className="flex justify-between items-center text-gray-900"
           >
             <div>{formatLinkToUploadFile(link).name}</div>
             <TbFileDownload size={14} />
@@ -133,32 +132,16 @@ const HistoryTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (item: LeaveRequest) => (
-        <Space size={10}>
-          <Button
-            className="w-[30px] h-[30px]"
-            icon={<FiEdit2 size={16} />}
-            type="primary"
-            onClick={() => {
-              isShow(true);
-              setLeaveRequestSidebarData(item.id);
-            }}
-          />
-
-          <DeletePopover
-            onDelete={() => {
-              deleteLeaveRequest(item.id);
-            }}
-            disabled={item.status === LeaveRequestStatus.APPROVED}
-          >
-            <Button
-              className="w-[30px] h-[30px]"
-              danger
-              disabled={item.status === LeaveRequestStatus.APPROVED}
-              icon={<FiTrash2 size={16} />}
-              type="primary"
-            />
-          </DeletePopover>
-        </Space>
+        <ActionButtons
+          disableDelete={item.status === LeaveRequestStatus.APPROVED}
+          onEdit={() => {
+            isShow(true);
+            setLeaveRequestSidebarData(item.id);
+          }}
+          onDelete={() => {
+            deleteLeaveRequest(item.id);
+          }}
+        />
       ),
     },
   ];

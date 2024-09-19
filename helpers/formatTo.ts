@@ -134,6 +134,7 @@ export const formatLinkToUploadFile = (link: string): UploadFile => {
     name: fileName,
     status: 'done',
     response: link,
+    thumbUrl: link,
   };
 };
 

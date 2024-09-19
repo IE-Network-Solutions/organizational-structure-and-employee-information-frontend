@@ -1,4 +1,4 @@
-import { DateInfo } from '@/types/timesheet/dateInfo';
+import { DateInfo } from '@/types/commons/dateInfo';
 
 export interface BreakType extends DateInfo {
   id: string;

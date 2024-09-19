@@ -1,5 +1,5 @@
-import { DateInfo } from '@/types/timesheet/dateInfo';
 import { LeaveRequest, LeaveType } from '@/types/timesheet/settings';
+import { DateInfo } from '@/types/commons/dateInfo';
 
 export interface LeaveBalance extends DateInfo {
   id: string;

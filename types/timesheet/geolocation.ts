@@ -2,8 +2,8 @@ import {
   AttendanceBreak,
   AttendanceRecord,
 } from '@/types/timesheet/attendance';
-import { DateInfo } from '@/types/timesheet/dateInfo';
 import { AllowedArea } from '@/types/timesheet/settings';
+import { DateInfo } from '@/types/commons/dateInfo';
 
 export interface Geolocation extends DateInfo {
   id: string;
