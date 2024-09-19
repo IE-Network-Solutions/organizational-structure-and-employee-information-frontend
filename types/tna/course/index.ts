@@ -26,7 +26,7 @@ export interface CourseLesson extends DateInfo {
   title: string;
   description: string | null;
   order: number;
-  courseLessonMaterial: CourseLessonMaterial[];
+  courseLessonMaterials: CourseLessonMaterial[];
   tenantId: string;
 }
 

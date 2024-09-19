@@ -7,6 +7,7 @@ import { classNames } from '@/utils/classNames';
 import { FaRegFile } from 'react-icons/fa6';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
 import { useDeleteCourseManagement } from '@/store/server/features/tna/management/mutation';
+import { useRouter } from 'next/navigation';
 
 interface CourseCardProps {
   item: Course;
@@ -15,6 +16,7 @@ interface CourseCardProps {
 }
 
 const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
+  const router = useRouter();
   const { setIsShowCourseSidebar, setCourseId } = useTnaManagementStore();
   const {
     mutate: deleteCourse,
@@ -31,6 +33,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
   return (
     <Spin spinning={isLoading}>
       <Card
+        hoverable
         className={classNames('relative', {}, [className])}
         cover={
           <img
@@ -39,6 +42,9 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
             className="w-full h-[250px] object-cover object-top"
           />
         }
+        onClick={() => {
+          router.push(`/tna/management/${item.id}`);
+        }}
       >
         <div className="absolute top-5 left-5 z-10 py-2 px-3 rounded-lg bg-primary text-white text-sm font-semibold">
           {item.isDraft ? (
