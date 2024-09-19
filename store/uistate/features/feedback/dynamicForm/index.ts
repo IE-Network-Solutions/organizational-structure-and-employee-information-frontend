@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 interface Question {
-  id: number;
+  id?: number;
   fieldType: string;
   question: string;
   required: boolean;
@@ -47,6 +47,15 @@ interface DynamicFormStore {
   setDeleteFormModal: (value: boolean) => void;
   isAddOpen: boolean;
   setIsAddOpen: (value: boolean) => void;
+
+  isChecked: boolean;
+  setIsChecked: (value: boolean) => void;
+  selectedQuestions: string[];
+  setSelectedQuestions: (value: string[]) => void;
+  filteredQuestions: any[];
+  setFilteredQuestions: (value: any[]) => void;
+
+  rows: number;
 }
 
 export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
@@ -106,4 +115,15 @@ export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
   setDeletedItem: (itemId) => set({ deletedItem: itemId }),
   deleteFormModal: false,
   setDeleteFormModal: (value) => set({ deleteFormModal: value }),
+
+  isChecked: false,
+  setIsChecked: (value) => set({ isChecked: value }),
+
+  selectedQuestions: [],
+  setSelectedQuestions: (value) => set({ selectedQuestions: value }),
+
+  filteredQuestions: [],
+  setFilteredQuestions: (value) => set({ filteredQuestions: value }),
+
+  rows: 2,
 }));

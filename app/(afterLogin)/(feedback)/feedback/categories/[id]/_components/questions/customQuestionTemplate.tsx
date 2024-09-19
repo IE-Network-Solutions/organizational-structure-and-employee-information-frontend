@@ -1,73 +1,98 @@
-import React, { CSSProperties } from 'react';
-import { Collapse, theme } from 'antd';
-import { useFetchQuestions } from '@/store/server/features/feedback/question/queries';
-import type { CollapseProps } from 'antd';
-import { CaretRightOutlined } from '@ant-design/icons';
+import React, { useEffect } from 'react';
+import { Checkbox, Collapse } from 'antd';
+import { useFetchQuestionTemplate } from '@/store/server/features/feedback/settings/queries';
+import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
+import { FieldType } from '@/types/enumTypes';
+import MultipleChoiceField from '../../survey/[slug]/_components/questions/multipleChoiceField';
+import ParagraphField from '../../survey/[slug]/_components/questions/paragraphField';
+import CheckboxField from '../../survey/[slug]/_components/questions/checkboxField';
+import ShortTextField from '../../survey/[slug]/_components/questions/shortTextField';
 
-const text = `
-  A dog is a type of domesticated animal.
-  Known for its loyalty and faithfulness,
-  it can be found as a welcome guest in many households across the world.
-`;
-const getItems: (panelStyle: CSSProperties) => CollapseProps['items'] = (
-  panelStyle,
-) => [
-  {
-    key: '1',
-    label: 'This is panel header 1',
-    children: <p className="my-2">{text}</p>,
-  },
-  {
-    key: '2',
-    label: 'This is panel header 2',
-    children: <p>{text}</p>,
-  },
-  {
-    key: '3',
-    label: 'This is panel header 3',
-    children: <p>{text}</p>,
-  },
-];
+const CustomQuestionTemplate: React.FC = () => {
+  const {
+    pageSize,
+    current,
+    selectedQuestions,
+    setSelectedQuestions,
+    setFilteredQuestions,
+  } = useDynamicFormStore();
+  const { data: QuestionTemplate, isLoading: isQuestionTemplateLoading } =
+    useFetchQuestionTemplate(pageSize, current);
 
-interface IdProps {
-  id: string;
-}
-const CustomQuestionTemplate: React.FC<IdProps> = ({ id }) => {
-  const { token } = theme.useToken();
-  const { data: QuestionTemplate } = useFetchQuestions(id);
+  const handleSelectQuestion = (questionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
 
-  const handleQuestionTemplateChange = (key: string | string[]) => {
-    console.log(key);
+    const updatedQuestions = selectedQuestions.includes(questionId)
+      ? selectedQuestions.filter((id) => id !== questionId)
+      : [...selectedQuestions, questionId];
+
+    setSelectedQuestions(updatedQuestions);
   };
 
-  const panelStyle: React.CSSProperties = {
-    marginBottom: 24,
-    background: token.colorFillAlter,
-    borderRadius: token.borderRadiusLG,
-    border: 'none',
-  };
+  useEffect(() => {
+    if (QuestionTemplate) {
+      const filtered = QuestionTemplate?.items?.filter((question: any) =>
+        selectedQuestions.includes(question?.id),
+      );
+      setFilteredQuestions(filtered);
+    }
+  }, [selectedQuestions, QuestionTemplate]);
+
+  if (isQuestionTemplateLoading)
+    return (
+      <div className="text-center my-5"> No custom question available.</div>
+    );
   return (
-    <div>
-      <div className="flex flex-col">
-        <div className="flex items-center justify-start gap-1">
-          <p className="text-sm font-normal text-gray-400">
-            Choose your Custom field
-          </p>
-          <span className="text-red-500 ">*</span>
-        </div>
-        <div className="my-2">
-          <Collapse
-            bordered={false}
-            defaultActiveKey={['1']}
-            expandIcon={({ isActive }) => (
-              <CaretRightOutlined rotate={isActive ? 90 : 0} />
-            )}
-            style={{ background: token.colorBgContainer }}
-            items={getItems(panelStyle)}
-          />
-        </div>
+    <>
+      <div className="flex items-center justify-start gap-1 mb-3">
+        <p className="text-sm font-normal text-gray-400">
+          Choose your Custom field
+        </p>
+        <span className="text-red-500 ">*</span>
       </div>
-    </div>
+      <Collapse defaultActiveKey={['1']}>
+        <Collapse.Panel header="Custom Question Templates" key="0">
+          <div className="flex flex-col">
+            {QuestionTemplate?.items?.map((question: any, index: number) => (
+              <div key={index} className="my-2 mx-4">
+                <Collapse key={question?.id} defaultActiveKey={question?.id}>
+                  <Collapse.Panel
+                    header={
+                      <div className="flex items-center">
+                        <Checkbox
+                          checked={selectedQuestions?.includes(question?.id)}
+                          onClick={(e) => handleSelectQuestion(question?.id, e)}
+                        />
+                        <span className="ml-2">
+                          {question?.question ?? '-'}
+                        </span>
+                      </div>
+                    }
+                    key={question?.id}
+                  >
+                    {question?.fieldType === FieldType.MULTIPLE_CHOICE && (
+                      <MultipleChoiceField
+                        choices={question?.field}
+                        selectedAnswer={[]}
+                      />
+                    )}
+                    {question?.fieldType === FieldType.SHORT_TEXT && (
+                      <ShortTextField />
+                    )}
+                    {question?.fieldType === FieldType.CHECKBOX && (
+                      <CheckboxField options={question?.field} />
+                    )}
+                    {question?.fieldType === FieldType.PARAGRAPH && (
+                      <ParagraphField />
+                    )}
+                  </Collapse.Panel>
+                </Collapse>
+              </div>
+            ))}
+          </div>
+        </Collapse.Panel>
+      </Collapse>
+    </>
   );
 };
 

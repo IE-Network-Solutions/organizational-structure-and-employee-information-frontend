@@ -1,14 +1,5 @@
 import React, { useEffect } from 'react';
-import {
-  Modal,
-  Form,
-  Input,
-  DatePicker,
-  Select,
-  Switch,
-  Button,
-  ModalProps,
-} from 'antd';
+import { Modal, Form, Input, DatePicker, Select, Switch, Button } from 'antd';
 import { CalendarOutlined } from '@ant-design/icons';
 import { useFetchUsers } from '@/store/server/features/feedback/category/queries';
 import { useUpdateForm } from '@/store/server/features/feedback/form/mutation';
@@ -33,6 +24,7 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
   const { data: formDataByID } = useGetFormsByID(selectedFormId);
   const handleSubmit = async () => {
     const values = await formInstance.validateFields();
+
     const updatedData = {
       ...values,
       formCategoryId: id,
@@ -41,6 +33,9 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
       isAnonymous: values.isAnonymous,
       formPermissions: values.users.map((userId: string) => ({ userId })),
     };
+    delete updatedData.surveyStartDate;
+    delete updatedData.surveyEndDate;
+    delete updatedData.users;
     updateForm({ data: updatedData, id: selectedFormId });
     setIsEditModalVisible(false);
   };

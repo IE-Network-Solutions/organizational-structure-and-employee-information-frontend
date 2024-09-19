@@ -35,7 +35,7 @@ const CreateActionPlan = (props: any) => {
   };
   const handleCreateActionPlan = (values: DataItem[]) => {
     const arrayOfObjects = Object.keys(values).map((key: any) => values[key]);
-  
+
     createActionPlanData(
       { formId: props?.id, values: arrayOfObjects }, // Pass both formId and values together
       {
@@ -43,7 +43,7 @@ const CreateActionPlan = (props: any) => {
           form.resetFields(); // Resets the form after successful creation
           setOpen(false); // Closes the modal or form
         },
-      }
+      },
     );
   };
 

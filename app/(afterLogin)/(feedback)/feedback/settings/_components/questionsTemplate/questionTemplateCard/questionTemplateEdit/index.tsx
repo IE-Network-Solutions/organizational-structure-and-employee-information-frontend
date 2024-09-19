@@ -47,9 +47,8 @@ const EditQuestionTemplate: React.FC<{
     };
 
     form.setFieldsValue(formValues);
-  }, [questionModal, question]);
+  }, [questionModal, question, form]);
 
-  console.log(question, 'question');
   return (
     questionModal && (
       <Modal

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useGetUsersById } from '@/store/server/features/feedback/category/queries';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
+import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 
 const { Title, Paragraph } = Typography;
 
@@ -18,15 +19,20 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   onMenuClick,
 }) => {
   const { data: userData } = useGetUsersById();
+
+  const { rows } = CategoriesManagementStore();
+
   return (
     <Card
       hoverable
       className="w-[280px] relative bg-gray-100 h-min-screen flex flex-col justify-between"
     >
       <div className="flex justify-between items-center mb-2">
-        <Title level={4} className="m-0">
-          {category?.name}
-        </Title>
+        <Link href={`/feedback/categories/${category?.id}`}>
+          <Title level={4} className="m-0">
+            {category?.name}
+          </Title>
+        </Link>
         <Dropdown
           menu={{
             items: [
@@ -49,7 +55,9 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
         </Dropdown>
       </div>
       <Link href={`/feedback/categories/${category?.id}`}>
-        <Paragraph className="text-gray-600">{category?.description}</Paragraph>
+        <Paragraph ellipsis={{ rows }} className="text-gray-600 h-[50px]">
+          {category?.description}
+        </Paragraph>
         <div className="flex items-center mt-4">
           <Image
             src={userData?.profileImage ?? Avatar}
@@ -75,7 +83,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
               </div>
             </div>
             <Typography.Text type="secondary">
-              Marketing Manager
+              <span className="capitalize">{userData?.role?.name}</span>
             </Typography.Text>
           </div>
         </div>

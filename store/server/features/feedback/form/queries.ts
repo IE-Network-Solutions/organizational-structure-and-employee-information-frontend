@@ -20,6 +20,9 @@ const fetchForms = async (pageSize: number, currentPage: number) => {
 
 const getFormsByCategoryId = async (
   formCategoryId: string,
+  name: string,
+  description: string,
+  createdBy: string,
   pageSize: number,
   current: number,
 ) => {
@@ -31,7 +34,7 @@ const getFormsByCategoryId = async (
     tenantId: tenantId,
   };
   return crudRequest({
-    url: `${ORG_DEV_URL}/forms/category/${formCategoryId}?limit=${pageSize}&page=${current}`,
+    url: `${ORG_DEV_URL}/forms/category/${formCategoryId}?name=${name}&description=${description}&createdBy=${createdBy}&limit=${pageSize}&page=${current}`,
     method: 'GET',
     headers,
   });
@@ -64,12 +67,23 @@ export const useFetchedForms = (pageSize: number, currentPage: number) => {
 
 export const useGetFormsByCategoryID = (
   formCategoryId: string,
+  name: string,
+  description: string,
+  createdBy: string,
   pageSize: number,
   current: number,
 ) => {
   return useQuery<any>(
-    ['forms', formCategoryId, pageSize, current],
-    () => getFormsByCategoryId(formCategoryId, pageSize, current),
+    ['forms', formCategoryId, name, description, createdBy, pageSize, current],
+    () =>
+      getFormsByCategoryId(
+        formCategoryId,
+        name,
+        description,
+        createdBy,
+        pageSize,
+        current,
+      ),
     {
       keepPreviousData: true,
     },

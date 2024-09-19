@@ -73,6 +73,8 @@ export interface CategoriesUseState {
     key: keyof SearchFormParams,
     value: string | boolean,
   ) => void;
+
+  rows: number;
 }
 
 export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
@@ -151,4 +153,5 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
     set((state) => ({
       searchFormParams: { ...state.searchFormParams, [key]: value },
     })),
+  rows: 2,
 }));

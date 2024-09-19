@@ -11,22 +11,16 @@ import { useQuery } from 'react-query';
 /**
  * @constant {string} token - The authentication token retrieved from the authentication store.
  */
-const token = useAuthenticationStore.getState().token;
 
 /**
  * @constant {string} tenantId - The tenant ID retrieved from the authentication store.
  */
-const tenantId = useAuthenticationStore.getState().tenantId;
 
 /**
  * @constant {Object} headers - Headers for API requests, including tenant ID and Bearer token for authorization.
  * @property {string} tenantId - The tenant ID for API requests.
  * @property {string} Authorization - Authorization header with Bearer token.
  */
-const headers = {
-  tenantId,
-  Authorization: `Bearer ${token}`,
-};
 
 /**
  * Fetches the question templates from the API, using pagination details such as page size and current page.
@@ -38,6 +32,14 @@ const headers = {
  * @returns {Promise<any>} The response from the API.
  */
 const fetchQuestionTemplate = async (pageSize: number, current: number) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+    createdById: userId || '',
+  };
   return await crudRequest({
     url: `${ORG_DEV_URL}/custom-fields?page=${current}&limit=${pageSize}`,
     method: 'GET',

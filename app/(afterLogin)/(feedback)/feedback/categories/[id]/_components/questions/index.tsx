@@ -16,18 +16,22 @@ const Question: React.FC<any> = (props) => {
   const [form] = Form.useForm();
 
   const { mutate: AddQuestion } = useCreateQuestion();
-  const { isDrawerOpen, questions, addQuestion, setIsDrawerOpen } =
-    useDynamicFormStore();
+  const {
+    isDrawerOpen,
+    questions,
+    addQuestion,
+    setIsDrawerOpen,
+    filteredQuestions,
+  } = useDynamicFormStore();
 
   const handleQuestionStateUpdate = useDebounce(addQuestion, 1500);
-  console.log(props, 'props');
 
   const handlePublish = async () => {
     try {
       const formattedValues = {
         formId: props?.selectedFormId,
-        questions: questions.map(
-          (e: { required: any; field: any[] }, i: number) => {
+        questions: [
+          ...questions.map((e: { required: any; field: any[] }, i: number) => {
             return {
               ...e,
               order: i + 1,
@@ -39,8 +43,17 @@ const Question: React.FC<any> = (props) => {
                 };
               }),
             };
-          },
-        ),
+          }),
+          ...filteredQuestions.map(
+            (e: { required: any; field: any[] }, i: number) => {
+              return {
+                ...e,
+                order: questions.length + i + 1,
+                required: e.required,
+              };
+            },
+          ),
+        ],
       };
       AddQuestion(formattedValues);
       setIsDrawerOpen(false);
@@ -85,6 +98,7 @@ const Question: React.FC<any> = (props) => {
           onClose={props?.onClose}
           modalHeader={drawerHeader}
           width="40%"
+          footer={false}
         >
           <Form
             form={form}

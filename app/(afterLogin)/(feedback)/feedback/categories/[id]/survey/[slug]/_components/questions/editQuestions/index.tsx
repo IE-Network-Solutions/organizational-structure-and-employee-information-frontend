@@ -20,7 +20,6 @@ const EditQuestion = ({ id }: Params) => {
   const { data: questionsById } = useFetchedQuestionsByFormId(id, searchTitle);
   const { mutate: updateQuestion } = useUpdateQuestions();
 
-  console.log(questionsById, 'questionsById');
   const selectedQuestion = questionsById?.items.find(
     (question: any) => question.id === editItemId,
   );
@@ -40,7 +39,6 @@ const EditQuestion = ({ id }: Params) => {
           };
         }) || [],
     };
-    console.log(updatedData, 'updateeeed');
     updateQuestion({ data: updatedData, id: editItemId });
     setIsEditModalOpen(false);
   };
