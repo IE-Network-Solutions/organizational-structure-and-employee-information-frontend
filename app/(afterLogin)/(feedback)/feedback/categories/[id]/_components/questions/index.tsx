@@ -11,8 +11,12 @@ import { v4 as uuidv4 } from 'uuid';
 import CustomQuestionTemplate from './customQuestionTemplate';
 
 const { Option } = Select;
+interface Props {
+  selectedFormId: string;
+  onClose: () => void;
+}
 
-const Question: React.FC<any> = (props) => {
+const Question: React.FC<Props> = (props) => {
   const [form] = Form.useForm();
 
   const { mutate: AddQuestion } = useCreateQuestion();
@@ -114,7 +118,7 @@ const Question: React.FC<any> = (props) => {
             }}
           >
             <Form.Item>
-              <CustomQuestionTemplate id={props?.selectedFormId} />
+              <CustomQuestionTemplate />
             </Form.Item>
             <Form.List
               name="questions"

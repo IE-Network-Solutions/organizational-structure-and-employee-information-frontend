@@ -8,7 +8,7 @@ import ParagraphField from '../../survey/[slug]/_components/questions/paragraphF
 import CheckboxField from '../../survey/[slug]/_components/questions/checkboxField';
 import ShortTextField from '../../survey/[slug]/_components/questions/shortTextField';
 
-const CustomQuestionTemplate: React.FC = () => {
+const CustomQuestionTemplate = () => {
   const {
     pageSize,
     current,
