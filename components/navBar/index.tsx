@@ -111,6 +111,34 @@ const items: MenuItem[] = [
     label: 'Activity',
   },
   {
+    key: '/tna',
+    icon: <BarChartOutlined />,
+    className: 'font-bold',
+    label: 'Training & Learning',
+    children: [
+      {
+        key: '/tna/management',
+        className: 'font-bold',
+        label: 'Training Management',
+      },
+      {
+        key: '/tna/review',
+        className: 'font-bold',
+        label: 'TNA',
+      },
+      {
+        key: '/tna/pgp',
+        className: 'font-bold',
+        label: 'PGP',
+      },
+      {
+        key: '/tna/settings/course-category',
+        className: 'font-bold',
+        label: 'Settings',
+      },
+    ],
+  },
+  {
     key: '/feedback ',
     label: 'Feedback',
     icon: <UserOutlined />,

@@ -1,6 +1,6 @@
 import { TbLock } from 'react-icons/tb';
 import { GoLocation } from 'react-icons/go';
-import ActionButton from '@/components/common/ActionButton';
+import ActionButton from '@/components/common/actionButton';
 import { AllowedArea } from '@/types/timesheet/settings';
 import { FC } from 'react';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';

@@ -1,6 +1,6 @@
 import { Space, Spin, Switch } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import ActionButton from '@/components/common/ActionButton';
+import ActionButton from '@/components/common/actionButton';
 import { CarryOverRule } from '@/types/timesheet/settings';
 import { FC } from 'react';
 import {

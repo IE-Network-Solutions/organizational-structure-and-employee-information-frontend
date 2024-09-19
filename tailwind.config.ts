@@ -40,6 +40,7 @@ const config: Config = {
       },
       gridTemplateColumns: {
         'leave-balance-slider': '40px minmax(0, 1fr) 40px',
+        'course-list': 'repeat(auto-fill, minmax(300px, 1fr))',
       },
     },
   },

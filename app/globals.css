@@ -155,3 +155,35 @@ h6 {
   font-family: 'Manrope', sans-serif;
   @apply text-gray-900 font-normal text-sm;
 }
+
+.ant-form-item-control .control {
+  @apply mt-2.5 h-[54px] w-full;
+}
+
+.ant-form-item-control .control-number {
+  @apply mt-2.5 py-[11px] w-full;
+}
+
+.ant-form-item-control .control-tarea {
+  @apply w-full py-4 px-5 mt-2.5;
+}
+
+.form-item {
+  @apply font-semibold text-xs;
+}
+
+.menu-item-label {
+  @apply font-bold text-sm text-gray-900;
+}
+
+.menu-item-icon {
+  @apply text-[#4DAEF0] !important;
+}
+
+.ant-collapse>.ant-collapse-item >.ant-collapse-header {
+  align-items: center !important;
+}
+
+.page-wrap {
+  @apply h-auto w-auto pr-6 pb-6 pl-3;
+}

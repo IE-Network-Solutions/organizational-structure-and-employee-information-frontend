@@ -3,7 +3,7 @@ import React from 'react';
 import { classNames } from '@/utils/classNames';
 
 interface PageHeaderProps {
-  title: string;
+  title: React.ReactNode;
   description?: string;
   children?: React.ReactNode;
   size?: 'small' | 'medium';
