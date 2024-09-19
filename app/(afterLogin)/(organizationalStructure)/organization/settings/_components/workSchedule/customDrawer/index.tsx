@@ -10,6 +10,7 @@ import { Form } from 'antd';
 import React, { useEffect } from 'react';
 
 const CustomWorkingScheduleDrawer: React.FC = () => {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const {
     isOpen,
     workingHour,
@@ -18,6 +19,7 @@ const CustomWorkingScheduleDrawer: React.FC = () => {
     isEditMode,
     scheduleName,
   } = useWorkScheduleDrawerStore();
+  // eslint-enable-next-line @typescript-eslint/naming-convention
 
   const { detail } = useScheduleStore();
 
