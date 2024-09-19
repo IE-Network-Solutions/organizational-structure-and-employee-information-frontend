@@ -128,15 +128,18 @@ const Questions = ({ id }: Params) => {
             <EmptyImage />
           )}
           {questionsData && questionsData?.meta.totalPages !== 0 && (
-            <Pagination
-              className="flex justify-end"
-              total={questionsData?.meta.totalPages}
-              current={current}
-              pageSize={pageSize}
-              showSizeChanger={true}
-              onChange={onPageChange}
-              onShowSizeChange={onPageChange}
-            />
+            <Row justify="end">
+              <Col>
+                <Pagination
+                  total={questionsData?.meta.totalPages}
+                  current={current}
+                  pageSize={pageSize}
+                  showSizeChanger={true}
+                  onChange={onPageChange}
+                  onShowSizeChange={onPageChange}
+                />
+              </Col>
+            </Row>
           )}
         </>
       </Form>

@@ -10,13 +10,40 @@ import { DataItem } from './interface';
  * @param newPost The data for the new post
  * @returns The response data from the API
  */
-const createActionPlan = async ({ formId, values }: { formId: string, values: DataItem[] }) => {
+const createActionPlan = async ({
+  formId,
+  values,
+}: {
+  formId: string;
+  values: DataItem[];
+}) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
     url: `${ORG_DEV_URL}/action-plans/many/${formId}`,
     method: 'POST',
+    data: values,
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId,
+    },
+  });
+};
+
+const updateActionPlan = async ({
+  actionPlanId,
+  values,
+}: {
+  actionPlanId: any;
+  values: any;
+}) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/action-plans/${actionPlanId}`,
+    method: 'put',
     data: values,
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -56,6 +83,25 @@ export const useCreateActionPlan = () => {
   });
 };
 
+export const useUpdateActionPlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(updateActionPlan, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('actionPlans');
+      NotificationMessage.success({
+        message: 'Successfully updated',
+        description: 'Action plan updated successfully created',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Creation Failed',
+        description: 'Action plan creation failed',
+      });
+    },
+  });
+};
 export const useDeleteActionPlanById = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteActionPlan, {

@@ -18,17 +18,19 @@ interface Params {
 }
 
 const IndividualResponses = ({ id }: Params) => {
-  const { setCurrent, current, pageSize, setPageSize } =
+  const { setCurrent, current, pageSize, selectedUser, setPageSize } =
     useOrganizationalDevelopment();
-  const { data: individualresponses } = useFetchedIndividualResponses(id, null);
-
+  const { data: individualResponses } = useFetchedIndividualResponses(
+    id,
+    selectedUser,
+  );
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrent(page);
     if (pageSize) {
       setPageSize(pageSize);
     }
   };
-  const data = individualresponses;
+  const data = individualResponses;
   return (
     <div>
       <Form
@@ -38,9 +40,9 @@ const IndividualResponses = ({ id }: Params) => {
         style={{ width: '100%' }}
       >
         <>
-          {data && data.length !== 0 ? (
+          {data && data?.length !== 0 ? (
             <>
-              {data.map((q: any) => (
+              {data?.map((q: any) => (
                 <Row gutter={16} key={q.id}>
                   <Col xs={24} sm={24}>
                     <Form.Item
@@ -98,7 +100,9 @@ const IndividualResponses = ({ id }: Params) => {
               />
             </>
           ) : (
-            <EmptyImage />
+            <div className="flex justify-start">
+              <EmptyImage />
+            </div>
           )}
         </>
       </Form>

@@ -18,15 +18,17 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({
   choices,
   selectedAnswer,
 }) => (
-  <Row gutter={16} className="ml-1 mt-2">
+  <Row gutter={[16, 16]} className="mt-2">
     {choices?.map((choice, index) => (
       <Row
         key={index}
         style={{ marginBottom: '10px' }}
         className="flex justify-start w-full"
       >
+        {/* Responsive numbering column */}
         <Col
-          span={1}
+          xs={2}
+          sm={1} // Full width on mobile, reduced width on larger screens
           className={`${
             selectedAnswer?.some((item) => item.id === choice.id)
               ? 'bg-green-400 text-white'
@@ -35,9 +37,12 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({
         >
           {index + 1}
         </Col>
+
+        {/* Responsive text column */}
         <Col
-          span={22}
-          className="flex justify-start items-center rounded ml-2 border-[1px] px-1 py-1 w-1/2 font-normal"
+          xs={20}
+          sm={22} // Full width on mobile, reduced width on larger screens
+          className="flex justify-start items-center rounded ml-2 border-2 px-2 py-1"
         >
           {choice.value}
         </Col>
