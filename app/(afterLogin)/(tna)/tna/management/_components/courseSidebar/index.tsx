@@ -3,21 +3,61 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Input, Select } from 'antd';
+import { Button, Form, Input, Select } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
-import { formatToOptions } from '@/helpers/formatTo';
+import { formatLinkToUploadFile, formatToOptions } from '@/helpers/formatTo';
 import CustomUpload from '@/components/form/customUpload';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSetCourseManagement } from '@/store/server/features/tna/management/mutation';
+import { localUserID } from '@/utils/constants';
+import { useGetCoursesManagement } from '@/store/server/features/tna/management/queries';
 
 const CourseCategorySidebar = () => {
+  const [isDraft, setIsDraft] = useState(false);
   const {
     isShowCourseSidebar: isShow,
     setIsShowCourseSidebar: setIsShow,
     courseCategory,
+    courseId,
+    setCourseId,
   } = useTnaManagementStore();
+  const { mutate: setCourse, isLoading, isSuccess } = useSetCourseManagement();
+  const {
+    data: coursesData,
+    isFetching,
+    refetch,
+  } = useGetCoursesManagement(
+    { filter: { id: [courseId ?? ''] } },
+    false,
+    false,
+  );
 
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (courseId) {
+      refetch();
+    }
+  }, [courseId]);
+
+  useEffect(() => {
+    if (courseId && coursesData?.items?.length) {
+      const item = coursesData.items[0];
+      form.setFieldValue('title', item.title);
+      form.setFieldValue('courseCategoryId', item.courseCategoryId);
+      form.setFieldValue('thumbnail', [
+        formatLinkToUploadFile(item.thumbnail ?? ''),
+      ]);
+      form.setFieldValue('overview', item.overview);
+    }
+  }, [coursesData]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      onClose();
+    }
+  }, [isSuccess]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -25,6 +65,7 @@ const CourseCategorySidebar = () => {
       key: 'cancel',
       className: 'h-14',
       size: 'large',
+      loading: isLoading || isFetching,
       onClick: () => onClose(),
     },
     {
@@ -33,13 +74,38 @@ const CourseCategorySidebar = () => {
       className: 'h-14',
       type: 'primary',
       size: 'large',
-      onClick: () => onClose(),
+
+      loading: isLoading || isFetching,
+      onClick: () => {
+        setIsDraft(false);
+        form.submit();
+      },
     },
   ];
 
   const onClose = () => {
+    setCourseId(null);
     form.resetFields();
+    setIsDraft(false);
     setIsShow(false);
+  };
+
+  const onFinish = () => {
+    const value = form.getFieldsValue();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { courseCategory, courseLessons, ...otherData } =
+      coursesData?.items[0] ?? {};
+    setCourse([
+      {
+        ...(otherData && otherData),
+        title: value.title,
+        courseCategoryId: value.courseCategoryId,
+        overview: value.overview,
+        thumbnail: value.thumbnail[0]['response'],
+        isDraft: isDraft,
+        preparedBy: localUserID,
+      },
+    ]);
   };
 
   return (
@@ -55,7 +121,13 @@ const CourseCategorySidebar = () => {
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="50%"
       >
-        <Form layout="vertical" requiredMark={CustomLabel}>
+        <Form
+          layout="vertical"
+          form={form}
+          disabled={isLoading || isFetching}
+          onFinish={onFinish}
+          requiredMark={CustomLabel}
+        >
           <Form.Item
             name="title"
             label="TNA Name"
@@ -65,7 +137,7 @@ const CourseCategorySidebar = () => {
             <Input className="control" />
           </Form.Item>
           <Form.Item
-            name="category"
+            name="courseCategoryId"
             label="Category"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
@@ -108,6 +180,19 @@ const CourseCategorySidebar = () => {
             />
           </Form.Item>
         </Form>
+        <div className="flex justify-center mt-10">
+          <Button
+            type="primary"
+            htmlType="button"
+            loading={isLoading}
+            onClick={() => {
+              setIsDraft(true);
+              form.submit();
+            }}
+          >
+            Save Draft
+          </Button>
+        </div>
       </CustomDrawerLayout>
     )
   );

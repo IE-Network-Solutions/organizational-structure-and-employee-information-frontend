@@ -4,11 +4,13 @@ import { CourseCategory } from '@/types/tna/course';
 type TnaManagementState = {
   isShowCourseSidebar: boolean;
   courseCategory: CourseCategory[];
+  courseId: string | null;
 };
 
 type TnaManagementAction = {
   setIsShowCourseSidebar: (isShowCourseSidebar: boolean) => void;
   setCourseCategory: (courseCategory: CourseCategory[]) => void;
+  setCourseId: (courseId: string | null) => void;
 };
 
 const tnaManagementSlice: StateCreator<
@@ -22,6 +24,11 @@ const tnaManagementSlice: StateCreator<
   courseCategory: [],
   setCourseCategory: (courseCategory: CourseCategory[]) => {
     set({ courseCategory });
+  },
+
+  courseId: null,
+  setCourseId: (courseId: string | null) => {
+    set({ courseId });
   },
 });
 
