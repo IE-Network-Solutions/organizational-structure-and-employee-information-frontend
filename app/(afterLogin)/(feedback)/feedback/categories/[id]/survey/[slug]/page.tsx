@@ -3,7 +3,10 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
 import React from 'react';
 import { PlusOutlined } from '@ant-design/icons';
-import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
+import {
+  GraphType,
+  useOrganizationalDevelopment,
+} from '@/store/uistate/features/organizationalDevelopment';
 import { Col, Row, Select, Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import { Input } from 'antd';
@@ -22,7 +25,7 @@ interface FormDetailProps {
   params: Params;
 }
 function Page({ params: { slug } }: FormDetailProps) {
-  const { activeTab, setActiveTab, setOpen, setSelectedUser } =
+  const { activeTab, setActiveTab, setOpen, setGraphType, setSelectedUser } =
     useOrganizationalDevelopment();
   const { data: employeeData, isLoading: userLoading } = useGetAllUsers();
   const handleUserChange = (val: string) => {
@@ -70,6 +73,9 @@ function Page({ params: { slug } }: FormDetailProps) {
       className: 'text-gray-950 font-semibold',
     },
   ];
+  const handleChangeGraphType = (e: GraphType) => {
+    setGraphType(e);
+  };
   const showDrawer = () => {
     setOpen(true);
   };
@@ -101,7 +107,7 @@ function Page({ params: { slug } }: FormDetailProps) {
           onClick={showDrawer}
           className="bg-blue-600 hover:bg-blue-700"
         />
-        <CreateActionPlan onClose={onClose} id={slug}/>
+        <CreateActionPlan onClose={onClose} id={slug} />
       </div>
       <Row justify="center" style={{ width: '100%' }}>
         <Col span={activeTab === '2' || activeTab === '3' ? 16 : 24}>
@@ -143,14 +149,14 @@ function Page({ params: { slug } }: FormDetailProps) {
             <Select
               id={`selectStatusChartType`}
               placeholder="All Status"
-              // onChange={handleStatusChange}
+              onChange={handleChangeGraphType}
               allowClear
               className="w-full h-[48px] my-4"
             >
-              <Option key="active" value={'barGraph'}>
+              <Option key="active" value="barGraph">
                 Bar graph
               </Option>
-              <Option key="active" value={'pieChart'}>
+              <Option key="active" value="pieChart">
                 Pie chart
               </Option>
             </Select>
@@ -164,23 +170,6 @@ function Page({ params: { slug } }: FormDetailProps) {
           items={items}
           onChange={onChange}
         />
-        {activeTab === '3' && (
-          <div className="ml-10">
-            <Select
-              id={`selectStatusChartType`}
-              placeholder="All Status"
-              allowClear
-              className="w-full h-10"
-            >
-              <Option key="active" value={'pieChart'}>
-                Pie chart
-              </Option>
-              <Option key="inactive" value={'lineGraph'}>
-                Line Graph
-              </Option>
-            </Select>
-          </div>
-        )}
       </div>
     </div>
   );

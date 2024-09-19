@@ -5,7 +5,7 @@ import { useGetAllActionPlan } from '@/store/server/features/organization-develo
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import { Avatar, Button, Card, List } from 'antd';
 import React from 'react';
-import { FaChevronUp } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { MdOutlineModeEditOutline } from 'react-icons/md';
 import { RiDeleteBin5Line } from 'react-icons/ri';
 
@@ -15,8 +15,15 @@ interface Params {
 function ActionPlans({ id }: Params) {
   const { data: actionPlanData } = useGetAllActionPlan(id);
   const { data: employeeData, isLoading: userLoading } = useGetAllUsers();
-  const { setSelectedActionPlan, selectedActionPlan, setOpen } =
-    useOrganizationalDevelopment();
+  const {
+    setSelectedActionPlan,
+    selectedActionPlan,
+    visibleItems,
+    setVisibleItems,
+    setNumberOfActionPlan,
+    setSelectedEditActionPlan,
+    setOpen,
+  } = useOrganizationalDevelopment();
   const { mutate: deleteEmployeeData } = useDeleteActionPlanById();
   const confirmDeleteActionPlanHandler = () => {
     if (selectedActionPlan) {
@@ -31,7 +38,9 @@ function ActionPlans({ id }: Params) {
   };
   const handleEditActionPlan = (item: string) => {
     setOpen(true);
-    setSelectedActionPlan(item);
+    setNumberOfActionPlan(1);
+    setSelectedEditActionPlan(null);
+    setSelectedEditActionPlan(item);
   };
   return (
     <div>
@@ -40,10 +49,17 @@ function ActionPlans({ id }: Params) {
         itemLayout="horizontal"
         dataSource={actionPlanData}
         renderItem={(item: any) => (
-          <Card>
-            <List.Item className="flex justify-between gap-2">
+          <Card key={item.id}>
+            <List.Item
+              className="flex justify-between gap-2 cursor-pointer"
+              onClick={() => setVisibleItems(item.id)} // Toggle visibility for this item
+            >
               <div className="flex justify-start gap-4">
-                <FaChevronUp className="font-bold" />
+                {visibleItems[item.id] ? (
+                  <FaChevronUp className="font-bold" />
+                ) : (
+                  <FaChevronDown className="font-bold" />
+                )}
                 <div>{item?.actionToBeTaken}</div>
               </div>
               <div className="flex gap-2">
@@ -62,29 +78,32 @@ function ActionPlans({ id }: Params) {
                 </Button>
               </div>
             </List.Item>
-            <List.Item className="flex justify-start gap-2">
-              <div className="flex flex-col text-gray-400 text-sm">
-                <p>Responsible Person</p>
-                <p>Description</p>
-              </div>
-              {employeeData?.items?.map((user: any) => {
-                return (
-                  user?.id === item.responsiblePerson && (
-                    <List.Item.Meta
-                      avatar={
-                        <Avatar className="mt-2" src={user?.profileImage} />
-                      }
-                      title={
-                        <span className="text-sm">
-                          {user?.firstName + ' ' + user?.lastName}
-                        </span>
-                      }
-                      description={item.description}
-                    />
-                  )
-                );
-              })}
-            </List.Item>
+            {visibleItems[item.id] && (
+              <List.Item className="flex justify-start gap-2">
+                <div className="flex flex-col text-gray-400 text-sm">
+                  <p>Responsible Person</p>
+                  <p>Description</p>
+                </div>
+                {employeeData?.items?.map((user: any) => {
+                  return (
+                    user?.id === item.responsiblePerson && (
+                      <List.Item.Meta
+                        key={user.id}
+                        avatar={
+                          <Avatar className="mt-2" src={user?.profileImage} />
+                        }
+                        title={
+                          <span className="text-sm">
+                            {user?.firstName + ' ' + user?.lastName}
+                          </span>
+                        }
+                        description={item.description}
+                      />
+                    )
+                  );
+                })}
+              </List.Item>
+            )}
           </Card>
         )}
       />

@@ -10,8 +10,10 @@ interface CheckboxFieldProps {
 const CheckboxField: React.FC<CheckboxFieldProps> = ({
   options,
   selectedOptions,
-}) =>  <Checkbox.Group
-        options={options.map(item=>({label:item.value,value:item.id}))}
-        value={selectedOptions?.map(item=>item.id)}
-        />
+}) => (
+  <Checkbox.Group
+    options={options.map((item) => ({ label: item.value, value: item.id }))}
+    value={selectedOptions?.map((item) => item.id)}
+  />
+);
 export default CheckboxField;

@@ -1,22 +1,34 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Card, Col, Form, Input, Popconfirm, Row, Select } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { FaPlus } from 'react-icons/fa';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
-import { useCreateActionPlan } from '@/store/server/features/organization-development/categories/mutation';
-import { DataItem } from '@/store/server/features/organization-development/categories/interface';
+import {
+  useCreateActionPlan,
+  useUpdateActionPlan,
+} from '@/store/server/features/organization-development/categories/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { TiDeleteOutline } from 'react-icons/ti';
+import { useGetActionPlanById } from '@/store/server/features/organization-development/categories/queries';
 
 const { Option } = Select;
 
 const CreateActionPlan = (props: any) => {
   const [form] = Form.useForm();
-  const { numberOfActionPlan, setNumberOfActionPlan, open, setOpen } =
-    useOrganizationalDevelopment();
+  const {
+    numberOfActionPlan,
+    setNumberOfActionPlan,
+    selectedEditActionPlan,
+    setSelectedEditActionPlan,
+    open,
+    setOpen,
+  } = useOrganizationalDevelopment();
   const { mutate: createActionPlanData, isLoading } = useCreateActionPlan();
+  const { mutate: updateActionPlanData } = useUpdateActionPlan();
+  const { data: singleActionPlanData } = useGetActionPlanById(
+    selectedEditActionPlan || '',
+  );
   const { data: employeeData, isLoading: userLoading } = useGetAllUsers();
-  // const {data:actionPlanData}=useGetAllActionPlan("8aa45ab7-87e9-4d12-bb1b-fa613cf91411");
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -30,11 +42,11 @@ const CreateActionPlan = (props: any) => {
   const handleCancel = () => {
     form.resetFields();
     setOpen(false);
+    setSelectedEditActionPlan(null);
     setNumberOfActionPlan(1);
   };
-  const handleCreateActionPlan = (values: DataItem[]) => {
+  const handleOnFinishActionPlan = (values: any) => {
     const arrayOfObjects = Object.keys(values).map((key: any) => values[key]);
-  
     createActionPlanData(
       { formId: props?.id, values: arrayOfObjects }, // Pass both formId and values together
       {
@@ -42,10 +54,39 @@ const CreateActionPlan = (props: any) => {
           form.resetFields(); // Resets the form after successful creation
           setOpen(false); // Closes the modal or form
         },
-      }
+      },
     );
   };
+  useEffect(() => {
+    if (selectedEditActionPlan && singleActionPlanData) {
+      form.setFieldsValue({
+        0: {
+          actionToBeTaken: singleActionPlanData?.actionToBeTaken || '',
+          description: singleActionPlanData?.description || '',
+          responsiblePerson: singleActionPlanData?.responsiblePerson || '',
+          status: singleActionPlanData?.status || '',
+        },
+      });
+    }
+  }, [selectedEditActionPlan, singleActionPlanData, form]);
 
+  const handleOnUpdateActionPlan = (values: any) => {
+    updateActionPlanData(
+      { actionPlanId: selectedEditActionPlan, values: values[0] }, // Pass both formId and values together
+      {
+        onSuccess: () => {
+          form.resetFields();
+          setSelectedEditActionPlan(null); // Resets the selected action plan after successful update
+          setOpen(false); // Closes the modal or form
+        },
+      },
+    );
+  };
+  const handleOnFinish = (values: any) => {
+    selectedEditActionPlan
+      ? handleOnUpdateActionPlan(values)
+      : handleOnFinishActionPlan(values);
+  };
   return (
     open && (
       <CustomDrawerLayout
@@ -60,7 +101,7 @@ const CreateActionPlan = (props: any) => {
           autoComplete="off"
           style={{ maxWidth: '100%' }}
           layout="vertical"
-          onFinish={handleCreateActionPlan}
+          onFinish={handleOnFinish}
         >
           {/* eslint-disable @typescript-eslint/naming-convention  */}
           {Array.from({ length: numberOfActionPlan }, (__, index) => (
@@ -84,6 +125,10 @@ const CreateActionPlan = (props: any) => {
                     id={`actionPlanId${index + 1}`}
                     rules={[
                       { required: true, message: 'action title is required' },
+                      {
+                        max: 40, // Set the maximum number of characters allowed
+                        message: 'Action title cannot exceed 40 characters',
+                      },
                     ]}
                   >
                     <Input />
@@ -99,6 +144,10 @@ const CreateActionPlan = (props: any) => {
                     id={`actionPlanDescription${index + 1}`}
                     rules={[
                       { required: true, message: 'description is required' },
+                      {
+                        max: 40, // Set the maximum number of characters allowed
+                        message: 'description cannot exceed 40 characters',
+                      },
                     ]}
                   >
                     <Input.TextArea rows={6} />
@@ -206,7 +255,7 @@ const CreateActionPlan = (props: any) => {
                 className="px-6 py-3 text-xs font-bold"
                 type="primary"
               >
-                Create
+                {selectedEditActionPlan ? 'Edit' : 'Create'}
               </Button>
             </Col>
           </Row>

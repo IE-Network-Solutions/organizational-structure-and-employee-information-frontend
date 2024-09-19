@@ -27,67 +27,69 @@ const Questions = ({ id }: Params) => {
       setPageSize(pageSize);
     }
   };
-    return (
-      <div style={{ width: '100%' }}>
-        <Form
-          layout="vertical"
-          style={{ width: '100%' }}
-        >
-          <>
-            {questionsData && questionsData?.meta?.totalPages !== 0 ? (
-              questionsData?.items?.map((q: QuestionsType) => (
-                <Row gutter={[16, 16]} key={q.id}>
-                  <Col xs={24} sm={24} md={12} lg={8}>
-                    <Form.Item
-                      label={q.question}
-                      key={q.id}
-                      required
-                      labelCol={{ span: 24 }} // Ensures full width for labels on small screens
-                      wrapperCol={{ span: 24 }} // Full width for inputs on small screens
-                    >
-                      {q?.fieldType === FieldType.MULTIPLE_CHOICE && (
-                        <MultipleChoiceField
-                          choices={q?.field}
-                          selectedAnswer={[]}
-                        />
-                      )}
-                      {q?.fieldType === FieldType.SHORT_TEXT && <ShortTextField />}
-                      {q?.fieldType === FieldType.CHECKBOX && (
-                        <CheckboxField options={q?.field} selectedOptions={q?.responseDetail} />
-                      )}
-                      {q?.fieldType === FieldType.PARAGRAPH && <ParagraphField />}
-                      {q?.fieldType === FieldType.TIME && <TimeField />}
-                      {q?.fieldType === FieldType.DROPDOWN && (
-                        <DropdownField options={q?.field} />
-                      )}
-                      {q?.fieldType === FieldType.RADIO && (
-                        <RadioField options={q?.field} />
-                      )}
-                    </Form.Item>
-                  </Col>
-                </Row>
-              ))
-            ) : (
-              <EmptyImage />
-            )}
-            {questionsData && questionsData?.meta.totalPages !== 0 && (
-              <Row justify="end">
-                <Col>
-                  <Pagination
-                    total={questionsData?.meta.totalPages}
-                    current={current}
-                    pageSize={pageSize}
-                    showSizeChanger={true}
-                    onChange={onPageChange}
-                    onShowSizeChange={onPageChange}
-                  />
+  return (
+    <div style={{ width: '100%' }}>
+      <Form layout="vertical" style={{ width: '100%' }}>
+        <>
+          {questionsData && questionsData?.meta?.totalPages !== 0 ? (
+            questionsData?.items?.map((q: QuestionsType) => (
+              <Row gutter={[16, 16]} key={q.id}>
+                <Col xs={24} sm={24} md={12} lg={8}>
+                  <Form.Item
+                    label={q.question}
+                    key={q.id}
+                    required
+                    labelCol={{ span: 24 }} // Ensures full width for labels on small screens
+                    wrapperCol={{ span: 24 }} // Full width for inputs on small screens
+                  >
+                    {q?.fieldType === FieldType.MULTIPLE_CHOICE && (
+                      <MultipleChoiceField
+                        choices={q?.field}
+                        selectedAnswer={[]}
+                      />
+                    )}
+                    {q?.fieldType === FieldType.SHORT_TEXT && (
+                      <ShortTextField />
+                    )}
+                    {q?.fieldType === FieldType.CHECKBOX && (
+                      <CheckboxField
+                        options={q?.field}
+                        selectedOptions={q?.responseDetail}
+                      />
+                    )}
+                    {q?.fieldType === FieldType.PARAGRAPH && <ParagraphField />}
+                    {q?.fieldType === FieldType.TIME && <TimeField />}
+                    {q?.fieldType === FieldType.DROPDOWN && (
+                      <DropdownField options={q?.field} />
+                    )}
+                    {q?.fieldType === FieldType.RADIO && (
+                      <RadioField options={q?.field} />
+                    )}
+                  </Form.Item>
                 </Col>
               </Row>
-            )}
-          </>
-        </Form>
-      </div>
-    );
-  };
+            ))
+          ) : (
+            <EmptyImage />
+          )}
+          {questionsData && questionsData?.meta.totalPages !== 0 && (
+            <Row justify="end">
+              <Col>
+                <Pagination
+                  total={questionsData?.meta.totalPages}
+                  current={current}
+                  pageSize={pageSize}
+                  showSizeChanger={true}
+                  onChange={onPageChange}
+                  onShowSizeChange={onPageChange}
+                />
+              </Col>
+            </Row>
+          )}
+        </>
+      </Form>
+    </div>
+  );
+};
 
 export default Questions;

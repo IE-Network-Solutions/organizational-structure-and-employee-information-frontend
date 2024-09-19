@@ -17,7 +17,7 @@ export type QuestionsType = {
   field: any; // Update this with the correct type if known
   order: number;
   tenantId: string;
-  responseDetail?:any[]
+  responseDetail?: any[];
 };
 
 export type Meta = {

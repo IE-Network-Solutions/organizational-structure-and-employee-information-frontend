@@ -40,7 +40,7 @@ const fetchQuestionsByFormId = async (
 };
 const fetchIndividualResponses = async (
   formId: string,
-  userId: string | null,
+  // userId: string | null,
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -89,7 +89,31 @@ const fetchAllActionPlans = async (formId: string) => {
     },
   });
 };
+const fetchAllSummaryResultByFormId = async (formId: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${ORG_DEV_URL}/responses/summary/${formId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+  });
+};
 
+const fetchActionPlanById = async (actionPlanId: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${ORG_DEV_URL}/action-plans/${actionPlanId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+  });
+};
 export const useGetAllActionPlan = (formId: string) => {
   return useQuery<any>(['actionPlans', formId], () =>
     fetchAllActionPlans(formId),
@@ -114,8 +138,8 @@ export const useFetchedIndividualResponses = (
   userId: string | null,
 ) => {
   return useQuery<any>(
-    ['individualResponses', formId, userId],
-    () => fetchIndividualResponses(formId, userId),
+    ['individualResponses', formId],
+    () => fetchIndividualResponses(formId),
     // {
     //   enabled: !!userId, // Only run the query when userId is not null or undefined
     // },
@@ -128,5 +152,21 @@ export const useFetchedAllIndividualResponses = () => {
 export const useFetchedAllIndividualResponsesByFormId = (formId: string) => {
   return useQuery<any>(['allIndividualResponses', formId], () =>
     fetchAllIndividualResponsesByformId(formId),
+  );
+};
+
+export const useGetAllSummaryResultByformId = (formId: string) => {
+  return useQuery<any>(['allSummaryResult', formId], () =>
+    fetchAllSummaryResultByFormId(formId),
+  );
+};
+
+export const useGetActionPlanById = (actionPlanId: string) => {
+  return useQuery<any>(
+    ['actionPlan', actionPlanId],
+    () => fetchActionPlanById(actionPlanId),
+    {
+      enabled: actionPlanId !== null && actionPlanId !== '', // Query enabled if plaid is not null and not an empty string
+    },
   );
 };

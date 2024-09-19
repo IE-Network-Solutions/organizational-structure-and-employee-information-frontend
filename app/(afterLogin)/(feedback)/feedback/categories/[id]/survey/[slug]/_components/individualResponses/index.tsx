@@ -1,10 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Col, Form, Pagination, Row } from 'antd';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
-import {
-  useFetchedAllIndividualResponsesByFormId,
-  useFetchedIndividualResponses,
-} from '@/store/server/features/organization-development/categories/queries';
+import { useFetchedIndividualResponses } from '@/store/server/features/organization-development/categories/queries';
 
 import { EmptyImage } from '@/components/emptyIndicator';
 import { FieldType } from '@/types/enumTypes';
@@ -21,30 +18,17 @@ interface Params {
 }
 
 const IndividualResponses = ({ id }: Params) => {
-  const { setCurrent, current, pageSize, selectedUser, setPageSize } =
+  const { setCurrent, current, pageSize, setPageSize } =
     useOrganizationalDevelopment();
-  const { data: individualresponses } = useFetchedIndividualResponses(
-    id,
-    null,
-  );
-  // const { data: allIndividualresponses } = useFetchedAllIndividualResponses();
-  // const { data: allIndividualresponsesByFromId } =
-  //   useFetchedAllIndividualResponsesByFormId(id);
-
-  // useEffect(() => {
-  //   if (selectedUser) {
-  //     refetch();
-  //   }
-  // }, [selectedUser, refetch]);
-
+  const { data: individualresponses } = useFetchedIndividualResponses(id, null);
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrent(page);
     if (pageSize) {
       setPageSize(pageSize);
     }
   };
-  const data =  individualresponses
-    // : allIndividualresponsesByFromId?.items;
+  const data = individualresponses;
+  // : allIndividualresponsesByFromId?.items;
   return (
     <div>
       <Form
@@ -114,7 +98,9 @@ const IndividualResponses = ({ id }: Params) => {
               />
             </>
           ) : (
-            <EmptyImage />
+            <div className="flex justify-start">
+              <EmptyImage />
+            </div>
           )}
         </>
       </Form>

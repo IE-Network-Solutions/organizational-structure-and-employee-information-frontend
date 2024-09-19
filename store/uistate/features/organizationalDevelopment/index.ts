@@ -1,6 +1,8 @@
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
 
+export type GraphType = 'pieChart' | 'barGraph';
+
 interface StoreState {
   open: boolean;
   setOpen: (error: boolean) => void;
@@ -12,6 +14,9 @@ interface StoreState {
   setNumberOfActionPlan: (numberOfActionPlan: number) => void;
   current: number;
   setCurrent: (current: number) => void;
+
+  visibleItems: { [key: string]: boolean };
+  setVisibleItems: (id: any) => void;
 
   pageSize: number;
   setPageSize: (pageSize: number) => void;
@@ -27,18 +32,42 @@ interface StoreState {
 
   searchTitle: string | null;
   setSearchTitle: (questionTitle: string | null) => void;
+
+  selectedEditActionPlan: string | null;
+  setSelectedEditActionPlan: (selectedEditActionPlan: string | null) => void;
+
+  graphType: GraphType;
+  setGraphType: (graphType: GraphType) => void;
 }
 
 export const useOrganizationalDevelopment = create<StoreState>()(
   devtools((set) => ({
+    visibleItems: {},
+    setVisibleItems: (id) =>
+      set((state) => ({
+        visibleItems: {
+          ...state.visibleItems,
+          [id]:
+            state.visibleItems[id] !== undefined
+              ? !state.visibleItems[id]
+              : true,
+        },
+      })),
     current: 1,
     setCurrent: (current: number) => set({ current }),
     pageSize: 10,
     setPageSize: (pageSize: number) => set({ pageSize }),
 
+    graphType: 'pieChart',
+    setGraphType: (graphType: GraphType) => set({ graphType }),
+
     selectedActionPlan: null,
     setSelectedActionPlan: (selectedActionPlan: string | null) =>
       set({ selectedActionPlan }),
+
+    selectedEditActionPlan: null,
+    setSelectedEditActionPlan: (selectedEditActionPlan: string | null) =>
+      set({ selectedEditActionPlan }),
 
     searchTitle: '',
     setSearchTitle: (searchTitle: string | null) => set({ searchTitle }),

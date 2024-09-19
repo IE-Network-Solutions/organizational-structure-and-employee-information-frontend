@@ -27,7 +27,8 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({
       >
         {/* Responsive numbering column */}
         <Col
-          xs={2} sm={1} // Full width on mobile, reduced width on larger screens
+          xs={2}
+          sm={1} // Full width on mobile, reduced width on larger screens
           className={`${
             selectedAnswer?.some((item) => item.id === choice.id)
               ? 'bg-green-400 text-white'
@@ -39,7 +40,8 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({
 
         {/* Responsive text column */}
         <Col
-          xs={20} sm={22} // Full width on mobile, reduced width on larger screens
+          xs={20}
+          sm={22} // Full width on mobile, reduced width on larger screens
           className="flex justify-start items-center rounded ml-2 border-2 px-2 py-1"
         >
           {choice.value}
