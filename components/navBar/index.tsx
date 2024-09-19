@@ -23,6 +23,8 @@ import { FiSettings } from 'react-icons/fi';
 import { CiCalendar, CiSettings } from 'react-icons/ci';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuUsers2 } from 'react-icons/lu';
+import { removeCookie } from '@/helpers/storageHelper';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -53,11 +55,6 @@ const items: MenuItem[] = [
     label: 'Employees',
     className: 'font-bold',
     children: [
-      {
-        key: '/employees/main',
-        label: 'Employees',
-        className: 'font-bold',
-      },
       {
         key: '/employees/manage-employees',
         className: 'font-bold',
@@ -144,6 +141,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
+  const {setLocalId, setTenantId, setToken} = useAuthenticationStore();
 
   useEffect(() => {
     const handleResize = () => {
@@ -168,6 +166,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     if (isMobile) {
       setMobileCollapsed(true);
     }
+  };
+
+  const handleLogout = () => {
+    setToken("");
+    setTenantId("");
+    setLocalId("");
+    removeCookie("token");
+    router.push(`/authentication/login`);
   };
 
   return (
@@ -278,7 +284,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           )}
 
-          <NavBar page="Home" userid="12345" />
+          <NavBar page="Home" userid="12345" handleLogout={handleLogout}/>
         </Header>
         <Content
           className="mt-6 min-h-screen"
