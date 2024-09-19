@@ -81,7 +81,7 @@ const CourseAddLessonSidebar = () => {
     const { courseLessonMaterials, ...otherData } = lessonData?.items[0] ?? {};
     const lessons: Partial<CourseLesson>[] = value['lessons'].map(
       (lesson: any) => ({
-        ...(otherData && otherData),
+        ...(lessonId && otherData && otherData),
         title: lesson.title,
         order: lesson.order,
         description: lesson.description,

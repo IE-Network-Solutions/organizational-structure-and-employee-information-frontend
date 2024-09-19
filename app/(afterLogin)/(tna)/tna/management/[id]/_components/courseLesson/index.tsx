@@ -1,9 +1,9 @@
 import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
-import CourseAddLessonSidebar from '@/app/(afterLogin)/(tna)/tna/management/[id]/_components/courseLesson/addLesson';
+import CourseAddLessonSidebar from './addLesson';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import { useEffect } from 'react';
-import LessonCard from '@/app/(afterLogin)/(tna)/tna/management/[id]/_components/courseLesson/lessonCard';
+import LessonCard from './lessonCard';
 
 const CourseLesson = () => {
   const { course, refetchCourse, isShowAddLesson, setIsShowAddLesson } =
