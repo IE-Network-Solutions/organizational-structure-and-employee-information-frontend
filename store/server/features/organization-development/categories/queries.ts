@@ -44,12 +44,9 @@ const fetchIndividualResponses = async (
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  let userIdValue=""
-  if(userId!=null){
-    userIdValue=userId
-  }
+ 
   return crudRequest({
-    url: `${ORG_DEV_URL}/responses/by-user/${formId}/${userIdValue}`,
+    url: `${ORG_DEV_URL}/responses/by-user/${formId}/${userId}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

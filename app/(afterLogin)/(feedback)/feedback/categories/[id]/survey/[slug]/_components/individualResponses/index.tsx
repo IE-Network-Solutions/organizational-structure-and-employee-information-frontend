@@ -38,9 +38,9 @@ const IndividualResponses = ({ id }: Params) => {
         style={{ width: '100%' }}
       >
         <>
-          {data && data.length !== 0 ? (
+          {data && data?.length !== 0 ? (
             <>
-              {data.map((q: any) => (
+              {data?.map((q: any) => (
                 <Row gutter={16} key={q.id}>
                   <Col xs={24} sm={24}>
                     <Form.Item

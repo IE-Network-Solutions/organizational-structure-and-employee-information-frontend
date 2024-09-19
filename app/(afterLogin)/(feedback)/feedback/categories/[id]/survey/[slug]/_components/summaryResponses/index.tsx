@@ -17,7 +17,7 @@ function SummaryResponses({ id }: Params) {
     <div>
       <Form id={id} layout="vertical" style={{ maxWidth: 600 }}>
         {!summaryResult ||
-        summaryResult?.length < 0 ||
+        summaryResult?.length <= 0 ||
         graphType !== 'pieChart' ? (
           <div className="flex justify-center">
             <EmptyImage />
