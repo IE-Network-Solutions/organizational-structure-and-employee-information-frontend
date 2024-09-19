@@ -24,6 +24,19 @@ const createEmployeeInformationForm = async (values: any) => {
   });
 };
 
+const deleteFormFields = async (values: any) => {
+  console.log(values, '*****************');
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/employee-information-form`,
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+    data: values,
+  });
+};
+
 /**
  * Function to delete a post by sending a DELETE request to the API
  * @param postId The ID of the post to delete
@@ -92,6 +105,19 @@ export const useDeleteEmployee = () => {
   return useMutation(deleteEmployeeInformationForm, {
     onSuccess: () => {
       queryClient.invalidateQueries('employeInformationForms');
+    },
+  });
+};
+
+export const useDeleteFormFields = () => {
+  const queryClient = useQueryClient();
+  return useMutation(deleteFormFields, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('employeInformationForms');
+      NotificationMessage.success({
+        message: 'Successfully deleted',
+        description: 'form field successfully deleted',
+      });
     },
   });
 };

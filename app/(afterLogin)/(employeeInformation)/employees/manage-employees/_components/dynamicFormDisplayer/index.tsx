@@ -8,8 +8,11 @@ import {
   Switch,
   Row,
   Col,
+  Button,
 } from 'antd';
 import { validateName } from '@/utils/validation';
+import { RiDeleteBin6Line } from 'react-icons/ri';
+import { useDeleteFormFields } from '@/store/server/features/employees/employeeManagment/employeInformationForm/mutations';
 
 const { Option } = Select;
 
@@ -30,6 +33,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
   formTitle,
   fields,
 }) => {
+  const { mutate: deleteFormFields } = useDeleteFormFields();
   const renderField = (field: FormField) => {
     if (!field.isActive) return null; // Skip inactive fields
 
@@ -104,16 +108,43 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
     }
   };
 
+  const hanleDeleteCustomField = (id: string) => {
+    const newField = fields?.filter((filedItem) => filedItem.id !== id);
+    const newFormDataValue = {
+      formTitle: formTitle,
+      form: newField,
+    };
+    deleteFormFields(newFormDataValue);
+  };
+
   const renderRows = () => {
     const rows = [];
-    for (let i = 0; i < fields?.length; i += 2) {
+    for (let i = 0; i < fields?.length; i++) {
       rows.push(
-        <Row gutter={16} key={`row-${i}`}>
-          <Col xs={24} sm={12}>
+        // <Row gutter={16} key={`row-${i}`}>
+        //   <Col xs={24} sm={12}>
+        //     {fields[i] && renderField(fields[i])}
+        //   </Col>
+        //   <Col xs={24} sm={12}>
+        //     {fields[i + 1] && renderField(fields[i + 1])}
+        //   </Col>
+        // </Row>,
+        <Row gutter={16} key={`row-${i}`} align="middle">
+          <Col xs={24} sm={22}>
             {fields[i] && renderField(fields[i])}
           </Col>
-          <Col xs={24} sm={12}>
-            {fields[i + 1] && renderField(fields[i + 1])}
+          <Col xs={24} sm={2}>
+            <Button
+              htmlType="button"
+              className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
+              danger
+              icon={<RiDeleteBin6Line />}
+              onClick={() => hanleDeleteCustomField(fields[i].id)} // You should define handleDelete to remove the field
+              style={{
+                border: '1px solid red', // You can change the color or width as needed
+                borderRadius: '4px', // Optional: Adds rounded corners to the button
+              }}
+            />
           </Col>
         </Row>,
       );
