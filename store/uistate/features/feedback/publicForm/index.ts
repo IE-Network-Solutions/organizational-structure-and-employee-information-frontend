@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 interface ResponseDetail {
   questionId: string;
-  respondentId: string;
+  respondentId?: string|null;
   responseDetail: Record<string, string>[];
 }
 
