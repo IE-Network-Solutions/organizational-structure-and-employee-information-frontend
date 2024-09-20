@@ -6,6 +6,7 @@ import { Button } from 'antd/lib';
 import React, { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { FieldType } from '@/types/enumTypes';
 
 interface Params {
   id: string;
@@ -133,8 +134,8 @@ const EditQuestion = ({ id }: Params) => {
                           </div>
                         </Form.Item>
                       ))}
-                      {questionType === 'multiple_choice' ||
-                      questionType === 'checkbox' ? (
+                      {questionType === FieldType.MULTIPLE_CHOICE ||
+                      questionType === FieldType.CHECKBOX ? (
                         <Form.Item>
                           <div className="flex flex-col items-center justify-center">
                             <div

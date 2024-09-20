@@ -1,5 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { usePublicFormStore } from '@/store/uistate/features/feedback/publicForm';
+import { FieldType } from '@/types/enumTypes';
 import { useDebounce } from '@/utils/useDebounce';
 import { Checkbox, Col, Input, Row } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
@@ -84,7 +85,7 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
           })}
         </Row>
       )}
-      {type === 'checkbox' && (
+      {type === FieldType.CHECKBOX && (
         <Checkbox.Group
           key={questionId}
           style={{ width: '100%' }}
@@ -109,7 +110,7 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
           </Row>
         </Checkbox.Group>
       )}
-      {type === 'short_text' && (
+      {type === FieldType.SHORT_TEXT && (
         <Row key={questionId}>
           <Col span={24}>
             <Input
@@ -126,7 +127,7 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
           </Col>
         </Row>
       )}
-      {type === 'paragraph' && (
+      {type === FieldType.MULTIPLE_CHOICE && (
         <Input.TextArea
           key={questionId}
           rows={5}

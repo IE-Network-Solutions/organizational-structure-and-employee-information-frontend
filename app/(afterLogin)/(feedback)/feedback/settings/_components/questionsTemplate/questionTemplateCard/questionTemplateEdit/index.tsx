@@ -4,6 +4,7 @@ import { useCustomQuestionTemplateStore } from '@/store/uistate/features/feedbac
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useUpdateQuestionTemplate } from '@/store/server/features/feedback/settings/mutation';
 import { v4 as uuidv4 } from 'uuid';
+import { FieldType } from '@/types/enumTypes';
 
 const { Option } = Select;
 
@@ -128,8 +129,8 @@ const EditQuestionTemplate: React.FC<{
                       </div>
                     </Form.Item>
                   ))}
-                  {questionType === 'multiple_choice' ||
-                  questionType === 'checkbox' ? (
+                  {questionType === FieldType.MULTIPLE_CHOICE ||
+                  questionType === FieldType.CHECKBOX ? (
                     <Form.Item>
                       <div className="flex flex-col items-center justify-center">
                         <div

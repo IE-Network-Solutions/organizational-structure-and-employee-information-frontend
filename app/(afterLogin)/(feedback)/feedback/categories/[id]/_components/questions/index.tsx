@@ -9,6 +9,7 @@ import { useCreateQuestion } from '@/store/server/features/feedback/question/mut
 import { useDebounce } from '@/utils/useDebounce';
 import { v4 as uuidv4 } from 'uuid';
 import CustomQuestionTemplate from './customQuestionTemplate';
+import { FieldType } from '@/types/enumTypes';
 
 const { Option } = Select;
 interface Props {
@@ -218,8 +219,8 @@ const Question: React.FC<Props> = (props) => {
                               ]);
 
                               if (
-                                type === 'multiple_choice' ||
-                                type === 'checkbox'
+                                type === FieldType.MULTIPLE_CHOICE ||
+                                type === FieldType.CHECKBOX
                               ) {
                                 if (!names || names.length < 2) {
                                   return Promise.reject(
@@ -272,7 +273,7 @@ const Question: React.FC<Props> = (props) => {
                               ))}
 
                               {questionType === 'multiple_choice' ||
-                              questionType === 'checkbox' ? (
+                              questionType === FieldType.CHECKBOX ? (
                                 <Form.Item>
                                   <div className="flex flex-col items-center justify-center">
                                     <div
