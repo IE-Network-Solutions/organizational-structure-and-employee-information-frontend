@@ -41,17 +41,15 @@ const CustomUpload: FC<CustomUploadProps> = ({
   };
 
   return dragable ? (
-    <Upload.Dragger
-      customRequest={handleUpload}
-      className={classNames(className)}
-      {...otherProps}
-    >
-      <div className="flex flex-col items-center p-3 gap-1">
-        <div className="text-primary">{dragIcon}</div>
-        <div className="text-xs text-gray-900 font-semibold">{dragLabel}</div>
-        <div className="text-xs text-gray-500">or drag and drop it here</div>
-      </div>
-    </Upload.Dragger>
+    <div className={classNames(className)}>
+      <Upload.Dragger customRequest={handleUpload} {...otherProps}>
+        <div className="flex flex-col items-center p-3 gap-1">
+          <div className="text-primary">{dragIcon}</div>
+          <div className="text-xs text-gray-900 font-semibold">{dragLabel}</div>
+          <div className="text-xs text-gray-500">or drag and drop it here</div>
+        </div>
+      </Upload.Dragger>
+    </div>
   ) : (
     <Upload
       customRequest={handleUpload}

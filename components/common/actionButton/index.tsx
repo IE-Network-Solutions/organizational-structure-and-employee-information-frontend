@@ -6,10 +6,10 @@ import { classNames } from '@/utils/classNames';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
 
 export interface ActionButtonProps {
-  onOpen?: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onCancelDelete?: () => void;
+  onOpen?: (e?: any) => void;
+  onEdit?: (e?: any) => void;
+  onDelete?: (e?: any) => void;
+  onCancelDelete?: (e?: any) => void;
   className?: string;
 }
 
@@ -81,6 +81,7 @@ const ActionButton: FC<ActionButtonProps> = ({
         icon={<HiOutlineDotsVertical size={20} className="text-gray-500" />}
         className="h-7 w-7"
         type="text"
+        onClick={(e) => e.stopPropagation()}
       />
     </Dropdown>
   );

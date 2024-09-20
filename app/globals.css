@@ -153,7 +153,17 @@ h6 {
 .ql-container.ql-snow {
   border: none !important;
   font-family: 'Manrope', sans-serif;
-  @apply text-gray-900 font-normal text-sm;
+  @apply text-gray-900 font-medium text-sm;
+}
+
+.ql-container.ql-snow h3 {
+  font-size: 24px !important;
+}
+
+.ql-container .ql-editor.ql-blank::before {
+  font-style: normal;
+  color: rgba(0, 0, 0, 0.35);
+  @apply font-medium text-sm;
 }
 
 .ant-form-item-control .control {
@@ -186,4 +196,8 @@ h6 {
 
 .page-wrap {
   @apply h-auto w-auto pr-6 pb-6 pl-3;
+}
+
+.lesson-card .ant-collapse-content {
+  border: none !important;
 }

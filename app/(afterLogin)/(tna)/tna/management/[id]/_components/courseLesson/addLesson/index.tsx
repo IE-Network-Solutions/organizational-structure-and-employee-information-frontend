@@ -59,7 +59,7 @@ const CourseAddLessonSidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: 'Create',
+      label: lessonId ? 'Edit' : 'Create',
       key: 'create',
       className: 'h-14',
       type: 'primary',
@@ -98,7 +98,7 @@ const CourseAddLessonSidebar = () => {
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            Add Lesson
+            {lessonId ? 'Edit' : 'Add'} Lesson
           </CustomDrawerHeader>
         }
         footer={

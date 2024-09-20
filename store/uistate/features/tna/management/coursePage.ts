@@ -1,11 +1,14 @@
 import { create, StateCreator } from 'zustand';
-import { Course } from '@/types/tna/course';
+import { Course, CourseLesson } from '@/types/tna/course';
 
 type TnaManagementCoursePageState = {
   isShowAddLesson: boolean;
   course: Course | null;
   refetchCourse: any;
   lessonId: string | null;
+
+  isShowLessonMaterial: boolean;
+  lesson: CourseLesson | null;
 };
 
 type TnaManagementCoursePageAction = {
@@ -13,6 +16,9 @@ type TnaManagementCoursePageAction = {
   setCourse: (course: Course | null) => void;
   setRefetchCourse: (refetch: any) => void;
   setLessonId: (lessonId: string | null) => void;
+
+  setIsShowLessonMaterial: (isShowLessonMaterial: boolean) => void;
+  setLesson: (lesson: CourseLesson | null) => void;
 };
 
 const tnaManagementCoursePageSlice: StateCreator<
@@ -36,6 +42,16 @@ const tnaManagementCoursePageSlice: StateCreator<
   lessonId: null,
   setLessonId: (lessonId: string | null) => {
     set({ lessonId });
+  },
+
+  isShowLessonMaterial: false,
+  setIsShowLessonMaterial: (isShowLessonMaterial: boolean) => {
+    set({ isShowLessonMaterial });
+  },
+
+  lesson: null,
+  setLesson: (lesson) => {
+    set({ lesson });
   },
 });
 

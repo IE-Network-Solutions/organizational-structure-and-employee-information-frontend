@@ -4,16 +4,22 @@ import CourseAddLessonSidebar from './addLesson';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import { useEffect } from 'react';
 import LessonCard from './lessonCard';
+import CourseLessonMaterial from '@/app/(afterLogin)/(tna)/tna/management/[id]/_components/lessonMaterial';
 
 const CourseLesson = () => {
-  const { course, refetchCourse, isShowAddLesson, setIsShowAddLesson } =
-    useTnaManagementCoursePageStore();
+  const {
+    course,
+    refetchCourse,
+    isShowAddLesson,
+    setIsShowAddLesson,
+    isShowLessonMaterial,
+  } = useTnaManagementCoursePageStore();
 
   useEffect(() => {
-    if (!isShowAddLesson && refetchCourse) {
+    if ((!isShowAddLesson || !isShowLessonMaterial) && refetchCourse) {
       refetchCourse();
     }
-  }, [isShowAddLesson]);
+  }, [isShowAddLesson, isShowLessonMaterial]);
 
   return (
     <div>
@@ -42,6 +48,7 @@ const CourseLesson = () => {
       </div>
 
       <CourseAddLessonSidebar />
+      <CourseLessonMaterial />
     </div>
   );
 };
