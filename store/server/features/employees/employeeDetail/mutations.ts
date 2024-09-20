@@ -74,22 +74,16 @@ const deleteEmployeeDocument = async (id: string) => {
   }
 };
 
-const createEmployeeDocument = async (id: string, values: any) => {
-  const formData = new FormData();
+const createEmployeeDocument = async (formData: FormData) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  formData.append('userId', id);
-  formData.append(
-    'documentName',
-    values?.documentName?.fileList[0]?.originFileObj,
-  );
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-document`,
     method: 'POST',
     data: formData,
     headers: {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
     },
   });
 };
@@ -161,25 +155,28 @@ export const useUpdateEmployeeRolePermission = () => {
     },
   );
 };
+
 export const useAddEmployeeDocument = () => {
   const queryClient = useQueryClient();
+  
   return useMutation(
-    ({ id, values }: { id: string; values: any }) =>
-      createEmployeeDocument(id, values),
+    async (formData: FormData) => {
+      return await createEmployeeDocument(formData);
+    },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('employees');
+        queryClient.invalidateQueries('employee');
         NotificationMessage.success({
           message: 'Successfully Created',
-          description: 'Employee successfully Created',
+          description: 'Document successfully uploaded',
         });
       },
       onError: () => {
         NotificationMessage.error({
-          message: 'Creating Failed',
-          description: 'Employee Created Failed',
+          message: 'Creation Failed',
+          description: 'Document upload failed',
         });
       },
-    },
+    }
   );
 };
