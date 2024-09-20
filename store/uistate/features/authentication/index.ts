@@ -37,7 +37,7 @@ export const useAuthenticationStore = create<StoreState>()(
         setError: (error: string | null) => set({ error }), // Non-persistent method
       }),
       {
-        name: 'authentication-local-storage', // Unique name for the storage
+        name: 'authentication-storage', // Unique name for the storage
         getStorage: () => localStorage, // Use localStorage for persistence
         partialize: (state) => ({
           token: state.token,
