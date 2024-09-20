@@ -25,11 +25,12 @@ const fetchCategories = async (
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId || '';
 
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
-    createdById: 'c9624522-40af-4f10-ba44-8697b36e7a1c',
+    createdById: userId,
   };
   return await crudRequest({
     url: `${ORG_DEV_URL}/form-categories?name=${name}&description=${description}&createdBy=${createdBy}&limit=${pageSize}&page=${currentPage}`,
@@ -45,12 +46,10 @@ const fetchCategories = async (
 const fetchUsers = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const userId = useAuthenticationStore.getState().userId || '';
 
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
-    createdById: userId,
   };
 
   return await crudRequest({
@@ -68,12 +67,10 @@ const fetchUsers = async () => {
 const getFormCategoriesById = async (formCatsId: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const userId = useAuthenticationStore.getState().userId || '';
 
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
-    createdById: userId,
   };
 
   return crudRequest({
