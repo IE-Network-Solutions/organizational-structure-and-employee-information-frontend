@@ -3,7 +3,7 @@ import { TNA_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
-import { Course, CourseCategory } from '@/types/tna/course';
+import { Course } from '@/types/tna/course';
 
 const setCourseManagement = async (items: Partial<Course>[]) => {
   return await crudRequest({
