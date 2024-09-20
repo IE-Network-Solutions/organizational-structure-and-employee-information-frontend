@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import dayjs, { Dayjs } from "dayjs";
-=======
 import dayjs, { Dayjs } from 'dayjs';
->>>>>>> c7a90019b445d0a6668d94d6c93b98e7ad7544fb
 
 export const validatePhoneNumber = (rule: any, value: any) => {
   if (!value) {
