@@ -1,15 +1,10 @@
 'use client';
-
 import { Card, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import React, { useState, useEffect } from 'react';
 import SettingsPage from './_components/rolePermission';
-import { TbNotes } from 'react-icons/tb';
 import { IoMdSettings } from 'react-icons/io';
-import { FaLongArrowAltRight, FaUser } from 'react-icons/fa';
-import Promotions from './_components/promotions';
-import TransferTab from './_components/transfer';
-import Resignation from './_components/resignation';
+import { FaUser } from 'react-icons/fa';
 import EmploymentType from './_components/employementType';
 
 function Settings() {
