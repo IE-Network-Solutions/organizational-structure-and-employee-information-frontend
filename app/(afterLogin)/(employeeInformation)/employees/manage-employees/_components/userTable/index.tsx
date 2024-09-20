@@ -171,14 +171,13 @@ const UserTable = () => {
       action: (
         <div className="flex gap-4 text-white">
           <Link href={`manage-employees/${item?.id}`}>
-            <Tooltip title={'View Employee Detail'}>
-              <Button
-                id={`editUserButton${item?.id}`}
-                className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
-              >
-                <FaEye />
-              </Button>
-            </Tooltip>
+            <Button
+              id={`editUserButton${item?.id}`}
+              disabled={item?.deletedAt !== null}
+              className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
+            >
+              <FaEye />
+            </Button>
           </Link>
           <Tooltip title={'Delete Employee'}>
             <Button

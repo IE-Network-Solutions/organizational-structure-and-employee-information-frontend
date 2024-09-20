@@ -3,6 +3,7 @@ import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { DayOfWeek } from '@/store/server/features/organizationStructure/workSchedule/interface';
 import { useUpdateSchedule } from '@/store/server/features/organizationStructure/workSchedule/mutation';
+import { useCreateSchedule } from '@/store/server/features/organizationStructure/workSchedule/mutation';
 import { useWorkScheduleDrawerStore } from '@/store/uistate/features/organizations/settings/workSchedule/useStore';
 import { ScheduleDetail } from '@/store/uistate/features/organizationStructure/workSchedule/interface';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
@@ -10,24 +11,27 @@ import { Form } from 'antd';
 import React, { useEffect } from 'react';
 
 const CustomWorkingScheduleDrawer: React.FC = () => {
+  // prettier-ignore
+
   const {
     isOpen,
     workingHour,
     closeDrawer,
     selectedSchedule,
     isEditMode,
-    scheduleName,
   } = useWorkScheduleDrawerStore();
+  // prettier-ignore
 
-  const { detail } = useScheduleStore();
+  const { name, detail } = useScheduleStore();
 
   const handleCancel = () => {
     closeDrawer();
   };
 
   const { mutate: updateSchedule } = useUpdateSchedule();
+  const { mutate: createSchedule } = useCreateSchedule();
+
   const handleSubmit = () => {
-    if (isEditMode) {
       const transformedDetails: DayOfWeek[] = detail.map(
         (item: ScheduleDetail) => ({
           id: item.id,
@@ -36,16 +40,21 @@ const CustomWorkingScheduleDrawer: React.FC = () => {
           duration: item.hours,
           workDay: item.status,
           day: item.dayOfWeek,
-        }),
-      );
-      updateSchedule({
-        id: selectedSchedule?.id || '',
-        schedule: {
-          name: scheduleName,
-          detail: transformedDetails,
-        },
-      });
-    }
+        }))
+        if (isEditMode) {
+          updateSchedule({
+            id: selectedSchedule?.id || '',
+            schedule: {
+              name: name,
+              detail: transformedDetails,
+            },
+          });
+        } else {
+          createSchedule({
+            name: name,
+            detail: transformedDetails,
+          })
+        }
     closeDrawer();
   };
 
@@ -76,7 +85,7 @@ const CustomWorkingScheduleDrawer: React.FC = () => {
             <span>{workingHour ?? '-'}</span>
           </div>
           <div className="flex justify-between items-center gap-4">
-            <CustomButton title="Cancel" onClick={handleCancel} />
+            <CustomButton className="bg-gray-200 text-gray-700 hover:bg-gray-300" title="Cancel" onClick={handleCancel} />
             <CustomButton
               title={isEditMode ? 'Update' : 'Create'}
               onClick={handleSubmit}
