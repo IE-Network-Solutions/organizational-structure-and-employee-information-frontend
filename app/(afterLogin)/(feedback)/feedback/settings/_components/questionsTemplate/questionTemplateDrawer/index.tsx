@@ -8,6 +8,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useCreateQuestionTemplate } from '@/store/server/features/feedback/settings/mutation';
 import { useDebounce } from '@/utils/useDebounce';
 import { v4 as uuidv4 } from 'uuid';
+import { FieldType } from '@/types/enumTypes';
 
 const { Option } = Select;
 
@@ -154,7 +155,10 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                       validator: async (_, names) => {
                         /* eslint-enable @typescript-eslint/naming-convention */
                         const type = form?.getFieldValue('fieldType');
-                        if (type === 'multiple_choice' || type === 'checkbox') {
+                        if (
+                          type === FieldType.MULTIPLE_CHOICE ||
+                          type === FieldType.CHECKBOX
+                        ) {
                           if (!names || names.length < 2) {
                             return Promise.reject(
                               NotificationMessage.error({
@@ -206,7 +210,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                         ))}
 
                         {questionType === 'multiple_choice' ||
-                        questionType === 'checkbox' ? (
+                        questionType === FieldType.CHECKBOX ? (
                           <Form.Item>
                             <div className="flex flex-col items-center justify-center">
                               <div
