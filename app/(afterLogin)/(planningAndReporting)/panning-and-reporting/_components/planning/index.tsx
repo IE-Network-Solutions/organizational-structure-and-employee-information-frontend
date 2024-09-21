@@ -7,13 +7,22 @@ import { BiCheckboxChecked } from 'react-icons/bi';
 import { FaCheck, FaPlus } from 'react-icons/fa';
 import { IoIosClose } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
-import { VscCheck } from 'react-icons/vsc';
-import { planningPeriods } from '../dummyData';
+import KeyResultMetrics from '../keyResult';
+import { useAllPlanningPeriods, useGetPlanning } from '@/store/server/features/okrPlanningAndReporting/queries';
 
 const { Text, Title } = Typography;
 
 function Planning() {
   const { open, setOpen, setActivePlanPeriod,activePlanPeriod  } = usePlanningAndReportingStore();
+  const {data:planningPeriods}=useAllPlanningPeriods()
+  const {data:allPlanning}=useGetPlanning(
+    {teamUser: [],
+    employeeId:"",
+    periodId: "",
+    type:'allPlan',
+    status: 'pending'})
+
+
   const titlesAndSubtitles = [
     {
       title: "The Comprehensive Guide to Web Development in 2024",
@@ -57,14 +66,14 @@ function Planning() {
     }
   ];
   
-  const activeTabName = planningPeriods?.items?.[activePlanPeriod]?.name; 
+  // const activeTabName = planningPeriods?.items?.[activePlanPeriod]?.name; 
 
   return (
     <div>
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
         <CustomButton
-          title={`Create ${activeTabName}`}
+          title={`Create activeTabName`}
           id="createActiveTabName"
           icon={<FaPlus className="mr-2" />}
           onClick={() => setOpen(true)}
@@ -75,7 +84,6 @@ function Planning() {
       <EmployeeSearch
         optionArray1={[{ key: "myPlan", value: "my plan" }, { key: "allPlan", value: "all Plan" }]}
       />
-
       <Card
         title={
           <div>
@@ -110,6 +118,7 @@ function Planning() {
           </div>
         }
       >
+      <KeyResultMetrics/>
         {titlesAndSubtitles?.map((titleObj, titleIndex) => (
         <Row key={titleIndex} className="mb-4">
           <Col span={24}>

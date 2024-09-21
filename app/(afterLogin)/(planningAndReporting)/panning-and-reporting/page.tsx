@@ -15,6 +15,7 @@ function page() {
   const onChange = (e: RadioChangeEvent) => {
     setActiveTab(e.target.value);
   };
+ 
   const TabsContent = () =>
     planningPeriods?.items?.map((item, index) => ({
       label: <span className='font-semibold text-sm'>{item?.name}</span>,
@@ -23,7 +24,7 @@ function page() {
     }));
   return (
     <div>
-         <div className="h-full w-auto p-4">
+    <div className="h-full w-auto p-4">
       <div className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb className='text-sm' title="Planning & Reporting" subtitle="OKR setting" />
         <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
