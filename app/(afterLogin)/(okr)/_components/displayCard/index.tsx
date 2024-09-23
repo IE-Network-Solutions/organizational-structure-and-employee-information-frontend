@@ -4,11 +4,11 @@ import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 
 const DashboardCard: React.FC<DashboardCardProps> = ({
   score,
-  updated_at,
+  updatedAt,
   title,
   icon,
   span,
-  is_top,
+  isTop,
   cardColor,
 }) => {
   const success =
@@ -20,7 +20,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
           <div className="flex justify-between">
             <div className="text-lg gap-2 flex items-center mb-2">
               {icon}
-              {is_top ? '' : title}
+              {isTop ? '' : title}
             </div>
             <div className=" flex gap-1 items-center">
               {score?.progress}
@@ -36,7 +36,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
               <h3>
                 {score?.score} {score?.achievement ? '' : '%'}
               </h3>
-              {is_top ? <div className="mb-6">{title}</div> : ''}
+              {isTop ? <div className="mb-6">{title}</div> : ''}
             </div>
             <div className="pt-5 w-[50%] ">
               {score?.achievement ? (
@@ -61,7 +61,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
             </div>
           </div>
           <div className="flex justify-end font-light">
-            Updated: {updated_at}
+            Updated: {updatedAt}
           </div>
         </div>
       </Card>

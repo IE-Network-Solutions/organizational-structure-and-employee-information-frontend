@@ -95,7 +95,7 @@ const cardData: CardData = {
     progress: '90 ',
     progress_type: false,
   },
-  updated_at: 'Sep 18, 2024',
+  updatedAt: 'Sep 18, 2024',
 };
 const items: selectData[] = [
   { key: '1', value: 'weekly', label: 'Weekly' },
@@ -114,28 +114,28 @@ const Dashboard: React.FC<any> = () => {
         <Row gutter={16} className="w-full max-w-screen-xl">
           <DashboardCard
             score={cardData?.okr}
-            updated_at={cardData?.updated_at}
+            updatedAt={cardData?.updatedAt}
             title="Average OKR Score"
             icon={<GoGoal className="text-[#7152F3]" />}
             span={8}
-            is_top
+            isTop
           />
           <DashboardCard
             score={cardData?.keyResults}
-            updated_at={cardData?.updated_at}
+            updatedAt={cardData?.updatedAt}
             title="total key result"
             icon={<MdOutlineKey className="text-[#7152F3]" />}
             span={8}
-            is_top
+            isTop
             cardColor="bg-[#e9e9ff]"
           />
           <DashboardCard
             score={cardData?.vp}
-            updated_at={cardData?.updated_at}
+            updatedAt={cardData?.updatedAt}
             title="supervisor OKR score"
             icon={<GoGoal className="text-[#7152F3]" />}
             span={8}
-            is_top
+            isTop
             cardColor="bg-[#e9e9ff]"
           />
         </Row>
@@ -180,35 +180,35 @@ const Dashboard: React.FC<any> = () => {
             <Row gutter={[16, 16]}>
               <DashboardCard
                 score={cardData?.issuedReprimand}
-                updated_at={cardData?.updated_at}
+                updatedAt={cardData?.updatedAt}
                 title="Issued Reprimand"
                 icon={<FaBomb className="text-red-500" />}
                 span={12}
-                is_top={false}
+                isTop={false}
               />
               <DashboardCard
                 score={cardData?.issuedAppreciations}
-                updated_at={cardData?.updated_at}
+                updatedAt={cardData?.updatedAt}
                 title="Issued Appreciations"
                 icon={<BsAwardFill className="text-green-500" />}
                 span={12}
-                is_top={false}
+                isTop={false}
               />
               <DashboardCard
                 score={cardData?.receiveReprimand}
-                updated_at={cardData?.updated_at}
+                updatedAt={cardData?.updatedAt}
                 title="Received Reprimand"
                 icon={<FaBomb className="text-red-500" />}
                 span={12}
-                is_top={false}
+                isTop={false}
               />
               <DashboardCard
                 score={cardData?.receiveAppreciations}
-                updated_at={cardData?.updated_at}
+                updatedAt={cardData?.updatedAt}
                 title="received Appreciations"
                 icon={<BsAwardFill className="text-green-500" />}
                 span={12}
-                is_top={false}
+                isTop={false}
               />
             </Row>
           </div>
@@ -228,19 +228,19 @@ const Dashboard: React.FC<any> = () => {
           <Row gutter={20} className="w-full max-w-screen-xl">
             <DashboardCard
               score={cardData?.okr}
-              updated_at={cardData?.updated_at}
+              updatedAt={cardData?.updatedAt}
               title="Average OKR Score"
               icon={<GoGoal className="text-[#7152F3]" />}
               span={12}
-              is_top
+              isTop
             />
             <DashboardCard
               score={cardData?.keyResults}
-              updated_at={cardData?.updated_at}
+              updatedAt={cardData?.updatedAt}
               title="total key result"
               icon={<MdOutlineKey className="text-[#7152F3]" />}
               span={12}
-              is_top
+              isTop
             />
           </Row>
         </div>

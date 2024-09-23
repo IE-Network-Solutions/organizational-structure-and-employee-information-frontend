@@ -29,7 +29,7 @@ export interface CardData {
   receiveReprimand: value;
   issuedAppreciations: value;
   receiveAppreciations: value;
-  updated_at: string;
+  updatedAt: string;
 }
 interface value {
   score: string;
@@ -38,12 +38,12 @@ interface value {
   achievement?: string;
 }
 export interface DashboardCardProps {
-  updated_at: string;
+  updatedAt: string;
   score: value;
   title: string;
   icon: React.ReactNode;
   span: number;
-  is_top: boolean;
+  isTop: boolean;
   cardColor?: string;
 }
 export interface selectData {
