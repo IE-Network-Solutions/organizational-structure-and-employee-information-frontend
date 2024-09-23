@@ -12,6 +12,7 @@ import { FaStarOfLife } from 'react-icons/fa';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
   MdOutlineKeyboardDoubleArrowRight,
+  MdStarPurple500,
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
 
@@ -82,6 +83,12 @@ const items: MenuItem[] = [
     icon: <BarChartOutlined />,
     className: 'font-bold',
     label: 'Activity',
+  },
+  {
+    key: '/dashbord',
+    icon: <MdStarPurple500 />,
+    className: 'font-bold',
+    label: 'OKR_DashBoard',
   },
   {
     key: '/feedback ',
