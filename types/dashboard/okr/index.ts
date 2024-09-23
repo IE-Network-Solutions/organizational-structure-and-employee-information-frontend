@@ -21,17 +21,17 @@ export interface CardData {
   name: string;
   position: string;
   department: string;
-  okr: value;
-  supervisorOkr: value;
-  keyResults: value;
-  vp: value;
-  issuedReprimand: value;
-  receiveReprimand: value;
-  issuedAppreciations: value;
-  receiveAppreciations: value;
+  okr: okrValue;
+  supervisorOkr: okrValue;
+  keyResults: okrValue;
+  vp: okrValue;
+  issuedReprimand: okrValue;
+  receiveReprimand: okrValue;
+  issuedAppreciations: okrValue;
+  receiveAppreciations: okrValue;
   updatedAt: string;
 }
-interface value {
+interface okrValue {
   score: string;
   progress: string;
   progressType: boolean;
@@ -39,14 +39,14 @@ interface value {
 }
 export interface DashboardCardProps {
   updatedAt: string;
-  score: value;
+  score: okrValue;
   title: string;
   icon: React.ReactNode;
   span: number;
   isTop: boolean;
   cardColor?: string;
 }
-export interface selectData {
+export interface SelectData {
   key: string;
   value: string;
   label: string;

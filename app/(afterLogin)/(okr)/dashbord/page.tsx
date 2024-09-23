@@ -4,7 +4,7 @@ import React from 'react';
 import { BsAwardFill } from 'react-icons/bs';
 import { FaBomb } from 'react-icons/fa';
 import RookStarsList from '../_components/rookStarsList';
-import { CardData, ListData, selectData } from '@/types/dashboard/okr';
+import { CardData, ListData, SelectData } from '@/types/dashboard/okr';
 import DashboardCard from '../_components/displayCard';
 import { GoGoal } from 'react-icons/go';
 import { MdOutlineKey } from 'react-icons/md';
@@ -97,7 +97,7 @@ const cardData: CardData = {
   },
   updatedAt: 'Sep 18, 2024',
 };
-const items: selectData[] = [
+const items: SelectData[] = [
   { key: '1', value: 'weekly', label: 'Weekly' },
   { key: '2', value: 'monthly', label: 'Monthly' },
   { key: '3', value: 'quarterly', label: 'Quarterly' },
