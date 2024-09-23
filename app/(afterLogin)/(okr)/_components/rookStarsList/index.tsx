@@ -1,14 +1,12 @@
 import { RookStarsListProps } from '@/types/dashboard/okr';
 import { Avatar, Card, List } from 'antd';
-import { FaCaretLeft, FaCaretRight } from 'react-icons/fa';
 
 const RookStarsList: React.FC<RookStarsListProps> = ({ dataSource, title }) => {
   return (
     <Card
       title={
         <div className="text-lg font-extrabold gap-2 flex items-center justify-between ">
-          <FaCaretLeft />
-          {title} <FaCaretRight />
+          {title}
         </div>
       }
     >
@@ -16,7 +14,7 @@ const RookStarsList: React.FC<RookStarsListProps> = ({ dataSource, title }) => {
         className="-m-6"
         dataSource={dataSource}
         size="small"
-        renderItem={(item, index) => (
+        renderItem={(item) => (
           <List.Item className=" ">
             <div className="text-lg font-medium">{item.completion} %</div>
 

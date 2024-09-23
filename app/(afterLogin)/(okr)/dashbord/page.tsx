@@ -57,43 +57,43 @@ const cardData: CardData = {
   okr: {
     score: '82 ',
     progress: '48 ',
-    progress_type: true,
+    progressType: true,
   },
   vp: {
     score: '30 ',
     progress: '70 ',
-    progress_type: true,
+    progressType: true,
   },
   supervisorOkr: {
     score: '78 ',
     progress: '25',
-    progress_type: true,
+    progressType: true,
   },
   keyResults: {
     score: '565 ',
     progress: '80 ',
-    progress_type: true,
+    progressType: true,
     achievement: '120',
   },
   issuedReprimand: {
     score: '9 ',
     progress: '50 ',
-    progress_type: false,
+    progressType: false,
   },
   receiveReprimand: {
     score: '3',
     progress: '10 ',
-    progress_type: false,
+    progressType: false,
   },
   issuedAppreciations: {
     score: '20 ',
     progress: '80 ',
-    progress_type: true,
+    progressType: true,
   },
   receiveAppreciations: {
     score: '14 ',
     progress: '90 ',
-    progress_type: false,
+    progressType: false,
   },
   updatedAt: 'Sep 18, 2024',
 };
@@ -152,8 +152,7 @@ const Dashboard: React.FC<any> = () => {
               value: item.value,
               label: item.label,
             }))}
-            defaultValue={items[0].value} // Set the first item as default
-            onChange={(value) => console.log(value)}
+            defaultValue={items[0].value}
           />
         </div>
       </div>

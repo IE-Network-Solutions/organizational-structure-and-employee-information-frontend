@@ -34,7 +34,7 @@ export interface CardData {
 interface value {
   score: string;
   progress: string;
-  progress_type: boolean;
+  progressType: boolean;
   achievement?: string;
 }
 export interface DashboardCardProps {

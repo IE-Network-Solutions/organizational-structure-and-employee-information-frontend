@@ -24,7 +24,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
             </div>
             <div className=" flex gap-1 items-center">
               {score?.progress}
-              {score?.progress_type ? (
+              {score?.progressType ? (
                 <FaArrowUp className="text-green-500" />
               ) : (
                 <FaArrowDown className="text-red-500" />
