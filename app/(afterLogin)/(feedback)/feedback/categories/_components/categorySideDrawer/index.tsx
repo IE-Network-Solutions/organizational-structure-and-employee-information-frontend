@@ -45,7 +45,11 @@ const CategorySideDrawer: React.FC<any> = (props) => {
     if (isAllSelected) {
       deselectAllUsers();
     } else {
-      selectAllUsers(employees?.items?.map((user: any) => user.id));
+      const selectedUsers =
+        employees?.items?.map((user: { id: string }) => ({
+          userId: user.id,
+        })) || [];
+      selectAllUsers(selectedUsers);
     }
   };
 
