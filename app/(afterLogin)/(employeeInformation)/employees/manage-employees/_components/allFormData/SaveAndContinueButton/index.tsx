@@ -20,11 +20,21 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
     }
   };
 
-  const handleContinueClick = () => {
-    if (current !== 2) {
-      setCurrent(current + 1);
-    } else {
-      form.submit(); // Submit the form on the last step
+  const handleContinueClick = async () => {
+    try {
+      // Validate the form fields
+      await form.validateFields();
+
+      // If validation passes, proceed to the next step or submit the form
+      if (current !== 2) {
+        setCurrent(current + 1);
+      } else {
+        form.submit(); // Submit the form on the last step
+      }
+    } catch (errorInfo) {
+      // Handle the validation failure (optional)
+      console.error('Validation failed:', errorInfo);
+      // Optionally show an error message to the user
     }
   };
 

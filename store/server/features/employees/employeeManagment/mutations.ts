@@ -100,12 +100,12 @@ export const useAddEmployee = () => {
         description: 'Employee successfully Created',
       });
     },
-    onError: () => {
-      NotificationMessage.error({
-        message: 'Creating Failed',
-        description: 'Employee Created Failed',
-      });
-    },
+    // onError: () => {
+    //   NotificationMessage.error({
+    //     message: 'Creating Failed',
+    //     description: 'Employee Created Failed',
+    //   });
+    // },
   });
 };
 export const useUpdateEmployee = () => {
