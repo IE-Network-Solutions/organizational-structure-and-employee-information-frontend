@@ -14,6 +14,7 @@ import { CourseLesson } from '@/types/tna/course';
 import { useGetCourseLessons } from '@/store/server/features/tna/lesson/queries';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useDeleteCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
+import CourseLessonMaterial from '@/app/(afterLogin)/(tna)/tna/management/[id]/_components/lessonMaterial';
 
 const CourseAddLessonSidebar = () => {
   const {
@@ -25,6 +26,7 @@ const CourseAddLessonSidebar = () => {
     refetchCourse,
     isShowLessonMaterial,
     setIsShowLessonMaterial,
+    setLessonMaterial,
   } = useTnaManagementCoursePageStore();
   const {
     mutate: deleteMaterial,
@@ -61,12 +63,12 @@ const CourseAddLessonSidebar = () => {
   }, [lesson]);
 
   useEffect(() => {
-    if (lesson && lessonData?.items?.length) {
+    if (lesson && lessonData?.items?.length && form) {
       const item = lessonData.items[0];
       setLesson(item);
       form.setFieldValue('lessons', [item]);
     }
-  }, [lessonData]);
+  }, [lessonData, form]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -130,6 +132,7 @@ const CourseAddLessonSidebar = () => {
             buttons={footerModalItems}
           />
         }
+        hideButton={isShowLessonMaterial}
         width="50%"
       >
         <Form
@@ -212,29 +215,35 @@ const CourseAddLessonSidebar = () => {
           </Form.List>
         </Form>
 
-        {lesson &&
-          lesson.courseLessonMaterials.map((material) => (
-            <Spin spinning={isLoadingDelete} key={material.id}>
-              <div className="mt-6">
-                <div className="text-sm text-gray-900 font-medium mb-2.5">
-                  Course Material Title
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-[54px] px-5 text-sm font-medium text-gray-900 rounded-lg border border-gray-200 bg-gray-100 flex items-center">
-                    {material.title}
+        {lesson && (
+          <>
+            {lesson.courseLessonMaterials.map((material) => (
+              <Spin spinning={isLoadingDelete} key={material.id}>
+                <div className="mt-6">
+                  <div className="text-sm text-gray-900 font-medium mb-2.5">
+                    Course Material Title
                   </div>
-                  <ActionButtons
-                    onEdit={() => {
-                      setIsShowLessonMaterial(true);
-                    }}
-                    onDelete={() => {
-                      deleteMaterial([material.id]);
-                    }}
-                  />
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-[54px] px-5 text-sm font-medium text-gray-900 rounded-lg border border-gray-200 bg-gray-100 flex items-center">
+                      {material.title}
+                    </div>
+                    <ActionButtons
+                      onEdit={() => {
+                        setLessonMaterial(material);
+                        setIsShowLessonMaterial(true);
+                      }}
+                      onDelete={() => {
+                        deleteMaterial([material.id]);
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            </Spin>
-          ))}
+              </Spin>
+            ))}
+
+            <CourseLessonMaterial />
+          </>
+        )}
       </CustomDrawerLayout>
     )
   );

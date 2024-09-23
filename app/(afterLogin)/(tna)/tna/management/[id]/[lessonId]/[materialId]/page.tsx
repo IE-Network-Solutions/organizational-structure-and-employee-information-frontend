@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Button } from 'antd';
 import { FaArrowLeftLong, FaArrowRightLong } from 'react-icons/fa6';
 import { useRouter } from 'next/navigation';
+import ReactPlayer from 'react-player';
 
 interface NextAndPrevLesson {
   next: CourseLessonMaterial | null;
@@ -41,10 +42,17 @@ const LessonPage = () => {
   return (
     lessonMaterial && (
       <div className="mt-6 max-w-[895px] mx-auto">
-        <div className="h-[500px] bg-success mb-6">123</div>
+        <div>
+          <ReactPlayer
+            url={lessonMaterial.videos[0]}
+            className="w-full aspect-video"
+            height="auto"
+            controls={true}
+          />
+        </div>
 
         {lessonMaterial.article && (
-          <div className="lesson-material-article px-12">
+          <div className="lesson-material-article px-12 mt-6">
             <div className="ql-container ql-snow">
               <div
                 className="ql-editor p-0"

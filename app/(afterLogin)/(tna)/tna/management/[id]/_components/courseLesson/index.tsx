@@ -49,7 +49,7 @@ const CourseLesson = () => {
 
       <CourseAddLessonSidebar />
 
-      <CourseLessonMaterial />
+      {!isShowAddLesson && <CourseLessonMaterial />}
     </div>
   );
 };

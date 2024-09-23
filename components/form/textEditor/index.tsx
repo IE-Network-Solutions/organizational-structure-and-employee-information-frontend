@@ -1,5 +1,5 @@
 'use client';
-import React, { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css';
 import { MdTitle } from 'react-icons/md';
@@ -20,7 +20,11 @@ const TextEditor: FC<TextEditorProps> = ({
   className = '',
   placeholder = '',
 }) => {
-  const toolbar = { container: '#textEditorToolbar' };
+  const [toolbar, setToolbar] = useState<any>(null);
+
+  useEffect(() => {
+    setToolbar({ container: '#textEditorToolbar' });
+  }, []);
 
   return (
     <div
@@ -43,14 +47,16 @@ const TextEditor: FC<TextEditorProps> = ({
         <button type="button" className="ql-align" value="center"></button>
       </div>
       <div className="p-6 h-[250px] overflow-y-auto">
-        <QuillEditor
-          modules={{
-            toolbar,
-          }}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-        />
+        {toolbar && (
+          <QuillEditor
+            modules={{
+              toolbar,
+            }}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+          />
+        )}
       </div>
     </div>
   );
