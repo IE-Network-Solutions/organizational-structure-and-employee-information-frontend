@@ -49,6 +49,9 @@ export interface CategoriesUseState {
   setCurrent: (value: number) => void;
   setOpen: (value: boolean) => void;
   setExpanded: (value: boolean) => void;
+
+  setSelectedUsers: (users: User[]) => void;
+
   clearSelectedUsers: () => void;
   deleteModal: boolean;
   deletedItem: string | null;
@@ -104,6 +107,7 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
         : [...state?.selectedDepartmentIds, departmentId], // Directly push departmentId
       isAllSelected: false,
     })),
+
   deselectAllUsers: () =>
     set(() => ({
       selectedUsers: [],
@@ -154,17 +158,7 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
     })),
   setCustomFields: (fields) => set({ customFields: fields }),
 
-  // setSelectedUsers: (users) => set({ selectedUsers: users }),
-  // addUser: (userId) =>
-  //   set((state) => ({
-  //     selectedUsers: [...state.selectedUsers, { userId }],
-  //   })),
-  // removeUser: (userId) =>
-  //   set((state) => ({
-  //     selectedUsers: state.selectedUsers.filter(
-  //       (user) => user.userId !== userId,
-  //     ),
-  //   })),
+  setSelectedUsers: (users) => set({ selectedUsers: users }),
   clearSelectedUsers: () => set({ selectedUsers: [] }),
   setDeleteModal: (isOpen) => set({ deleteModal: isOpen }),
   setDeletedFormItem: (itemId) => set({ deletedItem: itemId }),
