@@ -198,8 +198,8 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
             >
               <Collapse>
                 <Collapse.Panel header="Select employees" key="0">
-                  <div className="flex flex-col justify-center gap-2">
-                    <div className="flex items-center justify-start gap-2 border border-gray-200 rounded-md p-2">
+                  <div className="flex flex-col justify-center ">
+                    <div className="flex items-center justify-start gap-2 border border-gray-200 rounded-md p-2 mb-2">
                       <Checkbox
                         checked={isAllSelected}
                         onClick={handleSelectAll}
@@ -209,7 +209,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                     {departments?.map((dep: any, index: string) => (
                       <div
                         key={index}
-                        className="flex items-center justify-start gap-2 border border-gray-200 rounded-md p-2"
+                        className="flex items-center justify-start gap-2 border border-gray-200 rounded-md p-2 mb-2"
                       >
                         <Checkbox
                           checked={
