@@ -33,7 +33,6 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
       }
     } catch (errorInfo) {
       // Handle the validation failure (optional)
-      console.error('Validation failed:', errorInfo);
       // Optionally show an error message to the user
     }
   };
