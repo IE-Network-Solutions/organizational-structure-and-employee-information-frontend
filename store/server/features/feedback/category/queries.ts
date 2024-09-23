@@ -103,6 +103,20 @@ const fetchCatUsersById = async () => {
   });
 };
 
+const getEmployeeDepartments = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/all/departments`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 /**
  * Custom hook to fetch categories.
  * @param {number} pageSize - The number of categories to fetch per page.
@@ -160,4 +174,8 @@ export const useGetUsersById = () => {
   return useQuery<any>('categories', fetchCatUsersById, {
     keepPreviousData: true,
   });
+};
+
+export const useEmployeeDepartments = () => {
+  return useQuery<any>('department', getEmployeeDepartments);
 };
