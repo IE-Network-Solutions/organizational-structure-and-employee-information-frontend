@@ -7,6 +7,8 @@ import { Button } from 'antd';
 import { FaArrowLeftLong, FaArrowRightLong } from 'react-icons/fa6';
 import { useRouter } from 'next/navigation';
 import ReactPlayer from 'react-player';
+import FileButton from '@/components/common/fileButton';
+import { formatLinkToUploadFile } from '@/helpers/formatTo';
 
 interface NextAndPrevLesson {
   next: CourseLessonMaterial | null;
@@ -61,6 +63,22 @@ const LessonPage = () => {
             </div>
           </div>
         )}
+
+        <div className="mt-6">
+          <div className="text-lg font-bold text-gray-900 mb-3">
+            Attachments
+          </div>
+
+          <div className="flex flex-wrap gap-2.5">
+            {lessonMaterial.attachments.map((link) => (
+              <FileButton
+                key={link}
+                fileName={formatLinkToUploadFile(link).name}
+                link={link}
+              />
+            ))}
+          </div>
+        </div>
 
         <div className="flex justify-center gap-5 mt-10">
           <Button
