@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC, useState } from 'react';
 import { Button, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { HiOutlineDotsVertical } from 'react-icons/hi';
@@ -20,6 +20,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   onCancelDelete,
   className = '',
 }) => {
+  const [open, setOpen] = useState(false);
   const items: MenuProps['items'] = [];
 
   if (onOpen) {
@@ -30,7 +31,10 @@ const ActionButton: FC<ActionButtonProps> = ({
           size="large"
           className="w-full justify-normal"
           type="text"
-          onClick={onOpen}
+          onClick={(e) => {
+            onOpen(e);
+            setOpen(false);
+          }}
         >
           Open
         </Button>
@@ -47,7 +51,10 @@ const ActionButton: FC<ActionButtonProps> = ({
           size="large"
           className="w-full justify-normal"
           type="text"
-          onClick={onEdit}
+          onClick={(e) => {
+            onEdit(e);
+            setOpen(false);
+          }}
         >
           Edit
         </Button>
@@ -60,7 +67,13 @@ const ActionButton: FC<ActionButtonProps> = ({
     items.push({
       key: '2',
       label: (
-        <DeletePopover onCancel={onCancelDelete} onDelete={onDelete}>
+        <DeletePopover
+          onCancel={onCancelDelete}
+          onDelete={(e) => {
+            onDelete(e);
+            setOpen(false);
+          }}
+        >
           <Button size="large" className="w-full justify-normal" type="text">
             Delete
           </Button>
@@ -74,6 +87,7 @@ const ActionButton: FC<ActionButtonProps> = ({
     <Dropdown
       menu={{ items }}
       trigger={['click']}
+      open={open}
       placement="bottomRight"
       className={classNames(className)}
     >
@@ -81,7 +95,10 @@ const ActionButton: FC<ActionButtonProps> = ({
         icon={<HiOutlineDotsVertical size={20} className="text-gray-500" />}
         className="h-7 w-7"
         type="text"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(true);
+        }}
       />
     </Dropdown>
   );

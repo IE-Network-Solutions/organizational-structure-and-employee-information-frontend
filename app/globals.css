@@ -201,3 +201,11 @@ h6 {
 .lesson-card .ant-collapse-content {
   border: none !important;
 }
+
+.lesson-material-article {
+  @apply text-gray-600 text-base;
+}
+
+.lesson-material-article h3 {
+  @apply text-gray-900 text-[24px];
+}

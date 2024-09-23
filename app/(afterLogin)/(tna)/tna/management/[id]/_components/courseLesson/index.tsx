@@ -23,9 +23,9 @@ const CourseLesson = () => {
 
   return (
     <div>
-      {course?.courseLessons
-        ?.sort((a, b) => a.order - b.order)
-        ?.map((lesson) => <LessonCard key={lesson.id} lesson={lesson} />)}
+      {course?.courseLessons?.map((lesson) => (
+        <LessonCard key={lesson.id} lesson={lesson} />
+      ))}
 
       <div className="flex flex-col justify-center items-center gap-2.5">
         <Button
@@ -48,6 +48,7 @@ const CourseLesson = () => {
       </div>
 
       <CourseAddLessonSidebar />
+
       <CourseLessonMaterial />
     </div>
   );

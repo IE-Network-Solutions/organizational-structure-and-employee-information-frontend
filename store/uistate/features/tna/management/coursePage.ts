@@ -1,5 +1,5 @@
 import { create, StateCreator } from 'zustand';
-import { Course, CourseLesson } from '@/types/tna/course';
+import { Course, CourseLesson, CourseLessonMaterial } from '@/types/tna/course';
 
 type TnaManagementCoursePageState = {
   isShowAddLesson: boolean;
@@ -9,6 +9,7 @@ type TnaManagementCoursePageState = {
 
   isShowLessonMaterial: boolean;
   lesson: CourseLesson | null;
+  lessonMaterial: CourseLessonMaterial | null;
 };
 
 type TnaManagementCoursePageAction = {
@@ -19,6 +20,7 @@ type TnaManagementCoursePageAction = {
 
   setIsShowLessonMaterial: (isShowLessonMaterial: boolean) => void;
   setLesson: (lesson: CourseLesson | null) => void;
+  setLessonMaterial: (lessonMaterial: CourseLessonMaterial | null) => void;
 };
 
 const tnaManagementCoursePageSlice: StateCreator<
@@ -52,6 +54,11 @@ const tnaManagementCoursePageSlice: StateCreator<
   lesson: null,
   setLesson: (lesson) => {
     set({ lesson });
+  },
+
+  lessonMaterial: null,
+  setLessonMaterial: (lessonMaterial: CourseLessonMaterial | null) => {
+    set({ lessonMaterial });
   },
 });
 

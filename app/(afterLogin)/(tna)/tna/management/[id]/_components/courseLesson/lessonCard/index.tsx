@@ -7,6 +7,7 @@ import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/ma
 import { useDeleteCourseLesson } from '@/store/server/features/tna/lesson/mutation';
 import { RiTriangleFill } from 'react-icons/ri';
 import { classNames } from '@/utils/classNames';
+import Link from 'next/link';
 
 interface LessonCardProps {
   lesson: CourseLesson;
@@ -15,10 +16,10 @@ interface LessonCardProps {
 const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
   const [items, setItems] = useState<CollapseProps['items']>([]);
   const {
-    setLessonId,
+    course,
+    setLesson,
     setIsShowAddLesson,
     refetchCourse,
-    setLesson,
     setIsShowLessonMaterial,
   } = useTnaManagementCoursePageStore();
   const {
@@ -56,7 +57,7 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
               <ActionButton
                 onEdit={(e: MouseEvent) => {
                   e.stopPropagation();
-                  setLessonId(lesson.id);
+                  setLesson(lesson);
                   setIsShowAddLesson(true);
                 }}
                 onDelete={(e: MouseEvent) => {
@@ -69,20 +70,23 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
           children: (
             <div className="pl-9">
               {lesson.courseLessonMaterials.length ? (
-                lesson.courseLessonMaterials
-                  .sort((a, b) => a.order - b.order)
-                  .map((item) => (
-                    <div
-                      className="flex items-center gap-2 mb-1 last:mb-0"
-                      key={item.id}
+                lesson.courseLessonMaterials.map((item) => (
+                  <div
+                    className="flex items-center gap-2 mb-1 last:mb-0"
+                    key={item.id}
+                  >
+                    <Link
+                      href={`/tna/management/${course?.id}/${lesson.id}/${item.id}`}
+                      className="text-sm text-gray-600 hover:text-primary "
                     >
-                      <div className="text-sm text-gray-600">{item.title}</div>
-                      <div className="w-1 h-1 rounded-full bg-gray-900"></div>
-                      <div className="text-xs text-gray-400">
-                        {item.timeToFinishMinutes} minutes
-                      </div>
+                      {item.title}
+                    </Link>
+                    <div className="w-1 h-1 rounded-full bg-gray-900"></div>
+                    <div className="text-xs text-gray-400">
+                      {item.timeToFinishMinutes} minutes
                     </div>
-                  ))
+                  </div>
+                ))
               ) : (
                 <div className="text-sm text-gray-600">No-data</div>
               )}

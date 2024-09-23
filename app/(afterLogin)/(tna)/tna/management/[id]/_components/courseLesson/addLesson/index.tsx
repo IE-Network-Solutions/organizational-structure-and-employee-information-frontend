@@ -3,7 +3,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Flex, Form, Input, InputNumber } from 'antd';
+import { Flex, Form, Input, InputNumber, Spin } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import React, { useEffect } from 'react';
@@ -12,33 +12,58 @@ import AddFormFieldsButton from '@/components/common/formButtons/addFormFieldsBu
 import { useSetCourseLesson } from '@/store/server/features/tna/lesson/mutation';
 import { CourseLesson } from '@/types/tna/course';
 import { useGetCourseLessons } from '@/store/server/features/tna/lesson/queries';
+import ActionButtons from '@/components/common/actionButton/actionButtons';
+import { useDeleteCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
 
 const CourseAddLessonSidebar = () => {
   const {
     isShowAddLesson: isShow,
     setIsShowAddLesson: setIsShow,
     course,
-    lessonId,
-    setLessonId,
+    lesson,
+    setLesson,
+    refetchCourse,
+    isShowLessonMaterial,
+    setIsShowLessonMaterial,
   } = useTnaManagementCoursePageStore();
-  const { mutate: setLesson, isLoading, isSuccess } = useSetCourseLesson();
+  const {
+    mutate: deleteMaterial,
+    isLoading: isLoadingDelete,
+    isSuccess: isSuccessDelete,
+  } = useDeleteCourseLessonMaterial();
+  const { mutate: setLessons, isLoading, isSuccess } = useSetCourseLesson();
   const {
     data: lessonData,
     isFetching,
     refetch,
-  } = useGetCourseLessons({ filter: { id: [lessonId ?? ''] } }, false, false);
+  } = useGetCourseLessons({ filter: { id: [lesson?.id ?? ''] } }, false, false);
 
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (lessonId) {
+    if (isSuccessDelete && refetchCourse && lesson) {
+      refetchCourse();
       refetch();
     }
-  }, [lessonId]);
+  }, [isSuccessDelete]);
 
   useEffect(() => {
-    if (lessonId && lessonData?.items?.length) {
+    if (!isShowLessonMaterial && refetchCourse && lesson) {
+      refetchCourse();
+      refetch();
+    }
+  }, [isShowLessonMaterial]);
+
+  useEffect(() => {
+    if (lesson) {
+      refetch();
+    }
+  }, [lesson]);
+
+  useEffect(() => {
+    if (lesson && lessonData?.items?.length) {
       const item = lessonData.items[0];
+      setLesson(item);
       form.setFieldValue('lessons', [item]);
     }
   }, [lessonData]);
@@ -55,40 +80,38 @@ const CourseAddLessonSidebar = () => {
       key: 'cancel',
       className: 'h-14',
       size: 'large',
-      loading: isLoading || isFetching,
+      loading: isLoading || isFetching || isLoadingDelete,
       onClick: () => onClose(),
     },
     {
-      label: lessonId ? 'Edit' : 'Create',
+      label: lesson ? 'Edit' : 'Create',
       key: 'create',
       className: 'h-14',
       type: 'primary',
       size: 'large',
-      loading: isLoading || isFetching,
+      loading: isLoading || isFetching || isLoadingDelete,
       onClick: () => form.submit(),
     },
   ];
 
   const onClose = () => {
     form.resetFields();
-    setLessonId(null);
+    setLesson(null);
     setIsShow(false);
   };
 
   const onFinish = () => {
     const value = form.getFieldsValue();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { courseLessonMaterials, ...otherData } = lessonData?.items[0] ?? {};
-    const lessons: Partial<CourseLesson>[] = value['lessons'].map(
-      (lesson: any) => ({
-        ...(lessonId && otherData && otherData),
-        title: lesson.title,
-        order: lesson.order,
-        description: lesson.description,
-        courseId: course?.id ?? '',
-      }),
-    );
-    setLesson(lessons);
+    const { courseLessonMaterials, ...otherData } = lesson ?? {};
+    const lessons: Partial<CourseLesson>[] = value['lessons'].map((l: any) => ({
+      ...(lesson && otherData && otherData),
+      title: l.title,
+      order: l.order,
+      description: l.description,
+      courseId: course?.id ?? '',
+    }));
+    setLessons(lessons);
   };
 
   return (
@@ -98,7 +121,7 @@ const CourseAddLessonSidebar = () => {
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            {lessonId ? 'Edit' : 'Add'} Lesson
+            {lesson ? 'Edit' : 'Add'} Lesson
           </CustomDrawerHeader>
         }
         footer={
@@ -166,7 +189,7 @@ const CourseAddLessonSidebar = () => {
                         placeholder="Enter the Description"
                       />
                     </Form.Item>
-                    {!lessonId && (
+                    {!lesson && (
                       <Form.Item>
                         <div className="my-4 border-t border-gray-200"></div>
                       </Form.Item>
@@ -174,7 +197,7 @@ const CourseAddLessonSidebar = () => {
                   </React.Fragment>
                 ))}
 
-                {!lessonId && (
+                {!lesson && (
                   <Form.Item>
                     <AddFormFieldsButton
                       label="Add Lesson"
@@ -188,6 +211,30 @@ const CourseAddLessonSidebar = () => {
             )}
           </Form.List>
         </Form>
+
+        {lesson &&
+          lesson.courseLessonMaterials.map((material) => (
+            <Spin spinning={isLoadingDelete} key={material.id}>
+              <div className="mt-6">
+                <div className="text-sm text-gray-900 font-medium mb-2.5">
+                  Course Material Title
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-[54px] px-5 text-sm font-medium text-gray-900 rounded-lg border border-gray-200 bg-gray-100 flex items-center">
+                    {material.title}
+                  </div>
+                  <ActionButtons
+                    onEdit={() => {
+                      setIsShowLessonMaterial(true);
+                    }}
+                    onDelete={() => {
+                      deleteMaterial([material.id]);
+                    }}
+                  />
+                </div>
+              </div>
+            </Spin>
+          ))}
       </CustomDrawerLayout>
     )
   );
