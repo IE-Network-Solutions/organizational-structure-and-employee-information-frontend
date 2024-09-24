@@ -62,11 +62,13 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
                 {item.title}
               </div>
               <ActionButton
-                onEdit={() => {
+                onEdit={(e: MouseEvent) => {
+                  e.stopPropagation();
                   setCourseId(item.id);
                   setIsShowCourseSidebar(true);
                 }}
-                onDelete={() => {
+                onDelete={(e: MouseEvent) => {
+                  e.stopPropagation();
                   deleteCourse([item.id]);
                 }}
               />

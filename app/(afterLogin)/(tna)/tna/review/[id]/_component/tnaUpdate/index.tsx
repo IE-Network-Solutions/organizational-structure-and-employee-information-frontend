@@ -60,7 +60,10 @@ const TnaUpdateSidebar = () => {
     if (tnaId && data?.items?.length) {
       const item = data.items[0];
       form.setFieldValue('title', item.title);
-      form.setFieldValue('completedAt', dayjs(item.completedAt));
+      form.setFieldValue(
+        'completedAt',
+        item.completedAt ? dayjs(item.completedAt) : null,
+      );
       form.setFieldValue('certStatus', item.certStatus);
       if (item.trainingProofs?.length) {
         const attachmentValue = item.trainingProofs.map((item) => ({

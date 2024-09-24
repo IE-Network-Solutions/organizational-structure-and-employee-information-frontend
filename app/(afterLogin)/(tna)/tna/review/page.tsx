@@ -28,6 +28,7 @@ import {
   TrainingProof,
 } from '@/types/tna/tna';
 import FileButton from '@/components/common/fileButton';
+import { useDeleteTna } from '@/store/server/features/tna/review/mutation';
 
 const TnaReviewPage = () => {
   const router = useRouter();
@@ -54,6 +55,17 @@ const TnaReviewPage = () => {
     { page, limit, orderBy, orderDirection },
     { filter },
   );
+  const {
+    mutate: deleteTna,
+    isLoading: isLoadingDelete,
+    isSuccess,
+  } = useDeleteTna();
+
+  useEffect(() => {
+    if (isSuccess) {
+      refetch();
+    }
+  }, [isSuccess]);
 
   useEffect(() => {
     if (tnaCategoryData?.items?.length) {
@@ -176,6 +188,13 @@ const TnaReviewPage = () => {
             onOpen={() => {
               router.push('/tna/review/' + item.id);
             }}
+            onDelete={
+              item.certStatus !== TrainingNeedAssessmentCertStatus.COMPLETED
+                ? () => {
+                    deleteTna([item.id]);
+                  }
+                : undefined
+            }
           />
         </Space>
       ),
@@ -220,7 +239,7 @@ const TnaReviewPage = () => {
           className="mt-6"
           columns={tableColumns}
           dataSource={tableData}
-          loading={isLoading}
+          loading={isLoading || isLoadingDelete}
           pagination={defaultTablePagination(data?.meta?.totalItems)}
           onChange={(pagination, filters, sorter: any) => {
             setPage(pagination.current ?? 1);

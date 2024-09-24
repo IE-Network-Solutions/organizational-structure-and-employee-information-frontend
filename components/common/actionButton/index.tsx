@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Button, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { HiOutlineDotsVertical } from 'react-icons/hi';
@@ -23,6 +23,20 @@ const ActionButton: FC<ActionButtonProps> = ({
   const [open, setOpen] = useState(false);
   const items: MenuProps['items'] = [];
 
+  useEffect(() => {
+    const onCloseOpen = () => {
+      if (open) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('click', onCloseOpen);
+
+    return () => {
+      document.removeEventListener('click', onCloseOpen);
+    };
+  }, [open]);
+
   if (onOpen) {
     items.push({
       key: '0',
@@ -32,8 +46,8 @@ const ActionButton: FC<ActionButtonProps> = ({
           className="w-full justify-normal"
           type="text"
           onClick={(e) => {
-            onOpen(e);
             setOpen(false);
+            onOpen(e);
           }}
         >
           Open
@@ -52,8 +66,8 @@ const ActionButton: FC<ActionButtonProps> = ({
           className="w-full justify-normal"
           type="text"
           onClick={(e) => {
-            onEdit(e);
             setOpen(false);
+            onEdit(e);
           }}
         >
           Edit
@@ -70,8 +84,8 @@ const ActionButton: FC<ActionButtonProps> = ({
         <DeletePopover
           onCancel={onCancelDelete}
           onDelete={(e) => {
-            onDelete(e);
             setOpen(false);
+            onDelete(e);
           }}
         >
           <Button size="large" className="w-full justify-normal" type="text">
