@@ -2,7 +2,6 @@
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import React from 'react';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import CreatePlan from './_components/createPlan';
 import { Radio, Tabs } from 'antd';
 import { RadioChangeEvent } from 'antd/lib';
 import Planning from './_components/planning';
@@ -36,9 +35,6 @@ function page() {
             title="Planning & Reporting"
             subtitle="OKR setting"
           />
-          <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
-            <CreatePlan />
-          </div>
         </div>
         <div className="w-full h-auto space-y-4">
           <Radio.Group
