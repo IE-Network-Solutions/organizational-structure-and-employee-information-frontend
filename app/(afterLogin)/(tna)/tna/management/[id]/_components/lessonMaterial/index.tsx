@@ -90,13 +90,15 @@ const CourseLessonMaterial = () => {
       onClick: () => onClose(),
     },
     {
-      label: 'Create',
+      label: lessonMaterial ? 'Update' : 'Create',
       key: 'create',
       className: 'h-14',
       type: 'primary',
       size: 'large',
       loading: isLoading || isLoadingMaterial,
-      onClick: () => form.submit(),
+      onClick: () => {
+        form.submit();
+      },
     },
   ];
 
@@ -134,7 +136,7 @@ const CourseLessonMaterial = () => {
       onClose={() => onClose()}
       modalHeader={
         <CustomDrawerHeader className="flex justify-center">
-          Add
+          {lessonMaterial ? 'Update' : 'Add'}
           <span className="text-primary">&nbsp;{lesson?.title}&nbsp;</span>
           Course Material
         </CustomDrawerHeader>
@@ -193,10 +195,10 @@ const CourseLessonMaterial = () => {
           }}
         >
           <CustomUpload
-            dragable={true}
+            mode="dragWithLink"
             className="w-full mt-3"
             listType="picture"
-            dragLabel="Upload Your video"
+            title="Upload Your video"
             accept="video/*"
             maxCount={1}
           />
@@ -212,10 +214,10 @@ const CourseLessonMaterial = () => {
           }}
         >
           <CustomUpload
-            dragable={true}
+            mode="dragWithLink"
             className="w-full mt-3"
             listType="picture"
-            dragLabel="Upload Your Attachment"
+            title="Upload Your Attachment"
           />
         </Form.Item>
         <Row gutter={24}>

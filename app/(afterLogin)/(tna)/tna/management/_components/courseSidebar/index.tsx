@@ -159,11 +159,11 @@ const CourseCategorySidebar = () => {
             }}
           >
             <CustomUpload
-              dragable={true}
+              mode="draggable"
               className="w-full mt-3"
               listType="picture"
               accept="image/*"
-              dragLabel="Upload Your thumbnail"
+              title="Upload Your thumbnail"
               maxCount={1}
             />
           </Form.Item>

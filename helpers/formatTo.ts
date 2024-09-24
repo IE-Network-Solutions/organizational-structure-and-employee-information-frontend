@@ -130,7 +130,7 @@ export const formatLinkToUploadFile = (link: string): UploadFile => {
   const fileName = splitedLink[splitedLink.length - 1];
 
   return {
-    uid: fileName,
+    uid: fileName + Date.now(),
     name: fileName,
     status: 'done',
     response: link,
@@ -153,4 +153,23 @@ export const formatBase64ToFile = (
   }
 
   return new File([u8arr], fileName, { type: mime });
+};
+
+export const formatFileNameToShort = (
+  fileName: string,
+  maxLength: number = 10,
+) => {
+  if (fileName.length <= maxLength) {
+    return fileName;
+  }
+
+  const dotIndex = fileName.lastIndexOf('.');
+  if (dotIndex === -1 || dotIndex === 0) {
+    return fileName.slice(0, maxLength);
+  }
+
+  const extension = fileName.slice(dotIndex);
+  const nameWithoutExtension = fileName.slice(0, dotIndex);
+
+  return nameWithoutExtension.slice(0, maxLength) + extension.slice(0, 5);
 };

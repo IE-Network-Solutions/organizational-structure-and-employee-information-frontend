@@ -5,9 +5,9 @@ import { IoClose } from 'react-icons/io5';
 interface FileButtonProps {
   isPreview?: boolean;
   fileName: string;
-  link: string;
+  link?: string;
   className?: string;
-  onRemove?: () => void;
+  onRemove?: (e: any) => void;
 }
 
 const FileButton: FC<FileButtonProps> = ({
@@ -24,6 +24,9 @@ const FileButton: FC<FileButtonProps> = ({
         undefined,
         [className],
       )}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
     >
       <TbFileDownload size={16} />
       <span className="text-xs">{fileName}</span>

@@ -179,7 +179,7 @@ const TnaUpdateSidebar = () => {
                       }}
                     >
                       <CustomUpload
-                        dragable={true}
+                        mode="draggable"
                         className="w-full mt-3"
                         listType="picture"
                         accept="image/*"
