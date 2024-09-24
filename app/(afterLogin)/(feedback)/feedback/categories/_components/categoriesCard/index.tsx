@@ -97,16 +97,28 @@ const CategoriesCard: React.FC = () => {
       </div>
     );
 
+  const NoData = () => {
+    return (
+      <div className="w-full h-full flex justify-center items-center my-5">
+        <div>No Form Category available.</div>
+      </div>
+    );
+  };
+
   return (
     <div>
       <div className="flex flex-wrap gap-4 mb-[80px]">
-        {categories?.items.map((category: any) => (
-          <CategoryCard
-            key={category.id}
-            category={category}
-            onMenuClick={handleMenuClick}
-          />
-        ))}
+        {categories?.items && categories?.items?.length >= 1 ? (
+          categories?.items.map((category: any) => (
+            <CategoryCard
+              key={category.id}
+              category={category}
+              onMenuClick={handleMenuClick}
+            />
+          ))
+        ) : (
+          <NoData />
+        )}
       </div>
       <EditCategoryModal onConfirm={handleUpdate} userOptions={userOptions} />
       <DeleteModal

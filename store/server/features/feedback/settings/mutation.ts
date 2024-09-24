@@ -11,26 +11,6 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
 /**
- * @constant {string} token - The authentication token retrieved from the authentication store.
- */
-const token = useAuthenticationStore.getState().token;
-
-/**
- * @constant {string} tenantId - The tenant ID retrieved from the authentication store.
- */
-const tenantId = useAuthenticationStore.getState().tenantId;
-
-/**
- * @constant {Object} headers - Headers for API requests, including tenant ID and Bearer token for authorization.
- * @property {string} tenantId - The tenant ID for API requests.
- * @property {string} Authorization - Authorization header with Bearer token.
- */
-const headers = {
-  tenantId,
-  Authorization: `Bearer ${token}`,
-};
-
-/**
  * Creates a new custom question template by sending a POST request to the API.
  *
  * @async
@@ -39,6 +19,13 @@ const headers = {
  * @returns {Promise<any>} The response from the API.
  */
 const createQuestionTemplate = async (data: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
   return await crudRequest({
     url: `${ORG_DEV_URL}/custom-fields`,
     method: 'POST',
@@ -57,6 +44,13 @@ const createQuestionTemplate = async (data: any) => {
  * @returns {Promise<any>} The response from the API.
  */
 const updateQuestionTemplate = async (data: any, id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
   return await crudRequest({
     url: `${ORG_DEV_URL}/custom-fields/${id}`,
     method: 'PUT',
@@ -74,6 +68,13 @@ const updateQuestionTemplate = async (data: any, id: string) => {
  * @returns {Promise<any>} The response from the API.
  */
 const deleteQuestionTemplate = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
   const deletingQuestionId =
     useCustomQuestionTemplateStore.getState().deletingQuestionId;
   const pageSize = useCustomQuestionTemplateStore.getState().templatePageSize;

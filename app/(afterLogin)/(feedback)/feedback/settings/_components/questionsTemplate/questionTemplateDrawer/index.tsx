@@ -28,7 +28,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
         customFieldName: templateQuestions.customFieldName,
         fieldType: templateQuestions.fieldType,
         question: templateQuestions.customFieldName,
-        required: templateQuestions.required,
+        required: templateQuestions.required || false,
         field: templateQuestions.field.map((value: any) => {
           return {
             value,
@@ -110,7 +110,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                       required
                       name="fieldType"
                     >
-                      <Select placeholder="Select type">
+                      <Select allowClear placeholder="Select type">
                         <Option value="multiple_choice">Multiple Choice</Option>
                         <Option value="checkbox">Checkbox</Option>
                         <Option value="short_text">Short Text</Option>
@@ -180,7 +180,13 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                           <Form.Item
                             required={false}
                             key={field.key}
-                            initialValue={''}
+                            initialValue={{
+                              fieldType: '',
+                              question: '',
+                              field: [],
+                              customFieldName: '',
+                              required: false,
+                            }}
                           >
                             <div className="flex items-center gap-3">
                               {renderOptionInput(questionType)}
@@ -199,7 +205,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                               >
                                 <Input placeholder="Option" />
                               </Form.Item>
-                              {fields.length > 1 && (
+                              {fields.length > 0 && (
                                 <MinusCircleOutlined
                                   className="dynamic-delete-button"
                                   onClick={() => remove(field.name)}
