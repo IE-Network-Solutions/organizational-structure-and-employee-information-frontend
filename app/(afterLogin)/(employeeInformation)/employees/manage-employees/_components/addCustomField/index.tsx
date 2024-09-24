@@ -12,7 +12,7 @@ import {
   Divider,
   message,
 } from 'antd';
-import { v4 as uuidv4 } from 'uuid'; // Ensure uuidv4 is imported
+import { v4 as uuidv4 } from 'uuid';
 import { useAddEmployeeInformationForm } from '@/store/server/features/employees/employeeManagment/employeInformationForm/mutations';
 
 const { Option } = Select;

@@ -28,6 +28,7 @@ const Login: React.FC = () => {
     loading,
     setLoading,
     setToken,
+    setUserId,
     setLocalId,
     setTenantId,
   } = useAuthenticationStore();
@@ -38,6 +39,7 @@ const Login: React.FC = () => {
   useEffect(() => {
     if (fetchedTenantId?.tenantId) {
       setTenantId(fetchedTenantId?.tenantId);
+      setUserId(fetchedTenantId.id);
       message.loading({ content: 'Redirecting...', key: 'redirect' });
       router.push(`/employees/manage-employees`);
     }
