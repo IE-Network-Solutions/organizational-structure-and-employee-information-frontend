@@ -3,6 +3,8 @@ import React from 'react';
 import { Button, Input } from 'antd';
 import { IoAddSharp } from 'react-icons/io5';
 import JobCard from './_components/jobCard';
+import { useJobState } from '@/store/uistate/features/recruitment/jobs';
+import CreateJobs from './_components/createJobs';
 
 const jobList = [
   {
@@ -52,6 +54,11 @@ const jobList = [
   },
 ];
 const RecruitmentPage: React.FC = () => {
+  const { setAddNewDrawer } = useJobState();
+
+  const handleAddNewDrawer = () => {
+    setAddNewDrawer(true);
+  };
   return (
     <div className="p-8 min-h-screen">
       <div className="flex justify-between items-center mb-6">
@@ -67,9 +74,10 @@ const RecruitmentPage: React.FC = () => {
           <Button
             type="primary"
             icon={<IoAddSharp />}
+            onClick={() => handleAddNewDrawer()}
             className="bg-purple-600"
           >
-            + Add New
+            Add New
           </Button>
         </div>
       </div>
@@ -78,6 +86,7 @@ const RecruitmentPage: React.FC = () => {
           <JobCard key={job.id} job={job} />
         ))}
       </div>
+      <CreateJobs />
     </div>
   );
 };

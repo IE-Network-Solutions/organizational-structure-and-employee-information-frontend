@@ -41,7 +41,30 @@ const items: MenuItem[] = [
     key: '/recruitment',
     icon: <PiSuitcaseSimpleThin />,
     label: 'Recruitment',
+    children: [
+      {
+        key: '/recruitment/jobs',
+        label: 'Jobs',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/candidates',
+        label: 'Candidates',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/talent-pool',
+        label: 'Talent Pool',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/settings',
+        label: 'Settings',
+        icon: <FiSettings />,
+      },
+    ],
   },
+
   {
     key: '/timesheet',
     icon: <CiCalendar />,
