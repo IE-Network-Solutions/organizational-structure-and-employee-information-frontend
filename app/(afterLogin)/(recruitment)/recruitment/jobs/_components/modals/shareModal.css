@@ -1,0 +1,8 @@
+.icon-transition {
+    transition: transform 0.3s ease;
+  }
+  
+  .icon-transition:active {
+    transform: scale(1.2);
+  }
+  
