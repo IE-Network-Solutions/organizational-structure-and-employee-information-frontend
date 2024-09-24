@@ -1,156 +1,267 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
-import { usePlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { Avatar, Card, Col, Row, Tag, Typography } from 'antd';
+import { Avatar, Card, Col, Empty, Row, Tag, Tooltip, Typography } from 'antd';
 import React from 'react';
-import { BiCheckboxChecked } from 'react-icons/bi';
-import { FaCheck, FaPlus } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 import { IoIosClose } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
 import KeyResultMetrics from '../keyResult';
-import { useAllPlanningPeriods, useGetPlanning } from '@/store/server/features/okrPlanningAndReporting/queries';
+import {
+  AllPlanningPeriods,
+  useGetPlanning,
+} from '@/store/server/features/okrPlanningAndReporting/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { IoCheckmarkSharp } from 'react-icons/io5';
+import { useApprovalPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/mutations';
+import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
+import dayjs from 'dayjs';
+import { EmptyImage } from '@/components/emptyIndicator';
+import { groupTasksByMilestone } from '../dataTransformer';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 
 const { Text, Title } = Typography;
 
 function Planning() {
-  const { open, setOpen, setActivePlanPeriod,activePlanPeriod  } = usePlanningAndReportingStore();
-  const {data:planningPeriods}=useAllPlanningPeriods()
-  const {data:allPlanning}=useGetPlanning(
-    {teamUser: [],
-    employeeId:"",
-    periodId: "",
-    type:'allPlan',
-    status: 'pending'})
+  const { setOpen, selectedUser, activePlanPeriod } =PlanningAndReportingStore();
+  const { data: employeeData } = useGetAllUsers();
+  const { userId } = useAuthenticationStore();
+  const { mutate: approvalPlanningPeriod } = useApprovalPlanningPeriods();
+  const { data: departmentData } = useGetDepartmentsWithUsers();
+  const { data: planningPeriods } = AllPlanningPeriods();
+  const planningPeriodId =
+    planningPeriods?.[activePlanPeriod]?.planningPeriod?.id;
 
+  const { data: allPlanning } = useGetPlanning({
+    userId: selectedUser,
+    planPeriodId: planningPeriodId,
+  });
 
-  const titlesAndSubtitles = [
-    {
-      title: "The Comprehensive Guide to Web Development in 2024",
-      subtitles: [
-        {
-          subtitle: "An Introduction to Modern Web Development Frameworks and Technologies.",
-          priority: "high",
-          weight: 3.5
-        },
-        {
-          subtitle: "Exploring React, Vue, and Next.js: A Deep Dive into Front-end Libraries.",
-          priority: "high",
-          weight: 4.2
-        },
-        {
-          subtitle: "Serverless Architectures and Cloud-native Applications.",
-          priority: "high",
-          weight: 4.0
-        }
-      ]
-    },
-    {
-      title: "Mastering State Management and API Integration in JavaScript",
-      subtitles: [
-        {
-          subtitle: "Understanding State Management in JavaScript - from Redux to Zustand.",
-          priority: "high",
-          weight: 3.8
-        },
-        {
-          subtitle: "Advanced API Integration: Fetching Data with REST and GraphQL.",
-          priority: "high",
-          weight: 4.1
-        },
-        {
-          subtitle: "Optimizing Performance and Reducing Latency in API Calls.",
-          priority: "high",
-          weight: 4.3
-        }
-      ]
-    }
-  ];
-  
-  // const activeTabName = planningPeriods?.items?.[activePlanPeriod]?.name; 
+  const transformedData = groupTasksByMilestone(allPlanning);
+
+  const handleApproveHandler = (id: string, value: boolean) => {
+    const data = {
+      id: id,
+      value: value,
+    };
+    approvalPlanningPeriod(data);
+  };
+  const activeTabName =
+    planningPeriods?.[activePlanPeriod]?.planningPeriod?.name;
+  const getEmployeeData = (id: string) => {
+    const employeeDataDetail = employeeData?.items?.find(
+      (emp: any) => emp?.id === id,
+    );
+
+    return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
+  };
 
   return (
     <div>
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
-        <CustomButton
-          title={`Create activeTabName`}
-          id="createActiveTabName"
-          icon={<FaPlus className="mr-2" />}
-          onClick={() => setOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700"
-        />
+        {selectedUser.includes(userId) &&
+          (transformedData?.[0]?.isReported ?? false) && (
+            <CustomButton
+              title={`Create ${activeTabName}`}
+              id="createActiveTabName"
+              icon={<FaPlus className="mr-2" />}
+              onClick={() => setOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
+          )}
       </div>
-
       <EmployeeSearch
-        optionArray1={[{ key: "myPlan", value: "my plan" }, { key: "allPlan", value: "all Plan" }]}
+        optionArray1={employeeData?.items}
+        optionArray2={[
+          { key: 'myPlan', value: 'my plan' },
+          { key: 'allPlan', value: 'all Plan' },
+        ]}
+        optionArray3={departmentData}
       />
-      <Card
-        title={
-          <div>
-            <Row gutter={16} className="items-center">
-              <Col xs={4} sm={2} md={1}>
-                <Avatar style={{ verticalAlign: 'middle' }} size="large">
-                  user
-                </Avatar>
-              </Col>
-              <Col xs={20} sm={22} md={23}>
-                <Row className="font-bold text-lg mb-1">Dawit G.</Row>
-                <Row className="flex justify-between items-center">
-                  <Row gutter={16}>
-                    <Col className="text-gray-500 mr-1">Status</Col>
-                    <Col>
-                      <Avatar shape="square" style={{ backgroundColor: '#f5d002' }} icon={<MdOutlinePending />} />
-                    </Col>
-                    <Col>Pending</Col>
+      {transformedData?.map((dataItem: any, index: number) => (
+        <Card
+          key={index}
+          title={
+            <div>
+              <Row gutter={16} className="items-center">
+                <Col xs={4} sm={2} md={1}>
+                  <Avatar style={{ verticalAlign: 'middle' }} size="default">
+                    user
+                  </Avatar>
+                </Col>
+                <Col xs={20} sm={22} md={23}>
+                  <Row className="font-bold text-lg">
+                    <Row className="font-bold text-xs">
+                      {getEmployeeData(dataItem?.createdBy)?.firstName +
+                        ' ' +
+                        (getEmployeeData(dataItem?.createdBy)?.middleName
+                          ? getEmployeeData(dataItem?.createdBy)
+                              .middleName.charAt(0)
+                              .toUpperCase()
+                          : '')}
+                    </Row>
                   </Row>
-                  <Col span={10} className="flex justify-end items-center">
-                    <span className="mr-4 text-gray-500">August 26 2024, 5:32:55 PM</span>
-                    <Col className="mr-2">
-                      <Avatar shape="square" style={{ backgroundColor: '#148220' }} icon={<FaCheck />} />
-                    </Col>
-                    <Col>
-                      <Avatar shape="square" style={{ backgroundColor: '#b50d20' }} icon={<IoIosClose />} />
-                    </Col>
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
-          </div>
-        }
-      >
-      <KeyResultMetrics/>
-        {titlesAndSubtitles?.map((titleObj, titleIndex) => (
-        <Row key={titleIndex} className="mb-4">
-          <Col span={24}>
-            <strong>{`${titleIndex + 1}. ${titleObj.title}`}</strong>
-          </Col>
-          {titleObj.subtitles?.map((subtitleObj, subtitleIndex) => (
-              <Col className='ml-5' span={24} key={subtitleIndex}>
-                <Row>
-                  <Col>
-                    <Text strong>{`${titleIndex + 1}.${subtitleIndex + 1} ${subtitleObj.subtitle}`}</Text>
-                  </Col>
-                  <Col>
-                    <Row justify="start">
+                  <Row className="flex justify-between items-center">
+                    <Row gutter={16} justify={'start'}>
+                      <Col className="text-gray-500 text-xs">Status</Col>
                       <Col>
-                        <Text type="secondary">
-                          <span color='blue'>&bull;</span> Priority:{' '}
-                        </Text>
-                        <Tag color="red">{subtitleObj.priority}</Tag>
+                        <Avatar
+                          size={16}
+                          shape="square"
+                          className={`-mt-2 ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
+                          icon={<MdOutlinePending />}
+                        />
+                      </Col>
+                      <Col className="text-xs -ml-3">
+                        {dataItem?.isValidated ? 'Closed' : 'Open'}
+                      </Col>
+                    </Row>
+                    <Col span={10} className="flex justify-end items-center">
+                      <span className="mr-4 text-gray-500">
+                        {dayjs(dataItem?.createdAt).format(
+                          'MMMM D YYYY, h:mm:ss A',
+                        )}
+                      </span>
+                      <Col className="mr-2">
+                        <Tooltip title="Approve Plan">
+                          <Avatar
+                            size={16}
+                            alt="approve plan"
+                            className="cursor-pointer"
+                            shape="square"
+                            style={{ backgroundColor: '#148220' }}
+                            onClick={() =>
+                              handleApproveHandler(dataItem?.id, true)
+                            }
+                            icon={<IoCheckmarkSharp />}
+                          />
+                        </Tooltip>
                       </Col>
                       <Col>
-                        <Text type="secondary">
-                          <span color='blue'>&bull;</span> Weight:{' '}
-                        </Text>
-                        <Tag color="blue">{subtitleObj.weight}</Tag>
+                        <Tooltip title="Reject Plan">
+                          <Avatar
+                            size={16}
+                            alt="Reject Plan"
+                            className="cursor-pointer"
+                            shape="square"
+                            style={{ backgroundColor: '#b50d20' }}
+                            onClick={() =>
+                              handleApproveHandler(dataItem?.id, false)
+                            }
+                            icon={<IoIosClose />}
+                          />
+                        </Tooltip>
+                      </Col>
+                    </Col>
+                  </Row>
+                </Col>
+              </Row>
+            </div>
+          }
+        >
+          {dataItem.keyResults?.[0]?.tasks[0] ||
+            (dataItem?.milestones?.[0]?.tasks[0]?.keyResult && (
+              <KeyResultMetrics
+                keyResult={
+                  dataItem?.keyResults?.[0]?.tasks?.[0]?.keyResult ??
+                  dataItem?.milestones?.[0]?.tasks?.[0]?.keyResult ?? {
+                    id: 'defaultKeyResult',
+                    name: 'No Key Result Available',
+                    tasks: [],
+                  } // Default fallback object
+                }
+              />
+            ))}
+          <Col span={24}>
+            <strong>{`${dataItem.description || 'No Title'}`}</strong>
+          </Col>
+          {dataItem?.milestones?.map(
+            (milestone: any, milestoneIndex: number) => (
+              <Row key={milestoneIndex}>
+                <Col span={24}>
+                  <strong>{`${milestoneIndex + 1}. ${milestone?.description || 'No milestone Title'}`}</strong>
+                </Col>
+                {milestone?.tasks?.map((task: any, taskIndex: number) => (
+                  <Col className="ml-5" span={24} key={taskIndex}>
+                    <Row>
+                      <Col>
+                        <Text className="text-xs">{`${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`}</Text>
+                      </Col>
+                      <Col>
+                        <Row justify="start" className="gap-1">
+                          <Col>
+                            <Text type="secondary" className="text-xs">
+                              <span style={{ color: 'blue' }}>&bull;</span>{' '}
+                              Priority:{' '}
+                            </Text>
+                            <Tag
+                              color={
+                                task?.priority === 'high' ? 'red' : 'green'
+                              }
+                            >
+                              {task?.priority || 'None'}
+                            </Tag>
+                          </Col>
+                          <Col className="text-xs">
+                            <Text type="secondary" className="text-xs">
+                              <span style={{ color: 'blue' }}>&bull;</span>{' '}
+                              Weight:{' '}
+                            </Text>
+                            <Tag color="blue">{task?.weight || 'N/A'}</Tag>
+                          </Col>
+                        </Row>
                       </Col>
                     </Row>
                   </Col>
-                </Row>
-              </Col>
-            ))}</Row>
-        ))}
-      </Card>
+                ))}
+              </Row>
+            ),
+          )}
+          {dataItem?.keyResults?.map(
+            (keyResult: any, keyResultIndex: number) => (
+              <Row key={keyResultIndex}>
+                {keyResult?.tasks?.map((task: any, taskIndex: number) => (
+                  <Col className="ml-5" span={24} key={taskIndex}>
+                    <Row>
+                      <Col>
+                        <Text className="text-xs">{`${keyResultIndex + 1}.${taskIndex + 1} ${task?.task}`}</Text>
+                      </Col>
+                      <Col>
+                        <Row justify="start" className="gap-1">
+                          <Col>
+                            <Text type="secondary" className="text-xs">
+                              <span style={{ color: 'blue' }}>&bull;</span>{' '}
+                              Priority:{' '}
+                            </Text>
+                            <Tag
+                              color={
+                                task?.priority === 'high' ? 'red' : 'green'
+                              }
+                            >
+                              {task?.priority || 'None'}
+                            </Tag>
+                          </Col>
+                          <Col className="text-xs">
+                            <Text type="secondary" className="text-xs">
+                              <span style={{ color: 'blue' }}>&bull;</span>{' '}
+                              Weight:{' '}
+                            </Text>
+                            <Tag color="blue">{task?.weight || 'N/A'}</Tag>
+                          </Col>
+                        </Row>
+                      </Col>
+                    </Row>
+                  </Col>
+                ))}
+              </Row>
+            ),
+          )}
+        </Card>
+      ))}
+      {transformedData?.length <= 0 && (
+        <Empty description={'data not found'} image={<EmptyImage />} />
+      )}
     </div>
   );
 }
