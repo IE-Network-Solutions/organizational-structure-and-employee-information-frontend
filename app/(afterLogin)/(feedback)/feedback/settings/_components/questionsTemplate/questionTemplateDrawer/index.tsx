@@ -39,6 +39,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
 
       createQuestion(formattedValue);
       setIsOpen(false);
+      form.resetFields();
     } catch (error) {
       NotificationMessage.error({
         message: 'Publish Failed',
