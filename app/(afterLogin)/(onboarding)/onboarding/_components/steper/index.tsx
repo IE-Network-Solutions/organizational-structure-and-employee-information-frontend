@@ -35,6 +35,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useRouter } from 'next/navigation';
+import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -178,10 +179,16 @@ const OnboaringSteper: React.FC = () => {
     }
     toggleLoading();
   };
+  const { data: branches } = useGetBranches();
 
   const handleNextStep = () => {
     if (currentStep >= 4) {
-      nextStep();
+      branches && branches?.items?.length >= 1
+        ? nextStep()
+        : NotificationMessage.warning({
+            message: 'Branch Is not created Error',
+            description: 'You have to create at least one branch',
+          });
     } else {
       forms[currentStep]
         .validateFields()

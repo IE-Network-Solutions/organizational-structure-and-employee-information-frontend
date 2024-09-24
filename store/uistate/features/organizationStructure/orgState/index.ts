@@ -15,6 +15,13 @@ const useOrganizationStore = create<OrganizationState>((set) => ({
     department: [],
   },
   setOrgData: (data: OrgData) => set({ orgData: data }),
+  setBranchId: (branchId: string) =>
+    set((state) => ({
+      orgData: {
+        ...state.orgData,
+        branchId,
+      },
+    })),
   addDepartment: (parentId: string, department: Omit<Department, 'id'>) =>
     set((state) => {
       const newDepartment = { ...department, id: uuidv4() };

@@ -1,4 +1,5 @@
-import React from 'react';
+'use client';
+import React, { useEffect } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
 import { Card, Button, Menu, Dropdown, Tooltip, Modal } from 'antd';
 import {
@@ -7,11 +8,10 @@ import {
   MoreOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-
 import { Department } from '@/types/dashboard/organization';
 import DepartmentForm from '../departmentForm.tsx';
-// import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState/index.js';
-import useOrganizationStore from '../../../../../../store/uistate/features/organizationStructure/orgState';
+import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
+import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 
 interface DepartmentNodeProps {
   data: Department;
@@ -140,6 +140,7 @@ const OrgChartComponent: React.FC = () => {
     setParentId,
     isDeleteConfirmVisible,
     setIsDeleteConfirmVisible,
+    setBranchId,
   } = useOrganizationStore();
 
   const handleEdit = (department: Department) => {
@@ -173,6 +174,13 @@ const OrgChartComponent: React.FC = () => {
     }
     setIsDeleteConfirmVisible(false);
   };
+
+  const { data: branches } = useGetBranches();
+  useEffect(() => {
+    if (branches && branches?.items?.length > 0) {
+      setBranchId(branches?.items?.[0]?.id || '');
+    }
+  }, [branches, setBranchId]);
 
   return (
     <div className="w-full py-7 overflow-x-auto lg:overflow-x-visible">
