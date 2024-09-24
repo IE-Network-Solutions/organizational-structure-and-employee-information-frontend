@@ -75,6 +75,32 @@ const items: MenuItem[] = [
     icon: <PiSuitcaseSimpleThin />,
     className: 'font-bold',
     label: 'Recruitment',
+    children: [
+      {
+        key: '/recruitment/jobs',
+        label: 'Jobs',
+        icon: <UserOutlined />,
+        className: 'font-bold',
+      },
+      {
+        key: '/recruitment/candidates',
+        label: 'Candidates',
+        className: 'font-bold',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/talent-pool',
+        label: 'Talent Pool',
+        className: 'font-bold',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/settings',
+        label: 'Settings',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+    ],
   },
   {
     key: '/timesheet',
