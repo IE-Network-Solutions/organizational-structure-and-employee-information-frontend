@@ -14,7 +14,7 @@ export function middleware(req: NextRequest) {
     }
     if (isExcludedPath && token) {
       return NextResponse.redirect(
-        new URL('/employees/manage-employees', req.url),
+        new URL('/organization/org-structure', req.url),
       );
     }
     return NextResponse.next();
