@@ -19,6 +19,7 @@ import { EmptyImage } from '@/components/emptyIndicator';
 import { groupTasksByMilestone } from '../dataTransformer';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { PlanningType } from '@/types/enumTypes';
 
 const { Text, Title } = Typography;
 
@@ -30,7 +31,7 @@ function Planning() {
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
   const planningPeriodId =
-    planningPeriods?.[activePlanPeriod]?.planningPeriod?.id;
+    planningPeriods?.[activePlanPeriod-1]?.planningPeriod?.id;
 
   const { data: allPlanning } = useGetPlanning({
     userId: selectedUser,
@@ -47,7 +48,7 @@ function Planning() {
     approvalPlanningPeriod(data);
   };
   const activeTabName =
-    planningPeriods?.[activePlanPeriod]?.planningPeriod?.name;
+    planningPeriods?.[activePlanPeriod-1]?.planningPeriod?.name;
   const getEmployeeData = (id: string) => {
     const employeeDataDetail = employeeData?.items?.find(
       (emp: any) => emp?.id === id,
@@ -73,14 +74,12 @@ function Planning() {
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
-        optionArray2={[
-          { key: 'myPlan', value: 'my plan' },
-          { key: 'allPlan', value: 'all Plan' },
-        ]}
+        optionArray2={PlanningType}
         optionArray3={departmentData}
       />
       {transformedData?.map((dataItem: any, index: number) => (
         <Card
+          className={`${console.log(dataItem?.keyResults,dataItem?.milestones,"data item data")}`}
           key={index}
           title={
             <div>
@@ -160,19 +159,16 @@ function Planning() {
             </div>
           }
         >
-          {dataItem.keyResults?.[0]?.tasks[0] ||
-            (dataItem?.milestones?.[0]?.tasks[0]?.keyResult && (
-              <KeyResultMetrics
-                keyResult={
-                  dataItem?.keyResults?.[0]?.tasks?.[0]?.keyResult ??
-                  dataItem?.milestones?.[0]?.tasks?.[0]?.keyResult ?? {
-                    id: 'defaultKeyResult',
-                    name: 'No Key Result Available',
-                    tasks: [],
-                  } // Default fallback object
-                }
-              />
-            ))}
+        {dataItem?.keyResults?.[0] &&
+            <KeyResultMetrics
+              keyResult={
+              dataItem?.keyResults?.[0] ?? {
+                id: 'defaultKeyResult',
+                name: 'No Key Result Available',
+                tasks: [],
+              } // Default fallback object
+            }
+          />}
           <Col span={24}>
             <strong>{`${dataItem.description || 'No Title'}`}</strong>
           </Col>
@@ -206,9 +202,16 @@ function Planning() {
                           <Col className="text-xs">
                             <Text type="secondary" className="text-xs">
                               <span style={{ color: 'blue' }}>&bull;</span>{' '}
-                              Weight:{' '}
+                              point:{' '}
                             </Text>
                             <Tag color="blue">{task?.weight || 'N/A'}</Tag>
+                          </Col>
+                          <Col className="text-xs">
+                            <Text type="secondary" className="text-xs">
+                              <span style={{ color: 'blue' }}>&bull;</span>{' '}
+                              Target:{' '}
+                            </Text>
+                            <Tag color="blue">{task?.targetValue || 'N/A'}</Tag>
                           </Col>
                         </Row>
                       </Col>
@@ -228,7 +231,7 @@ function Planning() {
                         <Text className="text-xs">{`${keyResultIndex + 1}.${taskIndex + 1} ${task?.task}`}</Text>
                       </Col>
                       <Col>
-                        <Row justify="start" className="gap-1">
+                      <Row justify="start" className="gap-1">
                           <Col>
                             <Text type="secondary" className="text-xs">
                               <span style={{ color: 'blue' }}>&bull;</span>{' '}
@@ -245,9 +248,16 @@ function Planning() {
                           <Col className="text-xs">
                             <Text type="secondary" className="text-xs">
                               <span style={{ color: 'blue' }}>&bull;</span>{' '}
-                              Weight:{' '}
+                              point:{' '}
                             </Text>
                             <Tag color="blue">{task?.weight || 'N/A'}</Tag>
+                          </Col>
+                          <Col className="text-xs">
+                            <Text type="secondary" className="text-xs">
+                              <span style={{ color: 'blue' }}>&bull;</span>{' '}
+                              Target:{' '}
+                            </Text>
+                            <Tag color="blue">{task?.targetValue || 'N/A'}</Tag>
                           </Col>
                         </Row>
                       </Col>

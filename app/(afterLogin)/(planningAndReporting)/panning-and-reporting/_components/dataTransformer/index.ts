@@ -34,13 +34,14 @@ const groupByMilestone = (tasks: any) => {
 
     // Push the task under the respective milestone
     acc[milestoneId].tasks.push({
-      id: task.id,
-      task: task.task,
-      priority: task.priority,
-      createdAt: task.createdAt,
-      updatedAt: task.updatedAt,
-      targetValue: task.targetValue,
-      keyResult: { ...task.keyResult }, // Keep key result data if needed
+      id: task?.id,
+      task: task?.task,
+      priority: task?.priority,
+      createdAt: task?.createdAt,
+      updatedAt: task?.updatedAt,
+      targetValue: task?.targetValue,
+      weight: task?.weight,
+      keyResult: { ...task?.keyResult }, // Keep key result data if needed
     });
 
     return acc;
@@ -77,6 +78,7 @@ const groupTasksWithoutMilestoneByKeyResult = (tasks: any) => {
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
       targetValue: task.targetValue,
+      weight: task?.weight,
       milestone: { ...task.milestone }, // Keep milestone data if needed
     });
 

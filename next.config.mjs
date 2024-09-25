@@ -11,7 +11,7 @@ const nextConfig = {
     ORG_AND_EMP_URL: process.env.ORG_AND_EMP_URL,
     ORG_DEV_URL: process.env.ORG_DEV_URL,
     TENANT_MGMT_URL: process.env.TENANT_MGMT_URL,
-    NEXT_PUBLIC_OKR_URL: process.env.NEXT_PUBLIC_OKR_URL,
+    OKR_URL: process.env.OKR_URL,
 
   },
 };
