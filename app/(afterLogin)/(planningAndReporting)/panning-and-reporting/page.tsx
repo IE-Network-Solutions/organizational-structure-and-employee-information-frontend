@@ -23,7 +23,7 @@ function page() {
           {item?.planningPeriod.name}
         </span>
       ),
-      key: String(index+1),
+      key: String(index + 1),
       children: <Planning />,
     }));
   return (
