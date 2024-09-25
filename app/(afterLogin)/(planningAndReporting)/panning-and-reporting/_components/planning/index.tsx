@@ -79,7 +79,6 @@ function Planning() {
       />
       {transformedData?.map((dataItem: any, index: number) => (
         <Card
-          className={`${console.log(dataItem?.keyResults,dataItem?.milestones,"data item data")}`}
           key={index}
           title={
             <div>
