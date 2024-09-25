@@ -198,7 +198,7 @@ const TnaUpdateSidebar = () => {
                     )}
                   </Flex>
 
-                  <Flex gap={10} align="center" className="mt-3">
+                  <Flex gap={10} align="center">
                     <Form.Item
                       {...restField}
                       name={[name, 'link']}
@@ -212,7 +212,7 @@ const TnaUpdateSidebar = () => {
                         },
                       ]}
                     >
-                      <Input className="control mt-0" />
+                      <Input className="control" />
                     </Form.Item>
                     <Button
                       icon={<LuPlus size={16} />}
@@ -220,6 +220,7 @@ const TnaUpdateSidebar = () => {
                       type="primary"
                       htmlType="button"
                       onClick={add}
+                      className="mb-5 self-end"
                     >
                       Add link
                     </Button>

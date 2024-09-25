@@ -44,13 +44,13 @@ const TnaManagementPage = () => {
 
     if (value.search && value.search.trim().length > 0) {
       nFilter['modifiers'] = {
-        search: value.search.trim(),
+        search: `%${value.search.trim()}%`,
       };
     }
 
     if (value.courseCategoryId) {
       nFilter['filter'] = {
-        id: [value.courseCategoryId],
+        courseCategoryId: [value.courseCategoryId],
       };
     }
 

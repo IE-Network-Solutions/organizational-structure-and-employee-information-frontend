@@ -34,7 +34,9 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
     <Spin spinning={isLoading}>
       <Card
         hoverable
-        className={classNames('relative', {}, [className])}
+        className={classNames('relative', { 'opacity-70': item.isDraft }, [
+          className,
+        ])}
         cover={
           <img
             alt="example"
@@ -52,7 +54,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
               Draft <FaRegFile size={16} />
             </div>
           ) : (
-            'Saas'
+            item.courseCategory.title
           )}
         </div>
         <Meta

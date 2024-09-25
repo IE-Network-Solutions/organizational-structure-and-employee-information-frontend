@@ -1,6 +1,7 @@
 export interface CourseManagementRequestBody {
   filter: {
-    id: string[];
+    id?: string[];
+    courseCategoryId?: string[];
   };
   modifiers: {
     search: string;

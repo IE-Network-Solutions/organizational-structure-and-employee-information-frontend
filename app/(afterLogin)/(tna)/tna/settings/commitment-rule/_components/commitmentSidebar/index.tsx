@@ -11,6 +11,7 @@ import AddFormFieldsButton from '@/components/common/formButtons/addFormFieldsBu
 import RemoveFormFieldButton from '@/components/common/formButtons/removeFormFieldButton';
 import { useSetTnaCommitment } from '@/store/server/features/tna/commitment/mutation';
 import { useGetTnaCommitment } from '@/store/server/features/tna/commitment/queries';
+import { StoreValue } from 'rc-field-form/lib/interface';
 
 const TnaCommitmentSidebar = () => {
   const {
@@ -87,6 +88,21 @@ const TnaCommitmentSidebar = () => {
     }
   };
 
+  const validateMinMAxAmount = (
+    getFieldValue: (name: (string | number)[]) => StoreValue,
+    name: number,
+  ) => ({
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    validator() {
+      const max = getFieldValue(['rules', name, 'amountMax']);
+      const min = getFieldValue(['rules', name, 'amountMin']);
+      if (!(min && max) || min <= max) {
+        return Promise.resolve();
+      }
+      return Promise.reject(new Error('Invalid Amount'));
+    },
+  });
+
   return (
     isShow && (
       <CustomDrawerLayout
@@ -150,7 +166,12 @@ const TnaCommitmentSidebar = () => {
                           {...restField}
                           name={[name, 'amountMin']}
                           label="Amount Min"
-                          rules={[{ required: true, message: 'Required' }]}
+                          rules={[
+                            { required: true, message: 'Required' },
+                            ({ getFieldValue }) =>
+                              validateMinMAxAmount(getFieldValue, name),
+                          ]}
+                          dependencies={[['rules', name, 'amountMax']]}
                           className="form-item"
                         >
                           <InputNumber
@@ -166,7 +187,12 @@ const TnaCommitmentSidebar = () => {
                           {...restField}
                           name={[name, 'amountMax']}
                           label="Amount Max"
-                          rules={[{ required: true, message: 'Required' }]}
+                          rules={[
+                            { required: true, message: 'Required' },
+                            ({ getFieldValue }) =>
+                              validateMinMAxAmount(getFieldValue, name),
+                          ]}
+                          dependencies={[['rules', name, 'amountMin']]}
                           className="form-item"
                         >
                           <InputNumber
