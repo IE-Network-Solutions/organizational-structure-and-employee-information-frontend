@@ -55,18 +55,22 @@ const groupByMilestone = (tasks: any[]) => {
   return Object.values(milestoneMap);
 };
 export const groupTasksByKeyResultAndMilestone = (plans: any) => {
-  let groupedDataByKeyResult = groupTasksByKeyResultId(plans);
+  const groupedDataByKeyResult = groupTasksByKeyResultId(plans);
 
   return groupedDataByKeyResult?.map((plan: any) => {
     return {
       ...plan,
       keyResults: plan?.keyResults?.map((keyResult: any) => {
-        const tasksWithoutMilestone = keyResult?.tasks?.filter((task: any) => !task.milestone);
-        const milestones = groupByMilestone(keyResult?.tasks?.filter((task: any) => task.milestone));
+        const tasksWithoutMilestone = keyResult?.tasks?.filter(
+          (task: any) => !task.milestone,
+        );
+        const milestones = groupByMilestone(
+          keyResult?.tasks?.filter((task: any) => task.milestone),
+        );
         return {
           ...keyResult,
-          tasks: tasksWithoutMilestone,  // Tasks without a milestone
-          milestones: milestones,  // Grouped tasks with a milestone
+          tasks: tasksWithoutMilestone, // Tasks without a milestone
+          milestones: milestones, // Grouped tasks with a milestone
         };
       }),
     };
