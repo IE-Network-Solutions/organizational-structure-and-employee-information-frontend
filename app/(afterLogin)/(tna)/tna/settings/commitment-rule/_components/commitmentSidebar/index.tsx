@@ -11,8 +11,7 @@ import AddFormFieldsButton from '@/components/common/formButtons/addFormFieldsBu
 import RemoveFormFieldButton from '@/components/common/formButtons/removeFormFieldButton';
 import { useSetTnaCommitment } from '@/store/server/features/tna/commitment/mutation';
 import { useGetTnaCommitment } from '@/store/server/features/tna/commitment/queries';
-import dayjs from 'dayjs';
-import { RuleObject, StoreValue } from 'rc-field-form/lib/interface';
+import { StoreValue } from 'rc-field-form/lib/interface';
 
 const TnaCommitmentSidebar = () => {
   const {
