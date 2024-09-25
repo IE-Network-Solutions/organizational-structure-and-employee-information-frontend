@@ -30,9 +30,9 @@ const CategoriesCard: React.FC = () => {
     useFetchCategories(
       pageSize,
       current,
-      searchParams?.category_name,
-      searchParams?.category_description,
-      searchParams?.createdBy,
+      searchParams?.category_name || '',
+      searchParams?.category_description || '',
+      searchParams?.createdBy || '',
     );
 
   const updateCategory = useUpdateFormCategory();

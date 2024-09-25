@@ -7,6 +7,7 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteQuestionTemplate } from '@/store/server/features/feedback/settings/mutation';
 import FeedbackPagination from '../../../../_components/feedbackPagination';
 import EditQuestionTemplate from './questionTemplateEdit';
+import { Spin } from 'antd';
 
 const QuestionTemplateCard: React.FC<any> = () => {
   const {
@@ -23,10 +24,8 @@ const QuestionTemplateCard: React.FC<any> = () => {
     setEditingQuestion,
   } = useCustomQuestionTemplateStore();
 
-  const { data: questionTemplate } = useFetchQuestionTemplate(
-    templatePageSize,
-    templateCurrentPage,
-  );
+  const { data: questionTemplate, isLoading: isTemplateLoading } =
+    useFetchQuestionTemplate(templatePageSize, templateCurrentPage);
 
   const { mutate: deleteTemplate } = useDeleteQuestionTemplate();
 
@@ -47,6 +46,13 @@ const QuestionTemplateCard: React.FC<any> = () => {
     deleteTemplate(deletingQuestionId);
     setDeleteModal(false);
   };
+
+  if (isTemplateLoading)
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spin size="large" />
+      </div>
+    );
 
   return (
     <>
