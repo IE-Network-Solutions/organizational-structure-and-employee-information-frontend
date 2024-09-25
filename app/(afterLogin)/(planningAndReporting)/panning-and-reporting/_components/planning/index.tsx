@@ -1,6 +1,6 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
-import { Avatar, Card, Col, Empty, Row, Tag, Tooltip, Typography } from 'antd';
+import { Avatar, Card, Col, Row, Tag, Tooltip, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { IoIosClose } from 'react-icons/io';
