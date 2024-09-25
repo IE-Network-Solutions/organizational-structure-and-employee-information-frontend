@@ -9,7 +9,7 @@ export interface CourseCategory extends DateInfo {
 
 export interface CourseLessonMaterial extends DateInfo {
   id: string;
-  courseMaterialId: string;
+  courseLessonId: string;
   title: string;
   description: string | null;
   article: string | null;
@@ -26,7 +26,7 @@ export interface CourseLesson extends DateInfo {
   title: string;
   description: string | null;
   order: number;
-  courseLessonMaterial: CourseLessonMaterial[];
+  courseLessonMaterials: CourseLessonMaterial[];
   tenantId: string;
 }
 

@@ -4,7 +4,7 @@ import { Button, Col, Popover, Row } from 'antd';
 interface DeletePopoverProps {
   titleText?: string;
   onCancel?: () => void;
-  onDelete?: () => void;
+  onDelete?: (e?: any) => void;
   children: ReactNode;
   disabled?: boolean;
 }

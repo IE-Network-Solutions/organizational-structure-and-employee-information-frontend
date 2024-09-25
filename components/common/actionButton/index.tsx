@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Button, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { HiOutlineDotsVertical } from 'react-icons/hi';
@@ -6,10 +6,10 @@ import { classNames } from '@/utils/classNames';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
 
 export interface ActionButtonProps {
-  onOpen?: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onCancelDelete?: () => void;
+  onOpen?: (e?: any) => void;
+  onEdit?: (e?: any) => void;
+  onDelete?: (e?: any) => void;
+  onCancelDelete?: (e?: any) => void;
   className?: string;
 }
 
@@ -20,7 +20,22 @@ const ActionButton: FC<ActionButtonProps> = ({
   onCancelDelete,
   className = '',
 }) => {
+  const [open, setOpen] = useState(false);
   const items: MenuProps['items'] = [];
+
+  useEffect(() => {
+    const onCloseOpen = () => {
+      if (open) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('click', onCloseOpen);
+
+    return () => {
+      document.removeEventListener('click', onCloseOpen);
+    };
+  }, [open]);
 
   if (onOpen) {
     items.push({
@@ -30,7 +45,10 @@ const ActionButton: FC<ActionButtonProps> = ({
           size="large"
           className="w-full justify-normal"
           type="text"
-          onClick={onOpen}
+          onClick={(e) => {
+            setOpen(false);
+            onOpen(e);
+          }}
         >
           Open
         </Button>
@@ -47,7 +65,10 @@ const ActionButton: FC<ActionButtonProps> = ({
           size="large"
           className="w-full justify-normal"
           type="text"
-          onClick={onEdit}
+          onClick={(e) => {
+            setOpen(false);
+            onEdit(e);
+          }}
         >
           Edit
         </Button>
@@ -60,7 +81,13 @@ const ActionButton: FC<ActionButtonProps> = ({
     items.push({
       key: '2',
       label: (
-        <DeletePopover onCancel={onCancelDelete} onDelete={onDelete}>
+        <DeletePopover
+          onCancel={onCancelDelete}
+          onDelete={(e) => {
+            setOpen(false);
+            onDelete(e);
+          }}
+        >
           <Button size="large" className="w-full justify-normal" type="text">
             Delete
           </Button>
@@ -74,6 +101,7 @@ const ActionButton: FC<ActionButtonProps> = ({
     <Dropdown
       menu={{ items }}
       trigger={['click']}
+      open={open}
       placement="bottomRight"
       className={classNames(className)}
     >
@@ -81,6 +109,10 @@ const ActionButton: FC<ActionButtonProps> = ({
         icon={<HiOutlineDotsVertical size={20} className="text-gray-500" />}
         className="h-7 w-7"
         type="text"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(true);
+        }}
       />
     </Dropdown>
   );

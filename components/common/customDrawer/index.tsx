@@ -9,6 +9,7 @@ interface CustomDrawerLayoutProps {
   children: React.ReactNode;
   width?: string;
   footer?: React.ReactNode;
+  hideButton?: boolean;
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -18,12 +19,13 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   children,
   width,
   footer,
+  hideButton = false,
 }) => {
   return (
     <div>
       <>
         {' '}
-        {open && (
+        {open && !hideButton && (
           <Button
             id="closeSidebarButton"
             className="bg-white text-lg text-grey-9 rounded-full mr-8 hidden md:flex"

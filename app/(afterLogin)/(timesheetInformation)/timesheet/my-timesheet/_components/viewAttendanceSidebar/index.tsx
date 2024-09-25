@@ -12,6 +12,7 @@ import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHea
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import {
+  AttendanceBreak,
   AttendanceRecord,
   AttendanceRecordTypeBadgeTheme,
 } from '@/types/timesheet/attendance';
@@ -82,34 +83,37 @@ const ViewAttendanceSidebar = () => {
     setIsShowViewSidebar(false);
   };
 
-  const lateInfo = (date: string | null, late: number) => {
+  const lateInfo = (record: AttendanceRecord | AttendanceBreak) => {
     return (
       <InfoItem
-        value={date ? dayjs(date).format(TIME_FORMAT) : '-'}
-        info="AAIT"
+        value={record.startAt ? dayjs(record.startAt).format(TIME_FORMAT) : '-'}
+        info={record.geolocations[0]?.allowedArea?.title ?? ''}
       >
-        {late > 0 && (
+        {record.lateByMinutes > 0 && (
           <div className="text-error text-[10px]">
             <span className="font-bold">late by </span> &nbsp;
-            {minuteToHour(late)} hr &nbsp;
-            {minuteToLastMinute(late)} min
+            {minuteToHour(record.lateByMinutes)} hr &nbsp;
+            {minuteToLastMinute(record.lateByMinutes)} min
           </div>
         )}
       </InfoItem>
     );
   };
 
-  const earlyInfo = (date: string | null, early: number) => {
+  const earlyInfo = (record: AttendanceRecord | AttendanceBreak) => {
     return (
       <InfoItem
-        value={date ? dayjs(date).format(TIME_FORMAT) : '-'}
-        info="AAIT"
+        value={record.endAt ? dayjs(record.endAt).format(TIME_FORMAT) : '-'}
+        info={
+          record.geolocations[record?.geolocations.length - 1]?.allowedArea
+            ?.title ?? ''
+        }
       >
-        {early > 0 && (
+        {record.earlyByMinutes > 0 && (
           <div className="text-error text-[10px]">
             <span className="font-bold">early by </span> &nbsp;
-            {minuteToHour(early)} hr &nbsp;
-            {minuteToLastMinute(early)} min
+            {minuteToHour(record.earlyByMinutes)} hr &nbsp;
+            {minuteToLastMinute(record.earlyByMinutes)} min
           </div>
         )}
       </InfoItem>
@@ -168,13 +172,13 @@ const ViewAttendanceSidebar = () => {
                 <div className="text-sm text-gray-900 font-medium mb-2.5">
                   Clock-In
                 </div>
-                {lateInfo(attendance.startAt, attendance.lateByMinutes)}
+                {lateInfo(attendance)}
               </Col>
               <Col span={12}>
                 <div className="text-sm text-gray-900 font-medium mb-2.5">
                   Clock-Out
                 </div>
-                {earlyInfo(attendance.endAt, attendance.earlyByMinutes)}
+                {earlyInfo(attendance)}
               </Col>
 
               {attendance.attendanceBreaks.map((item) => (
@@ -183,13 +187,13 @@ const ViewAttendanceSidebar = () => {
                     <div className="text-sm text-gray-900 font-medium mb-2.5">
                       {item.breakType.title} Checkin
                     </div>
-                    {lateInfo(item.startAt, item.lateByMinutes)}
+                    {lateInfo(item)}
                   </Col>
                   <Col span={12}>
                     <div className="text-sm text-gray-900 font-medium mb-2.5">
                       {item.breakType.title} Checkout
                     </div>
-                    {earlyInfo(item.endAt, item.earlyByMinutes)}
+                    {earlyInfo(item)}
                   </Col>
                 </React.Fragment>
               ))}
