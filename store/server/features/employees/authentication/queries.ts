@@ -17,7 +17,9 @@ const getTenantId = async () => {
     };
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/users/firebase/${localId}`,
-      { headers },
+      {
+        headers,
+      },
     );
     return response.data;
   } catch (error) {

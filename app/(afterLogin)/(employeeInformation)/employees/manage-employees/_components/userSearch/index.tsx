@@ -116,7 +116,7 @@ const EmployeeSearch: React.FC = () => {
             <Col lg={8} sm={12} xs={24}>
               <Select
                 id={`selectStatus${searchParams.allStatus}`}
-                placeholder="All Status"
+                placeholder="Active"
                 onChange={handleStatusChange}
                 allowClear
                 className="w-full h-14"

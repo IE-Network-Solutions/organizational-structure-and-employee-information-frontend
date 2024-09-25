@@ -24,7 +24,7 @@ import { AiOutlineUserAdd } from 'react-icons/ai';
 import JobTimeLineForm from '../allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../allFormData/workScheduleForm';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import moment from 'moment';
+import dayjs from 'dayjs';
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Employee Name',
@@ -125,17 +125,17 @@ const UserTable = () => {
                 src={
                   item?.profileImage && typeof item?.profileImage === 'string'
                     ? (() => {
-                      try {
-                        const parsed = JSON.parse(item.profileImage);
-                        return parsed.url && parsed.url.startsWith('http')
-                          ? parsed.url
-                          : Avatar;
-                      } catch {
-                        return item.profileImage.startsWith('http')
-                          ? item.profileImage
-                          : Avatar;
-                      }
-                    })()
+                        try {
+                          const parsed = JSON.parse(item.profileImage);
+                          return parsed.url && parsed.url.startsWith('http')
+                            ? parsed.url
+                            : Avatar;
+                        } catch {
+                          return item.profileImage.startsWith('http')
+                            ? item.profileImage
+                            : Avatar;
+                        }
+                      })()
                     : Avatar
                 }
                 alt="Description of image"
@@ -171,15 +171,13 @@ const UserTable = () => {
       action: (
         <div className="flex gap-4 text-white">
           <Link href={`manage-employees/${item?.id}`}>
-            <Tooltip title={'View Employee Detail'}>
-              <Button
-                id={`editUserButton${item?.id}`}
-                disabled={item?.deletedAt !== null}
-                className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
-              >
-                <FaEye />
-              </Button>
-            </Tooltip>
+            <Button
+              id={`editUserButton${item?.id}`}
+              disabled={item?.deletedAt !== null}
+              className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
+            >
+              <FaEye />
+            </Button>
           </Link>
           <Tooltip title={'Delete Employee'}>
             <Button
@@ -223,7 +221,7 @@ const UserTable = () => {
     }
   };
   const rowSelection = {
-    onChange: () => { },
+    onChange: () => {},
     getCheckboxProps: (record: EmployeeData) => ({
       disabled: record.employee_name === 'Disabled User',
       name: record.employee_name,
@@ -232,12 +230,17 @@ const UserTable = () => {
 
   const handleActivateEmployee = (values: any) => {
     values['userId'] = userToRehire?.id;
-    values.joinedDate = moment(values.joinedDate).format('YYYY-MM-DD');
+    values.joinedDate = dayjs(values.joinedDate).format('YYYY-MM-DD');
 
     values.departmentLeadOrNot = !values.departmentLeadOrNot
       ? false
       : values.departmentLeadOrNot;
-    rehireEmployee(values);
+    rehireEmployee(values, {
+      onSuccess: () => {
+        setReHireModalVisible(false);
+        form.resetFields();
+      },
+    });
   };
   const handelRehireModal = (user: any) => {
     setUserToRehire(user);
@@ -301,7 +304,6 @@ const UserTable = () => {
                 htmlType="submit"
                 value={'submit'}
                 name="submit"
-                onClick={() => setReHireModalVisible(false)}
               >
                 Submit
               </Button>
@@ -310,7 +312,10 @@ const UserTable = () => {
                 htmlType="button"
                 value={'cancel'}
                 name="cancel"
-                onClick={() => setReHireModalVisible(false)}
+                onClick={() => {
+                  setReHireModalVisible(false);
+                  form.resetFields();
+                }}
               >
                 Cancel{' '}
               </Button>
