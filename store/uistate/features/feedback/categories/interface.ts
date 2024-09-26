@@ -8,4 +8,5 @@ export interface SubcategoryCardProps {
   completedCount?: number;
   totalCount?: number;
   resolvedCount?: number;
+  formsId: string;
 }
