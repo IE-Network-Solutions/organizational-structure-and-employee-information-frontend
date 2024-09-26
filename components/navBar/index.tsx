@@ -88,7 +88,7 @@ const items: MenuItem[] = [
 
   {
     key: '/feedback ',
-    label: 'Organizational Development',
+    label: 'Feedback',
     icon: <UserOutlined />,
     className: 'font-bold',
     children: [
