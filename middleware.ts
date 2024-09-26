@@ -9,21 +9,19 @@ export function middleware(req: NextRequest) {
     const pathname = url.pathname;
     const excludePath = '/authentication/login';
     const isExcludedPath = pathname.startsWith(excludePath);
-
-    // if (!isExcludedPath && !token) {
-    //   return NextResponse.redirect(new URL('/authentication/login', req.url));
-    // }
-    // if (isExcludedPath && token) {
-    //   return NextResponse.redirect(
-    //     new URL('/employees/manage-employees', req.url),
-    //   );
-    // }
+    if (!isExcludedPath && !token) {
+      return NextResponse.redirect(new URL('/authentication/login', req.url));
+    }
+    if (isExcludedPath && token) {
+      return NextResponse.redirect(
+        new URL('/employees/manage-employees', req.url),
+      );
+    }
     return NextResponse.next();
   } catch (error) {
     return NextResponse.next(); // Proceed to next response in case of error
   }
 }
-
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

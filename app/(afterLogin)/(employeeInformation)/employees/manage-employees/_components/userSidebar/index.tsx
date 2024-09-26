@@ -24,7 +24,7 @@ const { Step } = Steps;
 const UserSidebar = (props: any) => {
   const [form] = Form.useForm();
   const { setCurrent, current, open } = useEmployeeManagementStore();
-  const { mutate: createEmployee, isLoading } = useAddEmployee();
+  const { mutate: createEmployee, isLoading, isSuccess } = useAddEmployee();
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -34,6 +34,7 @@ const UserSidebar = (props: any) => {
 
   const handleCreateUser = (values: any) => {
     createEmployee(transformData(values));
+    isSuccess && form.resetFields();
   };
 
   const onChange = (value: number) => {
@@ -48,7 +49,7 @@ const UserSidebar = (props: any) => {
         {current >= step ? (
           <IoCheckmarkSharp className="text-xs font-bold" />
         ) : (
-          '•'
+          '•' 
         )}
       </div>
     </div>

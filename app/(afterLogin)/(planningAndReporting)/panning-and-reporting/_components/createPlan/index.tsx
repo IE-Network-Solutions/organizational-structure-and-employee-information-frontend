@@ -1,11 +1,6 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { usePlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import {
-  Button,
-  Collapse,
-  Divider,
-  Form,
-} from 'antd';
+import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { Button, Collapse, Divider, Form } from 'antd';
 import React from 'react';
 import { BiPlus } from 'react-icons/bi';
 import BoardCardForm from './boardFormView';
@@ -14,7 +9,7 @@ import { useFetchObjectives } from '@/store/server/features/employees/planning/q
 import DefaultCardForm from './defaultForm';
 
 function CreatePlan({}) {
-  const { open, setOpen, weights } = usePlanningAndReportingStore();
+  const { open, setOpen, weights } = PlanningAndReportingStore();
 
   const onClose = () => setOpen(false);
   const [form] = Form.useForm();
@@ -22,7 +17,7 @@ function CreatePlan({}) {
   const { data: objective } = useFetchObjectives(
     '53d2c779-ddb9-4b02-a2a8-4ca9f0171ca3',
   );
-//TODO: Replace the hardcoded user value
+  //TODO: Replace the hardcoded user value
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Create New plan

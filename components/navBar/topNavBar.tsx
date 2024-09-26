@@ -8,9 +8,11 @@ const { Header } = Layout;
 interface NavBarProps {
   page: string;
   userid: string;
+  handleLogout: () => void;
 }
 
-const NavBar = ({ page, userid }: NavBarProps) => {
+const NavBar = ({ page, userid, handleLogout }: NavBarProps) => {
+
   const menu = (
     <Menu>
       <Menu.Item>
@@ -23,10 +25,8 @@ const NavBar = ({ page, userid }: NavBarProps) => {
           Settings
         </a>
       </Menu.Item>
-      <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/logout`}>
-          Logout
-        </a>
+      <Menu.Item onClick={handleLogout}>
+        Logout
       </Menu.Item>
     </Menu>
   );
