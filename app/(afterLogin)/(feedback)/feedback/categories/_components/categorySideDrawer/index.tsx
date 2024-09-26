@@ -63,6 +63,7 @@ const CategorySideDrawer: React.FC<any> = (props) => {
       users: selectedUsers,
     });
     handleCloseDrawer();
+    form.resetFields();
   };
 
   return (

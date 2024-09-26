@@ -94,7 +94,7 @@ const items: MenuItem[] = [
     children: [
       {
         key: '/feedback/categories',
-        label: 'Category',
+        label: 'Form',
         icon: <UserOutlined />,
         className: 'font-bold',
       },
