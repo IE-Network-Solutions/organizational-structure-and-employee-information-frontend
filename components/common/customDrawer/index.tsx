@@ -8,7 +8,7 @@ interface CustomDrawerLayoutProps {
   modalHeader: any;
   children: React.ReactNode;
   width?: string;
-  footer?: React.ReactNode;
+  footer?: React.ReactNode | null;
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -17,7 +17,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   modalHeader,
   children,
   width,
-  footer,
+  footer = null,
 }) => {
   return (
     <div>
