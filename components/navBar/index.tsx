@@ -20,7 +20,7 @@ const { Header, Content, Sider } = Layout;
 import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
 import { FiSettings } from 'react-icons/fi';
-import { CiCalendar, CiSettings } from 'react-icons/ci';
+import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuUsers2 } from 'react-icons/lu';
 
@@ -105,6 +105,34 @@ const items: MenuItem[] = [
         label: 'Settings',
         className: 'font-bold',
         icon: <FiSettings />,
+      },
+    ],
+  },
+  {
+    key: '/okr-planning ',
+    label: 'OKR & Planning',
+    icon: <CiStar size={20} />,
+    className: 'font-bold',
+    children: [
+      {
+        key: '/dashboard',
+        label: 'Dashboard',
+        className: 'font-bold',
+      },
+      {
+        key: '/okr',
+        label: 'OKR',
+        className: 'font-bold',
+      },
+      {
+        key: '/reprimand-appreciation',
+        label: 'Reprimand & Appreciation',
+        className: 'font-bold',
+      },
+      {
+        key: '/setting',
+        label: 'Setting',
+        className: 'font-bold',
       },
     ],
   },
@@ -255,7 +283,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           <NavBar page="Home" userid="12345" />
         </Header>
         <Content
-          className="mt-6 min-h-screen"
+          className="overflow-y-hidden min-h-screen"
           style={{
             paddingTop: isMobile ? 64 : 24,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
@@ -263,10 +291,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           <div
-            className="p-2"
+            className="p-2 bg-white overflow-auto"
             style={{
               borderRadius: borderRadiusLG,
-              marginTop: '2.5rem',
+              marginTop: '3rem',
+              marginRight: '1.3rem',
             }}
           >
             {children}
