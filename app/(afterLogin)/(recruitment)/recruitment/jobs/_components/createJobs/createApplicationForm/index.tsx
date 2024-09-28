@@ -53,25 +53,26 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
   const handlePublish = async () => {
     try {
       const createNewJobFormValues = form.getFieldsValue();
-      const formattedValues = {
-        questions: [
-          createNewJobFormValues?.map((e: any) => {
-            return {
-              ...e,
-              field: e?.questions?.field?.map((field: any) => ({
-                key: uuidv4(),
-                value: field,
-              })),
-            };
-          }),
-        ],
-      };
-      const combinedValues = {
-        createNewJobFormValues,
-        // formattedValues,
-      };
+      console.log(createNewJobFormValues, 'createNewJobFormValues');
+      // const formattedValues = {
+      //   questions: [
+      //     createNewJobFormValues?.map((e: any) => {
+      //       return {
+      //         ...e,
+      //         field: e?.questions?.field?.map((field: any) => ({
+      //           key: uuidv4(),
+      //           value: field,
+      //         })),
+      //       };
+      //     }),
+      //   ],
+      // };
+      // const combinedValues = {
+      //   createNewJobFormValues,
+      //   // formattedValues,
+      // };
 
-      createJob(combinedValues);
+      createJob(createNewJobFormValues);
       setAddNewDrawer(false);
     } catch {
       NotificationMessage.error({

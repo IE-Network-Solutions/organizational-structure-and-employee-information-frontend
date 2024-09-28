@@ -4,10 +4,23 @@ import { Card, Col, Row, Typography } from 'antd';
 import { CalendarDays } from 'lucide-react';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
+import CustomFieldsDrawer from './customFieldsDrawer';
+import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
 
 const { Title } = Typography;
 
 const CustomAddJobFields: React.FC = () => {
+  const { isCustomFieldsDrawerOpen, setIsCustomFieldsDrawerOpen } =
+    useRecruitmentSettingsStore();
+
+  const onClose = () => {
+    setIsCustomFieldsDrawerOpen(false);
+  };
+  const showDrawer = () => {
+    setIsCustomFieldsDrawerOpen(true);
+  };
+  console.log(isCustomFieldsDrawerOpen, 'isCustomFieldsDrawerOpensbvjsbv');
+
   return (
     <div className="bg-[#F5F5F5] px-2 h-auto min-h-screen w-full">
       <div className="flex gap-2 items-center mb-4">
@@ -33,15 +46,15 @@ const CustomAddJobFields: React.FC = () => {
                 title="New Field"
                 id="createUserButton"
                 icon={<FaPlus size={13} className="mr-2" />}
-                // onClick={showDrawer}
+                onClick={showDrawer}
                 className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
               />
-              {/* <QuestionTemplateDrawer onClose={onClose} /> */}
             </div>
             {/* <QuestionTemplateCard /> */}
           </Card>
         </Col>
       </Row>
+      <CustomFieldsDrawer onClose={onClose} />
     </div>
   );
 };
