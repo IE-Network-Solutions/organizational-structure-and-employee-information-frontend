@@ -7,3 +7,7 @@ export enum FieldType {
   DROPDOWN = 'dropdown',
   RADIO = 'radio',
 }
+export const PlanningType = [
+  { key: 'myPlan', value: 'my plan' },
+  { key: 'allPlan', value: 'all Plan' },
+];

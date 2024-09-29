@@ -106,6 +106,12 @@ const items: MenuItem[] = [
       },
     ],
   },
+  {
+    key: '/panning-and-reporting',
+    label: 'Panning & Reporting',
+    icon: <UserOutlined />,
+    className: 'font-bold',
+  },
 ];
 
 interface MyComponentProps {
