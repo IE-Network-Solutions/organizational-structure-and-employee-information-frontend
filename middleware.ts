@@ -1,27 +1,24 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { getCookie } from './helpers/storageHelper';
+import { validateToken } from './utils/validation';
 
-export function middleware(req: NextRequest) {
-  try {
-    const token = getCookie('token', req);
-    const url = req.nextUrl;
-    const pathname = url.pathname;
-    const excludePath = '/authentication/login';
-    const isExcludedPath = pathname.startsWith(excludePath);
+export async function middleware(req: NextRequest) {
+  const token = getCookie('token', req);
+  const tenantId = getCookie('tenantId', req);
+  const pathname = req.nextUrl.pathname;
+  const isLoginPath = pathname === '/authentication/login';
 
-    if (!isExcludedPath && !token) {
-      return NextResponse.redirect(new URL('/authentication/login', req.url));
-    }
-    if (isExcludedPath && token) {
+  if (token && tenantId && validateToken(token)) {
+    if (isLoginPath) {
       return NextResponse.redirect(
         new URL('/employees/manage-employees', req.url),
       );
     }
-    return NextResponse.next();
-  } catch (error) {
-    return NextResponse.next(); // Proceed to next response in case of error
+  } else if (!isLoginPath) {
+    return NextResponse.redirect(new URL('/authentication/login', req.url));
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
