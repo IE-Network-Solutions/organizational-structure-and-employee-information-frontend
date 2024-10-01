@@ -33,6 +33,24 @@ const getPlanningDataById = async (planningId: string) => {
   return await crudRequest({
     url: `${OKR_URL}/plan-tasks/${planningId}`,
     method: 'get',
+ 
+    headers,
+  });
+  }; 
+const getReportingData = async (params: DataType) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+
+
+  return await crudRequest({
+    url: `${OKR_URL}/okr-report/by-planning-period/${params?.planPeriodId}`,
+    method: 'post',
+    data: params?.userId.length === 0 ? [''] : params?.userId,
     headers,
   });
 };
@@ -70,4 +88,7 @@ export const useGetPlanningById = (plannigId: string) => {
       enabled: plannigId !== null && plannigId !== '',
     },
   );
+};
+export const useGetReporting = (params: DataType) => {
+  return useQuery<any>(['okrReports', params], () => getReportingData(params));
 };

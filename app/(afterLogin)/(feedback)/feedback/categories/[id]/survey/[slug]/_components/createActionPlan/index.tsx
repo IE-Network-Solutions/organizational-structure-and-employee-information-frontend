@@ -11,6 +11,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { TiDeleteOutline } from 'react-icons/ti';
 import Image from 'next/image';
 import { useGetActionPlanById } from '@/store/server/features/organization-development/categories/queries';
+import Avatar from '@/public/gender_neutral_avatar.jpg';
 
 const { Option } = Select;
 
@@ -36,6 +37,8 @@ const CreateActionPlan = (props: any) => {
       Add New Action Plan
     </div>
   );
+
+
 
   const plusOnClickHandler = () => {
     setNumberOfActionPlan(numberOfActionPlan + 1);
@@ -180,9 +183,11 @@ const CreateActionPlan = (props: any) => {
                         <Option key="active" value={item.id}>
                           <div className="flex space-x-3 p-1 rounded">
                             <Image
-                              src={`${item?.profileImage}`}
+                              src={item?.profileImage ?? Avatar}
                               alt="pep"
                               className="rounded-full w-4 h-4 mt-2"
+                              width={15}
+                              height={15}
                             />
                             <span className="flex justify-center items-center">
                               {item?.firstName + ' ' + ' ' + item?.middleName}

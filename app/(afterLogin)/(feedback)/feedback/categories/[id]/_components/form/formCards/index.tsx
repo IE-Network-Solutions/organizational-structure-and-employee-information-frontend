@@ -55,9 +55,9 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
   const { data: formsByCategoryId, isLoading: isFormCardsLoading } =
     useGetFormsByCategoryID(
       id,
-      searchFormParams?.form_name,
-      searchFormParams?.form_description,
-      searchFormParams?.createdBy,
+      searchFormParams?.form_name || '',
+      searchFormParams?.form_description || '',
+      searchFormParams?.createdBy || '',
       pageSize,
       current,
     );
@@ -181,7 +181,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
   return (
     <>
       <div className="flex items-center flex-wrap justify-start gap-4 h-full">
-        {formsByCategoryId?.items &&
+        {formsByCategoryId?.items && formsByCategoryId?.items?.length > 0 ? (
           formsByCategoryId?.items?.map((form: any, index: number) => (
             <div key={index} className="flex justify-start items-center h-full">
               {form?.questions &&
@@ -322,7 +322,10 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                 </Card>
               )}
             </div>
-          ))}
+          ))
+        ) : (
+          <div className="text-center my-5">No forms available.</div>
+        )}
       </div>
       <FeedbackPagination
         current={current}

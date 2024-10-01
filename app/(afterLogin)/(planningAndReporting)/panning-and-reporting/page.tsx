@@ -8,6 +8,7 @@ import Planning from './_components/planning';
 import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
 import CreatePlan from './_components/createPlan';
 import EditPlan from './_components/editPlan';
+import Reporting from './_components/reporting';
 
 function page() {
   const { setActiveTab, activeTab, setActivePlanPeriod } =
@@ -17,7 +18,6 @@ function page() {
   const onChange = (e: RadioChangeEvent) => {
     setActiveTab(e.target.value);
   };
-
   const TabsContent = () =>
     planningPeriods?.map((item: any, index: number) => ({
       label: (
@@ -26,7 +26,7 @@ function page() {
         </span>
       ),
       key: String(index + 1),
-      children: <Planning />,
+      children: activeTab === 1 ? <Planning /> : <Reporting />,
     }));
   return (
     <div>

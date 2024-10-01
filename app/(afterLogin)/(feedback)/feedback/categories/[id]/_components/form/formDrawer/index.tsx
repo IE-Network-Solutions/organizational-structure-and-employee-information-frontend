@@ -7,32 +7,38 @@ import {
   Form,
   Input,
   Row,
-  Select,
   Switch,
+  Collapse,
+  Checkbox,
 } from 'antd';
 import React from 'react';
 import { CalendarOutlined } from '@ant-design/icons';
 import {
-  useFetchUsers,
+  useEmployeeDepartments,
   useGetFormCategories,
 } from '@/store/server/features/feedback/category/queries';
 import { useAddForm } from '@/store/server/features/feedback/form/mutation';
 import TextArea from 'antd/es/input/TextArea';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
+import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
+import Image from 'next/image';
+import Avatar from '@/public/gender_neutral_avatar.jpg';
 
-const { Option } = Select;
 function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
-  const { data: employees } = useFetchUsers();
   const { data: formCategories } = useGetFormCategories(id);
+  const { data: departments } = useEmployeeDepartments();
   const { mutate: addForm } = useAddForm();
+  const { isAddOpen, setIsAddOpen, clearSelectedUsers } = useDynamicFormStore();
 
   const {
-    isAddOpen,
-    setIsAddOpen,
     selectedUsers,
-    setSelectedUsers,
-    clearSelectedUsers,
-  } = useDynamicFormStore();
+    selectAllUsers,
+    isAllSelected,
+    selectedDepartmentIds,
+    deselectAllUsers,
+    toggleUserSelection,
+    toggleDepartmentSelection,
+  } = CategoriesManagementStore();
 
   const [form] = Form.useForm();
 
@@ -47,12 +53,25 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
     form.resetFields();
     clearSelectedUsers();
   };
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      deselectAllUsers();
+    } else {
+      selectAllUsers(
+        departments?.flatMap(
+          (department: any) =>
+            department?.users?.map((user: any) => ({
+              userId: user?.id,
+            })) || [],
+        ) || [],
+      );
+    }
+  };
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
     const { name, description, surveyStartDate, surveyEndDate, Select } =
       values;
-
     const startDate = surveyStartDate.toISOString();
     const endDate = surveyEndDate.toISOString();
 
@@ -67,6 +86,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
       status: 'published',
     });
     handleCloseDrawer();
+    form.resetFields();
   };
 
   return (
@@ -123,7 +143,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
               />
             </Form.Item>
             <Row gutter={[16, 24]} className="mb-8">
-              <Col lg={10} sm={24} xs={24}>
+              <Col lg={12} sm={24} xs={24}>
                 <Form.Item
                   name="surveyStartDate"
                   label={
@@ -145,7 +165,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                   />
                 </Form.Item>
               </Col>
-              <Col lg={10} sm={24} xs={24}>
+              <Col lg={12} sm={24} xs={24}>
                 <Form.Item
                   name="surveyEndDate"
                   label={
@@ -171,29 +191,83 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
             <Form.Item
               label={
                 <span className="text-md my-2 font-semibold text-gray-700">
-                  {formCategories?.name} Group
+                  Permitted Employees
                 </span>
               }
               required
               rules={[{ required: true, message: 'Please select employees' }]}
             >
-              <Select
-                mode="multiple"
-                size="large"
-                className="text-sm w-full h-10"
-                allowClear
-                placeholder="Select employees"
-                value={selectedUsers.map((user) => user.userId)}
-                onChange={(userIds: string[]) =>
-                  setSelectedUsers(userIds.map((id) => ({ userId: id })))
-                }
-              >
-                {employees?.items.map((employee: any) => (
-                  <Option key={employee.id} value={employee.id}>
-                    {employee?.firstName + ' ' + employee?.middleName}
-                  </Option>
-                ))}
-              </Select>
+              <Collapse>
+                <Collapse.Panel header="Select employees" key="0">
+                  <div className="flex flex-col justify-center ">
+                    <div className="flex items-center justify-start gap-2 border border-gray-200 rounded-md p-2 mb-2">
+                      <Checkbox
+                        checked={isAllSelected}
+                        onClick={handleSelectAll}
+                      />
+                      <div className="text-md font-medium">All</div>
+                    </div>
+                    {departments?.map((dep: any, index: string) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-start gap-2 border border-gray-200 rounded-md p-2 mb-2"
+                      >
+                        <Checkbox
+                          checked={
+                            isAllSelected
+                              ? isAllSelected
+                              : selectedDepartmentIds?.some(
+                                  (selectedDep: any) =>
+                                    selectedDep?.id === dep.id,
+                                )
+                          }
+                          onChange={() => toggleDepartmentSelection(dep)}
+                        />
+                        <div className="text-md font-medium">{dep?.name}</div>
+                      </div>
+                    ))}
+                    {departments?.map((department: any) => (
+                      <div key={department?.id}>
+                        {department?.users
+                          .filter((user: any) => user)
+                          .map((user: any) => (
+                            <div
+                              key={user?.id}
+                              className="flex items-center justify-start gap-5 rounded-md border border-gray-200 p-2"
+                            >
+                              <Checkbox
+                                checked={selectedUsers?.some(
+                                  (selectedUser) =>
+                                    selectedUser?.userId === user.id,
+                                )}
+                                onChange={() => toggleUserSelection(user?.id)}
+                              />
+                              <div className="flex items-center justify-start gap-2">
+                                <div className="flex items-center justify-center">
+                                  <Image
+                                    className="rounded-full"
+                                    src={user?.profileImage ?? Avatar}
+                                    alt="Employee Profile Image"
+                                    width={15}
+                                    height={15}
+                                  />
+                                </div>
+                                <div className="flex flex-col items-start justify-center">
+                                  <div className="font-semibold text-md">
+                                    {user?.firstName + ' ' + user?.middleName}
+                                  </div>
+                                  <div className="text-xs font-light">
+                                    {user?.email}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    ))}
+                  </div>
+                </Collapse.Panel>
+              </Collapse>
             </Form.Item>
             <Form.Item
               name="isAnonymous"
