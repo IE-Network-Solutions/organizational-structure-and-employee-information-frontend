@@ -30,7 +30,7 @@ const getReportingData = async (params: DataType) => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${OKR_URL}/okr-report/${params?.planPeriodId}`,
+    url: `${OKR_URL}/okr-report/by-planning-period/${params?.planPeriodId}`,
     method: 'post',
     data: params?.userId.length === 0 ? [''] : params?.userId,
     headers,

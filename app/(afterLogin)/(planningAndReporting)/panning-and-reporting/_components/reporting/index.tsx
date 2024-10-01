@@ -19,7 +19,7 @@ import { EmptyImage } from '@/components/emptyIndicator';
 import { groupTasksByKeyResultAndMilestone } from '../dataTransformer';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { PlanningType } from '@/types/enumTypes';
+import { PlanningType, ReportingType } from '@/types/enumTypes';
 
 const { Text, Title } = Typography;
 
@@ -33,13 +33,14 @@ function Reporting() {
   const { data: planningPeriods } = AllPlanningPeriods();
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
-
     const { data: allReporting } = useGetReporting({
         userId: selectedUser,
         planPeriodId: planningPeriodId,
       });
 
   const transformedData = groupTasksByKeyResultAndMilestone(allReporting);
+
+  console.log(selectedUser,planningPeriodId,allReporting,"**************")
 
   const handleApproveHandler = (id: string, value: boolean) => {
     const data = {
@@ -76,7 +77,7 @@ function Reporting() {
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
-        optionArray2={PlanningType}
+        optionArray2={ReportingType}
         optionArray3={departmentData}
       />
       {transformedData?.map((dataItem: any, index: number) => (

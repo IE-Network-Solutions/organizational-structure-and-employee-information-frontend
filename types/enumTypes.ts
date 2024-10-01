@@ -11,3 +11,7 @@ export const PlanningType = [
   { key: 'myPlan', value: 'my plan' },
   { key: 'allPlan', value: 'all Plan' },
 ];
+export const ReportingType = [
+  { key: 'myReport', value: 'my Report' },
+  { key: 'allReport', value: 'all Report' },
+];
