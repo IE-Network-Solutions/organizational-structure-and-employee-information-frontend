@@ -22,6 +22,21 @@ const getPlanningData = async (params: DataType) => {
   });
 };
 
+const getPlanningDataById = async (planningId: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/plan-tasks/${planningId}`,
+    method: 'get',
+    headers,
+  });
+};
+
 const getAllPlanningPeriods = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -45,4 +60,14 @@ export const AllPlanningPeriods = () => {
 
 export const useGetPlanning = (params: DataType) => {
   return useQuery<any>(['okrPlans', params], () => getPlanningData(params));
+};
+
+export const useGetPlanningById = (plannigId: string) => {
+  return useQuery<any>(
+    ['okrPlans', plannigId],
+    () => getPlanningDataById(plannigId),
+    {
+      enabled: plannigId !== null && plannigId !== '',
+    },
+  );
 };

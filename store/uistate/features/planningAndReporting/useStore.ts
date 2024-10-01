@@ -5,6 +5,8 @@ import { devtools } from 'zustand/middleware';
 export interface PlanningAndReporting {
   open: boolean;
   setOpen: (open: boolean) => void;
+  isEditing: boolean;
+  setEditing: (open: boolean) => void;
   activeTab: number;
   setActiveTab: (activeTab: number) => void;
 
@@ -19,14 +21,21 @@ export interface PlanningAndReporting {
   setWeight: (key: string, weight: number) => void;
   removeWeight: (key: string) => void;
   resetWeights: () => void;
+
+  selectedPlanId: string;
+  setSelectedPlanId: (selectedPlanId: string) => void;
 }
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
   devtools((set) => ({
     open: false,
     setOpen: (open: boolean) => set({ open }),
-
+    isEditing: false,
+    setEditing: (isEditing: boolean) => set({ isEditing }),
     activeTab: 1,
     setActiveTab: (activeTab: number) => set({ activeTab }),
+
+    selectedPlanId: '',
+    setSelectedPlanId: (selectedPlanId: string) => set({ selectedPlanId }),
 
     activePlanPeriod: 1,
     setActivePlanPeriod: (activePlanPeriod: number) =>
@@ -49,7 +58,12 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
 
     removeWeight: (key) =>
       set((state) => {
-        const { [key]: _, ...remainingWeights } = state.weights;
+        /* eslint-disable-next-line @typescript-eslint/naming-convention */
+        /*eslint-disable @typescript-eslint/no-unused-vars */
+        const { [key]: index, ...remainingWeights } = state.weights;
+        /*eslint-enable @typescript-eslint/no-unused-vars */
+        /* eslint-ensable-next-line @typescript-eslint/naming-convention */
+
         const newTotal = Object.values(remainingWeights).reduce(
           (acc, val) => acc + val,
           0,

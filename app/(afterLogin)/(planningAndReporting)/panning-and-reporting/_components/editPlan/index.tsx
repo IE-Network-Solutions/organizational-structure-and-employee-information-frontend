@@ -1,36 +1,49 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { Button, Collapse, Divider, Form, Tooltip } from 'antd';
+import React, { useEffect } from 'react';
 import { BiPlus } from 'react-icons/bi';
 import BoardCardForm from '../planForms/boardFormView';
-import { useCreatePlanTasks } from '@/store/server/features/employees/planning/mutation';
+import { useUpdatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import DefaultCardForm from '../planForms/defaultForm';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
+import {
+  AllPlanningPeriods,
+  useGetPlanningById,
+} from '@/store/server/features/okrPlanningAndReporting/queries';
 
-function CreatePlan() {
+function EditPlan() {
   const {
     open,
     setOpen,
     weights,
-    totalWeight,
     activePlanPeriod,
     isEditing,
+    setEditing,
+    selectedPlanId,
+    setSelectedPlanId,
     setWeight,
     resetWeights,
+    totalWeight,
   } = PlanningAndReportingStore();
   const { userId } = useAuthenticationStore();
   const [form] = Form.useForm();
 
   const onClose = () => {
     setOpen(false);
-    form.resetFields();
+    setEditing(false);
+    setSelectedPlanId('');
     resetWeights();
+
+    form.resetFields();
   };
-  const { mutate: createTask, isLoading } = useCreatePlanTasks();
+  const { mutate: updateTask, isLoading } = useUpdatePlanTasks();
+
   const { data: objective } = useFetchObjectives(userId);
   const { data: planningPeriods } = AllPlanningPeriods();
+  const { data: planGroupData } = useGetPlanningById(selectedPlanId);
+
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
   const planningUserId = planningPeriods?.find(
@@ -38,7 +51,7 @@ function CreatePlan() {
   )?.id;
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      Create New plan
+      Edit plan
     </div>
   );
 
@@ -48,6 +61,7 @@ function CreatePlan() {
   ) => {
     const namesKey = `names-${kId}`;
     const names = form.getFieldValue(namesKey) || [];
+    currentBoardValues = { ...currentBoardValues, planId: planGroupData?.id };
     form.setFieldsValue({ [namesKey]: [...names, currentBoardValues] });
     const fieldValue = form.getFieldValue(namesKey);
     const totalWeight = fieldValue.reduce((sum: number, field: any) => {
@@ -69,6 +83,7 @@ function CreatePlan() {
       form.setFieldsValue({ [boardsKey]: boards });
     }
   };
+
   const handleOnFinish = (values: Record<string, any>) => {
     const mergeValues = (obj: any) => {
       return Object.entries(obj)
@@ -78,7 +93,7 @@ function CreatePlan() {
         .flat();
     };
     const finalValues = mergeValues(values);
-    createTask(
+    updateTask(
       { tasks: finalValues },
       {
         onSuccess: () => {
@@ -88,10 +103,43 @@ function CreatePlan() {
       },
     );
   };
+
+  useEffect(() => {
+    if (planGroupData) {
+      const planningUserId = planGroupData?.planningUser?.id;
+      const userId = planGroupData?.planningUser?.userId;
+      const planningPeriodId = planGroupData?.planningUser?.planningPeriod?.id;
+
+      planGroupData.tasks?.forEach((e: any) => {
+        const hasMilestone = e?.milestone !== null ? true : false;
+        const name = hasMilestone
+          ? `${e?.keyResult?.id + e?.milestone?.id}`
+          : `${e?.keyResult?.id}`;
+
+        handleAddName(
+          {
+            id: e?.id,
+            milestoneId: e?.milestone?.id || null,
+            keyResultId: e?.keyResult?.id || null,
+            planningPeriodId: planningPeriodId || null,
+            planningUserId: planningUserId || null,
+            userId: userId || null,
+            task: e?.task || '',
+            priority: e?.priority || '',
+            weight: e?.weight || 0,
+            targetValue: e?.targetValue || 0,
+            planId: planGroupData?.id,
+          },
+          name,
+        );
+      });
+    }
+  }, [planGroupData]);
+
   return (
     open && (
       <CustomDrawerLayout
-        open={open === true && isEditing === false ? true : false}
+        open={open === true && isEditing === true ? true : false}
         onClose={onClose}
         modalHeader={modalHeader}
         width="40%"
@@ -184,7 +232,6 @@ function CreatePlan() {
                               </>
                             ) : (
                               <>
-                                {' '}
                                 <div className="flex gap-3">
                                   <Button
                                     onClick={() => handleAddBoard(kr?.id)}
@@ -266,4 +313,4 @@ function CreatePlan() {
   );
 }
 
-export default CreatePlan;
+export default EditPlan;

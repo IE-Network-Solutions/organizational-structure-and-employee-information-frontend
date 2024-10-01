@@ -1,6 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
-import { OKR_URL, ORG_AND_EMP_URL } from '@/utils/constants';
+import { OKR_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
@@ -31,6 +31,36 @@ export const useCreatePlanTasks = () => {
     onError: () => {
       NotificationMessage.error({
         message: 'Creating Failed',
+        description: '',
+      });
+    },
+  });
+};
+
+const updatePlanTasks = async (values: any) => {
+  return crudRequest({
+    url: `${OKR_URL}/plan-tasks`,
+    method: 'PATCH',
+    data: values,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+export const useUpdatePlanTasks = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updatePlanTasks, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('updatePlanTasks');
+      NotificationMessage.success({
+        message: 'Successfully Updated ',
+        description: ' ',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Updating Failed',
         description: '',
       });
     },

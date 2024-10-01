@@ -9,6 +9,7 @@ interface CustomDrawerLayoutProps {
   children: React.ReactNode;
   width?: string;
   footer?: React.ReactNode;
+  paddingBottom?: number;
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -18,6 +19,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   children,
   width,
   footer,
+  paddingBottom = 100,
 }) => {
   return (
     <div>
@@ -48,7 +50,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         closable={false}
         onClose={onClose}
         open={open}
-        style={{ paddingBottom: 100 }}
+        style={{ paddingBottom: paddingBottom }}
         footer={footer}
       >
         {children}

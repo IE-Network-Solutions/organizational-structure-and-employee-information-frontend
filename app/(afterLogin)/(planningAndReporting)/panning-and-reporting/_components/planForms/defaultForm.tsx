@@ -1,7 +1,7 @@
 import { Col, Form, Input, InputNumber, Row, Select, Space } from 'antd';
 import SubTaskComponent from './createSubtaskForm';
 import { MdCancel } from 'react-icons/md';
-import { usePlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 
 interface DefaultCardInterface {
   kId: string;
@@ -10,27 +10,35 @@ interface DefaultCardInterface {
   milestoneId: string | null;
   name: string;
   form: any;
+  planningPeriodId: string;
+  userId: string;
+  planningUserId: string;
 }
+
 function DefaultCardForm({
-  kId: kId,
-  hasTargetValue: hasTargetValue,
-  milestoneId: milestoneId,
-  name: name,
-  form: form,
+  kId,
+  hasTargetValue,
+  milestoneId,
+  name,
+  form,
+  userId,
+  planningPeriodId,
+  planningUserId,
 }: DefaultCardInterface) {
-  const { setWeight } = usePlanningAndReportingStore();
+  const { setWeight } = PlanningAndReportingStore();
 
   return (
     <Form.List name={name}>
       {(fields, { remove }, { errors }) => (
         <>
-          {fields.map((field, index) => (
+          {fields.map((field) => (
             <Form.Item required={false} key={field.key}>
               <Form.Item
                 {...field}
                 name={[field.name, 'milestoneId']}
                 initialValue={milestoneId || null}
                 noStyle
+                key={`${field.key}-milestoneId`} // Unique key for milestoneId
               >
                 <Input type="hidden" />
               </Form.Item>
@@ -39,40 +47,36 @@ function DefaultCardForm({
                 name={[field.name, 'keyResultId']}
                 initialValue={kId || null}
                 noStyle
+                key={`${field.key}-keyResultId`} // Unique key for keyResultId
               >
                 <Input type="hidden" />
               </Form.Item>
               <Form.Item
                 {...field}
                 name={[field.name, 'planningPeriodId']}
-                initialValue={''}
+                initialValue={planningPeriodId}
                 noStyle
+                key={`${field.key}-planningPeriodId`} // Unique key for planningPeriodId
               >
-                <Input type="hidden" />
+                <Input type="hidden" value={planningPeriodId} />
               </Form.Item>
               <Form.Item
                 {...field}
                 name={[field.name, 'planningUserId']}
-                initialValue={''}
+                initialValue={planningUserId}
                 noStyle
+                key={`${field.key}-planningUserId`} // Unique key for planningUserId
               >
-                <Input type="hidden" />
+                <Input type="hidden" value={planningUserId} />
               </Form.Item>
               <Form.Item
                 {...field}
                 name={[field.name, 'userId']}
-                initialValue={''}
+                initialValue={userId}
                 noStyle
+                key={`${field.key}-userId`} // Unique key for userId
               >
-                <Input type="hidden" />
-              </Form.Item>
-              <Form.Item
-                {...field}
-                name={[field.name, 'planId']}
-                initialValue={''}
-                noStyle
-              >
-                <Input type="hidden" />
+                <Input type="hidden" value={userId} />
               </Form.Item>
 
               <Row gutter={8}>
@@ -90,6 +94,7 @@ function DefaultCardForm({
                       },
                     ]}
                     label={'Task'}
+                    key={`${field.key}-task`} // Unique key for task
                   >
                     <Input placeholder="Task name" />
                   </Form.Item>
@@ -107,6 +112,7 @@ function DefaultCardForm({
                           message: 'Please select a priority',
                         },
                       ]}
+                      key={`${field.key}-priority`} // Unique key for priority
                     >
                       <Select
                         className="w-24"
@@ -138,32 +144,41 @@ function DefaultCardForm({
                       rules={[
                         {
                           required: true,
-                          message: 'Please input number',
+                          message: 'Please input a number',
                         },
                       ]}
+                      key={`${field.key}-weight`} // Unique key for weight
                     >
                       <InputNumber
                         placeholder="0"
-                        onChange={(v) => {
-                          let fieldValue = form.getFieldValue(name) || [];
-
+                        onChange={() => {
+                          const fieldValue = form.getFieldValue(name) || [];
                           const totalWeight = fieldValue.reduce(
-                            (sum: number, field: any) => {
-                              return sum + (field.weight || 0);
-                            },
+                            (sum: number, field: any) =>
+                              sum + (field.weight || 0),
                             0,
                           );
                           setWeight(name, totalWeight);
                         }}
+                        min={0}
+                        max={100}
                       />
                     </Form.Item>
-                    {fields.length > 1 ? (
-                      <MdCancel
-                        className="text-primary cursor-pointer"
-                        size={20}
-                        onClick={() => remove(field.name)}
-                      />
-                    ) : null}
+
+                    <MdCancel
+                      className="text-primary cursor-pointer"
+                      size={20}
+                      onClick={() => {
+                        remove(field.name);
+                        const fieldValue = form.getFieldValue(name) || [];
+                        const totalWeight = fieldValue.reduce(
+                          (sum: number, field: any) =>
+                            sum + (field.weight || 0),
+                          0,
+                        );
+                        setWeight(name, totalWeight);
+                      }}
+                    />
                   </Space>
                 </Col>
               </Row>
@@ -172,13 +187,27 @@ function DefaultCardForm({
                 className="my-4"
                 label={'Target Amount'}
                 {...field}
-                name={[field.name, 'targetAmount']}
+                name={[field.name, 'targetValue']}
                 hidden={hasTargetValue}
+                key={`${field.key}-targetValue`} // Unique key for targetValue
               >
-                <InputNumber placeholder="20" />
+                <InputNumber
+                  min={0}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  }
+                />
               </Form.Item>
-              <Form.Item label="Sub tasks">
-                <SubTaskComponent field={field} />
+              <Form.Item label="Sub tasks" className="mx-8">
+                <SubTaskComponent
+                  field={field}
+                  kId={kId}
+                  hasTargetValue={hasTargetValue}
+                  milestoneId={milestoneId}
+                  planningPeriodId={planningPeriodId}
+                  planningUserId={planningUserId}
+                  userId={userId}
+                />
               </Form.Item>
             </Form.Item>
           ))}

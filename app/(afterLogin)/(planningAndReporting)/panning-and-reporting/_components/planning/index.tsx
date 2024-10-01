@@ -20,12 +20,18 @@ import { groupTasksByKeyResultAndMilestone } from '../dataTransformer';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { PlanningType } from '@/types/enumTypes';
+import { Edit3Icon } from 'lucide-react';
 
 const { Text, Title } = Typography;
 
 function Planning() {
-  const { setOpen, selectedUser, activePlanPeriod } =
-    PlanningAndReportingStore();
+  const {
+    setOpen,
+    selectedUser,
+    activePlanPeriod,
+    setSelectedPlanId,
+    setEditing,
+  } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { mutate: approvalPlanningPeriod } = useApprovalPlanningPeriods();
@@ -63,16 +69,16 @@ function Planning() {
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
         {selectedUser.includes(userId) &&
-        ((transformedData?.[0]?.isReported ?? false) || transformedData.length === 0) && (
-          <CustomButton
-            title={`Create ${activeTabName}`}
-            id="createActiveTabName"
-            icon={<FaPlus className="mr-2" />}
-            onClick={() => setOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700"
-          />
-        )}
-
+          ((transformedData?.[0]?.isReported ?? false) ||
+            transformedData?.length === 0) && (
+            <CustomButton
+              title={`Create ${activeTabName}`}
+              id="createActiveTabName"
+              icon={<FaPlus className="mr-2" />}
+              onClick={() => setOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
+          )}
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
@@ -123,6 +129,22 @@ function Planning() {
                           'MMMM D YYYY, h:mm:ss A',
                         )}
                       </span>
+                      <Col className="mr-2">
+                        <Tooltip title="Edit Plan">
+                          <Avatar
+                            size={16}
+                            alt="edit plan"
+                            className="cursor-pointer bg-primary"
+                            shape="square"
+                            onClick={() => {
+                              setEditing(true);
+                              setSelectedPlanId(dataItem?.id);
+                              setOpen(true);
+                            }}
+                            icon={<Edit3Icon />}
+                          />
+                        </Tooltip>
+                      </Col>
                       <Col className="mr-2">
                         <Tooltip title="Approve Plan">
                           <Avatar

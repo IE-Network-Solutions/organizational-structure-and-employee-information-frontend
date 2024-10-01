@@ -12,26 +12,25 @@ import {
 
 interface BoardCardInterface {
   form: any;
-  handleAddName: Function;
-  handleRemoveBoard: Function;
+  handleAddName: (arg1: Record<string, string>, arg2: string) => void;
+  handleRemoveBoard: (arg1: number, arg2: string) => void;
   kId: string;
   hideTargetValue: boolean;
   name: string;
 }
 
 function BoardCardForm({
-  form: form,
-  handleAddName: handleAddName,
-  handleRemoveBoard: handleRemoveBoard,
-  kId: kId,
-  hideTargetValue: hideTargetValue,
-  name: name,
+  form,
+  handleAddName,
+  handleRemoveBoard,
+  hideTargetValue,
+  name,
 }: BoardCardInterface) {
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
         <>
-          {subfields.map(({ key, name: subName, ...restSubField }, index) => (
+          {subfields.map(({ key, name: subName, ...restSubField }) => (
             <Form.Item
               required={false}
               className="border-2 border-primary p-4 rounded-lg m-4 shadow-lg"
@@ -41,7 +40,9 @@ function BoardCardForm({
               <Form.Item
                 {...restSubField}
                 name={[subName, 'task']}
-                key={`${subName}-task-${index}`} // Unique key for task
+                key={`${subName}-task`} // Unique key for task
+                rules={[{ required: true, message: 'Task is required' }]}
+                noStyle // Use noStyle to avoid nested Form.Item issues
               >
                 <Input placeholder="Add your tasks here" />
               </Form.Item>
@@ -50,10 +51,15 @@ function BoardCardForm({
                 hidden={hideTargetValue}
                 label="Target"
                 {...restSubField}
-                name={[subName, 'targetAmount']}
-                key={`${subName}-targetAmount-${index}`} // Unique key for targetAmount
+                name={[subName, 'targetValue']}
+                key={`${subName}-targetValue`} // Unique key for targetValue
               >
-                <InputNumber defaultValue={20} />
+                <InputNumber
+                  defaultValue={0}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  }
+                />
               </Form.Item>
 
               <Row justify="space-between">
@@ -63,15 +69,26 @@ function BoardCardForm({
                       label="Weight"
                       {...restSubField}
                       name={[subName, 'weight']}
-                      key={`${subName}-weight-${index}`} // Unique key for weight
+                      key={`${subName}-weight`} // Unique key for weight
+                      rules={[
+                        { required: true, message: 'Weight is required' },
+                      ]}
                     >
-                      <InputNumber placeholder={'0'} className="w-16" />
+                      <InputNumber
+                        placeholder={'0'}
+                        className="w-16"
+                        min={0}
+                        max={100}
+                      />
                     </Form.Item>
                     <Form.Item
                       label="Priority"
                       {...restSubField}
                       name={[subName, 'priority']}
-                      key={`${subName}-priority-${index}`} // Unique key for priority
+                      key={`${subName}-priority`} // Unique key for priority
+                      rules={[
+                        { required: true, message: 'Priority is required' },
+                      ]}
                     >
                       <Select
                         placeholder="Select Priority"
@@ -99,11 +116,15 @@ function BoardCardForm({
                     <Button
                       type="primary"
                       onClick={() => {
-                        const boardsKey = `board-${name}`; // Create a unique key for the specific list
-                        const currentBoardValues =
-                          form.getFieldValue([boardsKey, subName]) || [];
-                        handleAddName(currentBoardValues, name);
-                        handleRemoveBoard(subName, name);
+                        form
+                          .validateFields([`board-${name}`, subName])
+                          .then(() => {
+                            const boardsKey = `board-${name}`;
+                            const currentBoardValues =
+                              form.getFieldValue([boardsKey, subName]) || [];
+                            handleAddName(currentBoardValues, name);
+                            handleRemoveBoard(subName, name);
+                          });
                       }}
                     >
                       Add Task

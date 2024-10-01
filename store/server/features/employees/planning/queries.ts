@@ -17,6 +17,5 @@ const fetchObjectives = async (id: string) => {
   });
 };
 
-
 export const useFetchObjectives = (id: string) =>
   useQuery<any>(['fetchObjectives', id], () => fetchObjectives(id));

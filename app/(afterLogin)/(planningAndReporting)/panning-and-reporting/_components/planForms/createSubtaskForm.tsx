@@ -10,7 +10,24 @@ import {
 } from 'antd';
 import { MdCancel } from 'react-icons/md';
 
-function SubTaskComponent({ field: field }: any) {
+interface SubTaskInterface {
+  kId: string;
+  hasTargetValue: boolean;
+  milestoneId: string | null;
+  field: any;
+  planningPeriodId: string;
+  userId: string;
+  planningUserId: string;
+}
+function SubTaskComponent({
+  field: field,
+  userId: userId,
+  planningPeriodId: planningPeriodId,
+  planningUserId: planningUserId,
+  kId: kId,
+  hasTargetValue: hasTargetValue,
+  milestoneId: milestoneId,
+}: SubTaskInterface) {
   return (
     <Form.List name={[field.name, 'subTasks']} initialValue={[]}>
       {(subFields, subOpt) => (
@@ -23,7 +40,46 @@ function SubTaskComponent({ field: field }: any) {
         >
           {subFields.map((subField) => (
             <>
-              {' '}
+              <Form.Item
+                {...field}
+                name={[field.name, 'milestoneId']}
+                initialValue={milestoneId || null}
+                noStyle
+              >
+                <Input type="hidden" />
+              </Form.Item>
+              <Form.Item
+                {...field}
+                name={[field.name, 'keyResultId']}
+                initialValue={kId || null}
+                noStyle
+              >
+                <Input type="hidden" />
+              </Form.Item>
+              <Form.Item
+                {...field}
+                name={[field.name, 'planningPeriodId']}
+                initialValue={planningPeriodId}
+                noStyle
+              >
+                <Input type="hidden" value={planningPeriodId} />
+              </Form.Item>
+              <Form.Item
+                {...field}
+                name={[field.name, 'planningUserId']}
+                initialValue={planningUserId}
+                noStyle
+              >
+                <Input type="hidden" value={planningUserId} />
+              </Form.Item>
+              <Form.Item
+                {...field}
+                name={[field.name, 'userId']}
+                initialValue={userId}
+                noStyle
+              >
+                <Input type="hidden" value={userId} />
+              </Form.Item>{' '}
               <Row gutter={8}>
                 <Col lg={12} sm={24}>
                   <Form.Item
@@ -39,8 +95,21 @@ function SubTaskComponent({ field: field }: any) {
                       },
                     ]}
                     key={`task-${subField.key}`}
+                    label="Task"
                   >
                     <Input placeholder="Task name" />
+                  </Form.Item>
+                </Col>
+                <Col>
+                  <Form.Item
+                    className="my-4"
+                    label={'Target'}
+                    {...subField}
+                    name={[subField.name, 'targetValue']}
+                    key={`target-${subField.key}`}
+                    hidden={hasTargetValue}
+                  >
+                    <InputNumber placeholder="20" min={0} />
                   </Form.Item>
                 </Col>
                 <Col lg={12} sm={24}>
@@ -56,6 +125,7 @@ function SubTaskComponent({ field: field }: any) {
                         },
                       ]}
                       key={`priority-${subField.key}`}
+                      label="Priority"
                     >
                       <Select
                         className="w-24"
@@ -90,8 +160,10 @@ function SubTaskComponent({ field: field }: any) {
                         },
                       ]}
                       key={`weight-${subField.key}`}
+                      label="Weight"
+                      hidden
                     >
-                      <InputNumber placeholder="0" />
+                      <InputNumber defaultValue={0} />
                     </Form.Item>
 
                     <MdCancel
@@ -103,35 +175,10 @@ function SubTaskComponent({ field: field }: any) {
                   </Space>
                 </Col>
               </Row>
-              <Form.Item
-                className="my-4"
-                label={'Target'}
-                {...subField}
-                name={[subField.name, 'targetAmount']}
-                key={`target-${subField.key}`}
-              >
-                <InputNumber placeholder="20" />
-              </Form.Item>
             </>
-
-            // <Space key={subField.key}>
-            //   <Form.Item noStyle name={[subField.name, 'first']}>
-            //     <Input placeholder="first" />
-            //   </Form.Item>
-            //   <Form.Item noStyle name={[subField.name, 'second']}>
-            //     <Input placeholder="second" />
-            //   </Form.Item>
-            //   <MdCancel
-            //     className="text-primary cursor-pointer"
-            //     size={20}
-            //     onClick={() => {
-            //       subOpt.remove(subField.name);
-            //     }}
-            //   />
-            // </Space>
           ))}
           <Button type="dashed" onClick={() => subOpt.add()} block>
-            + Add Sub Item
+            + Add Sub Task
           </Button>
         </div>
       )}
