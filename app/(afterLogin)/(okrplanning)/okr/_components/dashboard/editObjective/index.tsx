@@ -88,7 +88,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
       ...objectiveValue,
       title: objectiveTitle || '',
     });
-  }, [objectiveTitle]);
+  }, [objectiveTitle, objectiveValue, setObjectiveValue]);
 
   return (
     <CustomDrawerLayout

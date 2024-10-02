@@ -51,7 +51,7 @@ const OnboaringSteper: React.FC = () => {
     if (departments?.length > 0) {
       router.push('/organization/org-structure');
     }
-  }, [departments?.length]);
+  }, [departments?.length, router]);
 
   const steps = [
     {

@@ -44,7 +44,7 @@ export interface Objective {
   daysLeft?: number;
   completedKeyResults?: number;
   objectiveProgress?: number;
-  keyResults: KeyResult[] | any;
+  keyResults?: KeyResult[] | any;
   user?: User;
 }
 export const defaultObjective: Objective = {

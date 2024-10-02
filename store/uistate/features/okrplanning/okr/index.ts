@@ -1,8 +1,8 @@
 import { create } from 'zustand';
-import { KeyResult, Objective, OKRState } from './interface';
+import { KeyResult, Objective } from './interface';
 import { devtools } from 'zustand/middleware';
 
-export const useOKRStore = create<OKRState>()(
+export const useOKRStore = create<any>()(
   devtools((set) => ({
     // Initialize objective state with keyResults as an empty array
     objective: {
@@ -35,7 +35,7 @@ export const useOKRStore = create<OKRState>()(
     setObjective: (objective: Objective) => set({ objective }),
     setObjectiveValue: (objectiveValue: Objective) => set({ objectiveValue }),
     setKeyResult: (keyResults: KeyResult[]) =>
-      set((state) => ({
+      set((state:any) => ({
         objective: {
           ...state.objective,
           keyResults,
@@ -45,7 +45,7 @@ export const useOKRStore = create<OKRState>()(
 
     // Add key result to objective
     addKeyResult: () =>
-      set((state) => ({
+      set((state:any) => ({
         objective: {
           ...state.objective,
           keyResults: [
@@ -65,8 +65,8 @@ export const useOKRStore = create<OKRState>()(
       })),
 
     // Add last key result to keyResultValue
-    addKeyResultValue: (newKeyResult) =>
-      set((state) => {
+    addKeyResultValue: (newKeyResult:any) =>
+      set((state:any) => {
         const lastKeyResult =
           state.objective.keyResults[state.objective.keyResults.length - 1];
         if (lastKeyResult) {
@@ -104,7 +104,7 @@ export const useOKRStore = create<OKRState>()(
 
     // Update a specific key result in the objective
     updateKeyResult: (index: number, field: keyof KeyResult, value: any) =>
-      set((state) => ({
+      set((state:any) => ({
         objective: {
           ...state.objective,
           keyResults: state.objective.keyResults.map((item: any, i: number) =>
@@ -117,7 +117,7 @@ export const useOKRStore = create<OKRState>()(
       })),
 
     handleKeyResultChange: (value: any, index: number, field: string) =>
-      set((state) => {
+      set((state:any) => {
         const newKeyResult = [...state.objectiveValue.keyResults];
         newKeyResult[index] = {
           ...newKeyResult[index],
@@ -132,7 +132,7 @@ export const useOKRStore = create<OKRState>()(
       }),
 
     handleSingleKeyResultChange: (value: any, field: string) => {
-      set((state) => {
+      set((state:any) => {
         // Log the current state here
         return {
           keyResultValue: {
@@ -149,7 +149,7 @@ export const useOKRStore = create<OKRState>()(
       mindex: number,
       field: string,
     ) =>
-      set((state) => {
+      set((state:any) => {
         const newKeyResult = [...state.objectiveValue.keyResults];
         newKeyResult[keyResultIndex].milestones = newKeyResult[
           keyResultIndex
@@ -169,7 +169,7 @@ export const useOKRStore = create<OKRState>()(
       mindex: number,
       field: string,
     ) => {
-      set((state) => {
+      set((state:any) => {
         // Update milestones based on the provided index and field
         const updatedMilestones = state.keyResultValue.milestones.map(
           (milestone: any, index: number) =>
@@ -188,7 +188,7 @@ export const useOKRStore = create<OKRState>()(
 
     // Remove a specific key result from objective
     removeKeyResult: (index: number) =>
-      set((state) => ({
+      set((state:any) => ({
         objective: {
           ...state.objective,
           /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -201,7 +201,7 @@ export const useOKRStore = create<OKRState>()(
 
     // Remove a specific key result from keyResultValue
     removeKeyResultValue: (index: number) =>
-      set((state) => {
+      set((state:any) => {
         // Remove the key result from keyResultValue
         const updatedKeyResultValue = state.keyResultValue.filter(
           /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -229,8 +229,8 @@ export const useOKRStore = create<OKRState>()(
       metricTypeId: '',
       departmentId: '',
     },
-    setSearchObjParams: (key, value) =>
-      set((state) => ({
+    setSearchObjParams: (key:any, value:any) =>
+      set((state:any) => ({
         searchObjParams: { ...state.searchObjParams, [key]: value },
       })),
     pageSize: 5,
