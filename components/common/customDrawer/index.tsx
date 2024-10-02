@@ -1,3 +1,4 @@
+'use client';
 import { Button, Drawer } from 'antd';
 import React from 'react';
 import { FaAngleRight } from 'react-icons/fa';

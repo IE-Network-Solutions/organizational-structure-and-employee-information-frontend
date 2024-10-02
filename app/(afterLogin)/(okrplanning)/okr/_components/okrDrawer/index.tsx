@@ -59,7 +59,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       ...objectiveValue,
       title: objectiveTitle || '',
     });
-  }, [objectiveTitle, objectiveValue, setObjectiveValue]);
+  }, [objectiveTitle]);
   const handleDrawerClose = () => {
     form.resetFields(); // Reset all form fields
     setObjectiveValue(defaultObjective); // Reset the objective state
