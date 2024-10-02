@@ -30,7 +30,7 @@ const createJobFormResponse = async (data: any) => {
 
   return await crudRequest({
     method: 'POST',
-    url: 'http://172.16.33.228:8010/api/v1/job-information',
+    url: 'http://172.16.33.228:8010/api/v1/job-candidates',
     data,
     headers,
   });

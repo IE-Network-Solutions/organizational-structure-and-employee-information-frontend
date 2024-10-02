@@ -36,7 +36,7 @@ const OpenPositions: React.FC = () => {
 
   if (responseLoading)
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-full">
         <Spin />
       </div>
     );
