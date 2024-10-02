@@ -7,11 +7,7 @@ interface EditModalProps {
   jobTitle: string;
 }
 
-const EditModal: React.FC<EditModalProps> = ({
-  visible,
-  onClose,
-  jobTitle,
-}) => {
+const EditJob: React.FC<EditModalProps> = ({ visible, onClose, jobTitle }) => {
   return (
     <Modal
       title="Edit Job"
@@ -38,4 +34,4 @@ const EditModal: React.FC<EditModalProps> = ({
   );
 };
 
-export default EditModal;
+export default EditJob;

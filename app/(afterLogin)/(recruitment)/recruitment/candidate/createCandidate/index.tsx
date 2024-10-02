@@ -1,32 +1,42 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
-import { Button, Col, Form, Image, Input, Row, Upload } from 'antd';
+import {
+  Button,
+  Col,
+  Form,
+  Image,
+  Input,
+  InputNumber,
+  Row,
+  Select,
+  Upload,
+} from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import React from 'react';
-import { MdOutlineUploadFile } from 'react-icons/md';
+import { FaInfoCircle } from 'react-icons/fa';
+import cvUpload from '@/public/image/cvUpload.png';
+import { CandidateType, JobType } from '@/types/enumTypes';
 
 const { Dragger } = Upload;
+const { Option } = Select;
 
-const CreateCandidate: React.FC = () => {
+interface CreateCandidateProps {
+  onClose: () => void;
+}
+
+const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
   const [form] = Form.useForm();
+
   const {
     createJobDrawer,
-    setCreateJobDrawer,
     documentFileList,
     setDocumentFileList,
     removeDocument,
   } = useCandidateState();
 
-  const handleCloseDrawer = () => {
-    setCreateJobDrawer(false);
-  };
-
   const handleDocumentChange = (info: any) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
     setDocumentFileList(fileList);
-  };
-  const handleDelete = (id: string) => {
-    // deleteEmployeeDocument(id); // Call mutate with the document ID
   };
   const handleDocumentRemove = (file: any) => {
     removeDocument(file.uid);
@@ -39,137 +49,152 @@ const CreateCandidate: React.FC = () => {
   };
 
   const createJobDrawerHeader = (
-    <div className="flex items-center justify-center">
-      <span className="text-md font-medium">New Candidate</span>
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+      New Candidate
     </div>
   );
+
   return (
     <CustomDrawerLayout
       open={createJobDrawer}
-      onClose={handleCloseDrawer}
+      onClose={onClose}
       modalHeader={createJobDrawerHeader}
       width="40%"
       footer={null}
     >
       <Form form={form} layout="vertical">
         <Row gutter={16}>
-          <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Form.Item
+              id="fullNameId"
+              name="fullName"
               label={
                 <span className="text-md font-semibold text-gray-700">
-                  Name
+                  Full-Name
                 </span>
               }
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input full name!',
-                },
-              ]}
+              rules={[{ required: true, message: 'Please input full name!' }]}
             >
               <Input placeholder="Full Name" className="w-full h-10 text-sm" />
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Form.Item
-              className="font-semibold text-xs"
-              style={{ textAlign: 'center' }}
-              name="documentName"
-              id="documentNameId"
-              rules={[
-                { required: true, message: 'Please choose the document type' },
-              ]}
-            >
-              <Dragger
-                name="documentName"
-                fileList={documentFileList}
-                onChange={handleDocumentChange}
-                onRemove={handleDocumentRemove}
-                customRequest={customRequest}
-                listType="picture"
-                accept="*/*"
-              >
-                <div className="flex justify-start items-center text-xl font-semibold text-gray-950">
-                  <p>Documents Upload</p>
-                </div>
-                <p className="ant-upload-drag-icon">
-                  <Image
-                    preview={false}
-                    className="w-full max-w-xs"
-                    src="/Uploading.png"
-                    alt="Loading"
-                  />
-                </p>
-                <p className="ant-upload-hint text-xl font-bold text-gray-950 my-4">
-                  Drag & drop here to Upload
-                </p>
-                <p className="ant-upload-hint text-xs text-gray-950">
-                  or select a file from your computer
-                </p>
-                <Button
-                  className="ant-upload-text font-semibold text-white py-3 px-6 text-sm my-4 bg-blue-500 hover:bg-blue-600"
-                  type="primary"
-                >
-                  <MdOutlineUploadFile className="text-white text-xl mr-2" />
-                  Upload File
-                </Button>
-              </Dragger>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={24} sm={24} lg={12} md={12} xl={12}>
-            <Form.Item
+              id="emailAddressId"
               name="emailAddress"
               label={
                 <span className="text-md font-semibold text-gray-700">
                   Email Address
                 </span>
               }
-            ></Form.Item>
+              rules={[
+                {
+                  required: true,
+                  message: 'Please input the email address!',
+                },
+              ]}
+            >
+              <Input
+                type="email"
+                className="text-sm w-full h-10"
+                placeholder="Email address"
+              />
+            </Form.Item>
           </Col>
+        </Row>
+        <Row gutter={16}>
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
             <Form.Item
+              id="phoneNumberId"
               name="phoneNumber"
               label={
                 <span className="text-md font-semibold text-gray-700">
                   Phone Number
                 </span>
               }
-            ></Form.Item>
+              rules={[
+                { required: true, message: 'Please input the phone number!' },
+              ]}
+            >
+              <Input
+                type="tel"
+                className="text-sm w-full h-10"
+                placeholder="Phone number"
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+            <Form.Item
+              id="jobId"
+              name="job"
+              label={
+                <span className="text-md font-semibold text-gray-700">Job</span>
+              }
+              rules={[{ required: true, message: 'Please select a job' }]}
+            >
+              <Select
+                className="text-sm w-full h-10"
+                placeholder="Select a job type"
+              >
+                {JobType &&
+                  Object?.values(JobType).map((type) => (
+                    <Option key={type} value={type}>
+                      {type}
+                    </Option>
+                  ))}
+              </Select>
+            </Form.Item>
           </Col>
         </Row>
-        <Form.Item>
-          <Input className="text-sm w-full h-10" placeholder="phone number" />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+            <Form.Item
+              id="candidateTypeId"
+              name="candidateType"
+              label={
+                <span className="text-md font-semibold text-gray-700">
+                  Candidate Type
+                </span>
+              }
+              rules={[
+                { required: true, message: 'Please input the job name!' },
+              ]}
+            >
+              <Select
+                className="text-sm w-full h-10"
+                placeholder="Select a job type"
+              >
+                {CandidateType &&
+                  Object?.values(CandidateType).map((type) => (
+                    <Option key={type} value={type}>
+                      {type}
+                    </Option>
+                  ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+            <Form.Item
+              id="cgpaId"
+              name="cgpa"
+              label={
+                <span className="text-md font-semibold text-gray-700">
+                  CGPA
+                </span>
+              }
+              rules={[{ required: true, message: 'Please input CGPA' }]}
+            >
+              <InputNumber className="text-sm w-full h-10" placeholder="CGPA" />
+              <div className="flex items-center justify-start gap-1 ml-1">
+                <FaInfoCircle />
+                <div className="text-xs font-md">Put your point 4.0 scale</div>
+              </div>
+            </Form.Item>
+          </Col>
+        </Row>
+
         <Form.Item
-          label={
-            <span className="text-md font-semibold text-gray-700">
-              Candidate Type
-            </span>
-          }
-          rules={[]}
-        >
-          <Input className="text-sm w-full h-10" placeholder="email address" />
-        </Form.Item>
-        <Form.Item
-          label={
-            <span className="text-md font-semibold text-gray-700">CGPA</span>
-          }
-          rules={[]}
-        >
-          <Input className="text-sm w-full h-10" placeholder="email address" />
-          <div className="">Put your point 4.0 scale</div>
-        </Form.Item>
-        <Form.Item
-          label={
-            <span className="text-md font-semibold text-gray-700">Job </span>
-          }
-          rules={[]}
-        >
-          <Input className="text-sm w-full h-10" placeholder="email address" />
-        </Form.Item>
-        <Form.Item
+          id="coverLetterId"
           name="coverLetter"
           label={
             <span className="text-md font-semibold text-gray-700">
@@ -180,17 +205,64 @@ const CreateCandidate: React.FC = () => {
         >
           <TextArea
             rows={4}
-            className="text-sm w-full h-10"
-            placeholder="Please enter your cover letter here "
+            className="text-sm w-full"
+            placeholder="Please enter your cover letter here"
           />
         </Form.Item>
+        <Form.Item
+          id="documentNameId"
+          name="documentName"
+          label={
+            <span className="text-md font-semibold text-gray-700">
+              Upload CV
+            </span>
+          }
+          rules={[
+            { required: true, message: 'Please choose the document type' },
+          ]}
+        >
+          <Dragger
+            name="documentName"
+            fileList={documentFileList}
+            onChange={handleDocumentChange}
+            onRemove={handleDocumentRemove}
+            customRequest={customRequest}
+            listType="picture"
+            accept="*/*"
+          >
+            <p>
+              <Image
+                preview={false}
+                className="w-full max-w-xs"
+                src={cvUpload.src}
+                alt="Loading"
+              />
+            </p>
+            <div className="flex flex-col justify-center items-center text-md font-semibold text-gray-950">
+              <p>Upload your CV</p>
+              <p className="text-gray-400 text-sm font-normal">
+                or drag and drop it here
+              </p>
+            </div>
+          </Dragger>
+        </Form.Item>
+        <div className="text-sm font-md mb-5 ">
+          Max file size : 5MB. File format : .pdf
+        </div>
+
         <Form.Item>
-          <div className="flex items-center justify-center gap-5 text-sm font-bold ">
-            <Button type="primary" className="w-full h-10 text-sm font-md">
-              Create
-            </Button>
-            <Button hidden className="w-full h-10 text-sm font-md">
+          <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
+            <Button
+              type="primary"
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+            >
               Cancel
+            </Button>
+            <Button
+              htmlType="submit"
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+            >
+              Create
             </Button>
           </div>
         </Form.Item>

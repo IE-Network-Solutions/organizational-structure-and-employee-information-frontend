@@ -1,65 +1,30 @@
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
+import { RECRUITMENT } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import { useMutation, useQueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 
-const createCustomFieldsTemplate = async (data: any) => {
+const getCustomFieldsTemplate = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const templateCurrentPage =
+    useRecruitmentSettingsStore.getState().templateCurrentPage;
+  const templatePageSize =
+    useRecruitmentSettingsStore.getState().templatePageSize;
+
   const headers = {
-    tenantId: tenantId,
     Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
   };
   return await crudRequest({
-    method: 'POST',
-    url: '/api/jobs',
-    data,
+    // url: `${RECRUITMENT}/application-questions-form-template`,
+    url: `http://172.16.33.228:8010/api/v1/application-questions-form-template?limit=${templatePageSize}&&page=${templateCurrentPage}`,
+    // url: 'https://mocki.io/v1/77d848f4-1a44-4a30-8216-4154587e01b1',
+    method: 'GET',
     headers,
   });
 };
 
-const updateCustomFieldsTemplate = async (data: any, id: string) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const headers = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-  return await crudRequest({
-    method: 'PUT',
-    url: `/api/jobs/${id}`,
-    data,
-    headers,
-  });
-};
-
-export const useCreateCustomFieldsTemplate = () => {
-  const queryClient = useQueryClient();
-  return useMutation(createCustomFieldsTemplate, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('customFields');
-      NotificationMessage.success({
-        message: 'Custom fields created successfully!',
-        description: 'Recruitment custom fields has been successfully created',
-      });
-    },
-  });
-};
-
-export const useUpdateCustomFieldsTemplate = () => {
-  const queryClient = useQueryClient();
-  return useMutation(
-    ({ data, id }: { data: any; id: string }) =>
-      updateCustomFieldsTemplate(data, id),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('customFields');
-        NotificationMessage.success({
-          message: 'Custom fields updated successfully!',
-          description:
-            'Recruitment custom fields has been successfully updated',
-        });
-      },
-    },
-  );
+export const useGetCustomFieldsTemplate = () => {
+  return useQuery('customFields', getCustomFieldsTemplate);
 };

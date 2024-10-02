@@ -1,32 +1,8 @@
-import { Button, Col, Form, FormInstance, Row, Tree, TreeDataNode } from 'antd';
+import { Button, Col, Form, FormInstance, Row } from 'antd';
 import React from 'react';
 import { CiCircleInfo } from 'react-icons/ci';
-import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import DynamicJobForm from './dynamicJobForm';
-import { useCreateJobs } from '@/store/server/features/recruitment/job/mutation';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { v4 as uuidv4 } from 'uuid';
-
-const treeData: TreeDataNode[] = [
-  {
-    title: 'Choose your custom template',
-    key: '0',
-    children: [
-      {
-        title: 'child 1',
-        key: '0-0',
-        disabled: false,
-        className: 'py-2',
-      },
-      {
-        title: 'child 2',
-        key: '0-1',
-        disableCheckbox: false,
-        className: 'py-2',
-      },
-    ],
-  },
-];
+import CustomFieldsSelector from './customFieldSelector';
 
 const staticField = [
   { key: '1', name: 'Full Name Input Field' },
@@ -43,63 +19,9 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
   stepChange,
   form,
 }) => {
-  const { expandedKeys, setExpandedKeys, questions, setAddNewDrawer } =
-    useJobState();
-  const { mutate: createJob } = useCreateJobs();
-  const onExpand = (keys: React.Key[]) => {
-    setExpandedKeys(keys);
-  };
-
-  const handlePublish = async () => {
-    try {
-      const createNewJobFormValues = form.getFieldsValue();
-      console.log(createNewJobFormValues, 'createNewJobFormValues');
-      // const formattedValues = {
-      //   questions: [
-      //     createNewJobFormValues?.map((e: any) => {
-      //       return {
-      //         ...e,
-      //         field: e?.questions?.field?.map((field: any) => ({
-      //           key: uuidv4(),
-      //           value: field,
-      //         })),
-      //       };
-      //     }),
-      //   ],
-      // };
-      // const combinedValues = {
-      //   createNewJobFormValues,
-      //   // formattedValues,
-      // };
-
-      createJob(createNewJobFormValues);
-      setAddNewDrawer(false);
-    } catch {
-      NotificationMessage.error({
-        message: 'Publish Failed',
-        description: 'There was an error publishing Add new Job.',
-      });
-    }
-  };
   return (
     <div>
-      <>
-        <div className="flex items-center justify-start gap-1">
-          <span className="text-md font-medium">Choose your Custom field</span>
-          <span className="text-red-500">*</span>
-        </div>
-        <div className="rounded-md border border-gray-200 p-2 m-2">
-          <Tree
-            checkable
-            defaultSelectedKeys={['0-1']}
-            // defaultExpandAll
-            expandedKeys={expandedKeys}
-            onExpand={onExpand}
-            treeData={treeData}
-            blockNode
-          />
-        </div>
-      </>
+      <CustomFieldsSelector />
       <div className="my-4">
         <div className="text-md font-semibold">Existing Fields</div>
         <div className="flex items-center justify-start text-[10px] text-gray-400 font-normal gap-1 my-1">
@@ -129,7 +51,7 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
             Back
           </Button>
           <Button
-            onClick={handlePublish}
+            htmlType="submit"
             className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
           >
             Publish

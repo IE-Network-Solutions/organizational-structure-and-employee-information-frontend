@@ -6,12 +6,12 @@ import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import CustomFieldsDrawer from './customFieldsDrawer';
 import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
+import CustomFieldsCard from './customFieldsCard';
 
 const { Title } = Typography;
 
 const CustomAddJobFields: React.FC = () => {
-  const { isCustomFieldsDrawerOpen, setIsCustomFieldsDrawerOpen } =
-    useRecruitmentSettingsStore();
+  const { setIsCustomFieldsDrawerOpen } = useRecruitmentSettingsStore();
 
   const onClose = () => {
     setIsCustomFieldsDrawerOpen(false);
@@ -19,8 +19,6 @@ const CustomAddJobFields: React.FC = () => {
   const showDrawer = () => {
     setIsCustomFieldsDrawerOpen(true);
   };
-  console.log(isCustomFieldsDrawerOpen, 'isCustomFieldsDrawerOpensbvjsbv');
-
   return (
     <div className="bg-[#F5F5F5] px-2 h-auto min-h-screen w-full">
       <div className="flex gap-2 items-center mb-4">
@@ -50,7 +48,7 @@ const CustomAddJobFields: React.FC = () => {
                 className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
               />
             </div>
-            {/* <QuestionTemplateCard /> */}
+            <CustomFieldsCard />
           </Card>
         </Col>
       </Row>

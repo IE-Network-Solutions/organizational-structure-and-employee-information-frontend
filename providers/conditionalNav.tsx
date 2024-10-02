@@ -1,6 +1,7 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import Nav from '@/components/navBar';
+import React from 'react';
 
 /**
  * ConditionalNav component that conditionally renders the Nav component
@@ -19,6 +20,7 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
     '/signup',
     '/not-found',
     '/surveys/[id]',
+    '/job/[tenantID]/[jobId]',
   ];
 
   return (

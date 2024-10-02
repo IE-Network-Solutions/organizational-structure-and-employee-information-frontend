@@ -7,12 +7,17 @@ import {
   Form,
   FormInstance,
   Input,
+  InputNumber,
   Row,
   Select,
+  Spin,
 } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import AddFormResult from '../result';
-import ShareToSocialMedia from '../share';
+import AddFormResult from '../../modals/result';
+import ShareToSocialMedia from '../../modals/share';
+import { EmploymentType, LocationType } from '@/types/enumTypes';
+import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const { Option } = Select;
 
@@ -21,15 +26,16 @@ interface CreateJobsProps {
   form: FormInstance;
   stepChange: (value: number) => void;
 }
-const CreateNewJob: React.FC<CreateJobsProps> = ({
-  close,
-  form,
-  stepChange,
-}) => {
+const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
+  const { data: departments, isLoading: isDepartmentLoading } =
+    useGetDepartments();
+
+  console.log(departments, 'departments');
+
   return (
     <>
       <Form.Item
-        name="jobName"
+        name="jobTitle"
         label={
           <span className="text-md my-2 font-semibold text-gray-700">
             Job Name
@@ -46,6 +52,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
           size="large"
           placeholder="Job title"
           className="text-sm w-full  h-10"
+          allowClear
         />
       </Form.Item>
       <Row gutter={16}>
@@ -68,11 +75,12 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
               placeholder="Employment type"
               className="text-sm w-full h-10"
             >
-              <Option value="Full-time">Full-time</Option>
-              <Option value="Part-time">Part-time</Option>
-              <Option value="Contract">Contract</Option>
-              <Option value="Internship">Internship</Option>
-              <Option value="Temporary">Temporary</Option>
+              {EmploymentType &&
+                Object?.values(EmploymentType).map((type) => (
+                  <Option key={type} value={type}>
+                    {type}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
         </Col>
@@ -92,14 +100,23 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
             ]}
           >
             <Select placeholder="Department" className="text-sm w-full h-10">
-              <Option value="HR">HR</Option>
-              <Option value="IT">IT</Option>
+              {isDepartmentLoading && (
+                <div className="flex items-center justify-center h-30">
+                  <Spin size="small" />
+                </div>
+              )}
+              {departments &&
+                departments.map((dep: any) => (
+                  <Option key={dep?.id} value={dep?.id}>
+                    {dep?.name}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
         </Col>
         <Col lg={8} sm={24} md={24} xs={24} xl={8}>
           <Form.Item
-            name="location"
+            name="jobLocation"
             label={
               <span className="text-md my-2 font-semibold text-gray-700">
                 Location
@@ -113,16 +130,18 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
             ]}
           >
             <Select placeholder="Location" className="text-sm w-full h-10">
-              <Option value="New York">New York</Option>
-              <Option value="Los Angeles">Los Angeles</Option>
-              <Option value="Chicago">Chicago</Option>
+              {Object.values(LocationType).map((type) => (
+                <Option key={type} value={type}>
+                  {type}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
         </Col>
       </Row>
 
       <Form.Item
-        name="yearsOfExperience"
+        name="yearOfExperience"
         label={
           <span className="text-md my-2 font-semibold text-gray-700">
             Years of Experience
@@ -131,11 +150,17 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
         rules={[
           {
             required: true,
+            type: 'number',
             message: 'Please input the years of experience!',
+            transform: (value) => (value ? Number(value) : value),
           },
         ]}
       >
-        <Input size="large" placeholder="0" className="text-sm w-full h-10" />
+        <InputNumber
+          size="large"
+          placeholder="0"
+          className="text-sm w-full h-10"
+        />
       </Form.Item>
       <Row gutter={16}>
         <Col xs={24} sm={24} lg={24} md={12} xl={12}>
@@ -175,14 +200,18 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
             ]}
           >
             <Select placeholder="Compensation" className="text-sm w-full h-10">
-              <Option value="Full-time">Full-time</Option>
-              <Option value="Part-time">Part-time</Option>
+              {EmploymentType &&
+                Object?.values(EmploymentType).map((type) => (
+                  <Option key={type} value={type}>
+                    {type}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col xs={24} sm={24} lg={24} md={12} xl={12}>
+        <Col xs={24} sm={24} lg={24} md={24} xl={12}>
           <Form.Item
             name="quantity"
             label={
@@ -197,16 +226,16 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
               },
             ]}
           >
-            <Input
+            <InputNumber
               size="large"
               placeholder="0"
               className="text-sm w-full h-10"
             />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={24} lg={24} md={12} xl={12}>
+        <Col xs={24} sm={24} lg={24} md={24} xl={12}>
           <Form.Item
-            name="expectedClosingDate"
+            name="jobDeadline"
             label={
               <span className="text-md my-2 font-semibold text-gray-700">
                 Expected Closing Date

@@ -1,15 +1,25 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import {
-  useCreateCustomFieldsTemplate,
-  useUpdateCustomFieldsTemplate,
-} from '@/store/server/features/recruitment/settings/queries';
 import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
 import { useDebounce } from '@/utils/useDebounce';
-import { Button, Checkbox, Col, Form, Input, Radio, Row, Select } from 'antd';
+import {
+  Button,
+  Checkbox,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Radio,
+  Row,
+  Select,
+} from 'antd';
 import React, { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import CustomDrawerLayout from '@/components/common/customDrawer';
+import {
+  useCreateCustomFieldsTemplate,
+  useUpdateCustomFieldsTemplate,
+} from '@/store/server/features/recruitment/settings/mutation';
 
 const { Option } = Select;
 
@@ -20,11 +30,8 @@ const CustomFieldsDrawer: React.FC<{
 }> = ({ question, onClose, isEdit = false }) => {
   const [form] = Form.useForm();
 
-  const {
-    isCustomFieldsDrawerOpen,
-    customFieldsTemplate,
-    addCustomFieldsTemplate,
-  } = useRecruitmentSettingsStore();
+  const { isCustomFieldsDrawerOpen, addCustomFieldsTemplate } =
+    useRecruitmentSettingsStore();
 
   const { mutate: updateQuestions } = useUpdateCustomFieldsTemplate();
   const { mutate: createQuestion } = useCreateCustomFieldsTemplate();
@@ -33,16 +40,20 @@ const CustomFieldsDrawer: React.FC<{
 
   const handleSubmit = async (values: any) => {
     const updatedFields = values.field.map((value: any, index: number) => ({
-      id: question?.field[index]?.id || uuidv4(),
+      id: question?.form?.field?.id || uuidv4(),
       value,
     }));
-
     const formattedValue = {
-      customFieldName: values.customFieldName,
-      fieldType: values.fieldType,
-      question: values.question,
-      required: values.required || false,
-      field: updatedFields,
+      title: values?.title,
+      questions: [
+        {
+          id: uuidv4(),
+          fieldType: values?.fieldType,
+          question: values?.question,
+          required: values?.required || false,
+          field: updatedFields,
+        },
+      ],
     };
 
     try {
@@ -63,12 +74,13 @@ const CustomFieldsDrawer: React.FC<{
 
   useEffect(() => {
     if (isEdit && question) {
+      const questionForm = question?.form?.[0] || {};
       const formValues = {
-        customFieldName: question?.customFieldName,
-        fieldType: question?.fieldType,
-        question: question?.question,
-        required: question?.required,
-        field: question?.field?.map((e: any) => e.value) || [],
+        title: question.title || 'title',
+        fieldType: questionForm?.fieldType,
+        question: questionForm?.question,
+        required: questionForm?.required || false,
+        field: questionForm?.field?.map((e: any) => e.value) || [],
       };
       form.setFieldsValue(formValues);
     }
@@ -94,21 +106,36 @@ const CustomFieldsDrawer: React.FC<{
       onFinish={handleSubmit}
     >
       <Form.Item
-        name="customFieldName"
-        label="Template Title"
+        name="title"
+        label={
+          <span className="text-md font-semibold text-gray-700">
+            Template Title
+          </span>
+        }
         rules={[{ required: true, message: 'Please input the title!' }]}
       >
-        <Input allowClear />
+        <div className="flex items-center">
+          <Input
+            size="large"
+            className="text-sm w-full  h-10"
+            placeholder="Enter your question here"
+            allowClear
+          />
+        </div>
       </Form.Item>
 
       <Row gutter={12}>
         <Col lg={8} md={10} xs={24}>
           <Form.Item
+            label={
+              <span className="text-md font-semibold text-gray-700">
+                Field Type
+              </span>
+            }
+            required
             name="fieldType"
-            label="Field Type"
-            rules={[{ required: true, message: 'Please select a field type!' }]}
           >
-            <Select placeholder="Select type">
+            <Select allowClear placeholder="Select type">
               <Option value="multiple_choice">Multiple Choice</Option>
               <Option value="checkbox">Checkbox</Option>
               <Option value="short_text">Short Text</Option>
@@ -118,22 +145,31 @@ const CustomFieldsDrawer: React.FC<{
         </Col>
         <Col lg={16} md={10} xs={24}>
           <Form.Item
+            label={
+              <span className="text-md font-semibold text-gray-700">
+                Question
+              </span>
+            }
+            required
             name="question"
-            label="Question"
-            rules={[{ required: true, message: 'Please input the question!' }]}
+            rules={[{ required: true, message: 'This field is required' }]}
           >
-            <Input />
+            <Input placeholder="Enter your question here" allowClear />
           </Form.Item>
         </Col>
       </Row>
 
-      <Form.Item name="required" valuePropName="checked">
-        <Checkbox>Is Required</Checkbox>
+      <Form.Item
+        name="required"
+        className="mb-2 mt-0 ml-4"
+        valuePropName="checked"
+      >
+        <Checkbox defaultChecked={false}>Is Required</Checkbox>
       </Form.Item>
 
       <Form.List
         name="field"
-        initialValue={isEdit ? question?.field || [] : []}
+        initialValue={isEdit ? question?.form?.field || [] : []}
       >
         {(fields, { add, remove }) => {
           const questionType = form.getFieldValue('fieldType');
@@ -187,11 +223,17 @@ const CustomFieldsDrawer: React.FC<{
       </Form.List>
 
       <Form.Item>
-        <div className="flex items-center justify-end gap-3">
-          <Button type="primary" htmlType="submit">
+        <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-8">
+          <Button
+            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+            htmlType="submit"
+          >
             {isEdit ? 'Update Template' : 'Create'}
           </Button>
-          <Button type="default" onClick={onClose}>
+          <Button
+            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+            onClick={onClose}
+          >
             Cancel
           </Button>
         </div>
@@ -200,39 +242,37 @@ const CustomFieldsDrawer: React.FC<{
   );
 
   const customFieldsDrawerHeader = (
-    <div className="flex items-center justify-between gap-3">
-      {/* <h2>{isEdit ? 'Edit Question' : 'Create New Field'}</h2> */}
-      <h2>Hello</h2>
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 px-4 py-2">
+      {isEdit ? 'Edit Question' : 'Create New Field'}
     </div>
   );
 
-  //   if (isEdit) {
-  //     return (
-  //       <Modal
-  //         centered
-  //         title="Edit Question"
-  //         open={true}
-  //         onCancel={onClose}
-  //         footer={null}
-  //       >
-  //         {renderFormContent()}
-  //       </Modal>
-  //     );
-  //   }
-  console.log(isCustomFieldsDrawerOpen, 'isCustomFieldsDrawerOpen');
+  if (isEdit) {
+    return (
+      <Modal
+        centered
+        title="Edit Question"
+        open={true}
+        onCancel={onClose}
+        footer={null}
+      >
+        {renderFormContent()}
+      </Modal>
+    );
+  }
 
   return (
-    // isCustomFieldsDrawerOpen && (
-    <CustomDrawerLayout
-      open={isCustomFieldsDrawerOpen}
-      modalHeader={customFieldsDrawerHeader}
-      onClose={onClose}
-      width="40%"
-      footer={null}
-    >
-      <div className="pb-[60px]">{renderFormContent()}</div>
-    </CustomDrawerLayout>
-    // )
+    isCustomFieldsDrawerOpen && (
+      <CustomDrawerLayout
+        open={isCustomFieldsDrawerOpen}
+        modalHeader={customFieldsDrawerHeader}
+        onClose={onClose}
+        width="40%"
+        footer={null}
+      >
+        <div className="pb-[60px]">{renderFormContent()}</div>
+      </CustomDrawerLayout>
+    )
   );
 };
 

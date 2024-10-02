@@ -35,7 +35,7 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
         name="questions"
         initialValue={[
           {
-            id: 1,
+            id: '',
             fieldType: '',
             question: '',
             required: false,

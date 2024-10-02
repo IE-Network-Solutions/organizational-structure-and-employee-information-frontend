@@ -1,12 +1,16 @@
 'use client';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { Form, Steps } from 'antd';
 import React from 'react';
 import { IoCheckmarkSharp } from 'react-icons/io5';
+import { useDebounce } from '@/utils/useDebounce';
+import { v4 as uuidv4 } from 'uuid';
+import { useCreateJobs } from '@/store/server/features/recruitment/job/mutation';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import dayjs from 'dayjs';
+import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateNewJob from './createNewJob';
 import CreateApplicationForm from './createApplicationForm';
-import { useDebounce } from '@/utils/useDebounce';
 
 const { Step } = Steps;
 
@@ -15,10 +19,14 @@ const CreateJobs: React.FC = () => {
   const {
     addNewDrawer,
     currentStep,
-    addQuestion,
+    setFormValues,
     setAddNewDrawer,
     setCurrentStep,
+    setAddJobModalResult,
+    setSelectedJobId,
+    filteredQuestions,
   } = useJobState();
+  const { mutate: createJob } = useCreateJobs();
 
   const customDot = (step: number) => (
     <div
@@ -65,7 +73,57 @@ const CreateJobs: React.FC = () => {
     form.resetFields();
   };
 
-  const handleAddJobStateUpdate = useDebounce(addQuestion, 1500);
+  const handleAddJobStateUpdate = useDebounce(setFormValues, 1500);
+
+  const handlePublish = async () => {
+    try {
+      const formValues = form.getFieldsValue();
+
+      const formattedValue = {
+        ...formValues,
+        jobDeadline: dayjs(formValues?.jobDeadline).toISOString(),
+        yearOfExperience: Number(formValues?.yearOfExperience),
+        departmentId: formValues?.department,
+        questions: [
+          ...(formValues?.questions?.map((e: any) => {
+            return {
+              ...e,
+              required: e?.required || false,
+              id: uuidv4(),
+              field: e.field.map((field: any) => {
+                return {
+                  id: uuidv4(),
+                  value: field,
+                };
+              }),
+            };
+          }) || []),
+          ...(filteredQuestions?.map((e: any) => {
+            return {
+              ...e,
+              required: e.required || false,
+            };
+          }) || []),
+        ],
+      };
+      createJob(formattedValue, {
+        onSuccess: (response) => {
+          const newJobId = response?.id;
+          setSelectedJobId(newJobId);
+          setAddJobModalResult(true);
+          setAddNewDrawer(false);
+        },
+      });
+      // setAddJobModalResult(true);
+      // createJob(formattedValue);
+      // setAddNewDrawer(false);
+    } catch {
+      NotificationMessage.error({
+        message: 'Publish Failed',
+        description: 'There was an error publishing Add new Job.',
+      });
+    }
+  };
 
   return (
     addNewDrawer && (
@@ -80,7 +138,10 @@ const CreateJobs: React.FC = () => {
           form={form}
           layout="vertical"
           onValuesChange={() => {
-            handleAddJobStateUpdate(form.getFieldsValue()?.questions);
+            handleAddJobStateUpdate(form.getFieldsValue());
+          }}
+          onFinish={() => {
+            handlePublish();
           }}
         >
           <div style={{ height: 'auto' }} hidden={currentStep !== 0}>
