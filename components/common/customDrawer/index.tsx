@@ -48,7 +48,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         closable={false}
         onClose={onClose}
         open={open}
-        style={{ paddingBottom: 100 }}
+        style={{ paddingBottom: 50 }}
         footer={footer}
       >
         {children}

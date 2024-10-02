@@ -43,7 +43,7 @@ const Login: React.FC = () => {
       message.loading({ content: 'Redirecting...', key: 'redirect' });
       router.push(`/employees/manage-employees`);
     }
-  }, [fetchedTenantId, setTenantId]);
+  }, [fetchedTenantId, setTenantId, router, setUserId]);
 
   // Handle Google sign-in
   const handleGoogleSignIn = async () => {

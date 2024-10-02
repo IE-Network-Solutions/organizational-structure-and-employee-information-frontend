@@ -27,15 +27,6 @@
   dependencies:
     "@ctrl/tinycolor" "^3.6.1"
 
-"@ant-design/cssinjs-utils@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/@ant-design/cssinjs-utils/-/cssinjs-utils-1.0.3.tgz"
-  integrity sha512-BrztZZKuoYcJK8uEH40ylBemf/Mu/QPiDos56g2bv6eUoniQkgQHOCOvA3+pncoFO1TaS8xcUCIqGzDA0I+ZVQ==
-  dependencies:
-    "@ant-design/cssinjs" "^1.21.0"
-    "@babel/runtime" "^7.23.2"
-    rc-util "^5.38.0"
-
 "@ant-design/cssinjs@^1.18.2", "@ant-design/cssinjs@^1.21.0":
   version "1.21.0"
   resolved "https://registry.npmjs.org/@ant-design/cssinjs/-/cssinjs-1.21.0.tgz"
@@ -1966,6 +1957,7 @@ antd@^5.0.0, antd@^5.20.5:
   version "5.20.5"
   resolved "https://registry.npmjs.org/antd/-/antd-5.20.5.tgz"
   integrity sha512-w/oVwoZAt5qP0PKhOkCmYXe06kXuoTh7UdQlltba/IzpbCCEh465z3Qw3i9HZY745HtOIS6ze707mVsORzN18g==
+
   dependencies:
     "@ant-design/colors" "^7.1.0"
     "@ant-design/cssinjs" "^1.21.0"
@@ -2772,11 +2764,11 @@ cypress-file-upload@^5.0.8:
   version "5.0.8"
   resolved "https://registry.npmjs.org/cypress-file-upload/-/cypress-file-upload-5.0.8.tgz"
   integrity sha512-+8VzNabRk3zG6x8f8BWArF/xA/W0VK4IZNx3MV0jFWrJS/qKn8eHfa5nU73P9fOQAgwHFJx7zjg4lwOnljMO8g==
-
 cypress@*, cypress@^13.14.2, cypress@>3.0.0:
   version "13.14.2"
   resolved "https://registry.npmjs.org/cypress/-/cypress-13.14.2.tgz"
   integrity sha512-lsiQrN17vHMB2fnvxIrKLAjOr9bPwsNbPZNrWf99s4u+DVmCY6U+w7O3GGG9FvP4EUVYaDu+guWeNLiUzBrqvA==
+
   dependencies:
     "@cypress/request" "^3.0.1"
     "@cypress/xvfb" "^1.2.4"
@@ -6323,7 +6315,9 @@ react-query@^3.39.3:
     broadcast-channel "^3.4.1"
     match-sorter "^6.0.2"
 
+
 react@*, "react@^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc", "react@^16.8.0 || ^17.0.0 || ^18.0.0", react@^18, react@^18.0.0, react@^18.2.0, react@^18.3.1, "react@>= 16.12.0", "react@>= 16.8.0 || 17.x.x || ^18.0.0-0", react@>=16.0.0, react@>=16.11.0, react@>=16.8, react@>=16.9.0:
+
   version "18.3.1"
   resolved "https://registry.npmjs.org/react/-/react-18.3.1.tgz"
   integrity sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==
