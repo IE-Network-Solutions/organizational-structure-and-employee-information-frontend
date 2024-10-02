@@ -88,7 +88,7 @@ const items: MenuItem[] = [
 
   {
     key: '/feedback ',
-    label: 'Feedback',
+    label: 'Development',
     icon: <UserOutlined />,
     className: 'font-bold',
     children: [
@@ -120,7 +120,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
-  const {setLocalId, setTenantId, setToken} = useAuthenticationStore();
+  const { setLocalId, setTenantId, setToken } = useAuthenticationStore();
 
   useEffect(() => {
     const handleResize = () => {
@@ -148,10 +148,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
-    setToken("");
-    setTenantId("");
-    setLocalId("");
-    removeCookie("token");
+    setToken('');
+    setTenantId('');
+    setLocalId('');
+    removeCookie('token');
     router.push(`/authentication/login`);
   };
 
@@ -263,7 +263,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           )}
 
-          <NavBar page="Home" userid="12345" handleLogout={handleLogout}/>
+          <NavBar page="Home" userid="12345" handleLogout={handleLogout} />
         </Header>
         <Content
           className="mt-6 min-h-screen"
