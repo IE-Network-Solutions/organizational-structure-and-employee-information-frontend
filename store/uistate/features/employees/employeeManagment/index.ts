@@ -131,10 +131,20 @@ interface UserState {
   setReHireModalVisible: (reHireModal: boolean) => void;
   userToRehire: any;
   setUserToRehire: (userToRehire: any) => void;
+
+  isAddEmployeeJobInfoModalVisible: boolean;
+  setIsAddEmployeeJobInfoModalVisible: (
+    isAddEmployeeJobInfoModalVisible: boolean,
+  ) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
   devtools((set) => ({
+    isAddEmployeeJobInfoModalVisible: false,
+    setIsAddEmployeeJobInfoModalVisible: (
+      isAddEmployeeJobInfoModalVisible: boolean,
+    ) => set({ isAddEmployeeJobInfoModalVisible }),
+
     open: false,
     deleteModal: false,
     current: 0,

@@ -23,6 +23,8 @@ import { FiSettings } from 'react-icons/fi';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuUsers2 } from 'react-icons/lu';
+import { removeCookie } from '@/helpers/storageHelper';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -54,11 +56,6 @@ const items: MenuItem[] = [
     className: 'font-bold',
     children: [
       {
-        key: '/employees',
-        label: 'Employees',
-        className: 'font-bold',
-      },
-      {
         key: '/employees/manage-employees',
         className: 'font-bold',
         label: 'Manage Employees',
@@ -88,6 +85,7 @@ const items: MenuItem[] = [
     className: 'font-bold',
     label: 'Activity',
   },
+
   {
     key: '/feedback ',
     label: 'Feedback',
@@ -95,13 +93,13 @@ const items: MenuItem[] = [
     className: 'font-bold',
     children: [
       {
-        key: '/Chart',
-        label: 'Clients',
+        key: '/feedback/categories',
+        label: 'Form',
         icon: <UserOutlined />,
         className: 'font-bold',
       },
       {
-        key: '/client-management/settings',
+        key: '/feedback/settings',
         label: 'Settings',
         className: 'font-bold',
         icon: <FiSettings />,
@@ -150,6 +148,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
+  const {setLocalId, setTenantId, setToken} = useAuthenticationStore();
 
   useEffect(() => {
     const handleResize = () => {
@@ -174,6 +173,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     if (isMobile) {
       setMobileCollapsed(true);
     }
+  };
+
+  const handleLogout = () => {
+    setToken("");
+    setTenantId("");
+    setLocalId("");
+    removeCookie("token");
+    router.push(`/authentication/login`);
   };
 
   return (
@@ -251,11 +258,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             display: 'flex',
             alignItems: 'center',
             position: 'fixed',
-            width: '100%',
+            width: isMobile
+              ? '100%'
+              : collapsed
+                ? 'calc(100% - 80px)'
+                : 'calc(100% - 280px)',
             zIndex: 1000,
             top: 0,
             left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
-            transition: 'left 0.3s ease',
+            transition: 'left 0.3s ease, width 0.3s ease',
           }}
         >
           {isMobile && (
@@ -280,7 +291,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           )}
 
-          <NavBar page="Home" userid="12345" />
+          <NavBar page="Home" userid="12345" handleLogout={handleLogout}/>
         </Header>
         <Content
           className="overflow-y-hidden min-h-screen"
