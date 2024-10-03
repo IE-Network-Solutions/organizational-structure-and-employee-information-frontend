@@ -22,6 +22,21 @@ const getPlanningData = async (params: DataType) => {
   });
 };
 
+const getPlanningDataById = async (planningId: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/plan-tasks/${planningId}`,
+    method: 'get',
+ 
+    headers,
+  });
+  }; 
 const getReportingData = async (params: DataType) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -29,6 +44,9 @@ const getReportingData = async (params: DataType) => {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
+
+
+
   return await crudRequest({
     url: `${OKR_URL}/okr-report/by-planning-period/${params?.planPeriodId}`,
     method: 'post',
@@ -62,6 +80,15 @@ export const useGetPlanning = (params: DataType) => {
   return useQuery<any>(['okrPlans', params], () => getPlanningData(params));
 };
 
+export const useGetPlanningById = (plannigId: string) => {
+  return useQuery<any>(
+    ['okrPlans', plannigId],
+    () => getPlanningDataById(plannigId),
+    {
+      enabled: plannigId !== null && plannigId !== '',
+    },
+  );
+};
 export const useGetReporting = (params: DataType) => {
   return useQuery<any>(['okrReports', params], () => getReportingData(params));
 };

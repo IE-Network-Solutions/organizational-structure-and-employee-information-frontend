@@ -25,8 +25,14 @@ import TasksDisplayer from './milestone';
 const { Text, Title } = Typography;
 
 function Reporting() {
-  const { setOpen, selectedUser, activePlanPeriod } =
-    PlanningAndReportingStore();
+  const {
+    setOpenReportModal,
+    openReportModal,
+    selectedUser,
+    activePlanPeriod,
+    activeTab,
+    setOpen,
+  } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { mutate: approvalPlanningPeriod } = useApprovalPlanningPeriods();

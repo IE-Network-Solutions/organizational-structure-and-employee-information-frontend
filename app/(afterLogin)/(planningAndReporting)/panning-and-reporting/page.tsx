@@ -6,7 +6,10 @@ import { Radio, Tabs } from 'antd';
 import { RadioChangeEvent } from 'antd/lib';
 import Planning from './_components/planning';
 import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
+import CreatePlan from './_components/createPlan';
+import EditPlan from './_components/editPlan';
 import Reporting from './_components/reporting';
+import CreateReport from './_components/createReport';
 
 function page() {
   const { setActiveTab, activeTab, setActivePlanPeriod } =
@@ -51,6 +54,9 @@ function page() {
             centered
             items={TabsContent()}
           />
+          <CreatePlan />
+          <EditPlan />
+          <CreateReport />
         </div>
       </div>
     </div>

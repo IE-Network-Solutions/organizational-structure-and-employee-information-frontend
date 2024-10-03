@@ -20,12 +20,18 @@ import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { PlanningType } from '@/types/enumTypes';
+import { Edit3Icon } from 'lucide-react';
 
 const { Text, Title } = Typography;
 
 function Planning() {
-  const { setOpen, selectedUser, activePlanPeriod } =
-    PlanningAndReportingStore();
+  const {
+    setOpen,
+    selectedUser,
+    activePlanPeriod,
+    setSelectedPlanId,
+    setEditing,
+  } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { mutate: approvalPlanningPeriod } = useApprovalPlanningPeriods();
@@ -123,6 +129,22 @@ function Planning() {
                           'MMMM D YYYY, h:mm:ss A',
                         )}
                       </span>
+                      <Col className="mr-2">
+                        <Tooltip title="Edit Plan">
+                          <Avatar
+                            size={16}
+                            alt="edit plan"
+                            className="cursor-pointer bg-primary"
+                            shape="square"
+                            onClick={() => {
+                              setEditing(true);
+                              setSelectedPlanId(dataItem?.id);
+                              setOpen(true);
+                            }}
+                            icon={<Edit3Icon />}
+                          />
+                        </Tooltip>
+                      </Col>
                       <Col className="mr-2">
                         <Tooltip title="Approve Plan">
                           <Avatar
