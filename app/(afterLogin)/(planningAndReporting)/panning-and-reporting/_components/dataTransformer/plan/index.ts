@@ -54,7 +54,7 @@ const groupByMilestone = (tasks: any[]) => {
   }, {}); // Start with an empty object
   return Object.values(milestoneMap);
 };
-export const groupTasksByKeyResultAndMilestone = (plans: any) => {
+export const groupPlanTasksByKeyResultAndMilestone = (plans: any) => {
   const groupedDataByKeyResult = groupTasksByKeyResultId(plans);
 
   return groupedDataByKeyResult?.map((plan: any) => {

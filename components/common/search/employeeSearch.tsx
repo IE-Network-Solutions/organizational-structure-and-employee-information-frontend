@@ -41,12 +41,13 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
     if (key === 'employee') {
       setSelectedUser([value]);
     } else if (key === 'type') {
-      if (value === 'allPlan') {
+      if (value === 'allPlan'|| value === 'allReport') {
         setSelectedUser(['all']);
       } else {
         setSelectedUser([userId]);
       }
-    } else {
+    } 
+    else {
       const listOfUsersId = getUserIdsByDepartmentId(value);
       setSelectedUser([]);
       setSelectedUser(listOfUsersId);

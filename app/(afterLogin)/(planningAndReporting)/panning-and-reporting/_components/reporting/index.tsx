@@ -15,16 +15,17 @@ import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useApprovalPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
+import {  groupTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { EmptyImage } from '@/components/emptyIndicator';
-import { groupTasksByKeyResultAndMilestone } from '../dataTransformer';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { PlanningType, ReportingType } from '@/types/enumTypes';
+import {  ReportingType } from '@/types/enumTypes';
+import TasksDisplayer from './milestone';
 
 const { Text, Title } = Typography;
 
 function Reporting() {
-  const { setOpen, selectedUser, activePlanPeriod,activeTab } =
+  const { setOpen, selectedUser, activePlanPeriod } =
     PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
@@ -37,11 +38,6 @@ function Reporting() {
         userId: selectedUser,
         planPeriodId: planningPeriodId,
       });
-
-  const transformedData = groupTasksByKeyResultAndMilestone(allReporting);
-
-  console.log(selectedUser,planningPeriodId,allReporting,"**************")
-
   const handleApproveHandler = (id: string, value: boolean) => {
     const data = {
       id: id,
@@ -63,8 +59,8 @@ function Reporting() {
     <div>
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
-        {/* {selectedUser.includes(userId) &&
-        ((transformedData?.[0]?.isReported ?? false) || transformedData.length === 0) && ( */}
+        {selectedUser.includes(userId) &&
+        ((allReporting?.[0]?.status==='reported' ?? false) || allReporting?.length === 0) && (
           <CustomButton
             title={`Create ${activeTabName}`}
             id="createActiveTabName"
@@ -72,98 +68,70 @@ function Reporting() {
             onClick={() => setOpen(true)}
             className="bg-blue-600 hover:bg-blue-700"
           />
-        {/* )} */}
-
+         )} 
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
         optionArray2={ReportingType}
         optionArray3={departmentData}
       />
-      {transformedData?.map((dataItem: any, index: number) => (
-        <Card
-          key={index}
-          title={
-            <div>
-              <Row gutter={16} className="items-center">
-                <Col xs={4} sm={2} md={1}>
-                  <Avatar style={{ verticalAlign: 'middle' }} size="default">
-                    user
-                  </Avatar>
-                </Col>
-                <Col xs={20} sm={22} md={23}>
-                  <Row className="font-bold text-lg">
-                    <Row className="font-bold text-xs">
-                      {getEmployeeData(dataItem?.createdBy)?.firstName +
-                        ' ' +
-                        (getEmployeeData(dataItem?.createdBy)?.middleName
-                          ? getEmployeeData(dataItem?.createdBy)
-                              .middleName.charAt(0)
-                              .toUpperCase()
-                          : '')}
+        {allReporting?.map((dataItem: any, index: number) => (
+          <Card
+            key={index}
+            title={
+              <div>
+                <Row gutter={16} className="items-center">
+                  <Col xs={4} sm={2} md={1}>
+                    <Avatar style={{ verticalAlign: 'middle' }} size="default">
+                      user
+                    </Avatar>
+                  </Col>
+                  <Col xs={20} sm={22} md={23}>
+                    <Row className="font-bold text-lg">
+                      <Row className="font-bold text-xs">
+                        {getEmployeeData(dataItem?.userId)?.firstName +
+                          ' ' +
+                          (getEmployeeData(dataItem?.createdBy)?.middleName
+                            ? getEmployeeData(dataItem?.createdBy)
+                                .middleName.charAt(0)
+                                .toUpperCase()
+                            : '')}
+                      </Row>
                     </Row>
-                  </Row>
-                  <Row className="flex justify-between items-center">
-                    <Row gutter={16} justify={'start'}>
-                      <Col className="text-gray-500 text-xs">Status</Col>
-                      <Col>
-                        <Avatar
-                          size={16}
-                          shape="square"
-                          className={`-mt-2 ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
-                          icon={<MdOutlinePending />}
-                        />
-                      </Col>
-                      <Col className="text-xs -ml-3">
-                        {dataItem?.isValidated ? 'Closed' : 'Open'}
-                      </Col>
-                    </Row>
-                    <Col span={10} className="flex justify-end items-center">
-                      <span className="mr-4 text-gray-500">
-                        {dayjs(dataItem?.createdAt).format(
-                          'MMMM D YYYY, h:mm:ss A',
-                        )}
-                      </span>
-                      <Col className="mr-2">
-                        <Tooltip title="Approve Plan">
+                    <Row className="flex justify-between items-center">
+                      <Row gutter={16} justify={'start'}>
+                        <Col className="text-gray-500 text-xs">Status</Col>
+                        <Col>
                           <Avatar
                             size={16}
-                            alt="approve plan"
-                            className="cursor-pointer"
                             shape="square"
-                            style={{ backgroundColor: '#148220' }}
-                            onClick={() =>
-                              handleApproveHandler(dataItem?.id, true)
-                            }
-                            icon={<IoCheckmarkSharp />}
+                            className={`-mt-2 ${dataItem?.status ? 'bg-green-300' : 'bg-yellow-300'}`}
+                            icon={<MdOutlinePending />}
                           />
-                        </Tooltip>
+                        </Col>
+                        <Col className="text-xs -ml-3">
+                          {dataItem?.status ? 'Closed' : 'Open'}
+                        </Col>
+                      </Row>
+                      <Col span={10} className="flex justify-end items-center">
+                        <span className="mr-4 text-gray-500">
+                          {dayjs(dataItem?.createdAt).format(
+                            'MMMM D YYYY, h:mm:ss A',
+                          )}
+                        </span>
+                        <Col className="mr-2">
+                        </Col>
+                        <Col>
+                        </Col>
                       </Col>
-                      <Col>
-                        <Tooltip title="Reject Plan">
-                          <Avatar
-                            size={16}
-                            alt="Reject Plan"
-                            className="cursor-pointer"
-                            shape="square"
-                            style={{ backgroundColor: '#b50d20' }}
-                            onClick={() =>
-                              handleApproveHandler(dataItem?.id, false)
-                            }
-                            icon={<IoIosClose />}
-                          />
-                        </Tooltip>
-                      </Col>
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
-            </div>
-          }
-        >
-          {dataItem?.keyResults?.map(
-            (keyResult: any, keyResultIndex: number) => (
-              <>
+                    </Row>
+                  </Col>
+                </Row>
+              </div>
+            }
+          >
+             {groupTasksByKeyResultAndMilestone(dataItem?.reportTask)?.map((keyResult:any)=>(
+                <>
                 <KeyResultMetrics
                   keyResult={
                     keyResult ?? {
@@ -174,120 +142,22 @@ function Reporting() {
                   }
                 />
                 {keyResult?.milestones?.map(
-                  (milestone: any, milestoneIndex: number) => (
-                    <Row key={milestoneIndex}>
-                      <Col span={24}>
-                        <strong>{`${milestoneIndex + 1}. ${milestone?.description || 'No milestone Title'}`}</strong>
+                  (milestone: any, milestoneIndex: number) => (<>
+                      <Col span={24} className='ml-2'>
+                       <strong>{`${milestoneIndex + 1}. ${milestone?.title}`}</strong>
                       </Col>
-                      {milestone?.tasks?.map((task: any, taskIndex: number) => (
-                        <Col className="ml-5" span={24} key={taskIndex}>
-                          <Row>
-                            <Col>
-                              <Text className="text-xs">{`${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`}</Text>
-                            </Col>
-                            <Col>
-                              <Row justify="start" className="gap-1">
-                                <Col>
-                                  <Text type="secondary" className="text-xs">
-                                    <span style={{ color: 'blue' }}>
-                                      &bull;
-                                    </span>{' '}
-                                    Priority:{' '}
-                                  </Text>
-                                  <Tag
-                                    color={
-                                      task?.priority === 'high'
-                                        ? 'red'
-                                        : 'green'
-                                    }
-                                  >
-                                    {task?.priority || 'None'}
-                                  </Tag>
-                                </Col>
-                                <Col className="text-xs">
-                                  <Text type="secondary" className="text-xs">
-                                    <span style={{ color: 'blue' }}>
-                                      &bull;
-                                    </span>{' '}
-                                    point:{' '}
-                                  </Text>
-                                  <Tag color="blue">
-                                    {task?.weight || 'N/A'}
-                                  </Tag>
-                                </Col>
-                                <Col className="text-xs">
-                                  <Text type="secondary" className="text-xs">
-                                    <span style={{ color: 'blue' }}>
-                                      &bull;
-                                    </span>{' '}
-                                    Target:{' '}
-                                  </Text>
-                                  <Tag color="blue">
-                                    {task?.targetValue || 'N/A'}
-                                  </Tag>
-                                </Col>
-                              </Row>
-                            </Col>
-                          </Row>
-                        </Col>
-                      ))}
-                    </Row>
-                  ),
-                )}
-                {keyResult?.tasks?.map((task: any, taskIndex: number) => (
-                  <Row key={taskIndex}>
-                    <Col className="ml-5" span={24} key={taskIndex}>
-                      <Row>
-                        <Col>
-                          <Text className="text-xs">{`${keyResultIndex + 1}.${taskIndex + 1} ${task?.task}`}</Text>
-                        </Col>
-                        <Col>
-                          <Row justify="start" className="gap-1">
-                            <Col>
-                              <Text type="secondary" className="text-xs">
-                                <span style={{ color: 'blue' }}>&bull;</span>{' '}
-                                Priority:{' '}
-                              </Text>
-                              <Tag
-                                color={
-                                  task?.priority === 'high' ? 'red' : 'green'
-                                }
-                              >
-                                {task?.priority || 'None'}
-                              </Tag>
-                            </Col>
-                            <Col className="text-xs">
-                              <Text type="secondary" className="text-xs">
-                                <span style={{ color: 'blue' }}>&bull;</span>{' '}
-                                point:{' '}
-                              </Text>
-                              <Tag color="blue">{task?.weight || 'N/A'}</Tag>
-                            </Col>
-                            <Col className="text-xs">
-                              <Text type="secondary" className="text-xs">
-                                <span style={{ color: 'blue' }}>&bull;</span>{' '}
-                                Target:{' '}
-                              </Text>
-                              <Tag color="blue">
-                                {task?.targetValue || 'N/A'}
-                              </Tag>
-                            </Col>
-                          </Row>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                ))}
+                      <TasksDisplayer tasks={milestone?.tasks}/>
+                      </>),
+                 )}
+                  <TasksDisplayer tasks={keyResult?.tasks}/>
               </>
-            ),
+            ))},
+        </Card>))}
+          {allReporting?.length <= 0 && (
+            <div className="flex justify-start">
+              <EmptyImage />
+            </div>
           )}
-        </Card>
-      ))}
-      {transformedData?.length <= 0 && (
-        <div className="flex justify-start">
-          <EmptyImage />
-        </div>
-      )}
     </div>
   );
 }

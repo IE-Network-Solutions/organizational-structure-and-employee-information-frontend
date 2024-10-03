@@ -16,7 +16,7 @@ import { useApprovalPlanningPeriods } from '@/store/server/features/okrPlanningA
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
 import { EmptyImage } from '@/components/emptyIndicator';
-import { groupTasksByKeyResultAndMilestone } from '../dataTransformer';
+import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { PlanningType } from '@/types/enumTypes';
@@ -39,7 +39,7 @@ function Planning() {
     planPeriodId: planningPeriodId,
   });
 
-  const transformedData = groupTasksByKeyResultAndMilestone(allPlanning);
+  const transformedData = groupPlanTasksByKeyResultAndMilestone(allPlanning);
 
   const handleApproveHandler = (id: string, value: boolean) => {
     const data = {
@@ -63,7 +63,7 @@ function Planning() {
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
         {selectedUser.includes(userId) &&
-        ((transformedData?.[0]?.isReported ?? false) || transformedData.length === 0) && (
+        ((transformedData?.[0]?.isReported ?? false) || transformedData?.length === 0) && (
           <CustomButton
             title={`Create ${activeTabName}`}
             id="createActiveTabName"
