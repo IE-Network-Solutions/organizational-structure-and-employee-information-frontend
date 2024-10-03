@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import {
   AppstoreOutlined,
   BarChartOutlined,
-  UserOutlined,
   MenuOutlined,
+  FormOutlined,
 } from '@ant-design/icons';
 import { FaStarOfLife } from 'react-icons/fa';
 import {
@@ -19,7 +19,6 @@ import { Layout, Menu, Button, theme } from 'antd';
 const { Header, Content, Sider } = Layout;
 import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
-import { FiSettings } from 'react-icons/fi';
 import { CiCalendar, CiSettings } from 'react-icons/ci';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuUsers2 } from 'react-icons/lu';
@@ -89,20 +88,23 @@ const items: MenuItem[] = [
   {
     key: '/feedback ',
     label: 'Feedback',
-    icon: <UserOutlined />,
+    icon: <FormOutlined />,
     className: 'font-bold',
     children: [
       {
         key: '/feedback/categories',
         label: 'Form',
-        icon: <UserOutlined />,
+        className: 'font-bold',
+      },
+      {
+        key: '/feedback/succession-plan',
+        label: 'Succession',
         className: 'font-bold',
       },
       {
         key: '/feedback/settings',
         label: 'Settings',
         className: 'font-bold',
-        icon: <FiSettings />,
       },
     ],
   },
@@ -120,7 +122,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
-  const {setLocalId, setTenantId, setToken} = useAuthenticationStore();
+  const { setLocalId, setTenantId, setToken } = useAuthenticationStore();
 
   useEffect(() => {
     const handleResize = () => {
@@ -148,10 +150,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
-    setToken("");
-    setTenantId("");
-    setLocalId("");
-    removeCookie("token");
+    setToken('');
+    setTenantId('');
+    setLocalId('');
+    removeCookie('token');
     router.push(`/authentication/login`);
   };
 
@@ -263,7 +265,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           )}
 
-          <NavBar page="Home" userid="12345" handleLogout={handleLogout}/>
+          <NavBar page="Home" userid="12345" handleLogout={handleLogout} />
         </Header>
         <Content
           className="mt-6 min-h-screen"
