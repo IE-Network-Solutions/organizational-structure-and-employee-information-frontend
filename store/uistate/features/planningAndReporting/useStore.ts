@@ -5,6 +5,8 @@ import { devtools } from 'zustand/middleware';
 export interface PlanningAndReporting {
   open: boolean;
   setOpen: (open: boolean) => void;
+  openReportModal: boolean;
+  setOpenReportModal: (open: boolean) => void;
   isEditing: boolean;
   setEditing: (open: boolean) => void;
   activeTab: number;
@@ -29,6 +31,8 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
   devtools((set) => ({
     open: false,
     setOpen: (open: boolean) => set({ open }),
+    openReportModal: false,
+    setOpenReportModal: (openReportModal: boolean) => set({ openReportModal }),
     isEditing: false,
     setEditing: (isEditing: boolean) => set({ isEditing }),
     activeTab: 1,

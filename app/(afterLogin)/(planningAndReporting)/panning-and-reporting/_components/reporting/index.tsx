@@ -24,8 +24,13 @@ import { PlanningType, ReportingType } from '@/types/enumTypes';
 const { Text, Title } = Typography;
 
 function Reporting() {
-  const { setOpen, selectedUser, activePlanPeriod,activeTab } =
-    PlanningAndReportingStore();
+  const {
+    setOpenReportModal,
+    openReportModal,
+    selectedUser,
+    activePlanPeriod,
+    activeTab,
+  } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { mutate: approvalPlanningPeriod } = useApprovalPlanningPeriods();
@@ -33,14 +38,14 @@ function Reporting() {
   const { data: planningPeriods } = AllPlanningPeriods();
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
-    const { data: allReporting } = useGetReporting({
-        userId: selectedUser,
-        planPeriodId: planningPeriodId,
-      });
+  const { data: allReporting } = useGetReporting({
+    userId: selectedUser,
+    planPeriodId: planningPeriodId,
+  });
 
   const transformedData = groupTasksByKeyResultAndMilestone(allReporting);
 
-  console.log(selectedUser,planningPeriodId,allReporting,"**************")
+  console.log(selectedUser, planningPeriodId, allReporting, '**************');
 
   const handleApproveHandler = (id: string, value: boolean) => {
     const data = {
@@ -62,18 +67,17 @@ function Reporting() {
   return (
     <div>
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
-        <Title level={5}>Planning</Title>
+        <Title level={5}>Reporting</Title>
         {/* {selectedUser.includes(userId) &&
         ((transformedData?.[0]?.isReported ?? false) || transformedData.length === 0) && ( */}
-          <CustomButton
-            title={`Create ${activeTabName}`}
-            id="createActiveTabName"
-            icon={<FaPlus className="mr-2" />}
-            onClick={() => setOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700"
-          />
+        <CustomButton
+          title={`Create ${activeTabName} Report`}
+          id="createActiveTabName"
+          icon={<FaPlus className="mr-2" />}
+          onClick={() => setOpenReportModal(true)}
+          className="bg-blue-600 hover:bg-blue-700"
+        />
         {/* )} */}
-
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
