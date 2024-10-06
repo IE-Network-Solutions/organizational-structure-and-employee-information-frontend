@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, Card, Col, Form, Input, Popconfirm, Row, Select } from 'antd';
+import React, { useState } from 'react';
+import { Button, Card, Col, Tag, Form, Input, Popconfirm, Row, Select } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { validateName } from '@/utils/validation';
@@ -11,7 +11,6 @@ const { Option } = Select;
 const CreateCriticalPostion = (props: any) => {
   const [form] = Form.useForm();
   const {
-    setNumberOfActionPlan,
     setCurrent,
     numberOfRoleResponseblity,
     setNumberOfRoleResponseblity,
@@ -26,17 +25,32 @@ const CreateCriticalPostion = (props: any) => {
       Critical Position
     </div>
   );
-  const plusOnClickHandler = () => {
-    setNumberOfRoleResponseblity(numberOfRoleResponseblity + 1);
+
+  const [responsibilities, setResponsibilities] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState('');
+
+  // Handle adding new responsibility
+  const addResponsibility = () => {
+    if (inputValue.trim() !== '') {
+      setResponsibilities([...responsibilities, inputValue]);
+      setInputValue('');  // Clear input after adding
+    }
   };
+
+  // Handle removing responsibility
+  const removeResponsibility = (removedResponsibility: string) => {
+    setResponsibilities(responsibilities.filter((responsibility) => responsibility != removedResponsibility));
+  };
+
   const handleCancel = () => {
     form.resetFields();
     setOpen(false);
-    setNumberOfActionPlan(1);
+    setResponsibilities([]);
   };
   //This function needs to be updated by the new mutation function i am about to create for succession.
-  const handleCreateActionPlan = (values: DataItem[]) => {
-    createCriticalPosition({ values: values });
+  const handleCreateActionPlan = (values: any) => {
+    console.log("Form values::::::::",{...values, responsibilities});
+    // createCriticalPosition({ values: values });
   };
   return (
     open && (
@@ -60,23 +74,10 @@ const CreateCriticalPostion = (props: any) => {
               <Col xs={24} sm={24}>
                 <Form.Item
                   className="font-semibold text-xs"
-                  name="critical Position"
+                  name="criticalPositionName"
                   label="Critical Position Name"
-                  id="responsiblePersonId"
-                  rules={[
-                    {
-                      validator: (rule, value) =>
-                        !validateName('Middle Name', value)
-                          ? Promise.resolve()
-                          : Promise.reject(
-                              new Error(
-                                validateName('Middle Name', value) || '',
-                              ),
-                            ),
-                    },
-                  ]}
                 >
-                  <Input className="mt-4" />
+                  <Input placeholder={'Enter Name'} className="mt-4" />
                 </Form.Item>
               </Col>
             </Row>
@@ -85,32 +86,19 @@ const CreateCriticalPostion = (props: any) => {
                 <Form.Item
                   className="font-semibold text-xs"
                   name={'jobTitle'}
-                  label={`Job title`}
-                  id={`responsiblePersonId`}
-                  rules={[
-                    {
-                      validator: (rule, value) =>
-                        !validateName('Middle Name', value)
-                          ? Promise.resolve()
-                          : Promise.reject(
-                              new Error(
-                                validateName('Middle Name', value) || '',
-                              ),
-                            ),
-                    },
-                  ]}
+                  label={"Job Title"}
                 >
                   <Select
                     id={`selectStatusChartType`}
-                    placeholder="All Status"
+                    placeholder="Select Job Title"
                     allowClear
                     className="w-full h-[48px] my-4"
                   >
                     <Option key="active" value={'pieChart'}>
-                      Person 1
+                      Job 1
                     </Option>
                     <Option key="inactive" value={'lineGraph'}>
-                      Person 2
+                      Job 2
                     </Option>
                   </Select>
                 </Form.Item>
@@ -121,25 +109,9 @@ const CreateCriticalPostion = (props: any) => {
                 <Form.Item
                   className="font-semibold text-xs"
                   name="aboutTheRole"
-                  label={`About the role`}
-                  id={`actionPlanDescription`}
-                  rules={[
-                    {
-                      validator: (rule, value) =>
-                        !validateName('Middle Name', value)
-                          ? Promise.resolve()
-                          : Promise.reject(
-                              new Error(
-                                validateName(
-                                  `Responsible person for action plan`,
-                                  value,
-                                ) || '',
-                              ),
-                            ),
-                    },
-                  ]}
+                  label={"About the role"}
                 >
-                  <Input.TextArea className="mt-4" rows={6} />
+                  <Input.TextArea placeholder={'Enter Role Discription'} className="mt-4" rows={6} />
                 </Form.Item>
               </Col>
             </Row>
@@ -151,33 +123,14 @@ const CreateCriticalPostion = (props: any) => {
                   className="font-semibold text-xs"
                   name="requiredSkills"
                   label="Required Skills/Criterias"
-                  id="responsiblePersonId"
-                  rules={[
-                    {
-                      validator: (rule, value) =>
-                        !validateName('Middle Name', value)
-                          ? Promise.resolve()
-                          : Promise.reject(
-                              new Error(
-                                validateName('Middle Name', value) || '',
-                              ),
-                            ),
-                    },
-                  ]}
                 >
                   <Select
-                    id={`selectStatusChartType`}
-                    placeholder="All Status"
-                    allowClear
-                    className="w-full h-[48px] my-4"
-                  >
-                    <Option key="active" value={'pieChart'}>
-                      Person 1
-                    </Option>
-                    <Option key="inactive" value={'lineGraph'}>
-                      Person 2
-                    </Option>
-                  </Select>
+                    mode="tags"
+                    className='mt-4'
+                    style={{ width: '100%' }}
+                    placeholder="Enter skills"
+                    tokenSeparators={[',']}
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -185,84 +138,55 @@ const CreateCriticalPostion = (props: any) => {
               <Col xs={24} sm={24}>
                 <Form.Item
                   className="font-semibold text-xs"
-                  name="experianceRequired"
-                  label="Experiance Required"
-                  id="responsiblePersonId"
+                  name="requiredExperiance"
+                  label="Required Experiance"
                   rules={[
                     {
-                      validator: (rule, value) =>
-                        !validateName('Middle Name', value)
-                          ? Promise.resolve()
-                          : Promise.reject(
-                              new Error(
-                                validateName('Middle Name', value) || '',
-                              ),
-                            ),
+                      validator: (rule, value) => {
+                        if (value < 0) {
+                          return Promise.reject(new Error('Experience must be 0 or above'));
+                        }
+                        return Promise.resolve();
+                      },
                     },
                   ]}
                 >
-                  <Input className="mt-4" />
+                  <Input type='number' placeholder={'5'} className="mt-4" />
                 </Form.Item>
               </Col>
             </Row>
-            {/* eslint-disable @typescript-eslint/naming-convention  */}
-            {Array.from({ length: numberOfRoleResponseblity }, (_, index) => (
-              <Row key={index}>
-                <Col key={index} xs={24} sm={20}>
-                  <Form.Item
-                    className="font-semibold mb-4 text-xs"
-                    name={[`${index + 1}`, 'roleResponsiblities']}
-                    label="Role Responsiblities"
-                    id={`responsiblePersonId${index}`}
-                    rules={[
-                      {
-                        validator: (rule, value) =>
-                          !validateName('Role Responsiblities', value)
-                            ? Promise.resolve()
-                            : Promise.reject(
-                                new Error(
-                                  validateName('Role Responsiblities', value) ||
-                                    '',
-                                ),
-                              ),
-                      },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col>
-              </Row>
-            ))}
             <Row gutter={16}>
-              <Col xs={24} sm={20}>
-                <Form.Item
-                  className="font-semibold text-xs"
-                  name={[`0`, 'roleResponsiblities']}
-                  label="Role Responsiblities"
-                  id="responsiblePersonId"
-                  rules={[
-                    {
-                      validator: (rule, value) =>
-                        !validateName('Role Responsiblities', value)
-                          ? Promise.resolve()
-                          : Promise.reject(
-                              new Error(
-                                validateName('Role Responsiblities', value) ||
-                                  '',
-                              ),
-                            ),
-                    },
-                  ]}
+              <p className="font-semibold text-s mb-2 ml-2">Role Responsibility</p>
+              {responsibilities.map((responsibility, index) => (
+                <Col xs={20} sm={20}>
+                <Tag
+                  className='w-full h-6 mb-4'
+                  key={index}
                 >
-                  <Input />
+                  {responsibility}
+                </Tag>
+                </Col>
+              ))}
+
+            </Row>
+            <Row gutter={16}>
+              <Col  xs={20} sm={20}>
+              <Form.Item className='font-semibold text-xs' >
+                <Input
+                  className="mt-2"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Enter a responsibility"
+                />
                 </Form.Item>
               </Col>
-              <Col className="flex justify-center mt-4" xs={24} sm={4}>
-                <Button type="primary" onClick={plusOnClickHandler}>
+              <Col xs={4} sm={4} className="flex justify-center">
+                <Button type="primary" className="mt-2" onClick={addResponsibility}>
                   <FaPlus />
                 </Button>
               </Col>
             </Row>
+            </Card>
             <Row gutter={16}>
               <Col xs={24} sm={12} className="flex justify-end">
                 <Popconfirm
@@ -290,7 +214,6 @@ const CreateCriticalPostion = (props: any) => {
                 </Button>
               </Col>
             </Row>
-          </Card>
         </Form>
       </CustomDrawerLayout>
     )
