@@ -9,7 +9,7 @@ import Image from 'next/image';
 import cvUpload from '@/public/image/cvUpload.png';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useGetJobsByID } from '@/store/server/features/recruitment/job/queries';
-import CustomJobQuestionsDisplay from '../customJobQuestionsDisplay';
+import CustomJobQuestionsDisplay from '../customJobQuestions';
 
 const { Option } = Select;
 
