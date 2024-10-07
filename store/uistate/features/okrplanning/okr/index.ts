@@ -246,5 +246,7 @@ export const useOKRStore = create<OKRState>()(
     companyCurrentPage: 1,
     setCompanyCurrentPage: (companyCurrentPage: number) =>
       set({ companyCurrentPage }),
+    okrTab: 1,
+    setOkrTab: (okrTab: number | string) => set({ okrTab }),
   })),
 );

@@ -8,7 +8,7 @@ import React from 'react';
 const { Option } = Select;
 
 const OkrSearch: React.FC = () => {
-  const { searchObjParams, setSearchObjParams } = useOKRStore();
+  const { searchObjParams, setSearchObjParams, okrTab } = useOKRStore();
 
   const { data: Metrics } = useGetMetrics();
   const { data: allUsers } = useGetAllUsers();
@@ -33,49 +33,52 @@ const OkrSearch: React.FC = () => {
   const handleDepartmentChange = (value: string | '') => {
     onSelectChange(value, 'departmentId');
   };
-
   return (
     <div>
       <Row gutter={[16, 24]} justify="space-between">
-        <Col lg={10} sm={24} xs={24}>
-          <div className="w-full">
-            <Select
-              showSearch
-              placeholder="Select a person"
-              className="w-full h-14"
-              allowClear
-              onChange={handleUserChangeChange}
-              filterOption={(input: any, option: any) =>
-                (option?.label ?? '')
-                  ?.toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              options={allUsers?.items?.map((item: any) => ({
-                ...item,
-                value: item?.id,
-                label: item?.firstName + ' ' + item?.lastName,
-              }))}
-            />
-          </div>
-        </Col>
+        {okrTab != 1 && (
+          <Col lg={10} sm={24} xs={24}>
+            <div className="w-full">
+              <Select
+                showSearch
+                placeholder="Select a person"
+                className="w-full h-14"
+                allowClear
+                onChange={handleUserChangeChange}
+                filterOption={(input: any, option: any) =>
+                  (option?.label ?? '')
+                    ?.toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={allUsers?.items?.map((item: any) => ({
+                  ...item,
+                  value: item?.id,
+                  label: item?.firstName + ' ' + item?.lastName,
+                }))}
+              />
+            </div>
+          </Col>
+        )}
 
         <Col lg={11} sm={24} xs={24}>
           <Row gutter={[8, 16]}>
-            <Col lg={12} sm={12} xs={24}>
-              <Select
-                id={`selectDepartment${searchObjParams.userId}`}
-                placeholder="Select Department"
-                onChange={handleDepartmentChange}
-                allowClear
-                className="w-full h-14"
-              >
-                {DepartmentWithUsers?.map((item: any) => (
-                  <Option key={item?.id} value={item?.id}>
-                    {item?.name}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
+            {okrTab != 1 && (
+              <Col lg={12} sm={12} xs={24}>
+                <Select
+                  id={`selectDepartment${searchObjParams.userId}`}
+                  placeholder="Select Department"
+                  onChange={handleDepartmentChange}
+                  allowClear
+                  className="w-full h-14"
+                >
+                  {DepartmentWithUsers?.map((item: any) => (
+                    <Option key={item?.id} value={item?.id}>
+                      {item?.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+            )}
             <Col lg={12} sm={12} xs={24}>
               <Select
                 id={`selectBranches${searchObjParams.metricTypeId}`}

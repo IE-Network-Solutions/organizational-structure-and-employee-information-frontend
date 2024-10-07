@@ -44,7 +44,7 @@ export interface Objective {
   daysLeft?: number;
   completedKeyResults?: number;
   objectiveProgress?: number;
-  keyResults: KeyResult[] | any;
+  keyResults?: KeyResult[] | any;
   user?: User;
 }
 export const defaultObjective: Objective = {
@@ -76,15 +76,16 @@ export interface OKRFormProps {
   updateKeyResult: (index: number, field: keyof KeyResult, value: any) => void;
   removeKeyResult: (index: number) => void;
   addKeyResultValue: (value: any) => void;
+  keyResults?: KeyResult;
 }
 export interface ObjectiveProps {
   objective: Objective;
   myOkr: boolean;
 }
 export interface OKRState {
-  keyResultValue: KeyResult[] | any;
+  keyResultValue?: KeyResult[] | any;
   setKeyResultValue: (keyResultValue: KeyResult[]) => void;
-  keyResults: KeyResult[];
+  keyResults?: KeyResult[];
   objective: Objective;
   objectiveValue: Objective;
   setObjective: (objective: Objective) => void;
@@ -118,11 +119,13 @@ export interface OKRState {
   teamCurrentPage: number;
   setTeamCurrentPage: (teamCurrentPage: number) => void;
   setCurrentPage: (currentPage: number) => void;
-  teamUserId: number;
-  setTeamUserId: (teamUserId: number) => void;
+  teamUserId?: number;
+  setTeamUserId?: (teamUserId: number) => void;
 
   companyPageSize: number;
   companyCurrentPage: number;
   setCompanyPageSize: (companyPageSize: number) => void;
   setCompanyCurrentPage: (companyCurrentPage: number) => void;
+  okrTab: number | string;
+  setOkrTab: (okrTab: number | string) => void;
 }

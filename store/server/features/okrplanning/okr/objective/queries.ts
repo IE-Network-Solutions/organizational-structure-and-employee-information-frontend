@@ -26,6 +26,7 @@ const getObjectiveByUser = async (
   id: number | string,
   pageSize: number,
   currentPage: number,
+  metricTypeId: string,
 ) => {
   try {
     const headers = {
@@ -33,7 +34,8 @@ const getObjectiveByUser = async (
       tenantId: tenantId, // Pass tenantId in the headers
     };
     const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/objective/${id}?page=${currentPage}&limit=${pageSize}`,
+      `${OKR_AND_PLANNING_URL}/objective/${id}?page=${currentPage}&limit=${pageSize}&metricTypeId=${metricTypeId}`,
+
       {
         headers,
       },
@@ -123,10 +125,11 @@ export const useGetUserObjective = (
   postId: number | string,
   pageSize: number,
   currentPage: number,
+  metricTypeId: string,
 ) =>
   useQuery<ResponseData>(
-    ['ObjectiveInformation', postId, pageSize, currentPage],
-    () => getObjectiveByUser(postId, pageSize, currentPage),
+    ['ObjectiveInformation', postId, pageSize, currentPage, metricTypeId],
+    () => getObjectiveByUser(postId, pageSize, currentPage, metricTypeId),
     {
       keepPreviousData: true,
     },

@@ -96,10 +96,10 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             label="Target"
           >
             <Select
-              defaultValue={keyValue.key_type}
+              value={keyValue.progress}
               className="w-full text-xs"
               onChange={(value) => {
-                handleChange(value, 'targetValue');
+                handleChange(value, 'progress');
               }}
             >
               <Option value={0}>Not Achieved</Option>

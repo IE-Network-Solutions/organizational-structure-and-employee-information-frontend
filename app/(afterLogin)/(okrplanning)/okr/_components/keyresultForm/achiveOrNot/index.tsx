@@ -54,16 +54,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               aria-label="Cancel"
             />
           </div>
-          <Form.Item
-            className="w-full"
-            name="key_type"
-            rules={[
-              {
-                required: true,
-                message: 'Please select a Key Result type',
-              },
-            ]}
-          >
+          <Form.Item className="w-full mb-2">
             <Select
               className="w-full text-xs"
               onChange={(value) => {

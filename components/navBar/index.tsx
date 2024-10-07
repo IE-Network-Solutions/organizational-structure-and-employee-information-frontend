@@ -125,13 +125,13 @@ const items: MenuItem[] = [
         className: 'font-bold',
       },
       {
-        key: '/reprimand-appreciation',
-        label: 'Reprimand & Appreciation',
+        key: '/monitoring-evaluation',
+        label: 'Monitoring & Evaluation',
         className: 'font-bold',
       },
       {
-        key: '/setting',
-        label: 'Setting',
+        key: '/okr/settings',
+        label: 'Settings',
         className: 'font-bold',
       },
     ],

@@ -31,15 +31,16 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   const handleAddKeyResult = () => {
     form
       .validateFields()
-      .then((values) => {
+      .then((keyItem) => {
         const metricTypeId = metrics?.items?.find(
-          (i: any) => i.name === values.key_type,
+          (i: any) => i.name === keyItem.key_type,
         )?.id;
         const NewValue = {
-          ...values,
+          ...keyItem,
           metricTypeId: metricTypeId,
-          key_type: values.key_type,
+          key_type: keyItem.key_type,
         };
+
         addKeyResultValue(NewValue);
         setKeyResult([]);
       })
@@ -77,11 +78,15 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   (metric) => metric.id === value,
                 );
                 if (selectedMetric) {
-                  updateKeyResult(index, 'metricTypeId', value);
-                  updateKeyResult(index, 'key_type', selectedMetric.name);
+                  updateKeyResult(index, 'metricTypeId', value); // Store the ID
+                  updateKeyResult(index, 'key_type', selectedMetric.name); // Store the name
                 }
               }}
-              value={keyItem.key_type}
+              value={
+                metrics?.items?.find(
+                  (metric) => metric.name === keyItem.key_type,
+                )?.id || ''
+              } // Use the ID as the value
             >
               <Option value="" disabled>
                 Please select a metric type

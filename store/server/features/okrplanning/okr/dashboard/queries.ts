@@ -9,6 +9,9 @@ type Dashboard = {
   daysLeft: number;
   okrCompleted: number;
   userOkr: number;
+  teamOkr: number;
+  companyOkr: number;
+  keyResultCount: number;
   supervisorOkr?: number; // Add supervisorOkr if it's included in the API response
 };
 

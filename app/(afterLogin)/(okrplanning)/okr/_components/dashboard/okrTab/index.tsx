@@ -11,6 +11,7 @@ import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { EmptyImage } from '@/components/emptyIndicator';
+import OkrProgress from '../okrprogress';
 
 export default function OkrTab() {
   const { TabPane } = Tabs;
@@ -38,6 +39,7 @@ export default function OkrTab() {
     setCompanyPageSize,
     companyCurrentPage,
     companyPageSize,
+    setOkrTab,
   } = useOKRStore();
   const usersInDepartment =
     departmentUsers
@@ -48,6 +50,7 @@ export default function OkrTab() {
     userId,
     pageSize,
     currentPage,
+    searchObjParams?.metricTypeId,
   );
   const { data: teamObjective, isLoading: teamLoading } = useGetTeamObjective(
     teamPageSize,
@@ -86,8 +89,9 @@ export default function OkrTab() {
   };
   return (
     <div className="mt-6">
-      <Tabs defaultActiveKey="1">
-        <TabPane tab="My OKR" key="1">
+      <Tabs defaultActiveKey="1" onChange={(key) => setOkrTab(key)}>
+        <TabPane tab="My OKR" key={1}>
+          <OkrProgress />
           {isLoading && (
             <Spin
               size="large"
@@ -116,7 +120,8 @@ export default function OkrTab() {
             </div>
           )}
         </TabPane>
-        <TabPane tab="Team OKR" key="2">
+        <TabPane tab="Team OKR" key={2}>
+          <OkrProgress />
           {teamLoading && (
             <Spin
               size="large"
@@ -145,7 +150,8 @@ export default function OkrTab() {
             </div>
           )}
         </TabPane>
-        <TabPane tab="Company OKR" key="3">
+        <TabPane tab="Company OKR" key={3}>
+          <OkrProgress />
           {companyLoading && (
             <Spin
               size="large"
