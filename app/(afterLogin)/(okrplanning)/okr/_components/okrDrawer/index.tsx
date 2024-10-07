@@ -1,3 +1,4 @@
+'use client';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import React, { useEffect } from 'react';
 import { Button, DatePicker, Form, Input, Row, Col, Select } from 'antd';
@@ -107,7 +108,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       open={props?.open}
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
-      width={window.innerWidth < 768 ? '90%' : '50%'} // Responsive drawer width
       footer={footer}
     >
       <Form form={form} layout="vertical">

@@ -109,7 +109,6 @@ const AppreciationEditDrawer: React.FC<AppDrawerProps> = ({
       open={open}
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
-      width={window.innerWidth < 768 ? '90%' : '50%'} // Responsive drawer width
       footer={footer}
     >
       <Form

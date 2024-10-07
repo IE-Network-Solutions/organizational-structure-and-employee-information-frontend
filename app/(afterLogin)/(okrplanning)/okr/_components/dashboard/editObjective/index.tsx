@@ -95,7 +95,6 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
       open={props?.open}
       onClose={props?.onClose}
       modalHeader={modalHeader}
-      width={window.innerWidth < 768 ? '90%' : '50%'} // Responsive drawer width
       footer={footer}
     >
       <Form form={form} layout="vertical">

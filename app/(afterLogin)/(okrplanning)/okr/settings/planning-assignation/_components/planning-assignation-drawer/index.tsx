@@ -1,3 +1,4 @@
+'use client';
 import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
@@ -83,7 +84,6 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
       open={open}
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
-      width={window.innerWidth < 768 ? '90%' : '50%'} // Responsive drawer width
       footer={footer}
     >
       <Form

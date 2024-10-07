@@ -92,7 +92,6 @@ const OkrRuleDrawer: React.FC<OkrRuleDrawerProps> = ({
       open={open}
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
-      width={window.innerWidth < 768 ? '90%' : '40%'}
       footer={footer}
     >
       <Form form={form} onFinish={onFinish} layout="vertical">

@@ -79,7 +79,6 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
       open={open}
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
-      width={window.innerWidth < 768 ? '90%' : '35%'} // Responsive drawer width
       footer={footer}
     >
       <Form

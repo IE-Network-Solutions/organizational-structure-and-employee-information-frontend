@@ -1,12 +1,12 @@
+'use client';
 import { Menu } from 'antd';
-import { AppstoreOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 
 const OKRSettingMenu = () => {
   return (
     <div className="h-full p-4">
       <Menu mode="vertical" defaultSelectedKeys={['1']} style={{ width: 256 }}>
-        <Menu.Item key="1" icon={<AppstoreOutlined />}>
+        <Menu.Item key="1">
           <Link href="/monitoring-evaluation/settings/planning-period">
             Planning Period
           </Link>

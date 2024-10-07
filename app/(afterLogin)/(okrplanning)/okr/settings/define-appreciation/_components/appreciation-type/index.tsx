@@ -86,7 +86,6 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
       open={open}
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
-      width={window.innerWidth < 768 ? '90%' : '35%'}
       footer={footer}
     >
       <Form
