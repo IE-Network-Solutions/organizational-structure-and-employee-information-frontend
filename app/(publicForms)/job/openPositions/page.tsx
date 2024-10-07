@@ -28,7 +28,6 @@ const OpenPositions: React.FC = () => {
     setPageSize,
   } = useJobState();
   const { data: publicJobs, isLoading: responseLoading } = useGetJobs();
-  console.log(publicJobs, 'publicJobs');
 
   const handleShareModalVisible = (jobId: string) => {
     setShareModalOpen(true);

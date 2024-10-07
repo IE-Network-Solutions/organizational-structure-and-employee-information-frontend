@@ -14,8 +14,6 @@ const PublicJobForm: React.FC<PublicJobFormProps> = ({ params: { jobId } }) => {
   const isInternalApplicant = useAuthenticationStore?.getState()?.userId;
   // const isInternalApplicant = '';
 
-  console.log(isInternalApplicant, 'isInternalApplicant');
-
   return (
     <div className="bg-white w-full rounded-lg px-32 py-8">
       <div className="text-center text-2xl font-bold text-primary py-4">
