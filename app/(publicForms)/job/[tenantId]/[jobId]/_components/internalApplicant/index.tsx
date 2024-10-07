@@ -3,13 +3,13 @@ import { Button, Col, Form, Input, InputNumber, Row, Select } from 'antd';
 import { FaInfoCircle } from 'react-icons/fa';
 import { CandidateType, JobType } from '@/types/enumTypes';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
-import CustomJobQuestionsDisplay from '../customJobQuestionsDisplay';
 import TextArea from 'antd/es/input/TextArea';
 import Dragger from 'antd/es/upload/Dragger';
 import Image from 'next/image';
 import cvUpload from '@/public/image/cvUpload.png';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useGetJobsByID } from '@/store/server/features/recruitment/job/queries';
+import CustomJobQuestionsDisplay from '../customJobQuestionsDisplay';
 
 const { Option } = Select;
 
