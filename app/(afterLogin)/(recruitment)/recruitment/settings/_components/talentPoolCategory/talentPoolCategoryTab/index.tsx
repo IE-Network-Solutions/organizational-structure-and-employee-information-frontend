@@ -1,4 +1,4 @@
-import { Button, Card, Skeleton } from 'antd';
+import { Button, Card } from 'antd';
 import React from 'react';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { PlusOutlined } from '@ant-design/icons';

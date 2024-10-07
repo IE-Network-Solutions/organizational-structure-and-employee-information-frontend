@@ -1,21 +1,36 @@
 'use client';
-import React from 'react';
-import { Button, Popconfirm, Table } from 'antd';
+import React, { useState } from 'react';
+import { Button, Table } from 'antd';
 import { TbFileDownload } from 'react-icons/tb';
 import { useGetTalentPool } from '@/store/server/features/recruitment/tallentPool/query';
 import dayjs from 'dayjs';
 import { useMoveTalentPoolToCandidates } from '@/store/server/features/recruitment/tallentPool/mutation';
 import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
+import TransferTalentPoolToCandidateModal from './transferModal';
 
+/* eslint-disable @typescript-eslint/naming-convention */
 const TalentPoolTable: React.FC<any> = () => {
   const { data: candidates, isLoading } = useGetTalentPool();
 
   const { mutate: moveTalentPoolMutation } = useMoveTalentPoolToCandidates();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
 
-  const moveCandidate = (talentPoolId: string, jobInformationId: string) => {
-    moveTalentPoolMutation({ talentPoolId, jobInformationId });
+  const showModal = (record: any) => {
+    setSelectedCandidate(record);
+    setIsModalVisible(true);
   };
 
+  const handleOk = (value: any) => {
+    if (selectedCandidate) {
+      moveTalentPoolMutation({ value, taletnPoolId: selectedCandidate.id });
+      setIsModalVisible(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
   const columns = [
     {
       title: 'Name',
@@ -38,9 +53,9 @@ const TalentPoolTable: React.FC<any> = () => {
       key: 'phoneNumber',
     },
     {
-      title: 'Applied for',
+      title: 'Talent Pool Category',
       dataIndex: ['talentPoolCategory', 'title'],
-      key: 'appliedFor',
+      key: 'title',
     },
     {
       title: 'Reason',
@@ -84,16 +99,9 @@ const TalentPoolTable: React.FC<any> = () => {
       title: 'Actions',
       key: 'actions',
       render: (_: any, record: any) => (
-        <Popconfirm
-          title="Are you sure to move this candidate?"
-          onConfirm={() =>
-            moveCandidate(record?.id, record?.jobCandidateInformation?.id)
-          }
-          okText="Yes"
-          cancelText="No"
-        >
-          <Button type="primary">Transfer</Button>
-        </Popconfirm>
+        <Button type="primary" onClick={() => showModal(record)}>
+          Transfer
+        </Button>
       ),
     },
   ];
@@ -107,7 +115,7 @@ const TalentPoolTable: React.FC<any> = () => {
             componentType="table"
             count={1}
             type="default"
-            // columns={columns}
+            columns={columns}
           />
         </>
       ) : (
@@ -117,8 +125,17 @@ const TalentPoolTable: React.FC<any> = () => {
           pagination={false}
         />
       )}
+
+      <TransferTalentPoolToCandidateModal
+        visible={isModalVisible}
+        onConfirm={handleOk}
+        selectedCandidate={selectedCandidate}
+        onCancel={handleCancel}
+      />
     </>
   );
 };
 
 export default TalentPoolTable;
+
+/* eslint-disable @typescript-eslint/naming-convention */

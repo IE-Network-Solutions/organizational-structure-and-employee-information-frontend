@@ -1,27 +1,17 @@
 import React from 'react';
-import { Button, Col, Form, Input, Row, Select } from 'antd';
+import { Button, Form, Input, Select } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useGetCandidates } from '@/store/server/features/recruitment/tallentPool/query';
 import { useCreateTalentPoolCandidate } from '@/store/server/features/recruitment/tallentPool/mutation';
 import { useGetTalentPoolCategory } from '@/store/server/features/recruitment/tallentPoolCategory/query';
-import CustomButton from '@/components/common/buttons/customButton';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface AddCandidateProps {
   open: boolean;
   onClose: () => void;
-  handleCancel: () => void;
-  isEditMode: boolean;
-  handleSubmit: () => void;
 }
-
-const AddCandidate: React.FC<AddCandidateProps> = ({
-  open,
-  onClose,
-  handleCancel,
-  isEditMode,
-  handleSubmit,
-}) => {
+/* eslint-enable @typescript-eslint/naming-convention */
+const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
   const [form] = Form.useForm();
   const { data: candidates } = useGetCandidates();
   const { data: talentPoolCategory } = useGetTalentPoolCategory();
@@ -34,7 +24,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({
         jobCandidateInformationId: candidateId,
         reason,
         talentPoolCategoryId: category,
-        createdBy: '179055e7-a27c-4d9d-9538-2b2a115661bd',
+        createdBy: userId,
       };
 
       createCandidateMutation.mutate(candidateData, {
@@ -52,17 +42,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({
       onClose={onClose}
       modalHeader="Add New Candidate"
       width="30%"
-      footer={
-        <div className="flex justify-center items-center w-full">
-          <div className="flex justify-between items-center gap-4">
-            <CustomButton title="Cancel" onClick={handleCancel} />
-            <CustomButton
-              title={isEditMode ? 'Update' : 'Create'}
-              onClick={handleSubmit}
-            />
-          </div>
-        </div>
-      }
+      footer={false}
     >
       <Form className="h-full" form={form} layout="vertical">
         <Form.Item
@@ -73,7 +53,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({
           <Select placeholder="Select a candidate">
             {candidates?.items?.map((candidate: any) => (
               <Select.Option key={candidate.id} value={candidate.id}>
-                {candidate?.applicantStatusStage?.title}
+                {candidate?.title}
               </Select.Option>
             ))}
           </Select>
@@ -107,5 +87,5 @@ const AddCandidate: React.FC<AddCandidateProps> = ({
     </CustomDrawerLayout>
   );
 };
-
+/* eslint-disable @typescript-eslint/naming-convention */
 export default AddCandidate;

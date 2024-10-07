@@ -5,7 +5,6 @@ import CandidateTable from './talentPoolTable';
 import Pagination from './pagination';
 import { Button } from 'antd';
 import AddCandidate from './addDrawer';
-import UserSidebar from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/_components/userSidebar';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const TalentPoolPage = () => {
@@ -37,8 +36,7 @@ const TalentPoolPage = () => {
       <Filters />
       <CandidateTable />
       <Pagination />
-      {/* <AddCandidate open={isAddCandidateVisible} onClose={handleClose}  handleCancel={handleCancel} handleSubmit={handleSubmit} isEditMode={isEditMode}/> */}
-      <UserSidebar onClose={() => setOpen(false)} />
+      <AddCandidate open={isAddCandidateVisible} onClose={handleClose} />
     </div>
   );
 };

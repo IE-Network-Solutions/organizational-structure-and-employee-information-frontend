@@ -23,7 +23,6 @@ const Filters = () => {
       >
         <Option value="Software Engineer">Software Engineer</Option>
         <Option value="Designer">Designer</Option>
-        {/* Add more options if needed */}
       </Select>
 
       <Select
@@ -33,7 +32,6 @@ const Filters = () => {
       >
         <Option value="Engineering">Engineering</Option>
         <Option value="Design">Design</Option>
-        {/* Add more options if needed */}
       </Select>
 
       <Select
@@ -43,7 +41,6 @@ const Filters = () => {
       >
         <Option value="Interview">Interview</Option>
         <Option value="Talent Pool">Talent Pool</Option>
-        {/* Add more options if needed */}
       </Select>
     </div>
   );

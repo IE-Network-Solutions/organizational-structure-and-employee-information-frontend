@@ -3,7 +3,6 @@ import { Card, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import React, { useEffect, useState } from 'react';
 import { TbNotes } from 'react-icons/tb';
-import Branches from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/branches';
 import TalentPoolCategoryTab from '../_components/talentPoolCategory/talentPoolCategoryTab';
 import TalentPoolDrawer from '../_components/talentPoolCategory/customDrawer';
 
