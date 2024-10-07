@@ -43,7 +43,7 @@ const Login: FC = () => {
   return (
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
-      // style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
+      style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
     >
       <div className="bg-[#F1F2F3] w-full max-w-md py-4 px-6 rounded-lg my-5">
         <p className="text-center font-semibold">PEP</p>
@@ -90,9 +90,9 @@ const Login: FC = () => {
             <Form.Item name="remember" valuePropName="checked" noStyle>
               <Checkbox className="m-1">Remember me</Checkbox>
             </Form.Item>
-            <Button className="float-right m-0 p-0" type="link">
+            {/* <Button className="float-right m-0 p-0" type="link">
               Forgot password
-            </Button>
+            </Button> */}
           </Form.Item>
 
           <Form.Item>

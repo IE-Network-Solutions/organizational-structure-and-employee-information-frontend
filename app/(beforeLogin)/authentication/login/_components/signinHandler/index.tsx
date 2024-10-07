@@ -28,16 +28,16 @@ export const useHandleSignIn = () => {
       setToken(token);
       setLocalId(uid);
 
-      await fetchTenantId();
+      const fetchedData = await fetchTenantId();
 
-      if (fetcheError) {
+      if (fetchedData.isError) {
         message.error('Failed to fetch user data. Please try again.');
         setToken('');
         setLocalId('');
       } else {
-        setTenantId(fetchedTenantId.tenantId);
-        setUserId(fetchedTenantId.id);
-        message.success('Welcome back');
+        setTenantId(fetchedData?.data?.tenantId);
+        setUserId(fetchedData?.data?.id);
+        message.success('Welcome!');
         message.loading({ content: 'Redirecting...', key: 'redirect' });
         router.push('/employees/manage-employees');
       }
