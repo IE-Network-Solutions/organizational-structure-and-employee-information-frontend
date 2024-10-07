@@ -24,6 +24,19 @@ const getAllOrgCharts = async () => {
 };
 
 /**
+ * Fetch all organization charts of the peoples from the API.
+ * @returns Promise with the list of organization charts pepoples.
+ */
+
+const getAllOrgChartsPeople = async () => {
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/departments/user/user-tree`,
+    method: 'GET',
+    headers,
+  });
+};
+
+/**
  * Fetch a specific organization chart by ID from the API.
  * @param id - ID of the organization chart to fetch.
  * @returns Promise with the organization chart data.
@@ -43,6 +56,14 @@ const getOrgChart = async (id: string) => {
  */
 export const useGetOrgCharts = () =>
   useQuery<OrgChart>('orgcharts', getAllOrgCharts);
+
+/**
+ * Custom hook to fetch all organization charts of pleoles structure.
+ * Uses React Query's useQuery to manage the query state.
+ * @returns Query object containing the list of organization charts peoples structure.
+ */
+export const useGetOrgChartsPeoples = () =>
+  useQuery<OrgChart>('orgchartsPeoples', getAllOrgChartsPeople);
 
 /**
  * Custom hook to fetch a specific organization chart by ID.
