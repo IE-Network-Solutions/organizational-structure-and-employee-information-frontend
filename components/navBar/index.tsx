@@ -86,13 +86,6 @@ const items: MenuItem[] = [
     className: 'font-bold',
     label: 'Activity',
   },
-
-  {
-    key: '/dashbord',
-    icon: <MdStarPurple500 />,
-    className: 'font-bold',
-    label: 'OKR_DashBoard',
-  },
   {
     key: '/feedback ',
     label: 'Feedback',
@@ -120,7 +113,7 @@ const items: MenuItem[] = [
     className: 'font-bold',
     children: [
       {
-        key: '/dashboard',
+        key: '/okr/dashboard',
         label: 'Dashboard',
         className: 'font-bold',
       },
@@ -155,7 +148,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
-  const {setLocalId, setTenantId, setToken} = useAuthenticationStore();
+  const { setLocalId, setTenantId, setToken } = useAuthenticationStore();
 
   useEffect(() => {
     const handleResize = () => {
@@ -183,10 +176,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
-    setToken("");
-    setTenantId("");
-    setLocalId("");
-    removeCookie("token");
+    setToken('');
+    setTenantId('');
+    setLocalId('');
+    removeCookie('token');
     router.push(`/authentication/login`);
   };
 
@@ -298,7 +291,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           )}
 
-          <NavBar page="Home" userid="12345" handleLogout={handleLogout}/>
+          <NavBar page="Home" userid="12345" handleLogout={handleLogout} />
         </Header>
         <Content
           className="overflow-y-hidden min-h-screen"
