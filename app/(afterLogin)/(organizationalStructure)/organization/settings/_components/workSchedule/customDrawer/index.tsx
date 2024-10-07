@@ -11,6 +11,8 @@ import { Form } from 'antd';
 import React, { useEffect } from 'react';
 
 const CustomWorkingScheduleDrawer: React.FC = () => {
+  // prettier-ignore
+
   const {
     isOpen,
     workingHour,
@@ -18,6 +20,7 @@ const CustomWorkingScheduleDrawer: React.FC = () => {
     selectedSchedule,
     isEditMode,
   } = useWorkScheduleDrawerStore();
+  // prettier-ignore
 
   const { name, detail } = useScheduleStore();
 
