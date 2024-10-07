@@ -45,7 +45,7 @@ const addTerminationTasks = async (values: EmployeeOffBoardingTasks[]) => {
 };
 
 const addOffboardingTasksTemplate = async (
-  values: EmployeeOffBoardingTasks,
+  values: EmployeeOffBoardingTasks[],
 ) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/offboarding-tasks-template`,

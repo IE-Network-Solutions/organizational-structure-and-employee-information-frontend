@@ -63,12 +63,14 @@ interface OffboardingState {
   isTaskTemplateVisible: boolean;
   isDeleteModalVisible: boolean;
   isEmploymentFormVisible: boolean;
-  selectedTemplateTasks: EmployeeOffBoardingTasks[];
+  selectedTemplateTasks: EmployeeOffBoardingTasks[] | [];
   completedTask: boolean;
   taskToDelete: Task;
   setTaskToDelete: (task: Task) => void;
   setCompletedTask: (visible: boolean) => void;
-  setselectedTemplateTasks: (templateTasks: EmployeeOffBoardingTasks[]) => void;
+  setselectedTemplateTasks: (
+    templateTasks: EmployeeOffBoardingTasks[] | [],
+  ) => void;
   setIsEmploymentFormVisible: (visible: boolean) => void;
   setIsDeleteModalVisible: (visible: boolean) => void;
   setIsTaskTemplateVisible: (visible: boolean) => void;
