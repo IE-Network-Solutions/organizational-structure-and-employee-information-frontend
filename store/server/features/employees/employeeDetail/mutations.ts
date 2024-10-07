@@ -158,7 +158,7 @@ export const useUpdateEmployeeRolePermission = () => {
 
 export const useAddEmployeeDocument = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation(
     async (formData: FormData) => {
       return await createEmployeeDocument(formData);
@@ -177,6 +177,6 @@ export const useAddEmployeeDocument = () => {
           description: 'Document upload failed',
         });
       },
-    }
+    },
   );
 };
