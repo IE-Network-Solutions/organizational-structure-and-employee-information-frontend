@@ -7,6 +7,9 @@ interface CandidateState {
 
   createJobDrawer: boolean;
   setCreateJobDrawer: (value: boolean) => void;
+
+  isClient: boolean;
+  setIsClient: (value: boolean) => void;
 }
 
 export const useCandidateState = create<CandidateState>((set) => ({
@@ -21,4 +24,7 @@ export const useCandidateState = create<CandidateState>((set) => ({
 
   createJobDrawer: false,
   setCreateJobDrawer: (value) => set({ createJobDrawer: value }),
+
+  isClient: false,
+  setIsClient: (value) => set({ isClient: value }),
 }));

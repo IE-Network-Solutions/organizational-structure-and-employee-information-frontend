@@ -12,7 +12,7 @@ import {
   Upload,
 } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 import cvUpload from '@/public/image/cvUpload.png';
 import { CandidateType, JobType } from '@/types/enumTypes';
@@ -37,6 +37,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
     documentFileList,
     setDocumentFileList,
     removeDocument,
+    isClient,
+    setIsClient,
   } = useCandidateState();
 
   const { mutate: createCandidate } = useCreateCandidate();
@@ -54,6 +56,11 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
       onSuccess('ok');
     }, 0);
   };
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) return null;
 
   const createJobDrawerHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
