@@ -35,7 +35,10 @@ const createTalentPoolCategory = async (data: any) => {
  * @param data - Updated category data.
  * @returns Promise with the updated category data.
  */
-const updateTalentPoolCategory = async (id: string, data: TalentPoolCategoryResponse) => {
+const updateTalentPoolCategory = async (
+  id: string,
+  data: TalentPoolCategoryResponse,
+) => {
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-pool-category/${id}`,
     method: 'PATCH',
@@ -88,7 +91,7 @@ export const useUpdateTalentPoolCategory = () => {
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method || 'PATCH');
       },
-    }
+    },
   );
 };
 

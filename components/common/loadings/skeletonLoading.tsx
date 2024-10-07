@@ -15,9 +15,10 @@ interface SkeletonLoadingProps {
   type?: 'active' | 'avatar' | 'default'; // Skeleton loading types
   alignment?: 'horizontal' | 'vertical'; // Alignment of the skeletons
   componentType?: 'card' | 'table' | 'list' | 'grid' | 'avatar' | 'custom'; // Expanded component types
-  columns?: ColumnType[]; // Custom columns for table
+  columns?: any[]; // Custom columns for table
 }
 
+/* eslint-disable @typescript-eslint/naming-convention */
 const SkeletonLoading: React.FC<SkeletonLoadingProps> = ({
   count = 3,
   type = 'active',
@@ -125,3 +126,5 @@ const SkeletonLoading: React.FC<SkeletonLoadingProps> = ({
 };
 
 export default SkeletonLoading;
+
+/* eslint-enable @typescript-eslint/naming-convention */

@@ -1,8 +1,8 @@
-import { useAuthenticationStore } from "@/store/uistate/features/authentication";
-import { TalentPoolCategoryResponse } from "@/types/dashboard/recruitment/talentPool";
-import { RECRUITMENT_URL } from "@/utils/constants";
-import { crudRequest } from "@/utils/crudRequest";
-import { useQuery } from "react-query";
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { TalentPoolCategoryResponse } from '@/types/dashboard/recruitment/talentPool';
+import { RECRUITMENT_URL } from '@/utils/constants';
+import { crudRequest } from '@/utils/crudRequest';
+import { useQuery } from 'react-query';
 
 // Fetch token and tenantId from the authentication store
 const token = useAuthenticationStore.getState().token;
@@ -36,7 +36,10 @@ const getTalentPoolCategoryById = async (id: string) => {
  * @returns Query object containing the list of talent pool categories.
  */
 export const useGetTalentPoolCategory = () =>
-  useQuery<TalentPoolCategoryResponse>('talentPoolCategory', getAllTalentPoolCategory);
+  useQuery<TalentPoolCategoryResponse>(
+    'talentPoolCategory',
+    getAllTalentPoolCategory,
+  );
 
 /**
  * Custom hook to fetch a specific talent pool category by ID.
@@ -50,5 +53,5 @@ export const useGetTalentPoolCategoryById = (id: string) =>
     () => getTalentPoolCategoryById(id),
     {
       keepPreviousData: true,
-    }
+    },
   );

@@ -20,7 +20,7 @@ const headers = {
  * @param data - Candidate data to be created.
  * @returns Promise with the created candidate data.
  */
-const createTalentPoolCandidate = async (data:any) => {
+const createTalentPoolCandidate = async (data: any) => {
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-pool`,
     method: 'POST',
@@ -56,16 +56,20 @@ const deleteTalentPoolCandidate = async (id: string) => {
   });
 };
 
-
-const moveTalentPoolToandidate = async({taletnPoolId, jobInformations}:any) =>{
+const moveTalentPoolToandidate = async ({ taletnPoolId, value }: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/talent-pool/transfer-talent-pool-to-candidate/${taletnPoolId}`,
+    url: `${RECRUITMENT_URL}/talent-pool/transfer-talent-pool-to-candidate/${taletnPoolId}`,
     method: 'POST',
-    data:jobInformations.
+    data: value,
     headers,
   });
-
-}
+};
 
 /**
  * Custom hook to create a new talent pool candidate using react-query.
@@ -98,7 +102,7 @@ export const useUpdateTalentPoolCandidate = () => {
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method || 'PATCH');
       },
-    }
+    },
   );
 };
 
@@ -117,13 +121,12 @@ export const useDeleteTalentPoolCandidate = () => {
   });
 };
 
-
 /**
  * Custom hook to move a talent pool to candidate from the talent pool using react-query.
  * Invalidate the "talentPool" query on success to refresh the data.
  * @returns Mutation object for deleting a talent pool candidate.
  */
-export const useMoveTalentPoolToCandidates =()  => {
+export const useMoveTalentPoolToCandidates = () => {
   const queryClient = useQueryClient();
   return useMutation(moveTalentPoolToandidate, {
     onSuccess: () => {

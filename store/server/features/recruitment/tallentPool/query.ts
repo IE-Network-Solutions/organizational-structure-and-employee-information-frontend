@@ -2,7 +2,11 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { Candidate, TalentPool, TalentPoolCategoryResponse, TalentPoolResponse } from '@/types/dashboard/recruitment/talentPool';
+import {
+  ApplicantStatusResponse,
+  TalentPool,
+  TalentPoolResponse,
+} from '@/types/dashboard/recruitment/talentPool';
 
 // Fetch token and tenantId from the authentication store
 const token = useAuthenticationStore.getState().token;
@@ -24,15 +28,13 @@ const getAllTalentPool = async () => {
   });
 };
 
-const getAllCandidates =  async () => {
+const getAllCandidates = async () => {
   return await crudRequest({
     url: `${RECRUITMENT_URL}/job-candidate-information`,
     method: 'GET',
     headers,
   });
 };
-
-
 
 /**
  * Fetch a specific talent pool candidate by ID from the API.
@@ -41,16 +43,15 @@ const getAllCandidates =  async () => {
  */
 const getTalentPoolCandidate = async (id: string) => {
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/job/candidates/${id}`, 
+    url: `${RECRUITMENT_URL}/job/candidates/${id}`,
     method: 'GET',
     headers,
   });
 };
 
-
 const getApplicantStatusStages = async () => {
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/applicant-status-stages/`, 
+    url: `${RECRUITMENT_URL}/applicant-status-stages/`,
     method: 'GET',
     headers,
   });
@@ -67,9 +68,6 @@ export const useGetTalentPool = () =>
 export const useGetCandidates = () =>
   useQuery<TalentPoolResponse>('candidates', getAllCandidates);
 
-
-
-
 /**
  * Custom hook to fetch a specific talent pool candidate by ID.
  * Uses React Query's useQuery to manage the query state.
@@ -81,7 +79,11 @@ export const useGetTalentPoolCandidate = (id: string) =>
     keepPreviousData: true,
   });
 
-  export const useGetApplicantStatusStages = () =>
-    useQuery<TalentPool>(['applicant-status-stages'], () => getApplicantStatusStages(), {
+export const useGetApplicantStatusStages = () =>
+  useQuery<ApplicantStatusResponse>(
+    ['applicant-status-stages'],
+    () => getApplicantStatusStages(),
+    {
       keepPreviousData: true,
-    });
+    },
+  );

@@ -1,6 +1,5 @@
-import { AddCandidateValue, TalentPoolState } from '@/types/dashboard/recruitment/talentPool';
+import { TalentPoolState } from '@/types/dashboard/recruitment/talentPool';
 import { create } from 'zustand';
-
 
 export const useTalentPoolStore = create<TalentPoolState>((set) => ({
   candidates: [
@@ -27,7 +26,7 @@ export const useTalentPoolStore = create<TalentPoolState>((set) => ({
     pageSize: 10,
   },
   visibleOnboard: false,
-  addedCandidate:{candidateId:'', reason:'',talentPoolId:''},
+  addedCandidate: { candidateId: '', reason: '', talentPoolId: '' },
   setCandidates: (candidates) => set({ candidates }),
   setFilters: (filters) =>
     set((state) => ({
@@ -40,11 +39,9 @@ export const useTalentPoolStore = create<TalentPoolState>((set) => ({
   setStage: (id: string, stage: string) =>
     set((state) => ({
       candidates: state.candidates.map((candidate) =>
-        candidate.id === id ? { ...candidate, stage } : candidate
+        candidate.id === id ? { ...candidate, stage } : candidate,
       ),
     })),
-    setAddCandidate: (value) =>
-      set({ addedCandidate: value }),
-    setVisibleOnboardState: (visible) => // Define the setter function
-    set({ visibleOnboard: visible }),
+  setAddCandidate: (value) => set({ addedCandidate: value }),
+  setVisibleOnboardState: (visible) => set({ visibleOnboard: visible }),
 }));

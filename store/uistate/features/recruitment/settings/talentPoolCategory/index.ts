@@ -2,24 +2,26 @@
 import { create } from 'zustand';
 import { TalentPoolSettingsDrawerState } from './tallentPoolCatogoryDrawer.interface';
 
-export const useTalentPoolSettingsStore = create<TalentPoolSettingsDrawerState>((set) => ({
-  isOpen: false, 
-  selectedTalentPool: null,
-  isEditMode: false, 
-  isDeleteMode: false, 
-  talentPoolName: '', 
+export const useTalentPoolSettingsStore = create<TalentPoolSettingsDrawerState>(
+  (set) => ({
+    isOpen: false,
+    selectedTalentPool: null,
+    isEditMode: false,
+    isDeleteMode: false,
+    talentPoolName: '',
 
-  toggleDrawer: () => set((state) => ({ isOpen: !state.isOpen })),
+    toggleDrawer: () => set((state) => ({ isOpen: !state.isOpen })),
 
-  closeDrawer: () =>
-    set({ isOpen: false, isEditMode: false, selectedTalentPool: null }),
+    closeDrawer: () =>
+      set({ isOpen: false, isEditMode: false, selectedTalentPool: null }),
 
-  openDrawer: () => set({ isOpen: true }),
+    openDrawer: () => set({ isOpen: true }),
 
-  setSelectedTalentPool: (talentPool) =>
-    set({ talentPoolName: talentPool?.name, selectedTalentPool: talentPool }),
+    setSelectedTalentPool: (talentPool) =>
+      set({ talentPoolName: talentPool?.name, selectedTalentPool: talentPool }),
 
-  setEditMode: (isEdit) => set({ isEditMode: isEdit }),
+    setEditMode: (isEdit) => set({ isEditMode: isEdit }),
 
-  setDeleteMode: (isDelete) => set({ isDeleteMode: isDelete }),
-}));
+    setDeleteMode: (isDelete) => set({ isDeleteMode: isDelete }),
+  }),
+);
