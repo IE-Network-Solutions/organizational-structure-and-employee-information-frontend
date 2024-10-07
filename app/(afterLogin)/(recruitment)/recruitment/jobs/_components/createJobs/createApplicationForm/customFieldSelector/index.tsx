@@ -32,7 +32,7 @@ const CustomFieldsSelector: React.FC = () => {
       );
       setFilteredQuestions(filtered);
     }
-  }, [selectedQuestions, customFields]);
+  }, [selectedQuestions, setFilteredQuestions, customFields]);
 
   if (isCustomFieldLoading) {
     return (

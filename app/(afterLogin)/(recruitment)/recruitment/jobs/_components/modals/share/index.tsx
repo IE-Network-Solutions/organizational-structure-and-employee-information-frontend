@@ -36,7 +36,7 @@ const ShareToSocialMedia: React.FC = () => {
       const url = `${window.location.origin}/job/${tenantId}/${jobId}`;
       setGeneratedUrl(url);
     }
-  }, [selectedJobId]);
+  }, [selectedJobId, tenantId, jobId, setGeneratedUrl]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedUrl).then(() => {
