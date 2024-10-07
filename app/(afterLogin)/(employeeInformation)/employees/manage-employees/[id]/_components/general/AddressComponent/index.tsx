@@ -73,7 +73,11 @@ const AddressComponent = ({
             {Object.entries(
               employeeData?.employeeInformation?.addresses || {},
             ).map(([key, val]) => (
-              <InfoLine key={key} title={key} value={val?.toString() || '-'} />
+              <InfoLine
+                key={key}
+                title={key.replace('address', '')}
+                value={val?.toString() || '-'}
+              />
             ))}
           </Col>
         </Row>

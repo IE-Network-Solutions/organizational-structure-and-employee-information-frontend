@@ -99,7 +99,6 @@ function WorkScheduleTab() {
                 </Dropdown>
               }
             >
-              setName
               <div className="mt-1">
                 <p className="text-sm">
                   Standard working hours/day:{' '}
@@ -130,7 +129,7 @@ function WorkScheduleTab() {
           ))}
         </Panel>
 
-        {/* Break-hours Section */}
+        {/* Break-hours Section 
         <Panel
           header={
             <div className="flex justify-between items-center">
@@ -151,10 +150,9 @@ function WorkScheduleTab() {
           className="shadow-sm rounded-lg"
         >
           <Card bordered={false} className="shadow-sm rounded-lg">
-            {/* Break-hours schedule content can go here */}
             <p className="text-sm">No break hours scheduled.</p>
           </Card>
-        </Panel>
+        </Panel> */}
       </Collapse>
     </div>
   );

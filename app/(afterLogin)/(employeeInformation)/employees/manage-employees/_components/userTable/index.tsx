@@ -24,7 +24,7 @@ import { AiOutlineUserAdd } from 'react-icons/ai';
 import JobTimeLineForm from '../allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../allFormData/workScheduleForm';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import moment from 'moment';
+import dayjs from 'dayjs';
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Employee Name',
@@ -171,14 +171,13 @@ const UserTable = () => {
       action: (
         <div className="flex gap-4 text-white">
           <Link href={`manage-employees/${item?.id}`}>
-            <Tooltip title={'View Employee Detail'}>
-              <Button
-                id={`editUserButton${item?.id}`}
-                className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
-              >
-                <FaEye />
-              </Button>
-            </Tooltip>
+            <Button
+              id={`editUserButton${item?.id}`}
+              disabled={item?.deletedAt !== null}
+              className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
+            >
+              <FaEye />
+            </Button>
           </Link>
           <Tooltip title={'Delete Employee'}>
             <Button
@@ -231,7 +230,7 @@ const UserTable = () => {
 
   const handleActivateEmployee = (values: any) => {
     values['userId'] = userToRehire?.id;
-    values.joinedDate = moment(values.joinedDate).format('YYYY-MM-DD');
+    values.joinedDate = dayjs(values.joinedDate).format('YYYY-MM-DD');
 
     values.departmentLeadOrNot = !values.departmentLeadOrNot
       ? false

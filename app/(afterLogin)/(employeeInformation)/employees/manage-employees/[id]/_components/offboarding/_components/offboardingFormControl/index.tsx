@@ -6,7 +6,7 @@ import { Form, DatePicker, Select, Button, Modal, Input, Row } from 'antd';
 import React from 'react';
 import TextArea from 'antd/es/input/TextArea';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import moment from 'moment';
+import dayjs from 'dayjs';
 const { Option } = Select;
 
 const OffboardingFormControl: React.FC<any> = ({
@@ -42,7 +42,7 @@ const OffboardingFormControl: React.FC<any> = ({
   };
 
   const onFinish = (values: any) => {
-    values['effectiveDate'] = moment(values.effectiveDate).format('YYYY-MM-DD');
+    values['effectiveDate'] = dayjs(values.effectiveDate).format('YYYY-MM-DD');
     values['userId'] = userId;
 
     values['jobInformationId'] = employeeData.employeeJobInformation[0].id;

@@ -20,9 +20,11 @@ const { Header, Content, Sider } = Layout;
 import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
 import { FiSettings } from 'react-icons/fi';
-import { CiCalendar, CiSettings } from 'react-icons/ci';
+import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuUsers2 } from 'react-icons/lu';
+import { removeCookie } from '@/helpers/storageHelper';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -54,11 +56,6 @@ const items: MenuItem[] = [
     className: 'font-bold',
     children: [
       {
-        key: '/employees/main',
-        label: 'Employees',
-        className: 'font-bold',
-      },
-      {
         key: '/employees/manage-employees',
         className: 'font-bold',
         label: 'Manage Employees',
@@ -75,7 +72,30 @@ const items: MenuItem[] = [
     icon: <PiSuitcaseSimpleThin />,
     className: 'font-bold',
     label: 'Recruitment',
+    children: [
+      {
+        key: '/recruitment/jobs',
+        label: 'Jobs',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/candidate',
+        label: 'Candidates',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/talent-pool',
+        label: 'Talent Pool',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/settings',
+        label: 'Settings',
+        icon: <FiSettings />,
+      },
+    ],
   },
+
   {
     key: '/timesheet',
     icon: <CiCalendar />,
@@ -112,21 +132,49 @@ const items: MenuItem[] = [
   },
   {
     key: '/feedback ',
-    label: 'Feedback',
+    label: 'Development',
     icon: <UserOutlined />,
     className: 'font-bold',
     children: [
       {
-        key: '/Chart',
-        label: 'Clients',
+        key: '/feedback/categories',
+        label: 'Form',
         icon: <UserOutlined />,
         className: 'font-bold',
       },
       {
-        key: '/client-management/settings',
+        key: '/feedback/settings',
         label: 'Settings',
         className: 'font-bold',
         icon: <FiSettings />,
+      },
+    ],
+  },
+  {
+    key: '/okr-planning ',
+    label: 'OKR & Planning',
+    icon: <CiStar size={20} />,
+    className: 'font-bold',
+    children: [
+      {
+        key: '/okr/dashboard',
+        label: 'Dashboard',
+        className: 'font-bold',
+      },
+      {
+        key: '/okr',
+        label: 'OKR',
+        className: 'font-bold',
+      },
+      {
+        key: '/monitoring-evaluation',
+        label: 'Monitoring & Evaluation',
+        className: 'font-bold',
+      },
+      {
+        key: '/okr/settings',
+        label: 'Settings',
+        className: 'font-bold',
       },
     ],
   },
@@ -144,6 +192,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
+  const { setLocalId, setTenantId, setToken } = useAuthenticationStore();
 
   useEffect(() => {
     const handleResize = () => {
@@ -168,6 +217,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     if (isMobile) {
       setMobileCollapsed(true);
     }
+  };
+
+  const handleLogout = () => {
+    setToken('');
+    setTenantId('');
+    setLocalId('');
+    removeCookie('token');
+    router.push(`/authentication/login`);
   };
 
   return (
@@ -278,10 +335,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           )}
 
-          <NavBar page="Home" userid="12345" />
+          <NavBar page="Home" userid="12345" handleLogout={handleLogout} />
         </Header>
         <Content
-          className="mt-6 min-h-screen"
+          className="overflow-y-hidden min-h-screen"
           style={{
             paddingTop: isMobile ? 64 : 24,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
@@ -289,9 +346,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           <div
+            className="p-2 bg-white overflow-auto"
             style={{
               borderRadius: borderRadiusLG,
-              marginTop: '2.5rem',
+              marginTop: '3rem',
+              marginRight: '1.3rem',
             }}
           >
             {children}
