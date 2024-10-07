@@ -28,6 +28,7 @@ const config: Config = {
         orange: '#FE964A',
         blue: '#0062FF',
         purple: '#8C62FF',
+        light_purple: '#E7E7FF',
       },
       fontFamily: {
         sans: ['Manrope', 'sans-serif'],
