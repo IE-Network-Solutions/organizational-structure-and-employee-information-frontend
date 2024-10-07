@@ -15,7 +15,6 @@ import DepartmentForm from '@/app/(afterLogin)/(onboarding)/onboarding/_componen
 import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
 import CustomButton from '@/components/common/buttons/customButton';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { IoAddSharp } from 'react-icons/io5';
 import {
   useDeleteOrgChart,
   useUpdateOrgChart,
@@ -23,7 +22,6 @@ import {
 import { OrgChart } from '@/store/server/features/organizationStructure/organizationalChart/interface';
 import DeleteModal from '@/components/common/deleteModal';
 import CustomDrawer from '../customDrawer';
-
 interface DepartmentNodeProps {
   data: Department;
   onEdit: () => void;
@@ -255,12 +253,12 @@ const OrgChartComponent: React.FC = () => {
         className="w-full"
         title={<div className="text-2xl font-bold">ORG Structure</div>}
         extra={
-          <div className="py-4 flex justify-center items-center gap-4">
-            <CustomButton
+          <div className="py-4 flex justify-center items-center">
+            {/* <CustomButton
               title="Download"
               type="default"
-              icon={<IoAddSharp size={24} />}
-            />
+              icon={<AiOutlineDownload size={24} />}
+            /> */}
             <Dropdown
               overlay={menu}
               trigger={['click']}
