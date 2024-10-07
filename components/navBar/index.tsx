@@ -12,7 +12,6 @@ import { FaStarOfLife } from 'react-icons/fa';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
   MdOutlineKeyboardDoubleArrowRight,
-  MdStarPurple500,
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
 
