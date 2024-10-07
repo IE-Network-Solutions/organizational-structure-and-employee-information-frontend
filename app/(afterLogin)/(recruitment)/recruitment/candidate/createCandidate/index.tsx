@@ -60,7 +60,9 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
     setIsClient(true);
   }, []);
 
-  if (!isClient) return null;
+  if (!isClient) {
+    return null;
+  }
 
   const createJobDrawerHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
