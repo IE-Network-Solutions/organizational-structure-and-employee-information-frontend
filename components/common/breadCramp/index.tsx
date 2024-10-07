@@ -3,7 +3,8 @@ import { BreadcrumbProps } from 'antd/lib/breadcrumb';
 // import { Breadcrumb } from 'antd';
 
 interface CustomBreadcrumbProps extends BreadcrumbProps {
-  title: string;
+  title: JSX.Element | string;
+  // title: string;
   subtitle: string;
 }
 
