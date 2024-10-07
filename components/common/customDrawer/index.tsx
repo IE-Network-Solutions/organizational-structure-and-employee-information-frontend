@@ -26,7 +26,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         {open && (
           <Button
             id="closeSidebarButton"
-            className="bg-white text-lg text-grey-9 rounded-full mr-8  flex md:flex-row flex-none "
+            className="bg-white text-lg text-grey-9 rounded-full mr-8  flex md:flex-row hidden "
             icon={<FaAngleRight />}
             onClick={onClose}
             style={{
@@ -43,7 +43,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
       </>
       <Drawer
         title={modalHeader}
-        width={70}
+        className='md:w-[50%] w-full'
         closable={false}
         onClose={onClose}
         open={open}
