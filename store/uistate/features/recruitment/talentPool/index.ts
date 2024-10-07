@@ -1,51 +1,18 @@
-// talentPoolStore.ts
+import { AddCandidateValue, TalentPoolState } from '@/types/dashboard/recruitment/talentPool';
 import { create } from 'zustand';
 
-export interface Candidate {
-  id: string;
-  name: string;
-  phoneNumber: string;
-  email:string;
-  appliedFor: string;
-  cgpa: number;
-  cv: string;
-  dateAdded: string;
-  stage: string;
-}
-
-interface Pagination {
-  currentPage: number;
-  pageSize: number;
-  totalCandidates: number;
-}
-
-interface Filters {
-  job: string;
-  department: string;
-  stage: string;
-  dateRange: [string | null, string | null];
-}
-
-interface TalentPoolState {
-  candidates: Candidate[];
-  filters: Filters;
-  pagination: Pagination;
-  setCandidates: (candidates: Candidate[]) => void;
-  setFilters: (filters: Partial<Filters>) => void;
-  setPagination: (pagination: Partial<Pagination>) => void;
-}
 
 export const useTalentPoolStore = create<TalentPoolState>((set) => ({
   candidates: [
     {
-      id: "1",
+      id: '1',
       name: 'John Doe',
       phoneNumber: '555-1234',
-      email:"email@mail.com",
+      email: 'email@mail.com',
       appliedFor: 'Engineering',
       cgpa: 3.8,
       cv: 'john-doe-cv.pdf',
-      dateAdded: '2023-09-10',
+      movedIndDte: '2023-09-10',
       stage: 'Interview',
     },
   ],
@@ -53,13 +20,14 @@ export const useTalentPoolStore = create<TalentPoolState>((set) => ({
     job: '',
     department: '',
     stage: '',
-    dateRange: ["", ""],
+    dateRange: ['', ''],
   },
   pagination: {
     currentPage: 1,
     pageSize: 10,
-    totalCandidates: 1,
   },
+  visibleOnboard: false,
+  addedCandidate:{candidateId:'', reason:'',talentPoolId:''},
   setCandidates: (candidates) => set({ candidates }),
   setFilters: (filters) =>
     set((state) => ({
@@ -69,4 +37,14 @@ export const useTalentPoolStore = create<TalentPoolState>((set) => ({
     set((state) => ({
       pagination: { ...state.pagination, ...pagination },
     })),
+  setStage: (id: string, stage: string) =>
+    set((state) => ({
+      candidates: state.candidates.map((candidate) =>
+        candidate.id === id ? { ...candidate, stage } : candidate
+      ),
+    })),
+    setAddCandidate: (value) =>
+      set({ addedCandidate: value }),
+    setVisibleOnboardState: (visible) => // Define the setter function
+    set({ visibleOnboard: visible }),
 }));

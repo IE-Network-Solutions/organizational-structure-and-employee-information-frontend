@@ -13,6 +13,8 @@ interface StoreState {
   setLoading: (loading: boolean) => void;
   error: string | null;
   setError: (error: string | null) => void;
+  userId: string;
+  setUserId: (userId: string) => void;
 }
 
 export const useAuthenticationStore = create<StoreState>()(
@@ -23,6 +25,8 @@ export const useAuthenticationStore = create<StoreState>()(
         setToken: (token: string) => {
           setCookie('token', token, 30), set({ token });
         },
+        userId: '',
+        setUserId: (userId: string) => set({ userId }),
         tenantId: '',
         setTenantId: (tenantId: string) => set({ tenantId }),
         localId: '',
