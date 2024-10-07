@@ -22,6 +22,22 @@ const getPlanningData = async (params: DataType) => {
   });
 };
 
+const getAllUnReportedPlanningTask = async (planningPeriodId: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId;
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/okr-report-task/users/${userId}/planning-period/${planningPeriodId}`,
+    method: 'get',
+    headers,
+  });
+};
 const getPlanningDataById = async (planningId: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -37,6 +53,7 @@ const getPlanningDataById = async (planningId: string) => {
     headers,
   });
   }; 
+
 const getReportingData = async (params: DataType) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -44,8 +61,6 @@ const getReportingData = async (params: DataType) => {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
-
-
 
   return await crudRequest({
     url: `${OKR_URL}/okr-report/by-planning-period/${params?.planPeriodId}`,
@@ -80,15 +95,19 @@ export const useGetPlanning = (params: DataType) => {
   return useQuery<any>(['okrPlans', params], () => getPlanningData(params));
 };
 
-export const useGetPlanningById = (plannigId: string) => {
+export const useGetPlanningById = (planningId: string) => {
   return useQuery<any>(
-    ['okrPlans', plannigId],
-    () => getPlanningDataById(plannigId),
+    ['okrPlans', planningId],
+    () => getPlanningDataById(planningId),
     {
-      enabled: plannigId !== null && plannigId !== '',
+      enabled: planningId !== null && planningId !== '',
     },
   );
 };
 export const useGetReporting = (params: DataType) => {
   return useQuery<any>(['okrReports', params], () => getReportingData(params));
+};
+
+export const useGetUnReportedPlanning = (planningPeriodId: string) => {
+  return useQuery<any>(['okrPlan', planningPeriodId], () => getAllUnReportedPlanningTask(planningPeriodId));
 };

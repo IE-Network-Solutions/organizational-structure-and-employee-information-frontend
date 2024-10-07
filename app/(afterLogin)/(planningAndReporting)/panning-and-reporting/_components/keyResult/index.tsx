@@ -62,14 +62,14 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
         <div className="grid gap-4">
           <div className="flex gap-4">
             <div className="flex items-center gap-2">
-              <span className="bg-purple text-white font-semibold text-[8px]  px-1 w-20 text-center rounded-lg">
+              <span className="bg-purple text-white font-semibold text-[8px]  px-2 py-1 w-10 text-center rounded-lg">
                 {keyResult?.currentValue ?? 0}
               </span>
               <span className="text-blue text-xs">Achieved</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="bg-purple text-white font-semibold text-[8px] px-1 w-20 text-center rounded-lg">
+              <span className="bg-purple text-white font-semibold text-[8px] px-2 py-1 w-10 text-center rounded-lg">
                 {keyResult?.metricType?.name === 'Milestone'
                   ? keyResult?.milestones?.length
                   : (keyResult?.targetValue ?? 0)}

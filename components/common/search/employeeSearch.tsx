@@ -22,7 +22,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
   optionArray1,
   optionArray3,
 }) => {
-  const { setSelectedUser } = PlanningAndReportingStore();
+  const { setSelectedUser,selectedUser } = PlanningAndReportingStore();
   const { userId } = useAuthenticationStore();
   /*eslint-disable @typescript-eslint/no-unused-vars */
   const getUserIdsByDepartmentId = (selectedDepartmentId: string) => {
@@ -100,14 +100,23 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
           </Select>
         </div>
         <div className="w-full md:w-1/4 p-2" id="subscriptionTypeFilter">
-          <Select
+        <Select
             placeholder="Select Type"
+            value={
+              selectedUser.length === 1 && selectedUser.includes(userId)
+                ? optionArray2?.[0]?.key // Exactly one user selected, and it's the current user
+                : selectedUser.length > 1
+                ? undefined // Multiple users selected
+                : selectedUser.includes('all') 
+                ? 'allPlan' // If "all" is selected, choose 'allPlan'
+                : undefined // Default fallback if no conditions match
+            }
             onChange={(value) => onSearchChange(value, 'type', true)}
             allowClear
             className="w-full h-14"
           >
-            {optionArray2?.map((item, index: number) => (
-              <Option key={index} value={item.key}>
+            {optionArray2?.map((item, index) => (
+              <Option key={item.key} value={item.key}>
                 {item.value}
               </Option>
             ))}

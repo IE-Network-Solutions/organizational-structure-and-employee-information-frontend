@@ -9,6 +9,7 @@ import KeyResultMetrics from '../keyResult';
 import {
   AllPlanningPeriods,
   useGetReporting,
+  useGetUnReportedPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { IoCheckmarkSharp } from 'react-icons/io5';
@@ -38,12 +39,14 @@ function Reporting() {
   const { mutate: approvalPlanningPeriod } = useApprovalPlanningPeriods();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
-  const planningPeriodId =
-    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
+  const planningPeriodId = planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
+  const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(planningPeriodId);
+
     const { data: allReporting } = useGetReporting({
         userId: selectedUser,
         planPeriodId: planningPeriodId,
       });
+      
   const handleApproveHandler = (id: string, value: boolean) => {
     const data = {
       id: id,
@@ -61,20 +64,23 @@ function Reporting() {
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
 
+
+  console.log(allUnReportedPlanningTask,"allUnReportedPlanningTask");
+
   return (
     <div>
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
-        {selectedUser.includes(userId) &&
-        ((allReporting?.[0]?.status==='reported' ?? false) || allReporting?.length === 0) && (
+        {/* {selectedUser.includes(userId) &&
+        ((allReporting?.[0]?.status==='reported' ?? false) || allReporting?.length === 0) && ( */}
           <CustomButton
             title={`Create ${activeTabName}`}
             id="createActiveTabName"
             icon={<FaPlus className="mr-2" />}
-            onClick={() => setOpen(true)}
+            onClick={() => setOpenReportModal(true)}
             className="bg-blue-600 hover:bg-blue-700"
           />
-         )} 
+         {/* )}  */}
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
