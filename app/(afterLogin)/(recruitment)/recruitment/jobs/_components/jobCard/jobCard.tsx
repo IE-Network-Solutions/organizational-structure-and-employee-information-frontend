@@ -15,25 +15,23 @@ const JobCard: React.FC = () => {
   const { data: jobList, isLoading: isJobListLoading } = useGetJobs();
 
   const {
-    isChangeStatusModalVisible,
     setChangeStatusModalVisible,
     setSelectedJobId,
     setEditModalVisible,
     currentPage,
-    isEditModalVisible,
     pageSize,
     setCurrentPage,
     setPageSize,
-    shareModalOpen,
     setShareModalOpen,
+    setSelectedJob,
   } = useJobState();
 
-  console.log(jobList, shareModalOpen, 'jobList');
-
-  const handleEditModalVisible = (JobId: string) => {
+  const handleEditModalVisible = (job: any) => {
     setEditModalVisible(true);
-    setSelectedJobId(JobId);
+    setSelectedJobId(job?.id);
+    setSelectedJob(job);
   };
+
   const handleShareModalVisible = (jobId: string) => {
     setShareModalOpen(true);
     setSelectedJobId(jobId);
@@ -47,26 +45,24 @@ const JobCard: React.FC = () => {
     );
   return (
     <>
-      {jobList?.items.map((job: any) => (
-        <Card className="mb-4 rounded-lg shadow-sm">
+      {jobList?.items.map((job: any, index: string) => (
+        <Card key={index} className="mb-4 rounded-lg shadow-sm">
           <div className="flex justify-between items-start">
             <div>
               <>
                 <h3 className="font-medium text-sm flex justify-center items-center gap-4 mb-3">
-                  <span className="font-bold text-xl">{job?.jobTitle}</span>
+                  <div className="w-full text-left">
+                    <span className="font-bold text-xl">{job?.jobTitle}</span>
+                  </div>
                   {job?.jobStatus == 'Closed' ? (
                     <div
-                      className={`mb-0 items-center rounded-md px-3 py-1 bg-[#F8F8F8] text-[#A0AEC0] `}
+                      className={`mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border`}
                     >
                       {job?.jobStatus}
                     </div>
                   ) : (
-                    <div
-                      className={`mb-0 items-center rounded-md px-3 py-1 
-              ${job?.jobStatus == 'Active' ? 'bg-[#B2B2FF] text-[#3636F0]' : 'bg-[#FFEDEC] text-[#E03137]'} 
-              `}
-                    >
-                      {job?.jobStatus}
+                    <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#B2B2FF] text-[#3636F0] ">
+                      Active
                     </div>
                   )}
                 </h3>
@@ -125,7 +121,7 @@ const JobCard: React.FC = () => {
                     {
                       label: 'Edit',
                       key: '3',
-                      onClick: () => handleEditModalVisible(job?.id),
+                      onClick: () => handleEditModalVisible(job),
                     },
                   ],
                 }}
@@ -138,17 +134,9 @@ const JobCard: React.FC = () => {
         </Card>
       ))}
 
-      <ChangeStatusModal
-      // visible={isChangeStatusModalVisible}
-      // onClose={() => setChangeStatusModalVisible(false)}
-      />
+      <ChangeStatusModal />
       <ShareToSocialMedia />
-
-      <EditJob
-        visible={isEditModalVisible}
-        onClose={() => setEditModalVisible(false)}
-        jobTitle={jobList?.items?.JobTitle}
-      />
+      <EditJob />
       <RecruitmentPagination
         current={currentPage}
         total={jobList?.meta?.totalItems ?? 1}

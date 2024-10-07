@@ -13,8 +13,8 @@ const createCustomFieldsTemplate = async (data: any) => {
   };
   return await crudRequest({
     method: 'POST',
-    url: `http://172.16.33.228:8010/api/v1/application-questions-form-template`,
-    // url: `${RECRUITMENT}/application-questions-form-template`,
+    // url: `http://172.16.33.228:8010/api/v1/application-questions-form-template`,
+    url: `${RECRUITMENT}/application-questions-form-template`,
     data,
     headers,
   });
@@ -29,8 +29,8 @@ const updateCustomFieldsTemplate = async (data: any, id: string) => {
   };
   return await crudRequest({
     method: 'PUT',
-    // url: `${RECRUITMENT}/application-questions-form-template/${id}`,
-    url: `http://172.16.33.228:8010/api/v1/application-questions-form-template/${id}`,
+    url: `${RECRUITMENT}/application-questions-form-template/${id}`,
+    // url: `http://172.16.33.228:8010/api/v1/application-questions-form-template/${id}`,
     data,
     headers,
   });
@@ -45,8 +45,8 @@ const deleteCustomFieldsTemplate = async (id: string) => {
   };
   return await crudRequest({
     method: 'DELETE',
-    // url: `${RECRUITMENT}/application-questions-form-template/${id}`,
-    url: `http://172.16.33.228:8010/api/v1/application-questions-form-template/${id}`,
+    url: `${RECRUITMENT}/application-questions-form-template/${id}`,
+    // url: `http://172.16.33.228:8010/api/v1/application-questions-form-template/${id}`,
     headers,
   });
 };

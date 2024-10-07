@@ -17,9 +17,8 @@ const getCustomFieldsTemplate = async () => {
     tenantId: tenantId,
   };
   return await crudRequest({
-    // url: `${RECRUITMENT}/application-questions-form-template`,
-    url: `http://172.16.33.228:8010/api/v1/application-questions-form-template?limit=${templatePageSize}&&page=${templateCurrentPage}`,
-    // url: 'https://mocki.io/v1/77d848f4-1a44-4a30-8216-4154587e01b1',
+    url: `${RECRUITMENT}/application-questions-form-template?limit=${templatePageSize}&&page=${templateCurrentPage}`,
+    // url: `http://172.16.33.228:8010/api/v1/application-questions-form-template?limit=${templatePageSize}&&page=${templateCurrentPage}`,
     method: 'GET',
     headers,
   });

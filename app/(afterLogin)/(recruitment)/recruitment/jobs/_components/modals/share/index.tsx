@@ -28,8 +28,8 @@ const ShareToSocialMedia: React.FC = () => {
     </div>
   );
 
-  let tenantId = currentTenantId;
-  let jobId = selectedJobId;
+  const tenantId = currentTenantId;
+  const jobId = selectedJobId;
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

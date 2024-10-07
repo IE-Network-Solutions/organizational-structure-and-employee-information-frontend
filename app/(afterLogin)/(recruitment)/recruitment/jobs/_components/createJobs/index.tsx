@@ -11,11 +11,13 @@ import dayjs from 'dayjs';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateNewJob from './createNewJob';
 import CreateApplicationForm from './createApplicationForm';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const { Step } = Steps;
 
 const CreateJobs: React.FC = () => {
   const [form] = Form.useForm();
+  const createdBy = useAuthenticationStore.getState().userId;
   const {
     addNewDrawer,
     currentStep,
@@ -81,6 +83,7 @@ const CreateJobs: React.FC = () => {
 
       const formattedValue = {
         ...formValues,
+        createdBy,
         jobDeadline: dayjs(formValues?.jobDeadline).toISOString(),
         yearOfExperience: Number(formValues?.yearOfExperience),
         departmentId: formValues?.department,

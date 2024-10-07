@@ -111,13 +111,13 @@ const items: MenuItem[] = [
 
   {
     key: '/feedback ',
-    label: 'Feedback',
+    label: 'Development',
     icon: <UserOutlined />,
     className: 'font-bold',
     children: [
       {
         key: '/feedback/categories',
-        label: 'Category',
+        label: 'Form',
         icon: <UserOutlined />,
         className: 'font-bold',
       },

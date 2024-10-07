@@ -1,6 +1,9 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { useGetJobsByID } from '@/store/server/features/recruitment/job/queries';
+import {
+  useGetDepartmentByID,
+  useGetJobsByID,
+} from '@/store/server/features/recruitment/job/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { Button, Col, Input, Row, Spin } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
@@ -18,6 +21,9 @@ interface CategoryForms {
 const JobDescription = ({ params: { id } }: CategoryForms) => {
   const { data: jobDescription, isLoading: ResponseLoading } =
     useGetJobsByID(id);
+
+  const depId = jobDescription?.departmentId;
+  const { data: depById } = useGetDepartmentByID(depId);
 
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -72,7 +78,7 @@ const JobDescription = ({ params: { id } }: CategoryForms) => {
               </div>
               <Input
                 disabled
-                placeholder={jobDescription?.department}
+                placeholder={depById?.name}
                 variant="filled"
                 className="text-sm w-full h-10"
               />

@@ -16,6 +16,9 @@ import React from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 import cvUpload from '@/public/image/cvUpload.png';
 import { CandidateType, JobType } from '@/types/enumTypes';
+import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -26,13 +29,17 @@ interface CreateCandidateProps {
 
 const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
   const [form] = Form.useForm();
+  const { data: jobList } = useGetJobs();
 
+  const isInternalApplicant = useAuthenticationStore.getState().userId;
   const {
     createJobDrawer,
     documentFileList,
     setDocumentFileList,
     removeDocument,
   } = useCandidateState();
+
+  const { mutate: createCandidate } = useCreateCandidate();
 
   const handleDocumentChange = (info: any) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
@@ -54,6 +61,31 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
     </div>
   );
 
+  const handleSubmit = async () => {
+    const formValues = form.getFieldsValue();
+    const formData = new FormData();
+
+    const resumeUrl = formValues.resumeUrl as
+      | {
+          file?: { originFileObj?: File };
+        }
+      | undefined;
+
+    if (resumeUrl?.file?.originFileObj) {
+      formData.append('documentName', resumeUrl.file.originFileObj);
+    }
+    delete formValues?.resumeUrl;
+
+    const formattedValues = {
+      ...formValues,
+      // jobInformationId: jobId,
+      createdBy: isInternalApplicant,
+    };
+    formData.append('newFormData', JSON.stringify(formattedValues));
+
+    createCandidate(formData);
+  };
+
   return (
     <CustomDrawerLayout
       open={createJobDrawer}
@@ -62,22 +94,26 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
       width="40%"
       footer={null}
     >
-      <Form form={form} layout="vertical">
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={() => {
+          handleSubmit();
+        }}
+      >
+        <Form.Item
+          id="fullNameId"
+          name="fullName"
+          label={
+            <span className="text-md font-semibold text-gray-700">
+              Full-Name
+            </span>
+          }
+          rules={[{ required: true, message: 'Please input full name!' }]}
+        >
+          <Input placeholder="Full Name" className="w-full h-10 text-sm" />
+        </Form.Item>
         <Row gutter={16}>
-          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-            <Form.Item
-              id="fullNameId"
-              name="fullName"
-              label={
-                <span className="text-md font-semibold text-gray-700">
-                  Full-Name
-                </span>
-              }
-              rules={[{ required: true, message: 'Please input full name!' }]}
-            >
-              <Input placeholder="Full Name" className="w-full h-10 text-sm" />
-            </Form.Item>
-          </Col>
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Form.Item
               id="emailAddressId"
@@ -101,8 +137,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
               />
             </Form.Item>
           </Col>
-        </Row>
-        <Row gutter={16}>
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
             <Form.Item
               id="phoneNumberId"
@@ -123,12 +157,39 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
               />
             </Form.Item>
           </Col>
+        </Row>
+        <Row gutter={16}>
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
             <Form.Item
               id="jobId"
               name="job"
               label={
                 <span className="text-md font-semibold text-gray-700">Job</span>
+              }
+              rules={[{ required: true, message: 'Please select a job' }]}
+            >
+              <Select
+                className="text-sm w-full h-10"
+                placeholder="Select a job type"
+              >
+                {jobList &&
+                  jobList?.items?.map((job: any) => (
+                    <Option key={job?.id} value={job?.id}>
+                      {job?.jobTitle}
+                    </Option>
+                  ))}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+            <Form.Item
+              id="jobTypeId"
+              name="jobType"
+              label={
+                <span className="text-md font-semibold text-gray-700">
+                  Job Type
+                </span>
               }
               rules={[{ required: true, message: 'Please select a job' }]}
             >
@@ -182,9 +243,15 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
                   CGPA
                 </span>
               }
-              rules={[{ required: true, message: 'Please input CGPA' }]}
+              rules={[{ message: 'Please input CGPA' }]}
             >
-              <InputNumber className="text-sm w-full h-10" placeholder="CGPA" />
+              <InputNumber
+                min={0}
+                max={4}
+                step={0.01}
+                className="text-sm w-full h-10"
+                placeholder="CGPA"
+              />
               <div className="flex items-center justify-start gap-1 ml-1">
                 <FaInfoCircle />
                 <div className="text-xs font-md">Put your point 4.0 scale</div>

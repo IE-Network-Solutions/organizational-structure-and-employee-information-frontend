@@ -3,14 +3,15 @@ import { Modal, Button, Select, Form } from 'antd';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { useUpdateJobStatus } from '@/store/server/features/recruitment/job/mutation';
 import { JobStatus } from '@/types/enumTypes';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const ChangeStatusModal: React.FC = () => {
   const [form] = Form.useForm();
+  const updatedBy = useAuthenticationStore.getState().userId;
 
   const {
     isChangeStatusModalVisible,
     setChangeStatusModalVisible,
-    editingJob,
     selectedJobId,
     selectedJob,
   } = useJobState();
@@ -21,6 +22,7 @@ const ChangeStatusModal: React.FC = () => {
   };
   const handleStatusUpdate = (values: any) => {
     const updatedStatus = {
+      updatedBy,
       id: selectedJob.id,
       jobStatus: values?.status,
     };
@@ -28,13 +30,13 @@ const ChangeStatusModal: React.FC = () => {
     updateJobStatus({ data: updatedStatus, id: selectedJobId });
   };
 
-  // React.useEffect(() => {
-  //   if (editingJob && selectedJob) {
-  //     form.setFieldsValue({
-  //       status: selectedJob.status,
-  //     });
-  //   }
-  // }, [editingJob, form, selectedJob]);
+  React.useEffect(() => {
+    if (selectedJob) {
+      form.setFieldsValue({
+        jobStatus: selectedJob.jobStatus,
+      });
+    }
+  }, [form, selectedJob]);
   return (
     isChangeStatusModalVisible && (
       <Modal
@@ -57,7 +59,7 @@ const ChangeStatusModal: React.FC = () => {
           requiredMark={false}
           form={form}
           layout="vertical"
-          initialValues={editingJob}
+          initialValues={selectedJob}
           onFinish={handleStatusUpdate}
         >
           <Form.Item

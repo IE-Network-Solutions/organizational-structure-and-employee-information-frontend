@@ -63,9 +63,6 @@ interface JobState {
   setCurrentPage: (value: number) => void;
   setPageSize: (value: number) => void;
 
-  editingJob: any | null;
-  setEditingJob: (category: any | null) => void;
-
   selectedJob: any | null;
   setSelectedJob: (job: any | null) => void;
 }
@@ -134,9 +131,6 @@ export const useJobState = create<JobState>((set) => ({
   pageSize: 4,
   setCurrentPage: (value) => set({ currentPage: value }),
   setPageSize: (value) => set({ pageSize: value }),
-
-  editingJob: null,
-  setEditingJob: (job) => set({ editingJob: job }),
 
   selectedJob: null,
   setSelectedJob: (job) => set({ selectedJob: job }),

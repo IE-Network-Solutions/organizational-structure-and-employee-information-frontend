@@ -10,6 +10,8 @@ import Link from 'next/link';
 import ChangeStatusModal from '@/app/(afterLogin)/(recruitment)/recruitment/jobs/_components/modals/changeJobStatus';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import EditJob from '@/app/(afterLogin)/(recruitment)/recruitment/jobs/_components/modals/editJob/editModal';
+import RecruitmentPagination from '@/app/(afterLogin)/(recruitment)/recruitment/_components';
 
 dayjs.extend(relativeTime);
 
@@ -19,6 +21,11 @@ const OpenPositions: React.FC = () => {
     setShareModalOpen,
     setSelectedJobId,
     setSelectedJob,
+    setEditModalVisible,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
   } = useJobState();
   const { data: publicJobs, isLoading: responseLoading } = useGetJobs();
   console.log(publicJobs, 'publicJobs');
@@ -34,6 +41,12 @@ const OpenPositions: React.FC = () => {
     setSelectedJob(job);
   };
 
+  const handleEditModalVisible = (job: any) => {
+    setEditModalVisible(true);
+    setSelectedJobId(job?.id);
+    setSelectedJob(job);
+  };
+
   if (responseLoading)
     return (
       <div className="flex items-center justify-center h-full">
@@ -44,8 +57,8 @@ const OpenPositions: React.FC = () => {
     <div>
       <CustomBreadcrumb title="Open Positions" subtitle="Here's all job list" />
       <Row gutter={16}>
-        {publicJobs?.items?.map((job: any) => (
-          <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+        {publicJobs?.items?.map((job: any, index: string) => (
+          <Col key={index} xs={24} sm={24} lg={12} md={12} xl={12}>
             <Card className="mb-4 rounded-lg shadow-sm">
               <div className="flex justify-between items-start">
                 <div>
@@ -58,17 +71,13 @@ const OpenPositions: React.FC = () => {
                       </div>
                       {job?.jobStatus == 'Closed' ? (
                         <div
-                          className={`mb-0 items-center rounded-lg px-3 py-1 bg-[#F8F8F8] text-[#A0AEC0] `}
+                          className={`mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border`}
                         >
                           {job?.jobStatus}
                         </div>
                       ) : (
-                        <div
-                          className={`mb-0 items-center rounded-lg px-3 py-1 
-              ${job?.jobStatus == 'Active' ? 'bg-[#B2B2FF] text-[#3636F0]' : 'bg-[#FFEDEC] text-[#E03137]'} 
-              `}
-                        >
-                          {job?.jobStatus}
+                        <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#B2B2FF] text-[#3636F0] ">
+                          Active
                         </div>
                       )}
                     </h3>
@@ -80,24 +89,6 @@ const OpenPositions: React.FC = () => {
                           : '0' + ' '}
                         Candidates Applied
                       </p>
-                    </div>
-                    <div className="flex w-full items-center justify-between">
-                      <div className="text-sm text-gray-500">
-                        Created {dayjs(job?.createdAt).fromNow()}
-                      </div>
-
-                      <Link href={`/job/openPositions/${job?.id}`} passHref>
-                        <Button
-                          className={`flex justify-center text-sm font-medium p-2 px-10 ${
-                            job?.jobStatus === 'Closed'
-                              ? 'bg-[#F8F8F8] text-[#A0AEC0] cursor-not-allowed'
-                              : 'bg-primary text-white'
-                          }`}
-                          disabled={job?.jobStatus === 'Closed'}
-                        >
-                          Apply
-                        </Button>
-                      </Link>
                     </div>
                   </>
                 </div>
@@ -119,7 +110,7 @@ const OpenPositions: React.FC = () => {
                         {
                           label: 'Edit',
                           key: '3',
-                          // onClick: () => handleEditModalVisible(job?.id),
+                          onClick: () => handleEditModalVisible(job),
                         },
                       ],
                     }}
@@ -132,12 +123,44 @@ const OpenPositions: React.FC = () => {
                   </Dropdown>
                 </div>
               </div>
+              <div className="flex w-full items-center justify-between">
+                <div className="text-sm text-gray-500">
+                  Created {dayjs(job?.createdAt).fromNow()}
+                </div>
+
+                <Link href={`/job/openPositions/${job?.id}`} passHref>
+                  <Button
+                    className={`flex justify-center text-sm font-medium p-2 px-10 ${
+                      job?.jobStatus === 'Closed'
+                        ? 'bg-[#F8F8F8] text-[#A0AEC0] cursor-not-allowed'
+                        : 'bg-primary text-white'
+                    }`}
+                    disabled={job?.jobStatus === 'Closed'}
+                  >
+                    Apply
+                  </Button>
+                </Link>
+              </div>
             </Card>
           </Col>
         ))}
       </Row>
       <ShareToSocialMedia />
       <ChangeStatusModal />
+      <EditJob />
+      <RecruitmentPagination
+        current={currentPage}
+        total={publicJobs?.meta?.totalItems ?? 1}
+        pageSize={pageSize}
+        onChange={(page, pageSize) => {
+          setCurrentPage(page);
+          setPageSize(pageSize);
+        }}
+        onShowSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+      />
     </div>
   );
 };

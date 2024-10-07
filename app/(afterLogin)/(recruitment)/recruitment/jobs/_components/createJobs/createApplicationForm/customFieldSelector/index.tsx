@@ -41,7 +41,6 @@ const CustomFieldsSelector: React.FC = () => {
       </div>
     );
   }
-  console.log(customFields, 'customFields');
 
   return (
     <div>

@@ -18,7 +18,7 @@ const RecruitmentPage: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Recruitment</h1>
-          <p className="text-gray-400">Here's all job list</p>
+          <p className="text-gray-400">Here&apos;s all job list</p>
         </div>
         <div className="flex items-center space-x-4">
           <Input.Search

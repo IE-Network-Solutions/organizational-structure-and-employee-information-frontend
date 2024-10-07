@@ -39,7 +39,7 @@ const CustomFieldsDrawer: React.FC<{
   const handleQuestionStateUpdate = useDebounce(addCustomFieldsTemplate, 1500);
 
   const handleSubmit = async (values: any) => {
-    const updatedFields = values.field.map((value: any, index: number) => ({
+    const updatedFields = values.field.map((value: any) => ({
       id: question?.form?.field?.id || uuidv4(),
       value,
     }));

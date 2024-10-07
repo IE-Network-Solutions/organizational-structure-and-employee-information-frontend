@@ -16,7 +16,6 @@ import TextArea from 'antd/es/input/TextArea';
 import AddFormResult from '../../modals/result';
 import ShareToSocialMedia from '../../modals/share';
 import { EmploymentType, LocationType } from '@/types/enumTypes';
-import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const { Option } = Select;
@@ -29,8 +28,6 @@ interface CreateJobsProps {
 const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
   const { data: departments, isLoading: isDepartmentLoading } =
     useGetDepartments();
-
-  console.log(departments, 'departments');
 
   return (
     <>
@@ -268,6 +265,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
       >
         <TextArea rows={4} placeholder="Description" />
       </Form.Item>
+
       <AddFormResult />
       <ShareToSocialMedia />
 
