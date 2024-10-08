@@ -1,27 +1,22 @@
 'use client';
 import React from 'react';
-import { Badge, Avatar, Menu, Dropdown, Layout } from 'antd';
-import { MailOutlined, BellOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, Menu, Dropdown, Layout } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 
 const { Header } = Layout;
 
 interface NavBarProps {
   page: string;
-  userid: string;
   handleLogout: () => void;
 }
 
-const NavBar = ({ page, userid, handleLogout }: NavBarProps) => {
+
+const NavBar = ({ page, handleLogout }: NavBarProps) => {
   const menu = (
     <Menu>
       <Menu.Item>
         <a target="_blank" rel="noopener noreferrer" href={`${URL}/profile`}>
           Profile
-        </a>
-      </Menu.Item>
-      <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/settings`}>
-          Settings
         </a>
       </Menu.Item>
       <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
@@ -37,16 +32,10 @@ const NavBar = ({ page, userid, handleLogout }: NavBarProps) => {
     >
       <p>{page}</p>
       <div className="flex items-center">
-        <Badge count={5} className="mx-4">
-          <MailOutlined style={{ fontSize: '20px' }} />
-        </Badge>
-        <Badge count={10} className="mx-4">
-          <BellOutlined style={{ fontSize: '20px' }} />
-        </Badge>
         <Dropdown overlay={menu} placement="bottomRight">
           <Avatar
             icon={<UserOutlined />}
-            src={`${URL}/user/${userid}`}
+            // src={`${URL}/user/${userid}`}
             className="cursor-pointer"
           />
         </Dropdown>
