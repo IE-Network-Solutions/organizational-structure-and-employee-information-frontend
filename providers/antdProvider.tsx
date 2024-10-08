@@ -1,10 +1,10 @@
 import { ConfigProvider } from 'antd';
-import { customizeRenderEmpty } from '@/components/emptyIndicator';
+import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 
 const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <ConfigProvider
-      renderEmpty={customizeRenderEmpty}
+      renderEmpty={CustomizeRenderEmpty}
       theme={{
         components: {
           Menu: {
