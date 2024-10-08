@@ -300,12 +300,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </div>
         </div>
         {!collapsed && (
-          <div className="mt-12 flex justify-between items-center border-2 border-[#3636F0] px-4 py-3 mx-4 rounded-lg">
+          <Button
+            href="/dashboard"
+            className="mt-12 flex justify-between items-center border-2 border-[#3636F0] px-4 py-5 mx-4 rounded-lg "
+          >
             <div className="text-black font-bold font-['Manrope'] leading-normal">
               Dashboard
             </div>
             <AppstoreOutlined size={24} className="text-black" />
-          </div>
+          </Button>
         )}
 
         <Menu
