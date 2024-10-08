@@ -7,7 +7,7 @@ import { GoLocation } from 'react-icons/go';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { CommonObject } from '@/types/commons/commonObject';
-import { DATE_FORMAT, DATETIME_FORMAT, localUserID } from '@/utils/constants';
+import { DATE_FORMAT, DATETIME_FORMAT } from '@/utils/constants';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import {
@@ -24,10 +24,12 @@ import {
 } from '@/helpers/calculateHelper';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const AttendanceTable = () => {
+  const { userId } = useAuthenticationStore();
   const userFilter: Partial<AttendanceRequestBody['filter']> = {
-    userIds: [localUserID ?? ''],
+    userIds: [userId ?? ''],
   };
   const { setIsShowViewSidebar, setViewAttendanceId } = useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);

@@ -5,7 +5,6 @@ import {
   useMyTimesheetStore,
 } from '@/store/uistate/features/timesheet/myTimesheet';
 import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
-import { localUserID } from '@/utils/constants';
 import { useEffect, useState } from 'react';
 import {
   calculateAttendanceRecordToTotalWorkTime,
@@ -14,9 +13,11 @@ import {
 } from '@/helpers/calculateHelper';
 import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
+  const { userId } = useAuthenticationStore();
   const {
     checkStatus,
     setIsShowCheckOutSidebar,
@@ -24,7 +25,7 @@ const CheckControl = () => {
     setCurrentAttendance,
   } = useMyTimesheetStore();
 
-  const { data: currentAttendanceData, isFetching } = useGetCurrentAttendance();
+  const { data: currentAttendanceData, isFetching } = useGetCurrentAttendance(userId);
   const { mutate: setCurrentAttendanceData, isLoading } =
     useSetCurrentAttendance();
 
@@ -69,7 +70,7 @@ const CheckControl = () => {
         latitude: pos.coords.latitude,
         longitude: pos.coords.longitude,
         isSignIn,
-        userId: localUserID,
+        userId: userId,
       });
     });
   };

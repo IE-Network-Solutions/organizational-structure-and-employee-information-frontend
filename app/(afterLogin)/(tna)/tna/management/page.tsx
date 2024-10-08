@@ -61,7 +61,7 @@ const TnaManagementPage = () => {
   return (
     <div className="page-wrap">
       <PageHeader
-        title="Trainging & Learning"
+        title="Training & Learning"
         description="Training and Learning module"
       >
         <Flex gap={16}>

@@ -14,8 +14,8 @@ import {
   TrainingNeedAssessmentCertStatus,
   TrainingNeedAssessmentStatus,
 } from '@/types/tna/tna';
-import { localUserID } from '@/utils/constants';
 import { useGetTna } from '@/store/server/features/tna/review/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const TnaRequestSidebar = () => {
   const {
@@ -25,6 +25,7 @@ const TnaRequestSidebar = () => {
     tnaId,
     setTnaId,
   } = useTnaReviewStore();
+  const { userId } = useAuthenticationStore();
   const { mutate: setTna, isLoading, isSuccess } = useSetTna();
   const { data, isFetching, refetch } = useGetTna(
     {
@@ -90,7 +91,7 @@ const TnaRequestSidebar = () => {
         ...value,
         certStatus: TrainingNeedAssessmentCertStatus.IN_PROGRESS,
         status: TrainingNeedAssessmentStatus.PENDING,
-        assignedUserId: localUserID,
+        assignedUserId: userId,
       },
     ]);
   };

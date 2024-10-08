@@ -7,11 +7,17 @@ export function middleware(req: NextRequest) {
     const url = req.nextUrl;
     const pathname = url.pathname;
     const excludePath = '/authentication/login';
+    const isRootPath = pathname === '/';
+
     const isExcludedPath = pathname.startsWith(excludePath);
-    if (!isExcludedPath && !token) {
+
+    if (!token && !isExcludedPath && !isRootPath) {
+      // Redirect if no token and the path isn't excluded
       return NextResponse.redirect(new URL('/authentication/login', req.url));
     }
-    if (isExcludedPath && token) {
+
+    if (token && (isExcludedPath || isRootPath)) {
+      // Redirect if token exists but accessing login or root path
       return NextResponse.redirect(
         new URL('/employees/manage-employees', req.url),
       );

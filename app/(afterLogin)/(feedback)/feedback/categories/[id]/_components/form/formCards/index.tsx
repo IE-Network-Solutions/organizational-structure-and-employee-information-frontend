@@ -55,9 +55,9 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
   const { data: formsByCategoryId, isLoading: isFormCardsLoading } =
     useGetFormsByCategoryID(
       id,
-      searchFormParams?.form_name,
-      searchFormParams?.form_description,
-      searchFormParams?.createdBy,
+      searchFormParams?.form_name || '',
+      searchFormParams?.form_description || '',
+      searchFormParams?.createdBy || '',
       pageSize,
       current,
     );

@@ -86,6 +86,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
       status: 'published',
     });
     handleCloseDrawer();
+    form.resetFields();
   };
 
   return (
@@ -142,7 +143,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
               />
             </Form.Item>
             <Row gutter={[16, 24]} className="mb-8">
-              <Col lg={10} sm={24} xs={24}>
+              <Col lg={12} sm={24} xs={24}>
                 <Form.Item
                   name="surveyStartDate"
                   label={
@@ -164,7 +165,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                   />
                 </Form.Item>
               </Col>
-              <Col lg={10} sm={24} xs={24}>
+              <Col lg={12} sm={24} xs={24}>
                 <Form.Item
                   name="surveyEndDate"
                   label={

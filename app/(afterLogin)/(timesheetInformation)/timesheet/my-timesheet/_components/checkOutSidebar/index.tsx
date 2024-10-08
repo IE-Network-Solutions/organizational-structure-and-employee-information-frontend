@@ -11,10 +11,10 @@ import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHea
 import { BreakTypeStatus, formatBreakTypeToStatus } from '@/helpers/formatTo';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
-import { localUserID } from '@/utils/constants';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import TakePicture from '@/components/common/takePicture';
 import { MdKeyboardArrowDown } from 'react-icons/md';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 type LabelRender = SelectProps['labelRender'];
 
@@ -32,7 +32,7 @@ const CheckOutSidebar = () => {
     breakTypes,
     currentAttendance,
   } = useMyTimesheetStore();
-
+  const { userId } = useAuthenticationStore();
   const { mutate: setCurrentAttendance, isSuccess } = useSetCurrentAttendance();
 
   const [form] = Form.useForm();
@@ -94,7 +94,7 @@ const CheckOutSidebar = () => {
           setCurrentAttendance({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-            userId: localUserID,
+            userId: userId,
             isSignIn: false,
             breakTypeId: value.type,
             file: value.photo,

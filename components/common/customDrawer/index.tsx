@@ -1,5 +1,6 @@
+import useDrawerStore from '@/store/uistate/features/drawer';
 import { Button, Drawer } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaAngleRight } from 'react-icons/fa';
 
 interface CustomDrawerLayoutProps {
@@ -8,8 +9,9 @@ interface CustomDrawerLayoutProps {
   modalHeader: any;
   children: React.ReactNode;
   width?: string;
-  footer?: React.ReactNode;
+  footer?: React.ReactNode | null;
   hideButton?: boolean;
+
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -18,9 +20,31 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   modalHeader,
   children,
   width,
-  footer,
   hideButton = false,
+  footer = null,
 }) => {
+  // Default width
+  const { isClient, setIsClient, currentWidth, setCurrentWidth } =
+    useDrawerStore();
+  useEffect(() => {
+    setIsClient(true);
+    const updateWidth = () => {
+      if (window.innerWidth <= 768) {
+        setCurrentWidth('90%');
+      } else {
+        setCurrentWidth(width || '40%');
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => {
+      window.removeEventListener('resize', updateWidth);
+    };
+  }, [width]);
+
+  // Render the component only on the client side
+  if (!isClient) return null;
+
   return (
     <div>
       <>
@@ -47,10 +71,12 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
       {/* removed the padding because it is not needed for Drawer */}
       <Drawer
         title={modalHeader}
-        width={window.innerWidth <= 768 ? '90%' : width ? width : '30%'}
+        width={currentWidth}
         closable={false}
         onClose={onClose}
         open={open}
+        style={{ paddingBottom: 50 }}
+
         footer={footer}
       >
         {children}

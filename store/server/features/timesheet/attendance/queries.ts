@@ -1,6 +1,6 @@
 import { RequestCommonQueryData } from '@/types/commons/requesTypes';
 import { crudRequest } from '@/utils/crudRequest';
-import { localUserID, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import {
   AttendanceImportLogsBody,
@@ -26,12 +26,12 @@ const getAttendances = async (
   });
 };
 
-const getCurrentAttendance = async () => {
+const getCurrentAttendance = async (userId: string) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/shift`,
     method: 'GET',
     headers: requestHeader(),
-    params: { userId: localUserID },
+    params: { userId: userId },
   });
 };
 
@@ -64,10 +64,10 @@ export const useGetAttendances = (
   );
 };
 
-export const useGetCurrentAttendance = () => {
+export const useGetCurrentAttendance = (userId: string) => {
   return useQuery<ApiResponse<AttendanceRecord>>(
-    'current-attendance',
-    () => getCurrentAttendance(),
+    ['current-attendance', userId],
+    () => getCurrentAttendance(userId),
     {
       keepPreviousData: true,
     },
