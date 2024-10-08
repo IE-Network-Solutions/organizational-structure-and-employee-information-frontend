@@ -48,3 +48,12 @@ export enum JobStatus {
   OPEN = 'Open',
   CLOSED = 'Closed',
 }
+
+export enum NAME {
+  MILESTONE = 'Milestone',
+  ACHIEVE = 'Achieve',
+  CURRENCY = 'Currency',
+  NUMERIC = 'Numeric',
+  PERCENTAGE = 'Percentage',
+  KPI = 'KPI',
+}

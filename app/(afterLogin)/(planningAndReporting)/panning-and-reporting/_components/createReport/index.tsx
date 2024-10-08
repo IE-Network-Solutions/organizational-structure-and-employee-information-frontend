@@ -73,7 +73,6 @@ function CreateReport() {
         onClose={onClose}
         modalHeader={modalHeader}
         width="50%"
-        paddingBottom={5}
       >
         {formattedData?.length > 0 ? (
           <Form
