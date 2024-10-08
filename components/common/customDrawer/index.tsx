@@ -21,7 +21,6 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   modalHeader,
   children,
   width,
-  paddingBottom = 100,
   hideButton = false,
   footer = null,
 }) => {
