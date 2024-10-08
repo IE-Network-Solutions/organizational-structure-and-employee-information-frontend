@@ -13,7 +13,7 @@ import {
   LeaveRequestStatus,
   LeaveRequestStatusBadgeTheme,
 } from '@/types/timesheet/settings';
-import { DATE_FORMAT, localUserID } from '@/utils/constants';
+import { DATE_FORMAT } from '@/utils/constants';
 import dayjs from 'dayjs';
 import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
@@ -23,10 +23,12 @@ import DeletePopover from '@/components/common/ActionButton/deletePopover';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const HistoryTable = () => {
+  const { userId } = useAuthenticationStore();
   const userFilter: Partial<LeaveRequestBody['filter']> = {
-    userIds: [localUserID ?? ''],
+    userIds: [userId ?? ''],
   };
   const { setIsShowLeaveRequestSidebar: isShow, setLeaveRequestSidebarData } =
     useMyTimesheetStore();

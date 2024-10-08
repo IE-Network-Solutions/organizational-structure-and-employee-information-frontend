@@ -1,17 +1,17 @@
 import { LeaveRequest } from '@/types/timesheet/settings';
 import { crudRequest } from '@/utils/crudRequest';
-import { localUserID, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { requestHeader } from '@/helpers/requestHeader';
 import { LeaveRequestStatusBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 
-const setLeaveRequest = async (item: Partial<LeaveRequest>) => {
+const setLeaveRequest = async ({ item, userId }: { item: Partial<LeaveRequest>, userId: string }) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/make`,
     method: 'POST',
     headers: requestHeader(),
-    data: { item: { ...item, user: localUserID } },
+    data: { item: { ...item, user: userId } },
   });
 };
 
