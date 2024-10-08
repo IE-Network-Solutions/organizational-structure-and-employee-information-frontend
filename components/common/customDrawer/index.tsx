@@ -1,5 +1,6 @@
+import useDrawerStore from '@/store/uistate/features/drawer';
 import { Button, Drawer } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { FaAngleRight } from 'react-icons/fa';
 
 interface CustomDrawerLayoutProps {
@@ -19,8 +20,9 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   width,
   footer,
 }) => {
-  const [isClient, setIsClient] = useState(false);
-  const [currentWidth, setCurrentWidth] = useState('40%'); // Default width
+  // Default width
+  const { isClient, setIsClient, currentWidth, setCurrentWidth } =
+    useDrawerStore();
   useEffect(() => {
     setIsClient(true);
     const updateWidth = () => {
