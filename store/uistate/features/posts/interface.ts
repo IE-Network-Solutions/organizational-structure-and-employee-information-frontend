@@ -1,7 +1,8 @@
 export interface CounterSlice {
-  counter: number;
-  incrementCounter: () => void;
-  decrementCounter: () => void;
+    counter:number 
+    incrementCounter : ()=> void
+    decrementCounter : ()=> void
 }
 
-export type MyState = CounterSlice;
+export type MyState = CounterSlice
+
