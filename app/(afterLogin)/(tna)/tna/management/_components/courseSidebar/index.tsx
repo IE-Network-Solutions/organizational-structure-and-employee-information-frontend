@@ -10,8 +10,9 @@ import { formatLinkToUploadFile, formatToOptions } from '@/helpers/formatTo';
 import CustomUpload from '@/components/form/customUpload';
 import React, { useEffect, useState } from 'react';
 import { useSetCourseManagement } from '@/store/server/features/tna/management/mutation';
-import { localUserID } from '@/utils/constants';
+
 import { useGetCoursesManagement } from '@/store/server/features/tna/management/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const CourseCategorySidebar = () => {
   const [isDraft, setIsDraft] = useState(false);
@@ -22,6 +23,7 @@ const CourseCategorySidebar = () => {
     courseId,
     setCourseId,
   } = useTnaManagementStore();
+  const { userId } = useAuthenticationStore();
   const { mutate: setCourse, isLoading, isSuccess } = useSetCourseManagement();
   const {
     data: coursesData,
@@ -103,7 +105,7 @@ const CourseCategorySidebar = () => {
         overview: value.overview,
         thumbnail: value.thumbnail[0]['response'],
         isDraft: isDraft,
-        preparedBy: localUserID,
+        preparedBy: userId,
       },
     ]);
   };
