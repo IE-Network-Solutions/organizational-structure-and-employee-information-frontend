@@ -60,7 +60,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
   };
 
   const drawerHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 px-4 py-2">
       Create New Field
     </div>
   );

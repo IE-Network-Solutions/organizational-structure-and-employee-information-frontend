@@ -26,7 +26,9 @@ export const useAuthenticationStore = create<StoreState>()(
           setCookie('token', token, 30), set({ token });
         },
         tenantId: '',
-        setTenantId: (tenantId: string) => set({ tenantId }),
+        setTenantId: (tenantId: string) => {
+          set({ tenantId }), setCookie('tenantId', tenantId, 30);
+        },
         userId: '',
         setUserId: (userId: string) => set({ userId }),
         localId: '',

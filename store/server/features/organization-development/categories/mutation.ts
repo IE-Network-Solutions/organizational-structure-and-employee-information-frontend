@@ -69,7 +69,7 @@ const resolveActionPlan = async (params: any) => {
   return crudRequest({
     url: `${ORG_DEV_URL}/action-plans/${params?.id}`,
     method: 'put',
-    data:{"status":params?.status},
+    data: { status: params?.status },
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
