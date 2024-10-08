@@ -3,7 +3,6 @@ import { OKR_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { PlanningPeriod } from './interface';
 
 const approveOrRejectPlanningPeriods = async (planningData: any) => {
   const token = useAuthenticationStore.getState().token;
@@ -19,20 +18,23 @@ const approveOrRejectPlanningPeriods = async (planningData: any) => {
     headers,
   });
 };
-const createReportForUnReportedtasks = async (reportingData: any,PlanningPeriodId:string) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const userId = useAuthenticationStore.getState().userId;
+const createReportForUnReportedtasks = async (
+  values: any,
+  planningPeriodId: string,
+) => {
+  const token = useAuthenticationStore.getState().token; // Assuming you have a way to get the token
+  const tenantId = useAuthenticationStore.getState().tenantId; // Assuming you have a way to get the tenantId
+  const userId = useAuthenticationStore.getState().userId; // Assuming you have a way to get the userId
 
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
-
+  // /okr-report-task/create-report/:userId/:planningPeriodId
   return await crudRequest({
-    url: `${OKR_URL}/okr-report/create-report/${userId}/${PlanningPeriodId}`,
+    url: `${OKR_URL}/okr-report-task/create-report/${userId}/${planningPeriodId}`,
     method: 'post',
-    data:reportingData,
+    data: values,
     headers,
   });
 };
@@ -50,10 +52,10 @@ export const useApprovalPlanningPeriods = () => {
 };
 export const useCreateReportForUnReportedtasks = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation(
-    ({ values, planningPeriodId }: { values: any; planningPeriodId: string }) => 
-      createReportForUnReportedtasks(values, planningPeriodId), 
+    ({ values, planningPeriodId }: { values: any; planningPeriodId: string }) =>
+      createReportForUnReportedtasks(values, planningPeriodId),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('okrPlans');
@@ -62,6 +64,6 @@ export const useCreateReportForUnReportedtasks = () => {
           description: 'OKR plan status successfully updated',
         });
       },
-    }
+    },
   );
 };

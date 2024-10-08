@@ -25,20 +25,19 @@ export interface PlanningAndReporting {
   removeWeight: (key: string) => void;
   resetWeights: () => void;
 
-
   selectedStatuses: Record<string, string | undefined>; // Map task IDs to their statuses
   setStatus: (taskId: string, status: string) => void; // Function to update status
 
   selectedPlanId: string;
   setSelectedPlanId: (selectedPlanId: string) => void;
 }
-const userId=useAuthenticationStore.getState().userId;
+const userId = useAuthenticationStore.getState().userId;
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
   devtools((set) => ({
     open: false,
     setOpen: (open: boolean) => set({ open }),
     selectedStatuses: {},
-    setStatus: (taskId, status) => 
+    setStatus: (taskId, status) =>
       set((state) => ({
         selectedStatuses: {
           ...state.selectedStatuses,

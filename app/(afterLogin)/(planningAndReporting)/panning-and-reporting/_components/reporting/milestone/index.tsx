@@ -8,8 +8,8 @@ const { Text } = Typography;
 type Task = {
   taskId: string;
   taskName: string;
-  priority: "low" | "medium" | "high";
-  status: "reported" | "pending" | "completed";
+  priority: 'low' | 'medium' | 'high';
+  status: 'reported' | 'pending' | 'completed';
   actualValue: string;
   isAchived: boolean;
 };
@@ -20,9 +20,14 @@ type Props = {
 
 const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
   return (
-    <div className='ml-4'>
+    <div className="ml-4">
       {tasks?.map((task: Task, taskIndex: number) => (
-        <Row key={task.taskId} className="flex task-row space-y-1" gutter={4} align="middle">
+        <Row
+          key={task.taskId}
+          className="flex task-row space-y-1"
+          gutter={4}
+          align="middle"
+        >
           <Col span={1}>
             {task.isAchived ? (
               <Tooltip title="Approve Plan">
@@ -72,7 +77,6 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
             <Tag color="blue">{task.status || 'N/A'}</Tag>
           </Col>
         </Row>
-
       ))}
     </div>
   );

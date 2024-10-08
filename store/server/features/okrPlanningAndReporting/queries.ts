@@ -49,10 +49,10 @@ const getPlanningDataById = async (planningId: string) => {
   return await crudRequest({
     url: `${OKR_URL}/plan-tasks/${planningId}`,
     method: 'get',
- 
+
     headers,
   });
-  }; 
+};
 
 const getReportingData = async (params: DataType) => {
   const token = useAuthenticationStore.getState().token;
@@ -109,5 +109,7 @@ export const useGetReporting = (params: DataType) => {
 };
 
 export const useGetUnReportedPlanning = (planningPeriodId: string) => {
-  return useQuery<any>(['okrPlan', planningPeriodId], () => getAllUnReportedPlanningTask(planningPeriodId));
+  return useQuery<any>(['okrPlan', planningPeriodId], () =>
+    getAllUnReportedPlanningTask(planningPeriodId),
+  );
 };

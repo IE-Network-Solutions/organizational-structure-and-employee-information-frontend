@@ -69,16 +69,16 @@ function Planning() {
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
         {selectedUser.includes(userId) &&
-        ((transformedData?.[0]?.isReported ?? false) || transformedData?.length === 0) && (
-          <CustomButton
-            title={`Create ${activeTabName}`}
-            id="createActiveTabName"
-            icon={<FaPlus className="mr-2" />}
-            onClick={() => setOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700"
-          />
-        )}
-
+          ((transformedData?.[0]?.isReported ?? false) ||
+            transformedData?.length === 0) && (
+            <CustomButton
+              title={`Create ${activeTabName}`}
+              id="createActiveTabName"
+              icon={<FaPlus className="mr-2" />}
+              onClick={() => setOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
+          )}
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
