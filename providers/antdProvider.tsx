@@ -19,8 +19,20 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
           },
           Table: {
             headerBg: '#FAFAFA',
+            headerColor: '#718096',
+            fontSize: 12,
           },
           Empty: {},
+          Button: {
+            fontWeight: 700,
+            contentFontSizeLG: 14,
+            defaultColor: '#111827',
+            defaultBorderColor: '#111827',
+          },
+          Select: {
+            colorText: '#111827',
+            colorBorder: '#E9EAEC',
+          },
         },
         token: {
           colorPrimary: '#3636F0',

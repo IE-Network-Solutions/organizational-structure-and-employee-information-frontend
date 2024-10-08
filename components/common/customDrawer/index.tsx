@@ -41,6 +41,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
           />
         )}
       </>
+      {/* removed the padding because it is not needed for Drawer */}
       <Drawer
         title={modalHeader}
         width={70}
@@ -48,6 +49,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         onClose={onClose}
         open={open}
         style={{ paddingBottom: 50 }}
+
         footer={footer}
       >
         {children}

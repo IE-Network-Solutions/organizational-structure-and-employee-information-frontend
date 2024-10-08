@@ -22,9 +22,12 @@ const config: Config = {
       colors: {
         primary: '#3636F0',
         secondary: '#1D9BF0',
-        success: '#0CAF60',
-        warning: '#FACC15',
+        success: '#0BA259',
+        ['success-second']: '#55c790',
+        warning: '#E6BB20',
+        ['warning-second']: '#ffde65',
         error: '#E03137',
+        ['error-second']: '#fa3a3a',
         orange: '#FE964A',
         blue: '#0062FF',
         purple: '#8C62FF',
@@ -33,9 +36,11 @@ const config: Config = {
       fontFamily: {
         sans: ['Manrope', 'sans-serif'],
       },
-
       height: {
         'half-vw': 'calc(50vw)',
+      },
+      gridTemplateColumns: {
+        'leave-balance-slider': '40px minmax(0, 1fr) 40px',
       },
     },
   },

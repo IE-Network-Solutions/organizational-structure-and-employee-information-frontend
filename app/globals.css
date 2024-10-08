@@ -11,6 +11,7 @@
   src: url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 }
 
+
 html,
 body {
   margin: 0;
@@ -143,4 +144,14 @@ h6 {
     border-top: 1px solid grey;
     margin: 2rem 0;
   }
+}
+
+.ant-upload {
+  width: 100%;
+}
+
+.ql-container.ql-snow {
+  border: none !important;
+  font-family: 'Manrope', sans-serif;
+  @apply text-gray-900 font-normal text-sm;
 }
