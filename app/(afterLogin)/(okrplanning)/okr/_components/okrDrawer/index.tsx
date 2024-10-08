@@ -109,7 +109,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
       footer={footer}
-      width={"50%"}
+      width={'50%'}
     >
       <Form form={form} layout="vertical">
         <Row gutter={[16, 16]}>

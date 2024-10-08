@@ -1,5 +1,5 @@
 import { Button, Drawer } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaAngleRight } from 'react-icons/fa';
 
 interface CustomDrawerLayoutProps {
@@ -19,6 +19,27 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   width,
   footer,
 }) => {
+  const [isClient, setIsClient] = useState(false);
+  const [currentWidth, setCurrentWidth] = useState('40%'); // Default width
+  useEffect(() => {
+    setIsClient(true);
+    const updateWidth = () => {
+      if (window.innerWidth <= 768) {
+        setCurrentWidth('90%');
+      } else {
+        setCurrentWidth(width || '40%');
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => {
+      window.removeEventListener('resize', updateWidth);
+    };
+  }, [width]);
+
+  // Render the component only on the client side
+  if (!isClient) return null;
+
   return (
     <div>
       <>
@@ -26,10 +47,11 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         {open && (
           <Button
             id="closeSidebarButton"
-            className="bg-white text-lg text-grey-9 rounded-full mr-8  flex md:flex-row hidden "
+            className="bg-white text-lg text-grey-9 rounded-full mr-8 hidden md:flex"
             icon={<FaAngleRight />}
             onClick={onClose}
             style={{
+              display: window.innerWidth <= 768 ? 'none' : 'flex',
               position: 'fixed',
               right: width,
               width: '50px',
@@ -43,7 +65,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
       </>
       <Drawer
         title={modalHeader}
-        className='md:w-[50%] w-full'
+        width={currentWidth}
         closable={false}
         onClose={onClose}
         open={open}
