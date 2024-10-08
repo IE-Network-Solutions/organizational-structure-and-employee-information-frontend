@@ -10,8 +10,6 @@ export const useHandleSignIn = () => {
     useAuthenticationStore();
 
   const {
-    data: fetchedTenantId,
-    isError: fetcheError,
     refetch: fetchTenantId,
   } = useGetTenantId();
   const router = useRouter();

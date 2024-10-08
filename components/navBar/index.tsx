@@ -324,7 +324,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           )}
 
-          <NavBar page="Home" userid="12345" handleLogout={handleLogout} />
+          <NavBar page="Home" handleLogout={handleLogout} />
         </Header>
         <Content
           className="overflow-y-hidden min-h-screen"
