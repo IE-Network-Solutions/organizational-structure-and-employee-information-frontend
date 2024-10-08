@@ -17,6 +17,7 @@ import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveReque
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import CustomUpload from '@/components/form/customUpload';
 import { MdKeyboardArrowDown } from 'react-icons/md';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const LeaveRequestSidebar = () => {
   const [filter, setFilter] = useState<Partial<LeaveRequestBody['filter']>>({});
@@ -33,7 +34,7 @@ const LeaveRequestSidebar = () => {
     false,
     false,
   );
-
+  const { userId } = useAuthenticationStore();
   const {
     mutate: updateLeaveRequest,
     isLoading: isLoadingRequest,
@@ -124,16 +125,19 @@ const LeaveRequestSidebar = () => {
   const onFinish = () => {
     const value = form.getFieldsValue();
     updateLeaveRequest({
-      ...(leaveRequest && leaveRequest),
-      leaveType: value.type,
-      isHalfday: !!value.isHalfday,
-      startAt: dayjs(value.startDate).format('YYYY-MM-DD'),
-      endAt: dayjs(value.endDate).format('YYYY-MM-DD'),
-      justificationDocument: !!value.attachment?.length
-        ? value.attachment[0]['response']
-        : null,
-      justificationNote: value.note,
-      status: LeaveRequestStatus.PENDING,
+      item: {
+        ...(leaveRequest && leaveRequest),
+        leaveType: value.type,
+        isHalfday: !!value.isHalfday,
+        startAt: dayjs(value.startDate).format('YYYY-MM-DD'),
+        endAt: dayjs(value.endDate).format('YYYY-MM-DD'),
+        justificationDocument: !!value.attachment?.length
+          ? value.attachment[0]['response']
+          : null,
+        justificationNote: value.note,
+        status: LeaveRequestStatus.PENDING,
+      },
+      userId,
     });
   };
 

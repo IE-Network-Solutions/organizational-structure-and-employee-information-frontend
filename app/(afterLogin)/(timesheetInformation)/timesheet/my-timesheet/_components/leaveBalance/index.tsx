@@ -9,11 +9,12 @@ import { Navigation } from 'swiper/modules';
 import { Button } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
-import { localUserID } from '@/utils/constants';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const LeaveBalance = () => {
+  const { userId } = useAuthenticationStore();
   const [swiper, setSwiper] = useState<SwiperType>();
-  const { data } = useGetLeaveBalance(localUserID);
+  const { data } = useGetLeaveBalance(userId);
 
   if (!data) {
     return '';

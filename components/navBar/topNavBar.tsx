@@ -12,7 +12,6 @@ interface NavBarProps {
 }
 
 const NavBar = ({ page, userid, handleLogout }: NavBarProps) => {
-
   const menu = (
     <Menu>
       <Menu.Item>
@@ -25,9 +24,7 @@ const NavBar = ({ page, userid, handleLogout }: NavBarProps) => {
           Settings
         </a>
       </Menu.Item>
-      <Menu.Item onClick={handleLogout}>
-        Logout
-      </Menu.Item>
+      <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
     </Menu>
   );
 
