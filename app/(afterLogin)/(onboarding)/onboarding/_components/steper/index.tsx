@@ -132,10 +132,10 @@ const OnboaringSteper: React.FC = () => {
       // deleteFn: deleteCompanyInfo.mutateAsync,
       data: companyInfo,
     };
-    yield {
-      createFn: updateCompanyProfile.mutateAsync,
-      data: { id: tenantId, companyProfileImage: companyProfileImage },
-    };
+    // yield {
+    //   createFn: updateCompanyProfile.mutateAsync,
+    //   data: { id: tenantId, companyProfileImage: companyProfileImage },
+    // };
   }
 
   const onSubmitOnboarding = async () => {
