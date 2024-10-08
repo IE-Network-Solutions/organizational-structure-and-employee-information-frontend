@@ -9,7 +9,9 @@ interface CustomDrawerLayoutProps {
   modalHeader: any;
   children: React.ReactNode;
   width?: string;
-  footer?: React.ReactNode;
+  footer?: React.ReactNode | null;
+  hideButton?: boolean;
+
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -18,7 +20,8 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   modalHeader,
   children,
   width,
-  footer,
+  hideButton = false,
+  footer = null,
 }) => {
   // Default width
   const { isClient, setIsClient, currentWidth, setCurrentWidth } =
@@ -46,7 +49,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
     <div>
       <>
         {' '}
-        {open && (
+        {open && !hideButton && (
           <Button
             id="closeSidebarButton"
             className="bg-white text-lg text-grey-9 rounded-full mr-8 hidden md:flex"
@@ -65,6 +68,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
           />
         )}
       </>
+      {/* removed the padding because it is not needed for Drawer */}
       <Drawer
         title={modalHeader}
         width={currentWidth}
@@ -72,6 +76,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         onClose={onClose}
         open={open}
         style={{ paddingBottom: 50 }}
+
         footer={footer}
       >
         {children}

@@ -72,12 +72,57 @@ const items: MenuItem[] = [
     icon: <PiSuitcaseSimpleThin />,
     className: 'font-bold',
     label: 'Recruitment',
+    children: [
+      {
+        key: '/recruitment/jobs',
+        label: 'Jobs',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/candidate',
+        label: 'Candidates',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/talent-pool',
+        label: 'Talent Pool',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/settings',
+        label: 'Settings',
+        icon: <FiSettings />,
+      },
+    ],
   },
+
   {
     key: '/timesheet',
     icon: <CiCalendar />,
     className: 'font-bold',
     label: 'Timesheet',
+    children: [
+      {
+        key: '/timesheet/my-timesheet',
+        label: 'My timesheet',
+        className: 'font-bold',
+      },
+      {
+        key: '/timesheet/employee-attendance',
+        label: 'Employee Attendance',
+        className: 'font-bold',
+      },
+      {
+        key: '/timesheet/leave-management',
+        label: 'Leave Management',
+        className: 'font-bold',
+      },
+      {
+        key: '/timesheet/settings/closed-date',
+        label: 'Settings',
+        className: 'font-bold',
+      },
+    ],
   },
   {
     key: '/activity',
@@ -86,8 +131,36 @@ const items: MenuItem[] = [
     label: 'Activity',
   },
   {
+    key: '/tna',
+    icon: <BarChartOutlined />,
+    className: 'font-bold',
+    label: 'Training & Learning',
+    children: [
+      {
+        key: '/tna/management',
+        className: 'font-bold',
+        label: 'Training Management',
+      },
+      {
+        key: '/tna/review',
+        className: 'font-bold',
+        label: 'TNA',
+      },
+      {
+        key: '/tna/pgp',
+        className: 'font-bold',
+        label: 'PGP',
+      },
+      {
+        key: '/tna/settings/course-category',
+        className: 'font-bold',
+        label: 'Settings',
+      },
+    ],
+  },
+  {
     key: '/feedback ',
-    label: 'Feedback',
+    label: 'Development',
     icon: <UserOutlined />,
     className: 'font-bold',
     children: [
