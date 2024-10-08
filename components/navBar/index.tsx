@@ -213,7 +213,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setError('');
     removeCookie('token');
     removeCookie('tenantId');
-    router.push(`/authentication/login`);
+    window.location.reload();
   };
 
   return (

@@ -104,18 +104,4 @@ export const disabledDate = (current: Dayjs) => {
   return current && current.isBefore(dayjs().startOf('day'));
 };
 
-export const validateToken = (token: string | null | undefined): boolean => {
-  if (!token) {
-    return false;
-  }
 
-  try {
-    const [, payload] = token.split('.');
-    const decodedPayload = JSON.parse(atob(payload)) as { exp: number };
-    const currentTime = Math.floor(Date.now() / 1000);
-
-    return decodedPayload.exp > currentTime;
-  } catch (error) {
-    return false;
-  }
-};
