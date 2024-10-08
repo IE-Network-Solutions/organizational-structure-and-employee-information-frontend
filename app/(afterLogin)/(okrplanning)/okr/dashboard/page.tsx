@@ -3,12 +3,12 @@ import { Row, Select, Space } from 'antd';
 import React from 'react';
 import { BsAwardFill } from 'react-icons/bs';
 import { FaBomb } from 'react-icons/fa';
-import RookStarsList from '../_components/rookStarsList';
+import RookStarsList from '../../../(okr)/_components/rookStarsList';
 import { CardData, ListData, SelectData } from '@/types/dashboard/okr';
-import DashboardCard from '../_components/displayCard';
+import DashboardCard from '../../../(okr)/_components/displayCard';
 import { GoGoal } from 'react-icons/go';
 import { MdOutlineKey } from 'react-icons/md';
-import PerformanceChart from '../_components/performanceChart';
+import PerformanceChart from '../../../(okr)/_components/performanceChart';
 
 const listData: ListData[] = [
   {
