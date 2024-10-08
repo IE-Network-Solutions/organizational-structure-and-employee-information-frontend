@@ -146,11 +146,6 @@ const OrgChartComponent: React.FC = () => {
       title={<div className="text-2xl font-bold">ORG Chart</div>}
       extra={
         <div className="py-4 flex justify-center items-center gap-4">
-          <CustomButton
-            title="Download"
-            type="default"
-            icon={<IoAddSharp size={24} />}
-          />
           <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
             <CustomButton title="" icon={<BsThreeDotsVertical size={24} />} />
           </Dropdown>

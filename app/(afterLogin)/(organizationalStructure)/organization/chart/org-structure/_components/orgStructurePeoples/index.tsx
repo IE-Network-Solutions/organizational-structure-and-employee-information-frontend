@@ -22,6 +22,7 @@ import {
 import { OrgChart } from '@/store/server/features/organizationStructure/organizationalChart/interface';
 import DeleteModal from '@/components/common/deleteModal';
 import CustomDrawer from '../customDrawer';
+import RoleGuard from '@/utils/permissionGuard';
 interface DepartmentNodeProps {
   data: Department;
   onEdit: () => void;
@@ -59,27 +60,33 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({
   return (
     <Card className="p-1.5 rounded-md inline-block border border-[#e8e8e8] sm:w-auto">
       {isRoot && (
-        <Button
-          id="ceoButton"
-          icon={<PlusOutlined />}
-          size="small"
-          type="primary"
-          className="p-2 rounded-full absolute bottom-[-10px] center-[-40px]"
-          onClick={onAdd}
-        />
+        <RoleGuard roles={['owner', 'admin']}>
+          {' '}
+          <Button
+            id="ceoButton"
+            icon={<PlusOutlined />}
+            size="small"
+            type="primary"
+            className="p-2 rounded-full absolute bottom-[-10px] center-[-40px]"
+            onClick={onAdd}
+          />
+        </RoleGuard>
       )}
       {!isRoot && (
-        <Dropdown
-          overlay={menu}
-          trigger={['click']}
-          className="absolute top-[5px] right-[5px]"
-        >
-          <Button
-            icon={<MoreOutlined />}
-            id={`${data.name}ThreeDotButton`}
-            size="small"
-          />
-        </Dropdown>
+        <RoleGuard roles={['owner', 'admin']}>
+          {' '}
+          <Dropdown
+            overlay={menu}
+            trigger={['click']}
+            className="absolute top-[5px] right-[5px]"
+          >
+            <Button
+              icon={<MoreOutlined />}
+              id={`${data.name}ThreeDotButton`}
+              size="small"
+            />
+          </Dropdown>
+        </RoleGuard>
       )}
 
       <div
@@ -94,15 +101,18 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({
         </Tooltip>
       </div>
       {!isRoot && (
-        <Button
-          id={`${data.name}Button`}
-          icon={<PlusOutlined />}
-          size="small"
-          type="primary"
-          className="rounded-full absolute bottom-[-10px] "
-          style={{ marginTop: '5px' }}
-          onClick={onAdd}
-        />
+        <RoleGuard roles={['owner', 'admin']}>
+          {' '}
+          <Button
+            id={`${data.name}Button`}
+            icon={<PlusOutlined />}
+            size="small"
+            type="primary"
+            className="rounded-full absolute bottom-[-10px] "
+            style={{ marginTop: '5px' }}
+            onClick={onAdd}
+          />
+        </RoleGuard>
       )}
     </Card>
   );
@@ -259,13 +269,19 @@ const OrgChartComponent: React.FC = () => {
               type="default"
               icon={<AiOutlineDownload size={24} />}
             /> */}
-            <Dropdown
-              overlay={menu}
-              trigger={['click']}
-              placement="bottomRight"
-            >
-              <CustomButton title="" icon={<BsThreeDotsVertical size={24} />} />
-            </Dropdown>
+            <RoleGuard roles={['owner', 'admin']}>
+              {' '}
+              <Dropdown
+                overlay={menu}
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                <CustomButton
+                  title=""
+                  icon={<BsThreeDotsVertical size={24} />}
+                />
+              </Dropdown>
+            </RoleGuard>
           </div>
         }
       >
