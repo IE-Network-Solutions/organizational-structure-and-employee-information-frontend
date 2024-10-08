@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getCookie } from './helpers/storageHelper';
 
+
 export function middleware(req: NextRequest) {
   try {
     const token = getCookie('token', req);

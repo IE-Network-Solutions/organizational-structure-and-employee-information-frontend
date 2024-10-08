@@ -11,7 +11,6 @@ import { FaStarOfLife } from 'react-icons/fa';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
   MdOutlineKeyboardDoubleArrowRight,
-  MdStarPurple500,
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
 
@@ -101,6 +100,28 @@ const items: MenuItem[] = [
     icon: <CiCalendar />,
     className: 'font-bold',
     label: 'Timesheet',
+    children: [
+      {
+        key: '/timesheet/my-timesheet',
+        label: 'My timesheet',
+        className: 'font-bold',
+      },
+      {
+        key: '/timesheet/employee-attendance',
+        label: 'Employee Attendance',
+        className: 'font-bold',
+      },
+      {
+        key: '/timesheet/leave-management',
+        label: 'Leave Management',
+        className: 'font-bold',
+      },
+      {
+        key: '/timesheet/settings/closed-date',
+        label: 'Settings',
+        className: 'font-bold',
+      },
+    ],
   },
   {
     key: '/activity',
@@ -108,12 +129,33 @@ const items: MenuItem[] = [
     className: 'font-bold',
     label: 'Activity',
   },
-
   {
-    key: '/dashbord',
-    icon: <MdStarPurple500 />,
+    key: '/tna',
+    icon: <BarChartOutlined />,
     className: 'font-bold',
-    label: 'OKR_DashBoard',
+    label: 'Training & Learning',
+    children: [
+      {
+        key: '/tna/management',
+        className: 'font-bold',
+        label: 'Training Management',
+      },
+      {
+        key: '/tna/review',
+        className: 'font-bold',
+        label: 'TNA',
+      },
+      {
+        key: '/tna/pgp',
+        className: 'font-bold',
+        label: 'PGP',
+      },
+      {
+        key: '/tna/settings/course-category',
+        className: 'font-bold',
+        label: 'Settings',
+      },
+    ],
   },
   {
     key: '/feedback ',
@@ -142,7 +184,7 @@ const items: MenuItem[] = [
     className: 'font-bold',
     children: [
       {
-        key: '/dashboard',
+        key: '/okr/dashboard',
         label: 'Dashboard',
         className: 'font-bold',
       },
@@ -261,12 +303,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </div>
         </div>
         {!collapsed && (
-          <div className="mt-12 flex justify-between items-center border-2 border-[#3636F0] px-4 py-3 mx-4 rounded-lg">
+          <Button
+            href="/dashboard"
+            className="mt-12 flex justify-between items-center border-2 border-[#3636F0] px-4 py-5 mx-4 rounded-lg "
+          >
             <div className="text-black font-bold font-['Manrope'] leading-normal">
               Dashboard
             </div>
             <AppstoreOutlined size={24} className="text-black" />
-          </div>
+          </Button>
         )}
 
         <Menu
