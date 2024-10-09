@@ -9,7 +9,7 @@ const data = [
 
 const Header = () => {
   return (
-    <div className="flex space-x-4  overflow-x-auto w-full mb-4 scrollbar-thumb-rounded-full scrollbar-thumb-white scrollbar-track-gray-300 scrollbar-track-rounded-full scrollbar-thin">
+    <div className="flex space-x-4  overflow-x-auto h-36 w-full mb-4 scrollbar-thumb-rounded-full scrollbar-thumb-white scrollbar-track-gray-300 scrollbar-track-rounded-full scrollbar-thin">
       {data.map((item, index) => (
         <Card
           key={index}
