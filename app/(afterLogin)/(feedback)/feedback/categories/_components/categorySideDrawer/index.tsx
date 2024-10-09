@@ -8,7 +8,7 @@ import { useAddCategory } from '@/store/server/features/feedback/category/mutati
 import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { useFetchUsers } from '@/store/server/features/feedback/category/queries';
 import dayjs from 'dayjs';
-import {  UserOutlined } from '@ant-design/icons';
+import { UserOutlined } from '@ant-design/icons';
 
 interface CategoryFormValues {
   name: string;
@@ -162,17 +162,17 @@ const CategorySideDrawer: React.FC<any> = (props) => {
                           />
                           <div className="flex items-center justify-start gap-2">
                             <div className="flex items-center justify-center">
-                              {employee?.profileImage?
-                              <Image
-                                src={employee?.profileImage }
-                                alt="Employee Profile Image"
-                                className="rounded-full"
-                                width={30}
-                                height={30}
-                              />:<Avatar
-                              size={25}
-                              icon={<UserOutlined />}
-                            />}
+                              {employee?.profileImage ? (
+                                <Image
+                                  src={employee?.profileImage}
+                                  alt="Employee Profile Image"
+                                  className="rounded-full"
+                                  width={30}
+                                  height={30}
+                                />
+                              ) : (
+                                <Avatar size={25} icon={<UserOutlined />} />
+                              )}
                             </div>
                             <div className="flex flex-col items-start justify-center">
                               <div className="font-semibold text-md">

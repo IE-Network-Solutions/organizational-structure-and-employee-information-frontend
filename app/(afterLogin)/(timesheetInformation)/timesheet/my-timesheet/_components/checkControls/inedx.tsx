@@ -25,7 +25,8 @@ const CheckControl = () => {
     setCurrentAttendance,
   } = useMyTimesheetStore();
 
-  const { data: currentAttendanceData, isFetching } = useGetCurrentAttendance(userId);
+  const { data: currentAttendanceData, isFetching } =
+    useGetCurrentAttendance(userId);
   const { mutate: setCurrentAttendanceData, isLoading } =
     useSetCurrentAttendance();
 

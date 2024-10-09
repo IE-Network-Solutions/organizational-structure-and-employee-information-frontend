@@ -115,7 +115,7 @@ const JobSummary = () => {
                   marginRight: '10px',
                 }}
               />
-              <span className='text-sm'>{label}</span>
+              <span className="text-sm">{label}</span>
             </div>
           ))}
         </div>

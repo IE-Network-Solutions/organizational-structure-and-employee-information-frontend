@@ -17,9 +17,7 @@ export function middleware(req: NextRequest) {
     if (pathname === '/onboarding') return NextResponse.next();
     if (!isExcludedPath && isRootPath) {
       if (token) {
-        return NextResponse.redirect(
-          new URL('/dashboard', req.url),
-        );
+        return NextResponse.redirect(new URL('/dashboard', req.url));
       } else {
         return NextResponse.redirect(new URL('/authentication/login', req.url));
       }

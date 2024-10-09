@@ -39,9 +39,7 @@ const ManageEmployees: React.FC<any> = () => {
           </div>
         </div>
         <div className="w-full h-auto">
-          <EmployeeSearch
-
-          />
+          <EmployeeSearch />
           <UserTable />
         </div>
       </BlockWrapper>

@@ -114,39 +114,39 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={16}>
             {keyResultByUser !== undefined && objectiveValue?.title !== '' ? (
-               <Form.Item
-               className="font-bold text-xs w-full mb-2"
-               name="ObjectiveName"
-               label="Objective/Alignment"
-               rules={[
-                 {
-                   required: true,
-                   message: 'Please enter the Objective name',
-                 },
-               ]}
-             >
-               {/* Search and select a key result by user */}
-               <Select
-                 showSearch
-                 placeholder="Search and select a Key Result"
-                 value={objectiveValue?.title || ''}
-                 onChange={
-                   (value, option) =>
-                     handleObjectiveChange(option?.key, 'allignedKeyResultId') // Update the alignment ID with the selected key
-                 }
-                 filterOption={(input: any, option: any) =>
-                   option.children.toLowerCase().includes(input.toLowerCase())
-                 }
-               >
-                 {keyResultByUser?.items.map((keyResult) => (
-                   <Select.Option key={keyResult.id} value={keyResult.title}>
-                     {keyResult.title}
-                   </Select.Option>
-                 ))}
-               </Select>
-             </Form.Item>
+              <Form.Item
+                className="font-bold text-xs w-full mb-2"
+                name="ObjectiveName"
+                label="Objective/Alignment"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please enter the Objective name',
+                  },
+                ]}
+              >
+                {/* Search and select a key result by user */}
+                <Select
+                  showSearch
+                  placeholder="Search and select a Key Result"
+                  value={objectiveValue?.title || ''}
+                  onChange={
+                    (value, option) =>
+                      handleObjectiveChange(option?.key, 'allignedKeyResultId') // Update the alignment ID with the selected key
+                  }
+                  filterOption={(input: any, option: any) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {keyResultByUser?.items.map((keyResult) => (
+                    <Select.Option key={keyResult.id} value={keyResult.title}>
+                      {keyResult.title}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
             ) : (
-             <Form.Item
+              <Form.Item
                 className="font-bold text-xs w-full mb-2"
                 name="ObjectiveName"
                 label="Objective/Alignment"

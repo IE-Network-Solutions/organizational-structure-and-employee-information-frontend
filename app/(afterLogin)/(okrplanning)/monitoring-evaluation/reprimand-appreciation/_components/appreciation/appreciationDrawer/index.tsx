@@ -28,10 +28,7 @@ const AppreciationDrawer: React.FC<AppDrawerProps> = ({
 
   const renderEmployeeOption = (option: any) => (
     <div style={{ display: 'flex', alignItems: 'center' }}>
-      <Avatar
-          size={20}
-          icon={<UserOutlined />}
-        />
+      <Avatar size={20} icon={<UserOutlined />} />
       {option.firstName}
     </div>
   );
@@ -40,10 +37,7 @@ const AppreciationDrawer: React.FC<AppDrawerProps> = ({
     const { label, closable, onClose } = props;
     return (
       <div className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1">
-        <Avatar
-          size={20}
-          icon={<UserOutlined />}
-        />
+        <Avatar size={20} icon={<UserOutlined />} />
         <span>{label}</span>
         {closable && (
           <span onClick={onClose} className="text-black text-xs">
@@ -188,8 +182,6 @@ const AppreciationDrawer: React.FC<AppDrawerProps> = ({
             ))}
           </Select>
         </Form.Item>
-
-        
       </Form>
     </CustomDrawerLayout>
   );

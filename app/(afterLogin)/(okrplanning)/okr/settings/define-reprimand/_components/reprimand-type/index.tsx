@@ -75,7 +75,7 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
         htmlType="submit"
         title={repType ? 'Update' : 'Add'}
         type="primary"
-        onClick={()=>form.submit()}
+        onClick={() => form.submit()}
       />
     </div>
   );
@@ -132,7 +132,6 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
             The weight is from 1- 10 Scale
           </span>
         </div>
-        
       </Form>
     </CustomDrawerLayout>
   );

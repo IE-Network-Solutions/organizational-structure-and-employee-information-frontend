@@ -9,7 +9,7 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 
 // Layout component definition
 export default function ChartLayout({
-  children
+  children,
 }: {
   children: React.ReactNode;
   params: any;

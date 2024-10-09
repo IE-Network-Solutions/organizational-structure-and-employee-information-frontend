@@ -77,7 +77,7 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
         htmlType="submit"
         title={appType ? 'Update' : 'Add'}
         type="primary"
-        onClick={()=>form.submit()}
+        onClick={() => form.submit()}
       />
     </div>
   );
@@ -137,8 +137,6 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
             The weight is from 1-10 Scale
           </span>
         </div>
-
-       
       </Form>
     </CustomDrawerLayout>
   );

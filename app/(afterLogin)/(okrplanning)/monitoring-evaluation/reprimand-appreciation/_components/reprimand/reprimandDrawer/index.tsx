@@ -8,8 +8,8 @@ import { useGetReprimandType } from '@/store/server/features/okrplanning/monitor
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ReprimandLog } from '@/store/uistate/features/okrplanning/monitoring-evaluation/reprimand-log/interface';
-import { Form, Select, Input, Button, Avatar } from 'antd';
-import {  UserOutlined } from '@ant-design/icons';
+import { Form, Select, Input, Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 
 import React from 'react';
 interface RepDrawerProps {
@@ -28,10 +28,7 @@ const ReprimandDrawer: React.FC<RepDrawerProps> = ({
 
   const renderEmployeeOption = (option: any) => (
     <div style={{ display: 'flex', alignItems: 'center' }}>
-      <Avatar
-        size={20}
-        icon={<UserOutlined />}
-      />
+      <Avatar size={20} icon={<UserOutlined />} />
       {option.firstName}
     </div>
   );
@@ -40,10 +37,7 @@ const ReprimandDrawer: React.FC<RepDrawerProps> = ({
     const { label, closable, onClose } = props;
     return (
       <div className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1">
-        <Avatar
-          size={20}
-          icon={<UserOutlined />}
-        />
+        <Avatar size={20} icon={<UserOutlined />} />
         <span>{label}</span>
         {closable && (
           <span onClick={onClose} className="text-black text-xs">
@@ -94,7 +88,11 @@ const ReprimandDrawer: React.FC<RepDrawerProps> = ({
         onClick={handleDrawerClose}
         style={{ marginRight: 8 }}
       />
-      <CustomButton onClick={()=>form.submit()} title={'Add'} type="primary" />
+      <CustomButton
+        onClick={() => form.submit()}
+        title={'Add'}
+        type="primary"
+      />
     </div>
   );
   return (
@@ -180,8 +178,6 @@ const ReprimandDrawer: React.FC<RepDrawerProps> = ({
             ))}
           </Select>
         </Form.Item>
-
-       
       </Form>
     </CustomDrawerLayout>
   );

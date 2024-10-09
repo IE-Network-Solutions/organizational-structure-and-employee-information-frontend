@@ -11,8 +11,6 @@ export const showValidationErrors = (errorFields: any[] = []) => {
   });
 };
 
-
-
 export const getPriorityColor = (priority: string) => {
   switch (priority.toLowerCase()) {
     case 'high':

@@ -20,7 +20,7 @@ export default function ActionPlans() {
           header={<div>Tasks for July 5, 2023</div>}
           dataSource={tasks}
           renderItem={(item) => (
-            <List.Item className='my-4'>
+            <List.Item className="my-4">
               <div>{item.time}</div>
               <div>{item.task}</div>
             </List.Item>
