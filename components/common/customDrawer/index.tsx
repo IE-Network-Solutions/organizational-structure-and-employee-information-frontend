@@ -9,6 +9,7 @@ interface CustomDrawerLayoutProps {
   modalHeader: any;
   children: React.ReactNode;
   width?: string;
+  paddingBottom?: number;
   footer?: React.ReactNode | null;
   hideButton?: boolean;
 }

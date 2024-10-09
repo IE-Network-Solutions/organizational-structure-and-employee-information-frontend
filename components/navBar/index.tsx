@@ -20,7 +20,7 @@ import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
 import { FiSettings } from 'react-icons/fi';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
-import { PiSuitcaseSimpleThin } from 'react-icons/pi';
+import { PiStarThin, PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuUsers2 } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -194,6 +194,43 @@ const items: MenuItem[] = [
 
 const userItems: MenuItem[] = [
   {
+    key: '/panning-and-reporting',
+    label: 'Panning & Reporting',
+    icon: <PiStarThin />,
+    className: 'font-bold',
+    children: [
+      {
+        key: '/feedback/dashboard',
+        label: 'Dashboard',
+        icon: <UserOutlined />,
+        className: 'font-bold',
+      },
+      {
+        key: '/feedback/okr',
+        label: 'OKR',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
+        key: '/feedback/evaluation',
+        label: 'monitoring & evaluation',
+        icon: <UserOutlined />,
+        className: 'font-bold',
+      },
+      {
+        key: '/panning-and-reporting',
+        label: 'Panning & Reporting',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
+        key: '/feedback/setting',
+        label: 'Setting',
+        icon: <FiSettings />,
+        className: 'font-bold',
+      },
+     
+   {
     key: '/okr-planning ',
     label: 'OKR',
     icon: <CiStar size={20} />,
@@ -262,8 +299,9 @@ const userItems: MenuItem[] = [
       },
     ],
   },
-];
-
+    ]
+  }
+]
 interface MyComponentProps {
   children: ReactNode;
 }
@@ -307,6 +345,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const handleLogout = () => {
     setToken('');
     setTenantId('');
+    setLocalId('');
+    removeCookie('token');
+    router.push(`/authentication/login`);
     setUserId('');
     setLocalId('');
     setError('');
