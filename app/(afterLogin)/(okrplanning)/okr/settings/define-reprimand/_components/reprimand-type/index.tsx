@@ -6,7 +6,7 @@ import {
 } from '@/store/server/features/okrplanning/monitoring-evaluation/reprimand-type/mutations';
 import { useRepTypeStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/reprimand-type';
 import { ReprimandType } from '@/store/uistate/features/okrplanning/monitoring-evaluation/reprimand-type/interface';
-import { Form, Input, InputNumber, Button } from 'antd';
+import { Form, Input, InputNumber } from 'antd';
 import React, { useEffect } from 'react';
 import { MdInfo } from 'react-icons/md';
 interface RepTypeDrawerProps {
@@ -71,7 +71,12 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
         onClick={handleDrawerClose}
         style={{ marginRight: 8 }}
       />
-      <CustomButton title={'Add'} type="primary" />
+      <CustomButton
+        htmlType="submit"
+        title={repType ? 'Update' : 'Add'}
+        type="primary"
+        onClick={() => form.submit()}
+      />
     </div>
   );
   return (
@@ -82,7 +87,8 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
       footer={footer}
     >
       <Form
-        name="appreciationForm"
+        form={form}
+        name="reprimandForm"
         layout="vertical"
         onFinish={onFinish}
         initialValues={repType || {}}
@@ -126,11 +132,6 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
             The weight is from 1- 10 Scale
           </span>
         </div>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
       </Form>
     </CustomDrawerLayout>
   );

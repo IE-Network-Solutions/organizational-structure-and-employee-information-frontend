@@ -48,8 +48,6 @@ const config: Config = {
   variants: {
     extend: {},
   },
-  plugins: [
-    require('tailwind-scrollbar'),
-  ],
+  plugins: [require('tailwind-scrollbar')],
 };
 export default config;

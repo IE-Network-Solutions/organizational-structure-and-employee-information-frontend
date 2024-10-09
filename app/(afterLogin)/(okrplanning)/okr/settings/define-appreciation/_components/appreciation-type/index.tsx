@@ -6,7 +6,7 @@ import {
 } from '@/store/server/features/okrplanning/monitoring-evaluation/appreciation-type/mutations';
 import { useAppTypeStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-type';
 import { AppreciationType } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-type/interface';
-import { Form, Input, InputNumber, Button } from 'antd';
+import { Form, Input, InputNumber } from 'antd';
 import React, { useEffect } from 'react';
 import { MdInfo } from 'react-icons/md';
 
@@ -77,6 +77,7 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
         htmlType="submit"
         title={appType ? 'Update' : 'Add'}
         type="primary"
+        onClick={() => form.submit()}
       />
     </div>
   );
@@ -136,12 +137,6 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
             The weight is from 1-10 Scale
           </span>
         </div>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
       </Form>
     </CustomDrawerLayout>
   );

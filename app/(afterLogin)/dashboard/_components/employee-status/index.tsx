@@ -71,7 +71,7 @@ const EmploymentStats: React.FC = () => {
   };
 
   return (
-    <Card className="w-full mx-auto shadow-md">
+    <Card className="w-full mx-auto shadow-md h-64">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-gray-700 font-semibold text-lg">Job Summary</h3>
         <Select

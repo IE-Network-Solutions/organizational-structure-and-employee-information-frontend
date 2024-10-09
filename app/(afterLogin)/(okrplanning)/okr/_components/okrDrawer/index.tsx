@@ -102,7 +102,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       <CustomButton title={'Save'} type="primary" onClick={onSubmit} />
     </div>
   );
-
   return (
     <CustomDrawerLayout
       open={props?.open}
@@ -115,26 +114,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={16}>
             {keyResultByUser !== undefined && objectiveValue?.title !== '' ? (
-              <Form.Item
-                className="font-bold text-xs w-full mb-2"
-                name="ObjectiveName"
-                label="Objective/Alignment"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter the Objective name',
-                  },
-                ]}
-              >
-                <Input
-                  allowClear
-                  value={objectiveValue?.title || ''}
-                  onChange={(e) => {
-                    handleObjectiveChange(e.target.value, 'title');
-                  }}
-                />
-              </Form.Item>
-            ) : (
               <Form.Item
                 className="font-bold text-xs w-full mb-2"
                 name="ObjectiveName"
@@ -165,6 +144,26 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     </Select.Option>
                   ))}
                 </Select>
+              </Form.Item>
+            ) : (
+              <Form.Item
+                className="font-bold text-xs w-full mb-2"
+                name="ObjectiveName"
+                label="Objective/Alignment"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please enter the Objective name',
+                  },
+                ]}
+              >
+                <Input
+                  allowClear
+                  value={objectiveValue?.title || ''}
+                  onChange={(e) => {
+                    handleObjectiveChange(e.target.value, 'title');
+                  }}
+                />
               </Form.Item>
             )}
           </Col>

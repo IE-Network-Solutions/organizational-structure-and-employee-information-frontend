@@ -8,8 +8,8 @@ import ConditionalNav from '@/providers/conditionalNav';
 const manrope = Manrope({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'PEP | Productivity Enhancement Platform',
-  description: 'Productivity Enhancement Platform',
+  title: 'Selamnew Workspace',
+  description: 'Selamnew Workspace',
 };
 
 export default function RootLayout({

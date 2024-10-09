@@ -38,8 +38,6 @@ const CreateActionPlan = (props: any) => {
     </div>
   );
 
-
-
   const plusOnClickHandler = () => {
     setNumberOfActionPlan(numberOfActionPlan + 1);
   };

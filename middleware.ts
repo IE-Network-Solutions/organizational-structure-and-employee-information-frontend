@@ -17,9 +17,7 @@ export function middleware(req: NextRequest) {
     if (pathname === '/onboarding') return NextResponse.next();
     if (!isExcludedPath && isRootPath) {
       if (token) {
-        return NextResponse.redirect(
-          new URL('/dashboard', req.url),
-        );
+        return NextResponse.redirect(new URL('/dashboard', req.url));
       } else {
         return NextResponse.redirect(new URL('/authentication/login', req.url));
       }
@@ -32,6 +30,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|firebase-messaging-sw.js|login-background.png).*)',
+    '/((?!_next/static|_next/image|favicon.ico|firebase-messaging-sw.js|login-background.png|icons/Logo.svg).*)',
   ],
 };

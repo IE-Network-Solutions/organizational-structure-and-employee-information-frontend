@@ -224,7 +224,7 @@ const Question: React.FC<Props> = (props) => {
                               ) {
                                 if (!names || names.length < 2) {
                                   return Promise.reject(
-                                    NotificationMessage.error({
+                                    NotificationMessage.warning({
                                       message: `At least ${2} options are required`,
                                       description:
                                         'Please add additional fields.',
