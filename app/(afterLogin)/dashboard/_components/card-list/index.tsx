@@ -16,7 +16,7 @@ const CardList: FC<CardListProps> = ({ title, people, date }) => {
         <h4 className="text-lg font-semibold">{title}</h4>
       </div>
 
-      <div className="flex items-center justify-between mb-2 overflow-x-auto   ">
+      <div className="flex items-center justify-between mb-2 overflow-x-auto  scrollbar-thumb-rounded-full scrollbar-thumb-white scrollbar-track-gray-300 scrollbar-track-rounded-full scrollbar-thin ">
         <div className="flex space-x-4">
           {people.map((person, index) => (
             <PersonCard

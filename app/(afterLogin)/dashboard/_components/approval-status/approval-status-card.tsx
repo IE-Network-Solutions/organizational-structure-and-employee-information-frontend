@@ -32,10 +32,10 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
         </div>
       </div>
       <div className="space-x-1">
-        <Button type="default" size="small" danger>
+        <Button className="text-xs border-black" type="default" size="small">
           Reject
         </Button>
-        <Button type="primary" size="small">
+        <Button className="text-xs" type="primary" size="small">
           Approve
         </Button>
       </div>
