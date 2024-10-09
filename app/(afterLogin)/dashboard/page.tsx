@@ -9,6 +9,7 @@ import SelfAttendance from './_components/self-attendance';
 import EmploymentStats from './_components/employee-status';
 import JobSummary from './_components/job-summary';
 import { Applicants } from './_components/applicants';
+import RoleGuard from '@/utils/permissionGuard';
 
 const people = [
   {
@@ -33,30 +34,41 @@ export default function Home() {
     <div className="min-h-screen bg-gray-100">
       <div className="grid grid-cols-12 gap-4 p-4">
         <div className="col-span-8 grid">
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <EmploymentStats />
+          <RoleGuard roles={['admin', 'owner']}>
+            {' '}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <EmploymentStats />
+              </div>
+              <div>
+                <JobSummary />
+              </div>
             </div>
-            <div>
-              <JobSummary />
-            </div>
-          </div>
+          </RoleGuard>
+
           <Header />
           <SelfAttendance />
         </div>
+
         <div className="col-span-4">
           <ActionPlans />
         </div>
       </div>
-      <NewCourses />
+      <RoleGuard roles={['user']}>
+        <NewCourses />
+      </RoleGuard>
       <div className="grid grid-cols-12 gap-4 p-2">
         <div className="col-span-8 flex gap-4">
           <ApprovalStatus />
-          <CoursePermitted />
-          
+          <RoleGuard roles={['user']}>
+            <CoursePermitted />
+          </RoleGuard>
+          <RoleGuard roles={['admin', 'owner']}>
+            <Applicants />
+          </RoleGuard>
         </div>
-        
-        <div className="bg-gray-100 flex flex-col items-center col-span-4">
+
+        <div className="bg-gray-100 flex flex-col items-center col-span-4 gap-6">
           <CardList
             key="birthday" // Adding a key prop
             title="Whose Birth Day is today?"
@@ -69,10 +81,6 @@ export default function Home() {
             people={people}
             date="July 10, 2024"
           />
-        </div>
-        <div className="col-span-8 flex gap-4">
-         
-          <Applicants  />
         </div>
       </div>
     </div>

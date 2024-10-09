@@ -28,7 +28,7 @@ const JobSummary = () => {
         labels: {
           color: '#333',
           font: {
-            size: 14,
+            size: 12,
             weight: 'bold',
           },
           padding: 20,
@@ -60,7 +60,7 @@ const JobSummary = () => {
   };
 
   return (
-    <Card className="w-full mx-auto shadow-md">
+    <Card className="w-full mx-auto shadow-md h-64">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-gray-700 font-semibold text-lg">Job Summary</h3>
         <Select
@@ -115,7 +115,7 @@ const JobSummary = () => {
                   marginRight: '10px',
                 }}
               />
-              <span>{label}</span>
+              <span className="text-sm">{label}</span>
             </div>
           ))}
         </div>
