@@ -24,19 +24,19 @@ import {
 } from '@/store/server/features/organizationStructure/organizationalChart/mutation';
 import { useStep2Store } from '@/store/uistate/features/organizationStructure/comanyInfo/useStore';
 import { useCreateCompanyInfo } from '@/store/server/features/organizationStructure/companyInfo/mutation';
-import { useUpdateCompanyProfile } from '@/store/server/features/organizationStructure/companyProfile/mutation';
-import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
+// import { useUpdateCompanyProfile } from '@/store/server/features/organizationStructure/companyProfile/mutation';
+// import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 import { Form } from 'antd';
 import IndustrySelect from './industrySelect';
 import CompanyProfile from './companyProfile';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { showValidationErrors } from '@/utils/showValidationErrors';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+// import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useRouter } from 'next/navigation';
 
-const tenantId = useAuthenticationStore.getState().tenantId;
+// const tenantId = useAuthenticationStore.getState().tenantId;
 
 const OnboaringSteper: React.FC = () => {
   const [form1] = Form.useForm();
@@ -102,15 +102,15 @@ const OnboaringSteper: React.FC = () => {
   const createCompanyInfo = useCreateCompanyInfo();
   // const deleteCompanyInfo = useDeleteCompanyInfo();
   const { companyInfo } = useStep2Store();
-  const updateCompanyProfile = useUpdateCompanyProfile();
-  const { companyProfileImage } = useCompanyProfile();
+  // const updateCompanyProfile = useUpdateCompanyProfile();
+  // const { companyProfileImage } = useCompanyProfile();
 
   function* createResourcesGenerator(
     fiscalYear: any,
     schedule: any,
     orgData: any,
     companyInfo: any,
-    companyProfileImage: any,
+    // companyProfileImage: any,
   ) {
     yield {
       createFn: createFiscalYear.mutateAsync,
@@ -132,10 +132,10 @@ const OnboaringSteper: React.FC = () => {
       // deleteFn: deleteCompanyInfo.mutateAsync,
       data: companyInfo,
     };
-    yield {
-      createFn: updateCompanyProfile.mutateAsync,
-      data: { id: tenantId, companyProfileImage: companyProfileImage },
-    };
+    // yield {
+    //   createFn: updateCompanyProfile.mutateAsync,
+    //   data: { id: tenantId, companyProfileImage: companyProfileImage },
+    // };
   }
 
   const onSubmitOnboarding = async () => {
@@ -153,7 +153,7 @@ const OnboaringSteper: React.FC = () => {
       schedule,
       orgData,
       companyInfo,
-      companyProfileImage,
+      // companyProfileImage,
     );
 
     try {

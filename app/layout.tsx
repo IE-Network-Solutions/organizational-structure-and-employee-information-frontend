@@ -5,7 +5,6 @@ import './globals.css';
 import AntdConfigProvider from '@/providers/antdProvider';
 import ReactQueryWrapper from '@/providers/reactQueryProvider';
 import ConditionalNav from '@/providers/conditionalNav';
-
 const manrope = Manrope({ subsets: ['latin'] });
 
 export const metadata: Metadata = {

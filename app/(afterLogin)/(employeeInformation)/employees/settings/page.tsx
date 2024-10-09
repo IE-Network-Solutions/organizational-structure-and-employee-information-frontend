@@ -1,15 +1,10 @@
 'use client';
-
 import { Card, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import React, { useState, useEffect } from 'react';
 import SettingsPage from './_components/rolePermission';
-import { TbNotes } from 'react-icons/tb';
 import { IoMdSettings } from 'react-icons/io';
-import { FaLongArrowAltRight, FaUser } from 'react-icons/fa';
-import Promotions from './_components/promotions';
-import TransferTab from './_components/transfer';
-import Resignation from './_components/resignation';
+import { FaUser } from 'react-icons/fa';
 import EmploymentType from './_components/employementType';
 
 function Settings() {
@@ -42,36 +37,6 @@ function Settings() {
       key: '1',
       label: (
         <span className="flex gap-2 mt-4">
-          <TbNotes className="mt-1" />{' '}
-          <p className="font-semibold">Promotions</p>{' '}
-        </span>
-      ),
-      children: <Promotions />,
-    },
-    {
-      key: '2',
-      label: (
-        <span className="flex gap-2 mt-4">
-          <FaLongArrowAltRight className="mt-1" />{' '}
-          <p className="font-semibold">Transfer</p>{' '}
-        </span>
-      ),
-      children: <TransferTab />,
-    },
-    {
-      key: '3',
-      label: (
-        <span className="flex gap-2 mt-4">
-          <TbNotes className="mt-1" />{' '}
-          <p className="font-semibold">Resignation</p>{' '}
-        </span>
-      ),
-      children: <Resignation />,
-    },
-    {
-      key: '4',
-      label: (
-        <span className="flex gap-2 mt-4">
           <FaUser className="mt-1" />{' '}
           <p className="font-semibold">Employment Type</p>{' '}
         </span>
@@ -79,7 +44,7 @@ function Settings() {
       children: <EmploymentType />,
     },
     {
-      key: '5',
+      key: '2',
       label: (
         <span className="flex gap-2 mt-4">
           <IoMdSettings className="mt-1" />{' '}
