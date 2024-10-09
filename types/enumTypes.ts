@@ -7,6 +7,14 @@ export enum FieldType {
   DROPDOWN = 'dropdown',
   RADIO = 'radio',
 }
+export const PlanningType = [
+  { key: 'myPlan', value: 'my plan' },
+  { key: 'allPlan', value: 'all Plan' },
+];
+export const ReportingType = [
+  { key: 'myReport', value: 'my Report' },
+  { key: 'allReport', value: 'all Report' },
+];
 
 export enum LocationType {
   ONSITE = 'OnSite',
@@ -39,4 +47,13 @@ export enum CandidateType {
 export enum JobStatus {
   OPEN = 'Open',
   CLOSED = 'Closed',
+}
+
+export enum NAME {
+  MILESTONE = 'Milestone',
+  ACHIEVE = 'Achieve',
+  CURRENCY = 'Currency',
+  NUMERIC = 'Numeric',
+  PERCENTAGE = 'Percentage',
+  KPI = 'KPI',
 }

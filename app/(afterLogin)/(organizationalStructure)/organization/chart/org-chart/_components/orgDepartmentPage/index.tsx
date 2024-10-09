@@ -9,7 +9,6 @@ import DepartmentForm from '@/app/(afterLogin)/(onboarding)/onboarding/_componen
 import { useGetOrgChartsPeoples } from '@/store/server/features/organizationStructure/organizationalChart/query';
 import CustomButton from '@/components/common/buttons/customButton';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { IoAddSharp } from 'react-icons/io5';
 import { BiUser } from 'react-icons/bi';
 import CustomDrawer from '../customDrawer';
 
@@ -146,11 +145,6 @@ const OrgChartComponent: React.FC = () => {
       title={<div className="text-2xl font-bold">ORG Chart</div>}
       extra={
         <div className="py-4 flex justify-center items-center gap-4">
-          <CustomButton
-            title="Download"
-            type="default"
-            icon={<IoAddSharp size={24} />}
-          />
           <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
             <CustomButton title="" icon={<BsThreeDotsVertical size={24} />} />
           </Dropdown>

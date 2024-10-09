@@ -6,7 +6,13 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { requestHeader } from '@/helpers/requestHeader';
 import { LeaveRequestStatusBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 
-const setLeaveRequest = async ({ item, userId }: { item: Partial<LeaveRequest>, userId: string }) => {
+const setLeaveRequest = async ({
+  item,
+  userId,
+}: {
+  item: Partial<LeaveRequest>;
+  userId: string;
+}) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/make`,
     method: 'POST',
