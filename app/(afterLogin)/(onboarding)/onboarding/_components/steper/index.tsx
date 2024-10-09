@@ -49,7 +49,7 @@ const OnboaringSteper: React.FC = () => {
   const router = useRouter();
   useEffect(() => {
     if (departments?.length > 0) {
-      router.push('/organization/org-structure');
+      router.push('/dashboard');
     }
   }, [departments?.length]);
 
@@ -347,7 +347,7 @@ const OnboaringSteper: React.FC = () => {
         visible={isModalVisible}
         onClose={handleClose}
         text="You have successfully finished onboarding process"
-        route={`/organization/org-structure`}
+        route={`/dashboard`}
       />
     </div>
   );

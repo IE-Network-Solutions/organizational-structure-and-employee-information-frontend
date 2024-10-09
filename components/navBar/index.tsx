@@ -24,6 +24,7 @@ import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuUsers2 } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import Image from 'next/image';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -345,10 +346,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       >
         <div className="flex justify-between px-4 my-4">
           <div className=" flex items-center gap-2">
-            <FaStarOfLife color="#3636F0" />{' '}
-            {!collapsed && (
-              <p className="text-xl text-black font-bold uppercase"> PEP</p>
-            )}
+          <Image
+            className=""
+            src="/icons/logo.svg"
+            alt="Success"
+            width={150}
+            height={150}
+          />
           </div>
 
           <div onClick={toggleCollapsed} className="text-black text-xl">

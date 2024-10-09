@@ -11,7 +11,7 @@ interface CardListProps {
 const CardList: FC<CardListProps> = ({ title, people, date }) => {
   return (
     <div className="bg-white p-2 rounded-lg shadow-md mb-2 w-full ">
-      <div className="flex items-center mb-2">
+      <div className="flex items-center ">
         <span className="mr-2 text-2xl">🎉</span>
         <h4 className="text-lg font-semibold">{title}</h4>
       </div>

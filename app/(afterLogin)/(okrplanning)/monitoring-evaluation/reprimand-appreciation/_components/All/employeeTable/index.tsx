@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, Button, Avatar } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
 import { FaEye } from 'react-icons/fa';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import { AppreciationLog } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-log/interface';
@@ -54,7 +54,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                 }
               />
             ) : (
-              <Avatar size={40} className="capitalize"></Avatar>
+              <Avatar size={40} icon={<UserOutlined />}></Avatar>
             )}
             <span className="ml-2">{user?.firstName || 'Unknown User'}</span>
           </div>
@@ -78,7 +78,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                   }
                 />
               ) : (
-                <Avatar size={40} className="capitalize"></Avatar>
+                <Avatar size={40} icon={<UserOutlined />}></Avatar>
               )}
               <span className="ml-2">{user?.firstName || 'Unknown User'}</span>
             </div>

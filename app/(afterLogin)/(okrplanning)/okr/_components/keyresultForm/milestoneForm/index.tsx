@@ -38,9 +38,8 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
         const NewValue = {
           ...keyItem,
           metricTypeId: metricTypeId,
-          key_type: keyItem.key_type,
         };
-
+        console.log(keyItem,NewValue,"000")
         addKeyResultValue(NewValue);
         setKeyResult([]);
       })

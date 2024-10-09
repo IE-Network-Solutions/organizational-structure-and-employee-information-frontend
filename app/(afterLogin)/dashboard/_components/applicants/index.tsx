@@ -5,14 +5,14 @@ const applicants = [
   { name: 'Giana Lipshutz', status: 'Hired' },
   { name: 'Giana Lipshutz', status: 'Hired' },
   { name: 'Giana Lipshutz', status: 'Pending' },
-  { name: 'Giana Lipshutz', status: 'Pending' },
+ 
 ];
 
 export const Applicants = () => {
   return (
     <div className="bg-white rounded-lg p-6 shadow-md w-full ">
       <h2 className="text-xl font-semibold mb-4">Applicants</h2>
-      <div className="flex justify-center items-center mb-6">
+      <div className="flex justify-center items-center mb-2">
         <Progress
           type="dashboard"
           percent={75}

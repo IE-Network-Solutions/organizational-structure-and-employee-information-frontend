@@ -8,8 +8,9 @@ import { useGetAppreciationType } from '@/store/server/features/okrplanning/moni
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { AppreciationLog } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-log/interface';
-import { Form, Select, Input, Avatar, Button } from 'antd';
+import { Form, Select, Input, Avatar } from 'antd';
 import React from 'react';
+import { UserOutlined } from '@ant-design/icons';
 
 interface AppDrawerProps {
   open: boolean;
@@ -28,11 +29,9 @@ const AppreciationDrawer: React.FC<AppDrawerProps> = ({
   const renderEmployeeOption = (option: any) => (
     <div style={{ display: 'flex', alignItems: 'center' }}>
       <Avatar
-        size={20}
-        src={
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3'
-        }
-      />
+          size={20}
+          icon={<UserOutlined />}
+        />
       {option.firstName}
     </div>
   );
@@ -43,9 +42,7 @@ const AppreciationDrawer: React.FC<AppDrawerProps> = ({
       <div className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1">
         <Avatar
           size={20}
-          src={
-            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3'
-          }
+          icon={<UserOutlined />}
         />
         <span>{label}</span>
         {closable && (
@@ -117,7 +114,7 @@ const AppreciationDrawer: React.FC<AppDrawerProps> = ({
     >
       <Form
         form={form}
-        name="reprimandForm"
+        name="appLogForm"
         layout="vertical"
         onFinish={onFinish}
         autoComplete="off"
@@ -192,11 +189,7 @@ const AppreciationDrawer: React.FC<AppDrawerProps> = ({
           </Select>
         </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
+        
       </Form>
     </CustomDrawerLayout>
   );
