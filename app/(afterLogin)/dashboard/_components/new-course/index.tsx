@@ -10,7 +10,7 @@ export default function NewCourses() {
   return (
     <div className="p-4  ">
       <h2 className="text-lg font-semibold mb-4">Newly Added Courses</h2>
-      <div className="flex space-x-4 overflow-x-auto">
+      <div className="flex space-x-4 overflow-x-auto scrollbar-thumb-rounded-full scrollbar-thumb-white scrollbar-track-gray-300 scrollbar-track-rounded-full scrollbar-thin">
         {courses.map((course, idx) => (
           <Card
             key={idx}

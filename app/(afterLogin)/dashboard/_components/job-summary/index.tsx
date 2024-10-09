@@ -5,22 +5,14 @@ import { Chart, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js'; // 
 
 // Register the chart.js components
 Chart.register(ArcElement, Tooltip, Legend);
-
 const { Option } = Select;
-interface ChartData {
-  labels: string[];
-  datasets: {
-    data: number[];
-    backgroundColor: string[];
-    borderWidth: number;
-  }[];
-}
-const CoursePermitted: React.FC = () => {
-  const data: ChartData = {
-    labels: ['Full-Time', 'Part-Time', 'Others'],
+
+const JobSummary = () => {
+  const data = {
+    labels: ['Active', 'Inactive', 'Closed'],
     datasets: [
       {
-        data: [120, 80, 34], // Sample data for full-time, part-time, and others
+        data: [45, 30, 10], // Sample data for active, inactive, and closed jobs
         backgroundColor: ['#2f78ee', '#3636ee', '#1d9bf0'],
         borderWidth: 1,
       },
@@ -70,7 +62,7 @@ const CoursePermitted: React.FC = () => {
   return (
     <Card className="w-full mx-auto shadow-md">
       <div className="flex justify-between items-center mb-2">
-        <h3 className=" font-semibold text-lg">Course Permitted</h3>
+        <h3 className="text-gray-700 font-semibold text-lg">Job Summary</h3>
         <Select
           bordered={false}
           defaultValue="All Time"
@@ -82,7 +74,7 @@ const CoursePermitted: React.FC = () => {
         </Select>
       </div>
 
-      <div className="grid items-center">
+      <div className="flex items-center">
         <div
           style={{
             position: 'relative',
@@ -100,32 +92,30 @@ const CoursePermitted: React.FC = () => {
               transform: 'translate(-50%, -50%)',
             }}
           >
-            <div className="font-bold text-2xl">121</div>
-            <div className="font-light text-xs ">Total</div>
+            <div className="font-bold text-2xl">45</div>
+            <div className="font-light text-xs ">Active</div>
           </div>
         </div>
-        <div style={{ marginTop: '2 0px' }}>
+        <div style={{ marginLeft: '20px' }}>
           {data.labels.map((label, i) => (
-            <div key={i} className="flex justify-between">
+            <div
+              key={i}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '10px',
+              }}
+            >
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '10px',
+                  width: '15px',
+                  height: '15px',
+                  borderRadius: '50%',
+                  backgroundColor: data.datasets[0].backgroundColor[i],
+                  marginRight: '10px',
                 }}
-              >
-                <div
-                  style={{
-                    width: '15px',
-                    height: '15px',
-                    borderRadius: '50%',
-                    backgroundColor: data.datasets[0].backgroundColor[i],
-                    marginRight: '10px',
-                  }}
-                />
-                <span>{label}</span>
-              </div>
-              <span>{data.datasets[0].data[i]}</span>
+              />
+              <span>{label}</span>
             </div>
           ))}
         </div>
@@ -134,4 +124,4 @@ const CoursePermitted: React.FC = () => {
   );
 };
 
-export default CoursePermitted;
+export default JobSummary;

@@ -78,7 +78,7 @@ const SelfAttendance = () => {
   ];
 
   return (
-    <div className="mb-10 bg-white min-h-fit p-5 rounded-xl">
+    <div className=" bg-white min-h-fit p-5 rounded-xl">
       <div className="flex justify-between items-center">
         <div className="text-xl font-bold ">Self Attendance Report</div>
         <div className="pl-2">

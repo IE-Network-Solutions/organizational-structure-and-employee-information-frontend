@@ -1,8 +1,6 @@
-
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getCookie } from './helpers/storageHelper';
-
 
 export function middleware(req: NextRequest) {
   try {
@@ -16,6 +14,7 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/authentication/login', req.url));
     }
 
+    if (pathname === '/onboarding') return NextResponse.next();
     if (!isExcludedPath && isRootPath) {
       if (token) {
         return NextResponse.redirect(
