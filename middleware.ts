@@ -16,11 +16,15 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/authentication/login', req.url));
     }
 
-    if (token && (isExcludedPath || isRootPath)) {
-      // Redirect if token exists but accessing login or root path
-      return NextResponse.redirect(
-        new URL('/employees/manage-employees', req.url),
-      );
+    if (pathname === '/onboarding') return NextResponse.next();
+    if (!isExcludedPath && isRootPath) {
+      if (token) {
+        return NextResponse.redirect(
+          new URL('/dashboard', req.url),
+        );
+      } else {
+        return NextResponse.redirect(new URL('/authentication/login', req.url));
+      }
     }
     return NextResponse.next();
   } catch (error) {
