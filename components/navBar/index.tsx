@@ -107,6 +107,11 @@ const items: MenuItem[] = [
         className: 'font-bold',
       },
       {
+        key: '/planning-and-reporting',
+        label: 'Planning and Reporting',
+        className: 'font-bold',
+      },
+      {
         key: '/monitoring-evaluation',
         label: 'Monitoring & Evaluation',
         className: 'font-bold',
