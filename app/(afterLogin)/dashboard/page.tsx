@@ -6,12 +6,10 @@ import CoursePermitted from './_components/course-permitted';
 import Header from './_components/header';
 import NewCourses from './_components/new-course';
 import SelfAttendance from './_components/self-attendance';
+import EmploymentStats from './_components/employee-status';
+import JobSummary from './_components/job-summary';
+import { Applicants } from './_components/applicants';
 
-const categories = [
-  { name: 'Category 1', value: 71, color: '#4a90e2' },
-  { name: 'Category 2', value: 27, color: '#50e3c2' },
-  { name: 'Category 3', value: 23, color: '#f5a623' },
-];
 const people = [
   {
     name: 'Pristia Candra',
@@ -29,11 +27,20 @@ const people = [
     imgSrc: 'https://randomuser.me/api/portraits/women/1.jpg',
   },
 ];
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="grid grid-cols-12 gap-4 p-4">
-        <div className="col-span-8">
+        <div className="col-span-8 grid">
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <EmploymentStats />
+            </div>
+            <div>
+              <JobSummary />
+            </div>
+          </div>
           <Header />
           <SelfAttendance />
         </div>
@@ -45,19 +52,27 @@ export default function Home() {
       <div className="grid grid-cols-12 gap-4 p-2">
         <div className="col-span-8 flex gap-4">
           <ApprovalStatus />
-          <CoursePermitted total={112} categories={categories} />
+          <CoursePermitted />
+          
         </div>
-        <div className=" bg-gray-100  flex flex-col items-center col-span-4">
+        
+        <div className="bg-gray-100 flex flex-col items-center col-span-4">
           <CardList
+            key="birthday" // Adding a key prop
             title="Whose Birth Day is today?"
             people={people}
             date="July 10, 2024"
           />
           <CardList
+            key="anniversary" // Adding a key prop
             title="Work Anniversary"
             people={people}
             date="July 10, 2024"
           />
+        </div>
+        <div className="col-span-8 flex gap-4">
+         
+          <Applicants  />
         </div>
       </div>
     </div>
