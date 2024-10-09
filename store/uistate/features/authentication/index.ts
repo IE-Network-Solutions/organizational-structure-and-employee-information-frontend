@@ -38,7 +38,7 @@ export const useAuthenticationStore = create<StoreState>()(
         setLoading: (loading: boolean) => set({ loading }), // Non-persistent method
         error: null, // Non-persistent state
         setError: (error: string | null) => set({ error }), // Non-persistent method
-        
+
         userData: {}, // Initialize userData
         setUserData: (userData: Record<string, any>) => set({ userData }), // Non-persistent method
       }),

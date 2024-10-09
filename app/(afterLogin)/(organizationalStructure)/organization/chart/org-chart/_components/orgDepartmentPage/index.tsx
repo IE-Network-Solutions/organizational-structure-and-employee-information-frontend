@@ -9,7 +9,6 @@ import DepartmentForm from '@/app/(afterLogin)/(onboarding)/onboarding/_componen
 import { useGetOrgChartsPeoples } from '@/store/server/features/organizationStructure/organizationalChart/query';
 import CustomButton from '@/components/common/buttons/customButton';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { IoAddSharp } from 'react-icons/io5';
 import { BiUser } from 'react-icons/bi';
 import CustomDrawer from '../customDrawer';
 
