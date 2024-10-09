@@ -21,7 +21,7 @@ const headers = {
 const createCompanyInfo = async (data: CompanyInfo) => {
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${tenantId}`,
-    method: 'PUT',
+    method: 'PATCH',
     headers,
     data: data,
   });
@@ -41,7 +41,7 @@ const updateCompanyInfo = async ({
 }) => {
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${id}`,
-    method: 'PUT',
+    method: 'PATCH',
     headers,
     data: JSON.stringify(companyInfo),
   });
