@@ -153,7 +153,7 @@ const OnboaringSteper: React.FC = () => {
       schedule,
       orgData,
       companyInfo,
-      companyProfileImage,
+      // companyProfileImage,
     );
 
     try {
