@@ -10,7 +10,6 @@ interface NavBarProps {
   handleLogout: () => void;
 }
 
-
 const NavBar = ({ page, handleLogout }: NavBarProps) => {
   const menu = (
     <Menu>

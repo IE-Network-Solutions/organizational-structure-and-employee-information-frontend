@@ -46,8 +46,8 @@ const Login: FC = () => {
       style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
     >
       <div className="bg-[#F1F2F3] w-full max-w-md py-4 px-6 rounded-lg my-5">
-        <p className="text-center font-semibold">PEP</p>
-        <h5 className="text-center my-2">Admin Login</h5>
+        <p className="text-center font-semibold">Selamnew Workspace</p>
+        <h5 className="text-center my-2">Login</h5>
         <Form
           name="login-form"
           labelCol={{ span: 24 }}

@@ -11,7 +11,6 @@ interface CustomDrawerLayoutProps {
   width?: string;
   footer?: React.ReactNode | null;
   hideButton?: boolean;
-
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -76,7 +75,6 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         onClose={onClose}
         open={open}
         style={{ paddingBottom: 50 }}
-
         footer={footer}
       >
         {children}

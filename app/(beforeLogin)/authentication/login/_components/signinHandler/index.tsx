@@ -6,12 +6,17 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { handleFirebaseSignInError } from '@/utils/showErrorResponse';
 
 export const useHandleSignIn = () => {
-  const { setError, setLoading, setToken, setUserId, setLocalId, setTenantId } =
-    useAuthenticationStore();
-
   const {
-    refetch: fetchTenantId,
-  } = useGetTenantId();
+    setError,
+    setLoading,
+    setToken,
+    setUserId,
+    setLocalId,
+    setTenantId,
+    setUserData,
+  } = useAuthenticationStore();
+
+  const { refetch: fetchTenantId } = useGetTenantId();
   const router = useRouter();
 
   const handleSignIn = async (signInMethod: () => Promise<any>) => {
@@ -35,9 +40,15 @@ export const useHandleSignIn = () => {
       } else {
         setTenantId(fetchedData?.data?.tenantId);
         setUserId(fetchedData?.data?.id);
+        setUserData(fetchedData?.data);
         message.success('Welcome!');
         message.loading({ content: 'Redirecting...', key: 'redirect' });
-        router.push('/employees/manage-employees');
+        if (fetchedData?.data?.hasCompany === true) {
+          router.push('/employees/manage-employees');
+        } else if (fetchedData?.data?.hasCompany === false) {
+          router.push('/onboarding');
+        } else {
+        }
       }
     } catch (err: any) {
       setError(err);
