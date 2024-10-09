@@ -20,7 +20,7 @@ import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
 import { FiSettings } from 'react-icons/fi';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
-import { PiSuitcaseSimpleThin } from 'react-icons/pi';
+import { PiStarThin, PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuUsers2 } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -195,76 +195,119 @@ const items: MenuItem[] = [
 
 const userItems: MenuItem[] = [
   {
-    key: '/okr-planning ',
-    label: 'OKR',
-    icon: <CiStar size={20} />,
+    key: '/panning-and-reporting',
+    label: 'Panning & Reporting',
+    icon: <PiStarThin />,
     className: 'font-bold',
     children: [
       {
-        key: '/okr/dashboard',
+        key: '/feedback/dashboard',
         label: 'Dashboard',
-        className: 'font-bold',
-      },
-      {
-        key: '/okr',
-        label: 'OKR',
-        className: 'font-bold',
-      },
-      {
-        key: '/monitoring-evaluation',
-        label: 'Monitoring & Evaluation',
-        className: 'font-bold',
-      },
-    ],
-  },
-  {
-    key: '/feedback ',
-    label: 'CFR',
-    icon: <UserOutlined />,
-    className: 'font-bold',
-    children: [
-      {
-        key: '/feedback/categories',
-        label: 'Form',
         icon: <UserOutlined />,
         className: 'font-bold',
       },
-    ],
-  },
+      {
+        key: '/feedback/okr',
+        label: 'OKR',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
+        key: '/feedback/evaluation',
+        label: 'monitoring & evaluation',
+        icon: <UserOutlined />,
+        className: 'font-bold',
+      },
+      {
+        key: '/panning-and-reporting',
+        label: 'Panning & Reporting',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
+        key: '/feedback/setting',
+        label: 'Setting',
+        icon: <FiSettings />,
+        className: 'font-bold',
+      },
 
-  {
-    key: '/tna',
-    icon: <BarChartOutlined />,
-    className: 'font-bold',
-    label: 'Learning & Growth',
-    children: [
       {
-        key: '/tna/management',
+        key: '/okr-planning ',
+        label: 'OKR',
+        icon: <CiStar size={20} />,
         className: 'font-bold',
-        label: 'Training Management',
+        children: [
+          {
+            key: '/okr/dashboard',
+            label: 'Dashboard',
+            className: 'font-bold',
+          },
+          {
+            key: '/okr',
+            label: 'OKR',
+            className: 'font-bold',
+          },
+          {
+            key: '/planning-and-reporting',
+            label: 'Planning and Reporting',
+            className: 'font-bold',
+          },
+          {
+            key: '/monitoring-evaluation',
+            label: 'Monitoring & Evaluation',
+            className: 'font-bold',
+          },
+        ],
       },
       {
-        key: '/tna/review',
+        key: '/feedback ',
+        label: 'CFR',
+        icon: <UserOutlined />,
         className: 'font-bold',
-        label: 'TNA',
+        children: [
+          {
+            key: '/feedback/categories',
+            label: 'Form',
+            icon: <UserOutlined />,
+            className: 'font-bold',
+          },
+        ],
       },
-    ],
-  },
-  {
-    key: '/timesheet',
-    icon: <CiCalendar />,
-    className: 'font-bold',
-    label: 'Time & Attendance',
-    children: [
+
       {
-        key: '/timesheet/my-timesheet',
-        label: 'My timesheet',
+        key: '/tna',
+        icon: <BarChartOutlined />,
         className: 'font-bold',
+        label: 'Learning & Growth',
+        children: [
+          {
+            key: '/tna/management',
+            className: 'font-bold',
+            label: 'Training Management',
+          },
+          {
+            key: '/tna/review',
+            className: 'font-bold',
+            label: 'TNA',
+          },
+        ],
+      },
+      {
+        key: '/timesheet',
+        icon: <CiCalendar />,
+        className: 'font-bold',
+        label: 'Time & Attendance',
+        children: [
+          {
+            key: '/timesheet/my-timesheet',
+            label: 'My timesheet',
+            className: 'font-bold',
+          },
+        ],
       },
     ],
   },
 ];
-
 interface MyComponentProps {
   children: ReactNode;
 }
@@ -308,6 +351,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const handleLogout = () => {
     setToken('');
     setTenantId('');
+    setLocalId('');
+    removeCookie('token');
+    router.push(`/authentication/login`);
     setUserId('');
     setLocalId('');
     setError('');

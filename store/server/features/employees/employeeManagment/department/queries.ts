@@ -21,6 +21,20 @@ const getDepartments = async () => {
   });
 };
 
+const getDepartmentsWithUsers = async () => {
+  const tenantIds = '179055e7-a27c-4d9d-9538-2b2a115661bd';
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/all/departments`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      // tenantId: tenantId, // Pass tenantId in the headers
+      tenantId: tenantIds,
+    },
+  });
+};
+
 /**
  * Function to fetch a single post by sending a GET request to the API
  * @param id The ID of the post to fetch
@@ -74,3 +88,6 @@ export const useGetDepartment = (departmentID: string) =>
       keepPreviousData: true,
     },
   );
+
+export const useGetDepartmentsWithUsers = () =>
+  useQuery<any>('departmentsWithUsers', getDepartmentsWithUsers);
