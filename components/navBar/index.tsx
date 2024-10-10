@@ -1,5 +1,4 @@
 'use client';
-
 import React, { ReactNode, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -8,7 +7,6 @@ import {
   UserOutlined,
   MenuOutlined,
 } from '@ant-design/icons';
-import { FaStarOfLife } from 'react-icons/fa';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
   MdOutlineKeyboardDoubleArrowRight,
@@ -20,9 +18,12 @@ const { Header, Content, Sider } = Layout;
 import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
 import { FiSettings } from 'react-icons/fi';
-import { CiCalendar, CiSettings } from 'react-icons/ci';
-import { LuUsers } from 'react-icons/lu';
-import { PiSuitcaseSimpleThin } from 'react-icons/pi';
+import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
+import { PiStarThin, PiSuitcaseSimpleThin } from 'react-icons/pi';
+import { LuUsers2 } from 'react-icons/lu';
+import { removeCookie } from '@/helpers/storageHelper';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import Logo from '../common/logo';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -31,46 +32,286 @@ const items: MenuItem[] = [
     key: '/organization',
     icon: <CiSettings />,
     label: 'Organization',
+    className: 'font-bold',
+    children: [
+      {
+        key: '/organization/chart',
+        label: 'Org Structure',
+      },
+      {
+        key: '/organization/settings',
+        label: 'Settings',
+      },
+    ],
   },
   {
     key: '/employees',
-    icon: <LuUsers />,
+    icon: <LuUsers2 />,
     label: 'Employees',
+    className: 'font-bold',
+    children: [
+      {
+        key: '/employees/manage-employees',
+        className: 'font-bold',
+        label: 'Manage Employees',
+      },
+      {
+        key: '/employees/settings',
+        className: 'font-bold',
+        label: 'Settings',
+      },
+    ],
   },
   {
     key: '/recruitment',
     icon: <PiSuitcaseSimpleThin />,
-    label: 'Recruitment',
-  },
-  {
-    key: '/timesheet',
-    icon: <CiCalendar />,
-    label: 'Timesheet',
-  },
-  {
-    key: '/activity',
-    icon: <BarChartOutlined />,
-    label: 'Activity',
-  },
-  {
-    key: '/feedback ',
-    label: 'Feedback',
-    icon: <UserOutlined />,
+    className: 'font-bold',
+    label: 'Talent Acquisition',
     children: [
       {
-        key: '/Chart',
-        label: 'Clients',
+        key: '/recruitment/jobs',
+        label: 'Jobs',
         icon: <UserOutlined />,
       },
       {
-        key: '/client-management/settings',
+        key: '/recruitment/candidate',
+        label: 'Candidates',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/talent-pool',
+        label: 'Talent Pool',
+        icon: <UserOutlined />,
+      },
+      {
+        key: '/recruitment/settings',
         label: 'Settings',
         icon: <FiSettings />,
       },
     ],
   },
+  {
+    key: '/okr-planning ',
+    label: 'OKR',
+    icon: <CiStar size={20} />,
+    className: 'font-bold',
+    children: [
+      {
+        key: '/okr/dashboard',
+        label: 'Dashboard',
+        className: 'font-bold',
+      },
+      {
+        key: '/okr',
+        label: 'OKR',
+        className: 'font-bold',
+      },
+      {
+        key: '/planning-and-reporting',
+        label: 'Planning and Reporting',
+        className: 'font-bold',
+      },
+      {
+        key: '/monitoring-evaluation',
+        label: 'Monitoring & Evaluation',
+        className: 'font-bold',
+      },
+      {
+        key: '/okr/settings',
+        label: 'Settings',
+        className: 'font-bold',
+      },
+    ],
+  },
+  {
+    key: '/feedback ',
+    label: 'CFR',
+    icon: <UserOutlined />,
+    className: 'font-bold',
+    children: [
+      {
+        key: '/feedback/categories',
+        label: 'Form',
+        icon: <UserOutlined />,
+        className: 'font-bold',
+      },
+      {
+        key: '/feedback/settings',
+        label: 'Settings',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+    ],
+  },
+
+  {
+    key: '/tna',
+    icon: <BarChartOutlined />,
+    className: 'font-bold',
+    label: 'Learning & Growth',
+    children: [
+      {
+        key: '/tna/management',
+        className: 'font-bold',
+        label: 'Training Management',
+      },
+      {
+        key: '/tna/review',
+        className: 'font-bold',
+        label: 'TNA',
+      },
+      {
+        key: '/tna/settings/course-category',
+        className: 'font-bold',
+        label: 'Settings',
+      },
+    ],
+  },
+  {
+    key: '/timesheet',
+    icon: <CiCalendar />,
+    className: 'font-bold',
+    label: 'Time & Attendance',
+    children: [
+      {
+        key: '/timesheet/my-timesheet',
+        label: 'My timesheet',
+        className: 'font-bold',
+      },
+      {
+        key: '/timesheet/employee-attendance',
+        label: 'Employee Attendance',
+        className: 'font-bold',
+      },
+      {
+        key: '/timesheet/leave-management',
+        label: 'Leave Management',
+        className: 'font-bold',
+      },
+      {
+        key: '/timesheet/settings/closed-date',
+        label: 'Settings',
+        className: 'font-bold',
+      },
+    ],
+  },
 ];
 
+const userItems: MenuItem[] = [
+  {
+    key: '/panning-and-reporting',
+    label: 'Panning & Reporting',
+    icon: <PiStarThin />,
+    className: 'font-bold',
+    children: [
+      {
+        key: '/feedback/dashboard',
+        label: 'Dashboard',
+        icon: <UserOutlined />,
+        className: 'font-bold',
+      },
+      {
+        key: '/feedback/okr',
+        label: 'OKR',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
+        key: '/feedback/evaluation',
+        label: 'monitoring & evaluation',
+        icon: <UserOutlined />,
+        className: 'font-bold',
+      },
+      {
+        key: '/panning-and-reporting',
+        label: 'Panning & Reporting',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
+        key: '/feedback/setting',
+        label: 'Setting',
+        icon: <FiSettings />,
+        className: 'font-bold',
+      },
+
+      {
+        key: '/okr-planning ',
+        label: 'OKR',
+        icon: <CiStar size={20} />,
+        className: 'font-bold',
+        children: [
+          {
+            key: '/okr/dashboard',
+            label: 'Dashboard',
+            className: 'font-bold',
+          },
+          {
+            key: '/okr',
+            label: 'OKR',
+            className: 'font-bold',
+          },
+          {
+            key: '/planning-and-reporting',
+            label: 'Planning and Reporting',
+            className: 'font-bold',
+          },
+          {
+            key: '/monitoring-evaluation',
+            label: 'Monitoring & Evaluation',
+            className: 'font-bold',
+          },
+        ],
+      },
+      {
+        key: '/feedback ',
+        label: 'CFR',
+        icon: <UserOutlined />,
+        className: 'font-bold',
+        children: [
+          {
+            key: '/feedback/categories',
+            label: 'Form',
+            icon: <UserOutlined />,
+            className: 'font-bold',
+          },
+        ],
+      },
+
+      {
+        key: '/tna',
+        icon: <BarChartOutlined />,
+        className: 'font-bold',
+        label: 'Learning & Growth',
+        children: [
+          {
+            key: '/tna/management',
+            className: 'font-bold',
+            label: 'Training Management',
+          },
+          {
+            key: '/tna/review',
+            className: 'font-bold',
+            label: 'TNA',
+          },
+        ],
+      },
+      {
+        key: '/timesheet',
+        icon: <CiCalendar />,
+        className: 'font-bold',
+        label: 'Time & Attendance',
+        children: [
+          {
+            key: '/timesheet/my-timesheet',
+            label: 'My timesheet',
+            className: 'font-bold',
+          },
+        ],
+      },
+    ],
+  },
+];
 interface MyComponentProps {
   children: ReactNode;
 }
@@ -83,7 +324,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
-
+  const { userData, setLocalId, setTenantId, setToken, setUserId, setError } =
+    useAuthenticationStore();
+  const userRole = userData?.role?.slug || '';
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -107,6 +350,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     if (isMobile) {
       setMobileCollapsed(true);
     }
+  };
+
+  const handleLogout = () => {
+    setToken('');
+    setTenantId('');
+    setLocalId('');
+    removeCookie('token');
+    router.push(`/authentication/login`);
+    setUserId('');
+    setLocalId('');
+    setError('');
+    removeCookie('token');
+    removeCookie('tenantId');
+    window.location.reload();
   };
 
   return (
@@ -139,10 +396,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       >
         <div className="flex justify-between px-4 my-4">
           <div className=" flex items-center gap-2">
-            <FaStarOfLife color="#3636F0" />{' '}
-            {!collapsed && (
-              <p className="text-xl text-black font-bold uppercase"> PEP</p>
-            )}
+           <Logo type='selamnew'/>
           </div>
 
           <div onClick={toggleCollapsed} className="text-black text-xl">
@@ -154,18 +408,21 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </div>
         </div>
         {!collapsed && (
-          <div className="mt-12 flex justify-between items-center border-2 border-[#3636F0] px-4 py-3 mx-4 rounded-lg">
+          <Button
+            href="/dashboard"
+            className="mt-12 flex justify-between items-center border-2 border-[#3636F0] px-4 py-5 mx-4 rounded-lg "
+          >
             <div className="text-black font-bold font-['Manrope'] leading-normal">
               Dashboard
             </div>
             <AppstoreOutlined size={24} className="text-black" />
-          </div>
+          </Button>
         )}
 
         <Menu
           mode="inline"
           defaultSelectedKeys={['/dashboard']}
-          items={items}
+          items={userRole === 'user' ? userItems : items}
           inlineCollapsed={collapsed}
           className="my-5"
           onClick={handleMenuClick}
@@ -184,11 +441,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             display: 'flex',
             alignItems: 'center',
             position: 'fixed',
-            width: '100%',
+            width: isMobile
+              ? '100%'
+              : collapsed
+                ? 'calc(100% - 80px)'
+                : 'calc(100% - 280px)',
             zIndex: 1000,
             top: 0,
             left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
-            transition: 'left 0.3s ease',
+            transition: 'left 0.3s ease, width 0.3s ease',
           }}
         >
           {isMobile && (
@@ -213,10 +474,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           )}
 
-          <NavBar page="Home" userid="12345" />
+          <NavBar page="Home" handleLogout={handleLogout} />
         </Header>
         <Content
-          className="m-6"
+          className="overflow-y-hidden min-h-screen"
           style={{
             paddingTop: isMobile ? 64 : 24,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
@@ -224,11 +485,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           <div
-            className="p-6"
+            className="p-2 bg-white overflow-auto"
             style={{
-              background: colorBgContainer,
               borderRadius: borderRadiusLG,
-              marginTop: '2.5rem',
+              marginTop: '3rem',
+              marginRight: '1.3rem',
             }}
           >
             {children}
