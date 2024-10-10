@@ -20,6 +20,7 @@ import {
   useCreateCustomFieldsTemplate,
   useUpdateCustomFieldsTemplate,
 } from '@/store/server/features/recruitment/settings/mutation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const { Option } = Select;
 
@@ -29,6 +30,7 @@ const CustomFieldsDrawer: React.FC<{
   isEdit?: boolean;
 }> = ({ question, onClose, isEdit = false }) => {
   const [form] = Form.useForm();
+  const userId = useAuthenticationStore.getState().userId;
 
   const { isCustomFieldsDrawerOpen, addCustomFieldsTemplate } =
     useRecruitmentSettingsStore();
@@ -45,6 +47,8 @@ const CustomFieldsDrawer: React.FC<{
     }));
     const formattedValue = {
       title: values?.title,
+      createdBy: userId,
+      updatedBy: userId,
       questions: [
         {
           id: uuidv4(),
@@ -55,6 +59,14 @@ const CustomFieldsDrawer: React.FC<{
         },
       ],
     };
+
+    if (!isEdit) {
+      formattedValue['createdBy'] = userId;
+    }
+
+    if (isEdit) {
+      formattedValue['updatedBy'] = userId;
+    }
 
     try {
       if (isEdit) {
@@ -76,7 +88,7 @@ const CustomFieldsDrawer: React.FC<{
     if (isEdit && question) {
       const questionForm = question?.form?.[0] || {};
       const formValues = {
-        title: question.title || 'title',
+        title: question?.title ?? '',
         fieldType: questionForm?.fieldType,
         question: questionForm?.question,
         required: questionForm?.required || false,

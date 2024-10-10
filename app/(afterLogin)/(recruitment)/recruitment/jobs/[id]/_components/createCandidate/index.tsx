@@ -15,23 +15,42 @@ import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 import cvUpload from '@/public/image/cvUpload.png';
-import { CandidateType, JobType } from '@/types/enumTypes';
+import { CandidateType } from '@/types/enumTypes';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
+import {
+  useGetJobs,
+  useGetJobsByID,
+} from '@/store/server/features/recruitment/job/queries';
+import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 
 const { Dragger } = Upload;
 const { Option } = Select;
 
 interface CreateCandidateProps {
   onClose: () => void;
+  jobId?: string;
 }
 
-const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
+const CreateCandidate: React.FC<CreateCandidateProps> = ({
+  onClose,
+  jobId,
+}) => {
   const [form] = Form.useForm();
-  const { data: jobList } = useGetJobs();
+
+  const { searchParams } = useCandidateState();
+  const { data: jobList } = useGetJobs(searchParams?.whatYouNeed || '');
 
   const isInternalApplicant = useAuthenticationStore.getState().userId;
+  const { data: statusStage } = useGetStages();
+
+  // ==========> Initial Stage Id <=========
+  const titleToFind = 'Initial Stage';
+  const foundStage = statusStage?.items?.find(
+    (stage: any) => stage.title === titleToFind,
+  );
+  const stageId = foundStage ? foundStage.id : null;
+
   const {
     createJobDrawer,
     documentFileList,
@@ -39,9 +58,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
     removeDocument,
     isClient,
     setIsClient,
+    setCreateJobDrawer,
   } = useCandidateState();
 
   const { mutate: createCandidate } = useCreateCandidate();
+
+  const { data: jobById } = useGetJobsByID(jobId ?? '');
 
   const handleDocumentChange = (info: any) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
@@ -87,12 +109,16 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
 
     const formattedValues = {
       ...formValues,
-      // jobInformationId: jobId,
+      isExternal: isInternalApplicant === ' ' ? true : false,
       createdBy: isInternalApplicant,
+      jobInformationId: jobId && jobId ? jobId : formValues?.jobInformationId,
+      applicantStatusStageId: stageId,
     };
     formData.append('newFormData', JSON.stringify(formattedValues));
 
     createCandidate(formData);
+    setCreateJobDrawer(false);
+    form.resetFields();
   };
 
   return (
@@ -126,7 +152,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Form.Item
               id="emailAddressId"
-              name="emailAddress"
+              name="email"
               label={
                 <span className="text-md font-semibold text-gray-700">
                   Email Address
@@ -149,7 +175,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
             <Form.Item
               id="phoneNumberId"
-              name="phoneNumber"
+              name="phone"
               label={
                 <span className="text-md font-semibold text-gray-700">
                   Phone Number
@@ -167,55 +193,32 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
             </Form.Item>
           </Col>
         </Row>
-        <Row gutter={16}>
-          <Col xs={24} sm={24} lg={12} md={12} xl={12}>
-            <Form.Item
-              id="jobId"
-              name="job"
-              label={
-                <span className="text-md font-semibold text-gray-700">Job</span>
-              }
-              rules={[{ required: true, message: 'Please select a job' }]}
-            >
-              <Select
-                className="text-sm w-full h-10"
-                placeholder="Select a job type"
-              >
-                {jobList &&
-                  jobList?.items?.map((job: any) => (
-                    <Option key={job?.id} value={job?.id}>
-                      {job?.jobTitle}
-                    </Option>
-                  ))}
-              </Select>
-            </Form.Item>
-          </Col>
+        <Form.Item
+          id="jobId"
+          name="jobInformationId"
+          label={
+            <span className="text-md font-semibold text-gray-700">Job</span>
+          }
+          rules={
+            jobId ? [] : [{ required: true, message: 'Please select a job' }]
+          }
+        >
+          <Select
+            className="text-sm w-full h-10"
+            placeholder={
+              jobById && jobById ? jobById?.jobTitle : 'Select a job type'
+            }
+            disabled={!!jobId}
+          >
+            {jobList &&
+              jobList?.items?.map((job: any) => (
+                <Option key={job?.id} value={job?.id}>
+                  {job?.jobTitle}
+                </Option>
+              ))}
+          </Select>
+        </Form.Item>
 
-          <Col xs={24} sm={24} lg={12} md={12} xl={12}>
-            <Form.Item
-              id="jobTypeId"
-              name="jobType"
-              label={
-                <span className="text-md font-semibold text-gray-700">
-                  Job Type
-                </span>
-              }
-              rules={[{ required: true, message: 'Please select a job' }]}
-            >
-              <Select
-                className="text-sm w-full h-10"
-                placeholder="Select a job type"
-              >
-                {JobType &&
-                  Object?.values(JobType).map((type) => (
-                    <Option key={type} value={type}>
-                      {type}
-                    </Option>
-                  ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
         <Row gutter={16}>
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
             <Form.Item
@@ -246,13 +249,13 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
             <Form.Item
               id="cgpaId"
-              name="cgpa"
+              name="CGPA"
               label={
                 <span className="text-md font-semibold text-gray-700">
                   CGPA
                 </span>
               }
-              rules={[{ message: 'Please input CGPA' }]}
+              rules={[{ required: true, message: 'Please input CGPA' }]}
             >
               <InputNumber
                 min={0}
@@ -261,11 +264,11 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
                 className="text-sm w-full h-10"
                 placeholder="CGPA"
               />
-              <div className="flex items-center justify-start gap-1 ml-1">
-                <FaInfoCircle />
-                <div className="text-xs font-md">Put your point 4.0 scale</div>
-              </div>
             </Form.Item>
+            <div className="flex items-center justify-start gap-1 ml-1">
+              <FaInfoCircle />
+              <div className="text-xs font-md">Put your point 4.0 scale</div>
+            </div>
           </Col>
         </Row>
 
@@ -287,7 +290,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({ onClose }) => {
         </Form.Item>
         <Form.Item
           id="documentNameId"
-          name="documentName"
+          name="resumeUrl"
           label={
             <span className="text-md font-semibold text-gray-700">
               Upload CV

@@ -4,7 +4,8 @@ export const OKR_URL = process.env.OKR_URL;
 export const OKR_AND_PLANNING_URL =
   process.env.NEXT_PUBLIC_OKR_AND_PLANNING_URL;
 export const ORG_DEV_URL = process.env.ORG_DEV_URL;
-export const RECRUITMENT = process.env.RECRUITMENT;
+export const RECRUITMENT_URL = process.env.RECRUITMENT_URL;
+export const PUBLIC_DOMAIN = process.env.PUBLIC_DOMAIN;
 
 export const TENANT_MGMT_URL = process.env.TENANT_MGMT_URL;
 

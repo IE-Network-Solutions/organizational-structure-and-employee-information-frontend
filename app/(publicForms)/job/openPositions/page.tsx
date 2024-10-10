@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import EditJob from '@/app/(afterLogin)/(recruitment)/recruitment/jobs/_components/modals/editJob/editModal';
 import RecruitmentPagination from '@/app/(afterLogin)/(recruitment)/recruitment/_components';
+import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 
 dayjs.extend(relativeTime);
 
@@ -27,7 +28,10 @@ const OpenPositions: React.FC = () => {
     setCurrentPage,
     setPageSize,
   } = useJobState();
-  const { data: publicJobs, isLoading: responseLoading } = useGetJobs();
+  const { searchParams } = useCandidateState();
+  const { data: publicJobs, isLoading: responseLoading } = useGetJobs(
+    searchParams.whatYouNeed || '',
+  );
 
   const handleShareModalVisible = (jobId: string) => {
     setShareModalOpen(true);

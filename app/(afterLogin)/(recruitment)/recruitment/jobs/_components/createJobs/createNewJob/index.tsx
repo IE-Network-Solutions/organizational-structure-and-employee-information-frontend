@@ -13,8 +13,6 @@ import {
   Spin,
 } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import AddFormResult from '../../modals/result';
-import ShareToSocialMedia from '../../modals/share';
 import { EmploymentType, LocationType } from '@/types/enumTypes';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
@@ -53,7 +51,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
         />
       </Form.Item>
       <Row gutter={16}>
-        <Col lg={8} sm={24} md={24} xs={24} xl={8}>
+        <Col xs={24} sm={24} lg={8} md={24} xl={8}>
           <Form.Item
             name="employmentType"
             label={
@@ -81,7 +79,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
             </Select>
           </Form.Item>
         </Col>
-        <Col lg={8} sm={24} md={24} xs={24} xl={8}>
+        <Col xs={24} sm={24} lg={8} md={24} xl={8}>
           <Form.Item
             name="department"
             label={
@@ -111,7 +109,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
             </Select>
           </Form.Item>
         </Col>
-        <Col lg={8} sm={24} md={24} xs={24} xl={8}>
+        <Col xs={24} sm={24} lg={8} md={24} xl={8}>
           <Form.Item
             name="jobLocation"
             label={
@@ -265,9 +263,6 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
       >
         <TextArea rows={4} placeholder="Description" />
       </Form.Item>
-
-      <AddFormResult />
-      <ShareToSocialMedia />
 
       <Form.Item>
         <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
