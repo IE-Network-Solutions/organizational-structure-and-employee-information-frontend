@@ -16,7 +16,7 @@ export const Applicants = () => {
           type="dashboard"
           percent={75}
           format={() => (
-            <div className="bg-white shadow-xl rounded-full w-24 h-24 relative left-3 top-1 flex flex-col justify-center items-center ">
+            <div className="bg-white shadow-xl rounded-full w-24 h-24 relative left-3 top-0 flex flex-col justify-center items-center border border-gray-50 ">
               <div className="text-xs font-light">Out Of</div>
               <div className="text-2xl font-extrabold">120</div>
             </div>

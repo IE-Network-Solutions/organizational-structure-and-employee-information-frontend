@@ -157,7 +157,7 @@ const OrgChartComponent: React.FC = () => {
     setIsDeleteConfirmVisible,
   } = useOrganizationStore();
 
-  const { data: orgStructureData } = useGetOrgCharts();
+  const { data: orgStructureData, isLoading } = useGetOrgCharts();
   const { mutate: updateDepartment } = useUpdateOrgChart();
   const { mutate: deleteDepartment, isLoading: deleteLoading } =
     useDeleteOrgChart();
@@ -260,6 +260,7 @@ const OrgChartComponent: React.FC = () => {
   return (
     <div className="w-full overflow-x-auto">
       <Card
+        loading={isLoading}
         className="w-full"
         title={<div className="text-2xl font-bold">ORG Structure</div>}
         extra={

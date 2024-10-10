@@ -11,6 +11,7 @@ export interface User {
 }
 
 export interface Milestone {
+  id?: string;
   title: string;
   weight: number;
 }

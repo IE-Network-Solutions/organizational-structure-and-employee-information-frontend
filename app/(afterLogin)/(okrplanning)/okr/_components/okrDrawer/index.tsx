@@ -43,6 +43,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const { userId } = useAuthenticationStore();
   const { data: userData } = useGetEmployee(userId);
   const reportsToId = userData?.reportingTo?.id;
+
   const { data: keyResultByUser } = useGetUserKeyResult(reportsToId);
   const objectiveTitle = keyResultByUser?.items?.find(
     (i: any) => i.id === objectiveValue?.allignedKeyResultId,

@@ -71,7 +71,7 @@ const EmploymentStats: React.FC = () => {
   };
 
   return (
-    <Card className="w-full mx-auto shadow-md h-64">
+    <Card className="w-full mx-auto shadow-md">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-gray-700 font-semibold text-lg">Job Summary</h3>
         <Select
@@ -89,44 +89,35 @@ const EmploymentStats: React.FC = () => {
         <div
           style={{
             position: 'relative',
-            maxWidth: '150px',
-            maxHeight: '150px',
+            maxWidth: '130px',
+            maxHeight: '130px',
             margin: '0 auto',
           }}
         >
           <Doughnut data={data} options={options} />
           <div
-            className="absolute text-center bg-white shadow-lg shadow-slate-400 w-20 h-20 rounded-full flex flex-col items-center justify-center px-3 z-0"
+            className="absolute text-center bg-white shadow-lg w-20 h-20 rounded-full flex flex-col items-center justify-center px-3 z-0"
             style={{
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
+              zIndex: '-1',
             }}
           >
-            <div className="font-bold text-2xl">231</div>
+            <div className="font-bold text-xl">231</div>
             <div className="font-light text-xs">Total Emp</div>
           </div>
         </div>
         <div style={{ marginLeft: '20px' }}>
           {data.labels.map((label: string, i: number) => (
-            <div
-              key={i}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '10px',
-              }}
-            >
+            <div key={i} className="flex items-center mb-2">
               <div
                 style={{
-                  width: '15px',
-                  height: '15px',
-                  borderRadius: '50%',
                   backgroundColor: data.datasets[0].backgroundColor[i],
-                  marginRight: '10px',
                 }}
+                className="w-3 h-3 rounded-full mr-2"
               />
-              <span>{label}</span>
+              <span className="text-xs">{label}</span>
             </div>
           ))}
         </div>

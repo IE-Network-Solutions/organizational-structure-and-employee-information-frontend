@@ -1,3 +1,7 @@
+export interface CarbonCopies {
+  id?: string;
+  userId: string;
+}
 export interface ReprimandLog {
   id?: string;
   recipientIds: string[]; // An array of recipient IDs
@@ -9,6 +13,7 @@ export interface ReprimandLog {
   issuerId: string;
   totalNumberOfAppreciation: string;
   totalNumberOfRepremand: string;
+  carbonCopies?: CarbonCopies[];
 }
 export interface ReprimandLogState {
   open: boolean;

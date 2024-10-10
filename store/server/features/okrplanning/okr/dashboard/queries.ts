@@ -40,7 +40,7 @@ const getObjectiveDashboardByUser = async (id: number | string) => {
 };
 export const useGetUserObjectiveDashboard = (postId: number | string) =>
   useQuery<ResponseData>(
-    ['ObjectiveDashboard', postId],
+    ['ObjectiveDashboard', postId, 'ObjectiveInformation'],
     () => getObjectiveDashboardByUser(postId),
     {
       keepPreviousData: true,

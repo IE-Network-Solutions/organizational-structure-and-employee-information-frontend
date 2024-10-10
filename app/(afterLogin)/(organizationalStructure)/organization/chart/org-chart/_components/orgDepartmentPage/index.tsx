@@ -74,7 +74,7 @@ const OrgChartComponent: React.FC = () => {
     setIsDeleteConfirmVisible,
   } = useOrganizationStore();
 
-  const { data: orgStructureData } = useGetOrgChartsPeoples();
+  const { data: orgStructureData, isLoading } = useGetOrgChartsPeoples();
 
   const handleFormSubmit = (values: Department) => {
     if (selectedDepartment) {
@@ -142,6 +142,7 @@ const OrgChartComponent: React.FC = () => {
   );
   return (
     <Card
+      loading={isLoading}
       title={<div className="text-2xl font-bold">ORG Chart</div>}
       extra={
         <div className="py-4 flex justify-center items-center gap-4">

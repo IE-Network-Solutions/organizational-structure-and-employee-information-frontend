@@ -16,16 +16,18 @@ const RookStarsList: React.FC<RookStarsListProps> = ({ dataSource, title }) => {
         size="small"
         renderItem={(item) => (
           <List.Item className=" ">
-            <div className="text-lg font-medium">{item.completion} %</div>
+            <div className="text-sm font-medium">{item.completion} %</div>
 
             <div className="bg-gradient-to-b from-[#7152F3] to-transparent h-10 w-[2px] rounded inline-block mx-4"></div>
 
             <List.Item.Meta
-              avatar={<Avatar src={item.avatar} />}
+              avatar={<Avatar src={item.avatar} size={24} />}
               title={
-                <div className="-m-1 text-lg font-normal">{item.name}</div>
+                <div className="-m-1 text-sm font-normal">{item.name}</div>
               }
-              description={item.title}
+              description={
+                <div className="-m-1 text-sm font-normal">{item.title}</div>
+              }
             />
           </List.Item>
         )}
