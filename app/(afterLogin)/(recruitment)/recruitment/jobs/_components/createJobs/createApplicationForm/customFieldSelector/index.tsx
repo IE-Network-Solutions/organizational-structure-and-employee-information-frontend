@@ -69,46 +69,52 @@ const CustomFieldsSelector: React.FC = () => {
                       }
                       key={question?.id}
                     >
-                      {question?.fieldType === FieldType.MULTIPLE_CHOICE && (
-                        <>
-                          {question?.form?.map(
-                            (formItem: any, index: number) => (
-                              <MultipleChoiceField
-                                key={index}
-                                choices={formItem?.field ?? []}
-                                selectedAnswer={[]}
-                              />
-                            ),
-                          )}
-                        </>
+                      {question?.form?.map(
+                        (item: any) =>
+                          item?.fieldType === FieldType.MULTIPLE_CHOICE && (
+                            <>
+                              {question?.form?.map(
+                                (formItem: any, index: number) => {
+                                  return (
+                                    <MultipleChoiceField
+                                      key={index}
+                                      choices={formItem?.field}
+                                      selectedAnswer={[]}
+                                    />
+                                  );
+                                },
+                              )}
+                            </>
+                          ),
                       )}
-                      {/* {question?.fieldType === FieldType.MULTIPLE_CHOICE && (
-                        <MultipleChoiceField
-                          choices={question?.form?.[0]?.field}
-                          selectedAnswer={[]}
-                        />
-                      )} */}
 
-                      {question?.fieldType === FieldType.SHORT_TEXT && (
-                        <ShortTextField />
+                      {question?.form?.map(
+                        (item: any, index: number) =>
+                          item?.fieldType === FieldType.SHORT_TEXT && (
+                            <ShortTextField key={item?.id || index} />
+                          ),
                       )}
-                      {question?.fieldType === FieldType.CHECKBOX && (
-                        <>
-                          {question?.form?.map(
-                            (formItem: any, index: number) => (
-                              <CheckboxField
-                                key={index}
-                                options={formItem?.field ?? []}
-                              />
-                            ),
-                          )}
-                        </>
+                      {question?.form?.map(
+                        (item: any) =>
+                          item?.fieldType === FieldType.CHECKBOX && (
+                            <>
+                              {question?.form?.map(
+                                (formItem: any, index: number) => (
+                                  <CheckboxField
+                                    key={index}
+                                    options={formItem?.field ?? []}
+                                  />
+                                ),
+                              )}
+                            </>
+                          ),
                       )}
-                      {/* {question?.fieldType === FieldType.CHECKBOX && (
-                        <CheckboxField options={question?.form?.[0]?.field} />
-                      )} */}
-                      {question?.fieldType === FieldType.PARAGRAPH && (
-                        <ParagraphField />
+
+                      {question?.form?.map(
+                        (item: any, index: number) =>
+                          item?.fieldType === FieldType.PARAGRAPH && (
+                            <ParagraphField key={item?.id || index} />
+                          ),
                       )}
                     </Collapse.Panel>
                   </Collapse>

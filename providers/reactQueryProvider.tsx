@@ -33,7 +33,7 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
           }
           handleNetworkError(error);
         },
-        onSuccess: (data: any, variables: any, context: any) => {
+        onSuccess: (variables: any, context: any) => {
           const method =
             context?.method?.toUpperCase() || variables?.method?.toUpperCase();
           const customMessage = context?.customMessage || undefined;

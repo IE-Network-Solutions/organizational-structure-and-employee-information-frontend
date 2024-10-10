@@ -11,8 +11,8 @@ interface PublicJobFormProps {
 
 const PublicJobForm: React.FC<PublicJobFormProps> = ({ params: { jobId } }) => {
   const { data: jobDescription } = useGetJobsByID(jobId);
-  const isInternalApplicant = useAuthenticationStore?.getState()?.userId;
-  // const isInternalApplicant = '';
+  // const isInternalApplicant = useAuthenticationStore?.getState()?.userId;
+  const isInternalApplicant = '';
 
   return (
     <div className="bg-white w-full rounded-lg px-32 py-8">
@@ -22,12 +22,12 @@ const PublicJobForm: React.FC<PublicJobFormProps> = ({ params: { jobId } }) => {
       {isInternalApplicant ? (
         <InternalApplicantForm
           jobId={jobId}
+          jobTitle={jobDescription?.jobTitle || 'Unknown Job'}
           isInternalApplicant={isInternalApplicant}
         />
       ) : (
         <ExternalApplicantForm
           jobId={jobId}
-          jobTitle={jobDescription?.jobTitle || 'Unknown Job'}
           isInternalApplicant={isInternalApplicant}
         />
       )}
