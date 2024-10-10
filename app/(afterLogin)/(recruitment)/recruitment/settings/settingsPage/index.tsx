@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { TbNotes } from 'react-icons/tb';
 import TalentPoolCategoryTab from '../_components/talentPoolCategory/talentPoolCategoryTab';
 import TalentPoolDrawer from '../_components/talentPoolCategory/customDrawer';
+import CustomAddJobFields from '../_components/customFields';
 
 function SettingsPage() {
   const [tabPosition, setTabPosition] = useState<'left' | 'top'>('left');
@@ -47,6 +48,17 @@ function SettingsPage() {
         </span>
       ),
       children: <TalentPoolCategoryTab />,
+    },
+
+    {
+      key: '3',
+      label: (
+        <span className="flex gap-2 mt-4">
+          <TbNotes className="mt-1" />{' '}
+          <p className="font-semibold">Template Question</p>{' '}
+        </span>
+      ),
+      children: <CustomAddJobFields />,
     },
   ];
   return (
