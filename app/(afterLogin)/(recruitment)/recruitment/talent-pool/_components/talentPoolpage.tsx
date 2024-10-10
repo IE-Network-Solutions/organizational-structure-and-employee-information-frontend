@@ -17,7 +17,7 @@ const TalentPoolPage = () => {
   const handleClose = () => {
     setIsAddCandidateVisible(false);
   };
-  const { setOpen } = useEmployeeManagementStore();
+  //const { setOpen } = useEmployeeManagementStore();
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
