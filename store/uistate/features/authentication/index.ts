@@ -17,8 +17,6 @@ interface StoreState {
   setLoading: (loading: boolean) => void;
   error: string | null;
   setError: (error: string | null) => void;
-  userId: string;
-  setUserId: (userId: string) => void;
 }
 export const useAuthenticationStore = create<StoreState>()(
   devtools(
@@ -34,8 +32,7 @@ export const useAuthenticationStore = create<StoreState>()(
         setTenantId: (tenantId: string) => {
           set({ tenantId }), setCookie('tenantId', tenantId, 30);
         },
-        userId: '',
-        setUserId: (userId: string) => set({ userId }),
+
         localId: '',
         setLocalId: (localId: string) => set({ localId }),
         loading: false, // Non-persistent state
