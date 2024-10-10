@@ -4,6 +4,11 @@ import { EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import dayjs from 'dayjs';
 import { useGetReprimandLogById } from '@/store/server/features/okrplanning/monitoring-evaluation/reprimand-log/queries';
+import { useRouter } from 'next/navigation';
+import { useReprimandLogStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/reprimand-log';
+import { useDeleteRepLog } from '@/store/server/features/okrplanning/monitoring-evaluation/reprimand-log/mutations';
+import ReprimandEditDrawer from '../../_components/reprimand/reprimandEditDrawer';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
 
 interface Params {
   id: string;
@@ -20,7 +25,38 @@ function DetailPage({ params: { id } }: EmployeeDetailsProps) {
   function employeeInfo(id: string) {
     return allUsers?.items?.find((user: any) => user.id === id) || {};
   }
+  const router = useRouter();
 
+  const {
+    openEdit,
+    setOpenEdit,
+    openDeleteModal,
+    setOpenDeleteModal,
+    deletedId,
+    setDeletedId,
+  } = useReprimandLogStore();
+  const { mutate: deleteRepLog } = useDeleteRepLog();
+  const showDeleteModal = (id: string) => {
+    setOpenDeleteModal(true);
+    setDeletedId(id);
+  };
+  const onCloseEdit = () => {
+    setOpenEdit(false);
+  };
+  const onCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+  };
+  function handleDeleteRepLog(id: string) {
+    deleteRepLog(id, {
+      onSuccess: () => {
+        onCloseDeleteModal();
+        router.push('/monitoring-evaluation/reprimand-appreciation');
+      },
+    });
+  }
+  const handleEditModal = () => {
+    setOpenEdit(true);
+  };
   return (
     <div className="p-4 md:p-6">
       {/* Back button and actions */}
@@ -34,10 +70,12 @@ function DetailPage({ params: { id } }: EmployeeDetailsProps) {
         </Button>
         <div className="flex space-x-2">
           <Button
-            className="bg-blue-500 text-white border-none"
+            className="bg-blue text-white border-none"
             icon={<EditOutlined />}
+            onClick={() => handleEditModal()}
           />
           <Button
+            onClick={() => showDeleteModal(repDetail?.id || '')} // Pass key to delete handler
             className="bg-red-500 text-white border-none"
             icon={<DeleteOutlined />}
           />
@@ -146,6 +184,16 @@ function DetailPage({ params: { id } }: EmployeeDetailsProps) {
           </div>
         </div>
       </Card>
+      <ReprimandEditDrawer
+        repLog={repDetail}
+        open={openEdit}
+        onClose={onCloseEdit}
+      />
+      <DeleteModal
+        open={openDeleteModal}
+        onConfirm={() => handleDeleteRepLog(deletedId)}
+        onCancel={onCloseDeleteModal}
+      />
     </div>
   );
 }

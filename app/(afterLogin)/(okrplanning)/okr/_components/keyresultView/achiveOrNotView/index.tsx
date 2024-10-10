@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 import { VscClose } from 'react-icons/vsc';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 
 const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   const { Option } = Select;
@@ -27,6 +28,14 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
       handleKeyResultChange(value, index, field);
     }
   };
+  const { mutate: deleteKeyResult } = useDeleteKeyResult();
+  function handleKeyResultDelete(id: string) {
+    deleteKeyResult(id, {
+      onSuccess: () => {
+        removeKeyResultValue(index);
+      },
+    });
+  }
   return (
     <div className="py-4 border-b-[1px] border-gray-300">
       <Form layout="vertical" className="space-y-1">
@@ -62,12 +71,16 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             />
           </Form.Item>
           <div className="flex gap-2 mt-2">
-            <Tooltip color="gray" title="Cancel Key Result">
+            <Tooltip color="gray" title="Remove Key Result">
               <Button
                 className="rounded-full w-5 h-5"
                 icon={<VscClose size={20} />}
                 type="primary"
-                onClick={() => removeKeyResultValue(index)} // Hook up the remove key result function
+                onClick={() =>
+                  keyValue?.id
+                    ? handleKeyResultDelete(keyValue?.id)
+                    : removeKeyResultValue(index)
+                } // Hook up the remove key result function
               />
             </Tooltip>
           </div>

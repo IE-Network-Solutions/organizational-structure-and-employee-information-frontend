@@ -8,6 +8,10 @@ import {
   OKRProps,
 } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import {
+  useDeleteKeyResult,
+  useDeleteMilestone,
+} from '@/store/server/features/okrplanning/okr/objective/mutations';
 
 const MilestoneView: React.FC<OKRProps> = ({
   keyValue,
@@ -144,6 +148,23 @@ const MilestoneView: React.FC<OKRProps> = ({
       handleRemoveMilestone(index, mindex);
     }
   };
+
+  const { mutate: deleteKeyResult } = useDeleteKeyResult();
+  const { mutate: deleteMilestone } = useDeleteMilestone();
+  function handleKeyResultDelete(id: string) {
+    deleteKeyResult(id, {
+      onSuccess: () => {
+        removeKeyResultValue(index);
+      },
+    });
+  }
+  function handleMilestoneDelete(id: string, mIndex: number) {
+    deleteMilestone(id, {
+      onSuccess: () => {
+        milestoneRemove(index, mIndex);
+      },
+    });
+  }
   return (
     <div className="py-4  border-b-[1px] border-gray-300">
       <Form form={form} layout="vertical" className="space-y-1">
@@ -202,12 +223,16 @@ const MilestoneView: React.FC<OKRProps> = ({
                 onClick={() => addMilestone(index)}
               />
             </Tooltip>
-            <Tooltip color="gray" title="Cancel Key Result">
+            <Tooltip color="gray" title="Remove Key Result">
               <Button
                 className="rounded-full w-5 h-5"
                 icon={<VscClose size={20} />}
                 type="primary"
-                onClick={() => removeKeyResultValue(index)} // Hook up the remove key result function
+                onClick={() =>
+                  keyValue?.id
+                    ? handleKeyResultDelete(keyValue?.id)
+                    : removeKeyResultValue(index)
+                } // Hook up the remove key result function
               />
             </Tooltip>
           </div>
@@ -269,7 +294,11 @@ const MilestoneView: React.FC<OKRProps> = ({
                 {/* Remove Milestone Button */}
                 <Button
                   icon={<VscClose size={20} />}
-                  onClick={() => milestoneRemove(index, mindex)}
+                  onClick={() =>
+                    milestone?.id
+                      ? handleMilestoneDelete(milestone?.id, mindex)
+                      : milestoneRemove(index, mindex)
+                  } // Hook up the remove key result function
                   className="rounded-full w-5 h-5"
                   type="primary"
                 />

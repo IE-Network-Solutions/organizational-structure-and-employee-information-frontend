@@ -31,12 +31,13 @@ const people = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="grid grid-cols-12 gap-4 p-4">
-        <div className="col-span-8 grid">
+    <div className="min-h-screen bg-gray-100 p-4">
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+        {/* Left Section */}
+        <div className="col-span-12 md:col-span-8">
           <RoleGuard roles={['admin', 'owner']}>
-            {' '}
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
                 <EmploymentStats />
               </div>
@@ -50,15 +51,21 @@ export default function Home() {
           <SelfAttendance />
         </div>
 
-        <div className="col-span-4">
+        {/* Right Section */}
+        <div className="col-span-12 md:col-span-4">
           <ActionPlans />
         </div>
       </div>
+
+      {/* Courses Section */}
       <RoleGuard roles={['user']}>
         <NewCourses />
       </RoleGuard>
-      <div className="grid grid-cols-12 gap-4 p-2">
-        <div className="col-span-8 flex gap-4">
+
+      {/* Bottom Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 p-2">
+        {/* Left Section */}
+        <div className="col-span-12 md:col-span-8 flex flex-col md:flex-row gap-4">
           <ApprovalStatus />
           <RoleGuard roles={['user']}>
             <CoursePermitted />
@@ -68,15 +75,16 @@ export default function Home() {
           </RoleGuard>
         </div>
 
-        <div className="bg-gray-100 flex flex-col items-center col-span-4 gap-6">
+        {/* Right Section */}
+        <div className="col-span-12 md:col-span-4 flex flex-col items-center gap-6">
           <CardList
-            key="birthday" // Adding a key prop
-            title="Whose Birth Day is today?"
+            key="birthday"
+            title="Whose Birthday is today?"
             people={people}
             date="July 10, 2024"
           />
           <CardList
-            key="anniversary" // Adding a key prop
+            key="anniversary"
             title="Work Anniversary"
             people={people}
             date="July 10, 2024"

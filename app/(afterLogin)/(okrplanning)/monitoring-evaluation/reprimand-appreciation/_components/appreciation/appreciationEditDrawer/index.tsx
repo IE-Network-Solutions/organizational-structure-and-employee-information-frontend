@@ -7,6 +7,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { AppreciationLog } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-log/interface';
 import { Form, Select, Input, Avatar } from 'antd';
 import React, { useEffect } from 'react';
+import { UserOutlined } from '@ant-design/icons';
 
 interface AppDrawerProps {
   open: boolean;
@@ -24,12 +25,7 @@ const AppreciationEditDrawer: React.FC<AppDrawerProps> = ({
 
   const renderEmployeeOption = (option: any) => (
     <div style={{ display: 'flex', alignItems: 'center' }}>
-      <Avatar
-        size={20}
-        src={
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3'
-        }
-      />
+      <Avatar size={20} icon={<UserOutlined />} />
       {option.firstName}
     </div>
   );
@@ -38,12 +34,7 @@ const AppreciationEditDrawer: React.FC<AppDrawerProps> = ({
     const { label, closable, onClose } = props;
     return (
       <div className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1">
-        <Avatar
-          size={20}
-          src={
-            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3'
-          }
-        />
+        <Avatar size={20} icon={<UserOutlined />} />
         <span>{label}</span>
         {closable && (
           <span onClick={onClose} className="text-black text-xs">
@@ -74,9 +65,12 @@ const AppreciationEditDrawer: React.FC<AppDrawerProps> = ({
     form.resetFields(); // Reset all form fields
     onClose();
   };
+  const cc = appLog?.carbonCopies?.map((copy: any) => copy.copyUserId) || [];
+
+  const appreciationLog = { ...appLog, cc };
   useEffect(() => {
     if (appLog) {
-      form.setFieldsValue(appLog); // Set form fields with appType values
+      form.setFieldsValue(appreciationLog); // Set form fields with appType values
     } else {
       form.resetFields(); // Reset form if appType is null
     }

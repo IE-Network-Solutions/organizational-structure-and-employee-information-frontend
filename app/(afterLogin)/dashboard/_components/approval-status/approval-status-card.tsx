@@ -21,21 +21,25 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
         <img
           src="https://randomuser.me/api/portraits/women/1.jpg"
           alt={name}
-          className="w-8 h-8 rounded-full"
+          className="w-7 h-7 rounded-full"
         />
         <div className="flex flex-col">
-          <p className="font-semibold text-sm">{type}</p>
-          <p className="text-xs text-gray-500">
+          <p className="font-bold text-[12px]">{type}</p>
+          <p className="text-[10px] text-gray-500">
             {date} • {time}
           </p>
-          <p className="text-xs text-gray-500">{name}</p>
+          <p className="text-[10px] text-gray-500">{name}</p>
         </div>
       </div>
-      <div className="space-x-1">
-        <Button className="text-xs border-black" type="default" size="small">
+      <div className="space-x-1 space-y-1 ">
+        <Button
+          className="text-[10px] border-black"
+          type="default"
+          size="small"
+        >
           Reject
         </Button>
-        <Button className="text-xs" type="primary" size="small">
+        <Button className="text-[10px]" type="primary" size="small">
           Approve
         </Button>
       </div>
