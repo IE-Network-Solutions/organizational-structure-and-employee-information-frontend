@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetJobsByID } from '@/store/server/features/recruitment/job/queries';
 import InternalApplicantForm from './_components/internalApplicant';
 import ExternalApplicantForm from './_components/externalApplicant';
