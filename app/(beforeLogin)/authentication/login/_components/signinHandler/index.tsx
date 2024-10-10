@@ -44,7 +44,7 @@ export const useHandleSignIn = () => {
         message.success('Welcome!');
         message.loading({ content: 'Redirecting...', key: 'redirect' });
         if (fetchedData?.data?.hasCompany === true) {
-          router.push('/employees/manage-employees');
+          router.push('/dashboard');
         } else if (fetchedData?.data?.hasCompany === false) {
           router.push('/onboarding');
         } else {
