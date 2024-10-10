@@ -5,7 +5,7 @@ import CandidateTable from './talentPoolTable';
 import Pagination from './pagination';
 import { Button } from 'antd';
 import AddCandidate from './addDrawer';
-import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+// import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const TalentPoolPage = () => {
   const [isAddCandidateVisible, setIsAddCandidateVisible] = useState(false);
