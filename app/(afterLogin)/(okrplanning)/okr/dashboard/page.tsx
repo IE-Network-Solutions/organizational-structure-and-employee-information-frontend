@@ -156,11 +156,11 @@ const Dashboard: React.FC<any> = () => {
           />
         </div>
       </div>
-      <div className="flex">
-        <div className="w-[70%] mr-3 flex flex-col gap-5">
+      <div className="grid grid-cols-12 gap-5">
+        <div className="col-span-8">
           <PerformanceChart />
         </div>
-        <div className="w-[30%] ml-3 ">
+        <div className="col-span-4 ">
           <Space direction="vertical" className="w-[90%]">
             <RookStarsList
               dataSource={listData}
@@ -171,10 +171,10 @@ const Dashboard: React.FC<any> = () => {
       </div>
 
       <div className="flex justify-between">
-        <div className="text-xl font-bold mb-9">Performance Evaluation</div>
+        <div className="text-xl font-bold">Performance Evaluation</div>
       </div>
-      <div className="flex">
-        <div className="w-[70%] mr-3 flex flex-col gap-5">
+      <div className="grid grid-cols-12 gap-5">
+        <div className="col-span-8">
           <div>
             <Row gutter={[16, 16]}>
               <DashboardCard
@@ -212,7 +212,7 @@ const Dashboard: React.FC<any> = () => {
             </Row>
           </div>
         </div>
-        <div className="w-[30%] ml-3 ">
+        <div className="col-span-4">
           <Space direction="vertical" className="w-[90%]">
             <RookStarsList dataSource={listData} title="Leaders Board" />
           </Space>
@@ -220,7 +220,7 @@ const Dashboard: React.FC<any> = () => {
       </div>
 
       <div className="flex justify-between">
-        <div className="">Achievement</div>
+        <div className="text-xl font-bold">Achievement</div>
       </div>
       <div className="flex">
         <div className="w-full mr-3 flex flex-col gap-5">

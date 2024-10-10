@@ -111,6 +111,26 @@ const deleteKeyResult = async (deletedId: string) => {
     throw error;
   }
 };
+const deleteMilestone = async (deletedId: string) => {
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
+    const response = await axios.delete(
+      `${OKR_AND_PLANNING_URL}/milestones/${deletedId}`,
+      { headers },
+    );
+    NotificationMessage.success({
+      message: 'Successfully Deleted',
+      description: 'Milestone deleted successfully.',
+    });
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const useDeleteObjective = () => {
   const queryClient = useQueryClient();
@@ -147,6 +167,14 @@ export const useUpdateKeyResult = () => {
 export const useDeleteKeyResult = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteKeyResult, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('ObjectiveInformation');
+    },
+  });
+};
+export const useDeleteMilestone = () => {
+  const queryClient = useQueryClient();
+  return useMutation(deleteMilestone, {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
     },

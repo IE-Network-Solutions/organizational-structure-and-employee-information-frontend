@@ -78,7 +78,7 @@ const SelfAttendance = () => {
   ];
 
   return (
-    <div className=" bg-white min-h-fit p-5 rounded-xl">
+    <div className=" bg-white max-h-[410px] p-5 rounded-xl">
       <div className="flex justify-between items-center">
         <div className="text-xl font-bold ">Self Attendance Report</div>
         <div className="pl-2">
@@ -95,7 +95,7 @@ const SelfAttendance = () => {
         </div>
       </div>
       <Bar data={data} options={options} />
-      <div className="flex justify-start mt-4">
+      <div className="flex justify-start mt-4 gap-5 text-bold">
         <div className="flex items-center">
           <div className="w-4 h-4 bg-[rgba(34,69,255,1)] mr-2"></div>
           <span>Highest Average Score</span>

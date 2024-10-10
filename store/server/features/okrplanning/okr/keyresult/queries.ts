@@ -8,23 +8,31 @@ const tenantId = useAuthenticationStore.getState().tenantId;
 type ResponseData = {
   items: KeyResult[];
 };
-const getKeyResultByUser = async (id: number | string) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/key-results/user/${id}`,
-      {
-        headers,
-      },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
+const getKeyResultByUser = async (id: number | string): Promise<any> => {
+  if (id) {
+    try {
+      const headers = {
+        Authorization: `Bearer ${token}`, // Ensure token is available
+        tenantId: tenantId, // Ensure tenantId is available
+      };
+      const response = await axios.get(
+        `${OKR_AND_PLANNING_URL}/key-results/user/${id}`,
+        { headers },
+      );
+
+      if (response.status === 200) {
+        return response.data; // Return data if the request is successful
+      } else {
+        throw new Error(`Error: Received status ${response.status}`);
+      }
+    } catch (error) {
+      throw error;
+    }
   }
+
+  return { items: [] }; // Return null if no ID is provided
 };
+
 export const useGetUserKeyResult = (postId: number | string) =>
   useQuery<ResponseData>(
     ['ObjectiveInformation', postId],

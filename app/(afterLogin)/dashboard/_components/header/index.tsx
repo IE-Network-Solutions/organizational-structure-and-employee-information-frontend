@@ -9,7 +9,7 @@ const data = [
 
 const Header = () => {
   return (
-    <div className="flex space-x-4  overflow-x-auto h-36 w-full mb-4 scrollbar-thumb-rounded-full scrollbar-thumb-white scrollbar-track-gray-300 scrollbar-track-rounded-full scrollbar-thin">
+    <div className="flex space-x-4  overflow-x-auto overflow-y-hidden max-h-36 w-full mb-4 scrollbar-thumb-rounded-full scrollbar-thumb-white scrollbar-track-gray-300 scrollbar-track-rounded-full scrollbar-thin">
       {data.map((item, index) => (
         <Card
           key={index}
@@ -42,7 +42,7 @@ const Header = () => {
             </div>
           </div>
 
-          <div className="text-gray-500 mb-1 w-full text-start text-xs">
+          <div className="text-gray-500  w-full text-start text-xs">
             Total Planned
           </div>
           <div className="flex justify-end">

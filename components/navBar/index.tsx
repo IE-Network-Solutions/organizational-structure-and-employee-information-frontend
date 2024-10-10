@@ -396,7 +396,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       >
         <div className="flex justify-between px-4 my-4">
           <div className=" flex items-center gap-2">
-           <Logo type='selamnew'/>
+            <Logo type="selamnew" />
           </div>
 
           <div onClick={toggleCollapsed} className="text-black text-xl">

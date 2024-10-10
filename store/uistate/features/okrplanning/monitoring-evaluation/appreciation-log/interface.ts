@@ -1,5 +1,8 @@
 import { AppreciationType } from '../appreciation-type/interface';
-
+export interface CarbonCopies {
+  id?: string;
+  userId: string;
+}
 export interface AppreciationLog {
   id?: string;
   recipientIds: string[]; // An array of recipient IDs
@@ -12,7 +15,9 @@ export interface AppreciationLog {
   issuerId: string;
   totalNumberOfAppreciation: string;
   totalNumberOfRepremand: string;
+  carbonCopies?: CarbonCopies[];
 }
+
 export interface AppreciationLogState {
   open: boolean;
   openDeleteModal: boolean;
