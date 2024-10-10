@@ -60,7 +60,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
 
   const tenantId = useAuthenticationStore.getState().tenantId;
 
-  const { data: companyInfo } = useGetCompanyProfileByTenantId(tenantId);
+  const { data: companyInfo } = useGetCompanyProfileByTenantId();
 
   useEffect(() => {
     if (companyInfo) {

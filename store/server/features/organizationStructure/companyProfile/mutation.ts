@@ -17,7 +17,7 @@ const headers = {
  * @param tenantId - The ID of the tenant to fetch the company profile for.
  * @returns Promise with the company profile.
  */
-const getCompanyProfileByTenantId = async (tenantId: string) => {
+const getCompanyProfileByTenantId = async () => {
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${tenantId}`,
     method: 'GET',
@@ -38,17 +38,15 @@ const multiPartFormDataheaders = {
 };
 
 const updateCompanyProfile = async ({
-  id,
   companyProfileImage,
 }: {
-  id: string;
   companyProfileImage: CompanyProfileImage;
 }) => {
   return await crudRequest({
-    url: `${TENANT_MGMT_URL}/clients/${id}`,
-    method: 'PATCH',
+    url: `${TENANT_MGMT_URL}/clients/${tenantId}`,
+    method: 'PUT',
     headers: multiPartFormDataheaders,
-    data: { companyProfileImage: companyProfileImage?.originFileObj },
+    data: { companyProfileImage: companyProfileImage },
   });
 };
 
@@ -58,10 +56,11 @@ const updateCompanyProfile = async ({
  * @param tenantId - The ID of the tenant to fetch the company profile for.
  * @returns Query object for fetching company profile.
  */
-export const useGetCompanyProfileByTenantId = (tenantId: string) => {
+export const useGetCompanyProfileByTenantId = () => {
+
   return useQuery(
     ['companyProfile', tenantId],
-    () => getCompanyProfileByTenantId(tenantId),
+    () => getCompanyProfileByTenantId(),
     {
       enabled: !!tenantId, // Fetch only if tenantId is provided
       staleTime: 1000 * 60 * 5, // 5 minutes
