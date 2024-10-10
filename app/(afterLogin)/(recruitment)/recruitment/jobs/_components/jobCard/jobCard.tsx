@@ -10,9 +10,28 @@ import Image from 'next/image';
 import ShareToSocialMedia from '../modals/share';
 import ChangeStatusModal from '../modals/changeJobStatus';
 import EditJob from '../modals/editJob/editModal';
+import Link from 'next/link';
+import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const JobCard: React.FC = () => {
-  const { data: jobList, isLoading: isJobListLoading } = useGetJobs();
+  const { searchParams } = useCandidateState();
+
+  const { data: jobList, isLoading: isJobListLoading } = useGetJobs(
+    searchParams?.whatYouNeed || '',
+  );
+
+  const { data: departments } = useGetDepartments();
+
+  const getDepartmentName = (jobDepartmentId: string | undefined) => {
+    const department =
+      departments &&
+      departments.find((dept: any) => dept.id === jobDepartmentId);
+    return department ? department.name : '';
+  };
+  jobList?.items?.forEach((job: any) => {
+    getDepartmentName(job.departmentId);
+  });
 
   const {
     setChangeStatusModalVisible,
@@ -43,96 +62,121 @@ const JobCard: React.FC = () => {
         <Spin size="large" />
       </div>
     );
+
+  const NoData = () => {
+    return (
+      <div className="w-full h-full flex justify-center items-center my-5">
+        No Job available.
+      </div>
+    );
+  };
   return (
     <>
-      {jobList?.items.map((job: any, index: string) => (
-        <Card key={index} className="mb-4 rounded-lg shadow-sm">
-          <div className="flex justify-between items-start">
-            <div>
-              <>
-                <h3 className="font-medium text-sm flex justify-center items-center gap-4 mb-3">
-                  <div className="w-full text-left">
-                    <span className="font-bold text-xl">{job?.jobTitle}</span>
-                  </div>
-                  {job?.jobStatus == 'Closed' ? (
-                    <div
-                      className={`mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border`}
-                    >
-                      {job?.jobStatus}
+      {jobList?.items && jobList?.items?.length >= 1 ? (
+        jobList?.items.map((job: any, index: string) => (
+          <Card key={index} className="mb-4 rounded-lg shadow-sm">
+            <div className="flex justify-between items-start">
+              <Link href={`/recruitment/jobs/${job?.id}`}>
+                <>
+                  <div className="font-medium text-sm flex justify-center items-center gap-4 mb-3">
+                    <div className="w-full text-left">
+                      <span className="font-bold text-xl text-gray-700">
+                        {job?.jobTitle}
+                      </span>
                     </div>
-                  ) : (
-                    <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#B2B2FF] text-[#3636F0] ">
-                      Active
-                    </div>
-                  )}
-                </h3>
-                <p className="text-sm text-gray-500">{job?.jobLocation}</p>
-                <div className="flex items-center justify-center mt-2 gap-2">
-                  {job?.jobCandidate?.length > 0 ? (
-                    job?.jobCandidate?.map((member: any) => (
-                      <Tooltip
-                        title={
-                          <div className="flex justify-start items-center gap-4">
-                            <>{member?.name}</>
-                          </div>
-                        }
-                        key={member?.id}
+                    {job?.jobStatus == 'Closed' ? (
+                      <div
+                        className={`mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border`}
                       >
-                        <Image
-                          src={AvatarImage}
-                          alt="Profile pic"
-                          width={15}
-                          height={15}
-                          className=""
-                        />
-                      </Tooltip>
-                    ))
-                  ) : (
-                    <Image
-                      src={AvatarImage}
-                      alt="Profile pic"
-                      width={15}
-                      height={15}
-                      className=""
-                    />
-                  )}
-                  <p className="text-sm text-gray-500">
-                    {job?.jobCandidate.length > 0 ? job?.jobCandidate : '0 '}
-                    Candidates Applied
-                  </p>
-                </div>
-              </>
-            </div>
+                        {job?.jobStatus}
+                      </div>
+                    ) : (
+                      <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#B2B2FF] text-[#3636F0] ">
+                        Active
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <p className="text-sm text-gray-500">
+                      {getDepartmentName(job?.departmentId)} .
+                    </p>
+                    <p className="text-sm text-gray-500">{job?.jobLocation}</p>
+                  </div>
+                  <div className="flex items-center justify-start mt-2 gap-2">
+                    {job?.jobCandidate?.length > 0 ? (
+                      job?.jobCandidate?.slice(0, 3).map((member: any) => (
+                        <Tooltip
+                          title={
+                            <div className="flex justify-start items-center gap-4">
+                              <>{member?.name ?? '-'}</>
+                            </div>
+                          }
+                          key={member?.id}
+                        >
+                          <Image
+                            src={AvatarImage}
+                            alt="Profile pic"
+                            width={15}
+                            height={15}
+                            className=""
+                          />
+                        </Tooltip>
+                      ))
+                    ) : (
+                      <Image
+                        src={AvatarImage}
+                        alt="Profile pic"
+                        width={15}
+                        height={15}
+                        className=""
+                      />
+                    )}
+                    <p className="text-sm text-gray-500">
+                      {job?.jobCandidate.length > 0
+                        ? job?.jobCandidate?.length + ' '
+                        : '0 '}
+                      Candidates Applied
+                    </p>
+                  </div>
+                </>
+              </Link>
 
-            <div className="">
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      label: 'Change Status',
-                      key: '1',
-                      onClick: () => setChangeStatusModalVisible(true),
-                    },
-                    {
-                      label: 'Share',
-                      key: '2',
-                      onClick: () => handleShareModalVisible(job?.id),
-                    },
-                    {
-                      label: 'Edit',
-                      key: '3',
-                      onClick: () => handleEditModalVisible(job),
-                    },
-                  ],
-                }}
-                trigger={['click']}
-              >
-                <Button icon={<BsThreeDotsVertical />} className="border-0" />
-              </Dropdown>
+              <div className="">
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        label: 'Change Status',
+                        key: '1',
+                        onClick: () => setChangeStatusModalVisible(true),
+                      },
+                      {
+                        label: 'Share',
+                        key: '2',
+                        onClick: () => handleShareModalVisible(job?.id),
+                      },
+                      {
+                        label: 'Edit',
+                        key: '3',
+                        onClick: () => handleEditModalVisible(job),
+                      },
+                    ],
+                  }}
+                  trigger={['click']}
+                >
+                  <Button icon={<BsThreeDotsVertical />} className="border-0" />
+                </Dropdown>
+              </div>
             </div>
+          </Card>
+        ))
+      ) : (
+        <div className="bg-white w-full min-h-40 rounded-lg">
+          <div className="flex items-center justify-center">
+            <NoData />
           </div>
-        </Card>
-      ))}
+        </div>
+      )}
 
       <ChangeStatusModal />
       <ShareToSocialMedia />

@@ -1,26 +1,73 @@
 import React from 'react';
-import { Button, Form, Input } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
-import Image from 'next/image';
-import Dragger from 'antd/es/upload/Dragger';
-import cvUpload from '@/public/image/cvUpload.png';
+import { Button, Col, Form, Input, InputNumber, Row, Select } from 'antd';
+import { FaInfoCircle } from 'react-icons/fa';
+import { CandidateType, JobType } from '@/types/enumTypes';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
+import TextArea from 'antd/es/input/TextArea';
+import Dragger from 'antd/es/upload/Dragger';
+import Image from 'next/image';
+import cvUpload from '@/public/image/cvUpload.png';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
+import { useGetJobsByID } from '@/store/server/features/recruitment/job/queries';
+import CustomJobQuestionsDisplay from '../customJobQuestions';
+
+const { Option } = Select;
 
 interface ExternalApplicantFormProps {
   jobId: string;
-  jobTitle: string;
   isInternalApplicant: string;
 }
 
 const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
   jobId,
-  jobTitle,
   isInternalApplicant,
 }) => {
   const [form] = Form.useForm();
   const { mutate: createCandidate } = useCreateCandidate();
+  const { data: jobDescription } = useGetJobsByID(jobId);
 
+  const handleSubmit = async () => {
+    const formValues = form.getFieldsValue();
+
+    const additionalInformation = Object.entries(formValues)
+      .filter(([key]) => key.startsWith('question_'))
+      .map(([key, value]) => ({
+        question: key.replace('question_', ''),
+        answer: value || '',
+      }));
+
+    const filteredFormValues = Object.fromEntries(
+      Object.entries(formValues).filter(
+        ([key]) => !key.startsWith('question_'),
+      ),
+    );
+
+    const formData = new FormData();
+
+    const resumeUrl = filteredFormValues.resumeUrl as
+      | {
+          file?: { originFileObj?: File };
+        }
+      | undefined;
+
+    if (resumeUrl?.file?.originFileObj) {
+      formData.append('documentName', resumeUrl.file.originFileObj);
+    }
+    delete filteredFormValues?.resumeUrl;
+
+    const formattedValue = {
+      ...filteredFormValues,
+      additionalInformation,
+      jobInformationId: jobId,
+      isExternal: isInternalApplicant === ' ' ? true : false,
+      createdBy: isInternalApplicant,
+    };
+
+    formData.append('newFormData', JSON.stringify(formattedValue));
+
+    createCandidate(formData);
+    form.resetFields();
+  };
   const { documentFileList, setDocumentFileList, removeDocument } =
     useCandidateState();
 
@@ -36,31 +83,6 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
     setTimeout(() => {
       onSuccess('ok');
     }, 0);
-  };
-
-  const handleSubmit = async () => {
-    const formValues = form.getFieldsValue();
-    const formData = new FormData();
-
-    const resumeUrl = formValues.resumeUrl as
-      | {
-          file?: { originFileObj?: File };
-        }
-      | undefined;
-
-    if (resumeUrl?.file?.originFileObj) {
-      formData.append('documentName', resumeUrl.file.originFileObj);
-    }
-    delete formValues?.resumeUrl;
-
-    const formattedValues = {
-      ...formValues,
-      jobInformationId: jobId,
-      createdBy: isInternalApplicant,
-    };
-    formData.append('newFormData', JSON.stringify(formattedValues));
-
-    createCandidate(formData);
   };
 
   return (
@@ -109,13 +131,157 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
       <div className="text-xs font-sm mb-5 ">
         Max file size : 5MB. File format : .pdf
       </div>
-      <Form.Item
-        name="jobApplyingTo"
-        label="Job Applying to"
-        initialValue={jobTitle}
-      >
-        <Input disabled className="w-full h-10 text-sm" />
-      </Form.Item>
+      <Row gutter={16}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+          <Form.Item
+            id="fullNameId"
+            name="fullName"
+            label={
+              <span className="text-md font-semibold text-gray-700">
+                Full-Name
+              </span>
+            }
+            rules={[{ required: true, message: 'Please input full name!' }]}
+          >
+            <Input placeholder="Full Name" className="w-full h-10 text-sm" />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12} xl={12}></Col>
+      </Row>
+      <Row gutter={16}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+          <Form.Item
+            id="emailAddressId"
+            name="email"
+            label={
+              <span className="text-md font-semibold text-gray-700">
+                Email Address
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please input the email address!',
+              },
+            ]}
+          >
+            <Input
+              type="email"
+              className="text-sm w-full h-10"
+              placeholder="Email address"
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+          <Form.Item
+            id="phoneNumberId"
+            name="phone"
+            label={
+              <span className="text-md font-semibold text-gray-700">
+                Phone Number
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please input the phone number!',
+              },
+            ]}
+          >
+            <Input
+              type="tel"
+              className="text-sm w-full h-10"
+              placeholder="Phone number"
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row gutter={16}>
+        <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+          <Form.Item
+            id="jobTitle"
+            name="jobTitle"
+            label={
+              <span className="text-md font-semibold text-gray-700">
+                Job Title
+              </span>
+            }
+          >
+            <Input
+              disabled
+              placeholder={jobDescription?.jobTitle || 'Unknown Job'}
+              variant="filled"
+              className="text-sm w-full h-10"
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+          <Form.Item
+            id="cgpaId"
+            name="cgpa"
+            label={
+              <span className="text-md font-semibold text-gray-700">CGPA</span>
+            }
+            rules={[{ required: true, message: 'Please input CGPA' }]}
+          >
+            <InputNumber className="text-sm w-full h-10" placeholder="CGPA" />
+          </Form.Item>
+          <div className="flex items-center justify-start gap-1 ml-1">
+            <FaInfoCircle />
+            <div className="text-xs font-md">Put your point 4.0 scale</div>
+          </div>
+        </Col>
+      </Row>
+      <Row gutter={16}>
+        <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+          <Form.Item
+            id="candidateTypeId"
+            name="candidateType"
+            label={
+              <span className="text-md font-semibold text-gray-700">
+                Candidate Type
+              </span>
+            }
+            rules={[{ required: true, message: 'Please input the job name!' }]}
+          >
+            <Select
+              className="text-sm w-full h-10"
+              placeholder="Select a job type"
+            >
+              {CandidateType &&
+                Object?.values(CandidateType).map((type) => (
+                  <Option key={type} value={type}>
+                    {type}
+                  </Option>
+                ))}
+            </Select>
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+          <Form.Item
+            id="jobId"
+            name="job"
+            label={
+              <span className="text-md font-semibold text-gray-700">Job</span>
+            }
+            rules={[{ required: true, message: 'Please select a job' }]}
+          >
+            <Select
+              className="text-sm w-full h-10"
+              placeholder="Select a job type"
+            >
+              {JobType &&
+                Object?.values(JobType).map((type) => (
+                  <Option key={type} value={type}>
+                    {type}
+                  </Option>
+                ))}
+            </Select>
+          </Form.Item>
+        </Col>
+      </Row>
+
+      <CustomJobQuestionsDisplay form={form} id={jobId} />
 
       <Form.Item
         id="coverLetterId"

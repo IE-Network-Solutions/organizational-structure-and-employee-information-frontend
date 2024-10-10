@@ -1,6 +1,6 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { RECRUITMENT } from '@/utils/constants';
+import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -14,8 +14,7 @@ const createJob = async (data: any) => {
 
   return await crudRequest({
     method: 'POST',
-    url: `${RECRUITMENT}/job-information`,
-    // url: 'http://172.16.33.228:8010/api/v1/job-information',
+    url: `${RECRUITMENT_URL}/job-information`,
     data,
     headers,
   });
@@ -30,8 +29,7 @@ const updateJob = async (data: any, id: string) => {
   };
   return await crudRequest({
     method: 'PUT',
-    url: `${RECRUITMENT}/job-information${id}`,
-    // url: `http://172.16.33.228:8010/api/v1/job-information/${id}`,
+    url: `${RECRUITMENT_URL}/job-information/${id}`,
     data,
     headers,
   });
@@ -46,8 +44,7 @@ const updateJobStatus = async (data: any, id: string) => {
   };
   return await crudRequest({
     method: 'PUT',
-    url: `${RECRUITMENT}/job-information${id}`,
-    // url: `http://172.16.33.228:8010/api/v1/job-information/${id}`,
+    url: `${RECRUITMENT_URL}/job-information/${id}`,
     data,
     headers,
   });
@@ -62,8 +59,7 @@ const deleteJob = async (id: string) => {
   };
   return await crudRequest({
     method: 'DELETE',
-    url: `${RECRUITMENT}/job-information${id}`,
-    // url: `http://172.16.33.228:8010/api/v1/job-information/${id}`,
+    url: `${RECRUITMENT_URL}/job-information/${id}`,
     headers,
   });
 };
