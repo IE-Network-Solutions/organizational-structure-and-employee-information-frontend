@@ -13,6 +13,7 @@ const nextConfig = {
     TENANT_MGMT_URL: process.env.TENANT_MGMT_URL,
     RECRUITMENT_URL: process.env.RECRUITMENT_URL,
     PUBLIC_DOMAIN: process.env.PUBLIC_DOMAIN,
+    OKR_URL: process.env.OKR_URL,
   },
 };
 

@@ -14,7 +14,7 @@ antdNotification.config({
 
 interface NotificationProps {
   message: string;
-  description: string;
+  description?: string;
 }
 
 const NotificationMessage = {

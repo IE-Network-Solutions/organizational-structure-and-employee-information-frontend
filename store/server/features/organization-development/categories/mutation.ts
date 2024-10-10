@@ -63,6 +63,19 @@ const deleteActionPlan = async (id: string) => {
     },
   });
 };
+const resolveActionPlan = async (params: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${ORG_DEV_URL}/action-plans/${params?.id}`,
+    method: 'put',
+    data: { status: params?.status },
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+  });
+};
 export const useCreateActionPlan = () => {
   const queryClient = useQueryClient();
 
@@ -116,6 +129,24 @@ export const useDeleteActionPlanById = () => {
       NotificationMessage.error({
         message: 'Deleted Failed',
         description: 'action plan Delete Failed',
+      });
+    },
+  });
+};
+export const useResolveActionPlanById = () => {
+  const queryClient = useQueryClient();
+  return useMutation(resolveActionPlan, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('actionPlans');
+      NotificationMessage.success({
+        message: 'Successfully resolved',
+        description: 'action plan status resolved successfully',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'resolved Failed',
+        description: 'action plan resolved Failed',
       });
     },
   });

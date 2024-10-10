@@ -33,7 +33,7 @@ const fetchCategories = async (
     createdById: userId,
   };
   return await crudRequest({
-    url: `${ORG_DEV_URL}/form-categories?name=${name}&description=${description}&createdBy=${createdBy}&limit=${pageSize}&page=${currentPage}`,
+    url: `${ORG_DEV_URL}/form-categories?name=${name}&description=${description}&createdBy=${createdBy || ''}&limit=${pageSize}&page=${currentPage}`,
     method: 'GET',
     headers,
   });
