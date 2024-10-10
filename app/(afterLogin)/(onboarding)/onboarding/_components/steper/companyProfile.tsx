@@ -54,7 +54,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
 
   const domainNameSuffix = (
     <Form.Item name="suffix" noStyle>
-      <p style={{ width: 'auto' }}>.pep.com</p>
+      <p style={{ width: 'auto' }}>.selamnew.com</p>
     </Form.Item>
   );
 
@@ -64,7 +64,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
 
   useEffect(() => {
     if (companyInfo) {
-      const domainName = companyInfo?.domainName?.replace('.pep.com', '');
+      const domainName = companyInfo?.domainName?.replace('.selamnew.com', '');
       form.setFieldsValue({
         companyName: companyInfo?.companyName,
         companyDomainName: domainName,
@@ -75,7 +75,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
   }, [companyInfo, form, setCompanyName, setCompanyDomainName]);
 
   useEffect(() => {
-    const domainName = companyDomainName?.replace('.pep.com', '');
+    const domainName = companyDomainName?.replace('.selamnew.com', '');
     form.setFieldsValue({
       companyName: companyName,
       companyDomainName: domainName,
@@ -175,7 +175,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
           </Form.Item>
 
           <div className="flex justify-start items-center gap-2 text-gray-400 mt-8">
-            We will create a unique URL for you to log into PEP
+            We will create a unique URL for you to log into Selamnew Workspace
           </div>
         </Form>
       </div>

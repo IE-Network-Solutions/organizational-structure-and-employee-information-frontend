@@ -4,9 +4,16 @@ import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../common/infoLine';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import WorkScheduleComponent from './workSchedule';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { CreateEmployeeJobInformation } from './addEmployeeJobInfrmation';
+import { FaPlus } from 'react-icons/fa';
 
 function Job({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
+  const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
+  const handleAddEmployeeJobInformation = () => {
+    setIsAddEmployeeJobInfoModalVisible(true);
+  };
 
   const columns = [
     {
@@ -21,10 +28,10 @@ function Job({ id }: { id: string }) {
     },
     {
       title: 'Employment Type',
-      dataIndex: 'employmentTypeId',
-      key: 'employmentTypeId',
+      dataIndex: 'employementTypeId',
+      key: 'employementTypeId',
       render: (ruleData: any, record: any) => (
-        <>{record?.employmentType?.name}</>
+        <>{record?.employementType?.name}</>
       ),
     },
     {
@@ -84,7 +91,7 @@ function Job({ id }: { id: string }) {
           </Col>
         </Row>
       </Card>{' '}
-      <Card>
+      <Card extra={<FaPlus onClick={handleAddEmployeeJobInformation} />}>
         <Table
           dataSource={employeeData?.employeeJobInformation}
           columns={columns}
@@ -93,6 +100,7 @@ function Job({ id }: { id: string }) {
         />
       </Card>
       <WorkScheduleComponent id={id} />
+      <CreateEmployeeJobInformation id={id} />
     </>
   );
 }

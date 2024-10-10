@@ -17,14 +17,14 @@ const IndustrySelect: React.FC<IndustrySelectProps> = ({ form }) => {
 
   const domainNameSuffix = (
     <Form.Item name="suffix" noStyle>
-      <p style={{ width: 'auto' }}>.pep.com</p>
+      <p style={{ width: 'auto' }}>.selamnew.com</p>
     </Form.Item>
   );
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const { data: companyProfile } = useGetCompanyProfileByTenantId(tenantId);
   useEffect(() => {
-    const domainName = companyProfile?.domainName?.replace('.pep.com', '');
+    const domainName = companyProfile?.domainName?.replace('.selamnew.com', '');
     form.setFieldsValue({
       domainName: domainName,
     });
@@ -61,7 +61,7 @@ const IndustrySelect: React.FC<IndustrySelectProps> = ({ form }) => {
             name="domainName"
             label="Domain Name"
             className={'font-bold text-xl mt-4 sm:text-sm'}
-            initialValue="ienetworksolutions.pep.com"
+            initialValue="ienetworksolutions.selamnew.com"
           >
             <Input
               disabled={true}

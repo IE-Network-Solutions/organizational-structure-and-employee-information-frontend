@@ -7,7 +7,7 @@ function BasicInfo({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
 
   return (
-    <Card loading={isLoading}>
+    <Card loading={isLoading} className="mb-3">
       <div className="flex flex-col gap-3 items-center">
         <Avatar size={72} src={employeeData?.profileImage} />
         <h5>
