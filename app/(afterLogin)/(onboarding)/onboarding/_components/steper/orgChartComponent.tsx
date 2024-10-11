@@ -141,6 +141,7 @@ const OrgChartComponent: React.FC = () => {
     isDeleteConfirmVisible,
     setIsDeleteConfirmVisible,
     setBranchId,
+    setOrgData,
   } = useOrganizationStore();
 
   const handleEdit = (department: Department) => {
@@ -150,6 +151,8 @@ const OrgChartComponent: React.FC = () => {
 
   const handleAdd = (parentId: string) => {
     setParentId(parentId);
+    orgData.branchId = branches?.items?.[0].id;
+    setOrgData(orgData);
     setSelectedDepartment(null);
     setIsFormVisible(true);
   };
