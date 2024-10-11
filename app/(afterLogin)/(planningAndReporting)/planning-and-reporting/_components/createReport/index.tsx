@@ -58,8 +58,6 @@ function CreateReport() {
     </div>
   );
 
-
-  console.log(planningPeriodId,"planningPeriodId")
   const handleOnFinish = (values: Record<string, any>) => {
     createReport({ values: values, planningPeriodId: planningPeriodId });
   };
@@ -68,8 +66,6 @@ function CreateReport() {
     allUnReportedPlanningTask &&
     groupUnReportedTasksByKeyResultAndMilestone(allUnReportedPlanningTask);
 
-
-    console.log(formattedData,"formattedData")
   return (
     openReportModal && (
       <CustomDrawerLayout
