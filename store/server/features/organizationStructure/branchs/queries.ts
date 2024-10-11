@@ -44,6 +44,9 @@ const getBranch = async (id: string) => {
 export const useGetBranches = () =>
   useQuery<BranchResponse>('branches', getAllBranches);
 
+export const useGetAllBranches = () =>
+  useQuery<BranchResponse>('branches', getAllBranches);
+
 /**
  * Custom hook to fetch a specific branch by ID.
  * Uses React Query's useQuery to manage the query state.
