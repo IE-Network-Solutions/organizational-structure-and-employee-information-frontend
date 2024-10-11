@@ -15,11 +15,6 @@ const WorkFlow: React.FC<any> = () => {
   };
   const router = useRouter();
 
-  const handleNextClick = () => {
-    if (approverType) {
-      router.push('/approval/workFlow/approvalSetting');
-    }
-  };
   return (
     <div>
       <div className="mb-10">

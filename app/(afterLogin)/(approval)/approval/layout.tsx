@@ -1,6 +1,5 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { GiHamburgerMenu } from 'react-icons/gi';

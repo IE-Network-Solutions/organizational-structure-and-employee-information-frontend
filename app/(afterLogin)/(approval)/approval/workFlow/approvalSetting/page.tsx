@@ -117,7 +117,6 @@ const ApprovalSetting: React.FC<any> = () => {
       name: 'Intern',
     },
   ];
-  console.log('AAAselections : ', selections?.SectionItemType);
 
   return (
     <div>

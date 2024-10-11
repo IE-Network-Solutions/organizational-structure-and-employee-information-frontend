@@ -50,8 +50,6 @@ const AddApprover = () => {
         : [{ stepOrder, userId: selection.user }];
     });
 
-    console.log('flattenedPayload:', jsonPayload);
-
     AddApprover(
       { values: { approvalWorkflowId: selectedItem?.id, steps: jsonPayload } },
       {

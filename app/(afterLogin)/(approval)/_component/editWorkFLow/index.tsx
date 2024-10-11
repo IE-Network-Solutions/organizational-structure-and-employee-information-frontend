@@ -76,10 +76,6 @@ const EditWorkFLow = () => {
         },
       ];
     });
-    console.log('before_submit', {
-      approvalWorkflowId: selectedItem?.id,
-      steps: jsonPayload,
-    });
 
     EditApprover(
       { values: { approvalWorkflowId: selectedItem?.id, steps: jsonPayload } },
@@ -129,7 +125,6 @@ const EditWorkFLow = () => {
       (item: any) => item.userId === id,
     );
     if (user) {
-      // console.log('heloooo', initialValues, user?.id);
       setDeleteModal(false);
       deleteApprover({
         id: user?.id,
