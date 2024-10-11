@@ -58,6 +58,8 @@ function CreateReport() {
     </div>
   );
 
+
+  console.log(planningPeriodId,"planningPeriodId")
   const handleOnFinish = (values: Record<string, any>) => {
     createReport({ values: values, planningPeriodId: planningPeriodId });
   };
@@ -66,6 +68,8 @@ function CreateReport() {
     allUnReportedPlanningTask &&
     groupUnReportedTasksByKeyResultAndMilestone(allUnReportedPlanningTask);
 
+
+    console.log(formattedData,"formattedData")
   return (
     openReportModal && (
       <CustomDrawerLayout
@@ -107,12 +111,12 @@ function CreateReport() {
                         {keyresult?.milestones?.map(
                           (milestone: any, milestoneIndex: number) =>
                             milestone?.tasks &&
-                            milestone?.tasks.length > 0 && (
-                              <div key={milestoneIndex} className="mb-4 ml-2">
+                            milestone?.tasks?.length > 0 && (
+                              <div key={milestoneIndex} className="mb-4 ml-4">
                                 <h4 className="font-semibold text-xs mb-2">
-                                  {milestone.title}
+                                  {milestone?.title}
                                 </h4>
-                                {milestone.tasks.map((task: any) => (
+                                {milestone?.tasks?.map((task: any) => (
                                   <>
                                     <Form.Item
                                       key={task.taskId}
@@ -244,7 +248,7 @@ function CreateReport() {
                                         </Row>
                                       </div>
                                     </Form.Item>
-                                    {selectedStatuses[task.taskId] ===
+                                    {selectedStatuses[task?.taskId] ===
                                       'Not' && (
                                       <Form.Item
                                         key={task.taskId}
@@ -301,7 +305,7 @@ function CreateReport() {
                               </div>
                             ),
                         )}
-                        {keyresult?.Tasks?.map(
+                        {keyresult?.tasks?.map(
                           (task: any, tasksIndex: number) => (
                             <div key={task.id} className="mb-4 ml-2">
                               <Form.Item
