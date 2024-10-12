@@ -7,7 +7,10 @@ import { UserOutlined } from '@ant-design/icons';
 
 import React, { useEffect } from 'react';
 import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
-import { useAssignPlanningPeriodToUsers, useUpdateAssignPlanningPeriodToUsers } from '@/store/server/features/employees/planning/planningPeriod/mutation';
+import {
+  useAssignPlanningPeriodToUsers,
+  useUpdateAssignPlanningPeriodToUsers,
+} from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 interface RepDrawerProps {
   open: boolean;
@@ -19,11 +22,11 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
   onClose,
 }) => {
   const { data: allUsers } = useGetAllUsers();
-  const {data:allPlanningperiod}=useGetAllPlanningPeriods();
-  const {mutate:planAssign}=useAssignPlanningPeriodToUsers();
-  const {mutate:editAssign}=useUpdateAssignPlanningPeriodToUsers();
+  const { data: allPlanningperiod } = useGetAllPlanningPeriods();
+  const { mutate: planAssign } = useAssignPlanningPeriodToUsers();
+  const { mutate: editAssign } = useUpdateAssignPlanningPeriodToUsers();
 
-   const {setSelectedPlanningUser,selectedPlanningUser}=useOKRSettingStore();
+  const { selectedPlanningUser } = useOKRSettingStore();
 
   const { Option } = Select;
   const [form] = Form.useForm();
@@ -58,30 +61,30 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
     if (selectedPlanningUser) {
       form.setFieldsValue({
         userIds: [selectedPlanningUser.userId], // Wrapping userId in an array to match the expected structure
-        planningPeriods: selectedPlanningUser.items.map((item) => item.planningPeriodId),
+        planningPeriods: selectedPlanningUser.items.map(
+          (item) => item.planningPeriodId,
+        ),
       });
     } else {
       form.resetFields();
     }
   }, [selectedPlanningUser, form]);
-  
-
 
   const onFinish = (values: any) => {
-    planAssign(values,{
-      onSuccess:()=>{
+    planAssign(values, {
+      onSuccess: () => {
         handleDrawerClose();
-      }
-    })
+      },
+    });
     // const value = { ...values, issuerId: userId };
   };
 
   const onUpdate = (values: any) => {
-    editAssign(values,{
-      onSuccess:()=>{
+    editAssign(values, {
+      onSuccess: () => {
         handleDrawerClose();
-      }
-    })
+      },
+    });
     // const value = { ...values, issuerId: userId };
   };
 
@@ -123,7 +126,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
         layout="vertical"
         onFinish={selectedPlanningUser ? onUpdate : onFinish}
         autoComplete="off"
-        >
+      >
         {/* Select Employee */}
         <Form.Item
           name="userIds"
@@ -161,8 +164,10 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
             className="h-12"
             dropdownClassName="bg-white shadow-lg rounded-md"
           >
-            {allPlanningperiod?.items?.map(planning=>(
-                 <Option value={planning?.id}>{planning.name}</Option>
+            {allPlanningperiod?.items?.map((planning, index) => (
+              <Option key={index} value={planning?.id}>
+                {planning.name}
+              </Option>
             ))}
           </Select>
         </Form.Item>

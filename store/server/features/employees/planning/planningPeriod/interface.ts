@@ -15,7 +15,6 @@ type SubmissionDeadline = {
   days?: number;
 };
 
-
 export type PlanningPeriodItem = {
   name: string;
   intervalLength: IntervalLength;
@@ -93,5 +92,5 @@ export interface PlanningUserPayload {
 
 export type UpdatePlanningPeriodFunction = (
   userId: string,
-  values: PlanningUserPayload
+  values: PlanningUserPayload,
 ) => Promise<any>;

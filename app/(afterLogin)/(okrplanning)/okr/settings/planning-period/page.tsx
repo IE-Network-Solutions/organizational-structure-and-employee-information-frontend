@@ -1,28 +1,24 @@
 'use client';
-import { Input, Card, Switch, Dropdown, Menu, Modal, Form, Button, Select } from 'antd';
+import { Input, Card, Switch, Dropdown, Menu, Modal, Form, Select } from 'antd';
 import { MoreOutlined, CheckOutlined } from '@ant-design/icons';
 import { FC, useState } from 'react';
 import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
-import { useDeletePlanningPeriod, useUpdatePlanningPeriod, useUpdatePlanningStatus } from '@/store/server/features/employees/planning/planningPeriod/mutation';
+import {
+  useDeletePlanningPeriod,
+  useUpdatePlanningPeriod,
+  useUpdatePlanningStatus,
+} from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const { Option } = Select;
-
-type IntervalLength = {
-  days?: number;
-  seconds?: number;
-};
-
-type SubmissionDeadline = {
-  days?: number;
-};
-
 const PlanningPeriod: FC = () => {
   const { data: allPlanningperiod } = useGetAllPlanningPeriods();
   const { mutate: updateStatus, isLoading } = useUpdatePlanningStatus();
-  const { mutate: deletePlanningPeriod, isLoading: deletePlannniggPeriod } = useDeletePlanningPeriod();
-  const { mutate: editPlanningPeriod, isLoading: editPlannningPeriod } = useUpdatePlanningPeriod();
-  
+  const { mutate: deletePlanningPeriod, isLoading: deletePlannniggPeriod } =
+    useDeletePlanningPeriod();
+  const { mutate: editPlanningPeriod, isLoading: editPlannningPeriod } =
+    useUpdatePlanningPeriod();
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingPeriod, setEditingPeriod] = useState<any>(null);
   const [form] = Form.useForm();
@@ -50,27 +46,25 @@ const PlanningPeriod: FC = () => {
     form.resetFields();
   };
 
-
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
       const formattedValues = {
         ...values,
         intervalLength: `${values.intervalLength?.days || 0} days`,
-        submissionDeadline: `${values.submissionDeadline?.days || 0} days `
+        submissionDeadline: `${values.submissionDeadline?.days || 0} days `,
       };
       await editPlanningPeriod({ id: editingPeriod.id, data: formattedValues });
       setIsModalVisible(false);
-      form.resetFields(); 
+      form.resetFields();
     } catch (error) {
       if (error) {
         NotificationMessage.error({
-          message: "Editing failed",
+          message: 'Editing failed',
         });
       }
     }
   };
-  
 
   const handleDelete = (id: string) => {
     Modal.confirm({
@@ -84,15 +78,30 @@ const PlanningPeriod: FC = () => {
 
   const menu = (planningPeriod: any) => (
     <Menu>
-      <Menu.Item key="1" disabled={editPlannningPeriod} onClick={() => handleEdit(planningPeriod)}>Edit</Menu.Item>
-      <Menu.Item key="2" disabled={deletePlannniggPeriod} onClick={() => handleDelete(planningPeriod.id)}>Delete</Menu.Item>
+      <Menu.Item
+        key="1"
+        disabled={editPlannningPeriod}
+        onClick={() => handleEdit(planningPeriod)}
+      >
+        Edit
+      </Menu.Item>
+      <Menu.Item
+        key="2"
+        disabled={deletePlannniggPeriod}
+        onClick={() => handleDelete(planningPeriod.id)}
+      >
+        Delete
+      </Menu.Item>
     </Menu>
   );
 
   return (
     <div className="p-4">
       <div className="mb-4">
-        <Input.Search placeholder="Search period by name" className="rounded-lg" />
+        <Input.Search
+          placeholder="Search period by name"
+          className="rounded-lg"
+        />
       </div>
       <div className="max-h-[400px] overflow-y-auto">
         {allPlanningperiod?.items?.map((planningPeriod) => (
@@ -100,7 +109,7 @@ const PlanningPeriod: FC = () => {
             key={planningPeriod.id} // Add a unique key for each card
             title={planningPeriod?.name}
             extra={
-              <div className='flex'>
+              <div className="flex">
                 <Switch
                   checked={planningPeriod?.isActive}
                   disabled={isLoading}
@@ -129,7 +138,9 @@ const PlanningPeriod: FC = () => {
           </Card>
         ))}
         {allPlanningperiod?.items.length === 0 && (
-          <div className='flex justify-center items-center'>No Data Available</div>
+          <div className="flex justify-center items-center">
+            No Data Available
+          </div>
         )}
       </div>
       <Modal
@@ -140,16 +151,30 @@ const PlanningPeriod: FC = () => {
         confirmLoading={editPlannningPeriod}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please enter the name' }]}>
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[{ required: true, message: 'Please enter the name' }]}
+          >
             <Input />
           </Form.Item>
 
           <Form.Item label="Interval Length (Days)">
-            <Form.Item name={['intervalLength', 'days']} noStyle rules={[{ required: true, message: 'Please enter days' }]}>
+            <Form.Item
+              name={['intervalLength', 'days']}
+              noStyle
+              rules={[{ required: true, message: 'Please enter days' }]}
+            >
               <Input type="number" min={0} placeholder="Days" />
             </Form.Item>
           </Form.Item>
-          <Form.Item name="intervalType" label="Interval Type" rules={[{ required: true, message: 'Please select an interval type' }]}>
+          <Form.Item
+            name="intervalType"
+            label="Interval Type"
+            rules={[
+              { required: true, message: 'Please select an interval type' },
+            ]}
+          >
             <Select>
               <Option value="daily">Daily</Option>
               <Option value="weekly">Weekly</Option>
@@ -157,7 +182,13 @@ const PlanningPeriod: FC = () => {
             </Select>
           </Form.Item>
           <Form.Item label="Submission Deadline (Days)">
-            <Form.Item name={['submissionDeadline', 'days']} noStyle rules={[{ required: true, message: 'Please enter submission deadline' }]}>
+            <Form.Item
+              name={['submissionDeadline', 'days']}
+              noStyle
+              rules={[
+                { required: true, message: 'Please enter submission deadline' },
+              ]}
+            >
               <Input type="number" min={0} placeholder="Days" />
             </Form.Item>
           </Form.Item>

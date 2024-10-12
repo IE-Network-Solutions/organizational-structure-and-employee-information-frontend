@@ -10,20 +10,22 @@ interface OKRSettingStore {
   pageSize: number;
   setPageSize: (pageSize: number) => void;
 
-  page:number,
-  setPage:(page:number)=>void,
+  page: number;
+  setPage: (page: number) => void;
 }
 
 export const useOKRSettingStore = create<OKRSettingStore>()(
   devtools((set) => ({
     selectedPlanningUser: null,
-    setSelectedPlanningUser: (selectedPlanningUser: PlanningUser | null) => set({ selectedPlanningUser }),
+    setSelectedPlanningUser: (selectedPlanningUser: PlanningUser | null) =>
+      set({ selectedPlanningUser }),
     pagePlanningPeriod: 1, // Initializing pagePlanningPeriod
-    setPagePlanningPeriod: (pagePlanningPeriod: number) => set({ pagePlanningPeriod }), // Setting correct naming
+    setPagePlanningPeriod: (pagePlanningPeriod: number) =>
+      set({ pagePlanningPeriod }), // Setting correct naming
     pageSize: 2,
     setPageSize: (pageSize: number) => set({ pageSize }),
 
     page: 1,
     setPage: (page: number) => set({ page }),
-  }))
+  })),
 );

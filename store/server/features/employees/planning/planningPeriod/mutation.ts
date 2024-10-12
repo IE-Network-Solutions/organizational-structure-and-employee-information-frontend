@@ -2,14 +2,17 @@ import { useMutation, useQueryClient } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import { OKR_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { PlanningPeriod, PlanningPeriodItem, PlanningPeriodUserArray, PlanningUserPayload, UpdatePlanningPeriodFunction } from './interface';
+import {
+  PlanningPeriodItem,
+  PlanningUserPayload,
+  UpdatePlanningPeriodFunction,
+} from './interface';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const updatePlanningPeriod = async (id: string, data: PlanningPeriodItem) => {
-
   return crudRequest({
     url: `${OKR_URL}/Planning-periods/${id}`,
     method: 'patch',
@@ -45,7 +48,7 @@ const assignPlanningPeriodToUsers = async (values: string[]) => {
   return crudRequest({
     url: `${OKR_URL}/planning-periods/assignUser-multiple-planning-periods`,
     method: 'post',
-    data:values,
+    data: values,
     // data: { values, userId },
     headers: {
       Authorization: `Bearer ${token}`,
@@ -66,7 +69,6 @@ const updatePlanningPeriodToUsers = async (values: PlanningUserPayload) => {
   });
 };
 
-
 const deleteAssignPlanningPeriodToUsers = async (planningUserId: string) => {
   return crudRequest({
     url: `${OKR_URL}/planning-periods/planning-user/${planningUserId}`,
@@ -81,7 +83,7 @@ const deleteAssignPlanningPeriodToUsers = async (planningUserId: string) => {
 // Exporting hooks for mutations
 export const useUpdatePlanningPeriod = () => {
   const queryClient = useQueryClient();
- 
+
   return useMutation(
     (params: { id: string; data: PlanningPeriodItem }) =>
       updatePlanningPeriod(params.id, params.data),
@@ -96,15 +98,16 @@ export const useUpdatePlanningPeriod = () => {
     },
   );
 };
-export const useUpdatePlanningPeriodToUsers: UpdatePlanningPeriodFunction = async (userId, values) => {
-  return await fetch(`/api/update-planning-period/${userId}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(values),
-  }).then((response) => response.json());
-};
+export const useUpdatePlanningPeriodToUsers: UpdatePlanningPeriodFunction =
+  async (userId, values) => {
+    return await fetch(`/api/update-planning-period/${userId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(values),
+    }).then((response) => response.json());
+  };
 
 export const useDeletePlanningPeriod = () => {
   const queryClient = useQueryClient();
@@ -136,11 +139,8 @@ export const useAssignPlanningPeriodToUsers = () => {
 };
 export const useUpdateAssignPlanningPeriodToUsers = () => {
   const queryClient = useQueryClient();
-
-  // Mutation function implementation
   return useMutation(
-    (values: PlanningUserPayload) =>
-      updatePlanningPeriodToUsers(values),
+    (values: PlanningUserPayload) => updatePlanningPeriodToUsers(values),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('allPlanningPeriodUser'); // Adjust the query key if needed
@@ -149,20 +149,21 @@ export const useUpdateAssignPlanningPeriodToUsers = () => {
           description: 'Planning period successfully assigned to users.',
         });
       },
-      onError: (error) => {
+      onError: () => {
         NotificationMessage.error({
           message: 'Assignment Failed',
           description: 'There was an error assigning the planning period.',
         });
       },
-    }
+    },
   );
 };
 
-export const useDeletePlanningUser= () => {
+export const useDeletePlanningUser = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    (planningPeriodId: any) => deleteAssignPlanningPeriodToUsers(planningPeriodId),
+    (planningPeriodId: any) =>
+      deleteAssignPlanningPeriodToUsers(planningPeriodId),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('allPlanningPeriodUser'); // Adjust the query key as necessary
@@ -174,7 +175,7 @@ export const useDeletePlanningUser= () => {
     },
   );
 };
-export const useUpdatePlanningStatus= () => {
+export const useUpdatePlanningStatus = () => {
   const queryClient = useQueryClient();
   return useMutation(
     (planningPeriodId: any) => updatePlanningPeriodStatus(planningPeriodId),
@@ -189,4 +190,3 @@ export const useUpdatePlanningStatus= () => {
     },
   );
 };
-
