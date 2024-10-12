@@ -5,7 +5,10 @@ import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/qu
 import { Form, Select, Avatar } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
+import { useAssignPlanningPeriodToUsers, useUpdateAssignPlanningPeriodToUsers } from '@/store/server/features/employees/planning/planningPeriod/mutation';
+import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 interface RepDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -16,7 +19,14 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
   onClose,
 }) => {
   const { data: allUsers } = useGetAllUsers();
+  const {data:allPlanningperiod}=useGetAllPlanningPeriods();
+  const {mutate:planAssign}=useAssignPlanningPeriodToUsers();
+  const {mutate:editAssign}=useUpdateAssignPlanningPeriodToUsers();
+
+   const {setSelectedPlanningUser,selectedPlanningUser}=useOKRSettingStore();
+
   const { Option } = Select;
+  const [form] = Form.useForm();
 
   const renderEmployeeOption = (option: any) => (
     <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -44,18 +54,42 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
       </div>
     );
   };
+  useEffect(() => {
+    if (selectedPlanningUser) {
+      form.setFieldsValue({
+        userIds: [selectedPlanningUser.userId], // Wrapping userId in an array to match the expected structure
+        planningPeriods: selectedPlanningUser.items.map((item) => item.planningPeriodId),
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [selectedPlanningUser, form]);
+  
 
-  const [form] = Form.useForm();
-  // const { userId } = useAuthenticationStore();
 
-  // const onFinish = (values: any) => {
-  //   // const value = { ...values, issuerId: userId };
-  // };
+  const onFinish = (values: any) => {
+    planAssign(values,{
+      onSuccess:()=>{
+        handleDrawerClose();
+      }
+    })
+    // const value = { ...values, issuerId: userId };
+  };
+
+  const onUpdate = (values: any) => {
+    editAssign(values,{
+      onSuccess:()=>{
+        handleDrawerClose();
+      }
+    })
+    // const value = { ...values, issuerId: userId };
+  };
 
   const handleDrawerClose = () => {
     form.resetFields(); // Reset all form fields
     onClose();
   };
+
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Assign
@@ -71,7 +105,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
       />
       <CustomButton
         onClick={() => form.submit()}
-        title={'Add'}
+        title={selectedPlanningUser ? 'Edit' : 'Add'}
         type="primary"
       />
     </div>
@@ -87,13 +121,13 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
         form={form}
         name="reprimandForm"
         layout="vertical"
-        // onFinish={onFinish}
+        onFinish={selectedPlanningUser ? onUpdate : onFinish}
         autoComplete="off"
-      >
+        >
         {/* Select Employee */}
         <Form.Item
-          name="recipientIds"
-          label="Select Employee"
+          name="userIds"
+          label="Select Assignee"
           rules={[{ required: true, message: 'Please select employees' }]}
         >
           <Select
@@ -117,8 +151,8 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
         </Form.Item>
 
         <Form.Item
-          name="assignedPlan"
-          label="Assigned Plan"
+          name="planningPeriods"
+          label="Assigned Planning periods"
           rules={[{ required: true, message: 'Please Assigned Plan' }]}
         >
           <Select
@@ -127,9 +161,9 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
             className="h-12"
             dropdownClassName="bg-white shadow-lg rounded-md"
           >
-            <Option value="Daily">Daily</Option>
-            <Option value="Weekly">Weekly</Option>
-            <Option value="Quarterly">Quarterly</Option>
+            {allPlanningperiod?.items?.map(planning=>(
+                 <Option value={planning?.id}>{planning.name}</Option>
+            ))}
           </Select>
         </Form.Item>
       </Form>
