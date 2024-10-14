@@ -1,27 +1,24 @@
 import React from 'react';
 import { Table, TableColumnsType } from 'antd';
-import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
+import { useFetchCriticalPositions } from '@/store/server/features/organization-development/SuccessionPlan/queries';
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Employee Name',
-    dataIndex: 'employee_name',
+    dataIndex: 'userId',
     ellipsis: true,
   },
   {
     title: 'Job Title',
-    dataIndex: 'job_title',
-    // sorter: (a, b) => a.job_title.localeCompare(b.job_title),
+    dataIndex: 'name',
   },
   {
     title: 'Department',
     dataIndex: 'department',
-    // sorter: (a, b) => a.department.localeCompare(b.department),
   },
   {
     title: 'Office',
     dataIndex: 'office',
-    // sorter: (a, b) => a.office.localeCompare(b.office),
   },
   {
     title: 'Employee Status',
@@ -34,35 +31,22 @@ const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Role',
     dataIndex: 'role',
-    // sorter: (a, b) => a.role.localeCompare(b.role),
   },
   {
     title: 'Action',
     dataIndex: 'action',
   },
 ];
+
 const SuccesseionPlanTable = () => {
-  const {} = useOrganizationalDevelopment();
+  const {data} = useFetchCriticalPositions();
 
   return (
     <div className="mt-2">
       <Table
         className="w-full"
         columns={columns}
-        dataSource={[]}
-        // pagination={{
-        //   total: allFilterData?.meta?.totalItems,
-        //   current: allFilterData?.meta?.currentPage,
-        //   pageSize: pageSize,
-        //   onChange: onPageChange,
-        //   showSizeChanger: true,
-        //   onShowSizeChange: onPageChange,
-        // }}
-        // loading={isEmployeeLoading}
-        // rowSelection={{
-        //   type: selectionType,
-        //   ...rowSelection,
-        // }}
+        dataSource={data}
         scroll={{ x: 1000 }}
       />
     </div>

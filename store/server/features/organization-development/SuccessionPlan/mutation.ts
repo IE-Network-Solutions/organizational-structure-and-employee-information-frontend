@@ -3,23 +3,24 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
-import { DataItem } from '../categories/interface';
 
 /**
  * Function to add a new post by sending a POST request to the API
  * @param newPost The data for the new post
  * @returns The response data from the API
  */
-const createCriticalPosition = async ({ values }: { values: DataItem[] }) => {
+const createCriticalPosition = async ({ values }: { values: any }) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId;
 
   return crudRequest({
-    url: `${ORG_DEV_URL}/action-plans/many/${tenantId}`,
+    url: `${ORG_DEV_URL}/critical-positions/${userId}`,
     method: 'POST',
     data: values,
     headers: {
       Authorization: `Bearer ${token}`,
+      tenantId
     },
   });
 };

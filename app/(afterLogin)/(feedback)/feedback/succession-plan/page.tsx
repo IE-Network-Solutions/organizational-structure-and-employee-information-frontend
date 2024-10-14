@@ -6,7 +6,7 @@ import { Col, Input, Row, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Typography } from 'antd';
 import CreateCriticalPostion from './_components/createCriticalPostion';
-import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
+import { useCriticalPositionStore } from '@/store/uistate/features/organizationalDevelopment/SuccessionPlan';
 import { IoSearchOutline } from 'react-icons/io5';
 import SuccesseionPlanTable from './_components/successionPlanTable';
 
@@ -14,7 +14,7 @@ const { Title } = Typography;
 const { Option } = Select;
 
 function SuccessionPlan() {
-  const { setOpen } = useOrganizationalDevelopment();
+  const { setOpen } = useCriticalPositionStore();
   const showDrawer = () => {
     setOpen(true);
   };
