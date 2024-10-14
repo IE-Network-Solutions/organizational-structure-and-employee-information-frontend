@@ -22,9 +22,13 @@ import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSett
 // Define columns with correct type
 
 const PlanAssignment: React.FC = () => {
-  const { setSelectedPlanningUser, setPage,page,pageSize,setPageSize } = useOKRSettingStore();
+  const { setSelectedPlanningUser, setPage, page, pageSize, setPageSize } =
+    useOKRSettingStore();
   const { mutate: deletePlanningAssign } = useDeletePlanningUser();
-  const { data: allUserWithPlanningPeriod } = useGetAllAssignedUser(page,pageSize);
+  const { data: allUserWithPlanningPeriod } = useGetAllAssignedUser(
+    page,
+    pageSize,
+  );
   const { data: getAllPlanningPeriod } = useGetAllPlanningPeriods();
   const { data: employeeData } = useGetAllUsers();
   const userToPlanning = allUserWithPlanningPeriod?.items.reduce(
@@ -41,15 +45,17 @@ const PlanAssignment: React.FC = () => {
   );
 
   const getEmployeeData = (userId: string) => {
-    const employee = employeeData?.items?.find((user: EmployeeData) => user.id === userId);
-    
+    const employee = employeeData?.items?.find(
+      (user: EmployeeData) => user.id === userId,
+    );
+
     // Destructure firstName and lastName with fallback
     const firstName = employee?.firstName || 'unknown';
     const lastName = employee?.lastName || 'unknown';
-  
+
     return `${firstName} ${lastName}`;
   };
-  
+
   const getPlanningPeriod = (planningPeriodId: string) => {
     const planningPeriod = getAllPlanningPeriod?.items?.find(
       (planning: any) => planning.id === planningPeriodId,
@@ -169,11 +175,11 @@ const PlanAssignment: React.FC = () => {
           pageSize: allUserWithPlanningPeriod?.meta.itemsPerPage, // Set the page size from your meta data
           current: allUserWithPlanningPeriod?.meta.currentPage, // Current page number
           total: allUserWithPlanningPeriod?.meta.totalItems, // Total number of items
-  
+
           showSizeChanger: true, // Optional: Allow users to change page size
-          onChange: (page,pageSize) => {
+          onChange: (page, pageSize) => {
             setPage(page);
-            setPageSize(pageSize)
+            setPageSize(pageSize);
           },
         }}
       />
