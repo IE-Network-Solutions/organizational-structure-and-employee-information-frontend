@@ -22,7 +22,7 @@ export const useOKRSettingStore = create<OKRSettingStore>()(
     pagePlanningPeriod: 1, // Initializing pagePlanningPeriod
     setPagePlanningPeriod: (pagePlanningPeriod: number) =>
       set({ pagePlanningPeriod }), // Setting correct naming
-    pageSize: 2,
+    pageSize: 10,
     setPageSize: (pageSize: number) => set({ pageSize }),
 
     page: 1,
