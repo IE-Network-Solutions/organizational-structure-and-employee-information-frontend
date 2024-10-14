@@ -8,7 +8,6 @@ import {
   PlanningPeriodUserArray,
   ResponsePlanningPeriod,
 } from './interface';
-import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -47,10 +46,7 @@ const fetchPlanningPeriodAssignedForSingleUser = async () => {
   });
 };
 
-const fetchPlanningPeriodWithUser = async () => {
-  const page = useOKRSettingStore.getState().page;
-  const pageSize = useOKRSettingStore.getState().pageSize;
-
+const fetchPlanningPeriodWithUser = async (page: number, pageSize: number) => {
   return crudRequest({
     url: `${OKR_URL}/Planning-periods/assignment/getAssignedUsers?page=${page}&limit=${pageSize}`,
     method: 'GET',
@@ -76,7 +72,8 @@ export const useGetAssignedPlanningPeriodForUserId = () =>
     fetchPlanningPeriodAssignedForSingleUser(),
   );
 
-export const useGetAllAssignedUser = () =>
-  useQuery<PaginatedPlanningPeriodUsers>('allPlanningPeriodUser', () =>
-    fetchPlanningPeriodWithUser(),
+export const useGetAllAssignedUser = (page: number, pageSize: number) =>
+  useQuery<PaginatedPlanningPeriodUsers>(
+    ['allPlanningPeriodUser', page, pageSize],
+    () => fetchPlanningPeriodWithUser(page, pageSize),
   );

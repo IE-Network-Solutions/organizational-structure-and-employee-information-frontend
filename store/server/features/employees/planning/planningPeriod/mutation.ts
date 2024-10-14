@@ -181,7 +181,7 @@ export const useUpdatePlanningStatus = () => {
     (planningPeriodId: any) => updatePlanningPeriodStatus(planningPeriodId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('allPlanningPeriodUser'); // Adjust the query key as necessary
+        queryClient.invalidateQueries('planningPeriods'); // Adjust the query key as necessary
         NotificationMessage.success({
           message: 'Successfully Deleted',
           description: 'Planning User successfully Deleted.',
