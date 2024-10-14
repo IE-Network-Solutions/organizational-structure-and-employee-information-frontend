@@ -8,7 +8,6 @@ import {
   PlanningPeriodUserArray,
   ResponsePlanningPeriod,
 } from './interface';
-import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
