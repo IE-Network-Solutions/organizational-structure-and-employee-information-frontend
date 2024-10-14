@@ -27,7 +27,6 @@ const PlanAssignment: React.FC = () => {
   const { data: allUserWithPlanningPeriod } = useGetAllAssignedUser(page,pageSize);
   const { data: getAllPlanningPeriod } = useGetAllPlanningPeriods();
   const { data: employeeData } = useGetAllUsers();
-console.log(allUserWithPlanningPeriod,"allUserWithPlanningPeriod")
   const userToPlanning = allUserWithPlanningPeriod?.items.reduce(
     (acc: GroupedUser[], item: PlanningPeriodUser) => {
       let group = acc.find((group) => group.userId === item.userId);

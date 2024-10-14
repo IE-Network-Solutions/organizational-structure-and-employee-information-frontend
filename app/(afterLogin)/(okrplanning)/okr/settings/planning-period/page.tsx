@@ -75,7 +75,6 @@ const PlanningPeriod: FC = () => {
       },
     });
   };
-console.log(allPlanningperiod,"allPlanningperiod")
   const menu = (planningPeriod: any) => (
     <Menu>
       <Menu.Item
