@@ -8,8 +8,6 @@ pipeline {
         REPO_DIR = 'osei-front'
         SSH_CREDENTIALS_ID = 'peptest'
 
-        // Define your environment variables here
-     
         ORG_AND_EMP_URL="https://test-org-emp.ienetworks.co/api/v1"
         NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://test-okr-backend.ienetworks.co/api/v1"
         OKR_URL="https://test-okr-backend.ienetworks.co/api/v1"
