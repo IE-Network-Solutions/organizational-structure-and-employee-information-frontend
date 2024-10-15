@@ -33,9 +33,16 @@ function CreatePlan() {
   const { data: planningPeriods } = AllPlanningPeriods();
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
-  const planningUserId = planningPeriods?.find(
+  // Ensure planningPeriods is always an array before using find
+  const safePlanningPeriods = Array.isArray(planningPeriods)
+    ? planningPeriods
+    : [];
+
+  // Use find safely
+  const planningUserId = safePlanningPeriods.find(
     (item: any) => item.planningPeriod?.id == planningPeriodId,
   )?.id;
+
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Create New plan
