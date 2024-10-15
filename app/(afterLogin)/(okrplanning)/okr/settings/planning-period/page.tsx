@@ -136,7 +136,7 @@ const PlanningPeriod: FC = () => {
             </div>
           </Card>
         ))}
-        {allPlanningperiod?.items.length === 0 && (
+        {allPlanningperiod?.items?.length === 0 && (
           <div className="flex justify-center items-center">
             No Data Available
           </div>

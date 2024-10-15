@@ -114,7 +114,7 @@ export const useGetUnReportedPlanning = (
   planningPeriodId: string | undefined,
 ) => {
   return useQuery<any>(
-    ['okrPlan', planningPeriodId],
+    ['okrReports', planningPeriodId],
     () => getAllUnReportedPlanningTask(planningPeriodId),
     {
       enabled: !!planningPeriodId, // Enable the query only when planningPeriodId is defined

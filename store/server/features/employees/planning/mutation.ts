@@ -22,7 +22,7 @@ export const useCreatePlanTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(createPlanTasks, {
     onSuccess: () => {
-      queryClient.invalidateQueries('createPlanTasks');
+      queryClient.invalidateQueries('okrPlans');
       NotificationMessage.success({
         message: 'Successfully Created ',
         description: ' ',
@@ -52,7 +52,7 @@ export const useUpdatePlanTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(updatePlanTasks, {
     onSuccess: () => {
-      queryClient.invalidateQueries('updatePlanTasks');
+      queryClient.invalidateQueries('okrPlans');
       NotificationMessage.success({
         message: 'Successfully Updated ',
         description: ' ',

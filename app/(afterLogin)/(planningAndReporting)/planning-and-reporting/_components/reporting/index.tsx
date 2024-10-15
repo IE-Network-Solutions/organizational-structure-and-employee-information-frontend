@@ -8,16 +8,17 @@ import KeyResultMetrics from '../keyResult';
 import {
   AllPlanningPeriods,
   useGetReporting,
+  useGetUnReportedPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
 import { groupTasksByKeyResultAndMilestone } from '../dataTransformer/report';
-import { EmptyImage } from '@/components/emptyIndicator';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { ReportingType } from '@/types/enumTypes';
 import TasksDisplayer from './milestone';
+import Image from 'next/image';
 
 const { Title } = Typography;
 
@@ -35,6 +36,8 @@ function Reporting() {
     userId: selectedUser,
     planPeriodId: planningPeriodId,
   });
+  const { data: allUnReportedPlanningTask } =
+    useGetUnReportedPlanning(planningPeriodId);
 
   const activeTabName =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
@@ -47,14 +50,13 @@ function Reporting() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
         {selectedUser.includes(userId) &&
-          ((allReporting?.[0]?.status === 'reported' ?? false) ||
-            allReporting?.length === 0) && (
+          allUnReportedPlanningTask?.length !== 0 && (
             <CustomButton
-              title={`Create ${activeTabName}`}
+              title={`Create ${activeTabName} report`}
               id="createActiveTabName"
               icon={<FaPlus className="mr-2" />}
               onClick={() => setOpenReportModal(true)}
@@ -150,8 +152,21 @@ function Reporting() {
         </Card>
       ))}
       {allReporting?.length <= 0 && (
-        <div className="flex justify-start">
-          <EmptyImage />
+        <div className="flex justify-center">
+          <div>
+            <p className="flex justify-center items-center h-[200px]">
+              <Image
+                src="/image/undraw_empty_re_opql 1.svg"
+                width={300}
+                height={300}
+                alt="Picture of the author"
+              />
+            </p>
+            <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
+              There is no Planned data !!
+            </p>
+            {/* <EmptyImage /> */}
+          </div>
         </div>
       )}
     </div>

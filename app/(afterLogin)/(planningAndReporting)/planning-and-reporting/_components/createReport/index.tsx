@@ -59,7 +59,14 @@ function CreateReport() {
   );
 
   const handleOnFinish = (values: Record<string, any>) => {
-    createReport({ values: values, planningPeriodId: planningPeriodId });
+    createReport(
+      { values: values, planningPeriodId: planningPeriodId },
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      },
+    );
   };
 
   const formattedData =
