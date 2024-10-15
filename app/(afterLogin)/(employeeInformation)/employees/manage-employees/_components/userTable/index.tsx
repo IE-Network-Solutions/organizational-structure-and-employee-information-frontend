@@ -254,7 +254,7 @@ const UserTable = () => {
         dataSource={data}
         pagination={{
           total: allFilterData?.meta?.totalItems,
-          current: allFilterData?.meta?.currentPage,
+          current: userCurrentPage,
           pageSize: pageSize,
           onChange: onPageChange,
           showSizeChanger: true,

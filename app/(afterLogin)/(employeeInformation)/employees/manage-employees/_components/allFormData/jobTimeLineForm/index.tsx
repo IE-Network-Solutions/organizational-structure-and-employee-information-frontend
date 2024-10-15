@@ -1,6 +1,7 @@
 import { useGetBranches } from '@/store/server/features/employees/employeeManagment/branchOffice/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
+import { useGetPositions } from '@/store/server/features/employees/positions/queries';
 import { validateName } from '@/utils/validation';
 import { Col, DatePicker, Form, Input, Radio, Row, Select, Switch } from 'antd';
 import React, { useState } from 'react';
@@ -11,6 +12,8 @@ const JobTimeLineForm = () => {
   const { data: departmentData } = useGetDepartments();
   const { data: employementType } = useGetEmployementTypes();
   const { data: branchOfficeData } = useGetBranches();
+  const { data: positions } = useGetPositions();
+
   const [contractType, setContractType] = useState<string>('Permanent');
 
   const handleContractTypeChange = (e: any) => {
@@ -46,17 +49,16 @@ const JobTimeLineForm = () => {
             id="jobTitle"
             label="Position"
             rules={[
-              {
-                validator: (rule, value) =>
-                  !validateName('job title', value)
-                    ? Promise.resolve()
-                    : Promise.reject(
-                        new Error(validateName('job title', value) || ''),
-                      ),
-              },
+              { required: true, message: 'Please select an position type' },
             ]}
           >
-            <Input />
+            <Select placeholder="Select position type" allowClear>
+              {positions?.items?.map((position: any) => (
+                <Option key={position?.id} value={position?.id}>
+                  {position?.name}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
