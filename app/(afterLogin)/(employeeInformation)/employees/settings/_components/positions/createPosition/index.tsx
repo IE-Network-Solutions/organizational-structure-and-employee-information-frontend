@@ -10,8 +10,7 @@ const CreatePosition: React.FC = () => {
   const [form] = Form.useForm();
   const { openPositionDrawer, setOpenPositionDrawer, setFormValues } =
     usePositionState();
-  const { mutate: handleCreatePosition, isLoading: createPositionLoading } =
-    useCreatePosition();
+  const { mutate: handleCreatePosition } = useCreatePosition();
   const handleCloseDrawer = () => {
     setOpenPositionDrawer(false);
   };

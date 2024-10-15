@@ -2,8 +2,7 @@ import { useGetBranches } from '@/store/server/features/employees/employeeManagm
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetPositions } from '@/store/server/features/employees/positions/queries';
-import { validateName } from '@/utils/validation';
-import { Col, DatePicker, Form, Input, Radio, Row, Select, Switch } from 'antd';
+import { Col, DatePicker, Form, Radio, Row, Select, Switch } from 'antd';
 import React, { useState } from 'react';
 
 const { Option } = Select;
