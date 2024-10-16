@@ -12,6 +12,7 @@ import { Microsoft } from '@/components/Icons/microsoft';
 import { Google } from '@/components/Icons/google';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useHandleSignIn } from './_components/signinHandler';
+import Link from 'next/link';
 
 type FieldType = {
   email: string;
@@ -92,9 +93,12 @@ const Login: FC = () => {
             <Form.Item name="remember" valuePropName="checked" noStyle>
               <Checkbox className="m-1">Remember me</Checkbox>
             </Form.Item>
-            {/* <Button className="float-right m-0 p-0" type="link">
+            <Link
+              href="/authentication/forgetPassword"
+              className="float-right m-0 p-0"
+            >
               Forgot password
-            </Button> */}
+            </Link>
           </Form.Item>
 
           <Form.Item>

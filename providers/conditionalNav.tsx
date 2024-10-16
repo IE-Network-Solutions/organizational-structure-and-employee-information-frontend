@@ -16,6 +16,7 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
   const pathname = usePathname();
   const excludeNavPaths = [
     '/authentication/login',
+    '/authentication/forgetPassword',
     '/onboarding',
     '/signup',
     '/not-found',
