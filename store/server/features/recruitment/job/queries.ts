@@ -4,7 +4,7 @@ import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
-const getJobs = async () => {
+const getJobs = async (whatYouNeed: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const pageSize = useJobState.getState().pageSize;
@@ -13,9 +13,10 @@ const getJobs = async () => {
     Authorization: `Bearer ${token}`,
     tenantId: tenantId,
   };
+  const jobTitleQuery = whatYouNeed ? `jobTitle=${whatYouNeed}&` : '';
+
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/job-information?limit=${pageSize}&&page=${currentPage}`,
-    // url: `http://172.16.33.228:8010/api/v1/job-information?limit=${pageSize}&&page=${currentPage}`,
+    url: `${RECRUITMENT_URL}/job-information?${jobTitleQuery}limit=${pageSize}&&page=${currentPage}`,
     method: 'GET',
     headers,
   });
@@ -30,7 +31,6 @@ const getJobsByID = async (jobId: string) => {
   };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/job-information/${jobId}`,
-    // url: `http://172.16.33.228:8010/api/v1/job-information/${jobId}`,
     method: 'GET',
     headers,
   });
@@ -45,14 +45,13 @@ const getDepartmentById = async (depId: string) => {
   };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/departments/${depId}`,
-    // url: `http://172.16.33.228:8010/api/v1/departments/${depId}`,
     method: 'GET',
     headers,
   });
 };
 
-export const useGetJobs = () => {
-  return useQuery('jobs', getJobs);
+export const useGetJobs = (whatYouNeed: string) => {
+  return useQuery(['jobs', whatYouNeed], () => getJobs(whatYouNeed));
 };
 
 export const useGetJobsByID = (jobId: string) => {

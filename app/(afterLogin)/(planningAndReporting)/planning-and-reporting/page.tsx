@@ -20,15 +20,18 @@ function page() {
     setActiveTab(e.target.value);
   };
   const TabsContent = () =>
-    planningPeriods?.map((item: any, index: number) => ({
-      label: (
-        <span className="font-semibold text-sm">
-          {item?.planningPeriod?.name}
-        </span>
-      ),
-      key: String(index + 1),
-      children: activeTab === 1 ? <Planning /> : <Reporting />,
-    }));
+
+    Array.isArray(planningPeriods)
+      ? planningPeriods.map((item: any, index: number) => ({
+          label: (
+            <span className="font-semibold text-sm">
+              {item?.planningPeriod.name}
+            </span>
+          ),
+          key: String(index + 1),
+          children: activeTab === 1 ? <Planning /> : <Reporting />,
+        }))
+      : null;
   return (
     <div>
       <div className="h-full w-auto p-4">
@@ -52,7 +55,7 @@ function page() {
             defaultActiveKey="1"
             onChange={(e: any) => setActivePlanPeriod(e)}
             centered
-            items={TabsContent()}
+            items={TabsContent() ?? []}
           />
           <CreatePlan />
           <EditPlan />

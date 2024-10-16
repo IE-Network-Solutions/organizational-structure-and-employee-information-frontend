@@ -15,7 +15,6 @@ const createJob = async (data: any) => {
   return await crudRequest({
     method: 'POST',
     url: `${RECRUITMENT_URL}/job-information`,
-    // url: 'http://172.16.33.228:8010/api/v1/job-information',
     data,
     headers,
   });
@@ -30,8 +29,7 @@ const updateJob = async (data: any, id: string) => {
   };
   return await crudRequest({
     method: 'PUT',
-    url: `${RECRUITMENT_URL}/job-information${id}`,
-    // url: `http://172.16.33.228:8010/api/v1/job-information/${id}`,
+    url: `${RECRUITMENT_URL}/job-information/${id}`,
     data,
     headers,
   });
@@ -46,8 +44,7 @@ const updateJobStatus = async (data: any, id: string) => {
   };
   return await crudRequest({
     method: 'PUT',
-    url: `${RECRUITMENT_URL}/job-information${id}`,
-    // url: `http://172.16.33.228:8010/api/v1/job-information/${id}`,
+    url: `${RECRUITMENT_URL}/job-information/${id}`,
     data,
     headers,
   });
@@ -62,8 +59,7 @@ const deleteJob = async (id: string) => {
   };
   return await crudRequest({
     method: 'DELETE',
-    url: `${RECRUITMENT_URL}/job-information${id}`,
-    // url: `http://172.16.33.228:8010/api/v1/job-information/${id}`,
+    url: `${RECRUITMENT_URL}/job-information/${id}`,
     headers,
   });
 };

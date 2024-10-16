@@ -18,7 +18,6 @@ const getCustomFieldsTemplate = async () => {
   };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/application-questions-form-template?limit=${templatePageSize}&&page=${templateCurrentPage}`,
-    // url: `http://172.16.33.228:8010/api/v1/application-questions-form-template?limit=${templatePageSize}&&page=${templateCurrentPage}`,
     method: 'GET',
     headers,
   });

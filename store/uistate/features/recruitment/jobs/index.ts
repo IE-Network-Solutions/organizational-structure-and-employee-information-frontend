@@ -21,6 +21,10 @@ interface JobFormValues {
   yearOfExperience: string;
 }
 
+interface SearchParams {
+  whatYouNeed: string;
+}
+
 interface JobState {
   addNewDrawer: boolean;
   setAddNewDrawer: (value: boolean) => void;
@@ -65,6 +69,9 @@ interface JobState {
 
   selectedJob: any | null;
   setSelectedJob: (job: any | null) => void;
+
+  searchParams: SearchParams;
+  setSearchParams: (key: keyof SearchParams, value: string) => void;
 }
 
 export const useJobState = create<JobState>((set) => ({
@@ -134,4 +141,14 @@ export const useJobState = create<JobState>((set) => ({
 
   selectedJob: null,
   setSelectedJob: (job) => set({ selectedJob: job }),
+
+  searchParams: {
+    whatYouNeed: '',
+  },
+  setSearchParams: (key, value) => {
+    const stringValue = typeof value === 'boolean' ? String(value) : value;
+    set((state) => ({
+      searchParams: { ...state.searchParams, [key]: stringValue },
+    }));
+  },
 }));

@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetJobsByID } from '@/store/server/features/recruitment/job/queries';
 import InternalApplicantForm from './_components/internalApplicant';
 import ExternalApplicantForm from './_components/externalApplicant';
@@ -11,8 +10,8 @@ interface PublicJobFormProps {
 
 const PublicJobForm: React.FC<PublicJobFormProps> = ({ params: { jobId } }) => {
   const { data: jobDescription } = useGetJobsByID(jobId);
-  const isInternalApplicant = useAuthenticationStore?.getState()?.userId;
-  // const isInternalApplicant = '';
+  // const isInternalApplicant = useAuthenticationStore?.getState()?.userId;
+  const isInternalApplicant = '';
 
   return (
     <div className="bg-white w-full rounded-lg px-32 py-8">
@@ -22,12 +21,12 @@ const PublicJobForm: React.FC<PublicJobFormProps> = ({ params: { jobId } }) => {
       {isInternalApplicant ? (
         <InternalApplicantForm
           jobId={jobId}
+          jobTitle={jobDescription?.jobTitle || 'Unknown Job'}
           isInternalApplicant={isInternalApplicant}
         />
       ) : (
         <ExternalApplicantForm
           jobId={jobId}
-          jobTitle={jobDescription?.jobTitle || 'Unknown Job'}
           isInternalApplicant={isInternalApplicant}
         />
       )}

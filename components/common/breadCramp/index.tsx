@@ -5,7 +5,7 @@ import { BreadcrumbProps } from 'antd/lib/breadcrumb';
 interface CustomBreadcrumbProps extends BreadcrumbProps {
   title: JSX.Element | string;
   // title: string;
-  subtitle: string;
+  subtitle: JSX.Element | string;
 }
 
 const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({

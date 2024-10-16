@@ -1,5 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
+import { PUBLIC_DOMAIN } from '@/utils/constants';
 import { Divider, Modal } from 'antd';
 import { CheckCheck, Copy } from 'lucide-react';
 import React, { useEffect } from 'react';
@@ -33,7 +34,7 @@ const ShareToSocialMedia: React.FC = () => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const url = `${window.location.origin}/job/${tenantId}/${jobId}`;
+      const url = `${PUBLIC_DOMAIN}/job/${tenantId}/${jobId}`;
       setGeneratedUrl(url);
     }
   }, [selectedJobId, tenantId, jobId, setGeneratedUrl]);
