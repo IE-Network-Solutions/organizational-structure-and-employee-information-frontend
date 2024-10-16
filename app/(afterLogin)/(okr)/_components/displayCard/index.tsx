@@ -10,12 +10,14 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   span,
   isTop,
   cardColor,
+  isLoading,
 }) => {
   const success =
-    parseFloat(score?.achievement || '0') / parseFloat(score?.score);
+    parseFloat(score?.achievement || '0') / parseFloat(score?.score) || score;
   return (
     <Col span={span}>
       <Card
+        loading={isLoading}
         bodyStyle={{ padding: '10px' }}
         bordered={false}
         className={cardColor ? cardColor : ''}

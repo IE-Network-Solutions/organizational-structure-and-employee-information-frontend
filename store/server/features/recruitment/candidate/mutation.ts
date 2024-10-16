@@ -2,7 +2,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { RECRUITMENT } from '@/utils/constants';
+import { RECRUITMENT_URL } from '@/utils/constants';
 
 const createCandidate = async (data: any) => {
   const token = useAuthenticationStore.getState().token;
@@ -14,7 +14,7 @@ const createCandidate = async (data: any) => {
   };
 
   return crudRequest({
-    url: `${RECRUITMENT}/job-information`,
+    url: `${RECRUITMENT_URL}/job-information`,
     // url: 'http://172.16.35.115:8010/api/v1/job-candidate-information',
     method: 'POST',
     data,

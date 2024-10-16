@@ -1,6 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
-import { RECRUITMENT } from '@/utils/constants';
+import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
@@ -14,7 +14,7 @@ const getJobs = async () => {
     tenantId: tenantId,
   };
   return await crudRequest({
-    url: `${RECRUITMENT}/job-information?limit=${pageSize}&&page=${currentPage}`,
+    url: `${RECRUITMENT_URL}/job-information?limit=${pageSize}&&page=${currentPage}`,
     // url: `http://172.16.33.228:8010/api/v1/job-information?limit=${pageSize}&&page=${currentPage}`,
     method: 'GET',
     headers,
@@ -29,7 +29,7 @@ const getJobsByID = async (jobId: string) => {
     tenantId: tenantId,
   };
   return await crudRequest({
-    url: `${RECRUITMENT}/job-information/${jobId}`,
+    url: `${RECRUITMENT_URL}/job-information/${jobId}`,
     // url: `http://172.16.33.228:8010/api/v1/job-information/${jobId}`,
     method: 'GET',
     headers,
@@ -44,7 +44,7 @@ const getDepartmentById = async (depId: string) => {
     tenantId: tenantId,
   };
   return await crudRequest({
-    url: `${RECRUITMENT}/departments/${depId}`,
+    url: `${RECRUITMENT_URL}/departments/${depId}`,
     // url: `http://172.16.33.228:8010/api/v1/departments/${depId}`,
     method: 'GET',
     headers,

@@ -1,54 +1,81 @@
-import { Progress, Badge, Avatar } from 'antd';
-import { PiUserSquare } from 'react-icons/pi';
-
-const applicants = [
-  { name: 'Giana Lipshutz', status: 'Hired' },
-  { name: 'Giana Lipshutz', status: 'Hired' },
-  { name: 'Giana Lipshutz', status: 'Pending' },
-];
+import { useGetApplicantSummary } from '@/store/server/features/dashboard/applicant-summary/queries';
+import { Badge, Avatar, Card, Empty, Pagination } from 'antd';
+import { useState } from 'react';
+import { UserOutlined } from '@ant-design/icons';
+import ApplicantSummary from './applicant';
+import { useApplicantStore } from '@/store/uistate/features/dashboard/applicant';
 
 export const Applicants = () => {
+  const { status } = useApplicantStore();
+  const { data: applicants, isLoading } = useGetApplicantSummary(status);
+  const [currentPage, setCurrentPage] = useState(1); // Current page
+  const [pageSize, setPageSize] = useState(4); // Number of items per page
+
+  // Calculate the current slice of applicants to display
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedApplicants = applicants?.candidates?.slice(
+    startIndex,
+    endIndex,
+  );
   return (
-    <div className="bg-white rounded-lg p-6 shadow-md w-full ">
-      <h2 className="text-xl font-semibold mb-4">Applicants</h2>
-      <div className="flex justify-center items-center mb-2">
-        <Progress
-          type="dashboard"
-          percent={75}
-          format={() => (
-            <div className="bg-white shadow-xl rounded-full w-24 h-24 relative left-3 top-0 flex flex-col justify-center items-center border border-gray-50 ">
-              <div className="text-xs font-light">Out Of</div>
-              <div className="text-2xl font-extrabold">120</div>
-            </div>
-          )}
-        />
-      </div>
-      <div>
-        {applicants.map((applicant, index) => (
-          <div
-            key={index}
-            className="flex items-center justify-between py-2 border-b last:border-none"
-          >
-            <div className="flex items-center space-x-3">
-              <Avatar
-                icon={<PiUserSquare />}
-                alt="Applicant Avatar"
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <span>{applicant.name}</span>
-            </div>
-            <Badge
-              status={applicant.status === 'Hired' ? 'success' : 'warning'}
-              text={applicant.status}
-              className={`text-sm ${
-                applicant.status === 'Hired'
-                  ? 'text-blue-600'
-                  : 'text-yellow-500'
-              }`}
+    <Card
+      loading={isLoading}
+      bodyStyle={{ padding: '0px' }}
+      className="bg-white rounded-lg p-6 w-full "
+    >
+      {applicants?.applicant?.length != 0 ? (
+        <>
+          <ApplicantSummary applicant={applicants?.applicant || []} />
+          <div>
+            {paginatedApplicants?.map((applicant, index) => (
+              <>
+                <div
+                  key={index}
+                  className="flex items-center justify-between py-2 border-b last:border-none"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Avatar
+                      icon={<UserOutlined />}
+                      alt="Applicant Avatar"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <span>{applicant.fullName}</span>
+                  </div>
+                  <Badge
+                    status={
+                      applicant.stage === 'Initial Stage'
+                        ? 'success'
+                        : 'warning'
+                    }
+                    text={applicant.stage}
+                    className={`text-sm ${
+                      applicant.stage === 'Initial Stage'
+                        ? 'text-blue-600'
+                        : 'text-yellow-500'
+                    }`}
+                  />
+                </div>
+              </>
+            ))}
+          </div>
+          <div className="flex justify-end mt-4">
+            <Pagination
+              size="small"
+              current={currentPage}
+              pageSize={pageSize}
+              total={applicants?.applicant?.length || 0} // Total number of items
+              onChange={(page, pageSize) => {
+                setCurrentPage(page);
+                setPageSize(pageSize);
+              }}
+              // To allow changing page size
             />
           </div>
-        ))}
-      </div>
-    </div>
+        </>
+      ) : (
+        <Empty />
+      )}
+    </Card>
   );
 };

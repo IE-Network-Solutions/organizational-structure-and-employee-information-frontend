@@ -23,7 +23,7 @@ function page() {
     planningPeriods?.map((item: any, index: number) => ({
       label: (
         <span className="font-semibold text-sm">
-          {item?.planningPeriod.name}
+          {item?.planningPeriod?.name}
         </span>
       ),
       key: String(index + 1),
