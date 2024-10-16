@@ -12,8 +12,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   cardColor,
   isLoading,
 }) => {
-  const success =
-    parseFloat(score?.achievement || '0') / parseFloat(score?.score) || score;
+  
   return (
     <Col span={span}>
       <Card
