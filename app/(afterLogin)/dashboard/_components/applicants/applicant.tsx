@@ -1,16 +1,14 @@
 import React from 'react';
 import { Card, Empty, Select } from 'antd';
 import { Doughnut } from 'react-chartjs-2';
-import { Chart, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
-import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
-import { useEmployeeStatusDashboardStateStore } from '@/store/uistate/features/dashboard/employee-status';
+import { Chart, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js'; // Import required elements
+import { useApplicantStore } from '@/store/uistate/features/dashboard/applicant';
+import { Applicant } from '@/store/server/features/dashboard/applicant-summary/queries';
 
 // Register the chart.js components
 Chart.register(ArcElement, Tooltip, Legend);
 
 const { Option } = Select;
-
-// Define the type for the chart's dataset
 interface ChartData {
   labels: string[];
   datasets: {
@@ -19,21 +17,20 @@ interface ChartData {
     borderWidth: number;
   }[];
 }
+interface ApplicantProps {
+  applicant: Applicant[];
+}
+const ApplicantSummary: React.FC<ApplicantProps> = ({ applicant }) => {
+  const { setStatus } = useApplicantStore();
 
-const EmploymentStats: React.FC = () => {
-  const { typeId, setTypeId } = useEmployeeStatusDashboardStateStore();
-  const { data: employeeStatus, isLoading } = useGetEmployeeStatus(typeId);
-  const labels = employeeStatus?.map((status) => status.name); // ['Full-time', 'Part-time', 'Contractor']
-  const dataValues = employeeStatus?.map((status) => status.count);
-  const totalCount = employeeStatus?.reduce(
-    (acc, status) => acc + Number(status.count),
-    0,
-  );
+  const totalCount = applicant?.reduce((accumulator, i) => {
+    return accumulator + Number(i.count);
+  }, 0);
   const data: ChartData = {
-    labels: labels || [],
+    labels: applicant?.map((i) => i.stage),
     datasets: [
       {
-        data: dataValues || [], // Sample data for full-time, part-time, and others
+        data: applicant?.map((i) => i.count), // Sample data for full-time, part-time, and others
         backgroundColor: ['#2f78ee', '#3636ee', '#1d9bf0'],
         borderWidth: 1,
       },
@@ -81,24 +78,30 @@ const EmploymentStats: React.FC = () => {
   };
 
   return (
-    <Card loading={isLoading} className="w-full mx-auto ">
+    <Card
+      bodyStyle={{ padding: 0 }}
+      className="w-full mx-auto  border-none bg-none shadow-none"
+    >
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-gray-700 font-semibold text-sm">Employee Stat</h3>
+        <h3 className="text-gray-700 font-semibold text-lg">Applicant</h3>
         <Select
           bordered={false}
           defaultValue="All Time"
           className="text-gray-500 w-28"
-          onChange={(value) => setTypeId(value)}
+          onChange={(value) => setStatus(value)}
         >
           <Option value="">All</Option>
-          {employeeStatus?.map((i) => (
-            <Option key={i.id} value={i.id}>
-              {i.name}
+          {applicant?.map((i) => (
+            <Option
+              key={i.applicantStatusStageId}
+              value={i.applicantStatusStageId}
+            >
+              {i.stage}
             </Option>
           ))}
         </Select>
       </div>
-      {employeeStatus?.length ? (
+      {applicant?.length ? (
         <div className="flex items-center">
           <div
             style={{
@@ -123,7 +126,7 @@ const EmploymentStats: React.FC = () => {
             </div>
           </div>
           <div style={{ marginLeft: '20px' }}>
-            {data.labels.map((label: string, i: number) => (
+            {data?.labels?.map((label: string, i: number) => (
               <div key={i} className="flex items-center mb-2">
                 <div
                   style={{
@@ -143,4 +146,4 @@ const EmploymentStats: React.FC = () => {
   );
 };
 
-export default EmploymentStats;
+export default ApplicantSummary;

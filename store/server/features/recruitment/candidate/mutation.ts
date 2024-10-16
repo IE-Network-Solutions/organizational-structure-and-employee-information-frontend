@@ -5,6 +5,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 
+
 const createCandidate = async (data: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;

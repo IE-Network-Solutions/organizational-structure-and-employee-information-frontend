@@ -1,35 +1,31 @@
-import { Calendar, List } from 'antd';
-
-const tasks = [
-  { time: '09:30', task: 'Klaus Application Practical Task Review' },
-  { time: '12:00', task: 'Resume Review' },
-  { time: '01:30', task: 'Human Resources Final HR Round' },
-  { time: '09:30', task: 'Klaus Application Practical Task Review' },
-  { time: '09:30', task: 'Klaus Application Practical Task Review' },
-  { time: '09:30', task: 'Klaus Application Practical Task Review' },
-];
+import { useDelegationState } from '@/store/uistate/features/dashboard/delegation';
+import { Button } from 'antd';
+import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
+import Delegation from './delegation';
+import Survey from './survey';
 
 export default function ActionPlans() {
+  const { type, setType } = useDelegationState(); // Access the Zustand store
   return (
-    <div className="p-4 bg-white rounded-lg  md:h-[800px]">
-      <h2 className="text-lg font-semibold mb-4">Delegated Action Plans</h2>
-      <div className="grid ">
-        <Calendar fullscreen={false} />
-        <List
-          header={<div>Tasks for July 5, 2023</div>}
-          dataSource={tasks}
-          pagination={{
-            size: 'small',
-            pageSize: 5,
-          }}
-          renderItem={(item) => (
-            <List.Item className="my-2 flex gap-2">
-              <div className="text-[10px] font-bold">{item.time}</div>
-              <div className="text-[12px]">{item.task}</div>
-            </List.Item>
-          )}
+    <div className="p-4 bg-white rounded-lg md:h-[617px]">
+      <div className="flex justify-evenly items-center">
+        <Button
+          onClick={() => setType(1)}
+          icon={<FaAngleLeft />}
+          className="bg-light_purple w-8 h-8 rounded-full flex items-center justify-center border-none"
+        />
+
+        <h2 className="text-sm font-semibold ">
+          {' '}
+          {type == 1 ? 'Delegated Action Plans' : 'Survey Due Soon'}
+        </h2>
+        <Button
+          onClick={() => setType(2)}
+          icon={<FaAngleRight />}
+          className="bg-light_purple w-8 h-8  rounded-full flex items-center justify-center border-none"
         />
       </div>
+      {type == 1 ? <Delegation /> : <Survey />}
     </div>
   );
 }
