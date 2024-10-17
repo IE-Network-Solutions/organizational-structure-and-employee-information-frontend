@@ -116,17 +116,19 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
             >
               Add Task
             </Button>
-            <Dropdown
-              menu={{ items: menuItems }}
-              trigger={['click']}
-              placement="bottomRight"
-              disabled={!offboardingTermination}
-            >
-              <Button className="flex items-center">
-                <SettingOutlined className="mr-2" />
-                <DownOutlined />
-              </Button>
-            </Dropdown>
+            <div id="offboarding-template-tasks">
+              <Dropdown
+                menu={{ items: menuItems }}
+                trigger={['click']}
+                placement="bottomRight"
+                disabled={!offboardingTermination}
+              >
+                <Button className="flex items-center">
+                  <SettingOutlined className="mr-2" />
+                  <DownOutlined />
+                </Button>
+              </Dropdown>
+            </div>
           </div>
         }
         className="w-full"

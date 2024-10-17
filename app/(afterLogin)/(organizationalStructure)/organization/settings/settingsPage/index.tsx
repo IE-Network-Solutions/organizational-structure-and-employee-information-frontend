@@ -42,18 +42,18 @@ function SettingsPage() {
       ),
       children: <Branches />,
     },
+    // {
+    //   key: '2',
+    //   label: (
+    //     <span className="flex gap-2 mt-4">
+    //       <TbNotes className="mt-1" />{' '}
+    //       <p className="font-semibold">Departments </p>{' '}
+    //     </span>
+    //   ),
+    //   children: <Branches />,
+    // },
     {
       key: '2',
-      label: (
-        <span className="flex gap-2 mt-4">
-          <TbNotes className="mt-1" />{' '}
-          <p className="font-semibold">Departments </p>{' '}
-        </span>
-      ),
-      children: <Branches />,
-    },
-    {
-      key: '3',
       label: (
         <span className="flex gap-2 mt-4">
           <TbNotes className="mt-1" />{' '}
@@ -63,7 +63,7 @@ function SettingsPage() {
       children: <FiscalYearListCard />,
     },
     {
-      key: '4',
+      key: '3',
       label: (
         <span className="flex gap-2 mt-4">
           <TbNotes className="mt-1" />{' '}
@@ -75,12 +75,13 @@ function SettingsPage() {
   ];
   return (
     <>
-      <div className="flex justify-start bg-[#F5F5F5] -mt-2 -ml-2">
-        <Card className="shadow-none bg-[#F5F5F5]" bordered={false}>
+      <div className="flex justify-start  -mt-2 -ml-2">
+        <Card className="shadow-none" bordered={false}>
           <p className="font-bold text-xl">Branchs</p>
-          <p className="text-gray-400">Branchs</p>
+          <p className="text-gray-400">Branch</p>
         </Card>
       </div>
+      <hr className="py-2 "></hr>
       <Tabs
         defaultActiveKey="1"
         moreIcon={false}

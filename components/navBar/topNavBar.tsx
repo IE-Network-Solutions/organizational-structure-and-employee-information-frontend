@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+
 import { Badge, Avatar, Menu, Dropdown, Layout, Tooltip, Spin } from 'antd';
 import { MailOutlined, UserOutlined } from '@ant-design/icons';
 import { useNotificationDetailStore } from '@/store/uistate/features/notification';
@@ -11,12 +12,14 @@ import { IoIosNotificationsOutline } from 'react-icons/io';
 import { AiFillNotification } from 'react-icons/ai';
 import { useUpdateNotificationStatus } from '@/store/server/features/notification/mutation';
 import { CgCloseO } from 'react-icons/cg';
+import { Avatar, Menu, Dropdown, Layout } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 
 const { Header } = Layout;
 
 interface NavBarProps {
   page: string;
-  userid: string;
+  handleLogout: () => void;
 }
 const NavBar = ({ page, userid }: NavBarProps) => {
   const {
@@ -119,7 +122,9 @@ const NavBar = ({ page, userid }: NavBarProps) => {
     </Menu>
   );
 
-  const profileMenu = (
+
+const NavBar = ({ page, handleLogout }: NavBarProps) => {
+  const menu = (
     <Menu>
       <Menu.Item>
         <a target="_blank" rel="noopener noreferrer" href={`${URL}/profile`}>
@@ -131,11 +136,7 @@ const NavBar = ({ page, userid }: NavBarProps) => {
           Settings
         </a>
       </Menu.Item>
-      <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/logout`}>
-          Logout
-        </a>
-      </Menu.Item>
+      <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
     </Menu>
   );
 
@@ -182,6 +183,7 @@ const NavBar = ({ page, userid }: NavBarProps) => {
         <NotificationDetailVisible id={selectedNotificationId} />
       )}
     </>
+
   );
 };
 

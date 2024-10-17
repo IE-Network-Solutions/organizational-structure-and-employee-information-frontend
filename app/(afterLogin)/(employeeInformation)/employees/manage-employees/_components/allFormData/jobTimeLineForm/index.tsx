@@ -63,8 +63,8 @@ const JobTimeLineForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'employmentTypeId'}
-            id="employmentTypeId"
+            name={'employementTypeId'}
+            id="employementTypeId"
             label="Employment Type"
             rules={[
               { required: true, message: 'Please select an employment type' },
