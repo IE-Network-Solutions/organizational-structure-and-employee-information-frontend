@@ -22,7 +22,9 @@ const getPlanningData = async (params: DataType) => {
   });
 };
 
-const getAllUnReportedPlanningTask = async (planningPeriodId: string) => {
+const getAllUnReportedPlanningTask = async (
+  planningPeriodId: string | undefined,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
@@ -108,8 +110,14 @@ export const useGetReporting = (params: DataType) => {
   return useQuery<any>(['okrReports', params], () => getReportingData(params));
 };
 
-export const useGetUnReportedPlanning = (planningPeriodId: string) => {
-  return useQuery<any>(['okrPlan', planningPeriodId], () =>
-    getAllUnReportedPlanningTask(planningPeriodId),
+export const useGetUnReportedPlanning = (
+  planningPeriodId: string | undefined,
+) => {
+  return useQuery<any>(
+    ['okrReports', planningPeriodId],
+    () => getAllUnReportedPlanningTask(planningPeriodId),
+    {
+      enabled: !!planningPeriodId, // Enable the query only when planningPeriodId is defined
+    },
   );
 };

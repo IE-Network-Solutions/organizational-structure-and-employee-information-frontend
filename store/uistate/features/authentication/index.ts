@@ -26,12 +26,13 @@ export const useAuthenticationStore = create<StoreState>()(
         setToken: (token: string) => {
           setCookie('token', token, 30), set({ token });
         },
+        userId: '',
+        setUserId: (userId: string) => set({ userId }),
         tenantId: '',
         setTenantId: (tenantId: string) => {
           set({ tenantId }), setCookie('tenantId', tenantId, 30);
         },
-        userId: '',
-        setUserId: (userId: string) => set({ userId }),
+
         localId: '',
         setLocalId: (localId: string) => set({ localId }),
         loading: false, // Non-persistent state
