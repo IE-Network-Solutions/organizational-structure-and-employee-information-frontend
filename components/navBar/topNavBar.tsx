@@ -1,16 +1,15 @@
 'use client';
 import React from 'react';
-import { Badge, Avatar, Menu, Dropdown, Layout, Tooltip, Spin } from 'antd';
-import { MailOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, Menu, Dropdown, Layout, Badge, Spin, Tooltip } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 import { useNotificationDetailStore } from '@/store/uistate/features/notification';
-import { NotificationDetailVisible } from '../../app/(afterLogin)/(employeeInformation)/employees/notification/_component/notificationDetail';
-import Link from 'next/link';
 import { useGetNotifications } from '@/store/server/features/notification/queries';
 import { NotificationType } from '@/store/server/features/notification/interface';
+import { useUpdateNotificationStatus } from '@/store/server/features/notification/mutation';
 import { IoIosNotificationsOutline } from 'react-icons/io';
 import { AiFillNotification } from 'react-icons/ai';
-import { useUpdateNotificationStatus } from '@/store/server/features/notification/mutation';
 import { CgCloseO } from 'react-icons/cg';
+import Link from 'next/link';
 
 const { Header } = Layout;
 
@@ -19,12 +18,9 @@ interface NavBarProps {
   userId?: string;
   handleLogout?: any;
 }
-const NavBar = ({ page, userId }: NavBarProps) => {
-  const {
-    setIsNotificationDetailVisible,
-    setSelectedNotificationId,
-    selectedNotificationId,
-  } = useNotificationDetailStore();
+const NavBar = ({ page, handleLogout }: NavBarProps) => {
+  const { setIsNotificationDetailVisible, setSelectedNotificationId } =
+    useNotificationDetailStore();
 
   const handleShowNotificationDetails = (id: string) => {
     setSelectedNotificationId(id);
@@ -119,8 +115,7 @@ const NavBar = ({ page, userId }: NavBarProps) => {
       )}
     </Menu>
   );
-
-  const profileMenu = (
+  const menu = (
     <Menu>
       <Menu.Item>
         <a target="_blank" rel="noopener noreferrer" href={`${URL}/profile`}>
@@ -132,57 +127,42 @@ const NavBar = ({ page, userId }: NavBarProps) => {
           Settings
         </a>
       </Menu.Item>
-      <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/logout`}>
-          Logout
-        </a>
-      </Menu.Item>
+      <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
     </Menu>
   );
 
   return (
-    <>
-      <Header
-        className="flex justify-between items-center bg-white shadow-md w-full"
-        style={{
-          padding: '0 20px',
-        }}
-      >
-        <p>{page}</p>
-        <div className="flex items-center gap-5">
-          <Badge count={5} className="mx-4">
-            <MailOutlined style={{ fontSize: '20px' }} />
-          </Badge>
-
-          <Dropdown
-            className="border-[#ececee] border-[1px] rounded-md"
-            overlay={notificationMenu}
-            trigger={['click']}
+    <Header
+      className="flex justify-between items-center bg-white shadow-md w-full"
+      style={{
+        padding: '0 20px',
+      }}
+    >
+      <p>{page}</p>
+      <div className="flex items-center gap-5">
+        <Dropdown
+          className="border-[#ececee] border-[1px] rounded-md"
+          overlay={notificationMenu}
+          trigger={['click']}
+        >
+          <Badge
+            count={
+              unReadNotification?.length > 0 ? unReadNotification?.length : 0
+            }
+            className="bg-gray-300 p-2 rounded-lg"
           >
-            <Badge
-              count={
-                unReadNotification?.length > 0 ? unReadNotification?.length : 0
-              }
-              className="bg-gray-300 p-2 rounded-lg"
-            >
-              <IoIosNotificationsOutline size={20} />
-            </Badge>
-          </Dropdown>
-
-          <Dropdown overlay={profileMenu} placement="bottomRight">
-            <Avatar
-              icon={<UserOutlined />}
-              src={`${URL}/user/${userId}`}
-              className="cursor-pointer"
-            />
-          </Dropdown>
-        </div>
-      </Header>
-
-      {selectedNotificationId && (
-        <NotificationDetailVisible id={selectedNotificationId} />
-      )}
-    </>
+            <IoIosNotificationsOutline size={20} />
+          </Badge>
+        </Dropdown>
+        <Dropdown overlay={menu} placement="bottomRight">
+          <Avatar
+            icon={<UserOutlined />}
+            // src={`${URL}/user/${userid}`}
+            className="cursor-pointer"
+          />
+        </Dropdown>
+      </div>
+    </Header>
   );
 };
 
