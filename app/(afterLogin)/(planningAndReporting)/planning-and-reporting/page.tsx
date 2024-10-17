@@ -20,7 +20,6 @@ function page() {
     setActiveTab(e.target.value);
   };
   const TabsContent = () =>
-
     Array.isArray(planningPeriods)
       ? planningPeriods.map((item: any, index: number) => ({
           label: (
