@@ -51,9 +51,9 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
                     {score?.achievement} key result archived
                   </div>
                   <div className="w-full">
-                    <Tooltip title={` ${isNaN(success) ? 0 : success * 100} %`}>
+                    <Tooltip title={0}>
                       <Progress
-                        percent={isNaN(success) ? 0 : success * 100}
+                        percent={0}
                         showInfo={false}
                         size={{ height: 10 }}
                         className="w-[100%]"

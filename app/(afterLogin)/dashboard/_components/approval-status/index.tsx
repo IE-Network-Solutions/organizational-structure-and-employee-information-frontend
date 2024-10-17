@@ -62,7 +62,7 @@ const ApprovalStatus: FC = () => {
         </div>
       </div>
 
-      <div className="md:h-[262px] overflow-y-auto scrollbar-none">
+      <div className="md:h-[325px] overflow-y-auto scrollbar-none">
         {requests?.length ? (
           <div className="">
             {requests.map((request, index) => (
