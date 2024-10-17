@@ -16,9 +16,10 @@ const { Header } = Layout;
 
 interface NavBarProps {
   page: string;
-  userid: string;
+  userId?: string;
+  handleLogout?: any;
 }
-const NavBar = ({ page, userid }: NavBarProps) => {
+const NavBar = ({ page, userId }: NavBarProps) => {
   const {
     setIsNotificationDetailVisible,
     setSelectedNotificationId,
@@ -171,7 +172,7 @@ const NavBar = ({ page, userid }: NavBarProps) => {
           <Dropdown overlay={profileMenu} placement="bottomRight">
             <Avatar
               icon={<UserOutlined />}
-              src={`${URL}/user/${userid}`}
+              src={`${URL}/user/${userId}`}
               className="cursor-pointer"
             />
           </Dropdown>
