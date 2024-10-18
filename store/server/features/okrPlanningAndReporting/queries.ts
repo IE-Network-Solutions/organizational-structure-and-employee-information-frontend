@@ -114,7 +114,12 @@ export const useGetPlanningById = (planningId: string) => {
   );
 };
 export const useGetReporting = (params: DataType) => {
-  return useQuery<any>(['okrReports', params], () => getReportingData(params));
+  return useQuery<any>(['okrReports', params], 
+      () => getReportingData(params),
+      {
+        enabled: !!params?.planPeriodId, // Enable the query only when planningPeriodId is defined
+      },
+    );
 };
 
 export const useGetUnReportedPlanning = (

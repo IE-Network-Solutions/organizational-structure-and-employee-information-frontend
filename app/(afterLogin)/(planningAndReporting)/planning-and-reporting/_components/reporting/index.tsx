@@ -34,7 +34,7 @@ function Reporting() {
 
   const { data: allReporting } = useGetReporting({
     userId: selectedUser,
-    planPeriodId: planningPeriodId,
+    planPeriodId: planningPeriodId ?? '',
   });
   const { data: allUnReportedPlanningTask } =
     useGetUnReportedPlanning(planningPeriodId);
