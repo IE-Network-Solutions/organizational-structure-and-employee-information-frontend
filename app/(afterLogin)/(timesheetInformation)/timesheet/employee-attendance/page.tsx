@@ -77,6 +77,7 @@ const EmployeeAttendance = () => {
           <Button
             icon={<TbFileUpload size={18} />}
             size="large"
+            id='importEmployeeAttendanceId'
             loading={isFetching || isLoading || isLoadingImport}
             onClick={() => {
               if (importAttendance) {
@@ -89,6 +90,7 @@ const EmployeeAttendance = () => {
 
           <input
             type="file"
+            id='fileImportInputId'
             ref={importAttendance}
             accept=".xlsx, .xls"
             onChange={(e) => {
@@ -115,6 +117,7 @@ const EmployeeAttendance = () => {
                       size="small"
                       className={buttonClass}
                       type="primary"
+                      id='excelTypeOfFileToImportId'
                       icon={<TbLayoutList size={16} />}
                       onClick={() => onExport('EXCEL')}
                     >
@@ -126,6 +129,7 @@ const EmployeeAttendance = () => {
                       size="small"
                       className={buttonClass}
                       type="primary"
+                      id='pdfTypeOfFileToImportId'
                       icon={<LuBookmark size={16} />}
                       onClick={() => onExport('PDF')}
                     >
@@ -140,6 +144,7 @@ const EmployeeAttendance = () => {
               icon={<TbFileDownload size={18} />}
               size="large"
               type="primary"
+              id='exportEmployeeAttendanceId'
               loading={isFetching || isLoading || isLoadingImport}
             >
               Export
