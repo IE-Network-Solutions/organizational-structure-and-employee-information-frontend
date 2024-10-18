@@ -27,10 +27,8 @@ const RequestVerification: FC = () => {
       await sendPasswordResetEmail(auth, email, actionCodeSettings);
       message.success('Password reset email sent! Please check your inbox.');
 
-      console.log(`Password reset email sent to: ${email}`);
       handleNextClick();
     } catch (error) {
-      console.error('Error sending password reset email:', error);
       message.error('Error sending password reset email. Please try again.');
     } finally {
       setIsLoading(false);
