@@ -81,6 +81,7 @@ const CheckControl = () => {
       return (
         <Button
           className="h-14 text-base"
+          id='buttonCheckin'
           size="large"
           type="primary"
           icon={<GoClock size={20} />}
@@ -98,6 +99,7 @@ const CheckControl = () => {
           <Button
             className="h-14 text-base px-2"
             size="large"
+            id='buttonBreakCheckOut'
             icon={<GoClock size={20} />}
             loading={isLoading || isFetching}
             onClick={() => {
@@ -111,6 +113,7 @@ const CheckControl = () => {
           <Button
             className="h-14 text-base"
             size="large"
+            id='buttonCheckOut'
             icon={<GoClock size={20} />}
             loading={isLoading || isFetching}
             onClick={() => {
@@ -133,6 +136,7 @@ const CheckControl = () => {
           <Button
             className="h-14 text-base"
             size="large"
+            id='checkInButton'
             icon={<GoClock size={20} />}
             loading={isLoading || isFetching}
             onClick={() => {
