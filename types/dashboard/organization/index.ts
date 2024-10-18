@@ -52,4 +52,6 @@ export interface OrganizationState {
   setSelectedDepartment: (department: Department | null) => void;
   setParentId: (parentId: string | null) => void;
   setIsDeleteConfirmVisible: (isDeleteConfirmVisible: boolean) => void;
+  chartDownlaodLoading: boolean;
+  setChartDonwnloadLoading: (chartDownlaodLoading: boolean) => void;
 }

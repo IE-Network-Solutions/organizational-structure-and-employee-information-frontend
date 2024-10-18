@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
 import { Card, Button, Menu, Dropdown, Tooltip } from 'antd';
 import {
@@ -15,7 +15,6 @@ import DepartmentForm from '@/app/(afterLogin)/(onboarding)/onboarding/_componen
 import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
 import CustomButton from '@/components/common/buttons/customButton';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { IoAddSharp } from 'react-icons/io5';
 import {
   useDeleteOrgChart,
   useUpdateOrgChart,
@@ -23,6 +22,16 @@ import {
 import { OrgChart } from '@/store/server/features/organizationStructure/organizationalChart/interface';
 import DeleteModal from '@/components/common/deleteModal';
 import CustomDrawer from '../customDrawer';
+import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useRouter } from 'next/navigation';
+import OrgChartSkeleton from '../../loading/orgStructureLoading';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import { FaDownload } from 'react-icons/fa';
 
 interface DepartmentNodeProps {
   data: Department;
@@ -66,7 +75,7 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({
           icon={<PlusOutlined />}
           size="small"
           type="primary"
-          className="p-2 rounded-full absolute bottom-[-10px] center-[-40px]"
+          className={`p-2 rounded-full absolute bottom-[-10px] center-[-40px] hide-on-download`}
           onClick={onAdd}
         />
       )}
@@ -74,7 +83,7 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({
         <Dropdown
           overlay={menu}
           trigger={['click']}
-          className="absolute top-[5px] right-[5px]"
+          className="absolute top-[5px] right-[5px]  hide-on-download"
         >
           <Button
             icon={<MoreOutlined />}
@@ -101,7 +110,7 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({
           icon={<PlusOutlined />}
           size="small"
           type="primary"
-          className="rounded-full absolute bottom-[-10px] "
+          className={`rounded-full absolute bottom-[-10px] hide-on-download`}
           style={{ marginTop: '5px' }}
           onClick={onAdd}
         />
@@ -147,9 +156,48 @@ const OrgChartComponent: React.FC = () => {
     setParentId,
     isDeleteConfirmVisible,
     setIsDeleteConfirmVisible,
+    chartDownlaodLoading,
+    setChartDonwnloadLoading,
   } = useOrganizationStore();
 
-  const { data: orgStructureData } = useGetOrgCharts();
+  const chartRef = useRef<HTMLDivElement>(null);
+
+  const exportToPDF = async () => {
+    setChartDonwnloadLoading(true);
+    const input = chartRef.current;
+
+    if (input) {
+      input.style.overflow = 'visible';
+      const canvas = await html2canvas(input, {
+        scale: 2,
+        useCORS: true,
+        scrollX: -window.scrollX,
+        scrollY: -window.scrollY,
+        width: input.scrollWidth + 100,
+        height: input.scrollHeight + 100,
+        ignoreElements: (element) => {
+          return element.classList.contains('hide-on-download');
+        },
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [canvas.width, canvas.height],
+      });
+
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+
+      pdf.save(`Organization_chart_${Date.now()}.pdf`);
+
+      input.style.overflow = '';
+      setChartDonwnloadLoading(false);
+    }
+  };
+
+  const { data: orgStructureData, isLoading: orgStructureLoading } =
+    useGetOrgCharts();
   const { mutate: updateDepartment } = useUpdateOrgChart();
   const { mutate: deleteDepartment, isLoading: deleteLoading } =
     useDeleteOrgChart();
@@ -221,6 +269,24 @@ const OrgChartComponent: React.FC = () => {
     setDrawerVisible(false);
   };
 
+  const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
+  const { userId } = useAuthenticationStore.getState();
+  const { data: departments } = useGetDepartments();
+
+  const { data: employeeData } = useGetEmployee(userId);
+
+  const router = useRouter();
+  useEffect(() => {
+    if (departments?.length < 1) {
+      router.push('/onboarding');
+    } else if (
+      employeeData &&
+      employeeData?.employeeJobInformation?.length < 1
+    ) {
+      setIsAddEmployeeJobInfoModalVisible(true);
+    }
+  }, [employeeData, departments, setIsAddEmployeeJobInfoModalVisible]);
+
   const menu = (
     <Menu>
       <Menu.Item
@@ -258,9 +324,11 @@ const OrgChartComponent: React.FC = () => {
           <div className="py-4 flex justify-center items-center gap-4">
             <CustomButton
               title="Download"
-              type="default"
-              icon={<IoAddSharp size={24} />}
+              loading={chartDownlaodLoading}
+              icon={<FaDownload size={16} />}
+              onClick={exportToPDF}
             />
+
             <Dropdown
               overlay={menu}
               trigger={['click']}
@@ -272,37 +340,41 @@ const OrgChartComponent: React.FC = () => {
         }
       >
         <div className="w-full py-7 overflow-x-auto ">
-          <div className="p-4 sm:p-2 md:p-6 lg:p-8">
-            <Tree
-              label={
-                <DepartmentNode
-                  data={{
-                    id: orgStructureData?.id || '',
-                    name: orgStructureData?.name || '',
-                    department: orgStructureData?.department || [],
-                    branchId: orgStructureData?.branchId,
-                    description: '',
-                    collapsed: false,
-                  }}
-                  onEdit={() => {}}
-                  onAdd={() => handleAdd(orgStructureData)}
-                  onDelete={() => {}}
-                  isRoot={true}
-                />
-              }
-              lineWidth={'2px'}
-              lineColor={'#722ed1'}
-              lineBorderRadius={'10px'}
-            >
-              {renderTreeNodes(
-                orgStructureData?.department || [],
-                handleEdit,
-                handleAdd,
-                handleDelete,
-                false,
-              )}
-            </Tree>
-          </div>
+          {orgStructureLoading ? (
+            <OrgChartSkeleton loading={orgStructureLoading} />
+          ) : (
+            <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef}>
+              <Tree
+                label={
+                  <DepartmentNode
+                    data={{
+                      id: orgStructureData?.id || '',
+                      name: orgStructureData?.name || '',
+                      department: orgStructureData?.department || [],
+                      branchId: orgStructureData?.branchId,
+                      description: '',
+                      collapsed: false,
+                    }}
+                    onEdit={() => {}}
+                    onAdd={() => handleAdd(orgStructureData)}
+                    onDelete={() => {}}
+                    isRoot={true}
+                  />
+                }
+                lineWidth={'2px'}
+                lineColor={'#722ed1'}
+                lineBorderRadius={'10px'}
+              >
+                {renderTreeNodes(
+                  orgStructureData?.department || [],
+                  handleEdit,
+                  handleAdd,
+                  handleDelete,
+                  false,
+                )}
+              </Tree>
+            </div>
+          )}
 
           <DepartmentForm
             onClose={() => setIsFormVisible(false)}
@@ -328,6 +400,7 @@ const OrgChartComponent: React.FC = () => {
           title={drawTitle}
         />
       </Card>
+      <CreateEmployeeJobInformation id={userId} />
     </div>
   );
 };
