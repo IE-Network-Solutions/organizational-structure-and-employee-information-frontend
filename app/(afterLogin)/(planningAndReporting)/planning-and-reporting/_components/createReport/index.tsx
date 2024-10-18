@@ -59,7 +59,8 @@ function CreateReport() {
   );
 
   const handleOnFinish = (values: Record<string, any>) => {
-    createReport(
+
+    planningPeriodId && createReport(
       { values: values, planningPeriodId: planningPeriodId },
       {
         onSuccess: () => {
@@ -171,8 +172,7 @@ function CreateReport() {
                                           </span>
                                         </div>
                                         <Row>
-                                          {keyresult?.metricType?.name ===
-                                            'achieve_or_not' && (
+                                          {keyresult?.metricType?.name ===NAME.ACHIEVE && (
                                             <div className="text-xs">
                                               Target
                                               <Tag className="uppercase mt-1 ml-1 test-xs">
