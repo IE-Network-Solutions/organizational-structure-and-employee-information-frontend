@@ -203,6 +203,7 @@ function EditPlan() {
                                         </div>
                                         <>
                                           <Divider className="my-2" />
+                                          {planningPeriodId && planningUserId &&
                                           <DefaultCardForm
                                             kId={kr?.id}
                                             hasTargetValue={hasTargetValue}
@@ -213,7 +214,7 @@ function EditPlan() {
                                             planningPeriodId={planningPeriodId}
                                             userId={userId}
                                             planningUserId={planningUserId}
-                                          />
+                                          />}
                                           <BoardCardForm
                                             form={form}
                                             handleAddName={handleAddName}
@@ -247,7 +248,8 @@ function EditPlan() {
                                   </div>
                                 </div>
                                 <Divider className="my-2" />
-                                <DefaultCardForm
+                                {planningPeriodId && planningUserId &&
+                                 <DefaultCardForm
                                   kId={kr?.id}
                                   hasTargetValue={hasTargetValue}
                                   hasMilestone={hasMilestone}
@@ -257,7 +259,7 @@ function EditPlan() {
                                   planningPeriodId={planningPeriodId}
                                   userId={userId}
                                   planningUserId={planningUserId}
-                                />
+                                />}
                                 <BoardCardForm
                                   form={form}
                                   handleAddName={handleAddName}

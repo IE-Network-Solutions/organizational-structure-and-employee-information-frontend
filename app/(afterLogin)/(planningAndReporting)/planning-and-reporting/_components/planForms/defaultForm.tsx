@@ -198,6 +198,7 @@ function DefaultCardForm({
                   }
                 />
               </Form.Item>
+              {planningPeriodId && planningUserId &&
               <Form.Item label="Sub tasks" className="mx-8">
                 <SubTaskComponent
                   field={field}
@@ -208,7 +209,7 @@ function DefaultCardForm({
                   planningUserId={planningUserId}
                   userId={userId}
                 />
-              </Form.Item>
+              </Form.Item>}
             </Form.Item>
           ))}
 
