@@ -71,11 +71,7 @@ function EmergencyContact({ handleSaveChanges, id }: any) {
             {Object.entries(
               employeeData?.employeeInformation?.emergencyContact || {},
             ).map(([key, val]) => (
-              <InfoLine
-                key={key}
-                title={key.replace('emergencyContact', '')}
-                value={val?.toString() || '-'}
-              />
+              <InfoLine key={key} title={key} value={val?.toString() || '-'} />
             ))}
           </Col>
         </Row>
