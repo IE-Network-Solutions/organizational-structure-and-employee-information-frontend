@@ -41,10 +41,10 @@ function Planning() {
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
-  const { data: allPlanning } = useGetPlanning({
-    userId: selectedUser,
-    planPeriodId: planningPeriodId,
-  });
+    const { data: allPlanning } = useGetPlanning({
+      userId: selectedUser,
+      planPeriodId: planningPeriodId ?? '', // Provide a default string value
+    });
 
   const transformedData = groupPlanTasksByKeyResultAndMilestone(allPlanning);
 
