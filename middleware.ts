@@ -10,6 +10,7 @@ export function middleware(req: NextRequest) {
     const excludedPath = [
       '/authentication/login',
       '/authentication/forgetPassword',
+      '/authentication/resetPassword',
     ];
     const isExcludedPath = excludedPath.some((path) =>
       pathname.startsWith(path),
