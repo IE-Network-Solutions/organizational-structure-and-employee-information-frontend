@@ -6,7 +6,7 @@ pipeline {
         REPO_URL = 'https://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@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git'
         BRANCH_NAME = 'staging'
         REPO_DIR = 'staging/osei-front'
-        SSH_CREDENTIALS_ID = 'peptest'
+        SSH_CREDENTIALS_ID = 'pepproduction'
 
         ORG_AND_EMP_URL="https://staging-org-emp.selamnew.com/api/v1"
         NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://staging-okr.selamnew.com/api/v1"
