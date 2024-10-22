@@ -82,7 +82,6 @@ const GroupPermission = () => {
         form={form}
         name="basic"
         layout="vertical"
-        initialValues={{ tenantId: 'tenantId_1' }}
         onFinish={
           currentModal === 'editModal' ? onUpdatePermissionGroupData : onFinish
         }
@@ -94,9 +93,6 @@ const GroupPermission = () => {
             </Form.Item>
           )}
           <div>
-            <Form.Item name="tenantId" hidden>
-              <Input />
-            </Form.Item>
             <Form.Item
               name="name"
               label={

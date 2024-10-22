@@ -70,7 +70,15 @@ function PersonalDataComponent({
                     },
                   ]}
                 >
-                  <DatePicker className="w-full" />
+                  <DatePicker
+                     className="w-full"
+                     defaultPickerValue={dayjs('2000-01-01')} // Opens the calendar with the year 2000
+                     disabledDate={(current) => {
+                      const minDate = dayjs().subtract(100, 'years'); // Minimum date is 100 years ago
+                      const maxDate = dayjs().subtract(18, 'years');  // Maximum date is 18 years ago
+                      return current && (current.isBefore(minDate) || current.isAfter(maxDate));
+                    }}
+                    />
                 </Form.Item>
                 <Form.Item
                   name="nationalityId"
