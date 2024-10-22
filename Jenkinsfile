@@ -26,15 +26,16 @@ pipeline {
     }
 
     stages {
-        stage('Clone Repository') {
+         stage('Pull Latest Changes') {
             steps {
                 sshagent (credentials: [SSH_CREDENTIALS_ID]) {
                     sh """
-                    echo one
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'sudo rm -r $REPO_DIR'
-                        echo two
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR'
-                        echo three
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER '
+                        if [ ! -d "$REPO_DIR/.git" ]; then
+                            git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR
+                        else
+                            cd $REPO_DIR && git reset --hard HEAD && git pull origin $BRANCH_NAME
+                        fi'
                     """
                 }
             }
