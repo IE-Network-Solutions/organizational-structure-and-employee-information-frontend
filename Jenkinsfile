@@ -8,15 +8,15 @@ pipeline {
         REPO_DIR = 'osei-front'
         SSH_CREDENTIALS_ID = 'peptest'
 
-        ORG_AND_EMP_URL="https://test-org-emp.ienetworks.co/api/v1"
-        NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://test-okr-backend.ienetworks.co/api/v1"
-        OKR_URL="https://test-okr-backend.ienetworks.co/api/v1"
-        TENANT_MGMT_URL="https://test-tenant-backend.ienetworks.co/api/v1"
-        ORG_DEV_URL = "https://test-od.ienetworks.co/api/v1"
-        RECRUITMENT_URL="https://test-recruitment-backend.ienetworks.co/api/v1"
+        ORG_AND_EMP_URL="https://staging-org-emp.selamnew.com/api/v1"
+        NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://staging-okr.selamnew.com/api/v1"
+        OKR_URL="https://staging-okr.selamnew.com/api/v1"
+        TENANT_MGMT_URL="https://staging-tenant.selamnew.com/api/v1"
+        ORG_DEV_URL = "https://staging-org-dev.selamnew.com/api/v1"
+        RECRUITMENT_URL="https://staging-recruitment.selamnew.com/api/v1"
         PUBLIC_DOMAIN="https://selamnew.com"
-        NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://test-time-attendance-backend.ienetworks.co/api/v1"
-        NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://test-training-backend.ienetworks.co/api/v1"
+        NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://staging-time.selamnew.com/api/v1"
+        NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://staging-training.selamnew.com/api/v1"
         NEXT_PUBLIC_API_KEY="AIzaSyDDOSSGJy2izlW9CzhzhjHUTEVur0J16zs"
         NEXT_PUBLIC_AUTH_DOMIAN="pep-authentication.firebaseapp.com"
         NEXT_PUBLIC_PROJECT_ID="pep-authentication"
