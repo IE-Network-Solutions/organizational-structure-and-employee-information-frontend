@@ -11,7 +11,7 @@ const RequestVerification: FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleNextClick = () => {
-    router.push('/authentication/resetPasswor');
+    router.push('/authentication/resetPassword');
   };
 
   const handleFinish = async (values: { email: string }) => {
