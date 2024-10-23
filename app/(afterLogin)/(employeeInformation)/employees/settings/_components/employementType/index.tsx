@@ -1,59 +1,47 @@
 'use client';
-
-import { Button, Card, Table } from 'antd';
+import { Button, Card, Table, Spin } from 'antd'; // Added Spin for loading indicator
 import React from 'react';
 import { FaPlus, FaUser } from 'react-icons/fa';
+import EmployementTypeSideDrawer from './_components/employementTypeSideDrawer';
+import { EmployeTypeManagementStore } from '@/store/uistate/features/employees/settings/emplyeTypeDrawer';
+import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
+import { EmploymentTypeInfo } from '@/store/server/features/employees/employeeManagment/employmentType/interface';
 
 const EmploymentType = () => {
-  const data: any[] = [
-    {
-      key: '1',
+  const { setOpen, pageSize, setPageSize, setPage, page } =
+    EmployeTypeManagementStore();
+  const { data: employeTypeData, isLoading } = useGetEmployementTypes(
+    page,
+    pageSize,
+  );
+
+  const showDrawer = () => {
+    setOpen(true);
+  };
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const reformattedData = employeTypeData?.items?.map(
+    (item: EmploymentTypeInfo) => ({
       name: (
         <div className="flex space-x-2 font-semibold">
           <FaUser className="mt-3 text-gray-500" />
           <p className="flex flex-col">
-            <span>John Brown</span>
+            <span>{item.name}</span>
             <span className="text-gray-500 text-xs">
-              Employees who are currently under provision
+              {item.description || 'No description provided'}
             </span>
           </p>
         </div>
       ),
-    },
-    {
-      key: '2',
-      name: (
-        <div className="flex space-x-2 font-semibold">
-          <FaUser className="mt-3 text-gray-500" />
-          <p className="flex flex-col">
-            <span>Joe Black</span>
-            <span className="text-gray-500 text-xs">
-              Interns who are currently under provision
-            </span>
-          </p>
-        </div>
-      ),
-    },
-    {
-      key: '3',
-      name: (
-        <div className="flex space-x-2 font-semibold">
-          <FaUser className="mt-3 text-gray-500" />
-          <p className="flex flex-col">
-            <span>Joe Black</span>
-            <span className="text-gray-500 text-xs">
-              Employees who are currently under provision
-            </span>
-          </p>
-        </div>
-      ),
-    },
-  ];
+    }),
+  );
 
   const columns: any = [
     {
       dataIndex: 'name',
-      key: 'name',
+      key: 'Name',
     },
   ];
 
@@ -64,14 +52,41 @@ const EmploymentType = () => {
           <div className="text-black font-bold text-lg mb-2 sm:mb-0">
             Employment Type
           </div>
-          <Button className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]">
+          <Button
+            className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
+            onClick={showDrawer}
+          >
             <FaPlus className="text-white" />
             <span>Add New Type</span>
           </Button>
         </div>
       </Card>
+      <EmployementTypeSideDrawer onClose={onClose} />
+
       <div className="overflow-x-auto">
-        <Table columns={columns} dataSource={data} className="min-w-[320px]" />
+        {isLoading ? (
+          <div className="flex justify-center items-center h-20">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <Table
+            columns={columns}
+            dataSource={reformattedData}
+            className="min-w-[320px]"
+            pagination={{
+              pageSize: pageSize,
+              current: page,
+              total: employeTypeData?.meta?.totalItems,
+              showSizeChanger: true,
+              onChange: (page, pageSize) => {
+                setPageSize(pageSize);
+                setPage(page);
+              },
+              // showTotal: (total, range) =>
+              //   `Showing ${range[0]} to ${range[1]} of ${total} items`,
+            }}
+          />
+        )}
       </div>
     </>
   );
