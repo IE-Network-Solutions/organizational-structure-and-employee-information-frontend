@@ -1,4 +1,4 @@
-import { Button, Card, Collapse, Dropdown, Menu, Select, Space } from 'antd';
+import { Button, Card, Collapse, Dropdown, Menu, Space } from 'antd';
 import React from 'react';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { MoreOutlined, PlusOutlined } from '@ant-design/icons';
