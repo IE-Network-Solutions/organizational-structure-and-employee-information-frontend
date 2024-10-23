@@ -8,6 +8,11 @@ import {
   OKRProps,
 } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import {
+  useDeleteKeyResult,
+  useDeleteMilestone,
+} from '@/store/server/features/okrplanning/okr/objective/mutations';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const MilestoneView: React.FC<OKRProps> = ({
   keyValue,
@@ -26,6 +31,10 @@ const MilestoneView: React.FC<OKRProps> = ({
     handleMilestoneSingleChange,
     removeKeyResultValue,
   } = useOKRStore();
+  const milestoneWeightSum = keyValue?.milestones.reduce(
+    (acc, milestone) => acc + milestone.weight,
+    0,
+  );
   const handleAddMilestone = (index: number) => {
     const newMilestone: Milestone = {
       title: '',
@@ -119,10 +128,21 @@ const MilestoneView: React.FC<OKRProps> = ({
     }
   };
   const addMilestone = (index: number) => {
-    if (isEdit) {
-      handleAddMilestoneSingleMilestone();
+    if (milestoneWeightSum >= keyValue?.weight) {
+      NotificationMessage?.warning({
+        message:
+          'Please Milestone weight should be not greater than Key Result weight ',
+      });
+    } else if (milestoneWeightSum == keyValue?.weight) {
+      NotificationMessage?.warning({
+        message: 'Please Milestone weight should be equal to Key Result weight',
+      });
     } else {
-      handleAddMilestone(index);
+      if (isEdit) {
+        handleAddMilestoneSingleMilestone();
+      } else {
+        handleAddMilestone(index);
+      }
     }
   };
   const milestoneChange = (
@@ -144,6 +164,23 @@ const MilestoneView: React.FC<OKRProps> = ({
       handleRemoveMilestone(index, mindex);
     }
   };
+
+  const { mutate: deleteKeyResult } = useDeleteKeyResult();
+  const { mutate: deleteMilestone } = useDeleteMilestone();
+  function handleKeyResultDelete(id: string) {
+    deleteKeyResult(id, {
+      onSuccess: () => {
+        removeKeyResultValue(index);
+      },
+    });
+  }
+  function handleMilestoneDelete(id: string, mIndex: number) {
+    deleteMilestone(id, {
+      onSuccess: () => {
+        milestoneRemove(index, mIndex);
+      },
+    });
+  }
   return (
     <div className="py-4  border-b-[1px] border-gray-300">
       <Form form={form} layout="vertical" className="space-y-1">
@@ -202,12 +239,16 @@ const MilestoneView: React.FC<OKRProps> = ({
                 onClick={() => addMilestone(index)}
               />
             </Tooltip>
-            <Tooltip color="gray" title="Cancel Key Result">
+            <Tooltip color="gray" title="Remove Key Result">
               <Button
                 className="rounded-full w-5 h-5"
                 icon={<VscClose size={20} />}
                 type="primary"
-                onClick={() => removeKeyResultValue(index)} // Hook up the remove key result function
+                onClick={() =>
+                  keyValue?.id
+                    ? handleKeyResultDelete(keyValue?.id)
+                    : removeKeyResultValue(index)
+                } // Hook up the remove key result function
               />
             </Tooltip>
           </div>
@@ -269,7 +310,11 @@ const MilestoneView: React.FC<OKRProps> = ({
                 {/* Remove Milestone Button */}
                 <Button
                   icon={<VscClose size={20} />}
-                  onClick={() => milestoneRemove(index, mindex)}
+                  onClick={() =>
+                    milestone?.id
+                      ? handleMilestoneDelete(milestone?.id, mindex)
+                      : milestoneRemove(index, mindex)
+                  } // Hook up the remove key result function
                   className="rounded-full w-5 h-5"
                   type="primary"
                 />

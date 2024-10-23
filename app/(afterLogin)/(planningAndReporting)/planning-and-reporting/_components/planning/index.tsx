@@ -15,12 +15,13 @@ import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useApprovalPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
-import { EmptyImage } from '@/components/emptyIndicator';
 import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { PlanningType } from '@/types/enumTypes';
-import { Edit3Icon } from 'lucide-react';
+import { DATETIME_FORMAT } from '@/utils/constants';
+import { AiOutlineEdit } from 'react-icons/ai';
+import Image from 'next/image';
 
 const { Text, Title } = Typography;
 
@@ -63,16 +64,15 @@ function Planning() {
 
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
-
   return (
-    <div>
+    <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
         {selectedUser.includes(userId) &&
           ((transformedData?.[0]?.isReported ?? false) ||
             transformedData?.length === 0) && (
             <CustomButton
-              title={`Create ${activeTabName}`}
+              title={`Create ${activeTabName} Plan`}
               id="createActiveTabName"
               icon={<FaPlus className="mr-2" />}
               onClick={() => setOpen(true)}
@@ -125,9 +125,7 @@ function Planning() {
                     </Row>
                     <Col span={10} className="flex justify-end items-center">
                       <span className="mr-4 text-gray-500">
-                        {dayjs(dataItem?.createdAt).format(
-                          'MMMM D YYYY, h:mm:ss A',
-                        )}
+                        {dayjs(dataItem?.createdAt).format(DATETIME_FORMAT)}
                       </span>
                       <Col className="mr-2">
                         <Tooltip title="Edit Plan">
@@ -141,7 +139,7 @@ function Planning() {
                               setSelectedPlanId(dataItem?.id);
                               setOpen(true);
                             }}
-                            icon={<Edit3Icon />}
+                            icon={<AiOutlineEdit />}
                           />
                         </Tooltip>
                       </Col>
@@ -305,8 +303,21 @@ function Planning() {
         </Card>
       ))}
       {transformedData?.length <= 0 && (
-        <div className="flex justify-start">
-          <EmptyImage />
+        <div className="flex justify-center">
+          <div>
+            <p className="flex justify-center items-center h-[200px]">
+              <Image
+                src="/image/undraw_empty_re_opql 1.svg"
+                width={300}
+                height={300}
+                alt="Picture of the author"
+              />
+            </p>
+            <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
+              There is no Planned data !!
+            </p>
+            {/* <EmptyImage /> */}
+          </div>
         </div>
       )}
     </div>

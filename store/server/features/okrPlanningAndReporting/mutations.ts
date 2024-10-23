@@ -30,7 +30,6 @@ const createReportForUnReportedtasks = async (
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
-  // /okr-report-task/create-report/:userId/:planningPeriodId
   return await crudRequest({
     url: `${OKR_URL}/okr-report-task/create-report/${userId}/${planningPeriodId}`,
     method: 'post',
@@ -58,7 +57,7 @@ export const useCreateReportForUnReportedtasks = () => {
       createReportForUnReportedtasks(values, planningPeriodId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('okrPlans');
+        queryClient.invalidateQueries('okrReports');
         NotificationMessage.success({
           message: 'Successfully updated',
           description: 'OKR plan status successfully updated',

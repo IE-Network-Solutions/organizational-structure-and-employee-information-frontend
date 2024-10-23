@@ -4,6 +4,11 @@ import { EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
 import { useGetAppreciationLogById } from '@/store/server/features/okrplanning/monitoring-evaluation/appreciation-log/queries';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import dayjs from 'dayjs';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
+import AppreciationEditDrawer from '../../_components/appreciation/appreciationEditDrawer';
+import { useAppreciationLogStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-log';
+import { useDeleteAppLog } from '@/store/server/features/okrplanning/monitoring-evaluation/appreciation-log/mutations';
+import { useRouter } from 'next/navigation';
 
 interface Params {
   id: string;
@@ -20,7 +25,38 @@ function DetailPage({ params: { id } }: AppreciationDetailProps) {
   function employeeInfo(id: string) {
     return allUsers?.items?.find((user: any) => user.id === id) || {};
   }
+  const router = useRouter();
 
+  const {
+    openEdit,
+    setOpenEdit,
+    openDeleteModal,
+    setOpenDeleteModal,
+    deletedId,
+    setDeletedId,
+  } = useAppreciationLogStore();
+  const { mutate: deleteAppLog } = useDeleteAppLog();
+  const showDeleteModal = (id: string) => {
+    setOpenDeleteModal(true);
+    setDeletedId(id);
+  };
+  const onCloseEdit = () => {
+    setOpenEdit(false);
+  };
+  const onCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+  };
+  function handleDeleteAppLog(id: string) {
+    deleteAppLog(id, {
+      onSuccess: () => {
+        onCloseDeleteModal();
+        router.push('/monitoring-evaluation/reprimand-appreciation');
+      },
+    });
+  }
+  const handleEditModal = () => {
+    setOpenEdit(true);
+  };
   return (
     <div className="p-4 md:p-6">
       {/* Back button */}
@@ -36,8 +72,10 @@ function DetailPage({ params: { id } }: AppreciationDetailProps) {
           <Button
             className="bg-blue text-white border-none"
             icon={<EditOutlined />}
+            onClick={() => handleEditModal()}
           />
           <Button
+            onClick={() => showDeleteModal(appDetail?.id || '')} // Pass key to delete handler
             className="bg-red-500 text-white border-none"
             icon={<DeleteOutlined />}
           />
@@ -145,6 +183,16 @@ function DetailPage({ params: { id } }: AppreciationDetailProps) {
           </div>
         </div>
       </Card>
+      <AppreciationEditDrawer
+        appLog={appDetail}
+        open={appDetail?.type?.type == 'appreciation' ? openEdit : false}
+        onClose={onCloseEdit}
+      />
+      <DeleteModal
+        open={openDeleteModal}
+        onConfirm={() => handleDeleteAppLog(deletedId)}
+        onCancel={onCloseDeleteModal}
+      />
     </div>
   );
 }

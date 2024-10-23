@@ -89,6 +89,7 @@ const OkrSearch: React.FC = () => {
                 allowClear
                 className="w-full h-14"
               >
+                <Option value={''}>All</Option>
                 {Metrics?.items?.map((item: any) => (
                   <Option key={item?.id} value={item?.id}>
                     {item?.name}

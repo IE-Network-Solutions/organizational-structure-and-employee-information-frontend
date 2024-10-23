@@ -44,6 +44,7 @@ export interface OrganizationState {
   parentId: string | null;
 
   setOrgData: (orgData: OrgData) => void;
+  setBranchId: (branchId: string) => void;
   addDepartment: (parentId: string, department: Omit<Department, 'id'>) => void;
   updateDepartment: (updatedDepartment: Department) => void;
   deleteDepartment: (departmentId: string) => void;

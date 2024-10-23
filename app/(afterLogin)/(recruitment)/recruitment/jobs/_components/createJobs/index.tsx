@@ -111,9 +111,9 @@ const CreateJobs: React.FC = () => {
       };
       createJob(formattedValue, {
         onSuccess: (response) => {
+          setAddJobModalResult(true);
           const newJobId = response?.id;
           setSelectedJobId(newJobId);
-          setAddJobModalResult(true);
           setAddNewDrawer(false);
         },
       });

@@ -96,6 +96,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
       onClose={props?.onClose}
       modalHeader={modalHeader}
       footer={footer}
+      width="50%"
     >
       <Form form={form} layout="vertical">
         <Row gutter={[16, 16]}>
