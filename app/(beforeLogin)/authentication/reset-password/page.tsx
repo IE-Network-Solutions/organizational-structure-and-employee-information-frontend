@@ -16,7 +16,7 @@ const NewPassword: FC = () => {
   useEffect(() => {
     if (!oobCode) {
       message.error('Invalid or expired reset link.');
-      router.push('/authentication/forgotPassword');
+      router.push('/authentication/forgot-password');
     }
   }, [oobCode, router]);
 

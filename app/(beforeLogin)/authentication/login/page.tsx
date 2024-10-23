@@ -94,7 +94,7 @@ const Login: FC = () => {
               <Checkbox className="m-1">Remember me</Checkbox>
             </Form.Item>
             <Link
-              href="/authentication/forgetPassword"
+              href="/authentication/forget-password"
               className="float-right m-0 p-0"
             >
               Forgot password

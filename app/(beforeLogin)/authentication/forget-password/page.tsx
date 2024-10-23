@@ -11,7 +11,7 @@ const RequestVerification: FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleNextClick = () => {
-    router.push('/authentication/resetPassword');
+    router.push('/authentication/login');
   };
 
   const handleFinish = async (values: { email: string }) => {
@@ -20,7 +20,7 @@ const RequestVerification: FC = () => {
 
     try {
       const actionCodeSettings = {
-        url: 'http://localhost:3000/authentication/resetPassword',
+        url: 'http://localhost:3000/authentication/reset-password',
         handleCodeInApp: true,
       };
 
