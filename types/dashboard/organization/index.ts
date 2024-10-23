@@ -54,4 +54,12 @@ export interface OrganizationState {
   setIsDeleteConfirmVisible: (isDeleteConfirmVisible: boolean) => void;
   chartDownlaodLoading: boolean;
   setChartDonwnloadLoading: (chartDownlaodLoading: boolean) => void;
+  drawerVisible: boolean;
+  setDrawerVisible: (visible: boolean) => void;
+  drawerContent: string;
+  setDrawerContent: (content: string) => void;
+  footerButtonText: string;
+  setFooterButtonText: (text: string) => void;
+  drawTitle: string;
+  setDrawTitle: (title: string) => void;
 }

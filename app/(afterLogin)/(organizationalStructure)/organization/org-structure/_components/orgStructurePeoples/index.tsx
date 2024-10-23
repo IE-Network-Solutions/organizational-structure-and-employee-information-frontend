@@ -1,13 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import { Card, Button, Menu, Dropdown, Tooltip } from 'antd';
-import {
-  EditOutlined,
-  DeleteOutlined,
-  MoreOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
+import { Card, Dropdown } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
@@ -29,95 +23,13 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useRouter } from 'next/navigation';
 import OrgChartSkeleton from '../../loading/orgStructureLoading';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import { FaDownload } from 'react-icons/fa';
-
-interface DepartmentNodeProps {
-  data: Department;
-  onEdit: () => void;
-  onAdd: () => void;
-  onDelete: () => void;
-  isRoot?: boolean;
-}
-
-const DepartmentNode: React.FC<DepartmentNodeProps> = ({
-  data,
-  onEdit,
-  onAdd,
-  onDelete,
-  isRoot = false,
-}) => {
-  const menu = (
-    <Menu>
-      <Menu.Item
-        id={`${data.name}EditButton`}
-        icon={<EditOutlined />}
-        onClick={onEdit}
-      >
-        Edit
-      </Menu.Item>
-      <Menu.Item
-        id={`${data.name}DeleteButton`}
-        icon={<DeleteOutlined />}
-        onClick={onDelete}
-      >
-        Delete
-      </Menu.Item>
-    </Menu>
-  );
-
-  return (
-    <Card className="p-1.5 rounded-md inline-block border border-[#e8e8e8] sm:w-auto">
-      {isRoot && (
-        <Button
-          id="ceoButton"
-          icon={<PlusOutlined />}
-          size="small"
-          type="primary"
-          className={`p-2 rounded-full absolute bottom-[-10px] center-[-40px] hide-on-download`}
-          onClick={onAdd}
-        />
-      )}
-      {!isRoot && (
-        <Dropdown
-          overlay={menu}
-          trigger={['click']}
-          className="absolute top-[5px] right-[5px]  hide-on-download"
-        >
-          <Button
-            icon={<MoreOutlined />}
-            id={`${data.name}ThreeDotButton`}
-            size="small"
-          />
-        </Dropdown>
-      )}
-
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'start',
-        }}
-      >
-        <Tooltip title={`${data.name}`} placement="top">
-          <span style={{ fontWeight: 'bold' }}>{data.name}</span>
-        </Tooltip>
-      </div>
-      {!isRoot && (
-        <Button
-          id={`${data.name}Button`}
-          icon={<PlusOutlined />}
-          size="small"
-          type="primary"
-          className={`rounded-full absolute bottom-[-10px] hide-on-download`}
-          style={{ marginTop: '5px' }}
-          onClick={onAdd}
-        />
-      )}
-    </Card>
-  );
-};
+import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
+import { DepartmentNode } from '../departmentNode';
+import {
+  exportOrgStrucutreMenu,
+  orgComposeAndMergeMenues,
+} from '../menues/inex';
 
 const renderTreeNodes = (
   data: Department[],
@@ -157,44 +69,9 @@ const OrgChartComponent: React.FC = () => {
     isDeleteConfirmVisible,
     setIsDeleteConfirmVisible,
     chartDownlaodLoading,
-    setChartDonwnloadLoading,
   } = useOrganizationStore();
 
   const chartRef = useRef<HTMLDivElement>(null);
-
-  const exportToPDF = async () => {
-    setChartDonwnloadLoading(true);
-    const input = chartRef.current;
-
-    if (input) {
-      input.style.overflow = 'visible';
-      const canvas = await html2canvas(input, {
-        scale: 2,
-        useCORS: true,
-        scrollX: -window.scrollX,
-        scrollY: -window.scrollY,
-        width: input.scrollWidth + 100,
-        height: input.scrollHeight + 100,
-        ignoreElements: (element) => {
-          return element.classList.contains('hide-on-download');
-        },
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width, canvas.height],
-      });
-
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-
-      pdf.save(`Organization_chart_${Date.now()}.pdf`);
-
-      input.style.overflow = '';
-      setChartDonwnloadLoading(false);
-    }
-  };
 
   const { data: orgStructureData, isLoading: orgStructureLoading } =
     useGetOrgCharts();
@@ -249,21 +126,13 @@ const OrgChartComponent: React.FC = () => {
     setIsDeleteConfirmVisible(false);
   };
 
-  const [drawerVisible, setDrawerVisible] = useState(false);
-  const [drawerContent, setDrawerContent] = useState('');
-  const [footerButtonText, setFooterButtonText] = useState('');
-  const [drawTitle, setDrawTitle] = useState('');
-
-  const showDrawer = (
-    drawerContent: string,
-    footerBtnText: string,
-    title: string,
-  ) => {
-    setDrawerVisible(true);
-    setDrawerContent(drawerContent);
-    setFooterButtonText(footerBtnText);
-    setDrawTitle(title);
-  };
+  const {
+    drawerVisible,
+    drawerContent,
+    footerButtonText,
+    drawTitle,
+    setDrawerVisible,
+  } = useOrganizationStore.getState();
 
   const closeDrawer = () => {
     setDrawerVisible(false);
@@ -287,34 +156,6 @@ const OrgChartComponent: React.FC = () => {
     }
   }, [employeeData, departments, setIsAddEmployeeJobInfoModalVisible]);
 
-  const menu = (
-    <Menu>
-      <Menu.Item
-        key="1"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('archive', 'Archive', 'Archive Level')}
-      >
-        Archive
-      </Menu.Item>
-      <Menu.Item
-        key="2"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('merge', 'Merge', 'Merge Department')}
-      >
-        Merge
-      </Menu.Item>
-      <Menu.Item
-        key="3"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('dissolve', 'Dissove', 'Dessolve Department')}
-      >
-        Dissolve
-      </Menu.Item>
-    </Menu>
-  );
   return (
     <div className="w-full overflow-x-auto">
       <Card
@@ -322,15 +163,18 @@ const OrgChartComponent: React.FC = () => {
         title={<div className="text-2xl font-bold">ORG Structure</div>}
         extra={
           <div className="py-4 flex justify-center items-center gap-4">
-            <CustomButton
-              title="Download"
-              loading={chartDownlaodLoading}
-              icon={<FaDownload size={16} />}
-              onClick={exportToPDF}
-            />
-
             <Dropdown
-              overlay={menu}
+              overlay={exportOrgStrucutreMenu(chartRef, exportToPDFOrJPEG)}
+              trigger={['click']}
+            >
+              <CustomButton
+                title="Download"
+                icon={<FaDownload size={16} />}
+                loading={chartDownlaodLoading}
+              />
+            </Dropdown>
+            <Dropdown
+              overlay={orgComposeAndMergeMenues}
               trigger={['click']}
               placement="bottomRight"
             >

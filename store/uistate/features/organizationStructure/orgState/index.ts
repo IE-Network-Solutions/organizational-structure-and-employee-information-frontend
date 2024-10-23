@@ -106,6 +106,16 @@ const useOrganizationStore = create<OrganizationState>((set) => ({
   chartDownlaodLoading: false,
   setChartDonwnloadLoading: (chartDownlaodLoading: boolean) =>
     set({ chartDownlaodLoading }),
+
+  drawerVisible: false,
+  drawerContent: '',
+  footerButtonText: '',
+  drawTitle: '',
+
+  setDrawerVisible: (visible: boolean) => set({ drawerVisible: visible }),
+  setDrawerContent: (content: string) => set({ drawerContent: content }),
+  setFooterButtonText: (text: string) => set({ footerButtonText: text }),
+  setDrawTitle: (title: string) => set({ drawTitle: title }),
 }));
 
 export default useOrganizationStore;
