@@ -11,7 +11,7 @@ export const EmptyImage = () => (
   />
 );
 
-export const customizeRenderEmpty = () => (
+export const CustomizeRenderEmpty = () => (
   <div className="flex justify-center">
     <div>
       {' '}

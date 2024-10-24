@@ -10,3 +10,16 @@ export const showValidationErrors = (errorFields: any[] = []) => {
     });
   });
 };
+
+export const getPriorityColor = (priority: string) => {
+  switch (priority.toLowerCase()) {
+    case 'high':
+      return 'red';
+    case 'medium':
+      return 'orange';
+    case 'low':
+      return 'green';
+    default:
+      return 'blue';
+  }
+};

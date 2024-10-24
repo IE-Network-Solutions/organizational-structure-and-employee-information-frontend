@@ -1,5 +1,4 @@
 import { NextRequest } from 'next/server';
-
 /**
  * Stores a value in session storage under a given key
  * @param key The key under which the value is stored
