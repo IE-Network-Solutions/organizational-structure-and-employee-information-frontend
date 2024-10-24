@@ -26,15 +26,29 @@ pipeline {
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Prepare Repository') {
             steps {
                 sshagent (credentials: [SSH_CREDENTIALS_ID]) {
                     sh """
-                    echo one
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'sudo rm -r $REPO_DIR'
-                        echo two
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR'
-                        echo three
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER '
+                        if [ -d "$REPO_DIR" ]; then
+                            sudo chown -R \$USER:\$USER $REPO_DIR
+                            sudo chmod -R 755 $REPO_DIR
+                        fi'
+                    """
+                }
+            }
+        }
+        stage('Pull Latest Changes') {
+            steps {
+                sshagent (credentials: [SSH_CREDENTIALS_ID]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER '
+                        if [ -d "$REPO_DIR" ]; then
+                            cd $REPO_DIR && git reset --hard HEAD && git pull origin $BRANCH_NAME
+                        else
+                            git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR
+                        fi'
                     """
                 }
             }

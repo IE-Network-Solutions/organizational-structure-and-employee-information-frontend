@@ -42,11 +42,13 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
         showValidationErrors(info.errorFields);
       });
   };
+
   const { data: metrics } = useGetMetrics();
+
   return (
-    <div className="p-4 sm:p-6 lg:p-2">
+    <div className="p-4 sm:p-6 lg:p-2" id={`currency-form-${index}`}>
       {/* Container with border and padding */}
-      <div className="border border-blue rounded-lg p-4 mx-0 lg:mx-8">
+      <div className="border border-blue rounded-lg p-4 mx-0 lg:mx-8" id={`form-container-${index}`}>
         {/* Close icon to remove Key Result */}
         <div className="flex justify-end">
           <IoIosCloseCircleOutline
@@ -54,12 +56,13 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             title="Cancel"
             onClick={() => removeKeyResult(index)}
             className="cursor-pointer text-red-500 mb-2"
+            id={`remove-key-result-icon-${index}`}
           />
         </div>
 
         <Form form={form} initialValues={keyItem} layout="vertical">
           {/* Key Result Name */}
-          <Form.Item className="w-full mb-0">
+          <Form.Item className="w-full mb-0" id={`key-result-select-${index}`}>
             <Select
               className="w-full text-xs"
               onChange={(value) => {
@@ -80,6 +83,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               ))}
             </Select>
           </Form.Item>
+
           <Form.Item
             className="font-semibold text-xs w-full mb-2 mt-2"
             name={`key_name_${index}`}
@@ -93,6 +97,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       ),
               },
             ]}
+            id={`key-result-name-${index}`}
           >
             <Input
               value={keyItem.title || ''}
@@ -115,6 +120,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     message: 'Please select a deadline',
                   },
                 ]}
+                id={`deadline-${index}`}
               >
                 <DatePicker
                   className="w-full text-xs"
@@ -149,6 +155,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                         : Promise.reject('Weight must be greater than 0'),
                   },
                 ]}
+                id={`weight-${index}`}
               >
                 <InputNumber
                   min={0}
@@ -173,9 +180,10 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 rules={[
                   {
                     required: true,
-                    message: 'Please enter an initialValue value',
+                    message: 'Please enter an initial value',
                   },
                 ]}
+                id={`initial-value-${index}`}
               >
                 <InputNumber
                   className="w-full text-xs"
@@ -203,6 +211,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                         : Promise.reject('Target must be greater than 0'),
                   },
                 ]}
+                id={`target-value-${index}`}
               >
                 <InputNumber
                   className="w-full text-xs"
@@ -222,6 +231,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               type="primary"
               className="bg-blue-600 text-xs md:w-36 w-full"
               icon={<GoPlus />}
+              id={`add-key-result-button-${index}`}
               aria-label="Add Key Result"
             >
               Add Key Result
