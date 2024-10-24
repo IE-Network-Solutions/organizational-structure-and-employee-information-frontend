@@ -11,6 +11,7 @@ export interface ActionButtonProps {
   onDelete?: (e?: any) => void;
   onCancelDelete?: (e?: any) => void;
   className?: string;
+  id?:any
 }
 
 const ActionButton: FC<ActionButtonProps> = ({
@@ -19,6 +20,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   onDelete,
   onCancelDelete,
   className = '',
+  id,
 }) => {
   const [open, setOpen] = useState(false);
   const items: MenuProps['items'] = [];
@@ -43,7 +45,7 @@ const ActionButton: FC<ActionButtonProps> = ({
       label: (
         <Button
           size="large"
-          id='actionButtonForOpenId'
+          id={`${id}actionButtonForOpenId`}
           className="w-full justify-normal"
           type="text"
           onClick={(e) => {
@@ -64,7 +66,7 @@ const ActionButton: FC<ActionButtonProps> = ({
       label: (
         <Button
           size="large"
-          id='actionButtonForEditId'
+          id={`${id}actionButtonForEditId`}
           className="w-full justify-normal"
           type="text"
           onClick={(e) => {
