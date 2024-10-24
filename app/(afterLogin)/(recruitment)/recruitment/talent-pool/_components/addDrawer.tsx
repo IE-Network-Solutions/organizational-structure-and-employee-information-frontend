@@ -40,7 +40,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
     <CustomDrawerLayout
       open={open}
       onClose={onClose}
-      modalHeader="Add New Candidate"
+      modalHeader="Add Candidate to Talent pool"
       width="30%"
       footer={false}
     >
@@ -53,7 +53,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
           <Select placeholder="Select a candidate">
             {candidates?.items?.map((candidate: any) => (
               <Select.Option key={candidate.id} value={candidate.id}>
-                {candidate?.title}
+                {candidate?.fullName}
               </Select.Option>
             ))}
           </Select>
@@ -80,7 +80,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
         </Form.Item>
       </Form>
       <div className="flex justify-center  items-center">
-        <Button className=" h-12" type="primary" onClick={onSubmit}>
+        <Button className="w-96 h-12" type="primary" onClick={onSubmit}>
           Submit
         </Button>
       </div>
