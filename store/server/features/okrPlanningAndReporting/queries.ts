@@ -2,6 +2,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { OKR_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
+import { AssignedPlanningPeriodLogArray } from './interface';
 interface DataType {
   userId: string[] | [];
   planPeriodId: string;
@@ -90,11 +91,19 @@ const getAllPlanningPeriods = async () => {
 };
 
 export const AllPlanningPeriods = () => {
-  return useQuery<any>('planningPeriods', getAllPlanningPeriods);
+  return useQuery<AssignedPlanningPeriodLogArray>(
+    'planningPeriods',
+    getAllPlanningPeriods,
+  );
 };
 
 export const useGetPlanning = (params: DataType) => {
-  return useQuery<any>(['okrPlans', params], () => getPlanningData(params));
+  return useQuery<any>(['okrPlans', params], () => getPlanningData(params), {
+    enabled:
+      params &&
+      params.userId !== undefined &&
+      params.planPeriodId !== undefined,
+  });
 };
 
 export const useGetPlanningById = (planningId: string) => {
@@ -107,7 +116,9 @@ export const useGetPlanningById = (planningId: string) => {
   );
 };
 export const useGetReporting = (params: DataType) => {
-  return useQuery<any>(['okrReports', params], () => getReportingData(params));
+  return useQuery<any>(['okrReports', params], () => getReportingData(params), {
+    enabled: !!params?.planPeriodId, // Enable the query only when planningPeriodId is defined
+  });
 };
 
 export const useGetUnReportedPlanning = (

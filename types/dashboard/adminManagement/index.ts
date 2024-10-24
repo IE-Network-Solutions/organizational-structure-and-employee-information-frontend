@@ -17,6 +17,7 @@ export interface GroupPermissionkey {
   name: string;
   description: string;
   permissions: Permission[];
+  permission?: Permission[];
   permissionIds?: string[];
   items: any[];
   tenantId?: string;
