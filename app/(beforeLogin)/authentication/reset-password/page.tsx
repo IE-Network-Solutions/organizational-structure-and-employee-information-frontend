@@ -41,7 +41,6 @@ const NewPassword: FC = () => {
       }
     } catch (error) {
       message.error(`${error}, Please try again.`);
-      console.log('--------------------------------', error);
     } finally {
       setIsLoading(false);
     }
