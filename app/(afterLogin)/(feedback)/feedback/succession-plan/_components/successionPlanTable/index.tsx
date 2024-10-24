@@ -207,7 +207,7 @@ const SuccessionPlanTable = () => {
         { text: 'On Review', value: 'On Review' },
       ],
       onFilter: (value, record) => record.status === value,
-      render: ({ status }) => {
+      render: (status) => {
         if (!status) return <Tag color="gray">None</Tag>;
 
         let color = 'green';
