@@ -1,3 +1,4 @@
+'use client';
 import React, { useState } from 'react';
 import {
   Button,
@@ -14,17 +15,37 @@ import { FaMinus, FaPlus } from 'react-icons/fa';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useCreateCriticalPosition } from '@/store/server/features/organization-development/SuccessionPlan/mutation';
 import Stepper from '@/components/common/stepper';
-import { useCriticalPositionStore } from '@/store/uistate/features/organizationalDevelopment/SuccessionPlan/index'
+import { useCriticalPositionStore } from '@/store/uistate/features/organizationalDevelopment/SuccessionPlan';
 const { Option } = Select;
 
-const CreateCriticalPostion = (props: any) => {
-
+const CreateCriticalPosition = (props: any) => {
   const [form] = Form.useForm();
-  const [ responsibilityInputValue, setResponsibilityInputValue ] = useState('');
-  const { mutate: createCriticalPosition, isLoading } = useCreateCriticalPosition();
+  const [responsibilityInputValue, setResponsibilityInputValue] = useState('');
+  const { mutate: createCriticalPosition, isLoading } =
+    useCreateCriticalPosition();
 
-  const { setDescription, setCurrent, setOpen, setName, setJobTitleId, addResponsibility, setRequiredExperience, setRequiredSkills, removeResponsibility, resetCriticalPositionData } = useCriticalPositionStore();
-  const {name, jobTitleId, current, open, description, requiredExperience, requiredSkills, responsibilities } = useCriticalPositionStore.getState();
+  const {
+    setDescription,
+    setCurrent,
+    setOpen,
+    setName,
+    setJobTitleId,
+    addResponsibility,
+    setRequiredExperience,
+    setRequiredSkills,
+    removeResponsibility,
+    resetCriticalPositionData,
+  } = useCriticalPositionStore();
+  const {
+    name,
+    jobTitleId,
+    current,
+    open,
+    description,
+    requiredExperience,
+    requiredSkills,
+    responsibilities,
+  } = useCriticalPositionStore.getState();
 
   const handleName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
@@ -32,24 +53,24 @@ const CreateCriticalPostion = (props: any) => {
 
   const handleJob = (value: string) => {
     setJobTitleId(value);
-  }
+  };
 
   const handleDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDescription(e.target.value);
-  }
+  };
 
   const handleSkills = (value: string[]) => {
     setRequiredSkills(value);
-  }
+  };
 
   const handleExperiance = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRequiredExperience(Number(e.target.value));
-  }
+  };
 
   const handleResponsibility = () => {
-    addResponsibility(responsibilityInputValue)
+    addResponsibility(responsibilityInputValue);
     setResponsibilityInputValue('');
-  }
+  };
 
   const handleCancel = () => {
     form.resetFields();
@@ -64,19 +85,20 @@ const CreateCriticalPostion = (props: any) => {
       jobTitleId,
       requiredSkills,
       requiredExperience,
-      responsibilities
+      responsibilities,
     };
     createCriticalPosition({ values: criticalPositionData });
     resetCriticalPositionData();
     form.resetFields();
+    setOpen(false);
   };
-  
+
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Critical Position
     </div>
   );
-  
+
   return (
     open && (
       <CustomDrawerLayout
@@ -102,11 +124,11 @@ const CreateCriticalPostion = (props: any) => {
                   name="name"
                   label="Critical Position Name"
                 >
-                  <Input 
-                  placeholder={'Enter Critical Position Name'} 
-                  className="mt-4"
-                  value={name}
-                  onChange={handleName}
+                  <Input
+                    placeholder={'Enter Critical Position Name'}
+                    className="mt-4"
+                    value={name}
+                    onChange={handleName}
                   />
                 </Form.Item>
               </Col>
@@ -115,21 +137,27 @@ const CreateCriticalPostion = (props: any) => {
               <Col xs={24} sm={24}>
                 <Form.Item
                   className="font-semibold text-xs"
-                  name={"jobTitleId"}
+                  name={'jobTitleId'}
                   label={'Job Title'}
                 >
                   <Select
-                    id={"selectStatusChartType"}
+                    id={'selectStatusChartType'}
                     placeholder="Select Job Title"
                     allowClear
                     className="w-full h-[48px] my-4"
                     value={jobTitleId}
                     onChange={handleJob}
                   >
-                    <Option key="active" value={"c3f5d4b8-2f1e-4e68-9b7d-7b1e5b8f9c0d"}>
+                    <Option
+                      key="active"
+                      value={'c3f5d4b8-2f1e-4e68-9b7d-7b1e5b8f9c0d'}
+                    >
                       Job 1
                     </Option>
-                    <Option key="inactive" value={"c3f5d4c9-2f1e-4e68-9b7d-7b1e5b8f9c0d"}>
+                    <Option
+                      key="inactive"
+                      value={'c3f5d4c9-2f1e-4e68-9b7d-7b1e5b8f9c0d'}
+                    >
                       Job 2
                     </Option>
                   </Select>
@@ -194,11 +222,11 @@ const CreateCriticalPostion = (props: any) => {
                   ]}
                 >
                   <Input
-                  type="number"
-                  placeholder={'5'}
-                  className="mt-4"
-                  value={requiredExperience}
-                  onChange={handleExperiance}
+                    type="number"
+                    placeholder={'5'}
+                    className="mt-4"
+                    value={requiredExperience}
+                    onChange={handleExperiance}
                   />
                 </Form.Item>
               </Col>
@@ -232,7 +260,9 @@ const CreateCriticalPostion = (props: any) => {
                 <Form.Item className="font-semibold text-xs">
                   <Input
                     className="mt-2"
-                    onChange={(e) => setResponsibilityInputValue(e.target.value)}
+                    onChange={(e) =>
+                      setResponsibilityInputValue(e.target.value)
+                    }
                     value={responsibilityInputValue}
                     placeholder="Enter a responsibility"
                   />
@@ -249,8 +279,8 @@ const CreateCriticalPostion = (props: any) => {
               </Col>
             </Row>
           </Card>
-          <Row gutter={16}>
-            <Col xs={24} sm={12} className="flex justify-end">
+          <Row gutter={16} className="mt-40">
+            <Col xs={24} sm={12} className="flex justify-end items-end">
               <Popconfirm
                 title="reset all you filled"
                 description="Are you sure to reset all fields value ?"
@@ -258,22 +288,42 @@ const CreateCriticalPostion = (props: any) => {
                 okText="Yes"
                 cancelText="No"
               >
-                <Button name="cancelSidebarButtonId" className="p-4" danger>
+                <Button
+                  name="cancelSidebarButtonId"
+                  className="px-6 py-3 text-xs font-bold rounded-md"
+                >
                   Cancel
                 </Button>
               </Popconfirm>
             </Col>
             <Col xs={24} sm={12}>
-              <Button
-                loading={isLoading}
-                htmlType="submit"
-                name="createActionButton"
-                id="createActionButtonId"
-                className="px-6 py-3 text-xs font-bold"
-                type="primary"
-              >
-                Create
-              </Button>
+              {current == 0 ? (
+                <>
+                  <Button
+                    name="nextStepper"
+                    id="nextStepperButton"
+                    className="px-6 py-3 text-xs font-bold rounded-md"
+                    type="primary"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      setCurrent(1);
+                    }}
+                  >
+                    Next
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  loading={isLoading}
+                  htmlType="submit"
+                  name="createActionButton"
+                  id="createActionButtonId"
+                  className="px-6 py-3 text-xs font-bold rounded-md"
+                  type="primary"
+                >
+                  Create
+                </Button>
+              )}
             </Col>
           </Row>
         </Form>
@@ -282,4 +332,4 @@ const CreateCriticalPostion = (props: any) => {
   );
 };
 
-export default CreateCriticalPostion;
+export default CreateCriticalPosition;

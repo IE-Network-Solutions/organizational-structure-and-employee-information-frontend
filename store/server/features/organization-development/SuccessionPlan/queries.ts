@@ -1,7 +1,5 @@
 import { useQuery } from 'react-query';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 
 /**
@@ -11,35 +9,22 @@ import { crudRequest } from '@/utils/crudRequest';
 const fetchCriticalPositions = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId;
 
   return crudRequest({
-    url: `${ORG_DEV_URL}/critical-positions`,
+    url: `http://localhost:5000/api/v1/critical-positions/${userId}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
-      tenantId
+      tenantId,
     },
   });
 };
-
 
 /**
  * Hook to fetch all critical positions with tenant ID
  * @returns useQuery response for the critical positions
  */
 export const useFetchCriticalPositions = () => {
-  return useQuery('criticalPositions', fetchCriticalPositions, {
-    onSuccess: () => {
-      NotificationMessage.success({
-        message: 'Fetched Successfully',
-        description: 'All critical positions fetched successfully',
-      });
-    },
-    onError: () => {
-      NotificationMessage.error({
-        message: 'Fetch Failed',
-        description: 'Failed to fetch critical positions',
-      });
-    },
-  });
+  return useQuery('criticalPosition', fetchCriticalPositions, {});
 };

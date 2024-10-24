@@ -12,6 +12,16 @@ export interface PermissionSelect {
   name: string;
   value: string;
 }
+
+export interface SuccessionData {
+  userId: string;
+  successorId: string;
+  userProfileImage: string;
+  score: string;
+  status: string;
+  name: string;
+}
+
 export interface GroupPermissionkey {
   id: string;
   name: string;

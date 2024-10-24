@@ -1,6 +1,5 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -15,12 +14,34 @@ const createCriticalPosition = async ({ values }: { values: any }) => {
   const userId = useAuthenticationStore.getState().userId;
 
   return crudRequest({
-    url: `${ORG_DEV_URL}/critical-positions/${userId}`,
+    url: `http://localhost:5000/api/v1/critical-positions/${userId}`,
     method: 'POST',
     data: values,
     headers: {
       Authorization: `Bearer ${token}`,
-      tenantId
+      tenantId,
+    },
+  });
+};
+
+const createSuccessionPlan = async ({
+  successor,
+  criticalPositionId,
+}: {
+  successor: string[];
+  criticalPositionId: string;
+}) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId;
+
+  return crudRequest({
+    url: `http://localhost:5000/api/v1/succession-plans/${userId}`,
+    method: 'POST',
+    data: { ...successor, criticalPositionId }, // Send the data correctly
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId,
     },
   });
 };
@@ -33,13 +54,33 @@ export const useCreateCriticalPosition = () => {
       queryClient.invalidateQueries('criticalPosition');
       NotificationMessage.success({
         message: 'Successfully Created',
-        description: 'Critical action successfully created',
+        description: 'Critical position successfully created',
       });
     },
     onError: () => {
       NotificationMessage.error({
         message: 'Creation Failed',
-        description: 'Critical action creation failed',
+        description: 'Critical position creation failed',
+      });
+    },
+  });
+};
+
+export const useCreateSuccessionPlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(createSuccessionPlan, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('criticalPosition');
+      NotificationMessage.success({
+        message: 'Successfully Created',
+        description: 'Succession plan successfully created',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Creation Failed',
+        description: 'Succession plan creation failed',
       });
     },
   });
