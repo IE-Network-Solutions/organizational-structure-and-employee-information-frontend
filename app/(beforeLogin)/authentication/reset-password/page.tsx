@@ -40,7 +40,8 @@ const NewPassword: FC = () => {
         router.push('/authentication/login');
       }
     } catch (error) {
-      message.error('Failed to reset password. Please try again.');
+      message.error(`${error}, Please try again.`);
+      console.log('--------------------------------', error);
     } finally {
       setIsLoading(false);
     }
