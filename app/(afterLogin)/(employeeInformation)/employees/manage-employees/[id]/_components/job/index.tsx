@@ -52,7 +52,7 @@ function Job({ id }: { id: string }) {
       <Card
         loading={isLoading}
         title="Employment Information"
-        extra={<LuPencil />}
+        // extra={<LuPencil />}
         className="my-6 mt-0"
       >
         <Row gutter={[16, 24]}>

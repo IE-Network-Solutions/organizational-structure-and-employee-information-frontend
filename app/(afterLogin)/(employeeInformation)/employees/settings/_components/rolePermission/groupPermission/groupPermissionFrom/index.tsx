@@ -35,8 +35,8 @@ const GroupPermission = () => {
         id: selectedPermissionGroup?.id,
         name: selectedPermissionGroup?.name,
         description: selectedPermissionGroup?.description,
-        permission: selectedPermissionGroup?.permissions?.map(
-          (item: Permission) => ({ label: item.name, value: item.id }),
+        permissions: selectedPermissionGroup?.permission?.map(
+          (item: Permission) => ({ label: item.name ?? 'N/A', value: item.id }),
         ),
       });
     }
@@ -46,7 +46,7 @@ const GroupPermission = () => {
   permissionData?.items?.forEach((item: Permission) => {
     children.push(
       <Select.Option key={item.id} className="p-2 text-xs">
-        {item.name}
+        {item.name ?? 'N/A'}
       </Select.Option>,
     );
   });
@@ -126,7 +126,7 @@ const GroupPermission = () => {
           </div>
           <div id="groupPermissionId">
             <Form.Item
-              name="permission"
+              name="permissions"
               label={
                 <p className="text-xs font-bold text-gray-600">Permission</p>
               }

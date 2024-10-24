@@ -91,17 +91,19 @@ const getAllPlanningPeriods = async () => {
 };
 
 export const AllPlanningPeriods = () => {
-  return useQuery<AssignedPlanningPeriodLogArray>('planningPeriods', getAllPlanningPeriods);
+  return useQuery<AssignedPlanningPeriodLogArray>(
+    'planningPeriods',
+    getAllPlanningPeriods,
+  );
 };
 
 export const useGetPlanning = (params: DataType) => {
-  return useQuery<any>(
-    ['okrPlans', params],
-    () => getPlanningData(params),
-    {
-      enabled: params && params.userId !== undefined && params.planPeriodId !== undefined
-    }
-  );
+  return useQuery<any>(['okrPlans', params], () => getPlanningData(params), {
+    enabled:
+      params &&
+      params.userId !== undefined &&
+      params.planPeriodId !== undefined,
+  });
 };
 
 export const useGetPlanningById = (planningId: string) => {
@@ -114,12 +116,9 @@ export const useGetPlanningById = (planningId: string) => {
   );
 };
 export const useGetReporting = (params: DataType) => {
-  return useQuery<any>(['okrReports', params], 
-      () => getReportingData(params),
-      {
-        enabled: !!params?.planPeriodId, // Enable the query only when planningPeriodId is defined
-      },
-    );
+  return useQuery<any>(['okrReports', params], () => getReportingData(params), {
+    enabled: !!params?.planPeriodId, // Enable the query only when planningPeriodId is defined
+  });
 };
 
 export const useGetUnReportedPlanning = (

@@ -198,18 +198,19 @@ function DefaultCardForm({
                   }
                 />
               </Form.Item>
-              {planningPeriodId && planningUserId &&
-              <Form.Item label="Sub tasks" className="mx-8">
-                <SubTaskComponent
-                  field={field}
-                  kId={kId}
-                  hasTargetValue={hasTargetValue}
-                  milestoneId={milestoneId}
-                  planningPeriodId={planningPeriodId}
-                  planningUserId={planningUserId}
-                  userId={userId}
-                />
-              </Form.Item>}
+              {planningPeriodId && planningUserId && (
+                <Form.Item label="Sub tasks" className="mx-8">
+                  <SubTaskComponent
+                    field={field}
+                    kId={kId}
+                    hasTargetValue={hasTargetValue}
+                    milestoneId={milestoneId}
+                    planningPeriodId={planningPeriodId}
+                    planningUserId={planningUserId}
+                    userId={userId}
+                  />
+                </Form.Item>
+              )}
             </Form.Item>
           ))}
 

@@ -19,7 +19,6 @@ function General({ id }: { id: string }) {
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   useGetNationalities();
   const handleSaveChanges = (editKey: keyof EditState, values: any) => {
-
     form
       .validateFields()
       .then(() => {

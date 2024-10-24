@@ -59,15 +59,15 @@ function CreateReport() {
   );
 
   const handleOnFinish = (values: Record<string, any>) => {
-
-    planningPeriodId && createReport(
-      { values: values, planningPeriodId: planningPeriodId },
-      {
-        onSuccess: () => {
-          onClose();
+    planningPeriodId &&
+      createReport(
+        { values: values, planningPeriodId: planningPeriodId },
+        {
+          onSuccess: () => {
+            onClose();
+          },
         },
-      },
-    );
+      );
   };
 
   const formattedData =
@@ -172,7 +172,8 @@ function CreateReport() {
                                           </span>
                                         </div>
                                         <Row>
-                                          {keyresult?.metricType?.name ===NAME.ACHIEVE && (
+                                          {keyresult?.metricType?.name ===
+                                            NAME.ACHIEVE && (
                                             <div className="text-xs">
                                               Target
                                               <Tag className="uppercase mt-1 ml-1 test-xs">

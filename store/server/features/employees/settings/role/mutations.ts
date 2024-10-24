@@ -5,7 +5,6 @@ import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-
 /**
  * Function to create a new role by sending a POST request to the API.
  *
@@ -16,7 +15,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 const createRole = async (values: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const updatedRole={...values,tenantId:tenantId};
+  const updatedRole = { ...values, tenantId: tenantId };
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles`,
@@ -41,7 +40,7 @@ const createRole = async (values: any) => {
 const updateRole = async ({ values, roleId }: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const updatedRole={...values,tenantId:tenantId};
+  const updatedRole = { ...values, tenantId: tenantId };
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles/${roleId}`,

@@ -35,8 +35,6 @@ export type PlanningPeriod = {
   meta: Meta;
 };
 
-
-
 type Interval = {
   days: number;
 };
