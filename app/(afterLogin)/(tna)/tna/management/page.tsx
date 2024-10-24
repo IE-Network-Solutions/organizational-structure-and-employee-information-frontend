@@ -66,6 +66,7 @@ const TnaManagementPage = () => {
         <Flex gap={16}>
           <CourseFilter onChange={onFilterChange} />
           <Button
+            id='addCourseActionButton'
             size="large"
             type="primary"
             className="h-[54px]"
