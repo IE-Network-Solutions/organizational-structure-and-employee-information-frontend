@@ -9,7 +9,6 @@ import {
   Tooltip,
 } from 'antd';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
-import { RiDeleteBin6Line } from 'react-icons/ri';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useEmployeeAllFilter } from '@/store/server/features/employees/employeeManagment/queries';
@@ -20,11 +19,11 @@ import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { FaEye } from 'react-icons/fa';
 import Link from 'next/link';
 import { useRehireTerminatedEmployee } from '@/store/server/features/employees/offboarding/mutation';
-import { AiOutlineUserAdd } from 'react-icons/ai';
 import JobTimeLineForm from '../allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../allFormData/workScheduleForm';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import dayjs from 'dayjs';
+import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Employee Name',
@@ -108,7 +107,7 @@ const UserTable = () => {
         ? shortEmail.slice(0, MAX_EMAIL_LENGTH) + '...'
         : shortEmail;
     return {
-      key: index,
+      key: item?.id,
       employee_name: (
         <Tooltip
           title={
@@ -179,18 +178,19 @@ const UserTable = () => {
               <FaEye />
             </Button>
           </Link>
-          <Tooltip title={'Delete Employee'}>
+          <Tooltip title={'Deactive Employee'}>
             <Button
               id={`deleteUserButton${item?.id}`}
               disabled={item?.deletedAt !== null}
               className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation(); // Stop event propagation
                 setDeleteModal(true);
                 setDeletedItem(item?.id);
               }}
             >
-              <RiDeleteBin6Line />
-            </Button>
+           <MdAirplanemodeActive />
+          </Button>
           </Tooltip>
 
           {item.deletedAt !== null && (
@@ -200,10 +200,13 @@ const UserTable = () => {
                 htmlType="submit"
                 value={'submit'}
                 name="submit"
-                onClick={() => handelRehireModal(item)}
+                onClick={(e) => {
+                   e.stopPropagation(); // Stop event propagation
+                   handelRehireModal(item)
+                }}
                 disabled={item.deletedAt === null}
               >
-                <AiOutlineUserAdd />
+              <MdAirplanemodeInactive />
               </Button>
             </Tooltip>
           )}
@@ -211,6 +214,11 @@ const UserTable = () => {
       ),
     };
   });
+
+
+  const handleRowClick = (item:any) => {
+    window.location.href = `manage-employees/${item?.key}`;
+    };
   const handleDeleteConfirm = () => {
     employeeDeleteMuation();
   };
@@ -251,6 +259,9 @@ const UserTable = () => {
       <Table
         className="w-full"
         columns={columns}
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record), // Row click handler
+        })}
         dataSource={data}
         pagination={{
           total: allFilterData?.meta?.totalItems,
