@@ -49,7 +49,6 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
       <Card className="w-full md:w-4/5 bg-white top-0">
         <div className="flex flex-col md:flex-row justify-between">
           <CustomBreadcrumb
-             
             title={tabButton}
             subtitle="Admin can see all fields, and do everything the system offers"
             items={[

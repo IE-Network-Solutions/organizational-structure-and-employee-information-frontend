@@ -5,19 +5,24 @@ import { useUpdateEmployeeInformation } from '@/store/server/features/employees/
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 function UpdateUserInfo({ employeeData }: any) {
-    const { mutate: updateEmployeeInformation,isLoading } = useUpdateEmployeeInformation();
-    const { setEdit} = useEmployeeManagementStore();
+  const { mutate: updateEmployeeInformation, isLoading } =
+    useUpdateEmployeeInformation();
+  const { setEdit } = useEmployeeManagementStore();
 
   const [form] = useForm();
 
   const handleSaveChanges = (values: any) => {
-    updateEmployeeInformation({
+    updateEmployeeInformation(
+      {
         id: employeeData?.id,
         values,
-      },{
-        onSuccess:()=>{
-         setEdit('general')
-      }});
+      },
+      {
+        onSuccess: () => {
+          setEdit('general');
+        },
+      },
+    );
   };
 
   useEffect(() => {

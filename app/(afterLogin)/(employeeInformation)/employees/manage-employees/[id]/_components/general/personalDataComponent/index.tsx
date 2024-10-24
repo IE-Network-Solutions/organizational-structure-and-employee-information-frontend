@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Col, Form, Row,Input, Button, DatePicker, Select } from 'antd';
+import { Card, Col, Form, Row, Button, DatePicker, Select } from 'antd';
 import {
   EditState,
   useEmployeeManagementStore,
@@ -10,7 +10,6 @@ import { useGetNationalities } from '@/store/server/features/employees/employeeM
 import { InfoLine } from '../../common/infoLine';
 import dayjs from 'dayjs';
 import UpdateUserInfo from './updateUserInfo';
-  
 
 function PersonalDataComponent({
   id,
@@ -42,28 +41,28 @@ function PersonalDataComponent({
       }
       className="my-6 mt-0"
     >
-       <Row gutter={[16, 24]}>
-          {edit.general ? (
-            <>
+      <Row gutter={[16, 24]}>
+        {edit.general ? (
+          <>
             <Row>
-              <UpdateUserInfo employeeData={employeeData}  />
+              <UpdateUserInfo employeeData={employeeData} />
             </Row>
             <Form
-                  form={form}
-                  layout="vertical"
-                  onFinish={(values) => handleSaveChanges('general', values)}
-                  initialValues={{
-                    dateOfBirth: employeeData?.employeeInformation?.dateOfBirth
-                      ? dayjs(employeeData.employeeInformation.dateOfBirth)
-                      : null,
-                    nationalityId: employeeData?.employeeInformation?.nationalityId,
-                    maritalStatus: employeeData?.employeeInformation?.maritalStatus,
-                    joinedDate: employeeData?.employeeInformation?.joinedDate
-                      ? dayjs(employeeData.employeeInformation.joinedDate)
-                      : null,
-                    gender: employeeData?.employeeInformation?.gender,
-                  }}
-                >
+              form={form}
+              layout="vertical"
+              onFinish={(values) => handleSaveChanges('general', values)}
+              initialValues={{
+                dateOfBirth: employeeData?.employeeInformation?.dateOfBirth
+                  ? dayjs(employeeData.employeeInformation.dateOfBirth)
+                  : null,
+                nationalityId: employeeData?.employeeInformation?.nationalityId,
+                maritalStatus: employeeData?.employeeInformation?.maritalStatus,
+                joinedDate: employeeData?.employeeInformation?.joinedDate
+                  ? dayjs(employeeData.employeeInformation.joinedDate)
+                  : null,
+                gender: employeeData?.employeeInformation?.gender,
+              }}
+            >
               <Row gutter={[16, 24]}>
                 <Col lg={12}>
                   <Form.Item
@@ -85,7 +84,8 @@ function PersonalDataComponent({
                         const maxDate = dayjs().subtract(18, 'years'); // Maximum date is 18 years ago
                         return (
                           current &&
-                          (current.isBefore(minDate) || current.isAfter(maxDate))
+                          (current.isBefore(minDate) ||
+                            current.isAfter(maxDate))
                         );
                       }}
                     />
@@ -95,7 +95,10 @@ function PersonalDataComponent({
                     label="Nationality"
                     className="text-gray-950 text-xs"
                     rules={[
-                      { required: true, message: 'Please enter the nationality' },
+                      {
+                        required: true,
+                        message: 'Please enter the nationality',
+                      },
                     ]}
                   >
                     <Select
@@ -131,7 +134,6 @@ function PersonalDataComponent({
                   </Form.Item>
                 </Col>
                 <Col lg={10}>
-                
                   <Form.Item
                     name="gender"
                     label="Gender"
@@ -151,7 +153,10 @@ function PersonalDataComponent({
                     label="Joined Date"
                     className="text-gray-950 text-xs w-full"
                     rules={[
-                      { required: true, message: 'Please enter the joined date' },
+                      {
+                        required: true,
+                        message: 'Please enter the joined date',
+                      },
                     ]}
                   >
                     <DatePicker className="w-full" />
@@ -162,54 +167,52 @@ function PersonalDataComponent({
                     Save Changes
                   </Button>
                 </Col>
-            </Row>
-             </Form>
-            </>
-          ) : (
-            <>
-              <Col lg={12}>
-                <InfoLine
-                  title="Full Name"
-                  value={`${employeeData?.firstName} ${employeeData?.middleName} ${employeeData?.lastName}`}
-                />
-                <InfoLine
-                  title="Date of Birth"
-                  value={
-                    dayjs(
-                      employeeData?.employeeInformation?.dateOfBirth,
-                    ).format('DD MMMM, YYYY') || '-'
-                  }
-                />
-                <InfoLine
-                  title="Nationality"
-                  value={
-                    employeeData?.employeeInformation?.nationality?.name || '-'
-                  }
-                />
-              </Col>
-              <Col lg={10}>
-                <InfoLine
-                  title="Gender"
-                  value={employeeData?.employeeInformation?.gender || '-'}
-                />
-                <InfoLine
-                  title="Marital Status"
-                  value={
-                    employeeData?.employeeInformation?.maritalStatus || '-'
-                  }
-                />
-                <InfoLine
-                  title="Joined Date"
-                  value={
-                    dayjs(
-                      employeeData?.employeeInformation?.joinedDate,
-                    )?.format('DD MMMM, YYYY') || '-'
-                  }
-                />
-              </Col>
-            </>
-          )}
-        </Row>
+              </Row>
+            </Form>
+          </>
+        ) : (
+          <>
+            <Col lg={12}>
+              <InfoLine
+                title="Full Name"
+                value={`${employeeData?.firstName} ${employeeData?.middleName} ${employeeData?.lastName}`}
+              />
+              <InfoLine
+                title="Date of Birth"
+                value={
+                  dayjs(employeeData?.employeeInformation?.dateOfBirth).format(
+                    'DD MMMM, YYYY',
+                  ) || '-'
+                }
+              />
+              <InfoLine
+                title="Nationality"
+                value={
+                  employeeData?.employeeInformation?.nationality?.name || '-'
+                }
+              />
+            </Col>
+            <Col lg={10}>
+              <InfoLine
+                title="Gender"
+                value={employeeData?.employeeInformation?.gender || '-'}
+              />
+              <InfoLine
+                title="Marital Status"
+                value={employeeData?.employeeInformation?.maritalStatus || '-'}
+              />
+              <InfoLine
+                title="Joined Date"
+                value={
+                  dayjs(employeeData?.employeeInformation?.joinedDate)?.format(
+                    'DD MMMM, YYYY',
+                  ) || '-'
+                }
+              />
+            </Col>
+          </>
+        )}
+      </Row>
     </Card>
   );
 }

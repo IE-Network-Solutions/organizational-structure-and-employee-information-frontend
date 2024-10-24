@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import { Card, Col, Row, Table } from 'antd';
-import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../common/infoLine';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import WorkScheduleComponent from './workSchedule';

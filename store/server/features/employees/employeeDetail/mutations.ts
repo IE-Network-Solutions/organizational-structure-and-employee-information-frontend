@@ -6,7 +6,7 @@ import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
 // Mutation function
-const updateEmployeeMutation = async (id: string,values: any) => {
+const updateEmployeeMutation = async (id: string, values: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -20,10 +20,7 @@ const updateEmployeeMutation = async (id: string,values: any) => {
     data: values,
   });
 };
-const updateEmployeeInformation = async (
-  id: string,
-  values: any,
-) => {
+const updateEmployeeInformation = async (id: string, values: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -139,8 +136,8 @@ export const useUpdateEmployee = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ id,values}: { id: string, values: any; }) =>
-      updateEmployeeMutation(id,values),
+    ({ id, values }: { id: string; values: any }) =>
+      updateEmployeeMutation(id, values),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('employee');
