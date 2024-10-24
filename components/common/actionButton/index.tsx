@@ -42,8 +42,8 @@ const ActionButton: FC<ActionButtonProps> = ({
       key: '0',
       label: (
         <Button
-          id='openActionButton'
           size="large"
+          id='actionButtonForOpenId'
           className="w-full justify-normal"
           type="text"
           onClick={(e) => {
@@ -63,8 +63,8 @@ const ActionButton: FC<ActionButtonProps> = ({
       key: '1',
       label: (
         <Button
-          id='editActionButton'
           size="large"
+          id='actionButtonForEditId'
           className="w-full justify-normal"
           type="text"
           onClick={(e) => {
@@ -112,8 +112,8 @@ const ActionButton: FC<ActionButtonProps> = ({
       <Button
         icon={<HiOutlineDotsVertical size={20} className="text-gray-500" />}
         className="h-7 w-7"
+        id='buttonDropDownActionId'
         type="text"
-        id='dropDownActionButton'
         onClick={(e) => {
           e.stopPropagation();
           setOpen(true);

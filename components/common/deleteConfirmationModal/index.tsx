@@ -21,6 +21,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
     <div className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6">
       <Button
         className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
+        id='deleteModalCancelButtonId'
         onClick={onCancel}
       >
         Cancel
