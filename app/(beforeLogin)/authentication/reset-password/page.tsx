@@ -9,10 +9,9 @@ import { auth } from '@/utils/firebaseConfig';
 const NewPassword: FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const oobCode = searchParams.get('oobCode'); // Get the oobCode from the URL
+  const oobCode = searchParams.get('oobCode');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Redirect if oobCode is missing
   useEffect(() => {
     if (!oobCode) {
       message.error('Invalid or expired reset link.');
@@ -34,7 +33,6 @@ const NewPassword: FC = () => {
     try {
       setIsLoading(true);
       if (oobCode) {
-        // Use Firebase's confirmPasswordReset to reset the password
         await confirmPasswordReset(auth, oobCode, newPassword);
         message.success('Password successfully reset!');
         router.push('/authentication/login');
