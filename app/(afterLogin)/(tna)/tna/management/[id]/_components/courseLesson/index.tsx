@@ -29,6 +29,7 @@ const CourseLesson = () => {
 
       <div className="flex flex-col justify-center items-center gap-2.5">
         <Button
+          id='tnaCreateLessonButtonId'
           className="w-full max-w-[325px] h-[56px]"
           type="primary"
           size="large"

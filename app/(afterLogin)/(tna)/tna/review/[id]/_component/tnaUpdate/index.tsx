@@ -182,6 +182,7 @@ const TnaUpdateSidebar = () => {
                       }}
                     >
                       <CustomUpload
+                        id='tnaUpdateCustomUploadFieldId'
                         mode="draggable"
                         className="w-full mt-3"
                         listType="picture"
@@ -212,12 +213,13 @@ const TnaUpdateSidebar = () => {
                         },
                       ]}
                     >
-                      <Input className="control" />
+                      <Input id='tnaUpdateLinkUploadFieldId' className="control" />
                     </Form.Item>
                     <Button
                       icon={<LuPlus size={16} />}
                       size="large"
                       type="primary"
+                      id='tnaUpdateSubmitLinkButtonId'
                       htmlType="button"
                       onClick={add}
                       className="mb-5 self-end"
@@ -232,11 +234,11 @@ const TnaUpdateSidebar = () => {
 
           <Form.Item
             name="completedAt"
-            label="Compited Date"
+            label="Completed Date"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
           >
-            <DatePicker className="control" format={DATE_FORMAT} />
+            <DatePicker id='tnaUpdateCompletedDateFieldId' className="control" format={DATE_FORMAT} />
           </Form.Item>
           <Form.Item
             name="certStatus"
@@ -246,6 +248,7 @@ const TnaUpdateSidebar = () => {
           >
             <Select
               className="control"
+              id='tnaUpdateCertificationStatusFieldId'
               suffixIcon={
                 <MdKeyboardArrowDown size={16} className="text-gray-900" />
               }

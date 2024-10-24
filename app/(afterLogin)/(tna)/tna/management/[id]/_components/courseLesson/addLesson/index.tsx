@@ -156,7 +156,9 @@ const CourseAddLessonSidebar = () => {
                         rules={[{ required: true, message: 'Required' }]}
                         className="form-item flex-1"
                       >
-                        <Input className="control" />
+                        <Input
+                         id='tnaLessonTitleFieldId' 
+                         className="control" />
                       </Form.Item>
                       {fields.length > 1 ? (
                         <RemoveFormFieldButton
@@ -174,6 +176,7 @@ const CourseAddLessonSidebar = () => {
                       className="form-item pl-4"
                     >
                       <InputNumber
+                        id='tnaLessonNumberFieldId'
                         className="control-number"
                         placeholder="Enter the order of the lesson in number"
                         min={0}
@@ -187,6 +190,7 @@ const CourseAddLessonSidebar = () => {
                       className="form-item pl-4"
                     >
                       <Input.TextArea
+                        id='tnaDescriptionFieldId'
                         className="control-tarea"
                         rows={6}
                         placeholder="Enter the Description"
@@ -228,6 +232,7 @@ const CourseAddLessonSidebar = () => {
                       {material.title}
                     </div>
                     <ActionButtons
+                      id={material?.id || null}
                       onEdit={() => {
                         setLessonMaterial(material);
                         setIsShowLessonMaterial(true);

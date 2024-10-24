@@ -72,6 +72,7 @@ const LessonPage = () => {
           <div className="flex flex-wrap gap-2.5">
             {lessonMaterial.attachments.map((link) => (
               <FileButton
+              
                 key={link}
                 fileName={formatLinkToUploadFile(link).name}
                 link={link}
@@ -84,6 +85,7 @@ const LessonPage = () => {
           <Button
             className="h-[66px] w-[160px]"
             size="large"
+            id='tnaPreviousLessonPageButtonId'
             icon={<FaArrowLeftLong size={18} />}
             disabled={!nextAndPrev.prev}
             onClick={() => {
@@ -95,6 +97,7 @@ const LessonPage = () => {
           <Button
             className="h-[66px] w-[160px]"
             size="large"
+            id='tnaCompleteLessonPageButtonId'
             icon={<FaArrowRightLong size={18} />}
             iconPosition="end"
             type="primary"

@@ -162,7 +162,7 @@ const CourseLessonMaterial = () => {
           rules={[{ required: true, message: 'Required' }]}
           className="form-item"
         >
-          <Input className="control" />
+          <Input id='tnaCourseMaterialTitleFieldId' className="control" />
         </Form.Item>
         <Form.Item
           name="description"
@@ -171,6 +171,7 @@ const CourseLessonMaterial = () => {
           className="form-item"
         >
           <Input.TextArea
+            id='tnaCourseLessonDescriptionFieldId'
             className="control-tarea"
             rows={6}
             placeholder="Enter the Description"
@@ -179,6 +180,7 @@ const CourseLessonMaterial = () => {
         <Form.Item
           name="article"
           label="Article"
+          id='tnaArticleForCourseFieldId'
           rules={[{ required: true, message: 'Required' }]}
           className="form-item"
         >

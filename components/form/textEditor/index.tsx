@@ -39,16 +39,17 @@ const TextEditor: FC<TextEditorProps> = ({
         <button className="ql-header" value="3">
           <MdTitle size={16} />
         </button>
-        <button type="button" className="ql-bold"></button>
-        <button type="button" className="ql-italic"></button>
-        <button type="button" className="ql-underline"></button>
-        <button type="button" className="ql-link"></button>
-        <button type="button" className="ql-list" value="bullet"></button>
-        <button type="button" className="ql-align" value="center"></button>
+        <button id='buttonQlBold' type="button" className="ql-bold"></button>
+        <button id='buttonQlItallic' type="button" className="ql-italic"></button>
+        <button id='buttonQlUnderline' type="button" className="ql-underline"></button>
+        <button id='buttonQlLink' type="button" className="ql-link"></button>
+        <button id='buttonQlList' type="button" className="ql-list" value="bullet"></button>
+        <button id='buttonQlAlign' type="button" className="ql-align" value="center"></button>
       </div>
       <div className="p-6 h-[250px] overflow-y-auto">
         {toolbar && (
           <QuillEditor
+            id='quillEditorFieldId'
             modules={{
               toolbar,
             }}

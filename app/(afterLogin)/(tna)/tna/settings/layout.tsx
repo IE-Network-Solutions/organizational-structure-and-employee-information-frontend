@@ -13,7 +13,7 @@ interface TnaSettingsLayoutProps {
 const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
   const menuItems = new SidebarMenuItem([
     {
-      item: {
+      item: { 
         key: 'course-category',
         icon: <CiCalendarDate />,
         label: <p className="menu-item-label">Course Category</p>,
