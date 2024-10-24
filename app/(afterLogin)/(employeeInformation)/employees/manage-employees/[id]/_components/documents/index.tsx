@@ -115,7 +115,6 @@ const Documents = ({ id }: { id: string }) => {
     });
   };
 
-
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <Row justify="center" style={{ width: '100%' }}>
@@ -181,7 +180,7 @@ const Documents = ({ id }: { id: string }) => {
             </Form.Item>
             <div className="flex justify-end">
               <Button
-                disabled={documentFileList?.length===0}
+                disabled={documentFileList?.length === 0}
                 loading={addEmployee}
                 id={`sidebarActionCreateSubmit`}
                 className="px-6 py-3 text-xs font-bold flex justify-end"

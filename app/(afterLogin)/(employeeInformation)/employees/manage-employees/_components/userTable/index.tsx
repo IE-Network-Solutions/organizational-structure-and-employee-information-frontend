@@ -95,7 +95,7 @@ const UserTable = () => {
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
 
-  const data = allFilterData?.items?.map((item: any, index: number) => {
+  const data = allFilterData?.items?.map((item: any) => {
     const fullName = item?.firstName + ' ' + item?.middleName;
     const shortEmail = item?.email;
     const displayName =
@@ -189,8 +189,8 @@ const UserTable = () => {
                 setDeletedItem(item?.id);
               }}
             >
-           <MdAirplanemodeActive />
-          </Button>
+              <MdAirplanemodeActive />
+            </Button>
           </Tooltip>
 
           {item.deletedAt !== null && (
@@ -201,12 +201,12 @@ const UserTable = () => {
                 value={'submit'}
                 name="submit"
                 onClick={(e) => {
-                   e.stopPropagation(); // Stop event propagation
-                   handelRehireModal(item)
+                  e.stopPropagation(); // Stop event propagation
+                  handelRehireModal(item);
                 }}
                 disabled={item.deletedAt === null}
               >
-              <MdAirplanemodeInactive />
+                <MdAirplanemodeInactive />
               </Button>
             </Tooltip>
           )}
@@ -215,10 +215,9 @@ const UserTable = () => {
     };
   });
 
-
-  const handleRowClick = (item:any) => {
+  const handleRowClick = (item: any) => {
     window.location.href = `manage-employees/${item?.key}`;
-    };
+  };
   const handleDeleteConfirm = () => {
     employeeDeleteMuation();
   };

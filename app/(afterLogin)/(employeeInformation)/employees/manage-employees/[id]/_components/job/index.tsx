@@ -19,13 +19,13 @@ function Job({ id }: { id: string }) {
       title: 'Effective Date',
       dataIndex: 'effectiveStartDate',
       key: 'effectiveStartDate',
-      render: (text:string) => text ? text : '-', 
+      render: (text: string) => (text ? text : '-'),
     },
     {
       title: 'Job Title',
       dataIndex: 'jobTitle',
       key: 'jobTitle',
-      render: (text:string) => text ? text : '-',
+      render: (text: string) => (text ? text : '-'),
     },
     {
       title: 'Employment Type',
@@ -39,13 +39,15 @@ function Job({ id }: { id: string }) {
       title: 'Manager',
       dataIndex: 'address',
       key: 'address',
-      render: (text:string) => text ? text : '-',
+      render: (text: string) => (text ? text : '-'),
     },
     {
       title: 'Department',
       dataIndex: 'department',
       key: 'address',
-      render: (ruleData: any, record: any) => <>{record?.department?.name ?? '-'}</>,
+      render: (ruleData: any, record: any) => (
+        <>{record?.department?.name ?? '-'}</>
+      ),
     },
   ];
   return (
@@ -93,7 +95,10 @@ function Job({ id }: { id: string }) {
           </Col>
         </Row>
       </Card>{' '}
-      <Card title={"Job Information"} extra={<FaPlus onClick={handleAddEmployeeJobInformation} />}>
+      <Card
+        title={'Job Information'}
+        extra={<FaPlus onClick={handleAddEmployeeJobInformation} />}
+      >
         <Table
           dataSource={employeeData?.employeeJobInformation}
           columns={columns}
