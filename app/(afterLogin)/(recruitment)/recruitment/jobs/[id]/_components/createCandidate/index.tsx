@@ -49,7 +49,9 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   const foundStage = statusStage?.items?.find(
     (stage: any) => stage.title === titleToFind,
   );
-  const stageId = foundStage ? foundStage.id : null;
+
+  const stageId = foundStage ? foundStage.id : '';
+  console.log(stageId, 'stageId');
 
   const {
     createJobDrawer,

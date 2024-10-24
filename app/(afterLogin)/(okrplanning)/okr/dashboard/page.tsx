@@ -1,5 +1,5 @@
 'use client';
-import { Row, Select, Space } from 'antd';
+import { Col, Row, Select, Space } from 'antd';
 import React from 'react';
 import { BsAwardFill } from 'react-icons/bs';
 import { FaBomb } from 'react-icons/fa';
@@ -9,6 +9,13 @@ import DashboardCard from '../../../(okr)/_components/displayCard';
 import { GoGoal } from 'react-icons/go';
 import { MdOutlineKey } from 'react-icons/md';
 import PerformanceChart from '../../../(okr)/_components/performanceChart';
+import CustomBreadcrumb from '@/components/common/breadCramp';
+import ProgressCard from '@/app/(afterLogin)/(okr)/_components/achievementCard';
+import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
+import ObjectiveKeyResult from './_components/objectiveKeyResult';
+import Performance from './_components/Performance';
 
 const listData: ListData[] = [
   {
@@ -48,7 +55,7 @@ const listData: ListData[] = [
   },
 ];
 
-const cardData: CardData = {
+const cardData = {
   key: 'weeklyScore',
   name: 'Samuel Anteneh',
   position: 'Software Engineer',
@@ -97,150 +104,41 @@ const cardData: CardData = {
   },
   updatedAt: 'Sep 18, 2024',
 };
-const items: SelectData[] = [
-  { key: '1', value: 'weekly', label: 'Weekly' },
-  { key: '2', value: 'monthly', label: 'Monthly' },
-  { key: '3', value: 'quarterly', label: 'Quarterly' },
-];
 
 const Dashboard: React.FC<any> = () => {
+  const { revenue, financialSales, progressRevenue, progressSales } =
+    useOKRStore();
+
   return (
-    <div>
-      <div className="mb-10">
-        <div className="text-2xl font-bold ">DashBoard</div>
-        <div className="text-lg font-light">Employee’s OKR dashboards view</div>
-      </div>
-      <div className="flex justify-center my-4 w-full">
-        <Row gutter={16} className="w-full max-w-screen-xl">
-          <DashboardCard
-            score={cardData?.okr}
-            updatedAt={cardData?.updatedAt}
-            title="Average OKR Score"
-            icon={<GoGoal className="text-[#7152F3]" />}
-            span={8}
-            isTop
-          />
-          <DashboardCard
-            score={cardData?.keyResults}
-            updatedAt={cardData?.updatedAt}
-            title="total key result"
-            icon={<MdOutlineKey className="text-[#7152F3]" />}
-            span={8}
-            isTop
-            cardColor="bg-[#e9e9ff]"
-          />
-          <DashboardCard
-            score={cardData?.vp}
-            updatedAt={cardData?.updatedAt}
-            title="supervisor OKR score"
-            icon={<GoGoal className="text-[#7152F3]" />}
-            span={8}
-            isTop
-            cardColor="bg-[#e9e9ff]"
-          />
-        </Row>
-      </div>
-
-      <div className="flex justify-between mr-5 my-7 ">
-        <div className="text-xl font-bold ">Performance</div>
-        <div className="pl-2">
-          <Select
-            placeholder="select"
-            allowClear
-            className="min-w-10 px-7 my-3 text-2xl font-semibold"
-            options={items.map((item) => ({
-              value: item.value,
-              label: item.label,
-            }))}
-            defaultValue={items[0].value}
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-12 gap-5">
-        <div className="col-span-8">
-          <PerformanceChart />
-        </div>
-        <div className="col-span-4 ">
-          <Space direction="vertical" className="w-[90%]">
-            <RookStarsList
-              dataSource={listData}
-              title="Rock Star Of The Week"
-            />
-          </Space>
-        </div>
-      </div>
-
-      <div className="flex justify-between">
-        <div className="text-xl font-bold">Performance Evaluation</div>
-      </div>
-      <div className="grid grid-cols-12 gap-5">
-        <div className="col-span-8">
-          <div>
-            <Row gutter={[16, 16]}>
-              <DashboardCard
-                score={cardData?.issuedReprimand}
-                updatedAt={cardData?.updatedAt}
-                title="Issued Reprimand"
-                icon={<FaBomb className="text-red-500" />}
-                span={12}
-                isTop={false}
-              />
-              <DashboardCard
-                score={cardData?.issuedAppreciations}
-                updatedAt={cardData?.updatedAt}
-                title="Issued Appreciations"
-                icon={<BsAwardFill className="text-green-500" />}
-                span={12}
-                isTop={false}
-              />
-              <DashboardCard
-                score={cardData?.receiveReprimand}
-                updatedAt={cardData?.updatedAt}
-                title="Received Reprimand"
-                icon={<FaBomb className="text-red-500" />}
-                span={12}
-                isTop={false}
-              />
-              <DashboardCard
-                score={cardData?.receiveAppreciations}
-                updatedAt={cardData?.updatedAt}
-                title="received Appreciations"
-                icon={<BsAwardFill className="text-green-500" />}
-                span={12}
-                isTop={false}
-              />
-            </Row>
-          </div>
-        </div>
-        <div className="col-span-4">
-          <Space direction="vertical" className="w-[90%]">
-            <RookStarsList dataSource={listData} title="Leaders Board" />
-          </Space>
-        </div>
-      </div>
-
+    <div className="h-auto w-full p-4 bg-white rounded-md">
+      <CustomBreadcrumb
+        title="Dashboard"
+        subtitle="Employee’s OKR dashboards view"
+      />
+      <ObjectiveKeyResult />
+      <Performance />
       <div className="flex justify-between">
         <div className="text-xl font-bold">Achievement</div>
       </div>
       <div className="flex">
         <div className="w-full mr-3 flex flex-col gap-5">
-          <Row gutter={20} className="w-full max-w-screen-xl">
-            <DashboardCard
-              score={cardData?.okr}
-              updatedAt={cardData?.updatedAt}
-              title="Average OKR Score"
-              icon={<GoGoal className="text-[#7152F3]" />}
-              span={12}
-              isTop
-            />
-            <DashboardCard
-              score={cardData?.keyResults}
-              updatedAt={cardData?.updatedAt}
-              title="total key result"
-              icon={<MdOutlineKey className="text-[#7152F3]" />}
-              span={12}
-              isTop
-            />
+          <Row gutter={[16, 16]} className="w-full max-w-screen-xl">
+            <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+              <ProgressCard
+                title="Revenue"
+                amount={revenue}
+                progress={progressRevenue}
+                totalAmount={revenue * 2}
+              />
+            </Col>
+            <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+              <ProgressCard
+                title="Financial Sales"
+                amount={financialSales}
+                progress={financialSales}
+                totalAmount={progressSales}
+              />
+            </Col>
           </Row>
         </div>
       </div>
