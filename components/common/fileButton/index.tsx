@@ -42,7 +42,7 @@ const FileButton: FC<FileButtonProps> = ({
     <a
       href={link}
       target="_blank"
-      id='fileOpenLinkId'
+      id="fileOpenLinkId"
       className={classNames(
         'flex items-center rounded-lg border border-gray-200 py-2 px-6 w-max gap-1 text-gray-900',
         undefined,

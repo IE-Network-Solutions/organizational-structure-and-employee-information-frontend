@@ -43,7 +43,7 @@ const ActionButton: FC<ActionButtonProps> = ({
       label: (
         <Button
           size="large"
-          id='actionButtonForOpenId'
+          id="actionButtonForOpenId"
           className="w-full justify-normal"
           type="text"
           onClick={(e) => {
@@ -64,7 +64,7 @@ const ActionButton: FC<ActionButtonProps> = ({
       label: (
         <Button
           size="large"
-          id='actionButtonForEditId'
+          id="actionButtonForEditId"
           className="w-full justify-normal"
           type="text"
           onClick={(e) => {
@@ -90,7 +90,12 @@ const ActionButton: FC<ActionButtonProps> = ({
             onDelete(e);
           }}
         >
-          <Button id='buttonDeleteActionId' size="large" className="w-full justify-normal" type="text">
+          <Button
+            id="buttonDeleteActionId"
+            size="large"
+            className="w-full justify-normal"
+            type="text"
+          >
             Delete
           </Button>
         </DeletePopover>
@@ -110,7 +115,7 @@ const ActionButton: FC<ActionButtonProps> = ({
       <Button
         icon={<HiOutlineDotsVertical size={20} className="text-gray-500" />}
         className="h-7 w-7"
-        id='buttonDropDownActionId'
+        id="buttonDropDownActionId"
         type="text"
         onClick={(e) => {
           e.stopPropagation();

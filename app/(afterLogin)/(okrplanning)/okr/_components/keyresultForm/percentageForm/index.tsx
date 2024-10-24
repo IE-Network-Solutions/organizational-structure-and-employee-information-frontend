@@ -82,7 +82,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
           <Form.Item
             name="title"
             className="font-semibold text-xs w-full mb-2"
-            rules={[{ required: true, message: 'Please enter the Key Result name' }]}
+            rules={[
+              { required: true, message: 'Please enter the Key Result name' },
+            ]}
           >
             <Input
               id={`key-result-title-${index}`}
@@ -100,7 +102,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 name={`dead_line_${index}`}
                 className="font-semibold text-xs w-full mb-2"
                 label="Deadline"
-                rules={[{ required: true, message: 'Please select a deadline' }]}
+                rules={[
+                  { required: true, message: 'Please select a deadline' },
+                ]}
               >
                 <DatePicker
                   id={`key-result-deadline-${index}`}
@@ -136,7 +140,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     validator: (form, value) =>
                       value && value > 0
                         ? Promise.resolve()
-                        : Promise.reject(new Error('Weight must be greater than 0')),
+                        : Promise.reject(
+                            new Error('Weight must be greater than 0'),
+                          ),
                   },
                 ]}
               >

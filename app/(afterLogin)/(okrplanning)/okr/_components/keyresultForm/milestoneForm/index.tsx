@@ -103,7 +103,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
           <Form.Item
             className="font-semibold text-xs w-full mb-2"
             name="title"
-            rules={[{ required: true, message: 'Please enter the Key Result name' }]}
+            rules={[
+              { required: true, message: 'Please enter the Key Result name' },
+            ]}
             id={`key-result-title-${index}`}
           >
             <Input
@@ -120,14 +122,18 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                 name={`dead_line_${index}`}
                 label="Deadline"
                 layout="horizontal"
-                rules={[{ required: true, message: 'Please select a deadline' }]}
+                rules={[
+                  { required: true, message: 'Please select a deadline' },
+                ]}
                 id={`key-result-deadline-${index}`}
               >
                 <DatePicker
                   className="w-full text-xs"
                   value={keyItem.deadline ? moment(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
-                  disabledDate={(current) => current && current < dayjs().startOf('day')}
+                  disabledDate={(current) =>
+                    current && current < dayjs().startOf('day')
+                  }
                   onChange={(date) =>
                     updateKeyResult(
                       index,

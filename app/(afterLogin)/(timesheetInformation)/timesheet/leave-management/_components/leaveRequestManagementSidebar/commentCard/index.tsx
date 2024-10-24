@@ -23,7 +23,7 @@ const CommentCard: FC<CommentCardProps> = ({ text, attachments }) => {
         ></div>
         <div className="flex flex-wrap items-center gap-1 mt-2">
           {attachments &&
-            attachments.map((item,key) => (
+            attachments.map((item, key) => (
               <Button
                 key={item}
                 id={`${key}filePdfAttachmentId`}
