@@ -26,7 +26,7 @@ export const EmployeTypeManagementStore = create<EmployeTypeUseState>(
       name: '',
       description: '',
     },
-    pageSize: 5,
+    pageSize: 6,
     setPageSize: (pageSize: number) => set({ pageSize }),
     page: 1,
     setPage: (page: number) => set({ page }),
