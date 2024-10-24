@@ -23,9 +23,10 @@ const CommentCard: FC<CommentCardProps> = ({ text, attachments }) => {
         ></div>
         <div className="flex flex-wrap items-center gap-1 mt-2">
           {attachments &&
-            attachments.map((item) => (
+            attachments.map((item,key) => (
               <Button
                 key={item}
+                id={`${key}filePdfAttachmentId`}
                 icon={<LuFileText size={14} />}
                 type="text"
                 className="py-1 pl-0 pr-4 text-[10px] font-bold text-gray-900"

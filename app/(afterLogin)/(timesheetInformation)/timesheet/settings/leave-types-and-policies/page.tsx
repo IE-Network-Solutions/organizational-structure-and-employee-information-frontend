@@ -18,6 +18,7 @@ const Page = () => {
           size="large"
           type="primary"
           icon={<LuPlus size={18} />}
+          id={`createNewTypesAndPoliciesButtonId`} 
           onClick={() => setIsShowTypeAndPoliciesSidebar(true)}
         >
           New Type
