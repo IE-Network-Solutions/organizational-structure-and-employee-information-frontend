@@ -22,7 +22,7 @@ import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInform
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useRouter } from 'next/navigation';
-import OrgChartSkeleton from '../../loading/orgStructureLoading';
+import OrgChartSkeleton from '../loading/orgStructureLoading';
 import { FaDownload } from 'react-icons/fa';
 import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
 import { DepartmentNode } from '../departmentNode';
@@ -159,7 +159,6 @@ const OrgChartComponent: React.FC = () => {
   return (
     <div className="w-full overflow-x-auto">
       <Card
-        loading={orgStructureLoading}
         className="w-full"
         title={<div className="text-2xl font-bold">ORG Structure</div>}
         extra={
