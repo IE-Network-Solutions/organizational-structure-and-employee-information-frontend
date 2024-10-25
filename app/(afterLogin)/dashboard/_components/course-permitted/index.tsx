@@ -1,12 +1,12 @@
 import React from 'react';
-import { Card, Select } from 'antd';
+import { Card } from 'antd';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js'; // Import required elements
+import { useGetCoursePermitted } from '@/store/server/features/dashboard/courses-permitted/queries';
 
 // Register the chart.js components
 Chart.register(ArcElement, Tooltip, Legend);
 
-const { Option } = Select;
 interface ChartData {
   labels: string[];
   datasets: {
@@ -16,11 +16,13 @@ interface ChartData {
   }[];
 }
 const CoursePermitted: React.FC = () => {
+  const { data: coursePermitted, isLoading } = useGetCoursePermitted();
+
   const data: ChartData = {
-    labels: ['Full-Time', 'Part-Time', 'Others'],
+    labels: coursePermitted?.map((i) => i.categoryName) || [],
     datasets: [
       {
-        data: [120, 80, 34], // Sample data for full-time, part-time, and others
+        data: coursePermitted?.map((i) => i.courseCount) || [], // Sample data for full-time, part-time, and others
         backgroundColor: ['#2f78ee', '#3636ee', '#1d9bf0'],
         borderWidth: 1,
       },
@@ -66,20 +68,14 @@ const CoursePermitted: React.FC = () => {
       },
     },
   };
-
+  const totalCourseCount = coursePermitted?.reduce(
+    (acc, curr) => acc + (Number(curr?.courseCount) || 0),
+    0,
+  );
   return (
-    <Card className="w-full mx-auto shadow-md">
+    <Card loading={isLoading} className="w-full mx-auto shadow-md">
       <div className="flex justify-between items-center mb-2">
         <h3 className=" font-semibold text-lg">Course Permitted</h3>
-        <Select
-          bordered={false}
-          defaultValue="All Time"
-          className="text-gray-500"
-        >
-          <Option value="All Time">All Time</Option>
-          <Option value="This Year">This Year</Option>
-          <Option value="This Month">This Month</Option>
-        </Select>
       </div>
 
       <div className="grid items-center">
@@ -100,7 +96,7 @@ const CoursePermitted: React.FC = () => {
               transform: 'translate(-50%, -50%)',
             }}
           >
-            <div className="font-bold text-2xl">121</div>
+            <div className="font-bold text-2xl">{totalCourseCount}</div>
             <div className="font-light text-xs ">Total</div>
           </div>
         </div>

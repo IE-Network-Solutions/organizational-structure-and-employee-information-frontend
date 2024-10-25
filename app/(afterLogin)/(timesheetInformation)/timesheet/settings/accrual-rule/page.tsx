@@ -76,6 +76,7 @@ const Page = () => {
         <Button
           size="large"
           type="primary"
+          id='accrutualRuleId'
           icon={<LuPlus size={18} />}
           onClick={() => setIsShowNewAccrualRuleSidebar(true)}
         >

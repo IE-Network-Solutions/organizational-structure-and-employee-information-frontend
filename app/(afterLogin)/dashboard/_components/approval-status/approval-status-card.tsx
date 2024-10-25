@@ -16,7 +16,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
   type,
 }) => {
   return (
-    <div className="flex items-center justify-between bg-white p-2 rounded-lg shadow-sm mb-3">
+    <div className="flex items-center justify-between bg-white p-2 rounded-lg  overflow-y-auto scrollbar-none mb-3">
       <div className="flex items-center space-x-3">
         <img
           src="https://randomuser.me/api/portraits/women/1.jpg"

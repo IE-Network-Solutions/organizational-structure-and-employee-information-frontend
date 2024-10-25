@@ -24,14 +24,14 @@ const CommentInput: FC<CommentInputProps> = ({ onChange }) => {
           onChange(form.getFieldsValue());
         }}
       >
-        <Form.Item name="comment">
+        <Form.Item id='commentSectionId' name="comment">
           <QuillEditor modules={{ toolbar }} />
         </Form.Item>
         <div className="border-b border-gray-200 mb-3"></div>
         <div id="inputToolbar" className="border-0">
-          <button type="button" className="ql-bold"></button>
-          <button type="button" className="ql-italic"></button>
-          <button type="button" className="ql-link"></button>
+          <button id='qlBoldId' type="button" className="ql-bold"></button>
+          <button id='qlItallicId' type="button" className="ql-italic"></button>
+          <button id='qlLinkId' type="button" className="ql-link"></button>
         </div>
       </Form>
     </div>

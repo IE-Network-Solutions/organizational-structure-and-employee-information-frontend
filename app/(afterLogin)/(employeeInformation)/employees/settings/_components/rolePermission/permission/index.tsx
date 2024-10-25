@@ -55,11 +55,13 @@ const Permission: React.FC<any> = () => {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      render: (text: string) => text ?? 'N/A',
     },
     {
       title: 'Slug',
       dataIndex: 'slug',
       key: 'slug',
+      render: (text: string) => text ?? 'N/A',
     },
   ];
   const { Option } = Select;

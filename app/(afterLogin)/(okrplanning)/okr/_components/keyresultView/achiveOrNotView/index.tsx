@@ -21,6 +21,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     handleSingleKeyResultChange,
     removeKeyResultValue,
   } = useOKRStore();
+
   const handleChange = (value: any, field: string) => {
     if (isEdit) {
       handleSingleKeyResultChange(value, field);
@@ -28,7 +29,9 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
       handleKeyResultChange(value, index, field);
     }
   };
+
   const { mutate: deleteKeyResult } = useDeleteKeyResult();
+  
   function handleKeyResultDelete(id: string) {
     deleteKeyResult(id, {
       onSuccess: () => {
@@ -36,10 +39,10 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
       },
     });
   }
+
   return (
-    <div className="py-4 border-b-[1px] border-gray-300">
+    <div className="py-4 border-b-[1px] border-gray-300" id={`achieve-or-not-view-${index}`}>
       <Form layout="vertical" className="space-y-1">
-        {/* Key Result Input */}
         <div className="flex gap-3 items-center">
           {!keyValue.id && (
             <div className="rounded-lg border-gray-200 border bg-gray-300 w-10 h-8 flex justify-center items-center mt-2">
@@ -51,23 +54,26 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               (keyValue.key_type == 'Achieve' && 'Achieved or Not Achieved') ||
               keyValue.metricType?.name
             }
-            className="w-full font-bold "
+            className="w-full font-bold"
+            id={`key-result-title-${index}`}
           >
             <Input
               value={keyValue.title}
               onChange={(e) => {
                 handleChange(e.target.value, 'title');
               }}
+              aria-label="Key Result Title"
             />
           </Form.Item>
-          <Form.Item className="w-24 font-bold" label="Weight">
+          <Form.Item className="w-24 font-bold" label="Weight" id={`key-result-weight-${index}`}>
             <InputNumber
               min={0}
               max={100}
-              value={keyValue?.weight || 0} // Ensure a default value
+              value={keyValue?.weight || 0}
               onChange={(value) => {
                 handleChange(value, 'weight');
               }}
+              aria-label="Key Result Weight"
             />
           </Form.Item>
           <div className="flex gap-2 mt-2">
@@ -80,7 +86,9 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                   keyValue?.id
                     ? handleKeyResultDelete(keyValue?.id)
                     : removeKeyResultValue(index)
-                } // Hook up the remove key result function
+                }
+                id={`remove-key-result-${index}`}
+                aria-label="Remove Key Result"
               />
             </Tooltip>
           </div>
@@ -91,6 +99,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             layout="horizontal"
             className="w-full font-bold"
             label="Deadline"
+            id={`key-result-deadline-${index}`}
           >
             <DatePicker
               value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -101,12 +110,14 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               disabledDate={(current) => {
                 return current && current < dayjs().startOf('day');
               }}
+              aria-label="Key Result Deadline"
             />
           </Form.Item>
           <Form.Item
             layout="horizontal"
             className="w-full font-bold"
             label="Target"
+            id={`key-result-target-${index}`}
           >
             <Select
               value={keyValue.progress}
@@ -114,6 +125,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               onChange={(value) => {
                 handleChange(value, 'progress');
               }}
+              aria-label="Key Result Target"
             >
               <Option value={0}>Not Achieved</Option>
               <Option value={100}>Achieved</Option>

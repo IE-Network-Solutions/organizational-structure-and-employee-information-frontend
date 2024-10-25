@@ -24,6 +24,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
         <Button
           className="w-[30px] h-[30px]"
           icon={<FiEdit2 size={16} />}
+          id={`buttonPopOverActionForOnEditActionId`}
           type="primary"
           loading={loading}
           disabled={disableEdit}
@@ -38,6 +39,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
             danger
             disabled={disableDelete}
             loading={loading}
+            id={`buttonPopOverActionForOnDeleteActionId`}
             icon={<FiTrash2 size={16} />}
             type="primary"
             onClick={(e) => {

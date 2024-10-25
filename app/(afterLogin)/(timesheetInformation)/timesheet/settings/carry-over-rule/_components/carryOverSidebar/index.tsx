@@ -104,6 +104,7 @@ const CarryOverSidebar = () => {
           >
             <Space direction="vertical" className="w-full" size={24}>
               <Form.Item
+                id='carryOverNameFieldId'
                 label="Carry-over Name"
                 rules={[{ required: true, message: 'Required' }]}
                 name="title"
@@ -112,6 +113,7 @@ const CarryOverSidebar = () => {
               </Form.Item>
               <Form.Item
                 label="Carry-over Limit"
+                id='carryOverLimitFieldId'
                 rules={[{ required: true, message: 'Required' }]}
                 name="limit"
               >
@@ -123,6 +125,7 @@ const CarryOverSidebar = () => {
               </Form.Item>
               <Form.Item
                 label="Carry-over Expiration"
+                id='carryOverExpirationFieldId'
                 rules={[{ required: true, message: 'Required' }]}
                 name="expiration"
               >
@@ -134,6 +137,7 @@ const CarryOverSidebar = () => {
               </Form.Item>
               <Form.Item
                 label="Carry-over Period"
+                id='carryOverPeriodFieldId'
                 rules={[{ required: true, message: 'Required' }]}
                 name="expirationPeriod"
               >

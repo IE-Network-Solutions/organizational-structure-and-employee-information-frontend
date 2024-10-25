@@ -17,6 +17,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
         <div className="text-base font-bold text-gray-900">{title}</div>
         <Button
           className="w-5 h-5"
+          id={`leaveBalanceCardInfo${title}Id`}
           type="text"
           icon={<FiInfo size={18} className="text-gray-500" />}
         />
