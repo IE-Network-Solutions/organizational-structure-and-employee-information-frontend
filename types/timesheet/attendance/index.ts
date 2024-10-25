@@ -23,11 +23,12 @@ export const AttendanceRecordTypeBadgeTheme: Record<
 export const attendanceRecordTypeOption: {
   label: string;
   value: AttendanceRecordType;
+  id:string;
 }[] = [
-  { label: 'Late', value: AttendanceRecordType.LATE },
-  { label: 'Early', value: AttendanceRecordType.EARLY },
-  { label: 'Present', value: AttendanceRecordType.PRESENT },
-  { label: 'Absent', value: AttendanceRecordType.ABSENT },
+  { label: 'Late',id:'late', value: AttendanceRecordType.LATE },
+  { label: 'Early', id:'Early',value: AttendanceRecordType.EARLY },
+  { label: 'Present',id:'Present', value: AttendanceRecordType.PRESENT },
+  { label: 'Absent',id:'Absent', value: AttendanceRecordType.ABSENT },
 ];
 
 export interface AttendanceRecord extends DateInfo {

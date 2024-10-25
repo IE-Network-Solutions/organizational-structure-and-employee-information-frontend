@@ -101,12 +101,18 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const footer = (
     <div className="w-full flex justify-center items-center gap-4 pt-8">
       <CustomButton
+        id="cancel-button"  
         type="default"
         title="Cancel"
         onClick={handleDrawerClose}
         style={{ marginRight: 8 }}
       />
-      <CustomButton title={'Save'} type="primary" onClick={onSubmit} />
+      <CustomButton 
+        id="save-button"  
+        title={'Save'} 
+        type="primary" 
+        onClick={onSubmit} 
+      />
     </div>
   );
   return (
@@ -117,11 +123,17 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       footer={footer}
       width={'50%'}
     >
-      <Form form={form} layout="vertical" initialValues={objectiveValue}>
+      <Form
+        id="okr-form"  
+        form={form}
+        layout="vertical"
+        initialValues={objectiveValue}
+      >
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={16}>
             {keyResultByUser?.items?.length ? (
               <Form.Item
+                id="alignment-select"  
                 className="font-bold text-xs w-full mb-2"
                 name="allignedKeyResultId"
                 label="Objective/Alignment"
@@ -134,19 +146,30 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               >
                 {/* Search and select a key result by user */}
                 <Select
+                  id="alignment-select-dropdown"  
                   showSearch
                   placeholder="Search and select a Key Result"
                   value={objectiveValue?.title || ''}
-                  onChange={
-                    (value, option) =>
-                      handleObjectiveChange(option?.key, 'allignedKeyResultId') // Update the alignment ID with the selected key
+                  onChange={(
+                    value,
+                    option,
+                  ) =>
+                    handleObjectiveChange(
+                      option?.key,
+                      'allignedKeyResultId',
+                    ) // Update the alignment ID with the selected key
                   }
                   filterOption={(input: any, option: any) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
+                    option.children
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
                   }
                 >
                   {keyResultByUser?.items.map((keyResult) => (
-                    <Select.Option key={keyResult.id} value={keyResult.title}>
+                    <Select.Option
+                      key={keyResult.id}
+                      value={keyResult.title}
+                    >
                       {keyResult.title}
                     </Select.Option>
                   ))}
@@ -154,6 +177,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               </Form.Item>
             ) : (
               <Form.Item
+                id="title-input"  
                 className="font-bold text-xs w-full mb-2"
                 name="title"
                 label="Objective/Alignment"
@@ -165,6 +189,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 ]}
               >
                 <Input
+                  id="title-input-field"  
                   allowClear
                   value={objectiveValue?.title || ''}
                   onChange={(e) => {
@@ -176,19 +201,24 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           </Col>
           <Col xs={24} sm={8}>
             <Form.Item
+              id="deadline-picker"  
               className="font-bold text-xs w-full"
               name="ObjectiveDeadline"
               label="Objective Deadline"
               rules={[{ required: true, message: 'Please select a deadline' }]}
             >
               <DatePicker
+                id="deadline-picker-field"  
                 value={
                   objectiveValue.deadline
                     ? dayjs(objectiveValue.deadline)
                     : null
                 }
                 onChange={(date) => {
-                  handleObjectiveChange(date?.format('YYYY-MM-DD'), 'deadline');
+                  handleObjectiveChange(
+                    date?.format('YYYY-MM-DD'),
+                    'deadline',
+                  );
                 }}
                 className="w-full"
                 format="YYYY-MM-DD"
@@ -204,6 +234,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           <div className="flex justify-between items-center">
             <p className="font-bold text-xs h-6">Set Key Result</p>
             <Button
+              id="add-keyresult-button"  
               disabled={objective?.keyResults?.length == 1}
               onClick={addKeyResult}
               className="border-none shadow-none bg-none text-xs"
@@ -212,16 +243,18 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               Add Key Result
             </Button>
           </div>
-          {objectiveValue?.keyResults?.map((keyValue: any, index: number) => (
-            <KeyResultView
-              key={index}
-              objective={objectiveValue}
-              keyValue={keyValue}
-              index={index}
-              isEdit={false}
-              form={form}
-            />
-          ))}
+          {objectiveValue?.keyResults?.map(
+            (keyValue: any, index: number) => (
+              <KeyResultView
+                key={index} 
+                objective={objectiveValue}
+                keyValue={keyValue}
+                index={index}
+                isEdit={false}
+                form={form}
+              />
+            ),
+          )}
           {objective?.keyResults.map((keyItem: any, index: number) => (
             <KeyResultForm
               key={index}

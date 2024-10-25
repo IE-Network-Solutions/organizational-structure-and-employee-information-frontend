@@ -12,6 +12,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     handleSingleKeyResultChange,
     removeKeyResultValue,
   } = useOKRStore();
+  
   const handleChange = (value: any, field: string) => {
     if (isEdit) {
       handleSingleKeyResultChange(value, field);
@@ -19,7 +20,9 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
       handleKeyResultChange(value, index, field);
     }
   };
+
   const { mutate: deleteKeyResult } = useDeleteKeyResult();
+  
   function handleKeyResultDelete(id: string) {
     deleteKeyResult(id, {
       onSuccess: () => {
@@ -27,20 +30,22 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
       },
     });
   }
+
   return (
-    <div className="py-4  border-b-[1px] border-gray-300">
+    <div className="py-4  border-b-[1px] border-gray-300" id={`numeric-view-${index}`}>
       <Form layout="vertical" className="space-y-1">
         {/* Key Result Input */}
         <div className="flex gap-3 items-center">
-          <div className="rounded-lg border-gray-200 border bg-gray-300 w-10 h-8 flex justify-center items-center mt-2">
+          <div
+            className="rounded-lg border-gray-200 border bg-gray-300 w-10 h-8 flex justify-center items-center mt-2"
+            id={`key-result-index-${index}`}
+          >
             {index + 1}
           </div>
           <Form.Item
-            label={
-              (keyValue.key_type == 'Numeric' && 'Numeric') ||
-              keyValue.metricType?.name
-            }
-            className="w-full font-bold "
+            label={(keyValue.key_type == 'Numeric' && 'Numeric') || keyValue.metricType?.name}
+            className="w-full font-bold"
+            id={`key-result-title-${index}`}
           >
             <Input
               value={keyValue.title}
@@ -49,7 +54,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               }}
             />
           </Form.Item>
-          <Form.Item className="w-24 font-bold" label="Weight">
+          <Form.Item className="w-24 font-bold" label="Weight" id={`weight-${index}`}>
             <InputNumber
               min={0}
               max={100}
@@ -66,11 +71,12 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                 className="rounded-full w-5 h-5"
                 icon={<VscClose size={20} />}
                 type="primary"
+                id={`remove-key-result-button-${index}`}
                 onClick={() =>
                   keyValue?.id
                     ? handleKeyResultDelete(keyValue?.id)
                     : removeKeyResultValue(index)
-                } // Hook up the remove key result function
+                }
               />
             </Tooltip>
           </div>
@@ -80,12 +86,12 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           <Form.Item
             layout="horizontal"
             className="font-semibold text-xs w-full mb-2"
-            id="initialValue"
+            id={`initial-value-${index}`}
             label="Initial"
             rules={[
               {
                 required: true,
-                message: 'Please select a initialValue',
+                message: 'Please select an initialValue',
               },
             ]}
           >
@@ -99,16 +105,16 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             />
           </Form.Item>
 
-          {/* Weight */}
+          {/* Target */}
           <Form.Item
             layout="horizontal"
             className="font-semibold text-xs w-full mb-2"
-            id="targetValue"
+            id={`target-value-${index}`}
             label="Target"
             rules={[
               {
                 required: true,
-                message: 'Please select a initialValue',
+                message: 'Please select a target value',
               },
             ]}
           >
@@ -120,10 +126,13 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               }}
             />
           </Form.Item>
+
+          {/* Deadline */}
           <Form.Item
             layout="horizontal"
             className="w-full font-bold"
             label="Deadline"
+            id={`deadline-picker-${index}`}
           >
             <DatePicker
               value={keyValue.deadline ? dayjs(keyValue.deadline) : null}

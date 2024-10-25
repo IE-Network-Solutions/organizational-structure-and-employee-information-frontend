@@ -85,6 +85,7 @@ const TakePicture: FC<TakePictureProps> = ({ className = '', onChange }) => {
               type="primary"
               danger
               icon={<FiTrash2 size={16} />}
+              id='takePictureButtonId'
             />
           </div>
         )}
