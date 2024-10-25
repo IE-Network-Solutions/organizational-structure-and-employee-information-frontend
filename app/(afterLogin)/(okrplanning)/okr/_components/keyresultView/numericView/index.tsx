@@ -12,7 +12,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     handleSingleKeyResultChange,
     removeKeyResultValue,
   } = useOKRStore();
-  
+
   const handleChange = (value: any, field: string) => {
     if (isEdit) {
       handleSingleKeyResultChange(value, field);
@@ -22,7 +22,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   };
 
   const { mutate: deleteKeyResult } = useDeleteKeyResult();
-  
+
   function handleKeyResultDelete(id: string) {
     deleteKeyResult(id, {
       onSuccess: () => {
@@ -32,7 +32,10 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   }
 
   return (
-    <div className="py-4  border-b-[1px] border-gray-300" id={`numeric-view-${index}`}>
+    <div
+      className="py-4  border-b-[1px] border-gray-300"
+      id={`numeric-view-${index}`}
+    >
       <Form layout="vertical" className="space-y-1">
         {/* Key Result Input */}
         <div className="flex gap-3 items-center">
@@ -43,7 +46,10 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             {index + 1}
           </div>
           <Form.Item
-            label={(keyValue.key_type == 'Numeric' && 'Numeric') || keyValue.metricType?.name}
+            label={
+              (keyValue.key_type == 'Numeric' && 'Numeric') ||
+              keyValue.metricType?.name
+            }
             className="w-full font-bold"
             id={`key-result-title-${index}`}
           >
@@ -54,7 +60,11 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               }}
             />
           </Form.Item>
-          <Form.Item className="w-24 font-bold" label="Weight" id={`weight-${index}`}>
+          <Form.Item
+            className="w-24 font-bold"
+            label="Weight"
+            id={`weight-${index}`}
+          >
             <InputNumber
               min={0}
               max={100}

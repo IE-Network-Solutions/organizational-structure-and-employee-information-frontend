@@ -54,7 +54,7 @@ const TnaDetailPage = () => {
               <Button
                 icon={<FaArrowLeftLong size={18} />}
                 className="text-gray-900 bg-transparent shadow-none"
-                id='tnaDetailActionButtonId'
+                id="tnaDetailActionButtonId"
                 type="primary"
                 size="small"
                 onClick={router.back}
@@ -160,7 +160,7 @@ const TnaDetailPage = () => {
               <CustomButton
                 title="Update TNA"
                 type="primary"
-                id='tnaUpdateCustomButtonId'
+                id="tnaUpdateCustomButtonId"
                 icon={<FiEdit2 size={16} />}
                 size="large"
                 disabled={

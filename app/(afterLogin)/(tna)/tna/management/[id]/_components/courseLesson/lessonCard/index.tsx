@@ -45,7 +45,7 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
                   Add Course Materials
                 </div>
                 <Button
-                  id='tnaAddCourseMaterialButtonId'
+                  id="tnaAddCourseMaterialButtonId"
                   icon={<LuPlus size={16} className="text-primary" />}
                   type="text"
                   onClick={(e) => {
@@ -78,7 +78,7 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
                     key={item.id}
                   >
                     <Link
-                      id='tnaRedirectToTnaManagment'
+                      id="tnaRedirectToTnaManagment"
                       href={`/tna/management/${course?.id}/${lesson.id}/${item.id}`}
                       className="text-sm text-gray-600 hover:text-primary "
                     >

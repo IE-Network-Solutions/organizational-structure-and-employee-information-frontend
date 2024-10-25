@@ -108,7 +108,7 @@ const TnaCategorySidebar = () => {
               rules={[{ required: true, message: 'Required' }]}
               className="form-item"
             >
-              <Input id='tnaCategoryNameFieldId' className="control" />
+              <Input id="tnaCategoryNameFieldId" className="control" />
             </Form.Item>
             <Form.Item
               name="description"
@@ -117,7 +117,7 @@ const TnaCategorySidebar = () => {
               className="form-item"
             >
               <Input.TextArea
-                id='tnaCategoryDescriptionFieldId'
+                id="tnaCategoryDescriptionFieldId"
                 className="control-tarea"
                 rows={6}
                 placeholder="Enter the Description"

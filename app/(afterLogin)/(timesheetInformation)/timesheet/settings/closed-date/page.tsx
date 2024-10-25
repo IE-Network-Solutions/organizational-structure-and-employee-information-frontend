@@ -16,7 +16,7 @@ const Page = () => {
         <Button
           size="large"
           type="primary"
-          id='createNewClosedHolidayFieldId' 
+          id="createNewClosedHolidayFieldId"
           icon={<LuPlus size={18} />}
           onClick={() => setIsShowClosedDateSidebar(true)}
         >

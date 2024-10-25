@@ -24,7 +24,7 @@ const TnaCategoryPage = () => {
     <>
       <PageHeader title="TNA Category" size="small">
         <CustomButton
-          id='tnaNewCategoryButtonId'
+          id="tnaNewCategoryButtonId"
           title="New Category"
           icon={<LuPlus size={18} />}
           type="primary"

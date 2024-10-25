@@ -9,7 +9,7 @@ interface ActionButtonsProps {
   loading?: boolean;
   onEdit?: (e?: any) => void;
   onDelete?: (e?: any) => void;
-  id?:any;
+  id?: any;
 }
 
 const ActionButtons: FC<ActionButtonsProps> = ({
@@ -18,7 +18,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
   loading = false,
   onEdit,
   onDelete,
-  id
+  id,
 }) => {
   return (
     <Space size={10}>

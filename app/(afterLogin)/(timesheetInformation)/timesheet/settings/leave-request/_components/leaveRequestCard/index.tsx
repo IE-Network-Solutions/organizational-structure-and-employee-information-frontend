@@ -51,7 +51,7 @@ const LeaveRequestCard: FC<LeaveRequestCardProps> = ({ item }) => {
                 size="small"
                 danger
                 type="primary"
-                id={`${item.id}leaveRequestRejectButtonFieldId`} 
+                id={`${item.id}leaveRequestRejectButtonFieldId`}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -66,7 +66,7 @@ const LeaveRequestCard: FC<LeaveRequestCardProps> = ({ item }) => {
               <Button
                 className="w-20 text-[10px] font-medium bg-success"
                 size="small"
-                id={`${item.id}leaveRequestApproveButtonFieldId`} 
+                id={`${item.id}leaveRequestApproveButtonFieldId`}
                 type="primary"
                 onClick={(e) => {
                   e.preventDefault();

@@ -177,7 +177,7 @@ const HistoryTable = () => {
           <Button
             type="text"
             size="small"
-            id='leaveHistoryId'
+            id="leaveHistoryId"
             icon={<AiOutlineReload size={14} className="text-gray-600" />}
             onClick={() => {
               refetch();
@@ -188,7 +188,7 @@ const HistoryTable = () => {
         <Button
           size="large"
           type="primary"
-          id='addNewRequestId'
+          id="addNewRequestId"
           icon={<LuPlus size={16} />}
           className="h-12"
           onClick={() => isShow(true)}

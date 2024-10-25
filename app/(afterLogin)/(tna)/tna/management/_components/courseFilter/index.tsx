@@ -25,13 +25,13 @@ const CourseFilter: FC<CourseFilterProps> = ({ onChange }) => {
             className="control w-[170px] m-0"
             allowClear={true}
             placeholder="By Category"
-            id='courseCategoryDropDownOptionId'
+            id="courseCategoryDropDownOptionId"
             options={formatToOptions(courseCategory, 'title', 'id')}
           />
         </Form.Item>
         <Form.Item name="search">
           <Input
-            id='searchCourseFieldId'
+            id="searchCourseFieldId"
             className="control w-[300px] m-0"
             placeholder="Search Course"
             allowClear={true}

@@ -10,13 +10,13 @@ const CoursePage = () => {
   const tabItems: TabsProps['items'] = [
     {
       key: 'overview',
-      id:'tabOverviewId',
+      id: 'tabOverviewId',
       label: <div className="font-semibold">Overview</div>,
       children: <CourseOverview />,
     },
     {
       key: 'lesson',
-      id:'tabLessonId',
+      id: 'tabLessonId',
       label: <div className="font-semibold">Lesson</div>,
       children: <CourseLesson />,
     },

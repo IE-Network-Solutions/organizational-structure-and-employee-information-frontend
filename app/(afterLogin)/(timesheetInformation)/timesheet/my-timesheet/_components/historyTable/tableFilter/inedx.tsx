@@ -24,7 +24,7 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
     >
       <Row gutter={16}>
         <Col span={8}>
-          <Form.Item id='historyDateRangeId' name="dateRange">
+          <Form.Item id="historyDateRangeId" name="dateRange">
             <DatePicker.RangePicker
               className="w-full h-[54px]"
               separator={'-'}
@@ -33,9 +33,8 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
           </Form.Item>
         </Col>
         <Col span={8}>
-          <Form.Item id='historyType'  name="type">
+          <Form.Item id="historyType" name="type">
             <Select
-              
               placeholder="Select Type"
               className="w-full h-[54px]"
               allowClear={true}
@@ -47,7 +46,7 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
           </Form.Item>
         </Col>
         <Col span={8}>
-          <Form.Item id='historyStatus' name="status">
+          <Form.Item id="historyStatus" name="status">
             <Select
               placeholder="Select Status"
               className="w-full h-[54px]"

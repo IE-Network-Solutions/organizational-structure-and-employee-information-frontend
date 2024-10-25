@@ -118,7 +118,7 @@ const LocationSidebar = () => {
           >
             <Space direction="vertical" className="w-full" size={24}>
               <Form.Item
-                id='nameOfLocatioInputFieldId'
+                id="nameOfLocatioInputFieldId"
                 label="Name of Location"
                 rules={[{ required: true, message: 'Required' }]}
                 name="title"
@@ -126,7 +126,7 @@ const LocationSidebar = () => {
                 <Input className={controlClass} />
               </Form.Item>
               <Form.Item
-                id='latitudeOfLocatioInputFieldId'
+                id="latitudeOfLocatioInputFieldId"
                 label="Latitude"
                 rules={[{ required: true, message: 'Required' }]}
                 name="latitude"
@@ -137,7 +137,7 @@ const LocationSidebar = () => {
                 />
               </Form.Item>
               <Form.Item
-                id='longitudeOfLocatioInputFieldId'
+                id="longitudeOfLocatioInputFieldId"
                 label="Longitude"
                 rules={[{ required: true, message: 'Required' }]}
                 name="longitude"
@@ -149,7 +149,7 @@ const LocationSidebar = () => {
               </Form.Item>
               <Form.Item
                 label="Radius"
-                id='distanceOfLocatioInputFieldId'
+                id="distanceOfLocatioInputFieldId"
                 rules={[{ required: true, message: 'Required' }]}
                 name="distance"
               >

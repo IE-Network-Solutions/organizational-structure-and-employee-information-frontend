@@ -136,7 +136,7 @@ const CourseCategorySidebar = () => {
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
           >
-            <Input id='tnaCourseNameFieldId' className="control" />
+            <Input id="tnaCourseNameFieldId" className="control" />
           </Form.Item>
           <Form.Item
             name="courseCategoryId"
@@ -145,7 +145,7 @@ const CourseCategorySidebar = () => {
             className="form-item"
           >
             <Select
-              id='tnaCourseCategoryFieldId'
+              id="tnaCourseCategoryFieldId"
               className="control"
               placeholder="Select Category"
               options={formatToOptions(courseCategory, 'title', 'id')}
@@ -154,7 +154,7 @@ const CourseCategorySidebar = () => {
           <Form.Item
             name="thumbnail"
             label="Thumbnail"
-            id='tnaCourseThumbnailFieldId'
+            id="tnaCourseThumbnailFieldId"
             className="form-item"
             valuePropName="fileList"
             rules={[{ required: true, message: 'Required' }]}
@@ -164,7 +164,7 @@ const CourseCategorySidebar = () => {
           >
             <CustomUpload
               mode="draggable"
-              id='tnaCourseThumbnailFieldId'
+              id="tnaCourseThumbnailFieldId"
               className="w-full mt-3"
               listType="picture"
               accept="image/*"
@@ -179,7 +179,7 @@ const CourseCategorySidebar = () => {
             className="form-item"
           >
             <Input.TextArea
-              id='tnaCourseDescriptionFieldId'
+              id="tnaCourseDescriptionFieldId"
               className="control-tarea"
               rows={6}
               placeholder="Enter the Description"
@@ -190,7 +190,7 @@ const CourseCategorySidebar = () => {
           <Button
             type="primary"
             htmlType="button"
-            id='tnaCourseSubmitButtonId'
+            id="tnaCourseSubmitButtonId"
             loading={isLoading}
             onClick={() => {
               setIsDraft(true);

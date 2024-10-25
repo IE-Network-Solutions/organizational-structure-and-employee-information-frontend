@@ -32,7 +32,12 @@ const DeletePopover: FC<DeletePopoverProps> = ({
           <Row gutter={20}>
             {onCancel && (
               <Col span={12}>
-                <Button id={`buttonPopOverActionFor${titleText}Id`} size="small" className={buttonClass} onClick={onCancel}>
+                <Button
+                  id={`buttonPopOverActionFor${titleText}Id`}
+                  size="small"
+                  className={buttonClass}
+                  onClick={onCancel}
+                >
                   Cancel
                 </Button>
               </Col>

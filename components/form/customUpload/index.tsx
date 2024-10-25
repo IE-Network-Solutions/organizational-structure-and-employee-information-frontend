@@ -101,7 +101,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
       return (
         <div className={classNames(className)}>
           <Upload.Dragger
-            id='draggableFieldId'
+            id="draggableFieldId"
             customRequest={handleUpload}
             {...otherProps}
             onChange={handleChange}
@@ -120,7 +120,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
       return (
         <div className={classNames(className)}>
           <Upload.Dragger
-            id='draggableWithLinkFieldId'
+            id="draggableWithLinkFieldId"
             customRequest={handleUpload}
             {...otherProps}
             showUploadList={false}
@@ -150,7 +150,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
                     ]}
                   >
                     <Input
-                      id='tnaLinkHereFieldId'
+                      id="tnaLinkHereFieldId"
                       placeholder="Enter link here to upload"
                       size="large"
                       className="text-sm h-10"
@@ -161,7 +161,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
                   </Form.Item>
                   <Form.Item>
                     <Button
-                      id='tnaAddLinkHereButtonId'
+                      id="tnaAddLinkHereButtonId"
                       htmlType="button"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -209,7 +209,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
           ) : (
             <button
               type="button"
-              id='tnaFileUploadAttachmentButtonId'
+              id="tnaFileUploadAttachmentButtonId"
               className="mt-2.5 font-semibold text-sm text-gray-900 h-[54px] rounded-lg border border-gray-200 flex items-center justify-between transition-colors duration-150 px-[11px] hover:border-primary cursor-pointer w-full"
             >
               Upload attachment
