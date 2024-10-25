@@ -27,8 +27,8 @@ const JobTimeLineForm = () => {
         <Col xs={24}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'joinedDate'}
-            label="Joined Date"
+            name={'effectiveStartDate'}
+            label="Effective Start Date"
             id="joinedDate"
             rules={[
               { required: true, message: 'Please select the joined date' },
@@ -43,7 +43,7 @@ const JobTimeLineForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'jobTitle'}
+            name='jobTitle'
             id="jobTitle"
             label="Position"
             rules={[
