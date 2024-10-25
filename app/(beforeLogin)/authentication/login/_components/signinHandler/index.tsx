@@ -43,6 +43,10 @@ export const useHandleSignIn = () => {
         setUserData(fetchedData?.data);
         message.success('Welcome!');
         message.loading({ content: 'Redirecting...', key: 'redirect' });
+        
+        if (fetchedData?.data?.hasChangedPassword === false) {
+          router.push('/dashboard');
+        }
         if (fetchedData?.data?.hasCompany === true) {
           router.push('/dashboard');
         } else if (fetchedData?.data?.hasCompany === false) {
