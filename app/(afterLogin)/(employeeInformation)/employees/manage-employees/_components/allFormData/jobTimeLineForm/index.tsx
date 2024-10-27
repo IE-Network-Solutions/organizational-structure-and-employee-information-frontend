@@ -87,14 +87,10 @@ const JobTimeLineForm = () => {
             className="w-full font-semibold text-xs"
             name={'departmentId'}
             id="departmentId"
-            label="Department"
-            rules={[{ required: true, message: 'Please select a department' }]}
+            label="Team"
+            rules={[{ required: true, message: 'Please select a Team' }]}
           >
-            <Select
-              className="w-full"
-              placeholder="Select a department"
-              allowClear
-            >
+            <Select className="w-full" placeholder="Select a Team" allowClear>
               {departmentData?.map((department: any, index: number) => (
                 <Option key={index} value={department?.id}>
                   {department?.name}
@@ -149,7 +145,7 @@ const JobTimeLineForm = () => {
       )}
       <Row gutter={16}>
         <Col xs={24} sm={8}>
-          <div className="font-semibold text-sm">Department Lead</div>
+          <div className="font-semibold text-sm">Team Lead</div>
         </Col>
         <Col xs={24} sm={16}>
           <Form.Item
