@@ -64,6 +64,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
                 {item.title}
               </div>
               <ActionButton
+                id={item?.id ?? null}
                 onEdit={(e: MouseEvent) => {
                   e.stopPropagation();
                   setCourseId(item.id);

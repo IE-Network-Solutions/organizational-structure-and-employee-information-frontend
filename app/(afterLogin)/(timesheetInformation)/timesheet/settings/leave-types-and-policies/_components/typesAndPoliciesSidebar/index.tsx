@@ -132,7 +132,7 @@ const TypesAndPoliciesSidebar = () => {
         >
           <Space direction="vertical" className="w-full" size={12}>
             <Form.Item
-              id={`TypesAndPoliciesTitleFieldId`} 
+              id={`TypesAndPoliciesTitleFieldId`}
               label="Type Name"
               rules={[{ required: true, message: 'Required' }]}
               name="title"
@@ -141,7 +141,7 @@ const TypesAndPoliciesSidebar = () => {
             </Form.Item>
             <Form.Item
               label="Paid/Unpaid"
-              id={`TypesAndPoliciesPaidOrUnpaidFieldId`} 
+              id={`TypesAndPoliciesPaidOrUnpaidFieldId`}
               rules={[{ required: true, message: 'Required' }]}
               name="plan"
             >
@@ -166,7 +166,7 @@ const TypesAndPoliciesSidebar = () => {
             </Form.Item>
             <Form.Item
               label="Entitled Days/year"
-              id={`TypesAndPoliciesEntitledDaysYearFieldId`} 
+              id={`TypesAndPoliciesEntitledDaysYearFieldId`}
               rules={[{ required: true, message: 'Required' }]}
               name="entitled"
             >
@@ -178,10 +178,11 @@ const TypesAndPoliciesSidebar = () => {
             </Form.Item>
 
             <div className="h-[54px] w-full flex items-center gap-2.5 border rounded-[10px] pl-[11px]">
-              <Form.Item               
-                id={`TypesAndPoliciesIsDeductableFieldId`} 
+              <Form.Item
+                id={`TypesAndPoliciesIsDeductableFieldId`}
                 name="isDeductible"
-                className="m-0">
+                className="m-0"
+              >
                 <Switch
                   checkedChildren={<CheckOutlined />}
                   unCheckedChildren={<CloseOutlined />}
@@ -193,7 +194,7 @@ const TypesAndPoliciesSidebar = () => {
             </div>
 
             <Form.Item
-              id={`TypesAndPoliciesMinAllowedDaysFieldId`} 
+              id={`TypesAndPoliciesMinAllowedDaysFieldId`}
               label="Minimum notifying period(days)"
               rules={[{ required: true, message: 'Required' }]}
               name="min"
@@ -205,7 +206,7 @@ const TypesAndPoliciesSidebar = () => {
               />
             </Form.Item>
             <Form.Item
-              id={`TypesAndPoliciesMaxConsecuativeAllowedDaysFieldId`} 
+              id={`TypesAndPoliciesMaxConsecuativeAllowedDaysFieldId`}
               label="Maximum allowed consecutive days"
               rules={[{ required: true, message: 'Required' }]}
               name="max"
@@ -217,8 +218,8 @@ const TypesAndPoliciesSidebar = () => {
               />
             </Form.Item>
             <Form.Item
-              label="Accrual Rule"              
-              id={`TypesAndPoliciesActualRuleFieldId`} 
+              label="Accrual Rule"
+              id={`TypesAndPoliciesActualRuleFieldId`}
               rules={[{ required: true, message: 'Required' }]}
               name="accrualRule"
             >
@@ -232,7 +233,7 @@ const TypesAndPoliciesSidebar = () => {
             </Form.Item>
             <Form.Item
               label="Carry-Over Rule"
-              id={`TypesAndPoliciesRuleCarryOverFieldldId`} 
+              id={`TypesAndPoliciesRuleCarryOverFieldldId`}
               rules={[{ required: true, message: 'Required' }]}
               name="carryOverRule"
             >
@@ -246,7 +247,7 @@ const TypesAndPoliciesSidebar = () => {
             </Form.Item>
             <Form.Item
               label="Description"
-              id={`TypesAndPoliciesDescriptionFieldId`} 
+              id={`TypesAndPoliciesDescriptionFieldId`}
               rules={[{ required: true, message: 'Required' }]}
               name="description"
             >

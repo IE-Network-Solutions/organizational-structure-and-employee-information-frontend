@@ -153,7 +153,7 @@ const AddTypesSidebar = () => {
           >
             <Space direction="vertical" className="w-full" size={24}>
               <Form.Item
-                id='createAddTypeNameFieldId'
+                id="createAddTypeNameFieldId"
                 label="Type Name"
                 rules={[{ required: true, message: 'Required' }]}
                 name="title"
@@ -162,7 +162,7 @@ const AddTypesSidebar = () => {
               </Form.Item>
               <Form.Item
                 label="Unit"
-                id='createAddTypeUnitFieldId'
+                id="createAddTypeUnitFieldId"
                 rules={[{ required: true, message: 'Required' }]}
                 name="unit"
               >

@@ -28,7 +28,7 @@ const Page = () => {
       <PageHeader size="small" title="Attendace Rules">
         <Space size={20}>
           <Button
-            id='createNewTypeMainButtonId'
+            id="createNewTypeMainButtonId"
             size="large"
             icon={<LuPlus size={18} />}
             onClick={() => setIsShowRulesAddTypeSidebar(true)}
@@ -36,7 +36,7 @@ const Page = () => {
             New Type
           </Button>
           <Button
-            id='createNewRuleMainButtonId'
+            id="createNewRuleMainButtonId"
             size="large"
             type="primary"
             icon={<LuPlus size={18} />}

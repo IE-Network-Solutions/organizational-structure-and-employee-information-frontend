@@ -11,6 +11,7 @@ export interface ActionButtonProps {
   onDelete?: (e?: any) => void;
   onCancelDelete?: (e?: any) => void;
   className?: string;
+  id?: any;
 }
 
 const ActionButton: FC<ActionButtonProps> = ({
@@ -19,6 +20,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   onDelete,
   onCancelDelete,
   className = '',
+  id,
 }) => {
   const [open, setOpen] = useState(false);
   const items: MenuProps['items'] = [];
@@ -43,7 +45,7 @@ const ActionButton: FC<ActionButtonProps> = ({
       label: (
         <Button
           size="large"
-          id='actionButtonForOpenId'
+          id={`${id}actionButtonForOpenId`}
           className="w-full justify-normal"
           type="text"
           onClick={(e) => {
@@ -64,7 +66,7 @@ const ActionButton: FC<ActionButtonProps> = ({
       label: (
         <Button
           size="large"
-          id='actionButtonForEditId'
+          id={`${id}actionButtonForEditId`}
           className="w-full justify-normal"
           type="text"
           onClick={(e) => {
@@ -90,7 +92,12 @@ const ActionButton: FC<ActionButtonProps> = ({
             onDelete(e);
           }}
         >
-          <Button id='buttonDeleteActionId' size="large" className="w-full justify-normal" type="text">
+          <Button
+            id="deleteActionButton"
+            size="large"
+            className="w-full justify-normal"
+            type="text"
+          >
             Delete
           </Button>
         </DeletePopover>
@@ -110,7 +117,7 @@ const ActionButton: FC<ActionButtonProps> = ({
       <Button
         icon={<HiOutlineDotsVertical size={20} className="text-gray-500" />}
         className="h-7 w-7"
-        id='buttonDropDownActionId'
+        id="buttonDropDownActionId"
         type="text"
         onClick={(e) => {
           e.stopPropagation();

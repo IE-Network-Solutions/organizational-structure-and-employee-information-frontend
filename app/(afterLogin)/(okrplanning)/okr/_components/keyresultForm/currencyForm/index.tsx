@@ -48,7 +48,10 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   return (
     <div className="p-4 sm:p-6 lg:p-2" id={`currency-form-${index}`}>
       {/* Container with border and padding */}
-      <div className="border border-blue rounded-lg p-4 mx-0 lg:mx-8" id={`form-container-${index}`}>
+      <div
+        className="border border-blue rounded-lg p-4 mx-0 lg:mx-8"
+        id={`form-container-${index}`}
+      >
         {/* Close icon to remove Key Result */}
         <div className="flex justify-end">
           <IoIosCloseCircleOutline

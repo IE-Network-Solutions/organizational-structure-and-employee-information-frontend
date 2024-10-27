@@ -134,7 +134,7 @@ const CheckOutSidebar = () => {
           <Form.Item
             name="type"
             label="Checkin type"
-            id='checkTypeSelect'
+            id="checkTypeSelect"
             rules={[{ required: true, message: 'Required' }]}
             className={itemClass}
           >
@@ -147,7 +147,7 @@ const CheckOutSidebar = () => {
               }
               onChange={setSelectedType}
             >
-              {options.map((option,key) => (
+              {options.map((option, key) => (
                 <Select.Option
                   id={`chekinTypeOption${key}`}
                   value={option.value}
@@ -177,7 +177,7 @@ const CheckOutSidebar = () => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item id='checkinPictureId' name="photo">
+          <Form.Item id="checkinPictureId" name="photo">
             <TakePicture
               onChange={(imgSrc) => {
                 form.setFieldValue('photo', imgSrc);

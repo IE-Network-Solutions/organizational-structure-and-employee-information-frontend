@@ -18,7 +18,7 @@ const Page = () => {
           icon={<LuPlus size={18} />}
           type="primary"
           size="large"
-          id='newLocationCreateButtonId'
+          id="newLocationCreateButtonId"
           onClick={() => setIsShowLocationSidebar(true)}
         >
           New Location

@@ -39,8 +39,9 @@ const ClosedDateTable = () => {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
-      render: () => (
+      render: (rule: any, record: any) => (
         <ActionButtons
+          id={record?.id ?? null}
           onEdit={() => setIsShowClosedDateSidebar(true)}
           onDelete={() => setIsShowClosedDateSidebar(true)}
         />
