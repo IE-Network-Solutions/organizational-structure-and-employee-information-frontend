@@ -67,6 +67,7 @@ const ActionButton: FC<ActionButtonProps> = ({
         <Button
           size="large"
           id={`${id}actionButtonForEditId`}
+
           className="w-full justify-normal"
           type="text"
           onClick={(e) => {

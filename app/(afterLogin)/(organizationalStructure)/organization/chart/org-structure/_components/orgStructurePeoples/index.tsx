@@ -1,13 +1,7 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import { Card, Button, Menu, Dropdown, Tooltip } from 'antd';
-import {
-  EditOutlined,
-  DeleteOutlined,
-  MoreOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
+import { Card, Dropdown } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
@@ -22,101 +16,20 @@ import {
 import { OrgChart } from '@/store/server/features/organizationStructure/organizationalChart/interface';
 import DeleteModal from '@/components/common/deleteModal';
 import CustomDrawer from '../customDrawer';
-import RoleGuard from '@/utils/permissionGuard';
-interface DepartmentNodeProps {
-  data: Department;
-  onEdit: () => void;
-  onAdd: () => void;
-  onDelete: () => void;
-  isRoot?: boolean;
-}
-
-const DepartmentNode: React.FC<DepartmentNodeProps> = ({
-  data,
-  onEdit,
-  onAdd,
-  onDelete,
-  isRoot = false,
-}) => {
-  const menu = (
-    <Menu>
-      <Menu.Item
-        id={`${data.name}EditButton`}
-        icon={<EditOutlined />}
-        onClick={onEdit}
-      >
-        Edit
-      </Menu.Item>
-      <Menu.Item
-        id={`${data.name}DeleteButton`}
-        icon={<DeleteOutlined />}
-        onClick={onDelete}
-      >
-        Delete
-      </Menu.Item>
-    </Menu>
-  );
-
-  return (
-    <Card className="p-1.5 rounded-md inline-block border border-[#e8e8e8] sm:w-auto">
-      {isRoot && (
-        <RoleGuard roles={['owner', 'admin']}>
-          {' '}
-          <Button
-            id="ceoButton"
-            icon={<PlusOutlined />}
-            size="small"
-            type="primary"
-            className="p-2 rounded-full absolute bottom-[-10px] center-[-40px]"
-            onClick={onAdd}
-          />
-        </RoleGuard>
-      )}
-      {!isRoot && (
-        <RoleGuard roles={['owner', 'admin']}>
-          {' '}
-          <Dropdown
-            overlay={menu}
-            trigger={['click']}
-            className="absolute top-[5px] right-[5px]"
-          >
-            <Button
-              icon={<MoreOutlined />}
-              id={`${data.name}ThreeDotButton`}
-              size="small"
-            />
-          </Dropdown>
-        </RoleGuard>
-      )}
-
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'start',
-        }}
-      >
-        <Tooltip title={`${data.name}`} placement="top">
-          <span style={{ fontWeight: 'bold' }}>{data.name}</span>
-        </Tooltip>
-      </div>
-      {!isRoot && (
-        <RoleGuard roles={['owner', 'admin']}>
-          {' '}
-          <Button
-            id={`${data.name}Button`}
-            icon={<PlusOutlined />}
-            size="small"
-            type="primary"
-            className="rounded-full absolute bottom-[-10px] "
-            style={{ marginTop: '5px' }}
-            onClick={onAdd}
-          />
-        </RoleGuard>
-      )}
-    </Card>
-  );
-};
+import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useRouter } from 'next/navigation';
+import OrgChartSkeleton from '../loading/orgStructureLoading';
+import { FaDownload } from 'react-icons/fa';
+import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
+import { DepartmentNode } from '../departmentNode';
+import {
+  exportOrgStrucutreMenu,
+  orgComposeAndMergeMenues,
+} from '../menues/inex';
 
 const renderTreeNodes = (
   data: Department[],
@@ -155,9 +68,13 @@ const OrgChartComponent: React.FC = () => {
     setParentId,
     isDeleteConfirmVisible,
     setIsDeleteConfirmVisible,
+    chartDownlaodLoading,
   } = useOrganizationStore();
 
-  const { data: orgStructureData, isLoading } = useGetOrgCharts();
+  const chartRef = useRef<HTMLDivElement>(null);
+
+  const { data: orgStructureData, isLoading: orgStructureLoading } =
+    useGetOrgCharts();
   const { mutate: updateDepartment } = useUpdateOrgChart();
   const { mutate: deleteDepartment, isLoading: deleteLoading } =
     useDeleteOrgChart();
@@ -209,115 +126,99 @@ const OrgChartComponent: React.FC = () => {
     setIsDeleteConfirmVisible(false);
   };
 
-  const [drawerVisible, setDrawerVisible] = useState(false);
-  const [drawerContent, setDrawerContent] = useState('');
-  const [footerButtonText, setFooterButtonText] = useState('');
-  const [drawTitle, setDrawTitle] = useState('');
-
-  const showDrawer = (
-    drawerContent: string,
-    footerBtnText: string,
-    title: string,
-  ) => {
-    setDrawerVisible(true);
-    setDrawerContent(drawerContent);
-    setFooterButtonText(footerBtnText);
-    setDrawTitle(title);
-  };
+  const {
+    drawerVisible,
+    drawerContent,
+    footerButtonText,
+    drawTitle,
+    setDrawerVisible,
+  } = useOrganizationStore.getState();
 
   const closeDrawer = () => {
     setDrawerVisible(false);
   };
 
-  const menu = (
-    <Menu>
-      <Menu.Item
-        key="1"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('archive', 'Archive', 'Archive Level')}
-      >
-        Archive
-      </Menu.Item>
-      <Menu.Item
-        key="2"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('merge', 'Merge', 'Merge Department')}
-      >
-        Merge
-      </Menu.Item>
-      <Menu.Item
-        key="3"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('dissolve', 'Dissove', 'Dessolve Department')}
-      >
-        Dissolve
-      </Menu.Item>
-    </Menu>
-  );
+  const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
+  const { userId } = useAuthenticationStore.getState();
+  const { data: departments } = useGetDepartments();
+
+  const { data: employeeData } = useGetEmployee(userId);
+
+  const router = useRouter();
+  useEffect(() => {
+    if (departments?.length < 1) {
+      router.push('/onboarding');
+    } else if (
+      employeeData &&
+      employeeData?.employeeJobInformation?.length < 1
+    ) {
+      setIsAddEmployeeJobInfoModalVisible(true);
+    }
+  }, [employeeData, departments, setIsAddEmployeeJobInfoModalVisible]);
+
   return (
     <div className="w-full overflow-x-auto">
       <Card
-        loading={isLoading}
         className="w-full"
         title={<div className="text-2xl font-bold">ORG Structure</div>}
         extra={
-          <div className="py-4 flex justify-center items-center">
-            {/* <CustomButton
-              title="Download"
-              type="default"
-              icon={<AiOutlineDownload size={24} />}
-            /> */}
-            <RoleGuard roles={['owner', 'admin']}>
-              {' '}
-              <Dropdown
-                overlay={menu}
-                trigger={['click']}
-                placement="bottomRight"
-              >
-                <CustomButton
-                  title=""
-                  icon={<BsThreeDotsVertical size={24} />}
-                />
-              </Dropdown>
-            </RoleGuard>
+          <div className="py-4 flex justify-center items-center gap-4">
+            <Dropdown
+              overlay={exportOrgStrucutreMenu(chartRef, exportToPDFOrJPEG)}
+              trigger={['click']}
+            >
+              <CustomButton
+                title="Download"
+                icon={<FaDownload size={16} />}
+                loading={chartDownlaodLoading}
+              />
+            </Dropdown>
+            <Dropdown
+              overlay={orgComposeAndMergeMenues}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <CustomButton title="" icon={<BsThreeDotsVertical size={24} />} />
+            </Dropdown>
           </div>
         }
       >
         <div className="w-full py-7 overflow-x-auto ">
-          <div className="p-4 sm:p-2 md:p-6 lg:p-8">
-            <Tree
-              label={
-                <DepartmentNode
-                  data={{
-                    id: orgStructureData?.id || '',
-                    name: orgStructureData?.name || '',
-                    department: orgStructureData?.department || [],
-                    branchId: orgStructureData?.branchId,
-                    description: '',
-                    collapsed: false,
-                  }}
-                  onEdit={() => {}}
-                  onAdd={() => handleAdd(orgStructureData)}
-                  onDelete={() => {}}
-                  isRoot={true}
-                />
-              }
-              lineWidth={'2px'}
-              lineColor={'#722ed1'}
-              lineBorderRadius={'10px'}
-            >
-              {renderTreeNodes(
-                orgStructureData?.department || [],
-                handleEdit,
-                handleAdd,
-                handleDelete,
-                false,
-              )}
-            </Tree>
-          </div>
+          {orgStructureLoading ? (
+            <OrgChartSkeleton loading={orgStructureLoading} />
+          ) : (
+            <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef}>
+              <Tree
+                label={
+                  <DepartmentNode
+                    data={{
+                      id: orgStructureData?.id || '',
+                      name: orgStructureData?.name || '',
+                      department: orgStructureData?.department || [],
+                      branchId: orgStructureData?.branchId,
+                      description: '',
+                      collapsed: false,
+                    }}
+                    onEdit={() => {}}
+                    onAdd={() => handleAdd(orgStructureData)}
+                    onDelete={() => {}}
+                    isRoot={true}
+                  />
+                }
+                lineWidth={'2px'}
+                lineColor={'#722ed1'}
+                lineBorderRadius={'10px'}
+              >
+                {renderTreeNodes(
+                  orgStructureData?.department || [],
+                  handleEdit,
+                  handleAdd,
+                  handleDelete,
+                  false,
+                )}
+              </Tree>
+            </div>
+          )}
 
           <DepartmentForm
             onClose={() => setIsFormVisible(false)}
@@ -343,6 +244,7 @@ const OrgChartComponent: React.FC = () => {
           title={drawTitle}
         />
       </Card>
+      <CreateEmployeeJobInformation id={userId} />
     </div>
   );
 };

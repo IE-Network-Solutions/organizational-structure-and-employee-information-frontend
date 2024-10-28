@@ -68,7 +68,7 @@ const CustomWorFiscalYearDrawer: React.FC = () => {
   return (
     <CustomDrawerLayout
       modalHeader={
-        <h1 className="text-2xl font-semibold">Add New Work Schedule</h1>
+        <h1 className="text-2xl font-semibold">Add New Fiscal Year</h1>
       }
       onClose={handleCancel}
       open={isFiscalYearOpen}
