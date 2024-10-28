@@ -34,6 +34,7 @@ const AreaCard: FC<AreaCardProps> = ({ item }) => {
             </div>
 
             <ActionButton
+              id={item.id ?? null}
               onEdit={() => {
                 setAllowedAreaId(item.id);
                 setIsShowLocationSidebar(true);

@@ -41,7 +41,7 @@ const CarryOverCard: FC<CarryOverCardProps> = ({ item }) => {
                 });
               }}
             />
-            <ActionButton onDelete={onDelete} />
+            <ActionButton id={item?.id ?? null} onDelete={onDelete} />
           </Space>
         </div>
 

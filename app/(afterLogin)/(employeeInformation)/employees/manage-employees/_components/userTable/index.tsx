@@ -31,7 +31,7 @@ const columns: TableColumnsType<EmployeeData> = [
     ellipsis: true,
   },
   {
-    title: 'Job Title',
+    title: 'Job Position',
     dataIndex: 'job_title',
     sorter: (a, b) => a.job_title.localeCompare(b.job_title),
   },
@@ -149,8 +149,8 @@ const UserTable = () => {
           </div>
         </Tooltip>
       ),
-      job_title: item?.employeeJobInformation[0]?.jobTitle
-        ? item?.employeeJobInformation[0]?.jobTitle
+      job_title: item?.employeeJobInformation[0]?.position?.name
+        ? item?.employeeJobInformation[0]?.position?.name
         : '-',
       department: item?.employeeJobInformation[0]?.department?.name
         ? item?.employeeJobInformation[0]?.department?.name
@@ -264,7 +264,7 @@ const UserTable = () => {
         dataSource={data}
         pagination={{
           total: allFilterData?.meta?.totalItems,
-          current: allFilterData?.meta?.currentPage,
+          current: userCurrentPage,
           pageSize: pageSize,
           onChange: onPageChange,
           showSizeChanger: true,

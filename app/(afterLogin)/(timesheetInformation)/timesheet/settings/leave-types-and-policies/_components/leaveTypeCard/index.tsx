@@ -53,7 +53,7 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
                 });
               }}
             />
-            <ActionButton onDelete={onDelete} />
+            <ActionButton id={item?.id} onDelete={onDelete} />
           </Space>
         </div>
 
