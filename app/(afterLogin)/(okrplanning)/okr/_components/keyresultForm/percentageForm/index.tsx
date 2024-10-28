@@ -10,7 +10,6 @@ import {
   Input,
 } from 'antd';
 import { GoPlus } from 'react-icons/go';
-import moment from 'moment';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { showValidationErrors } from '@/utils/showValidationErrors';
@@ -109,7 +108,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 <DatePicker
                   id={`key-result-deadline-${index}`}
                   className="w-full text-xs"
-                  value={keyItem.deadline ? moment(keyItem.deadline) : null}
+                  value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
                     return current && current < dayjs().startOf('day');
