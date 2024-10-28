@@ -1,17 +1,20 @@
 'use client';
-import { FC, useEffect, useState } from 'react';
-import Logo from '../../../../components/common/logo';
+import { FC, useEffect } from 'react';
+import Logo from '@/components/common/logo';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Form, Input, message } from 'antd';
 import { confirmPasswordReset } from 'firebase/auth';
 import { auth } from '@/utils/firebaseConfig';
+import { useLoadingStore } from '@/store/uistate/features/loadingState';
 
 const NewPassword: FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const oobCode = searchParams.get('oobCode');
-  const [isLoading, setIsLoading] = useState(false);
-
+  const { isLoading, setLoading } = useLoadingStore((state) => ({
+    isLoading: state.isLoading,
+    setLoading: state.setLoading,
+  }));
   useEffect(() => {
     if (!oobCode) {
       message.error('Invalid or expired reset link.');
@@ -31,7 +34,7 @@ const NewPassword: FC = () => {
     }
 
     try {
-      setIsLoading(true);
+      setLoading(true);
       if (oobCode) {
         await confirmPasswordReset(auth, oobCode, newPassword);
         message.success('Password successfully reset!');
@@ -40,7 +43,7 @@ const NewPassword: FC = () => {
     } catch (error) {
       message.error(`${error}, Please try again.`);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 

@@ -1,28 +1,14 @@
 'use client';
-import { FC, useState } from 'react';
-import Logo from '../../../../components/common/logo';
-import { Button, Form, Input, message } from 'antd';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '@/utils/firebaseConfig';
+import { FC } from 'react';
+import Logo from '@/components/common/logo/index';
+import { Button, Form, Input } from 'antd';
+import { usePasswordReset } from '@/store/server/features/employees/authentication/queries';
 
 const RequestVerification: FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutate: resetPassword, isLoading } = usePasswordReset();
 
   const handleFinish = async (values: { email: string }) => {
-    setIsLoading(true);
-    const { email } = values;
-    try {
-      const actionCodeSettings = {
-        url: 'http://localhost:3000/authentication/reset-password',
-        handleCodeInApp: true,
-      };
-      await sendPasswordResetEmail(auth, email, actionCodeSettings);
-      message.success('Password reset email sent! Please check your inbox.');
-    } catch (error) {
-      message.error('Error sending password reset email. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+    resetPassword(values.email);
   };
 
   return (
