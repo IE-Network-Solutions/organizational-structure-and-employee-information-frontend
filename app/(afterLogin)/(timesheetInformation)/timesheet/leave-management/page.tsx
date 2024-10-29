@@ -84,7 +84,7 @@ const LeaveManagement = () => {
                       <Col span={12}>
                         <Button
                           size="small"
-                          id='excelFileTypeToExportId'
+                          id="excelFileTypeToExportId"
                           className={buttonClass}
                           type="primary"
                           icon={<TbLayoutList size={16} />}
@@ -96,7 +96,7 @@ const LeaveManagement = () => {
                       <Col span={12}>
                         <Button
                           size="small"
-                          id='pdfFileTypeToExportId'
+                          id="pdfFileTypeToExportId"
                           className={buttonClass}
                           type="primary"
                           icon={<LuBookmark size={16} />}
@@ -111,7 +111,7 @@ const LeaveManagement = () => {
               >
                 <CustomButton
                   title="Download CSV"
-                  id='downloadCsvFileId'
+                  id="downloadCsvFileId"
                   icon={<TbFileDownload size={20} />}
                   loading={isFetching}
                 />

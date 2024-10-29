@@ -188,7 +188,7 @@ const LeaveRequestSidebar = () => {
             <Space className="w-full" direction="vertical" size={12}>
               <Form.Item
                 name="type"
-                id='leaveTypeFiledId'
+                id="leaveTypeFiledId"
                 label="Leave Type"
                 rules={[{ required: true, message: 'Required' }]}
                 className={itemClass}
@@ -205,7 +205,11 @@ const LeaveRequestSidebar = () => {
                   }
                 />
               </Form.Item>
-              <Form.Item name="isHalfday" id='isHalfDayId' className={itemClass}>
+              <Form.Item
+                name="isHalfday"
+                id="isHalfDayId"
+                className={itemClass}
+              >
                 <CustomRadio
                   label="Half Day"
                   initialValue={leaveRequest?.isHalfday}
@@ -220,7 +224,7 @@ const LeaveRequestSidebar = () => {
                   <Form.Item
                     name="startDate"
                     label="Start Date "
-                    id='leaveRequestStartDateId'
+                    id="leaveRequestStartDateId"
                     rules={[
                       { required: true, message: 'Required' },
                       { validator: validateDates },
@@ -242,7 +246,7 @@ const LeaveRequestSidebar = () => {
                   <Form.Item
                     name="endDate"
                     label="End Date"
-                    id='leaveRequestEndDate'
+                    id="leaveRequestEndDate"
                     rules={[
                       { required: true, message: 'Required' },
                       { validator: validateDates },
@@ -261,7 +265,12 @@ const LeaveRequestSidebar = () => {
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item name="note" id='leaveRequestNoteId' label="Note" className={itemClass}>
+              <Form.Item
+                name="note"
+                id="leaveRequestNoteId"
+                label="Note"
+                className={itemClass}
+              >
                 <Input
                   className={controlClass}
                   disabled={
@@ -271,7 +280,7 @@ const LeaveRequestSidebar = () => {
               </Form.Item>
               <Form.Item
                 name="attachment"
-                id='leaveRequestDocumentAttachedId'
+                id="leaveRequestDocumentAttachedId"
                 label="Attachment"
                 valuePropName="fileList"
                 className={itemClass}

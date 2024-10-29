@@ -21,6 +21,8 @@
     "company-organization-template": "file:",
     "dayjs": "^1.11.12",
     "firebase": "^10.12.5",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
     "lucide-react": "^0.436.0",
     "next": "14.2.5",
     "react": "^18",

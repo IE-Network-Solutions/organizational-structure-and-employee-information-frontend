@@ -31,7 +31,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   };
 
   const { mutate: deleteKeyResult } = useDeleteKeyResult();
-  
+
   function handleKeyResultDelete(id: string) {
     deleteKeyResult(id, {
       onSuccess: () => {
@@ -41,7 +41,10 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   }
 
   return (
-    <div className="py-4 border-b-[1px] border-gray-300" id={`achieve-or-not-view-${index}`}>
+    <div
+      className="py-4 border-b-[1px] border-gray-300"
+      id={`achieve-or-not-view-${index}`}
+    >
       <Form layout="vertical" className="space-y-1">
         <div className="flex gap-3 items-center">
           {!keyValue.id && (
@@ -65,7 +68,11 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               aria-label="Key Result Title"
             />
           </Form.Item>
-          <Form.Item className="w-24 font-bold" label="Weight" id={`key-result-weight-${index}`}>
+          <Form.Item
+            className="w-24 font-bold"
+            label="Weight"
+            id={`key-result-weight-${index}`}
+          >
             <InputNumber
               min={0}
               max={100}

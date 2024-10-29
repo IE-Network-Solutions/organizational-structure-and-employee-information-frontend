@@ -11,7 +11,6 @@ import {
 } from 'antd';
 import { GoPlus } from 'react-icons/go';
 import { validateName } from '@/utils/validation';
-import moment from 'moment';
 import { CiDollar } from 'react-icons/ci';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
@@ -48,7 +47,10 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   return (
     <div className="p-4 sm:p-6 lg:p-2" id={`currency-form-${index}`}>
       {/* Container with border and padding */}
-      <div className="border border-blue rounded-lg p-4 mx-0 lg:mx-8" id={`form-container-${index}`}>
+      <div
+        className="border border-blue rounded-lg p-4 mx-0 lg:mx-8"
+        id={`form-container-${index}`}
+      >
         {/* Close icon to remove Key Result */}
         <div className="flex justify-end">
           <IoIosCloseCircleOutline
@@ -124,7 +126,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               >
                 <DatePicker
                   className="w-full text-xs"
-                  value={keyItem.deadline ? moment(keyItem.deadline) : null}
+                  value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
                     return current && current < dayjs().startOf('day');

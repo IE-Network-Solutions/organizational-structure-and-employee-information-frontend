@@ -56,10 +56,20 @@ const ClosedDateSidebar = () => {
           className={itemClass}
         >
           <Space direction="vertical" className="w-full" size={24}>
-            <Form.Item id='closedDateNameFieldId' label="Closed Date Name" required name="name">
+            <Form.Item
+              id="closedDateNameFieldId"
+              label="Closed Date Name"
+              required
+              name="name"
+            >
               <Input className={controlClass} />
             </Form.Item>
-            <Form.Item id='closedDateTypeFieldId' label="Type" required name="type">
+            <Form.Item
+              id="closedDateTypeFieldId"
+              label="Type"
+              required
+              name="type"
+            >
               <Select
                 className={controlClass}
                 suffixIcon={
@@ -71,7 +81,12 @@ const ClosedDateSidebar = () => {
                 ]}
               />
             </Form.Item>
-            <Form.Item  id='closedHolidayDescriptionFieldId' label="Holiday Description" required name="description">
+            <Form.Item
+              id="closedHolidayDescriptionFieldId"
+              label="Holiday Description"
+              required
+              name="description"
+            >
               <Input.TextArea
                 className="w-full py-4 px-5 mt-2.5"
                 placeholder="Description"
@@ -80,13 +95,18 @@ const ClosedDateSidebar = () => {
             </Form.Item>
             <Row gutter={16}>
               <Col span={12}>
-                <Form.Item id='closedHolidayFromFieldId'  label="From" required name="from">
+                <Form.Item
+                  id="closedHolidayFromFieldId"
+                  label="From"
+                  required
+                  name="from"
+                >
                   <DatePicker className={controlClass} format="DD MMM YYYY" />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item
-                  id='closedHolidayDateToFieldId' 
+                  id="closedHolidayDateToFieldId"
                   label={
                     <Radio
                       checked={isTo}

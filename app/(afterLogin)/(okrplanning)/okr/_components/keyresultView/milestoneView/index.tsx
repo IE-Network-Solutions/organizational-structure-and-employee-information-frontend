@@ -159,7 +159,10 @@ const MilestoneView: React.FC<OKRProps> = ({
     });
   }
   return (
-    <div className="py-4  border-b-[1px] border-gray-300" id={`key-result-${index}`}>
+    <div
+      className="py-4  border-b-[1px] border-gray-300"
+      id={`key-result-${index}`}
+    >
       <Form form={form} layout="vertical" className="space-y-1">
         <div className="flex gap-3 items-center">
           {!keyValue.id && (
@@ -280,7 +283,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                   }
                 />
 
-                <InputNumber 
+                <InputNumber
                   id={`milestone-weight-${index}-${mindex}`}
                   min={0}
                   max={100}

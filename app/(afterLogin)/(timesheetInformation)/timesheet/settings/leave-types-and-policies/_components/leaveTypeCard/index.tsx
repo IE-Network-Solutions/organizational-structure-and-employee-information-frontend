@@ -42,7 +42,7 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
           </div>
           <Space size={12}>
             <Switch
-              id={`${item.title}LeaveTypeCardSwitchButtonFieldId`} 
+              id={`${item.title}LeaveTypeCardSwitchButtonFieldId`}
               checkedChildren={<CheckOutlined />}
               unCheckedChildren={<CloseOutlined />}
               value={item.isActive}
@@ -53,7 +53,7 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
                 });
               }}
             />
-            <ActionButton onDelete={onDelete} />
+            <ActionButton id={item?.id} onDelete={onDelete} />
           </Space>
         </div>
 
