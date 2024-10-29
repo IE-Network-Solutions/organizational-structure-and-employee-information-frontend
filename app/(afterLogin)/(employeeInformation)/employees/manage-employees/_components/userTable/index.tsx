@@ -90,10 +90,10 @@ const UserTable = () => {
       searchParams.allStatus ? searchParams.allStatus : '',
     );
   const { mutate: employeeDeleteMuation } = useDeleteEmployee();
-  const { mutate: rehireEmployee,isLoading:rehireLoading } = useRehireTerminatedEmployee();
+  const { mutate: rehireEmployee, isLoading: rehireLoading } =
+    useRehireTerminatedEmployee();
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
-   console.log(allFilterData,"allFilterData")
   const data = allFilterData?.items?.map((item: any) => {
     const fullName = item?.firstName + ' ' + item?.middleName;
     const shortEmail = item?.email;
@@ -177,38 +177,38 @@ const UserTable = () => {
               <FaEye />
             </Button>
           </Link>
-          {item.deletedAt === null ? 
-                <Tooltip title={'Deactive Employee'}>
-                  <Button
-                    id={`deleteUserButton${item?.id}`}
-                    disabled={item?.deletedAt !== null}
-                    className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Stop event propagation
-                      setDeleteModal(true);
-                      setDeletedItem(item?.id);
-                    }}
-                  >
-                    <MdAirplanemodeActive />
-                  </Button>
-                </Tooltip>
-                 :
-                <Tooltip title={'Activate Employee'}>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    value={'submit'}
-                    name="submit"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Stop event propagation
-                      handelRehireModal(item);
-                    }}
-                    disabled={item.deletedAt === null}
-                  >
-                    <MdAirplanemodeInactive />
-                  </Button>
-                </Tooltip>
-           }
+          {item.deletedAt === null ? (
+            <Tooltip title={'Deactive Employee'}>
+              <Button
+                id={`deleteUserButton${item?.id}`}
+                disabled={item?.deletedAt !== null}
+                className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
+                onClick={(e) => {
+                  e.stopPropagation(); // Stop event propagation
+                  setDeleteModal(true);
+                  setDeletedItem(item?.id);
+                }}
+              >
+                <MdAirplanemodeActive />
+              </Button>
+            </Tooltip>
+          ) : (
+            <Tooltip title={'Activate Employee'}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                value={'submit'}
+                name="submit"
+                onClick={(e) => {
+                  e.stopPropagation(); // Stop event propagation
+                  handelRehireModal(item);
+                }}
+                disabled={item.deletedAt === null}
+              >
+                <MdAirplanemodeInactive />
+              </Button>
+            </Tooltip>
+          )}
         </div>
       ),
     };
@@ -237,7 +237,7 @@ const UserTable = () => {
   const handleActivateEmployee = (values: any) => {
     values['userId'] = userToRehire?.id;
     values.joinedDate = dayjs(values.joinedDate).format('YYYY-MM-DD');
-    values.jobTitle=values.positionId
+    values.jobTitle = values.positionId;
     values.departmentLeadOrNot = !values.departmentLeadOrNot
       ? false
       : values.departmentLeadOrNot;
@@ -277,8 +277,8 @@ const UserTable = () => {
         scroll={{ x: 1000 }}
       />
       <DeleteModal
-        deleteText='Confirm'
-        deleteMessage='Are you sure you want to proceed?'
+        deleteText="Confirm"
+        deleteMessage="Are you sure you want to proceed?"
         customMessage="This action will deactivate the user. You will no longer have access."
         open={deleteModal}
         onConfirm={handleDeleteConfirm}
