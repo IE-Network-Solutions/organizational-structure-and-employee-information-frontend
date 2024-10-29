@@ -163,7 +163,7 @@ function Reporting() {
               />
             </p>
             <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
-              There is no Planned data !!
+              There is no Reported data !!
             </p>
             {/* <EmptyImage /> */}
           </div>

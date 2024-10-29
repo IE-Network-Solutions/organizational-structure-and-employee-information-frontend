@@ -93,7 +93,7 @@ const UserTable = () => {
   const { mutate: rehireEmployee,isLoading:rehireLoading } = useRehireTerminatedEmployee();
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
-
+   console.log(allFilterData,"allFilterData")
   const data = allFilterData?.items?.map((item: any) => {
     const fullName = item?.firstName + ' ' + item?.middleName;
     const shortEmail = item?.email;
@@ -237,7 +237,7 @@ const UserTable = () => {
   const handleActivateEmployee = (values: any) => {
     values['userId'] = userToRehire?.id;
     values.joinedDate = dayjs(values.joinedDate).format('YYYY-MM-DD');
-
+    values.jobTitle=values.positionId
     values.departmentLeadOrNot = !values.departmentLeadOrNot
       ? false
       : values.departmentLeadOrNot;
