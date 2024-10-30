@@ -123,7 +123,7 @@ const CreateRuleSidebar = () => {
               <Col span={12}>
                 <Form.Item
                   label="Rule Name"
-                  id='createRuleNameFieldId'
+                  id="createRuleNameFieldId"
                   rules={[{ required: true, message: 'Required' }]}
                   name="title"
                 >
@@ -133,7 +133,7 @@ const CreateRuleSidebar = () => {
               <Col span={12}>
                 <Form.Item
                   label="Type"
-                  id='createRuleTypeFieldId'
+                  id="createRuleTypeFieldId"
                   rules={[{ required: true, message: 'Required' }]}
                   name="type"
                 >
@@ -156,7 +156,7 @@ const CreateRuleSidebar = () => {
               <Col span={24}>
                 <Form.Item
                   label="Days Set"
-                  id='createRuleDaysSetFieldId'
+                  id="createRuleDaysSetFieldId"
                   rules={[{ required: true, message: 'Required' }]}
                   name="count"
                 >
@@ -169,8 +169,8 @@ const CreateRuleSidebar = () => {
               </Col>
               <Col span={24}>
                 <Form.Item
-                  label="Description" 
-                  id='createRuleDescriptionFieldId'
+                  label="Description"
+                  id="createRuleDescriptionFieldId"
                   rules={[{ required: true, message: 'Required' }]}
                   name="description"
                 >

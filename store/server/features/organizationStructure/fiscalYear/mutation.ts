@@ -41,14 +41,12 @@ const deleteFiscalYear = async (id: string) => {
 };
 
 export const useCreateFiscalYear = () => {
-  const {
-    closeFiscalYearDrawer,
-  } = useFiscalYearDrawerStore();
+  const { closeFiscalYearDrawer } = useFiscalYearDrawerStore();
   const queryClient = useQueryClient();
   return useMutation(createFiscalYear, {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
-      closeFiscalYearDrawer()
+      closeFiscalYearDrawer();
       // const method = variables?.method?.toUpperCase();
       // handleSuccessMessage(method);
     },
@@ -56,9 +54,7 @@ export const useCreateFiscalYear = () => {
 };
 
 export const useUpdateFiscalYear = () => {
-  const {
-    closeFiscalYearDrawer,
-  } = useFiscalYearDrawerStore();
+  const { closeFiscalYearDrawer } = useFiscalYearDrawerStore();
   const queryClient = useQueryClient();
   return useMutation(
     (data: { id: string; fiscalYear: FiscalYear }) =>
@@ -66,7 +62,7 @@ export const useUpdateFiscalYear = () => {
     {
       onSuccess: (_, variables: any) => {
         queryClient.invalidateQueries('fiscalYears');
-        closeFiscalYearDrawer()
+        closeFiscalYearDrawer();
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method);
       },

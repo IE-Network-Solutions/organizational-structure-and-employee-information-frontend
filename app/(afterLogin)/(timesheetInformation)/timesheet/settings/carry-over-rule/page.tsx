@@ -17,7 +17,7 @@ const Page = () => {
         <Button
           size="large"
           type="primary"
-          id='carryOver'
+          id="carryOver"
           icon={<LuPlus size={18} />}
           onClick={() => setIsShowCarryOverRuleSidebar(true)}
         >

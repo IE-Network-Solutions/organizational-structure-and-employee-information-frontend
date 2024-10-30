@@ -59,6 +59,7 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
       key: 'action',
       render: (item: AttendanceNotificationRule) => (
         <ActionButtons
+          id={item?.id ?? null}
           loading={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
           onEdit={() => {
             setAttendanceRuleId(item.id);
@@ -103,13 +104,14 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
           </div>
           <Space size={12}>
             <Switch
-              id='switchButtonForTypeId'
+              id="switchButtonForTypeId"
               checkedChildren={<CheckOutlined />}
               unCheckedChildren={<CloseOutlined />}
               value={type.isActive}
               onChange={activeChange}
             />
             <ActionButton
+              id={type?.id ?? null}
               onEdit={() => {
                 setAttendanceTypeId(type.id);
                 setIsShowRulesAddTypeSidebar(true);

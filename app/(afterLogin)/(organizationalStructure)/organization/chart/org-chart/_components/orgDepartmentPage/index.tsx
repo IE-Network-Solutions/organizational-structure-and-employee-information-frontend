@@ -11,6 +11,7 @@ import CustomButton from '@/components/common/buttons/customButton';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { BiUser } from 'react-icons/bi';
 import CustomDrawer from '../customDrawer';
+import OrgChartSkeleton from '../../../org-structure/_components/loading/orgStructureLoading';
 
 interface DepartmentNodeProps {
   data: any;
@@ -74,7 +75,8 @@ const OrgChartComponent: React.FC = () => {
     setIsDeleteConfirmVisible,
   } = useOrganizationStore();
 
-  const { data: orgStructureData, isLoading } = useGetOrgChartsPeoples();
+  const { data: orgStructureData, isLoading: orgStructureLoading } =
+    useGetOrgChartsPeoples();
 
   const handleFormSubmit = (values: Department) => {
     if (selectedDepartment) {
@@ -142,7 +144,6 @@ const OrgChartComponent: React.FC = () => {
   );
   return (
     <Card
-      loading={isLoading}
       title={<div className="text-2xl font-bold">ORG Chart</div>}
       extra={
         <div className="py-4 flex justify-center items-center gap-4">
@@ -153,27 +154,31 @@ const OrgChartComponent: React.FC = () => {
       }
     >
       <div className="w-full py-7 overflow-x-auto">
-        <div className="p-4 sm:p-2 md:p-6 lg:p-8">
-          <Tree
-            label={
-              <DepartmentNode
-                data={{
-                  id: 'root',
-                  name: `${orgStructureData?.name}` || '',
-                  department: orgStructureData?.department || [],
-                  branchId: orgStructureData?.branchId,
-                  description: '',
-                  collapsed: false,
-                }}
-              />
-            }
-            lineWidth={'2px'}
-            lineColor={'#722ed1'}
-            lineBorderRadius={'10px'}
-          >
-            {renderTreeNodes(orgStructureData?.department || [])}
-          </Tree>
-        </div>
+        {orgStructureLoading ? (
+          <OrgChartSkeleton loading={orgStructureLoading} />
+        ) : (
+          <div className="p-4 sm:p-2 md:p-6 lg:p-8">
+            <Tree
+              label={
+                <DepartmentNode
+                  data={{
+                    id: 'root',
+                    name: `${orgStructureData?.name}` || '',
+                    department: orgStructureData?.department || [],
+                    branchId: orgStructureData?.branchId,
+                    description: '',
+                    collapsed: false,
+                  }}
+                />
+              }
+              lineWidth={'2px'}
+              lineColor={'#722ed1'}
+              lineBorderRadius={'10px'}
+            >
+              {renderTreeNodes(orgStructureData?.department || [])}
+            </Tree>
+          </div>
+        )}
 
         <DepartmentForm
           onClose={() => setIsFormVisible(false)}

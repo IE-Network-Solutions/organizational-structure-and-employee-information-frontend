@@ -10,7 +10,6 @@ import {
   Input,
 } from 'antd';
 import { GoPlus } from 'react-icons/go';
-import moment from 'moment';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { showValidationErrors } from '@/utils/showValidationErrors';
@@ -82,7 +81,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
           <Form.Item
             name="title"
             className="font-semibold text-xs w-full mb-2"
-            rules={[{ required: true, message: 'Please enter the Key Result name' }]}
+            rules={[
+              { required: true, message: 'Please enter the Key Result name' },
+            ]}
           >
             <Input
               id={`key-result-title-${index}`}
@@ -100,12 +101,14 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 name={`dead_line_${index}`}
                 className="font-semibold text-xs w-full mb-2"
                 label="Deadline"
-                rules={[{ required: true, message: 'Please select a deadline' }]}
+                rules={[
+                  { required: true, message: 'Please select a deadline' },
+                ]}
               >
                 <DatePicker
                   id={`key-result-deadline-${index}`}
                   className="w-full text-xs"
-                  value={keyItem.deadline ? moment(keyItem.deadline) : null}
+                  value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
                     return current && current < dayjs().startOf('day');
@@ -136,7 +139,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     validator: (form, value) =>
                       value && value > 0
                         ? Promise.resolve()
-                        : Promise.reject(new Error('Weight must be greater than 0')),
+                        : Promise.reject(
+                            new Error('Weight must be greater than 0'),
+                          ),
                   },
                 ]}
               >

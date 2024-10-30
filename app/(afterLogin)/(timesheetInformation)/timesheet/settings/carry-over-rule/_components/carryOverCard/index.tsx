@@ -30,7 +30,7 @@ const CarryOverCard: FC<CarryOverCardProps> = ({ item }) => {
           </div>
           <Space size={12}>
             <Switch
-              id='carryOverSwitchAbleCardButtonId'
+              id="carryOverSwitchAbleCardButtonId"
               checkedChildren={<CheckOutlined />}
               unCheckedChildren={<CloseOutlined />}
               value={item.isActive}
@@ -41,7 +41,7 @@ const CarryOverCard: FC<CarryOverCardProps> = ({ item }) => {
                 });
               }}
             />
-            <ActionButton onDelete={onDelete} />
+            <ActionButton id={item?.id ?? null} onDelete={onDelete} />
           </Space>
         </div>
 
