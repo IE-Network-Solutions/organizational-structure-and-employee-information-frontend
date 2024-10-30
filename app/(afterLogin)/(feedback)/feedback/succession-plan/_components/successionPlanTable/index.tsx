@@ -22,14 +22,18 @@ import {
   useSuccessionPlanStore,
   useSuccessionEvaluationStore,
   useCriticalPositionStore,
+  useCriticalPositionRecordStore,
 } from '@/store/uistate/features/organizationalDevelopment/SuccessionPlan';
 import SuccessorEvaluation from '../successionEvaluation';
 import { SuccessionData } from '@/types/dashboard/adminManagement';
 import CreateCriticalPosition from '../createCriticalPostion';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import { useFetchSuccessionPlans } from '@/store/server/features/organization-development/SuccessionPlan/queries';
+import { useQueryClient } from 'react-query';
+import SuccessionDetails from '../successionDetails';
 
-const EmployeeDetails = ({
+export const EmployeeDetails = ({
   empId,
   fallbackProfileImage,
 }: {
@@ -59,22 +63,51 @@ const EmployeeDetails = ({
 };
 
 const SuccessionPlanTable = () => {
-  const { data } = useFetchCriticalPositions();
+  const { data: criticalPositions } = useFetchCriticalPositions();
+  const { fetchData } = useFetchSuccessionPlans();
+  const { setSuccessionPlanId } = useSuccessionPlanStore();
+  const { setRecord, setIsEditing } = useCriticalPositionRecordStore();
+  const { setOpen: setSuccessionPlanOpen } = useSuccessionPlanStore();
+  const { setOpen } = useSuccessionEvaluationStore();
+  const {
+    setShowDetails,
+    showDetails,
+    setOpen: setCriticalPositionStteper,
+    showDelete,
+    setShowDelete,
+    setCriticalPositionId,
+  } = useCriticalPositionStore();
+  const queryClient = useQueryClient();
 
   const flattenData = (data: any) => {
     const flattenedData: any = [];
 
     data?.forEach((item: any) => {
-      const { name, userId, successionPlans, criterias, id } = item;
+      const {
+        name,
+        userId,
+        successionPlans,
+        criteria,
+        id,
+        description,
+        jobTitleId,
+        requiredSkills,
+        requiredExperience,
+      } = item;
 
       if (successionPlans && successionPlans.length > 0) {
         successionPlans.forEach((successor: any) => {
           flattenedData.push({
             id,
-            criterias,
+            description,
+            jobTitleId,
+            requiredSkills,
+            requiredExperience,
+            criteria,
             name,
             userId,
             successorId: successor.successor,
+            successionPlanId: successor.id,
             score: successor.score,
             successionStatus: successor.status,
             successorProfileImage: '',
@@ -83,10 +116,15 @@ const SuccessionPlanTable = () => {
       } else {
         flattenedData.push({
           id,
+          description,
+          jobTitleId,
+          requiredSkills,
+          requiredExperience,
           name,
-          criterias,
+          criteria,
           userId,
           successorId: null,
+          successionPlanId: null,
           score: null,
           successionStatus: null,
           successorProfileImage: null,
@@ -97,47 +135,29 @@ const SuccessionPlanTable = () => {
     return flattenedData;
   };
 
-  const sourceData = flattenData(data);
-
-  const { setOpen: setSuccessionPlanOpen } = useSuccessionPlanStore();
-  const { setOpen } = useSuccessionEvaluationStore();
-  const {
-    setShowDetails,
-    setOpen: setCriticalPositionStteper,
-    showDelete,
-    setShowDelete,
-    setCriticalPositionId,
-    setCriterias,
-  } = useCriticalPositionStore();
+  const sourceData = flattenData(criticalPositions);
 
   const showSuccessionPlanDrawer = (id: string) => {
     setCriticalPositionId(id);
     setSuccessionPlanOpen(true);
   };
 
-  const showCriticalPositionDetails = () => {
+  const showCriticalPositionDetails = (record: any) => {
+    setRecord(record);
     setShowDetails(true);
   };
 
-  const closeCriticalPositionModal = () => {
-    setCriticalPositionStteper(false);
-  };
-
-  const showCriticalPositionModal = () => {
+  const showCriticalPositionModal = (record: any) => {
+    setRecord(record);
+    setIsEditing(true);
     setCriticalPositionStteper(true);
   };
 
-  const showSuccessionEvaluationDrawer = (criterias: any) => {
+  const showSuccessionEvaluationDrawer = (id: string) => {
+    setSuccessionPlanId(id);
+    queryClient.invalidateQueries('successionPlans');
+    fetchData();
     setOpen(true);
-    setCriterias(criterias);
-  };
-
-  const onSuccessionPlanClose = () => {
-    setSuccessionPlanOpen(false);
-  };
-
-  const onSuccessionEvaluationClose = () => {
-    setOpen(false);
   };
 
   const showDeleteModal = () => {
@@ -229,7 +249,7 @@ const SuccessionPlanTable = () => {
       key: 'action',
       width: 200,
       render: (record) => {
-        const isDisabled = !!record.successorId; // Disable if successorId exists
+        const isDisabled = !!record.successorId;
 
         return (
           <Space
@@ -245,21 +265,30 @@ const SuccessionPlanTable = () => {
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => showSuccessionPlanDrawer(record.id)}
-              disabled={isDisabled} // Disable button if successorId exists
+              disabled={isDisabled}
             />
             <Button
               type="primary"
               icon={<CheckOutlined />}
-              onClick={() => showSuccessionEvaluationDrawer(record.criterias)}
-              disabled={!isDisabled} // Disable button if successorId exists
+              onClick={() =>
+                showSuccessionEvaluationDrawer(record.successionPlanId)
+              }
+              disabled={!isDisabled}
             />
             <Dropdown
               overlay={
                 <Menu>
-                  <Menu.Item key="3" onClick={showCriticalPositionDetails}>
+                  <Menu.Item
+                    key="3"
+                    onClick={() => showCriticalPositionDetails(record)}
+                  >
                     Open Details
                   </Menu.Item>
-                  <Menu.Item key="1" onClick={showCriticalPositionModal}>
+                  <Menu.Item
+                    key="1"
+                    disabled={isDisabled}
+                    onClick={() => showCriticalPositionModal(record)}
+                  >
                     Edit
                   </Menu.Item>
                   <Menu.Item key="2" onClick={showDeleteModal}>
@@ -278,22 +307,28 @@ const SuccessionPlanTable = () => {
   ];
 
   return (
-    <div className="mt-2">
-      <Table
-        className="w-full"
-        columns={columns}
-        dataSource={sourceData}
-        scroll={{ x: 1000 }}
-      />
-      <CreateSuccessionPlan onClose={onSuccessionPlanClose} />
-      <SuccessorEvaluation onClose={onSuccessionEvaluationClose} />
-      <CreateCriticalPosition onClose={closeCriticalPositionModal} />
-      <DeleteModal
-        open={showDelete}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setShowDelete(false)}
-      />
-    </div>
+    <>
+      {!showDetails ? (
+        <div className="mt-2">
+          <Table
+            className="w-full"
+            columns={columns}
+            dataSource={sourceData}
+            scroll={{ x: 1000 }}
+          />
+          <CreateSuccessionPlan />
+          <SuccessorEvaluation />
+          <CreateCriticalPosition />
+          <DeleteModal
+            open={showDelete}
+            onConfirm={handleDeleteConfirm}
+            onCancel={() => setShowDelete(false)}
+          />
+        </div>
+      ) : (
+        <SuccessionDetails />
+      )}
+    </>
   );
 };
 

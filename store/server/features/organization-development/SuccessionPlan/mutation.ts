@@ -1,26 +1,60 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useSuccessionPlanStore } from '@/store/uistate/features/organizationalDevelopment/SuccessionPlan';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
-/**
- * Function to add a new post by sending a POST request to the API
- * @param newPost The data for the new post
- * @returns The response data from the API
- */
-const createCriticalPosition = async ({ values }: { values: any }) => {
+const getAuthHeaders = () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const userId = useAuthenticationStore.getState().userId;
+  return {
+    Authorization: `Bearer ${token}`,
+    tenantId,
+  };
+};
 
+const handleMutationSuccess = (
+  queryClient: any,
+  message: string,
+  description: string,
+) => {
+  queryClient.invalidateQueries('criticalPosition');
+  NotificationMessage.success({ message, description });
+};
+
+const handleMutationError = (
+  errorMessage: string,
+  errorDescription: string,
+) => {
+  NotificationMessage.error({
+    message: errorMessage,
+    description: errorDescription,
+  });
+};
+
+/** API Call Functions */
+const createCriticalPosition = async ({ values }: { values: any }) => {
+  const { userId } = useAuthenticationStore.getState();
   return crudRequest({
     url: `http://localhost:5000/api/v1/critical-positions/${userId}`,
     method: 'POST',
     data: values,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId,
-    },
+    headers: getAuthHeaders(),
+  });
+};
+
+const updateCriticalPosition = async ({
+  values,
+  id,
+}: {
+  values: any;
+  id: string;
+}) => {
+  return crudRequest({
+    url: `http://localhost:5000/api/v1/critical-positions/${id}`,
+    method: 'PUT',
+    data: values,
+    headers: getAuthHeaders(),
   });
 };
 
@@ -31,57 +65,86 @@ const createSuccessionPlan = async ({
   successor: string[];
   criticalPositionId: string;
 }) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const userId = useAuthenticationStore.getState().userId;
-
+  const { userId } = useAuthenticationStore.getState();
   return crudRequest({
     url: `http://localhost:5000/api/v1/succession-plans/${userId}`,
     method: 'POST',
-    data: { ...successor, criticalPositionId }, // Send the data correctly
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId,
-    },
+    data: { ...successor, criticalPositionId },
+    headers: getAuthHeaders(),
   });
 };
 
+const updateEvaluation = async ({ data }: { data: any }) => {
+  const successionPlanId = useSuccessionPlanStore.getState().successionPlanId;
+  return crudRequest({
+    url: `http://localhost:5000/api/v1/evaluations/${successionPlanId}`,
+    method: 'PUT',
+    data: { data },
+    headers: getAuthHeaders(),
+  });
+};
+
+/** Hooks for Mutations */
 export const useCreateCriticalPosition = () => {
   const queryClient = useQueryClient();
-
   return useMutation(createCriticalPosition, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('criticalPosition');
-      NotificationMessage.success({
-        message: 'Successfully Created',
-        description: 'Critical position successfully created',
-      });
-    },
-    onError: () => {
-      NotificationMessage.error({
-        message: 'Creation Failed',
-        description: 'Critical position creation failed',
-      });
-    },
+    onSuccess: () =>
+      handleMutationSuccess(
+        queryClient,
+        'Successfully Created',
+        'Critical position successfully created',
+      ),
+    onError: () =>
+      handleMutationError(
+        'Creation Failed',
+        'Critical position creation failed',
+      ),
   });
 };
 
 export const useCreateSuccessionPlan = () => {
   const queryClient = useQueryClient();
-
   return useMutation(createSuccessionPlan, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('criticalPosition');
-      NotificationMessage.success({
-        message: 'Successfully Created',
-        description: 'Succession plan successfully created',
-      });
-    },
+    onSuccess: () =>
+      handleMutationSuccess(
+        queryClient,
+        'Successfully Created',
+        'Succession plan successfully created',
+      ),
+    onError: () =>
+      handleMutationError('Creation Failed', 'Succession plan creation failed'),
+  });
+};
+
+export const useUpdateEvaluation = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateEvaluation, {
+    onSuccess: () =>
+      handleMutationSuccess(
+        queryClient,
+        'Successfully Updated',
+        'Succession evaluation successfully updated',
+      ),
     onError: () => {
-      NotificationMessage.error({
-        message: 'Creation Failed',
-        description: 'Succession plan creation failed',
-      });
+      handleMutationError(
+        'Update Failed',
+        'Succession evaluation update failed',
+      );
+    },
+  });
+};
+
+export const useUpdateCriticalPosition = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateCriticalPosition, {
+    onSuccess: () =>
+      handleMutationSuccess(
+        queryClient,
+        'Successfully Updated',
+        'Critical position successfully updated',
+      ),
+    onError: () => {
+      handleMutationError('Update Failed', 'Critical position update failed');
     },
   });
 };

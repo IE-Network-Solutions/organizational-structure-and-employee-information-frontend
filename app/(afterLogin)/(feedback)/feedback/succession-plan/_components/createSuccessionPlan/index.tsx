@@ -19,7 +19,7 @@ import {
 } from '@/store/uistate/features/organizationalDevelopment/SuccessionPlan';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
-const CreateSuccessionPlan = (props: any) => {
+const CreateSuccessionPlan = () => {
   const { data: users } = useGetAllUsers();
   const [form] = Form.useForm();
   const { mutate: createSuccessionPlan, isLoading } = useCreateSuccessionPlan();
@@ -66,7 +66,7 @@ const CreateSuccessionPlan = (props: any) => {
     open && (
       <CustomDrawerLayout
         open={open}
-        onClose={props?.onClose}
+        onClose={handleCancel}
         modalHeader={modalHeader}
         width="40%"
       >
@@ -84,6 +84,12 @@ const CreateSuccessionPlan = (props: any) => {
                 <Form.Item
                   className="font-semibold text-xs"
                   name={'successor'}
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please select atleast one successor',
+                    },
+                  ]}
                   label={
                     <>
                       Successor{' '}

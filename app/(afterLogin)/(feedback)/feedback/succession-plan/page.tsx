@@ -16,12 +16,11 @@ const { Option } = Select;
 
 function SuccessionPlan() {
   const { setOpen, showDetails } = useCriticalPositionStore();
+
   const showDrawer = () => {
     setOpen(true);
   };
-  const onClose = () => {
-    setOpen(false);
-  };
+
   return (
     <div>
       {showDetails ? (
@@ -49,7 +48,7 @@ function SuccessionPlan() {
               className="bg-blue-600 hover:bg-blue-700"
             />
           </div>
-          <CreateCriticalPosition onClose={onClose} />
+          <CreateCriticalPosition />
 
           <Row
             justify="center"

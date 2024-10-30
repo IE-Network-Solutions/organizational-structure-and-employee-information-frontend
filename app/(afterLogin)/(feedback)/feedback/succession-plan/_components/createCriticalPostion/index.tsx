@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Card,
@@ -13,84 +13,82 @@ import {
 } from 'antd';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { useCreateCriticalPosition } from '@/store/server/features/organization-development/SuccessionPlan/mutation';
 import Stepper from '@/components/common/stepper';
-import { useCriticalPositionStore } from '@/store/uistate/features/organizationalDevelopment/SuccessionPlan';
+import {
+  useCreateCriticalPosition,
+  useUpdateCriticalPosition,
+} from '@/store/server/features/organization-development/SuccessionPlan/mutation';
+import {
+  useCriticalPositionStore,
+  useCriticalPositionRecordStore,
+} from '@/store/uistate/features/organizationalDevelopment/SuccessionPlan';
+
 const { Option } = Select;
 
-const CreateCriticalPosition = (props: any) => {
+const CreateCriticalPosition = () => {
   const [form] = Form.useForm();
-  const [responsibilityInputValue, setResponsibilityInputValue] = useState('');
+  const [responsibilityInput, setResponsibilityInput] = useState('');
   const { mutate: createCriticalPosition, isLoading } =
     useCreateCriticalPosition();
-
+  const { mutate: updateCriticalPosition } = useUpdateCriticalPosition();
+  const { record, clearRecord, isEditing, setIsEditing } =
+    useCriticalPositionRecordStore();
   const {
-    setDescription,
     setCurrent,
     setOpen,
-    setName,
-    setJobTitleId,
-    addResponsibility,
-    setRequiredExperience,
-    setRequiredSkills,
-    removeResponsibility,
-    resetCriticalPositionData,
-  } = useCriticalPositionStore();
-  const {
-    name,
-    jobTitleId,
+    addCriteria,
     current,
     open,
-    description,
-    requiredExperience,
-    requiredSkills,
-    responsibilities,
-  } = useCriticalPositionStore.getState();
+    criteria,
+    setCriteria,
+    removeCriteria,
+    resetCriticalPositionData,
+  } = useCriticalPositionStore();
 
-  const handleName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-  };
+  useEffect(() => {
+    if (isEditing && record) {
+      form.setFieldsValue({
+        name: record.name,
+        jobTitleId: record.jobTitleId,
+        description: record.description,
+        requiredSkills: record.requiredSkills,
+        requiredExperience: record.requiredExperience,
+      });
+      setCriteria(record.criteria.map((res: any) => res.criterion));
+    } else {
+      form.resetFields();
+      clearRecord();
+    }
+  }, [isEditing, record]);
 
-  const handleJob = (value: string) => {
-    setJobTitleId(value);
-  };
-
-  const handleDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setDescription(e.target.value);
-  };
-
-  const handleSkills = (value: string[]) => {
-    setRequiredSkills(value);
-  };
-
-  const handleExperiance = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRequiredExperience(Number(e.target.value));
-  };
-
-  const handleResponsibility = () => {
-    addResponsibility(responsibilityInputValue);
-    setResponsibilityInputValue('');
+  const handleAddResponsibility = () => {
+    if (responsibilityInput && !criteria.includes(responsibilityInput)) {
+      addCriteria(responsibilityInput);
+      setResponsibilityInput('');
+    }
   };
 
   const handleCancel = () => {
     form.resetFields();
+    clearRecord();
+    setCriteria([]);
     resetCriticalPositionData();
+    setIsEditing(false);
     setOpen(false);
   };
 
-  const handleCreateCriticalPosition = () => {
-    const criticalPositionData = {
-      name,
-      description,
-      jobTitleId,
-      requiredSkills,
-      requiredExperience,
-      responsibilities,
+  const handleSubmit = (values: any) => {
+    const data = {
+      ...values,
+      criteria,
+      requiredExperience: Number(values.requiredExperience),
     };
-    createCriticalPosition({ values: criticalPositionData });
-    resetCriticalPositionData();
-    form.resetFields();
-    setOpen(false);
+    if (isEditing) {
+      updateCriticalPosition({ values: data, id: record?.id || '' });
+    } else {
+      createCriticalPosition({ values: data });
+    }
+    handleCancel();
   };
 
   const modalHeader = (
@@ -103,7 +101,7 @@ const CreateCriticalPosition = (props: any) => {
     open && (
       <CustomDrawerLayout
         open={open}
-        onClose={props?.onClose}
+        onClose={handleCancel}
         modalHeader={modalHeader}
         width="40%"
       >
@@ -114,7 +112,7 @@ const CreateCriticalPosition = (props: any) => {
           autoComplete="off"
           style={{ maxWidth: '100%' }}
           layout="vertical"
-          onFinish={handleCreateCriticalPosition}
+          onFinish={handleSubmit}
         >
           <Card hidden={current !== 0}>
             <Row gutter={16}>
@@ -123,12 +121,16 @@ const CreateCriticalPosition = (props: any) => {
                   className="font-semibold text-xs"
                   name="name"
                   label="Critical Position Name"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please enter the position name',
+                    },
+                  ]}
                 >
                   <Input
                     placeholder={'Enter Critical Position Name'}
                     className="mt-4"
-                    value={name}
-                    onChange={handleName}
                   />
                 </Form.Item>
               </Col>
@@ -139,14 +141,15 @@ const CreateCriticalPosition = (props: any) => {
                   className="font-semibold text-xs"
                   name={'jobTitleId'}
                   label={'Job Title'}
+                  rules={[
+                    { required: true, message: 'Please select a job title' },
+                  ]}
                 >
                   <Select
                     id={'selectStatusChartType'}
                     placeholder="Select Job Title"
                     allowClear
                     className="w-full h-[48px] my-4"
-                    value={jobTitleId}
-                    onChange={handleJob}
                   >
                     <Option
                       key="active"
@@ -175,8 +178,6 @@ const CreateCriticalPosition = (props: any) => {
                     placeholder={'Enter Role Discription'}
                     className="mt-4"
                     rows={6}
-                    value={description}
-                    onChange={handleDescription}
                   />
                 </Form.Item>
               </Col>
@@ -189,15 +190,26 @@ const CreateCriticalPosition = (props: any) => {
                   className="font-semibold text-xs"
                   name="requiredSkills"
                   label="Required Skills/Criterias"
+                  rules={[
+                    {
+                      required: true,
+                      validator: (s, value) => {
+                        if (!value || value.length === 0) {
+                          return Promise.reject(
+                            new Error('Please add at least one skill'),
+                          );
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
                 >
                   <Select
                     mode="tags"
+                    open={false}
                     className="mt-4"
                     style={{ width: '100%' }}
                     placeholder="Enter skills"
-                    tokenSeparators={[',']}
-                    value={requiredSkills}
-                    onChange={handleSkills}
                   />
                 </Form.Item>
               </Col>
@@ -210,8 +222,12 @@ const CreateCriticalPosition = (props: any) => {
                   label="Required Experiance"
                   rules={[
                     {
-                      validator: (rule, value) => {
-                        if (value < 0) {
+                      required: true,
+                      message: 'Please enter experience level',
+                    },
+                    {
+                      validator: (s, value) => {
+                        if (value !== undefined && value < 0) {
                           return Promise.reject(
                             new Error('Experience must be 0 or above'),
                           );
@@ -221,13 +237,7 @@ const CreateCriticalPosition = (props: any) => {
                     },
                   ]}
                 >
-                  <Input
-                    type="number"
-                    placeholder={'5'}
-                    className="mt-4"
-                    value={requiredExperience}
-                    onChange={handleExperiance}
-                  />
+                  <Input type="number" placeholder={'5'} className="mt-4" />
                 </Form.Item>
               </Col>
             </Row>
@@ -235,35 +245,45 @@ const CreateCriticalPosition = (props: any) => {
               <p className="font-semibold text-s mb-2 ml-2">
                 Role Responsibility
               </p>
-              {responsibilities.map((responsibility, index) => (
-                <>
+              {criteria.map((criterion, index) => (
+                <React.Fragment key={`${criterion}-${index}`}>
                   <Col xs={20} sm={20}>
-                    <Tag className="w-full h-6 mb-4" key={index}>
-                      {responsibility}
-                    </Tag>
+                    <Tag className="w-full h-6 mb-4">{criterion}</Tag>
                   </Col>
                   <Col xs={4} sm={4} className="flex justify-center">
                     <Button
                       type="primary"
                       className="h-6"
                       danger
-                      onClick={() => removeResponsibility(responsibility)}
+                      onClick={() => removeCriteria(criterion)}
                     >
                       <FaMinus />
                     </Button>
                   </Col>
-                </>
+                </React.Fragment>
               ))}
             </Row>
             <Row gutter={16}>
               <Col xs={20} sm={20}>
-                <Form.Item className="font-semibold text-xs">
+                <Form.Item
+                  className="font-semibold text-xs"
+                  name="responsibilities"
+                  rules={[
+                    {
+                      validator: () => {
+                        if (!criteria || criteria.length === 0) {
+                          return Promise.reject(
+                            new Error('Please add at least one responsibility'),
+                          );
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                >
                   <Input
                     className="mt-2"
-                    onChange={(e) =>
-                      setResponsibilityInputValue(e.target.value)
-                    }
-                    value={responsibilityInputValue}
+                    onChange={(e) => setResponsibilityInput(e.target.value)}
                     placeholder="Enter a responsibility"
                   />
                 </Form.Item>
@@ -272,7 +292,10 @@ const CreateCriticalPosition = (props: any) => {
                 <Button
                   type="primary"
                   className="mt-2"
-                  onClick={handleResponsibility}
+                  onClick={() => {
+                    handleAddResponsibility();
+                    form.validateFields(['responsibilities']);
+                  }}
                 >
                   <FaPlus />
                 </Button>
@@ -321,7 +344,7 @@ const CreateCriticalPosition = (props: any) => {
                   className="px-6 py-3 text-xs font-bold rounded-md"
                   type="primary"
                 >
-                  Create
+                  {isEditing ? 'Update' : 'Create'}
                 </Button>
               )}
             </Col>

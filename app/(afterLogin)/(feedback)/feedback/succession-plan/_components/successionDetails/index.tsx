@@ -3,25 +3,41 @@ import React from 'react';
 import {
   useCriticalPositionStore,
   useSuccessionEvaluationStore,
+  useSuccessionPlanStore,
+  useCriticalPositionRecordStore,
 } from '../../../../../../../store/uistate/features/organizationalDevelopment/SuccessionPlan';
-import { Card, Space, Avatar, Col, Row } from 'antd';
+import { Card, Col, Row, Button } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import SuccessorEvaluation from '../successionEvaluation';
+import CreateSuccessionPlan from '../createSuccessionPlan';
+import { useQueryClient } from 'react-query';
+import { useFetchSuccessionPlans } from '@/store/server/features/organization-development/SuccessionPlan/queries';
+import { EmployeeDetails } from '../successionPlanTable';
 
 function SuccessionDetails() {
-  const { setShowDetails } = useCriticalPositionStore();
-  const { setOpen } = useSuccessionEvaluationStore();
+  const { setShowDetails, setCriticalPositionId } = useCriticalPositionStore();
+  const { setOpen: setSuccessionEvaluationOpen } =
+    useSuccessionEvaluationStore();
+  const { setSuccessionPlanId } = useSuccessionPlanStore();
+  const queryClient = useQueryClient();
+  const { fetchData } = useFetchSuccessionPlans();
+  const { record } = useCriticalPositionRecordStore();
+  const { setOpen: setSuccessionPlanOpen } = useSuccessionPlanStore();
 
   const showCriticalPositionTable = () => {
     setShowDetails(false);
   };
 
-  const showEvaluation = () => {
-    setOpen(true);
+  const showSuccessionEvaluationDrawer = (id: string | null) => {
+    setSuccessionPlanId(id ? id : '');
+    queryClient.invalidateQueries('successionPlans');
+    fetchData();
+    setSuccessionEvaluationOpen(true);
   };
 
-  const closeEvaluation = () => {
-    setOpen(false);
+  const showSuccessionPlanDrawer = (id: string) => {
+    setCriticalPositionId(id);
+    setSuccessionPlanOpen(true);
   };
 
   return (
@@ -36,108 +52,69 @@ function SuccessionDetails() {
           bordered={false}
         >
           <Card title="Employee" bordered={true}>
-            <Card.Grid
-              hoverable={false}
-              className="w-1/2 text-left border-none"
-            >
-              Employee
-            </Card.Grid>
-            <Card.Grid
-              hoverable={false}
-              className="w-1/2 text-left border-none"
-            >
-              <Space size="small">
-                <Avatar src="https://i.pravatar.cc/300?img=18" />
-                <div>
-                  <div className="font-bold">Surafel Musajid</div>
-                  <div className="text-xs text-gray-500">
-                    Join Date: January 1, 2020
-                  </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="font-bold">Employee</div>
+              <div className="flex items-center">
+                <EmployeeDetails
+                  empId={record?.userId ? record?.userId : ''}
+                  fallbackProfileImage=""
+                />
+                <div className="text-xs text-gray-500 ml-2">
+                  Join Date: {'N/A'}
                 </div>
-              </Space>
-            </Card.Grid>
-            <Card.Grid
-              hoverable={false}
-              className="w-1/2 text-left border-none"
-            >
-              Position
-            </Card.Grid>
-            <Card.Grid
-              hoverable={false}
-              className="w-1/2 text-left border-none"
-            >
-              Software Team Lead
-            </Card.Grid>
-            <Card.Grid
-              hoverable={false}
-              className="w-1/2 text-left border-none"
-            >
-              Successor
-            </Card.Grid>
-            <Card.Grid
-              hoverable={false}
-              className="w-1/2 text-left border-none"
-            >
-              <Space size="small">
-                <Avatar src="https://i.pravatar.cc/300?img=25" />
-                <div>
-                  <div className="font-bold">Selamawit Mekuria</div>
-                  <div className="text-xs text-gray-500">
-                    Join Date: January 1, 2020
-                  </div>
+              </div>
+              <div className="font-bold">Position</div>
+              <div>{record?.name || 'N/A'}</div>
+              <div className="font-bold">Successor</div>
+              <div className="flex items-center">
+                <EmployeeDetails
+                  empId={record?.successorId ? record?.successorId : ''}
+                  fallbackProfileImage=""
+                />
+                <div className="text-xs text-gray-500 ml-2">
+                  Join Date: {'N/A'}
                 </div>
-              </Space>
-            </Card.Grid>
-            <Card.Grid
-              hoverable={false}
-              className="w-1/2 text-left border-none"
-            >
-              Status
-            </Card.Grid>
-            <Card.Grid
-              hoverable={false}
-              className="w-1/2 text-left border-none"
-            >
-              Passed
-            </Card.Grid>
-            <Card.Grid
-              hoverable={false}
-              className="w-1/2 text-left border-none"
-            >
-              Role Description
-            </Card.Grid>
-            <Card.Grid
-              hoverable={false}
-              className="w-1/2 text-left border-none"
-            >
-              Software Team Lead involves overseeing the daily activities of a
-              development team, ensuring the team delivers high-quality software
-              on time and within scope. They provide technical guidance, design
-              software architecture, and make key decisions on technologies and
-              tools. A Software Team Lead coordinates tasks, manages workflow,
-              and resolves technical challenges. They also mentor and support
-              team members in their growth, fostering collaboration and
-              continuous improvement.
-            </Card.Grid>
+              </div>
+              <div className="font-bold">Status</div>
+              <div>{record?.successionStatus || 'N/A'}</div>
+              <div className="font-bold">Role Description</div>
+              <div>
+                {record?.description || 'Role description not available'}
+              </div>
+            </div>
           </Card>
           <Card
             title=""
             bordered={true}
             className="w-1/3 mt-5 ml-auto border-none"
           >
-            <Card.Grid
-              onClick={showEvaluation}
-              className="w-2/5 text-center mx-5 rounded-lg"
+            <Button
+              onClick={() =>
+                showSuccessionEvaluationDrawer(
+                  record?.successionPlanId ? record.successionPlanId : '',
+                )
+              }
+              className="w-2/5 mx-5 rounded-lg"
+              type="primary"
+              disabled={!record?.successionPlanId}
             >
               Evaluate
-            </Card.Grid>
-            <Card.Grid className="w-2/5 text-center mx-5 rounded-lg">
+            </Button>
+            <Button
+              onClick={() =>
+                showSuccessionPlanDrawer(record?.id ? record.id : '')
+              }
+              className="w-2/5 mx-5 rounded-lg"
+              type="primary"
+              disabled={!!record?.successionPlanId}
+            >
               Add Successor
-            </Card.Grid>
+            </Button>
           </Card>
         </Card>
       </Col>
-      <SuccessorEvaluation onClose={closeEvaluation} />
+      <CreateSuccessionPlan />
+      <SuccessorEvaluation />
     </Row>
   );
 }

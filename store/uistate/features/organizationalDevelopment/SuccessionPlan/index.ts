@@ -1,13 +1,5 @@
 import { create } from 'zustand';
 
-export interface Criteria {
-  id: string;
-  responsibility: string;
-  createdAt: string;
-  updatedAt: string;
-  tenantId: string;
-}
-
 interface CriticalPositionState {
   name: string;
   description: string;
@@ -15,8 +7,7 @@ interface CriticalPositionState {
   criticalPositionId: string;
   requiredSkills: string[];
   requiredExperience: number;
-  responsibilities: string[];
-  criterias: Criteria[];
+  criteria: string[];
   current: number;
   open: boolean;
   showDetails: boolean;
@@ -27,17 +18,15 @@ interface CriticalPositionState {
   setJobTitleId: (jobTitleId: string) => void;
   setRequiredSkills: (skills: string[]) => void;
   setRequiredExperience: (experience: number) => void;
-  addResponsibility: (responsibility: string) => void;
-  removeResponsibility: (responsibility: string) => void;
-  addCriteria: (criteria: Criteria) => void;
-  removeCriteria: (id: string) => void;
+  addCriteria: (criteria: string) => void;
+  removeCriteria: (criteria: string) => void;
   resetCriticalPositionData: () => void;
   setCurrent: (current: number) => void;
   setOpen: (open: boolean) => void;
   setShowDetails: (showDetails: boolean) => void;
   setShowDelete: (showDelete: boolean) => void;
   setCriticalPositionId: (criticalPositionId: string) => void;
-  setCriterias: (criterias: Criteria[]) => void;
+  setCriteria: (criteria: string[]) => void;
 }
 
 export const useCriticalPositionStore = create<CriticalPositionState>(
@@ -48,86 +37,69 @@ export const useCriticalPositionStore = create<CriticalPositionState>(
     jobTitleId: '',
     requiredSkills: [],
     requiredExperience: 0,
-    responsibilities: [],
-    criterias: [],
+    criteria: [],
     current: 0,
     open: false,
     showDetails: false,
     showDelete: false,
 
-    setName: (name: string) => set({ name }),
-    setDescription: (description: string) => set({ description }),
-    setJobTitleId: (jobTitleId: string) => set({ jobTitleId }),
-    setRequiredSkills: (skills: string[]) => set({ requiredSkills: skills }),
-    setRequiredExperience: (experience: number) =>
+    setName: (name) => set({ name }),
+    setDescription: (description) => set({ description }),
+    setJobTitleId: (jobTitleId) => set({ jobTitleId }),
+    setRequiredSkills: (skills) => set({ requiredSkills: skills }),
+    setRequiredExperience: (experience) =>
       set({ requiredExperience: experience }),
 
-    addResponsibility: (responsibility: string) =>
+    addCriteria: (criteria) =>
+      set((state) => ({ criteria: [...state.criteria, criteria] })),
+
+    removeCriteria: (criteria) =>
       set((state) => ({
-        responsibilities: [...state.responsibilities, responsibility],
+        criteria: state.criteria.filter((item) => item !== criteria),
       })),
 
-    removeResponsibility: (responsibility: string) =>
-      set((state) => ({
-        responsibilities: state.responsibilities.filter(
-          (r) => r !== responsibility,
-        ),
-      })),
-
-    addCriteria: (criteria: Criteria) =>
-      set((state) => ({
-        criterias: [...state.criterias, criteria],
-      })),
-
-    removeCriteria: (id: string) =>
-      set((state) => ({
-        criterias: state.criterias.filter((criteria) => criteria.id !== id),
-      })),
-
-    setCurrent: (current: number) => set({ current }),
-
-    setOpen: (open: boolean) => set({ open }),
-
-    setShowDetails: (showDetails: boolean) => set({ showDetails }),
-
-    setShowDelete: (showDelete: boolean) => set({ showDelete }),
-
-    setCriticalPositionId: (criticalPositionId: string) =>
-      set({ criticalPositionId }),
-
-    setCriterias: (criterias: Criteria[]) => set({ criterias }),
+    setCurrent: (current) => set({ current }),
+    setOpen: (open) => set({ open }),
+    setShowDetails: (showDetails) => set({ showDetails }),
+    setShowDelete: (showDelete) => set({ showDelete }),
+    setCriticalPositionId: (criticalPositionId) => set({ criticalPositionId }),
+    setCriteria: (criteria) => set({ criteria }),
 
     resetCriticalPositionData: () =>
-      set(() => ({
+      set({
         name: '',
         description: '',
+        criticalPositionId: '',
         jobTitleId: '',
         requiredSkills: [],
         requiredExperience: 0,
-        responsibilities: [],
-        criterias: [],
+        criteria: [],
         current: 0,
         open: false,
         showDetails: false,
         showDelete: false,
-      })),
+      }),
   }),
 );
 
 interface SuccessionPlanState {
   successor: string;
+  successionPlanId: string;
   open: boolean;
 
   setSuccessorId: (successor: string) => void;
   setOpen: (successionOpen: boolean) => void;
+  setSuccessionPlanId: (successionPlanId: string) => void;
 }
 
 export const useSuccessionPlanStore = create<SuccessionPlanState>((set) => ({
   successor: '',
+  successionPlanId: '',
   open: false,
 
   setOpen: (open: boolean) => set({ open }),
   setSuccessorId: (successor: string) => set({ successor }),
+  setSuccessionPlanId: (successionPlanId: string) => set({ successionPlanId }),
 }));
 
 interface SuccessionEvaluationState {
@@ -143,3 +115,35 @@ export const useSuccessionEvaluationStore = create<SuccessionEvaluationState>(
     setOpen: (open: boolean) => set({ open }),
   }),
 );
+
+interface FlattenedCriticalPositionRecord {
+  id: string;
+  description: string;
+  criteria: string[];
+  name: string;
+  jobTitleId: string;
+  requiredSkills: string[];
+  requiredExperience: number;
+  userId: string;
+  successorId: string | null;
+  successionPlanId: string | null;
+  score: number | null;
+  successionStatus: string | null;
+  successorProfileImage: string | null;
+}
+
+interface RecordState {
+  record: FlattenedCriticalPositionRecord | null;
+  isEditing: boolean;
+  setRecord: (record: FlattenedCriticalPositionRecord | null) => void;
+  clearRecord: () => void;
+  setIsEditing: (isEditing: boolean) => void;
+}
+
+export const useCriticalPositionRecordStore = create<RecordState>((set) => ({
+  record: null,
+  isEditing: false,
+  setRecord: (record) => set({ record }),
+  clearRecord: () => set({ record: null }),
+  setIsEditing: (isEditing: boolean) => set({ isEditing }),
+}));
