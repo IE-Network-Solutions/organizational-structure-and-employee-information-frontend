@@ -46,7 +46,7 @@ const updateCompanyProfile = async ({
 }) => {
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${id}`,
-    method: 'PATCH',
+    method: 'PUT',
     headers: multiPartFormDataheaders,
     data: { companyProfileImage: companyProfileImage?.originFileObj },
   });

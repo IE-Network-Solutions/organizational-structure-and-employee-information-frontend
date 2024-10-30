@@ -32,29 +32,30 @@ const CustomWorkingScheduleDrawer: React.FC = () => {
   const { mutate: createSchedule } = useCreateSchedule();
 
   const handleSubmit = () => {
-      const transformedDetails: DayOfWeek[] = detail.map(
-        (item: ScheduleDetail) => ({
-          id: item.id,
-          startTime: item.startTime,
-          endTime: item.endTime,
-          duration: item.hours,
-          workDay: item.status,
-          day: item.dayOfWeek,
-        }))
-        if (isEditMode) {
-          updateSchedule({
-            id: selectedSchedule?.id || '',
-            schedule: {
-              name: name,
-              detail: transformedDetails,
-            },
-          });
-        } else {
-          createSchedule({
-            name: name,
-            detail: transformedDetails,
-          })
-        }
+    const transformedDetails: DayOfWeek[] = detail.map(
+      (item: ScheduleDetail) => ({
+        id: item.id,
+        startTime: item.startTime,
+        endTime: item.endTime,
+        duration: item.hours,
+        workDay: item.status,
+        day: item.dayOfWeek,
+      }),
+    );
+    if (isEditMode) {
+      updateSchedule({
+        id: selectedSchedule?.id || '',
+        schedule: {
+          name: name,
+          detail: transformedDetails,
+        },
+      });
+    } else {
+      createSchedule({
+        name: name,
+        detail: transformedDetails,
+      });
+    }
     closeDrawer();
   };
 
@@ -85,7 +86,11 @@ const CustomWorkingScheduleDrawer: React.FC = () => {
             <span>{workingHour ?? '-'}</span>
           </div>
           <div className="flex justify-between items-center gap-4">
-            <CustomButton className="bg-gray-200 text-gray-700 hover:bg-gray-300" title="Cancel" onClick={handleCancel} />
+            <CustomButton
+              className="bg-gray-200 text-gray-700 hover:bg-gray-300"
+              title="Cancel"
+              onClick={handleCancel}
+            />
             <CustomButton
               title={isEditMode ? 'Update' : 'Create'}
               onClick={handleSubmit}

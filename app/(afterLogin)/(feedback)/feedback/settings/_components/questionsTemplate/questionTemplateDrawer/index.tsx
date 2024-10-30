@@ -25,11 +25,11 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
   const handlePublish = async () => {
     try {
       const formattedValue = {
-        customFieldName: templateQuestions.customFieldName,
-        fieldType: templateQuestions.fieldType,
-        question: templateQuestions.customFieldName,
-        required: templateQuestions.required || false,
-        field: templateQuestions.field.map((value: any) => {
+        customFieldName: templateQuestions?.customFieldName,
+        fieldType: templateQuestions?.fieldType,
+        question: templateQuestions?.question,
+        required: templateQuestions?.required || false,
+        field: templateQuestions?.field?.map((value: any) => {
           return {
             value,
             id: uuidv4(),
@@ -39,6 +39,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
 
       createQuestion(formattedValue);
       setIsOpen(false);
+      form.resetFields();
     } catch (error) {
       NotificationMessage.error({
         message: 'Publish Failed',
@@ -59,7 +60,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
   };
 
   const drawerHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 px-4 py-2">
       Create New Field
     </div>
   );

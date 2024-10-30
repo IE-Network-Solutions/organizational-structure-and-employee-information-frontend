@@ -10,15 +10,19 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   span,
   isTop,
   cardColor,
+  isLoading,
 }) => {
-  const success =
-    parseFloat(score?.achievement || '0') / parseFloat(score?.score);
   return (
     <Col span={span}>
-      <Card bordered={false} className={cardColor ? cardColor : ''}>
+      <Card
+        loading={isLoading}
+        bodyStyle={{ padding: '10px' }}
+        bordered={false}
+        className={cardColor ? cardColor : ''}
+      >
         <div className="mt-2 ">
           <div className="flex justify-between">
-            <div className="text-lg gap-2 flex items-center mb-2">
+            <div className="text-md gap-2 flex items-center mb-2">
               {icon}
               {isTop ? '' : title}
             </div>
@@ -31,23 +35,23 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
               )}
             </div>
           </div>
-          <div className=" flex justify-between ">
-            <div className="">
-              <h3>
+          <div className=" flex  ">
+            <div className="w-full">
+              <h4>
                 {score?.score} {score?.achievement ? '' : '%'}
-              </h3>
-              {isTop ? <div className="mb-6">{title}</div> : ''}
+              </h4>
+              {isTop ? <div className="mb-2">{title}</div> : ''}
             </div>
-            <div className="pt-5 w-[50%] ">
+            <div className=" w-[80%] ">
               {score?.achievement ? (
                 <div className="">
-                  <div className="flex justify-end font-thin">
+                  <div className="flex justify-end font-thin text-xs ">
                     {score?.achievement} key result archived
                   </div>
                   <div className="w-full">
-                    <Tooltip title={` ${isNaN(success) ? 0 : success * 100} %`}>
+                    <Tooltip title={0}>
                       <Progress
-                        percent={isNaN(success) ? 0 : success * 100}
+                        percent={0}
                         showInfo={false}
                         size={{ height: 10 }}
                         className="w-[100%]"

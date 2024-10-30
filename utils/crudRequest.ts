@@ -5,6 +5,7 @@ interface RequestParams {
   method: Method;
   data?: any;
   headers?: Record<string, string>;
+  params?: Record<string, any>;
 }
 
 /**
@@ -18,12 +19,14 @@ export const crudRequest = async ({
   method,
   data,
   headers,
+  params,
 }: RequestParams) => {
   try {
     const config: AxiosRequestConfig = {
       url,
       method,
       headers,
+      params,
     };
 
     if (data) {

@@ -7,6 +7,7 @@ import { FaPlus } from 'react-icons/fa';
 import UserTable from './_components/userTable';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import EmployeeSearch from './_components/userSearch';
+import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 
 const ManageEmployees: React.FC<any> = () => {
   const { setOpen } = useEmployeeManagementStore();
@@ -20,23 +21,28 @@ const ManageEmployees: React.FC<any> = () => {
 
   return (
     <div className="h-auto w-full p-4">
-      <div className="flex flex-wrap justify-between items-center">
-        <CustomBreadcrumb title="Employees" subtitle="Manage your Employees" />
-        <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
-          <CustomButton
-            title="Create user"
-            id="createUserButton"
-            icon={<FaPlus className="mr-2" />}
-            onClick={showDrawer}
-            className="bg-blue-600 hover:bg-blue-700"
+      <BlockWrapper>
+        <div className="flex flex-wrap justify-between items-center">
+          <CustomBreadcrumb
+            title="Employees"
+            subtitle="Manage your Employees"
           />
-          <UserSidebar onClose={onClose} />
+          <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
+            <CustomButton
+              title="Create user"
+              id="createUserButton"
+              icon={<FaPlus className="mr-2" />}
+              onClick={showDrawer}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
+            <UserSidebar onClose={onClose} />
+          </div>
         </div>
-      </div>
-      <div className="w-full h-auto">
-        <EmployeeSearch />
-        <UserTable />
-      </div>
+        <div className="w-full h-auto">
+          <EmployeeSearch />
+          <UserTable />
+        </div>
+      </BlockWrapper>
     </div>
   );
 };
