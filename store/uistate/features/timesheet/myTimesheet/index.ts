@@ -13,6 +13,7 @@ export enum CheckStatus {
 type MyTimesheetState = {
   isShowViewSidebar: boolean;
   isShowLeaveRequestSidebar: boolean;
+  isShowLeaveRequestDetail: boolean;
   leaveRequestSidebarData: string | null;
   isShowCheckOutSidebar: boolean;
   checkStatus: CheckStatus;
@@ -27,6 +28,7 @@ type MyTimesheetState = {
 type MyTimesheetAction = {
   setIsShowViewSidebar: (isShowViewSidebar: boolean) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
+  setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail: boolean) => void;
   setLeaveRequestSidebarData: (leaveRequestSidebarData: string | null) => void;
   setIsShowCheckOutSidebar: (isShowCheckOutSidebar: boolean) => void;
   setCheckStatus: (checkStatus: CheckStatus) => void;
@@ -49,6 +51,11 @@ const useMyTimesheetSlice: StateCreator<
   isShowLeaveRequestSidebar: false,
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar) => {
     set({ isShowLeaveRequestSidebar });
+  },
+
+  isShowLeaveRequestDetail: false,
+  setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail) => {
+    set({ isShowLeaveRequestDetail });
   },
 
   leaveRequestSidebarData: null,

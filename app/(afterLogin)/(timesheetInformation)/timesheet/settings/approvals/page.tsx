@@ -1,20 +1,20 @@
 'use client';
-import ApprovalFilter from '../../_component/approvalFilter';
-import ApprovalListTable from '../../_component/approvalListTable';
-import { FaPlus } from 'react-icons/fa';
 import CustomButton from '@/components/common/buttons/customButton';
-import { useRouter } from 'next/navigation';
+import React from 'react';
+import ApprovalFilter from './_component/approvalFilter';
+import ApprovalListTable from './_component/approvalListTable';
+import { FaPlus } from 'react-icons/fa';
 import { useApprovalStore } from '@/store/uistate/features/approval';
+import { useRouter } from 'next/navigation';
 
-const ApprovalList: React.FC<any> = () => {
+const Workflow = () => {
   const router = useRouter();
   const { setApproverType } = useApprovalStore();
 
   const handleNavigation = () => {
-    router.push('/approval/workFlow');
+    router.push('/timesheet/settings/approvals/workFlow');
     setApproverType('');
   };
-
   return (
     <div>
       <div className="mb-10 flex justify-between">
@@ -35,4 +35,5 @@ const ApprovalList: React.FC<any> = () => {
     </div>
   );
 };
-export default ApprovalList;
+
+export default Workflow;

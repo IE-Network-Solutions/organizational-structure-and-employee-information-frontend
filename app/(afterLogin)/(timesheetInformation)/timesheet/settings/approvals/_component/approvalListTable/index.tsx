@@ -7,13 +7,13 @@ import { FaPencil } from 'react-icons/fa6';
 import { useApprovalFilter } from '@/store/server/features/approver/queries';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
-import EditWorkFLow from '../editWorkFLow';
 import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { FaPlus } from 'react-icons/fa';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import AddApprover from '../addApprover';
 import { useEffect } from 'react';
+import EditWorkFLow from '../editWorkFLow';
 
 const columns: TableColumnsType<any> = [
   {
@@ -259,7 +259,6 @@ const ApprovalListTable = () => {
   return (
     <div className="mt-2  pt-5">
       <Table
-        className="w-full"
         columns={columns}
         dataSource={data}
         pagination={{
@@ -271,7 +270,6 @@ const ApprovalListTable = () => {
           onShowSizeChange: onPageChange,
         }}
         loading={isEmployeeLoading}
-        scroll={{ x: 1000 }}
       />
       <DeleteModal
         open={deleteModal}

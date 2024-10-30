@@ -111,14 +111,6 @@ const menuItems: MenuProps['items'] = [
       },
     ],
   },
-<<<<<<< HEAD
-
-  {
-    key: '/approval/approvalList',
-    icon: <MdStarPurple500 />,
-    className: 'font-bold',
-    label: 'Approval ',
-=======
   {
     key: '/tna',
     icon: <BarChartOutlined />,
@@ -229,7 +221,6 @@ const userItems: MenuProps['items'] = [
         className: 'font-bold',
       },
     ],
->>>>>>> d8fccdb749389cc08326908bf17df4dd11da6ea2
   },
 ];
 
@@ -245,14 +236,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
-<<<<<<< HEAD
-  const { setLocalId, setTenantId, setToken } = useAuthenticationStore();
-
-=======
   const { userData, setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const userRole = userData?.role?.slug || '';
->>>>>>> d8fccdb749389cc08326908bf17df4dd11da6ea2
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);

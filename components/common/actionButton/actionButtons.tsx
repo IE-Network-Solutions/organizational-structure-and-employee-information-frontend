@@ -9,6 +9,7 @@ interface ActionButtonsProps {
   loading?: boolean;
   onEdit?: (e?: any) => void;
   onDelete?: (e?: any) => void;
+  onDetail?: (e?: any) => void;
 }
 
 const ActionButtons: FC<ActionButtonsProps> = ({
@@ -17,6 +18,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
   loading = false,
   onEdit,
   onDelete,
+  onDetail,
 }) => {
   return (
     <Space size={10}>
@@ -45,6 +47,14 @@ const ActionButtons: FC<ActionButtonsProps> = ({
             }}
           />
         </DeletePopover>
+      )}
+      {onDetail && (
+        <Button
+          className="w-[60px] px-2 h-[30px]"
+          icon={'Detail'}
+          loading={loading}
+          onClick={onDetail}
+        />
       )}
     </Space>
   );

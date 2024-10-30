@@ -1,7 +1,6 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import {
-  updateAssignedUserMutation,
   useDeleteApprover,
   useDeleteParallelApprover,
 } from '@/store/server/features/approver/mutation';
@@ -30,7 +29,6 @@ const EditWorkFLow = () => {
   } = useApprovalStore();
   const { data: department } = useGetDepartments();
   const { data: users } = useGetAllUsers();
-  const { mutate: EditApprover } = updateAssignedUserMutation();
   const { mutate: deleteApprover } = useDeleteApprover();
   const { mutate: deleteParallelApprover } = useDeleteParallelApprover();
 
@@ -50,7 +48,7 @@ const EditWorkFLow = () => {
   const handleSubmit = () => {
     const formValues = form.getFieldsValue();
 
-    const jsonPayload = selections.SectionItemType.flatMap((selection, idx) => {
+    const jsonPayload = selections.SectionItemType.flatMap((idx) => {
       const approver = selectedItem?.approvers[idx];
       const userIds = formValues[`assignedUser_${idx}`];
 
@@ -217,51 +215,60 @@ const EditWorkFLow = () => {
             />
           </Form.Item>
 
-          {Array.from({ length: level }).map((_, index) => (
-            <div key={index} className="px-10 my-1">
-              <div>Level: {index + 1}</div>{' '}
-              <div className=" flex justify-between items-center">
-                <Form.Item
-                  className="font-semibold text-xs"
-                  name={`assignedUser_${index}`}
-                  label={`Assign User for Level ${index + 1}`}
-                  rules={[{ required: true, message: 'Please select a user!' }]}
-                >
-                  <Select
-                    className="min-w-52 my-3"
-                    mode={approverType === 'Parallel' ? 'multiple' : undefined}
-                    style={{ width: 120 }}
-                    onDeselect={(value) => handleDeselect(value, index)}
-                    onChange={(value) =>
-                      handleUserChange(value as string, index)
-                    }
-                    placeholder="Select User"
-                    options={users?.items?.map((list: any) => ({
-                      value: list?.id,
-                      label: `${list?.firstName} ${list?.lastName}`,
-                    }))}
-                  />
-                </Form.Item>
-                {approverType !== 'Parallel' && (
-                  <Tooltip title={'Delete Employee'}>
-                    <Button
-                      id={`deleteUserButton${index}`}
-                      className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
-                      onClick={() => {
-                        const userId = form.getFieldValue(
-                          `assignedUser_${index}`,
-                        );
-                        setDeleteModal(true);
-                        setDeletedApprover(userId);
-                      }}
-                    >
-                      <RiDeleteBin6Line />
-                    </Button>
-                  </Tooltip>
-                )}
+          {Array.from({ length: level }).map(
+            /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
+              _,
+              index,
+            ) => (
+              <div key={index} className="px-10 my-1">
+                <div>Level: {index + 1}</div>{' '}
+                <div className=" flex justify-between items-center">
+                  <Form.Item
+                    className="font-semibold text-xs"
+                    name={`assignedUser_${index}`}
+                    label={`Assign User for Level ${index + 1}`}
+                    rules={[
+                      { required: true, message: 'Please select a user!' },
+                    ]}
+                  >
+                    <Select
+                      className="min-w-52 my-3"
+                      mode={
+                        approverType === 'Parallel' ? 'multiple' : undefined
+                      }
+                      style={{ width: 120 }}
+                      onDeselect={(value) => handleDeselect(value, index)}
+                      onChange={(value) =>
+                        handleUserChange(value as string, index)
+                      }
+                      placeholder="Select User"
+                      options={users?.items?.map((list: any) => ({
+                        value: list?.id,
+                        label: `${list?.firstName} ${list?.lastName}`,
+                      }))}
+                    />
+                  </Form.Item>
+                  {approverType !== 'Parallel' && (
+                    <Tooltip title={'Delete Employee'}>
+                      <Button
+                        id={`deleteUserButton${index}`}
+                        className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
+                        onClick={() => {
+                          const userId = form.getFieldValue(
+                            `assignedUser_${index}`,
+                          );
+                          setDeleteModal(true);
+                          setDeletedApprover(userId);
+                        }}
+                      >
+                        <RiDeleteBin6Line />
+                      </Button>
+                    </Tooltip>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ),
+          )}
 
           <Form.Item>
             <Row className="flex justify-end gap-3">

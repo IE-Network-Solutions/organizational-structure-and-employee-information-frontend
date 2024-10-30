@@ -89,6 +89,14 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       },
       link: '/timesheet/settings/leave-request',
     },
+    {
+      item: {
+        key: 'approval-workflow',
+        icon: <TbLayoutList />,
+        label: <p className="menu-item-label">Approval WorkFLow</p>,
+      },
+      link: '/timesheet/settings/approvals',
+    },
   ]);
 
   return (

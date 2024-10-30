@@ -132,7 +132,7 @@ export const useDeleteApprovalWorkFLow = () => {
   });
 };
 
-export const updateAssignedUserMutation = () => {
+export const useUpdateAssignedUserMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
@@ -149,7 +149,7 @@ export const updateAssignedUserMutation = () => {
   );
 };
 
-export const addApproverMutation = () => {
+export const useAddApproverMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation(

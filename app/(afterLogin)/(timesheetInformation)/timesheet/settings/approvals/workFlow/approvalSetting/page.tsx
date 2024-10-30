@@ -37,9 +37,15 @@ const ApprovalSetting: React.FC<any> = () => {
 
   const handleLevelChange = (value: number) => {
     setLevel(value);
-    const updatedSelections = Array.from({ length: value }, (_, index) => {
-      return selections.SectionItemType[index] || { user: null };
-    });
+    const updatedSelections = Array.from(
+      { length: value },
+      /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
+        _,
+        index,
+      ) => {
+        return selections.SectionItemType[index] || { user: null };
+      },
+    );
     setSelections({ SectionItemType: updatedSelections });
   };
 
@@ -81,7 +87,7 @@ const ApprovalSetting: React.FC<any> = () => {
       { values: jsonPayload },
       {
         onSuccess: () => {
-          router.push('/approval/approvalList');
+          router.push('/timesheet/settings/approvals');
         },
       },
     );
@@ -222,10 +228,16 @@ const ApprovalSetting: React.FC<any> = () => {
             onChange={handleLevelChange}
             defaultValue={1}
             placeholder="Select Levels"
-            options={Array.from({ length: 9 }, (_, i) => ({
-              value: i + 1,
-              label: `${i + 1}`,
-            }))}
+            options={Array.from(
+              { length: 9 },
+              /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
+                _,
+                i,
+              ) => ({
+                value: i + 1,
+                label: `${i + 1}`,
+              }),
+            )}
           />
 
           <div className="font-medium mb-3 text-gray-500">
@@ -233,30 +245,35 @@ const ApprovalSetting: React.FC<any> = () => {
           </div>
         </div>
 
-        {Array.from({ length: level }).map((_, index) => (
-          <div key={index} className="px-10 my-1">
-            <div>Level: {index + 1}</div>
-            <Form.Item
-              className="font-semibold text-xs"
-              name={`assignedUser_${index}`}
-              label={`Assign User `}
-              rules={[{ required: true, message: 'Please select a user!' }]}
-            >
-              <Select
-                className="w-full h-10 my-3"
-                allowClear
-                mode={approverType === 'Parallel' ? 'multiple' : undefined}
-                style={{ width: 120 }}
-                onChange={(value) => handleUserChange(value as string, index)}
-                placeholder="Select User"
-                options={users?.items?.map((list: any) => ({
-                  value: list?.id,
-                  label: `${list?.firstName} ${list?.lastName}`,
-                }))}
-              />
-            </Form.Item>
-          </div>
-        ))}
+        {Array.from({ length: level }).map(
+          /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
+            _,
+            index,
+          ) => (
+            <div key={index} className="px-10 my-1">
+              <div>Level: {index + 1}</div>
+              <Form.Item
+                className="font-semibold text-xs"
+                name={`assignedUser_${index}`}
+                label={`Assign User `}
+                rules={[{ required: true, message: 'Please select a user!' }]}
+              >
+                <Select
+                  className="w-full h-10 my-3"
+                  allowClear
+                  mode={approverType === 'Parallel' ? 'multiple' : undefined}
+                  style={{ width: 120 }}
+                  onChange={(value) => handleUserChange(value as string, index)}
+                  placeholder="Select User"
+                  options={users?.items?.map((list: any) => ({
+                    value: list?.id,
+                    label: `${list?.firstName} ${list?.lastName}`,
+                  }))}
+                />
+              </Form.Item>
+            </div>
+          ),
+        )}
 
         <Form.Item>
           <Row className="flex justify-end gap-3">

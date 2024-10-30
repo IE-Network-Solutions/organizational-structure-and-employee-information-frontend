@@ -13,6 +13,8 @@ import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/qu
 import { useGetAllowedAreas } from '@/store/server/features/timesheet/allowedArea/queries';
 import LeaveRequestSidebar from './_components/leaveRequestSidebar';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
+import ApprovalTable from './_components/approvalTable';
+import LeaveRequestDetail from './_components/leaveRequestDetail';
 
 const MyTimesheet = () => {
   const { setLeaveTypes, setAllowedAreas, setBreakTypes } =
@@ -39,6 +41,9 @@ const MyTimesheet = () => {
         <PageHeader title="My Attendance" description="Manage your Attendance">
           <CheckControl />
         </PageHeader>
+        <BlockWrapper className="mt-[30px]">
+          <ApprovalTable />
+        </BlockWrapper>
 
         <div className="mt-6">
           <LeaveBalance />
@@ -55,6 +60,7 @@ const MyTimesheet = () => {
 
       <ViewAttendanceSidebar />
       <LeaveRequestSidebar />
+      <LeaveRequestDetail />
       <CheckOutSidebar />
     </>
   );

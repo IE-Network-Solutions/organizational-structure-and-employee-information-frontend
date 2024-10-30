@@ -10,7 +10,7 @@ const WorkFlow: React.FC<any> = () => {
   const onChange = (value: string) => {
     setApproverType(value);
     if (approverType) {
-      router.push('/approval/workFlow/approvalSetting');
+      router.push('/timesheet/settings/approvals/workFlow/approvalSetting');
     }
   };
   const router = useRouter();

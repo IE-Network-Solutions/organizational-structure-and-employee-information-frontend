@@ -13,6 +13,7 @@ interface SelectProps {
   entityId: string;
   approvers: Record<string, string>[];
 }
+
 interface SectionProps {
   SectionItemType: Array<Record<string, any>>;
 }
@@ -50,6 +51,9 @@ interface UserState {
 
   selections: SectionProps;
   setSelections: (selections: SectionProps) => void;
+
+  rejectComment: string;
+  setRejectComment: (rejectComment: string) => void;
 
   editModal: boolean;
   setEditModal: (editModal: boolean) => void;
@@ -127,6 +131,9 @@ export const useApprovalStore = create<UserState>()(
         selections: { SectionItemType: Array(1).fill({ user: null }) },
         setSelections: (selections: SectionProps) => set({ selections }),
 
+        rejectComment: '',
+        setRejectComment: (value: string) => set({ rejectComment: value }),
+
         editModal: false,
         setEditModal: (editModal: boolean) => set({ editModal }),
 
@@ -137,7 +144,8 @@ export const useApprovalStore = create<UserState>()(
         setDeletedItem: (deletedItem: string) => set({ deletedItem }),
 
         deletedApprover: '',
-        setDeletedApprover: (deletedApprover: string) => set({ deletedApprover }),
+        setDeletedApprover: (deletedApprover: string) =>
+          set({ deletedApprover }),
 
         deleteModal: false,
         setDeleteModal: (deleteModal: boolean) => set({ deleteModal }),

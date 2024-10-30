@@ -1,5 +1,5 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { addApproverMutation } from '@/store/server/features/approver/mutation';
+import { useAddApproverMutation } from '@/store/server/features/approver/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { Button, Form, Input, Row, Select } from 'antd';
@@ -17,7 +17,7 @@ const AddApprover = () => {
   } = useApprovalStore();
   const { data: users } = useGetAllUsers();
   const [form] = Form.useForm();
-  const { mutate: AddApprover, isSuccess } = addApproverMutation();
+  const { mutate: AddApprover } = useAddApproverMutation();
   const onClose = () => {
     setAddModal(false);
   };
@@ -31,11 +31,17 @@ const AddApprover = () => {
 
   const handleLevelChange = (value: number) => {
     setLevel(value);
-    const updatedSelections = Array.from({ length: value }, (_, index) => {
-      return selections.SectionItemType[index] || { user: null };
-    });
+    const updatedSelections = Array.from(
+      {
+        length: value,
+      } /* eslint-disable-next-line @typescript-eslint/naming-convention */,
+      (_, index) => {
+        return selections.SectionItemType[index] || { user: null };
+      },
+    );
     setSelections({ SectionItemType: updatedSelections });
   };
+
   const handleSubmit = () => {
     const jsonPayload = selections.SectionItemType.flatMap((selection, idx) => {
       const inputLevel = form.getFieldValue(`level_${idx}`);
@@ -97,55 +103,71 @@ const AddApprover = () => {
               onChange={handleLevelChange}
               defaultValue={1}
               placeholder="Select Levels"
-              options={Array.from({ length: 9 }, (_, i) => ({
-                value: i + 1,
-                label: `${i + 1}`,
-              }))}
+              options={Array.from(
+                { length: 9 },
+                /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
+                  _,
+                  i,
+                ) => ({
+                  value: i + 1,
+                  label: `${i + 1}`,
+                }),
+              )}
             />
 
             <div className="font-medium">
               This is the specific approval stage or level within the process
             </div>
           </div>
+          {Array.from({ length: level }).map(
+            /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
+              _,
+              index,
+            ) => (
+              <div key={index} className="px-10 my-1 ">
+                {approverType !== 'Parallel' && (
+                  <div>
+                    Level: {selectedItem?.approvers?.length + index + 1}
+                  </div>
+                )}
 
-          {Array.from({ length: level }).map((_, index) => (
-            <div key={index} className="px-10 my-1 ">
-              {approverType !== 'Parallel' && (
-                <div>Level: {selectedItem?.approvers?.length + index + 1}</div>
-              )}
+                {approverType === 'Parallel' && (
+                  <Form.Item
+                    className="font-semibold text-xs"
+                    name={`level_${index}`}
+                    label="Level"
+                    rules={[
+                      { required: true, message: 'Please enter a level!' },
+                    ]}
+                  >
+                    <Input placeholder="Enter level" />
+                  </Form.Item>
+                )}
 
-              {approverType === 'Parallel' && (
                 <Form.Item
                   className="font-semibold text-xs"
-                  name={`level_${index}`}
-                  label="Level"
-                  rules={[{ required: true, message: 'Please enter a level!' }]}
+                  name={`assignedUser_${index}`}
+                  label={`Assign User `}
+                  rules={[{ required: true, message: 'Please select a user!' }]}
                 >
-                  <Input placeholder="Enter level" />
+                  <Select
+                    className="min-w-52 my-3"
+                    allowClear
+                    mode={approverType === 'Parallel' ? 'multiple' : undefined}
+                    style={{ width: 120 }}
+                    onChange={(value) =>
+                      handleUserChange(value as string, index)
+                    }
+                    placeholder="Select User"
+                    options={users?.items?.map((list: any) => ({
+                      value: list?.id,
+                      label: `${list?.firstName} ${list?.lastName}`,
+                    }))}
+                  />
                 </Form.Item>
-              )}
-
-              <Form.Item
-                className="font-semibold text-xs"
-                name={`assignedUser_${index}`}
-                label={`Assign User `}
-                rules={[{ required: true, message: 'Please select a user!' }]}
-              >
-                <Select
-                  className="min-w-52 my-3"
-                  allowClear
-                  mode={approverType === 'Parallel' ? 'multiple' : undefined}
-                  style={{ width: 120 }}
-                  onChange={(value) => handleUserChange(value as string, index)}
-                  placeholder="Select User"
-                  options={users?.items?.map((list: any) => ({
-                    value: list?.id,
-                    label: `${list?.firstName} ${list?.lastName}`,
-                  }))}
-                />
-              </Form.Item>
-            </div>
-          ))}
+              </div>
+            ),
+          )}
 
           <Form.Item>
             <Row className="flex justify-end gap-3">
