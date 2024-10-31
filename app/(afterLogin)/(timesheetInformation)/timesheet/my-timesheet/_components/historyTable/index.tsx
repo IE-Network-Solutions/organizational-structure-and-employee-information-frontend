@@ -29,8 +29,11 @@ const HistoryTable = () => {
   const userFilter: Partial<LeaveRequestBody['filter']> = {
     userIds: [userId ?? ''],
   };
-  const { setIsShowLeaveRequestSidebar: isShow, setLeaveRequestSidebarData } =
-    useMyTimesheetStore();
+  const {
+    setIsShowLeaveRequestDetail: isShowDetail,
+    setIsShowLeaveRequestSidebar: isShow,
+    setLeaveRequestSidebarData,
+  } = useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
   const {
     page,
@@ -135,14 +138,24 @@ const HistoryTable = () => {
       key: 'action',
       render: (item: LeaveRequest) => (
         <ActionButtons
-          id={item.id ?? null}
-          disableDelete={item.status === LeaveRequestStatus.APPROVED}
+          disableDelete={
+            item.status === LeaveRequestStatus.APPROVED ||
+            item.status === LeaveRequestStatus.DECLINED
+          }
+          disableEdit={
+            item.status === LeaveRequestStatus.APPROVED ||
+            item.status === LeaveRequestStatus.DECLINED
+          }
           onEdit={() => {
             isShow(true);
             setLeaveRequestSidebarData(item.id);
           }}
           onDelete={() => {
             deleteLeaveRequest(item.id);
+          }}
+          onDetail={() => {
+            isShowDetail(true);
+            setLeaveRequestSidebarData(item.id);
           }}
         />
       ),
@@ -177,7 +190,6 @@ const HistoryTable = () => {
           <Button
             type="text"
             size="small"
-            id="leaveHistoryId"
             icon={<AiOutlineReload size={14} className="text-gray-600" />}
             onClick={() => {
               refetch();
@@ -188,7 +200,6 @@ const HistoryTable = () => {
         <Button
           size="large"
           type="primary"
-          id="addNewRequestId"
           icon={<LuPlus size={16} />}
           className="h-12"
           onClick={() => isShow(true)}

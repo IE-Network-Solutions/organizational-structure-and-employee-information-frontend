@@ -18,6 +18,8 @@ import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest
 import CustomUpload from '@/components/form/customUpload';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useAllApproval } from '@/store/server/features/approver/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const LeaveRequestSidebar = () => {
   const [filter, setFilter] = useState<Partial<LeaveRequestBody['filter']>>({});
@@ -35,6 +37,16 @@ const LeaveRequestSidebar = () => {
     false,
   );
   const { userId } = useAuthenticationStore();
+  const { data: employeeData } = useGetAllUsers();
+  const userData = employeeData?.items?.find((item: any) => item.id === userId);
+
+  const { data: approvalData, refetch: getAllapproval } = useAllApproval(
+    userData?.employeeJobInformation[0]?.departmentId || '',
+  );
+  useEffect(() => {
+    if (userData?.employeeJobInformation[0]?.departmentId) getAllapproval();
+  }, [userData]);
+
   const {
     mutate: updateLeaveRequest,
     isLoading: isLoadingRequest,
@@ -124,6 +136,7 @@ const LeaveRequestSidebar = () => {
 
   const onFinish = () => {
     const value = form.getFieldsValue();
+
     updateLeaveRequest({
       item: {
         ...(leaveRequest && leaveRequest),
@@ -136,6 +149,8 @@ const LeaveRequestSidebar = () => {
           : null,
         justificationNote: value.note,
         status: LeaveRequestStatus.PENDING,
+        approvalWorkflowId: approvalData[0]?.id,
+        approvalType: 'Leave',
       },
       userId,
     });
@@ -188,7 +203,6 @@ const LeaveRequestSidebar = () => {
             <Space className="w-full" direction="vertical" size={12}>
               <Form.Item
                 name="type"
-                id="leaveTypeFiledId"
                 label="Leave Type"
                 rules={[{ required: true, message: 'Required' }]}
                 className={itemClass}
@@ -205,11 +219,7 @@ const LeaveRequestSidebar = () => {
                   }
                 />
               </Form.Item>
-              <Form.Item
-                name="isHalfday"
-                id="isHalfDayId"
-                className={itemClass}
-              >
+              <Form.Item name="isHalfday" className={itemClass}>
                 <CustomRadio
                   label="Half Day"
                   initialValue={leaveRequest?.isHalfday}
@@ -224,7 +234,6 @@ const LeaveRequestSidebar = () => {
                   <Form.Item
                     name="startDate"
                     label="Start Date "
-                    id="leaveRequestStartDateId"
                     rules={[
                       { required: true, message: 'Required' },
                       { validator: validateDates },
@@ -246,7 +255,6 @@ const LeaveRequestSidebar = () => {
                   <Form.Item
                     name="endDate"
                     label="End Date"
-                    id="leaveRequestEndDate"
                     rules={[
                       { required: true, message: 'Required' },
                       { validator: validateDates },
@@ -265,12 +273,7 @@ const LeaveRequestSidebar = () => {
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item
-                name="note"
-                id="leaveRequestNoteId"
-                label="Note"
-                className={itemClass}
-              >
+              <Form.Item name="note" label="Note" className={itemClass}>
                 <Input
                   className={controlClass}
                   disabled={
@@ -280,7 +283,6 @@ const LeaveRequestSidebar = () => {
               </Form.Item>
               <Form.Item
                 name="attachment"
-                id="leaveRequestDocumentAttachedId"
                 label="Attachment"
                 valuePropName="fileList"
                 className={itemClass}

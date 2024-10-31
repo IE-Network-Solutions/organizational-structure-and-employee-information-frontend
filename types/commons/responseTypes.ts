@@ -15,3 +15,13 @@ export interface ApiResponse<T> {
   item: T;
   file?: string;
 }
+export interface SingleApiResponse<T> {
+  statusCode: number;
+  message: string;
+  items: T;
+}
+export interface SingleLogResponse<T> {
+  statusCode: number;
+  message?: string;
+  items: T[];
+}
