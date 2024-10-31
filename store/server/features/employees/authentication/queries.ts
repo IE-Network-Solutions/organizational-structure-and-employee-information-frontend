@@ -1,7 +1,38 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import axios from 'axios';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '@/utils/firebaseConfig';
+import { message } from 'antd';
+import { getCompanyProfileByTenantId } from '../../organizationStructure/companyProfile/mutation';
+
+const fetchDomainName = async (): Promise<string> => {
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const companyProfile = await getCompanyProfileByTenantId(tenantId);
+  return companyProfile?.items[0]?.domainName || 'localhost:3000';
+};
+
+export const usePasswordReset = () => {
+  return useMutation(
+    async (email: string) => {
+      const domainName = await fetchDomainName();
+      const actionCodeSettings = {
+        url: `http://${domainName}/authentication/reset-password`,
+        handleCodeInApp: true,
+      };
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
+    },
+    {
+      onSuccess: () => {
+        message.success('Password reset email sent! Please check your inbox.');
+      },
+      onError: () => {
+        message.error('Error sending password reset email. Please try again.');
+      },
+    },
+  );
+};
 
 /**
  * Function to fetch a tenant id by sending a GET request to the API
