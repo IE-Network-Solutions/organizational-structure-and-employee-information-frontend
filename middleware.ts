@@ -11,7 +11,11 @@ export function middleware(req: NextRequest) {
     const isExcludedPath = pathname.startsWith(excludePath);
     const isRootPath = pathname === '/';
     if (!isExcludedPath && !token) {
-      return NextResponse.redirect(new URL('/authentication/login', req.url));
+      const loginUrl = new URL('/authentication/login', req.url);
+      const response = NextResponse.redirect(loginUrl);
+      response.headers.append('Refresh', '0; url=' + loginUrl.toString());
+      return response;
+      // return NextResponse.redirect(new URL('/authentication/login', req.url));
     }
 
     if (pathname === '/onboarding') return NextResponse.next();
@@ -19,7 +23,11 @@ export function middleware(req: NextRequest) {
       if (token) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       } else {
-        return NextResponse.redirect(new URL('/authentication/login', req.url));
+        const loginUrl = new URL('/authentication/login', req.url);
+        const response = NextResponse.redirect(loginUrl);
+        response.headers.append('Refresh', '0; url=' + loginUrl.toString());
+        return response;
+        // return NextResponse.redirect(new URL('/authentication/login', req.url));
       }
     }
     return NextResponse.next();

@@ -31,7 +31,8 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       mutations: {
         onError(error: any) {
           if (error?.response?.status === 401) {
-            router.replace('/authentication/login');
+            router.push('/authentication/login');
+            window.location.reload();
           }
           handleNetworkError(error);
         },
@@ -48,7 +49,8 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       onError(error: any) {
         if (error.response) {
           if (error.response.status === 401) {
-            router.replace('/authentication/login');
+            router.push('/authentication/login');
+            window.location.reload();
           }
           NotificationMessage.error({
             message: 'Error',
