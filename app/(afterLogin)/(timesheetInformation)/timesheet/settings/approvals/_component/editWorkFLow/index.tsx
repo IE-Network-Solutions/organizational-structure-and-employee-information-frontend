@@ -50,33 +50,37 @@ const EditWorkFLow = () => {
 
   const handleSubmit = () => {
     const formValues = form.getFieldsValue();
+    const jsonPayload = selections.SectionItemType.flatMap(
+      /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
+        _,
+        idx,
+      ) => {
+        const approver = selectedItem?.approvers[idx];
+        const userIds = formValues[`assignedUser_${idx}`];
 
-    const jsonPayload = selections.SectionItemType.flatMap((idx) => {
-      const approver = selectedItem?.approvers[idx];
-      const userIds = formValues[`assignedUser_${idx}`];
-
-      if (Array.isArray(userIds)) {
-        return userIds.map((userId) => {
-          const app = selectedItem?.approvers?.find(
-            (app) =>
-              app?.userId === userId && parseInt(app?.stepOrder) == idx + 1,
-          );
-          return app
-            ? { stepOrder: idx + 1, userId, id: app?.id }
-            : {
-                stepOrder: idx + 1,
-                userId,
-              };
-        });
-      }
-      return [
-        {
-          id: approver?.id,
-          stepOrder: approver?.stepOrder,
-          userId: userIds,
-        },
-      ];
-    });
+        if (Array.isArray(userIds)) {
+          return userIds.map((userId) => {
+            const app = selectedItem?.approvers?.find(
+              (app) =>
+                app?.userId === userId && parseInt(app?.stepOrder) == idx + 1,
+            );
+            return app
+              ? { stepOrder: idx + 1, userId, id: app?.id }
+              : {
+                  stepOrder: idx + 1,
+                  userId,
+                };
+          });
+        }
+        return [
+          {
+            id: approver?.id,
+            stepOrder: Number(approver?.stepOrder),
+            userId: userIds,
+          },
+        ];
+      },
+    );
 
     EditApprover(
       { values: { approvalWorkflowId: selectedItem?.id, steps: jsonPayload } },
