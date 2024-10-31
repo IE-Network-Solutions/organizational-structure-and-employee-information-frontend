@@ -22,6 +22,7 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({ item }) => {
         </div>
 
         <ActionButtons
+          id={item?.id ?? null}
           onDelete={() => {
             deleteCategory([item.id]);
           }}

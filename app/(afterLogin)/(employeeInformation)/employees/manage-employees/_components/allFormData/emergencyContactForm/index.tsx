@@ -21,7 +21,7 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactFullName']}
+            name={['emergencyContact', 'firstName']}
             label="Full Name"
             id="emergencyContactFullName"
             rules={[
@@ -41,7 +41,7 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactLastName']}
+            name={['emergencyContact', 'lastName']}
             label="Last Name"
             id="emergencyContactLastName"
             rules={[
@@ -63,7 +63,7 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactEmailAddress']}
+            name={['emergencyContact', 'email']}
             label="Email Address"
             id="emergencyContactEmailAddress"
             rules={[
@@ -81,7 +81,7 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactGender']}
+            name={['emergencyContact', 'gender']}
             label="Gender"
             id="emergencyContactGender"
             rules={[{ required: true }]}
@@ -97,7 +97,7 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactDateOfBirth']}
+            name={['emergencyContact', 'dateOfBirth']}
             label="Date of Birth"
             id="emergencyContactDateOfBirth"
             rules={[{ required: true }]}
@@ -108,7 +108,7 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactNationality']}
+            name={['emergencyContact', 'nationality']}
             label="Nationality"
             id="emergencyContactNationality"
             rules={[{ required: true }]}

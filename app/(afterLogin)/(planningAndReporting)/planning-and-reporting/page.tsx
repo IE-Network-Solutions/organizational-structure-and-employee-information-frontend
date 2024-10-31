@@ -39,6 +39,7 @@ function Page() {
     }));
   };
 
+
   return (
     <div>
       <div className="h-full w-auto p-4">
@@ -62,7 +63,7 @@ function Page() {
             defaultActiveKey="1"
             onChange={(e: any) => setActivePlanPeriod(e)}
             centered
-            items={TabsContent()}
+            items={TabsContent() ?? []}
           />
           <CreatePlan />
           <EditPlan />

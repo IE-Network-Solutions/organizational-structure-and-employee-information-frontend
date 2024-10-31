@@ -28,6 +28,7 @@ const CommitmentCard: FC<CommitmentCardProps> = ({ item }) => {
           ),
           extra: (
             <ActionButtons
+              id={item?.id ?? null}
               onEdit={(e: MouseEvent) => {
                 e.stopPropagation();
                 setTnaCommitmentId(item.id);

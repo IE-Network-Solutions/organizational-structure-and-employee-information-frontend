@@ -48,7 +48,6 @@ function CreatePlan() {
       Create New plan
     </div>
   );
-
   const handleAddName = (
     currentBoardValues: Record<string, string>,
     kId: string,
@@ -162,17 +161,22 @@ function CreatePlan() {
                                         </div>
                                         <>
                                           <Divider className="my-2" />
-                                          <DefaultCardForm
-                                            kId={kr?.id}
-                                            hasTargetValue={hasTargetValue}
-                                            hasMilestone={hasMilestone}
-                                            milestoneId={ml?.id}
-                                            name={`names-${kr?.id + ml?.id}`}
-                                            form={form}
-                                            planningPeriodId={planningPeriodId}
-                                            userId={userId}
-                                            planningUserId={planningUserId}
-                                          />
+                                          {planningPeriodId &&
+                                            planningUserId && (
+                                              <DefaultCardForm
+                                                kId={kr?.id}
+                                                hasTargetValue={hasTargetValue}
+                                                hasMilestone={hasMilestone}
+                                                milestoneId={ml?.id}
+                                                name={`names-${kr?.id + ml?.id}`}
+                                                form={form}
+                                                planningPeriodId={
+                                                  planningPeriodId
+                                                }
+                                                userId={userId}
+                                                planningUserId={planningUserId}
+                                              />
+                                            )}
                                           <BoardCardForm
                                             form={form}
                                             handleAddName={handleAddName}
@@ -207,17 +211,19 @@ function CreatePlan() {
                                   </div>
                                 </div>
                                 <Divider className="my-2" />
-                                <DefaultCardForm
-                                  kId={kr?.id}
-                                  hasTargetValue={hasTargetValue}
-                                  hasMilestone={hasMilestone}
-                                  milestoneId={null}
-                                  name={`names-${kr?.id}`}
-                                  form={form}
-                                  planningPeriodId={planningPeriodId}
-                                  userId={userId}
-                                  planningUserId={planningUserId}
-                                />
+                                {planningPeriodId && planningUserId && (
+                                  <DefaultCardForm
+                                    kId={kr?.id}
+                                    hasTargetValue={hasTargetValue}
+                                    hasMilestone={hasMilestone}
+                                    milestoneId={null}
+                                    name={`names-${kr?.id}`}
+                                    form={form}
+                                    planningPeriodId={planningPeriodId}
+                                    userId={userId}
+                                    planningUserId={planningUserId}
+                                  />
+                                )}
                                 <BoardCardForm
                                   form={form}
                                   handleAddName={handleAddName}

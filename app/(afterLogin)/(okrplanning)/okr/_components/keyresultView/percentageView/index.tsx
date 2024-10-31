@@ -28,8 +28,12 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
       },
     });
   }
+
   return (
-    <div className="py-4  border-b-[1px] border-gray-300">
+    <div
+      className="py-4 border-b-[1px] border-gray-300"
+      id={`key-result-view-${index}`}
+    >
       <Form layout="vertical" className="space-y-1">
         {/* Key Result Input */}
         <div className="flex gap-3 items-center">
@@ -38,9 +42,10 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           </div>
           <Form.Item
             label={keyValue.key_type == 'Percentage' && 'Percentage'}
-            className="w-full font-bold "
+            className="w-full font-bold"
           >
             <Input
+              id={`key-result-title-${index}`}
               value={keyValue.title}
               onChange={(e) => {
                 handleChange(e.target.value, 'title');
@@ -49,6 +54,7 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           </Form.Item>
           <Form.Item className="w-24 font-bold" label="Weight">
             <InputNumber
+              id={`key-result-weight-${index}`}
               suffix="%"
               min={0}
               max={100}
@@ -61,6 +67,7 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           <div className="flex gap-2 mt-2">
             <Tooltip color="gray" title="Remove Key Result">
               <Button
+                id={`remove-key-result-${index}`}
                 className="rounded-full w-5 h-5"
                 icon={<VscClose size={20} />}
                 type="primary"
@@ -68,7 +75,7 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                   keyValue?.id
                     ? handleKeyResultDelete(keyValue?.id)
                     : removeKeyResultValue(index)
-                } // Hook up the remove key result function
+                }
               />
             </Tooltip>
           </div>
@@ -78,13 +85,10 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           <Form.Item
             layout="horizontal"
             className="font-semibold text-xs w-full mb-2"
-            id="initialValue"
+            id={`key-result-initialValue-${index}`}
             label="Initial"
             rules={[
-              {
-                required: true,
-                message: 'Please select a initialValue',
-              },
+              { required: true, message: 'Please select an initial value' },
             ]}
           >
             <InputNumber
@@ -98,17 +102,14 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             />
           </Form.Item>
 
-          {/* Weight */}
+          {/* Target */}
           <Form.Item
             layout="horizontal"
             className="font-semibold text-xs w-full mb-2"
-            id="targetValue"
+            id={`key-result-targetValue-${index}`}
             label="Target"
             rules={[
-              {
-                required: true,
-                message: 'Please select a initialValue',
-              },
+              { required: true, message: 'Please select a target value' },
             ]}
           >
             <InputNumber
@@ -121,12 +122,14 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               }}
             />
           </Form.Item>
+
           <Form.Item
             layout="horizontal"
             className="w-full font-bold"
             label="Deadline"
           >
             <DatePicker
+              id={`key-result-deadline-${index}`}
               value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
               onChange={(dateString) => {
                 handleChange(dateString, 'deadline');
