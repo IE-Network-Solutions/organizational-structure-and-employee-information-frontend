@@ -1,9 +1,8 @@
 import PerformanceChart from '@/app/(afterLogin)/(okr)/_components/performanceChart';
 import RookStarsList from '@/app/(afterLogin)/(okr)/_components/rookStarsList';
 import { ListData } from '@/types/dashboard/okr';
-import { Col, Row, Select, Space } from 'antd';
+import { Col, Row, Select } from 'antd';
 import React from 'react';
-import PerformanceEvaluation from './performanceEvaluation';
 import { useGetPlanningPeriods } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 
@@ -48,12 +47,9 @@ const listData: ListData[] = [
 const Performance: React.FC = () => {
   const { selectedPeriodId, setSelectedPeriodId } = useOKRStore();
   const handlePeriodChange = (value: string) => {
-    console.log(value, 'valuefghjk');
-
     setSelectedPeriodId(value);
   };
   const { data: planningPeriods } = useGetPlanningPeriods();
-  console.log(planningPeriods, selectedPeriodId, 'planningPeriods');
 
   return (
     <div>
@@ -83,19 +79,22 @@ const Performance: React.FC = () => {
           <PerformanceChart />
         </Col>
         <Col xs={24} sm={24} md={24} lg={8} xl={8}>
-          <Space direction="vertical" className="w-[90%]">
-            <RookStarsList
-              planningPeriodId={selectedPeriodId}
-              dataSource={listData}
-              title="Rock Star Of The Week"
-            />
-          </Space>
+          {/* <Space direction="vertical" className="w-[90%]"> */}
+          <RookStarsList
+            planningPeriodId={selectedPeriodId}
+            dataSource={listData}
+            title="Rock Star Of The Week"
+          />
+          {/* </Space> */}
         </Col>
       </Row>
-      <div className="flex justify-between">
+
+      {/* ===========> THIS IS PERFORMANCE EVALUATION SECTION  <===========*/}
+      {/*
+        <div className="flex justify-between">
         <div className="text-xl font-bold">Performance Evaluation</div>
       </div>
-      <Row gutter={[16, 16]}>
+ <Row gutter={[16, 16]}>
         <Col xs={24} sm={24} md={24} lg={16} xl={16}>
           <PerformanceEvaluation />
         </Col>
@@ -108,7 +107,7 @@ const Performance: React.FC = () => {
             />
           </Space>
         </Col>
-      </Row>
+      </Row> */}
     </div>
   );
 };

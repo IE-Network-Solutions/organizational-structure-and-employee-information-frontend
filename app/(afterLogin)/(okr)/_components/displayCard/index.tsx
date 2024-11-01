@@ -1,6 +1,5 @@
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { Card, Progress, Tooltip } from 'antd';
-import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 
 const DashboardCard: React.FC<OKRProps> = ({
   userOkr,
@@ -12,8 +11,6 @@ const DashboardCard: React.FC<OKRProps> = ({
   okrCompleted,
   keyResultCount,
 }) => {
-  console.log(userOkr, okrCompleted, keyResultCount, 'OKRLong');
-
   const success = keyResultCount / okrCompleted;
   return (
     <Card

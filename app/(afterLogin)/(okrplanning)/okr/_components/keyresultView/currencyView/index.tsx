@@ -33,7 +33,10 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   }
 
   return (
-    <div className="py-4 border-b-[1px] border-gray-300" id={`currency-view-${index}`}>
+    <div
+      className="py-4 border-b-[1px] border-gray-300"
+      id={`currency-view-${index}`}
+    >
       <Form layout="vertical" className="space-y-1">
         {/* Key Result Input */}
         <div className="flex gap-3 items-center">
@@ -55,7 +58,11 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               }}
             />
           </Form.Item>
-          <Form.Item className="w-24 font-bold" label="Weight" id={`key-result-weight-${index}`}>
+          <Form.Item
+            className="w-24 font-bold"
+            label="Weight"
+            id={`key-result-weight-${index}`}
+          >
             <InputNumber
               min={0}
               max={100}

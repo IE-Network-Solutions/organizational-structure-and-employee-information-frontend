@@ -30,7 +30,10 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   }
 
   return (
-    <div className="py-4 border-b-[1px] border-gray-300" id={`key-result-view-${index}`}>
+    <div
+      className="py-4 border-b-[1px] border-gray-300"
+      id={`key-result-view-${index}`}
+    >
       <Form layout="vertical" className="space-y-1">
         {/* Key Result Input */}
         <div className="flex gap-3 items-center">
@@ -84,7 +87,9 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             className="font-semibold text-xs w-full mb-2"
             id={`key-result-initialValue-${index}`}
             label="Initial"
-            rules={[{ required: true, message: 'Please select an initial value' }]}
+            rules={[
+              { required: true, message: 'Please select an initial value' },
+            ]}
           >
             <InputNumber
               min={0}
@@ -103,7 +108,9 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             className="font-semibold text-xs w-full mb-2"
             id={`key-result-targetValue-${index}`}
             label="Target"
-            rules={[{ required: true, message: 'Please select a target value' }]}
+            rules={[
+              { required: true, message: 'Please select a target value' },
+            ]}
           >
             <InputNumber
               min={0}

@@ -45,6 +45,19 @@ const getPlanningPeriods = async () => {
   });
 };
 
+const getPerformance = async (planningPeriodId: string, userId: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${OKR_URL}/okr-report/performance/user?planningPeriodId=${planningPeriodId}&&userId=${userId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 const getRockStars = async (planningPeriodId: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -76,6 +89,15 @@ export const useGetRockStars = (planningPeriodId: string) => {
   return useQuery(
     ['rockStars', planningPeriodId],
     () => getRockStars(planningPeriodId),
+    {
+      keepPreviousData: true,
+    },
+  );
+};
+export const useGetPerformance = (planningPeriodId: string, userId: string) => {
+  return useQuery(
+    ['performance', planningPeriodId, userId],
+    () => getPerformance(planningPeriodId, userId),
     {
       keepPreviousData: true,
     },

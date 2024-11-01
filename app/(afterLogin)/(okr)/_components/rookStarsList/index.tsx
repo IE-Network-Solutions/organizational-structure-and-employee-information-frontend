@@ -1,16 +1,7 @@
-import { useGetRockStars } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { RookStarsListProps } from '@/types/dashboard/okr';
 import { Avatar, Card, List } from 'antd';
 
-const RookStarsList: React.FC<RookStarsListProps> = ({
-  dataSource,
-  title,
-  planningPeriodId,
-}) => {
-  const { data: rockStars } = useGetRockStars(planningPeriodId);
-
-  console.log(rockStars, 'rockStars');
-
+const RookStarsList: React.FC<RookStarsListProps> = ({ dataSource, title }) => {
   return (
     <Card
       title={
@@ -21,7 +12,7 @@ const RookStarsList: React.FC<RookStarsListProps> = ({
       bodyStyle={{ padding: 0 }}
     >
       <List
-        className="max-h-48 overflow-y-auto scrollbar-none "
+        className=" overflow-y-auto scrollbar-none "
         dataSource={dataSource}
         size="small"
         renderItem={(item) => (

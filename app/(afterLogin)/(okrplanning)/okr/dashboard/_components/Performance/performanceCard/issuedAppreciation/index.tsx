@@ -1,4 +1,4 @@
-import { Card, Col, Row } from 'antd';
+import { Card } from 'antd';
 import React from 'react';
 import { FaArrowUp } from 'react-icons/fa';
 

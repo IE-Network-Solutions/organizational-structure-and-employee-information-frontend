@@ -9,15 +9,20 @@ interface ProgressCardParams {
   amount: number;
   progress: number;
   totalAmount: number;
+  bgColor?: string;
 }
 const ProgressCard: React.FC<ProgressCardParams> = ({
   title,
   amount,
   progress,
   totalAmount,
+  bgColor,
 }) => {
   return (
-    <Card className="shadow-md rounded-lg my-2">
+    <Card
+      className="shadow-md rounded-lg my-2"
+      style={{ backgroundColor: bgColor }}
+    >
       <div className="flex items-center justify-start">
         <div className="bg-[#7152F30D] p-3 rounded-lg my-4">
           <Image src={Receipt.src} alt="icon" width={20} height={20} />

@@ -7,9 +7,8 @@ import { FaArrowUp } from 'react-icons/fa';
 const ObjectiveKeyResult: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;
   const { data: OKRData } = useGetUserObjectiveDashboard(userId);
-  console.log(OKRData, userId, 'OKRData');
   return (
-    <div className="flex justify-center w-full my-3">
+    <div className=" w-full my-3">
       <Row gutter={[16, 16]} className="w-full max-w-screen-xl">
         <Col xs={24} sm={24} md={24} lg={8} xl={8}>
           <Card>
