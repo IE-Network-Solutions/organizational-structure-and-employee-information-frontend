@@ -59,7 +59,7 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
       key: 'action',
       render: (item: AttendanceNotificationRule) => (
         <ActionButtons
-          id={item?.id ?? null}
+          id={type?.id ?? null}
           loading={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
           onEdit={() => {
             setAttendanceRuleId(item.id);
