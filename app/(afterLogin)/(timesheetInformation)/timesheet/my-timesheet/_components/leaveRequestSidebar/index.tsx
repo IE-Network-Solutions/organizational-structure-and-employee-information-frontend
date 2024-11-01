@@ -14,7 +14,6 @@ import dayjs from 'dayjs';
 import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';
 import React, { useEffect, useState } from 'react';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
-import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import CustomUpload from '@/components/form/customUpload';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -48,7 +47,6 @@ const LeaveRequestSidebar = () => {
     userData?.id || '',
   );
 
-  console.log(userData, approvalDepartmentData, approvalUserData);
   useEffect(() => {
     if (userData?.employeeJobInformation[0]?.departmentId)
       getDepartmentApproval();
