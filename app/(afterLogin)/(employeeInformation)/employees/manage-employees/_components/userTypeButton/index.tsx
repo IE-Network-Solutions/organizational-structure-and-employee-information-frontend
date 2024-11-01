@@ -53,7 +53,10 @@ const userTypeButton = (val: string) => {
         className="bg-indigo-400 text-xs font-medium w-[90px] px-[50px] text-white"
         title={val}
       >
-        {val?.slice(0, 15)}
+
+
+        {val?.slice(0, 20)}
+
       </Button>
     );
   }

@@ -7,6 +7,7 @@ import { useCreateSchedule } from '@/store/server/features/organizationStructure
 import { useWorkScheduleDrawerStore } from '@/store/uistate/features/organizations/settings/workSchedule/useStore';
 import { ScheduleDetail } from '@/store/uistate/features/organizationStructure/workSchedule/interface';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
+import { showValidationErrors } from '@/utils/showValidationErrors';
 import { Form } from 'antd';
 import React, { useEffect } from 'react';
 
@@ -51,12 +52,19 @@ const CustomWorkingScheduleDrawer: React.FC = () => {
         },
       });
     } else {
-      createSchedule({
-        name: name,
-        detail: transformedDetails,
-      });
+      form
+        .validateFields()
+        .then(() => {
+          createSchedule({
+            name: name,
+            detail: transformedDetails,
+          });
+        })
+        .catch((errorInfo: any) => {
+          showValidationErrors(errorInfo?.errorFields);
+        });
     }
-    closeDrawer();
+    // closeDrawer();
   };
 
   const [form] = Form.useForm();

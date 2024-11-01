@@ -23,7 +23,9 @@ const Documents = ({ id }: { id: string }) => {
   const [form] = Form.useForm();
 
   const handleDocumentChange = (info: any) => {
-    const fileList = Array.isArray(info.fileList) ? info.fileList : [];
+    const fileList = Array.isArray(info.fileList)
+      ? info.fileList.slice(-1)
+      : [];
     setDocumentFileList(fileList);
   };
   const handleDelete = (id: string) => {
@@ -146,6 +148,7 @@ const Documents = ({ id }: { id: string }) => {
                 onChange={handleDocumentChange}
                 onRemove={handleDocumentRemove}
                 customRequest={customRequest}
+                multiple={false}
                 listType="picture"
                 accept="*/*"
               >
@@ -177,6 +180,7 @@ const Documents = ({ id }: { id: string }) => {
             </Form.Item>
             <div className="flex justify-end">
               <Button
+                disabled={documentFileList?.length === 0}
                 loading={addEmployee}
                 id={`sidebarActionCreateSubmit`}
                 className="px-6 py-3 text-xs font-bold flex justify-end"
