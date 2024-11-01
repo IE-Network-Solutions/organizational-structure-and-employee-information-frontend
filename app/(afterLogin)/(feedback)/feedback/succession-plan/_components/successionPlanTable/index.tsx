@@ -76,6 +76,7 @@ const SuccessionPlanTable = () => {
     showDelete,
     setShowDelete,
     setCriticalPositionId,
+    search,
   } = useCriticalPositionStore();
   const queryClient = useQueryClient();
 
@@ -97,6 +98,24 @@ const SuccessionPlanTable = () => {
 
       if (successionPlans && successionPlans.length > 0) {
         successionPlans.forEach((successor: any) => {
+          // Collect all evaluation scores into an array
+          const scores =
+            successor.evaluations?.map((evaluation: any) => evaluation.score) ||
+            [];
+
+          // Optional: calculate total or average score if needed
+          const totalScore = scores.reduce(
+            (acc: number, score: number) => acc + score,
+            0,
+          );
+          const averageScore = scores.length
+            ? (totalScore / scores.length).toFixed(1)
+            : null;
+          const successionStatus =
+            averageScore !== null && Number(averageScore) > 70
+              ? 'Passed'
+              : 'Failed';
+
           flattenedData.push({
             id,
             description,
@@ -108,8 +127,8 @@ const SuccessionPlanTable = () => {
             userId,
             successorId: successor.successor,
             successionPlanId: successor.id,
-            score: successor.score,
-            successionStatus: successor.status,
+            averageScore: averageScore,
+            status: successionStatus,
             successorProfileImage: '',
           });
         });
@@ -125,8 +144,8 @@ const SuccessionPlanTable = () => {
           userId,
           successorId: null,
           successionPlanId: null,
-          score: null,
-          successionStatus: null,
+          averageScore: null,
+          status: null,
           successorProfileImage: null,
         });
       }
@@ -135,7 +154,14 @@ const SuccessionPlanTable = () => {
     return flattenedData;
   };
 
-  const sourceData = flattenData(criticalPositions);
+  const filterByName = (data: any[]) => {
+    const lowerCaseName = search.toLowerCase();
+    return data.filter((item) =>
+      item.name.toLowerCase().includes(lowerCaseName),
+    );
+  };
+
+  const sourceData = filterByName(flattenData(criticalPositions));
 
   const showSuccessionPlanDrawer = (id: string) => {
     setCriticalPositionId(id);
@@ -208,14 +234,14 @@ const SuccessionPlanTable = () => {
     },
     {
       title: 'Score',
-      dataIndex: 'score',
-      key: 'score',
+      dataIndex: 'averageScore',
+      key: 'averageScore',
       sorter: (a, b) => {
-        const scoreA = a.score ? parseFloat(a.score) : 0;
-        const scoreB = b.score ? parseFloat(b.score) : 0;
+        const scoreA = a.averageScore ? parseFloat(a.averageScore) : 0;
+        const scoreB = b.averageScore ? parseFloat(b.averageScore) : 0;
         return scoreA - scoreB;
       },
-      render: (score) => (score ? score : '-'),
+      render: (averageScore) => (averageScore ? averageScore : '-'),
     },
     {
       title: 'Succession Status',

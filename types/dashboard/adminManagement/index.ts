@@ -17,7 +17,7 @@ export interface SuccessionData {
   userId: string;
   successorId: string;
   userProfileImage: string;
-  score: string;
+  averageScore: string;
   status: string;
   name: string;
 }

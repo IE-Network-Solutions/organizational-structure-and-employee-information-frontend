@@ -15,7 +15,8 @@ const { Title } = Typography;
 const { Option } = Select;
 
 function SuccessionPlan() {
-  const { setOpen, showDetails } = useCriticalPositionStore();
+  const { setOpen, showDetails, search, setSearch } =
+    useCriticalPositionStore();
 
   const showDrawer = () => {
     setOpen(true);
@@ -62,6 +63,8 @@ function SuccessionPlan() {
                 suffix={
                   <IoSearchOutline style={{ color: 'rgba(0,0,0,.45)' }} />
                 }
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </Col>
             <Col span={24} lg={10}>
