@@ -6,7 +6,7 @@ import {
   useSuccessionPlanStore,
   useCriticalPositionRecordStore,
 } from '../../../../../../../store/uistate/features/organizationalDevelopment/SuccessionPlan';
-import { Card, Col, Row, Button } from 'antd';
+import { Card, Col, Row, Button, Tag } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import SuccessorEvaluation from '../successionEvaluation';
 import CreateSuccessionPlan from '../createSuccessionPlan';
@@ -76,7 +76,26 @@ function SuccessionDetails() {
                 </div>
               </div>
               <div className="font-bold">Status</div>
-              <div>{record?.successionStatus || 'N/A'}</div>
+              <div>
+                {(() => {
+                  if (!record?.status) {
+                    return <Tag color="gray">None</Tag>;
+                  }
+
+                  let color = 'green';
+                  if (record?.status === 'Failed') {
+                    color = 'red';
+                  } else if (status === 'On Review') {
+                    color = 'purple';
+                  }
+
+                  return (
+                    <Tag color={color} key={status}>
+                      {record?.status.toUpperCase()}
+                    </Tag>
+                  );
+                })()}
+              </div>
               <div className="font-bold">Role Description</div>
               <div>
                 {record?.description || 'Role description not available'}

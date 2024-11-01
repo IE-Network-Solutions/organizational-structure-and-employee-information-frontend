@@ -131,8 +131,8 @@ interface FlattenedCriticalPositionRecord {
   userId: string;
   successorId: string | null;
   successionPlanId: string | null;
-  score: number | null;
-  successionStatus: string | null;
+  averageScore: number | null;
+  status: string | null;
   successorProfileImage: string | null;
 }
 
