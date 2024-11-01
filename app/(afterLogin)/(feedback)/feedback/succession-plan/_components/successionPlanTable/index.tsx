@@ -83,7 +83,7 @@ const SuccessionPlanTable = () => {
   const flattenData = (data: any) => {
     const flattenedData: any = [];
 
-    data?.forEach((item: any) => {
+    data?.items?.forEach((item: any) => {
       const {
         name,
         userId,
@@ -112,9 +112,10 @@ const SuccessionPlanTable = () => {
             ? (totalScore / scores.length).toFixed(1)
             : null;
           const successionStatus =
-            averageScore !== null && Number(averageScore) > 70
-              ? 'Passed'
-              : 'Failed';
+            averageScore !== null && 
+            Number(averageScore) == 0 ? 'On Review'
+            : Number(averageScore) < 70 ? 'Failed'
+            : 'Passed';
 
           flattenedData.push({
             id,
