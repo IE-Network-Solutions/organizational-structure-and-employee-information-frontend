@@ -10,6 +10,7 @@ interface ActionButtonsProps {
   onEdit?: (e?: any) => void;
   onDelete?: (e?: any) => void;
   onDetail?: (e?: any) => void;
+  id?: any;
 }
 
 const ActionButtons: FC<ActionButtonsProps> = ({
@@ -19,6 +20,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
   onEdit,
   onDelete,
   onDetail,
+  id,
 }) => {
   return (
     <Space size={10}>
@@ -26,6 +28,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
         <Button
           className="w-[30px] h-[30px]"
           icon={<FiEdit2 size={16} />}
+          id={`${id}buttonPopOverActionForOnEditActionId`}
           type="primary"
           loading={loading}
           disabled={disableEdit}
@@ -40,6 +43,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
             danger
             disabled={disableDelete}
             loading={loading}
+            id={`${id}buttonPopOverActionForOnDeleteActionId`}
             icon={<FiTrash2 size={16} />}
             type="primary"
             onClick={(e) => {
@@ -52,6 +56,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
         <Button
           className="w-[60px] px-2 h-[30px]"
           icon={'Detail'}
+          id={`${id}buttonPopOverActionForOnDetailActionId`}
           loading={loading}
           onClick={onDetail}
         />

@@ -138,6 +138,7 @@ const HistoryTable = () => {
       key: 'action',
       render: (item: LeaveRequest) => (
         <ActionButtons
+          id={item?.id ?? null}
           disableDelete={
             item.status === LeaveRequestStatus.APPROVED ||
             item.status === LeaveRequestStatus.DECLINED
