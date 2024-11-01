@@ -133,7 +133,7 @@ const HistoryTable = () => {
       ),
     },
     {
-      title: 'Actionnn',
+      title: 'Action',
       dataIndex: 'action',
       key: 'action',
       render: (item: LeaveRequest) => (
