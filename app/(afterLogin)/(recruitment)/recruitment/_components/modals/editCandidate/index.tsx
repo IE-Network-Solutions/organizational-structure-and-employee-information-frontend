@@ -26,8 +26,6 @@ const { Option } = Select;
 const EditCandidate: React.FC = () => {
   const [form] = Form.useForm();
   const { searchParams } = useCandidateState();
-  const { data: jobList } = useGetJobs(searchParams?.whatYouNeed || '');
-  const { mutate: updateCandidate } = useUpdateCandidate();
 
   const {
     editCandidateModal,
@@ -39,7 +37,16 @@ const EditCandidate: React.FC = () => {
     setIsClient,
     documentFileList,
     setEditCandidateModal,
+    currentPage,
+    pageSize,
   } = useCandidateState();
+  
+  const { data: jobList } = useGetJobs(
+    searchParams?.whatYouNeed || '',
+    currentPage,
+    pageSize,
+  );
+  const { mutate: updateCandidate } = useUpdateCandidate();
 
   const updatedBy = useAuthenticationStore.getState().userId;
 
