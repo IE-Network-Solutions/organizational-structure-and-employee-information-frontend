@@ -243,7 +243,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
                 message: 'Please input the expected closing date!',
               },
               {
-                validator(_, value) {
+                validator({}, value) {
                   if (!value || value.isAfter(dayjs(), 'day')) {
                     return Promise.resolve();
                   }

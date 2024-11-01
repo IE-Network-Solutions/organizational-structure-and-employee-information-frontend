@@ -67,8 +67,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   );
 
   const stageId = foundStage ? foundStage.id : '';
-  console.log(stageId, 'stageId');
-
   const { mutate: createCandidate } = useCreateCandidate();
 
   const { data: jobById } = useGetJobsByID(jobId ?? '');

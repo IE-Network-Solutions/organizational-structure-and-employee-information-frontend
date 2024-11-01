@@ -71,7 +71,6 @@ const JobCard: React.FC = () => {
       </div>
     );
   };
-  console.log(currentPage, jobList?.meta?.totalItems, pageSize, 'totallll');
   return (
     <>
       {jobList?.items && jobList?.items?.length >= 1 ? (
