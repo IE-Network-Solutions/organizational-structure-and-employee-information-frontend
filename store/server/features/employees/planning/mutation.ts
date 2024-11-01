@@ -8,10 +8,18 @@ const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const createPlanTasks = async (values: any) => {
+  const updatedData = {
+    ...values,
+    tasks: values.tasks.map((task:any) => ({
+      ...task,
+      targetValue: task.targetValue ?? 0, // Add targetValue if it doesn't exist, default to 0
+    })),
+  };
+  
   return crudRequest({
     url: `${OKR_URL}/plan-tasks`,
     method: 'POST',
-    data: values,
+    data: updatedData,
     headers: {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
