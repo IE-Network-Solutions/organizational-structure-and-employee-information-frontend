@@ -58,6 +58,14 @@ const updateCriticalPosition = async ({
   });
 };
 
+const deleteCriticalPosition = async ({ id }: { id: string }) => {
+  return crudRequest({
+    url: `http://localhost:5000/api/v1/critical-positions/${id}`,
+    method: 'delete',
+    headers: getAuthHeaders(),
+  });
+};
+
 const createSuccessionPlan = async ({
   successor,
   criticalPositionId,
@@ -145,6 +153,21 @@ export const useUpdateCriticalPosition = () => {
       ),
     onError: () => {
       handleMutationError('Update Failed', 'Critical position update failed');
+    },
+  });
+};
+
+export const useDeleteCriticalPosition = () => {
+  const queryClient = useQueryClient();
+  return useMutation(deleteCriticalPosition, {
+    onSuccess: () =>
+      handleMutationSuccess(
+        queryClient,
+        'Successfully Deleted',
+        'Critical position successfully deleted',
+      ),
+    onError: () => {
+      handleMutationError('Delete Failed', 'Critical position delete failed');
     },
   });
 };

@@ -30,6 +30,7 @@ import CreateCriticalPosition from '../createCriticalPostion';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchSuccessionPlans } from '@/store/server/features/organization-development/SuccessionPlan/queries';
+import { useDeleteCriticalPosition } from '@/store/server/features/organization-development/SuccessionPlan/mutation';
 import { useQueryClient } from 'react-query';
 import SuccessionDetails from '../successionDetails';
 
@@ -64,6 +65,7 @@ export const EmployeeDetails = ({
 
 const SuccessionPlanTable = () => {
   const { data: criticalPositions } = useFetchCriticalPositions();
+  const { mutate: deleteCriticalPosition } = useDeleteCriticalPosition();
   const { fetchData } = useFetchSuccessionPlans();
   const { setSuccessionPlanId } = useSuccessionPlanStore();
   const { setRecord, setIsEditing } = useCriticalPositionRecordStore();
@@ -77,6 +79,8 @@ const SuccessionPlanTable = () => {
     setShowDelete,
     setCriticalPositionId,
     search,
+    select,
+    criticalPositionId,
   } = useCriticalPositionStore();
   const queryClient = useQueryClient();
 
@@ -112,10 +116,11 @@ const SuccessionPlanTable = () => {
             ? (totalScore / scores.length).toFixed(1)
             : null;
           const successionStatus =
-            averageScore !== null && 
-            Number(averageScore) == 0 ? 'On Review'
-            : Number(averageScore) < 70 ? 'Failed'
-            : 'Passed';
+            averageScore !== null && Number(averageScore) == 0
+              ? 'On Review'
+              : Number(averageScore) < 70
+                ? 'Failed'
+                : 'Passed';
 
           flattenedData.push({
             id,
@@ -155,14 +160,23 @@ const SuccessionPlanTable = () => {
     return flattenedData;
   };
 
-  const filterByName = (data: any[]) => {
-    const lowerCaseName = search.toLowerCase();
-    return data.filter((item) =>
+  const filterData = (data: any[]) => {
+    // Filter by name
+    const lowerCaseName = search?.toLowerCase();
+    const filteredByName = data.filter((item) =>
       item.name.toLowerCase().includes(lowerCaseName),
+    );
+
+    // Filter by status
+    if (!select) return filteredByName; // If no status is selected, return the filtered data by name
+
+    const lowerCaseStatus = select.toLowerCase();
+    return filteredByName.filter((item) =>
+      item.status?.toLowerCase().includes(lowerCaseStatus),
     );
   };
 
-  const sourceData = filterByName(flattenData(criticalPositions));
+  const sourceData = filterData(flattenData(criticalPositions));
 
   const showSuccessionPlanDrawer = (id: string) => {
     setCriticalPositionId(id);
@@ -187,11 +201,13 @@ const SuccessionPlanTable = () => {
     setOpen(true);
   };
 
-  const showDeleteModal = () => {
+  const handleDelete = (id: string) => {
+    setCriticalPositionId(id);
     setShowDelete(true);
   };
 
   const handleDeleteConfirm = () => {
+    deleteCriticalPosition({ id: criticalPositionId });
     setShowDelete(false);
   };
 
@@ -318,7 +334,7 @@ const SuccessionPlanTable = () => {
                   >
                     Edit
                   </Menu.Item>
-                  <Menu.Item key="2" onClick={showDeleteModal}>
+                  <Menu.Item key="2" onClick={() => handleDelete(record.id)}>
                     Delete
                   </Menu.Item>
                 </Menu>

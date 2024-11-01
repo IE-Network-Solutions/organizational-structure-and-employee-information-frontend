@@ -15,7 +15,7 @@ const { Title } = Typography;
 const { Option } = Select;
 
 function SuccessionPlan() {
-  const { setOpen, showDetails, search, setSearch } =
+  const { setOpen, showDetails, search, setSearch, setSelect } =
     useCriticalPositionStore();
 
   const showDrawer = () => {
@@ -59,7 +59,7 @@ function SuccessionPlan() {
             <Col span={24} lg={10}>
               <Input
                 className="w-full h-[48px] my-4"
-                placeholder="Search by employee name"
+                placeholder="Search by critical positions's name"
                 suffix={
                   <IoSearchOutline style={{ color: 'rgba(0,0,0,.45)' }} />
                 }
@@ -73,14 +73,15 @@ function SuccessionPlan() {
                 placeholder="All Status"
                 allowClear
                 className="w-full h-[48px] my-4"
+                onChange={(e) => setSelect(e)}
               >
-                <Option key="active" value={'on review'}>
+                <Option key="active" value={'On Review'}>
                   On Review
                 </Option>
-                <Option key="active" value={'passed'}>
+                <Option key="active" value={'Passed'}>
                   Passed
                 </Option>
-                <Option key="active" value={'failed'}>
+                <Option key="active" value={'Failed'}>
                   Failed
                 </Option>
               </Select>

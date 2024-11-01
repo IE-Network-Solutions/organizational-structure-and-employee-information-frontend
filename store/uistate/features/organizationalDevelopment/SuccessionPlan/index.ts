@@ -3,6 +3,7 @@ import { create } from 'zustand';
 interface CriticalPositionState {
   name: string;
   search: string;
+  select: string;
   description: string;
   jobTitleId: string;
   criticalPositionId: string;
@@ -29,12 +30,14 @@ interface CriticalPositionState {
   setCriticalPositionId: (criticalPositionId: string) => void;
   setCriteria: (criteria: string[]) => void;
   setSearch: (search: string) => void;
+  setSelect: (select: string) => void;
 }
 
 export const useCriticalPositionStore = create<CriticalPositionState>(
   (set) => ({
     name: '',
     search: '',
+    select: '',
     description: '',
     criticalPositionId: '',
     jobTitleId: '',
@@ -68,6 +71,7 @@ export const useCriticalPositionStore = create<CriticalPositionState>(
     setCriticalPositionId: (criticalPositionId) => set({ criticalPositionId }),
     setCriteria: (criteria) => set({ criteria }),
     setSearch: (search) => set({ search }),
+    setSelect: (select: string) => set({ select }),
 
     resetCriticalPositionData: () =>
       set({
