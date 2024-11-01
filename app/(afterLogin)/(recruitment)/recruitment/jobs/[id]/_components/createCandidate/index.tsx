@@ -38,8 +38,24 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
 }) => {
   const [form] = Form.useForm();
 
+  const {
+    createJobDrawer,
+    documentFileList,
+    setDocumentFileList,
+    removeDocument,
+    isClient,
+    setIsClient,
+    setCreateJobDrawer,
+    currentPage,
+    pageSize,
+  } = useCandidateState();
+
   const { searchParams } = useCandidateState();
-  const { data: jobList } = useGetJobs(searchParams?.whatYouNeed || '');
+  const { data: jobList } = useGetJobs(
+    searchParams?.whatYouNeed || '',
+    pageSize,
+    currentPage,
+  );
 
   const isInternalApplicant = useAuthenticationStore.getState().userId;
   const { data: statusStage } = useGetStages();
@@ -52,16 +68,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
 
   const stageId = foundStage ? foundStage.id : '';
   console.log(stageId, 'stageId');
-
-  const {
-    createJobDrawer,
-    documentFileList,
-    setDocumentFileList,
-    removeDocument,
-    isClient,
-    setIsClient,
-    setCreateJobDrawer,
-  } = useCandidateState();
 
   const { mutate: createCandidate } = useCreateCandidate();
 
@@ -334,7 +340,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
         <Form.Item>
           <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
             <Button
-              type="primary"
+              onClick={onClose}
               className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
             >
               Cancel

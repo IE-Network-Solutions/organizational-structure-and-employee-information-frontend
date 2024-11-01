@@ -14,13 +14,14 @@ const RookStarsList: React.FC<RookStarsListProps> = ({
   return (
     <Card
       title={
-        <div className="text-lg font-extrabold gap-2 flex items-center justify-between ">
+        <div className="text-lg font-bold gap-2 flex items-center justify-between  ">
           {title}
         </div>
       }
+      bodyStyle={{ padding: 0 }}
     >
       <List
-        className="-m-6"
+        className="max-h-48 overflow-y-auto scrollbar-none "
         dataSource={dataSource}
         size="small"
         renderItem={(item) => (

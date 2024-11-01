@@ -54,6 +54,7 @@ export interface DashboardCardProps {
   span: number;
   isTop: boolean;
   cardColor?: string;
+  isLoading?: boolean;
 }
 export interface SelectData {
   key: string;

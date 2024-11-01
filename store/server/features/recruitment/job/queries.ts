@@ -1,14 +1,15 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
-const getJobs = async (whatYouNeed: string) => {
+const getJobs = async (
+  whatYouNeed: string,
+  currentPage: number,
+  pageSize: number,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const pageSize = useJobState.getState().pageSize;
-  const currentPage = useJobState.getState().currentPage;
   const headers = {
     Authorization: `Bearer ${token}`,
     tenantId: tenantId,
@@ -16,7 +17,7 @@ const getJobs = async (whatYouNeed: string) => {
   const jobTitleQuery = whatYouNeed ? `jobTitle=${whatYouNeed}&` : '';
 
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/job-information?${jobTitleQuery}limit=${pageSize}&&page=${currentPage}`,
+    url: `${RECRUITMENT_URL}/job-information?${jobTitleQuery}limit=${pageSize ? pageSize : 4}&&page=${currentPage ? currentPage : 1}`,
     method: 'GET',
     headers,
   });
@@ -50,8 +51,14 @@ const getDepartmentById = async (depId: string) => {
   });
 };
 
-export const useGetJobs = (whatYouNeed: string) => {
-  return useQuery(['jobs', whatYouNeed], () => getJobs(whatYouNeed));
+export const useGetJobs = (
+  whatYouNeed: string,
+  currentPage: number,
+  pageSize: number,
+) => {
+  return useQuery(['jobs', whatYouNeed, currentPage, pageSize], () =>
+    getJobs(whatYouNeed, currentPage, pageSize),
+  );
 };
 
 export const useGetJobsByID = (jobId: string) => {

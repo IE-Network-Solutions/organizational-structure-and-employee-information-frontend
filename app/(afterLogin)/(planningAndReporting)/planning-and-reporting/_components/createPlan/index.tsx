@@ -41,7 +41,6 @@ function CreatePlan() {
       Create New plan
     </div>
   );
-
   const handleAddName = (
     currentBoardValues: Record<string, string>,
     kId: string,
