@@ -6,7 +6,7 @@ export interface RookStarsListProps {
     completion: number;
   }>;
   title: string;
-  planningPeriodId: string;
+  planningPeriodId?: string;
 }
 
 export interface ListData {
