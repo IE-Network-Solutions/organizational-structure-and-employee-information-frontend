@@ -169,7 +169,9 @@ const ApprovalSetting: React.FC<any> = () => {
         >
           <Radio.Group onChange={onRadioChange}>
             <Radio value={'Department'}>Department</Radio>
-            <Radio value={'Hierarchy'}>Hierarchy</Radio>
+            <Radio disabled value={'Hierarchy'}>
+              Hierarchy
+            </Radio>
             <Radio value={'User'}>User</Radio>
           </Radio.Group>
         </Form.Item>

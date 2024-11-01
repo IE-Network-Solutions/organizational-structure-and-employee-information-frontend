@@ -6,7 +6,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { LeaveRequestStatusBadgeTheme } from '@/types/timesheet/settings';
-import React, { useState } from 'react';
+import React from 'react';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
   useGetSingleApprovalLog,
@@ -32,15 +32,12 @@ const LeaveRequestDetail = () => {
       : undefined;
   };
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const onClose = () => {
-    setIsLoading(false);
     setLeaveRequestSidebarData(null);
     setIsShowLeaveRequestDetail(false);
   };
 
-  const { data: leaveData } = useGetSingleLeaveRequest(
+  const { data: leaveData, isLoading } = useGetSingleLeaveRequest(
     leaveRequestSidebarData ?? '',
   );
 

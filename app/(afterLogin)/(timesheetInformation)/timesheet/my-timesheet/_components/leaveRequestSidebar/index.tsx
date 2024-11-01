@@ -22,8 +22,9 @@ import { useAllApproval } from '@/store/server/features/approver/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const LeaveRequestSidebar = () => {
-  const [filter, setFilter] = useState<Partial<LeaveRequestBody['filter']>>({});
   const {
+    filter,
+    setFilter,
     isShowLeaveRequestSidebar,
     setIsShowLeaveRequestSidebar,
     leaveTypes,
@@ -40,11 +41,20 @@ const LeaveRequestSidebar = () => {
   const { data: employeeData } = useGetAllUsers();
   const userData = employeeData?.items?.find((item: any) => item.id === userId);
 
-  const { data: approvalData, refetch: getAllapproval } = useAllApproval(
-    userData?.employeeJobInformation[0]?.departmentId || '',
+  const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
+    useAllApproval(userData?.employeeJobInformation[0]?.departmentId || '');
+
+  const { data: approvalUserData, refetch: getUserApproval } = useAllApproval(
+    userData?.id || '',
   );
+
+  console.log(userData, approvalDepartmentData, approvalUserData);
   useEffect(() => {
-    if (userData?.employeeJobInformation[0]?.departmentId) getAllapproval();
+    if (userData?.employeeJobInformation[0]?.departmentId)
+      getDepartmentApproval();
+  }, [userData]);
+  useEffect(() => {
+    if (userData?.id) getUserApproval();
   }, [userData]);
 
   const {
@@ -149,7 +159,9 @@ const LeaveRequestSidebar = () => {
           : null,
         justificationNote: value.note,
         status: LeaveRequestStatus.PENDING,
-        approvalWorkflowId: approvalData[0]?.id,
+        approvalWorkflowId: approvalUserData
+          ? approvalUserData[0]?.id
+          : approvalDepartmentData[0]?.id,
         approvalType: 'Leave',
       },
       userId,
