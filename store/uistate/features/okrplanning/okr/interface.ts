@@ -1,17 +1,29 @@
+// export interface OKRProps {
+//   daysLeft?: number;
+//   okrCompleted?: number;
+//   userOkr?: number;
+//   supervisorOkr?: number;
+//   keyResultCount?: number;
+//   teamOkr?: number;
+//   companyOkr?: number;
+//   updatedAt?: string;
+//   title?: string;
+//   icon?: React.ReactNode;
+//   span?: number;
+//   isTop?: boolean;
+//   cardColor?: string;
+//   keyValue?: KeyResult;
+//   index: number;
+//   objective: any;
+//   isEdit: boolean;
+//   form?: any;
+// }
 export interface OKRProps {
-  daysLeft: number;
-  okrCompleted: number;
-  userOkr: number;
-  supervisorOkr: number;
-  keyResultCount: number;
-  teamOkr: number;
-  companyOkr: number;
-  updatedAt: string;
-  title: string;
-  icon: React.ReactNode;
-  span: number;
-  isTop: boolean;
-  cardColor: string;
+  keyValue: KeyResult;
+  index: number;
+  objective: any;
+  isEdit: boolean;
+  form?: any;
 }
 
 export interface JobInformation {

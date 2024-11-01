@@ -1,5 +1,20 @@
-import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { Card, Progress, Tooltip } from 'antd';
+
+interface OKRProps {
+  daysLeft: number;
+  okrCompleted: number;
+  userOkr: number;
+  supervisorOkr: number;
+  keyResultCount: number;
+  teamOkr: number;
+  companyOkr: number;
+  updatedAt: string;
+  title: string;
+  icon: React.ReactNode;
+  span: number;
+  isTop: boolean;
+  cardColor: string;
+}
 
 const DashboardCard: React.FC<OKRProps> = ({
   userOkr,
