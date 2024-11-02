@@ -64,6 +64,7 @@ function Planning() {
 
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
+
   return (
     <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
@@ -86,7 +87,9 @@ function Planning() {
         optionArray3={departmentData}
       />
       {transformedData?.map((dataItem: any, index: number) => (
+        <>
         <Card
+
           key={index}
           title={
             <div>
@@ -127,55 +130,56 @@ function Planning() {
                       <span className="mr-4 text-gray-500">
                         {dayjs(dataItem?.createdAt).format(DATETIME_FORMAT)}
                       </span>
-                      {!dataItem?.isValidated &&
-                       <>
-                        <Col className="mr-2">
-                          <Tooltip title="Edit Plan">
-                            <Avatar
-                              size={16}
-                              alt="edit plan"
-                              className="cursor-pointer bg-primary"
-                              shape="square"
-                              onClick={() => {
-                                setEditing(true);
-                                setSelectedPlanId(dataItem?.id);
-                                setOpen(true);
-                              }}
-                              icon={<AiOutlineEdit />}
-                            />
-                          </Tooltip>
-                        </Col>
-                        <Col className="mr-2">
-                          <Tooltip title="Approve Plan">
-                            <Avatar
-                              size={16}
-                              alt="approve plan"
-                              className="cursor-pointer"
-                              shape="square"
-                              style={{ backgroundColor: '#148220' }}
-                              onClick={() =>
-                                handleApproveHandler(dataItem?.id, true)
-                              }
-                              icon={<IoCheckmarkSharp />}
-                            />
-                          </Tooltip>
-                        </Col>
-                        <Col>
-                          <Tooltip title="Reject Plan">
-                            <Avatar
-                              size={16}
-                              alt="Reject Plan"
-                              className="cursor-pointer"
-                              shape="square"
-                              style={{ backgroundColor: '#b50d20' }}
-                              onClick={() =>
-                                handleApproveHandler(dataItem?.id, false)
-                              }
-                              icon={<IoIosClose />}
-                            />
-                          </Tooltip>
-                        </Col>
-                      </>}
+                      {!dataItem?.isValidated && (
+                        <>
+                          <Col className="mr-2">
+                            <Tooltip title="Edit Plan">
+                              <Avatar
+                                size={16}
+                                alt="edit plan"
+                                className="cursor-pointer bg-primary"
+                                shape="square"
+                                onClick={() => {
+                                  setEditing(true);
+                                  setSelectedPlanId(dataItem?.id);
+                                  setOpen(true);
+                                }}
+                                icon={<AiOutlineEdit />}
+                              />
+                            </Tooltip>
+                          </Col>
+                          <Col className="mr-2">
+                            <Tooltip title="Approve Plan">
+                              <Avatar
+                                size={16}
+                                alt="approve plan"
+                                className="cursor-pointer"
+                                shape="square"
+                                style={{ backgroundColor: '#148220' }}
+                                onClick={() =>
+                                  handleApproveHandler(dataItem?.id, true)
+                                }
+                                icon={<IoCheckmarkSharp />}
+                              />
+                            </Tooltip>
+                          </Col>
+                          <Col>
+                            <Tooltip title="Reject Plan">
+                              <Avatar
+                                size={16}
+                                alt="Reject Plan"
+                                className="cursor-pointer"
+                                shape="square"
+                                style={{ backgroundColor: '#b50d20' }}
+                                onClick={() =>
+                                  handleApproveHandler(dataItem?.id, false)
+                                }
+                                icon={<IoIosClose />}
+                              />
+                            </Tooltip>
+                          </Col>
+                        </>
+                      )}
                     </Col>
                   </Row>
                 </Col>
@@ -199,7 +203,7 @@ function Planning() {
                   (milestone: any, milestoneIndex: number) => (
                     <Row key={milestoneIndex}>
                       <Col span={24}>
-                        <strong>{`${milestoneIndex + 1}. ${milestone?.description || 'No milestone Title'}`}</strong>
+                        <strong>{`${milestoneIndex + 1}. ${milestone?.title ?? milestone?.description ?? 'No milestone Title'}`}</strong>
                       </Col>
                       {milestone?.tasks?.map((task: any, taskIndex: number) => (
                         <Col className="ml-5" span={24} key={taskIndex}>
@@ -303,9 +307,10 @@ function Planning() {
               </>
             ),
           )}
-            <Text className=' mt-10 font-sans text-gray-950'>
-              Please ensure that your new team member have a prepared workstation</Text>
+        
         </Card>
+
+        </>
       ))}
 
       {transformedData?.length <= 0 && (
@@ -322,7 +327,6 @@ function Planning() {
             <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
               There is no Planned data !!
             </p>
-            {/* <EmptyImage /> */}
           </div>
         </div>
       )}
