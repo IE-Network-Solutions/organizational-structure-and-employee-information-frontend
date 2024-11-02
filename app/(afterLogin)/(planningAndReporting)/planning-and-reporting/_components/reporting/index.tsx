@@ -49,12 +49,13 @@ function Reporting() {
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
 
+
   return (
     <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
         {selectedUser.includes(userId) &&
-          allUnReportedPlanningTask?.length !== 0 && (
+          allUnReportedPlanningTask && allUnReportedPlanningTask.length > 0 && (
             <CustomButton
               title={`Create ${activeTabName} report`}
               id="createActiveTabName"
