@@ -45,7 +45,7 @@ const JobTimeLineForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name='positionId'
+            name="positionId"
             id="jobTitle"
             label="Position"
             rules={[

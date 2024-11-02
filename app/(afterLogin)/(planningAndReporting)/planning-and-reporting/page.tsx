@@ -39,7 +39,6 @@ function Page() {
     }));
   };
 
-
   return (
     <div>
       <div className="h-full w-auto p-4">

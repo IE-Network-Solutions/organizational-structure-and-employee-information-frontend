@@ -12,7 +12,6 @@ interface DeleteModalProps {
   deleteMessage?: React.ReactNode;
   deleteText?: React.ReactNode;
   cancelText?: React.ReactNode;
-
 }
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
@@ -22,7 +21,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   customMessage,
   deleteMessage,
   deleteText,
-  cancelText
+  cancelText,
 }) => {
   const deleteModalFooter = (
     <div className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6">
@@ -62,7 +61,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       </p>
 
       <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
-       {deleteMessage ?? 'you sure to Delete ? '}
+        {deleteMessage ?? 'you sure to Delete ? '}
       </p>
       {customMessage && <div className="mt-4 text-center">{customMessage}</div>}
     </Modal>

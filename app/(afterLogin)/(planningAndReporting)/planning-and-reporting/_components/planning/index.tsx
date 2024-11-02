@@ -69,7 +69,27 @@ function Planning() {
     <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
-        {selectedUser.includes(userId) &&
+        <Tooltip
+              title={
+                !(selectedUser.includes(userId) &&((transformedData?.[0]?.isReported ?? false) || transformedData?.length === 0))
+                  ? "Report planned tasks before"
+                  : ""
+              }
+            >
+              <div style={{ display: 'inline-block' }}>
+                <CustomButton
+                  disabled={!(selectedUser.includes(userId) &&
+                    ((transformedData?.[0]?.isReported ?? false) ||
+                      transformedData?.length === 0))}
+                      title={`Create ${activeTabName} Plan`}
+                      id="createActiveTabName"
+                      icon={<FaPlus className="mr-2" />}
+                      onClick={() => setOpen(true)}
+                      className="bg-blue-600 hover:bg-blue-700"
+                />
+              </div>
+        </Tooltip>
+        {/* {selectedUser.includes(userId) &&
           ((transformedData?.[0]?.isReported ?? false) ||
             transformedData?.length === 0) && (
             <CustomButton
@@ -79,7 +99,7 @@ function Planning() {
               onClick={() => setOpen(true)}
               className="bg-blue-600 hover:bg-blue-700"
             />
-          )}
+          )} */}
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
