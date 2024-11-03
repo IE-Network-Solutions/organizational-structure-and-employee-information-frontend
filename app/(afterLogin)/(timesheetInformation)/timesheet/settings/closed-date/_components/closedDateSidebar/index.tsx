@@ -8,15 +8,34 @@ import CustomDrawerFooterButton, {
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import React, { useState } from 'react';
 import { MdKeyboardArrowDown } from 'react-icons/md';
+import { useUpdateClosedDate } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { v4 as uuidv4 } from 'uuid'; // Import the UUID function
+import { UUID } from 'crypto';
+import dayjs from 'dayjs';
 
 const ClosedDateSidebar = () => {
   const [isTo, setIsTo] = useState<boolean>(false);
   const {
     isShowClosedDateSidebar: isShow,
     setIsShowClosedDateSidebar: setIsShow,
+    selectedClosedDate,
   } = useTimesheetSettingsStore();
+  const { data: fiscalActiveYear } = useGetActiveFiscalYears();
+
+  const { mutate: updateFiscalActiveYear } = useUpdateClosedDate();
 
   const [form] = Form.useForm();
+  React.useEffect(() => {
+    if (selectedClosedDate) {
+      const formattedClosedDate = {
+        ...selectedClosedDate,
+        startDate: dayjs(selectedClosedDate.startDate) || null,
+        endDate: dayjs(selectedClosedDate.endDate) || null,
+      };
+      form.setFieldsValue(formattedClosedDate);
+    }
+  }, [selectedClosedDate, form]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -39,6 +58,69 @@ const ClosedDateSidebar = () => {
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[54px] w-full';
 
+  const onAddClosedDate = (values: any) => {
+    const fiscalYearId = fiscalActiveYear?.id;
+    const closedDates = [
+      {
+        id: uuidv4() as UUID, // Type assertion
+        name: values.name,
+        type: values.type,
+        description: values.description,
+        startDate: values?.startDate || null,
+        endDate: values?.endDate || null,
+      },
+    ];
+
+    if (fiscalYearId) {
+      const existingClosedDates = fiscalActiveYear.closedDates || []; // Ensure existing closedDates are available
+      const updatedClosedDates = [...existingClosedDates, ...closedDates]; // Combine existing with new closed dates
+
+      // Call the update function with the updated closed dates
+      updateFiscalActiveYear({ fiscalYearId, closedDates: updatedClosedDates });
+      setIsShow(false);
+      form.resetFields();
+    }
+  };
+
+  const onUpdateClosedDate = (values: any) => {
+    const fiscalYearId = fiscalActiveYear?.id;
+
+    if (fiscalYearId) {
+      const existingClosedDates = fiscalActiveYear.closedDates || [];
+      const indexToUpdate = existingClosedDates.findIndex(
+        (date) => date.id === selectedClosedDate.id,
+      );
+
+      if (indexToUpdate > -1) {
+        const updatedClosedDates = [...existingClosedDates];
+        updatedClosedDates[indexToUpdate] = {
+          ...updatedClosedDates[indexToUpdate],
+          name: values.name,
+          type: values.type,
+          description: values.description,
+          startDate: values.startDate || null,
+          endDate: values.endDate || null,
+        };
+
+        updateFiscalActiveYear({
+          fiscalYearId,
+          closedDates: updatedClosedDates,
+        });
+      }
+
+      setIsShow(false);
+      form.resetFields();
+    }
+  };
+
+  const onFinish = (values: any) => {
+    if (selectedClosedDate) {
+      onUpdateClosedDate(values);
+    } else {
+      onAddClosedDate(values);
+    }
+  };
+
   return (
     isShow && (
       <CustomDrawerLayout
@@ -54,6 +136,7 @@ const ClosedDateSidebar = () => {
           autoComplete="off"
           form={form}
           className={itemClass}
+          onFinish={onFinish}
         >
           <Space direction="vertical" className="w-full" size={24}>
             <Form.Item
@@ -99,7 +182,7 @@ const ClosedDateSidebar = () => {
                   id="closedHolidayFromFieldId"
                   label="From"
                   required
-                  name="from"
+                  name="startDate"
                 >
                   <DatePicker className={controlClass} format="DD MMM YYYY" />
                 </Form.Item>
@@ -117,7 +200,7 @@ const ClosedDateSidebar = () => {
                       To
                     </Radio>
                   }
-                  name="to"
+                  name="endDate"
                 >
                   <DatePicker
                     className={controlClass}
