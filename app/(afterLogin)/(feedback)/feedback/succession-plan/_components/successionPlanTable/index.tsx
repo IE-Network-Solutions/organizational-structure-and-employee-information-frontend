@@ -64,7 +64,7 @@ export const EmployeeDetails = ({
 };
 
 const SuccessionPlanTable = () => {
-  const { data: criticalPositions } = useFetchCriticalPositions();
+  const { data: criticalPositions, isLoading } = useFetchCriticalPositions();
   const { mutate: deleteCriticalPosition } = useDeleteCriticalPosition();
   const { fetchData } = useFetchSuccessionPlans();
   const { setSuccessionPlanId } = useSuccessionPlanStore();
@@ -208,6 +208,7 @@ const SuccessionPlanTable = () => {
 
   const handleDeleteConfirm = () => {
     deleteCriticalPosition({ id: criticalPositionId });
+    queryClient.invalidateQueries('criticalPositions');
     setShowDelete(false);
   };
 
@@ -358,6 +359,7 @@ const SuccessionPlanTable = () => {
             columns={columns}
             dataSource={sourceData}
             scroll={{ x: 1000 }}
+            loading={isLoading}
           />
           <CreateSuccessionPlan />
           <SuccessorEvaluation />
