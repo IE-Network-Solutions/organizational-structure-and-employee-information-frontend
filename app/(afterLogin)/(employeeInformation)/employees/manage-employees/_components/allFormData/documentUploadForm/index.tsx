@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Col, Form, Row, Upload, Image } from 'antd';
+import { Button, Col, Form, Row, Upload, Image, message } from 'antd';
 import { MdOutlineUploadFile } from 'react-icons/md';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
@@ -9,10 +9,6 @@ const DocumentUploadForm = () => {
   const { documentFileList, setDocumentFileList, removeDocument } =
     useEmployeeManagementStore();
 
-  // const handleDocumentChange = (info: any) => {
-  //   const fileList = Array.isArray(info.fileList) ? info.fileList : [];
-  //   setDocumentFileList(fileList);
-  // };
   const handleDocumentChange = (info: any) => {
     const allowedTypes = [
       'image/jpeg',
@@ -22,14 +18,29 @@ const DocumentUploadForm = () => {
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ];
+
     const fileList = Array.isArray(info.fileList)
       ? info.fileList.filter((file: any) => allowedTypes.includes(file.type))
       : [];
+
     setDocumentFileList(fileList);
   };
 
   const handleDocumentRemove = (file: any) => {
     removeDocument(file.uid);
+  };
+
+  const handleBeforeUpload = (file: any) => {
+    const isDuplicate = documentFileList.some(
+      (existingFile: any) =>
+        existingFile.name === file.name && existingFile.size === file.size,
+    );
+
+    if (isDuplicate) {
+      message.warning(`${file.name} is already uploaded.`);
+      return Upload.LIST_IGNORE;
+    }
+    return true;
   };
 
   const customRequest = ({ onSuccess }: any) => {
@@ -54,11 +65,11 @@ const DocumentUploadForm = () => {
             <Dragger
               name="documentName"
               fileList={documentFileList}
+              beforeUpload={handleBeforeUpload}
               onChange={handleDocumentChange}
               onRemove={handleDocumentRemove}
               customRequest={customRequest}
               listType="picture"
-              // accept="*/*"
               accept="image/*, text/*, application/pdf, application/msword, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             >
               <div className="flex justify-start items-center text-xl font-semibold text-gray-950">

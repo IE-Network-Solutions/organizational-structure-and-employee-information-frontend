@@ -127,55 +127,56 @@ function Planning() {
                       <span className="mr-4 text-gray-500">
                         {dayjs(dataItem?.createdAt).format(DATETIME_FORMAT)}
                       </span>
-                      {!dataItem?.isValidated &&
-                       <>
-                        <Col className="mr-2">
-                          <Tooltip title="Edit Plan">
-                            <Avatar
-                              size={16}
-                              alt="edit plan"
-                              className="cursor-pointer bg-primary"
-                              shape="square"
-                              onClick={() => {
-                                setEditing(true);
-                                setSelectedPlanId(dataItem?.id);
-                                setOpen(true);
-                              }}
-                              icon={<AiOutlineEdit />}
-                            />
-                          </Tooltip>
-                        </Col>
-                        <Col className="mr-2">
-                          <Tooltip title="Approve Plan">
-                            <Avatar
-                              size={16}
-                              alt="approve plan"
-                              className="cursor-pointer"
-                              shape="square"
-                              style={{ backgroundColor: '#148220' }}
-                              onClick={() =>
-                                handleApproveHandler(dataItem?.id, true)
-                              }
-                              icon={<IoCheckmarkSharp />}
-                            />
-                          </Tooltip>
-                        </Col>
-                        <Col>
-                          <Tooltip title="Reject Plan">
-                            <Avatar
-                              size={16}
-                              alt="Reject Plan"
-                              className="cursor-pointer"
-                              shape="square"
-                              style={{ backgroundColor: '#b50d20' }}
-                              onClick={() =>
-                                handleApproveHandler(dataItem?.id, false)
-                              }
-                              icon={<IoIosClose />}
-                            />
-                          </Tooltip>
-                        </Col>
-                      </>}
+                      {!dataItem?.isValidated && (
+                        <>
+                          <Col className="mr-2">
+                            <Tooltip title="Edit Plan">
+                              <Avatar
+                                size={16}
+                                alt="edit plan"
+                                className="cursor-pointer bg-primary"
+                                shape="square"
+                                onClick={() => {
+                                  setEditing(true);
+                                  setSelectedPlanId(dataItem?.id);
+                                  setOpen(true);
+                                }}
+                                icon={<AiOutlineEdit />}
+                              />
+                            </Tooltip>
+                          </Col>
+                          <Col className="mr-2">
+                            <Tooltip title="Approve Plan">
+                              <Avatar
+                                size={16}
+                                alt="approve plan"
+                                className="cursor-pointer"
+                                shape="square"
+                                style={{ backgroundColor: '#148220' }}
+                                onClick={() =>
+                                  handleApproveHandler(dataItem?.id, true)
+                                }
+                                icon={<IoCheckmarkSharp />}
+                              />
+                            </Tooltip>
+                          </Col>
+                          <Col>
+                            <Tooltip title="Reject Plan">
+                              <Avatar
+                                size={16}
+                                alt="Reject Plan"
+                                className="cursor-pointer"
+                                shape="square"
+                                style={{ backgroundColor: '#b50d20' }}
+                                onClick={() =>
+                                  handleApproveHandler(dataItem?.id, false)
+                                }
+                                icon={<IoIosClose />}
+                              />
+                            </Tooltip>
+                          </Col>
+                        </>
+                      )}
                     </Col>
                   </Row>
                 </Col>
@@ -303,8 +304,9 @@ function Planning() {
               </>
             ),
           )}
-            <Text className=' mt-10 font-sans text-gray-950'>
-              Please ensure that your new team member have a prepared workstation</Text>
+          <Text className=" mt-10 font-sans text-gray-950">
+            Please ensure that your new team member have a prepared workstation
+          </Text>
         </Card>
       ))}
 
