@@ -7,6 +7,9 @@ export interface PlanningAndReporting {
   mkAsATask: string | null;
   setMKAsATask: (mkAsATask: string | null) => void;
 
+  newComment:string;
+  setNewComment:(newComment:string)=>void;
+
   open: boolean;
   setOpen: (open: boolean) => void;
   openReportModal: boolean;
@@ -37,6 +40,10 @@ export interface PlanningAndReporting {
 const userId = useAuthenticationStore.getState().userId;
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
   devtools((set) => ({
+
+    newComment: '',
+    setNewComment: (newComment: string ) => set({ newComment }),
+
     mkAsATask: null,
     setMKAsATask: (mkAsATask: string | null) => set({ mkAsATask }),
 
