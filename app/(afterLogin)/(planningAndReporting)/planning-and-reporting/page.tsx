@@ -11,6 +11,7 @@ import CreatePlan from './_components/createPlan';
 import EditPlan from './_components/editPlan';
 import Reporting from './_components/reporting';
 import CreateReport from './_components/createReport';
+import CommentList from './_components/comments/CommentList';
 
 function Page() {
   const { setActiveTab, activeTab, setActivePlanPeriod } =

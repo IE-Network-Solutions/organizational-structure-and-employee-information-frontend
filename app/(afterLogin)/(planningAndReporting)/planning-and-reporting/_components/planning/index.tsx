@@ -1,6 +1,6 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
-import { Avatar, Card, Col, Row, Tag, Tooltip, Typography } from 'antd';
+import { Avatar, Button, Card, Col, Row, Skeleton, Tag, Tooltip, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { IoIosClose } from 'react-icons/io';
@@ -22,6 +22,8 @@ import { PlanningType } from '@/types/enumTypes';
 import { DATETIME_FORMAT } from '@/utils/constants';
 import { AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
+import CommentList from '../comments/CommentList';
+import CommentCard from '../comments/commentCard';
 
 const { Text, Title } = Typography;
 
@@ -41,7 +43,7 @@ function Planning() {
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
-  const { data: allPlanning } = useGetPlanning({
+  const { data: allPlanning,isLoading:getPlanningLoading } = useGetPlanning({
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '', // Provide a default string value
   });
@@ -335,9 +337,15 @@ function Planning() {
                     </Row>
                   ))}
                 </>
-              ),
+              )
             )}
           </Card>
+          <CommentCard 
+            planId={dataItem?.id}
+            data={dataItem?.comments} 
+            loading={getPlanningLoading}
+
+          />
         </>
       ))}
 
@@ -358,6 +366,8 @@ function Planning() {
           </div>
         </div>
       )}
+
+   
     </div>
   );
 }
