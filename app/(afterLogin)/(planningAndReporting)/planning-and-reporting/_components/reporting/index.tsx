@@ -1,6 +1,6 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
-import { Avatar, Card, Col, Row, Tooltip, Typography } from 'antd';
+import { Avatar, Button, Card, Col, Row, Skeleton, Tooltip, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { MdOutlinePending } from 'react-icons/md';
@@ -19,6 +19,7 @@ import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndR
 import { ReportingType } from '@/types/enumTypes';
 import TasksDisplayer from './milestone';
 import Image from 'next/image';
+import CommentCard from '../comments/planCommentCard';
 
 const { Title } = Typography;
 
@@ -32,7 +33,7 @@ function Reporting() {
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
-  const { data: allReporting } = useGetReporting({
+  const { data: allReporting,isLoading:getReportLoading } = useGetReporting({
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '',
   });
@@ -48,7 +49,6 @@ function Reporting() {
 
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
-
 
   return (
     <div className="min-h-screen">
@@ -72,17 +72,6 @@ function Reporting() {
               />
             </div>
           </Tooltip>
-
-        {/* {selectedUser.includes(userId) &&
-          allUnReportedPlanningTask && allUnReportedPlanningTask.length > 0 && (
-            <CustomButton
-              title={`Create ${activeTabName} report`}
-              id="createActiveTabName"
-              icon={<FaPlus className="mr-2" />}
-              onClick={() => setOpenReportModal(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-            />
-          )} */}
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
@@ -90,6 +79,7 @@ function Reporting() {
         optionArray3={departmentData}
       />
       {allReporting?.map((dataItem: any, index: number) => (
+        <>
         <Card
           key={index}
           title={
@@ -166,10 +156,17 @@ function Reporting() {
                 )}
                 <TasksDisplayer tasks={keyResult?.tasks} />
               </>
-            ),
+
+            )
           )}
-          ,
         </Card>
+        <CommentCard 
+          planId={dataItem?.id}
+          data={dataItem?.comments} 
+          loading={getReportLoading}
+          isPlanCard={false}
+        />
+    </>
       ))}
       {allReporting?.length <= 0 && (
         <div className="flex justify-center">
@@ -185,10 +182,11 @@ function Reporting() {
             <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
               There is no Reported data !!
             </p>
-            {/* <EmptyImage /> */}
           </div>
         </div>
       )}
+
+
     </div>
   );
 }

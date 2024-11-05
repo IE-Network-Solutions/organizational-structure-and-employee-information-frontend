@@ -5,9 +5,11 @@ import { CommentsData } from '@/types/okr';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { FaUser } from 'react-icons/fa';
-import { useAddPlanComment, useDeleteComment } from '@/store/server/features/okrplanning/comments/mutations';
+import { useAddPlanComment, useDeletePlanComment, useUpdatePlanComment } from '@/store/server/features/okrplanning/planComments/mutations';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { MoreOutlined } from '@ant-design/icons';
+import { useAddReportComment, useDeleteReportComment, useUpdateReportComment } from '@/store/server/features/okrplanning/reportComments/mutations';
+import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 
 // Extend Day.js with the relative time plugin
 dayjs.extend(relativeTime);
@@ -16,8 +18,8 @@ interface Props {
   data: CommentsData[];
   loading: boolean;
   planId:string;
+  isPlanCard:boolean
 }
-
 
 const ActionMenu = ({ onEdit, onDelete}:{ onEdit:any, onDelete:any }) => {
     const menu = (
@@ -27,12 +29,12 @@ const ActionMenu = ({ onEdit, onDelete}:{ onEdit:any, onDelete:any }) => {
                 </Menu.Item>
                 <Menu.Item key="delete">
                     <Popconfirm
-                    title="Are you sure you want to delete this comment?"
-                    onConfirm={onDelete}
-                    okText="Yes"
-                    cancelText="No"
-                    >
-                    Delete
+                      title="Are you sure you want to delete this comment?"
+                      onConfirm={onDelete}
+                      okText="Yes"
+                      cancelText="No"
+                      >
+                      Delete
                     </Popconfirm>
                 </Menu.Item>
                 </Menu>
@@ -43,12 +45,19 @@ const ActionMenu = ({ onEdit, onDelete}:{ onEdit:any, onDelete:any }) => {
         <Button type="text" icon={<MoreOutlined />} />
       </Dropdown>
     );
-  };
-  
-const CommentList = ({ data,planId }: { data: CommentsData[],planId:string }) => {
+};
+const CommentList = ({ data,planId,isPlanCard }: { data: CommentsData[],planId:string,isPlanCard:boolean }) => {
   const { data: allUsers } = useGetAllUsers();
-  const { mutate: onAddComment } = useAddPlanComment();
-  const { mutate: deleteComment } = useDeleteComment();
+  const { mutate: onAddPlanComment } = useAddPlanComment();
+  const { mutate: onAddReportComment } = useAddReportComment();
+  
+  const { mutate: deletePlanComment } = useDeletePlanComment();
+  const { mutate: deleteReportComment } = useDeleteReportComment();
+
+  const { mutate: onUpdatePlanComment } = useUpdatePlanComment();
+  const { mutate: onUpdateReportComment } = useUpdateReportComment();
+
+  const [editingCommentId, setEditingCommentId] = useState<string>('');
 
   const { userId } = useAuthenticationStore();
 
@@ -77,28 +86,53 @@ const CommentList = ({ data,planId }: { data: CommentsData[],planId:string }) =>
   const [form] = Form.useForm();
 
   const handleSubmit = () => {
-
     form.validateFields()
       .then(values => {
-        onAddComment(values,{
-            onSuccess:()=>{
+        if (editingCommentId!=='') {
+          // Update existing comment
+          const updateMutation = isPlanCard ? onUpdatePlanComment : onUpdateReportComment;
+  
+          updateMutation(
+            { id: editingCommentId, updatedComment: values },
+            {
+              onSuccess: () => {
                 form.resetFields(); // Reset the form after submission
+                setEditingCommentId(''); // Clear edit mode
+
+              },
             }
-        }); 
+          );
+        } else {
+          // Add new comment logic (similar to previous response)
+          const addMutation = isPlanCard ? onAddPlanComment : onAddReportComment;
+          
+          addMutation(values, {
+            onSuccess: () => {
+              form.resetFields(); // Reset the form after submission
+            },
+          });
+        }
       })
       .catch(info => {
-        // console.log('Validation Failed:', info);
+        // Handle validation error if needed
+        console.error('Validation Failed:', info);
       });
   };
-  const handleEdit = () => {
-
+  
+    
+  
+  const handleEdit = (data:CommentsData) => {
+      form.setFieldsValue({'comment':data.comment})
+      setEditingCommentId(data.id); // Set the ID to indicate edit mode
   };
   const handleDelete = (id:string) => {
-    deleteComment(id,{
-        onSuccess:()=>{
-              
-        }
-    });
+    if(isPlanCard){
+      deletePlanComment(id);
+    }
+    else{
+      deleteReportComment(id);
+    }
+    
   };
   return (
     <div className='w-full'>
@@ -123,13 +157,13 @@ const CommentList = ({ data,planId }: { data: CommentsData[],planId:string }) =>
             </div>
         </Col>
         <Col hidden={commentData.commentedBy!==userId}>
-            <ActionMenu onEdit={handleEdit} onDelete={()=>handleDelete(commentData?.id)} />
+            <ActionMenu onEdit={()=>handleEdit(commentData)} onDelete={()=>handleDelete(commentData?.id)} />
         </Col>
         </Row>
         </div>
       ))}
     <Form form={form} layout="inline" className="w-full mt-4" onFinish={handleSubmit}>
-      <Form.Item name="planId" initialValue={planId} hidden>
+      <Form.Item name={isPlanCard ? "planId" : "reportId"} initialValue={planId} hidden>
         <Input type="hidden" />
       </Form.Item>
       <Form.Item name="commentedBy" initialValue={userId} hidden>
@@ -158,7 +192,6 @@ const CommentList = ({ data,planId }: { data: CommentsData[],planId:string }) =>
     </div>
   );
 };
-
 const CommentAuthorsAvatars = (data: CommentsData[]) => {
   const { data: allUsers } = useGetAllUsers();
 
@@ -213,18 +246,16 @@ const CommentAuthorsAvatars = (data: CommentsData[]) => {
       )}
     </div>
   );
-};
-
-  
-const CommentCard: React.FC<Props> = ({ data, loading,planId }) => {
-  const [viewComment, setViewComment] = useState(false);
+}; 
+const CommentCard: React.FC<Props> = ({ data, loading,planId,isPlanCard }) => {
+  const {viewComment, setViewComment} = PlanningAndReportingStore();
 
   return (
     <Card
       title={CommentAuthorsAvatars(data)}
       extra={<Button type="primary" onClick={() => setViewComment(!viewComment)}>
-            Comment
-        </Button>}
+                Comment
+             </Button>}
     >
         {loading ? (
           <>
@@ -233,7 +264,7 @@ const CommentCard: React.FC<Props> = ({ data, loading,planId }) => {
           </>
         ) : (
           <>
-            {viewComment && <CommentList data={data} planId={planId} />}
+            {viewComment && <CommentList data={data} planId={planId} isPlanCard={isPlanCard}/>}
           </>
         )}
     </Card>

@@ -22,8 +22,7 @@ import { PlanningType } from '@/types/enumTypes';
 import { DATETIME_FORMAT } from '@/utils/constants';
 import { AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
-import CommentList from '../comments/CommentList';
-import CommentCard from '../comments/commentCard';
+import CommentCard from '../comments/planCommentCard';
 
 const { Text, Title } = Typography;
 
@@ -344,7 +343,7 @@ function Planning() {
             planId={dataItem?.id}
             data={dataItem?.comments} 
             loading={getPlanningLoading}
-
+            isPlanCard={true}
           />
         </>
       ))}

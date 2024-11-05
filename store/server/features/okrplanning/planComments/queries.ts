@@ -36,7 +36,7 @@ const getComment = async (id: number) => {
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetComments = () => useQuery<any>('comments', getPlanComments);
+export const useGetPlanComments = () => useQuery<any>('planComments', getPlanComments);
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.
@@ -49,7 +49,7 @@ export const useGetComments = () => useQuery<any>('comments', getPlanComments);
  * query object containing the post data, and it keeps the previous data
  * while the new data is being fetched.
  */
-export const useGetComment = (postId: number) =>
-  useQuery<any>(['comments', postId], () => getComment(postId), {
+export const useGetPlanComment = (postId: number) =>
+  useQuery<any>(['planComments', postId], () => getComment(postId), {
     keepPreviousData: true,
   });

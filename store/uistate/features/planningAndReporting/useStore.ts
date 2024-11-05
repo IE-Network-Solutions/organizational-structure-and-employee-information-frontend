@@ -10,6 +10,9 @@ export interface PlanningAndReporting {
   newComment:string;
   setNewComment:(newComment:string)=>void;
 
+  viewComment:boolean;
+  setViewComment:(viewComment:boolean)=>void;
+
   open: boolean;
   setOpen: (open: boolean) => void;
   openReportModal: boolean;
@@ -43,6 +46,9 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
 
     newComment: '',
     setNewComment: (newComment: string ) => set({ newComment }),
+
+    viewComment: false,
+    setViewComment: (viewComment: boolean ) => set({ viewComment }),
 
     mkAsATask: null,
     setMKAsATask: (mkAsATask: string | null) => set({ mkAsATask }),
