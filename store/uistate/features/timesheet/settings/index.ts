@@ -18,6 +18,7 @@ type TimesheetSettingsState = {
   leaveRequestId: string | null;
   selectedClosedDate: any | null;
   isTo: boolean;
+  isLoading: boolean;
 };
 
 type TimesheetSettingsStateAction = {
@@ -43,6 +44,7 @@ type TimesheetSettingsStateAction = {
   setLeaveRequestId: (leaveRequestId: string | null) => void;
   setSelectedClosedDate: (closedDate: any | null) => void;
   setIsTo: (isTo: boolean) => void;
+  setIsLoading: (isLoading: boolean) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
@@ -120,6 +122,10 @@ const timesheetSettingsSlice: StateCreator<
   isTo: false,
   setIsTo: (isTo: boolean) => {
     set({ isTo });
+  },
+  isLoading: false,
+  setIsLoading: (isLoading: boolean) => {
+    set({ isLoading });
   },
 });
 

@@ -24,7 +24,7 @@ const ClosedDateSidebar = () => {
   } = useTimesheetSettingsStore();
   const { data: fiscalActiveYear } = useGetActiveFiscalYears();
 
-  const { mutate: updateFiscalActiveYear } = useUpdateClosedDate();
+  const { mutate: updateFiscalActiveYear, isLoading } = useUpdateClosedDate();
 
   const [form] = Form.useForm();
   React.useEffect(() => {
@@ -52,6 +52,7 @@ const ClosedDateSidebar = () => {
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
+      loading: isLoading,
       onClick: () => form.submit(),
     },
   ];
@@ -61,25 +62,35 @@ const ClosedDateSidebar = () => {
 
   const onAddClosedDate = (values: any) => {
     const fiscalYearId = fiscalActiveYear?.id;
+
+    const endDate =
+      values.endDate && dayjs(values.endDate).isValid()
+        ? values.endDate
+        : values.startDate;
+
     const closedDates = [
       {
-        id: uuidv4() as UUID, // Type assertion
+        id: uuidv4() as UUID,
         name: values.name,
         type: values.type,
         description: values.description,
-        startDate: values?.startDate || null,
-        endDate: values?.endDate || null,
+        startDate: values.startDate,
+        endDate: endDate,
       },
     ];
 
     if (fiscalYearId) {
-      const existingClosedDates = fiscalActiveYear.closedDates || []; // Ensure existing closedDates are available
-      const updatedClosedDates = [...existingClosedDates, ...closedDates]; // Combine existing with new closed dates
-
-      // Call the update function with the updated closed dates
-      updateFiscalActiveYear({ fiscalYearId, closedDates: updatedClosedDates });
-      setIsShow(false);
-      form.resetFields();
+      const existingClosedDates = fiscalActiveYear.closedDates || [];
+      const updatedClosedDates = [...existingClosedDates, ...closedDates];
+      updateFiscalActiveYear(
+        { fiscalYearId, closedDates: updatedClosedDates },
+        {
+          onSuccess: () => {
+            setIsShow(false);
+            form.resetFields();
+          },
+        },
+      );
     }
   };
 
@@ -103,14 +114,19 @@ const ClosedDateSidebar = () => {
           endDate: values.endDate || null,
         };
 
-        updateFiscalActiveYear({
-          fiscalYearId,
-          closedDates: updatedClosedDates,
-        });
+        updateFiscalActiveYear(
+          {
+            fiscalYearId,
+            closedDates: updatedClosedDates,
+          },
+          {
+            onSuccess: () => {
+              setIsShow(false);
+              form.resetFields();
+            },
+          },
+        );
       }
-
-      setIsShow(false);
-      form.resetFields();
     }
   };
 
@@ -120,6 +136,11 @@ const ClosedDateSidebar = () => {
     } else {
       onAddClosedDate(values);
     }
+  };
+
+  const disabledEndDate = (current: any) => {
+    const startDate = form.getFieldValue('startDate');
+    return current && startDate ? current.isBefore(startDate, 'day') : false;
   };
 
   return (
@@ -145,6 +166,12 @@ const ClosedDateSidebar = () => {
               label="Closed Date Name"
               required
               name="name"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter the closed date name',
+                },
+              ]}
             >
               <Input className={controlClass} />
             </Form.Item>
@@ -153,6 +180,12 @@ const ClosedDateSidebar = () => {
               label="Type"
               required
               name="type"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please Select the closed date Type',
+                },
+              ]}
             >
               <Select
                 className={controlClass}
@@ -184,6 +217,9 @@ const ClosedDateSidebar = () => {
                   label="From"
                   required
                   name="startDate"
+                  rules={[
+                    { required: true, message: 'Please select the start date' },
+                  ]}
                 >
                   <DatePicker className={controlClass} format="DD MMM YYYY" />
                 </Form.Item>
@@ -202,6 +238,7 @@ const ClosedDateSidebar = () => {
                     className={controlClass}
                     disabled={!isTo}
                     format="DD MMM YYYY"
+                    disabledDate={disabledEndDate}
                   />
                 </Form.Item>
               </Col>

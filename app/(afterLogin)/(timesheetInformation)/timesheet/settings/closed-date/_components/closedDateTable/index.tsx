@@ -64,11 +64,25 @@ const ClosedDateTable = () => {
       render: (text: string) => <div>{text || '-'}</div>,
     },
     {
-      title: 'Date',
-      dataIndex: 'startDate',
+      title: 'Start - end date',
+      dataIndex: ['startDate', 'endDate'],
       key: 'date',
       sorter: true,
-      render: (text: string) => <div>{dayjs(text).format('DD MMMM YYYY')}</div>,
+      render: (record: any) => (
+        <div className="flex gap-2">
+          <div>
+            {dayjs(record.startDate).isValid()
+              ? dayjs(record.startDate).format('DD MMM YYYY')
+              : '-'}
+          </div>
+          <div>{'-'}</div>
+          <div>
+            {dayjs(record.endDate).isValid()
+              ? dayjs(record.endDate).format('DD MMM YYYY')
+              : '-'}
+          </div>
+        </div>
+      ),
     },
     {
       title: 'Action',
