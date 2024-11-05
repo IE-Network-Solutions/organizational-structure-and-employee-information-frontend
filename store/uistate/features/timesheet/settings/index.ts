@@ -16,6 +16,7 @@ type TimesheetSettingsState = {
   attendanceRuleId: string | null;
   allowedAreaId: string | null;
   leaveRequestId: string | null;
+  selectedClosedDate: any | null;
 };
 
 type TimesheetSettingsStateAction = {
@@ -39,11 +40,17 @@ type TimesheetSettingsStateAction = {
   setAttendanceRuleId: (attendanceRuleId: string | null) => void;
   setAllowedAreaId: (allowedAreaId: string | null) => void;
   setLeaveRequestId: (leaveRequestId: string | null) => void;
+  setSelectedClosedDate: (closedDate: any | null) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
   TimesheetSettingsState & TimesheetSettingsStateAction
 > = (set) => ({
+  selectedClosedDate: null,
+  setSelectedClosedDate: (closedDate) => {
+    set({ selectedClosedDate: closedDate });
+  },
+
   isShowLocationSidebar: false,
   setIsShowLocationSidebar: (isShowLocationSidebar: boolean) => {
     set({ isShowLocationSidebar });
