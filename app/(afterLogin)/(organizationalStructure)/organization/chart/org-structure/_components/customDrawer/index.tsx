@@ -2,6 +2,7 @@ import React from 'react';
 import CustomButton from '@/components/common/buttons/customButton';
 import { ArchiveForm, DissolveForm, MergeForm } from '../forms';
 import CustomDrawerLayout from '@/components/common/customDrawer';
+import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
 
 interface CustomDrawerProps {
   visible: boolean;
@@ -22,12 +23,15 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   onSubmit,
   width = '30%',
 }) => {
+  const { data: orgStructureData, isLoading, isError } =
+  useGetOrgCharts();
+
   const renderDrawerContent = () => {
     switch (drawerContent) {
       case 'archive':
         return <ArchiveForm />;
       case 'merge':
-        return <MergeForm />;
+        return <MergeForm departments={orgStructureData} isLoading={isLoading} isError={isError} />;
       case 'dissolve':
         return <DissolveForm />;
       default:
