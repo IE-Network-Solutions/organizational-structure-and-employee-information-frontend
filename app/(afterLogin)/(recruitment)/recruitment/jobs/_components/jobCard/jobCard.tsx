@@ -16,9 +16,22 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 
 const JobCard: React.FC = () => {
   const { searchParams } = useCandidateState();
+  const {
+    setChangeStatusModalVisible,
+    setSelectedJobId,
+    setEditModalVisible,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    setShareModalOpen,
+    setSelectedJob,
+  } = useJobState();
 
   const { data: jobList, isLoading: isJobListLoading } = useGetJobs(
     searchParams?.whatYouNeed || '',
+    currentPage,
+    pageSize,
   );
 
   const { data: departments } = useGetDepartments();
@@ -32,18 +45,6 @@ const JobCard: React.FC = () => {
   jobList?.items?.forEach((job: any) => {
     getDepartmentName(job.departmentId);
   });
-
-  const {
-    setChangeStatusModalVisible,
-    setSelectedJobId,
-    setEditModalVisible,
-    currentPage,
-    pageSize,
-    setCurrentPage,
-    setPageSize,
-    setShareModalOpen,
-    setSelectedJob,
-  } = useJobState();
 
   const handleEditModalVisible = (job: any) => {
     setEditModalVisible(true);

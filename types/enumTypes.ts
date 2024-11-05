@@ -57,3 +57,9 @@ export enum NAME {
   PERCENTAGE = 'Percentage',
   KPI = 'KPI',
 }
+
+export const SelectData = [
+  { key: '1', value: 'weekly', label: 'Weekly' },
+  { key: '2', value: 'monthly', label: 'Monthly' },
+  { key: '3', value: 'quarterly', label: 'Quarterly' },
+];
