@@ -1,6 +1,6 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
-import { Avatar, Button, Card, Col, Row, Skeleton, Tag, Tooltip, Typography } from 'antd';
+import { Avatar, Card, Col, Row, Tag, Tooltip, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { IoIosClose } from 'react-icons/io';
@@ -42,7 +42,7 @@ function Planning() {
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
-  const { data: allPlanning,isLoading:getPlanningLoading } = useGetPlanning({
+  const { data: allPlanning, isLoading: getPlanningLoading } = useGetPlanning({
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '', // Provide a default string value
   });
@@ -71,24 +71,32 @@ function Planning() {
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
         <Tooltip
-              title={
-                !(selectedUser.includes(userId) &&((transformedData?.[0]?.isReported ?? false) || transformedData?.length === 0))
-                  ? "Report planned tasks before"
-                  : ""
+          title={
+            !(
+              selectedUser.includes(userId) &&
+              ((transformedData?.[0]?.isReported ?? false) ||
+                transformedData?.length === 0)
+            )
+              ? 'Report planned tasks before'
+              : ''
+          }
+        >
+          <div style={{ display: 'inline-block' }}>
+            <CustomButton
+              disabled={
+                !(
+                  selectedUser.includes(userId) &&
+                  ((transformedData?.[0]?.isReported ?? false) ||
+                    transformedData?.length === 0)
+                )
               }
-            >
-              <div style={{ display: 'inline-block' }}>
-                <CustomButton
-                  disabled={!(selectedUser.includes(userId) &&
-                    ((transformedData?.[0]?.isReported ?? false) ||
-                      transformedData?.length === 0))}
-                      title={`Create ${activeTabName} Plan`}
-                      id="createActiveTabName"
-                      icon={<FaPlus className="mr-2" />}
-                      onClick={() => setOpen(true)}
-                      className="bg-blue-600 hover:bg-blue-700"
-                />
-              </div>
+              title={`Create ${activeTabName} Plan`}
+              id="createActiveTabName"
+              icon={<FaPlus className="mr-2" />}
+              onClick={() => setOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
+          </div>
         </Tooltip>
         {/* {selectedUser.includes(userId) &&
           ((transformedData?.[0]?.isReported ?? false) ||
@@ -336,12 +344,12 @@ function Planning() {
                     </Row>
                   ))}
                 </>
-              )
+              ),
             )}
           </Card>
-          <CommentCard 
+          <CommentCard
             planId={dataItem?.id}
-            data={dataItem?.comments} 
+            data={dataItem?.comments}
             loading={getPlanningLoading}
             isPlanCard={true}
           />
@@ -365,8 +373,6 @@ function Planning() {
           </div>
         </div>
       )}
-
-   
     </div>
   );
 }

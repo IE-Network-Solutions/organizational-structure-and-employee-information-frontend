@@ -36,7 +36,8 @@ const getComment = async (id: number) => {
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetPlanComments = () => useQuery<any>('planComments', getPlanComments);
+export const useGetPlanComments = () =>
+  useQuery<any>('planComments', getPlanComments);
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.

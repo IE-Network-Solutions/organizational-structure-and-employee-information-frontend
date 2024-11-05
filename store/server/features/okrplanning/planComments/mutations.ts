@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from 'react-query';
-import axios from 'axios';
 import { OKR_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -12,42 +11,44 @@ import { CommentsData } from '@/types/okr';
  * @returns The response data from the API
  */
 const addComment = async (newPost: any) => {
-    const token = useAuthenticationStore.getState().token;
-    const tenantId = useAuthenticationStore.getState().tenantId;
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
     url: `${OKR_URL}/plan-comments`,
     method: 'POST',
     data: newPost,
     headers: {
-        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-        tenantId: tenantId, // Pass tenantId in the headers
-      },
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
   });
 };
-
 
 /**
  * Function to add a new post by sending a POST request to the API
  * @param newPost The data for the new post
  * @returns The response data from the API
  */
-const updateComment = async (commentId: string,updatedComment:CommentsData) => {
+const updateComment = async (
+  commentId: string,
+  updatedComment: CommentsData,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-try {
-  return crudRequest({
+  try {
+    return crudRequest({
       url: `${OKR_URL}/plan-comments/${commentId}`,
       method: 'patch',
-      data:updatedComment,
+      data: updatedComment,
       headers: {
-          Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-          tenantId: tenantId, // Pass tenantId in the headers
-        },
+        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+        tenantId: tenantId, // Pass tenantId in the headers
+      },
     });
-} catch (error) {
-  throw error;
-}
+  } catch (error) {
+    throw error;
+  }
 };
 
 /**
@@ -56,17 +57,17 @@ try {
  * @returns The response data from the API
  */
 const deleteComment = async (commentId: string) => {
-    const token = useAuthenticationStore.getState().token;
-    const tenantId = useAuthenticationStore.getState().tenantId;
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     return crudRequest({
-        url: `${OKR_URL}/plan-comments/${commentId}`,
-        method: 'delete',
-        headers: {
-            Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-            tenantId: tenantId, // Pass tenantId in the headers
-          },
-      });
+      url: `${OKR_URL}/plan-comments/${commentId}`,
+      method: 'delete',
+      headers: {
+        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+        tenantId: tenantId, // Pass tenantId in the headers
+      },
+    });
   } catch (error) {
     throw error;
   }
@@ -97,19 +98,21 @@ export const useAddPlanComment = () => {
 
 export const useUpdatePlanComment = () => {
   const queryClient = useQueryClient();
-  return useMutation(({ id, updatedComment }: { id: string; updatedComment: CommentsData }) =>
-    updateComment(id, updatedComment),
-  {
-    onSuccess: () => {
-      queryClient.invalidateQueries('okrPlans');
-      queryClient.invalidateQueries('planComments');
+  return useMutation(
+    ({ id, updatedComment }: { id: string; updatedComment: CommentsData }) =>
+      updateComment(id, updatedComment),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('okrPlans');
+        queryClient.invalidateQueries('planComments');
 
         NotificationMessage.success({
           message: 'comment Successfully updated ',
           description: 'okr plan comment updated successfully',
         });
+      },
     },
-  });
+  );
 };
 /**
  * Custom hook to delete a post using useMutation from react-query.

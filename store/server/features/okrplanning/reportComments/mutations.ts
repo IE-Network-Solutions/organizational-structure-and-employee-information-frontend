@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from 'react-query';
-import axios from 'axios';
 import { OKR_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -12,17 +11,17 @@ import { CommentsData } from '@/types/okr';
  * @returns The response data from the API
  */
 const addComment = async (newPost: any) => {
-    const token = useAuthenticationStore.getState().token;
-    const tenantId = useAuthenticationStore.getState().tenantId;
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
     url: `${OKR_URL}/report-comments`,
     method: 'POST',
     data: newPost,
     headers: {
-        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-        tenantId: tenantId, // Pass tenantId in the headers
-      },
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
   });
 };
 
@@ -32,17 +31,17 @@ const addComment = async (newPost: any) => {
  * @returns The response data from the API
  */
 const deleteComment = async (commentId: string) => {
-    const token = useAuthenticationStore.getState().token;
-    const tenantId = useAuthenticationStore.getState().tenantId;
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     return crudRequest({
-        url: `${OKR_URL}/report-comments/${commentId}`,
-        method: 'delete',
-        headers: {
-            Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-            tenantId: tenantId, // Pass tenantId in the headers
-          },
-      });
+      url: `${OKR_URL}/report-comments/${commentId}`,
+      method: 'delete',
+      headers: {
+        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+        tenantId: tenantId, // Pass tenantId in the headers
+      },
+    });
   } catch (error) {
     throw error;
   }
@@ -53,22 +52,25 @@ const deleteComment = async (commentId: string) => {
  * @param postId The ID of the post to delete
  * @returns The response data from the API
  */
-const updateComment = async (commentId: string,updatedComment:CommentsData) => {
+const updateComment = async (
+  commentId: string,
+  updatedComment: CommentsData,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-try {
-  return crudRequest({
+  try {
+    return crudRequest({
       url: `${OKR_URL}/report-comments/${commentId}`,
       method: 'patch',
-      data:updatedComment,
+      data: updatedComment,
       headers: {
-          Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-          tenantId: tenantId, // Pass tenantId in the headers
-        },
+        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+        tenantId: tenantId, // Pass tenantId in the headers
+      },
     });
-} catch (error) {
-  throw error;
-}
+  } catch (error) {
+    throw error;
+  }
 };
 /**
  * Custom hook to add a new post using useMutation from react-query.
@@ -93,7 +95,6 @@ export const useAddReportComment = () => {
   });
 };
 
-
 /**
  * Custom hook to delete a post using useMutation from react-query.
  *
@@ -110,27 +111,29 @@ export const useDeleteReportComment = () => {
       queryClient.invalidateQueries('okrReports');
       queryClient.invalidateQueries('reportComments');
 
-        NotificationMessage.success({
-          message: 'comment Successfully deleted ',
-          description: 'okr report comment deleted successfully',
-        });
+      NotificationMessage.success({
+        message: 'comment Successfully deleted ',
+        description: 'okr report comment deleted successfully',
+      });
     },
   });
 };
 
 export const useUpdateReportComment = () => {
   const queryClient = useQueryClient();
-  return useMutation(({ id, updatedComment }: { id: string; updatedComment: CommentsData }) =>
-    updateComment(id, updatedComment),
-  {
-    onSuccess: () => {
-      queryClient.invalidateQueries('okrReports');
-      queryClient.invalidateQueries('reportComments');
+  return useMutation(
+    ({ id, updatedComment }: { id: string; updatedComment: CommentsData }) =>
+      updateComment(id, updatedComment),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('okrReports');
+        queryClient.invalidateQueries('reportComments');
 
         NotificationMessage.success({
           message: 'comment Successfully deleted ',
           description: 'okr report comment deleted successfully',
         });
+      },
     },
-  });
+  );
 };
