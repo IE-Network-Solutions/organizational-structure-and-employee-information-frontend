@@ -6,7 +6,7 @@ import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import React, { useState } from 'react';
+import React from 'react';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useUpdateClosedDate } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
@@ -15,11 +15,12 @@ import { UUID } from 'crypto';
 import dayjs from 'dayjs';
 
 const ClosedDateSidebar = () => {
-  const [isTo, setIsTo] = useState<boolean>(false);
   const {
     isShowClosedDateSidebar: isShow,
     setIsShowClosedDateSidebar: setIsShow,
     selectedClosedDate,
+    isTo,
+    setIsTo,
   } = useTimesheetSettingsStore();
   const { data: fiscalActiveYear } = useGetActiveFiscalYears();
 
@@ -191,12 +192,7 @@ const ClosedDateSidebar = () => {
                 <Form.Item
                   id="closedHolidayDateToFieldId"
                   label={
-                    <Radio
-                      checked={isTo}
-                      onClick={() => {
-                        setIsTo((prev) => !prev);
-                      }}
-                    >
+                    <Radio checked={isTo} onClick={() => setIsTo(!isTo)}>
                       To
                     </Radio>
                   }

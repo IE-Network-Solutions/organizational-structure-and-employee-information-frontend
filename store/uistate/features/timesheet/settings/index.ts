@@ -17,6 +17,7 @@ type TimesheetSettingsState = {
   allowedAreaId: string | null;
   leaveRequestId: string | null;
   selectedClosedDate: any | null;
+  isTo: boolean;
 };
 
 type TimesheetSettingsStateAction = {
@@ -41,6 +42,7 @@ type TimesheetSettingsStateAction = {
   setAllowedAreaId: (allowedAreaId: string | null) => void;
   setLeaveRequestId: (leaveRequestId: string | null) => void;
   setSelectedClosedDate: (closedDate: any | null) => void;
+  setIsTo: (isTo: boolean) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
@@ -114,6 +116,10 @@ const timesheetSettingsSlice: StateCreator<
   leaveRequestId: null,
   setLeaveRequestId: (leaveRequestId) => {
     set({ leaveRequestId });
+  },
+  isTo: false,
+  setIsTo: (isTo: boolean) => {
+    set({ isTo });
   },
 });
 
