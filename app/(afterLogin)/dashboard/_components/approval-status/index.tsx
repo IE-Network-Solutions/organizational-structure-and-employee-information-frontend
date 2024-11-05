@@ -18,7 +18,7 @@ const ApprovalStatus: FC = () => {
   return (
     <div className="bg-white p-3 rounded-lg w-full">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="tex t-sm font-semibold">Approval Status</h4>
+        <h4 className="text-sm font-semibold">Approval Status</h4>
         <div className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer">
           <Select
             placeholder="select"
