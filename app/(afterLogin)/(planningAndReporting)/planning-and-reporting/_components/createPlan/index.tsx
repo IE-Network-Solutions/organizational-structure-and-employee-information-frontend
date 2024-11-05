@@ -8,6 +8,7 @@ import { useFetchObjectives } from '@/store/server/features/employees/planning/q
 import DefaultCardForm from '../planForms/defaultForm';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { FaPlus } from 'react-icons/fa';
 
 function CreatePlan() {
   const {
@@ -18,6 +19,8 @@ function CreatePlan() {
     activePlanPeriod,
     isEditing,
     setWeight,
+    mkAsATask,
+    setMKAsATask,
     resetWeights,
   } = PlanningAndReportingStore();
   const { userId } = useAuthenticationStore();
@@ -83,6 +86,7 @@ function CreatePlan() {
         .filter((value) => Array.isArray(value))
         .flat();
     };
+
     const finalValues = mergeValues(values);
     createTask(
       { tasks: finalValues },
@@ -132,7 +136,25 @@ function CreatePlan() {
                               className="flex justify-between"
                               key={resultIndex}
                             >
-                              <h4>{kr?.title}</h4>
+                              <h4 className="flex justify-between">
+                                {kr?.title}
+                                {kr?.metricType?.name === 'Achieve' && (
+                                  <Tooltip
+                                    className="mt-2 ml-5"
+                                    title="Plan keyResult as a Task"
+                                  >
+                                    <Button
+                                      size="small"
+                                      className="text-[10px] text-primary"
+                                      icon={<FaPlus />}
+                                      onClick={() => {
+                                        setMKAsATask(kr?.title);
+                                        handleAddBoard(kr?.id);
+                                      }}
+                                    />
+                                  </Tooltip>
+                                )}
+                              </h4>
                             </div>
                             {hasMilestone ? (
                               <>
@@ -143,9 +165,10 @@ function CreatePlan() {
                                         <div className="flex gap-3">
                                           <span>{ml?.title}</span>{' '}
                                           <Button
-                                            onClick={() =>
-                                              handleAddBoard(kr?.id + ml?.id)
-                                            }
+                                            onClick={() => {
+                                              setMKAsATask(null);
+                                              handleAddBoard(kr?.id + ml?.id);
+                                            }}
                                             type="link"
                                             icon={<BiPlus />}
                                             iconPosition="start"
@@ -158,6 +181,17 @@ function CreatePlan() {
                                               `names-${kr?.id + ml?.id}`
                                             ] || 0}
                                           </div>
+                                          <Tooltip title="Plan Milestone as a Task">
+                                            <Button
+                                              size="small"
+                                              className="text-[10px] text-primary"
+                                              icon={<FaPlus />}
+                                              onClick={() => {
+                                                setMKAsATask(ml?.title);
+                                                handleAddBoard(kr?.id + ml?.id);
+                                              }}
+                                            />
+                                          </Tooltip>
                                         </div>
                                         <>
                                           <Divider className="my-2" />
@@ -186,6 +220,9 @@ function CreatePlan() {
                                             kId={kr?.id}
                                             hideTargetValue={hasTargetValue}
                                             name={kr?.id + ml?.id}
+                                            isMKAsTask={
+                                              mkAsATask ? true : false
+                                            }
                                           />
                                         </>
                                       </>
@@ -231,6 +268,7 @@ function CreatePlan() {
                                   kId={kr?.id}
                                   hideTargetValue={hasTargetValue}
                                   name={kr?.id}
+                                  isMKAsTask={mkAsATask ? true : false}
                                 />
                               </>
                             )}
