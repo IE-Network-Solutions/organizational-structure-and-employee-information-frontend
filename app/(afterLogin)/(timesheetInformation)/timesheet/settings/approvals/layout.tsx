@@ -1,3 +1,4 @@
+'use client';
 import { FC, ReactNode } from 'react';
 import { CiCalendarDate } from 'react-icons/ci';
 import { FiFileText } from 'react-icons/fi';
