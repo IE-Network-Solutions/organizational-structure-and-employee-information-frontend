@@ -1,3 +1,4 @@
+'use client';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Button, Form, Popconfirm } from 'antd';
 import React from 'react';
@@ -8,15 +9,27 @@ interface Props {
 }
 
 const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
-  const { setCurrent, current, setOpen } = useEmployeeManagementStore();
+  const {
+    setCurrent,
+    current,
+    setOpen,
+    setProfileFileList,
+    setDocumentFileList,
+    setSelectedPermissions,
+    setSelectedWorkSchedule,
+  } = useEmployeeManagementStore();
 
   const handleBackClick = () => {
     if (current !== 0) {
       setCurrent(current - 1);
     } else {
-      form.resetFields();
-      setCurrent(0);
       setOpen(false);
+      setProfileFileList([]);
+      setDocumentFileList([]);
+      setSelectedPermissions([]);
+      setSelectedWorkSchedule(null);
+      setCurrent(0);
+      form.resetFields();
     }
   };
 
