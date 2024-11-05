@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  Card,
-  Button,
-  Skeleton,
-} from 'antd';
+import { Card, Button, Skeleton } from 'antd';
 import { CommentsData } from '@/types/okr';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
