@@ -17,6 +17,7 @@ interface TabLandingLayoutProps {
   onClickHandler: () => void;
   id: string;
   children?: ReactNode;
+  allowSearch?:boolean;
 }
 
 const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
@@ -27,6 +28,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   onClickHandler,
   id,
   children,
+  allowSearch = true,
 }) => {
   const { setOpen } = useEmployeeManagementStore();
 
@@ -49,7 +51,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
           </div>
         </div>
         <div className="w-full h-auto">
-          <EmployeeSearch />
+        {allowSearch && <EmployeeSearch />}
           {children}
         </div>
       </BlockWrapper>
