@@ -1,5 +1,5 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Col, DatePicker, Form, Input, Radio, Row, Select, Space } from 'antd';
+import { Col, DatePicker, Form, Input, Select, Row, Space } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
@@ -10,18 +10,21 @@ import React from 'react';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useUpdateClosedDate } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { v4 as uuidv4 } from 'uuid'; // Import the UUID function
+import { v4 as uuidv4 } from 'uuid';
 import { UUID } from 'crypto';
 import dayjs from 'dayjs';
+
+const { RangePicker } = DatePicker;
 
 const ClosedDateSidebar = () => {
   const {
     isShowClosedDateSidebar: isShow,
     setIsShowClosedDateSidebar: setIsShow,
     selectedClosedDate,
-    isTo,
-    setIsTo,
+    dateType,
+    setDateType,
   } = useTimesheetSettingsStore();
+
   const { data: fiscalActiveYear } = useGetActiveFiscalYears();
 
   const { mutate: updateFiscalActiveYear, isLoading } = useUpdateClosedDate();
@@ -31,10 +34,10 @@ const ClosedDateSidebar = () => {
     if (selectedClosedDate) {
       const formattedClosedDate = {
         ...selectedClosedDate,
-        startDate: dayjs(selectedClosedDate.startDate) || null,
-        endDate: dayjs(selectedClosedDate.endDate) || null,
+        date: dayjs(selectedClosedDate.startDate) || null,
       };
       form.setFieldsValue(formattedClosedDate);
+      setDateType(selectedClosedDate.type as 'day' | 'month');
     }
   }, [selectedClosedDate, form]);
 
@@ -63,25 +66,27 @@ const ClosedDateSidebar = () => {
   const onAddClosedDate = (values: any) => {
     const fiscalYearId = fiscalActiveYear?.id;
 
-    const endDate =
-      values.endDate && dayjs(values.endDate).isValid()
-        ? values.endDate
-        : values.startDate;
+    const startDate = dayjs(values.date[0]);
+    const endDate = dayjs(values.date[1]);
 
-    const closedDates = [
-      {
+    const closedDates = [];
+    let currentDate = startDate;
+
+    while (currentDate <= endDate) {
+      closedDates.push({
         id: uuidv4() as UUID,
         name: values.name,
         type: values.type,
         description: values.description,
-        startDate: values.startDate,
-        endDate: endDate,
-      },
-    ];
+        date: currentDate.format('YYYY-MM-DD'),
+      });
+      currentDate = currentDate.add(1, 'day');
+    }
 
     if (fiscalYearId) {
       const existingClosedDates = fiscalActiveYear.closedDates || [];
       const updatedClosedDates = [...existingClosedDates, ...closedDates];
+
       updateFiscalActiveYear(
         { fiscalYearId, closedDates: updatedClosedDates },
         {
@@ -110,8 +115,7 @@ const ClosedDateSidebar = () => {
           name: values.name,
           type: values.type,
           description: values.description,
-          startDate: values.startDate || null,
-          endDate: values.endDate || null,
+          date: values.date.format('YYYY-MM-DD') || null,
         };
 
         updateFiscalActiveYear(
@@ -140,7 +144,9 @@ const ClosedDateSidebar = () => {
 
   const disabledEndDate = (current: any) => {
     const startDate = form.getFieldValue('startDate');
-    return current && startDate ? current.isBefore(startDate, 'day') : false;
+    return current && startDate
+      ? current.isBefore(startDate, 'day') || current.isSame(startDate, 'day')
+      : false;
   };
 
   return (
@@ -196,8 +202,13 @@ const ClosedDateSidebar = () => {
                   { value: 'day', label: 'Day' },
                   { value: 'month', label: 'Month' },
                 ]}
+                onChange={(value) => {
+                  setDateType(value);
+                  form.setFieldsValue({ date: null });
+                }}
               />
             </Form.Item>
+
             <Form.Item
               id="closedHolidayDescriptionFieldId"
               label="Holiday Description"
@@ -212,35 +223,38 @@ const ClosedDateSidebar = () => {
             </Form.Item>
             <Row gutter={16}>
               <Col span={12}>
-                <Form.Item
-                  id="closedHolidayFromFieldId"
-                  label="From"
-                  required
-                  name="startDate"
-                  rules={[
-                    { required: true, message: 'Please select the start date' },
-                  ]}
-                >
-                  <DatePicker className={controlClass} format="DD MMM YYYY" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  id="closedHolidayDateToFieldId"
-                  label={
-                    <Radio checked={isTo} onClick={() => setIsTo(!isTo)}>
-                      To
-                    </Radio>
-                  }
-                  name="endDate"
-                >
-                  <DatePicker
-                    className={controlClass}
-                    disabled={!isTo}
-                    format="DD MMM YYYY"
-                    disabledDate={disabledEndDate}
-                  />
-                </Form.Item>
+                {dateType === 'day' && (
+                  <Form.Item
+                    id="closedHolidayFromFieldId"
+                    label="Date"
+                    required
+                    name="date"
+                    rules={[
+                      { required: true, message: 'Please select a date' },
+                    ]}
+                  >
+                    <DatePicker className={controlClass} format="DD MMM YYYY" />
+                  </Form.Item>
+                )}
+                {dateType === 'month' && (
+                  <Form.Item
+                    id="closedHolidayRangeFieldId"
+                    label="Range"
+                    required
+                    name="date"
+                    rules={[
+                      { required: true, message: 'Please select a date range' },
+                    ]}
+                  >
+                    <RangePicker
+                      className={controlClass}
+                      format="DD MMM YYYY"
+                      disabled={!dateType}
+                      onChange={(date) => form.setFieldsValue({ date })}
+                      disabledDate={disabledEndDate}
+                    />
+                  </Form.Item>
+                )}
               </Col>
             </Row>
           </Space>
