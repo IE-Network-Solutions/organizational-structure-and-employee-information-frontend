@@ -49,29 +49,38 @@ function Reporting() {
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
 
-
   return (
     <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
         <Tooltip
-            title={
-              !(selectedUser.includes(userId) && allUnReportedPlanningTask && allUnReportedPlanningTask.length > 0)
-                ? "Plan tasks first or get manager approval"
-                : ""
-            }
-          >
-            <div style={{ display: 'inline-block' }}>
-              <CustomButton
-                disabled={!(selectedUser.includes(userId) && allUnReportedPlanningTask && allUnReportedPlanningTask.length > 0)}
-                title={`Create ${activeTabName} report`}
-                id="createActiveTabName"
-                icon={<FaPlus className="mr-2" />}
-                onClick={() => setOpenReportModal(true)}
-                className="bg-blue-600 hover:bg-blue-700"
-              />
-            </div>
-          </Tooltip>
+          title={
+            !(
+              selectedUser.includes(userId) &&
+              allUnReportedPlanningTask &&
+              allUnReportedPlanningTask.length > 0
+            )
+              ? 'Plan tasks first or get manager approval'
+              : ''
+          }
+        >
+          <div style={{ display: 'inline-block' }}>
+            <CustomButton
+              disabled={
+                !(
+                  selectedUser.includes(userId) &&
+                  allUnReportedPlanningTask &&
+                  allUnReportedPlanningTask.length > 0
+                )
+              }
+              title={`Create ${activeTabName} report`}
+              id="createActiveTabName"
+              icon={<FaPlus className="mr-2" />}
+              onClick={() => setOpenReportModal(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
+          </div>
+        </Tooltip>
 
         {/* {selectedUser.includes(userId) &&
           allUnReportedPlanningTask && allUnReportedPlanningTask.length > 0 && (
