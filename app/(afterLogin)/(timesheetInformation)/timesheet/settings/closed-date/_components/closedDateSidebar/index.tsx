@@ -1,5 +1,5 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Col, DatePicker, Form, Input, Select, Row, Space } from 'antd';
+import { Col, DatePicker, Form, Input, Select, Row, Space, Radio } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
@@ -14,15 +14,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { UUID } from 'crypto';
 import dayjs from 'dayjs';
 
-const { RangePicker } = DatePicker;
-
 const ClosedDateSidebar = () => {
   const {
     isShowClosedDateSidebar: isShow,
     setIsShowClosedDateSidebar: setIsShow,
     selectedClosedDate,
-    dateType,
-    setDateType,
+    isTo,
+    setIsTo,
   } = useTimesheetSettingsStore();
 
   const { data: fiscalActiveYear } = useGetActiveFiscalYears();
@@ -34,10 +32,9 @@ const ClosedDateSidebar = () => {
     if (selectedClosedDate) {
       const formattedClosedDate = {
         ...selectedClosedDate,
-        date: dayjs(selectedClosedDate.startDate) || null,
+        startDate: dayjs(selectedClosedDate.date),
       };
       form.setFieldsValue(formattedClosedDate);
-      setDateType(selectedClosedDate.type as 'day' | 'month');
     }
   }, [selectedClosedDate, form]);
 
@@ -47,10 +44,12 @@ const ClosedDateSidebar = () => {
       key: 'cancel',
       className: 'h-[56px] text-base',
       size: 'large',
-      onClick: () => setIsShow(false),
+      onClick: () => {
+        setIsShow(false), form.resetFields();
+      },
     },
     {
-      label: 'Add',
+      label: selectedClosedDate ? 'Edit' : 'Add',
       key: 'add',
       className: 'h-[56px] text-base',
       size: 'large',
@@ -65,9 +64,8 @@ const ClosedDateSidebar = () => {
 
   const onAddClosedDate = (values: any) => {
     const fiscalYearId = fiscalActiveYear?.id;
-
-    const startDate = dayjs(values.date[0]);
-    const endDate = dayjs(values.date[1]);
+    const startDate = dayjs(values.startDate);
+    const endDate = isTo && values.endDate ? dayjs(values.endDate) : startDate; // Use endDate if "To" is selected
 
     const closedDates = [];
     let currentDate = startDate;
@@ -115,7 +113,7 @@ const ClosedDateSidebar = () => {
           name: values.name,
           type: values.type,
           description: values.description,
-          date: values.date.format('YYYY-MM-DD') || null,
+          date: dayjs(values.startDate).format('YYYY-MM-DD'),
         };
 
         updateFiscalActiveYear(
@@ -202,13 +200,8 @@ const ClosedDateSidebar = () => {
                   { value: 'day', label: 'Day' },
                   { value: 'month', label: 'Month' },
                 ]}
-                onChange={(value) => {
-                  setDateType(value);
-                  form.setFieldsValue({ date: null });
-                }}
               />
             </Form.Item>
-
             <Form.Item
               id="closedHolidayDescriptionFieldId"
               label="Holiday Description"
@@ -223,38 +216,35 @@ const ClosedDateSidebar = () => {
             </Form.Item>
             <Row gutter={16}>
               <Col span={12}>
-                {dateType === 'day' && (
-                  <Form.Item
-                    id="closedHolidayFromFieldId"
-                    label="Date"
-                    required
-                    name="date"
-                    rules={[
-                      { required: true, message: 'Please select a date' },
-                    ]}
-                  >
-                    <DatePicker className={controlClass} format="DD MMM YYYY" />
-                  </Form.Item>
-                )}
-                {dateType === 'month' && (
-                  <Form.Item
-                    id="closedHolidayRangeFieldId"
-                    label="Range"
-                    required
-                    name="date"
-                    rules={[
-                      { required: true, message: 'Please select a date range' },
-                    ]}
-                  >
-                    <RangePicker
-                      className={controlClass}
-                      format="DD MMM YYYY"
-                      disabled={!dateType}
-                      onChange={(date) => form.setFieldsValue({ date })}
-                      disabledDate={disabledEndDate}
-                    />
-                  </Form.Item>
-                )}
+                <Form.Item
+                  id="closedHolidayFromFieldId"
+                  label="From"
+                  required
+                  name="startDate"
+                  rules={[
+                    { required: true, message: 'Please select the start date' },
+                  ]}
+                >
+                  <DatePicker className={controlClass} format="DD MMM YYYY" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  id="closedHolidayDateToFieldId"
+                  label={
+                    <Radio checked={isTo} onClick={() => setIsTo(!isTo)}>
+                      To
+                    </Radio>
+                  }
+                  name="endDate"
+                >
+                  <DatePicker
+                    className={controlClass}
+                    disabled={!isTo}
+                    format="DD MMM YYYY"
+                    disabledDate={disabledEndDate}
+                  />
+                </Form.Item>
               </Col>
             </Row>
           </Space>

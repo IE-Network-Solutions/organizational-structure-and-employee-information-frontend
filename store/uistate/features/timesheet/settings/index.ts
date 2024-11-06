@@ -19,7 +19,6 @@ type TimesheetSettingsState = {
   selectedClosedDate: any | null;
   isTo: boolean;
   isLoading: boolean;
-  dateType: 'day' | 'month' | null;
 };
 
 type TimesheetSettingsStateAction = {
@@ -46,7 +45,6 @@ type TimesheetSettingsStateAction = {
   setSelectedClosedDate: (closedDate: any | null) => void;
   setIsTo: (isTo: boolean) => void;
   setIsLoading: (isLoading: boolean) => void;
-  setDateType: (dateType: 'day' | 'month' | null) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
@@ -128,10 +126,6 @@ const timesheetSettingsSlice: StateCreator<
   isLoading: false,
   setIsLoading: (isLoading: boolean) => {
     set({ isLoading });
-  },
-  dateType: null,
-  setDateType: (dateType: 'day' | 'month' | null) => {
-    set({ dateType });
   },
 });
 
