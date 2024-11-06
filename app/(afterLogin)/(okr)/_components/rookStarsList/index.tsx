@@ -12,15 +12,13 @@ const RookStarsList: React.FC<RookStarsListProps> = ({ dataSource, title }) => {
       bodyStyle={{ padding: 0 }}
     >
       <List
-        className="max-h-48 overflow-y-auto scrollbar-none "
+        className=" overflow-y-auto scrollbar-none "
         dataSource={dataSource}
         size="small"
         renderItem={(item) => (
           <List.Item className=" ">
             <div className="text-sm font-medium">{item.completion} %</div>
-
             <div className="bg-gradient-to-b from-[#7152F3] to-transparent h-10 w-[2px] rounded inline-block mx-4"></div>
-
             <List.Item.Meta
               avatar={<Avatar src={item.avatar} size={24} />}
               title={

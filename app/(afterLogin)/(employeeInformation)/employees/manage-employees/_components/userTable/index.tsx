@@ -9,7 +9,6 @@ import {
   Tooltip,
 } from 'antd';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
-import { RiDeleteBin6Line } from 'react-icons/ri';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useEmployeeAllFilter } from '@/store/server/features/employees/employeeManagment/queries';
@@ -20,11 +19,11 @@ import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { FaEye } from 'react-icons/fa';
 import Link from 'next/link';
 import { useRehireTerminatedEmployee } from '@/store/server/features/employees/offboarding/mutation';
-import { AiOutlineUserAdd } from 'react-icons/ai';
 import JobTimeLineForm from '../allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../allFormData/workScheduleForm';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import dayjs from 'dayjs';
+import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Employee Name',
@@ -32,7 +31,7 @@ const columns: TableColumnsType<EmployeeData> = [
     ellipsis: true,
   },
   {
-    title: 'Job Title',
+    title: 'Job Position',
     dataIndex: 'job_title',
     sorter: (a, b) => a.job_title.localeCompare(b.job_title),
   },
@@ -91,12 +90,11 @@ const UserTable = () => {
       searchParams.allStatus ? searchParams.allStatus : '',
     );
   const { mutate: employeeDeleteMuation } = useDeleteEmployee();
-  const { mutate: rehireEmployee } = useRehireTerminatedEmployee();
-
+  const { mutate: rehireEmployee, isLoading: rehireLoading } =
+    useRehireTerminatedEmployee();
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
-
-  const data = allFilterData?.items?.map((item: any, index: number) => {
+  const data = allFilterData?.items?.map((item: any) => {
     const fullName = item?.firstName + ' ' + item?.middleName;
     const shortEmail = item?.email;
     const displayName =
@@ -108,7 +106,7 @@ const UserTable = () => {
         ? shortEmail.slice(0, MAX_EMAIL_LENGTH) + '...'
         : shortEmail;
     return {
-      key: index,
+      key: item?.id,
       employee_name: (
         <Tooltip
           title={
@@ -150,8 +148,8 @@ const UserTable = () => {
           </div>
         </Tooltip>
       ),
-      job_title: item?.employeeJobInformation[0]?.jobTitle
-        ? item?.employeeJobInformation[0]?.jobTitle
+      job_title: item?.employeeJobInformation[0]?.position?.name
+        ? item?.employeeJobInformation[0]?.position?.name
         : '-',
       department: item?.employeeJobInformation[0]?.department?.name
         ? item?.employeeJobInformation[0]?.department?.name
@@ -179,31 +177,35 @@ const UserTable = () => {
               <FaEye />
             </Button>
           </Link>
-          <Tooltip title={'Delete Employee'}>
-            <Button
-              id={`deleteUserButton${item?.id}`}
-              disabled={item?.deletedAt !== null}
-              className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
-              onClick={() => {
-                setDeleteModal(true);
-                setDeletedItem(item?.id);
-              }}
-            >
-              <RiDeleteBin6Line />
-            </Button>
-          </Tooltip>
-
-          {item.deletedAt !== null && (
+          {item.deletedAt === null ? (
+            <Tooltip title={'Deactive Employee'}>
+              <Button
+                id={`deleteUserButton${item?.id}`}
+                disabled={item?.deletedAt !== null}
+                className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
+                onClick={(e) => {
+                  e.stopPropagation(); // Stop event propagation
+                  setDeleteModal(true);
+                  setDeletedItem(item?.id);
+                }}
+              >
+                <MdAirplanemodeActive />
+              </Button>
+            </Tooltip>
+          ) : (
             <Tooltip title={'Activate Employee'}>
               <Button
                 type="primary"
                 htmlType="submit"
                 value={'submit'}
                 name="submit"
-                onClick={() => handelRehireModal(item)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Stop event propagation
+                  handelRehireModal(item);
+                }}
                 disabled={item.deletedAt === null}
               >
-                <AiOutlineUserAdd />
+                <MdAirplanemodeInactive />
               </Button>
             </Tooltip>
           )}
@@ -211,6 +213,10 @@ const UserTable = () => {
       ),
     };
   });
+
+  const handleRowClick = (item: any) => {
+    window.location.href = `manage-employees/${item?.key}`;
+  };
   const handleDeleteConfirm = () => {
     employeeDeleteMuation();
   };
@@ -231,7 +237,7 @@ const UserTable = () => {
   const handleActivateEmployee = (values: any) => {
     values['userId'] = userToRehire?.id;
     values.joinedDate = dayjs(values.joinedDate).format('YYYY-MM-DD');
-
+    values.jobTitle = values.positionId;
     values.departmentLeadOrNot = !values.departmentLeadOrNot
       ? false
       : values.departmentLeadOrNot;
@@ -249,12 +255,15 @@ const UserTable = () => {
   return (
     <div className="mt-2">
       <Table
-        className="w-full"
+        className="w-full cursor-pointer"
         columns={columns}
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record), // Row click handler
+        })}
         dataSource={data}
         pagination={{
           total: allFilterData?.meta?.totalItems,
-          current: allFilterData?.meta?.currentPage,
+          current: userCurrentPage,
           pageSize: pageSize,
           onChange: onPageChange,
           showSizeChanger: true,
@@ -268,6 +277,9 @@ const UserTable = () => {
         scroll={{ x: 1000 }}
       />
       <DeleteModal
+        deleteText="Confirm"
+        deleteMessage="Are you sure you want to proceed?"
+        customMessage="This action will deactivate the user. You will no longer have access."
         open={deleteModal}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteModal(false)}
@@ -300,6 +312,7 @@ const UserTable = () => {
           <Form.Item>
             <Row className="flex justify-end gap-3">
               <Button
+                loading={rehireLoading}
                 type="primary"
                 htmlType="submit"
                 value={'submit'}

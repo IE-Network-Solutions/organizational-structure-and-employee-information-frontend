@@ -28,7 +28,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
     >
       <Row gutter={16}>
         <Col span={8}>
-          <Form.Item name="dateRange">
+          <Form.Item id="dateRangeToFilterId" name="dateRange">
             <DatePicker.RangePicker
               className={filterClass}
               separator={'-'}
@@ -37,7 +37,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
           </Form.Item>
         </Col>
         <Col span={8}>
-          <Form.Item name="type">
+          <Form.Item id="filterByLeaveTypeId" name="type">
             <Select
               className="w-full h-[54px]"
               placeholder="Select Type"
@@ -50,7 +50,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
           </Form.Item>
         </Col>
         <Col span={8}>
-          <Form.Item name="status">
+          <Form.Item id="filterByLeaveRequestStatusId" name="status">
             <Select
               className="w-full h-[54px]"
               placeholder="Select Status"

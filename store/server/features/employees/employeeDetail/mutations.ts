@@ -20,7 +20,20 @@ const updateEmployeeMutation = async (id: string, values: any) => {
     data: values,
   });
 };
+const updateEmployeeInformation = async (id: string, values: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/update/user-info/by-user-id/${id}`,
+    method: 'patch',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    data: values,
+  });
+};
 // Mutation function
 const updateEmployeeRolePermissionMutation = async (
   id: string,
@@ -155,7 +168,23 @@ export const useUpdateEmployeeRolePermission = () => {
     },
   );
 };
+export const useUpdateEmployeeInformation = () => {
+  const queryClient = useQueryClient();
 
+  return useMutation(
+    ({ id, values }: { id: string; values: any }) =>
+      updateEmployeeInformation(id, values),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('employee');
+        NotificationMessage.success({
+          message: 'Successfully Updated',
+          description: 'Employee successfully updated',
+        });
+      },
+    },
+  );
+};
 export const useAddEmployeeDocument = () => {
   const queryClient = useQueryClient();
 

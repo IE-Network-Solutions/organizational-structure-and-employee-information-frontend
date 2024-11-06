@@ -18,7 +18,7 @@ const fetchAllPlanningPeriods = async () => {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
-      tenantId: '08456722-b876-4d42-bcdb-0514e3c2fa0f',
+      tenantId: tenantId,
     },
   });
 };

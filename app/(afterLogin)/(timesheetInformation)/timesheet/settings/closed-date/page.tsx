@@ -8,7 +8,8 @@ import ClosedDateTable from './_components/closedDateTable';
 import ClosedDateSidebar from './_components/closedDateSidebar';
 
 const Page = () => {
-  const { setIsShowClosedDateSidebar } = useTimesheetSettingsStore();
+  const { setIsShowClosedDateSidebar, setSelectedClosedDate } =
+    useTimesheetSettingsStore();
 
   return (
     <>
@@ -16,8 +17,11 @@ const Page = () => {
         <Button
           size="large"
           type="primary"
+          id="createNewClosedHolidayFieldId"
           icon={<LuPlus size={18} />}
-          onClick={() => setIsShowClosedDateSidebar(true)}
+          onClick={() => {
+            setSelectedClosedDate(null), setIsShowClosedDateSidebar(true);
+          }}
         >
           New Closed Date
         </Button>

@@ -6,6 +6,7 @@ import SettingsPage from './_components/rolePermission';
 import { IoMdSettings } from 'react-icons/io';
 import { FaUser } from 'react-icons/fa';
 import EmploymentType from './_components/employementType';
+import Positions from './_components/positions';
 
 function Settings() {
   const [tabPosition, setTabPosition] = useState<'left' | 'top'>('left');
@@ -38,7 +39,7 @@ function Settings() {
       label: (
         <span className="flex gap-2 mt-4">
           <FaUser className="mt-1" />{' '}
-          <p className="font-semibold">Employment Type</p>{' '}
+          <p className="font-semibold">Employment Type</p>
         </span>
       ),
       children: <EmploymentType />,
@@ -48,10 +49,20 @@ function Settings() {
       label: (
         <span className="flex gap-2 mt-4">
           <IoMdSettings className="mt-1" />{' '}
-          <p className="font-semibold">Role Permission</p>{' '}
+          <p className="font-semibold">Role Permission</p>
         </span>
       ),
       children: <SettingsPage />,
+    },
+    {
+      key: '3',
+      label: (
+        <span className="flex gap-2 mt-4">
+          <IoMdSettings className="mt-1" />{' '}
+          <p className="font-semibold">Position</p>
+        </span>
+      ),
+      children: <Positions />,
     },
   ];
 

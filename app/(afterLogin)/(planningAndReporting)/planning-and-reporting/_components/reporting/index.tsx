@@ -1,6 +1,6 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
-import { Avatar, Card, Col, Row, Typography } from 'antd';
+import { Avatar, Card, Col, Row, Tooltip, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { MdOutlinePending } from 'react-icons/md';
@@ -34,7 +34,7 @@ function Reporting() {
 
   const { data: allReporting } = useGetReporting({
     userId: selectedUser,
-    planPeriodId: planningPeriodId,
+    planPeriodId: planningPeriodId ?? '',
   });
   const { data: allUnReportedPlanningTask } =
     useGetUnReportedPlanning(planningPeriodId);
@@ -49,12 +49,32 @@ function Reporting() {
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
 
+
   return (
     <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
-        {selectedUser.includes(userId) &&
-          allUnReportedPlanningTask?.length !== 0 && (
+        <Tooltip
+            title={
+              !(selectedUser.includes(userId) && allUnReportedPlanningTask && allUnReportedPlanningTask.length > 0)
+                ? "Plan tasks first or get manager approval"
+                : ""
+            }
+          >
+            <div style={{ display: 'inline-block' }}>
+              <CustomButton
+                disabled={!(selectedUser.includes(userId) && allUnReportedPlanningTask && allUnReportedPlanningTask.length > 0)}
+                title={`Create ${activeTabName} report`}
+                id="createActiveTabName"
+                icon={<FaPlus className="mr-2" />}
+                onClick={() => setOpenReportModal(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+              />
+            </div>
+          </Tooltip>
+
+        {/* {selectedUser.includes(userId) &&
+          allUnReportedPlanningTask && allUnReportedPlanningTask.length > 0 && (
             <CustomButton
               title={`Create ${activeTabName} report`}
               id="createActiveTabName"
@@ -62,7 +82,7 @@ function Reporting() {
               onClick={() => setOpenReportModal(true)}
               className="bg-blue-600 hover:bg-blue-700"
             />
-          )}
+          )} */}
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
@@ -163,7 +183,7 @@ function Reporting() {
               />
             </p>
             <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
-              There is no Planned data !!
+              There is no Reported data !!
             </p>
             {/* <EmptyImage /> */}
           </div>

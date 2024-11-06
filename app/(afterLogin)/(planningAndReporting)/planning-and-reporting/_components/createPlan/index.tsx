@@ -8,6 +8,7 @@ import { useFetchObjectives } from '@/store/server/features/employees/planning/q
 import DefaultCardForm from '../planForms/defaultForm';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { FaPlus } from 'react-icons/fa';
 
 function CreatePlan() {
   const {
@@ -18,6 +19,8 @@ function CreatePlan() {
     activePlanPeriod,
     isEditing,
     setWeight,
+    mkAsATask,
+    setMKAsATask,
     resetWeights,
   } = PlanningAndReportingStore();
   const { userId } = useAuthenticationStore();
@@ -33,9 +36,16 @@ function CreatePlan() {
   const { data: planningPeriods } = AllPlanningPeriods();
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
-  const planningUserId = planningPeriods?.find(
+  // Ensure planningPeriods is always an array before using find
+  const safePlanningPeriods = Array.isArray(planningPeriods)
+    ? planningPeriods
+    : [];
+
+  // Use find safely
+  const planningUserId = safePlanningPeriods.find(
     (item: any) => item.planningPeriod?.id == planningPeriodId,
   )?.id;
+
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Create New plan
@@ -76,6 +86,7 @@ function CreatePlan() {
         .filter((value) => Array.isArray(value))
         .flat();
     };
+
     const finalValues = mergeValues(values);
     createTask(
       { tasks: finalValues },
@@ -125,7 +136,25 @@ function CreatePlan() {
                               className="flex justify-between"
                               key={resultIndex}
                             >
-                              <h4>{kr?.title}</h4>
+                              <h4 className="flex justify-between">
+                                {kr?.title}
+                                {kr?.metricType?.name === 'Achieve' && (
+                                  <Tooltip
+                                    className="mt-2 ml-5"
+                                    title="Plan keyResult as a Task"
+                                  >
+                                    <Button
+                                      size="small"
+                                      className="text-[10px] text-primary"
+                                      icon={<FaPlus />}
+                                      onClick={() => {
+                                        setMKAsATask(kr?.title);
+                                        handleAddBoard(kr?.id);
+                                      }}
+                                    />
+                                  </Tooltip>
+                                )}
+                              </h4>
                             </div>
                             {hasMilestone ? (
                               <>
@@ -136,9 +165,10 @@ function CreatePlan() {
                                         <div className="flex gap-3">
                                           <span>{ml?.title}</span>{' '}
                                           <Button
-                                            onClick={() =>
-                                              handleAddBoard(kr?.id + ml?.id)
-                                            }
+                                            onClick={() => {
+                                              setMKAsATask(null);
+                                              handleAddBoard(kr?.id + ml?.id);
+                                            }}
                                             type="link"
                                             icon={<BiPlus />}
                                             iconPosition="start"
@@ -151,20 +181,36 @@ function CreatePlan() {
                                               `names-${kr?.id + ml?.id}`
                                             ] || 0}
                                           </div>
+                                          <Tooltip title="Plan Milestone as a Task">
+                                            <Button
+                                              size="small"
+                                              className="text-[10px] text-primary"
+                                              icon={<FaPlus />}
+                                              onClick={() => {
+                                                setMKAsATask(ml?.title);
+                                                handleAddBoard(kr?.id + ml?.id);
+                                              }}
+                                            />
+                                          </Tooltip>
                                         </div>
                                         <>
                                           <Divider className="my-2" />
-                                          <DefaultCardForm
-                                            kId={kr?.id}
-                                            hasTargetValue={hasTargetValue}
-                                            hasMilestone={hasMilestone}
-                                            milestoneId={ml?.id}
-                                            name={`names-${kr?.id + ml?.id}`}
-                                            form={form}
-                                            planningPeriodId={planningPeriodId}
-                                            userId={userId}
-                                            planningUserId={planningUserId}
-                                          />
+                                          {planningPeriodId &&
+                                            planningUserId && (
+                                              <DefaultCardForm
+                                                kId={kr?.id}
+                                                hasTargetValue={hasTargetValue}
+                                                hasMilestone={hasMilestone}
+                                                milestoneId={ml?.id}
+                                                name={`names-${kr?.id + ml?.id}`}
+                                                form={form}
+                                                planningPeriodId={
+                                                  planningPeriodId
+                                                }
+                                                userId={userId}
+                                                planningUserId={planningUserId}
+                                              />
+                                            )}
                                           <BoardCardForm
                                             form={form}
                                             handleAddName={handleAddName}
@@ -174,6 +220,9 @@ function CreatePlan() {
                                             kId={kr?.id}
                                             hideTargetValue={hasTargetValue}
                                             name={kr?.id + ml?.id}
+                                            isMKAsTask={
+                                              mkAsATask ? true : false
+                                            }
                                           />
                                         </>
                                       </>
@@ -199,17 +248,19 @@ function CreatePlan() {
                                   </div>
                                 </div>
                                 <Divider className="my-2" />
-                                <DefaultCardForm
-                                  kId={kr?.id}
-                                  hasTargetValue={hasTargetValue}
-                                  hasMilestone={hasMilestone}
-                                  milestoneId={null}
-                                  name={`names-${kr?.id}`}
-                                  form={form}
-                                  planningPeriodId={planningPeriodId}
-                                  userId={userId}
-                                  planningUserId={planningUserId}
-                                />
+                                {planningPeriodId && planningUserId && (
+                                  <DefaultCardForm
+                                    kId={kr?.id}
+                                    hasTargetValue={hasTargetValue}
+                                    hasMilestone={hasMilestone}
+                                    milestoneId={null}
+                                    name={`names-${kr?.id}`}
+                                    form={form}
+                                    planningPeriodId={planningPeriodId}
+                                    userId={userId}
+                                    planningUserId={planningUserId}
+                                  />
+                                )}
                                 <BoardCardForm
                                   form={form}
                                   handleAddName={handleAddName}
@@ -217,6 +268,7 @@ function CreatePlan() {
                                   kId={kr?.id}
                                   hideTargetValue={hasTargetValue}
                                   name={kr?.id}
+                                  isMKAsTask={mkAsATask ? true : false}
                                 />
                               </>
                             )}

@@ -12,7 +12,6 @@ import {
 import { GoPlus } from 'react-icons/go';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
-import moment from 'moment';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
@@ -129,7 +128,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               >
                 <DatePicker
                   className="w-full text-xs"
-                  value={keyItem.deadline ? moment(keyItem.deadline) : null}
+                  value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) =>
                     current && current < dayjs().startOf('day')

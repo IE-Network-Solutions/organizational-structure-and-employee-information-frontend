@@ -17,7 +17,7 @@ const headers = {
  * @param tenantId - The ID of the tenant to fetch the company profile for.
  * @returns Promise with the company profile.
  */
-const getCompanyProfileByTenantId = async (tenantId: string) => {
+export const getCompanyProfileByTenantId = async (tenantId: string) => {
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${tenantId}`,
     method: 'GET',
