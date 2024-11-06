@@ -1,5 +1,5 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Col, DatePicker, Form, Input, Radio, Row, Select, Space } from 'antd';
+import { Col, DatePicker, Form, Input, Select, Row, Space, Radio } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
@@ -10,7 +10,7 @@ import React from 'react';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useUpdateClosedDate } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { v4 as uuidv4 } from 'uuid'; // Import the UUID function
+import { v4 as uuidv4 } from 'uuid';
 import { UUID } from 'crypto';
 import dayjs from 'dayjs';
 
@@ -22,6 +22,7 @@ const ClosedDateSidebar = () => {
     isTo,
     setIsTo,
   } = useTimesheetSettingsStore();
+
   const { data: fiscalActiveYear } = useGetActiveFiscalYears();
 
   const { mutate: updateFiscalActiveYear, isLoading } = useUpdateClosedDate();
@@ -31,8 +32,7 @@ const ClosedDateSidebar = () => {
     if (selectedClosedDate) {
       const formattedClosedDate = {
         ...selectedClosedDate,
-        startDate: dayjs(selectedClosedDate.startDate) || null,
-        endDate: dayjs(selectedClosedDate.endDate) || null,
+        startDate: dayjs(selectedClosedDate.date),
       };
       form.setFieldsValue(formattedClosedDate);
     }
@@ -44,10 +44,12 @@ const ClosedDateSidebar = () => {
       key: 'cancel',
       className: 'h-[56px] text-base',
       size: 'large',
-      onClick: () => setIsShow(false),
+      onClick: () => {
+        setIsShow(false), form.resetFields();
+      },
     },
     {
-      label: 'Add',
+      label: selectedClosedDate ? 'Edit' : 'Add',
       key: 'add',
       className: 'h-[56px] text-base',
       size: 'large',
@@ -62,26 +64,27 @@ const ClosedDateSidebar = () => {
 
   const onAddClosedDate = (values: any) => {
     const fiscalYearId = fiscalActiveYear?.id;
+    const startDate = dayjs(values.startDate);
+    const endDate = isTo && values.endDate ? dayjs(values.endDate) : startDate; // Use endDate if "To" is selected
 
-    const endDate =
-      values.endDate && dayjs(values.endDate).isValid()
-        ? values.endDate
-        : values.startDate;
+    const closedDates = [];
+    let currentDate = startDate;
 
-    const closedDates = [
-      {
+    while (currentDate <= endDate) {
+      closedDates.push({
         id: uuidv4() as UUID,
         name: values.name,
         type: values.type,
         description: values.description,
-        startDate: values.startDate,
-        endDate: endDate,
-      },
-    ];
+        date: currentDate.format('YYYY-MM-DD'),
+      });
+      currentDate = currentDate.add(1, 'day');
+    }
 
     if (fiscalYearId) {
       const existingClosedDates = fiscalActiveYear.closedDates || [];
       const updatedClosedDates = [...existingClosedDates, ...closedDates];
+
       updateFiscalActiveYear(
         { fiscalYearId, closedDates: updatedClosedDates },
         {
@@ -110,8 +113,7 @@ const ClosedDateSidebar = () => {
           name: values.name,
           type: values.type,
           description: values.description,
-          startDate: values.startDate || null,
-          endDate: values.endDate || null,
+          date: dayjs(values.startDate).format('YYYY-MM-DD'),
         };
 
         updateFiscalActiveYear(
@@ -140,7 +142,9 @@ const ClosedDateSidebar = () => {
 
   const disabledEndDate = (current: any) => {
     const startDate = form.getFieldValue('startDate');
-    return current && startDate ? current.isBefore(startDate, 'day') : false;
+    return current && startDate
+      ? current.isBefore(startDate, 'day') || current.isSame(startDate, 'day')
+      : false;
   };
 
   return (
