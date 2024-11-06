@@ -20,7 +20,6 @@ const Survey: React.FC = () => {
     dateRange?.start,
     dateRange?.end,
   );
-  const date = new Date();
   const handleDateChange = (dates: any) => {
     if (dates) {
       const startDate = dates[0]?.format('YYYY-MM-DD'); // Format start date

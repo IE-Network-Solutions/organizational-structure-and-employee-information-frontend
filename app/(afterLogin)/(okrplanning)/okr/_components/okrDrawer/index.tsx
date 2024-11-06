@@ -32,7 +32,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   } = useOKRStore();
 
   const [form] = Form.useForm();
-  const { mutate: createObjective } = useCreateObjective();
+  const { mutate: createObjective, isLoading } = useCreateObjective();
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -67,14 +67,57 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     setObjectiveValue(defaultObjective); // Reset the objective state
     props?.onClose(); // Close the drawer
   };
+
   const onSubmit = () => {
     form
       .validateFields()
       .then(() => {
-        if (
-          objectiveValue?.keyResults &&
-          objectiveValue?.keyResults?.length !== 0
-        ) {
+        const keyResults = objectiveValue?.keyResults;
+        if (keyResults && keyResults.length !== 0) {
+          // Iterate over each keyResult to validate all milestone key types
+          for (const [index, keyResult] of keyResults.entries()) {
+            const keyType = keyResult?.metricType?.name || keyResult?.key_type;
+            if (keyType === 'Milestone') {
+              // Check if at least one milestone is added
+              if (!keyResult.milestones || keyResult.milestones.length === 0) {
+                NotificationMessage.warning({
+                  message: `On Number: ${index + 1} Title:${keyResult.title} Please add at least one milestone`,
+                });
+                return; // Stop submission if no milestone is added
+              }
+
+              // Calculate the sum of milestone values
+              const milestoneSum = keyResult.milestones.reduce(
+                (sum: number, milestone: Record<string, number>) =>
+                  sum + milestone.weight,
+                0,
+              );
+
+              // Check if the sum of milestone values equals 100
+              if (milestoneSum !== 100) {
+                NotificationMessage.warning({
+                  message: `On Number: ${index + 1} Title:${keyResult.title} key result sum of milestones should equal to 100.`,
+                });
+                return; // Stop submission if the sum is not 100
+              }
+            }
+            if (
+              keyType === 'Currency' ||
+              keyType === 'Numeric' ||
+              keyType === 'Percentage'
+            ) {
+              // Check if at least one milestone is added
+
+              if (keyResult?.initialValue > keyResult?.targetValue) {
+                NotificationMessage.warning({
+                  message: `On number:${index + 1} title:${keyResult.title} key result initialValue should be less than or equal to the target value.`,
+                });
+                return; // Stop submission if the sum is not 100
+              }
+            }
+          }
+
+          // If all checks pass, proceed with the objective creation
           createObjective(objectiveValue, {
             onSuccess: () => {
               handleDrawerClose();
@@ -101,17 +144,18 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const footer = (
     <div className="w-full flex justify-center items-center gap-4 pt-8">
       <CustomButton
-        id="cancel-button"  
+        id="cancel-button"
         type="default"
         title="Cancel"
         onClick={handleDrawerClose}
         style={{ marginRight: 8 }}
       />
-      <CustomButton 
-        id="save-button"  
-        title={'Save'} 
-        type="primary" 
-        onClick={onSubmit} 
+      <CustomButton
+        id="save-button"
+        title={'Save'}
+        type="primary"
+        onClick={onSubmit}
+        loading={isLoading}
       />
     </div>
   );
@@ -124,7 +168,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       width={'50%'}
     >
       <Form
-        id="okr-form"  
+        id="okr-form"
         form={form}
         layout="vertical"
         initialValues={objectiveValue}
@@ -133,7 +177,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           <Col xs={24} sm={16}>
             {keyResultByUser?.items?.length ? (
               <Form.Item
-                id="alignment-select"  
+                id="alignment-select"
                 className="font-bold text-xs w-full mb-2"
                 name="allignedKeyResultId"
                 label="Objective/Alignment"
@@ -146,30 +190,20 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               >
                 {/* Search and select a key result by user */}
                 <Select
-                  id="alignment-select-dropdown"  
+                  id="alignment-select-dropdown"
                   showSearch
                   placeholder="Search and select a Key Result"
                   value={objectiveValue?.title || ''}
-                  onChange={(
-                    value,
-                    option,
-                  ) =>
-                    handleObjectiveChange(
-                      option?.key,
-                      'allignedKeyResultId',
-                    ) // Update the alignment ID with the selected key
+                  onChange={
+                    (value, option) =>
+                      handleObjectiveChange(option?.key, 'allignedKeyResultId') // Update the alignment ID with the selected key
                   }
                   filterOption={(input: any, option: any) =>
-                    option.children
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
+                    option.children.toLowerCase().includes(input.toLowerCase())
                   }
                 >
                   {keyResultByUser?.items.map((keyResult) => (
-                    <Select.Option
-                      key={keyResult.id}
-                      value={keyResult.title}
-                    >
+                    <Select.Option key={keyResult.id} value={keyResult.title}>
                       {keyResult.title}
                     </Select.Option>
                   ))}
@@ -177,7 +211,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               </Form.Item>
             ) : (
               <Form.Item
-                id="title-input"  
+                id="title-input"
                 className="font-bold text-xs w-full mb-2"
                 name="title"
                 label="Objective/Alignment"
@@ -189,7 +223,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 ]}
               >
                 <Input
-                  id="title-input-field"  
+                  id="title-input-field"
                   allowClear
                   value={objectiveValue?.title || ''}
                   onChange={(e) => {
@@ -201,24 +235,21 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           </Col>
           <Col xs={24} sm={8}>
             <Form.Item
-              id="deadline-picker"  
+              id="deadline-picker"
               className="font-bold text-xs w-full"
               name="ObjectiveDeadline"
               label="Objective Deadline"
               rules={[{ required: true, message: 'Please select a deadline' }]}
             >
               <DatePicker
-                id="deadline-picker-field"  
+                id="deadline-picker-field"
                 value={
                   objectiveValue.deadline
                     ? dayjs(objectiveValue.deadline)
                     : null
                 }
                 onChange={(date) => {
-                  handleObjectiveChange(
-                    date?.format('YYYY-MM-DD'),
-                    'deadline',
-                  );
+                  handleObjectiveChange(date?.format('YYYY-MM-DD'), 'deadline');
                 }}
                 className="w-full"
                 format="YYYY-MM-DD"
@@ -234,7 +265,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           <div className="flex justify-between items-center">
             <p className="font-bold text-xs h-6">Set Key Result</p>
             <Button
-              id="add-keyresult-button"  
+              id="add-keyresult-button"
               disabled={objective?.keyResults?.length == 1}
               onClick={addKeyResult}
               className="border-none shadow-none bg-none text-xs"
@@ -243,18 +274,16 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               Add Key Result
             </Button>
           </div>
-          {objectiveValue?.keyResults?.map(
-            (keyValue: any, index: number) => (
-              <KeyResultView
-                key={index} 
-                objective={objectiveValue}
-                keyValue={keyValue}
-                index={index}
-                isEdit={false}
-                form={form}
-              />
-            ),
-          )}
+          {objectiveValue?.keyResults?.map((keyValue: any, index: number) => (
+            <KeyResultView
+              key={index}
+              objective={objectiveValue}
+              keyValue={keyValue}
+              index={index}
+              isEdit={false}
+              form={form}
+            />
+          ))}
           {objective?.keyResults.map((keyItem: any, index: number) => (
             <KeyResultForm
               key={index}
