@@ -16,9 +16,9 @@ import TextArea from 'antd/es/input/TextArea';
 import { EmploymentType, LocationType } from '@/types/enumTypes';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
+import RichTextEditor from '../richTextEditor';
 
 const { Option } = Select;
-
 interface CreateJobsProps {
   close: () => void;
   form: FormInstance;
@@ -274,7 +274,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           },
         ]}
       >
-        <TextArea rows={4} placeholder="Description" />
+        <RichTextEditor />
       </Form.Item>
 
       <Form.Item>
