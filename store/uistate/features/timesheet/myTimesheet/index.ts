@@ -2,6 +2,7 @@ import { create, StateCreator } from 'zustand';
 import { AllowedArea, LeaveType } from '@/types/timesheet/settings';
 import { AttendanceRecord } from '@/types/timesheet/attendance';
 import { BreakType } from '@/types/timesheet/breakType';
+import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 
 export enum CheckStatus {
   notStarted = 'notStarted',
@@ -9,10 +10,11 @@ export enum CheckStatus {
   breaking = 'breaking',
   finished = 'finished',
 }
-
 type MyTimesheetState = {
+  filter: Partial<LeaveRequestBody['filter']>;
   isShowViewSidebar: boolean;
   isShowLeaveRequestSidebar: boolean;
+  isShowLeaveRequestDetail: boolean;
   leaveRequestSidebarData: string | null;
   isShowCheckOutSidebar: boolean;
   checkStatus: CheckStatus;
@@ -25,8 +27,10 @@ type MyTimesheetState = {
 };
 
 type MyTimesheetAction = {
+  setFilter: (filter: Partial<LeaveRequestBody['filter']>) => void;
   setIsShowViewSidebar: (isShowViewSidebar: boolean) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
+  setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail: boolean) => void;
   setLeaveRequestSidebarData: (leaveRequestSidebarData: string | null) => void;
   setIsShowCheckOutSidebar: (isShowCheckOutSidebar: boolean) => void;
   setCheckStatus: (checkStatus: CheckStatus) => void;
@@ -41,6 +45,9 @@ type MyTimesheetAction = {
 const useMyTimesheetSlice: StateCreator<
   MyTimesheetState & MyTimesheetAction
 > = (set) => ({
+  filter: {},
+  setFilter: (newFilter) => set({ filter: newFilter }),
+
   isShowViewSidebar: false,
   setIsShowViewSidebar: (isShowViewSidebar) => {
     set({ isShowViewSidebar });
@@ -49,6 +56,11 @@ const useMyTimesheetSlice: StateCreator<
   isShowLeaveRequestSidebar: false,
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar) => {
     set({ isShowLeaveRequestSidebar });
+  },
+
+  isShowLeaveRequestDetail: false,
+  setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail) => {
+    set({ isShowLeaveRequestDetail });
   },
 
   leaveRequestSidebarData: null,
