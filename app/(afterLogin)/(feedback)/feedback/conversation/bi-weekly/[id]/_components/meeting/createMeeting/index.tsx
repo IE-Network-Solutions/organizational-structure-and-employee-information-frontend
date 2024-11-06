@@ -5,6 +5,9 @@ import { Form, Input, DatePicker, TimePicker, Select, Steps, Button } from 'antd
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { ConversationStore } from '@/store/uistate/features/feedback/conversation';
 import RichTextEditor from '@/components/common/reachText';
+import CreateActionPlan from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/createActionPlan';
+import { FaPlus } from 'react-icons/fa';
+import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 
 const { Step } = Steps;
 const { Option } = Select;
@@ -12,6 +15,7 @@ const { Option } = Select;
 const CreateMeeting = (props: any) => {
   const [form] = Form.useForm();
   const { setCurrent, current } = ConversationStore();
+  const {setOpen} = useOrganizationalDevelopment();
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleCreateBiWeekly = (values: any) => {
@@ -195,7 +199,9 @@ const CreateMeeting = (props: any) => {
             >
               <RichTextEditor onChange={(content: any) => console.log(content)} />
             </Form.Item>
-
+              <Button htmlType='button' onClick={()=>setOpen(true)} className='flex justify-center items-center' type='primary'>
+                <FaPlus/> <span>Create Action Plan</span>
+              </Button>
             <div className="flex justify-center">
               <Button onClick={() => setCurrentStep(0)} style={{ marginRight: 8 }}>
                 Back
@@ -207,6 +213,8 @@ const CreateMeeting = (props: any) => {
           </>
         )}
       </Form>
+      <CreateActionPlan onClose={()=>{setOpen(false)}} />
+      
     </>
   );
 };
