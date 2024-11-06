@@ -12,7 +12,6 @@ import {
   Select,
   Spin,
 } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
 import { EmploymentType, LocationType } from '@/types/enumTypes';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
