@@ -15,7 +15,7 @@ import {
 import { EmploymentType, LocationType } from '@/types/enumTypes';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
-import RichTextEditor from '../richTextEditor';
+import TextEditor from '@/components/form/textEditor';
 
 const { Option } = Select;
 interface CreateJobsProps {
@@ -273,7 +273,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           },
         ]}
       >
-        <RichTextEditor />
+        <TextEditor className="mt-3" placeholder="Enter the Article" />
       </Form.Item>
 
       <Form.Item>
