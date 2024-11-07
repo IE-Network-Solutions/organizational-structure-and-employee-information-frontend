@@ -22,6 +22,7 @@ import { PlanningType } from '@/types/enumTypes';
 import { DATETIME_FORMAT } from '@/utils/constants';
 import { AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
+import CommentCard from '../comments/planCommentCard';
 
 const { Text, Title } = Typography;
 
@@ -41,7 +42,7 @@ function Planning() {
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
-  const { data: allPlanning } = useGetPlanning({
+  const { data: allPlanning, isLoading: getPlanningLoading } = useGetPlanning({
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '', // Provide a default string value
   });
@@ -70,24 +71,32 @@ function Planning() {
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
         <Tooltip
-              title={
-                !(selectedUser.includes(userId) &&((transformedData?.[0]?.isReported ?? false) || transformedData?.length === 0))
-                  ? "Report planned tasks before"
-                  : ""
+          title={
+            !(
+              selectedUser.includes(userId) &&
+              ((transformedData?.[0]?.isReported ?? false) ||
+                transformedData?.length === 0)
+            )
+              ? 'Report planned tasks before'
+              : ''
+          }
+        >
+          <div style={{ display: 'inline-block' }}>
+            <CustomButton
+              disabled={
+                !(
+                  selectedUser.includes(userId) &&
+                  ((transformedData?.[0]?.isReported ?? false) ||
+                    transformedData?.length === 0)
+                )
               }
-            >
-              <div style={{ display: 'inline-block' }}>
-                <CustomButton
-                  disabled={!(selectedUser.includes(userId) &&
-                    ((transformedData?.[0]?.isReported ?? false) ||
-                      transformedData?.length === 0))}
-                      title={`Create ${activeTabName} Plan`}
-                      id="createActiveTabName"
-                      icon={<FaPlus className="mr-2" />}
-                      onClick={() => setOpen(true)}
-                      className="bg-blue-600 hover:bg-blue-700"
-                />
-              </div>
+              title={`Create ${activeTabName} Plan`}
+              id="createActiveTabName"
+              icon={<FaPlus className="mr-2" />}
+              onClick={() => setOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
+          </div>
         </Tooltip>
         {/* {selectedUser.includes(userId) &&
           ((transformedData?.[0]?.isReported ?? false) ||
@@ -338,6 +347,12 @@ function Planning() {
               ),
             )}
           </Card>
+          <CommentCard
+            planId={dataItem?.id}
+            data={dataItem?.comments}
+            loading={getPlanningLoading}
+            isPlanCard={true}
+          />
         </>
       ))}
 
