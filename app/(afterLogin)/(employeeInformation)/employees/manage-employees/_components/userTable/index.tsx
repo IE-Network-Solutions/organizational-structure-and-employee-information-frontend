@@ -104,7 +104,7 @@ const UserTable = () => {
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
   const data = allFilterData?.items?.map((item: any) => {
-    const fullName = item?.firstName + ' ' + item?.middleName;
+    const fullName = item?.firstName + ' ' + (item?.middleName ? item?.middleName : '');
     const shortEmail = item?.email;
     const displayName =
       fullName.length > MAX_NAME_LENGTH
@@ -127,7 +127,7 @@ const UserTable = () => {
             </>
           }
         >
-          <div className="flex items-center flex-wrap sm:flex-row justify-center gap-2">
+          <div className="flex items-center flex-wrap sm:flex-row justify-start gap-2">
             <div className="relative w-6 h-6 rounded-full overflow-hidden">
               <Image
                 src={
