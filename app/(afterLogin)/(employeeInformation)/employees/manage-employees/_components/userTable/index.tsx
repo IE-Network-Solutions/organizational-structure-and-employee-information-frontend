@@ -26,6 +26,15 @@ import dayjs from 'dayjs';
 import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
 const columns: TableColumnsType<EmployeeData> = [
   {
+    title: 'Employee Id',
+    dataIndex: 'employee_attendance_id',
+    sorter: (a, b) => {
+      const idA = a.employee_attendance_id ?? 0;
+      const idB = b.employee_attendance_id ?? 0;
+      return idA - idB;
+    },
+  },
+  {
     title: 'Employee Name',
     dataIndex: 'employee_name',
     ellipsis: true,
@@ -107,6 +116,7 @@ const UserTable = () => {
         : shortEmail;
     return {
       key: item?.id,
+      employee_attendance_id: item?.employeeInformation?.employeeAttendanceId,
       employee_name: (
         <Tooltip
           title={
