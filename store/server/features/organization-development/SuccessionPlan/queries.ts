@@ -2,6 +2,7 @@ import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
 import { useSuccessionPlanStore } from '@/store/uistate/features/organizationalDevelopment/SuccessionPlan';
+import { ORG_DEV_URL } from '@/utils/constants';
 
 /**
  * Function to fetch all critical positions
@@ -13,7 +14,7 @@ const fetchCriticalPositions = async () => {
   const userId = useAuthenticationStore.getState().userId;
 
   return crudRequest({
-    url: `http://localhost:5000/api/v1/critical-positions/${userId}`,
+    url: `${ORG_DEV_URL}/critical-positions/${userId}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -39,13 +40,12 @@ const fetchSuccessionPlans = async () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   const successionPlanId = useSuccessionPlanStore.getState().successionPlanId;
 
-  // Ensure successionPlanId exists before making the request
   if (!successionPlanId) {
     throw new Error('No succession plan ID found');
   }
 
   return crudRequest({
-    url: `http://localhost:5000/api/v1/succession-plans/${successionPlanId}`,
+    url: `${ORG_DEV_URL}/succession-plans/${successionPlanId}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -60,18 +60,18 @@ const fetchSuccessionPlans = async () => {
  */
 export const useFetchSuccessionPlans = () => {
   const query = useQuery('successionPlans', fetchSuccessionPlans, {
-    enabled: false, // keep it disabled initially
+    enabled: false,
   });
 
   const fetchData = () => {
     if (query.isRefetching || query.isFetching) {
-      return; // prevent refetch if already fetching
+      return;
     }
-    query.refetch(); // explicitly call refetch when needed
+    query.refetch();
   };
 
   return {
     ...query,
-    fetchData, // return fetchData to call when needed
+    fetchData,
   };
 };

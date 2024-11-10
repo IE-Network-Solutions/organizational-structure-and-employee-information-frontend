@@ -3,7 +3,12 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useSuccessionPlanStore } from '@/store/uistate/features/organizationalDevelopment/SuccessionPlan';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
+import { ORG_DEV_URL } from '@/utils/constants';
 
+/**
+ * Function to get Auth data for mutations
+ * @returns Token and tenant Id
+ */
 const getAuthHeaders = () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -13,6 +18,10 @@ const getAuthHeaders = () => {
   };
 };
 
+/**
+ * Function to handle mutations success
+ * @returns
+ */
 const handleMutationSuccess = (
   queryClient: any,
   message: string,
@@ -22,6 +31,10 @@ const handleMutationSuccess = (
   NotificationMessage.success({ message, description });
 };
 
+/**
+ * Function to handle mutations error
+ * @returns
+ */
 const handleMutationError = (
   errorMessage: string,
   errorDescription: string,
@@ -32,17 +45,24 @@ const handleMutationError = (
   });
 };
 
-/** API Call Functions */
+/**
+ * Function to crate a critical position
+ * @returns The response data from the API
+ */
 const createCriticalPosition = async ({ values }: { values: any }) => {
   const { userId } = useAuthenticationStore.getState();
   return crudRequest({
-    url: `http://localhost:5000/api/v1/critical-positions/${userId}`,
+    url: `${ORG_DEV_URL}/critical-positions/${userId}`,
     method: 'POST',
     data: values,
     headers: getAuthHeaders(),
   });
 };
 
+/**
+ * Function to update a critical position
+ * @returns The response data from the API
+ */
 const updateCriticalPosition = async ({
   values,
   id,
@@ -51,21 +71,29 @@ const updateCriticalPosition = async ({
   id: string;
 }) => {
   return crudRequest({
-    url: `http://localhost:5000/api/v1/critical-positions/${id}`,
+    url: `${ORG_DEV_URL}/critical-positions/${id}`,
     method: 'PUT',
     data: values,
     headers: getAuthHeaders(),
   });
 };
 
+/**
+ * Function to delete a critical position
+ * @returns The response data from the API
+ */
 const deleteCriticalPosition = async ({ id }: { id: string }) => {
   return crudRequest({
-    url: `http://localhost:5000/api/v1/critical-positions/${id}`,
+    url: `${ORG_DEV_URL}/critical-positions/${id}`,
     method: 'delete',
     headers: getAuthHeaders(),
   });
 };
 
+/**
+ * Fuction to create a succession plan
+ * @returns The response data from the API
+ */
 const createSuccessionPlan = async ({
   successor,
   criticalPositionId,
@@ -75,24 +103,31 @@ const createSuccessionPlan = async ({
 }) => {
   const { userId } = useAuthenticationStore.getState();
   return crudRequest({
-    url: `http://localhost:5000/api/v1/succession-plans/${userId}`,
+    url: `${ORG_DEV_URL}/succession-plans/${userId}`,
     method: 'POST',
     data: { ...successor, criticalPositionId },
     headers: getAuthHeaders(),
   });
 };
 
+/**
+ * Function to update a evaluation
+ * @returns The response data from the API
+ */
 const updateEvaluation = async ({ data }: { data: any }) => {
   const successionPlanId = useSuccessionPlanStore.getState().successionPlanId;
   return crudRequest({
-    url: `http://localhost:5000/api/v1/evaluations/${successionPlanId}`,
+    url: `${ORG_DEV_URL}/evaluations/${successionPlanId}`,
     method: 'PUT',
     data: { data },
     headers: getAuthHeaders(),
   });
 };
 
-/** Hooks for Mutations */
+/**
+ * Hook to create a critical position
+ * @returns The response data from the API
+ */
 export const useCreateCriticalPosition = () => {
   const queryClient = useQueryClient();
   return useMutation(createCriticalPosition, {
@@ -110,6 +145,10 @@ export const useCreateCriticalPosition = () => {
   });
 };
 
+/**
+ * Hook to create a succession plan
+ * @returns The response data from the API
+ */
 export const useCreateSuccessionPlan = () => {
   const queryClient = useQueryClient();
   return useMutation(createSuccessionPlan, {
@@ -124,6 +163,10 @@ export const useCreateSuccessionPlan = () => {
   });
 };
 
+/**
+ * Hook to update a evaluation
+ * @returns The response data from the API
+ */
 export const useUpdateEvaluation = () => {
   const queryClient = useQueryClient();
   return useMutation(updateEvaluation, {
@@ -142,6 +185,10 @@ export const useUpdateEvaluation = () => {
   });
 };
 
+/**
+ * Hook to update a critical position
+ * @returns The response data from the API
+ */
 export const useUpdateCriticalPosition = () => {
   const queryClient = useQueryClient();
   return useMutation(updateCriticalPosition, {
@@ -157,6 +204,10 @@ export const useUpdateCriticalPosition = () => {
   });
 };
 
+/**
+ * Hook to delate a critical position
+ * @returns The response data from the API
+ */
 export const useDeleteCriticalPosition = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteCriticalPosition, {
