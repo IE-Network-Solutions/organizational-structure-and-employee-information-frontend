@@ -66,7 +66,7 @@ const UserSidebar = (props: any) => {
         <Steps
           current={current}
           size="small"
-          onChange={onChange}
+          // onChange={onChange}
           className="my-6 sm:my-10"
         >
           <Step icon={customDot(0)} />
@@ -87,24 +87,27 @@ const UserSidebar = (props: any) => {
             })
           }
         >
+          {current===0 && 
           <Card hidden={current !== 0} className="p-4 sm:p-6">
             <BasicInformationForm form={form} />
             <EmployeeAddressForm />
             <EmergencyContactForm />
             <BankInformationForm />
             <ButtonContinue form={form} />
-          </Card>
+          </Card>}
+          {current===1 && 
           <Card hidden={current !== 1} className="p-4 sm:p-6">
             <JobTimeLineForm />
             <RolePermissionForm form={form} />
             <WorkScheduleForm />
             <ButtonContinue form={form} />
-          </Card>
-          <Card hidden={current !== 2} className="p-4 sm:p-6">
+          </Card>}
+          {current===2 && 
+           <Card hidden={current !== 2} className="p-4 sm:p-6">
             <AdditionalInformationForm />
             <DocumentUploadForm />
             <ButtonContinue isLoading={isLoading} form={form} />
-          </Card>
+          </Card>}
         </Form>
       </CustomDrawerLayout>
     )
