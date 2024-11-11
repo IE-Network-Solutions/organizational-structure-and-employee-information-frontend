@@ -49,7 +49,7 @@ interface StoreState {
   setGraphType: (graphType: GraphType) => void;
 }
 
-export const OrganizationalDevelopment = create<StoreState>()(
+export const useOrganizationalDevelopment = create<StoreState>()(
   devtools((set) => ({
     visibleItems: {},
     setVisibleItems: (id) =>

@@ -5,11 +5,11 @@ import { Card, Col, Row, Tabs } from 'antd';
 import BiWeeklyDetail from './_components/biWeeklyDetail';
 import CollapsibleCardList from './_components/collapsableCard';
 import ActionPlans from './_components/actionPlans';
-import { OrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
+import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import CreateActionPlan from '../../../categories/[id]/survey/[slug]/_components/createActionPlan';
 
 function page() {
-  const { setOpen } = OrganizationalDevelopment();
+  const { setOpen } = useOrganizationalDevelopment();
   const items = [
     {
       key: '1',

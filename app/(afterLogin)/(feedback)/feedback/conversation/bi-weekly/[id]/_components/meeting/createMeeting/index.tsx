@@ -14,7 +14,7 @@ import { IoCheckmarkSharp } from 'react-icons/io5';
 import { ConversationStore } from '@/store/uistate/features/feedback/conversation';
 import CreateActionPlan from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/createActionPlan';
 import { FaPlus } from 'react-icons/fa';
-import { OrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
+import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import TextEditor from '@/components/form/textEditor';
 
@@ -24,7 +24,7 @@ const { Option } = Select;
 const CreateMeeting = () => {
   const [form] = Form.useForm();
   const { setCurrent, current } = ConversationStore();
-  const { setOpen } = OrganizationalDevelopment();
+  const { setOpen } = useOrganizationalDevelopment();
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleCreateBiWeekly = () => {
