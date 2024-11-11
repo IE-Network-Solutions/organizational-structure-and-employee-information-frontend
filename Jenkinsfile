@@ -4,9 +4,9 @@ pipeline {
     environment {
         REMOTE_SERVER = 'ubuntu@139.185.53.18'
         REPO_URL = 'https://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@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git'
-        BRANCH_NAME = 'develop'
+        BRANCH_NAME = 'production'
         REPO_DIR = 'osei-front'
-        SSH_CREDENTIALS_ID = 'peptest'
+        SSH_CREDENTIALS_ID = 'pepproduction'
 
         ORG_AND_EMP_URL="https://test-org-emp.ienetworks.co/api/v1"
         NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://test-okr-backend.ienetworks.co/api/v1"
