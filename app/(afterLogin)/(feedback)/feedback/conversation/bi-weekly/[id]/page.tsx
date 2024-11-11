@@ -8,7 +8,7 @@ import ActionPlans from './_components/actionPlans';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import CreateActionPlan from '../../../categories/[id]/survey/[slug]/_components/createActionPlan';
 
-function page() {
+const Index = () => {
   const { setOpen } = useOrganizationalDevelopment();
   const items = [
     {
@@ -54,6 +54,6 @@ function page() {
       <CreateActionPlan onClose={() => setOpen(false)} />
     </TabLandingLayout>
   );
-}
+};
 
-export default page;
+export default Index;

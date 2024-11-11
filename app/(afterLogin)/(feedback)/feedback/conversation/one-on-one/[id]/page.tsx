@@ -3,11 +3,11 @@ import TabLandingLayout from '@/components/tabLanding';
 import React from 'react';
 import { Card, Col, Row, Tabs } from 'antd';
 import CreateActionPlan from '../../../categories/[id]/survey/[slug]/_components/createActionPlan';
-import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import CollapsibleCardList from '../../bi-weekly/[id]/_components/collapsableCard';
 import OneOnOneDetail from './_components/biWeeklyDetail';
 import ActionPlans from './_components/actionPlans';
-function page() {
+import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
+function Page() {
   const { setOpen } = useOrganizationalDevelopment();
   const items = [
     {
@@ -50,4 +50,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;
