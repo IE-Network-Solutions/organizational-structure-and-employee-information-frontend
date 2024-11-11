@@ -10,6 +10,7 @@ import {
   Legend,
 } from 'chart.js';
 import { WeeklyScore } from '@/types/dashboard/okr';
+import { MdCheckBoxOutlineBlank } from 'react-icons/md';
 
 ChartJS.register(
   CategoryScale,
@@ -68,13 +69,13 @@ const PerformanceChart = () => {
   return (
     <div className="mb-10">
       <Bar data={data} options={options} />
-      <div className="flex justify-start mt-4">
-        <div className="flex items-center">
-          <div className="w-4 h-4 bg-[rgba(34,69,255,1)] mr-2"></div>
+      <div className="flex items-center justify-start mt-4 gap-4">
+        <div className="flex justify-center items-center gap-1">
+          <MdCheckBoxOutlineBlank className="w-4 h-4 rounded-md bg-[#4C4CFF] text-[#4C4CFF]" />
           <span>Highest Average Score</span>
         </div>
-        <div className="flex items-center mr-4">
-          <div className="w-4 h-4 bg-[rgb(233,233,255)] mr-2"></div>
+        <div className="flex justify-center items-center gap-1">
+          <MdCheckBoxOutlineBlank className="w-4 h-4 rounded-md bg-[#E9E9FF] text-[#E9E9FF]" />
           <span>Average Score</span>
         </div>
       </div>
