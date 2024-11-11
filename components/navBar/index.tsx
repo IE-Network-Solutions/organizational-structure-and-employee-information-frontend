@@ -5,7 +5,7 @@ import {
   AppstoreOutlined,
   BarChartOutlined,
   MenuOutlined,
-  FormOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
