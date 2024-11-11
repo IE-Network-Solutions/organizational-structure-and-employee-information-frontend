@@ -28,11 +28,6 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
           Profile
         </a>
       </Menu.Item>
-      <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/settings`}>
-          Settings
-        </a>
-      </Menu.Item>
       <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
     </Menu>
   );
