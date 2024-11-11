@@ -1,5 +1,5 @@
 // components/RichTextEditor.js
-'use client'
+'use client';
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css'; // Import Quill styling
@@ -7,7 +7,7 @@ import 'react-quill/dist/quill.snow.css'; // Import Quill styling
 // Import ReactQuill dynamically because it only works in the browser
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
-const RichTextEditor = ({ onChange }:any) => {
+const RichTextEditor = ({ onChange }: any) => {
   const [value, setValue] = useState('');
 
   // Define the toolbar without the emoji button

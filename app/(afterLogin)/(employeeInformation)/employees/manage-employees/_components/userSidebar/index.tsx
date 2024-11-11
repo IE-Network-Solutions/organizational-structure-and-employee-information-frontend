@@ -23,7 +23,7 @@ const { Step } = Steps;
 
 const UserSidebar = (props: any) => {
   const [form] = Form.useForm();
-  const { setCurrent, current, open } = useEmployeeManagementStore();
+  const { current, open } = useEmployeeManagementStore();
   const { mutate: createEmployee, isLoading, isSuccess } = useAddEmployee();
 
   const modalHeader = (
@@ -35,10 +35,6 @@ const UserSidebar = (props: any) => {
   const handleCreateUser = (values: any) => {
     createEmployee(transformData(values));
     isSuccess && form.resetFields();
-  };
-
-  const onChange = (value: number) => {
-    setCurrent(value);
   };
 
   const customDot = (step: number) => (
@@ -87,27 +83,30 @@ const UserSidebar = (props: any) => {
             })
           }
         >
-          {current===0 && 
-          <Card hidden={current !== 0} className="p-4 sm:p-6">
-            <BasicInformationForm form={form} />
-            <EmployeeAddressForm />
-            <EmergencyContactForm />
-            <BankInformationForm />
-            <ButtonContinue form={form} />
-          </Card>}
-          {current===1 && 
-          <Card hidden={current !== 1} className="p-4 sm:p-6">
-            <JobTimeLineForm />
-            <RolePermissionForm form={form} />
-            <WorkScheduleForm />
-            <ButtonContinue form={form} />
-          </Card>}
-          {current===2 && 
-           <Card hidden={current !== 2} className="p-4 sm:p-6">
-            <AdditionalInformationForm />
-            <DocumentUploadForm />
-            <ButtonContinue isLoading={isLoading} form={form} />
-          </Card>}
+          {current === 0 && (
+            <Card hidden={current !== 0} className="p-4 sm:p-6">
+              <BasicInformationForm form={form} />
+              <EmployeeAddressForm />
+              <EmergencyContactForm />
+              <BankInformationForm />
+              <ButtonContinue form={form} />
+            </Card>
+          )}
+          {current === 1 && (
+            <Card hidden={current !== 1} className="p-4 sm:p-6">
+              <JobTimeLineForm />
+              <RolePermissionForm form={form} />
+              <WorkScheduleForm />
+              <ButtonContinue form={form} />
+            </Card>
+          )}
+          {current === 2 && (
+            <Card hidden={current !== 2} className="p-4 sm:p-6">
+              <AdditionalInformationForm />
+              <DocumentUploadForm />
+              <ButtonContinue isLoading={isLoading} form={form} />
+            </Card>
+          )}
         </Form>
       </CustomDrawerLayout>
     )

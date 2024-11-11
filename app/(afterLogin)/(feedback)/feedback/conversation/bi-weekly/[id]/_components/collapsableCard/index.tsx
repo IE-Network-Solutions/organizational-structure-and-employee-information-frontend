@@ -35,11 +35,13 @@ const dummyData: Employee[] = [
 ];
 
 const CollapsibleCardList: React.FC = () => {
-  const [collapseStates, setCollapseStates] = useState<boolean[]>(Array(dummyData.length).fill(true));
+  const [collapseStates, setCollapseStates] = useState<boolean[]>(
+    Array(dummyData.length).fill(true),
+  );
 
   const handleCollapseChange = (index: number) => {
     setCollapseStates((prevStates) =>
-      prevStates.map((state, i) => (i === index ? !state : state))
+      prevStates.map((state, i) => (i === index ? !state : state)),
     );
   };
 
@@ -50,8 +52,15 @@ const CollapsibleCardList: React.FC = () => {
           key={employee.id}
           title={`${employee.firstName} ${employee.lastName}`}
           extra={
-            <div onClick={() => handleCollapseChange(index)} style={{ cursor: 'pointer' }}>
-              {collapseStates[index] ? <MdKeyboardArrowDown /> : <MdKeyboardArrowUp />}
+            <div
+              onClick={() => handleCollapseChange(index)}
+              style={{ cursor: 'pointer' }}
+            >
+              {collapseStates[index] ? (
+                <MdKeyboardArrowDown />
+              ) : (
+                <MdKeyboardArrowUp />
+              )}
             </div>
           }
           className="mb-3"

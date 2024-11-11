@@ -5,7 +5,6 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import EmployeeSearch from '../common/search/employeeSearch';
-import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { FaPlus } from 'react-icons/fa';
 
 // Define prop types for tabLandingLayout
@@ -17,7 +16,7 @@ interface TabLandingLayoutProps {
   onClickHandler: () => void;
   id: string;
   children?: ReactNode;
-  allowSearch?:boolean;
+  allowSearch?: boolean;
 }
 
 const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
@@ -30,11 +29,6 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   children,
   allowSearch = true,
 }) => {
-  const { setOpen } = useEmployeeManagementStore();
-
-  const showDrawer = () => setOpen(true);
-  const onClose = () => setOpen(false);
-
   return (
     <div className="min-h-screen h-auto w-full p-4">
       <BlockWrapper>
@@ -44,14 +38,14 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
             <CustomButton
               title={buttonTitle}
               id={`${id}-createButtonId`}
-              icon={buttonIcon ?? <FaPlus/>}
+              icon={buttonIcon ?? <FaPlus />}
               onClick={onClickHandler}
               className="bg-blue-600 hover:bg-blue-700"
             />
           </div>
         </div>
         <div className="w-full h-auto">
-        {allowSearch && <EmployeeSearch />}
+          {allowSearch && <EmployeeSearch />}
           {children}
         </div>
       </BlockWrapper>

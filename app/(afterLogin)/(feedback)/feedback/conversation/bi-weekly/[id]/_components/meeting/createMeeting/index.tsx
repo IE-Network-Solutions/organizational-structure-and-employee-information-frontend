@@ -1,26 +1,34 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Form, Input, DatePicker, TimePicker, Select, Steps, Button } from 'antd';
+import {
+  Form,
+  Input,
+  DatePicker,
+  TimePicker,
+  Select,
+  Steps,
+  Button,
+} from 'antd';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { ConversationStore } from '@/store/uistate/features/feedback/conversation';
-import RichTextEditor from '@/components/common/reachText';
 import CreateActionPlan from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/createActionPlan';
 import { FaPlus } from 'react-icons/fa';
-import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
+import { OrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import TextEditor from '@/components/form/textEditor';
 
 const { Step } = Steps;
 const { Option } = Select;
 
-const CreateMeeting = (props: any) => {
+const CreateMeeting = () => {
   const [form] = Form.useForm();
   const { setCurrent, current } = ConversationStore();
-  const {setOpen} = useOrganizationalDevelopment();
+  const { setOpen } = OrganizationalDevelopment();
   const [currentStep, setCurrentStep] = useState(0);
 
-  const handleCreateBiWeekly = (values: any) => {
+  const handleCreateBiWeekly = () => {
     // Handle form submission logic
-    console.log(values);
     form.resetFields();
     setCurrentStep(0); // Reset to the first step after submission
   };
@@ -31,7 +39,12 @@ const CreateMeeting = (props: any) => {
 
   const customDot = (step: number) => (
     <div
-      className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${current >= step ? 'bg-indigo-700 text-white' : 'bg-white border-gray-300 text-gray-500'}`}
+      className={`border-2 rounded-full h-8 w-8 flex items-center justify-center
+         ${
+           current >= step
+             ? 'bg-indigo-700 text-white'
+             : 'bg-white border-gray-300 text-gray-500'
+         }`}
     >
       <div style={{ fontSize: '24px', lineHeight: '24px' }}>
         {current >= step ? (
@@ -49,7 +62,10 @@ const CreateMeeting = (props: any) => {
       await form.validateFields();
       setCurrentStep(1); // Move to the next step if validation passes
     } catch (error) {
-      console.log('Validation Failed:', error);
+      NotificationMessage.error({
+        message: 'something unfilled check the field',
+        description: 'check back and try again !!',
+      });
     }
   };
 
@@ -72,23 +88,44 @@ const CreateMeeting = (props: any) => {
         layout="vertical"
         onFinish={handleCreateBiWeekly}
         style={{ maxWidth: '100%' }}
-        className='text-black '
+        className="text-black "
       >
         {currentStep === 0 && (
           <>
             <Form.Item
               name="biWeeklyName"
-              label={<span className="text-black text-sm font-semibold">Bi-weekly Meeting Name</span>}
-              rules={[{ required: true, message: 'Please enter the bi-weekly meeting name' }]}
+              label={
+                <span className="text-black text-sm font-semibold">
+                  Bi-weekly Meeting Name
+                </span>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter the bi-weekly meeting name',
+                },
+              ]}
             >
-              <Input placeholder="Enter the meeting name" className="text-black text-sm font-semibold" />
+              <Input
+                placeholder="Enter the meeting name"
+                className="text-black text-sm font-semibold"
+              />
             </Form.Item>
 
             <div className="flex gap-4">
               <Form.Item
                 name="meetingDate"
-                label={<span className="text-black text-sm font-semibold">Date of Meeting</span>}
-                rules={[{ required: true, message: 'Please select the date of the meeting' }]}
+                label={
+                  <span className="text-black text-sm font-semibold">
+                    Date of Meeting
+                  </span>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select the date of the meeting',
+                  },
+                ]}
                 style={{ flex: 1 }}
               >
                 <DatePicker style={{ width: '100%' }} />
@@ -96,8 +133,17 @@ const CreateMeeting = (props: any) => {
 
               <Form.Item
                 name="meetingTime"
-                label={<span className="text-black text-sm font-semibold">Time of Meeting</span>}
-                rules={[{ required: true, message: 'Please select the time of the meeting' }]}
+                label={
+                  <span className="text-black text-sm font-semibold">
+                    Time of Meeting
+                  </span>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select the time of the meeting',
+                  },
+                ]}
                 style={{ flex: 1 }}
               >
                 <TimePicker style={{ width: '100%' }} />
@@ -106,10 +152,19 @@ const CreateMeeting = (props: any) => {
 
             <Form.Item
               name="department"
-              label={<span className="text-black text-sm font-semibold">Department</span>}
-              rules={[{ required: true, message: 'Please enter the department name' }]}
+              label={
+                <span className="text-black text-sm font-semibold">
+                  Department
+                </span>
+              }
+              rules={[
+                { required: true, message: 'Please enter the department name' },
+              ]}
             >
-              <Select placeholder="Select a department" className="text-black text-sm font-semibold">
+              <Select
+                placeholder="Select a department"
+                className="text-black text-sm font-semibold"
+              >
                 <Option value="colleague1">department 1</Option>
                 <Option value="colleague2">department 2</Option>
               </Select>
@@ -117,10 +172,22 @@ const CreateMeeting = (props: any) => {
 
             <Form.Item
               name="biWeeklyWith"
-              label={<span className="text-black text-sm font-semibold">Bi-weekly With</span>}
-              rules={[{ required: true, message: 'Please select the person for bi-weekly meeting' }]}
+              label={
+                <span className="text-black text-sm font-semibold">
+                  Bi-weekly With
+                </span>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select the person for bi-weekly meeting',
+                },
+              ]}
             >
-              <Select placeholder="Select a colleague" className="text-black text-sm font-semibold">
+              <Select
+                placeholder="Select a colleague"
+                className="text-black text-sm font-semibold"
+              >
                 <Option value="colleague1">Colleague 1</Option>
                 <Option value="colleague2">Colleague 2</Option>
                 <Option value="colleague3">Colleague 3</Option>
@@ -129,8 +196,17 @@ const CreateMeeting = (props: any) => {
 
             <Form.Item
               name="meetingObjective"
-              label={<span className="text-gray-950 font-semibold text-sm font-semibold">Meeting Objective</span>}
-              rules={[{ required: true, message: 'Please enter the meeting objective' }]}
+              label={
+                <span className="text-gray-950 font-semibold text-sm">
+                  Meeting Objective
+                </span>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter the meeting objective',
+                },
+              ]}
             >
               <Input.TextArea
                 rows={4}
@@ -140,7 +216,10 @@ const CreateMeeting = (props: any) => {
             </Form.Item>
 
             <div className="flex justify-center">
-              <Button onClick={() => form.resetFields()} style={{ marginRight: 8 }}>
+              <Button
+                onClick={() => form.resetFields()}
+                style={{ marginRight: 8 }}
+              >
                 Cancel
               </Button>
               <Button type="primary" onClick={handleContinue}>
@@ -154,7 +233,11 @@ const CreateMeeting = (props: any) => {
           <>
             <Form.Item
               name="attendee"
-              label={<span className="text-black text-sm font-semibold">Attendee</span>}
+              label={
+                <span className="text-black text-sm font-semibold">
+                  Attendee
+                </span>
+              }
               rules={[{ required: true, message: 'Please select an attendee' }]}
             >
               <Select
@@ -170,51 +253,93 @@ const CreateMeeting = (props: any) => {
 
             <Form.Item
               name="okrScore"
-              label={<span className="text-black text-sm font-semibold">OKR Score</span>}
+              label={
+                <span className="text-black text-sm font-semibold">
+                  OKR Score
+                </span>
+              }
               rules={[{ required: true, message: 'Please enter OKR Score' }]}
             >
-              <RichTextEditor onChange={(content: any) => console.log(content)} />
+              <TextEditor />
             </Form.Item>
 
             <Form.Item
               name="staffDevelopment"
-              label={<span className="text-black text-sm font-semibold">Staff Development</span>}
-              rules={[{ required: true, message: 'Please enter details on staff development' }]}
+              label={
+                <span className="text-black text-sm font-semibold">
+                  Staff Development
+                </span>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter details on staff development',
+                },
+              ]}
             >
-              <RichTextEditor onChange={(content: any) => console.log(content)} />
+              <TextEditor />
             </Form.Item>
 
             <Form.Item
               name="changesIssues"
-              label={<span className="text-black text-sm font-semibold">Changes/Issues</span>}
-              rules={[{ required: true, message: 'Please enter any changes or issues' }]}
+              label={
+                <span className="text-black text-sm font-semibold">
+                  Changes/Issues
+                </span>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter any changes or issues',
+                },
+              ]}
             >
-              <RichTextEditor onChange={(content: any) => console.log(content)} />
+              <TextEditor />
             </Form.Item>
 
             <Form.Item
               name="alignmentWithCompany"
-              label={<span className="text-black text-sm font-semibold">Alignment with the Company</span>}
-              rules={[{ required: true, message: 'Please enter alignment with the company' }]}
+              label={
+                <span className="text-black text-sm font-semibold">
+                  Alignment with the Company
+                </span>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter alignment with the company',
+                },
+              ]}
             >
-              <RichTextEditor onChange={(content: any) => console.log(content)} />
+              <TextEditor />
             </Form.Item>
-              <Button htmlType='button' onClick={()=>setOpen(true)} className='flex justify-center items-center' type='primary'>
-                <FaPlus/> <span>Create Action Plan</span>
-              </Button>
+            <Button
+              htmlType="button"
+              onClick={() => setOpen(true)}
+              className="flex justify-center items-center"
+              type="primary"
+            >
+              <FaPlus /> <span>Create Action Plan</span>
+            </Button>
             <div className="flex justify-center">
-              <Button onClick={() => setCurrentStep(0)} style={{ marginRight: 8 }}>
+              <Button
+                onClick={() => setCurrentStep(0)}
+                style={{ marginRight: 8 }}
+              >
                 Back
               </Button>
-              <Button htmlType='submit' type='primary'>
+              <Button htmlType="submit" type="primary">
                 Submit
               </Button>
             </div>
           </>
         )}
       </Form>
-      <CreateActionPlan onClose={()=>{setOpen(false)}} />
-      
+      <CreateActionPlan
+        onClose={() => {
+          setOpen(false);
+        }}
+      />
     </>
   );
 };

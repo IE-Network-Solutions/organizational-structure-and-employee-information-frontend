@@ -121,7 +121,6 @@ const menuItems: MenuProps['items'] = [
         className: 'font-bold',
         icon: <FiSettings />,
       },
-
     ],
   },
   {

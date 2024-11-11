@@ -20,7 +20,7 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
     }
   };
 
-  const handleContinueClick = async() => {
+  const handleContinueClick = async () => {
     if (current !== 2) {
       await form.validateFields();
       setCurrent(current + 1);
