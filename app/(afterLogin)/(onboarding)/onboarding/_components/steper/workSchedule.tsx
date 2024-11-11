@@ -85,6 +85,17 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
               required: record.status,
               message: 'End time is required when the status is checked.',
             },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                const startTime = getFieldValue(`${record.dayOfWeek}-start`);
+                if (!value || dayjs(value).isAfter(dayjs(startTime))) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(
+                  new Error('End time must be greater than start time.'),
+                );
+              },
+            }),
           ]}
         >
           <TimePicker
@@ -104,6 +115,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
         </FormItem>
       ),
     },
+
     {
       title: 'Duration',
       dataIndex: 'hours',

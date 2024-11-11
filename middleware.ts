@@ -7,21 +7,35 @@ export function middleware(req: NextRequest) {
     const token = getCookie('token', req);
     const url = req.nextUrl;
     const pathname = url.pathname;
-    const excludePath = '/authentication/login';
-    const isExcludedPath = pathname.startsWith(excludePath);
+    const excludedPath = [
+      '/authentication/login',
+      '/authentication/forget-password',
+      '/authentication/reset-password',
+    ];
+    const isExcludedPath = excludedPath.some((path) =>
+      pathname.startsWith(path),
+    );
+    const isRootPath = pathname === '/';
     if (!isExcludedPath && !token) {
       return NextResponse.redirect(new URL('/authentication/login', req.url));
     }
-    if (isExcludedPath && token) {
-      return NextResponse.redirect(
-        new URL('/employees/manage-employees', req.url),
-      );
+
+    if (pathname === '/onboarding') return NextResponse.next();
+    if (!isExcludedPath && isRootPath) {
+      if (token) {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
+      } else {
+        return NextResponse.redirect(new URL('/authentication/login', req.url));
+      }
     }
     return NextResponse.next();
   } catch (error) {
     return NextResponse.next(); // Proceed to next response in case of error
   }
 }
+
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|firebase-messaging-sw.js|login-background.png|icons/Logo.svg).*)',
+  ],
 };

@@ -1,10 +1,10 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
-import { FiscalYear } from './interface';
+import { ClosedDates, FiscalYear } from './interface';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-/* eslint-disable @typescript-eslint/naming-convention */
+import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -40,10 +40,13 @@ const deleteFiscalYear = async (id: string) => {
 };
 
 export const useCreateFiscalYear = () => {
+  const { closeFiscalYearDrawer } = useFiscalYearDrawerStore();
   const queryClient = useQueryClient();
   return useMutation(createFiscalYear, {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
+
+      closeFiscalYearDrawer();
       // const method = variables?.method?.toUpperCase();
       // handleSuccessMessage(method);
     },
@@ -51,13 +54,15 @@ export const useCreateFiscalYear = () => {
 };
 
 export const useUpdateFiscalYear = () => {
+  const { closeFiscalYearDrawer } = useFiscalYearDrawerStore();
   const queryClient = useQueryClient();
   return useMutation(
     (data: { id: string; fiscalYear: FiscalYear }) =>
       updateFiscalYear(data.id, data.fiscalYear),
     {
-      onSuccess: (_, variables: any) => {
+      onSuccess: (variables: any) => {
         queryClient.invalidateQueries('fiscalYears');
+        closeFiscalYearDrawer();
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method);
       },
@@ -76,4 +81,29 @@ export const useDeleteFiscalYear = () => {
   });
 };
 
-/* eslint-enable @typescript-eslint/naming-convention */
+const updateClosedDate = async (
+  fiscalYearId: string,
+  closedDates: ClosedDates[],
+) => {
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/calendars/${fiscalYearId}`,
+    method: 'PATCH',
+    data: { closedDates },
+    headers,
+  });
+};
+export const useUpdateClosedDate = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    (data: { fiscalYearId: string; closedDates: ClosedDates[] }) =>
+      updateClosedDate(data.fiscalYearId, data.closedDates),
+    {
+      onSuccess: (variables: any) => {
+        queryClient.invalidateQueries('fiscalActiveYear');
+        const method = variables?.method?.toUpperCase();
+        handleSuccessMessage(method);
+      },
+    },
+  );
+};

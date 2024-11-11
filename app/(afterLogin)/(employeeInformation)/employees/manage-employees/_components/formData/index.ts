@@ -36,6 +36,7 @@ export const transformData = (data: any) => {
     },
     createEmployeeJobInformationDto: {
       jobTitle: data.jobTitle,
+      positionId: data.positionId,
       branchId: data.branchId,
       isPositionActive: true,
       effectiveStartDate: formatDate(data.joinedDate),

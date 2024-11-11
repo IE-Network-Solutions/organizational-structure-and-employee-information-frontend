@@ -1,7 +1,10 @@
 import FiscalYear from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/fiscalYear';
 import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { useUpdateFiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
+import {
+  useCreateFiscalYear,
+  useUpdateFiscalYear,
+} from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import useFiscalYearStore from '@/store/uistate/features/organizationStructure/fiscalYear/fiscalYearStore';
 import { Form } from 'antd';
@@ -22,7 +25,11 @@ const CustomWorFiscalYearDrawer: React.FC = () => {
     closeFiscalYearDrawer();
   };
 
-  const { mutate: updateFiscalYear } = useUpdateFiscalYear();
+  const { mutate: updateFiscalYear, isLoading: updateIsLoading } =
+    useUpdateFiscalYear();
+
+  const { mutate: createFiscalYear, isLoading: createIsLoading } =
+    useCreateFiscalYear();
   const handleSubmit = () => {
     if (isEditMode) {
       updateFiscalYear({
@@ -34,8 +41,14 @@ const CustomWorFiscalYearDrawer: React.FC = () => {
           startDate: startDate,
         },
       });
+    } else {
+      createFiscalYear({
+        name: name,
+        description: description,
+        endDate: endDate,
+        startDate: startDate,
+      });
     }
-    closeFiscalYearDrawer();
   };
 
   const [form] = Form.useForm();
@@ -55,7 +68,7 @@ const CustomWorFiscalYearDrawer: React.FC = () => {
   return (
     <CustomDrawerLayout
       modalHeader={
-        <h1 className="text-2xl font-semibold">Add New Work Schedule</h1>
+        <h1 className="text-2xl font-semibold">Add New Fiscal Year</h1>
       }
       onClose={handleCancel}
       open={isFiscalYearOpen}
@@ -69,6 +82,7 @@ const CustomWorFiscalYearDrawer: React.FC = () => {
           <div className="flex justify-between items-center gap-4">
             <CustomButton title="Cancel" onClick={handleCancel} />
             <CustomButton
+              loading={isEditMode ? updateIsLoading : createIsLoading}
               title={isEditMode ? 'Update' : 'Create'}
               onClick={handleSubmit}
             />

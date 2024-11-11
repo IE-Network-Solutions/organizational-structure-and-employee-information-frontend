@@ -11,12 +11,29 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @returns The response data from the API
  */
 const getDepartments = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/tenant/departments`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
+    },
+  });
+};
+
+const getDepartmentsWithUsers = async () => {
+  const tenantIds = '179055e7-a27c-4d9d-9538-2b2a115661bd';
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/all/departments`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      // tenantId: tenantId, // Pass tenantId in the headers
+      tenantId: tenantIds,
     },
   });
 };
@@ -74,3 +91,6 @@ export const useGetDepartment = (departmentID: string) =>
       keepPreviousData: true,
     },
   );
+
+export const useGetDepartmentsWithUsers = () =>
+  useQuery<any>('departmentsWithUsers', getDepartmentsWithUsers);

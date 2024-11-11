@@ -18,12 +18,14 @@ const Documents = ({ id }: { id: string }) => {
     useEmployeeManagementStore();
   const { data: employeeData } = useGetEmployee(id);
   const { mutate: deleteEmployeeDocument } = useDeleteEmployeeDocument();
-  const { isLoading: addEmployee, mutate: AddEmployeeDocument } =
+  const { isLoading: addEmployee, mutateAsync: AddEmployeeDocument } =
     useAddEmployeeDocument();
   const [form] = Form.useForm();
 
   const handleDocumentChange = (info: any) => {
-    const fileList = Array.isArray(info.fileList) ? info.fileList : [];
+    const fileList = Array.isArray(info.fileList)
+      ? info.fileList.slice(-1)
+      : [];
     setDocumentFileList(fileList);
   };
   const handleDelete = (id: string) => {
@@ -94,9 +96,25 @@ const Documents = ({ id }: { id: string }) => {
       />
     );
   };
+
   const handleCreateUser = (values: any) => {
-    AddEmployeeDocument({ id: employeeData?.id, values });
+    const formData = new FormData();
+    if (documentFileList && documentFileList.length > 0) {
+      documentFileList.forEach((file) => {
+        formData.append('documentName', file.originFileObj);
+      });
+    }
+    for (const key in values) {
+      if (key != 'documentName') {
+        formData.append(key, values[key]);
+      }
+    }
+    formData.append('userId', employeeData?.id);
+    AddEmployeeDocument(formData).then(() => {
+      setDocumentFileList([]);
+    });
   };
+
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <Row justify="center" style={{ width: '100%' }}>
@@ -130,6 +148,7 @@ const Documents = ({ id }: { id: string }) => {
                 onChange={handleDocumentChange}
                 onRemove={handleDocumentRemove}
                 customRequest={customRequest}
+                multiple={false}
                 listType="picture"
                 accept="*/*"
               >
@@ -161,6 +180,7 @@ const Documents = ({ id }: { id: string }) => {
             </Form.Item>
             <div className="flex justify-end">
               <Button
+                disabled={documentFileList?.length === 0}
                 loading={addEmployee}
                 id={`sidebarActionCreateSubmit`}
                 className="px-6 py-3 text-xs font-bold flex justify-end"
