@@ -20,8 +20,9 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
     }
   };
 
-  const handleContinueClick = () => {
+  const handleContinueClick = async() => {
     if (current !== 2) {
+      await form.validateFields();
       setCurrent(current + 1);
     } else {
       form.submit(); // Submit the form on the last step
