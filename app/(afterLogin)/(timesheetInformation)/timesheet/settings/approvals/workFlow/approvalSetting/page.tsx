@@ -223,7 +223,7 @@ const ApprovalSetting: React.FC<any> = () => {
           Select to which {workflowApplies} this workflow applies to.
         </div>
         <div className="my-3">
-          <div className="text-lg font-bold ">Level</div>
+          <div className="text-lg font-bold ">Number Of Level</div>
           <Select
             className="w-full h-10 m-1"
             style={{ width: 120 }}
@@ -243,7 +243,7 @@ const ApprovalSetting: React.FC<any> = () => {
           />
 
           <div className="font-medium mb-3 text-gray-500">
-            This is the specific approval stage or level within the process
+            Select Number of Level
           </div>
         </div>
 
@@ -261,7 +261,7 @@ const ApprovalSetting: React.FC<any> = () => {
                 rules={[{ required: true, message: 'Please select a user!' }]}
               >
                 <Select
-                  className="w-full h-10 my-3"
+                  className="w-full  my-3"
                   allowClear
                   mode={approverType === 'Parallel' ? 'multiple' : undefined}
                   style={{ width: 120 }}
