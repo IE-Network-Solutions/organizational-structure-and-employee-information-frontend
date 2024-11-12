@@ -24,6 +24,7 @@ import WorkScheduleForm from '../allFormData/workScheduleForm';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import dayjs from 'dayjs';
 import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
+import { PermissionWrapper } from '@/utils/permissionGuard';
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Employee Name',
@@ -177,46 +178,45 @@ const UserTable = () => {
               <FaEye />
             </Button>
           </Link>
-          {item.deletedAt === null ? (
-            <Tooltip title={'Deactive Employee'}>
-              <Button
-                id={`deleteUserButton${item?.id}`}
-                disabled={item?.deletedAt !== null}
-                className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
-                onClick={(e) => {
-                  e.stopPropagation(); // Stop event propagation
-                  setDeleteModal(true);
-                  setDeletedItem(item?.id);
-                }}
-              >
-                <MdAirplanemodeActive />
-              </Button>
-            </Tooltip>
-          ) : (
-            <Tooltip title={'Activate Employee'}>
-              <Button
-                type="primary"
-                htmlType="submit"
-                value={'submit'}
-                name="submit"
-                onClick={(e) => {
-                  e.stopPropagation(); // Stop event propagation
-                  handelRehireModal(item);
-                }}
-                disabled={item.deletedAt === null}
-              >
-                <MdAirplanemodeInactive />
-              </Button>
-            </Tooltip>
-          )}
+          <PermissionWrapper permissions={['emp_edit']}>
+            {item.deletedAt === null ? (
+              <Tooltip title={'Deactive Employee'}>
+                <Button
+                  id={`deleteUserButton${item?.id}`}
+                  disabled={item?.deletedAt !== null}
+                  className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteModal(true);
+                    setDeletedItem(item?.id);
+                  }}
+                >
+                  <MdAirplanemodeActive />
+                </Button>
+              </Tooltip>
+            ) : (
+              <Tooltip title={'Activate Employee'}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  value={'submit'}
+                  name="submit"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Stop event propagation
+                    handelRehireModal(item);
+                  }}
+                  disabled={item.deletedAt === null}
+                >
+                  <MdAirplanemodeInactive />
+                </Button>
+              </Tooltip>
+            )}
+          </PermissionWrapper>
         </div>
       ),
     };
   });
 
-  const handleRowClick = (item: any) => {
-    window.location.href = `manage-employees/${item?.key}`;
-  };
   const handleDeleteConfirm = () => {
     employeeDeleteMuation();
   };
@@ -257,9 +257,6 @@ const UserTable = () => {
       <Table
         className="w-full cursor-pointer"
         columns={columns}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record), // Row click handler
-        })}
         dataSource={data}
         pagination={{
           total: allFilterData?.meta?.totalItems,

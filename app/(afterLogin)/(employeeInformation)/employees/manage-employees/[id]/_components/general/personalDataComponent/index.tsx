@@ -10,6 +10,7 @@ import { useGetNationalities } from '@/store/server/features/employees/employeeM
 import { InfoLine } from '../../common/infoLine';
 import dayjs from 'dayjs';
 import UpdateUserInfo from './updateUserInfo';
+import { PermissionWrapper } from '@/utils/permissionGuard';
 
 function PersonalDataComponent({
   id,
@@ -33,11 +34,13 @@ function PersonalDataComponent({
       loading={isLoading}
       title="Personal Info"
       extra={
-        <LuPencil
-          className="cursor-pointer text-black"
-          color="#BFBFBF"
-          onClick={() => handleEditChange('general')}
-        />
+        <PermissionWrapper permissions={['emp_edit']}>
+          <LuPencil
+            className="cursor-pointer text-black"
+            color="#BFBFBF"
+            onClick={() => handleEditChange('general')}
+          />
+        </PermissionWrapper>
       }
       className="my-6 mt-0"
     >
