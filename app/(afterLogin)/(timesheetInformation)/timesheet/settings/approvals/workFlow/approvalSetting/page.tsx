@@ -243,7 +243,7 @@ const ApprovalSetting: React.FC<any> = () => {
           />
 
           <div className="font-medium mb-3 text-gray-500">
-            Select Number of Level
+            Select Number of specific approval stage or level within the process
           </div>
         </div>
 
