@@ -22,8 +22,10 @@ const GroupPermission = () => {
     setCurrentModal,
     currentModal,
   } = useSettingStore();
-  const createPermissionGroupMutation = useAddPermissionGroup();
-  const updatePermissionGroupMutation = useUpdatePermissionGroup();
+  const { mutate: createPermissionGroupMutation, isLoading: createLoading } =
+    useAddPermissionGroup();
+  const { mutate: updatePermissionGroupMutation, isLoading: updateLoaing } =
+    useUpdatePermissionGroup();
   const { data: permissionData } = useGetPermissions(
     permissionCurrentPage,
     pageSize,
@@ -35,7 +37,7 @@ const GroupPermission = () => {
         id: selectedPermissionGroup?.id,
         name: selectedPermissionGroup?.name,
         description: selectedPermissionGroup?.description,
-        permissions: selectedPermissionGroup?.permission?.map(
+        permissions: selectedPermissionGroup?.permissions?.map(
           (item: Permission) => ({ label: item.name ?? 'N/A', value: item.id }),
         ),
       });
@@ -51,12 +53,19 @@ const GroupPermission = () => {
     );
   });
   const onFinish = async (values: GroupPermissionkey) => {
-    createPermissionGroupMutation.mutate(values);
-    setCurrentModal(null);
+    createPermissionGroupMutation(values, {
+      onSuccess: () => {
+        setCurrentModal(null);
+      },
+    });
   };
 
   const onUpdatePermissionGroupData = (values: GroupPermissionkey) => {
-    updatePermissionGroupMutation.mutate(values);
+    updatePermissionGroupMutation(values, {
+      onSuccess: () => {
+        setCurrentModal(null);
+      },
+    });
     setCurrentModal(null);
   };
   const modalTitle = (
@@ -164,6 +173,9 @@ const GroupPermission = () => {
               className="px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-xs sm:text-sm font-bold"
               htmlType="submit"
               type="primary"
+              loading={
+                currentModal === 'editModal' ? updateLoaing : createLoading
+              }
             >
               {currentModal !== 'editModal' ? 'Create' : 'Update'}
             </Button>
