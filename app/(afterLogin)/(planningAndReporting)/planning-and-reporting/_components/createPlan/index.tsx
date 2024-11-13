@@ -9,6 +9,7 @@ import DefaultCardForm from '../planForms/defaultForm';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { FaPlus } from 'react-icons/fa';
+import { NAME } from '@/types/enumTypes';
 
 function CreatePlan() {
   const {
@@ -68,6 +69,7 @@ function CreatePlan() {
     const boardsKey = `board-${kId}`;
     const board = form.getFieldValue(boardsKey) || [];
     form.setFieldsValue({ [boardsKey]: [...board, {}] });
+    
   };
   const handleRemoveBoard = (index: number, kId: string) => {
     const boardsKey = `board-${kId}`;
@@ -125,8 +127,8 @@ function CreatePlan() {
                             ? true
                             : false;
                         const hasTargetValue =
-                          kr?.metricType?.name === 'Achieve' ||
-                          kr?.metricType?.name === 'Milestone'
+                          kr?.metricType?.name === NAME.ACHIEVE ||
+                          kr?.metricType?.name === NAME.MILESTONE
                             ? true
                             : false;
                         return (
@@ -138,7 +140,7 @@ function CreatePlan() {
                             >
                               <h4 className="flex justify-between">
                                 {kr?.title}
-                                {kr?.metricType?.name === 'Achieve' && (
+                                {kr?.metricType?.name === NAME.ACHIEVE && (
                                   <Tooltip
                                     className="mt-2 ml-5"
                                     title="Plan keyResult as a Task"
@@ -181,7 +183,8 @@ function CreatePlan() {
                                               `names-${kr?.id + ml?.id}`
                                             ] || 0}
                                           </div>
-                                          <Tooltip title="Plan Milestone as a Task">
+                                          {kr?.metricType?.name === NAME.MILESTONE && (
+                                            <Tooltip title="Plan Milestone as a Task">
                                             <Button
                                               size="small"
                                               className="text-[10px] text-primary"
@@ -191,7 +194,7 @@ function CreatePlan() {
                                                 handleAddBoard(kr?.id + ml?.id);
                                               }}
                                             />
-                                          </Tooltip>
+                                          </Tooltip>)}
                                         </div>
                                         <>
                                           <Divider className="my-2" />

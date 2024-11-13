@@ -53,8 +53,10 @@ const UserSidebar = (props: any) => {
     </div>
   );
 
-  const handleCreateUser = (values: any) => {
-    createEmployee(transformData(values));
+  const handleCreateUser = async() => {
+     await form.validateFields();
+     const allValues = form.getFieldsValue(true);
+     createEmployee(transformData(allValues));
   };
 
   const onChange = (value: number) => {
