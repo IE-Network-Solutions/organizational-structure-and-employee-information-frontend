@@ -7,9 +7,19 @@ import CollapsibleCardList from './_components/collapsableCard';
 import ActionPlans from './_components/actionPlans';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import CreateActionPlan from '../../../categories/[id]/survey/[slug]/_components/createActionPlan';
-
-const Index = () => {
+import { useGetQuestionSetById } from '@/store/server/features/conversation/bi-weekly/queries';
+interface Params {
+  id: string;
+}
+interface BiWeeklyDetailProps {
+  params: Params;
+}
+const Index = ({ params: { id } }: BiWeeklyDetailProps) => {
   const { setOpen } = useOrganizationalDevelopment();
+  const {data:biWeeklyDetail}=useGetQuestionSetById(id);
+
+  console.log(biWeeklyDetail,"biWeeklyDetail")
+  
   const items = [
     {
       key: '1',

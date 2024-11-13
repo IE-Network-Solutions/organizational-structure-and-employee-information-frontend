@@ -10,6 +10,8 @@ export const TENANT_MGMT_URL = process.env.TENANT_MGMT_URL;
 
 export const NOTIFICATION_URL = process.env.NOTIFICATION_URL;
 export const APPROVER_URL = process.env.NEXT_PUBLIC_APPROVERS_URL;
+export const ORG_DEV = process.env.ORG_DEV;
+
 
 export const BASE_FRONT_URL = process.env.BASE_FRONT_URL;
 

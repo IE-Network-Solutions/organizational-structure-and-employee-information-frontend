@@ -5,6 +5,7 @@ import { GrCircleQuestion } from 'react-icons/gr';
 import Link from 'next/link';
 
 interface CardData {
+  id:string;
   title: string;
   queriesCount: number;
   totalAttendees: number;
@@ -16,15 +17,15 @@ interface StatisticsCardProps {
 }
 
 const BiWeekly: React.FC<StatisticsCardProps> = ({ data }) => {
-  const { title, queriesCount, totalAttendees, meetingsConducted } = data;
+  const { id,title, queriesCount, totalAttendees, meetingsConducted } = data;
 
   return (
     <Card className="p-4 flex flex-col items-center shadow-lg rounded-lg text-center">
-      <Link href={`/feedback/conversation/bi-weekly/${543211234}`} passHref>
+      <Link href={`/feedback/conversation/bi-weekly/${id}`} passHref>
         <h3 className="text-lg font-semibold mb-2">{title}</h3>
       </Link>
       <Link
-        href={`/feedback/conversation/bi-weekly/${543211234}/questions`}
+        href={`/feedback/conversation/bi-weekly/${id}/questions`}
         passHref
       >
         <p className="flex items-center justify-center text-gray-600 mb-4 hover:text-blue">
@@ -36,7 +37,7 @@ const BiWeekly: React.FC<StatisticsCardProps> = ({ data }) => {
       <div className="flex justify-center mb-4">
         <Progress
           type="circle"
-          percent={30} // The progress percentage you want to indicate
+          percent={50} // The progress percentage you want to indicate
           size={80}
           strokeColor="#3B82F6" // Blue for achieved part
           trailColor="#7DD3FC" // Sky-blue for unachieved part
@@ -50,7 +51,7 @@ const BiWeekly: React.FC<StatisticsCardProps> = ({ data }) => {
           <span>{totalAttendees}</span>
         </p>
         <Link
-          href={`/feedback/conversation/bi-weekly/${543211234}/meetings`}
+          href={`/feedback/conversation/bi-weekly/${id}/meetings`}
           passHref
         >
           <p className="flex items-center justify-center text-xs  hover:text-blue">

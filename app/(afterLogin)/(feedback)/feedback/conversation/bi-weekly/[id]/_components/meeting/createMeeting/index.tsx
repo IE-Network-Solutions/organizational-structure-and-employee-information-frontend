@@ -11,31 +11,47 @@ import {
   Button,
 } from 'antd';
 import { IoCheckmarkSharp } from 'react-icons/io5';
-import { ConversationStore } from '@/store/uistate/features/feedback/conversation';
 import CreateActionPlan from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/createActionPlan';
-import { FaPlus } from 'react-icons/fa';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { ConversationStore } from '@/store/uistate/features/conversation';
 import TextEditor from '@/components/form/textEditor';
+import { FaPlus } from 'react-icons/fa';
+import { useGetQuestionSetByConversationId } from '@/store/server/features/conversation/questionSet/queries';
+import { FieldType } from '@/types/enumTypes';
+import MultipleChoiceField from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/questions/multipleChoiceField';
+import ShortTextField from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/questions/shortTextField';
+import CheckboxField from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/questions/checkboxField';
+import ParagraphField from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/questions/paragraphField';
+import TimeField from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/questions/timeField';
+import DropdownField from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/questions/dropdownField';
+import RadioField from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/questions/radioField';
 
 const { Step } = Steps;
 const { Option } = Select;
 
-const CreateMeeting = () => {
+const CreateMeeting = ({ id }: { id: string }) => {
   const [form] = Form.useForm();
   const { setCurrent, current } = ConversationStore();
+
+  const {data:questionSet}=useGetQuestionSetByConversationId(id);
+  
   const { setOpen } = useOrganizationalDevelopment();
   const [currentStep, setCurrentStep] = useState(0);
 
-  const handleCreateBiWeekly = () => {
-    // Handle form submission logic
-    form.resetFields();
-    setCurrentStep(0); // Reset to the first step after submission
+  const handleCreateBiWeekly = async () => {
+    try {
+      // Validate all fields in the form
+      await form.validateFields();
+      const allValues = form.getFieldsValue(true);
+    } catch (error) {
+      // If validation fails, you can handle it here
+      console.error("Validation failed:", error);
+    }
   };
 
-  const onChange = (value: number) => {
-    setCurrent(value);
-  };
+
+console.log(questionSet,"questionSet");
 
   const customDot = (step: number) => (
     <div
@@ -74,7 +90,7 @@ const CreateMeeting = () => {
       <Steps
         current={currentStep}
         size="small"
-        onChange={onChange}
+        // onChange={onChange}
         className="flex justify-center my-6 sm:my-10"
       >
         <Step icon={customDot(0)} />
@@ -107,6 +123,7 @@ const CreateMeeting = () => {
               ]}
             >
               <Input
+                name="biWeeklyName"
                 placeholder="Enter the meeting name"
                 className="text-black text-sm font-semibold"
               />
@@ -146,7 +163,7 @@ const CreateMeeting = () => {
                 ]}
                 style={{ flex: 1 }}
               >
-                <TimePicker style={{ width: '100%' }} />
+                <TimePicker  style={{ width: '100%' }} />
               </Form.Item>
             </div>
 
@@ -248,90 +265,20 @@ const CreateMeeting = () => {
                   { value: 'employee2', label: 'Employee 2' },
                   { value: 'employee3', label: 'Employee 3' },
                 ]}
-              />
+              />             
             </Form.Item>
-
-            <Form.Item
-              name="okrScore"
-              label={
-                <span className="text-black text-sm font-semibold">
-                  OKR Score
-                </span>
-              }
-              rules={[{ required: true, message: 'Please enter OKR Score' }]}
-            >
-              <TextEditor />
-            </Form.Item>
-
-            <Form.Item
-              name="staffDevelopment"
-              label={
-                <span className="text-black text-sm font-semibold">
-                  Staff Development
-                </span>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'Please enter details on staff development',
-                },
-              ]}
-            >
-              <TextEditor />
-            </Form.Item>
-
-            <Form.Item
-              name="changesIssues"
-              label={
-                <span className="text-black text-sm font-semibold">
-                  Changes/Issues
-                </span>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'Please enter any changes or issues',
-                },
-              ]}
-            >
-              <TextEditor />
-            </Form.Item>
-
-            <Form.Item
-              name="alignmentWithCompany"
-              label={
-                <span className="text-black text-sm font-semibold">
-                  Alignment with the Company
-                </span>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'Please enter alignment with the company',
-                },
-              ]}
-            >
-              <TextEditor />
-            </Form.Item>
-            <Button
-              htmlType="button"
-              onClick={() => setOpen(true)}
-              className="flex justify-center items-center"
-              type="primary"
-            >
-              <FaPlus /> <span>Create Action Plan</span>
-            </Button>
-            <div className="flex justify-center">
-              <Button
-                onClick={() => setCurrentStep(0)}
-                style={{ marginRight: 8 }}
-              >
-                Back
-              </Button>
-              <Button htmlType="submit" type="primary">
-                Submit
-              </Button>
-            </div>
+            {questionSet?.conversationsQuestions?.map((q:any, index:number) => (
+              <Form.Item
+                  name={q.id}
+                  key={q.id}
+                  labelCol={{ span: 24 }}
+                  wrapperCol={{ span: 24 }}
+                  label={q.question}
+                  className="mx-3 mb-8"
+                >
+                  <TimeField disabled={false} className='w-full' />
+           </Form.Item>
+              ))}
           </>
         )}
       </Form>
