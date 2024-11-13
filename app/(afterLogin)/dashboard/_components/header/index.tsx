@@ -2,7 +2,6 @@
 import RookStarsList from '@/app/(afterLogin)/(okr)/_components/rookStarsList';
 import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ListData } from '@/types/dashboard/okr';
 import { Card, Progress } from 'antd';
 import { GoGoal } from 'react-icons/go';
 import ApprovalStatus from '../approval-status';
