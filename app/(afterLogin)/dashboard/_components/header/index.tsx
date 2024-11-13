@@ -11,44 +11,6 @@ import { useGetBirthDay } from '@/store/server/features/dashboard/birthday/queri
 import { useGetWorkAnniversary } from '@/store/server/features/dashboard/work-anniversary/queries';
 import { MdKey } from 'react-icons/md';
 
-const listData: ListData[] = [
-  {
-    key: '1',
-    name: 'Samuel Anteneh',
-    title: 'Software Engineer',
-    avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=1',
-    completion: 95,
-  },
-  {
-    key: '2',
-    name: 'John Doe',
-    title: 'Project Manager',
-    avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=2',
-    completion: 92,
-  },
-  {
-    key: '3',
-    name: 'Jane Smith',
-    title: 'UI/UX Designer',
-    avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=3',
-    completion: 96,
-  },
-  {
-    key: '4',
-    name: 'Emily Johnson',
-    title: 'Product Owner',
-    avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=4',
-    completion: 98,
-  },
-  {
-    key: '5',
-    name: 'Michael Brown',
-    title: 'DevOps Engineer',
-    avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=5',
-    completion: 94,
-  },
-];
-
 const Header = () => {
   const { userId } = useAuthenticationStore();
   const { data: objectiveDashboard, isLoading } =
