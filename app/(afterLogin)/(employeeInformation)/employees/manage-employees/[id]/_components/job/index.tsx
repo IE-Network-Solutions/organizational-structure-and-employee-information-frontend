@@ -19,7 +19,7 @@ function Job({ id }: { id: string }) {
       title: 'Effective Date',
       dataIndex: 'effectiveStartDate',
       key: 'effectiveStartDate',
-      render: (text: string) => (text ? text : '-'),
+      render: (text: string) => (text ? text.slice(0, 10) : '-'),
     },
     {
       title: 'Job Title',
