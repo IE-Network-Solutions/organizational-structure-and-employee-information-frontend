@@ -213,13 +213,19 @@ const Header = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left Column */}
         <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
-          <RookStarsList dataSource={listData} title="Rock Star Of The Week" />
+          <RookStarsList
+            planningPeriodId={'planningPeriodId'}
+            title="Rock Star Of The Week"
+          />
           <ApprovalStatus />
         </div>
 
         {/* Right Column */}
         <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
-          <RookStarsList dataSource={listData} title="Leaders Board" />
+          <RookStarsList
+            planningPeriodId={'planningPeriodId'}
+            title="Leaders Board"
+          />
           <CardList
             type="birthday"
             title="Whose Birthday is today?"
