@@ -56,6 +56,7 @@ const GroupPermission = () => {
     createPermissionGroupMutation(values, {
       onSuccess: () => {
         setCurrentModal(null);
+        form.resetFields();
       },
     });
   };
@@ -64,9 +65,9 @@ const GroupPermission = () => {
     updatePermissionGroupMutation(values, {
       onSuccess: () => {
         setCurrentModal(null);
+        form.resetFields();
       },
     });
-    setCurrentModal(null);
   };
   const modalTitle = (
     <div className="flex w-full justify-center items-center text-md font-extrabold">
