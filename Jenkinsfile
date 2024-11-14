@@ -22,8 +22,8 @@ pipeline {
         NEXT_PUBLIC_AUTH_DOMIAN="selamnew-workspace.firebaseapp.com"
         NEXT_PUBLIC_PROJECT_ID="selamnew-workspace"
         NEXT_PUBLIC_STORAGE_BUCKET="selamnew-workspace.appspot.com"
-        NEXT_PUBLIC_MESSAGE_SENDER_ID="871958776875"
-        NEXT_PUBLIC_APP_ID="1:871958776875:web:426ec9b0b49fc35df1ae6e"
+        NEXT_PUBLIC_MESSAGE_SENDER_ID="649403733776"
+        NEXT_PUBLIC_APP_ID="1:649403733776:web:1adb71a0c8f60dafdcb795"
     }
 
     stages {
