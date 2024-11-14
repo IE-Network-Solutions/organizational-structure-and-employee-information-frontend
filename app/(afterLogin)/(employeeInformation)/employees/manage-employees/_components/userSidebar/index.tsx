@@ -121,7 +121,7 @@ const UserSidebar = (props: any) => {
     if (value > current) {
       const stepsToValidate = Array.from(
         { length: value - current },
-        (_, i) => current + i
+        (s, i) => current + i
       );
       try {
         for (const step of stepsToValidate) {
