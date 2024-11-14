@@ -6,7 +6,7 @@ interface Ids {
   id: string;
 }
 const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
-  const { isLoading, data: employeeData } = useGetEmployee(id);
+  const { data: employeeData } = useGetEmployee(id);
   const { data: companyInfo } = useGetCompanyProfileByTenantId(
     employeeData?.tenantId,
   );
