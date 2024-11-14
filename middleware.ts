@@ -7,8 +7,14 @@ export function middleware(req: NextRequest) {
     const token = getCookie('token', req);
     const url = req.nextUrl;
     const pathname = url.pathname;
-    const excludePath = '/authentication/login';
-    const isExcludedPath = pathname.startsWith(excludePath);
+    const excludedPath = [
+      '/authentication/login',
+      '/authentication/forget-password',
+      '/authentication/reset-password',
+    ];
+    const isExcludedPath = excludedPath.some((path) =>
+      pathname.startsWith(path),
+    );
     const isRootPath = pathname === '/';
     if (!isExcludedPath && !token) {
       return NextResponse.redirect(new URL('/authentication/login', req.url));

@@ -4,6 +4,15 @@ import { devtools } from 'zustand/middleware';
 import { useAuthenticationStore } from '../authentication';
 
 export interface PlanningAndReporting {
+  mkAsATask: string | null;
+  setMKAsATask: (mkAsATask: string | null) => void;
+
+  newComment: string;
+  setNewComment: (newComment: string) => void;
+
+  viewComment: boolean;
+  setViewComment: (viewComment: boolean) => void;
+
   open: boolean;
   setOpen: (open: boolean) => void;
   openReportModal: boolean;
@@ -34,6 +43,15 @@ export interface PlanningAndReporting {
 const userId = useAuthenticationStore.getState().userId;
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
   devtools((set) => ({
+    newComment: '',
+    setNewComment: (newComment: string) => set({ newComment }),
+
+    viewComment: false,
+    setViewComment: (viewComment: boolean) => set({ viewComment }),
+
+    mkAsATask: null,
+    setMKAsATask: (mkAsATask: string | null) => set({ mkAsATask }),
+
     open: false,
     setOpen: (open: boolean) => set({ open }),
     selectedStatuses: {},

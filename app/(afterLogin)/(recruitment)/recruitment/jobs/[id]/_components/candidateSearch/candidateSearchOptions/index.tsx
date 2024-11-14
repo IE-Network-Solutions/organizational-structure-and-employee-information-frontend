@@ -15,10 +15,15 @@ interface OptionParams {
 }
 
 const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
-  const { searchParams, setSearchParams } = useCandidateState();
+  const { searchParams, setSearchParams, currentPage, pageSize } =
+    useCandidateState();
 
   const { data: EmployeeDepartment } = useEmployeeDepartments();
-  const { data: jobList } = useGetJobs(searchParams?.whatYouNeed || '');
+  const { data: jobList } = useGetJobs(
+    searchParams?.whatYouNeed || '',
+    currentPage,
+    pageSize,
+  );
   const { data: stageList } = useGetStages();
 
   const handleSearchCandidate = async (

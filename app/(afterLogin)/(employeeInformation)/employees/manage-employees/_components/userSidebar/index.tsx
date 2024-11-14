@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, Form, Steps } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useAddEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
@@ -23,8 +23,29 @@ const { Step } = Steps;
 
 const UserSidebar = (props: any) => {
   const [form] = Form.useForm();
-  const { setCurrent, current, open } = useEmployeeManagementStore();
+  const {
+    setCurrent,
+    current,
+    open,
+    setOpen,
+    setProfileFileList,
+    setDocumentFileList,
+    setSelectedPermissions,
+    setSelectedWorkSchedule,
+  } = useEmployeeManagementStore();
   const { mutate: createEmployee, isLoading, isSuccess } = useAddEmployee();
+
+  useEffect(() => {
+    if (isSuccess) {
+      setOpen(false);
+      setProfileFileList([]);
+      setDocumentFileList([]);
+      setSelectedPermissions([]);
+      setSelectedWorkSchedule(null);
+      setCurrent(0);
+      form.resetFields();
+    }
+  }, [isSuccess]);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -32,9 +53,10 @@ const UserSidebar = (props: any) => {
     </div>
   );
 
-  const handleCreateUser = (values: any) => {
-    createEmployee(transformData(values));
-    isSuccess && form.resetFields();
+  const handleCreateUser = async() => {
+     await form.validateFields();
+     const allValues = form.getFieldsValue(true);
+     createEmployee(transformData(allValues));
   };
 
   const onChange = (value: number) => {

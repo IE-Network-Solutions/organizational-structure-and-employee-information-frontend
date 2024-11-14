@@ -12,6 +12,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   cardColor,
   isLoading,
 }) => {
+  
   return (
     <Col span={span}>
       <Card

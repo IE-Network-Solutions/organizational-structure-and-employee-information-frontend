@@ -4,6 +4,14 @@ import { devtools } from 'zustand/middleware';
 
 export const useOKRStore = create<OKRState>()(
   devtools((set) => ({
+    revenue: 123050,
+    financialSales: 10050,
+    progressRevenue: 56.02,
+    progressSales: 123100000,
+
+    selectedPeriodId: '',
+    setSelectedPeriodId: (value) => set({ selectedPeriodId: value }),
+
     // Initialize objective state with keyResults as an empty array
     objective: {
       title: '',

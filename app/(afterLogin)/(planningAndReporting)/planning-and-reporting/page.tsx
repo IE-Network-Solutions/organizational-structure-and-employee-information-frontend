@@ -6,34 +6,42 @@ import { Radio, Tabs } from 'antd';
 import { RadioChangeEvent } from 'antd/lib';
 import Planning from './_components/planning';
 import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import CreatePlan from './_components/createPlan';
 import EditPlan from './_components/editPlan';
 import Reporting from './_components/reporting';
 import CreateReport from './_components/createReport';
 
-function page() {
+function Page() {
   const { setActiveTab, activeTab, setActivePlanPeriod } =
     PlanningAndReportingStore();
   const { data: planningPeriods } = AllPlanningPeriods();
+  const { data: planningPeriodForUserId } =
+    useGetAssignedPlanningPeriodForUserId();
 
   const onChange = (e: RadioChangeEvent) => {
     setActiveTab(e.target.value);
   };
-  const TabsContent = () =>
-    Array.isArray(planningPeriods)
-      ? planningPeriods.map((item: any, index: number) => ({
-          label: (
-            <span className="font-semibold text-sm">
-              {item?.planningPeriod.name}
-            </span>
-          ),
-          key: String(index + 1),
-          children: activeTab === 1 ? <Planning /> : <Reporting />,
-        }))
-      : null;
+
+  const TabsContent = () => {
+    const safePlanningPeriods = Array.isArray(planningPeriods)
+      ? planningPeriods
+      : [];
+
+    return safePlanningPeriods.map((item: any, index: number) => ({
+      label: (
+        <span className="font-semibold text-sm">
+          {item?.planningPeriod?.name || 'No name available'}
+        </span>
+      ),
+      key: String(index + 1),
+      children: activeTab === 1 ? <Planning /> : <Reporting />,
+    }));
+  };
+
   return (
     <div>
-      <div className="h-full w-auto p-4">
+      <div className="h-full min-h-screen w-auto p-4">
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb
             className="text-sm"
@@ -59,10 +67,17 @@ function page() {
           <CreatePlan />
           <EditPlan />
           <CreateReport />
+          {planningPeriodForUserId?.length === 0 ? (
+            <div className="w-full h-auto space-y-4 flex justify-center font-semibold">
+              There is no Assigned Plan, please assign a Plan for a User first
+            </div>
+          ) : (
+            ''
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-export default page;
+export default Page;

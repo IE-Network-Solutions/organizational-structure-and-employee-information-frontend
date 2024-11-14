@@ -4,6 +4,7 @@ import { RECRUITMENT_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { TalentPoolCategoryResponse } from '@/types/dashboard/recruitment/talentPool';
+import { useTalentPoolSettingsStore } from '@/store/uistate/features/recruitment/settings/talentPoolCategory';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
@@ -102,10 +103,16 @@ export const useUpdateTalentPoolCategory = () => {
  */
 export const useDeleteTalentPoolCategory = () => {
   const queryClient = useQueryClient();
+
+  const {
+    setDeleteMode,
+  } = useTalentPoolSettingsStore();
   return useMutation(deleteTalentPoolCategory, {
+    
     onSuccess: () => {
       queryClient.invalidateQueries('talentPoolCategory');
       handleSuccessMessage('DELETE');
+      setDeleteMode(false)
     },
   });
 };

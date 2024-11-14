@@ -21,7 +21,7 @@ const RecruitmentPage: React.FC = () => {
     <div className="p-8 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Recruitment</h1>
+          <h1 className="text-3xl font-bold">Jobs</h1>
           <p className="text-gray-400">Here&apos;s all job list</p>
         </div>
         <div className="flex items-center my-4 gap-4 md:gap-8">

@@ -11,6 +11,7 @@ import { useUpdateObjective } from '@/store/server/features/okrplanning/okr/obje
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 interface OkrDrawerProps {
   open: boolean;
@@ -34,21 +35,74 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const reportsToId = userData?.reportingTo?.id;
   const { data: keyResultByUser } = useGetUserKeyResult(reportsToId);
   const [form] = Form.useForm();
-  const { mutate: updateObjective } = useUpdateObjective();
+  const { mutate: updateObjective, isLoading } = useUpdateObjective();
   const objectiveValueNew = { ...objectiveValue }; // Create a copy of objectiveValue
   delete objectiveValueNew.daysLeft;
   delete objectiveValueNew.completedKeyResults;
   delete objectiveValueNew.objectiveProgress;
+
   const onSubmit = () => {
     form
       .validateFields()
       .then(() => {
-        // Validation success, proceed with form submission
-        updateObjective(objectiveValueNew, {
-          onSuccess: () => {
-            props.onClose();
-          },
-        });
+        const keyResults = objectiveValue?.keyResults;
+        if (keyResults && keyResults.length !== 0) {
+          // Iterate over each keyResult to validate all milestone key types
+          for (const [index, keyResult] of keyResults.entries()) {
+            const keyType = keyResult?.metricType?.name || keyResult?.key_type;
+            if (keyType === 'Milestone') {
+              // Check if at least one milestone is added
+              if (!keyResult.milestones || keyResult.milestones.length === 0) {
+                NotificationMessage.warning({
+                  message:
+                    'Please add at least one milestone for each milestone key result.',
+                });
+                return; // Stop submission if no milestone is added
+              }
+
+              // Calculate the sum of milestone values
+              const milestoneSum = keyResult.milestones.reduce(
+                (sum: number, milestone: Record<string, number>) =>
+                  sum + milestone.weight,
+                0,
+              );
+
+              // Check if the sum of milestone values equals 100
+              if (milestoneSum !== 100) {
+                NotificationMessage.warning({
+                  message: `On Number: ${index + 1} Title:${keyResult.title} key result sum of milestones should equal to 100.`,
+                });
+                return; // Stop submission if the sum is not 100
+              }
+            }
+            if (
+              keyType === 'Currency' ||
+              keyType === 'Numeric' ||
+              keyType === 'Percentage'
+            ) {
+              // Check if at least one milestone is added
+
+              if (keyResult?.initialValue > keyResult?.targetValue) {
+                NotificationMessage.warning({
+                  message: `On number:${index + 1} title:${keyResult.title} key result initialValue should be less than or equal to the target value.`,
+                });
+                return; // Stop submission if the sum is not 100
+              }
+            }
+          }
+
+          // If all checks pass, proceed with the objective creation
+          updateObjective(objectiveValueNew, {
+            onSuccess: () => {
+              props.onClose();
+            },
+          });
+        } else {
+          // Show an error message if keyResults is empty
+          NotificationMessage.warning({
+            message: 'Please add at least one key result before submitting.',
+          });
+        }
       })
       .catch(() => {
         // Validation failed
@@ -69,7 +123,12 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         onClick={props?.onClose}
         style={{ marginRight: 8 }}
       />
-      <CustomButton title={'Save'} type="primary" onClick={onSubmit} />
+      <CustomButton
+        loading={isLoading}
+        title={'Save'}
+        type="primary"
+        onClick={onSubmit}
+      />
     </div>
   );
 

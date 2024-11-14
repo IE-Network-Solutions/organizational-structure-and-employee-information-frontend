@@ -14,6 +14,7 @@ pipeline {
         TENANT_MGMT_URL="https://test-tenant-backend.ienetworks.co/api/v1"
         ORG_DEV_URL = "https://test-od.ienetworks.co/api/v1"
         RECRUITMENT_URL="https://test-recruitment-backend.ienetworks.co/api/v1"
+        NEXT_PUBLIC_APPROVERS_URL="https://test-approval-backend.ienetworks.co/api/v1"
         PUBLIC_DOMAIN="https://selamnew.com"
         NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://test-time-attendance-backend.ienetworks.co/api/v1"
         NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://test-training-backend.ienetworks.co/api/v1"
@@ -73,6 +74,7 @@ pipeline {
                         NEXT_PUBLIC_STORAGE_BUCKET=${NEXT_PUBLIC_STORAGE_BUCKET}
                         NEXT_PUBLIC_MESSAGE_SENDER_ID=${NEXT_PUBLIC_MESSAGE_SENDER_ID}
                         NEXT_PUBLIC_APP_ID=${NEXT_PUBLIC_APP_ID}
+                        NEXT_PUBLIC_APPROVERS_URL=${NEXT_PUBLIC_APPROVERS_URL}
                         EOF'
                     """
                 }

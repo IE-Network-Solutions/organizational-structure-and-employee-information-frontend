@@ -107,7 +107,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                 : selectedUser.length > 1
                   ? undefined // Multiple users selected
                   : selectedUser.includes('all')
-                    ? 'allPlan' // If "all" is selected, choose 'allPlan'
+                    ? 'All User' // If "all" is selected, choose 'allPlan'
                     : undefined // Default fallback if no conditions match
             }
             onChange={(value) => onSearchChange(value, 'type', true)}

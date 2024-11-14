@@ -46,9 +46,11 @@ function EditPlan() {
 
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
-  const planningUserId = planningPeriods?.find(
-    (item: any) => item.planningPeriod?.id == planningPeriodId,
-  )?.id;
+  const planningUserId = Array.isArray(planningPeriods)
+    ? planningPeriods.find(
+        (item: any) => item.planningPeriod?.id === planningPeriodId,
+      )?.id
+    : undefined;
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Edit plan
