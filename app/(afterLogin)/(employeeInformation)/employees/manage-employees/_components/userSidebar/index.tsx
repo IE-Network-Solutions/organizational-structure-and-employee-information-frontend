@@ -58,10 +58,25 @@ const UserSidebar = (props: any) => {
      const allValues = form.getFieldsValue(true);
      createEmployee(transformData(allValues));
   };
-
-  const onChange = (value: number) => {
-    setCurrent(value);
+  const handleContinueClick = async() => {
+    if (current !== 2) {
+      // await form.validateFields();
+      await form.validateFields();
+      setCurrent(current + 1);
+    } else {
+      form.submit(); // Submit the form on the last step
+    }
   };
+  const handleBackClick = () => {
+    if (current !== 0) {
+      setCurrent(current - 1);
+    } else {
+      form.resetFields();
+      setCurrent(0);
+      setOpen(false);
+    }
+  };
+
 
   const customDot = (step: number) => (
     <div
@@ -88,7 +103,7 @@ const UserSidebar = (props: any) => {
         <Steps
           current={current}
           size="small"
-          onChange={onChange}
+          // onChange={onChange}
           className="my-6 sm:my-10"
         >
           <Step icon={customDot(0)} />
@@ -109,24 +124,30 @@ const UserSidebar = (props: any) => {
             })
           }
         >
-          <Card hidden={current !== 0} className="p-4 sm:p-6">
-            <BasicInformationForm form={form} />
-            <EmployeeAddressForm />
-            <EmergencyContactForm />
-            <BankInformationForm />
-            <ButtonContinue form={form} />
-          </Card>
-          <Card hidden={current !== 1} className="p-4 sm:p-6">
-            <JobTimeLineForm />
-            <RolePermissionForm form={form} />
-            <WorkScheduleForm />
-            <ButtonContinue form={form} />
-          </Card>
-          <Card hidden={current !== 2} className="p-4 sm:p-6">
-            <AdditionalInformationForm />
-            <DocumentUploadForm />
-            <ButtonContinue isLoading={isLoading} form={form} />
-          </Card>
+          {current === 0 && (
+            <Card  className="p-4 sm:p-6">
+              <BasicInformationForm form={form} />
+              <EmployeeAddressForm />
+              <EmergencyContactForm />
+              <BankInformationForm />
+              <ButtonContinue handleContinueClick={handleContinueClick} handleBackClick={handleBackClick} />
+            </Card>
+          )}
+          {current === 1 && (
+            <Card  className="p-4 sm:p-6">
+              <JobTimeLineForm />
+              <RolePermissionForm form={form} />
+              <WorkScheduleForm />
+              <ButtonContinue handleContinueClick={handleContinueClick} handleBackClick={handleBackClick}/>
+            </Card>
+          )}
+          {current === 2 && (
+            <Card  className="p-4 sm:p-6">
+              <AdditionalInformationForm />
+              <DocumentUploadForm />
+              <ButtonContinue handleBackClick={handleBackClick} handleContinueClick={handleContinueClick} isLoading={isLoading}/>
+            </Card>
+          )}
         </Form>
       </CustomDrawerLayout>
     )
