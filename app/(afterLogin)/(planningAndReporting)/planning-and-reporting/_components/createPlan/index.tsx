@@ -69,6 +69,7 @@ function CreatePlan() {
     const boardsKey = `board-${kId}`;
     const board = form.getFieldValue(boardsKey) || [];
     form.setFieldsValue({ [boardsKey]: [...board, {}] });
+    
   };
   const handleRemoveBoard = (index: number, kId: string) => {
     const boardsKey = `board-${kId}`;
@@ -182,22 +183,18 @@ function CreatePlan() {
                                               `names-${kr?.id + ml?.id}`
                                             ] || 0}
                                           </div>
-                                          {kr?.metricType?.name ===
-                                            NAME.MILESTONE && (
+                                          {kr?.metricType?.name === NAME.MILESTONE && (
                                             <Tooltip title="Plan Milestone as a Task">
-                                              <Button
-                                                size="small"
-                                                className="text-[10px] text-primary"
-                                                icon={<FaPlus />}
-                                                onClick={() => {
-                                                  setMKAsATask(ml?.title);
-                                                  handleAddBoard(
-                                                    kr?.id + ml?.id,
-                                                  );
-                                                }}
-                                              />
-                                            </Tooltip>
-                                          )}
+                                            <Button
+                                              size="small"
+                                              className="text-[10px] text-primary"
+                                              icon={<FaPlus />}
+                                              onClick={() => {
+                                                setMKAsATask(ml?.title);
+                                                handleAddBoard(kr?.id + ml?.id);
+                                              }}
+                                            />
+                                          </Tooltip>)}
                                         </div>
                                         <>
                                           <Divider className="my-2" />
