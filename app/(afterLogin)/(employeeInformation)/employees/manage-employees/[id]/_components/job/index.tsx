@@ -6,6 +6,7 @@ import WorkScheduleComponent from './workSchedule';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { CreateEmployeeJobInformation } from './addEmployeeJobInfrmation';
 import { FaPlus } from 'react-icons/fa';
+import DownloadJobInformation from './downloadJobInformation';
 
 function Job({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -97,7 +98,15 @@ function Job({ id }: { id: string }) {
       </Card>{' '}
       <Card
         title={'Job Information'}
-        extra={<FaPlus onClick={handleAddEmployeeJobInformation} />}
+        extra={
+          <div className=" flex items-center justify-center gap-3">
+            <FaPlus
+              onClick={handleAddEmployeeJobInformation}
+              className="text-xl"
+            />
+            <DownloadJobInformation id={id} />
+          </div>
+        }
       >
         <Table
           dataSource={employeeData?.employeeJobInformation}
