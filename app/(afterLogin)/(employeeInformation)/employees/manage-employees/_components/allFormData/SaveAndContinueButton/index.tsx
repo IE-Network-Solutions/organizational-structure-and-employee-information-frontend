@@ -4,29 +4,14 @@ import React from 'react';
 
 interface Props {
   isLoading?: boolean;
-  form: any; // Add form prop to access the form instance
+  handleContinueClick:any
+  handleBackClick:any
 }
 
-const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
-  const { setCurrent, current, setOpen } = useEmployeeManagementStore();
+const ButtonContinue: React.FC<Props> = ({ isLoading,handleBackClick,handleContinueClick }) => {
+  const { current } = useEmployeeManagementStore();
 
-  const handleBackClick = () => {
-    if (current !== 0) {
-      setCurrent(current - 1);
-    } else {
-      form.resetFields();
-      setCurrent(0);
-      setOpen(false);
-    }
-  };
 
-  const handleContinueClick = () => {
-    if (current !== 2) {
-      setCurrent(current + 1);
-    } else {
-      form.submit(); // Submit the form on the last step
-    }
-  };
 
   return (
     <Form.Item className="font-semibold text-xs">
