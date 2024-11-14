@@ -58,6 +58,25 @@ const UserSidebar = (props: any) => {
      const allValues = form.getFieldsValue(true);
      createEmployee(transformData(allValues));
   };
+  const handleContinueClick = async() => {
+    if (current !== 2) {
+      // await form.validateFields();
+      await form.validateFields();
+      setCurrent(current + 1);
+    } else {
+      form.submit(); // Submit the form on the last step
+    }
+  };
+  const handleBackClick = () => {
+    if (current !== 0) {
+      setCurrent(current - 1);
+    } else {
+      form.resetFields();
+      setCurrent(0);
+      setOpen(false);
+    }
+  };
+
 
   const customDot = (step: number) => (
     <div
@@ -111,7 +130,7 @@ const UserSidebar = (props: any) => {
               <EmployeeAddressForm />
               <EmergencyContactForm />
               <BankInformationForm />
-              <ButtonContinue form={form} />
+              <ButtonContinue handleContinueClick={handleContinueClick} handleBackClick={handleBackClick} />
             </Card>
           )}
           {current === 1 && (
@@ -119,14 +138,14 @@ const UserSidebar = (props: any) => {
               <JobTimeLineForm />
               <RolePermissionForm form={form} />
               <WorkScheduleForm />
-              <ButtonContinue form={form} />
+              <ButtonContinue handleContinueClick={handleContinueClick} handleBackClick={handleBackClick}/>
             </Card>
           )}
           {current === 2 && (
             <Card  className="p-4 sm:p-6">
               <AdditionalInformationForm />
               <DocumentUploadForm />
-              <ButtonContinue isLoading={isLoading} form={form} />
+              <ButtonContinue handleBackClick={handleBackClick} handleContinueClick={handleContinueClick} isLoading={isLoading}/>
             </Card>
           )}
         </Form>
