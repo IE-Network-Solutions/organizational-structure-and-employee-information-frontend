@@ -19,7 +19,7 @@ const TimeField: React.FC<TimeFieldProps> = ({ value, className, disabled = true
     className,
   };
 
-  if (!disabled && value) {
+  if (disabled && value) {
     timePickerProps.value = dayjs(value.value, 'HH:mm');
   }
 

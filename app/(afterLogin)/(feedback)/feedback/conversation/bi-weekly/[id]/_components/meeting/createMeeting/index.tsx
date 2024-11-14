@@ -84,6 +84,9 @@ console.log(questionSet,"questionSet");
       });
     }
   };
+  function isValidFieldType(fieldType: string): boolean {
+    return Object.values(FieldType).includes(fieldType as FieldType);
+  }
 
   return (
     <>
@@ -276,7 +279,14 @@ console.log(questionSet,"questionSet");
                   label={q.question}
                   className="mx-3 mb-8"
                 >
-                  <TimeField disabled={false} className='w-full' />
+                  {q.fieldType===FieldType.RADIO&&<RadioField disabled={false} className='w-full' />}
+                  {q.fieldType===FieldType.TIME&&<TimeField disabled={false} className='w-full' />}
+                  {q.fieldType===FieldType.DROPDOWN&&<DropdownField options={q?.field ?? []} />}
+                  {q.fieldType===FieldType.CHECKBOX&&<CheckboxField  options={q?.field ?? []}  />}
+                  {q.fieldType===FieldType.MULTIPLE_CHOICE&&<MultipleChoiceField  choices={q?.field ?? []}  />}
+
+                  {!isValidFieldType(q.fieldType) &&<TextEditor/>}
+
            </Form.Item>
               ))}
           </>

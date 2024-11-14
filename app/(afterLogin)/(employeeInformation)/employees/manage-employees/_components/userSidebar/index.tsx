@@ -104,7 +104,7 @@ const UserSidebar = (props: any) => {
           }
         >
           {current === 0 && (
-            <Card hidden={current !== 0} className="p-4 sm:p-6">
+            <Card  className="p-4 sm:p-6">
               <BasicInformationForm form={form} />
               <EmployeeAddressForm />
               <EmergencyContactForm />
@@ -113,7 +113,7 @@ const UserSidebar = (props: any) => {
             </Card>
           )}
           {current === 1 && (
-            <Card hidden={current !== 1} className="p-4 sm:p-6">
+            <Card  className="p-4 sm:p-6">
               <JobTimeLineForm />
               <RolePermissionForm form={form} />
               <WorkScheduleForm />
@@ -121,7 +121,7 @@ const UserSidebar = (props: any) => {
             </Card>
           )}
           {current === 2 && (
-            <Card hidden={current !== 2} className="p-4 sm:p-6">
+            <Card  className="p-4 sm:p-6">
               <AdditionalInformationForm />
               <DocumentUploadForm />
               <ButtonContinue isLoading={isLoading} form={form} />
