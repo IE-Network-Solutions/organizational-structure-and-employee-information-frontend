@@ -2,6 +2,8 @@
 import React from 'react';
 import { Avatar, Menu, Dropdown, Layout } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const { Header } = Layout;
 
@@ -11,16 +13,19 @@ interface NavBarProps {
 }
 
 const NavBar = ({ page, handleLogout }: NavBarProps) => {
+
+  const router = useRouter();
+  const { userId } = useAuthenticationStore();
+
+  const handleProfileRoute = () => {
+    router.push(`/employees/manage-employees/${userId}`);
+  }
+
   const menu = (
     <Menu>
       <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/profile`}>
+        <a onClick={handleProfileRoute}>
           Profile
-        </a>
-      </Menu.Item>
-      <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/settings`}>
-          Settings
         </a>
       </Menu.Item>
       <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
@@ -39,7 +44,6 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
         <Dropdown overlay={menu} placement="bottomRight">
           <Avatar
             icon={<UserOutlined />}
-            // src={`${URL}/user/${userid}`}
             className="cursor-pointer"
           />
         </Dropdown>
