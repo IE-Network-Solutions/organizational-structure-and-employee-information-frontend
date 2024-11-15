@@ -32,7 +32,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   } = useOKRStore();
 
   const [form] = Form.useForm();
-  const { mutate: createObjective } = useCreateObjective();
+  const { mutate: createObjective, isLoading } = useCreateObjective();
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -67,14 +67,57 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     setObjectiveValue(defaultObjective); // Reset the objective state
     props?.onClose(); // Close the drawer
   };
+
   const onSubmit = () => {
     form
       .validateFields()
       .then(() => {
-        if (
-          objectiveValue?.keyResults &&
-          objectiveValue?.keyResults?.length !== 0
-        ) {
+        const keyResults = objectiveValue?.keyResults;
+        if (keyResults && keyResults.length !== 0) {
+          // Iterate over each keyResult to validate all milestone key types
+          for (const [index, keyResult] of keyResults.entries()) {
+            const keyType = keyResult?.metricType?.name || keyResult?.key_type;
+            if (keyType === 'Milestone') {
+              // Check if at least one milestone is added
+              if (!keyResult.milestones || keyResult.milestones.length === 0) {
+                NotificationMessage.warning({
+                  message: `On Number: ${index + 1} Title:${keyResult.title} Please add at least one milestone`,
+                });
+                return; // Stop submission if no milestone is added
+              }
+
+              // Calculate the sum of milestone values
+              const milestoneSum = keyResult.milestones.reduce(
+                (sum: number, milestone: Record<string, number>) =>
+                  sum + milestone.weight,
+                0,
+              );
+
+              // Check if the sum of milestone values equals 100
+              if (milestoneSum !== 100) {
+                NotificationMessage.warning({
+                  message: `On Number: ${index + 1} Title:${keyResult.title} key result sum of milestones should equal to 100.`,
+                });
+                return; // Stop submission if the sum is not 100
+              }
+            }
+            if (
+              keyType === 'Currency' ||
+              keyType === 'Numeric' ||
+              keyType === 'Percentage'
+            ) {
+              // Check if at least one milestone is added
+
+              if (keyResult?.initialValue > keyResult?.targetValue) {
+                NotificationMessage.warning({
+                  message: `On number:${index + 1} title:${keyResult.title} key result initialValue should be less than or equal to the target value.`,
+                });
+                return; // Stop submission if the sum is not 100
+              }
+            }
+          }
+
+          // If all checks pass, proceed with the objective creation
           createObjective(objectiveValue, {
             onSuccess: () => {
               handleDrawerClose();
@@ -112,6 +155,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         title={'Save'}
         type="primary"
         onClick={onSubmit}
+        loading={isLoading}
       />
     </div>
   );

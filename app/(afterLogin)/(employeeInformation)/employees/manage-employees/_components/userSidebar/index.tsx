@@ -1,6 +1,5 @@
 'use client';
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, Form, Steps } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useAddEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
@@ -21,25 +20,131 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 
 const { Step } = Steps;
 
+export const fieldGroups: Record<number, ([string, string] | string)[]> = {
+  0: [
+    'profileImage',
+    'userFirstName',
+    'userMiddleName',
+    'userLastName',
+    'userEmail',
+    'employeeGender',
+    'dateOfBirth',
+    'nationalityId',
+    'martialStatus',
+    ['address', 'country'],
+    ['address', 'city'],
+    'addressStreet',
+    'addressPostalCode',
+    'addressState',
+    'addressType',
+    ['emergencyContact', 'firstName'],
+    ['emergencyContact', 'lastName'],
+    ['emergencyContact', 'email'],
+    ['emergencyContact', 'gender'],
+    ['emergencyContact', 'dateOfBirth'],
+    ['emergencyContact', 'nationality'],
+    ['bankInformation', 'bankName'],
+    ['bankInformation', 'branch'],
+    ['bankInformation', 'accountName'],
+    ['bankInformation', 'accountNumber']
+  ],
+  1: [
+    'effectiveStartDate',
+    'positionId',
+    'employementTypeId',
+    'departmentId',
+    'branchId',
+    'effectiveEndDate',
+    'departmentLeadOrNot',
+    'employmentContractType',
+    'roleId',
+    'setOfPermission',
+    'workScheduleId'
+  ],
+  2: [
+    'documentName'
+  ]
+};
+
 const UserSidebar = (props: any) => {
+
   const [form] = Form.useForm();
-  const { setCurrent, current, open } = useEmployeeManagementStore();
+  const {
+    setCurrent,
+    current,
+    open,
+    setOpen,
+    setProfileFileList,
+    setDocumentFileList,
+    setSelectedPermissions,
+    setSelectedWorkSchedule,
+  } = useEmployeeManagementStore();
   const { mutate: createEmployee, isLoading, isSuccess } = useAddEmployee();
 
+  useEffect(() => {
+    if (isSuccess) {
+      resetFormFields();
+    }
+  }, [isSuccess]);
+
+  const resetFormFields = () => {
+    setOpen(false);
+    setProfileFileList([]);
+    setDocumentFileList([]);
+    setSelectedPermissions([]);
+    setSelectedWorkSchedule(null);
+    setCurrent(0);
+    form.resetFields();
+  };
+
+  const handleAllChange = async (value: number) => {
+    
+    if (value < 0) {
+      resetFormFields();
+      return;
+    }
+  
+    if (current === 2 && value > 2) {
+      try {
+        await form.validateFields(fieldGroups[2]);
+        const allValues = form.getFieldsValue(true);
+        createEmployee(transformData(allValues));
+      } catch {
+        NotificationMessage.error({
+          message: "Error in the form.",
+          description: "Please check all the fields."
+        });
+      }
+      return;
+    }
+  
+    if (value > current) {
+      const stepsToValidate = Array.from(
+        { length: value - current },
+        (s, i) => current + i
+      );
+      try {
+        for (const step of stepsToValidate) {
+          await form.validateFields(fieldGroups[step]);
+        }
+        setCurrent(value);
+      } catch {
+        NotificationMessage.error({
+          message: "Error in the form.",
+          description: "Please check all the fields."
+        });
+        setCurrent(current);
+      }
+    } else {
+      setCurrent(value);
+    }
+  };
+  
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Add New Employee
     </div>
   );
-
-  const handleCreateUser = (values: any) => {
-    createEmployee(transformData(values));
-    isSuccess && form.resetFields();
-  };
-
-  const onChange = (value: number) => {
-    setCurrent(value);
-  };
 
   const customDot = (step: number) => (
     <div
@@ -66,8 +171,8 @@ const UserSidebar = (props: any) => {
         <Steps
           current={current}
           size="small"
-          onChange={onChange}
           className="my-6 sm:my-10"
+          onChange={handleAllChange}
         >
           <Step icon={customDot(0)} />
           <Step icon={customDot(1)} />
@@ -79,31 +184,25 @@ const UserSidebar = (props: any) => {
           autoComplete="off"
           style={{ maxWidth: '100%' }}
           layout="vertical"
-          onFinish={handleCreateUser}
-          onFinishFailed={() =>
-            NotificationMessage.error({
-              message: 'Something wrong or unfilled',
-              description: 'please back and check the unfilled fields',
-            })
-          }
+          onFinish={handleAllChange}
         >
           <Card hidden={current !== 0} className="p-4 sm:p-6">
             <BasicInformationForm form={form} />
             <EmployeeAddressForm />
             <EmergencyContactForm />
             <BankInformationForm />
-            <ButtonContinue form={form} />
+            <ButtonContinue handleAllChange={handleAllChange} />
           </Card>
           <Card hidden={current !== 1} className="p-4 sm:p-6">
             <JobTimeLineForm />
             <RolePermissionForm form={form} />
             <WorkScheduleForm />
-            <ButtonContinue form={form} />
+            <ButtonContinue handleAllChange={handleAllChange} />
           </Card>
           <Card hidden={current !== 2} className="p-4 sm:p-6">
             <AdditionalInformationForm />
             <DocumentUploadForm />
-            <ButtonContinue isLoading={isLoading} form={form} />
+            <ButtonContinue handleAllChange={handleAllChange} isLoading={isLoading} />
           </Card>
         </Form>
       </CustomDrawerLayout>

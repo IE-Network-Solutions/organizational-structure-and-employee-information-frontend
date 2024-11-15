@@ -22,6 +22,7 @@ import { PlanningType } from '@/types/enumTypes';
 import { DATETIME_FORMAT } from '@/utils/constants';
 import { AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
+import CommentCard from '../comments/planCommentCard';
 
 const { Text, Title } = Typography;
 
@@ -41,7 +42,7 @@ function Planning() {
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
-  const { data: allPlanning } = useGetPlanning({
+  const { data: allPlanning, isLoading: getPlanningLoading } = useGetPlanning({
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '', // Provide a default string value
   });
@@ -65,41 +66,39 @@ function Planning() {
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
 
+
   return (
     <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
         <Tooltip
-              title={
-                !(selectedUser.includes(userId) &&((transformedData?.[0]?.isReported ?? false) || transformedData?.length === 0))
-                  ? "Report planned tasks before"
-                  : ""
-              }
-            >
-              <div style={{ display: 'inline-block' }}>
-                <CustomButton
-                  disabled={!(selectedUser.includes(userId) &&
-                    ((transformedData?.[0]?.isReported ?? false) ||
-                      transformedData?.length === 0))}
-                      title={`Create ${activeTabName} Plan`}
-                      id="createActiveTabName"
-                      icon={<FaPlus className="mr-2" />}
-                      onClick={() => setOpen(true)}
-                      className="bg-blue-600 hover:bg-blue-700"
-                />
-              </div>
-        </Tooltip>
-        {/* {selectedUser.includes(userId) &&
-          ((transformedData?.[0]?.isReported ?? false) ||
-            transformedData?.length === 0) && (
+          title={
+            !(
+              selectedUser.includes(userId) &&
+              ((transformedData?.[0]?.isReported ?? false) ||
+                transformedData?.length === 0)
+            )
+              ? 'Report planned tasks before'
+              : ''
+          }
+        >
+          <div style={{ display: 'inline-block' }}>
             <CustomButton
+              disabled={
+                !(
+                  selectedUser.includes(userId) &&
+                  ((transformedData?.[0]?.isReported ?? false) ||
+                    transformedData?.length === 0)
+                )
+              }
               title={`Create ${activeTabName} Plan`}
               id="createActiveTabName"
               icon={<FaPlus className="mr-2" />}
               onClick={() => setOpen(true)}
               className="bg-blue-600 hover:bg-blue-700"
             />
-          )} */}
+          </div>
+        </Tooltip>
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
@@ -149,7 +148,7 @@ function Planning() {
                         <span className="mr-4 text-gray-500">
                           {dayjs(dataItem?.createdAt).format(DATETIME_FORMAT)}
                         </span>
-                        {!dataItem?.isValidated && (
+                        {!dataItem?.isValidated  && (
                           <>
                             <Col className="mr-2">
                               <Tooltip title="Edit Plan">
@@ -167,36 +166,36 @@ function Planning() {
                                 />
                               </Tooltip>
                             </Col>
-                            <Col className="mr-2">
-                              <Tooltip title="Approve Plan">
-                                <Avatar
-                                  size={16}
-                                  alt="approve plan"
-                                  className="cursor-pointer"
-                                  shape="square"
-                                  style={{ backgroundColor: '#148220' }}
-                                  onClick={() =>
-                                    handleApproveHandler(dataItem?.id, true)
-                                  }
-                                  icon={<IoCheckmarkSharp />}
-                                />
-                              </Tooltip>
-                            </Col>
-                            <Col>
-                              <Tooltip title="Reject Plan">
-                                <Avatar
-                                  size={16}
-                                  alt="Reject Plan"
-                                  className="cursor-pointer"
-                                  shape="square"
-                                  style={{ backgroundColor: '#b50d20' }}
-                                  onClick={() =>
-                                    handleApproveHandler(dataItem?.id, false)
-                                  }
-                                  icon={<IoIosClose />}
-                                />
-                              </Tooltip>
-                            </Col>
+                            {userId === getEmployeeData(dataItem?.createdBy)?.reportingTo?.id && (
+                              <>
+                                <Col className="mr-2">
+                                  <Tooltip title="Approve Plan">
+                                    <Avatar
+                                      size={16}
+                                      alt="approve plan"
+                                      className="cursor-pointer"
+                                      shape="square"
+                                      style={{ backgroundColor: '#148220' }}
+                                      onClick={() => handleApproveHandler(dataItem?.id, true)}
+                                      icon={<IoCheckmarkSharp />}
+                                    />
+                                  </Tooltip>
+                                </Col>
+                                <Col>
+                                  <Tooltip title="Reject Plan">
+                                    <Avatar
+                                      size={16}
+                                      alt="Reject Plan"
+                                      className="cursor-pointer"
+                                      shape="square"
+                                      style={{ backgroundColor: '#b50d20' }}
+                                      onClick={() => handleApproveHandler(dataItem?.id, false)}
+                                      icon={<IoIosClose />}
+                                    />
+                                  </Tooltip>
+                                </Col>
+                              </>
+                            )}
                           </>
                         )}
                       </Col>
@@ -338,6 +337,12 @@ function Planning() {
               ),
             )}
           </Card>
+          <CommentCard
+            planId={dataItem?.id}
+            data={dataItem?.comments}
+            loading={getPlanningLoading}
+            isPlanCard={true}
+          />
         </>
       ))}
 

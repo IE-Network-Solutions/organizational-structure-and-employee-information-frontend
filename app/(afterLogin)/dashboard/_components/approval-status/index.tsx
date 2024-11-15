@@ -2,43 +2,15 @@
 import { FC } from 'react';
 import { Empty, Select } from 'antd';
 import ApprovalRequestCard from './approval-status-card';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 
 const ApprovalStatus: FC = () => {
+  const { userId } = useAuthenticationStore();
+  const { data } = useGetApprovalLeaveRequest(userId);
+
   const requests = [
     {
-      name: 'Patricia Candra',
-      date: '12 Mar 2024',
-      time: '8:50 PM',
-      type: 'Leave Request',
-    },
-    {
-      name: 'Patricia Candra',
-      date: '12 Mar 2024',
-      time: '8:50 PM',
-      type: 'Leave Request',
-    },
-    {
-      name: 'Patricia Candra',
-      date: '12 Mar 2024',
-      time: '8:50 PM',
-      type: 'Leave Request',
-    },
-    {
-      name: 'Patricia Candra',
-      date: '12 Mar 2024',
-      time: '8:50 PM',
-      type: 'Leave Request',
-    },
-    {
-      name: 'Patricia Candra',
-      date: '12 Mar 2024',
-      time: '8:50 PM',
-      type: 'Leave Request',
-    },
-    {
-      name: 'Patricia Candra',
-      date: '12 Mar 2024',
-      time: '8:50 PM',
       type: 'Leave Request',
     },
   ];
@@ -61,17 +33,22 @@ const ApprovalStatus: FC = () => {
           />
         </div>
       </div>
-
       <div className="md:h-[325px] overflow-y-auto scrollbar-none">
-        {requests?.length ? (
+        {data?.items?.length ? (
           <div className="">
-            {requests.map((request, index) => (
+            {data?.items.map((request: any, index: number) => (
               <ApprovalRequestCard
                 key={index}
+                id={request.id}
                 name={request.name}
-                date={request.date}
-                time={request.time}
-                type={request.type}
+                days={request.days}
+                approveRequesterId={request.userId}
+                startAt={request.startAt}
+                endAt={request.endAt}
+                isHalfDay={request.isHalfDay}
+                leaveType={request.leaveType.title}
+                approvalWorkflowId={request.approvalWorkflowId}
+                nextApprover={request.nextApprover?.[0]?.stepOrder}
               />
             ))}
           </div>

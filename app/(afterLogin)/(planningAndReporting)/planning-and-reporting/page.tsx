@@ -41,7 +41,7 @@ function Page() {
 
   return (
     <div>
-      <div className="h-full w-auto p-4">
+      <div className="h-full min-h-screen w-auto p-4">
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb
             className="text-sm"

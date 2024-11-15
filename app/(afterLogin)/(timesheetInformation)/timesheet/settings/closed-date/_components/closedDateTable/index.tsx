@@ -5,7 +5,6 @@ import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/se
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useUpdateClosedDate } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
-import dayjs from 'dayjs';
 
 const ClosedDateTable = () => {
   const { setIsShowClosedDateSidebar, setSelectedClosedDate } =
@@ -65,10 +64,10 @@ const ClosedDateTable = () => {
     },
     {
       title: 'Date',
-      dataIndex: 'startDate',
+      dataIndex: 'date',
       key: 'date',
       sorter: true,
-      render: (text: string) => <div>{dayjs(text).format('DD MMMM YYYY')}</div>,
+      render: (text: string) => <div>{text || '-'}</div>,
     },
     {
       title: 'Action',

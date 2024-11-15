@@ -93,7 +93,7 @@ const ActionButton: FC<ActionButtonProps> = ({
           }}
         >
           <Button
-            id="deleteActionButton"
+            id={`${id}deleteActionButtonId`}
             size="large"
             className="w-full justify-normal"
             type="text"
@@ -117,7 +117,7 @@ const ActionButton: FC<ActionButtonProps> = ({
       <Button
         icon={<HiOutlineDotsVertical size={20} className="text-gray-500" />}
         className="h-7 w-7"
-        id="buttonDropDownActionId"
+        id={`${id}buttonDropDownActionId`}
         type="text"
         onClick={(e) => {
           e.stopPropagation();

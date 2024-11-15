@@ -5,41 +5,12 @@ import React from 'react';
 
 interface Props {
   isLoading?: boolean;
-  form: any; // Add form prop to access the form instance
+  handleAllChange: (value: number) => void;
 }
 
-const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
-  const {
-    setCurrent,
-    current,
-    setOpen,
-    setProfileFileList,
-    setDocumentFileList,
-    setSelectedPermissions,
-    setSelectedWorkSchedule,
-  } = useEmployeeManagementStore();
+const ButtonContinue: React.FC<Props> = ({ isLoading, handleAllChange}) => {
 
-  const handleBackClick = () => {
-    if (current !== 0) {
-      setCurrent(current - 1);
-    } else {
-      setOpen(false);
-      setProfileFileList([]);
-      setDocumentFileList([]);
-      setSelectedPermissions([]);
-      setSelectedWorkSchedule(null);
-      setCurrent(0);
-      form.resetFields();
-    }
-  };
-
-  const handleContinueClick = () => {
-    if (current !== 2) {
-      setCurrent(current + 1);
-    } else {
-      form.submit(); // Submit the form on the last step
-    }
-  };
+  const { current } = useEmployeeManagementStore();
 
   return (
     <Form.Item className="font-semibold text-xs">
@@ -49,7 +20,7 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
             name="cancelUserSidebarButton"
             id="cancelSidebarButtonId"
             className="px-6 py-3 text-xs font-bold"
-            onClick={handleBackClick}
+            onClick={() => handleAllChange(current - 1)}
           >
             Back
           </Button>
@@ -57,7 +28,7 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
           <Popconfirm
             title="reset all you field"
             description="Are you sure to reset all fields value ?"
-            onConfirm={handleBackClick}
+            onConfirm={() => handleAllChange(current - 1)}
             okText="Yes"
             cancelText="No"
           >
@@ -69,7 +40,7 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
 
         <Button
           loading={isLoading}
-          onClick={handleContinueClick}
+          onClick={() => handleAllChange(current + 1)}
           id={
             current === 2
               ? `sidebarActionCreateSubmit${current}`

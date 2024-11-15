@@ -9,6 +9,7 @@ interface ActionButtonsProps {
   loading?: boolean;
   onEdit?: (e?: any) => void;
   onDelete?: (e?: any) => void;
+  onDetail?: (e?: any) => void;
   id?: any;
 }
 
@@ -18,6 +19,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
   loading = false,
   onEdit,
   onDelete,
+  onDetail,
   id,
 }) => {
   return (
@@ -34,6 +36,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
         />
       )}
 
+
       {onDelete && (
         <DeletePopover onDelete={onDelete} disabled={disableDelete}>
           <Button
@@ -49,6 +52,15 @@ const ActionButtons: FC<ActionButtonsProps> = ({
             }}
           />
         </DeletePopover>
+      )}
+      {onDetail && (
+        <Button
+          className="w-[60px] px-2 h-[30px]"
+          icon={'Detail'}
+          id={`${id}buttonPopOverActionForOnDetailActionId`}
+          loading={loading}
+          onClick={onDetail}
+        />
       )}
     </Space>
   );
