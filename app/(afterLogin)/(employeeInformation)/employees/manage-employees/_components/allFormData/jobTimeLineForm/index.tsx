@@ -10,6 +10,11 @@ import React, { useState } from 'react';
 const { Option } = Select;
 
 const JobTimeLineForm = () => {
+  const status = [
+    { id: 'Promotion', name: 'Promotion' },
+    { id: 'Transfer', name: 'Transfer' },
+    { id: 'New', name: 'New' },
+  ];
   const { data: departmentData } = useGetDepartments();
   const { data: employementType } = useGetEmployementTypes();
   const { data: branchOfficeData } = useGetBranches();
@@ -121,6 +126,25 @@ const JobTimeLineForm = () => {
               {branchOfficeData?.items?.map((branch, index: number) => (
                 <Option key={index} value={branch?.id}>
                   {branch?.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row gutter={16}>
+        <Col xs={24} sm={12}>
+          <Form.Item
+            className="w-full font-semibold text-xs"
+            name={'jobAction'}
+            id="jobAction"
+            label="Status"
+            rules={[{ required: true, message: 'Please select Status' }]}
+          >
+            <Select className="w-full" placeholder="Select Status" allowClear>
+              {status?.map((status: any, index: number) => (
+                <Option key={index} value={status?.id}>
+                  {status?.name}
                 </Option>
               ))}
             </Select>

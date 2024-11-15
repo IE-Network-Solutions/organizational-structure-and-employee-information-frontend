@@ -20,13 +20,15 @@ function Job({ id }: { id: string }) {
       title: 'Effective Date',
       dataIndex: 'effectiveStartDate',
       key: 'effectiveStartDate',
-      render: (text: string) => (text ? text : '-'),
+      render: (text: string) => (text ? text.slice(0, 10) : '-'),
     },
     {
       title: 'Job Title',
-      dataIndex: 'jobTitle',
-      key: 'jobTitle',
-      render: (text: string) => (text ? text : '-'),
+      dataIndex: 'position',
+      key: 'position',
+      render: (ruleData: any, record: any) => (
+        <>{record?.position?.name ?? '-'}</>
+      ),
     },
     {
       title: 'Employment Type',
@@ -49,6 +51,12 @@ function Job({ id }: { id: string }) {
       render: (ruleData: any, record: any) => (
         <>{record?.department?.name ?? '-'}</>
       ),
+    },
+    {
+      title: 'Job Status',
+      dataIndex: 'jobAction',
+      key: 'jobAction',
+      render: (text: string) => (text ? text : '-'),
     },
   ];
   return (
