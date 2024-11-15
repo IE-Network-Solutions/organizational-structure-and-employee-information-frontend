@@ -11,6 +11,8 @@ import OffboardingTask from './_components/offboarding';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import OffboardingFormControl from './_components/offboarding/_components/offboardingFormControl';
 import { useFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
+import { PermissionWrapper } from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 interface Params {
   id: string;
 }
@@ -20,7 +22,6 @@ interface EmployeeDetailsProps {
 
 function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   const { setIsEmploymentFormVisible } = useOffboardingStore();
-
   const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
 
   const items = [
@@ -63,20 +64,22 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       <Row gutter={[16, 24]}>
         <Col lg={8} md={10} xs={24}>
           <BasicInfo id={id} />
-          <div className="flex gap-3">
-            <div>
-              <Button
-                type="primary"
-                htmlType="submit"
-                value={'submit'}
-                name="submit"
-                onClick={handleEndEmploymentClick}
-                disabled={offboardingTermination?.isActive}
-              >
-                End Employment
-              </Button>
+          <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
+            <div className="flex gap-3">
+              <div>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  value={'submit'}
+                  name="submit"
+                  onClick={handleEndEmploymentClick}
+                  disabled={offboardingTermination?.isActive}
+                >
+                  End Employment
+                </Button>
+              </div>
             </div>
-          </div>
+          </PermissionWrapper>
         </Col>
         <Col lg={16} md={14} xs={24}>
           <Card>
