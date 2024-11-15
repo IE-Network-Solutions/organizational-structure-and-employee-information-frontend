@@ -2,26 +2,41 @@ import jsPDF from 'jspdf';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { MdDownloadForOffline } from 'react-icons/md';
 import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
+
 interface Ids {
   id: string;
 }
+
 const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
   const { data: employeeData } = useGetEmployee(id);
   const { data: companyInfo } = useGetCompanyProfileByTenantId(
     employeeData?.tenantId,
   );
+
   const generatePDF = () => {
     const doc = new jsPDF();
 
+    doc.setFontSize(16);
+    doc.setTextColor('#4da6ff');
+
+    doc.text(companyInfo?.companyName ?? '', 10, 10);
+    doc.setFontSize(12);
+    doc.text(companyInfo?.address ?? '', 10, 16);
+    doc.text(companyInfo?.phoneNumber ?? '', 10, 22);
+    doc.setLineWidth(0.5);
+    doc.line(10, 26, 200, 26);
+
     doc.setFontSize(22);
-    const text = 'CERTIFICATE OF SERVICE';
+    doc.setTextColor('#003366');
+    const title = 'CERTIFICATE OF SERVICE';
     const pageWidth = doc.internal.pageSize.width;
-    const textWidth = doc.getTextWidth(text);
-    const x = (pageWidth - textWidth) / 2;
-    doc.text(text, x, 20);
+    const titleWidth = doc.getTextWidth(title);
+    const titleX = (pageWidth - titleWidth) / 2;
+    doc.text(title, titleX, 40);
 
     doc.setFontSize(14);
-    let y = 40;
+    doc.setTextColor('#444444');
+    let y = 60;
     doc.text(
       `This is to certify that ${
         employeeData?.employeeInformation?.gender === 'male'
@@ -31,7 +46,7 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
             ? 'Miss'
             : 'Ms'
       } ${employeeData?.firstName ?? ''} ${employeeData?.middleName ?? ''} ${employeeData?.lastName ?? ''} has been a permanent employee of ${companyInfo?.companyName}, working as:`,
-      10,
+      15,
       y,
       { maxWidth: 180 },
     );
@@ -46,17 +61,26 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
 
     y += 10;
     doc.setFontSize(12);
-    sortedJobInformation.forEach((employeeJobInformation: any) => {
-      y += 10;
-      const effectiveStartDate = employeeJobInformation.effectiveStartDate
-        ? employeeJobInformation.effectiveStartDate.slice(0, 10)
-        : '-';
-      doc.text(
-        ` From ${effectiveStartDate} as ${employeeJobInformation.position?.name ?? '-'}`,
-        24,
-        y,
-      );
-    });
+
+    sortedJobInformation.forEach(
+      (employeeJobInformation: any, index: number) => {
+        y += 10;
+        const effectiveStartDate = employeeJobInformation.effectiveStartDate
+          ? employeeJobInformation.effectiveStartDate.slice(0, 10)
+          : '-';
+
+        const nextJobInformation = sortedJobInformation[index + 1];
+        const endDate = nextJobInformation?.effectiveStartDate
+          ? nextJobInformation.effectiveStartDate.slice(0, 10)
+          : 'now';
+
+        doc.text(
+          ` Start from ${effectiveStartDate} to ${endDate} as ${employeeJobInformation.position?.name ?? '-'}`,
+          24,
+          y,
+        );
+      },
+    );
 
     y += 20;
     doc.setFontSize(14);
@@ -69,7 +93,7 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
             ? 'Miss'
             : 'Ms'
       } ${employeeData?.firstName ?? ''}  ${employeeData?.middleName ?? ''} ${employeeData?.lastName ?? ''} was drawing a monthly gross salary of Birr ________ (__________) per month. Income tax & pension contributions have been duly deducted and paid to the relevant Government Authority.`,
-      10,
+      15,
       y,
       { maxWidth: 180 },
     );
@@ -79,12 +103,11 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
       `${
         employeeData?.employeeInformation?.gender === 'male'
           ? 'Mr'
-          : employeeData?.employeeInformation?.gender === 'female' &&
-              employeeData?.employeeInformation?.maritalStatus === 'SINGLE'
-            ? 'Miss'
-            : 'Ms'
+          : employeeData?.employeeInformation?.gender === 'female'
+            ? 'her'
+            : ''
       } ${employeeData?.firstName ?? ''}  ${employeeData?.middleName ?? ''} ${employeeData?.lastName ?? ''} has resigned from our company on his/her own accord.`,
-      10,
+      15,
       y,
       { maxWidth: 180 },
     );
@@ -98,15 +121,16 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
             ? 'her'
             : ''
       } all the best in future endeavors.`,
-      10,
+      15,
       y,
       { maxWidth: 180 },
     );
 
+    y += 35;
+    doc.setFontSize(12);
+    doc.text('Sincerely,', 15, y + 10);
     y += 20;
-    doc.setFontSize(18);
-    doc.text('Sincerely,', 10, y + 10);
-    doc.addImage('/image/ie.png', 'PNG', 10, y + 20, 30, 30);
+    doc.line(10, y + 30, 200, y + 30);
 
     doc.save(
       `${employeeData?.firstName ?? ''}  ${employeeData?.middleName ?? ''} ${employeeData?.lastName ?? ''} Job History.pdf`,
