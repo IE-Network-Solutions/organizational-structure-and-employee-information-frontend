@@ -4,6 +4,7 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetPositions } from '@/store/server/features/employees/positions/queries';
 import { Col, DatePicker, Form, Radio, Row, Select, Switch } from 'antd';
+import dayjs from 'dayjs';
 import React, { useState } from 'react';
 
 const { Option } = Select;
@@ -18,6 +19,9 @@ const JobTimeLineForm = () => {
 
   const handleContractTypeChange = (e: any) => {
     setContractType(e.target.value);
+  };
+  const disablePastDates = (current: any) => {
+    return current && current < dayjs().startOf('day');
   };
 
   return (
@@ -36,7 +40,7 @@ const JobTimeLineForm = () => {
               { required: true, message: 'Please select the joined date' },
             ]}
           >
-            <DatePicker className="w-full" />
+            <DatePicker className="w-full" disabledDate={disablePastDates} />
           </Form.Item>
         </Col>
       </Row>
