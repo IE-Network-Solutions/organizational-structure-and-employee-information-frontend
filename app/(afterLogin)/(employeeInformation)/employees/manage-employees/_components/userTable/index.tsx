@@ -28,6 +28,15 @@ import { PermissionWrapper } from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 const columns: TableColumnsType<EmployeeData> = [
   {
+    title: 'Employee Id',
+    dataIndex: 'employee_attendance_id',
+    sorter: (a, b) => {
+      const idA = a.employee_attendance_id ?? 0;
+      const idB = b.employee_attendance_id ?? 0;
+      return idA - idB;
+    },
+  },
+  {
     title: 'Employee Name',
     dataIndex: 'employee_name',
     ellipsis: true,
@@ -97,7 +106,7 @@ const UserTable = () => {
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
   const data = allFilterData?.items?.map((item: any) => {
-    const fullName = item?.firstName + ' ' + item?.middleName;
+    const fullName = item?.firstName + ' ' + (item?.middleName ? item?.middleName : '');
     const shortEmail = item?.email;
     const displayName =
       fullName.length > MAX_NAME_LENGTH
@@ -109,6 +118,7 @@ const UserTable = () => {
         : shortEmail;
     return {
       key: item?.id,
+      employee_attendance_id: item?.employeeInformation?.employeeAttendanceId,
       employee_name: (
         <Tooltip
           title={
@@ -119,7 +129,7 @@ const UserTable = () => {
             </>
           }
         >
-          <div className="flex items-center flex-wrap sm:flex-row justify-center gap-2">
+          <div className="flex items-center flex-wrap sm:flex-row justify-start gap-2">
             <div className="relative w-6 h-6 rounded-full overflow-hidden">
               <Image
                 src={

@@ -1,3 +1,4 @@
+'use client';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Button, Form, Popconfirm } from 'antd';
 import React from 'react';
