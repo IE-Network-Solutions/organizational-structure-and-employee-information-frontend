@@ -120,7 +120,13 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
           : employeeData?.employeeInformation?.gender === 'female'
             ? 'her'
             : ''
-      } all the best in future endeavors.`,
+      } all the best in ${
+        employeeData?.employeeInformation?.gender === 'male'
+          ? 'his'
+          : employeeData?.employeeInformation?.gender === 'female'
+            ? 'her'
+            : ''
+      } future endeavors.`,
       15,
       y,
       { maxWidth: 180 },
