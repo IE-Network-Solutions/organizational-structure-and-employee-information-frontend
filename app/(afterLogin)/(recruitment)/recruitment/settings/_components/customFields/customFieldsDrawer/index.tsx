@@ -86,9 +86,10 @@ const CustomFieldsDrawer: React.FC<{
 
   useEffect(() => {
     if (isEdit && question) {
+      const title = question?.title;
       const questionForm = question?.form?.[0] || {};
       const formValues = {
-        title: question?.title ?? '',
+        title: title || '',
         fieldType: questionForm?.fieldType,
         question: questionForm?.question,
         required: questionForm?.required || false,
@@ -116,6 +117,9 @@ const CustomFieldsDrawer: React.FC<{
       layout="vertical"
       onValuesChange={() => handleQuestionStateUpdate(form.getFieldsValue())}
       onFinish={handleSubmit}
+      initialValues={{
+        title: question?.title,
+      }}
     >
       <Form.Item
         name="title"
@@ -126,14 +130,12 @@ const CustomFieldsDrawer: React.FC<{
         }
         rules={[{ required: true, message: 'Please input the title!' }]}
       >
-        <div className="flex items-center">
-          <Input
-            size="large"
-            className="text-sm w-full  h-10"
-            placeholder="Enter your question here"
-            allowClear
-          />
-        </div>
+        <Input
+          size="large"
+          className="text-sm w-full  h-10"
+          placeholder="Enter your question here"
+          allowClear
+        />
       </Form.Item>
 
       <Row gutter={12}>
@@ -144,7 +146,7 @@ const CustomFieldsDrawer: React.FC<{
                 Field Type
               </span>
             }
-            required
+            rules={[{ required: true, message: 'Please Choose field type' }]}
             name="fieldType"
           >
             <Select allowClear placeholder="Select type">

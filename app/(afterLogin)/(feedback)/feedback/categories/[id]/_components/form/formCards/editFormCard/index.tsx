@@ -14,12 +14,15 @@ interface EditFormModalProps {
 }
 const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
   const [formInstance] = Form.useForm();
+  const {
+    isEditModalVisible,
+    setIsEditModalVisible,
+    selectedFormId,
+    searchUserParams,
+  } = CategoriesManagementStore();
 
-  const { data: employees } = useFetchUsers();
+  const { data: employees } = useFetchUsers(searchUserParams?.user_name);
   const { mutate: updateForm } = useUpdateForm();
-
-  const { isEditModalVisible, setIsEditModalVisible, selectedFormId } =
-    CategoriesManagementStore();
 
   const { data: formDataByID } = useGetFormsByID(selectedFormId);
   const handleSubmit = async () => {
