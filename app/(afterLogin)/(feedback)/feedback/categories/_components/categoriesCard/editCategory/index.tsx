@@ -16,11 +16,12 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ onConfirm }) => {
     editModal,
     editingCategory,
     selectedUsers,
+    searchParams,
     setSelectedUsers,
     setEditModal,
     setEditingCategory,
   } = CategoriesManagementStore();
-  const { data: users } = useFetchUsers();
+  const { data: users } = useFetchUsers(searchParams?.category_name);
 
   React.useEffect(() => {
     if (editingCategory) {

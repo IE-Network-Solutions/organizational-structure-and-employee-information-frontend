@@ -1,12 +1,6 @@
 export interface RookStarsListProps {
-  dataSource: Array<{
-    avatar: string;
-    name: string;
-    title: string;
-    completion: number;
-  }>;
   title: string;
-  planningPeriodId?: string;
+  planningPeriodId: string;
 }
 
 export interface ListData {
