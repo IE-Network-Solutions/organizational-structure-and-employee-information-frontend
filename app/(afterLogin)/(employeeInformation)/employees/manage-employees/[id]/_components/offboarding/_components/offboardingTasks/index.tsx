@@ -27,6 +27,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { EmptyImage } from '@/components/emptyIndicator';
 import { OffBoardingTasksUpdateStatus } from '@/store/server/features/employees/offboarding/interface';
 import jsPDF from 'jspdf';
+import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 
 interface Ids {
   id: string;
@@ -94,6 +95,8 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
     isLoading,
     error,
   } = useFetchOffboardingTasks(id);
+  const { tenantId } = useAuthenticationStore.getState();
+  const { data: companyInfo } = useGetCompanyProfileByTenantId(tenantId);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading tasks</div>;
@@ -115,11 +118,27 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
 
   const downloadPDF = (data: any) => {
     const doc = new jsPDF();
-    doc.setFont('helvetica', 'normal');
     doc.setFontSize(16);
-    doc.text('Tasks Report', 10, 10);
+    doc.setTextColor('#4da6ff');
 
-    let y = 20;
+    doc.text(companyInfo?.companyName ?? '', 10, 10);
+    doc.setFontSize(12);
+    doc.text(companyInfo?.address ?? '', 10, 16);
+    doc.text(companyInfo?.phoneNumber ?? '', 10, 22);
+    doc.setLineWidth(0.5);
+    doc.line(10, 26, 200, 26);
+
+    doc.setFontSize(22);
+    doc.setTextColor('#003366');
+    const title = 'HANDOVER TASKS REPORT';
+    const pageWidth = doc.internal.pageSize.width;
+    const titleWidth = doc.getTextWidth(title);
+    const titleX = (pageWidth - titleWidth) / 2;
+    doc.text(title, titleX, 40);
+
+    doc.setFontSize(14);
+    doc.setTextColor('#444444');
+    let y = 60;
 
     data.forEach((item: any, index: number) => {
       const approver = `${item.approver.firstName} ${item.approver.lastName}`;
@@ -127,7 +146,6 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
       const comment = `${item.employeTermination.comment}`;
       const status = item.isCompleted ? 'Completed' : 'Pending';
 
-      doc.setFontSize(12);
       doc.text(`Task #${index + 1}`, 10, y);
       doc.text(`Title: ${item.title}`, 10, y + 10);
       doc.text(`Description: ${item.description}`, 10, y + 20);
@@ -160,11 +178,6 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
             >
               Add Task
             </Button>
-            <Button
-              type="default"
-              icon={<DownloadOutlined />}
-              onClick={() => downloadPDF(offboardingTasks)}
-            />
             <div id="offboarding-template-tasks">
               <Dropdown
                 menu={{ items: menuItems }}
@@ -178,6 +191,11 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                 </Button>
               </Dropdown>
             </div>
+            <Button
+              type="default"
+              icon={<DownloadOutlined />}
+              onClick={() => downloadPDF(offboardingTasks)}
+            />
           </div>
         }
         className="w-full"
