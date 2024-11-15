@@ -1,7 +1,12 @@
 'use client';
 import React from 'react';
 import { Card, Checkbox, Button, Dropdown, Empty } from 'antd';
-import { DownOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
+import {
+  DownOutlined,
+  PlusOutlined,
+  SettingOutlined,
+  DownloadOutlined,
+} from '@ant-design/icons';
 import {
   Task,
   useOffboardingStore,
@@ -21,12 +26,19 @@ import { MdDelete } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { OffBoardingTasksUpdateStatus } from '@/store/server/features/employees/offboarding/interface';
+import jsPDF from 'jspdf';
+
+interface Ids {
+  id: string;
+}
+
 const TaskItem: React.FC<{ task: Task; onToggle: () => void }> = ({
   task,
   onToggle,
 }) => {
   const { userId } = useAuthenticationStore();
   const { mutate: updateOffboardingItem } = useUpdateOffboardingItem();
+
   const handelCehckBox = (task: any) => {
     const data: OffBoardingTasksUpdateStatus = {
       id: '',
@@ -37,6 +49,7 @@ const TaskItem: React.FC<{ task: Task; onToggle: () => void }> = ({
 
     updateOffboardingItem(data);
   };
+
   return (
     <div className="flex items-center mb-2">
       <Checkbox
@@ -63,9 +76,7 @@ const TaskItem: React.FC<{ task: Task; onToggle: () => void }> = ({
     </div>
   );
 };
-interface Ids {
-  id: string;
-}
+
 const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
   const {
     isDeleteModalVisible,
@@ -76,9 +87,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
     setIsTaskTemplateVisible,
     setIsDeleteModalVisible,
   } = useOffboardingStore();
-
   const { mutate: offboardingTaskDelete } = useDeleteOffboardingItem();
-
   const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
   const {
     data: offboardingTasks,
@@ -86,8 +95,12 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
     error,
   } = useFetchOffboardingTasks(id);
 
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading tasks</div>;
+
   const handleAddTaskClick = () => setIsAddTaskModalVisible(true);
   const handleTaskTemplate = () => setIsTaskTemplateVisible(true);
+
   const menuItems = [
     {
       key: '1',
@@ -99,8 +112,39 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
   const handelTaskDelete = (value: string) => {
     offboardingTaskDelete(value);
   };
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading tasks</div>;
+
+  const downloadPDF = (data: any) => {
+    const doc = new jsPDF();
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(16);
+    doc.text('Tasks Report', 10, 10);
+
+    let y = 20;
+
+    data.forEach((item: any, index: number) => {
+      const approver = `${item.approver.firstName} ${item.approver.lastName}`;
+      const terminationInfo = `${item.employeTermination.reason}`;
+      const comment = `${item.employeTermination.comment}`;
+      const status = item.isCompleted ? 'Completed' : 'Pending';
+
+      doc.setFontSize(12);
+      doc.text(`Task #${index + 1}`, 10, y);
+      doc.text(`Title: ${item.title}`, 10, y + 10);
+      doc.text(`Description: ${item.description}`, 10, y + 20);
+      doc.text(`Status: ${status}`, 10, y + 30);
+      doc.text(`Approver: ${approver}`, 10, y + 40);
+      doc.text(`Termination Info: ${terminationInfo}`, 10, y + 50);
+      doc.text(`comment: ${comment}`, 10, y + 60);
+
+      y += 70;
+      if (y > 280) {
+        doc.addPage();
+        y = 20;
+      }
+    });
+
+    doc.save('Handover_Tasks_Report.pdf');
+  };
 
   return (
     <div className="p-4 max-h-[418px] overflow-y-scroll">
@@ -116,6 +160,11 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
             >
               Add Task
             </Button>
+            <Button
+              type="default"
+              icon={<DownloadOutlined />}
+              onClick={() => downloadPDF(offboardingTasks)}
+            />
             <div id="offboarding-template-tasks">
               <Dropdown
                 menu={{ items: menuItems }}
