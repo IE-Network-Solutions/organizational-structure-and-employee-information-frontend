@@ -11,6 +11,7 @@ import { InfoLine } from '../../common/infoLine';
 import dayjs from 'dayjs';
 import UpdateUserInfo from './updateUserInfo';
 import { PermissionWrapper } from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 function PersonalDataComponent({
   id,
@@ -34,7 +35,7 @@ function PersonalDataComponent({
       loading={isLoading}
       title="Personal Info"
       extra={
-        <PermissionWrapper permissions={['emp_edit']}>
+        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
           <LuPencil
             className="cursor-pointer text-black"
             color="#BFBFBF"

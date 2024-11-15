@@ -8,6 +8,7 @@ import React from 'react';
 import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../../common/infoLine';
 import { PermissionWrapper } from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const BankInformationComponent = ({ handleSaveChanges, id }: any) => {
   const { setEdit, edit } = useEmployeeManagementStore();
@@ -23,7 +24,7 @@ const BankInformationComponent = ({ handleSaveChanges, id }: any) => {
       loading={isLoading}
       title="Bank Information"
       extra={
-        <PermissionWrapper permissions={['emp_edit']}>
+        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('bankInformation')}

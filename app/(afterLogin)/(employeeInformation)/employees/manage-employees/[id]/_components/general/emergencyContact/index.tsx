@@ -8,6 +8,7 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeManagm
 import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../../common/infoLine';
 import { PermissionWrapper } from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 function EmergencyContact({ handleSaveChanges, id }: any) {
   const { setEdit, edit } = useEmployeeManagementStore();
@@ -23,7 +24,7 @@ function EmergencyContact({ handleSaveChanges, id }: any) {
       loading={isLoading}
       title="Emergency Contact"
       extra={
-        <PermissionWrapper permissions={['emp_edit']}>
+        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('emergencyContact')}

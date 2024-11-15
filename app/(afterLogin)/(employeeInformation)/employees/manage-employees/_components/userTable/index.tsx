@@ -25,6 +25,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import dayjs from 'dayjs';
 import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
 import { PermissionWrapper } from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Employee Name',
@@ -178,7 +179,7 @@ const UserTable = () => {
               <FaEye />
             </Button>
           </Link>
-          <PermissionWrapper permissions={['emp_edit']}>
+          <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
             {item.deletedAt === null ? (
               <Tooltip title={'Deactive Employee'}>
                 <Button

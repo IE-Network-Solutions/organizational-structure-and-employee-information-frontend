@@ -12,6 +12,7 @@ import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import OffboardingFormControl from './_components/offboarding/_components/offboardingFormControl';
 import { useFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
 import { PermissionWrapper } from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 interface Params {
   id: string;
 }
@@ -63,7 +64,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       <Row gutter={[16, 24]}>
         <Col lg={8} md={10} xs={24}>
           <BasicInfo id={id} />
-          <PermissionWrapper permissions={['emp_edit']}>
+          <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
             <div className="flex gap-3">
               <div>
                 <Button
