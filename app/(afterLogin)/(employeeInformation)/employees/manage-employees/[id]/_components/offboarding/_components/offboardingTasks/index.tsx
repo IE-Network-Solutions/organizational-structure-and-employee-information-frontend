@@ -118,50 +118,79 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
 
   const downloadPDF = (data: any) => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 10;
+    const lineHeight = 10;
+
+    let y = 10;
+
+    const addNewPageIfNeeded = (requiredHeight: number) => {
+      if (y + requiredHeight > pageHeight - margin) {
+        doc.addPage();
+        y = margin;
+      }
+    };
+
+    // Header
     doc.setFontSize(16);
     doc.setTextColor('#4da6ff');
+    doc.text(companyInfo?.companyName ?? 'Company Name', margin, y);
+    y += lineHeight;
 
-    doc.text(companyInfo?.companyName ?? '', 10, 10);
     doc.setFontSize(12);
-    doc.text(companyInfo?.address ?? '', 10, 16);
-    doc.text(companyInfo?.phoneNumber ?? '', 10, 22);
+    doc.text(companyInfo?.address ?? 'Address not provided', margin, y);
+    y += lineHeight;
+    doc.text(companyInfo?.phoneNumber ?? 'Phone not available', margin, y);
+    y += lineHeight;
     doc.setLineWidth(0.5);
-    doc.line(10, 26, 200, 26);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += lineHeight;
 
+    // Title
     doc.setFontSize(22);
     doc.setTextColor('#003366');
     const title = 'HANDOVER TASKS REPORT';
-    const pageWidth = doc.internal.pageSize.width;
     const titleWidth = doc.getTextWidth(title);
     const titleX = (pageWidth - titleWidth) / 2;
-    doc.text(title, titleX, 40);
+    doc.text(title, titleX, y);
+    y += lineHeight + 10;
 
+    // Content
     doc.setFontSize(14);
     doc.setTextColor('#444444');
-    let y = 60;
 
     data.forEach((item: any, index: number) => {
-      const approver = `${item.approver.firstName} ${item.approver.lastName}`;
-      const terminationInfo = `${item.employeTermination.reason}`;
-      const comment = `${item.employeTermination.comment}`;
+      const approver = `${item.approver?.firstName ?? ''} ${item.approver?.lastName ?? ''}`;
+      const terminationInfo = item.employeTermination?.reason ?? 'N/A';
+      const comment = item.employeTermination?.comment ?? 'No comments';
       const status = item.isCompleted ? 'Completed' : 'Pending';
 
-      doc.text(`Task #${index + 1}`, 10, y);
-      doc.text(`Title: ${item.title}`, 10, y + 10);
-      doc.text(`Description: ${item.description}`, 10, y + 20);
-      doc.text(`Status: ${status}`, 10, y + 30);
-      doc.text(`Approver: ${approver}`, 10, y + 40);
-      doc.text(`Termination Info: ${terminationInfo}`, 10, y + 50);
-      doc.text(`comment: ${comment}`, 10, y + 60);
+      const taskDetails = [
+        `Task #${index + 1}`,
+        `Title: ${item.title || 'N/A'}`,
+        `Description: ${item.description || 'No description provided'}`,
+        `Status: ${status}`,
+        `Approver: ${approver}`,
+        `Termination Info: ${terminationInfo}`,
+        `Comment: ${comment}`,
+      ];
 
-      y += 70;
-      if (y > 280) {
-        doc.addPage();
-        y = 20;
-      }
+      taskDetails.forEach((text, i) => {
+        const wrappedText = doc.splitTextToSize(text, pageWidth - 2 * margin);
+        const textHeight = wrappedText.length * lineHeight;
+
+        addNewPageIfNeeded(textHeight);
+        doc.text(wrappedText, margin, y);
+        y += textHeight + (i < taskDetails.length - 1 ? 5 : 10);
+      });
+
+      y += 10;
+      addNewPageIfNeeded(0);
     });
 
-    doc.save('Handover_Tasks_Report.pdf');
+    const fileName = `Handover_Tasks_Report_${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(fileName);
   };
 
   return (
@@ -214,7 +243,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                 <Button
                   onClick={() => {
                     setIsDeleteModalVisible(true);
-                    setTaskToDelete(task); // Track the task to be deleted
+                    setTaskToDelete(task);
                   }}
                   danger
                   icon={<MdDelete />}
@@ -228,18 +257,17 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
             <Empty description={'data not found'} image={<EmptyImage />} />
           </div>
         )}
-        {/* Render the delete modal conditionally based on the state */}
         {isDeleteModalVisible && taskToDelete && (
           <DeleteModal
             open={isDeleteModalVisible}
             onConfirm={() => {
               handelTaskDelete(taskToDelete.id);
               setIsDeleteModalVisible(false);
-              setTaskToDelete(null as any); // Reset the task after deletion
+              setTaskToDelete(null as any);
             }}
             onCancel={() => {
               setIsDeleteModalVisible(false);
-              setTaskToDelete(null as any); // Reset the task if canceled
+              setTaskToDelete(null as any);
             }}
             customMessage={
               <>

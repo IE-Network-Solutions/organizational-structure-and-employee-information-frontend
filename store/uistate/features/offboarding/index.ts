@@ -66,6 +66,7 @@ interface OffboardingState {
   selectedTemplateTasks: EmployeeOffBoardingTasks[] | [];
   completedTask: boolean;
   taskToDelete: Task;
+  approverId: string;
   setTaskToDelete: (task: Task) => void;
   setCompletedTask: (visible: boolean) => void;
   setselectedTemplateTasks: (
@@ -88,6 +89,7 @@ interface OffboardingState {
   addCustomTerminationOption: (option: string) => void;
   setEmploymentStatus: (status: string) => void;
   setShowTerminationFields: (show: boolean) => void;
+  setApproverId: (approver: string) => void;
 }
 
 export const useOffboardingStore = create<OffboardingState>((set) => ({
@@ -110,6 +112,7 @@ export const useOffboardingStore = create<OffboardingState>((set) => ({
   selectedTemplateTasks: [],
   completedTask: false,
   taskToDelete: initialTask,
+  approverId: '',
   setTaskToDelete: (task) => set({ taskToDelete: task }),
 
   setCompletedTask: (visible) => set({ completedTask: visible }),
@@ -159,4 +162,5 @@ export const useOffboardingStore = create<OffboardingState>((set) => ({
   resetTaskForm: () => set({ taskForm: initialTaskForm }),
   setselectedTemplateTasks: (templateTasks) =>
     set({ selectedTemplateTasks: templateTasks }),
+  setApproverId: (approverId) => set({ approverId }),
 }));
