@@ -6,6 +6,7 @@ import {
   BarChartOutlined,
   MenuOutlined,
   UserOutlined,
+  SwapOutlined,
 } from '@ant-design/icons';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
@@ -104,6 +105,12 @@ const menuItems: MenuProps['items'] = [
         className: 'font-bold',
       },
       {
+        key: '/feedback/succession-plan',
+        label: 'Succession',
+        icon: <SwapOutlined />,
+        className: 'font-bold',
+      },
+      {
         key: '/feedback/settings',
         label: 'Settings',
         className: 'font-bold',
@@ -190,11 +197,6 @@ const userItems: MenuProps['items'] = [
       {
         key: '/feedback/categories',
         label: 'Form',
-        className: 'font-bold',
-      },
-      {
-        key: '/feedback/succession-plan',
-        label: 'Succession',
         className: 'font-bold',
       },
     ],

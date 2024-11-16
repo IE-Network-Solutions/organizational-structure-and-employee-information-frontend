@@ -39,7 +39,24 @@ const CreateSuccessionPlan = () => {
         value: user.id,
         label: (
           <Space size="small">
-            <Avatar src="" />
+            <Avatar
+              src={
+                user?.profileImage && typeof user?.profileImage === 'string'
+                  ? (() => {
+                      try {
+                        const parsed = JSON.parse(user.profileImage);
+                        return parsed.url && parsed.url.startsWith('http')
+                          ? parsed.url
+                          : Avatar;
+                      } catch {
+                        return user.profileImage.startsWith('http')
+                          ? user.profileImage
+                          : Avatar;
+                      }
+                    })()
+                  : Avatar
+              }
+            />
             {user.firstName}
           </Space>
         ),
