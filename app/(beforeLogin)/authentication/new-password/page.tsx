@@ -8,8 +8,8 @@ import { updatePassword } from 'firebase/auth';
 import { auth } from '@/utils/firebaseConfig';
 import { useLoadingStore } from '@/store/uistate/features/loadingState';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { useUpdateEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
+import { useUpdateEmployeeRolePermission } from '@/store/server/features/employees/employeeDetail/mutations';
+import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 
 const NewPassword: FC = () => {
   const router = useRouter();
@@ -17,9 +17,9 @@ const NewPassword: FC = () => {
     isLoading: state.isLoading,
     setLoading: state.setLoading,
   }));
-  const { setUserData, userData, userId } = useAuthenticationStore();
+  const { userId } = useAuthenticationStore();
   const { data: employee } = useGetEmployee(userId);
-  const { mutate: updateEmployee } = useUpdateEmployee();
+  const { mutate: updateUserFlag } = useUpdateEmployeeRolePermission();
 
   const handleFinish = async (values: {
     newPassword: string;
@@ -44,10 +44,21 @@ const NewPassword: FC = () => {
       await updatePassword(currentUser, newPassword);
       message.success('Password successfully reset!');
 
-      updateEmployee({ id: employee.id, values: { hasChangedPassword: true } });
+      const updatedUserData = { ...employee, hasChangedPassword: true };
+
+      updateUserFlag({ id: userId, values: updatedUserData });
+
       console.log(
-        userData,
-        '-------------======--------------after reset',
+        'id after password reset----------------------------------------------:',
+        userId,
+      );
+
+      console.log(
+        'updatedUserData after password reset----------------------------------------------:',
+        updatedUserData,
+      );
+      console.log(
+        'employee data after password reset----------------------------------------------:',
         employee,
       );
 
