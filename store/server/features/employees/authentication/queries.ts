@@ -18,7 +18,7 @@ export const usePasswordReset = () => {
     async (email: string) => {
       const domainName = await fetchDomainName();
       const actionCodeSettings = {
-        url: `http://${domainName}/authentication/reset-password`,
+        url: `http://localhost:3000/authentication/reset-password`,
         handleCodeInApp: true,
       };
       await sendPasswordResetEmail(auth, email, actionCodeSettings);

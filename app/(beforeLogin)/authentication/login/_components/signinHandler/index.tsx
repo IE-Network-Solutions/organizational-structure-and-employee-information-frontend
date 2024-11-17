@@ -5,6 +5,7 @@ import { useGetTenantId } from '@/store/server/features/employees/authentication
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { handleFirebaseSignInError } from '@/utils/showErrorResponse';
 
+
 export const useHandleSignIn = () => {
   const {
     setError,
@@ -14,6 +15,7 @@ export const useHandleSignIn = () => {
     setLocalId,
     setTenantId,
     setUserData,
+    userData,
   } = useAuthenticationStore();
 
   const { refetch: fetchTenantId } = useGetTenantId();
@@ -43,15 +45,21 @@ export const useHandleSignIn = () => {
         setUserData(fetchedData?.data);
         message.success('Welcome!');
         message.loading({ content: 'Redirecting...', key: 'redirect' });
-        
-        if (fetchedData?.data?.hasChangedPassword === false) {
-          router.push('/dashboard');
+        console.log(
+          'userData--------------------------------',
+          userData?.hasChangedPassword,
+        );
+
+        if (userData?.hasChangedPassword === false) {
+          router.push('/authentication/new-password');
         }
-        if (fetchedData?.data?.hasCompany === true) {
-          router.push('/dashboard');
-        } else if (fetchedData?.data?.hasCompany === false) {
+        if (userData?.hasCompany === false) {
           router.push('/onboarding');
-        } else {
+        } else if (
+          userData?.hasCompany === true &&
+          userData?.hasChangedPassword === true
+        ) {
+          router.push('/dashboard');
         }
       }
     } catch (err: any) {
