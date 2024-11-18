@@ -5,7 +5,6 @@ import { useGetTenantId } from '@/store/server/features/employees/authentication
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { handleFirebaseSignInError } from '@/utils/showErrorResponse';
 
-
 export const useHandleSignIn = () => {
   const {
     setError,
@@ -45,11 +44,6 @@ export const useHandleSignIn = () => {
         setUserData(fetchedData?.data);
         message.success('Welcome!');
         message.loading({ content: 'Redirecting...', key: 'redirect' });
-        console.log(
-          'userData--------------------------------',
-          userData?.hasChangedPassword,
-        );
-
         if (userData?.hasChangedPassword === false) {
           router.push('/authentication/new-password');
         }
