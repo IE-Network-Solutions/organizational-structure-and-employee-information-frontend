@@ -12,7 +12,9 @@ import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import OffboardingFormControl from './_components/offboarding/_components/offboardingFormControl';
 import { useFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
 import GeneralGuard  from '@/utils/permissionGuard';
+import { useRouter } from 'next/navigation';
 import { Permissions } from '@/types/commons/permissionEnum';
+
 interface Params {
   id: string;
 }
@@ -21,8 +23,19 @@ interface EmployeeDetailsProps {
 }
 
 function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
+
+  const router = useRouter();
+
   const { setIsEmploymentFormVisible } = useOffboardingStore();
   const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
+
+  const handleEndEmploymentClick = () => {
+    setIsEmploymentFormVisible(true);
+  };
+
+  const handleGoBack = () => {
+    router.back();
+  }
 
   const items = [
     {
@@ -51,14 +64,11 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       children: <OffboardingTask id={id} />,
     },
   ];
-  const handleEndEmploymentClick = () => {
-    setIsEmploymentFormVisible(true);
-  };
 
   return (
     <div className="bg-[#F5F5F5] px-2 h-auto min-h-screen">
       <div className="flex gap-2 items-center mb-4">
-        <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
+        <MdKeyboardArrowLeft className="text-lg sm:text-2xl" onClick={handleGoBack} />
         <h4 className="text-base sm:text-lg md:text-xl">Detail Employee</h4>
       </div>
       <Row gutter={[16, 24]}>

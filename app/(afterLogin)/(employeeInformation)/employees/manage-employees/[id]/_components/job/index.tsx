@@ -8,6 +8,7 @@ import { CreateEmployeeJobInformation } from './addEmployeeJobInfrmation';
 import { FaPlus } from 'react-icons/fa';
 import GeneralGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import DownloadJobInformation from './downloadJobInformation';
 
 function Job({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -21,13 +22,15 @@ function Job({ id }: { id: string }) {
       title: 'Effective Date',
       dataIndex: 'effectiveStartDate',
       key: 'effectiveStartDate',
-      render: (text: string) => (text ? text : '-'),
+      render: (text: string) => (text ? text.slice(0, 10) : '-'),
     },
     {
       title: 'Job Title',
-      dataIndex: 'jobTitle',
-      key: 'jobTitle',
-      render: (text: string) => (text ? text : '-'),
+      dataIndex: 'position',
+      key: 'position',
+      render: (ruleData: any, record: any) => (
+        <>{record?.position?.name ?? '-'}</>
+      ),
     },
     {
       title: 'Employment Type',
@@ -50,6 +53,12 @@ function Job({ id }: { id: string }) {
       render: (ruleData: any, record: any) => (
         <>{record?.department?.name ?? '-'}</>
       ),
+    },
+    {
+      title: 'Job Status',
+      dataIndex: 'jobAction',
+      key: 'jobAction',
+      render: (text: string) => (text ? text : '-'),
     },
   ];
   return (
@@ -100,10 +109,13 @@ function Job({ id }: { id: string }) {
       <Card
         title={'Job Information'}
         extra={
-          <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
-            <FaPlus onClick={handleAddEmployeeJobInformation} />
-          </GeneralGuard>
-          }
+          <div className=" flex items-center justify-center gap-3">
+            <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+              <FaPlus onClick={handleAddEmployeeJobInformation} />
+            </GeneralGuard>
+            <DownloadJobInformation id={id} />
+          </div>
+        }
       >
         <Table
           dataSource={employeeData?.employeeJobInformation}
