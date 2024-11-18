@@ -69,7 +69,7 @@ const Documents = ({ id }: { id: string }) => {
         key: 'actions',
         render: (text: any, record: any) => (
           <Space>
-            <AccessGuard permissions={[Permissions.DownloadEmployeeDocument]}>
+            <AccessGuard permissions={[Permissions.DownloadEmployeeDocument]} selfShouldAccess id={id}>
             <Button
               type="link"
               icon={<AiOutlineDownload />}

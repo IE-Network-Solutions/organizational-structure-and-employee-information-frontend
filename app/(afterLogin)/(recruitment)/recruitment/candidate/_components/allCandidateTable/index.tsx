@@ -19,6 +19,8 @@ import EditCandidate from '../../../_components/modals/editCandidate';
 import MoveToTalentPool from '../../../_components/modals/moveToTalentPool';
 import { useChangeCandidateStatus } from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const AllCandidateTable: React.FC = () => {
   const { data: statusStage } = useGetStages();
@@ -139,6 +141,37 @@ const AllCandidateTable: React.FC = () => {
       document.body.removeChild(link);
     };
 
+    const items = [
+      {
+        key: 'moveToTalentPool',
+        label: (
+          <div className="text-primary font-normal text-sm flex items-center justify-start gap-1">
+            Move to Talent Pool
+            <IoIosArrowForward size={12} />
+          </div>
+        ),
+        onClick: () => handleMenuClick('moveToTalentPool', item),
+        permissions: [Permissions.TransferCandidate]
+      },
+      {
+        key: 'edit',
+        label: 'Edit',
+        onClick: () => handleMenuClick('edit', item),
+        permissions: [Permissions.UpdateCandidate]
+      },
+      {
+        key: 'delete',
+        label: 'Delete',
+        onClick: () => handleMenuClick('delete', item),
+        permissions: [Permissions.DeleteCandidate]
+      },
+    ];
+
+    const filteredItems = items.filter((item) => {
+      const { permissions } = item;
+      return AccessGuard.checkAccess({permissions: permissions});
+    });
+
     return {
       key: index,
       candidateName: item?.fullName ?? '--',
@@ -198,28 +231,11 @@ const AllCandidateTable: React.FC = () => {
           </Button>
           <Dropdown
             menu={{
-              items: [
-                {
-                  key: 'moveToTalentPool',
-                  label: (
-                    <div className="text-primary font-normal text-sm flex items-center justify-start gap-1">
-                      Move to Talent Pool
-                      <IoIosArrowForward size={12} />
-                    </div>
-                  ),
-                  onClick: () => handleMenuClick('moveToTalentPool', item),
-                },
-                {
-                  key: 'edit',
-                  label: 'Edit',
-                  onClick: () => handleMenuClick('edit', item),
-                },
-                {
-                  key: 'delete',
-                  label: 'Delete',
-                  onClick: () => handleMenuClick('delete', item),
-                },
-              ],
+              items: filteredItems.map(({ label, key, onClick }) => ({
+                label,
+                key,
+                onClick,
+              })),
             }}
             trigger={['click']}
             placement="bottomRight"
