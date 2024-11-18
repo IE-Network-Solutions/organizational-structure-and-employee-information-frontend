@@ -69,13 +69,15 @@ const Documents = ({ id }: { id: string }) => {
         key: 'actions',
         render: (text: any, record: any) => (
           <Space>
+            <AccessGuard permissions={[Permissions.DownloadEmployeeDocument]}>
             <Button
               type="link"
               icon={<AiOutlineDownload />}
               href={record.documentLink}
               target="_blank"
             />
-            <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+            </AccessGuard>
+            <AccessGuard permissions={[Permissions.DeleteEmployeeDocument]}>
               <Button
                 type="link"
                 className="text-xl font-bold text-red-600"
@@ -122,7 +124,7 @@ const Documents = ({ id }: { id: string }) => {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <Row justify="center" style={{ width: '100%' }}>
-        <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+        <AccessGuard permissions={[Permissions.UploadEmployeeDocuments]}>
           <Col span={24}>
             <Form
               form={form}

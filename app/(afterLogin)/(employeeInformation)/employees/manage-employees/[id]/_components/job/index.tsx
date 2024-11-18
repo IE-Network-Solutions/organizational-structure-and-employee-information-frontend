@@ -110,7 +110,7 @@ function Job({ id }: { id: string }) {
         title={'Job Information'}
         extra={
           <div className=" flex items-center justify-center gap-3">
-            <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+            <AccessGuard permissions={[Permissions.UpdateEmployeeJobInformation]}>
               <FaPlus onClick={handleAddEmployeeJobInformation} />
             </AccessGuard>
             <DownloadJobInformation id={id} />

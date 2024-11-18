@@ -74,7 +74,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       <Row gutter={[16, 24]}>
         <Col lg={8} md={10} xs={24}>
           <BasicInfo id={id} />
-          <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+          <AccessGuard permissions={[Permissions.EndEmployment]}>
             <div className="flex gap-3">
               <div>
                 <Button

@@ -109,32 +109,34 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
       <Card
         title="Offboarding Tasks"
         extra={
-          <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
-            <div className="flex space-x-2">
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={handleAddTaskClick}
-                disabled={!offboardingTermination}
-              >
-                Add Task
-              </Button>
-              <div id="offboarding-template-tasks">
-                <Dropdown
-                  menu={{ items: menuItems }}
-                  trigger={['click']}
-                  placement="bottomRight"
+              <div className="flex space-x-2">
+                <AccessGuard permissions={[Permissions.AddOffloadingTasks]}>
+                  <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={handleAddTaskClick}
                   disabled={!offboardingTermination}
-                >
-                  <Button className="flex items-center">
-                    <SettingOutlined className="mr-2" />
-                    <DownOutlined />
+                  >
+                  Add Task
                   </Button>
-                </Dropdown>
-              </div>
+                </AccessGuard>
+                <div id="offboarding-template-tasks">
+                  <AccessGuard permissions={[Permissions.AddOffloadingTemplateTasks]}>
+                    <Dropdown
+                      menu={{ items: menuItems }}
+                      trigger={['click']}
+                      placement="bottomRight"
+                      disabled={!offboardingTermination}
+                    >
+                      <Button className="flex items-center">
+                        <SettingOutlined className="mr-2" />
+                        <DownOutlined />
+                      </Button>
+                    </Dropdown>
+                  </AccessGuard>
+                </div>
             </div>
-          </AccessGuard>
-        }
+          }
         className="w-full"
       >
         {offboardingTasks.length > 0 ? (
