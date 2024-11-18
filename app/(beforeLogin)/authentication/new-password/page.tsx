@@ -8,7 +8,7 @@ import { updatePassword } from 'firebase/auth';
 import { auth } from '@/utils/firebaseConfig';
 import { useLoadingStore } from '@/store/uistate/features/loadingState';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useUpdateEmployeeRolePermission } from '@/store/server/features/employees/employeeDetail/mutations';
+import { useUpdateUser } from '@/store/server/features/employees/authentication/mutations';
 
 const NewPassword: FC = () => {
   const router = useRouter();
@@ -17,7 +17,7 @@ const NewPassword: FC = () => {
     setLoading: state.setLoading,
   }));
   const { userId } = useAuthenticationStore();
-  const { mutate: updateUserFlag } = useUpdateEmployeeRolePermission();
+  const { mutate: updateUserFlag } = useUpdateUser();
 
   const handleFinish = async (values: {
     newPassword: string;
@@ -40,8 +40,6 @@ const NewPassword: FC = () => {
     try {
       setLoading(true);
       await updatePassword(currentUser, newPassword);
-      message.success('Password successfully reset!');
-
       updateUserFlag({ id: userId, values: { hasChangedPassword: true } });
 
       router.push('/dashboard');
