@@ -9,8 +9,10 @@ import { message } from 'antd';
 export const usePasswordReset = () => {
   return useMutation(
     async (email: string) => {
+      const domainName = window.location.hostname;
+      const dynamicLink = `https://${domainName}/authentication/reset-password`;
       const actionCodeSettings = {
-        url: `http://localhost:3000/authentication/reset-password`,
+        url: dynamicLink,
         handleCodeInApp: true,
       };
       await sendPasswordResetEmail(auth, email, actionCodeSettings);
