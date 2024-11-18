@@ -14,13 +14,8 @@ const RecruitmentStatusDrawer: React.FC = () => {
   const [form] = Form.useForm();
   const { userId } = useAuthenticationStore();
 
-  const {
-    isDrawerOPen,
-    isEditMode,
-    setIsDrawerOpen,
-    selectedStatus,
-    setSelectedStatus,
-  } = useRecruitmentStatusStore();
+  const { isDrawerOPen, isEditMode, setIsDrawerOpen, selectedStatus } =
+    useRecruitmentStatusStore();
 
   const { mutate: createRecruitmentStatus } = useCreateRecruitmentStatus();
   const { mutate: updateRecruitmentStatus } = useUpdateRecruitmentStatus();
