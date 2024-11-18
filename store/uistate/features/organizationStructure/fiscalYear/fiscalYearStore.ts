@@ -35,13 +35,13 @@ const useFiscalYearStore = create<FiscalYearState>((set, get) => ({
       endDate: state.endDate,
     };
   },
-  resetFiscalYear: () => set({ 
-    name: '',
-    description: '',
-    startDate: null,
-    endDate: null 
-  }),
-
+  resetFiscalYear: () =>
+    set({
+      name: '',
+      description: '',
+      startDate: null,
+      endDate: null,
+    }),
 }));
 
 export default useFiscalYearStore;
