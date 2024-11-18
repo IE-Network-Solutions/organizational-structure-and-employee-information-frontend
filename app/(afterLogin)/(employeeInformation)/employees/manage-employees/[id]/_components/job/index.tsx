@@ -6,7 +6,7 @@ import WorkScheduleComponent from './workSchedule';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { CreateEmployeeJobInformation } from './addEmployeeJobInfrmation';
 import { FaPlus } from 'react-icons/fa';
-import GeneralGuard from '@/utils/permissionGuard';
+import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import DownloadJobInformation from './downloadJobInformation';
 
@@ -110,9 +110,9 @@ function Job({ id }: { id: string }) {
         title={'Job Information'}
         extra={
           <div className=" flex items-center justify-center gap-3">
-            <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+            <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
               <FaPlus onClick={handleAddEmployeeJobInformation} />
-            </GeneralGuard>
+            </AccessGuard>
             <DownloadJobInformation id={id} />
           </div>
         }

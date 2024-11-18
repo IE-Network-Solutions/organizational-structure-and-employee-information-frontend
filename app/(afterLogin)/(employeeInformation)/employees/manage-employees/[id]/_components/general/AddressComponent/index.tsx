@@ -7,7 +7,7 @@ import {
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../../common/infoLine';
-import GeneralGuard  from '@/utils/permissionGuard';
+import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
 const AddressComponent = ({
@@ -28,12 +28,16 @@ const AddressComponent = ({
       loading={isLoading}
       title="Address"
       extra={
-        <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]} selfShouldAccess id={id}>
+        <AccessGuard
+          permissions={[Permissions.UpdateEmployeeDetails]}
+          selfShouldAccess
+          id={id}
+        >
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('addresses')}
           />
-        </GeneralGuard>
+        </AccessGuard>
       }
       className="my-6"
     >

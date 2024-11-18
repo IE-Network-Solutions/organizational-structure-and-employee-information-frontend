@@ -10,7 +10,7 @@ import {
 } from '@/store/server/features/employees/employeeDetail/mutations';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import GeneralGuard from '@/utils/permissionGuard';
+import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Dragger } = Upload;
@@ -75,14 +75,14 @@ const Documents = ({ id }: { id: string }) => {
               href={record.documentLink}
               target="_blank"
             />
-            <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+            <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
               <Button
                 type="link"
                 className="text-xl font-bold text-red-600"
                 icon={<AiOutlineDelete />}
                 onClick={() => onDelete(record.id)}
               />
-            </GeneralGuard>
+            </AccessGuard>
           </Space>
         ),
       },
@@ -122,7 +122,7 @@ const Documents = ({ id }: { id: string }) => {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <Row justify="center" style={{ width: '100%' }}>
-        <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+        <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
           <Col span={24}>
             <Form
               form={form}
@@ -144,7 +144,10 @@ const Documents = ({ id }: { id: string }) => {
                 name="documentName"
                 id="documentNameId"
                 rules={[
-                  { required: true, message: 'Please choose the document type' },
+                  {
+                    required: true,
+                    message: 'Please choose the document type',
+                  },
                 ]}
               >
                 <Dragger
@@ -197,7 +200,7 @@ const Documents = ({ id }: { id: string }) => {
               </div>
             </Form>
           </Col>
-        </GeneralGuard>
+        </AccessGuard>
       </Row>
       <Row>
         <EmployeeDocumentTable

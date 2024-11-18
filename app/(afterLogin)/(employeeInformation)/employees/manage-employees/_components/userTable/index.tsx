@@ -24,7 +24,7 @@ import WorkScheduleForm from '../allFormData/workScheduleForm';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import dayjs from 'dayjs';
 import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
-import GeneralGuard from '@/utils/permissionGuard';
+import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 const columns: TableColumnsType<EmployeeData> = [
   {
@@ -188,7 +188,7 @@ const UserTable = () => {
               <FaEye />
             </Button>
           </Link>
-          <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+          <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
             {item.deletedAt === null ? (
               <Tooltip title={'Deactive Employee'}>
                 <Button
@@ -221,7 +221,7 @@ const UserTable = () => {
                 </Button>
               </Tooltip>
             )}
-          </GeneralGuard>
+          </AccessGuard>
         </div>
       ),
     };

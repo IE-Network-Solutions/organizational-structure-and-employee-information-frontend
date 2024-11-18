@@ -1,7 +1,7 @@
 import React, { ReactNode, useMemo } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-interface GeneralGuardProps {
+interface AccessGuardProps {
   roles?: string[];
   permissions?: string[];
   id?: string;
@@ -9,16 +9,19 @@ interface GeneralGuardProps {
   children: ReactNode;
 }
 
-const GeneralGuard: React.FC<GeneralGuardProps> = ({
+const AccessGuard: React.FC<AccessGuardProps> = ({
   roles,
   permissions,
   id,
   selfShouldAccess = false,
   children,
 }) => {
-  const { userData, userId } = useAuthenticationStore();
+  const { userData, userId } = useAuthenticationStore.getState();
+
   const role = userData?.role?.slug || '';
   const userPermissions = userData?.userPermissions || [];
+
+  const isOwner = useMemo(() => role === 'owner', [role]);
 
   const hasRole = useMemo(() => {
     return roles ? roles.includes(role) : true;
@@ -36,14 +39,14 @@ const GeneralGuard: React.FC<GeneralGuardProps> = ({
   }, [permissions, userPermissions]);
 
   const hasSelfAccess = useMemo(() => {
-    return (selfShouldAccess && id === userId) || role === 'owner';
-  }, [selfShouldAccess, id, userId, role]);
+    return selfShouldAccess && id === userId;
+  }, [selfShouldAccess, id, userId]);
 
-  if (hasRole && (hasPermission || hasSelfAccess)) {
+  if (isOwner || (hasRole && (hasPermission || hasSelfAccess))) {
     return <>{children}</>;
   }
 
-  return <></>;
+  return null;
 };
 
-export default GeneralGuard;
+export default AccessGuard;

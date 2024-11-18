@@ -10,7 +10,7 @@ import { useGetNationalities } from '@/store/server/features/employees/employeeM
 import { InfoLine } from '../../common/infoLine';
 import dayjs from 'dayjs';
 import UpdateUserInfo from './updateUserInfo';
-import GeneralGuard from '@/utils/permissionGuard';
+import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
 function PersonalDataComponent({
@@ -35,13 +35,17 @@ function PersonalDataComponent({
       loading={isLoading}
       title="Personal Info"
       extra={
-        <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]} selfShouldAccess id={id}>
+        <AccessGuard
+          permissions={[Permissions.UpdateEmployeeDetails]}
+          selfShouldAccess
+          id={id}
+        >
           <LuPencil
             className="cursor-pointer text-black"
             color="#BFBFBF"
             onClick={() => handleEditChange('general')}
           />
-        </GeneralGuard>
+        </AccessGuard>
       }
       className="my-6 mt-0"
     >

@@ -21,7 +21,7 @@ import { MdDelete } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { OffBoardingTasksUpdateStatus } from '@/store/server/features/employees/offboarding/interface';
-import GeneralGuard from '@/utils/permissionGuard';
+import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 const TaskItem: React.FC<{ task: Task; onToggle: () => void }> = ({
   task,
@@ -109,7 +109,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
       <Card
         title="Offboarding Tasks"
         extra={
-          <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+          <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
             <div className="flex space-x-2">
               <Button
                 type="primary"
@@ -133,7 +133,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                 </Dropdown>
               </div>
             </div>
-          </GeneralGuard>
+          </AccessGuard>
         }
         className="w-full"
       >
