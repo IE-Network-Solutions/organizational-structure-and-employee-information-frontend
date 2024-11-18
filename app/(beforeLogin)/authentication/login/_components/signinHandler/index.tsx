@@ -14,7 +14,6 @@ export const useHandleSignIn = () => {
     setLocalId,
     setTenantId,
     setUserData,
-    userData,
   } = useAuthenticationStore();
 
   const { refetch: fetchTenantId } = useGetTenantId();
@@ -44,14 +43,15 @@ export const useHandleSignIn = () => {
         setUserData(fetchedData?.data);
         message.success('Welcome!');
         message.loading({ content: 'Redirecting...', key: 'redirect' });
-        if (userData?.hasChangedPassword === false) {
+
+        if (fetchedData?.data?.hasChangedPassword === false) {
           router.push('/authentication/new-password');
         }
-        if (userData?.hasCompany === false) {
+        if (fetchedData?.data?.hasCompany === false) {
           router.push('/onboarding');
         } else if (
-          userData?.hasCompany === true &&
-          userData?.hasChangedPassword === true
+          fetchedData?.data?.hasCompany === true &&
+          fetchedData?.data?.hasChangedPassword === true
         ) {
           router.push('/dashboard');
         }
