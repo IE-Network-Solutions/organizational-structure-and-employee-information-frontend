@@ -32,7 +32,7 @@ export const PermissionWrapper: React.FC<PermissionWrapperProps> = ({
   selfShouldAccess = false,
 }) => {
   const { userData, userId } = useAuthenticationStore.getState();
-  const role = userData?.role?.name || '';
+  const role = userData?.role?.slug || '';
   const userPermissions = userData?.userPermissions || [];
 
   const hasPermission = useMemo(() => {
@@ -45,7 +45,7 @@ export const PermissionWrapper: React.FC<PermissionWrapperProps> = ({
   }, [permissions, userPermissions]);
 
   const shouldGetAccess = useMemo(() => {
-    return (selfShouldAccess && id === userId) || role === 'Owner';
+    return (selfShouldAccess && id === userId) || role === 'owner';
   }, [selfShouldAccess, id, userId, role]);
 
   if (hasPermission || shouldGetAccess) {
