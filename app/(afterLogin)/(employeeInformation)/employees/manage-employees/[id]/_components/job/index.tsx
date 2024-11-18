@@ -6,6 +6,8 @@ import WorkScheduleComponent from './workSchedule';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { CreateEmployeeJobInformation } from './addEmployeeJobInfrmation';
 import { FaPlus } from 'react-icons/fa';
+import GeneralGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 function Job({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -97,7 +99,11 @@ function Job({ id }: { id: string }) {
       </Card>{' '}
       <Card
         title={'Job Information'}
-        extra={<FaPlus onClick={handleAddEmployeeJobInformation} />}
+        extra={
+          <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+            <FaPlus onClick={handleAddEmployeeJobInformation} />
+          </GeneralGuard>
+          }
       >
         <Table
           dataSource={employeeData?.employeeJobInformation}

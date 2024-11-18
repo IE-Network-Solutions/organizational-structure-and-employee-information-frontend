@@ -10,6 +10,8 @@ import {
 } from '@/store/server/features/employees/employeeDetail/mutations';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import GeneralGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Dragger } = Upload;
 
@@ -73,12 +75,14 @@ const Documents = ({ id }: { id: string }) => {
               href={record.documentLink}
               target="_blank"
             />
-            <Button
-              type="link"
-              className="text-xl font-bold text-red-600"
-              icon={<AiOutlineDelete />}
-              onClick={() => onDelete(record.id)}
-            />
+            <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+              <Button
+                type="link"
+                className="text-xl font-bold text-red-600"
+                icon={<AiOutlineDelete />}
+                onClick={() => onDelete(record.id)}
+              />
+            </GeneralGuard>
           </Space>
         ),
       },
@@ -118,80 +122,82 @@ const Documents = ({ id }: { id: string }) => {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <Row justify="center" style={{ width: '100%' }}>
-        <Col span={24}>
-          <Form
-            form={form}
-            name="dependencies"
-            autoComplete="off"
-            style={{ maxWidth: '100%' }}
-            layout="vertical"
-            onFinishFailed={() =>
-              NotificationMessage.error({
-                message: 'Something went wrong or unfilled',
-                description: 'Please check the form again.',
-              })
-            }
-            onFinish={handleCreateUser}
-          >
-            <Form.Item
-              className="font-semibold text-xs"
-              style={{ textAlign: 'center' }}
-              name="documentName"
-              id="documentNameId"
-              rules={[
-                { required: true, message: 'Please choose the document type' },
-              ]}
+        <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+          <Col span={24}>
+            <Form
+              form={form}
+              name="dependencies"
+              autoComplete="off"
+              style={{ maxWidth: '100%' }}
+              layout="vertical"
+              onFinishFailed={() =>
+                NotificationMessage.error({
+                  message: 'Something went wrong or unfilled',
+                  description: 'Please check the form again.',
+                })
+              }
+              onFinish={handleCreateUser}
             >
-              <Dragger
+              <Form.Item
+                className="font-semibold text-xs"
+                style={{ textAlign: 'center' }}
                 name="documentName"
-                fileList={documentFileList}
-                onChange={handleDocumentChange}
-                onRemove={handleDocumentRemove}
-                customRequest={customRequest}
-                multiple={false}
-                listType="picture"
-                accept="*/*"
+                id="documentNameId"
+                rules={[
+                  { required: true, message: 'Please choose the document type' },
+                ]}
               >
-                <div className="flex justify-start items-center text-xl font-semibold text-gray-950">
-                  <p>Documents Upload</p>
-                </div>
-                <p className="ant-upload-drag-icon">
-                  <Image
-                    preview={false}
-                    className="w-full max-w-xs"
-                    src="/Uploading.png"
-                    alt="Loading"
-                  />
-                </p>
-                <p className="ant-upload-hint text-xl font-bold text-gray-950 my-4">
-                  Drag & drop here to Upload
-                </p>
-                <p className="ant-upload-hint text-xs text-gray-950">
-                  or select a file from your computer
-                </p>
+                <Dragger
+                  name="documentName"
+                  fileList={documentFileList}
+                  onChange={handleDocumentChange}
+                  onRemove={handleDocumentRemove}
+                  customRequest={customRequest}
+                  multiple={false}
+                  listType="picture"
+                  accept="*/*"
+                >
+                  <div className="flex justify-start items-center text-xl font-semibold text-gray-950">
+                    <p>Documents Upload</p>
+                  </div>
+                  <p className="ant-upload-drag-icon">
+                    <Image
+                      preview={false}
+                      className="w-full max-w-xs"
+                      src="/Uploading.png"
+                      alt="Loading"
+                    />
+                  </p>
+                  <p className="ant-upload-hint text-xl font-bold text-gray-950 my-4">
+                    Drag & drop here to Upload
+                  </p>
+                  <p className="ant-upload-hint text-xs text-gray-950">
+                    or select a file from your computer
+                  </p>
+                  <Button
+                    className="ant-upload-text font-semibold text-white py-3 px-6 text-sm my-4 bg-blue-500 hover:bg-blue-600"
+                    type="primary"
+                  >
+                    <MdOutlineUploadFile className="text-white text-xl mr-2" />
+                    Upload File
+                  </Button>
+                </Dragger>
+              </Form.Item>
+              <div className="flex justify-end">
                 <Button
-                  className="ant-upload-text font-semibold text-white py-3 px-6 text-sm my-4 bg-blue-500 hover:bg-blue-600"
+                  disabled={documentFileList?.length === 0}
+                  loading={addEmployee}
+                  id={`sidebarActionCreateSubmit`}
+                  className="px-6 py-3 text-xs font-bold flex justify-end"
+                  htmlType="submit"
                   type="primary"
                 >
-                  <MdOutlineUploadFile className="text-white text-xl mr-2" />
-                  Upload File
+                  Submit
                 </Button>
-              </Dragger>
-            </Form.Item>
-            <div className="flex justify-end">
-              <Button
-                disabled={documentFileList?.length === 0}
-                loading={addEmployee}
-                id={`sidebarActionCreateSubmit`}
-                className="px-6 py-3 text-xs font-bold flex justify-end"
-                htmlType="submit"
-                type="primary"
-              >
-                Submit
-              </Button>
-            </div>
-          </Form>
-        </Col>
+              </div>
+            </Form>
+          </Col>
+        </GeneralGuard>
       </Row>
       <Row>
         <EmployeeDocumentTable

@@ -22,6 +22,8 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeManagm
 import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 import { useUpdateEmployeeJobInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import { LuPencil } from 'react-icons/lu';
+import GeneralGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 interface DataType {
   key: string;
   workingDay: React.ReactNode;
@@ -121,10 +123,12 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
       loading={isLoading}
       title="Work Schedule"
       extra={
-        <LuPencil
-          className="cursor-pointer"
-          onClick={() => handleEditChange('workSchedule')}
-        />
+        <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+          <LuPencil
+            className="cursor-pointer"
+            onClick={() => handleEditChange('workSchedule')}
+          />
+        </GeneralGuard>
       }
       className="my-6 mt-0"
     >

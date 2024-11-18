@@ -24,7 +24,7 @@ import WorkScheduleForm from '../allFormData/workScheduleForm';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import dayjs from 'dayjs';
 import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
-import { PermissionWrapper } from '@/utils/permissionGuard';
+import GeneralGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 const columns: TableColumnsType<EmployeeData> = [
   {
@@ -173,13 +173,12 @@ const UserTable = () => {
           <Link href={`manage-employees/${item?.id}`}>
             <Button
               id={`editUserButton${item?.id}`}
-              disabled={item?.deletedAt !== null}
               className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
             >
               <FaEye />
             </Button>
           </Link>
-          <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
+          <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
             {item.deletedAt === null ? (
               <Tooltip title={'Deactive Employee'}>
                 <Button
@@ -203,7 +202,7 @@ const UserTable = () => {
                   value={'submit'}
                   name="submit"
                   onClick={(e) => {
-                    e.stopPropagation(); // Stop event propagation
+                    e.stopPropagation();
                     handelRehireModal(item);
                   }}
                   disabled={item.deletedAt === null}
@@ -212,7 +211,7 @@ const UserTable = () => {
                 </Button>
               </Tooltip>
             )}
-          </PermissionWrapper>
+          </GeneralGuard>
         </div>
       ),
     };

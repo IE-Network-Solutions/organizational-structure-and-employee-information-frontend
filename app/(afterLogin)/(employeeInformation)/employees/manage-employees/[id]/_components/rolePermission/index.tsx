@@ -8,6 +8,8 @@ import {
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
+import { Permissions } from '@/types/commons/permissionEnum';
+import GeneralGuard from '@/utils/permissionGuard';
 import { Button, Card, Col, Form, Row, Select } from 'antd';
 import React, { useEffect, useCallback } from 'react';
 import { LuPencil } from 'react-icons/lu';
@@ -95,10 +97,12 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
         loading={isLoading}
         title="User Role Permission "
         extra={
-          <LuPencil
-            className="cursor-pointer"
-            onClick={() => handleEditChange('rolePermission')}
-          />
+          <GeneralGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+            <LuPencil
+              className="cursor-pointer"
+              onClick={() => handleEditChange('rolePermission')}
+            />
+          </GeneralGuard>
         }
         className="my-6"
       >

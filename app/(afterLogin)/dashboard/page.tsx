@@ -7,7 +7,7 @@ import SelfAttendance from './_components/self-attendance';
 import EmploymentStats from './_components/employee-status';
 import JobSummary from './_components/job-summary';
 import { Applicants } from './_components/applicants';
-import RoleGuard from '@/utils/permissionGuard';
+import GeneralGuard from '@/utils/permissionGuard';
 
 export default function Home() {
   return (
@@ -24,9 +24,9 @@ export default function Home() {
         </div>
       </div>
 
-      <RoleGuard roles={['user']}>
+      <GeneralGuard roles={['user']}>
         <NewCourses />
-      </RoleGuard>
+      </GeneralGuard>
 
       {/* Second Grid Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
@@ -44,12 +44,12 @@ export default function Home() {
             {/* Course Permitted and Applicants */}
             <div className="col-span-12 xl:col-span-4">
               <div className="">
-                <RoleGuard roles={['user']}>
+                <GeneralGuard roles={['user']}>
                   <CoursePermitted />
-                </RoleGuard>
-                <RoleGuard roles={['admin', 'owner']}>
+                </GeneralGuard>
+                <GeneralGuard roles={['admin', 'owner']}>
                   <Applicants />
-                </RoleGuard>
+                </GeneralGuard>
               </div>
             </div>
           </div>
