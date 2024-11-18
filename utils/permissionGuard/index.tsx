@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo } from 'react';
+import React, { ReactNode } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface AccessGuardProps {
