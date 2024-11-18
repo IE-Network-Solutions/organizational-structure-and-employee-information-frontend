@@ -24,7 +24,6 @@ const TalentPoolDrawer: React.FC = () => {
 
   const handleSubmit = () => {
     form.validateFields().then((values) => {
-      console.log(values, 'values');
       if (isEditMode) {
         updateTalentPoolCategory({
           id: selectedTalentPool?.id || '',
