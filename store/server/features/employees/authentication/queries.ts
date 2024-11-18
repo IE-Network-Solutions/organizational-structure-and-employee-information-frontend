@@ -5,18 +5,10 @@ import { useMutation, useQuery } from 'react-query';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/utils/firebaseConfig';
 import { message } from 'antd';
-import { getCompanyProfileByTenantId } from '../../organizationStructure/companyProfile/mutation';
-
-const fetchDomainName = async (): Promise<string> => {
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const companyProfile = await getCompanyProfileByTenantId(tenantId);
-  return companyProfile?.items[0]?.domainName || 'localhost:3000';
-};
 
 export const usePasswordReset = () => {
   return useMutation(
     async (email: string) => {
-      const domainName = await fetchDomainName();
       const actionCodeSettings = {
         url: `http://localhost:3000/authentication/reset-password`,
         handleCodeInApp: true,
