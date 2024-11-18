@@ -21,29 +21,33 @@ export default RoleGuard;
 interface PermissionWrapperProps {
   permissions: string[];
   children: ReactNode;
+  id?: string;
+  ownerShouldAccess?: boolean;
 }
 
 export const PermissionWrapper: React.FC<PermissionWrapperProps> = ({
   permissions,
   children,
+  id,
+  ownerShouldAccess = false,
 }) => {
-  const { userData } = useAuthenticationStore.getState();
+  const { userData, userId } = useAuthenticationStore.getState();
   const userPermissions = userData?.userPermissions || [];
 
-  const hasPermission = useMemo(
-    () =>
-      permissions.every((permission) =>
-        userPermissions.some(
-          (userPermission: any) =>
-            userPermission.permission.slug === permission,
-        ),
+  const hasPermission = useMemo(() => {
+    return permissions.every((permission) =>
+      userPermissions.some(
+        (userPermission: any) =>
+          userPermission.permission.slug === permission,
       ),
-    [permissions, userPermissions],
-  );
+    );
+  }, [permissions, userPermissions]);
 
-  if (!hasPermission) {
-    return null;
+  const isOwner = ownerShouldAccess && id === userId;
+
+  if (hasPermission || isOwner) {
+    return <>{children}</>;
   }
 
-  return <>{children}</>;
+  return null;
 };

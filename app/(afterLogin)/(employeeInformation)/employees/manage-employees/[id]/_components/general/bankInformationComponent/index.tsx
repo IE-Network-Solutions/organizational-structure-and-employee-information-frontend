@@ -24,7 +24,7 @@ const BankInformationComponent = ({ handleSaveChanges, id }: any) => {
       loading={isLoading}
       title="Bank Information"
       extra={
-        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
+        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]} ownerShouldAccess id={id}>
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('bankInformation')}

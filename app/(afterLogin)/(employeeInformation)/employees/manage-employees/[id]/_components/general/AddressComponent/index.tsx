@@ -28,7 +28,7 @@ const AddressComponent = ({
       loading={isLoading}
       title="Address"
       extra={
-        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
+        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]} ownerShouldAccess id={id}>
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('addresses')}
