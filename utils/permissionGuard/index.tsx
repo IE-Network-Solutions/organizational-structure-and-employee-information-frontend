@@ -52,5 +52,5 @@ export const PermissionWrapper: React.FC<PermissionWrapperProps> = ({
     return <>{children}</>;
   }
 
-  return null;
+  return <></>;
 };
