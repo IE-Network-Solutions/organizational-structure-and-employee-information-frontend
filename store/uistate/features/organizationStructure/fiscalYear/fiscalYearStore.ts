@@ -14,6 +14,7 @@ interface FiscalYearState extends FiscalYear {
   setFiscalYearEndDate: (endDate: Dayjs | null) => void;
   setFiscalDescriptionName: (description: string) => void;
   getFiscalYear: () => any;
+  resetFiscalYear: () => void;
 }
 const useFiscalYearStore = create<FiscalYearState>((set, get) => ({
   name: '',
@@ -34,6 +35,13 @@ const useFiscalYearStore = create<FiscalYearState>((set, get) => ({
       endDate: state.endDate,
     };
   },
+  resetFiscalYear: () => set({ 
+    name: '',
+    description: '',
+    startDate: null,
+    endDate: null 
+  }),
+
 }));
 
 export default useFiscalYearStore;
