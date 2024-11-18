@@ -103,4 +103,6 @@ export enum Permissions {
     DeleteTalentPool = "delete-talent-pool",
     TransferCandidate = "transfer-candidate",
     CreateTalentPoolCategory = "create-talent-pool-category",
+    DelateTalentPoolCategory = "delete-talent-pool-category",
+    UpdateTalentPoolCategory = "update-talent-pool-category"
 }

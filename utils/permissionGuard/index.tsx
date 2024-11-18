@@ -38,6 +38,7 @@ AccessGuard.checkAccess = ({
 
   const role = userData?.role?.slug || '';
   const userPermissions = userData?.userPermissions || [];
+  console.log("userPPPPPPPPPPPPP", userPermissions)
 
   const isOwner = role === 'owner';
 

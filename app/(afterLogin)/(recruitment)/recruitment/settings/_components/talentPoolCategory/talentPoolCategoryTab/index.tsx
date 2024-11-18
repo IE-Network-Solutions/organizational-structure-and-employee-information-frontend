@@ -6,6 +6,8 @@ import { useTalentPoolSettingsStore } from '@/store/uistate/features/recruitment
 import { useGetTalentPoolCategory } from '@/store/server/features/recruitment/tallentPoolCategory/query';
 import CustomDeleteTalentPool from '../deleteModal';
 import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 function TalentPoolCategoryTab() {
   const { data: talentPoolCateories, isLoading: fetchLoading } =
@@ -29,14 +31,16 @@ function TalentPoolCategoryTab() {
       {/* Header section */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Talent Pool Category</h2>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={openDrawer}
-          className="bg-purple-600 h-16 font-bold"
-        >
-          New Talent Pool Category
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateTalentPool]}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={openDrawer}
+            className="bg-purple-600 h-16 font-bold"
+          >
+            New Talent Pool Category
+          </Button>
+        </AccessGuard>
       </div>
 
       <div className="space-y-4 w-full">
@@ -58,6 +62,7 @@ function TalentPoolCategoryTab() {
                 </span>
 
                 <div>
+                <AccessGuard permissions={[Permissions.UpdateTalentPoolCategory]}>
                   <Button
                     icon={<FaEdit />}
                     onClick={() => handleEditTalentPoolCategory(talentPool)}
@@ -65,13 +70,16 @@ function TalentPoolCategoryTab() {
                     size={'large'}
                     className="border-none text-blue-600 mr-2"
                   />
-                  <Button
-                    icon={<FaTrashAlt />}
-                    onClick={() => handleDeleteTalentPoolCategory(talentPool)}
-                    type="default"
-                    size={'large'}
-                    className="border-none text-red-600"
-                  />
+                  </AccessGuard>
+                  <AccessGuard permissions={[Permissions.DelateTalentPoolCategory]}>
+                    <Button
+                      icon={<FaTrashAlt />}
+                      onClick={() => handleDeleteTalentPoolCategory(talentPool)}
+                      type="default"
+                      size={'large'}
+                      className="border-none text-red-600"
+                    />
+                  </AccessGuard>
                 </div>
               </div>
             </Card>
