@@ -22,30 +22,33 @@ interface PermissionWrapperProps {
   permissions: string[];
   children: ReactNode;
   id?: string;
-  ownerShouldAccess?: boolean;
+  selfShouldAccess?: boolean;
 }
 
 export const PermissionWrapper: React.FC<PermissionWrapperProps> = ({
   permissions,
   children,
   id,
-  ownerShouldAccess = false,
+  selfShouldAccess = false,
 }) => {
   const { userData, userId } = useAuthenticationStore.getState();
+  const role = userData?.role?.name || '';
   const userPermissions = userData?.userPermissions || [];
 
   const hasPermission = useMemo(() => {
     return permissions.every((permission) =>
       userPermissions.some(
-        (userPermission: any) =>
+        (userPermission: { permission: { slug: string } }) =>
           userPermission.permission.slug === permission,
       ),
     );
   }, [permissions, userPermissions]);
 
-  const isOwner = ownerShouldAccess && id === userId;
+  const shouldGetAccess = useMemo(() => {
+    return (selfShouldAccess && id === userId) || role === 'Owner';
+  }, [selfShouldAccess, id, userId, role]);
 
-  if (hasPermission || isOwner) {
+  if (hasPermission || shouldGetAccess) {
     return <>{children}</>;
   }
 

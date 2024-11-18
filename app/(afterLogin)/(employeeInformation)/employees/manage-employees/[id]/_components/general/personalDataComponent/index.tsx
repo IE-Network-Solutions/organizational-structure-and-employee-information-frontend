@@ -35,7 +35,7 @@ function PersonalDataComponent({
       loading={isLoading}
       title="Personal Info"
       extra={
-        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]} ownerShouldAccess id={id}>
+        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]} selfShouldAccess id={id}>
           <LuPencil
             className="cursor-pointer text-black"
             color="#BFBFBF"

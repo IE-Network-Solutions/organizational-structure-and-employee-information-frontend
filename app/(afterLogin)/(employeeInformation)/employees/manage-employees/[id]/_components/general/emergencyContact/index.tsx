@@ -24,7 +24,7 @@ function EmergencyContact({ handleSaveChanges, id }: any) {
       loading={isLoading}
       title="Emergency Contact"
       extra={
-        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]} ownerShouldAccess id={id}>
+        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]} selfShouldAccess id={id}>
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('emergencyContact')}
