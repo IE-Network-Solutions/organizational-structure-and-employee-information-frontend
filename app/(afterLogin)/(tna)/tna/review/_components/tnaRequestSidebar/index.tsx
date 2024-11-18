@@ -142,6 +142,7 @@ const TnaRequestSidebar = () => {
             name="trainingNeedCategoryId"
             label="Training Category"
             className="form-item"
+            rules={[{ required: true, message: 'Required' }]}
           >
             <Select
               id="tnaCategoryOptionFieldId"

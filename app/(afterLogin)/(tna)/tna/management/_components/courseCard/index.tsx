@@ -63,18 +63,6 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
               <div className="text-lg font-bold text-gray-900 flex-1 text-pretty">
                 {item?.title}
               </div>
-              <ActionButton
-                id={item?.id ?? null}
-                onEdit={(e: MouseEvent) => {
-                  e.stopPropagation();
-                  setCourseId(item?.id);
-                  setIsShowCourseSidebar(true);
-                }}
-                onDelete={(e: MouseEvent) => {
-                  e.stopPropagation();
-                  deleteCourse([item?.id]);
-                }}
-              />
             </div>
           }
           description={
@@ -82,6 +70,18 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
           }
         />
       </Card>
+      <div className="action-buttons mt-2 flex gap-2">
+        <ActionButton
+          id={item?.id ?? null}
+          onEdit={() => {
+            setCourseId(item?.id);
+            setIsShowCourseSidebar(true);
+          }}
+          onDelete={() => {
+            deleteCourse([item?.id]);
+          }}
+        />
+      </div>
     </Spin>
   );
 };
