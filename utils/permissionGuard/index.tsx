@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface AccessGuardProps {
@@ -12,6 +12,17 @@ interface AccessGuardProps {
 const AccessGuard: React.FC<AccessGuardProps> & {
   checkAccess: (props: AccessGuardProps) => boolean;
 } = ({ roles, permissions, id, selfShouldAccess = false, children }) => {
+  
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  });
+
+  if(!isClient) {
+    return <></>
+  }
+
   const hasAccess = AccessGuard.checkAccess({
     roles,
     permissions,
