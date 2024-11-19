@@ -29,6 +29,7 @@ import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import { CommonObject } from '@/types/commons/commonObject';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
@@ -57,26 +58,44 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     { filter },
   );
 
+  const EmpRender = ({ userId }: any) => {
+    const {
+      isLoading,
+      data: employeeData,
+      isError,
+    } = useGetSimpleEmployee(userId);
+
+    if (isLoading) return <div>...</div>;
+    if (isError) return <>-</>;
+
+    return employeeData ? (
+      <div className="flex items-center gap-1.5">
+        <div className="mx-1 text-sm">
+          {employeeData?.employeeInformation?.employeeAttendanceId}
+        </div>
+        <Avatar size={24} icon={<UserOutlined />} />
+        <div className="flex-1">
+          <div className="text-xs text-gray-900">
+            {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
+            {employeeData?.lastName || '-'}
+          </div>
+          <div className="text-[10px] leading-4 text-gray-600">
+            {employeeData?.email}
+          </div>
+        </div>
+      </div>
+    ) : (
+      '-'
+    );
+  };
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Employee Name',
-      dataIndex: 'createdBy',
+      dataIndex: 'userId',
       key: 'createdBy',
       sorter: true,
-      render: (employee: any) =>
-        employee ? (
-          <div className="flex items-center gap-1.5">
-            <Avatar size={24} icon={<UserOutlined />} />
-            <div className="flex-1">
-              <div className="text-xs text-gray-900">{employee.name}</div>
-              <div className="text-[10px] leading-4	text-gray-600">
-                {employee.email}
-              </div>
-            </div>
-          </div>
-        ) : (
-          '-'
-        ),
+      render: (text: string) => <EmpRender userId={text} />,
     },
     {
       title: 'Date',
@@ -158,6 +177,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         const calcTotal = calculateAttendanceRecordToTotalWorkTime(item);
         return {
           key: item.id,
+          userId: item.userId,
           createdBy: item.createdBy,
           createdAt: item.createdAt,
           clockIn: item.startAt,
