@@ -42,7 +42,8 @@ function CreateReport() {
     resetWeights();
   };
   const { data: planningPeriods } = AllPlanningPeriods();
-  const { mutate: createReport } = useCreateReportForUnReportedtasks();
+  const { mutate: createReport, isLoading: createReportLoading } =
+    useCreateReportForUnReportedtasks();
 
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
@@ -59,7 +60,8 @@ function CreateReport() {
   );
 
   const handleOnFinish = (values: Record<string, any>) => {
-    planningPeriodId &&
+    Object.entries(values).length > 0 &&
+      planningPeriodId &&
       createReport(
         { values: values, planningPeriodId: planningPeriodId },
         {
@@ -181,74 +183,6 @@ function CreateReport() {
                                               </Tag>
                                             </div>
                                           )}
-                                        </Row>
-                                        <Row>
-                                          {selectedStatuses[task.taskId] ===
-                                            'Not' &&
-                                            keyresult?.metricType?.name !==
-                                              NAME.ACHIEVE &&
-                                            keyresult?.metricType?.name !==
-                                              NAME.MILESTONE && (
-                                              <Form.Item
-                                                key={task.taskId}
-                                                name={[
-                                                  task.taskId,
-                                                  'actualValue',
-                                                ]}
-                                                className="mb-2"
-                                                label={`Actual value:`} // Optional label
-                                                rules={[
-                                                  {
-                                                    required: true,
-                                                    message:
-                                                      'Please enter an actual value!',
-                                                  },
-                                                  {
-                                                    validator: (
-                                                      rule,
-                                                      value,
-                                                    ) => {
-                                                      if (
-                                                        value === undefined ||
-                                                        value === null ||
-                                                        value === ''
-                                                      ) {
-                                                        return Promise.reject(
-                                                          new Error(
-                                                            'Please enter an actual value!',
-                                                          ),
-                                                        );
-                                                      }
-                                                      if (isNaN(value)) {
-                                                        return Promise.reject(
-                                                          new Error(
-                                                            'The input is not a valid number!',
-                                                          ),
-                                                        );
-                                                      }
-                                                      return Promise.resolve();
-                                                    },
-                                                  },
-                                                ]} // Add validation rule
-                                              >
-                                                <Input
-                                                  type="number" // Set input type to number
-                                                  min={0} // Optional: set minimum value
-                                                  step={1}
-                                                  onChange={(e) => {
-                                                    const value =
-                                                      e.target.value;
-                                                    form.setFieldsValue({
-                                                      [task.taskId]: {
-                                                        actualValue: value
-                                                          ? Number(value)
-                                                          : '',
-                                                      },
-                                                    });
-                                                  }}
-                                                />
-                                              </Form.Item>
-                                            )}
                                         </Row>
                                       </div>
                                     </Form.Item>
@@ -430,25 +364,22 @@ function CreateReport() {
                                       {
                                         required: true,
                                         message:
-                                          'Please enter an actual value!',
+                                          'Please enter an actual value!', // Show if the field is empty
                                       },
                                       {
-                                        validator: (rule, value) => {
-                                          if (!value) {
-                                            return Promise.reject(
-                                              new Error(
-                                                'Please enter an actual value!',
-                                              ),
-                                            );
-                                          }
-                                          if (isNaN(value)) {
+                                        validator: (
+                                          _, // eslint-disable-line @typescript-eslint/naming-convention
+                                          value, // eslint-disable-line @typescript-eslint/naming-convention
+                                        ) => {
+                                          // eslint-disable-next-line no-underscore-dangle
+                                          if (value && isNaN(value)) {
                                             return Promise.reject(
                                               new Error(
                                                 'The input is not a valid number!',
-                                              ),
+                                              ), // Show if the value is not a number
                                             );
                                           }
-                                          return Promise.resolve();
+                                          return Promise.resolve(); // Proceed to next rule if the value is valid
                                         },
                                       },
                                     ]}
@@ -535,7 +466,11 @@ function CreateReport() {
               <Button htmlType="button" onClick={() => onClose()}>
                 Cancel
               </Button>
-              <Button htmlType="submit" className="bg-primary text-white">
+              <Button
+                loading={createReportLoading}
+                htmlType="submit"
+                className="bg-primary text-white"
+              >
                 Create Report
               </Button>
             </Row>
