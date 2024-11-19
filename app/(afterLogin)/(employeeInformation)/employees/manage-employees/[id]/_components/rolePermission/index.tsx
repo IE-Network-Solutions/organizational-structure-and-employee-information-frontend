@@ -55,6 +55,14 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
       setSelectedPermissions,
     ],
   );
+  function mapToNameAndSlug(data: any){
+    return data?.map((item: any) => ({
+        name: item.name,
+        slug: item.slug,
+    }));
+}
+
+    console.log("ALL PERMISSIONS", mapToNameAndSlug(permissionList?.items))
 
   const handlePermissionChange = useCallback(
     (value: string[]) => {
