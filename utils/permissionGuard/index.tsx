@@ -11,14 +11,13 @@ interface AccessGuardProps {
 
 const AccessGuard: React.FC<AccessGuardProps> & {
   checkAccess: (props: AccessGuardProps) => boolean;
-} = ({
-  roles,
-  permissions,
-  id,
-  selfShouldAccess = false,
-  children,
-}) => {
-  const hasAccess = AccessGuard.checkAccess({ roles, permissions, id, selfShouldAccess });
+} = ({ roles, permissions, id, selfShouldAccess = false, children }) => {
+  const hasAccess = AccessGuard.checkAccess({
+    roles,
+    permissions,
+    id,
+    selfShouldAccess,
+  });
 
   if (hasAccess) {
     return <>{children}</>;

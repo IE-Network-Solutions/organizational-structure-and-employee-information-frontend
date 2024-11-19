@@ -59,7 +59,7 @@ const showDrawer = (
 
 export const orgComposeAndMergeMenues = (
   <Menu>
-    <AccessGuard permissions={[Permissions.DeleteDepartment]} >
+    <AccessGuard permissions={[Permissions.DeleteDepartment]}>
       <Menu.Item
         key="1"
         className="py-2"
@@ -69,7 +69,7 @@ export const orgComposeAndMergeMenues = (
         Archive
       </Menu.Item>
     </AccessGuard>
-    <AccessGuard permissions={[Permissions.MergeDepartment]} >
+    <AccessGuard permissions={[Permissions.MergeDepartment]}>
       <Menu.Item
         key="2"
         className="py-2"
@@ -79,7 +79,7 @@ export const orgComposeAndMergeMenues = (
         Merge
       </Menu.Item>
     </AccessGuard>
-    <AccessGuard permissions={[Permissions.DissolveDepartment]} >
+    <AccessGuard permissions={[Permissions.DissolveDepartment]}>
       <Menu.Item
         key="3"
         className="py-2"

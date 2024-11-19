@@ -151,25 +151,25 @@ const AllCandidateTable: React.FC = () => {
           </div>
         ),
         onClick: () => handleMenuClick('moveToTalentPool', item),
-        permissions: [Permissions.TransferCandidate]
+        permissions: [Permissions.TransferCandidate],
       },
       {
         key: 'edit',
         label: 'Edit',
         onClick: () => handleMenuClick('edit', item),
-        permissions: [Permissions.UpdateCandidate]
+        permissions: [Permissions.UpdateCandidate],
       },
       {
         key: 'delete',
         label: 'Delete',
         onClick: () => handleMenuClick('delete', item),
-        permissions: [Permissions.DeleteCandidate]
+        permissions: [Permissions.DeleteCandidate],
       },
     ];
 
     const filteredItems = items.filter((item) => {
       const { permissions } = item;
-      return AccessGuard.checkAccess({permissions: permissions});
+      return AccessGuard.checkAccess({ permissions: permissions });
     });
 
     return {

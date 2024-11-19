@@ -62,16 +62,20 @@ function TalentPoolCategoryTab() {
                 </span>
 
                 <div>
-                <AccessGuard permissions={[Permissions.UpdateTalentPoolCategory]}>
-                  <Button
-                    icon={<FaEdit />}
-                    onClick={() => handleEditTalentPoolCategory(talentPool)}
-                    type="default"
-                    size={'large'}
-                    className="border-none text-blue-600 mr-2"
-                  />
+                  <AccessGuard
+                    permissions={[Permissions.UpdateTalentPoolCategory]}
+                  >
+                    <Button
+                      icon={<FaEdit />}
+                      onClick={() => handleEditTalentPoolCategory(talentPool)}
+                      type="default"
+                      size={'large'}
+                      className="border-none text-blue-600 mr-2"
+                    />
                   </AccessGuard>
-                  <AccessGuard permissions={[Permissions.DelateTalentPoolCategory]}>
+                  <AccessGuard
+                    permissions={[Permissions.DeleteTalentPoolCategory]}
+                  >
                     <Button
                       icon={<FaTrashAlt />}
                       onClick={() => handleDeleteTalentPoolCategory(talentPool)}

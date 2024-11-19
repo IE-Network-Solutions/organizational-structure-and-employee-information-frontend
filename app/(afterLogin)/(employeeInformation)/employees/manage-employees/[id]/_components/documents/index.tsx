@@ -69,13 +69,17 @@ const Documents = ({ id }: { id: string }) => {
         key: 'actions',
         render: (text: any, record: any) => (
           <Space>
-            <AccessGuard permissions={[Permissions.DownloadEmployeeDocument]} selfShouldAccess id={id}>
-            <Button
-              type="link"
-              icon={<AiOutlineDownload />}
-              href={record.documentLink}
-              target="_blank"
-            />
+            <AccessGuard
+              permissions={[Permissions.DownloadEmployeeDocument]}
+              selfShouldAccess
+              id={id}
+            >
+              <Button
+                type="link"
+                icon={<AiOutlineDownload />}
+                href={record.documentLink}
+                target="_blank"
+              />
             </AccessGuard>
             <AccessGuard permissions={[Permissions.DeleteEmployeeDocument]}>
               <Button

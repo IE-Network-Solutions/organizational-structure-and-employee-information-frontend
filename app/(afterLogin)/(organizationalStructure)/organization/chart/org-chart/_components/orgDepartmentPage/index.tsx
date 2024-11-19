@@ -118,7 +118,7 @@ const OrgChartComponent: React.FC = () => {
 
   const menu = (
     <Menu>
-      <AccessGuard permissions={[Permissions.DeleteDepartment]} >
+      <AccessGuard permissions={[Permissions.DeleteDepartment]}>
         <Menu.Item
           key="1"
           className="py-2"
@@ -128,7 +128,7 @@ const OrgChartComponent: React.FC = () => {
           Archive
         </Menu.Item>
       </AccessGuard>
-      <AccessGuard permissions={[Permissions.MergeDepartment]} >
+      <AccessGuard permissions={[Permissions.MergeDepartment]}>
         <Menu.Item
           key="2"
           className="py-2"
@@ -138,12 +138,14 @@ const OrgChartComponent: React.FC = () => {
           Merge
         </Menu.Item>
       </AccessGuard>
-      <AccessGuard permissions={[Permissions.DissolveDepartment]} >
+      <AccessGuard permissions={[Permissions.DissolveDepartment]}>
         <Menu.Item
           key="3"
           className="py-2"
           style={{ paddingRight: '64px' }}
-          onClick={() => showDrawer('dissolve', 'Dissove', 'Dessolve Department')}
+          onClick={() =>
+            showDrawer('dissolve', 'Dissove', 'Dessolve Department')
+          }
         >
           Dissolve
         </Menu.Item>

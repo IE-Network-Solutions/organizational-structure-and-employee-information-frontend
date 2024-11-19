@@ -30,7 +30,7 @@ const ManageEmployees: React.FC<any> = () => {
             subtitle="Manage your Employees"
           />
           <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
-            <AccessGuard permissions={[Permissions.RegisterNewEmployee]} >
+            <AccessGuard permissions={[Permissions.RegisterNewEmployee]}>
               <CustomButton
                 title="Create user"
                 id="createUserButton"
