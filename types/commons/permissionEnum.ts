@@ -1,4 +1,19 @@
 export enum Permissions {
+
+  // Could not be found Permissions that needs to be changed
+  ViewAllEmployeePlan = 'view-all-employee-plan',
+  ViewAllPlan = 'view-all-plan',
+  ViewAllStatusPlan = 'view-all-status-plan',
+  ViewReprimandAndAppreciation = 'view-reprimand-and-appreciation',
+  ViewReprimandAndAppreciationDetails = 'view-reprimand-and-appreciation-details',
+  EditAppreciationAndReprimand = 'edit-appreciation-and-reprimand',
+  DeleteAppreciationAndReprimand = 'delete-appreciation-and-reprimand',
+  CreateAppreciation = 'create-appreciation',
+  ViewPlanningPeriod = 'view-planning-period',
+  ViewPlanningAssignation = 'view-planning-assignation',
+  ViewDefineAppreciation = 'view-define-appreciation',
+  ViewDefineReprimand = 'view-define-reprimand',
+  ViewDefineOKRRule = 'view-define-okr-rule',
   
   // Course Permissions
   UpdateCourse = 'update-course',

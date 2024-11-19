@@ -5,6 +5,8 @@ import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
 import { usePathname, useRouter } from 'next/navigation';
 import { RiAwardFill } from 'react-icons/ri';
 import { FaBomb } from 'react-icons/fa';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 
 interface OkrSettingsLayoutProps {
   children: ReactNode;
@@ -15,6 +17,7 @@ type MenuItem = Required<MenuProps>['items'][number];
 type MenuItemType = {
   item: MenuItem;
   link: string;
+  permissions: string[];
 };
 
 class NMenuItem {
@@ -23,20 +26,38 @@ class NMenuItem {
     this.items = items;
   }
 
-  get onlyItems(): MenuItem[] {
-    return this.items.map((item) => item.item);
-  }
-
   findItem(itemKey: string): MenuItemType {
     const iComponent = this.items.find((item) => item.item!.key === itemKey);
     return iComponent ? iComponent : this.items[0];
   }
+
+  filterItemsByPermissions(): MenuItem[] {
+    return this.items
+      .filter((item) => 
+        AccessGuard.checkAccess({ permissions: item.permissions })
+      )
+      .map((item) => item.item);
+  }
 }
 
 const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
+
   const router = useRouter();
   const pathname = usePathname();
   const [currentItem, setCurrentItem] = useState<string>('');
+
+  useEffect(() => {
+    const pathSegments = pathname.split('/').filter(Boolean);
+    const lastKey = pathSegments[pathSegments.length - 1];
+
+    setCurrentItem(lastKey);
+  }, [pathname]);
+
+  const onMenuClick = (e: any) => {
+    const key = e['key'] as string;
+    router.push(menuItems.findItem(key).link);
+  };
+
   const menuItems = new NMenuItem([
     {
       item: {
@@ -56,6 +77,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'planning-period' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/planning-period',
+      permissions: [],
     },
     {
       item: {
@@ -77,6 +99,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'planning-assignation' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/planning-assignation',
+      permissions: [Permissions.ViewPlanningAssignation],
     },
     {
       item: {
@@ -96,6 +119,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'define-appreciation' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/define-appreciation',
+      permissions: [Permissions.ViewDefineAppreciation],
     },
     {
       item: {
@@ -115,6 +139,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'define-reprimand' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/define-reprimand',
+      permissions: [Permissions.ViewDefineReprimand],
     },
     {
       item: {
@@ -134,20 +159,9 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'define-okr-rule' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/define-okr-rule',
+      permissions: [Permissions.ViewDefineOKRRule],
     },
   ]);
-
-  useEffect(() => {
-    const pathSegments = pathname.split('/').filter(Boolean);
-    const lastKey = pathSegments[pathSegments.length - 1];
-
-    setCurrentItem(lastKey);
-  }, [pathname]);
-
-  const onMenuClick = (e: any) => {
-    const key = e['key'] as string;
-    router.push(menuItems.findItem(key).link);
-  };
 
   return (
     <div className="p-4 md:p-6 lg:p-8 w-full h-auto">
@@ -174,7 +188,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         >
           <Menu
             className="w-full md:w-[250px] lg:w-[300px] rounded-2xl py-2 px-6 h-max border border-gray-300"
-            items={menuItems.onlyItems}
+            items={menuItems.filterItemsByPermissions()}
             mode="inline"
             selectedKeys={[currentItem]}
             onClick={onMenuClick}
