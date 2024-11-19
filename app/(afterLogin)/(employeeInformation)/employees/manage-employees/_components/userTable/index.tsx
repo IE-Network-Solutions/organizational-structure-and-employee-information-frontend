@@ -106,7 +106,8 @@ const UserTable = () => {
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
   const data = allFilterData?.items?.map((item: any) => {
-    const fullName = item?.firstName + ' ' + (item?.middleName ? item?.middleName : '');
+    const fullName =
+      item?.firstName + ' ' + (item?.middleName ? item?.middleName : '');
     const shortEmail = item?.email;
     const displayName =
       fullName.length > MAX_NAME_LENGTH
