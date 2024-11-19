@@ -8,8 +8,7 @@ interface Props {
   handleAllChange: (value: number) => void;
 }
 
-const ButtonContinue: React.FC<Props> = ({ isLoading, handleAllChange}) => {
-
+const ButtonContinue: React.FC<Props> = ({ isLoading, handleAllChange }) => {
   const { current } = useEmployeeManagementStore();
 
   return (

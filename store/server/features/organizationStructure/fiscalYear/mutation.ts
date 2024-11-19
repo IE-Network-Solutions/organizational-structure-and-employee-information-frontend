@@ -45,10 +45,8 @@ export const useCreateFiscalYear = () => {
   return useMutation(createFiscalYear, {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
-
       closeFiscalYearDrawer();
-      // const method = variables?.method?.toUpperCase();
-      // handleSuccessMessage(method);
+      handleSuccessMessage('PUT');
     },
   });
 };
@@ -62,6 +60,7 @@ export const useUpdateFiscalYear = () => {
     {
       onSuccess: (variables: any) => {
         queryClient.invalidateQueries('fiscalYears');
+
         closeFiscalYearDrawer();
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method);
@@ -75,8 +74,8 @@ export const useDeleteFiscalYear = () => {
   return useMutation((id: string) => deleteFiscalYear(id), {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
-      // const method = variables?.method?.toUpperCase();
-      // handleSuccessMessage(method);
+
+      handleSuccessMessage('DELETE');
     },
   });
 };
