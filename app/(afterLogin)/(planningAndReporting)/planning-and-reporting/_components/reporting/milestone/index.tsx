@@ -11,7 +11,7 @@ type Task = {
   priority: 'low' | 'medium' | 'high';
   status: 'reported' | 'pending' | 'completed' | 'Done';
   actualValue: string;
-  isAchived: boolean;
+  isAchieved: boolean;
 };
 
 type Props = {
