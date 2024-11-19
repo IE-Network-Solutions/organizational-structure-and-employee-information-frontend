@@ -1,4 +1,5 @@
 export enum Permissions {
+  
   // Course Permissions
   UpdateCourse = 'update-course',
   DeleteCourse = 'delete-course',

@@ -46,7 +46,7 @@ export const fieldGroups: Record<number, ([string, string] | string)[]> = {
     ['bankInformation', 'bankName'],
     ['bankInformation', 'branch'],
     ['bankInformation', 'accountName'],
-    ['bankInformation', 'accountNumber']
+    ['bankInformation', 'accountNumber'],
   ],
   1: [
     'effectiveStartDate',
@@ -59,15 +59,12 @@ export const fieldGroups: Record<number, ([string, string] | string)[]> = {
     'employmentContractType',
     'roleId',
     'setOfPermission',
-    'workScheduleId'
+    'workScheduleId',
   ],
-  2: [
-    'documentName'
-  ]
+  2: ['documentName'],
 };
 
 const UserSidebar = (props: any) => {
-
   const [form] = Form.useForm();
   const {
     setCurrent,
@@ -98,12 +95,11 @@ const UserSidebar = (props: any) => {
   };
 
   const handleAllChange = async (value: number) => {
-    
     if (value < 0) {
       resetFormFields();
       return;
     }
-  
+
     if (current === 2 && value > 2) {
       try {
         await form.validateFields(fieldGroups[2]);
@@ -111,17 +107,17 @@ const UserSidebar = (props: any) => {
         createEmployee(transformData(allValues));
       } catch {
         NotificationMessage.error({
-          message: "Error in the form.",
-          description: "Please check all the fields."
+          message: 'Error in the form.',
+          description: 'Please check all the fields.',
         });
       }
       return;
     }
-  
+
     if (value > current) {
       const stepsToValidate = Array.from(
         { length: value - current },
-        (s, i) => current + i
+        (s, i) => current + i,
       );
       try {
         for (const step of stepsToValidate) {
@@ -130,8 +126,8 @@ const UserSidebar = (props: any) => {
         setCurrent(value);
       } catch {
         NotificationMessage.error({
-          message: "Error in the form.",
-          description: "Please check all the fields."
+          message: 'Error in the form.',
+          description: 'Please check all the fields.',
         });
         setCurrent(current);
       }
@@ -139,7 +135,7 @@ const UserSidebar = (props: any) => {
       setCurrent(value);
     }
   };
-  
+
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Add New Employee
@@ -202,7 +198,10 @@ const UserSidebar = (props: any) => {
           <Card hidden={current !== 2} className="p-4 sm:p-6">
             <AdditionalInformationForm />
             <DocumentUploadForm />
-            <ButtonContinue handleAllChange={handleAllChange} isLoading={isLoading} />
+            <ButtonContinue
+              handleAllChange={handleAllChange}
+              isLoading={isLoading}
+            />
           </Card>
         </Form>
       </CustomDrawerLayout>
