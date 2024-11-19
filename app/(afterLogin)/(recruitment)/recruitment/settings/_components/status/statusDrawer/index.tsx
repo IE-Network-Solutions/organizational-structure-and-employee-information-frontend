@@ -1,74 +1,62 @@
+'use client';
 import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
-  useCreateTalentPoolCategory,
-  useUpdateTalentPoolCategory,
-} from '@/store/server/features/recruitment/tallentPoolCategory/mutation';
+  useCreateRecruitmentStatus,
+  useUpdateRecruitmentStatus,
+} from '@/store/server/features/recruitment/settings/status/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useTalentPoolSettingsStore } from '@/store/uistate/features/recruitment/settings/talentPoolCategory';
+import { useRecruitmentStatusStore } from '@/store/uistate/features/recruitment/settings/status';
 import { Form, Input } from 'antd';
-import React, { useEffect } from 'react';
+import React from 'react';
 
-const TalentPoolDrawer: React.FC = () => {
-  const { isOpen, selectedTalentPool, closeDrawer, isEditMode } =
-    useTalentPoolSettingsStore();
-
+const RecruitmentStatusDrawer: React.FC = () => {
+  const [form] = Form.useForm();
   const { userId } = useAuthenticationStore();
 
-  const { mutate: createTalentPoolCategory } = useCreateTalentPoolCategory();
-  const { mutate: updateTalentPoolCategory } = useUpdateTalentPoolCategory();
+  const { isDrawerOPen, isEditMode, setIsDrawerOpen, selectedStatus } =
+    useRecruitmentStatusStore();
 
+  const { mutate: createRecruitmentStatus } = useCreateRecruitmentStatus();
+  const { mutate: updateRecruitmentStatus } = useUpdateRecruitmentStatus();
+
+  useUpdateRecruitmentStatus;
   const handleCancel = () => {
-    closeDrawer();
+    setIsDrawerOpen(false);
   };
 
   const handleSubmit = () => {
     form.validateFields().then((values) => {
       if (isEditMode) {
-        updateTalentPoolCategory({
-          id: selectedTalentPool?.id || '',
-          category: {
+        updateRecruitmentStatus({
+          id: selectedStatus?.id || '',
+          data: {
             ...values,
             title: values.title,
             updatedBy: userId,
           },
         });
       } else {
-        createTalentPoolCategory({
+        createRecruitmentStatus({
           title: values.title,
           description: values.description,
           createdBy: userId,
         });
         form.resetFields();
       }
-      closeDrawer();
+      setIsDrawerOpen(false);
     });
   };
-
-  const [form] = Form.useForm();
-
-  useEffect(() => {
-    if (isEditMode && selectedTalentPool) {
-      form.setFieldsValue({
-        title: selectedTalentPool.title,
-        description: selectedTalentPool.description,
-      });
-    } else {
-      form.resetFields();
-    }
-  }, [isEditMode, selectedTalentPool, form]);
 
   return (
     <CustomDrawerLayout
       modalHeader={
         <h1 className="text-2xl font-bold py-2">
-          {isEditMode
-            ? 'Edit Talent Pool Category'
-            : 'New Talent Pool Category'}
+          {isEditMode ? 'Edit Status' : 'Define Status'}
         </h1>
       }
       onClose={handleCancel}
-      open={isOpen}
+      open={isDrawerOPen}
       width="30%"
       footer={
         <div className="flex justify-center items-center w-full">
@@ -82,13 +70,14 @@ const TalentPoolDrawer: React.FC = () => {
         </div>
       }
     >
+      {' '}
       <Form form={form} layout="vertical">
         <Form.Item
           label="Name"
           name="title"
           rules={[{ required: true, message: 'Please enter a title' }]}
         >
-          <Input className="h-12" placeholder="Enter the category title" />
+          <Input className="h-12" placeholder="Enter the status title" />
         </Form.Item>
 
         <Form.Item
@@ -96,14 +85,11 @@ const TalentPoolDrawer: React.FC = () => {
           name="description"
           rules={[{ required: false }]}
         >
-          <Input.TextArea
-            rows={6}
-            placeholder="Enter the category description"
-          />
+          <Input.TextArea rows={6} placeholder="Enter the status description" />
         </Form.Item>
       </Form>
     </CustomDrawerLayout>
   );
 };
 
-export default TalentPoolDrawer;
+export default RecruitmentStatusDrawer;
