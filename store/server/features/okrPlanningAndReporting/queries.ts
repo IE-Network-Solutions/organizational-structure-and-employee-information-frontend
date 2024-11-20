@@ -104,7 +104,6 @@ export const useGetPlanning = (params: DataType) => {
       params.userId !== undefined &&
       params.planPeriodId !== undefined &&
       params.planPeriodId !== '',
-
   });
 };
 
