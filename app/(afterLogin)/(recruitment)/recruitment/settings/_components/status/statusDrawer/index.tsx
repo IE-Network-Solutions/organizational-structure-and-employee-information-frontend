@@ -38,14 +38,14 @@ const RecruitmentStatusDrawer: React.FC = () => {
           id: selectedStatus?.id || '',
           data: {
             ...values,
-            title: values.title,
+            title: values?.title,
             updatedBy: userId,
           },
         });
       } else {
         createRecruitmentStatus({
-          title: values.title,
-          description: values.description,
+          title: values?.title,
+          description: values?.description,
           createdBy: userId,
         });
         form.resetFields();
@@ -55,14 +55,17 @@ const RecruitmentStatusDrawer: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isEditMode && selectedStatus) {
-      const formValues = {
-        title: selectedStatus?.title,
-        description: selectedStatus?.description,
-      };
-      form.setFieldsValue(formValues);
+    if (isDrawerOPen) {
+      if (isEditMode && selectedStatus) {
+        form.setFieldsValue({
+          title: selectedStatus.title || '',
+          description: selectedStatus.description || '',
+        });
+      } else {
+        form.resetFields();
+      }
     }
-  }, [isEditMode, selectedStatus, form]);
+  }, [isDrawerOPen, isEditMode, selectedStatus, form]);
 
   return (
     <CustomDrawerLayout
@@ -86,7 +89,6 @@ const RecruitmentStatusDrawer: React.FC = () => {
         </div>
       }
     >
-      {' '}
       <Form form={form} layout="vertical">
         <Form.Item
           label="Name"

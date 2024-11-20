@@ -39,6 +39,12 @@ const Status: React.FC = () => {
     setIsDeleteModalOpen(false);
     setSelectedStatus(null);
   };
+
+  const handleOpen = () => {
+    setIsDrawerOpen(true);
+    setEditMode(false);
+    setSelectedStatus(null);
+  };
   return (
     <div className="p-6">
       {/* Header section */}
@@ -47,7 +53,7 @@ const Status: React.FC = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => setIsDrawerOpen(true)}
+          onClick={handleOpen}
           className="bg-purple-600 h-16 font-bold"
         >
           Define New Status
