@@ -98,7 +98,7 @@ function Planning() {
             />
           </div>
         </Tooltip>
-         {selectedUser.includes(userId) &&
+         {/* {selectedUser.includes(userId) &&
           ((transformedData?.[0]?.isReported ?? false) ||
             transformedData?.length === 0) && (
             <CustomButton
@@ -115,8 +115,8 @@ function Planning() {
               onClick={() => setOpen(true)}
               className="bg-blue-600 hover:bg-blue-700"
             />
-          </div>
-        </Tooltip>
+          </div> */}
+        {/* </Tooltip> */}
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
