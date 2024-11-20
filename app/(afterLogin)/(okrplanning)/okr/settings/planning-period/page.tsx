@@ -9,6 +9,8 @@ import {
   useUpdatePlanningStatus,
 } from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Option } = Select;
 const PlanningPeriod: FC = () => {
@@ -77,20 +79,24 @@ const PlanningPeriod: FC = () => {
   };
   const menu = (planningPeriod: any) => (
     <Menu>
-      <Menu.Item
-        key="1"
-        disabled={editPlannningPeriod}
-        onClick={() => handleEdit(planningPeriod)}
-      >
-        Edit
-      </Menu.Item>
-      <Menu.Item
-        key="2"
-        disabled={deletePlannniggPeriod}
-        onClick={() => handleDelete(planningPeriod.id)}
-      >
-        Delete
-      </Menu.Item>
+      <AccessGuard permissions={[Permissions.UpdatePlanningPeriod]}>
+        <Menu.Item
+          key="1"
+          disabled={editPlannningPeriod}
+          onClick={() => handleEdit(planningPeriod)}
+        >
+          Edit
+        </Menu.Item>
+      </AccessGuard>
+      <AccessGuard permissions={[Permissions.DleletePlanningPeriod]}>
+        <Menu.Item
+          key="2"
+          disabled={deletePlannniggPeriod}
+          onClick={() => handleDelete(planningPeriod.id)}
+        >
+          Delete
+        </Menu.Item>
+      </AccessGuard>
     </Menu>
   );
 
@@ -109,13 +115,15 @@ const PlanningPeriod: FC = () => {
             title={planningPeriod?.name}
             extra={
               <div className="flex">
-                <Switch
-                  checked={planningPeriod?.isActive}
-                  disabled={isLoading}
-                  onChange={() => updateStatus(planningPeriod.id)}
-                  className="mr-4"
-                  checkedChildren={<CheckOutlined />}
-                />
+                <AccessGuard permissions={[Permissions.ActivateDeactivatePlanningPeriod]}>
+                  <Switch
+                    checked={planningPeriod?.isActive}
+                    disabled={isLoading}
+                    onChange={() => updateStatus(planningPeriod.id)}
+                    className="mr-4"
+                    checkedChildren={<CheckOutlined />}
+                  />
+                </AccessGuard>
                 <Dropdown overlay={menu(planningPeriod)} trigger={['click']}>
                   <MoreOutlined className="cursor-pointer" />
                 </Dropdown>

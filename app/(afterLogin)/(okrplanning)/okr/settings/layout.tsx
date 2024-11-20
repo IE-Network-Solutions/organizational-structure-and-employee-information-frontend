@@ -5,7 +5,6 @@ import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
 import { usePathname, useRouter } from 'next/navigation';
 import { RiAwardFill } from 'react-icons/ri';
 import { FaBomb } from 'react-icons/fa';
-import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
 
 interface OkrSettingsLayoutProps {
@@ -99,7 +98,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'planning-assignation' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/planning-assignation',
-      permissions: [Permissions.ViewPlanningAssignation],
+      permissions: [],
     },
     {
       item: {
@@ -119,7 +118,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'define-appreciation' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/define-appreciation',
-      permissions: [Permissions.ViewDefineAppreciation],
+      permissions: [],
     },
     {
       item: {
@@ -139,7 +138,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'define-reprimand' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/define-reprimand',
-      permissions: [Permissions.ViewDefineReprimand],
+      permissions: [],
     },
     {
       item: {
@@ -159,7 +158,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'define-okr-rule' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/define-okr-rule',
-      permissions: [Permissions.ViewDefineOKRRule],
+      permissions: [],
     },
   ]);
 

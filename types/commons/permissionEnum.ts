@@ -21,6 +21,21 @@ export enum Permissions {
   UpdateCommentOnPlanAndReport = 'update-comment-on-Plan-and-report',
   DeleteCommentOnPlanAndReport = 'delete-comment-on-Plan-and-report',
   CreateFormCategory = 'create-form-category',
+  CreatePlanningPeriod = 'create-planning-period',
+  UpdatePlanningPeriod = 'update-planning-period',
+  DleletePlanningPeriod = 'delete-planning-period',
+  ActivateDeactivatePlanningPeriod = 'activate-deactivate-planning-period',
+  AssignPlanningPeriod = 'assign-planning-period',
+  UpdateAssignedPlanningPeriod = 'update-assigned-planning-period',
+  DeleteAssignedPlanningPeriod = 'delete-assigned-planning-period',
+  CreateReprimandType = 'create-reprimand-type',
+  DeleteReprimandType = 'delete-reprimand-type',
+  CreateAppreciationType = 'create-appreciation-type',
+  UpdateAppreciationType = 'update-appreciation-type',
+  DeleteAppreciationType = 'delete-appreciation-type',
+  CreateOkrRule = 'create-okr-rule',
+
+
   // Course Permissions
   UpdateCourse = 'update-course',
   DeleteCourse = 'delete-course',
