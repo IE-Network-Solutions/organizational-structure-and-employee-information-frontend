@@ -6,8 +6,7 @@ export interface ClosedDates {
   name: string;
   type: string;
   description?: string;
-  startDate: Dayjs | null;
-  endDate: Dayjs | null;
+  date: Dayjs | string;
 }
 
 export interface FiscalYear {

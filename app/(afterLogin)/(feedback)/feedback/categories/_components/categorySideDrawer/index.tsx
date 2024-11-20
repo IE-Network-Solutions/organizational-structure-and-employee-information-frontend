@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import { Avatar, Button, Checkbox, Collapse, Form, Image, Input } from 'antd';
@@ -9,6 +9,7 @@ import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { useFetchUsers } from '@/store/server/features/feedback/category/queries';
 import dayjs from 'dayjs';
 import { UserOutlined } from '@ant-design/icons';
+import SelectEmployeeSearch from './selectEmployeeSearch';
 
 interface CategoryFormValues {
   name: string;
@@ -24,11 +25,17 @@ const CategorySideDrawer: React.FC<any> = (props) => {
     isAllSelected,
     toggleUserSelection,
     selectAllUsers,
+    activeKey,
+    setActiveKey,
+    searchUserParams,
   } = CategoriesManagementStore();
   const createCategory = useAddCategory();
-  const { data: employees } = useFetchUsers();
+  const { data: employees } = useFetchUsers(searchUserParams?.user_name);
 
   const [form] = Form.useForm();
+  useEffect(() => {
+    form.validateFields(['employeeLevel']);
+  }, [isAllSelected, selectedUsers, form]);
 
   const drawerHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -130,13 +137,22 @@ const CategorySideDrawer: React.FC<any> = (props) => {
                 name="employeeLevel"
                 rules={[
                   {
-                    required: true,
-                    message: 'Please input the employee level!',
+                    validator: async () => {
+                      if (isAllSelected || selectedUsers.length > 0) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error('Please select at least one employee!'),
+                      );
+                    },
                   },
                 ]}
               >
-                <Collapse>
-                  <Collapse.Panel header="Select employees" key="0">
+                <Collapse
+                  activeKey={activeKey}
+                  onChange={(key) => setActiveKey(key)}
+                >
+                  <Collapse.Panel header={<SelectEmployeeSearch />} key="0">
                     <div className="flex flex-col justify-center gap-2">
                       <div className="flex items-center justify-start gap-2 border border-gray-200 rounded-md p-2">
                         <Checkbox
