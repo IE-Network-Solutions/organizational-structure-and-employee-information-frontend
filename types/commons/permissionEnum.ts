@@ -14,6 +14,9 @@ export enum Permissions {
   ViewDefineAppreciation = 'view-define-appreciation',
   ViewDefineReprimand = 'view-define-reprimand',
   ViewDefineOKRRule = 'view-define-okr-rule',
+  CreateCustomFields = 'create-custom-fields',
+  EditCustomFields = 'edit-custom-fields',
+  DeleteCustomFields = 'delete-custom-fields',
   
   // Course Permissions
   UpdateCourse = 'update-course',

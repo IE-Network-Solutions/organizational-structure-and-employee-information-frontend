@@ -8,6 +8,8 @@ import { FaPlus } from 'react-icons/fa';
 import { CalendarDays } from 'lucide-react';
 import QuestionTemplateDrawer from './_components/questionsTemplate/questionTemplateDrawer';
 import QuestionTemplateCard from './_components/questionsTemplate/questionTemplateCard';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Title } = Typography;
 
@@ -41,6 +43,7 @@ const QuestionTemplate: React.FC = () => {
           <Card>
             <div className="flex items-center justify-between">
               <Title level={5}>Custom Fields</Title>
+              <AccessGuard permissions={[Permissions.CreateCustomFields]}>
               <CustomButton
                 title="New Field"
                 id="createUserButton"
@@ -48,6 +51,7 @@ const QuestionTemplate: React.FC = () => {
                 onClick={showDrawer}
                 className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
               />
+              </AccessGuard>
               <QuestionTemplateDrawer onClose={onClose} />
             </div>
             <QuestionTemplateCard />
