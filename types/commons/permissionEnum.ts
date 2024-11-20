@@ -34,6 +34,9 @@ export enum Permissions {
   UpdateAppreciationType = 'update-appreciation-type',
   DeleteAppreciationType = 'delete-appreciation-type',
   CreateOkrRule = 'create-okr-rule',
+  UpdateLeaveRequest = 'update-leave-request',
+  DeleteLeaveRequest = 'delete-leave-request',
+  ViewAttendanceDetails = 'view-attendance-details',
 
 
   // Course Permissions
@@ -160,6 +163,8 @@ export enum Permissions {
   ImportEmployeeAttendanceInformation = 'import-employee-attendance-information',
   ExportEmployeeAttendanceInformation = 'export-employee-attendance-information',
   ApproveEmployeeAttendanceInformation = 'approve-employee-attendance-information',
+
+  // What are LeaveAccuruals??????????
   CreateLeaveAccrual = 'create-leave-accrual',
   UpdateLeaveAccrual = 'update-leave-accrual',
   DeleteLeaveAccrual = 'delete-leave-accrual',

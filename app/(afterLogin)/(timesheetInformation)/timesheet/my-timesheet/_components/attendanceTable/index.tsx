@@ -25,6 +25,8 @@ import {
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const AttendanceTable = () => {
   const { userId } = useAuthenticationStore();
@@ -136,15 +138,17 @@ const AttendanceTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (item: AttendanceRecord) => (
-        <Button
-          className="w-[30px] h-[30px]"
-          icon={<IoEyeOutline size={16} />}
-          type="primary"
-          onClick={() => {
-            setViewAttendanceId(item.id);
-            setIsShowViewSidebar(true);
-          }}
-        />
+        <AccessGuard permissions={[Permissions.ViewAttendanceDetails]}>
+          <Button
+            className="w-[30px] h-[30px]"
+            icon={<IoEyeOutline size={16} />}
+            type="primary"
+            onClick={() => {
+              setViewAttendanceId(item.id);
+              setIsShowViewSidebar(true);
+            }}
+          />
+        </AccessGuard>
       ),
     },
   ];
