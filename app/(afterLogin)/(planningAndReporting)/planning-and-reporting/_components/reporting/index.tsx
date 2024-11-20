@@ -57,9 +57,12 @@ function Reporting() {
         <Tooltip
           title={
             !(
-              selectedUser.includes(userId) &&
-              allUnReportedPlanningTask &&
-              allUnReportedPlanningTask.length > 0
+              // selectedUser.length === 1 && selectedUser[0] === userId &&    // to check and make ensure only reports their report
+              (
+                selectedUser.includes(userId) &&
+                allUnReportedPlanningTask &&
+                allUnReportedPlanningTask.length > 0
+              )
             )
               ? 'Plan tasks first or get manager approval'
               : ''
