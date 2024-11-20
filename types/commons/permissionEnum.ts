@@ -20,7 +20,7 @@ export enum Permissions {
   CreateCommentOnPlanAndReport = 'create-comment-on-Plan-and-report',
   UpdateCommentOnPlanAndReport = 'update-comment-on-Plan-and-report',
   DeleteCommentOnPlanAndReport = 'delete-comment-on-Plan-and-report',
-  
+  CreateFormCategory = 'create-form-category',
   // Course Permissions
   UpdateCourse = 'update-course',
   DeleteCourse = 'delete-course',
