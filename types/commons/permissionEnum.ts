@@ -37,6 +37,10 @@ export enum Permissions {
   UpdateLeaveRequest = 'update-leave-request',
   DeleteLeaveRequest = 'delete-leave-request',
   ViewAttendanceDetails = 'view-attendance-details',
+  CreateApprovalWorkFlow = 'create-approval-work-flow',
+  CreateApprover = 'create-approver',
+  UpdateApprover = 'update-approver',
+  DeleteApprover = 'update-approver',
 
 
   // Course Permissions

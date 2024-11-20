@@ -7,6 +7,8 @@ import {
   useDeleteCarryOverRule,
   useUpdateCarryOverRuleActive,
 } from '@/store/server/features/timesheet/carryOverRule/mutation';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 export interface CarryOverCardProps {
   item: CarryOverRule;
@@ -28,21 +30,23 @@ const CarryOverCard: FC<CarryOverCardProps> = ({ item }) => {
           <div className="flex-1 text-lg font-semibold text-gray-900">
             {item.title}
           </div>
-          <Space size={12}>
-            <Switch
-              id="carryOverSwitchAbleCardButtonId"
-              checkedChildren={<CheckOutlined />}
-              unCheckedChildren={<CloseOutlined />}
-              value={item.isActive}
-              onChange={(isActive) => {
-                setActive({
-                  isActive,
-                  id: item.id,
-                });
-              }}
-            />
-            <ActionButton id={item?.id ?? null} onDelete={onDelete} />
-          </Space>
+          <AccessGuard permissions={[Permissions.UpdateCarryOverRule, Permissions.DeleteCarryOverRule]}>
+            <Space size={12}>
+              <Switch
+                id="carryOverSwitchAbleCardButtonId"
+                checkedChildren={<CheckOutlined />}
+                unCheckedChildren={<CloseOutlined />}
+                value={item.isActive}
+                onChange={(isActive) => {
+                  setActive({
+                    isActive,
+                    id: item.id,
+                  });
+                }}
+              />
+              <ActionButton id={item?.id ?? null} onDelete={onDelete} />
+            </Space>
+          </AccessGuard>
         </div>
 
         <div className="grid grid-cols-2 gap-4">

@@ -57,7 +57,7 @@ AccessGuard.checkAccess = ({
     ? permissions.every((permission) =>
         userPermissions.some(
           (userPermission: { permission: { slug: string } }) =>
-            userPermission.permission.slug === permission,
+            userPermission.permission?.slug === permission,
         ),
       )
     : true;
