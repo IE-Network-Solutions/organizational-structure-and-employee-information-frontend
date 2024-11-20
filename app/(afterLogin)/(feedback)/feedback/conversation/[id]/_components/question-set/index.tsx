@@ -1,11 +1,14 @@
+'use client';  // Ensure this file is only rendered client-side
+
 import React from 'react';
 import { Card, Progress } from 'antd';
 import { GoDotFill } from 'react-icons/go';
 import { GrCircleQuestion } from 'react-icons/gr';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';  // Use usePathname for the App Router
 
-interface CardData {
-  id:string;
+interface QuestionSetData {
+  id: string;
   title: string;
   queriesCount: number;
   totalAttendees: number;
@@ -13,11 +16,12 @@ interface CardData {
 }
 
 interface StatisticsCardProps {
-  data: CardData;
+  data: QuestionSetData;
 }
 
-const BiWeekly: React.FC<StatisticsCardProps> = ({ data }) => {
-  const { id,title, queriesCount, totalAttendees, meetingsConducted } = data;
+const QuestionSet: React.FC<StatisticsCardProps> = ({ data }) => {
+  const { id, title, queriesCount, totalAttendees, meetingsConducted } = data;
+  const currentPath = usePathname();  // Get the current path using usePathname
 
   return (
     <Card className="p-4 flex flex-col items-center shadow-lg rounded-lg text-center">
@@ -25,7 +29,7 @@ const BiWeekly: React.FC<StatisticsCardProps> = ({ data }) => {
         <h3 className="text-lg font-semibold mb-2">{title}</h3>
       </Link>
       <Link
-        href={`/feedback/conversation/bi-weekly/${id}/questions`}
+        href={`${currentPath}/${id}/questions`}  // Append to the current path
         passHref
       >
         <p className="flex items-center justify-center text-gray-600 mb-4 hover:text-blue">
@@ -51,7 +55,7 @@ const BiWeekly: React.FC<StatisticsCardProps> = ({ data }) => {
           <span>{totalAttendees}</span>
         </p>
         <Link
-          href={`/feedback/conversation/bi-weekly/${id}/meetings`}
+          href={`${currentPath}/${id}/meetings`}
           passHref
         >
           <p className="flex items-center justify-center text-xs  hover:text-blue">
@@ -65,4 +69,4 @@ const BiWeekly: React.FC<StatisticsCardProps> = ({ data }) => {
   );
 };
 
-export default BiWeekly;
+export default QuestionSet;

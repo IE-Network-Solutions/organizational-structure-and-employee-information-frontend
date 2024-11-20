@@ -4,6 +4,7 @@ import { GoChevronRight } from 'react-icons/go';
 import Link from 'next/link';
 
 interface CardData {
+  id:string;
   name: string;
   description: string;
 }
@@ -13,7 +14,7 @@ interface ConversationCardProps {
 }
 
 const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
-  const { name, description } = data;
+  const { id,name, description } = data;
 
   return (
     <Card className="p-4 flex flex-col items-center shadow-lg rounded-lg text-center">
@@ -21,7 +22,7 @@ const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
       <p className="text-gray-600 mb-4">{description}</p>
 
       <div className="mt-auto">
-        <Link href={`/feedback/conversation/bi-weekly`} passHref>
+        <Link href={`/feedback/conversation/${id}`} passHref>
           <span className="flex items-center text-blue-500 hover:text-blue-700">
             <span>See More</span>
             <GoChevronRight className="ml-1" />

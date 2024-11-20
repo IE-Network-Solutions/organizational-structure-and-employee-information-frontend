@@ -3,27 +3,35 @@ import TabLandingLayout from '@/components/tabLanding';
 import React from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/feedback/conversation';
-import QuestionDataTable from '../_components/questions';
 import CreateMeeting from '../_components/meeting/createMeeting';
+import MettingDataTable from '../_components/meeting/mettingTable';
+import { useGetConversationById } from '@/store/server/features/conversation/meetings/queries';
+interface Params {
+  id: string;
+  slug:string;
+}
 
-function page() {
+const Page = ({ params}: { params: Params }) => {
+  const { id, slug } = params;
+  
   const { open, setOpen } = ConversationStore();
-
+  const {data:conversationMeetingData}=useGetConversationById(id);
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Add New Bi-Weekly Meeting
     </div>
   );
+
   return (
     <>
       <TabLandingLayout
         buttonTitle="New Meeting"
         id="conversationLayoutId"
         onClickHandler={() => setOpen(true)}
-        title="FY 2017 Q1 Bi Weekly Questions"
-        subtitle="Conversations / bi-weekly / FY 2017 Q1 Bi Weekly Questions"
+        title="Bi-Weekly"
+        subtitle="Conversations / bi-weekly "
       >
-        <QuestionDataTable />
+        <MettingDataTable data={conversationMeetingData}/>
       </TabLandingLayout>
       <CustomDrawerLayout
         open={open}
@@ -31,10 +39,10 @@ function page() {
         modalHeader={modalHeader}
         width="40%"
       >
-        <CreateMeeting />
+        <CreateMeeting id={id} slug={slug} onClose={()=>setOpen(false)} />
       </CustomDrawerLayout>
     </>
   );
 }
 
-export default page;
+export default Page;

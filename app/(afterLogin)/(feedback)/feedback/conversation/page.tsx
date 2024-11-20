@@ -8,6 +8,7 @@ function Index() {
 
   const {data:conversationData}=useConversationTypes();
   const cardsData = conversationData?.items?.map((item: any) => ({
+    id:item?.id,
     name: item.name,
     description: item.description,
 
