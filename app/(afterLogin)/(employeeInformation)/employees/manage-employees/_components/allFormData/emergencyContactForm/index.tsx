@@ -5,12 +5,17 @@ import AddCustomField from '../../addCustomField';
 import DynamicFormFields from '../../dynamicFormDisplayer';
 import UseSetCategorizedFormData from '../../customField';
 import { validateEmail, validateName } from '@/utils/validation';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
 const EmergencyContactForm = () => {
   const { data: nationalities } = useGetNationalities();
   const emergencyContactForm = UseSetCategorizedFormData('emergencyContact');
+
+  const disableFutureDates = (current: any) => {
+    return current && current > dayjs().endOf('day');
+  };
 
   return (
     <div>
@@ -102,7 +107,7 @@ const EmergencyContactForm = () => {
             id="emergencyContactDateOfBirth"
             rules={[{ required: true }]}
           >
-            <DatePicker className="w-full" />
+            <DatePicker className="w-full" disabledDate={disableFutureDates} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
