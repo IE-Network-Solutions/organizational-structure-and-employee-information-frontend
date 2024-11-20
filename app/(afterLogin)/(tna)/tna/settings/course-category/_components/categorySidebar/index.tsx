@@ -54,7 +54,7 @@ const CourseCategorySidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: 'Create',
+      label: courseCategoryId ? <span>Edit</span> : <span>Create</span>,
       key: 'create',
       className: 'h-14',
       type: 'primary',
@@ -89,7 +89,11 @@ const CourseCategorySidebar = () => {
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            Add Course Category
+            {courseCategoryId ? (
+              <span>Edit Course Category</span>
+            ) : (
+              <span>Add Course Category</span>
+            )}
           </CustomDrawerHeader>
         }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}

@@ -1,3 +1,4 @@
+'use client';
 import React, { FC, useEffect, useState } from 'react';
 import { ConfigProvider, Menu } from 'antd';
 import { usePathname, useRouter } from 'next/navigation';

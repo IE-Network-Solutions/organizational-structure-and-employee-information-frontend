@@ -1,32 +1,15 @@
+'use client';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Button, Form, Popconfirm } from 'antd';
 import React from 'react';
 
 interface Props {
   isLoading?: boolean;
-  form: any; // Add form prop to access the form instance
+  handleAllChange: (value: number) => void;
 }
 
-const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
-  const { setCurrent, current, setOpen } = useEmployeeManagementStore();
-
-  const handleBackClick = () => {
-    if (current !== 0) {
-      setCurrent(current - 1);
-    } else {
-      form.resetFields();
-      setCurrent(0);
-      setOpen(false);
-    }
-  };
-
-  const handleContinueClick = () => {
-    if (current !== 2) {
-      setCurrent(current + 1);
-    } else {
-      form.submit(); // Submit the form on the last step
-    }
-  };
+const ButtonContinue: React.FC<Props> = ({ isLoading, handleAllChange }) => {
+  const { current } = useEmployeeManagementStore();
 
   return (
     <Form.Item className="font-semibold text-xs">
@@ -36,7 +19,7 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
             name="cancelUserSidebarButton"
             id="cancelSidebarButtonId"
             className="px-6 py-3 text-xs font-bold"
-            onClick={handleBackClick}
+            onClick={() => handleAllChange(current - 1)}
           >
             Back
           </Button>
@@ -44,7 +27,7 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
           <Popconfirm
             title="reset all you field"
             description="Are you sure to reset all fields value ?"
-            onConfirm={handleBackClick}
+            onConfirm={() => handleAllChange(current - 1)}
             okText="Yes"
             cancelText="No"
           >
@@ -56,7 +39,7 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, form }) => {
 
         <Button
           loading={isLoading}
-          onClick={handleContinueClick}
+          onClick={() => handleAllChange(current + 1)}
           id={
             current === 2
               ? `sidebarActionCreateSubmit${current}`

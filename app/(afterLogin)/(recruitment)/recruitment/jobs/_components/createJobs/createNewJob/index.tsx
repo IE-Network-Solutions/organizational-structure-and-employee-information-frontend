@@ -12,13 +12,12 @@ import {
   Select,
   Spin,
 } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
 import { EmploymentType, LocationType } from '@/types/enumTypes';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
+import TextEditor from '@/components/form/textEditor';
 
 const { Option } = Select;
-
 interface CreateJobsProps {
   close: () => void;
   form: FormInstance;
@@ -274,7 +273,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           },
         ]}
       >
-        <TextArea rows={4} placeholder="Description" />
+        <TextEditor className="mt-3" placeholder="Enter the Article" />
       </Form.Item>
 
       <Form.Item>
