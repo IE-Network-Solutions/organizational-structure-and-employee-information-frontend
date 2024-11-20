@@ -44,7 +44,9 @@ export const useDeleteBranchTransferRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteBranchTransferRequest, {
     onSuccess: () => {
-      queryClient.invalidateQueries('singleTransferRequest');
+      queryClient.invalidateQueries('transferApprovalRequest');
+      queryClient.invalidateQueries('myTansferRequest');
+      queryClient.invalidateQueries('transferRequest');
       NotificationMessage.success({
         message: 'Successfully Deleted',
         description: 'request successfully deleted',
