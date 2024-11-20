@@ -21,7 +21,8 @@ const Status: React.FC = () => {
 
   const { data: recruitmentStatus, isLoading: fetchLoading } =
     useGetRecruitmentStatuses();
-  const { data: deleteRecruitmentStatus } = useDeleteRecruitmentStatus();
+
+  const { mutate: deleteRecruitmentStatus } = useDeleteRecruitmentStatus();
   const handleEditStatus = (status: any) => {
     setSelectedStatus(status);
     setIsDrawerOpen(true);
@@ -31,6 +32,12 @@ const Status: React.FC = () => {
   const handleDeleteStatus = (status: any) => {
     setSelectedStatus(status);
     setIsDeleteModalOpen(true);
+  };
+
+  const handleDelete = () => {
+    deleteRecruitmentStatus(selectedStatus?.id);
+    setIsDeleteModalOpen(false);
+    setSelectedStatus(null);
   };
   return (
     <div className="p-6">
@@ -48,7 +55,7 @@ const Status: React.FC = () => {
       </div>
 
       <div className="space-y-4 w-full">
-        {/* {fetchLoading ? (
+        {fetchLoading ? (
           <>
             <SkeletonLoading
               alignment="vertical"
@@ -57,38 +64,34 @@ const Status: React.FC = () => {
               type="default"
             />
           </>
-        ) : ( */}
-        {/* //   recruitmentStatus?.items?.map((status: any, index: number) => ( */}
-        <Card
-          // key={index}
-          className="shadow-sm rounded-lg"
-        >
-          <div className="flex justify-between items-center">
-            <span className="text-lg font-semibold">
-              {/* {status.title} */}
-              Gelila
-            </span>
+        ) : (
+          recruitmentStatus?.items?.map((status: any, index: number) => (
+            <Card key={index} className="shadow-sm rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-semibold">
+                  {status.title ?? ''}
+                </span>
 
-            <div>
-              <Button
-                icon={<FaEdit />}
-                // onClick={() => handleEditStatus(status)}
-                type="default"
-                size={'large'}
-                className="border-none text-blue-600 mr-2"
-              />
-              <Button
-                icon={<FaTrashAlt />}
-                // onClick={() => handleDeleteStatus(status)}
-                type="default"
-                size={'large'}
-                className="border-none text-red-600"
-              />
-            </div>
-          </div>
-        </Card>
-        {/* //   )) */}
-        {/* )} */}
+                <div>
+                  <Button
+                    icon={<FaEdit />}
+                    onClick={() => handleEditStatus(status)}
+                    type="default"
+                    size={'large'}
+                    className="border-none text-blue-600 mr-2"
+                  />
+                  <Button
+                    icon={<FaTrashAlt />}
+                    onClick={() => handleDeleteStatus(status)}
+                    type="default"
+                    size={'large'}
+                    className="border-none text-red-600"
+                  />
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
       </div>
       <RecruitmentStatusDrawer />
       <DeleteModal
@@ -96,7 +99,7 @@ const Status: React.FC = () => {
         onCancel={() => {
           setIsDeleteModalOpen(false);
         }}
-        onConfirm={() => deleteRecruitmentStatus(selectedStatus?.id ?? '')}
+        onConfirm={handleDelete}
       />
     </div>
   );

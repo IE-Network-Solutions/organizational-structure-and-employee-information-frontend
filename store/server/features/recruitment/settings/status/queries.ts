@@ -17,7 +17,7 @@ const getRecruitmentStatuses = async () => {
   };
 
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/recruitment-status?limit=${statusPageSize}&&page=${statusCurrentPage}`,
+    url: `${RECRUITMENT_URL}/applicant-status-stages?limit=${statusPageSize}&&page=${statusCurrentPage}`,
     method: 'GET',
     headers,
   });

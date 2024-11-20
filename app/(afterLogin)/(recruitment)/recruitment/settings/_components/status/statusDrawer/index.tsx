@@ -8,7 +8,7 @@ import {
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useRecruitmentStatusStore } from '@/store/uistate/features/recruitment/settings/status';
 import { Form, Input } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const RecruitmentStatusDrawer: React.FC = () => {
   const [form] = Form.useForm();
@@ -19,7 +19,7 @@ const RecruitmentStatusDrawer: React.FC = () => {
     isEditMode,
     setIsDrawerOpen,
     selectedStatus,
-    setSelectedStatus,
+    setEditMode,
   } = useRecruitmentStatusStore();
 
   const { mutate: createRecruitmentStatus } = useCreateRecruitmentStatus();
@@ -28,6 +28,7 @@ const RecruitmentStatusDrawer: React.FC = () => {
   useUpdateRecruitmentStatus;
   const handleCancel = () => {
     setIsDrawerOpen(false);
+    setEditMode(false);
   };
 
   const handleSubmit = () => {
@@ -52,6 +53,16 @@ const RecruitmentStatusDrawer: React.FC = () => {
       setIsDrawerOpen(false);
     });
   };
+
+  useEffect(() => {
+    if (isEditMode && selectedStatus) {
+      const formValues = {
+        title: selectedStatus?.title,
+        description: selectedStatus?.description,
+      };
+      form.setFieldsValue(formValues);
+    }
+  }, [isEditMode, selectedStatus, form]);
 
   return (
     <CustomDrawerLayout

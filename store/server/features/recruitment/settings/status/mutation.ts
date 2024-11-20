@@ -14,7 +14,7 @@ const createRecruitmentStatus = async (data: any) => {
 
   return await crudRequest({
     method: 'POST',
-    url: `${RECRUITMENT_URL}/recruitment-status`,
+    url: `${RECRUITMENT_URL}/applicant-status-stages`,
     data,
     headers,
   });
@@ -29,7 +29,7 @@ const updateRecruitmentStatus = async (data: any, id: string) => {
   };
   return await crudRequest({
     method: 'PUT',
-    url: `${RECRUITMENT_URL}/recruitment-status/${id}`,
+    url: `${RECRUITMENT_URL}/applicant-status-stages/${id}`,
     data,
     headers,
   });
@@ -44,7 +44,7 @@ const deleteRecruitmentStatus = async (id: string) => {
   };
   return await crudRequest({
     method: 'DELETE',
-    url: `${RECRUITMENT_URL}/recruitment-status/${id}`,
+    url: `${RECRUITMENT_URL}/applicant-status-stages/${id}`,
     headers,
   });
 };
