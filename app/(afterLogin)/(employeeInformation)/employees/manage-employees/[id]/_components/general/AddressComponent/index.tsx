@@ -7,6 +7,8 @@ import {
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../../common/infoLine';
+import { PermissionWrapper } from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const AddressComponent = ({
   id,
@@ -26,10 +28,12 @@ const AddressComponent = ({
       loading={isLoading}
       title="Address"
       extra={
-        <LuPencil
-          className="cursor-pointer"
-          onClick={() => handleEditChange('addresses')}
-        />
+        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
+          <LuPencil
+            className="cursor-pointer"
+            onClick={() => handleEditChange('addresses')}
+          />
+        </PermissionWrapper>
       }
       className="my-6"
     >

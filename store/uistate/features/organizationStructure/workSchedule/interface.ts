@@ -8,10 +8,23 @@ export interface ScheduleDetail {
 }
 
 export interface ScheduleState {
-  name: string;
+  id: string;
   detail: ScheduleDetail[];
-  setName: (name: string) => void;
+  standardHours: number;
+  isOpen: boolean;
+  isEditMode: boolean;
+  scheduleName: string;
+  isDeleteMode: boolean;
+  setId: (id: string) => void;
   setDetail: (dayOfWeek: string, data: Partial<ScheduleDetail>) => void;
   createWorkSchedule: () => any;
   getSchedule: () => any;
+  clearState: () => void;
+  setStandardHours: (standardHours: number) => void;
+  toggleDrawer: () => void;
+  closeDrawer: () => void;
+  openDrawer: () => void;
+  setEditMode: (isEdit: boolean) => void;
+  setDeleteMode: (isDelete: boolean) => void;
+  setScheduleName: (scheduleName: string) => void;
 }
