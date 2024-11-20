@@ -17,6 +17,9 @@ export enum Permissions {
   CreateCustomFields = 'create-custom-fields',
   EditCustomFields = 'edit-custom-fields',
   DeleteCustomFields = 'delete-custom-fields',
+  CreateCommentOnPlanAndReport = 'create-comment-on-Plan-and-report',
+  UpdateCommentOnPlanAndReport = 'update-comment-on-Plan-and-report',
+  DeleteCommentOnPlanAndReport = 'delete-comment-on-Plan-and-report',
   
   // Course Permissions
   UpdateCourse = 'update-course',
