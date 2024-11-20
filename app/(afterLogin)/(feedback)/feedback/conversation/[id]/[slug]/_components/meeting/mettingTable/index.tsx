@@ -4,6 +4,7 @@ import type { TableColumnsType, TableProps } from 'antd';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
+import { useGetAllConversationInstances } from '@/store/server/features/conversation/conversation-instance/queries';
 
 interface DataProp {
   data: ConversationMeetingData | undefined;
@@ -12,6 +13,7 @@ interface DataProp {
 const MettingDataTable: React.FC<DataProp> = ({ data }) => {
   const { data: usersData } = useGetAllUsers();
   const { data: departmentData } = useGetDepartments();
+  const { data: conversationInstanceData } = useGetAllConversationInstances();
 
   const getEmployeeData = (id: string) => {
     const employeeDataDetail = usersData?.items?.find(
@@ -102,12 +104,16 @@ const MettingDataTable: React.FC<DataProp> = ({ data }) => {
   return (
     <div className="overflow-x-auto">
       <Table<ConversationMeetingItem>
-        columns={columns}
-        dataSource={data?.items ?? []}
-        onChange={onChange}
-        pagination={{ pageSize: 5 }} // Set the number of rows per page
-        scroll={{ x: 800 }} // Enable horizontal scrolling for responsive design
-      />
+          columns={columns}
+          dataSource={conversationInstanceData?.items ?? []}
+          onChange={onChange}
+          pagination={{
+            total: conversationInstanceData?.meta?.total ?? 0, // Total number of items
+            current: conversationInstanceData?.meta?.currentPage ?? 1, // Current page
+            pageSize: conversationInstanceData?.meta?.itemsPerPage ?? 10, // Items per page
+          }}
+          scroll={{ x: 800 }} // Enable horizontal scrolling
+        />
     </div>
   );
 };
