@@ -4,6 +4,8 @@ import { FC } from 'react';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
 import { useDeleteTnaCategory } from '@/store/server/features/tna/category/mutation';
 import { Spin } from 'antd';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface TnaCategoryCardProps {
   item: TrainingNeedCategory;
@@ -20,17 +22,18 @@ const TnaCategoryCard: FC<TnaCategoryCardProps> = ({ item }) => {
         <div className="text-lg font-semibold text-gray-900 flex-1">
           {item.name}
         </div>
-
-        <ActionButtons
-          id={item?.id ?? null}
-          onDelete={() => {
-            deleteCategory([item.id]);
-          }}
-          onEdit={() => {
-            setTnaCategoryId(item.id);
-            setIsShowTnaCategorySidebar(true);
-          }}
-        />
+        <AccessGuard permissions={[Permissions.UpdateTnaCategory, Permissions.DeleteTnaCategory]}>
+          <ActionButtons
+            id={item?.id ?? null}
+            onDelete={() => {
+              deleteCategory([item.id]);
+            }}
+            onEdit={() => {
+              setTnaCategoryId(item.id);
+              setIsShowTnaCategorySidebar(true);
+            }}
+          />
+        </AccessGuard>
       </div>
     </Spin>
   );
