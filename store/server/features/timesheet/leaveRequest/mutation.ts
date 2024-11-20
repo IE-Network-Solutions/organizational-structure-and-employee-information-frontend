@@ -88,6 +88,9 @@ export const useSetApproveLeaveRequest = () => {
     onSuccess: (data, variables: any) => {
       queryClient.invalidateQueries(['current_approval', data?.approvedUserId]);
       queryClient.invalidateQueries(['leave-request']);
+      queryClient.invalidateQueries(['transferApprovalRequest']);
+      queryClient.invalidateQueries(['myTansferRequest']);
+      queryClient.invalidateQueries(['transferRequest']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

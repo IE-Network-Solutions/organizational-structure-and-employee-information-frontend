@@ -63,3 +63,8 @@ export const SelectData = [
   { key: '2', value: 'monthly', label: 'Monthly' },
   { key: '3', value: 'quarterly', label: 'Quarterly' },
 ];
+
+export enum APPROVALTYPES {
+  LEAVE = 'Leave',
+  BRANCHREQUEST = 'BranchRequest',
+}

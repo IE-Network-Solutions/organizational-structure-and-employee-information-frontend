@@ -19,6 +19,7 @@ import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useAllApproval } from '@/store/server/features/approver/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { APPROVALTYPES } from '@/types/enumTypes';
 
 const LeaveRequestSidebar = () => {
   const {
@@ -41,10 +42,14 @@ const LeaveRequestSidebar = () => {
   const userData = employeeData?.items?.find((item: any) => item.id === userId);
 
   const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
-    useAllApproval(userData?.employeeJobInformation[0]?.departmentId || '');
+    useAllApproval(
+      userData?.employeeJobInformation[0]?.departmentId || '',
+      APPROVALTYPES?.LEAVE,
+    );
 
   const { data: approvalUserData, refetch: getUserApproval } = useAllApproval(
     userData?.id || '',
+    APPROVALTYPES?.LEAVE,
   );
 
   useEffect(() => {
@@ -157,9 +162,10 @@ const LeaveRequestSidebar = () => {
           : null,
         justificationNote: value.note,
         status: LeaveRequestStatus.PENDING,
-        approvalWorkflowId: approvalUserData
-          ? approvalUserData[0]?.id
-          : approvalDepartmentData[0]?.id,
+        approvalWorkflowId:
+          approvalUserData?.length > 0
+            ? approvalUserData[0]?.id
+            : approvalDepartmentData[0]?.id,
         approvalType: 'Leave',
       },
       userId,

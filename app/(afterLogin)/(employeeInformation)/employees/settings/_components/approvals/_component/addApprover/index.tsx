@@ -1,8 +1,9 @@
 import AddApproverComponent from '@/components/Approval/addApprover';
 import { useAddApproverMutation } from '@/store/server/features/approver/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useApprovalStore } from '@/store/uistate/features/approval';
+import { useApprovalBranchStore } from '@/store/uistate/features/employees/branchTransfer/workflow';
 import { Form } from 'antd';
+import React from 'react';
 
 const AddApprover = () => {
   const {
@@ -14,7 +15,7 @@ const AddApprover = () => {
     setSelections,
     setAddModal,
     setLevel,
-  } = useApprovalStore();
+  } = useApprovalBranchStore();
   const { data: users } = useGetAllUsers();
   const [form] = Form.useForm();
   const { mutate: AddApprover } = useAddApproverMutation();

@@ -77,7 +77,7 @@ interface UserState {
   setAddDepartmentApproval: (addDepartmentApproval: boolean) => void;
 }
 
-export const useApprovalStore = create<UserState>()(
+export const useApprovalBranchStore = create<UserState>()(
   devtools(
     persist(
       (set) => ({

@@ -1,10 +1,11 @@
 'use client';
 import ApprovalFilterComponent from '@/components/Approval/approvalFilterComponent';
-import { useApprovalStore } from '@/store/uistate/features/approval';
+import { useApprovalBranchStore } from '@/store/uistate/features/employees/branchTransfer/workflow';
 import { useDebounce } from '@/utils/useDebounce';
+import React from 'react';
 
-const ApprovalFilter = () => {
-  const { searchParams, setSearchParams } = useApprovalStore();
+const ApprovalBranchFilter = () => {
+  const { searchParams, setSearchParams } = useApprovalBranchStore();
 
   const handleSearchEmployee = async (
     value: string,
@@ -35,4 +36,5 @@ const ApprovalFilter = () => {
     </div>
   );
 };
-export default ApprovalFilter;
+
+export default ApprovalBranchFilter;
