@@ -17,12 +17,12 @@ const getConversationInstanceById = async (id:string|null) => {
     });
   };
 
-  const getConversationInstanceByQuestionSetId = async (id:string) => {
+  const getConversationInstanceByQuestionSetId = async (id:string,userId:string|null,departmentId:string|null) => {
     const token = useAuthenticationStore.getState().token;
     const tenantId = useAuthenticationStore.getState().tenantId;
   
     return crudRequest({
-      url: `${ORG_DEV}/conversation-instances/by-conversation-set-id/${id}`,
+      url: `${ORG_DEV}/conversation-instances/by-conversation-set-id/${id}?userId=${userId}&&departmentId=${departmentId}`,
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -53,8 +53,8 @@ const getConversationInstanceById = async (id:string|null) => {
     });
   };
 
-  export const useGetAllConversationInstancesByQuestionSetId= (id:string) => {
-    return useQuery<any>('conversation-instances', ()=>getConversationInstanceByQuestionSetId(id), {
+  export const useGetAllConversationInstancesByQuestionSetId= (id:string,userId:string|null,departmentId:string|null) => {
+    return useQuery<any>('conversation-instances', ()=>getConversationInstanceByQuestionSetId(id,userId,departmentId), {
       enabled: typeof id === 'string' && id.length > 0,
       keepPreviousData: true,
     });
