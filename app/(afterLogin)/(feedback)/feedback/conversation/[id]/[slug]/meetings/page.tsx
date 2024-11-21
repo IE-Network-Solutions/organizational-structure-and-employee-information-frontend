@@ -31,7 +31,7 @@ const Page = ({ params}: { params: Params }) => {
         title="Bi-Weekly"
         subtitle="Conversations / bi-weekly "
       >
-        <MettingDataTable data={conversationMeetingData}/>
+        <MettingDataTable id={id} slug={slug} />
       </TabLandingLayout>
       <CustomDrawerLayout
         open={open}
