@@ -8,11 +8,11 @@ import { useOrganizationalDevelopment } from '@/store/uistate/features/organizat
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import ConversationInstanceForm from '../conversationInstanceForm';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { useDeleteConversationInstancesById } from '@/store/server/features/conversation/conversation-instance/mutations';
+import { useDeleteConversationInstancesById, useUpdateConversationInstancesById } from '@/store/server/features/conversation/conversation-instance/mutations';
 import { useGetAllConversationInstancesById, useGetAllConversationInstancesByQuestionSetId } from '@/store/server/features/conversation/conversation-instance/queries';
 
 const MettingDataTable = ({id,slug}:{id:string,slug:string}) => {
-  const { setOpen,open,selectedUsers,setSelectedUsers,selectedInstance,setSelectedInstances,selectedDepartments,setSelectedDepartments} = useOrganizationalDevelopment();
+  const { setOpen,open,setSelectedUsers,selectedInstance,setSelectedInstances,selectedDepartments,setSelectedDepartments} = useOrganizationalDevelopment();
   const {setOfUser,setSetOfUser } = ConversationStore();
 
   const { data: allUserData } =useGetAllUsers();
@@ -21,6 +21,8 @@ const MettingDataTable = ({id,slug}:{id:string,slug:string}) => {
 
   const { data: departmentData } = useGetDepartments();
   const { mutate: deleteConversationInstance } = useDeleteConversationInstancesById();
+  const { mutate: updateConversationInstance } = useUpdateConversationInstancesById();
+
   const { data: allDepartmentWithData, } =useGetDepartmentsWithUsers();
 
 
@@ -119,6 +121,12 @@ const MettingDataTable = ({id,slug}:{id:string,slug:string}) => {
   const [form] = Form.useForm();
   const handleEditConversationResponse=(values:any)=>{
     console.log(values,"edited values");
+    selectedInstance && updateConversationInstance({selectedInstance,values},{
+      onSuccess:()=>{
+        setSelectedInstances(null);
+        setOpen(false)
+      }
+    })
   }
 
   useEffect(() => {
@@ -158,6 +166,7 @@ const MettingDataTable = ({id,slug}:{id:string,slug:string}) => {
             onClose={() => {
                setSelectedInstances(null);
                setOpen(false)
+               setSelectedDepartments([]);
             }}
             modalHeader={"Edit Conversation Instance"}
             width="40%"

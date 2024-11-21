@@ -25,13 +25,11 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
   isEdit=false,
   form,
   allDepartmentWithData,
-//   setOfUser,
-//   selectedUsers,
   onUserChange,
   onDepartmentChange,
   handleContinue,
 }) => {
-    const { agendaItems,setAgendaItems,selectedDepartments,selectedUsers} = useOrganizationalDevelopment();
+    const { agendaItems,setAgendaItems,setSelectedDepartments,selectedDepartments,selectedUsers} = useOrganizationalDevelopment();
     const {setOfUser,setSetOfUser}=ConversationStore();
 
     const handleAgendaChange = (value:string, index:number) => {
@@ -49,6 +47,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
       useEffect(() => {
         if (form && initialValues) {
             setAgendaItems(initialValues?.agenda ?? [''])
+            setSelectedDepartments(initialValues?.departmentId)
           // Combine the date and time into a single DateTime for the form
       
           form.setFieldsValue({
@@ -69,20 +68,16 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
                 : null
               : null,
       
-            userId: allUserData?.items
-              ?.filter((user: any) => initialValues?.userId?.includes(user?.id)) // Filter matching user IDs
-              ?.map((user: any) => ({
-                value: user?.id,
-                label: `${user?.firstName} ${user?.lastName}`,
-              })),
-          });
-        }
-      }, [form, initialValues, allUserData]);
+            userId: initialValues?.userId,
+        })}
+      }, [form, initialValues]);
+      console.log(selectedDepartments,"usersInSelectedDepartments");
+
       useEffect(() => {
         if (selectedDepartments?.length === 0) {
           setSetOfUser([]); // Clear the setOfUser if no departments are selected
         } else {
-          // Filter users based on selected departments
+
           const usersInSelectedDepartments = allUserData?.items?.filter((user: any) => {
             const departmentId = user.employeeJobInformation?.find(
               (job: any) => job?.departmentId && job?.isPositionActive === true
@@ -90,9 +85,10 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
       
             return departmentId && selectedDepartments.includes(departmentId);
           });
+          console.log(usersInSelectedDepartments,"usersInSelectedDepartments");
           setSetOfUser(usersInSelectedDepartments);
         }
-      }, [selectedDepartments, allUserData?.items]); // Trigger effect when selectedDepartmentIds or allUserData changes
+      }, [selectedDepartments,selectedDepartments, allUserData?.items]); // Trigger effect when selectedDepartmentIds or allUserData changes
       
       return (
     <>
