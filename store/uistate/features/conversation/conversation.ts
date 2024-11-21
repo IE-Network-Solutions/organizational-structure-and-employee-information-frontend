@@ -11,8 +11,8 @@ export interface CategoriesUseState {
   selectedDepartment:string[];
   setSelectedDepartment:(department:string[])=>void
 
-  setOfUser:string[];
-  setSetOfUser:(setOfUser:string[])=>void
+  setOfUser:any[];
+  setSetOfUser:(setOfUser:any[])=>void
 }
 
 export const ConversationStore = create<CategoriesUseState>((set) => ({
@@ -24,7 +24,7 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedDepartment:(selectedDepartment:string[])=>set({selectedDepartment}),
 
   setOfUser:[],
-  setSetOfUser:(setOfUser:string[])=>set({setOfUser}),
+  setSetOfUser:(setOfUser:any[])=>set({setOfUser}),
   
   setTotalPages: (totalPages: number) => set({ totalPages }),
   setPageSize: (pageSize) => set({ pageSize }),
