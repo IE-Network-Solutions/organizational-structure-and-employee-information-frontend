@@ -8,12 +8,13 @@ export const approvalFilter = async (
   currentPage: number,
   entityType: string,
   name: string,
+  branch: string,
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
-    url: `${APPROVER_URL}/approver/approvalworkflows?entityType=${entityType}&name=${name}&page=${currentPage}&limit=${pageSize}`,
+    url: `${APPROVER_URL}/approver/approvalworkflows?entityType=${entityType}&name=${name}&page=${currentPage}&limit=${pageSize}&approvalType=${branch}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -22,12 +23,26 @@ export const approvalFilter = async (
   });
   return response;
 };
-export const allApproval = async (entityId: string) => {
+export const allApproval = async (entityId: string, branch: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
-    url: `${APPROVER_URL}/approvalWorkflows/getByEntity/${entityId}`,
+    url: `${APPROVER_URL}/approvalWorkflows/getByEntity/${entityId}?approvalType=${branch}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+  return response;
+};
+export const singleApproval = async (entityId: string, branch: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const response = await crudRequest({
+    url: `${APPROVER_URL}/approvalWorkflows/getByEntity/${entityId}?approvalType=${branch}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -59,20 +74,36 @@ export const useApprovalFilter = (
   currentPage: number,
   name: string,
   entityType: string,
+  branch: string,
 ) => {
   return useQuery<any>(
     ['approvals', pageSize, currentPage, name, entityType],
-    () => approvalFilter(pageSize, currentPage, name, entityType),
+    () => approvalFilter(pageSize, currentPage, name, entityType, branch),
     {
       keepPreviousData: true,
     },
   );
 };
-export const useAllApproval = (entityId: string) => {
-  return useQuery<any>(['approvals', entityId], () => allApproval(entityId), {
-    keepPreviousData: true,
-    enabled: false,
-  });
+
+export const useAllApproval = (entityId: string, branch: string) => {
+  return useQuery<any>(
+    ['approvals', entityId],
+    () => allApproval(entityId, branch),
+    {
+      keepPreviousData: true,
+      enabled: false,
+    },
+  );
+};
+export const useSingleApproval = (entityId: string, approvalType: string) => {
+  return useQuery<any>(
+    ['approvals', entityId],
+    () => singleApproval(entityId, approvalType),
+    {
+      keepPreviousData: true,
+      enabled: false,
+    },
+  );
 };
 export const useCurrentApproval = (
   approvalWorkflowId: string,

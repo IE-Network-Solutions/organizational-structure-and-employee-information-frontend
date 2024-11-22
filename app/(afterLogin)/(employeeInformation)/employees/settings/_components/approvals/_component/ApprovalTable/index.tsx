@@ -1,26 +1,22 @@
-'use client';
-import Image from 'next/image';
-import { RiDeleteBin6Line } from 'react-icons/ri';
-import { Button, Tooltip } from 'antd';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
-import { FaPencil } from 'react-icons/fa6';
-import { useApprovalFilter } from '@/store/server/features/approver/queries';
-import { useApprovalStore } from '@/store/uistate/features/approval';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { FaPlus } from 'react-icons/fa';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import AddApprover from '../addApprover';
-import { useEffect } from 'react';
-import EditWorkFLow from '../editWorkFLow';
-import ApproverListTable from '@/components/Approval/ApprovalListTable';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { Button, Tooltip } from 'antd';
+import Image from 'next/image';
+import React from 'react';
+import { FaPencil } from 'react-icons/fa6';
+import Avatar from '@/public/gender_neutral_avatar.jpg';
+import { FaPlus } from 'react-icons/fa';
+import { RiDeleteBin6Line } from 'react-icons/ri';
 import { APPROVALTYPES } from '@/types/enumTypes';
+import { useApprovalBranchStore } from '@/store/uistate/features/employees/branchTransfer/workflow';
+import EditWorkFLow from '../editWorkFLow';
+import AddApprover from '../addApprover';
+import ApproverListTable from '@/components/Approval/ApprovalListTable';
+import { useApprovalFilter } from '@/store/server/features/approver/queries';
 
-const ApprovalListTable = () => {
-  const { data: employeeData } = useGetAllUsers();
-  const { data: department } = useGetDepartments();
-  const { mutate: deleteApproval } = useDeleteApprovalWorkFLow();
+const ApprovalTable = () => {
   const {
     userCurrentPage,
     pageSize,
@@ -38,17 +34,12 @@ const ApprovalListTable = () => {
     setAddModal,
     setWorkflowApplies,
     setApproverType,
-    selectedItem,
-  } = useApprovalStore();
-  const { searchParams } = useApprovalStore();
-  const { data: allFilterData, isLoading: isEmployeeLoading } =
-    useApprovalFilter(
-      pageSize,
-      userCurrentPage,
-      searchParams?.entityType ? searchParams.entityType : '',
-      searchParams?.name || '',
-      APPROVALTYPES.LEAVE,
-    );
+    searchParams,
+  } = useApprovalBranchStore();
+  const { data: employeeData } = useGetAllUsers();
+  const { data: department } = useGetDepartments();
+  const MAX_NAME_LENGTH = 10;
+  const MAX_EMAIL_LENGTH = 5;
   const getEmployeeInformation = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user;
@@ -57,22 +48,25 @@ const ApprovalListTable = () => {
     const departments = department?.find((item: any) => item.id === id);
     return departments;
   };
-
-  const MAX_NAME_LENGTH = 10;
-  const MAX_EMAIL_LENGTH = 5;
-  useEffect(() => {
-    if (allFilterData?.items && selectedItem?.id) {
-      const foundItem = allFilterData?.items?.find(
-        (item: any) => item.id === selectedItem?.id,
-      );
-
-      if (foundItem) {
-        setSelectedItem(foundItem);
-        setLevel(foundItem?.approvers ? foundItem?.approvers?.length : '-');
-      }
+  const { mutate: deleteApproval } = useDeleteApprovalWorkFLow();
+  const { data: allFilterData, isLoading: isEmployeeLoading } =
+    useApprovalFilter(
+      pageSize,
+      userCurrentPage,
+      searchParams?.entityType ? searchParams.entityType : '',
+      searchParams?.name || '',
+      APPROVALTYPES.BRANCHREQUEST,
+    );
+  const onPageChange = (page: number, pageSize?: number) => {
+    setUserCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
     }
-  }, [allFilterData?.items, selectedItem]);
-
+  };
+  const handleDeleteConfirm = (id: string) => {
+    setDeleteModal(false);
+    deleteApproval(id);
+  };
   const data = allFilterData?.items?.map((item: any, index: number) => {
     return {
       key: index,
@@ -223,19 +217,9 @@ const ApprovalListTable = () => {
       ),
     };
   });
-  const onPageChange = (page: number, pageSize?: number) => {
-    setUserCurrentPage(page);
-    if (pageSize) {
-      setPageSize(pageSize);
-    }
-  };
-  const handleDeleteConfirm = (id: string) => {
-    setDeleteModal(false);
-    deleteApproval(id);
-  };
 
   return (
-    <div className="mt-2  pt-5">
+    <div>
       <DeleteModal
         open={deleteModal}
         onConfirm={() => handleDeleteConfirm(deletedItem)}
@@ -254,4 +238,4 @@ const ApprovalListTable = () => {
   );
 };
 
-export default ApprovalListTable;
+export default ApprovalTable;

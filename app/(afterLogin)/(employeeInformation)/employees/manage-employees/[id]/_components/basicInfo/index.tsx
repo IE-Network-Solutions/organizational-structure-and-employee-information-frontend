@@ -1,8 +1,10 @@
-import { Avatar, Card, Divider, List, Tag } from 'antd';
+import { Avatar, Card, Divider, List, Popover, Tag } from 'antd';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { HiOutlineMail } from 'react-icons/hi';
 import Link from 'next/link';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+
+import BranchTransferRequest from '../branchTransferRequest';
 function BasicInfo({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
 
@@ -52,7 +54,17 @@ function BasicInfo({ id }: { id: string }) {
         </List.Item>
         <List.Item
           key={'office'}
-          actions={[<MdKeyboardArrowRight key="arrow" />]}
+          actions={[
+            <Popover
+              content={<BranchTransferRequest employeeData={employeeData} />}
+              title="Branch Transfer Request"
+              placement="bottomRight"
+              trigger="click"
+              key="popover"
+            >
+              <MdKeyboardArrowRight key="arrow" />
+            </Popover>,
+          ]}
         >
           <List.Item.Meta
             key={'office1'}

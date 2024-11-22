@@ -1,3 +1,4 @@
+'use client';
 import EditApproverComponent from '@/components/Approval/editApprover';
 import {
   useDeleteApprover,
@@ -6,9 +7,9 @@ import {
 } from '@/store/server/features/approver/mutation';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useApprovalStore } from '@/store/uistate/features/approval';
+import { useApprovalBranchStore } from '@/store/uistate/features/employees/branchTransfer/workflow';
 import { Form } from 'antd';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 const EditWorkFLow = () => {
   const {
@@ -25,7 +26,7 @@ const EditWorkFLow = () => {
     setEditModal,
     setLevel,
     setSelections,
-  } = useApprovalStore();
+  } = useApprovalBranchStore();
   const { data: department } = useGetDepartments();
   const { data: users } = useGetAllUsers();
   const { mutate: EditApprover } = useUpdateAssignedUserMutation();
