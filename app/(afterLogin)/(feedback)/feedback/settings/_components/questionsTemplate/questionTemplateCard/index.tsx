@@ -68,7 +68,7 @@ const QuestionTemplateCard: React.FC<any> = () => {
               {questions?.customFieldName}
             </div>
             <div className="flex items-center justify-center gap-2">
-              <AccessGuard permissions={[Permissions.EditCustomFields]}>
+              <AccessGuard permissions={[Permissions.UpdateCustomFields]}>
                 <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
                   <Pencil
                     size={15}
