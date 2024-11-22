@@ -47,6 +47,11 @@ const menuItems: MenuProps['items'] = [
         label: 'Manage Employees',
         className: 'font-bold',
       },
+      {
+        key: '/employees/departmentRequest',
+        label: 'Department Request',
+        className: 'font-bold',
+      },
       { key: '/employees/settings', label: 'Settings', className: 'font-bold' },
     ],
   },

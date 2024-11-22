@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { RiDeleteBin6Line } from 'react-icons/ri';
-import { Button, Table, TableColumnsType, Tooltip } from 'antd';
+import { Button, Tooltip } from 'antd';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { FaPencil } from 'react-icons/fa6';
 import { useApprovalFilter } from '@/store/server/features/approver/queries';
@@ -16,32 +16,9 @@ import { useEffect } from 'react';
 import EditWorkFLow from '../editWorkFLow';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import ApproverListTable from '@/components/Approval/ApprovalListTable';
+import { APPROVALTYPES } from '@/types/enumTypes';
 
-const columns: TableColumnsType<any> = [
-  {
-    title: 'Workflow Name',
-    dataIndex: 'workflow_name',
-    ellipsis: true,
-  },
-  {
-    title: 'Applied To',
-    dataIndex: 'applied_to',
-    sorter: (a, b) => a.applied_to.localeCompare(b.applied_to),
-  },
-  {
-    title: 'Assigned',
-    dataIndex: 'assigned',
-  },
-  {
-    title: 'Level',
-    dataIndex: 'level',
-    sorter: (a, b) => a.level - b.level,
-  },
-  {
-    title: 'Action',
-    dataIndex: 'action',
-  },
-];
 const ApprovalListTable = () => {
   const { data: employeeData } = useGetAllUsers();
   const { data: department } = useGetDepartments();
@@ -72,6 +49,7 @@ const ApprovalListTable = () => {
       userCurrentPage,
       searchParams?.entityType ? searchParams.entityType : '',
       searchParams?.name || '',
+      APPROVALTYPES.LEAVE,
     );
   const getEmployeeInformation = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
@@ -266,19 +244,6 @@ const ApprovalListTable = () => {
 
   return (
     <div className="mt-2  pt-5">
-      <Table
-        columns={columns}
-        dataSource={data}
-        pagination={{
-          total: allFilterData?.meta?.totalItems,
-          current: allFilterData?.meta?.currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
-        loading={isEmployeeLoading}
-      />
       <DeleteModal
         open={deleteModal}
         onConfirm={() => handleDeleteConfirm(deletedItem)}
@@ -286,6 +251,13 @@ const ApprovalListTable = () => {
       />
       {editModal && <EditWorkFLow />}
       {addModal && <AddApprover />}
+      <ApproverListTable
+        data={data}
+        isEmployeeLoading={isEmployeeLoading}
+        allFilterData={allFilterData}
+        onPageChange={onPageChange}
+        pageSize={pageSize}
+      />
     </div>
   );
 };
