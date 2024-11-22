@@ -1,7 +1,7 @@
 import { create, StateCreator } from 'zustand';
 import { AllowedArea, LeaveType } from '@/types/timesheet/settings';
 import { AttendanceRecord } from '@/types/timesheet/attendance';
-import { BreakTypeList } from '@/types/timesheet/breakType';
+import { BreakType } from '@/types/timesheet/breakType';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 
 export enum CheckStatus {
@@ -21,7 +21,7 @@ type MyTimesheetState = {
   leaveTypes: LeaveType[];
   allowedAreas: AllowedArea[];
   currentAttendance: AttendanceRecord | null;
-  breakTypes: BreakTypeList[];
+  breakTypes: BreakType[];
   viewAttendanceId: string | null;
   location: { lat: null | number; lng: null | number };
 };
@@ -37,7 +37,7 @@ type MyTimesheetAction = {
   setLeaveTypes: (leaveTypes: LeaveType[]) => void;
   setAllowedAreas: (allowedAreas: AllowedArea[]) => void;
   setCurrentAttendance: (currentAttendance: AttendanceRecord | null) => void;
-  setBreakTypes: (breakTypes: BreakTypeList[]) => void;
+  setBreakTypes: (breakTypes: BreakType[]) => void;
   setViewAttendanceId: (viewAttendanceId: string | null) => void;
   setLocation: (location: { lat: null | number; lng: null | number }) => void;
 };
@@ -106,7 +106,7 @@ const useMyTimesheetSlice: StateCreator<
   },
 
   breakTypes: [],
-  setBreakTypes: (breakTypes: BreakTypeList[]) => {
+  setBreakTypes: (breakTypes: BreakType[]) => {
     set({ breakTypes });
   },
 

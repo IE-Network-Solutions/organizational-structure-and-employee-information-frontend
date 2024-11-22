@@ -1,6 +1,6 @@
 import { DateInfo } from '@/types/commons/dateInfo';
 
-export interface BreakTypeList extends DateInfo {
+export interface BreakType extends DateInfo {
   id?: string;
   tenantId?: string;
   title: string;
@@ -8,6 +8,6 @@ export interface BreakTypeList extends DateInfo {
   startAt: string;
   endAt: string;
 }
-export interface BreakType {
-  item: BreakTypeList;
+export interface BreakTypeList {
+  item: BreakType;
 }
