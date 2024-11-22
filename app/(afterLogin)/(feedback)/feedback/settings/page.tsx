@@ -44,13 +44,13 @@ const QuestionTemplate: React.FC = () => {
             <div className="flex items-center justify-between">
               <Title level={5}>Custom Fields</Title>
               <AccessGuard permissions={[Permissions.CreateCustomFields]}>
-              <CustomButton
-                title="New Field"
-                id="createUserButton"
-                icon={<FaPlus size={13} className="mr-2" />}
-                onClick={showDrawer}
-                className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
-              />
+                <CustomButton
+                  title="New Field"
+                  id="createUserButton"
+                  icon={<FaPlus size={13} className="mr-2" />}
+                  onClick={showDrawer}
+                  className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
+                />
               </AccessGuard>
               <QuestionTemplateDrawer onClose={onClose} />
             </div>

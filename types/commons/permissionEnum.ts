@@ -15,7 +15,7 @@ export enum Permissions {
   ViewDefineReprimand = 'view-define-reprimand',
   ViewDefineOKRRule = 'view-define-okr-rule',
   CreateCustomFields = 'create-custom-fields',
-  EditCustomFields = 'edit-custom-fields',
+  UpdateCustomFields = 'update-custom-fields',
   DeleteCustomFields = 'delete-custom-fields',
   CreateCommentOnPlanAndReport = 'create-comment-on-Plan-and-report',
   UpdateCommentOnPlanAndReport = 'update-comment-on-Plan-and-report',
@@ -41,6 +41,11 @@ export enum Permissions {
   CreateApprover = 'create-approver',
   UpdateApprover = 'update-approver',
   DeleteApprover = 'delete-approver',
+  CreatePosition = 'create-position',
+  UpdatePosition = 'update-position',
+  DeletePosition = 'delete-position',
+  ApproveCandidate = 'approve-candidate',
+  DeclineCandidate = 'decline-candidate',
 
 
   // Course Permissions
@@ -167,8 +172,6 @@ export enum Permissions {
   ImportEmployeeAttendanceInformation = 'import-employee-attendance-information',
   ExportEmployeeAttendanceInformation = 'export-employee-attendance-information',
   ApproveEmployeeAttendanceInformation = 'approve-employee-attendance-information',
-
-  // What are LeaveAccuruals??????????
   CreateLeaveAccrual = 'create-leave-accrual',
   UpdateLeaveAccrual = 'update-leave-accrual',
   DeleteLeaveAccrual = 'delete-leave-accrual',

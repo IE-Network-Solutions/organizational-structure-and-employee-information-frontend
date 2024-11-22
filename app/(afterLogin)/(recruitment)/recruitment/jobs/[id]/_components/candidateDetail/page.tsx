@@ -7,6 +7,8 @@ import { MdOutlineMail } from 'react-icons/md';
 import CoverLetter from '../tabs/coverLetter';
 import CandidateActivity from '../tabs/activity';
 import JobResponse from '../tabs/response';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const CandidateDetail: React.FC = ({}) => {
   const { candidateDetailDrawer, setCandidateDetailDrawer, selectedCandidate } =
@@ -75,18 +77,22 @@ const CandidateDetail: React.FC = ({}) => {
           </div>
         </div>
         <div className="flex justify-end w-full bg-[#fff] px-4 py-4 gap-6">
-          <Button
-            onClick={handleClose}
-            className="flex justify-center text-xs font-medium text-gray-800 bg-white p-3 px-8 h-10 hover:border-gray-500 border-gray-300"
-          >
-            Decline
-          </Button>
-          <Button
-            onClick={handleApprove}
-            className="flex justify-center text-xs font-medium text-white bg-green-600 p-3 px-8 h-10"
-          >
-            Approve
-          </Button>
+          <AccessGuard permissions={[Permissions.DeclineCandidate]}>
+            <Button
+              onClick={handleClose}
+              className="flex justify-center text-xs font-medium text-gray-800 bg-white p-3 px-8 h-10 hover:border-gray-500 border-gray-300"
+            >
+              Decline
+            </Button>
+          </AccessGuard>
+          <AccessGuard permissions={[Permissions.ApproveCandidate]}>
+            <Button
+              onClick={handleApprove}
+              className="flex justify-center text-xs font-medium text-white bg-green-600 p-3 px-8 h-10"
+            >
+              Approve
+            </Button>
+          </AccessGuard>
         </div>
       </div>
     </div>
