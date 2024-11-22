@@ -21,7 +21,8 @@ const Status: React.FC = () => {
 
   const { data: recruitmentStatus, isLoading: fetchLoading } =
     useGetRecruitmentStatuses();
-  const { data: deleteRecruitmentStatus } = useDeleteRecruitmentStatus();
+
+  const { mutate: deleteRecruitmentStatus } = useDeleteRecruitmentStatus();
   const handleEditStatus = (status: any) => {
     setSelectedStatus(status);
     setIsDrawerOpen(true);
@@ -32,6 +33,18 @@ const Status: React.FC = () => {
     setSelectedStatus(status);
     setIsDeleteModalOpen(true);
   };
+
+  const handleDelete = () => {
+    deleteRecruitmentStatus(selectedStatus?.id);
+    setIsDeleteModalOpen(false);
+    setSelectedStatus(null);
+  };
+
+  const handleOpen = () => {
+    setIsDrawerOpen(true);
+    setEditMode(false);
+    setSelectedStatus(null);
+  };
   return (
     <div className="p-6">
       {/* Header section */}
@@ -40,7 +53,7 @@ const Status: React.FC = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => setIsDrawerOpen(true)}
+          onClick={handleOpen}
           className="bg-purple-600 h-16 font-bold"
         >
           Define New Status
@@ -62,8 +75,7 @@ const Status: React.FC = () => {
             <Card key={index} className="shadow-sm rounded-lg">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold">
-                  {status.title}
-                  Gelila
+                  {status.title ?? ''}
                 </span>
 
                 <div>
@@ -93,7 +105,7 @@ const Status: React.FC = () => {
         onCancel={() => {
           setIsDeleteModalOpen(false);
         }}
-        onConfirm={() => deleteRecruitmentStatus(selectedStatus?.id ?? '')}
+        onConfirm={handleDelete}
       />
     </div>
   );

@@ -8,14 +8,19 @@ import {
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useRecruitmentStatusStore } from '@/store/uistate/features/recruitment/settings/status';
 import { Form, Input } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const RecruitmentStatusDrawer: React.FC = () => {
   const [form] = Form.useForm();
   const { userId } = useAuthenticationStore();
 
-  const { isDrawerOPen, isEditMode, setIsDrawerOpen, selectedStatus } =
-    useRecruitmentStatusStore();
+  const {
+    isDrawerOPen,
+    isEditMode,
+    setIsDrawerOpen,
+    selectedStatus,
+    setEditMode,
+  } = useRecruitmentStatusStore();
 
   const { mutate: createRecruitmentStatus } = useCreateRecruitmentStatus();
   const { mutate: updateRecruitmentStatus } = useUpdateRecruitmentStatus();
@@ -23,6 +28,7 @@ const RecruitmentStatusDrawer: React.FC = () => {
   useUpdateRecruitmentStatus;
   const handleCancel = () => {
     setIsDrawerOpen(false);
+    setEditMode(false);
   };
 
   const handleSubmit = () => {
@@ -32,14 +38,14 @@ const RecruitmentStatusDrawer: React.FC = () => {
           id: selectedStatus?.id || '',
           data: {
             ...values,
-            title: values.title,
+            title: values?.title,
             updatedBy: userId,
           },
         });
       } else {
         createRecruitmentStatus({
-          title: values.title,
-          description: values.description,
+          title: values?.title,
+          description: values?.description,
           createdBy: userId,
         });
         form.resetFields();
@@ -47,6 +53,19 @@ const RecruitmentStatusDrawer: React.FC = () => {
       setIsDrawerOpen(false);
     });
   };
+
+  useEffect(() => {
+    if (isDrawerOPen) {
+      if (isEditMode && selectedStatus) {
+        form.setFieldsValue({
+          title: selectedStatus.title || '',
+          description: selectedStatus.description || '',
+        });
+      } else {
+        form.resetFields();
+      }
+    }
+  }, [isDrawerOPen, isEditMode, selectedStatus, form]);
 
   return (
     <CustomDrawerLayout
@@ -70,7 +89,6 @@ const RecruitmentStatusDrawer: React.FC = () => {
         </div>
       }
     >
-      {' '}
       <Form form={form} layout="vertical">
         <Form.Item
           label="Name"
