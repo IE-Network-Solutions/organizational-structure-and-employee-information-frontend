@@ -40,7 +40,7 @@ export enum Permissions {
   CreateApprovalWorkFlow = 'create-approval-work-flow',
   CreateApprover = 'create-approver',
   UpdateApprover = 'update-approver',
-  DeleteApprover = 'update-approver',
+  DeleteApprover = 'delete-approver',
 
 
   // Course Permissions
