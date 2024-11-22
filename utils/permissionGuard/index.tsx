@@ -35,7 +35,7 @@ export const PermissionWrapper: React.FC<PermissionWrapperProps> = ({
       permissions.every((permission) =>
         userPermissions.some(
           (userPermission: any) =>
-            userPermission.permission.slug === permission,
+            userPermission?.permission?.slug === permission,
         ),
       ),
     [permissions, userPermissions],
