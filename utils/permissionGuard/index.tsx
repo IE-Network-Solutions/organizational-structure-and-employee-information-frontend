@@ -34,7 +34,7 @@ const AccessGuard: React.FC<AccessGuardProps> & {
     return <>{children}</>;
   }
 
-  return null;
+  return <></>;
 };
 
 // Static method for programmatic access checks
