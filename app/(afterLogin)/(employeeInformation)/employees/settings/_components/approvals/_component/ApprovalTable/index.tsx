@@ -15,6 +15,8 @@ import EditWorkFLow from '../editWorkFLow';
 import AddApprover from '../addApprover';
 import ApproverListTable from '@/components/Approval/ApprovalListTable';
 import { useApprovalFilter } from '@/store/server/features/approver/queries';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const ApprovalTable = () => {
   const {
@@ -168,51 +170,57 @@ const ApprovalTable = () => {
       level: item?.approvers ? item?.approvers?.length : '-',
       action: (
         <div className="flex gap-4 text-white">
-          <Tooltip title={'Add Approver'}>
-            <Button
-              id={`editUserButton${item?.id}`}
-              className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 "
-              onClick={() => {
-                setAddModal(true);
-                setSelectedItem(item);
-                setLevel(1);
-                setApproverType(
-                  item?.approvalWorkflowType ? item?.approvalWorkflowType : '-',
-                );
-              }}
-            >
-              <FaPlus />
-            </Button>
-          </Tooltip>
-          <Tooltip title={'Edit Approver'}>
-            <Button
-              id={`editUserButton${item?.id}`}
-              className="bg-sky-600 px-[8%] text-white disabled:bg-gray-400 "
-              onClick={() => {
-                setEditModal(true);
-                setSelectedItem(item);
-                setLevel(item?.approvers ? item?.approvers?.length : '-');
-                setWorkflowApplies(item?.entityType ? item?.entityType : '-');
-                setApproverType(
-                  item?.approvalWorkflowType ? item?.approvalWorkflowType : '-',
-                );
-              }}
-            >
-              <FaPencil />
-            </Button>
-          </Tooltip>
-          <Tooltip title={'Delete Employee'}>
-            <Button
-              id={`deleteUserButton${item?.id}`}
-              className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
-              onClick={() => {
-                setDeleteModal(true);
-                setDeletedItem(item?.id);
-              }}
-            >
-              <RiDeleteBin6Line />
-            </Button>
-          </Tooltip>
+          <AccessGuard permissions={[Permissions.CreateApprover]}>
+            <Tooltip title={'Add Approver'}>
+              <Button
+                id={`editUserButton${item?.id}`}
+                className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 "
+                onClick={() => {
+                  setAddModal(true);
+                  setSelectedItem(item);
+                  setLevel(1);
+                  setApproverType(
+                    item?.approvalWorkflowType ? item?.approvalWorkflowType : '-',
+                  );
+                }}
+              >
+                <FaPlus />
+              </Button>
+            </Tooltip>
+          </AccessGuard>
+          <AccessGuard permissions={[Permissions.UpdateApprover]}>
+            <Tooltip title={'Edit Approver'}>
+              <Button
+                id={`editUserButton${item?.id}`}
+                className="bg-sky-600 px-[8%] text-white disabled:bg-gray-400 "
+                onClick={() => {
+                  setEditModal(true);
+                  setSelectedItem(item);
+                  setLevel(item?.approvers ? item?.approvers?.length : '-');
+                  setWorkflowApplies(item?.entityType ? item?.entityType : '-');
+                  setApproverType(
+                    item?.approvalWorkflowType ? item?.approvalWorkflowType : '-',
+                  );
+                }}
+              >
+                <FaPencil />
+              </Button>
+            </Tooltip>
+          </AccessGuard>
+          <AccessGuard permissions={[Permissions.DeleteApprover]}>
+            <Tooltip title={'Delete Employee'}>
+              <Button
+                id={`deleteUserButton${item?.id}`}
+                className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
+                onClick={() => {
+                  setDeleteModal(true);
+                  setDeletedItem(item?.id);
+                }}
+              >
+                <RiDeleteBin6Line />
+              </Button>
+            </Tooltip>
+          </AccessGuard>
         </div>
       ),
     };

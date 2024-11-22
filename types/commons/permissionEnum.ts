@@ -46,6 +46,9 @@ export enum Permissions {
   DeletePosition = 'delete-position',
   ApproveCandidate = 'approve-candidate',
   DeclineCandidate = 'decline-candidate',
+  CreateNewApplicationStatus = 'create-new-application-status',
+  UpdateNewApplicationStatus = 'update-new-application-status',
+  DeleteNewApplicationStatus = 'delete-new-application-status',
 
 
   // Course Permissions
