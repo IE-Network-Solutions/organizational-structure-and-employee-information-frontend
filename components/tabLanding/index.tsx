@@ -11,7 +11,7 @@ import { ConversationStore } from '@/store/uistate/features/feedback/conversatio
 // Define prop types for tabLandingLayout
 interface TabLandingLayoutProps {
   title: string;
-  subtitle?: string;
+  subtitle?: string|any;
   buttonTitle: string;
   buttonIcon?: ReactNode;
   onClickHandler: () => void;
