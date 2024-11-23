@@ -83,7 +83,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
               (job: any) => job?.departmentId && job?.isPositionActive === true
             )?.departmentId;
       
-            return departmentId && selectedDepartments.includes(departmentId);
+            return departmentId && selectedDepartments?.includes(departmentId);
           });
           console.log(usersInSelectedDepartments,"usersInSelectedDepartments");
           setSetOfUser(usersInSelectedDepartments);

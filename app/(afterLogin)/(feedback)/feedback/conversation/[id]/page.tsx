@@ -12,14 +12,13 @@ function index({ params}: { params: Params }) {
   const { id } = params;
 
   const {data:conversationType}=useGetConversationById(id);
-  const {data:questionSet}=useGetAllQuestionSet();
-  
-  const questionSetListData = questionSet?.items?.map((item: any) => ({
+  // const {data:questionSet}=useGetAllQuestionSet();
+  const questionSetListData = conversationType?.questionSets?.map((item: any) => ({
     id:item?.id,
     title: item?.name,
-    queriesCount: item?.totalAttendees,
+    queriesCount: item?.conversationsQuestions?.length ?? 0,
     totalAttendees: item?.totalAttendees,
-    meetingsConducted: item?.totalAttendees,
+    meetingsConducted: item?.conversationInstances?.length ?? 0,
   }))
 
   const generateReportHandler = () => {};
