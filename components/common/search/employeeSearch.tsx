@@ -12,7 +12,6 @@ interface Option {
 
 interface FieldConfig {
   key: string; // Unique identifier for the field
-  label: string; // Display label
   options: Option[]; // Options for the Select component
   widthRatio: number; // Width fraction (e.g., 1/2 or 1/4)
   placeholder: string; // Placeholder for the field
@@ -24,6 +23,8 @@ interface DynamicSearchProps {
 }
 
 const EmployeeSearch: React.FC<DynamicSearchProps> = ({ fields, onChange }) => {
+
+  
   return (
     <div className="flex justify-start w-full">
       {fields.map((field) => (

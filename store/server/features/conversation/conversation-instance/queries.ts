@@ -17,20 +17,39 @@ const getConversationInstanceById = async (id:string|null) => {
     });
   };
 
-  const getConversationInstanceByQuestionSetId = async (id:string,userId:string|null,departmentId:string|null) => {
+  const getConversationInstanceByQuestionSetId = async (
+    id: string,
+    userId: string | null,
+    departmentId: string | null
+  ) => {
     const token = useAuthenticationStore.getState().token;
     const tenantId = useAuthenticationStore.getState().tenantId;
   
+    // Build the URL dynamically based on non-empty parameters
+    const buildUrlWithParams = (baseUrl: string, params: Record<string, string | null>) => {
+      const queryString = Object.entries(params)
+        .filter(([_, value]) => value != null && value !== '') // Exclude null, undefined, and empty string
+        .map(([key, value]) => `${key}=${encodeURIComponent(value as string)}`)
+        .join('&');
+  
+      return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+    };
+  
+    const url = buildUrlWithParams(`${ORG_DEV}/conversation-instances/by-conversation-set-id/${id}`, {
+      userId,
+      departmentId,
+    });
+  
     return crudRequest({
-      url: `${ORG_DEV}/conversation-instances/by-conversation-set-id/${id}?userId=${userId}&&departmentId=${departmentId}`,
+      url,
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
-        tenantId: tenantId,
+        tenantId,
       },
     });
   };
-
+  
 
   const getAllConversationInstances= async () => {
     const token = useAuthenticationStore.getState().token;
@@ -53,10 +72,10 @@ const getConversationInstanceById = async (id:string|null) => {
     });
   };
 
-  export const useGetAllConversationInstancesByQuestionSetId= (id:string,userId:string|null,departmentId:string|null) => {
+  export const useGetAllConversationInstancesByQuestionSetId= (id:string,userId:string,departmentId:string) => {
     return useQuery<any>('conversation-instances', ()=>getConversationInstanceByQuestionSetId(id,userId,departmentId), {
       enabled: typeof id === 'string' && id.length > 0,
-      keepPreviousData: true,
+      // keepPreviousData: true,
     });
   };
   

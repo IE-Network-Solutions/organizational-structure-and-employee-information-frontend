@@ -30,10 +30,8 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   onClickHandler,
   id,
   children,
-  allowSearch = true,
 }) => {
 
- const {searchField}=ConversationStore();
   return (
     <div className="min-h-screen h-auto w-full p-4">
       <BlockWrapper>
@@ -50,7 +48,6 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
           </div>
         </div>
         <div className="w-full h-auto">
-          {allowSearch && searchField  && <EmployeeSearch fields={searchField} onChange={()=>{}} />}
           {children}
         </div>
       </BlockWrapper>

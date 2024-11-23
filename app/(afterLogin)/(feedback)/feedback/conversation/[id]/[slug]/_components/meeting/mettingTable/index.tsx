@@ -10,14 +10,26 @@ import ConversationInstanceForm from '../conversationInstanceForm';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useDeleteConversationInstancesById, useUpdateConversationInstancesById } from '@/store/server/features/conversation/conversation-instance/mutations';
 import { useGetAllConversationInstancesById, useGetAllConversationInstancesByQuestionSetId } from '@/store/server/features/conversation/conversation-instance/queries';
+import EmployeeSearch from '@/components/common/search/employeeSearch';
 
-const MettingDataTable = ({id,slug}:{id:string,slug:string}) => {
+const MettingDataTable = ({slug}:{slug:string}) => {
   const { setOpen,open,setSelectedUsers,selectedInstance,setSelectedInstances,selectedDepartments,setSelectedDepartments} = useOrganizationalDevelopment();
-  const {setOfUser,setSetOfUser } = ConversationStore();
+  const {setSetOfUser,userId,setUserId,setDepartmentId,departmentId,searchField,updateFieldOptions } = ConversationStore();
+  const [form] = Form.useForm();
 
   const { data: allUserData } =useGetAllUsers();
-  const {data:conversationInstances}=useGetAllConversationInstancesByQuestionSetId(slug);
-  const {data:singleConvestionInstance}=useGetAllConversationInstancesById(selectedInstance);
+  const { data: conversationInstances, refetch: refetchConversationInstances } = 
+  useGetAllConversationInstancesByQuestionSetId(slug, userId, departmentId);
+
+// Fetch data for a single conversation instance
+const { data: singleConvestionInstance } = 
+  useGetAllConversationInstancesById(selectedInstance);
+
+// Effect to handle changes in userId or departmentId
+useEffect(() => {
+  refetchConversationInstances();
+}, [userId, departmentId, refetchConversationInstances]);
+
 
   const { data: departmentData } = useGetDepartments();
   const { mutate: deleteConversationInstance } = useDeleteConversationInstancesById();
@@ -106,7 +118,17 @@ const MettingDataTable = ({id,slug}:{id:string,slug:string}) => {
 
   const handleDelete = (key: string) => {
      deleteConversationInstance(key)
-    // Implement your delete logic here
+  };
+  const handleSearchChange = (value: any, key: string) => {
+    if(key==='department'){
+      setDepartmentId(value);
+    }
+    else if(key==='employee'){
+      setUserId(value)
+    }
+    else{
+      return;
+    }
   };
 
   const onChange: TableProps<ConversationMeetingItem>['onChange'] = (
@@ -118,7 +140,7 @@ const MettingDataTable = ({id,slug}:{id:string,slug:string}) => {
     console.log({ pagination, filters, sorter, extra });
     // Implement your logic to handle table change here
   };
-  const [form] = Form.useForm();
+
   const handleEditConversationResponse=(values:any)=>{
     console.log(values,"edited values");
     selectedInstance && updateConversationInstance({selectedInstance,values},{
@@ -128,18 +150,36 @@ const MettingDataTable = ({id,slug}:{id:string,slug:string}) => {
       }
     })
   }
+  useEffect(() => {
+    if (allUserData) {
+      const userOptions = allUserData.items?.map((user: any) => ({
+        key: user.id,
+        value: `${user.firstName} ${user.lastName}`,
+      }));
+      updateFieldOptions('employee', userOptions);
+    }
+  }, [allUserData, updateFieldOptions]);
+
+  useEffect(() => {
+    if (departmentData) {
+      const departmentOptions = departmentData.map((dep: any) => ({
+        key: dep.id,
+        value: dep.name,
+      }));
+      updateFieldOptions('department', departmentOptions);
+    }
+  }, [departmentData, updateFieldOptions]);
 
   useEffect(() => {
     if (selectedDepartments?.length === 0) {
       setSetOfUser([]); // Clear the setOfUser if no departments are selected
     } else {
-      // Filter users based on selected departments
       const usersInSelectedDepartments = allUserData?.items?.filter((user: any) => {
         const departmentId = user.employeeJobInformation?.find(
           (job: any) => job?.departmentId && job?.isPositionActive === true
         )?.departmentId;
   
-        return departmentId && selectedDepartments.includes(departmentId);
+        return departmentId && selectedDepartments?.includes(departmentId);
       });
       setSetOfUser(usersInSelectedDepartments);
     }
@@ -150,6 +190,7 @@ const MettingDataTable = ({id,slug}:{id:string,slug:string}) => {
   };
   return (
     <div className="overflow-x-auto">
+      <EmployeeSearch fields={searchField} onChange={handleSearchChange}/>
       <Table<ConversationMeetingItem>
           columns={columns}
           dataSource={conversationInstances?.items ?? []}
