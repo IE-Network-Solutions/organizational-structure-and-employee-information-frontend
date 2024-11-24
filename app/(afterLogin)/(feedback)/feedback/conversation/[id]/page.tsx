@@ -15,14 +15,14 @@ function index({ params}: { params: Params }) {
   const questionSetListData = conversationType?.questionSets?.map((item: any) => {
       const userIds = item?.conversationInstances
         .flatMap((instance:any) => instance.userId || []) // Collect and flatten userId arrays
-        .filter((id:string, index:number, array:any) => array.indexOf(id) === index); // Deduplicate
-    return ({
-          id:item?.id,
-          title: item?.name,
-          queriesCount: item?.conversationsQuestions?.length ?? 0,
-          totalAttendees: userIds.length,
-          meetingsConducted: item?.conversationInstances?.length ?? 0,
-        })
+        .filter((id:string, index:number, array:any) => array?.indexOf(id) === index); // Deduplicate
+        return ({
+              id:item?.id,
+              title: item?.name,
+              queriesCount: item?.conversationsQuestions?.length ?? 0,
+              totalAttendees: userIds.length,
+              meetingsConducted: item?.conversationInstances?.length ?? 0,
+            })
 })
 
   const generateReportHandler = () => {};
@@ -44,7 +44,7 @@ function index({ params}: { params: Params }) {
           ))
         ) : (
           questionSetListData?.map((item: any, index: any) => (
-            <QuestionSet key={index} data={item} />
+            <QuestionSet key={index} data={item} conversationTypeId={id} />
           ))
         )}
       </div>
