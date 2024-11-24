@@ -26,6 +26,12 @@ export interface CategoriesUseState {
   userId:string;
   setUserId:(userId:string)=>void
 
+  selectedUserId:string;
+  setSelectedUserId:(selectedUserId:string)=>void
+
+  activeTab:string;
+  setActiveTab:(activeTab:string)=>void
+
   departmentId:string;
   setDepartmentId:(departmentid:string)=>void
 
@@ -66,6 +72,12 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   
   userId:'',
   setUserId:(userId:string)=>set({userId}),
+
+  selectedUserId:'',
+  setSelectedUserId:(selectedUserId:string)=>set({selectedUserId}),
+
+  activeTab:'1',
+  setActiveTab:(activeTab:string)=>set({activeTab}),
 
   departmentId:'',
   setDepartmentId:(departmentId:string)=>set({departmentId}),

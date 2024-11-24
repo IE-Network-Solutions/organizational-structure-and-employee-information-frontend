@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Table, Button, Popconfirm, Form } from 'antd';
 import type { TableColumnsType, TableProps } from 'antd';
@@ -11,15 +12,19 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useDeleteConversationInstancesById, useUpdateConversationInstancesById } from '@/store/server/features/conversation/conversation-instance/mutations';
 import { useGetAllConversationInstancesById, useGetAllConversationInstancesByQuestionSetId } from '@/store/server/features/conversation/conversation-instance/queries';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
+import { useRouter } from 'next/navigation';
 
-const MettingDataTable = ({slug}:{slug:string}) => {
+const MettingDataTable = ({conversationTypeId,slug}:{conversationTypeId:string,slug:string}) => {
   const { setOpen,open,setSelectedUsers,selectedInstance,setSelectedInstances,selectedDepartments,setSelectedDepartments} = useOrganizationalDevelopment();
   const {setSetOfUser,userId,setUserId,setDepartmentId,departmentId,searchField,updateFieldOptions } = ConversationStore();
   const [form] = Form.useForm();
+  const router = useRouter();
 
   const { data: allUserData } =useGetAllUsers();
   const { data: conversationInstances, refetch: refetchConversationInstances } = 
   useGetAllConversationInstancesByQuestionSetId(slug, userId, departmentId);
+
+  console.log(conversationTypeId,"conversationTypeId")
 
 // Fetch data for a single conversation instance
 const { data: singleConvestionInstance } = 
@@ -92,20 +97,28 @@ useEffect(() => {
       width: 100,
       render: (_, record) => (
         <div className="flex space-x-2">
-          <Button type="primary" onClick={() => handleEdit(record.id)}>
+          <Button type="primary" onClick={(e) =>{
+           e.stopPropagation();
+           handleEdit(record.id)}
+          }>
             Edit
           </Button>
           <Popconfirm
               title="Are you sure you want to delete this item?"
               description="This action cannot be undone."
-              onConfirm={() => handleDelete(record.id)} // Execute delete action on confirm
+              onConfirm={() => handleDelete(record.id)}
               okText="Yes"
               cancelText="No"
             >
-              <Button type="primary" danger>
+              <Button
+                type="primary"
+                danger
+                onClick={(e) => e.stopPropagation()} 
+              >
                 Delete
               </Button>
             </Popconfirm>
+
         </div>
       ),
     },
@@ -188,6 +201,11 @@ useEffect(() => {
   const onUserChange = (selectedUserIds:string[]) => {
     setSelectedUsers(selectedUserIds); // Update selected users in the form
   };
+
+  const handleRowClick = (record: any) => {
+    console.log(record, "row clicked");
+    router.push(`/feedback/conversation/${conversationTypeId}/${record.id}`);
+  };
   return (
     <div className="overflow-x-auto">
       <EmployeeSearch fields={searchField} onChange={handleSearchChange}/>
@@ -201,7 +219,10 @@ useEffect(() => {
             pageSize: conversationInstances?.meta?.itemsPerPage ?? 10, // Items per page
           }}
           scroll={{ x: 800 }} // Enable horizontal scrolling
-        />
+          className='cursor-pointer'
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record), // Add click handler
+          })}        />
         <CustomDrawerLayout
             open={open}
             onClose={() => {

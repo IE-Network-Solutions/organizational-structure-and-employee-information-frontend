@@ -7,6 +7,7 @@ import {
   MdEdit,
   MdDelete,
 } from 'react-icons/md';
+import { useGetAllActionPlansByConversationInstanceId } from '@/store/server/features/conversation/action-plan/queries';
 
 interface Employee {
   id: string;
@@ -44,7 +45,12 @@ const dummyData: Employee[] = [
   },
 ];
 
-const ActionPlans: React.FC = () => {
+interface PropsData{
+  slug:string,
+}
+const ActionPlans: React.FC<PropsData> = ({slug}:PropsData) => {
+  const {data:conversationInstanceActionPlan,isLoading:actionPlanLoading}=useGetAllActionPlansByConversationInstanceId(slug);
+
   const [collapseStates, setCollapseStates] = useState<boolean[]>(
     Array(dummyData.length).fill(true),
   );
@@ -56,7 +62,7 @@ const ActionPlans: React.FC = () => {
   };
   return (
     <div>
-      {dummyData.map((employee, index) => (
+      {conversationInstanceActionPlan?.items?.map((employee:any, index:number) => (
         <Card
           key={employee.id}
           title={

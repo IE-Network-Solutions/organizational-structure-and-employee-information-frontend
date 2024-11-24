@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Avatar, List, Tag } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Card, Avatar, List, Tag, Skeleton } from 'antd';
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from 'react-icons/md';
 
 interface Employee {
@@ -10,78 +10,81 @@ interface Employee {
   description: string;
 }
 
-const dummyData: Employee[] = [
-  {
-    id: '1',
-    firstName: 'okr',
-    lastName: 'score',
-    profileImage: 'https://via.placeholder.com/40',
-    description: 'Software Engineer at XYZ Corp',
-  },
-  {
-    id: '2',
-    firstName: 'Staff development',
-    lastName: 'Smith',
-    profileImage: 'https://via.placeholder.com/40',
-    description: 'Marketing Manager at ABC Ltd.',
-  },
-  {
-    id: '3',
-    firstName: 'challenges',
-    lastName: 'and issues',
-    profileImage: 'https://via.placeholder.com/40',
-    description: 'Product Designer at Tech Solutions',
-  },
-];
+interface PropsData {
+  filteredData?: any[];
+  isLoading: boolean;
+}
 
-const CollapsibleCardList: React.FC = () => {
+const CollapsibleCardList: React.FC<PropsData> = ({ filteredData, isLoading }: PropsData) => {
   const [collapseStates, setCollapseStates] = useState<boolean[]>(
-    Array(dummyData.length).fill(true),
+    Array(filteredData?.length ?? 0).fill(true)
   );
+
+  useEffect(() => {
+    setCollapseStates(Array(filteredData?.length ?? 0).fill(true));
+  }, [filteredData]);
 
   const handleCollapseChange = (index: number) => {
     setCollapseStates((prevStates) =>
-      prevStates.map((state, i) => (i === index ? !state : state)),
+      prevStates.map((state, i) => (i === index ? !state : state))
     );
   };
 
   return (
-    <div>
-      {dummyData.map((employee, index) => (
-        <Card
-          key={employee.id}
-          title={`${employee.firstName} ${employee.lastName}`}
-          extra={
-            <div
-              onClick={() => handleCollapseChange(index)}
-              style={{ cursor: 'pointer' }}
-            >
-              {collapseStates[index] ? (
-                <MdKeyboardArrowDown />
-              ) : (
-                <MdKeyboardArrowUp />
-              )}
-            </div>
-          }
-          className="mb-3"
-        >
-          {!collapseStates[index] && (
-            <List.Item>
-              <div className="flex w-full">
-                <div className="w-1/2 flex items-center">
-                  <Avatar src={employee.profileImage} />
-                  <span className="ml-2 font-semibold">
-                    {employee.firstName} {employee.lastName}
-                  </span>
-                </div>
-                <div className="w-1/2">
-                  <Tag color="blue">{employee.description}</Tag>
-                </div>
+    <div className='max-h-[500px] overflow-y-scroll'>
+      {isLoading ? (
+        Array(3) 
+          .fill(null)
+          .map((_, index) => (
+            <Card key={index} className="mb-3">
+              <Skeleton active avatar paragraph={{ rows: 2 }} />
+            </Card>
+          ))
+      ) : (
+        filteredData?.map((question: any, index: number) => (
+          <Card
+            key={question.id}
+            title={`${question?.questionTitle?.question}`}
+            extra={
+              <div
+                onClick={() => handleCollapseChange(index)}
+                style={{ cursor: 'pointer' }}
+              >
+                {collapseStates[index] ? (
+                  <MdKeyboardArrowDown />
+                ) : (
+                  <MdKeyboardArrowUp />
+                )}
               </div>
-            </List.Item>
-          )}
-        </Card>
-      ))}
+            }
+            className="mb-3"
+          >
+            {!collapseStates[index] && (
+             <List.Item>
+             <div className="flex w-full">
+               <div className="w-1/2 flex items-center">
+                 {question?.responseData?.employeeDetail && <Avatar src={question?.profileImage} />}
+                 <span
+                   className="ml-2 font-semibold overflow-hidden text-ellipsis whitespace-nowrap"
+                   style={{ maxWidth: '150px' }} // Adjust maxWidth as needed
+                 >
+                   {question?.responseData?.employeeDetail ?? ''}
+                 </span>
+               </div>
+               <div className="w-1/2">
+                 {question?.responseData?.response?.map((response: any, idx: number) => (
+                   <Tag key={idx} color="blue">
+                     {response?.value}
+                   </Tag>
+                 ))}
+               </div>
+             </div>
+           </List.Item>
+           
+            )}
+          </Card>
+        ))
+      )}
     </div>
   );
 };

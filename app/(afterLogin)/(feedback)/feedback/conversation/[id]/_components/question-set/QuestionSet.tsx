@@ -17,17 +17,18 @@ interface QuestionSetData {
 
 interface StatisticsCardProps {
   data: QuestionSetData;
+  conversationTypeId:string;
 }
 
-const QuestionSet: React.FC<StatisticsCardProps> = ({ data }) => {
+const QuestionSet: React.FC<StatisticsCardProps> = ({ data,conversationTypeId }) => {
   const { id, title, queriesCount, totalAttendees, meetingsConducted } = data;
   const currentPath = usePathname();
 
   return (
     <Card className="p-4 flex flex-col items-center shadow-lg rounded-lg text-center">
-      <Link href={`/feedback/conversation/bi-weekly/${id}`} passHref>
+      {/* <Link href={`/feedback/conversation/${conversationTypeId}/${id}`} passHref> */}
         <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      </Link>
+      {/* </Link> */}
       <Link href={`${currentPath}/${id}/questions`} passHref>
         <p className="flex items-center justify-center text-gray-600 mb-4 hover:text-blue">
           <GrCircleQuestion className="mr-1" />

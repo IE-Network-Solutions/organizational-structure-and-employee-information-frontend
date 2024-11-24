@@ -61,7 +61,6 @@ const Page = ({ params}: { params: Params }) => {
     }
   }, [updatedFields, setSearchField]);
 
-
   return (
     <>
       <TabLandingLayout
@@ -72,7 +71,7 @@ const Page = ({ params}: { params: Params }) => {
         subtitle="Conversations / bi-weekly "
 
       >
-        <MettingDataTable slug={slug} />
+        <MettingDataTable conversationTypeId={id} slug={slug} />
       </TabLandingLayout>
       <CustomDrawerLayout
         open={open}

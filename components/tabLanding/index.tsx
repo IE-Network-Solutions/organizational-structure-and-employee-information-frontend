@@ -10,7 +10,7 @@ import { ConversationStore } from '@/store/uistate/features/feedback/conversatio
 
 // Define prop types for tabLandingLayout
 interface TabLandingLayoutProps {
-  title: string;
+  title: string|any;
   subtitle?: string|any;
   buttonTitle: string;
   buttonIcon?: ReactNode;
@@ -43,7 +43,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
               id={`${id}-createButtonId`}
               icon={buttonIcon ?? <FaPlus />}
               onClick={onClickHandler}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="text-xs bg-blue-600 hover:bg-blue-700 h-4"
             />
           </div>
         </div>
