@@ -11,6 +11,10 @@ import ConversationInstanceDetail from './_components/biWeeklyDetail';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useGetAllActionPlansByConversationInstanceId } from '@/store/server/features/conversation/action-plan/queries';
+import CreateActionPlans from './_components/createActionPlans';
+import CustomDrawerLayout from '@/components/common/customDrawer';
+import { useAddActionPlan } from '@/store/server/features/conversation/action-plan/mutation';
+import dayjs from 'dayjs';
 interface Params {
   slug: string;
 }
@@ -18,18 +22,19 @@ interface ConversationInstanceDetailProps {
   params: Params;
 }
 const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
-  const { setOpen } = useOrganizationalDevelopment();
+  const { setOpen,open } = useOrganizationalDevelopment();
   const {selectedUserId,setActiveTab,activeTab}=ConversationStore();
 
   const {data:conversationInstance,isLoading}=useGetAllConversationInstancesById(slug);
   const { data: allUserData,isLoading:userDataLoading } =useGetAllUsers();
+  const { mutate: addActionPlan,isLoading:addActionPlanLoading } =useAddActionPlan();
+
  
-  //  console.log(conversationInstanceActionPlan,"conversationInstanceActionPlan")
  useEffect(() => {
   if (selectedUserId !== null && selectedUserId !== '') {
     setActiveTab('2');
   }
-}, [selectedUserId]); // Dependency ensures this runs when selectedUserId changes
+}, [selectedUserId]); 
   const getEmployeeData = (employeeId: string) => {
     const employeeDataDetail = allUserData?.items?.find(
       (emp: any) => emp?.id === employeeId
@@ -61,10 +66,20 @@ const filteredData=conversationInstance?.questionSet?.conversationsQuestions?.ma
     questionTitle:conversationQuestion,
     responseData:getQuestionResponse(conversationQuestion?.id)
   }))
-const handleRedirectback=()=>{
-  
+const handleRedirectback=()=>{}
+
+const handleCreateActionPlan=(values:any)=>{
+  const updatedData = {
+    ...values, 
+    deadline: values.deadline ? dayjs(values.deadline).format("YYYY-MM-DD") : null, 
+  };
+  console.log(updatedData,"values")
+  addActionPlan(updatedData, {
+    onSuccess: () => {
+      setOpen(false); 
+    },
+  });
 }
-  console.log(  selectedUserId !== null && selectedUserId !== '' && activeTab === '2',"filteredData")
   
   const items = [
     {
@@ -84,6 +99,11 @@ const handleRedirectback=()=>{
     },
   ];
 
+  const modalHeader = (
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+      Add Action Plan
+    </div>
+  );
 
   return (
     <TabLandingLayout
@@ -117,7 +137,14 @@ const handleRedirectback=()=>{
         </Card>
         </Col>
       </Row>
-      <CreateActionPlan onClose={() => setOpen(false)} />
+      <CustomDrawerLayout
+        open={open}
+        onClose={() => setOpen(false)}
+        modalHeader={modalHeader}
+        width="40%"
+      >
+         <CreateActionPlans slug={slug} onFinish={(values)=>handleCreateActionPlan(values)} />
+      </CustomDrawerLayout>
     </TabLandingLayout>
   );
 };
