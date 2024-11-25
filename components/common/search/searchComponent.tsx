@@ -22,7 +22,10 @@ interface DynamicSearchProps {
   onChange: (value: any, key: string) => void; // Callback for field changes
 }
 
-const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({ fields, onChange }) => {
+const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
+  fields,
+  onChange,
+}) => {
   return (
     <div className="flex justify-start w-full">
       {fields.map((field) => (

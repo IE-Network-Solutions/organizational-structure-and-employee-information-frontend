@@ -248,7 +248,10 @@ const MettingDataTable = ({
   };
   return (
     <div className="overflow-x-auto">
-      <EmployeeSearchComponent fields={searchField} onChange={handleSearchChange} />
+      <EmployeeSearchComponent
+        fields={searchField}
+        onChange={handleSearchChange}
+      />
       <Table<any>
         columns={columns}
         dataSource={conversationInstances?.items ?? []}

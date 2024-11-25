@@ -58,8 +58,7 @@ function Index({ params }: { params: Params }) {
               <QuestionSet key={index} data={item} conversationTypeId={id} />
             ))}
 
-            {questionSetListData?.length <= 0 &&<CustomizeRenderEmpty/>}
-
+        {questionSetListData?.length <= 0 && <CustomizeRenderEmpty />}
       </div>
     </TabLandingLayout>
   );

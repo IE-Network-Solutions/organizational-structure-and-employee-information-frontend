@@ -41,7 +41,7 @@ const getConversationMettingsByConversationSetId = async (id: string) => {
  * @returns {UseQueryResult<any>} The Query object for fetching the user.
  */
 export const useGetConversationById = (id: string) => {
-  return useQuery<ConversationMeetingData>(
+  return useQuery<any>(
     'convesationMeeting',
     () => getConversationMettingsByConversationSetId(id),
     {
