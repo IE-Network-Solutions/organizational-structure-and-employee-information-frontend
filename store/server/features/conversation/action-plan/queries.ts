@@ -3,11 +3,9 @@
  */
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import {ORG_DEV } from '@/utils/constants';
+import { ORG_DEV } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-
-
 
 const getAllQuestionSet = async () => {
   const token = useAuthenticationStore.getState().token;
@@ -23,7 +21,7 @@ const getAllQuestionSet = async () => {
   });
 };
 
-const getQuestionSetById = async (id:string) => {
+const getQuestionSetById = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -37,7 +35,7 @@ const getQuestionSetById = async (id:string) => {
   });
 };
 
-const getActionPlansByConversationInstanceId = async (id:string) => {
+const getActionPlansByConversationInstanceId = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -56,11 +54,15 @@ const getActionPlansByConversationInstanceId = async (id:string) => {
  * @param {string} createdById - The ID of the user to fetch.
  * @returns {UseQueryResult<any>} The Query object for fetching the user.
  */
-export const useGetAllActionPlansByConversationInstanceId= (id:string) => {
-  return useQuery<any>('conversationActionPlan', ()=>getActionPlansByConversationInstanceId(id), {
-    enabled: typeof id === 'string' && id.length > 0,
-    keepPreviousData: true,
-  });
+export const useGetAllActionPlansByConversationInstanceId = (id: string) => {
+  return useQuery<any>(
+    'conversationActionPlan',
+    () => getActionPlansByConversationInstanceId(id),
+    {
+      enabled: typeof id === 'string' && id.length > 0,
+      keepPreviousData: true,
+    },
+  );
 };
 
 /**
@@ -68,8 +70,8 @@ export const useGetAllActionPlansByConversationInstanceId= (id:string) => {
  * @param {string} createdById - The ID of the user to fetch.
  * @returns {UseQueryResult<any>} The Query object for fetching the user.
  */
-export const useGetAllActionPlansById= (id:string) => {
-  return useQuery<any>('conversationActionPlan', ()=>getQuestionSetById(id), {
+export const useGetAllActionPlansById = (id: string) => {
+  return useQuery<any>('conversationActionPlan', () => getQuestionSetById(id), {
     enabled: typeof id === 'string' && id.length > 0,
     keepPreviousData: true,
   });

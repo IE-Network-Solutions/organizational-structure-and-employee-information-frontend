@@ -2,7 +2,12 @@ import React from 'react';
 import { Form, Radio, Space, TimePicker, Select, Checkbox } from 'antd';
 import { FieldType } from '@/types/enumTypes';
 
-const DynamicQuestionField = ({ fieldType, fieldOptions, name, label }: any) => {
+const DynamicQuestionField = ({
+  fieldType,
+  fieldOptions,
+  name,
+  label,
+}: any) => {
   const renderField = () => {
     switch (fieldType) {
       case FieldType.RADIO:

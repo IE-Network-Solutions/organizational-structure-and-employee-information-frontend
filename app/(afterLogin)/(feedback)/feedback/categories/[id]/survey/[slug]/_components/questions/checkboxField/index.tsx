@@ -5,13 +5,13 @@ import { SelectedAnswer } from '../multipleChoiceField';
 interface CheckboxFieldProps {
   options: any[];
   selectedOptions?: SelectedAnswer[];
-  onChange?:(value:any)=>void;
+  onChange?: (value: any) => void;
 }
 
 const CheckboxField: React.FC<CheckboxFieldProps> = ({
   options,
   selectedOptions,
-  onChange
+  onChange,
 }) => (
   <Checkbox.Group
     className="font-normal"

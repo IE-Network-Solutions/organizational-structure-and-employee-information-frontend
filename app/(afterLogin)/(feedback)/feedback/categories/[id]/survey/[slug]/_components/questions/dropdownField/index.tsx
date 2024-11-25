@@ -7,13 +7,13 @@ const { Option } = Select;
 interface DropdownFieldProps {
   options: Choice[];
   selectedValue?: SelectedAnswer;
-  onChange?:(value:any)=>void;
+  onChange?: (value: any) => void;
 }
 
 const DropdownField: React.FC<DropdownFieldProps> = ({
   options,
   selectedValue,
-  onChange
+  onChange,
 }) => (
   <Select value={selectedValue} onChange={onChange}>
     {options.map((option: Choice, index) => (

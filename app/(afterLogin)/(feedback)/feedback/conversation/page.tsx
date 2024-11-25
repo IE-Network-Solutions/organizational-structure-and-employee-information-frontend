@@ -5,16 +5,12 @@ import { useConversationTypes } from '@/store/server/features/conversation/queri
 import ConversationTypeList from './_component/conversation';
 
 function Index() {
-
-  const {data:conversationData}=useConversationTypes();
+  const { data: conversationData } = useConversationTypes();
   const cardsData = conversationData?.items?.map((item: any) => ({
-    id:item?.id,
+    id: item?.id,
     name: item.name,
     description: item.description,
-
-  }))
-
-  console.log(conversationData,"conversationData");
+  }));
 
   const generateReportHandler = () => {};
   return (
@@ -27,7 +23,9 @@ function Index() {
       allowSearch={false}
     >
       <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {cardsData?.map((item:any, index:number) => <ConversationTypeList key={index} data={item} />)}
+        {cardsData?.map((item: any, index: number) => (
+          <ConversationTypeList key={index} data={item} />
+        ))}
       </div>
     </TabLandingLayout>
   );

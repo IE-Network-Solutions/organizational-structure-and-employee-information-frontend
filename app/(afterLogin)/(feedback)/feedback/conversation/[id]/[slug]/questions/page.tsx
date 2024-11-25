@@ -7,10 +7,10 @@ import QuestionDataTable from '../_components/questions';
 import CreateMeeting from '../_components/meeting/createMeeting';
 interface Params {
   id: string;
-  slug:string;
+  slug: string;
 }
 
-const Page = ({ params}: { params: Params }) => {
+const Page = ({ params }: { params: Params }) => {
   const { id, slug } = params;
   const { open, setOpen } = ConversationStore();
 
@@ -36,10 +36,10 @@ const Page = ({ params}: { params: Params }) => {
         modalHeader={modalHeader}
         width="40%"
       >
-        <CreateMeeting id={id} slug={slug} onClose={()=>setOpen(false)} />
+        <CreateMeeting id={id} slug={slug} onClose={() => setOpen(false)} />
       </CustomDrawerLayout>
     </>
   );
-}
+};
 
 export default Page;

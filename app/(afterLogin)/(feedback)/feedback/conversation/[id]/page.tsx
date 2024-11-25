@@ -8,22 +8,27 @@ interface Params {
   id: string;
 }
 
-function index({ params}: { params: Params }) {
+function Index({ params }: { params: Params }) {
   const { id } = params;
 
-  const {data:conversationType,isLoading}=useGetConversationById(id);
-  const questionSetListData = conversationType?.questionSets?.map((item: any) => {
+  const { data: conversationType, isLoading } = useGetConversationById(id);
+  const questionSetListData = conversationType?.questionSets?.map(
+    (item: any) => {
       const userIds = item?.conversationInstances
-        .flatMap((instance:any) => instance.userId || []) // Collect and flatten userId arrays
-        .filter((id:string, index:number, array:any) => array?.indexOf(id) === index); // Deduplicate
-        return ({
-              id:item?.id,
-              title: item?.name,
-              queriesCount: item?.conversationsQuestions?.length ?? 0,
-              totalAttendees: userIds.length,
-              meetingsConducted: item?.conversationInstances?.length ?? 0,
-            })
-})
+        .flatMap((instance: any) => instance.userId || []) // Collect and flatten userId arrays
+        .filter(
+          (id: string, index: number, array: any) =>
+            array?.indexOf(id) === index,
+        ); // Deduplicate
+      return {
+        id: item?.id,
+        title: item?.name,
+        queriesCount: item?.conversationsQuestions?.length ?? 0,
+        totalAttendees: userIds.length,
+        meetingsConducted: item?.conversationInstances?.length ?? 0,
+      };
+    },
+  );
 
   const generateReportHandler = () => {};
   return (
@@ -33,23 +38,27 @@ function index({ params}: { params: Params }) {
       onClickHandler={() => generateReportHandler}
       title={conversationType?.name}
       subtitle={
-        isLoading
-          ? <Skeleton.Input active size="small" style={{ width: 150 }} />
-          : `Conversations / ${conversationType?.name}`
-      }    >
-      <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      {isLoading ? (
-          Array.from({ length: 4 }).map((_, index) => (
-            <QuestionSetSkeleton key={index} />
-          ))
+        isLoading ? (
+          <Skeleton.Input active size="small" style={{ width: 150 }} />
         ) : (
-          questionSetListData?.map((item: any, index: any) => (
-            <QuestionSet key={index} data={item} conversationTypeId={id} />
-          ))
-        )}
+          `Conversations / ${conversationType?.name}`
+        )
+      }
+    >
+      <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {isLoading
+          ? /* eslint-disable @typescript-eslint/naming-convention */
+            Array.from({ length: 4 }).map((_, index) => (
+              <QuestionSetSkeleton key={index} />
+            ))
+          : /* eslint-enable @typescript-eslint/naming-convention */
+
+            questionSetListData?.map((item: any, index: any) => (
+              <QuestionSet key={index} data={item} conversationTypeId={id} />
+            ))}
       </div>
     </TabLandingLayout>
   );
 }
 
-export default index;
+export default Index;

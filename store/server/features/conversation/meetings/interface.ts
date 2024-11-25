@@ -24,7 +24,7 @@ interface Meta {
   currentPage: number;
 }
 
-interface ConversationMeetingData {
+export interface ConversationMeetingData {
   items: ConversationMeetingItem[];
   meta: Meta;
 }

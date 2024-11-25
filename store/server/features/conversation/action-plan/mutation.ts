@@ -10,11 +10,9 @@
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
-import { CategoryData } from './interface';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
-import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 
 /**
  * Sends a request to add a new category to the system.
@@ -41,7 +39,6 @@ const addActionPlan = async (data: any) => {
   });
 };
 
-
 /**
  * Sends a request to delete a category from the system.
  *
@@ -49,7 +46,7 @@ const addActionPlan = async (data: any) => {
  * @async
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
-const deleteActionPlanByid = async (id:string) => {
+const deleteActionPlanByid = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {

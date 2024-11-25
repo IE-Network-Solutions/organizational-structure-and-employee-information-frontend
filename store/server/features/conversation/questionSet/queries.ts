@@ -1,12 +1,9 @@
-
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import {ORG_DEV } from '@/utils/constants';
+import { ORG_DEV } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
-
-
-const getAllQuestionSetsByConversationTypeId = async (id:string) => {
+const getAllQuestionSetsByConversationTypeId = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -18,7 +15,7 @@ const getAllQuestionSetsByConversationTypeId = async (id:string) => {
       tenantId: tenantId,
     },
   });
-}
+};
 
 export const useGetQuestionSetByConversationId = (id: string) => {
   return useQuery(
@@ -28,6 +25,6 @@ export const useGetQuestionSetByConversationId = (id: string) => {
       // Optional configuration
       keepPreviousData: true,
       enabled: typeof id === 'string' && id.length > 0, // Ensures `id` is valid and non-empty
-    }
+    },
   );
 };

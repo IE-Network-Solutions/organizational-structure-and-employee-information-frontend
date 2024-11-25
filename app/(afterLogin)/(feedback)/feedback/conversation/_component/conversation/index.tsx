@@ -4,7 +4,7 @@ import { GoChevronRight } from 'react-icons/go';
 import Link from 'next/link';
 
 interface CardData {
-  id:string;
+  id: string;
   name: string;
   description: string;
 }
@@ -14,7 +14,7 @@ interface ConversationCardProps {
 }
 
 const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
-  const { id,name, description } = data;
+  const { id, name, description } = data;
 
   return (
     <Card className="p-4 flex flex-col items-center shadow-lg rounded-lg text-center">

@@ -5,19 +5,17 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/feedback/conversation';
 import CreateMeeting from '../_components/meeting/createMeeting';
 import MettingDataTable from '../_components/meeting/mettingTable';
-import { useGetConversationById } from '@/store/server/features/conversation/meetings/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 interface Params {
   id: string;
-  slug:string;
+  slug: string;
 }
 
-const Page = ({ params}: { params: Params }) => {
+const Page = ({ params }: { params: Params }) => {
   const { id, slug } = params;
-  
+
   const { open, setOpen, setSearchField } = ConversationStore();
-  const { data: conversationMeetingData } = useGetConversationById(id);
   const { data: allUserData } = useGetAllUsers();
   const { data: departmentData } = useGetDepartments();
 
@@ -69,7 +67,6 @@ const Page = ({ params}: { params: Params }) => {
         onClickHandler={() => setOpen(true)}
         title="Bi-Weekly"
         subtitle="Conversations / bi-weekly "
-
       >
         <MettingDataTable conversationTypeId={id} slug={slug} />
       </TabLandingLayout>
@@ -79,10 +76,10 @@ const Page = ({ params}: { params: Params }) => {
         modalHeader={modalHeader}
         width="40%"
       >
-        <CreateMeeting id={id} slug={slug} onClose={()=>setOpen(false)} />
+        <CreateMeeting id={id} slug={slug} onClose={() => setOpen(false)} />
       </CustomDrawerLayout>
     </>
   );
-}
+};
 
 export default Page;

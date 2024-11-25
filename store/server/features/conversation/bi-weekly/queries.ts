@@ -3,11 +3,9 @@
  */
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import {ORG_DEV } from '@/utils/constants';
+import { ORG_DEV } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-
-
 
 const getAllQuestionSet = async () => {
   const token = useAuthenticationStore.getState().token;
@@ -23,7 +21,7 @@ const getAllQuestionSet = async () => {
   });
 };
 
-const getQuestionSetById = async (id:string) => {
+const getQuestionSetById = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -37,14 +35,13 @@ const getQuestionSetById = async (id:string) => {
   });
 };
 
-
 /**
  * Custom hook to fetch a specific user by their ID.
  * @param {string} createdById - The ID of the user to fetch.
  * @returns {UseQueryResult<any>} The Query object for fetching the user.
  */
-export const useGetQuestionSetById= (id:string) => {
-  return useQuery<any>('question-set', ()=>getQuestionSetById(id), {
+export const useGetQuestionSetById = (id: string) => {
+  return useQuery<any>('question-set', () => getQuestionSetById(id), {
     enabled: typeof id === 'string' && id.length > 0,
     keepPreviousData: true,
   });

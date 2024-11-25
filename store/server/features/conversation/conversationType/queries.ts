@@ -3,11 +3,9 @@
  */
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import {ORG_DEV } from '@/utils/constants';
+import { ORG_DEV } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-
-
 
 const getAllConversationTypes = async () => {
   const token = useAuthenticationStore.getState().token;
@@ -23,7 +21,7 @@ const getAllConversationTypes = async () => {
   });
 };
 
-const getConversationTypeById = async (id:string) => {
+const getConversationTypeById = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -37,7 +35,6 @@ const getConversationTypeById = async (id:string) => {
   });
 };
 
-
 /**
  * Custom hook to fetch a specific user by their ID.
  * @param {string} createdById - The ID of the user to fetch.
@@ -50,7 +47,7 @@ export const useGetConversationById = (id: string | undefined) => {
     {
       keepPreviousData: true,
       enabled: typeof id === 'string' && id.length > 0, // Ensure `id` is a valid, non-empty string
-    }
+    },
   );
 };
 

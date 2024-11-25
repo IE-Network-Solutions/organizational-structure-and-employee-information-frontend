@@ -8,8 +8,8 @@ interface StoreState {
   setOpen: (error: boolean) => void;
   selectedAnswer: string[];
 
-   currentStep:number;
-   setCurrentStep:(value:number)=>void;
+  currentStep: number;
+  setCurrentStep: (value: number) => void;
 
   setSelectedAnswer: (selectedAnswer: string) => void;
   activeTab: string;
@@ -54,19 +54,14 @@ interface StoreState {
   selectedUsers: string[];
   setSelectedUsers: (value: string[]) => void;
 
-  selectedInstance: string|null;
-  setSelectedInstances: (value: string|null) => void;
+  selectedInstance: string | null;
+  setSelectedInstances: (value: string | null) => void;
 
   selectedDepartments: string[];
   setSelectedDepartments: (value: string[]) => void;
 
-
-
   childrenDrawer: boolean;
   setChildrenDrawer: (value: boolean) => void;
-
-
-
 
   deleteItemId: string;
   setDeleteItemId: (itemId: string) => void;
@@ -95,8 +90,8 @@ export const useOrganizationalDevelopment = create<StoreState>()(
     pageSize: 10,
     setPageSize: (pageSize: number) => set({ pageSize }),
 
-    currentStep:0,
-    setCurrentStep:(currentStep:number)=>set({currentStep}),
+    currentStep: 0,
+    setCurrentStep: (currentStep: number) => set({ currentStep }),
 
     graphType: 'pieChart',
     setGraphType: (graphType: GraphType) => set({ graphType }),
@@ -116,13 +111,15 @@ export const useOrganizationalDevelopment = create<StoreState>()(
     setSelectedUser: (selectedUser: string | null) => set({ selectedUser }),
 
     selectedInstance: null,
-    setSelectedInstances: (selectedInstance: string|null) => set({selectedInstance}),
-  
+    setSelectedInstances: (selectedInstance: string | null) =>
+      set({ selectedInstance }),
+
     agendaItems: [''],
-    setAgendaItems: (agendaItems: string[]) => set({agendaItems}),
+    setAgendaItems: (agendaItems: string[]) => set({ agendaItems }),
 
     selectedDepartments: [],
-    setSelectedDepartments: (selectedDepartments: string[]) => set({selectedDepartments}),
+    setSelectedDepartments: (selectedDepartments: string[]) =>
+      set({ selectedDepartments }),
     open: false,
     setOpen: (open: boolean) => set({ open }),
     activeTab: '1',
@@ -144,18 +141,18 @@ export const useOrganizationalDevelopment = create<StoreState>()(
       set({ numberOfActionPlan }),
 
     isEditModalOpen: false,
-    setIsEditModalOpen: (value:boolean) => set({ isEditModalOpen: value }),
+    setIsEditModalOpen: (value: boolean) => set({ isEditModalOpen: value }),
 
     childrenDrawer: false,
-    setChildrenDrawer: (value:boolean) => set({ childrenDrawer: value }),
+    setChildrenDrawer: (value: boolean) => set({ childrenDrawer: value }),
 
     answeredAttendee: [],
-    setAnsweredAttendee: (answeredAttendee: string[]) => set({answeredAttendee}),
-  
+    setAnsweredAttendee: (answeredAttendee: string[]) =>
+      set({ answeredAttendee }),
 
     selectedUsers: [],
-    setSelectedUsers: (selectedUsers: string[]) => set({selectedUsers}),
-  
+    setSelectedUsers: (selectedUsers: string[]) => set({ selectedUsers }),
+
     editItemId: '',
     setEditItemId: (itemId: string) => set({ editItemId: itemId }),
 

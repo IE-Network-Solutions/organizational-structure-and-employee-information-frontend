@@ -5,7 +5,6 @@ import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 
-
 const createConversationResponse = async (data: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -23,8 +22,7 @@ const createConversationResponse = async (data: any) => {
   });
 };
 
-
-const updateCoversationResponse = async (data:any , id: string) => {
+const updateCoversationResponse = async (data: any, id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -94,7 +92,7 @@ export const useUpdateFormCategory = () => {
   const queryClient = useQueryClient();
   return useMutation(
     ({ data, id }: { data: any; id: string }) =>
-        updateCoversationResponse(data, id),
+      updateCoversationResponse(data, id),
     {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       onSuccess: (_, variables: any) => {

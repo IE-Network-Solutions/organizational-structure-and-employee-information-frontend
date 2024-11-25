@@ -2,10 +2,7 @@ import React from 'react';
 import { Form, Select } from 'antd';
 import DynamicQuestionField from '@/components/dynamicQuestionField';
 
-const { Option } = Select;
-
 const QuestionResponseForm = ({
-  attendee,
   attendeeIndex,
   attendeesOptions,
   questionSet,
@@ -15,7 +12,9 @@ const QuestionResponseForm = ({
     <React.Fragment>
       <Form.Item
         name={`userId_${attendeeIndex}`}
-        label={<span className="text-black text-sm font-semibold">Attendee</span>}
+        label={
+          <span className="text-black text-sm font-semibold">Attendee</span>
+        }
         rules={[{ required: true, message: 'Please select an attendee' }]}
       >
         <Select
@@ -26,15 +25,17 @@ const QuestionResponseForm = ({
         />
       </Form.Item>
 
-      {questionSet?.conversationsQuestions?.map((q: any, questionIndex: number) => (
-        <DynamicQuestionField
-          key={`question_${q.id}_${attendeeIndex}_${questionIndex}`}
-          name={[`userId_${attendeeIndex}__${questionIndex}`, `${q.id}`]}
-          label={q.question}
-          fieldType={q.fieldType}
-          fieldOptions={q.field}
-        />
-      ))}
+      {questionSet?.conversationsQuestions?.map(
+        (q: any, questionIndex: number) => (
+          <DynamicQuestionField
+            key={`question_${q.id}_${attendeeIndex}_${questionIndex}`}
+            name={[`userId_${attendeeIndex}__${questionIndex}`, `${q.id}`]}
+            label={q.question}
+            fieldType={q.fieldType}
+            fieldOptions={q.field}
+          />
+        ),
+      )}
     </React.Fragment>
   );
 };

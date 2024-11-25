@@ -1,11 +1,7 @@
 'use client';
 
 import React from 'react';
-import {
-  Form,
-  Steps,
-  Button,
-} from 'antd';
+import { Form, Steps, Button } from 'antd';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -23,24 +19,36 @@ import ActionPlanDrawer from '../actionPlanDrawer';
 
 const { Step } = Steps;
 
-const CreateMeeting = ({ id,slug,onClose }: { id: string,slug:string,onClose:any}) => {
+const CreateMeeting = ({
+  id,
+  slug,
+  onClose,
+}: {
+  id: string;
+  slug: string;
+  onClose: any;
+}) => {
   const [form1] = Form.useForm();
   const [form2] = Form.useForm();
-  const {userId}=useAuthenticationStore();
-  const { current,setOfUser,setSetOfUser } = ConversationStore();
-  const { setOpen,currentStep,setCurrentStep,
+  const { userId } = useAuthenticationStore();
+  const { current, setSetOfUser } = ConversationStore();
+  const {
+    setOpen,
+    currentStep,
+    setCurrentStep,
     setNumberOfActionPlan,
     setSelectedEditActionPlan,
     setChildrenDrawer,
     setAnsweredAttendee,
     selectedUsers,
-    setSelectedUsers
-   } = useOrganizationalDevelopment();
+    setSelectedUsers,
+  } = useOrganizationalDevelopment();
 
-  const {data:questionSet}=useGetQuestionSetByConversationId(slug);
-  const { data: allUserData,isLoading:userDataLoading } =useGetAllUsers();
-  const { data: allDepartmentWithData, } =useGetDepartmentsWithUsers();
-  const {mutate:createConversationResponse}=useCreateConversationResponse();
+  const { data: questionSet } = useGetQuestionSetByConversationId(slug);
+  const { data: allUserData, isLoading: userDataLoading } = useGetAllUsers();
+  const { data: allDepartmentWithData } = useGetDepartmentsWithUsers();
+  const { mutate: createConversationResponse } =
+    useCreateConversationResponse();
 
   const handleCreateBiWeeklyWithActionPlan = async () => {
     try {
@@ -51,58 +59,67 @@ const CreateMeeting = ({ id,slug,onClose }: { id: string,slug:string,onClose:any
       const form2Values = form2.getFieldsValue(true);
       const updatedData = Object.values(form2Values).map((value: any) => ({
         ...value,
-        deadline: value.deadline ? dayjs(value.deadline).format("YYYY-MM-DD") : null, // Format deadline
+        deadline: value.deadline
+          ? dayjs(value.deadline).format('YYYY-MM-DD')
+          : null, // Format deadline
       }));
-    
-      const groupedData=groupDataByUserId(form1Values)
 
-      const transformedData = groupedData.map((item:any) => {
-        return item.response.map((res:any) => {
-          if (Array.isArray(res.values)) {
-            return {
-              userId: item.userId,
-              questionId: res.questionId,
-              response: res.values.map((value:any)=>({ id: uuidv4(), value: value }))
-            };
-          } else {
-            return {
-              userId: item.userId,
-              questionId: res.questionId,
-              response: [{ id: uuidv4(), value: res.values }]
-            };
-          }
-        }).flat(); // Flatten the array if there are multiple objects for the same question
-      }).flat();
-      const formattedData={
-        'response': transformedData,
-        "meetingInstance": {
-          "name": form1Values?.name,
-          "questionSetId": slug,
-          "facilitatorId":userId,
-          "conversationTypeId": id,
-          "userId": form1Values?.userId,
-          "timeOfMeeting": form1Values?.timeOfMeeting
-          ? dayjs(form1Values.timeOfMeeting).format("HH:mm:ss") // Time in HH:mm:ss format
-          : null,
-          "dateOfMeeting": form1Values?.dateOfMeeting
-          ? dayjs(form1Values.dateOfMeeting).format("YYYY-MM-DD") // Date in YYYY-MM-DD format
-          : null,
-          "departmentId": form1Values?.departmentId,
-          "agenda": form1Values?.agenda,
+      const groupedData = groupDataByUserId(form1Values);
+
+      const transformedData = groupedData
+        .map((item: any) => {
+          return item.response
+            .map((res: any) => {
+              if (Array.isArray(res.values)) {
+                return {
+                  userId: item.userId,
+                  questionId: res.questionId,
+                  response: res.values.map((value: any) => ({
+                    id: uuidv4(),
+                    value: value,
+                  })),
+                };
+              } else {
+                return {
+                  userId: item.userId,
+                  questionId: res.questionId,
+                  response: [{ id: uuidv4(), value: res.values }],
+                };
+              }
+            })
+            .flat(); // Flatten the array if there are multiple objects for the same question
+        })
+        .flat();
+      const formattedData = {
+        response: transformedData,
+        meetingInstance: {
+          name: form1Values?.name,
+          questionSetId: slug,
+          facilitatorId: userId,
+          conversationTypeId: id,
+          userId: form1Values?.userId,
+          timeOfMeeting: form1Values?.timeOfMeeting
+            ? dayjs(form1Values.timeOfMeeting).format('HH:mm:ss') // Time in HH:mm:ss format
+            : null,
+          dateOfMeeting: form1Values?.dateOfMeeting
+            ? dayjs(form1Values.dateOfMeeting).format('YYYY-MM-DD') // Date in YYYY-MM-DD format
+            : null,
+          departmentId: form1Values?.departmentId,
+          agenda: form1Values?.agenda,
         },
-      "actionPlan": updatedData,
-      }
-      createConversationResponse(formattedData,{
-        onSuccess:()=>{
-           form1.resetFields();
-           form2.resetFields();
-           onClose();
-        }
+        actionPlan: updatedData,
+      };
+      createConversationResponse(formattedData, {
+        onSuccess: () => {
+          form1.resetFields();
+          form2.resetFields();
+          onClose();
+        },
       });
     } catch (error) {
-        NotificationMessage.error({
-          message:'something error',
-        })
+      NotificationMessage.error({
+        message: 'something error',
+      });
     }
   };
   const customDot = (step: number) => (
@@ -124,23 +141,24 @@ const CreateMeeting = ({ id,slug,onClose }: { id: string,slug:string,onClose:any
     </div>
   );
   const onChangeHandler = (selectedDepartmentIds: string[]) => {
-    if(selectedDepartmentIds?.length===0){
+    if (selectedDepartmentIds?.length === 0) {
       setSetOfUser([]);
-    }
-    else{
-    const usersInSelectedDepartments =allUserData?.items?.filter((user: any) => {
-        const departmentId = user.employeeJobInformation?.find(
-            (job: any) => job?.departmentId && job?.isPositionActive === true
-        )?.departmentId;
-        
-        return departmentId && selectedDepartmentIds.includes(departmentId);
-    });
+    } else {
+      const usersInSelectedDepartments = allUserData?.items?.filter(
+        (user: any) => {
+          const departmentId = user.employeeJobInformation?.find(
+            (job: any) => job?.departmentId && job?.isPositionActive === true,
+          )?.departmentId;
 
-    setSetOfUser(usersInSelectedDepartments);
-  }
-};
-  
-  const onUserChange = (selectedUserIds:string[]) => {
+          return departmentId && selectedDepartmentIds.includes(departmentId);
+        },
+      );
+
+      setSetOfUser(usersInSelectedDepartments);
+    }
+  };
+
+  const onUserChange = (selectedUserIds: string[]) => {
     setSelectedUsers(selectedUserIds); // Update selected users in the form
   };
 
@@ -159,7 +177,9 @@ const CreateMeeting = ({ id,slug,onClose }: { id: string,slug:string,onClose:any
     setChildrenDrawer(true);
   };
   const attendeesOptions = selectedUsers?.map((attendee: any) => {
-    const matchingUser = allUserData?.items?.find((user: any) => user.id === attendee);
+    const matchingUser = allUserData?.items?.find(
+      (user: any) => user.id === attendee,
+    );
     return {
       value: matchingUser?.id,
       label: matchingUser
@@ -175,39 +195,41 @@ const CreateMeeting = ({ id,slug,onClose }: { id: string,slug:string,onClose:any
     setNumberOfActionPlan(1);
   };
 
-const handleAttendeeChange=(userId:any)=>{
-      setAnsweredAttendee(userId);
-}
+  const handleAttendeeChange = (userId: any) => {
+    setAnsweredAttendee(userId);
+  };
 
-const groupDataByUserId = (data:any) => {
-  // Initialize an object to hold the grouped responses by userId
-  const groupedResult = [] as any;
+  const groupDataByUserId = (data: any) => {
+    // Initialize an object to hold the grouped responses by userId
+    const groupedResult = [] as any;
 
-  // Get the userId keys from the data
-  let userIds = Object.keys(data).filter(key => key.startsWith('userId_') && !key.includes('__'));
+    // Get the userId keys from the data
+    const userIds = Object.keys(data).filter(
+      (key) => key.startsWith('userId_') && !key.includes('__'),
+    );
 
-  // Process each userId
-  userIds.forEach(userIdKey => {
-    const userId = data[userIdKey];
-    const responses = [];
+    // Process each userId
+    userIds.forEach((userIdKey) => {
+      const userId = data[userIdKey];
+      const responses = [];
 
-    // Collecting responses by question index (userId__index)
-    let index = 0;
-    while (data[`${userIdKey}__${index}`]) {
-      const questionData = data[`${userIdKey}__${index}`];
-      const questionId = Object.keys(questionData)[0]; // Get the questionId
-      const values = questionData[questionId];
+      // Collecting responses by question index (userId__index)
+      let index = 0;
+      while (data[`${userIdKey}__${index}`]) {
+        const questionData = data[`${userIdKey}__${index}`];
+        const questionId = Object.keys(questionData)[0]; // Get the questionId
+        const values = questionData[questionId];
 
-      responses.push({ questionId, values });
-      index++;
-    }
+        responses.push({ questionId, values });
+        index++;
+      }
 
-    // Add the grouped data for each userId to the result
-    groupedResult.push({ userId, response: responses });
-  });
+      // Add the grouped data for each userId to the result
+      groupedResult.push({ userId, response: responses });
+    });
 
-  return groupedResult;
-};
+    return groupedResult;
+  };
   return (
     <>
       <Steps
@@ -229,7 +251,7 @@ const groupDataByUserId = (data:any) => {
         className="text-black"
       >
         {currentStep === 0 && (
-        <ConversationInstanceForm
+          <ConversationInstanceForm
             form={form1}
             allDepartmentWithData={allDepartmentWithData}
             onUserChange={onUserChange}
@@ -239,7 +261,7 @@ const groupDataByUserId = (data:any) => {
         )}
         {currentStep === 1 && (
           <>
-          {attendeesOptions?.map((attendee: any, attendeeIndex: number) => (
+            {attendeesOptions?.map((attendee: any, attendeeIndex: number) => (
               <QuestionResponseForm
                 key={`attendee_${attendee.id}_${attendeeIndex}`}
                 attendee={attendee}
@@ -250,29 +272,34 @@ const groupDataByUserId = (data:any) => {
               />
             ))}
 
-        <div className="flex justify-center items-center gap-4 space-x-2 my-7">
-          <Button htmlType="button" type="primary" className="px-8 text-xs" onClick={showChildrenDrawer}>
-            Action Plan
-          </Button>
-        </div>
+            <div className="flex justify-center items-center gap-4 space-x-2 my-7">
+              <Button
+                htmlType="button"
+                type="primary"
+                className="px-8 text-xs"
+                onClick={showChildrenDrawer}
+              >
+                Action Plan
+              </Button>
+            </div>
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-center items-center gap-4 space-x-2">
-          <Button onClick={() => setCurrentStep(0)}>Back</Button>
-          <Button htmlType="submit" type="primary">
-            Create
-          </Button>
-        </div>
-        </>
+            {/* Navigation Buttons */}
+            <div className="flex justify-center items-center gap-4 space-x-2">
+              <Button onClick={() => setCurrentStep(0)}>Back</Button>
+              <Button htmlType="submit" type="primary">
+                Create
+              </Button>
+            </div>
+          </>
         )}
       </Form>
       <ActionPlanDrawer
-          form={form2}
-          handleCreateBiWeeklyWithActionPlan={handleCreateBiWeeklyWithActionPlan}
-          handleCancel={handleCancel}
-          allUserData={allUserData}
-          userDataLoading={userDataLoading}
-        />
+        form={form2}
+        handleCreateBiWeeklyWithActionPlan={handleCreateBiWeeklyWithActionPlan}
+        handleCancel={handleCancel}
+        allUserData={allUserData}
+        userDataLoading={userDataLoading}
+      />
     </>
   );
 };

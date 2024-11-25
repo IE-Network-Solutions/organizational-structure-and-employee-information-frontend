@@ -118,8 +118,7 @@ export const useAddCategory = () => {
 export const useUpdateFormCategory = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    ({ data, id }: { data: any; id: string }) =>
-      updateFormCategory(data, id),
+    ({ data, id }: { data: any; id: string }) => updateFormCategory(data, id),
     {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       onSuccess: (_, variables: any) => {

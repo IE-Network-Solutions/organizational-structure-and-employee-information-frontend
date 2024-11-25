@@ -23,8 +23,6 @@ interface DynamicSearchProps {
 }
 
 const EmployeeSearch: React.FC<DynamicSearchProps> = ({ fields, onChange }) => {
-
-  
   return (
     <div className="flex justify-start w-full">
       {fields.map((field) => (
@@ -39,7 +37,7 @@ const EmployeeSearch: React.FC<DynamicSearchProps> = ({ fields, onChange }) => {
             showSearch
             className="w-full h-14"
             optionFilterProp="children"
-            filterOption={(input:any, option:any) =>
+            filterOption={(input: any, option: any) =>
               option?.children
                 ?.toString()
                 .toLowerCase()

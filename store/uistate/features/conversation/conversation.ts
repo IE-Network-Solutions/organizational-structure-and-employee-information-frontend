@@ -20,29 +20,28 @@ export interface CategoriesUseState {
   setCurrent: (value: number) => void;
   setOpen: (value: boolean) => void;
 
-  selectedDepartment:string[];
-  setSelectedDepartment:(department:string[])=>void
+  selectedDepartment: string[];
+  setSelectedDepartment: (department: string[]) => void;
 
-  userId:string;
-  setUserId:(userId:string)=>void
+  userId: string;
+  setUserId: (userId: string) => void;
 
-  selectedUserId:string;
-  setSelectedUserId:(selectedUserId:string)=>void
+  selectedUserId: string;
+  setSelectedUserId: (selectedUserId: string) => void;
 
-  activeTab:string;
-  setActiveTab:(activeTab:string)=>void
+  activeTab: string;
+  setActiveTab: (activeTab: string) => void;
 
-  departmentId:string;
-  setDepartmentId:(departmentid:string)=>void
+  departmentId: string;
+  setDepartmentId: (departmentid: string) => void;
 
-  setOfUser:any[];
-  setSetOfUser:(setOfUser:any[])=>void
+  setOfUser: any[];
+  setSetOfUser: (setOfUser: any[]) => void;
 
   searchField: SearchField[];
   setSearchField: (fields: SearchField[]) => void;
 
-  updateFieldOptions:(key:string,name:any)=>void
-  
+  updateFieldOptions: (key: string, name: any) => void;
 }
 const initialSearchField: SearchField[] = [
   {
@@ -64,33 +63,32 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   current: 0,
   pageSize: 4,
   totalPages: 1,
-  selectedDepartment:[],
-  setSelectedDepartment:(selectedDepartment:string[])=>set({selectedDepartment}),
+  selectedDepartment: [],
+  setSelectedDepartment: (selectedDepartment: string[]) =>
+    set({ selectedDepartment }),
 
-  setOfUser:[],
-  setSetOfUser:(setOfUser:any[])=>set({setOfUser}),
-  
-  userId:'',
-  setUserId:(userId:string)=>set({userId}),
+  setOfUser: [],
+  setSetOfUser: (setOfUser: any[]) => set({ setOfUser }),
 
-  selectedUserId:'',
-  setSelectedUserId:(selectedUserId:string)=>set({selectedUserId}),
+  userId: '',
+  setUserId: (userId: string) => set({ userId }),
 
-  activeTab:'1',
-  setActiveTab:(activeTab:string)=>set({activeTab}),
+  selectedUserId: '',
+  setSelectedUserId: (selectedUserId: string) => set({ selectedUserId }),
 
-  departmentId:'',
-  setDepartmentId:(departmentId:string)=>set({departmentId}),
+  activeTab: '1',
+  setActiveTab: (activeTab: string) => set({ activeTab }),
+
+  departmentId: '',
+  setDepartmentId: (departmentId: string) => set({ departmentId }),
 
   searchField: initialSearchField, // Initial value
   setSearchField: (fields) => set({ searchField: fields }),
 
-  updateFieldOptions: (key:string, newOptions:any) =>
+  updateFieldOptions: (key: string, newOptions: any) =>
     set((state) => ({
       searchField: state.searchField.map((field) =>
-        field.key === key
-          ? { ...field, options: newOptions }
-          : field
+        field.key === key ? { ...field, options: newOptions } : field,
       ),
     })),
 

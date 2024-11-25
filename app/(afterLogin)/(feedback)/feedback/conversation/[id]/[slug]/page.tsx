@@ -5,12 +5,10 @@ import { Card, Col, Row, Skeleton, Tabs } from 'antd';
 import CollapsibleCardList from './_components/collapsableCard';
 import ActionPlans from './_components/actionPlans';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
-import CreateActionPlan from '../../../categories/[id]/survey/[slug]/_components/createActionPlan';
 import { useGetAllConversationInstancesById } from '@/store/server/features/conversation/conversation-instance/queries';
 import ConversationInstanceDetail from './_components/biWeeklyDetail';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { useGetAllActionPlansByConversationInstanceId } from '@/store/server/features/conversation/action-plan/queries';
 import CreateActionPlans from './_components/createActionPlans';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useAddActionPlan } from '@/store/server/features/conversation/action-plan/mutation';
@@ -22,75 +20,89 @@ interface ConversationInstanceDetailProps {
   params: Params;
 }
 const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
-  const { setOpen,open } = useOrganizationalDevelopment();
-  const {selectedUserId,setActiveTab,activeTab}=ConversationStore();
+  const { setOpen, open } = useOrganizationalDevelopment();
+  const { selectedUserId, setActiveTab, activeTab } = ConversationStore();
 
-  const {data:conversationInstance,isLoading}=useGetAllConversationInstancesById(slug);
-  const { data: allUserData,isLoading:userDataLoading } =useGetAllUsers();
-  const { mutate: addActionPlan,isLoading:addActionPlanLoading } =useAddActionPlan();
+  const { data: conversationInstance, isLoading } =
+    useGetAllConversationInstancesById(slug);
+  const { data: allUserData } = useGetAllUsers();
+  const { mutate: addActionPlan } = useAddActionPlan();
 
- 
- useEffect(() => {
-  if (selectedUserId !== null && selectedUserId !== '') {
-    setActiveTab('2');
-  }
-}, [selectedUserId]); 
+  useEffect(() => {
+    if (selectedUserId !== null && selectedUserId !== '') {
+      setActiveTab('2');
+    }
+  }, [selectedUserId]);
   const getEmployeeData = (employeeId: string) => {
     const employeeDataDetail = allUserData?.items?.find(
-      (emp: any) => emp?.id === employeeId
+      (emp: any) => emp?.id === employeeId,
     );
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
-  
+
   const getQuestionResponse = (questionId: string) => {
     const questionResponse = conversationInstance?.conversationResponse?.find(
       (response: any) =>
         response?.questionId === questionId &&
-        (selectedUserId ? response?.userId === selectedUserId : true) 
+        (selectedUserId ? response?.userId === selectedUserId : true),
     );
     if (questionResponse) {
       const employeeData = getEmployeeData(questionResponse?.userId);
-  
+
       return {
         ...questionResponse,
-        employeeDetail: `${employeeData?.firstName || ''} ${employeeData?.lastName || ''}`.trim(), 
+        employeeDetail:
+          `${employeeData?.firstName || ''} ${employeeData?.lastName || ''}`.trim(),
       };
     }
-  
+
     return {}; // Return an empty object if no match is found
   };
-  
-const filteredData=conversationInstance?.questionSet?.conversationsQuestions?.map((conversationQuestion:any)=>
-  ({
-    id:conversationQuestion?.id,
-    questionTitle:conversationQuestion,
-    responseData:getQuestionResponse(conversationQuestion?.id)
-  }))
-const handleRedirectback=()=>{}
 
-const handleCreateActionPlan=(values:any)=>{
-  const updatedData = {
-    ...values, 
-    deadline: values.deadline ? dayjs(values.deadline).format("YYYY-MM-DD") : null, 
+  const filteredData =
+    conversationInstance?.questionSet?.conversationsQuestions?.map(
+      (conversationQuestion: any) => ({
+        id: conversationQuestion?.id,
+        questionTitle: conversationQuestion,
+        responseData: getQuestionResponse(conversationQuestion?.id),
+      }),
+    );
+  const handleRedirectback = () => {};
+
+  const handleCreateActionPlan = (values: any) => {
+    const updatedData = {
+      ...values,
+      deadline: values.deadline
+        ? dayjs(values.deadline).format('YYYY-MM-DD')
+        : null,
+    };
+    addActionPlan(updatedData, {
+      onSuccess: () => {
+        setOpen(false);
+      },
+    });
   };
-  console.log(updatedData,"values")
-  addActionPlan(updatedData, {
-    onSuccess: () => {
-      setOpen(false); 
-    },
-  });
-}
-  
+
   const items = [
     {
       key: '1',
       label: 'All',
-      children: <CollapsibleCardList isLoading={isLoading} filteredData={filteredData} />,
+      children: (
+        <CollapsibleCardList
+          isLoading={isLoading}
+          filteredData={filteredData}
+        />
+      ),
     },
     {
       key: '2',
       label: 'Individual',
-      children: <CollapsibleCardList isLoading={isLoading} filteredData={filteredData} />,
+      children: (
+        <CollapsibleCardList
+          isLoading={isLoading}
+          filteredData={filteredData}
+        />
+      ),
     },
     {
       key: '3',
@@ -110,31 +122,44 @@ const handleCreateActionPlan=(values:any)=>{
       buttonTitle="Add Action Plan"
       id="conversationLayoutId"
       onClickHandler={() => setOpen(true)}
-      title={<span onClick={()=>handleRedirectback} className='cursor-pointer'>←   Details</span>}
+      title={
+        <span onClick={() => handleRedirectback} className="cursor-pointer">
+          ← Details
+        </span>
+      }
       allowSearch={false}
       subtitle=""
     >
       <Row gutter={[16, 24]}>
         <Col lg={8} md={10} xs={24}>
-        {isLoading ? (
-          Array.from({ length: 2 }).map((_, index) => (
-            <Skeleton key={index} active paragraph={{ rows: 4 }} avatar />
-          ))
+          {isLoading ? (
+            /* eslint-disable @typescript-eslint/naming-convention */
+            Array.from({ length: 2 }).map(
+              (
+                _ /* eslint-disable @typescript-eslint/naming-convention */,
+                index,
+              ) => (
+                <Skeleton key={index} active paragraph={{ rows: 4 }} avatar />
+              ),
+            )
           ) : (
-            <ConversationInstanceDetail conversationInstance={conversationInstance} />
+            /* eslint-enable @typescript-eslint/naming-convention */
+            <ConversationInstanceDetail
+              conversationInstance={conversationInstance}
+            />
           )}
         </Col>
         <Col lg={16} md={14} xs={24}>
-        <Card>
-          <Tabs
-            items={items}
-            activeKey={activeTab}
-            tabBarGutter={16}
-            size="small"
-            onChange={(active: string) => setActiveTab(active)}
-            tabBarStyle={{ textAlign: 'center' }}
-          />
-        </Card>
+          <Card>
+            <Tabs
+              items={items}
+              activeKey={activeTab}
+              tabBarGutter={16}
+              size="small"
+              onChange={(active: string) => setActiveTab(active)}
+              tabBarStyle={{ textAlign: 'center' }}
+            />
+          </Card>
         </Col>
       </Row>
       <CustomDrawerLayout
@@ -143,7 +168,10 @@ const handleCreateActionPlan=(values:any)=>{
         modalHeader={modalHeader}
         width="40%"
       >
-         <CreateActionPlans slug={slug} onFinish={(values)=>handleCreateActionPlan(values)} />
+        <CreateActionPlans
+          slug={slug}
+          onFinish={(values) => handleCreateActionPlan(values)}
+        />
       </CustomDrawerLayout>
     </TabLandingLayout>
   );

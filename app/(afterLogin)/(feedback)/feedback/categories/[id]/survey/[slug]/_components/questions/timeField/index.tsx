@@ -10,12 +10,17 @@ interface TimeFieldProps {
   onChange?: (time: any) => void;
 }
 
-const TimeField: React.FC<TimeFieldProps> = ({ value, className, disabled = true, onChange }) => {
+const TimeField: React.FC<TimeFieldProps> = ({
+  value,
+  className,
+  disabled = true,
+  onChange,
+}) => {
   // Conditionally set value only if disabled is false
   const timePickerProps: any = {
     disabled,
     onChange,
-    format: "HH:mm",
+    format: 'HH:mm',
     className,
   };
 
