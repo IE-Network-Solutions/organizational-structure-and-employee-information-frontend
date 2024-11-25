@@ -42,7 +42,8 @@ function CreateReport() {
     resetWeights();
   };
   const { data: planningPeriods } = AllPlanningPeriods();
-  const { mutate: createReport ,isLoading:createReportLoading} = useCreateReportForUnReportedtasks();
+  const { mutate: createReport, isLoading: createReportLoading } =
+    useCreateReportForUnReportedtasks();
 
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
@@ -60,7 +61,7 @@ function CreateReport() {
 
   const handleOnFinish = (values: Record<string, any>) => {
     Object.entries(values).length > 0 &&
-    planningPeriodId &&
+      planningPeriodId &&
       createReport(
         { values: values, planningPeriodId: planningPeriodId },
         {
@@ -362,12 +363,21 @@ function CreateReport() {
                                     rules={[
                                       {
                                         required: true,
-                                        message: 'Please enter an actual value!', // Show if the field is empty
+                                        message:
+                                          'Please enter an actual value!', // Show if the field is empty
                                       },
                                       {
-                                        validator: (_, value) => {
+                                        validator: (
+                                          _, // eslint-disable-line @typescript-eslint/naming-convention
+                                          value, // eslint-disable-line @typescript-eslint/naming-convention
+                                        ) => {
+                                          // eslint-disable-next-line no-underscore-dangle
                                           if (value && isNaN(value)) {
-                                            return Promise.reject(new Error('The input is not a valid number!')); // Show if the value is not a number
+                                            return Promise.reject(
+                                              new Error(
+                                                'The input is not a valid number!',
+                                              ), // Show if the value is not a number
+                                            );
                                           }
                                           return Promise.resolve(); // Proceed to next rule if the value is valid
                                         },
@@ -456,7 +466,11 @@ function CreateReport() {
               <Button htmlType="button" onClick={() => onClose()}>
                 Cancel
               </Button>
-              <Button loading={createReportLoading} htmlType="submit" className="bg-primary text-white">
+              <Button
+                loading={createReportLoading}
+                htmlType="submit"
+                className="bg-primary text-white"
+              >
                 Create Report
               </Button>
             </Row>

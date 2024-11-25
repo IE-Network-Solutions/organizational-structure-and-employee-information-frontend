@@ -4,11 +4,17 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetPositions } from '@/store/server/features/employees/positions/queries';
 import { Col, DatePicker, Form, Radio, Row, Select, Switch } from 'antd';
+import dayjs from 'dayjs';
 import React, { useState } from 'react';
 
 const { Option } = Select;
 
 const JobTimeLineForm = () => {
+  const status = [
+    { id: 'Promotion', name: 'Promotion' },
+    { id: 'Transfer', name: 'Transfer' },
+    { id: 'New', name: 'New' },
+  ];
   const { data: departmentData } = useGetDepartments();
   const { data: employementType } = useGetEmployementTypes();
   const { data: branchOfficeData } = useGetBranches();
@@ -18,6 +24,9 @@ const JobTimeLineForm = () => {
 
   const handleContractTypeChange = (e: any) => {
     setContractType(e.target.value);
+  };
+  const disablePastDates = (current: any) => {
+    return current && current < dayjs().startOf('day');
   };
 
   return (
@@ -36,7 +45,7 @@ const JobTimeLineForm = () => {
               { required: true, message: 'Please select the joined date' },
             ]}
           >
-            <DatePicker className="w-full" />
+            <DatePicker className="w-full" disabledDate={disablePastDates} />
           </Form.Item>
         </Col>
       </Row>
@@ -117,6 +126,25 @@ const JobTimeLineForm = () => {
               {branchOfficeData?.items?.map((branch, index: number) => (
                 <Option key={index} value={branch?.id}>
                   {branch?.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row gutter={16}>
+        <Col xs={24} sm={12}>
+          <Form.Item
+            className="w-full font-semibold text-xs"
+            name={'jobAction'}
+            id="jobAction"
+            label="Status"
+            rules={[{ required: true, message: 'Please select Status' }]}
+          >
+            <Select className="w-full" placeholder="Select Status" allowClear>
+              {status?.map((status: any, index: number) => (
+                <Option key={index} value={status?.id}>
+                  {status?.name}
                 </Option>
               ))}
             </Select>
