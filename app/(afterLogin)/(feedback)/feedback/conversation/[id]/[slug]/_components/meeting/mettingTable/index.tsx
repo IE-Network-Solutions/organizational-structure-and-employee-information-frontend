@@ -19,8 +19,8 @@ import {
   useGetAllConversationInstancesById,
   useGetAllConversationInstancesByQuestionSetId,
 } from '@/store/server/features/conversation/conversation-instance/queries';
-import EmployeeSearch from '@/components/common/search/employeeSearch';
 import { useRouter } from 'next/navigation';
+import EmployeeSearchComponent from '@/components/common/search/searchComponent';
 
 const MettingDataTable = ({
   conversationTypeId,
@@ -248,7 +248,7 @@ const MettingDataTable = ({
   };
   return (
     <div className="overflow-x-auto">
-      <EmployeeSearch fields={searchField} onChange={handleSearchChange} />
+      <EmployeeSearchComponent fields={searchField} onChange={handleSearchChange} />
       <Table<any>
         columns={columns}
         dataSource={conversationInstances?.items ?? []}
