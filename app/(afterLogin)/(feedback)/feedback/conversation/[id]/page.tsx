@@ -4,6 +4,7 @@ import React from 'react';
 import { useGetConversationById } from '@/store/server/features/conversation/queries';
 import { QuestionSet, QuestionSetSkeleton } from './_components/question-set';
 import { Skeleton } from 'antd';
+import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 interface Params {
   id: string;
 }
@@ -56,6 +57,9 @@ function Index({ params }: { params: Params }) {
             questionSetListData?.map((item: any, index: any) => (
               <QuestionSet key={index} data={item} conversationTypeId={id} />
             ))}
+
+            {questionSetListData?.length <= 0 &&<CustomizeRenderEmpty/>}
+
       </div>
     </TabLandingLayout>
   );
