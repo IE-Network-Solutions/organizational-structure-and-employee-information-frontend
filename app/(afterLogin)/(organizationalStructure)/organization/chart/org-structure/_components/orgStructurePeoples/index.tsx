@@ -30,6 +30,8 @@ import {
   exportOrgStrucutreMenu,
   orgComposeAndMergeMenues,
 } from '../menues/inex';
+import { useMergingDepartment } from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
+import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 
 const renderTreeNodes = (
   data: Department[],
@@ -70,6 +72,8 @@ const OrgChartComponent: React.FC = () => {
     setIsDeleteConfirmVisible,
     chartDownlaodLoading,
   } = useOrganizationStore();
+  const { mergeDepartment, rootDepartment, childDepartment, resetStore } =
+    useMergeStore();
 
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -155,6 +159,7 @@ const OrgChartComponent: React.FC = () => {
       setIsAddEmployeeJobInfoModalVisible(true);
     }
   }, [employeeData, departments, setIsAddEmployeeJobInfoModalVisible]);
+  const { mutate: mergeDepartments } = useMergingDepartment();
 
   return (
     <div className="w-full overflow-x-auto">
@@ -237,10 +242,27 @@ const OrgChartComponent: React.FC = () => {
         </div>
         <CustomDrawer
           visible={drawerVisible}
-          onClose={closeDrawer}
+          onClose={() => {
+            closeDrawer(), resetStore();
+            console.log('on cancel clicked');
+          }}
           drawerContent={drawerContent}
           footerButtonText={footerButtonText}
-          onSubmit={() => {}}
+          onSubmit={() => {
+            console.log(
+              'Submit------------------',
+              rootDepartment,
+              childDepartment,
+              mergeDepartment,
+            );
+
+            if (mergeDepartment) {
+              console.log('Submit------------------', mergeDepartment);
+              mergeDepartments(mergeDepartment);
+            } else {
+              console.error('Merge department is not defined');
+            }
+          }}
           title={drawTitle}
         />
       </Card>
