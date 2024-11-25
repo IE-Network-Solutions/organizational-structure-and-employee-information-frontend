@@ -259,7 +259,6 @@ const LeaveRequestSidebar = () => {
                     <DatePicker
                       className={controlClass}
                       onChange={handleChange}
-                      minDate={dayjs()}
                       disabled={
                         leaveRequest?.status === LeaveRequestStatus.APPROVED
                       }
@@ -280,7 +279,6 @@ const LeaveRequestSidebar = () => {
                     <DatePicker
                       className={controlClass}
                       onChange={handleChange}
-                      minDate={dayjs()}
                       disabled={
                         leaveRequest?.status === LeaveRequestStatus.APPROVED
                       }
