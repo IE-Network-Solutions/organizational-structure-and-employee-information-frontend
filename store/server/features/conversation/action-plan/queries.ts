@@ -57,7 +57,7 @@ const getActionPlansByConversationInstanceId = async (id:string) => {
  * @returns {UseQueryResult<any>} The Query object for fetching the user.
  */
 export const useGetAllActionPlansByConversationInstanceId= (id:string) => {
-  return useQuery<any>('question-set', ()=>getActionPlansByConversationInstanceId(id), {
+  return useQuery<any>('conversationActionPlan', ()=>getActionPlansByConversationInstanceId(id), {
     enabled: typeof id === 'string' && id.length > 0,
     keepPreviousData: true,
   });
@@ -69,12 +69,12 @@ export const useGetAllActionPlansByConversationInstanceId= (id:string) => {
  * @returns {UseQueryResult<any>} The Query object for fetching the user.
  */
 export const useGetAllActionPlansById= (id:string) => {
-  return useQuery<any>('question-set', ()=>getQuestionSetById(id), {
+  return useQuery<any>('conversationActionPlan', ()=>getQuestionSetById(id), {
     enabled: typeof id === 'string' && id.length > 0,
     keepPreviousData: true,
   });
 };
 
 export const useGetAllActionPlans = () => {
-  return useQuery<any>('bi-weekly', getAllQuestionSet);
+  return useQuery<any>('conversationActionPlan', getAllQuestionSet);
 };

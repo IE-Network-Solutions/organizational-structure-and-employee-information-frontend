@@ -7,8 +7,16 @@ import React from 'react'
 import { FaPlus } from 'react-icons/fa';
 import { TiDeleteOutline } from 'react-icons/ti';
 const { Option } = Select;
-function Page({onFinish}:{onFinish:(data:any)=>void}) {
+
+interface PropsData {
+  slug: string;
+  onFinish: (data: any) => void;
+}
+
+const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish }) => {
     const { data: allUserData,isLoading:userDataLoading } =useGetAllUsers();
+    const { setOpen,open } = useOrganizationalDevelopment();
+
     const [form2]=useForm();
     const {
         numberOfActionPlan,
@@ -20,8 +28,8 @@ function Page({onFinish}:{onFinish:(data:any)=>void}) {
             setNumberOfActionPlan(numberOfActionPlan + 1);
           };
           const handleCancel = () => {
-            // form1.resetFields();
-            // setOpen(false);
+            form2.resetFields();
+            setOpen(false);
             setSelectedEditActionPlan(null);
             setNumberOfActionPlan(1);
           };
@@ -35,25 +43,21 @@ function Page({onFinish}:{onFinish:(data:any)=>void}) {
     onFinish={onFinish}
   >
     {/* eslint-disable @typescript-eslint/naming-convention  */}
-    {Array.from({ length: numberOfActionPlan }, (__, index) => (
-      <Card
-        key={index}
-        title={
-          <div
-            className="flex justify-end text-red-600 cursor-pointer"
-            onClick={() => setNumberOfActionPlan(numberOfActionPlan - 1)}
-          >
-            <TiDeleteOutline />
-          </div>
-        }
-      >
+
+        <Form.Item
+          name='conversationInstanceId' // Use `name` instead of `id` for form binding
+          initialValue={slug} // Set the initial value of the input field
+          hidden // Hide the Form.Item and its input field
+        >
+          <Input />
+        </Form.Item>
         <Row gutter={16}>
           <Col xs={24} sm={24}>
             <Form.Item
               className="font-semibold text-xs"
-              name={[`${index}`, 'issue']}
-              label={`Action plan ${index + 1}`}
-              id={`actionPlanId${index + 1}`}
+              name='issue'
+              label='Action plan'
+              id='actionPlanId'
               rules={[
                 { required: true, message: 'action title is required' },
                 {
@@ -70,9 +74,9 @@ function Page({onFinish}:{onFinish:(data:any)=>void}) {
           <Col xs={24} sm={24}>
             <Form.Item
               className="font-semibold text-xs"
-              name={[`${index}`, 'comment']}
+              name='comment'
               label={`Comment`}
-              id={`actionPlanDescription${index + 1}`}
+              id={`actionPlanDescription`}
               rules={[
                 { required: true, message: 'Comment is required' },
                 {
@@ -89,9 +93,9 @@ function Page({onFinish}:{onFinish:(data:any)=>void}) {
           <Col xs={24} sm={24}>
             <Form.Item
               className="font-semibold text-xs"
-              name={[`${index}`, 'assigneeId']}
+              name='assigneeId'
               label={`Responsible Person`}
-              id={`responsiblePersonId${index + 1}`}
+              id={`responsiblePersonId`}
               rules={[
                 {
                   required: true,
@@ -130,9 +134,9 @@ function Page({onFinish}:{onFinish:(data:any)=>void}) {
         <Col xs={24} sm={10}>
           <Form.Item
             className="font-semibold text-xs w-full"
-            name={[`${index}`, 'status']}
+            name='status'
             label="Status"
-            id={`statusId${index + 1}`}
+            id={`statusId`}
             rules={[
               {
                 required: true,
@@ -158,9 +162,9 @@ function Page({onFinish}:{onFinish:(data:any)=>void}) {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs w-full"
-            name={[`${index}`, 'Deadline']}
-            label={`Deadline ${index + 1}`}
-            id={`deadlineActionId${index + 1}`}
+            name='deadline'
+            label={`Deadline`}
+            id={`deadlineActionId`}
             rules={[
               { required: true, message: 'Deadline is required' },
             ]}
@@ -169,16 +173,6 @@ function Page({onFinish}:{onFinish:(data:any)=>void}) {
           </Form.Item>
         </Col>
       </Row>
-
-      </Card>
-    ))}
-    <Row gutter={16} className="my-5">
-      <Col className="flex justify-center" xs={24} sm={24}>
-        <Button type="primary" className='text-xs px-8 text-white' onClick={plusOnClickHandler}>
-          <FaPlus  />
-        </Button>
-      </Col>
-    </Row>
     <Row gutter={16}>
       <Col xs={24} sm={12} className="flex justify-end">
         <Popconfirm
@@ -210,4 +204,4 @@ function Page({onFinish}:{onFinish:(data:any)=>void}) {
   )
 }
 
-export default Page
+export default CreateActionPlans
