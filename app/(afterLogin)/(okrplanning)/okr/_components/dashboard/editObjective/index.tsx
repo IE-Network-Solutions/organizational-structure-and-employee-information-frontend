@@ -46,6 +46,17 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
       .validateFields()
       .then(() => {
         const keyResults = objectiveValue?.keyResults;
+        const keyResultSum = keyResults?.reduce(
+          (sum: number, keyResult: Record<string, number>) =>
+            sum + keyResult.weight,
+          0,
+        );
+        if (keyResultSum !== 100) {
+          NotificationMessage.warning({
+            message: `The sum of key result should equal to 100.`,
+          });
+          return; // Stop submission if the sum is not 100
+        }
         if (keyResults && keyResults.length !== 0) {
           // Iterate over each keyResult to validate all milestone key types
           for (const [index, keyResult] of keyResults.entries()) {

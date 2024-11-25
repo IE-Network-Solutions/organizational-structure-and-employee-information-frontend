@@ -32,7 +32,9 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
     }
     return current.isAfter(dayjs(endDate), 'day');
   };
+
   /* eslint-disable @typescript-eslint/naming-convention */
+
   return (
     <div className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full">
       <div className="bg-white p-4 md:p-8 lg:p-12 rounded-lg h-full w-full">

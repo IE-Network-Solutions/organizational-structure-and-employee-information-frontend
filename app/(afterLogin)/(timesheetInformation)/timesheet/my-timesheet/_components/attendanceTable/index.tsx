@@ -195,7 +195,7 @@ const AttendanceTable = () => {
   return (
     <>
       <div className="flex items-center gap-0.5 mb-6">
-        <div className="text-2xl font-bold text-gray-900">Attendance</div>
+        <div className="text-2xl font-bold text-gray-900">My Attendance</div>
         <Button
           type="text"
           size="small"

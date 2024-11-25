@@ -98,17 +98,25 @@ function Planning() {
             />
           </div>
         </Tooltip>
-        {/* {selectedUser.includes(userId) &&
+         {/* {selectedUser.includes(userId) &&
           ((transformedData?.[0]?.isReported ?? false) ||
             transformedData?.length === 0) && (
             <CustomButton
+              disabled={
+                !(
+                  selectedUser.includes(userId) &&
+                  ((transformedData?.[0]?.isReported ?? false) ||
+                    transformedData?.length === 0)
+                )
+              }
               title={`Create ${activeTabName} Plan`}
               id="createActiveTabName"
               icon={<FaPlus className="mr-2" />}
               onClick={() => setOpen(true)}
               className="bg-blue-600 hover:bg-blue-700"
             />
-          )} */}
+          </div> */}
+        {/* </Tooltip> */}
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
@@ -176,36 +184,45 @@ function Planning() {
                                 />
                               </Tooltip>
                             </Col>
-                            <Col className="mr-2">
-                              <Tooltip title="Approve Plan">
-                                <Avatar
-                                  size={16}
-                                  alt="approve plan"
-                                  className="cursor-pointer"
-                                  shape="square"
-                                  style={{ backgroundColor: '#148220' }}
-                                  onClick={() =>
-                                    handleApproveHandler(dataItem?.id, true)
-                                  }
-                                  icon={<IoCheckmarkSharp />}
-                                />
-                              </Tooltip>
-                            </Col>
-                            <Col>
-                              <Tooltip title="Reject Plan">
-                                <Avatar
-                                  size={16}
-                                  alt="Reject Plan"
-                                  className="cursor-pointer"
-                                  shape="square"
-                                  style={{ backgroundColor: '#b50d20' }}
-                                  onClick={() =>
-                                    handleApproveHandler(dataItem?.id, false)
-                                  }
-                                  icon={<IoIosClose />}
-                                />
-                              </Tooltip>
-                            </Col>
+                            {userId ===
+                              getEmployeeData(dataItem?.createdBy)?.reportingTo
+                                ?.id && (
+                              <>
+                                <Col className="mr-2">
+                                  <Tooltip title="Approve Plan">
+                                    <Avatar
+                                      size={16}
+                                      alt="approve plan"
+                                      className="cursor-pointer"
+                                      shape="square"
+                                      style={{ backgroundColor: '#148220' }}
+                                      onClick={() =>
+                                        handleApproveHandler(dataItem?.id, true)
+                                      }
+                                      icon={<IoCheckmarkSharp />}
+                                    />
+                                  </Tooltip>
+                                </Col>
+                                <Col>
+                                  <Tooltip title="Reject Plan">
+                                    <Avatar
+                                      size={16}
+                                      alt="Reject Plan"
+                                      className="cursor-pointer"
+                                      shape="square"
+                                      style={{ backgroundColor: '#b50d20' }}
+                                      onClick={() =>
+                                        handleApproveHandler(
+                                          dataItem?.id,
+                                          false,
+                                        )
+                                      }
+                                      icon={<IoIosClose />}
+                                    />
+                                  </Tooltip>
+                                </Col>
+                              </>
+                            )}
                           </>
                         )}
                       </Col>

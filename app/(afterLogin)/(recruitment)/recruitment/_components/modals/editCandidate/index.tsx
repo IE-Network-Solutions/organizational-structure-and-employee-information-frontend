@@ -40,7 +40,7 @@ const EditCandidate: React.FC = () => {
     currentPage,
     pageSize,
   } = useCandidateState();
-  
+
   const { data: jobList } = useGetJobs(
     searchParams?.whatYouNeed || '',
     currentPage,
