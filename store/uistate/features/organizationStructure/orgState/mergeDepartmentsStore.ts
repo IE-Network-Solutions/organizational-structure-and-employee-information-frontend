@@ -2,12 +2,14 @@ import create from 'zustand';
 interface RootDepartment {
   id: string;
   name: string;
+  branchId: string;
   description?: string;
 }
 
 interface ChildDepartment {
   id: string;
   name: string;
+  branchId: string;
   description?: string;
 }
 

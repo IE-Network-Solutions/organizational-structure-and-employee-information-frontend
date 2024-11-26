@@ -1,8 +1,4 @@
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import {
-  MergingDepartment,
-  UpdateDepartmentChild,
-} from '@/store/server/features/organizationStructure/mergeDepartments/interface';
 import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { Form, Input, Select } from 'antd';
@@ -51,34 +47,37 @@ export const MergeForm = () => {
     label: item.name,
   }));
 
+  // Filter out the rootDepartment from the child department options
+  const filteredChildDepartments = OPTIONS?.filter(
+    (item: any) => item.value !== rootDepartment?.id,
+  );
+
   const departmentCache: Record<string, any> = {};
 
-  const findDepartmentWithChildren = (tree: any, id: string) => {
-    // Check if department is already cached
-    if (departmentCache[id]) {
-      return departmentCache[id];
-    }
+  const findDepartmentWithChildren = (tree: any, id: string): any => {
+    if (departmentCache[id]) return departmentCache[id];
 
-    for (const node of tree) {
-      if (node.id === id) {
-        const departmentData = {
-          id: node.id,
-          name: node.name,
-          description: node.description,
-          branchId: node.branchId,
-          children: node.department || [],
-        };
-        departmentCache[id] = departmentData; // Cache result
-        return departmentData;
-      }
-      if (node.department?.length) {
-        const result: any = findDepartmentWithChildren(node.department, id);
+    if (tree.id === id) {
+      const departmentData = {
+        id: tree.id,
+        name: tree.name,
+        description: tree.description,
+        branchId: tree.branchId,
+        children: tree.department || [],
+      };
+      departmentCache[id] = departmentData;
+      return departmentData;
+    }
+    if (tree.department?.length) {
+      for (const child of tree.department) {
+        const result = findDepartmentWithChildren(child, id);
         if (result) {
-          departmentCache[id] = result; // Cache result
+          departmentCache[id] = result;
           return result;
         }
       }
     }
+
     return null;
   };
 
@@ -89,9 +88,8 @@ export const MergeForm = () => {
       );
       return;
     }
-
     const rootDept = findDepartmentWithChildren(
-      orgStructureData.department,
+      orgStructureData,
       rootDepartment.id,
     );
 
@@ -99,15 +97,15 @@ export const MergeForm = () => {
       console.error('Root department not found');
       return;
     }
-
     const departmentChildren = childDepartment.map((child) => {
       const departmentData = findDepartmentWithChildren(
-        orgStructureData.department,
+        orgStructureData,
         child.id,
       );
       return {
         id: child.id,
         name: departmentData?.name || '',
+        branchId: departmentData?.branchId || '',
         description: departmentData?.description || '',
       };
     });
@@ -122,6 +120,31 @@ export const MergeForm = () => {
     };
 
     setMergeDepartment(mergeData);
+  };
+
+  const handleRootDepartmentChange = (id: string) => {
+    const department = departments?.find((dept: any) => dept.id === id);
+    if (department) {
+      setRootDepartment({
+        id: department.id,
+        name: department.name,
+        branchId: department.branchId || '',
+        description: department.description || '',
+      });
+    }
+  };
+
+  const handleChildDepartmentsChange = (ids: string[]) => {
+    const updatedDepartments = ids.map((id: string) => {
+      const department = departments?.find((dept: any) => dept.id === id);
+      return {
+        id,
+        name: department?.name || '',
+        branchId: department?.branchId || '',
+        description: department?.description || '',
+      };
+    });
+    setChildDepartment(updatedDepartments);
   };
 
   useEffect(() => {
@@ -145,16 +168,7 @@ export const MergeForm = () => {
           placeholder="Which Department to be merged"
           optionFilterProp="label"
           value={rootDepartment?.id}
-          onChange={(id) =>
-            setRootDepartment({
-              id,
-              name:
-                departments?.find((dept: any) => dept.id === id)?.name || '',
-              description:
-                departments?.find((dept: any) => dept.id === id)?.description ||
-                '',
-            })
-          }
+          onChange={handleRootDepartmentChange}
           options={OPTIONS}
         />
       </Form.Item>
@@ -174,21 +188,8 @@ export const MergeForm = () => {
           placeholder="Merge it with"
           style={{ width: '100%' }}
           value={childDepartment.map((child) => child.id)}
-          onChange={(ids) =>
-            setChildDepartment(
-              ids.map((id: string) => {
-                const department = departments?.find(
-                  (dept: any) => dept.id === id,
-                );
-                return {
-                  id,
-                  name: department?.name || '',
-                  description: department?.description || '',
-                };
-              }),
-            )
-          }
-          options={OPTIONS}
+          onChange={handleChildDepartmentsChange}
+          options={filteredChildDepartments} // Use filtered child department options
         />
       </Form.Item>
 
@@ -201,6 +202,7 @@ export const MergeForm = () => {
     </Form>
   );
 };
+
 export const DissolveForm = () => (
   <Form layout="vertical">
     <Form.Item

@@ -82,193 +82,204 @@ const OrgChartComponent: React.FC = () => {
   const { mutate: updateDepartment } = useUpdateOrgChart();
   const { mutate: deleteDepartment, isLoading: deleteLoading } =
     useDeleteOrgChart();
-  const [parent, setParrent] = useState<Department>();
+    const {
+      mutate: mergeDepartments,
+      isLoading,
+      isSuccess,
+    } = useMergingDepartment();
 
-  const handleEdit = (department: Department) => {
-    setSelectedDepartment(department);
-    setIsFormVisible(true);
-  };
+    const [parent, setParrent] = useState<Department>();
 
-  const handleAdd = (parent: any) => {
-    setParentId(parent?.id || '');
-    setParrent(parent);
-    setSelectedDepartment(null);
-    setIsFormVisible(true);
-  };
+    const handleEdit = (department: Department) => {
+      setSelectedDepartment(department);
+      setIsFormVisible(true);
+    };
 
-  const handleDelete = (departmentId: string) => {
-    setIsDeleteConfirmVisible(true);
-    setSelectedDepartment({ id: departmentId } as Department);
-  };
+    const handleAdd = (parent: any) => {
+      setParentId(parent?.id || '');
+      setParrent(parent);
+      setSelectedDepartment(null);
+      setIsFormVisible(true);
+    };
 
-  const handleFormSubmit = (values: OrgChart) => {
-    if (selectedDepartment) {
-      updateDepartment({
-        id: selectedDepartment.id,
-        orgChart: { ...selectedDepartment, ...values },
-      });
-    } else if (parentId) {
-      const newId = uuidv4();
+    const handleDelete = (departmentId: string) => {
+      setIsDeleteConfirmVisible(true);
+      setSelectedDepartment({ id: departmentId } as Department);
+    };
 
-      const data = {
-        ...parent,
-        department: [...(parent?.department || []), { ...values, id: newId }],
-      };
+    const handleFormSubmit = (values: OrgChart) => {
+      if (selectedDepartment) {
+        updateDepartment({
+          id: selectedDepartment.id,
+          orgChart: { ...selectedDepartment, ...values },
+        });
+      } else if (parentId) {
+        const newId = uuidv4();
 
-      updateDepartment({
-        id: parentId,
-        orgChart: data,
-      });
-    }
-    setIsFormVisible(false);
-  };
+        const data = {
+          ...parent,
+          department: [...(parent?.department || []), { ...values, id: newId }],
+        };
 
-  const handleDeleteConfirm = () => {
-    if (selectedDepartment) {
-      deleteDepartment(selectedDepartment.id);
-    }
-    setIsDeleteConfirmVisible(false);
-  };
+        updateDepartment({
+          id: parentId,
+          orgChart: data,
+        });
+      }
+      setIsFormVisible(false);
+    };
 
-  const {
-    drawerVisible,
-    drawerContent,
-    footerButtonText,
-    drawTitle,
-    setDrawerVisible,
-  } = useOrganizationStore.getState();
+    const handleDeleteConfirm = () => {
+      if (selectedDepartment) {
+        deleteDepartment(selectedDepartment.id);
+      }
+      setIsDeleteConfirmVisible(false);
+    };
 
-  const closeDrawer = () => {
-    setDrawerVisible(false);
-  };
+    const {
+      drawerVisible,
+      drawerContent,
+      footerButtonText,
+      drawTitle,
+      setDrawerVisible,
+    } = useOrganizationStore.getState();
 
-  const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
-  const { userId } = useAuthenticationStore.getState();
-  const { data: departments } = useGetDepartments();
+    const closeDrawer = () => {
+      setDrawerVisible(false);
+    };
 
-  const { data: employeeData } = useGetEmployee(userId);
+    const { setIsAddEmployeeJobInfoModalVisible } =
+      useEmployeeManagementStore();
+    const { userId } = useAuthenticationStore.getState();
+    const { data: departments } = useGetDepartments();
 
-  const router = useRouter();
-  useEffect(() => {
-    if (departments?.length < 1) {
-      router.push('/onboarding');
-    } else if (
-      employeeData &&
-      employeeData?.employeeJobInformation?.length < 1
-    ) {
-      setIsAddEmployeeJobInfoModalVisible(true);
-    }
-  }, [employeeData, departments, setIsAddEmployeeJobInfoModalVisible]);
-  const { mutate: mergeDepartments } = useMergingDepartment();
+    const { data: employeeData } = useGetEmployee(userId);
 
-  return (
-    <div className="w-full overflow-x-auto">
-      <Card
-        className="w-full"
-        title={<div className="text-2xl font-bold">ORG Structure</div>}
-        extra={
-          <div className="py-4 flex justify-center items-center gap-4">
-            <Dropdown
-              overlay={exportOrgStrucutreMenu(chartRef, exportToPDFOrJPEG)}
-              trigger={['click']}
-            >
-              <CustomButton
-                title="Download"
-                icon={<FaDownload size={16} />}
-                loading={chartDownlaodLoading}
-              />
-            </Dropdown>
-            <Dropdown
-              overlay={orgComposeAndMergeMenues}
-              trigger={['click']}
-              placement="bottomRight"
-            >
-              <CustomButton title="" icon={<BsThreeDotsVertical size={24} />} />
-            </Dropdown>
-          </div>
-        }
-      >
-        <div className="w-full py-7 overflow-x-auto ">
-          {orgStructureLoading ? (
-            <OrgChartSkeleton loading={orgStructureLoading} />
-          ) : (
-            <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef}>
-              <Tree
-                label={
-                  <DepartmentNode
-                    data={{
-                      id: orgStructureData?.id || '',
-                      name: orgStructureData?.name || '',
-                      department: orgStructureData?.department || [],
-                      branchId: orgStructureData?.branchId,
-                      description: '',
-                      collapsed: false,
-                    }}
-                    onEdit={() => {}}
-                    onAdd={() => handleAdd(orgStructureData)}
-                    onDelete={() => {}}
-                    isRoot={true}
-                  />
-                }
-                lineWidth={'2px'}
-                lineColor={'#722ed1'}
-                lineBorderRadius={'10px'}
+    const router = useRouter();
+    useEffect(() => {
+      if (departments?.length < 1) {
+        router.push('/onboarding');
+      } else if (
+        employeeData &&
+        employeeData?.employeeJobInformation?.length < 1
+      ) {
+        setIsAddEmployeeJobInfoModalVisible(true);
+      }
+      if (isSuccess) {
+        closeDrawer();
+        resetStore();
+      }
+    }, [
+      employeeData,
+      departments,
+      setIsAddEmployeeJobInfoModalVisible,
+      isSuccess,
+    ]);
+
+    return (
+      <div className="w-full overflow-x-auto">
+        <Card
+          className="w-full"
+          title={<div className="text-2xl font-bold">ORG Structure</div>}
+          extra={
+            <div className="py-4 flex justify-center items-center gap-4">
+              <Dropdown
+                overlay={exportOrgStrucutreMenu(chartRef, exportToPDFOrJPEG)}
+                trigger={['click']}
               >
-                {renderTreeNodes(
-                  orgStructureData?.department || [],
-                  handleEdit,
-                  handleAdd,
-                  handleDelete,
-                  false,
-                )}
-              </Tree>
+                <CustomButton
+                  title="Download"
+                  icon={<FaDownload size={16} />}
+                  loading={chartDownlaodLoading}
+                />
+              </Dropdown>
+              <Dropdown
+                overlay={orgComposeAndMergeMenues}
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                <CustomButton
+                  title=""
+                  icon={<BsThreeDotsVertical size={24} />}
+                />
+              </Dropdown>
             </div>
-          )}
+          }
+        >
+          <div className="w-full py-7 overflow-x-auto ">
+            {orgStructureLoading ? (
+              <OrgChartSkeleton loading={orgStructureLoading} />
+            ) : (
+              <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef}>
+                <Tree
+                  label={
+                    <DepartmentNode
+                      data={{
+                        id: orgStructureData?.id || '',
+                        name: orgStructureData?.name || '',
+                        department: orgStructureData?.department || [],
+                        branchId: orgStructureData?.branchId,
+                        description: '',
+                        collapsed: false,
+                      }}
+                      onEdit={() => {}}
+                      onAdd={() => handleAdd(orgStructureData)}
+                      onDelete={() => {}}
+                      isRoot={true}
+                    />
+                  }
+                  lineWidth={'2px'}
+                  lineColor={'#722ed1'}
+                  lineBorderRadius={'10px'}
+                >
+                  {renderTreeNodes(
+                    orgStructureData?.department || [],
+                    handleEdit,
+                    handleAdd,
+                    handleDelete,
+                    false,
+                  )}
+                </Tree>
+              </div>
+            )}
 
-          <DepartmentForm
-            onClose={() => setIsFormVisible(false)}
-            open={isFormVisible}
-            submitAction={handleFormSubmit}
-            departmentData={selectedDepartment ?? undefined}
-            title={selectedDepartment ? 'Edit Department' : 'Add Department'}
+            <DepartmentForm
+              onClose={() => setIsFormVisible(false)}
+              open={isFormVisible}
+              submitAction={handleFormSubmit}
+              departmentData={selectedDepartment ?? undefined}
+              title={selectedDepartment ? 'Edit Department' : 'Add Department'}
+            />
+
+            <DeleteModal
+              open={isDeleteConfirmVisible}
+              onConfirm={handleDeleteConfirm}
+              onCancel={() => setIsDeleteConfirmVisible(false)}
+              loading={deleteLoading}
+            />
+          </div>
+          <CustomDrawer
+            loading={isLoading}
+            visible={drawerVisible}
+            onClose={() => {
+              closeDrawer(), resetStore;
+              console.log('on cancel clicked');
+            }}
+            drawerContent={drawerContent}
+            footerButtonText={footerButtonText}
+            onSubmit={() => {
+              if (mergeDepartment) {
+                mergeDepartments(mergeDepartment);
+              } else {
+                console.error('Merge department is not defined');
+              }
+            }}
+            title={drawTitle}
           />
-
-          <DeleteModal
-            open={isDeleteConfirmVisible}
-            onConfirm={handleDeleteConfirm}
-            onCancel={() => setIsDeleteConfirmVisible(false)}
-            loading={deleteLoading}
-          />
-        </div>
-        <CustomDrawer
-          visible={drawerVisible}
-          onClose={() => {
-            closeDrawer(), resetStore();
-            console.log('on cancel clicked');
-          }}
-          drawerContent={drawerContent}
-          footerButtonText={footerButtonText}
-          onSubmit={() => {
-            console.log(
-              'Submit------------------',
-              rootDepartment,
-              childDepartment,
-              mergeDepartment,
-            );
-
-            if (mergeDepartment) {
-              console.log('Submit------------------', mergeDepartment);
-              mergeDepartments(mergeDepartment);
-            } else {
-              console.error('Merge department is not defined');
-            }
-          }}
-          title={drawTitle}
-        />
-      </Card>
-      <CreateEmployeeJobInformation id={userId} />
-    </div>
-  );
+        </Card>
+        <CreateEmployeeJobInformation id={userId} />
+      </div>
+    );
 };
 
 export default OrgChartComponent;

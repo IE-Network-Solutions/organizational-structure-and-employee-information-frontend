@@ -2,9 +2,9 @@ import React from 'react';
 import CustomButton from '@/components/common/buttons/customButton';
 import { ArchiveForm, DissolveForm, MergeForm } from '../forms';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { MergingDepartment } from '@/store/server/features/organizationStructure/mergeDepartments/interface';
 
 interface CustomDrawerProps {
+  loading: boolean;
   visible: boolean;
   onClose: () => void;
   title: string;
@@ -15,6 +15,7 @@ interface CustomDrawerProps {
 }
 
 const CustomDrawer: React.FC<CustomDrawerProps> = ({
+  loading,
   visible,
   onClose,
   title,
@@ -57,6 +58,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             title={footerButtonText}
             type="primary"
             onClick={onSubmit}
+            loading={loading}
           />
         </div>
       }
