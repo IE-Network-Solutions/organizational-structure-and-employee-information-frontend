@@ -150,6 +150,8 @@ const ApprovalWorkFlowSettingComponent = ({
           <Select
             className="w-full h-10 mb-1"
             allowClear
+            showSearch
+            optionFilterProp="label"
             style={{ width: 120 }}
             placeholder={`Select ${workflowApplies ? workflowApplies : ''} `}
             options={(() => {
@@ -171,7 +173,7 @@ const ApprovalWorkFlowSettingComponent = ({
                 return (
                   users?.items?.map((list: any) => ({
                     value: list?.id,
-                    label: `${list?.firstName} ${list?.lastName}`,
+                    label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
                   })) || []
                 );
               } else {
@@ -186,6 +188,8 @@ const ApprovalWorkFlowSettingComponent = ({
         <div className="my-3">
           <div className="text-lg font-bold ">Number Of Level</div>
           <Select
+            showSearch
+            optionFilterProp="label"
             className="w-full h-10 m-1"
             style={{ width: 120 }}
             onChange={handleLevelChange}
@@ -224,13 +228,15 @@ const ApprovalWorkFlowSettingComponent = ({
                 <Select
                   className="w-full  my-3"
                   allowClear
+                  showSearch
+                  optionFilterProp="label"
                   mode={approverType === 'Parallel' ? 'multiple' : undefined}
                   style={{ width: 120 }}
                   onChange={(value) => handleUserChange(value as string, index)}
                   placeholder="Select User"
                   options={users?.items?.map((list: any) => ({
                     value: list?.id,
-                    label: `${list?.firstName} ${list?.lastName}`,
+                    label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
                   }))}
                 />
               </Form.Item>

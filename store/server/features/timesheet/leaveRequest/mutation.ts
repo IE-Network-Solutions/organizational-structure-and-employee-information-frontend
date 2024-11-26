@@ -53,6 +53,7 @@ export const useSetLeaveRequest = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('leave-request');
+      queryClient.invalidateQueries('current_approval');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
