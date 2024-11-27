@@ -1,8 +1,8 @@
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
-import { Form, Input, Select } from 'antd';
-import { useEffect, useState } from 'react';
+import { Form, Input, message, Select } from 'antd';
+import { useEffect } from 'react';
 import { RiErrorWarningFill } from 'react-icons/ri';
 
 export const ArchiveForm = () => (
@@ -83,7 +83,7 @@ export const MergeForm = () => {
 
   const Merge = () => {
     if (!orgStructureData || !rootDepartment?.id) {
-      console.error(
+      message.error(
         'Organization structure data or root department not available',
       );
       return;
@@ -94,7 +94,7 @@ export const MergeForm = () => {
     );
 
     if (!rootDept) {
-      console.error('Root department not found');
+      message.error('Root department not found');
       return;
     }
     const departmentChildren = childDepartment.map((child) => {

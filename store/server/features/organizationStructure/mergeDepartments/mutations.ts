@@ -25,7 +25,7 @@ export const useMergingDepartment = () => {
   const queryClient = useQueryClient();
 
   return useMutation((data: MergingDepartment) => mergingDepartment(data), {
-    onSuccess: (_, variables: MergingDepartment) => {
+    onSuccess: () => {
       queryClient.invalidateQueries('orgcharts');
       handleSuccessMessage('Departments merged successfully');
     },
