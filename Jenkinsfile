@@ -21,8 +21,8 @@ pipeline {
         NEXT_PUBLIC_AUTH_DOMIAN="pep-authentication.firebaseapp.com"
         NEXT_PUBLIC_PROJECT_ID="pep-authentication"
         NEXT_PUBLIC_STORAGE_BUCKET="pep-authentication.appspot.com"
-        NEXT_PUBLIC_MESSAGE_SENDER_ID="871958776875"
-        NEXT_PUBLIC_APP_ID="1:871958776875:web:426ec9b0b49fc35df1ae6e"
+        NEXT_PUBLIC_MESSAGE_SENDER_ID="82054419625"
+        NEXT_PUBLIC_APP_ID="1:82054419625:web:54adde047b410efd9cc5b8"
     }
 
     stages {
