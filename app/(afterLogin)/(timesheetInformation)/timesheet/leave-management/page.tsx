@@ -64,12 +64,6 @@ const LeaveManagement = () => {
         <BlockWrapper>
           <PageHeader title="Leave Management">
             <Space size={20}>
-              <Input
-                placeholder="Search employee"
-                className="h-14 text-gray-900 w-[300px]"
-                suffix={<IoSearchOutline size={20} className="text-gray-900" />}
-              />
-
               <Popover
                 trigger="click"
                 placement="bottomRight"
