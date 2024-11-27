@@ -60,6 +60,8 @@ const AddApproverComponent = ({
               {approverType === 'Parallel' ? 'Approvers' : 'Level'}
             </div>
             <Select
+              showSearch
+              optionFilterProp="label"
               className="w-full h-10 m-1"
               style={{ width: 120 }}
               onChange={handleLevelChange}
@@ -89,7 +91,8 @@ const AddApproverComponent = ({
               <div key={index} className="px-10 my-1 ">
                 {approverType !== 'Parallel' && (
                   <div>
-                    Level: {selectedItem?.approvers?.length + index + 1}
+                    Additional Levels:{' '}
+                    {selectedItem?.approvers?.length + index + 1}
                   </div>
                 )}
 
@@ -115,6 +118,8 @@ const AddApproverComponent = ({
                   <Select
                     className="min-w-52 my-3"
                     allowClear
+                    showSearch
+                    optionFilterProp="label"
                     mode={approverType === 'Parallel' ? 'multiple' : undefined}
                     style={{ width: 120 }}
                     onChange={(value) =>
@@ -123,7 +128,7 @@ const AddApproverComponent = ({
                     placeholder="Select User"
                     options={users?.items?.map((list: any) => ({
                       value: list?.id,
-                      label: `${list?.firstName} ${list?.lastName}`,
+                      label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
                     }))}
                   />
                 </Form.Item>

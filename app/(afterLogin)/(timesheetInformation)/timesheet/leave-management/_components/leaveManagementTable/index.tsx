@@ -186,6 +186,9 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     if (val.status) {
       nFilter['status'] = val.status;
     }
+    if (val.userIds) {
+      nFilter['userIds'] = [val.userIds];
+    }
 
     setFilter(nFilter);
 
