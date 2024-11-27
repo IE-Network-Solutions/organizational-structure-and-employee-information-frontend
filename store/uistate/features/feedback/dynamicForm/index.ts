@@ -103,11 +103,9 @@ export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
           q.id === questionId
             ? {
                 ...q,
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                field: q.field.filter((_, index) => index !== optionIndex),
+                field: q.field.filter((notused, index) => index !== optionIndex),
               }
             : q,
-        // eslint-enable-next-line @typescript-eslint/naming-convention
       ),
     })),
   setPageSize: (pageSize) => set({ pageSize }),

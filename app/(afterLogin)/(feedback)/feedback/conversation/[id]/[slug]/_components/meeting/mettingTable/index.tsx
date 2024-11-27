@@ -104,8 +104,7 @@ const MettingDataTable = ({
       title: 'Department',
       dataIndex: 'departmentId',
       render: (
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        _, // Keep `_` as the name
+        notused, // Keep `_` as the name
         record,
       ) =>
         record.departmentId?.map((id: any) => getDepartmentId(id)).join(', ') ??
@@ -115,10 +114,8 @@ const MettingDataTable = ({
       title: 'Created By',
       dataIndex: 'createdBy',
       render: (
-        /* eslint-disable @typescript-eslint/naming-convention */
-        _,
+        notused,
         record,
-        /* eslint-enable @typescript-eslint/naming-convention */
       ) =>
         record.createdBy ? getEmployeeData(record.createdBy)?.firstName : '-',
     },
@@ -126,8 +123,7 @@ const MettingDataTable = ({
       title: 'Attendees',
       dataIndex: 'userId',
       render: (
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        _,
+        notused,
         record,
       ) => (
         <div>
@@ -143,8 +139,7 @@ const MettingDataTable = ({
       dataIndex: 'action',
       width: 100,
       render: (
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        _,
+        notused,
         record,
       ) => (
         <div className="flex space-x-2">
