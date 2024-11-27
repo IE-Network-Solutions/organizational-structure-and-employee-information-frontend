@@ -6,13 +6,12 @@ import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHea
 import { useSetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 import { attendanceRecordTypeOption } from '@/types/timesheet/attendance';
-import { DatePicker, Form, Select, Space, Spin, TimePicker } from 'antd';
+import { Form, Select, Space, Spin, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 
 import { MdKeyboardArrowDown } from 'react-icons/md';
-import StatusBadge from '@/components/common/statusBadge/statusBadge';
 
 const EmployeeAttendanceSideBar = () => {
   const [form] = Form.useForm();
@@ -22,8 +21,6 @@ const EmployeeAttendanceSideBar = () => {
     newData,
     isShowEmployeeAttendanceSidebar,
     setIsShowEmployeeAttendanceSidebar,
-    employeeAttendanceId,
-    setEmployeeAttendanceId,
     setNewData,
   } = useEmployeeAttendanceStore();
   const onClose = () => {
@@ -32,9 +29,9 @@ const EmployeeAttendanceSideBar = () => {
     setNewData(null);
   };
   const {
-    mutate: updateLeaveRequest,
+    // mutate: updateLeaveRequest,
     isLoading: isLoadingRequest,
-    isSuccess: isSuccessUpdate,
+    // isSuccess: isSuccessUpdate,
   } = useSetLeaveRequest();
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -57,8 +54,8 @@ const EmployeeAttendanceSideBar = () => {
   ];
 
   const onFinish = () => {
-    const value = form.getFieldsValue();
-    console.log('final value', newData, value);
+    // const value = form.getFieldsValue();
+    // console.log('final value', newData, value);
   };
 
   React.useEffect(() => {
@@ -72,7 +69,7 @@ const EmployeeAttendanceSideBar = () => {
       form.setFieldsValue(formattedBreakType);
     }
   }, [newData, form]);
-  console.log('new data', newData);
+  // console.log('new data', newData);
 
   return (
     isShowEmployeeAttendanceSidebar && (
