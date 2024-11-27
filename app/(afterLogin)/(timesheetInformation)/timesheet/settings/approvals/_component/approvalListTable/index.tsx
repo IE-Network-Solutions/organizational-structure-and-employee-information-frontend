@@ -99,84 +99,92 @@ const ApprovalListTable = () => {
             overflowY: 'scroll',
           }}
         >
-          {item?.approvers?.map((employee: any, empIndex: number) => {
-            const fullName =
-              getEmployeeInformation(employee?.userId)?.firstName +
-              '  ' +
-              getEmployeeInformation(employee?.userId)?.middleName;
-            const shortEmail = getEmployeeInformation(employee?.userId)?.email;
-            const displayName =
-              fullName?.length > MAX_NAME_LENGTH
-                ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
-                : fullName;
-            const displayEmail =
-              shortEmail?.length > MAX_EMAIL_LENGTH
-                ? shortEmail.slice(0, MAX_EMAIL_LENGTH) + '...'
-                : shortEmail;
+          {[...item?.approvers]
+            .sort((a, b) => a.stepOrder - b.stepOrder)
+            ?.map((employee: any, empIndex: number) => {
+              const fullName =
+                getEmployeeInformation(employee?.userId)?.firstName +
+                '  ' +
+                getEmployeeInformation(employee?.userId)?.middleName;
+              const shortEmail = getEmployeeInformation(
+                employee?.userId,
+              )?.email;
+              const displayName =
+                fullName?.length > MAX_NAME_LENGTH
+                  ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
+                  : fullName;
+              const displayEmail =
+                shortEmail?.length > MAX_EMAIL_LENGTH
+                  ? shortEmail.slice(0, MAX_EMAIL_LENGTH) + '...'
+                  : shortEmail;
 
-            return (
-              <Tooltip
-                key={empIndex}
-                title={
-                  <div>
-                    {fullName}
-                    <br />
-                    {getEmployeeInformation(employee?.userId)?.email}
+              return (
+                <Tooltip
+                  key={empIndex}
+                  title={
+                    <div>
+                      {fullName}
+                      <br />
+                      {getEmployeeInformation(employee?.userId)?.email}
+                    </div>
+                  }
+                >
+                  <div className="flex items-center flex-wrap sm:flex-row gap-2">
+                    <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                      <Image
+                        src={
+                          getEmployeeInformation(employee?.userId)
+                            ?.profileImage &&
+                          typeof getEmployeeInformation(employee?.userId)
+                            ?.profileImage === 'string'
+                            ? (() => {
+                                try {
+                                  const parsed = JSON.parse(
+                                    getEmployeeInformation(employee?.userId)
+                                      ?.profileImage,
+                                  );
+                                  return parsed.url &&
+                                    parsed.url.startsWith('http')
+                                    ? parsed.url
+                                    : Avatar;
+                                } catch {
+                                  return getEmployeeInformation(
+                                    employee?.userId,
+                                  )?.profileImage.startsWith('http')
+                                    ? getEmployeeInformation(employee?.userId)
+                                        ?.profileImage
+                                    : Avatar;
+                                }
+                              })()
+                            : Avatar
+                        }
+                        alt="Description of image"
+                        layout="fill"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex flex-wrap flex-col justify-center">
+                      <p>{displayName}</p>
+                      <p className="font-extralight text-[12px]">
+                        {displayEmail}
+                      </p>
+                    </div>
                   </div>
-                }
-              >
-                <div className="flex items-center flex-wrap sm:flex-row gap-2">
-                  <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                    <Image
-                      src={
-                        getEmployeeInformation(employee?.userId)
-                          ?.profileImage &&
-                        typeof getEmployeeInformation(employee?.userId)
-                          ?.profileImage === 'string'
-                          ? (() => {
-                              try {
-                                const parsed = JSON.parse(
-                                  getEmployeeInformation(employee?.userId)
-                                    ?.profileImage,
-                                );
-                                return parsed.url &&
-                                  parsed.url.startsWith('http')
-                                  ? parsed.url
-                                  : Avatar;
-                              } catch {
-                                return getEmployeeInformation(
-                                  employee?.userId,
-                                )?.profileImage.startsWith('http')
-                                  ? getEmployeeInformation(employee?.userId)
-                                      ?.profileImage
-                                  : Avatar;
-                              }
-                            })()
-                          : Avatar
-                      }
-                      alt="Description of image"
-                      layout="fill"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex flex-wrap flex-col justify-center">
-                    <p>{displayName}</p>
-                    <p className="font-extralight text-[12px]">
-                      {displayEmail}
-                    </p>
-                  </div>
-                </div>
-              </Tooltip>
-            );
-          })}
+                </Tooltip>
+              );
+            })}
         </div>
       ),
-      level: item?.approvers ? item?.approvers?.length : '-',
+      level: item?.approvers
+        ? item?.approvalWorkflowType == 'Parallel'
+          ? Math.max(...item?.approvers.map((item: any) => item.stepOrder))
+          : item?.approvers?.length
+        : '-',
       action: (
         <div className="flex gap-4 text-white">
           <Tooltip title={'Add Approver'}>
             <Button
-              id={`editUserButton${item?.id}`}
+              id={`addUserButton${item?.id}`}
               className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 "
               onClick={() => {
                 setAddModal(true);

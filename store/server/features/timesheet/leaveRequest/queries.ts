@@ -22,7 +22,7 @@ const getLeaveRequest = async (
 ) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request`,
-    method: 'GET',
+    method: 'POST',
     headers: requestHeader(),
     data,
     params: queryData,

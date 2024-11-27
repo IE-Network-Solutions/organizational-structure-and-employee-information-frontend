@@ -122,6 +122,8 @@ const EditApproverComponent = ({
 
           <Form.Item className="text-lg font-bold" name="workflowAppliesId">
             <Select
+              showSearch
+              optionFilterProp="label"
               className="min-w-52 mb-1"
               allowClear
               style={{ width: 120 }}
@@ -147,6 +149,8 @@ const EditApproverComponent = ({
                     ]}
                   >
                     <Select
+                      showSearch
+                      optionFilterProp="label"
                       className="min-w-52 my-3"
                       mode={
                         approverType === 'Parallel' ? 'multiple' : undefined
@@ -159,7 +163,7 @@ const EditApproverComponent = ({
                       placeholder="Select User"
                       options={users?.items?.map((list: any) => ({
                         value: list?.id,
-                        label: `${list?.firstName} ${list?.lastName}`,
+                        label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
                       }))}
                     />
                   </Form.Item>
