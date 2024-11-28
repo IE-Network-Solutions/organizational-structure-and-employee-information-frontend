@@ -3,7 +3,7 @@
  */
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_DEV, ORG_DEV_URL } from '@/utils/constants';
+import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
