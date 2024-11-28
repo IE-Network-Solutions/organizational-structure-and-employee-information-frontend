@@ -2,7 +2,7 @@
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import LeaveManagementTable from './_components/leaveManagementTable';
-import { Button, Col, Popover, Row, Space } from 'antd';
+import { Button, Col, Input, Popover, Row, Space } from 'antd';
 import CustomButton from '@/components/common/buttons/customButton';
 import { TbFileDownload, TbLayoutList } from 'react-icons/tb';
 import { LuBookmark } from 'react-icons/lu';
@@ -15,6 +15,7 @@ import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveReque
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { IoSearchOutline } from 'react-icons/io5';
 
 const LeaveManagement = () => {
   const [bodyRequest, setBodyRequest] = useState<LeaveRequestBody>(

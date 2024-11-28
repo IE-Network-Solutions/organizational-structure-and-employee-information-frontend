@@ -13,7 +13,6 @@ import { useAttendanceImport } from '@/store/server/features/timesheet/attendanc
 import { fileUpload } from '@/utils/fileUpload';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import EmployeeAttendanceSideBar from './_components/employeeAttendanceTable/sideBar';
 const EmployeeAttendance = () => {
   const [isLoading, setIsLoading] = useState(false);
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
