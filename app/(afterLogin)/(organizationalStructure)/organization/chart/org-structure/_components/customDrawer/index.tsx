@@ -4,6 +4,7 @@ import { ArchiveForm, DissolveForm, MergeForm } from '../forms';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 
 interface CustomDrawerProps {
+  loading: boolean;
   visible: boolean;
   onClose: () => void;
   title: string;
@@ -14,6 +15,7 @@ interface CustomDrawerProps {
 }
 
 const CustomDrawer: React.FC<CustomDrawerProps> = ({
+  loading,
   visible,
   onClose,
   title,
@@ -56,6 +58,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             title={footerButtonText}
             type="primary"
             onClick={onSubmit}
+            loading={loading}
           />
         </div>
       }

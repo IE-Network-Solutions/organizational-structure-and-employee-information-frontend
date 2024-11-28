@@ -1,4 +1,8 @@
-import { Form, Input, Select } from 'antd';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
+import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
+import { Form, Input, message, Select } from 'antd';
+import { useEffect } from 'react';
 import { RiErrorWarningFill } from 'react-icons/ri';
 
 export const ArchiveForm = () => (
@@ -26,37 +30,178 @@ export const ArchiveForm = () => (
   </Form>
 );
 
-export const MergeForm = () => (
-  <Form layout="vertical">
-    <Form.Item
-      label="Which Department to be merged"
-      name="departmentToMerge"
-      rules={[
-        { required: true, message: 'Please select the department to merge' },
-      ]}
-    >
-      <Input placeholder="Which department to be merged" />
-    </Form.Item>
-    <Form.Item
-      label="Merge it with"
-      name="mergeWith"
-      rules={[
-        {
-          required: true,
-          message: 'Please select the department to merge with',
-        },
-      ]}
-    >
-      <Input placeholder="Merge it with" />
-    </Form.Item>
-    <Form.Item>
-      <p style={{ color: '#595959' }}>
-        <span style={{ marginRight: '8px' }}>ⓘ</span>This will affect the whole
-        company structure
-      </p>
-    </Form.Item>
-  </Form>
-);
+export const MergeForm = () => {
+  const {
+    rootDepartment,
+    setRootDepartment,
+    childDepartment,
+    setChildDepartment,
+    setMergeDepartment,
+  } = useMergeStore();
+
+  const { data: departments } = useGetDepartments();
+  const { data: orgStructureData } = useGetOrgCharts();
+
+  const OPTIONS = departments?.map((item: any) => ({
+    value: item.id,
+    label: item.name,
+  }));
+
+  // Filter out the rootDepartment from the child department options
+  const filteredChildDepartments = OPTIONS?.filter(
+    (item: any) => item.value !== rootDepartment?.id,
+  );
+
+  const departmentCache: Record<string, any> = {};
+
+  const findDepartmentWithChildren = (tree: any, id: string): any => {
+    if (departmentCache[id]) return departmentCache[id];
+
+    if (tree.id === id) {
+      const departmentData = {
+        id: tree.id,
+        name: tree.name,
+        description: tree.description,
+        branchId: tree.branchId,
+        children: tree.department || [],
+      };
+      departmentCache[id] = departmentData;
+      return departmentData;
+    }
+    if (tree.department?.length) {
+      for (const child of tree.department) {
+        const result = findDepartmentWithChildren(child, id);
+        if (result) {
+          departmentCache[id] = result;
+          return result;
+        }
+      }
+    }
+
+    return null;
+  };
+
+  const Merge = () => {
+    if (!orgStructureData || !rootDepartment?.id) {
+      message.error(
+        'Organization structure data or root department not available',
+      );
+      return;
+    }
+    const rootDept = findDepartmentWithChildren(
+      orgStructureData,
+      rootDepartment.id,
+    );
+
+    if (!rootDept) {
+      message.error('Root department not found');
+      return;
+    }
+    const departmentChildren = childDepartment.map((child) => {
+      const departmentData = findDepartmentWithChildren(
+        orgStructureData,
+        child.id,
+      );
+      return {
+        id: child.id,
+        name: departmentData?.name || '',
+        branchId: departmentData?.branchId || '',
+        description: departmentData?.description || '',
+      };
+    });
+
+    const mergeData = {
+      id: rootDept.id,
+      name: rootDept.name,
+      description: rootDept.description,
+      branchId: rootDept.branchId,
+      departmentToDelete: childDepartment.map((child) => child.id),
+      department: departmentChildren,
+    };
+
+    setMergeDepartment(mergeData);
+  };
+
+  const handleRootDepartmentChange = (id: string) => {
+    const department = departments?.find((dept: any) => dept.id === id);
+    if (department) {
+      setRootDepartment({
+        id: department.id,
+        name: department.name,
+        branchId: department.branchId || '',
+        description: department.description || '',
+      });
+    }
+  };
+
+  const handleChildDepartmentsChange = (ids: string[]) => {
+    const updatedDepartments = ids.map((id: string) => {
+      const department = departments?.find((dept: any) => dept.id === id);
+      return {
+        id,
+        name: department?.name || '',
+        branchId: department?.branchId || '',
+        description: department?.description || '',
+      };
+    });
+    setChildDepartment(updatedDepartments);
+  };
+
+  useEffect(() => {
+    if (childDepartment.length > 0 && rootDepartment?.id && orgStructureData) {
+      Merge();
+    }
+  }, [childDepartment, rootDepartment, orgStructureData]);
+
+  return (
+    <Form layout="vertical">
+      <Form.Item
+        label="Which Department to be merged"
+        name="departmentToMerge"
+        rules={[
+          { required: true, message: 'Please select the department to merge' },
+        ]}
+      >
+        <Select
+          showSearch
+          style={{ width: '100%' }}
+          placeholder="Which Department to be merged"
+          optionFilterProp="label"
+          value={rootDepartment?.id}
+          onChange={handleRootDepartmentChange}
+          options={OPTIONS}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="Merge it with"
+        name="mergeWith"
+        rules={[
+          {
+            required: true,
+            message: 'Please select the departments to merge with',
+          },
+        ]}
+      >
+        <Select
+          mode="multiple"
+          placeholder="Merge it with"
+          style={{ width: '100%' }}
+          value={childDepartment.map((child) => child.id)}
+          onChange={handleChildDepartmentsChange}
+          options={filteredChildDepartments} // Use filtered child department options
+        />
+      </Form.Item>
+
+      <Form.Item>
+        <p style={{ color: '#595959' }}>
+          <span style={{ marginRight: '8px' }}>ⓘ</span>This will affect the
+          whole company structure
+        </p>
+      </Form.Item>
+    </Form>
+  );
+};
 
 export const DissolveForm = () => (
   <Form layout="vertical">

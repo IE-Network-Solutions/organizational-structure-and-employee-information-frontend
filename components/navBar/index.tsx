@@ -103,6 +103,18 @@ const menuItems: MenuProps['items'] = [
     className: 'font-bold',
     children: [
       {
+        key: '/feedback/conversation',
+        label: 'Conversation',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
+        key: '/feedback/recognition',
+        label: 'Recognition',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
         key: '/feedback/categories',
         label: 'Form',
         icon: <UserOutlined />,

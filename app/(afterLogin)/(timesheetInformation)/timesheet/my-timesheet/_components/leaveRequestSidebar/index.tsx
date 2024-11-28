@@ -137,13 +137,20 @@ const LeaveRequestSidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: leaveRequest ? 'Update' : 'Create',
+      label:
+        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
+          ? 'You lack an assigned approver.'
+          : leaveRequest
+            ? 'Update'
+            : 'Create',
       key: 'create',
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoadingRequest || isLoading,
       onClick: () => form.submit(),
+      disabled:
+        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
     },
   ];
 
@@ -259,7 +266,6 @@ const LeaveRequestSidebar = () => {
                     <DatePicker
                       className={controlClass}
                       onChange={handleChange}
-                      minDate={dayjs()}
                       disabled={
                         leaveRequest?.status === LeaveRequestStatus.APPROVED
                       }
@@ -280,7 +286,6 @@ const LeaveRequestSidebar = () => {
                     <DatePicker
                       className={controlClass}
                       onChange={handleChange}
-                      minDate={dayjs()}
                       disabled={
                         leaveRequest?.status === LeaveRequestStatus.APPROVED
                       }

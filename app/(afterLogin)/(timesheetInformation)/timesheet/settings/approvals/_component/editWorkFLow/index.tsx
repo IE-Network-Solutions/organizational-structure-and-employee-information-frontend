@@ -29,7 +29,6 @@ const EditWorkFLow = () => {
   const { data: department } = useGetDepartments();
   const { data: users } = useGetAllUsers();
   const { mutate: EditApprover } = useUpdateAssignedUserMutation();
-
   const { mutate: deleteApprover } = useDeleteApprover();
   const { mutate: deleteParallelApprover } = useDeleteParallelApprover();
 
@@ -52,15 +51,19 @@ const EditWorkFLow = () => {
         _,
         idx,
       ) => {
-        const approver = selectedItem?.approvers[idx];
+        const approver = [...selectedItem?.approvers].sort(
+          (a: any, b: any) => a?.stepOrder - b?.stepOrder,
+        )[idx];
         const userIds = formValues[`assignedUser_${idx}`];
 
         if (Array.isArray(userIds)) {
           return userIds.map((userId) => {
-            const app = selectedItem?.approvers?.find(
-              (app) =>
-                app?.userId === userId && parseInt(app?.stepOrder) == idx + 1,
-            );
+            const app = [...selectedItem?.approvers]
+              .sort((a: any, b: any) => a?.stepOrder - b?.stepOrder)
+              ?.find(
+                (app) =>
+                  app?.userId === userId && parseInt(app?.stepOrder) == idx + 1,
+              );
             return app
               ? { stepOrder: idx + 1, userId, id: app?.id }
               : {
@@ -78,7 +81,6 @@ const EditWorkFLow = () => {
         ];
       },
     );
-
     EditApprover(
       { values: { approvalWorkflowId: selectedItem?.id, steps: jsonPayload } },
       {
@@ -89,8 +91,9 @@ const EditWorkFLow = () => {
     );
   };
 
-  const initialValues = selectedItem?.approvers.reduce(
-    (acc: Record<string, any>, item: any, index: number) => {
+  const initialValues = [...selectedItem?.approvers]
+    .sort((a: any, b: any) => a?.stepOrder - b?.stepOrder)
+    .reduce((acc: Record<string, any>, item: any, index: number) => {
       if (approverType !== 'Parallel') {
         acc[`assignedUser_${index}`] = item.userId;
         acc[`level_${index}`] = item.stepOrder;
@@ -102,9 +105,7 @@ const EditWorkFLow = () => {
         acc[`assignedUser_${stepIndex}`].push(item.userId);
       }
       return acc;
-    },
-    {},
-  );
+    }, {});
 
   useEffect(() => {
     if (approverType === 'Parallel') {
@@ -113,19 +114,20 @@ const EditWorkFLow = () => {
       }
     }
   }, [initialValues, level]);
-
   const handleDeselect = (value: string, index: number) => {
-    const user = selectedItem?.approvers?.find(
-      (item: any) => item.stepOrder === index + 1 && item.userId === value,
-    );
+    const user = [...selectedItem?.approvers]
+      .sort((a: any, b: any) => a?.stepOrder - b?.stepOrder)
+      ?.find(
+        (item: any) => item.stepOrder === index + 1 && item.userId === value,
+      );
     if (user) {
       deleteParallelApprover(user.id);
     }
   };
   const handleDeleteConfirm = (id: string, workFlowId: string) => {
-    const user = selectedItem?.approvers?.find(
-      (item: any) => item.userId === id,
-    );
+    const user = [...selectedItem?.approvers]
+      .sort((a: any, b: any) => a?.stepOrder - b?.stepOrder)
+      ?.find((item: any) => item.userId === id);
     if (user) {
       setDeleteModal(false);
       deleteApprover({

@@ -2,8 +2,7 @@
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import LeaveManagementTable from './_components/leaveManagementTable';
-import { Button, Col, Input, Popover, Row, Space } from 'antd';
-import { IoSearchOutline } from 'react-icons/io5';
+import { Button, Col, Popover, Row, Space } from 'antd';
 import CustomButton from '@/components/common/buttons/customButton';
 import { TbFileDownload, TbLayoutList } from 'react-icons/tb';
 import { LuBookmark } from 'react-icons/lu';
@@ -121,11 +120,9 @@ const LeaveManagement = () => {
               </AccessGuard>
             </Space>
           </PageHeader>
-
           <LeaveManagementTable setBodyRequest={setBodyRequest} />
         </BlockWrapper>
       </div>
-
       <LeaveRequestManagementSidebar />
     </>
   );

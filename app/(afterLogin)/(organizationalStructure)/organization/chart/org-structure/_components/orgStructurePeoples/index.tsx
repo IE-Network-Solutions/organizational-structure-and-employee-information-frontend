@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import { Card, Dropdown } from 'antd';
+import { Card, Dropdown, message } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
@@ -30,6 +30,8 @@ import {
   exportOrgStrucutreMenu,
   orgComposeAndMergeMenues,
 } from '../menues/inex';
+import { useMergingDepartment } from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
+import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 
 const renderTreeNodes = (
   data: Department[],
@@ -70,6 +72,7 @@ const OrgChartComponent: React.FC = () => {
     setIsDeleteConfirmVisible,
     chartDownlaodLoading,
   } = useOrganizationStore();
+  const { mergeDepartment, resetStore } = useMergeStore();
 
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -78,6 +81,12 @@ const OrgChartComponent: React.FC = () => {
   const { mutate: updateDepartment } = useUpdateOrgChart();
   const { mutate: deleteDepartment, isLoading: deleteLoading } =
     useDeleteOrgChart();
+  const {
+    mutate: mergeDepartments,
+    isLoading,
+    isSuccess,
+  } = useMergingDepartment();
+
   const [parent, setParrent] = useState<Department>();
 
   const handleEdit = (department: Department) => {
@@ -154,7 +163,16 @@ const OrgChartComponent: React.FC = () => {
     ) {
       setIsAddEmployeeJobInfoModalVisible(true);
     }
-  }, [employeeData, departments, setIsAddEmployeeJobInfoModalVisible]);
+    if (isSuccess) {
+      closeDrawer();
+      resetStore();
+    }
+  }, [
+    employeeData,
+    departments,
+    setIsAddEmployeeJobInfoModalVisible,
+    isSuccess,
+  ]);
 
   return (
     <div className="w-full overflow-x-auto">
@@ -236,11 +254,20 @@ const OrgChartComponent: React.FC = () => {
           />
         </div>
         <CustomDrawer
+          loading={isLoading}
           visible={drawerVisible}
-          onClose={closeDrawer}
+          onClose={() => {
+            closeDrawer(), resetStore;
+          }}
           drawerContent={drawerContent}
           footerButtonText={footerButtonText}
-          onSubmit={() => {}}
+          onSubmit={() => {
+            if (mergeDepartment) {
+              mergeDepartments(mergeDepartment);
+            } else {
+              message.error('Merge department is not defined');
+            }
+          }}
           title={drawTitle}
         />
       </Card>

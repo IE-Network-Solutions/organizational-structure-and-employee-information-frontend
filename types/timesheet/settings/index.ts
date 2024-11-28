@@ -59,7 +59,7 @@ export interface CarryOverRule extends DateInfo {
 export interface LeaveRequest extends DateInfo {
   id: string;
   tenantId: string;
-  user: string;
+  userId: string;
   leaveType: LeaveType | string;
   startAt: string;
   endAt: string;
