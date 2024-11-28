@@ -3,7 +3,7 @@
  */
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_DEV } from '@/utils/constants';
+import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
@@ -12,7 +12,7 @@ const getAllQuestionSet = async () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_DEV}/question-set`,
+    url: `${ORG_DEV_URL}/question-set`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -26,7 +26,7 @@ const getQuestionSetById = async (id: string) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_DEV}/question-set/${id}`,
+    url: `${ORG_DEV_URL}/question-set/${id}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,

@@ -1,5 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_DEV } from '@/utils/constants';
+import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
@@ -8,7 +8,7 @@ const getConversationInstanceById = async (id: string | null) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_DEV}/conversation-instances/${id}`,
+    url: `${ORG_DEV_URL}/conversation-instances/${id}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -38,7 +38,7 @@ const getConversationInstanceByQuestionSetId = async (
   };
 
   const url = buildUrlWithParams(
-    `${ORG_DEV}/conversation-instances/by-conversation-set-id/${id}`,
+    `${ORG_DEV_URL}/conversation-instances/by-conversation-set-id/${id}`,
     {
       userId,
       departmentId,
@@ -60,7 +60,7 @@ const getAllConversationInstances = async () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_DEV}/conversation-instances`,
+    url: `${ORG_DEV_URL}/conversation-instances`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
