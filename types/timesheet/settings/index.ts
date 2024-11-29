@@ -78,6 +78,7 @@ export interface SingleLeaveRequest extends DateInfo {
   id: string;
   tenantId: string;
   user: string;
+  userId?: string;
   leaveType: LeaveType;
   startAt: string;
   endAt: string;

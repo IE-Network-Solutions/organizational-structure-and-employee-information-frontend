@@ -2,16 +2,16 @@ import { create, StateCreator } from 'zustand';
 
 type EmployeeAttendanceState = {
   isShowEmployeeAttendanceSidebar: boolean;
-  employeeAttendanceId: string | null;
-  newData: any;
+  isAbsent: boolean;
+  employeeAttendanceId: string | '';
 };
 
 type EmployeeAttendanceStateAction = {
   setIsShowEmployeeAttendanceSidebar: (
     isShowEmployeeAttendanceSidebar: boolean,
   ) => void;
-  setEmployeeAttendanceId: (employeeAttendanceId: string | null) => void;
-  setNewData: (newData: any) => void;
+  setIsAbsent: (isAbsent: boolean) => void;
+  setEmployeeAttendanceId: (employeeAttendanceId: string | '') => void;
 };
 
 const employeeAttendanceSlice: StateCreator<
@@ -23,14 +23,14 @@ const employeeAttendanceSlice: StateCreator<
   ) => {
     set({ isShowEmployeeAttendanceSidebar });
   },
-
-  employeeAttendanceId: null,
-  setEmployeeAttendanceId: (employeeAttendanceId: string | null) => {
-    set({ employeeAttendanceId });
+  isAbsent: false,
+  setIsAbsent: (isAbsent: boolean) => {
+    set({ isAbsent });
   },
-  newData: null,
-  setNewData: (newData: any) => {
-    set({ newData });
+
+  employeeAttendanceId: '',
+  setEmployeeAttendanceId: (employeeAttendanceId: string | '') => {
+    set({ employeeAttendanceId });
   },
 });
 
