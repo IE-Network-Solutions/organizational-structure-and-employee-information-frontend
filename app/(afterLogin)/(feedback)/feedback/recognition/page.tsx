@@ -1,5 +1,6 @@
 'use client';
 import EmployeeSearchComponent from '@/components/common/search/searchComponent';
+import TabLandingLayout from '@/components/tabLanding';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
 import { Card, Table, TableColumnsType, Tabs } from 'antd';
@@ -81,22 +82,18 @@ function Page() {
     {
       key: '2',
       label: 'Projects',
-      children: 'Content of Tab Pane 2',
     },
     {
       key: '3',
       label: 'Sales',
-      children: 'Content of Tab Pane 3',
     },
     {
       key: '4',
       label: 'Managment',
-      children: 'Content of Tab Pane 2',
     },
     {
       key: '5',
       label: 'Others',
-      children: 'Content of Tab Pane 3',
     },
   ];
   const handleSearchChange=()=>{
@@ -105,9 +102,17 @@ function Page() {
     console.log(record);
   }
   return <div>
+    
+    <Tabs className='ml-[3%]' defaultActiveKey="1" items={items}  />
 
-    <Tabs defaultActiveKey="1" items={items}  />
-    <EmployeeSearchComponent
+    <>
+      <TabLandingLayout
+        id="conversationLayoutId"
+        onClickHandler={() => {}}
+        title="Recognition"
+        subtitle="Manage Recognition"
+      >
+      <EmployeeSearchComponent
         fields={searchField}
         onChange={handleSearchChange}
       />
@@ -126,6 +131,10 @@ function Page() {
           onClick: () => handleRowClick(record), // Add click handler
         })}
       />
+      </TabLandingLayout>
+    </>
+ 
+     
     </div>;
 }
 

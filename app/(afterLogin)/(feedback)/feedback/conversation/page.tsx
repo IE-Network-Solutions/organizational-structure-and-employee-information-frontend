@@ -20,7 +20,6 @@ function Index() {
       onClickHandler={() => generateReportHandler}
       title="Conversation types"
       subtitle="Conversations / bi-weekly"
-      allowSearch={false}
     >
       <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {cardsData?.map((item: any, index: number) => (
