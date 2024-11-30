@@ -127,7 +127,6 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
           ← Details
         </span>
       }
-      allowSearch={false}
       subtitle=""
     >
       <Row gutter={[16, 24]}>
