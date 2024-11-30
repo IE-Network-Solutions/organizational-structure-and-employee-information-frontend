@@ -9,6 +9,7 @@ import CardList from '../card-list';
 import { useGetBirthDay } from '@/store/server/features/dashboard/birthday/queries';
 import { useGetWorkAnniversary } from '@/store/server/features/dashboard/work-anniversary/queries';
 import { MdKey } from 'react-icons/md';
+import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
 
 const Header = () => {
   const { userId } = useAuthenticationStore();
@@ -17,6 +18,8 @@ const Header = () => {
   const { data: birthDays, isLoading: birthdayLoading } = useGetBirthDay();
   const { data: workAnniversary, isLoading: workLoading } =
     useGetWorkAnniversary();
+  const {data: allPlanningPeriods} = useGetAllPlanningPeriods();
+  const planningPeriod = allPlanningPeriods?.items?.find((planningPeriod) => (planningPeriod.name == 'Weekly'));
 
   return (
     <>
@@ -175,7 +178,7 @@ const Header = () => {
         {/* Left Column */}
         <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
           <RookStarsList
-            planningPeriodId={'planningPeriodId'}
+            planningPeriodId={planningPeriod ? planningPeriod.id : ''}
             title="Rock Star Of The Week"
           />
           <ApprovalStatus />
@@ -184,7 +187,7 @@ const Header = () => {
         {/* Right Column */}
         <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
           <RookStarsList
-            planningPeriodId={'planningPeriodId'}
+            planningPeriodId={planningPeriod ? planningPeriod.id : ''}
             title="Leaders Board"
           />
           <CardList
