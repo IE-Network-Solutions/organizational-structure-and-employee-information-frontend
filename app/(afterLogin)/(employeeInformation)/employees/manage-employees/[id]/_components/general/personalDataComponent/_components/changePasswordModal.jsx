@@ -84,7 +84,7 @@ const ChangePasswordModal = () => {
           rules={[
             { required: true, message: 'Please confirm your new password' },
             ({ getFieldValue }) => ({
-              validator(_, value) {
+              validator(value) {
                 if (!value || getFieldValue('newPassword') === value) {
                   return Promise.resolve();
                 }

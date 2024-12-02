@@ -14,14 +14,14 @@ import { HiOutlineMail } from 'react-icons/hi';
 import Link from 'next/link';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import BranchTransferRequest from '../branchTransferRequest';
-import { Image, Select, Upload } from 'antd';
+import { Upload } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { RcFile } from 'antd/es/upload';
 import { UploadFile } from 'antd/lib';
 import { useState } from 'react';
+import { useUpdateProfileImage } from '@/store/server/features/employees/employeeDetail/mutations';
 
-const { Option } = Select;
 const { Dragger } = Upload;
 
 function BasicInfo({ id }: { id: string }) {
@@ -29,11 +29,38 @@ function BasicInfo({ id }: { id: string }) {
   const { profileFileList, setProfileFileList } = useEmployeeManagementStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const { mutate: updateProfileImage, isLoading: isUploading } =
+    useUpdateProfileImage();
+
   const showModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
+
   const handleSaveChange = () => {
-    console.log('Save changes logic goes here');
-    handleCloseModal();
+    if (profileFileList.length === 0) {
+      message.warning('Please upload an image before saving.');
+      return;
+    }
+
+    const formData = new FormData();
+    const file = profileFileList[0].originFileObj as RcFile;
+
+    formData.append('profileImage', file);
+
+    updateProfileImage(
+      { id, formData },
+      {
+        onSuccess: () => {
+          message.success('Your profile image has been successfully updated.');
+          handleCloseModal();
+          setProfileFileList([]);
+        },
+        onError: () => {
+          message.error(
+            'Failed to update the profile image. Please try again.',
+          );
+        },
+      },
+    );
   };
 
   const beforeProfileUpload = (file: RcFile): boolean => {
@@ -118,7 +145,12 @@ function BasicInfo({ id }: { id: string }) {
           <Button key="cancel" onClick={handleCloseModal}>
             Cancel
           </Button>,
-          <Button key="save" type="primary" onClick={handleSaveChange}>
+          <Button
+            key="save"
+            type="primary"
+            onClick={handleSaveChange}
+            loading={isUploading}
+          >
             Change
           </Button>,
         ]}
@@ -137,7 +169,7 @@ function BasicInfo({ id }: { id: string }) {
           }}
         >
           {profileFileList.length > 0 ? (
-            <Image
+            <img
               src={getImageUrl(profileFileList)}
               alt="Uploaded Preview"
               className="w-full h-auto max-h-64 object-cover rounded-xl"
@@ -154,8 +186,6 @@ function BasicInfo({ id }: { id: string }) {
           )}
         </Dragger>
       </Modal>
-
-      {/* Employee Contact Info */}
       <div className="flex gap-5 my-2 items-center">
         <HiOutlineMail color="#BFBFBF" />
         <p className="font-semibold">{employeeData?.email}</p>
@@ -163,7 +193,6 @@ function BasicInfo({ id }: { id: string }) {
 
       <Divider className="my-2" key="arrows" />
       <List split={false} size="small">
-        {/* Department Info */}
         <List.Item
           key={'department'}
           actions={[<MdKeyboardArrowRight key="arrow" />]}
@@ -179,7 +208,6 @@ function BasicInfo({ id }: { id: string }) {
             }
           />
         </List.Item>
-        {/* Office Info */}
         <List.Item
           key={'office'}
           actions={[
@@ -205,7 +233,6 @@ function BasicInfo({ id }: { id: string }) {
             }
           />
         </List.Item>
-        {/* Manager Info */}
         <Link
           href={`/employees/manage-employees/${employeeData?.reportingTo?.id}`}
         >
