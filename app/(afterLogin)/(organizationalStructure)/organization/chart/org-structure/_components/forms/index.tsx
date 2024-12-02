@@ -232,11 +232,7 @@ export const MergeForm = () => {
           department: updatedDepartment,
         };
 
-        setMergeData(mergeData); // Update the global store with the new mergeData
-        console.log(
-          '---------------------------------this is the mergeData',
-          mergeData,
-        );
+        setMergeData(mergeData);
       }
     }
   };
