@@ -29,7 +29,7 @@ const TalentPoolPage = () => {
           </div>
         </div>
         <Button className="h-12" type="primary" onClick={handleAdd}>
-          Add Candidate
+          Add Candidate to Talent Pool
         </Button>
       </div>
 

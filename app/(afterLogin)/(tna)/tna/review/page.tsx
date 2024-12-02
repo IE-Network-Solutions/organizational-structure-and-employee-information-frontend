@@ -173,6 +173,7 @@ const TnaReviewPage = () => {
       render: (item: TrainingNeedAssessment) => (
         <Space>
           <Button
+            id={`${item.id}tnaShowTnaReviewSidebarButtonId`}
             className="w-[30px] h-[30px]"
             icon={<FiEdit2 size={16} />}
             type="primary"
@@ -195,6 +196,7 @@ const TnaReviewPage = () => {
                   }
                 : undefined
             }
+            id={item.id ?? null}
           />
         </Space>
       ),

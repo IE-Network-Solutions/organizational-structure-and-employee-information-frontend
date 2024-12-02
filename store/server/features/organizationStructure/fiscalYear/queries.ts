@@ -19,6 +19,15 @@ const getAllFiscalYears = async () => {
   });
 };
 
+//fetching active calendars
+const getActiveFiscalYear = async () => {
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/calendars/active/calendar`,
+    method: 'GET',
+    headers,
+  });
+};
+
 const getFiscalYear = async (id: string) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
@@ -34,3 +43,6 @@ export const useGetFiscalYearById = (id: string) =>
   useQuery<FiscalYear>(['fiscalYear', id], () => getFiscalYear(id), {
     keepPreviousData: true,
   });
+
+export const useGetActiveFiscalYears = () =>
+  useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear);

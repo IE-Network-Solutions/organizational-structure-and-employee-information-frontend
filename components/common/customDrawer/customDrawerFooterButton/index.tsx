@@ -23,6 +23,7 @@ const CustomDrawerFooterButton: FC<CustomDrawerFooterButtonsProps> = ({
         {buttons.map(({ key, label, className = '', ...otherProps }) => (
           <Button
             key={key}
+            id={`${label}${key}ButtonId`}
             className={classNames('flex-1 text-base', undefined, [className])}
             {...otherProps}
           >

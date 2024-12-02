@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { Avatar, Space, Table } from 'antd';
+import { Avatar, Button, Space, Table } from 'antd';
 
 import TableFilter from './tableFilter';
 
@@ -29,6 +29,10 @@ import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import { CommonObject } from '@/types/commons/commonObject';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
+import { FiEdit2 } from 'react-icons/fi';
+import { EmployeeAttendance } from '@/types/timesheet/employeeAttendance';
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
@@ -50,6 +54,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setOrderBy,
     setOrderDirection,
   } = usePagination(1, 10);
+  const {
+    setIsShowEmployeeAttendanceSidebar,
+    setNewData,
+    setEmployeeAttendanceId,
+  } = useEmployeeAttendanceStore();
   const [filter, setFilter] =
     useState<Partial<AttendanceRequestBody['filter']>>();
   const { data, isFetching, refetch } = useGetAttendances(
@@ -57,26 +66,49 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     { filter },
   );
 
+  const EmpRender = ({ userId }: any) => {
+    const {
+      isLoading,
+      data: employeeData,
+      isError,
+    } = useGetSimpleEmployee(userId);
+
+    if (isLoading) return <div>...</div>;
+    if (isError) return <>-</>;
+
+    return employeeData ? (
+      <div className="flex items-center gap-1.5">
+        <div className="mx-1 text-sm">
+          {employeeData?.employeeInformation?.employeeAttendanceId}
+        </div>
+        <Avatar size={24} icon={<UserOutlined />} />
+        <div className="flex-1">
+          <div className="text-xs text-gray-900">
+            {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
+            {employeeData?.lastName || '-'}
+          </div>
+          <div className="text-[10px] leading-4 text-gray-600">
+            {employeeData?.email}
+          </div>
+        </div>
+      </div>
+    ) : (
+      '-'
+    );
+  };
+  const onEdit = ($id: string, $item: any) => {
+    setIsShowEmployeeAttendanceSidebar(true);
+    setEmployeeAttendanceId($id);
+    setNewData($item);
+  };
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Employee Name',
-      dataIndex: 'createdBy',
+      dataIndex: 'userId',
       key: 'createdBy',
       sorter: true,
-      render: (employee: any) =>
-        employee ? (
-          <div className="flex items-center gap-1.5">
-            <Avatar size={24} icon={<UserOutlined />} />
-            <div className="flex-1">
-              <div className="text-xs text-gray-900">{employee.name}</div>
-              <div className="text-[10px] leading-4	text-gray-600">
-                {employee.email}
-              </div>
-            </div>
-          </div>
-        ) : (
-          '-'
-        ),
+      render: (text: string) => <EmpRender userId={text} />,
     },
     {
       title: 'Date',
@@ -144,6 +176,22 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       key: 'approvalStatus',
       render: () => <div>-</div>,
     },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+      render: (item: EmployeeAttendance) => {
+        return (
+          <Button
+            className="w-[30px] h-[30px]"
+            icon={<FiEdit2 size={16} />}
+            id={`${item?.id}buttonPopOverActionForOnEditActionId`}
+            type="primary"
+            onClick={() => onEdit(item?.id, item)}
+          />
+        );
+      },
+    },
   ];
 
   useEffect(() => {
@@ -158,6 +206,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         const calcTotal = calculateAttendanceRecordToTotalWorkTime(item);
         return {
           key: item.id,
+          userId: item.userId,
           createdBy: item.createdBy,
           createdAt: item.createdAt,
           clockIn: item.startAt,
@@ -166,6 +215,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
           overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,
           approvalStatus: item,
+          action: item,
         };
       });
       setTableData(nData);

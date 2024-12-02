@@ -8,12 +8,14 @@ pipeline {
         REPO_DIR = 'staging/osei-front'
         SSH_CREDENTIALS_ID = 'pepproduction'
 
+
         ORG_AND_EMP_URL="https://staging-org-emp.selamnew.com/api/v1"
         NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://staging-okr.selamnew.com/api/v1"
         OKR_URL="https://staging-okr.selamnew.com/api/v1"
         TENANT_MGMT_URL="https://staging-tenant.selamnew.com/api/v1"
         ORG_DEV_URL = "https://staging-org-dev.selamnew.com/api/v1"
         RECRUITMENT_URL="https://staging-recruitment.selamnew.com/api/v1"
+
         PUBLIC_DOMAIN="https://selamnew.com"
         NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://staging-time.selamnew.com/api/v1"
         NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://staging-training.selamnew.com/api/v1"
@@ -26,15 +28,19 @@ pipeline {
     }
 
     stages {
+
          stage('Pull Latest Changes') {
+
             steps {
                 sshagent (credentials: [SSH_CREDENTIALS_ID]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no $REMOTE_SERVER '
+
                         if [ ! -d "$REPO_DIR/.git" ]; then
                             git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR
                         else
                             cd $REPO_DIR && git reset --hard HEAD && git pull origin $BRANCH_NAME
+
                         fi'
                     """
                 }
@@ -60,6 +66,7 @@ pipeline {
                         NEXT_PUBLIC_STORAGE_BUCKET=${NEXT_PUBLIC_STORAGE_BUCKET}
                         NEXT_PUBLIC_MESSAGE_SENDER_ID=${NEXT_PUBLIC_MESSAGE_SENDER_ID}
                         NEXT_PUBLIC_APP_ID=${NEXT_PUBLIC_APP_ID}
+                        NEXT_PUBLIC_APPROVERS_URL=${NEXT_PUBLIC_APPROVERS_URL}
                         EOF'
                     """
                 }

@@ -2,20 +2,31 @@
 import { useGetBranches } from '@/store/server/features/employees/employeeManagment/branchOffice/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
-import { validateName } from '@/utils/validation';
-import { Col, DatePicker, Form, Input, Radio, Row, Select, Switch } from 'antd';
+import { useGetPositions } from '@/store/server/features/employees/positions/queries';
+import { Col, DatePicker, Form, Radio, Row, Select, Switch } from 'antd';
+import dayjs from 'dayjs';
 import React, { useState } from 'react';
 
 const { Option } = Select;
 
 const JobTimeLineForm = () => {
+  const status = [
+    { id: 'Promotion', name: 'Promotion' },
+    { id: 'Transfer', name: 'Transfer' },
+    { id: 'New', name: 'New' },
+  ];
   const { data: departmentData } = useGetDepartments();
   const { data: employementType } = useGetEmployementTypes();
   const { data: branchOfficeData } = useGetBranches();
+  const { data: positions } = useGetPositions();
+
   const [contractType, setContractType] = useState<string>('Permanent');
 
   const handleContractTypeChange = (e: any) => {
     setContractType(e.target.value);
+  };
+  const disablePastDates = (current: any) => {
+    return current && current < dayjs().startOf('day');
   };
 
   return (
@@ -27,14 +38,14 @@ const JobTimeLineForm = () => {
         <Col xs={24}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'joinedDate'}
-            label="Joined Date"
+            name={'effectiveStartDate'}
+            label="Effective Start Date"
             id="joinedDate"
             rules={[
               { required: true, message: 'Please select the joined date' },
             ]}
           >
-            <DatePicker className="w-full" />
+            <DatePicker className="w-full" disabledDate={disablePastDates} />
           </Form.Item>
         </Col>
       </Row>
@@ -43,21 +54,20 @@ const JobTimeLineForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={'jobTitle'}
+            name="positionId"
             id="jobTitle"
             label="Position"
             rules={[
-              {
-                validator: (rule, value) =>
-                  !validateName('job title', value)
-                    ? Promise.resolve()
-                    : Promise.reject(
-                        new Error(validateName('job title', value) || ''),
-                      ),
-              },
+              { required: true, message: 'Please select an position type' },
             ]}
           >
-            <Input />
+            <Select placeholder="Select position type" allowClear>
+              {positions?.items?.map((position: any) => (
+                <Option key={position?.id} value={position?.id}>
+                  {position?.name}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
@@ -86,14 +96,10 @@ const JobTimeLineForm = () => {
             className="w-full font-semibold text-xs"
             name={'departmentId'}
             id="departmentId"
-            label="Department"
-            rules={[{ required: true, message: 'Please select a department' }]}
+            label="Team"
+            rules={[{ required: true, message: 'Please select a Team' }]}
           >
-            <Select
-              className="w-full"
-              placeholder="Select a department"
-              allowClear
-            >
+            <Select className="w-full" placeholder="Select a Team" allowClear>
               {departmentData?.map((department: any, index: number) => (
                 <Option key={index} value={department?.id}>
                   {department?.name}
@@ -126,6 +132,25 @@ const JobTimeLineForm = () => {
           </Form.Item>
         </Col>
       </Row>
+      <Row gutter={16}>
+        <Col xs={24} sm={12}>
+          <Form.Item
+            className="w-full font-semibold text-xs"
+            name={'jobAction'}
+            id="jobAction"
+            label="Status"
+            rules={[{ required: true, message: 'Please select Status' }]}
+          >
+            <Select className="w-full" placeholder="Select Status" allowClear>
+              {status?.map((status: any, index: number) => (
+                <Option key={index} value={status?.id}>
+                  {status?.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Col>
+      </Row>
       {contractType === 'Contractual' && (
         <Row gutter={16}>
           <Col xs={24}>
@@ -148,7 +173,7 @@ const JobTimeLineForm = () => {
       )}
       <Row gutter={16}>
         <Col xs={24} sm={8}>
-          <div className="font-semibold text-sm">Department Lead</div>
+          <div className="font-semibold text-sm">Team Lead</div>
         </Col>
         <Col xs={24} sm={16}>
           <Form.Item

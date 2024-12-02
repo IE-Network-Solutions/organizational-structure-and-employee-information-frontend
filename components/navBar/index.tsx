@@ -1,6 +1,6 @@
 'use client';
 import React, { ReactNode, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   AppstoreOutlined,
   BarChartOutlined,
@@ -45,6 +45,11 @@ const menuItems: MenuProps['items'] = [
       {
         key: '/employees/manage-employees',
         label: 'Manage Employees',
+        className: 'font-bold',
+      },
+      {
+        key: '/employees/departmentRequest',
+        label: 'Department Request',
         className: 'font-bold',
       },
       { key: '/employees/settings', label: 'Settings', className: 'font-bold' },
@@ -97,6 +102,18 @@ const menuItems: MenuProps['items'] = [
     icon: <UserOutlined />,
     className: 'font-bold',
     children: [
+      {
+        key: '/feedback/conversation',
+        label: 'Conversation',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
+        key: '/feedback/recognition',
+        label: 'Recognition',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
       {
         key: '/feedback/categories',
         label: 'Form',
@@ -236,6 +253,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
+  const pathname = usePathname(); // Add this hook
+
   const { userData, setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const userRole = userData?.role?.slug || '';
@@ -336,8 +355,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           defaultSelectedKeys={['/dashboard']}
           items={userRole === 'user' ? userItems : menuItems}
           inlineCollapsed={collapsed}
-          className="my-5"
+          // className="my-5"
           onClick={handleMenuClick}
+          selectedKeys={[pathname]}
+          className={`my-5 [&_.ant-menu-item-selected]:!bg-[#3636F0] [&_.ant-menu-item-selected]:!text-white`}
         />
       </Sider>
       <Layout

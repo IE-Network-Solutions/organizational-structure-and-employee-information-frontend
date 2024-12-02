@@ -2,8 +2,7 @@
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import LeaveManagementTable from './_components/leaveManagementTable';
-import { Button, Col, Input, Popover, Row, Space } from 'antd';
-import { IoSearchOutline } from 'react-icons/io5';
+import { Button, Col, Popover, Row, Space } from 'antd';
 import CustomButton from '@/components/common/buttons/customButton';
 import { TbFileDownload, TbLayoutList } from 'react-icons/tb';
 import { LuBookmark } from 'react-icons/lu';
@@ -64,12 +63,6 @@ const LeaveManagement = () => {
         <BlockWrapper>
           <PageHeader title="Leave Management">
             <Space size={20}>
-              <Input
-                placeholder="Search employee"
-                className="h-14 text-gray-900 w-[300px]"
-                suffix={<IoSearchOutline size={20} className="text-gray-900" />}
-              />
-
               <Popover
                 trigger="click"
                 placement="bottomRight"
@@ -84,6 +77,7 @@ const LeaveManagement = () => {
                       <Col span={12}>
                         <Button
                           size="small"
+                          id="excelFileTypeToExportId"
                           className={buttonClass}
                           type="primary"
                           icon={<TbLayoutList size={16} />}
@@ -95,6 +89,7 @@ const LeaveManagement = () => {
                       <Col span={12}>
                         <Button
                           size="small"
+                          id="pdfFileTypeToExportId"
                           className={buttonClass}
                           type="primary"
                           icon={<LuBookmark size={16} />}
@@ -109,6 +104,7 @@ const LeaveManagement = () => {
               >
                 <CustomButton
                   title="Download CSV"
+                  id="downloadCsvFileId"
                   icon={<TbFileDownload size={20} />}
                   loading={isFetching}
                 />

@@ -1,3 +1,11 @@
+export interface OKRProps {
+  keyValue: KeyResult;
+  index: number;
+  objective: any;
+  isEdit: boolean;
+  form?: any;
+}
+
 export interface JobInformation {
   id: string;
   departmentId: string;
@@ -84,6 +92,14 @@ export interface ObjectiveProps {
   myOkr: boolean;
 }
 export interface OKRState {
+  revenue: number;
+  financialSales: number;
+  progressRevenue: number;
+  progressSales: number;
+
+  selectedPeriodId: string;
+  setSelectedPeriodId: (value: string) => void;
+
   keyResultValue?: KeyResult[] | any;
   setKeyResultValue: (keyResultValue: KeyResult[]) => void;
   keyResults?: KeyResult[];

@@ -6,12 +6,14 @@ import { CiDollar } from 'react-icons/ci';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
+
 const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   const {
     handleKeyResultChange,
     handleSingleKeyResultChange,
     removeKeyResultValue,
   } = useOKRStore();
+
   const handleChange = (value: any, field: string) => {
     if (isEdit) {
       handleSingleKeyResultChange(value, field);
@@ -19,7 +21,9 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
       handleKeyResultChange(value, index, field);
     }
   };
+
   const { mutate: deleteKeyResult } = useDeleteKeyResult();
+
   function handleKeyResultDelete(id: string) {
     deleteKeyResult(id, {
       onSuccess: () => {
@@ -27,8 +31,12 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
       },
     });
   }
+
   return (
-    <div className="py-4  border-b-[1px] border-gray-300">
+    <div
+      className="py-4 border-b-[1px] border-gray-300"
+      id={`currency-view-${index}`}
+    >
       <Form layout="vertical" className="space-y-1">
         {/* Key Result Input */}
         <div className="flex gap-3 items-center">
@@ -40,7 +48,8 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               (keyValue.key_type == 'Currency' && 'Currency') ||
               keyValue.metricType?.name
             }
-            className="w-full font-bold "
+            className="w-full font-bold"
+            id={`key-result-title-${index}`}
           >
             <Input
               value={keyValue.title}
@@ -49,7 +58,11 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               }}
             />
           </Form.Item>
-          <Form.Item className="w-24 font-bold" label="Weight">
+          <Form.Item
+            className="w-24 font-bold"
+            label="Weight"
+            id={`key-result-weight-${index}`}
+          >
             <InputNumber
               min={0}
               max={100}
@@ -69,22 +82,24 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                   keyValue?.id
                     ? handleKeyResultDelete(keyValue?.id)
                     : removeKeyResultValue(index)
-                } // Hook up the remove key result function
+                }
+                id={`remove-key-result-${index}`}
               />
             </Tooltip>
           </div>
         </div>
 
         <div className="flex gap-5 w-full">
+          {/* Initial Value */}
           <Form.Item
             layout="horizontal"
             className="font-semibold text-xs w-full mb-2"
-            id="initialValue"
+            id={`initial-value-${index}`}
             label="Initial"
             rules={[
               {
                 required: true,
-                message: 'Please select a initialValue',
+                message: 'Please select an initial value',
               },
             ]}
           >
@@ -99,21 +114,21 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             />
           </Form.Item>
 
-          {/* Weight */}
+          {/* Target */}
           <Form.Item
             layout="horizontal"
             className="font-semibold text-xs w-full mb-2"
-            id="targetValue"
+            id={`target-value-${index}`}
             label="Target"
             rules={[
               {
                 required: true,
-                message: 'Please select a initialValue',
+                message: 'Please select a target value',
               },
             ]}
           >
             <InputNumber
-              className="text-xs w-full "
+              className="text-xs w-full"
               suffix={<CiDollar size={20} />}
               value={keyValue.targetValue}
               onChange={(value) => {
@@ -121,10 +136,13 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               }}
             />
           </Form.Item>
+
+          {/* Deadline */}
           <Form.Item
             layout="horizontal"
             className="w-full font-bold"
             label="Deadline"
+            id={`deadline-${index}`}
           >
             <DatePicker
               value={keyValue.deadline ? dayjs(keyValue.deadline) : null}

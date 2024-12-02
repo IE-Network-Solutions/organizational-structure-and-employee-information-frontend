@@ -14,14 +14,17 @@ import dayjs from 'dayjs';
 import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';
 import React, { useEffect, useState } from 'react';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
-import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import CustomUpload from '@/components/form/customUpload';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useAllApproval } from '@/store/server/features/approver/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { APPROVALTYPES } from '@/types/enumTypes';
 
 const LeaveRequestSidebar = () => {
-  const [filter, setFilter] = useState<Partial<LeaveRequestBody['filter']>>({});
   const {
+    filter,
+    setFilter,
     isShowLeaveRequestSidebar,
     setIsShowLeaveRequestSidebar,
     leaveTypes,
@@ -35,6 +38,28 @@ const LeaveRequestSidebar = () => {
     false,
   );
   const { userId } = useAuthenticationStore();
+  const { data: employeeData } = useGetAllUsers();
+  const userData = employeeData?.items?.find((item: any) => item.id === userId);
+
+  const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
+    useAllApproval(
+      userData?.employeeJobInformation[0]?.departmentId || '',
+      APPROVALTYPES?.LEAVE,
+    );
+
+  const { data: approvalUserData, refetch: getUserApproval } = useAllApproval(
+    userData?.id || '',
+    APPROVALTYPES?.LEAVE,
+  );
+
+  useEffect(() => {
+    if (userData?.employeeJobInformation[0]?.departmentId)
+      getDepartmentApproval();
+  }, [userData]);
+  useEffect(() => {
+    if (userData?.id) getUserApproval();
+  }, [userData]);
+
   const {
     mutate: updateLeaveRequest,
     isLoading: isLoadingRequest,
@@ -112,18 +137,26 @@ const LeaveRequestSidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: leaveRequest ? 'Update' : 'Create',
+      label:
+        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
+          ? 'You lack an assigned approver.'
+          : leaveRequest
+            ? 'Update'
+            : 'Create',
       key: 'create',
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoadingRequest || isLoading,
       onClick: () => form.submit(),
+      disabled:
+        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
     },
   ];
 
   const onFinish = () => {
     const value = form.getFieldsValue();
+
     updateLeaveRequest({
       item: {
         ...(leaveRequest && leaveRequest),
@@ -136,6 +169,11 @@ const LeaveRequestSidebar = () => {
           : null,
         justificationNote: value.note,
         status: LeaveRequestStatus.PENDING,
+        approvalWorkflowId:
+          approvalUserData?.length > 0
+            ? approvalUserData[0]?.id
+            : approvalDepartmentData[0]?.id,
+        approvalType: 'Leave',
       },
       userId,
     });
@@ -228,7 +266,6 @@ const LeaveRequestSidebar = () => {
                     <DatePicker
                       className={controlClass}
                       onChange={handleChange}
-                      minDate={dayjs()}
                       disabled={
                         leaveRequest?.status === LeaveRequestStatus.APPROVED
                       }
@@ -249,7 +286,6 @@ const LeaveRequestSidebar = () => {
                     <DatePicker
                       className={controlClass}
                       onChange={handleChange}
-                      minDate={dayjs()}
                       disabled={
                         leaveRequest?.status === LeaveRequestStatus.APPROVED
                       }

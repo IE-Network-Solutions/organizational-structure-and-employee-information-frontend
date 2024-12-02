@@ -1,6 +1,6 @@
 import { LeaveRequest } from '@/types/timesheet/settings';
 import { crudRequest } from '@/utils/crudRequest';
-import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import { APPROVER_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { requestHeader } from '@/helpers/requestHeader';
@@ -38,6 +38,14 @@ const setStatusToLeaveRequest = async (data: LeaveRequestStatusBody) => {
     data,
   });
 };
+const setApproveLeaveRequest = async (data: any) => {
+  return await crudRequest({
+    url: `${APPROVER_URL}/approval-logs`,
+    method: 'POST',
+    headers: requestHeader(),
+    data,
+  });
+};
 
 export const useSetLeaveRequest = () => {
   const queryClient = useQueryClient();
@@ -45,6 +53,7 @@ export const useSetLeaveRequest = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('leave-request');
+      queryClient.invalidateQueries('current_approval');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -69,6 +78,20 @@ export const useSetStatusToLeaveRequest = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('leave-request');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+export const useSetApproveLeaveRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(setApproveLeaveRequest, {
+    onSuccess: (data, variables: any) => {
+      queryClient.invalidateQueries(['current_approval', data?.approvedUserId]);
+      queryClient.invalidateQueries(['leave-request']);
+      queryClient.invalidateQueries(['transferApprovalRequest']);
+      queryClient.invalidateQueries(['myTansferRequest']);
+      queryClient.invalidateQueries(['transferRequest']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
