@@ -2,45 +2,53 @@ pipeline {
     agent any
 
     environment {
-        REMOTE_SERVER = 'ubuntu@139.185.51.164'
+        REMOTE_SERVER = 'ubuntu@139.185.53.18'
         REPO_URL = 'https://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@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git'
-        BRANCH_NAME = 'staging'
-        REPO_DIR = 'staging/osei-front'
-        SSH_CREDENTIALS_ID = 'pepproduction'
+        BRANCH_NAME = 'develop'
+        REPO_DIR = 'osei-front'
+        SSH_CREDENTIALS_ID = 'peptest'
 
-
-        ORG_AND_EMP_URL="https://staging-org-emp.selamnew.com/api/v1"
-        NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://staging-okr.selamnew.com/api/v1"
-        OKR_URL="https://staging-okr.selamnew.com/api/v1"
-        TENANT_MGMT_URL="https://staging-tenant.selamnew.com/api/v1"
-        ORG_DEV_URL = "https://staging-org-dev.selamnew.com/api/v1"
-        RECRUITMENT_URL="https://staging-recruitment.selamnew.com/api/v1"
-
+        ORG_AND_EMP_URL="https://test-org-emp.ienetworks.co/api/v1"
+        NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://test-okr-backend.ienetworks.co/api/v1"
+        OKR_URL="https://test-okr-backend.ienetworks.co/api/v1"
+        TENANT_MGMT_URL="https://test-tenant-backend.ienetworks.co/api/v1"
+        ORG_DEV_URL = "https://test-od.ienetworks.co/api/v1"
+        RECRUITMENT_URL="https://test-recruitment-backend.ienetworks.co/api/v1"
+        NEXT_PUBLIC_APPROVERS_URL="https://test-approval-backend.ienetworks.co/api/v1"
         PUBLIC_DOMAIN="https://selamnew.com"
-        NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://staging-time.selamnew.com/api/v1"
-        NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://staging-training.selamnew.com/api/v1"
-        NEXT_PUBLIC_API_KEY="AIzaSyCm35qpERDyW_IqaAJxaCTq5bSsvSpA-bQ"
-        NEXT_PUBLIC_AUTH_DOMIAN="pep-stagging.firebaseapp.com"
-        NEXT_PUBLIC_PROJECT_ID="pep-stagging"
-        NEXT_PUBLIC_STORAGE_BUCKET="pep-stagging.appspot.com"
-        NEXT_PUBLIC_MESSAGE_SENDER_ID="82054419625"
-        NEXT_PUBLIC_APP_ID="1:82054419625:web:54adde047b410efd9cc5b8"
+        NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://test-time-attendance-backend.ienetworks.co/api/v1"
+        NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://test-training-backend.ienetworks.co/api/v1"
+        NEXT_PUBLIC_API_KEY="AIzaSyDDOSSGJy2izlW9CzhzhjHUTEVur0J16zs"
+        NEXT_PUBLIC_AUTH_DOMIAN="pep-authentication.firebaseapp.com"
+        NEXT_PUBLIC_PROJECT_ID="pep-authentication"
+        NEXT_PUBLIC_STORAGE_BUCKET="pep-authentication.appspot.com"
+        NEXT_PUBLIC_MESSAGE_SENDER_ID="871958776875"
+        NEXT_PUBLIC_APP_ID="1:871958776875:web:426ec9b0b49fc35df1ae6e"
     }
 
     stages {
-
-         stage('Pull Latest Changes') {
-
+        stage('Prepare Repository') {
             steps {
                 sshagent (credentials: [SSH_CREDENTIALS_ID]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no $REMOTE_SERVER '
-
-                        if [ ! -d "$REPO_DIR/.git" ]; then
-                            git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR
-                        else
+                        if [ -d "$REPO_DIR" ]; then
+                            sudo chown -R \$USER:\$USER $REPO_DIR
+                            sudo chmod -R 755 $REPO_DIR
+                        fi'
+                    """
+                }
+            }
+        }
+        stage('Pull Latest Changes') {
+            steps {
+                sshagent (credentials: [SSH_CREDENTIALS_ID]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER '
+                        if [ -d "$REPO_DIR" ]; then
                             cd $REPO_DIR && git reset --hard HEAD && git pull origin $BRANCH_NAME
-
+                        else
+                            git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR
                         fi'
                     """
                 }
@@ -86,8 +94,8 @@ pipeline {
                 sshagent (credentials: [SSH_CREDENTIALS_ID]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run format'
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && pm2 delete staging-pep-app || true'
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run build && PORT=3005 pm2 start npm --name "staging-pep-app" -- start'
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && pm2 delete test-osei-front-app || true'
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run build && PORT=3001 pm2 start npm --name "test-osei-front-app" -- start'
                     """
                 }
             }
