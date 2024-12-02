@@ -68,3 +68,18 @@ export enum APPROVALTYPES {
   LEAVE = 'Leave',
   BRANCHREQUEST = 'BranchRequest',
 }
+
+// Enum for aggregate operators
+export enum AggregateOperator {
+  ADDITION = "ADDITION",
+  SUBTRACTION = "SUBTRACTION",
+}
+
+// Enum for condition operators
+export enum ConditionOperator {
+  EQUALS = "EQUALS",
+  GREATER_THAN = "GREATER_THAN",
+  LESS_THAN = "LESS_THAN",
+  RANGE = "RANGE",
+}
+

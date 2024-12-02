@@ -15,9 +15,13 @@ export interface CategoriesUseState {
   current: number;
   pageSize: number;
   totalPages: number;
+ 
+  openRecognitionType:boolean;
+  setOpenRecognitionType:(vlaue:boolean)=>void;
 
   setPageSize: (pageSize: number) => void;
   setCurrent: (value: number) => void;
+
   setOpen: (value: boolean) => void;
 
   selectedDepartment: string[];
@@ -94,6 +98,10 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   setTotalPages: (totalPages: number) => set({ totalPages }),
   setPageSize: (pageSize) => set({ pageSize }),
+
+  openRecognitionType:false,
+  setOpenRecognitionType:(openRecognitionType:boolean)=>set({openRecognitionType}),
+
   setCurrent: (value) => set({ current: value }),
   setOpen: (open) => set({ open }),
 }));
