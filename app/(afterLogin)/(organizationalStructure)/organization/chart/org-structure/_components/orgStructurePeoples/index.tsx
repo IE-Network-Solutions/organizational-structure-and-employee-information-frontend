@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import { Card, Dropdown, message } from 'antd';
+import { Card, Dropdown } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
@@ -265,7 +265,7 @@ const OrgChartComponent: React.FC = () => {
           loading={transferDepartment ? isTransferLoading : isLoading}
           visible={drawerVisible}
           onClose={() => {
-            closeDrawer(), resetStore;
+            closeDrawer(), resetStore();
           }}
           drawerContent={drawerContent}
           footerButtonText={footerButtonText}
@@ -273,14 +273,10 @@ const OrgChartComponent: React.FC = () => {
             if (footerButtonText == 'Transfer') {
               if (transferDepartment) {
                 transferDepartments(transferDepartment);
-              } else {
-                message.error('department is not defined');
               }
             }
             if (footerButtonText == 'Merge') {
               mergeDepartments(mergeData);
-            } else {
-              message.error('merge department is not defined');
             }
           }}
           title={drawTitle}

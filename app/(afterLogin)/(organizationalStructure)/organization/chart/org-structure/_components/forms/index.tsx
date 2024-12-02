@@ -181,7 +181,6 @@ export const MergeForm = () => {
   const { data: orgStructureData } = useGetOrgCharts(); // Fetch org chart
   const setMergeData = useMergeStore((state) => state.setMergeData); // Access global store function
 
-  // Local state to keep track of selected departments
   const [rootDeptId, setRootDeptId] = useState<string | null>(null);
   const [childDeptIds, setChildDeptIds] = useState<string[]>([]);
 
@@ -230,10 +229,14 @@ export const MergeForm = () => {
           branchId: rootDepartment.branchId,
           departmentToDelete: departmentToDeleteIds,
           level: rootDepartment.level,
-          department: updatedDepartment, // Only include departments not marked for deletion
+          department: updatedDepartment,
         };
 
         setMergeData(mergeData); // Update the global store with the new mergeData
+        console.log(
+          '---------------------------------this is the mergeData',
+          mergeData,
+        );
       }
     }
   };
@@ -292,8 +295,3 @@ export const MergeForm = () => {
     </Form>
   );
 };
-
-
-
-
-
