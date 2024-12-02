@@ -15,7 +15,7 @@ pipeline {
         TENANT_MGMT_URL="https://staging-tenant.selamnew.com/api/v1"
         ORG_DEV_URL = "https://staging-org-dev.selamnew.com/api/v1"
         RECRUITMENT_URL="https://staging-recruitment.selamnew.com/api/v1"
-
+        NEXT_PUBLIC_APPROVERS_URL="https://test-approval-backend.ienetworks.co/api/v1"
         PUBLIC_DOMAIN="https://selamnew.com"
         NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://staging-time.selamnew.com/api/v1"
         NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://staging-training.selamnew.com/api/v1"
