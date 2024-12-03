@@ -30,6 +30,12 @@ import {
   exportOrgStrucutreMenu,
   orgComposeAndMergeMenues,
 } from '../menues/inex';
+import {
+  useMergingDepartment,
+  useTransferDepartment,
+} from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
+import { useTransferStore } from '@/store/uistate/features/organizationStructure/orgState/transferDepartmentsStore';
+import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 
 const renderTreeNodes = (
   data: Department[],
@@ -70,6 +76,8 @@ const OrgChartComponent: React.FC = () => {
     setIsDeleteConfirmVisible,
     chartDownlaodLoading,
   } = useOrganizationStore();
+  const { transferDepartment, resetStore } = useTransferStore();
+  const { mergeData } = useMergeStore();
 
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -78,6 +86,15 @@ const OrgChartComponent: React.FC = () => {
   const { mutate: updateDepartment } = useUpdateOrgChart();
   const { mutate: deleteDepartment, isLoading: deleteLoading } =
     useDeleteOrgChart();
+  const { mutate: transferDepartments, isLoading: isTransferLoading } =
+    useTransferDepartment();
+
+  const {
+    mutate: mergeDepartments,
+    isLoading,
+    isSuccess,
+  } = useMergingDepartment();
+
   const [parent, setParrent] = useState<Department>();
 
   const handleEdit = (department: Department) => {
@@ -154,7 +171,16 @@ const OrgChartComponent: React.FC = () => {
     ) {
       setIsAddEmployeeJobInfoModalVisible(true);
     }
-  }, [employeeData, departments, setIsAddEmployeeJobInfoModalVisible]);
+    if (isSuccess) {
+      closeDrawer();
+      resetStore();
+    }
+  }, [
+    employeeData,
+    departments,
+    setIsAddEmployeeJobInfoModalVisible,
+    isSuccess,
+  ]);
 
   return (
     <div className="w-full overflow-x-auto">
@@ -236,11 +262,23 @@ const OrgChartComponent: React.FC = () => {
           />
         </div>
         <CustomDrawer
+          loading={transferDepartment ? isTransferLoading : isLoading}
           visible={drawerVisible}
-          onClose={closeDrawer}
+          onClose={() => {
+            closeDrawer(), resetStore();
+          }}
           drawerContent={drawerContent}
           footerButtonText={footerButtonText}
-          onSubmit={() => {}}
+          onSubmit={() => {
+            if (footerButtonText == 'Transfer') {
+              if (transferDepartment) {
+                transferDepartments(transferDepartment);
+              }
+            }
+            if (footerButtonText == 'Merge') {
+              mergeDepartments(mergeData);
+            }
+          }}
           title={drawTitle}
         />
       </Card>

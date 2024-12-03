@@ -4,6 +4,7 @@ import { Avatar, Menu, Dropdown, Layout } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import NotificationBar from './notificationBar';
 
 const { Header } = Layout;
 
@@ -37,7 +38,8 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
       }}
     >
       <p>{page}</p>
-      <div className="flex items-center">
+      <div className="flex items-center gap-5">
+        <NotificationBar />
         <Dropdown overlay={menu} placement="bottomRight">
           <Avatar icon={<UserOutlined />} className="cursor-pointer" />
         </Dropdown>

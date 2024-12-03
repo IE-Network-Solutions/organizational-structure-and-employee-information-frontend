@@ -87,7 +87,7 @@ export const useApprovalFilter = (
 
 export const useAllApproval = (entityId: string, branch: string) => {
   return useQuery<any>(
-    ['approvals', entityId],
+    ['allApprovals', entityId],
     () => allApproval(entityId, branch),
     {
       keepPreviousData: true,
@@ -97,7 +97,7 @@ export const useAllApproval = (entityId: string, branch: string) => {
 };
 export const useSingleApproval = (entityId: string, approvalType: string) => {
   return useQuery<any>(
-    ['approvals', entityId],
+    ['singleApprovals', entityId],
     () => singleApproval(entityId, approvalType),
     {
       keepPreviousData: true,
@@ -110,7 +110,7 @@ export const useCurrentApproval = (
   requesterId: string,
 ) => {
   return useQuery<any>(
-    ['approvals', approvalWorkflowId, requesterId],
+    ['currentApprovals', approvalWorkflowId, requesterId],
     () => currentApproval(approvalWorkflowId, requesterId),
     {
       keepPreviousData: true,

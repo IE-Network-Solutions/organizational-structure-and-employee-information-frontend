@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { Avatar, Space, Table } from 'antd';
+import { Avatar, Button, Space, Table } from 'antd';
 
 import TableFilter from './tableFilter';
 
@@ -30,6 +30,9 @@ import { CommonObject } from '@/types/commons/commonObject';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
+import { FiEdit2 } from 'react-icons/fi';
+import { EmployeeAttendance } from '@/types/timesheet/employeeAttendance';
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
@@ -51,6 +54,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setOrderBy,
     setOrderDirection,
   } = usePagination(1, 10);
+  const {
+    setIsShowEmployeeAttendanceSidebar,
+    setNewData,
+    setEmployeeAttendanceId,
+  } = useEmployeeAttendanceStore();
   const [filter, setFilter] =
     useState<Partial<AttendanceRequestBody['filter']>>();
   const { data, isFetching, refetch } = useGetAttendances(
@@ -87,6 +95,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     ) : (
       '-'
     );
+  };
+  const onEdit = ($id: string, $item: any) => {
+    setIsShowEmployeeAttendanceSidebar(true);
+    setEmployeeAttendanceId($id);
+    setNewData($item);
   };
 
   const columns: TableColumnsType<any> = [
@@ -163,6 +176,22 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       key: 'approvalStatus',
       render: () => <div>-</div>,
     },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+      render: (item: EmployeeAttendance) => {
+        return (
+          <Button
+            className="w-[30px] h-[30px]"
+            icon={<FiEdit2 size={16} />}
+            id={`${item?.id}buttonPopOverActionForOnEditActionId`}
+            type="primary"
+            onClick={() => onEdit(item?.id, item)}
+          />
+        );
+      },
+    },
   ];
 
   useEffect(() => {
@@ -186,6 +215,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
           overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,
           approvalStatus: item,
+          action: item,
         };
       });
       setTableData(nData);
