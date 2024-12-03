@@ -9,6 +9,7 @@ import { FaPlus } from 'react-icons/fa';
 import { ApprovalWorkFlowComponent } from '@/components/Approval/approvalWorkFlow';
 import ApprovalWorkFlowSettingComponent from '@/components/Approval/ApprovalWorkFlowSetting';
 import ApprovalBranchFilter from './_component/approvalFilter';
+import { IoArrowBack } from 'react-icons/io5';
 
 const Approvals = () => {
   const {
@@ -78,14 +79,38 @@ const Approvals = () => {
     <div className=" mt-3">
       {addDepartmentApproval ? (
         departmentApproval ? (
-          <ApprovalWorkFlowSettingComponent
-            handleSubmit={handleSubmit}
-            isSuccess={isSuccess}
-            form={form}
-            title={'Department transfer '}
-          />
+          <div className="">
+            <div className="mb-10 flex justify-between">
+              <Button
+                className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
+                onClick={() => setDepartmentApproval(false)}
+              >
+                <IoArrowBack className="text-white" />
+                <span> Back</span>
+              </Button>
+              <div className="text-2xl font-bold "></div>
+            </div>
+            <ApprovalWorkFlowSettingComponent
+              handleSubmit={handleSubmit}
+              isSuccess={isSuccess}
+              form={form}
+              title={'Department transfer '}
+            />
+          </div>
         ) : (
-          <ApprovalWorkFlowComponent onChange={onChange} />
+          <div className="">
+            <div className="mb-10 flex justify-between">
+              <Button
+                className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
+                onClick={() => setAddDepartmentApproval(false)}
+              >
+                <IoArrowBack className="text-white" />
+                <span> Back</span>
+              </Button>
+              <div className="text-2xl font-bold "></div>
+            </div>
+            <ApprovalWorkFlowComponent onChange={onChange} />
+          </div>
         )
       ) : (
         <div>
