@@ -1,6 +1,6 @@
 import React from 'react';
 import CustomButton from '@/components/common/buttons/customButton';
-import { MergeForm, TransferForm } from '../forms';
+import { ArchiveForm, DissolveForm, MergeForm } from '../forms';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 
 interface CustomDrawerProps {
@@ -26,10 +26,12 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
 }) => {
   const renderDrawerContent = () => {
     switch (drawerContent) {
-      case 'transfer':
-        return <TransferForm />;
+      case 'archive':
+        return <ArchiveForm />;
       case 'merge':
         return <MergeForm />;
+      case 'dissolve':
+        return <DissolveForm />;
       default:
         return null;
     }

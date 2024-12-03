@@ -61,9 +61,9 @@ export const orgComposeAndMergeMenues = (
       key="1"
       className="py-2"
       style={{ paddingRight: '64px' }}
-      onClick={() => showDrawer('transfer', 'Transfer', 'Transfer Department')}
+      onClick={() => showDrawer('archive', 'Archive', 'Archive Level')}
     >
-      Transfer
+      Archive
     </Menu.Item>
     <Menu.Item
       key="2"
@@ -73,13 +73,13 @@ export const orgComposeAndMergeMenues = (
     >
       Merge
     </Menu.Item>
-    {/* <Menu.Item
+    <Menu.Item
       key="3"
       className="py-2"
       style={{ paddingRight: '64px' }}
       onClick={() => showDrawer('dissolve', 'Dissove', 'Dessolve Department')}
     >
       Dissolve
-    </Menu.Item> */}
+    </Menu.Item>
   </Menu>
 );
