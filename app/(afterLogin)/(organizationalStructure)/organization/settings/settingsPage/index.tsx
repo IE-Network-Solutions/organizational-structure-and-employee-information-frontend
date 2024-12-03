@@ -37,7 +37,8 @@ function SettingsPage() {
       key: '1',
       label: (
         <span className="flex gap-2 mt-4">
-          <TbNotes className="mt-1" /> <p className="font-semibold">Branchs </p>{' '}
+          <TbNotes className="mt-1" />{' '}
+          <p className="font-semibold">Branches </p>
         </span>
       ),
       children: <Branches />,
@@ -47,7 +48,7 @@ function SettingsPage() {
       label: (
         <span className="flex gap-2 mt-4">
           <TbNotes className="mt-1" />{' '}
-          <p className="font-semibold">Fiscal Year </p>{' '}
+          <p className="font-semibold">Fiscal Year </p>
         </span>
       ),
       children: <FiscalYearListCard />,
@@ -56,8 +57,8 @@ function SettingsPage() {
       key: '3',
       label: (
         <span className="flex gap-2 mt-4">
-          <TbNotes className="mt-1" />{' '}
-          <p className="font-semibold">Work Schedule </p>{' '}
+          <TbNotes className="mt-1" />
+          <p className="font-semibold">Work Schedule </p>
         </span>
       ),
       children: <WorkScheduleTab />,
@@ -67,7 +68,7 @@ function SettingsPage() {
     <>
       <div className="flex justify-start  -mt-2 -ml-2">
         <Card className="shadow-none" bordered={false}>
-          <p className="font-bold text-xl">Branchs</p>
+          <p className="font-bold text-xl">Branches</p>
           <p className="text-gray-400">Branch</p>
         </Card>
       </div>

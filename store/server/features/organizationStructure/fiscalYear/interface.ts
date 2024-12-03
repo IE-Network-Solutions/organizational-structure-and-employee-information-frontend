@@ -15,6 +15,20 @@ export interface FiscalYear {
   description: string;
   startDate: Dayjs | null;
   endDate: Dayjs | null;
+  sessions?: {
+    id?: string;
+    name: string;
+    description?: string;
+    startDate: Dayjs | null;
+    endDate: Dayjs | null;
+    months?: {
+      id?: string;
+      name: string;
+      description?: string;
+      startDate: Dayjs | null;
+      endDate: Dayjs | null;
+    }[];
+  }[];
   closedDates?: ClosedDates[];
 }
 

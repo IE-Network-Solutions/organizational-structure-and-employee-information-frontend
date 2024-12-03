@@ -5,6 +5,7 @@ import { ClosedDates, FiscalYear } from './interface';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -45,10 +46,11 @@ export const useCreateFiscalYear = () => {
   return useMutation(createFiscalYear, {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
-
       closeFiscalYearDrawer();
-      // const method = variables?.method?.toUpperCase();
-      // handleSuccessMessage(method);
+      NotificationMessage.success({
+        message: 'Fiscal year created successfully!',
+        description: 'Fiscal year has been successfully created',
+      });
     },
   });
 };
@@ -75,8 +77,10 @@ export const useDeleteFiscalYear = () => {
   return useMutation((id: string) => deleteFiscalYear(id), {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
-      // const method = variables?.method?.toUpperCase();
-      // handleSuccessMessage(method);
+      NotificationMessage.success({
+        message: 'Fiscal year deleted successfully!',
+        description: 'Fiscal year has been successfully deleted',
+      });
     },
   });
 };

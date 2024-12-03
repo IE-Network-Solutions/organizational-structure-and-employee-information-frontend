@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import { Button, Spin } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import useStepStore from '@/store/uistate/features/organizationStructure/steper/useStore';
-import FiscalYear from './fiscalYear';
 import WorkSchedule from './workSchedule';
 import Branches from './branches';
 import OrgChartComponent from './orgChartComponent';
@@ -36,6 +35,7 @@ import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/su
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useRouter } from 'next/navigation';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
+import CustomWorFiscalYearDrawer from '@/app/(afterLogin)/(organizationalStructure)/organization/settings/_components/fiscalYear/customDrawer';
 
 // const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -53,33 +53,6 @@ const OnboaringSteper: React.FC = () => {
       router.push('/dashboard');
     }
   }, [departments?.length]);
-
-  const steps = [
-    {
-      title: 'Step 1',
-      content: <CompanyProfile form={form1} />,
-    },
-    {
-      title: 'Step 2',
-      content: <IndustrySelect form={form2} />,
-    },
-    {
-      title: 'Step 3',
-      content: <FiscalYear form={form3} />,
-    },
-    {
-      title: 'Step 4',
-      content: <WorkSchedule form={form4} />,
-    },
-    {
-      title: 'Step 5',
-      content: <Branches />,
-    },
-    {
-      title: 'Step 6',
-      content: <OrgChartComponent />,
-    },
-  ];
 
   const {
     currentStep,
@@ -200,6 +173,38 @@ const OnboaringSteper: React.FC = () => {
         });
     }
   };
+
+  const steps = [
+    {
+      title: 'Step 1',
+      content: <CompanyProfile form={form1} />,
+    },
+    {
+      title: 'Step 2',
+      content: <IndustrySelect form={form2} />,
+    },
+    {
+      title: 'Step 3',
+      content: (
+        <CustomWorFiscalYearDrawer
+          form={form3}
+          handleNextStep={handleNextStep}
+        />
+      ),
+    },
+    {
+      title: 'Step 4',
+      content: <WorkSchedule form={form4} />,
+    },
+    {
+      title: 'Step 5',
+      content: <Branches />,
+    },
+    {
+      title: 'Step 6',
+      content: <OrgChartComponent />,
+    },
+  ];
 
   const handleClose = () => {
     togleIsModalVisible();

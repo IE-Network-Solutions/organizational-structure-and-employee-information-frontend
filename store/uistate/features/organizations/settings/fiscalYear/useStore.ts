@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { DrawerState } from './interface';
+import { Dayjs } from 'dayjs';
 
 export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   isFiscalYearOpen: false,
@@ -7,6 +8,20 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   isEditMode: false,
   selectedFiscalYear: null,
   isDeleteMode: false,
+  current: 0,
+  calendarType: null,
+  pageSize: 5,
+  currentPage: 1,
+  selectedYear: new Date().getFullYear(),
+  sessionFormValues: {},
+  setSessionFormValues: (values) => set({ sessionFormValues: values }),
+  setSelectedYear: (year: number) =>
+    set({
+      selectedYear: year,
+    }),
+  setCurrentPage: (value: number) => set({ currentPage: value }),
+  setPageSize: (value: number) => set({ pageSize: value }),
+  setCalendarType: (value: string | null) => set({ calendarType: value }),
   toggleFiscalYearDrawer: () =>
     set((state) => ({ isFiscalYearOpen: !state.isFiscalYearOpen })),
   closeFiscalYearDrawer: () => set({ isFiscalYearOpen: false }),
@@ -16,4 +31,15 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   setSelectedFiscalYear: (fiscalYear: any) =>
     set({ selectedFiscalYear: fiscalYear }),
   setDeleteMode: (isDelete) => set({ isDeleteMode: isDelete }),
+  setCurrent: (value: number) => set({ current: value }),
+  formData: {},
+  setFormData: (newData) =>
+    set((state) => ({
+      formData: { ...state.formData, ...newData },
+    })),
+  fiscalYearEnd: null,
+  setFiscalYearEnd: (value: Dayjs) => set({ fiscalYearEnd: value }),
+  fiscalYearStart: null,
+  setFiscalYearStart: (value: Dayjs) => set({ fiscalYearStart: value }),
+  clearFormData: () => set({ formData: {} }),
 }));

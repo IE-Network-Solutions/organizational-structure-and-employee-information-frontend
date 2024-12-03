@@ -1,172 +1,130 @@
-import { Input, Form, DatePicker } from 'antd';
-import useFiscalYearStore from '@/store/uistate/features/organizationStructure/fiscalYear/fiscalYearStore';
+import { Input, Form, DatePicker, Button, Row, Col, Select } from 'antd';
 import { FormInstance } from 'antd/lib';
-import dayjs, { Dayjs } from 'dayjs';
+import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
+import TextArea from 'antd/es/input/TextArea';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import dayjs from 'dayjs';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useEffect, useMemo } from 'react';
 
 interface FiscalYearProps {
   form: FormInstance;
 }
 
 const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
-  const {
-    name,
-    startDate,
-    endDate,
-    description,
-    setFiscalYearName,
-    setFiscalYearStartDate,
-    setFiscalYearEndDate,
-    setFiscalDescriptionName,
-  } = useFiscalYearStore();
+  const { selectedFiscalYear, isEditMode, setCurrent, setCalendarType } =
+    useFiscalYearDrawerStore();
 
-  const disabledEndDate = (current: Dayjs | null): boolean => {
-    if (!current || !startDate) {
-      return false;
-    }
-    return current.isBefore(dayjs(startDate), 'day');
-  };
+  const { data: activeCalendar } = useGetActiveFiscalYears();
+  const { data: departments } = useGetDepartments();
 
-  const disabledStartDate = (current: Dayjs | null): boolean => {
-    if (!current || !endDate) {
-      return false;
+  const activeCalendarEndDate = useMemo(
+    () => (activeCalendar?.endDate ? dayjs(activeCalendar.endDate) : null),
+    [activeCalendar],
+  );
+  useEffect(() => {
+    if (isEditMode && selectedFiscalYear) {
+      form.setFieldsValue({
+        fiscalYearName: selectedFiscalYear?.name,
+        fiscalYearStartDate: selectedFiscalYear?.startDate
+          ? dayjs(selectedFiscalYear?.startDate)
+          : undefined,
+        fiscalYearEndDate: selectedFiscalYear?.endDate
+          ? dayjs(selectedFiscalYear?.endDate)
+          : undefined,
+        fiscalYearCalenderId: selectedFiscalYear?.fiscalYearCalenderId,
+        fiscalYearDescription: selectedFiscalYear?.description,
+      });
     }
-    return current.isAfter(dayjs(endDate), 'day');
-  };
-  /* eslint-disable @typescript-eslint/naming-convention */
+  }, [selectedFiscalYear, isEditMode, form]);
+
   return (
     <div className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full">
-      <div className="bg-white p-4 md:p-8 lg:p-12 rounded-lg h-full w-full">
-        <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black mt-8">
-          Set up Fiscal Year
-        </div>
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{
-            name,
-            startDate,
-            endDate,
-            description,
-          }}
-          onFinish={(values) => {
-            if (dayjs(values.startDate).isAfter(values.endDate)) {
-              form.setFields([
-                {
-                  name: 'startDate',
-                  errors: [
-                    'The fiscal year start date cannot be after the end date.',
-                  ],
-                },
-                {
-                  name: 'endDate',
-                  errors: [
-                    'The fiscal year end date cannot be before the start date.',
-                  ],
-                },
-              ]);
-            }
-          }}
-        >
+      <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-4">
+        Set up Fiscal Year
+      </div>
+      <Form.Item
+        id="fiscalNameId"
+        name="fiscalYearName"
+        validateTrigger="onSubmit"
+        label={<span className="font-medium">Fiscal Year Name</span>}
+        rules={[{ required: true, message: 'Please input the session name!' }]}
+      >
+        <Input
+          size="large"
+          className="h-12 mt-2 w-full font-normal text-sm"
+          placeholder="Enter session name"
+        />
+      </Form.Item>
+
+      <Row gutter={[16, 10]}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
           <Form.Item
-            name="name"
-            label="Fiscal Year Name"
-            className="h-12 w-full font-normal text-xl mt-4"
+            id="fiscalYearStartDateId"
+            name="fiscalYearStartDate"
+            validateTrigger="onSubmit"
+            label={<span className="font-medium"> Fiscal Year Start Date</span>}
             rules={[
-              { required: true, message: 'Please input fiscal year name!' },
-              {
-                min: 2,
-                message: 'Fiscal year name must be at least 2 characters!',
-              },
-            ]}
-          >
-            <Input
-              size="large"
-              className="h-12 mt-2 w-full font-normal text-sm"
-              placeholder="Enter your fiscal year name"
-              value={name}
-              onChange={(e) => {
-                setFiscalYearName(e.target.value);
-              }}
-            />
-          </Form.Item>
-          <Form.Item
-            name="description"
-            label="Description"
-            className=" w-full font-normal text-xl mt-12"
-            rules={[
-              {
-                required: true,
-                message: 'Please input fiscal year description!',
-              },
-            ]}
-          >
-            <Input.TextArea
-              className={'h-32 font-normal text-sm mt-2'}
-              size="large"
-              placeholder="Enter a description"
-              onChange={(e) => setFiscalDescriptionName(e.target.value || '')}
-              value={description}
-              autoSize={{ minRows: 4, maxRows: 6 }}
-            />
-          </Form.Item>
-          <Form.Item
-            name="startDate"
-            label="Fiscal Year Starting Date"
-            className="h-12 w-full font-normal text-xl mt-6"
-            rules={[
-              {
-                required: true,
-                message: 'Please input fiscal year starting date!',
-              },
-              ({ getFieldValue }) => ({
+              /* eslint-disable @typescript-eslint/naming-convention */
+              ({}) => ({
                 validator(_, value) {
-                  if (
-                    value &&
-                    getFieldValue('endDate') &&
-                    value.isAfter(getFieldValue('endDate'))
-                  ) {
+                  /* eslint-enable @typescript-eslint/naming-convention */
+
+                  if (!value || !activeCalendarEndDate) {
+                    return Promise.resolve();
+                  }
+                  if (value.isBefore(activeCalendarEndDate)) {
                     return Promise.reject(
                       new Error(
-                        'The fiscal year start date cannot be after the end date.',
+                        'The start date must be after the active calendar end date.',
                       ),
                     );
                   }
+                  const endDate = value.add(1, 'year');
+                  form.setFieldsValue({
+                    fiscalYearEndDate: endDate,
+                  });
                   return Promise.resolve();
                 },
               }),
             ]}
           >
-            <DatePicker
-              className="h-12 w-full font-normal text-xl mt-2"
-              value={startDate}
-              onChange={(date: Dayjs | null) => {
-                setFiscalYearStartDate(date ? date : null);
-                if (endDate && date && date.isAfter(endDate)) {
-                  setFiscalYearEndDate(null);
-                }
-              }}
-              disabledDate={disabledStartDate}
-            />
+            <DatePicker className="h-12 w-full font-normal text-xl mt-2" />
           </Form.Item>
+          <span className="text-xs font-normal mt-0 flex items-start mb-4 ml-1">
+            Active Calendar End date:
+            <span className="font-semibold">
+              {activeCalendar?.endDate
+                ? dayjs(activeCalendar.endDate).format('YYYY-MM-DD')
+                : 'N/A'}{' '}
+            </span>
+          </span>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
           <Form.Item
-            name="endDate"
-            label="Fiscal Year End Date"
-            className="h-12 w-full font-normal text-xl mt-12"
+            id="fiscalYearEndDateId"
+            name="fiscalYearEndDate"
+            validateTrigger="onSubmit"
+            label={<span className="font-medium">Fiscal Year End Date</span>}
             rules={[
               {
                 required: true,
                 message: 'Please input fiscal year ending date!',
               },
               ({ getFieldValue }) => ({
+                /* eslint-disable @typescript-eslint/naming-convention */
+
                 validator(_, value) {
-                  if (
-                    value &&
-                    getFieldValue('startDate') &&
-                    value.isBefore(getFieldValue('startDate'))
-                  ) {
+                  /* eslint-enable @typescript-eslint/naming-convention */
+
+                  const startDate = getFieldValue('fiscalYearStartDate');
+                  if (!value || !startDate) {
+                    return Promise.resolve();
+                  }
+                  if (value.diff(startDate, 'year') !== 1) {
                     return Promise.reject(
                       new Error(
-                        'The fiscal year end date cannot be before the start date.',
+                        'The end date must be exactly one year after the start date.',
                       ),
                     );
                   }
@@ -175,20 +133,65 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
               }),
             ]}
           >
-            <DatePicker
-              className="h-12 w-full font-normal text-xl mt-2"
-              value={endDate}
-              onChange={(date) => {
-                setFiscalYearEndDate(date ? date : null);
-              }}
-              disabledDate={disabledEndDate}
-            />
+            <DatePicker className="h-12 w-full font-normal text-xl mt-2" />
           </Form.Item>
-        </Form>
-      </div>
+        </Col>
+      </Row>
+      <Form.Item
+        id="fiscalYearCalenderId"
+        name="fiscalYearCalenderId"
+        label={<span className="font-medium">Fiscal Year Calender</span>}
+      >
+        <Select
+          placeholder="Select Calendar"
+          className="h-12 w-full font-normal text-xl mt-2"
+          onChange={(value) => setCalendarType(value)}
+        >
+          <Select.Option value="Quarter">Quarter</Select.Option>
+          <Select.Option value="Semester">Semester</Select.Option>
+          <Select.Option value="Year">Year</Select.Option>
+        </Select>
+      </Form.Item>
+      <Form.Item
+        id="fiscalYearDescriptionId"
+        name="fiscalYearDescription"
+        validateTrigger="onSubmit"
+        label={<span className="font-medium"> Description</span>}
+        rules={[
+          {
+            required: true,
+            message: 'Please input the fiscal year description!',
+          },
+        ]}
+      >
+        <TextArea
+          placeholder="Enter description"
+          rows={4}
+          className={'h-32 font-normal text-sm mt-2'}
+          size="large"
+        />
+      </Form.Item>
+
+      <Form.Item className="">
+        <div className="flex justify-center  w-full px-6 py-6 gap-6 my-3">
+          {departments?.length > 0 ? (
+            <Button
+              onClick={close}
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+            >
+              Cancel
+            </Button>
+          ) : null}
+          <Button
+            onClick={() => setCurrent(1)}
+            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12  border-none"
+          >
+            Next
+          </Button>
+        </div>
+      </Form.Item>
     </div>
   );
-  /* eslint-enable @typescript-eslint/naming-convention */
 };
 
 export default FiscalYear;
