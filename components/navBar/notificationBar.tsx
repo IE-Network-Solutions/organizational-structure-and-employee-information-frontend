@@ -1,6 +1,4 @@
-import React from 'react';
-import { Avatar, Menu, Dropdown, Layout, Badge, Spin, Tooltip } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Avatar, Menu, Dropdown,Badge, Spin, Tooltip } from 'antd';
 import { useNotificationDetailStore } from '@/store/uistate/features/notification';
 import { useGetNotifications } from '@/store/server/features/notification/queries';
 import { NotificationType } from '@/store/server/features/notification/interface';
