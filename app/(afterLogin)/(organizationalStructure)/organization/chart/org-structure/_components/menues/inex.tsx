@@ -44,7 +44,8 @@ const {
   setFooterButtonText,
   setDrawTitle,
 } = useOrganizationStore.getState();
-const showDrawer = (
+
+export const showDrawer = (
   drawerContent: string,
   footerBtnText: string,
   title: string,

@@ -1,9 +1,10 @@
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
-import { Form, Input, message, Select } from 'antd';
+import { Form, FormInstance, Input, message, Select } from 'antd';
 import { useEffect } from 'react';
 import { RiErrorWarningFill } from 'react-icons/ri';
+import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
 
 export const ArchiveForm = () => (
   <Form layout="vertical">
@@ -234,3 +235,185 @@ export const DissolveForm = () => (
     </Form.Item>
   </Form>
 );
+
+interface DeleteFormProps {
+  form?: FormInstance; // Type for Ant Design's form instance
+}
+
+export const DeleteForm: React.FC<DeleteFormProps> = ({ form }) => {
+  const {departmentTobeDeletedId} = useOrganizationStore();
+  const {
+    rootDepartment,
+    childDepartment,
+    setChildDepartment,
+    setMergeDepartment,
+  } = useMergeStore();
+
+  const { data: departments } = useGetDepartments();
+  const { data: orgStructureData } = useGetOrgCharts();
+
+  const OPTIONS = departments?.map((item: any) => ({
+    value: item.id,
+    label: item.name,
+  }));
+
+  // Filter out the rootDepartment from the child department options
+  const filteredChildDepartments = OPTIONS?.filter(
+    (item: any) => item.label !== departmentTobeDeletedId,
+  );
+
+  const selectedDepartment = OPTIONS?.filter(
+    (item: any) => item.label === departmentTobeDeletedId,
+  );
+
+  const departmentCache: Record<string, any> = {};
+
+  const findDepartmentWithChildren = (tree: any, id: string): any => {
+    if (departmentCache[id]) return departmentCache[id];
+
+    if (tree.id === id) {
+      const departmentData = {
+        id: tree.id,
+        name: tree.name,
+        description: tree.description,
+        branchId: tree.branchId,
+        children: tree.department || [],
+      };
+      departmentCache[id] = departmentData;
+      return departmentData;
+    }
+    if (tree.department?.length) {
+      for (const child of tree.department) {
+        const result = findDepartmentWithChildren(child, id);
+        if (result) {
+          departmentCache[id] = result;
+          return result;
+        }
+      }
+    }
+
+    return null;
+  };
+
+  const Merge = () => {
+    if (!orgStructureData || !rootDepartment?.id) {
+      message.error(
+        'Organization structure data or root department not available',
+      );
+      return;
+    }
+    const rootDept = findDepartmentWithChildren(
+      orgStructureData,
+      rootDepartment.id,
+    );
+
+    if (!rootDept) {
+      message.error('Root department not found');
+      return;
+    }
+    const departmentChildren = childDepartment.map((child) => {
+      const departmentData = findDepartmentWithChildren(
+        orgStructureData,
+        child.id,
+      );
+      return {
+        id: child.id,
+        name: departmentData?.name || '',
+        branchId: departmentData?.branchId || '',
+        description: departmentData?.description || '',
+      };
+    });
+
+    const mergeData = {
+      id: rootDept.id,
+      name: rootDept.name,
+      description: rootDept.description,
+      branchId: rootDept.branchId,
+      departmentToDelete: childDepartment.map((child) => child.id),
+      department: departmentChildren,
+    };
+
+    setMergeDepartment(mergeData);
+  };
+
+  // const handleRootDepartmentChange = (id: string) => {
+  //   const department = departments?.find((dept: any) => dept.id === id);
+  //   if (department) {
+  //     setRootDepartment({
+  //       id: department.id,
+  //       name: department.name,
+  //       branchId: department.branchId || '',
+  //       description: department.description || '',
+  //     });
+  //   }
+  // };
+
+  const handleChildDepartmentsChange = (ids: string[]) => {
+    const updatedDepartments = ids.map((id: string) => {
+      const department = departments?.find((dept: any) => dept.id === id);
+      return {
+        id,
+        name: department?.name || '',
+        branchId: department?.branchId || '',
+        description: department?.description || '',
+      };
+    });
+    setChildDepartment(updatedDepartments);
+  };
+
+  useEffect(() => {
+    if (childDepartment.length > 0 && rootDepartment?.id && orgStructureData) {
+      Merge();
+    }
+  }, [childDepartment, rootDepartment, orgStructureData]);
+
+  
+
+  return (
+    <Form layout="vertical" form={form}>
+      <Form.Item
+        label="Department to be Deleted"
+        name="departmentTobeDeleted"
+        rules={[
+          { required: true, message: 'Please select the department to delete' },
+        ]}
+        
+      >
+        <Select
+          showSearch
+          style={{ width: '100%' }}
+          placeholder={departmentTobeDeletedId}
+          optionFilterProp="label"
+          options={selectedDepartment}
+          value={departmentTobeDeletedId}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="Shift employees to"
+        name="ShiftWith"
+        rules={[
+          {
+            required: true,
+            message: 'Please select a department to shift employees to',
+          },
+        ]}
+      >
+        <Select
+          placeholder="Select a department to shift employees to"
+          style={{ width: '100%' }}
+          value={childDepartment.map((child) => child.id)}
+          onChange={handleChildDepartmentsChange}
+          options={filteredChildDepartments} // Use filtered child department options
+        />
+      </Form.Item>
+
+      <Form.Item>
+        <p style={{ color: '#595959' }}>
+          <span style={{ marginRight: '8px' }}>ⓘ</span>This will affect the
+          whole company structure
+        </p>
+      </Form.Item>
+    </Form>
+  );
+};

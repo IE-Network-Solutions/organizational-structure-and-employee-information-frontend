@@ -14,6 +14,7 @@ const useOrganizationStore = create<OrganizationState>((set) => ({
     branchId: null,
     department: [],
   },
+  departmentTobeDeletedId: '',
   setOrgData: (data: OrgData) => set({ orgData: data }),
   setBranchId: (branchId: string) =>
     set((state) => ({
@@ -116,6 +117,7 @@ const useOrganizationStore = create<OrganizationState>((set) => ({
   setDrawerContent: (content: string) => set({ drawerContent: content }),
   setFooterButtonText: (text: string) => set({ footerButtonText: text }),
   setDrawTitle: (title: string) => set({ drawTitle: title }),
+  setDepartmentTobeDeletedId: (departmentTobeDeletedId: string) => set({ departmentTobeDeletedId })
 }));
 
 export default useOrganizationStore;
