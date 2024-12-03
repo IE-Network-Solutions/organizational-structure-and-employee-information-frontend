@@ -12,9 +12,29 @@ const headers = {
   Authorization: `Bearer ${token}`,
 };
 
-const mergingDepartment = async (data: MergingDepartment) => {
+const transferDepartment = async (data: MergingDepartment) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/users/department/dissolve`,
+    method: 'POST',
+    headers,
+    data,
+  });
+};
+
+export const useTransferDepartment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation((data: MergingDepartment) => transferDepartment(data), {
+    onSuccess: () => {
+      queryClient.invalidateQueries('orgcharts');
+      handleSuccessMessage('Departments merged successfully');
+    },
+  });
+};
+
+const mergingDepartment = async (data: MergingDepartment) => {
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/department/merge`,
     method: 'POST',
     headers,
     data,

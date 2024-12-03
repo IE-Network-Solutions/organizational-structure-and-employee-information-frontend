@@ -1,43 +1,17 @@
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
-import { Form, Input, message, Select } from 'antd';
-import { useEffect } from 'react';
-import { RiErrorWarningFill } from 'react-icons/ri';
-
-export const ArchiveForm = () => (
-  <Form layout="vertical">
-    <Form.Item
-      label="Select Level"
-      name="archiveLevel"
-      rules={[{ required: true, message: 'Please enter the level to archive' }]}
-    >
-      <Input className="h-12 mt-4" placeholder="Which level to archive" />
-    </Form.Item>
-    <Form.Item>
-      <p
-        style={{
-          color: '#595959',
-        }}
-        className="flex justify-start items-center"
-      >
-        <span style={{ marginRight: '8px' }} className="py-2 text-black ">
-          <RiErrorWarningFill />
-        </span>
-        <div className="">This will affect the whole company structure</div>
-      </p>
-    </Form.Item>
-  </Form>
-);
-
-export const MergeForm = () => {
+import { useTransferStore } from '@/store/uistate/features/organizationStructure/orgState/transferDepartmentsStore';
+import { Form, message, Select } from 'antd';
+import { useEffect, useState } from 'react';
+export const TransferForm = () => {
   const {
     rootDepartment,
     setRootDepartment,
     childDepartment,
     setChildDepartment,
-    setMergeDepartment,
-  } = useMergeStore();
+    setTransferDepartment,
+  } = useTransferStore();
 
   const { data: departments } = useGetDepartments();
   const { data: orgStructureData } = useGetOrgCharts();
@@ -47,7 +21,6 @@ export const MergeForm = () => {
     label: item.name,
   }));
 
-  // Filter out the rootDepartment from the child department options
   const filteredChildDepartments = OPTIONS?.filter(
     (item: any) => item.value !== rootDepartment?.id,
   );
@@ -110,7 +83,7 @@ export const MergeForm = () => {
       };
     });
 
-    const mergeData = {
+    const transferData = {
       id: rootDept.id,
       name: rootDept.name,
       description: rootDept.description,
@@ -119,7 +92,7 @@ export const MergeForm = () => {
       department: departmentChildren,
     };
 
-    setMergeDepartment(mergeData);
+    setTransferDepartment(transferData);
   };
 
   const handleRootDepartmentChange = (id: string) => {
@@ -156,8 +129,8 @@ export const MergeForm = () => {
   return (
     <Form layout="vertical">
       <Form.Item
-        label="Which Department to be merged"
-        name="departmentToMerge"
+        label="Transfer To"
+        name="Transfer to Department"
         rules={[
           { required: true, message: 'Please select the department to merge' },
         ]}
@@ -165,7 +138,7 @@ export const MergeForm = () => {
         <Select
           showSearch
           style={{ width: '100%' }}
-          placeholder="Which Department to be merged"
+          placeholder="Which Department to be Transfer"
           optionFilterProp="label"
           value={rootDepartment?.id}
           onChange={handleRootDepartmentChange}
@@ -174,18 +147,18 @@ export const MergeForm = () => {
       </Form.Item>
 
       <Form.Item
-        label="Merge it with"
-        name="mergeWith"
+        label="Transfer from"
+        name="Transfer From Department"
         rules={[
           {
             required: true,
-            message: 'Please select the departments to merge with',
+            message: 'Please select the department',
           },
         ]}
       >
         <Select
           mode="multiple"
-          placeholder="Merge it with"
+          placeholder="Transfer it from"
           style={{ width: '100%' }}
           value={childDepartment.map((child) => child.id)}
           onChange={handleChildDepartmentsChange}
@@ -203,34 +176,118 @@ export const MergeForm = () => {
   );
 };
 
-export const DissolveForm = () => (
-  <Form layout="vertical">
-    <Form.Item
-      label="Which Department to dissolve"
-      name="departmentToDissolve"
-      rules={[
-        { required: true, message: 'Please select the department to dissolve' },
-      ]}
-    >
-      <Input placeholder="Which department to dissolve" />
-    </Form.Item>
-    <Form.Item
-      label="Which Department you assign to"
-      name="assignTo"
-      rules={[
-        {
-          required: true,
-          message: 'Please select the department to assign to',
-        },
-      ]}
-    >
-      <Input placeholder="Which department you are assigning to" />
-    </Form.Item>
-    <Form.Item label="Employees to be assigned" name="employees">
-      <Select mode="multiple" placeholder="Assign employees">
-        <Select.Option value="jennifer_law">Jennifer Law</Select.Option>
-        <Select.Option value="dawit_getachew">Dawit Getachew</Select.Option>
-      </Select>
-    </Form.Item>
-  </Form>
-);
+export const MergeForm = () => {
+  const { data: departments } = useGetDepartments(); // Fetch all departments
+  const { data: orgStructureData } = useGetOrgCharts(); // Fetch org chart
+  const setMergeData = useMergeStore((state) => state.setMergeData); // Access global store function
+
+  const [rootDeptId, setRootDeptId] = useState<string | null>(null);
+  const [childDeptIds, setChildDeptIds] = useState<string[]>([]);
+
+  const OPTIONS = departments?.map((item: any) => ({
+    value: item.id,
+    label: item.name,
+  }));
+
+  const findDepartmentById = (id: string, orgStructure: any): any => {
+    if (!orgStructure) return null; // Handle undefined/null data
+    if (orgStructure.id === id) return orgStructure;
+
+    for (const dept of orgStructure.department || []) {
+      const found = findDepartmentById(id, dept);
+      if (found) return found;
+    }
+    return null;
+  };
+
+  const Merge = () => {
+    if (!rootDeptId || !childDeptIds.length) return; // Exit if necessary ids are missing
+
+    const rootDepartment = findDepartmentById(rootDeptId, orgStructureData);
+    if (rootDepartment) {
+      const childDepartments = childDeptIds.map((id) =>
+        findDepartmentById(id, orgStructureData),
+      );
+      if (childDepartments.every((dept) => dept)) {
+        const immediateChildren = childDepartments.flatMap(
+          (dept: any) => dept.department || [],
+        );
+
+        const departmentToDeleteIds = childDepartments.map(
+          (child: any) => child.id,
+        );
+
+        const updatedDepartment = [
+          ...rootDepartment.department,
+          ...immediateChildren,
+        ].filter((dept: any) => !departmentToDeleteIds.includes(dept.id));
+
+        const mergeData = {
+          id: rootDepartment.id,
+          name: rootDepartment.name,
+          description: rootDepartment.description,
+          branchId: rootDepartment.branchId,
+          departmentToDelete: departmentToDeleteIds,
+          level: rootDepartment.level,
+          department: updatedDepartment,
+        };
+
+        setMergeData(mergeData);
+      }
+    }
+  };
+
+  useEffect(() => {
+    Merge();
+  }, [rootDeptId, childDeptIds, orgStructureData, setMergeData]);
+
+  return (
+    <Form layout="vertical">
+      {/* Merge To Department Select */}
+      <Form.Item
+        label="Merge To"
+        name="Merge to Department"
+        rules={[
+          { required: true, message: 'Please select the department to merge' },
+        ]}
+      >
+        <Select
+          showSearch
+          style={{ width: '100%' }}
+          placeholder="Select the department to transfer to"
+          optionFilterProp="label"
+          options={OPTIONS}
+          onChange={(value) => setRootDeptId(value)} // Set rootDeptId on change
+        />
+      </Form.Item>
+
+      {/* Merge From Department Select */}
+      <Form.Item
+        label="Merge From"
+        name="Merge From Department"
+        rules={[
+          {
+            required: true,
+            message: 'Please select the departments to merge from',
+          },
+        ]}
+      >
+        <Select
+          mode="multiple"
+          placeholder="Select departments to transfer from"
+          style={{ width: '100%' }}
+          options={OPTIONS}
+          onChange={(values) => setChildDeptIds(values)} // Set childDeptIds on change
+        />
+      </Form.Item>
+
+      {/* Information Note */}
+      <Form.Item>
+        <p style={{ color: '#595959' }}>
+          <span style={{ marginRight: '8px' }}>ⓘ</span>This will affect the
+          whole company structure.
+        </p>
+      </Form.Item>
+    </Form>
+  );
+};
