@@ -39,8 +39,9 @@ const RecognitionForm= () => {
   );
 console.log(recognitionType,"recognitionType")
   const onFinish = (values: RecognitionFormValues) => {
+    console.log("Form Submitted: ", values);
     createRecognitionType(values);
-    // console.log("Form Submitted: ", values);
+
   };
 // console.log(selectedCriteria,"selectedCriteria")
   return (
@@ -117,7 +118,7 @@ console.log(recognitionType,"recognitionType")
           labelAlign="left"
           className="w-1/2 text-xs text-gray-950"
           label={getLabel("Criteria")}
-          name={['recognitionCriteria', index, 'name']} // Scoped name
+          name={['recognitionCriteria', index, 'criterionKey']} // Scoped name
           initialValue={criteria}
           rules={[
             { required: true, message: "Please select at least one criterion" },
@@ -188,32 +189,32 @@ console.log(recognitionType,"recognitionType")
       </div>
     ))}
 
-
-      <Form.Item 
-      className="text-xs text-gray-950"
-      label={
-            <span className="text-black text-xs font-semibold">
-            Monetized
-            </span>
-        } 
-      name="isMonetized" 
-      valuePropName="checked">
-        <Switch />
-      </Form.Item>
-
-      <Form.Item
-        className="text-xs text-gray-950"
+     <div className="flex">
+        <Form.Item 
+           className="text-xs text-gray-950"
         label={
-            <span className="text-black text-xs font-semibold">
-              Requires Certification
-            </span>
-         }
-        name="requiresCertification"
-        valuePropName="checked"
-      >
-        <Switch />
-      </Form.Item>
+              <span className="text-black text-xs font-semibold">
+              Monetized
+              </span>
+          } 
+        name="isMonetized" 
+        valuePropName="checked">
+          <Switch />
+        </Form.Item>
 
+        <Form.Item
+          className="text-xs text-gray-950"
+          label={
+              <span className="text-black text-xs font-semibold">
+                Requires Certification
+              </span>
+          }
+          name="requiresCertification"
+          valuePropName="checked"
+        >
+          <Switch />
+        </Form.Item>
+      </div>
       {/* Certification Data */}
       <Form.Item shouldUpdate>
         {({ getFieldValue }) =>

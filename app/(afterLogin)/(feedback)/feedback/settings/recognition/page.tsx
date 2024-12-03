@@ -7,57 +7,59 @@ import AllRecognition from "../_components/recognition/allRecognition";
 import CustomDrawerLayout from "@/components/common/customDrawer";
 import { ConversationStore } from "@/store/uistate/features/conversation";
 import RecognitionForm from "../_components/recognition/createRecognition";
+import { useGetAllRecognitionType } from "@/store/server/features/recognition/queries";
+import { useAddRecognitionType } from "@/store/server/features/recognition/mutation";
 
 const Page = () => {
     const { open, setOpen,setOpenRecognitionType,openRecognitionType, setSearchField } = ConversationStore();
+    const {data:recognitionType}=useGetAllRecognitionType();
+    const {mutate:createRecognitionType}=useAddRecognitionType();
+
 
   const onChange = (key: string) => {
     console.log("Active Tab Key:", key);
   };
-  const onFinish = (key: string) => {
-    console.log("Active Tab Key:", key);
+  const onFinish = (values: any) => {
+    console.log("Active Tab Key:", values);
+    createRecognitionType(values)
   };
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Add New Recognition
     </div>
   );
+
   const items: TabsProps['items'] = [
     {
       key: '1',
       label: 'All Recognitions',
-      children: <AllRecognition/>,
+      children: <AllRecognition />,
     },
+    ...(recognitionType?.items?.map((recognitionType: any, index: number) => ({
+      key: `middle-${index}`, // Ensure unique keys
+      label: recognitionType?.name,
+      children: <AllRecognition />,
+    })) || []),
     {
-      key: '2',
-      label: 'Projects',
-      children: <AllRecognition/>,
-    },
-    {
-      key: '3',
-      label: 'Sales',
-      children: <AllRecognition/>,
-    },
-    {
-      key: '4',
-      label: 'Managment',
-      children: <AllRecognition/>,
-    },
-    {
-      key: '5',
-      label: 'Other',
+      key: 'last',
+      label: (
+        <Button
+          onClick={() => setOpenRecognitionType(true)}
+          icon={<FaPlus />}
+          type="primary"
+          className="flex gap-2"
+        >
+          Category
+        </Button>
+      ),
       children: 'Content of Tab Pane 5',
     },
-    {
-        key: '6',
-        label: <Button onClick={()=>setOpenRecognitionType(true)} icon={<FaPlus/>} type="primary" className="flex gap-2">Category</Button> ,
-        children: 'Content of Tab Pane 5',
-      },
   ];
+
 
   return ( 
     <div>
-      <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+      <Tabs className="max-w-[850px] overflow-x-scrollable" defaultActiveKey="1" items={items} onChange={onChange} />
       <CustomDrawerLayout
         open={open}
         onClose={() => setOpen(false)}
@@ -77,7 +79,7 @@ const Page = () => {
         >
           <Form.Item
             label="Recognition Name"
-            name="recognitionName"
+            name="name"
             rules={[
               { required: true, message: "Please enter the recognition name" },
               { max: 50, message: "Name cannot exceed 50 characters" },
