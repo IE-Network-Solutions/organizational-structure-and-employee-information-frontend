@@ -129,40 +129,40 @@ export const TransferForm = () => {
   return (
     <Form layout="vertical">
       <Form.Item
-        label="Transfer To"
-        name="Transfer to Department"
-        rules={[
-          { required: true, message: 'Please select the department to merge' },
-        ]}
-      >
-        <Select
-          showSearch
-          style={{ width: '100%' }}
-          placeholder="Which Department to be Transfer"
-          optionFilterProp="label"
-          value={rootDepartment?.id}
-          onChange={handleRootDepartmentChange}
-          options={OPTIONS}
-        />
-      </Form.Item>
-
-      <Form.Item
-        label="Transfer from"
-        name="Transfer From Department"
+        label="Select the teams to transfer from"
+        name="Transfer From teams"
         rules={[
           {
             required: true,
-            message: 'Please select the department',
+            message: 'Please select the teams to transfer from',
           },
         ]}
       >
         <Select
           mode="multiple"
-          placeholder="Transfer it from"
+          placeholder="Select the teams to transfer from"
           style={{ width: '100%' }}
           value={childDepartment.map((child) => child.id)}
           onChange={handleChildDepartmentsChange}
           options={filteredChildDepartments} // Use filtered child department options
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="Select the team to transfer to"
+        name="Transfer to team"
+        rules={[
+          { required: true, message: 'Please select the team to transfer' },
+        ]}
+      >
+        <Select
+          showSearch
+          style={{ width: '100%' }}
+          placeholder="Select the team to transfer to"
+          optionFilterProp="label"
+          value={rootDepartment?.id}
+          onChange={handleRootDepartmentChange}
+          options={OPTIONS}
         />
       </Form.Item>
 
@@ -243,45 +243,39 @@ export const MergeForm = () => {
 
   return (
     <Form layout="vertical">
-      {/* Merge To Department Select */}
       <Form.Item
-        label="Merge To"
-        name="Merge to Department"
+        label="Select the teams to merge from"
+        name="Merge From Teams"
         rules={[
-          { required: true, message: 'Please select the department to merge' },
+          {
+            required: true,
+            message: 'Please select the teams to merge from',
+          },
         ]}
+      >
+        <Select
+          mode="multiple"
+          placeholder="Select the teams to merge from"
+          style={{ width: '100%' }}
+          options={OPTIONS}
+          onChange={(values) => setChildDeptIds(values)} // Set childDeptIds on change
+        />
+      </Form.Item>
+      <Form.Item
+        label="Select the team to merge into"
+        name="Merge to team"
+        rules={[{ required: true, message: 'Please select the team to merge' }]}
       >
         <Select
           showSearch
           style={{ width: '100%' }}
-          placeholder="Select the department to transfer to"
+          placeholder="Select the team to merge into"
           optionFilterProp="label"
           options={OPTIONS}
           onChange={(value) => setRootDeptId(value)} // Set rootDeptId on change
         />
       </Form.Item>
 
-      {/* Merge From Department Select */}
-      <Form.Item
-        label="Merge From"
-        name="Merge From Department"
-        rules={[
-          {
-            required: true,
-            message: 'Please select the departments to merge from',
-          },
-        ]}
-      >
-        <Select
-          mode="multiple"
-          placeholder="Select departments to transfer from"
-          style={{ width: '100%' }}
-          options={OPTIONS}
-          onChange={(values) => setChildDeptIds(values)} // Set childDeptIds on change
-        />
-      </Form.Item>
-
-      {/* Information Note */}
       <Form.Item>
         <p style={{ color: '#595959' }}>
           <span style={{ marginRight: '8px' }}>ⓘ</span>This will affect the
