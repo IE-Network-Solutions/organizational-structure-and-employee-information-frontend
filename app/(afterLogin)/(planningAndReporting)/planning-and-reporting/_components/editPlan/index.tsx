@@ -46,9 +46,11 @@ function EditPlan() {
 
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
-  const planningUserId = planningPeriods?.find(
-    (item: any) => item.planningPeriod?.id == planningPeriodId,
-  )?.id;
+  const planningUserId = Array.isArray(planningPeriods)
+    ? planningPeriods.find(
+        (item: any) => item.planningPeriod?.id === planningPeriodId,
+      )?.id
+    : undefined;
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Edit plan
@@ -203,17 +205,22 @@ function EditPlan() {
                                         </div>
                                         <>
                                           <Divider className="my-2" />
-                                          <DefaultCardForm
-                                            kId={kr?.id}
-                                            hasTargetValue={hasTargetValue}
-                                            hasMilestone={hasMilestone}
-                                            milestoneId={ml?.id}
-                                            name={`names-${kr?.id + ml?.id}`}
-                                            form={form}
-                                            planningPeriodId={planningPeriodId}
-                                            userId={userId}
-                                            planningUserId={planningUserId}
-                                          />
+                                          {planningPeriodId &&
+                                            planningUserId && (
+                                              <DefaultCardForm
+                                                kId={kr?.id}
+                                                hasTargetValue={hasTargetValue}
+                                                hasMilestone={hasMilestone}
+                                                milestoneId={ml?.id}
+                                                name={`names-${kr?.id + ml?.id}`}
+                                                form={form}
+                                                planningPeriodId={
+                                                  planningPeriodId
+                                                }
+                                                userId={userId}
+                                                planningUserId={planningUserId}
+                                              />
+                                            )}
                                           <BoardCardForm
                                             form={form}
                                             handleAddName={handleAddName}
@@ -247,17 +254,19 @@ function EditPlan() {
                                   </div>
                                 </div>
                                 <Divider className="my-2" />
-                                <DefaultCardForm
-                                  kId={kr?.id}
-                                  hasTargetValue={hasTargetValue}
-                                  hasMilestone={hasMilestone}
-                                  milestoneId={null}
-                                  name={`names-${kr?.id}`}
-                                  form={form}
-                                  planningPeriodId={planningPeriodId}
-                                  userId={userId}
-                                  planningUserId={planningUserId}
-                                />
+                                {planningPeriodId && planningUserId && (
+                                  <DefaultCardForm
+                                    kId={kr?.id}
+                                    hasTargetValue={hasTargetValue}
+                                    hasMilestone={hasMilestone}
+                                    milestoneId={null}
+                                    name={`names-${kr?.id}`}
+                                    form={form}
+                                    planningPeriodId={planningPeriodId}
+                                    userId={userId}
+                                    planningUserId={planningUserId}
+                                  />
+                                )}
                                 <BoardCardForm
                                   form={form}
                                   handleAddName={handleAddName}

@@ -139,7 +139,11 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
           Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
           {Math.min(total, current * pageSize)} out of {total} entries
         </span>
-        <Select value={pageSize} className="w-24" onChange={handleSizeChange}>
+        <Select
+          value={pageSize}
+          className="w-24"
+          onChange={(value) => handleSizeChange(value)}
+        >
           <Option value={4}>Show 4</Option>
           <Option value={10}>Show 10</Option>
           <Option value={25}>Show 25</Option>

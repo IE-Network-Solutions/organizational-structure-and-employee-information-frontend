@@ -2,7 +2,6 @@
 import RookStarsList from '@/app/(afterLogin)/(okr)/_components/rookStarsList';
 import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ListData } from '@/types/dashboard/okr';
 import { Card, Progress } from 'antd';
 import { GoGoal } from 'react-icons/go';
 import ApprovalStatus from '../approval-status';
@@ -10,44 +9,7 @@ import CardList from '../card-list';
 import { useGetBirthDay } from '@/store/server/features/dashboard/birthday/queries';
 import { useGetWorkAnniversary } from '@/store/server/features/dashboard/work-anniversary/queries';
 import { MdKey } from 'react-icons/md';
-
-const listData: ListData[] = [
-  {
-    key: '1',
-    name: 'Samuel Anteneh',
-    title: 'Software Engineer',
-    avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=1',
-    completion: 95,
-  },
-  {
-    key: '2',
-    name: 'John Doe',
-    title: 'Project Manager',
-    avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=2',
-    completion: 92,
-  },
-  {
-    key: '3',
-    name: 'Jane Smith',
-    title: 'UI/UX Designer',
-    avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=3',
-    completion: 96,
-  },
-  {
-    key: '4',
-    name: 'Emily Johnson',
-    title: 'Product Owner',
-    avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=4',
-    completion: 98,
-  },
-  {
-    key: '5',
-    name: 'Michael Brown',
-    title: 'DevOps Engineer',
-    avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=5',
-    completion: 94,
-  },
-];
+import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
 
 const Header = () => {
   const { userId } = useAuthenticationStore();
@@ -56,6 +18,8 @@ const Header = () => {
   const { data: birthDays, isLoading: birthdayLoading } = useGetBirthDay();
   const { data: workAnniversary, isLoading: workLoading } =
     useGetWorkAnniversary();
+  const {data: allPlanningPeriods} = useGetAllPlanningPeriods();
+  const planningPeriod = allPlanningPeriods?.items?.find((planningPeriod) => (planningPeriod.name == 'Weekly'));
 
   return (
     <>
@@ -213,13 +177,19 @@ const Header = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left Column */}
         <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
-          <RookStarsList dataSource={listData} title="Rock Star Of The Week" />
+          <RookStarsList
+            planningPeriodId={planningPeriod ? planningPeriod.id : ''}
+            title="Rock Star Of The Week"
+          />
           <ApprovalStatus />
         </div>
 
         {/* Right Column */}
         <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
-          <RookStarsList dataSource={listData} title="Leaders Board" />
+          <RookStarsList
+            planningPeriodId={planningPeriod ? planningPeriod.id : ''}
+            title="Leaders Board"
+          />
           <CardList
             type="birthday"
             title="Whose Birthday is today?"

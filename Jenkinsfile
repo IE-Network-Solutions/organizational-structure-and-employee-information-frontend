@@ -14,6 +14,7 @@ pipeline {
         TENANT_MGMT_URL="https://test-tenant-backend.ienetworks.co/api/v1"
         ORG_DEV_URL = "https://test-od.ienetworks.co/api/v1"
         RECRUITMENT_URL="https://test-recruitment-backend.ienetworks.co/api/v1"
+        NEXT_PUBLIC_APPROVERS_URL="https://test-approval-backend.ienetworks.co/api/v1"
         PUBLIC_DOMAIN="https://selamnew.com"
         NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://test-time-attendance-backend.ienetworks.co/api/v1"
         NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://test-training-backend.ienetworks.co/api/v1"
@@ -26,15 +27,29 @@ pipeline {
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Prepare Repository') {
             steps {
                 sshagent (credentials: [SSH_CREDENTIALS_ID]) {
                     sh """
-                    echo one
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'sudo rm -r $REPO_DIR'
-                        echo two
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR'
-                        echo three
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER '
+                        if [ -d "$REPO_DIR" ]; then
+                            sudo chown -R \$USER:\$USER $REPO_DIR
+                            sudo chmod -R 755 $REPO_DIR
+                        fi'
+                    """
+                }
+            }
+        }
+        stage('Pull Latest Changes') {
+            steps {
+                sshagent (credentials: [SSH_CREDENTIALS_ID]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER '
+                        if [ -d "$REPO_DIR" ]; then
+                            cd $REPO_DIR && git reset --hard HEAD && git pull origin $BRANCH_NAME
+                        else
+                            git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR
+                        fi'
                     """
                 }
             }
@@ -59,6 +74,7 @@ pipeline {
                         NEXT_PUBLIC_STORAGE_BUCKET=${NEXT_PUBLIC_STORAGE_BUCKET}
                         NEXT_PUBLIC_MESSAGE_SENDER_ID=${NEXT_PUBLIC_MESSAGE_SENDER_ID}
                         NEXT_PUBLIC_APP_ID=${NEXT_PUBLIC_APP_ID}
+                        NEXT_PUBLIC_APPROVERS_URL=${NEXT_PUBLIC_APPROVERS_URL}
                         EOF'
                     """
                 }

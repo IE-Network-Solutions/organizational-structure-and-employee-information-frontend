@@ -10,13 +10,13 @@ import {
   Col,
 } from 'antd';
 import { GoPlus } from 'react-icons/go';
-import moment from 'moment';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
+
 const NumericForm: React.FC<OKRFormProps> = ({
   keyItem,
   index,
@@ -39,10 +39,11 @@ const NumericForm: React.FC<OKRFormProps> = ({
         showValidationErrors(info.errorFields);
       });
   };
+
   const { data: metrics } = useGetMetrics();
 
   return (
-    <div className="p-4 sm:p-6 lg:p-2">
+    <div className="p-4 sm:p-6 lg:p-2" id={`numeric-form-${index}`}>
       {/* Container with border and padding */}
       <div className="border border-blue rounded-lg p-4 mx-0 lg:mx-8">
         {/* Close icon to remove Key Result */}
@@ -52,6 +53,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
             title="Cancel"
             onClick={() => removeKeyResult(index)}
             className="cursor-pointer text-red-500 mb-2"
+            id={`remove-key-result-${index}`}
           />
         </div>
 
@@ -69,6 +71,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 }
               }}
               value={keyItem.key_type}
+              id={`key-type-select-${index}`}
             >
               {metrics?.items?.map((metric) => (
                 <Option key={metric?.id} value={metric?.id}>
@@ -77,6 +80,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
               ))}
             </Select>
           </Form.Item>
+
           {/* Key Result Name */}
           <Form.Item
             className="font-semibold text-xs w-full mb-2 mt-2"
@@ -92,6 +96,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
               value={keyItem.title || ''}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
               placeholder="Key Result Name"
+              id={`key-result-title-${index}`}
             />
           </Form.Item>
 
@@ -108,7 +113,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
               >
                 <DatePicker
                   className="w-full text-xs"
-                  value={keyItem.deadline ? moment(keyItem.deadline) : null}
+                  value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
                     return current && current < dayjs().startOf('day');
@@ -120,6 +125,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
                       date ? date.format('YYYY-MM-DD') : null,
                     )
                   }
+                  id={`deadline-picker-${index}`}
                 />
               </Form.Item>
             </Col>
@@ -136,14 +142,12 @@ const NumericForm: React.FC<OKRFormProps> = ({
                     message: 'Please enter the weight',
                   },
                   {
-                    /* eslint-disable @typescript-eslint/no-unused-vars */
                     validator: (form, value) =>
                       value && value > 0
                         ? Promise.resolve()
                         : Promise.reject(
                             new Error('Weight must be greater than 0'),
                           ),
-                    /* eslint-enable @typescript-eslint/no-unused-vars */
                   },
                 ]}
               >
@@ -154,6 +158,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
                   suffix="%"
                   value={keyItem.weight}
                   onChange={(value) => updateKeyResult(index, 'weight', value)}
+                  id={`weight-input-${index}`}
                 />
               </Form.Item>
             </Col>
@@ -169,10 +174,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 rules={[
                   {
                     required: true,
-                    message: 'Please enter the initialValue value',
+                    message: 'Please enter the initial value',
                   },
                   {
-                    /* eslint-disable @typescript-eslint/no-unused-vars */
                     validator: (form, value) =>
                       value && value >= 0
                         ? Promise.resolve()
@@ -180,7 +184,6 @@ const NumericForm: React.FC<OKRFormProps> = ({
                             new Error('Initial value must be non-negative'),
                           ),
                   },
-                  /* eslint-enable @typescript-eslint/no-unused-vars */
                 ]}
               >
                 <InputNumber
@@ -189,6 +192,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
                   onChange={(value) =>
                     updateKeyResult(index, 'initialValue', value)
                   }
+                  id={`initial-value-input-${index}`}
                 />
               </Form.Item>
             </Col>
@@ -202,10 +206,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 rules={[
                   {
                     required: true,
-                    message: 'Please enter the targetValue value',
+                    message: 'Please enter the target value',
                   },
                   {
-                    /* eslint-disable @typescript-eslint/no-unused-vars */
                     validator: (form, value) =>
                       value && value >= 0
                         ? Promise.resolve()
@@ -213,7 +216,6 @@ const NumericForm: React.FC<OKRFormProps> = ({
                             new Error('Target value must be non-negative'),
                           ),
                   },
-                  /* eslint-enable @typescript-eslint/no-unused-vars */
                 ]}
               >
                 <InputNumber
@@ -222,20 +224,21 @@ const NumericForm: React.FC<OKRFormProps> = ({
                   onChange={(value) =>
                     updateKeyResult(index, 'targetValue', value)
                   }
+                  id={`target-value-input-${index}`}
                 />
               </Form.Item>
             </Col>
           </Row>
 
           {/* Key Type Selector */}
-
           <div className="flex justify-end">
             <Button
               onClick={handleAddKeyResult}
               type="primary"
-              className="bg-blue-600 text-xs md:w-52   w-full"
+              className="bg-blue-600 text-xs md:w-52 w-full"
               icon={<GoPlus />}
               aria-label="Add Key Result"
+              id={`add-key-result-button-${index}`}
             >
               Add Key Result
             </Button>

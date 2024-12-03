@@ -133,7 +133,7 @@ const TnaRequestSidebar = () => {
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
           >
-            <Input className="control" />
+            <Input id="tnaRequestTitleFieldId" className="control" />
           </Form.Item>
           <Form.Item name="reason" label="Reason" className="form-item">
             <Input className="control" />
@@ -142,8 +142,10 @@ const TnaRequestSidebar = () => {
             name="trainingNeedCategoryId"
             label="Training Category"
             className="form-item"
+            rules={[{ required: true, message: 'Required' }]}
           >
             <Select
+              id="tnaCategoryOptionFieldId"
               className="control"
               suffixIcon={
                 <MdKeyboardArrowDown size={16} className="text-gray-900" />
@@ -158,7 +160,12 @@ const TnaRequestSidebar = () => {
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
           >
-            <InputNumber min={0} suffix={'$'} className="control-number" />
+            <InputNumber
+              id="tnaTraniningPriceFieldId"
+              min={0}
+              suffix={'$'}
+              className="control-number"
+            />
           </Form.Item>
           <Form.Item
             name="detail"
@@ -166,6 +173,7 @@ const TnaRequestSidebar = () => {
             className="form-item"
           >
             <Input.TextArea
+              id="tnaDetailInformationFieldId"
               className="control-tarea"
               rows={6}
               placeholder="Enter brief reason for your training of choice"

@@ -42,16 +42,6 @@ function SettingsPage() {
       ),
       children: <Branches />,
     },
-    // {
-    //   key: '2',
-    //   label: (
-    //     <span className="flex gap-2 mt-4">
-    //       <TbNotes className="mt-1" />{' '}
-    //       <p className="font-semibold">Departments </p>{' '}
-    //     </span>
-    //   ),
-    //   children: <Branches />,
-    // },
     {
       key: '2',
       label: (

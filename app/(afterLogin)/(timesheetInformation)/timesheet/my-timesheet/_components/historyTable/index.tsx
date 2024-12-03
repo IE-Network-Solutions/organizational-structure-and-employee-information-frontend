@@ -29,8 +29,11 @@ const HistoryTable = () => {
   const userFilter: Partial<LeaveRequestBody['filter']> = {
     userIds: [userId ?? ''],
   };
-  const { setIsShowLeaveRequestSidebar: isShow, setLeaveRequestSidebarData } =
-    useMyTimesheetStore();
+  const {
+    setIsShowLeaveRequestDetail: isShowDetail,
+    setIsShowLeaveRequestSidebar: isShow,
+    setLeaveRequestSidebarData,
+  } = useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
   const {
     page,
@@ -135,13 +138,25 @@ const HistoryTable = () => {
       key: 'action',
       render: (item: LeaveRequest) => (
         <ActionButtons
-          disableDelete={item.status === LeaveRequestStatus.APPROVED}
+          id={item?.id ?? null}
+          disableDelete={
+            item.status === LeaveRequestStatus.APPROVED ||
+            item.status === LeaveRequestStatus.DECLINED
+          }
+          disableEdit={
+            item.status === LeaveRequestStatus.APPROVED ||
+            item.status === LeaveRequestStatus.DECLINED
+          }
           onEdit={() => {
             isShow(true);
             setLeaveRequestSidebarData(item.id);
           }}
           onDelete={() => {
             deleteLeaveRequest(item.id);
+          }}
+          onDetail={() => {
+            isShowDetail(true);
+            setLeaveRequestSidebarData(item.id);
           }}
         />
       ),
@@ -172,7 +187,7 @@ const HistoryTable = () => {
     <>
       <div className="flex items-center mb-6">
         <div className="flex-1 flex items-center gap-0.5">
-          <div className="text-2xl font-bold text-gray-900">Leave History</div>
+          <div className="text-2xl font-bold text-gray-900">My Leave</div>
           <Button
             type="text"
             size="small"

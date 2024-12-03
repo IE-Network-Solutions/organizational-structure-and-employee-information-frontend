@@ -1,9 +1,13 @@
 import FiscalYear from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/fiscalYear';
 import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { useUpdateFiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
+import {
+  useCreateFiscalYear,
+  useUpdateFiscalYear,
+} from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import useFiscalYearStore from '@/store/uistate/features/organizationStructure/fiscalYear/fiscalYearStore';
+import { showValidationErrors } from '@/utils/showValidationErrors';
 import { Form } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect } from 'react';
@@ -16,29 +20,46 @@ const CustomWorFiscalYearDrawer: React.FC = () => {
     isEditMode,
     selectedFiscalYear,
   } = useFiscalYearDrawerStore();
+
   const { name, startDate, endDate, description } = useFiscalYearStore();
 
+  const [form] = Form.useForm();
   const handleCancel = () => {
     closeFiscalYearDrawer();
   };
 
-  const { mutate: updateFiscalYear } = useUpdateFiscalYear();
-  const handleSubmit = () => {
-    if (isEditMode) {
-      updateFiscalYear({
-        id: selectedFiscalYear?.id,
-        fiscalYear: {
-          name: name,
-          description: description,
-          endDate: endDate,
-          startDate: startDate,
-        },
-      });
-    }
-    closeFiscalYearDrawer();
-  };
+  const { mutate: updateFiscalYear, isLoading: updateIsLoading } =
+    useUpdateFiscalYear();
 
-  const [form] = Form.useForm();
+  const { mutate: createFiscalYear, isLoading: createIsLoading } =
+    useCreateFiscalYear();
+  const handleSubmit = () => {
+    form
+      .validateFields()
+      .then(() => {
+        if (isEditMode) {
+          updateFiscalYear({
+            id: selectedFiscalYear?.id,
+            fiscalYear: {
+              name: name,
+              description: description,
+              endDate: endDate,
+              startDate: startDate,
+            },
+          });
+        } else {
+          createFiscalYear({
+            name: name,
+            description: description,
+            endDate: endDate,
+            startDate: startDate,
+          });
+        }
+      })
+      .catch((errorInfo: any) => {
+        showValidationErrors(errorInfo?.errorFields);
+      });
+  };
 
   useEffect(() => {
     if (isEditMode && selectedFiscalYear) {
@@ -55,13 +76,13 @@ const CustomWorFiscalYearDrawer: React.FC = () => {
   return (
     <CustomDrawerLayout
       modalHeader={
-        <h1 className="text-2xl font-semibold">Add New Work Schedule</h1>
+        <h1 className="text-2xl font-semibold">Add New Fiscal Year</h1>
       }
       onClose={handleCancel}
       open={isFiscalYearOpen}
       width="50%"
       footer={
-        <div className="flex justify-between items-center w-full">
+        <div className="flex justify-between items-center w-full h-full">
           <div className="flex justify items-center gap-2">
             <span>Total Working hours:</span>
             <span>{workingHour ?? '-'}</span>
@@ -69,6 +90,7 @@ const CustomWorFiscalYearDrawer: React.FC = () => {
           <div className="flex justify-between items-center gap-4">
             <CustomButton title="Cancel" onClick={handleCancel} />
             <CustomButton
+              loading={isEditMode ? updateIsLoading : createIsLoading}
               title={isEditMode ? 'Update' : 'Create'}
               onClick={handleSubmit}
             />

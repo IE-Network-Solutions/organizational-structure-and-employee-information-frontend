@@ -42,7 +42,8 @@ function CreateReport() {
     resetWeights();
   };
   const { data: planningPeriods } = AllPlanningPeriods();
-  const { mutate: createReport } = useCreateReportForUnReportedtasks();
+  const { mutate: createReport, isLoading: createReportLoading } =
+    useCreateReportForUnReportedtasks();
 
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
@@ -59,14 +60,16 @@ function CreateReport() {
   );
 
   const handleOnFinish = (values: Record<string, any>) => {
-    createReport(
-      { values: values, planningPeriodId: planningPeriodId },
-      {
-        onSuccess: () => {
-          onClose();
+    Object.entries(values).length > 0 &&
+      planningPeriodId &&
+      createReport(
+        { values: values, planningPeriodId: planningPeriodId },
+        {
+          onSuccess: () => {
+            onClose();
+          },
         },
-      },
-    );
+      );
   };
 
   const formattedData =
@@ -172,7 +175,7 @@ function CreateReport() {
                                         </div>
                                         <Row>
                                           {keyresult?.metricType?.name ===
-                                            'achieve_or_not' && (
+                                            NAME.ACHIEVE && (
                                             <div className="text-xs">
                                               Target
                                               <Tag className="uppercase mt-1 ml-1 test-xs">
@@ -181,89 +184,79 @@ function CreateReport() {
                                             </div>
                                           )}
                                         </Row>
-                                        <Row>
-                                          {selectedStatuses[task.taskId] ===
-                                            'Not' &&
-                                            keyresult?.metricType?.name !==
-                                              NAME.ACHIEVE &&
-                                            keyresult?.metricType?.name !==
-                                              NAME.MILESTONE && (
-                                              <Form.Item
-                                                key={task.taskId}
-                                                name={[
-                                                  task.taskId,
-                                                  'actualValue',
-                                                ]}
-                                                className="mb-2"
-                                                label={`Actual value:`} // Optional label
-                                                rules={[
-                                                  {
-                                                    required: true,
-                                                    message:
-                                                      'Please enter an actual value!',
-                                                  },
-                                                  {
-                                                    validator: (
-                                                      rule,
-                                                      value,
-                                                    ) => {
-                                                      if (
-                                                        value === undefined ||
-                                                        value === null ||
-                                                        value === ''
-                                                      ) {
-                                                        return Promise.reject(
-                                                          new Error(
-                                                            'Please enter an actual value!',
-                                                          ),
-                                                        );
-                                                      }
-                                                      if (isNaN(value)) {
-                                                        return Promise.reject(
-                                                          new Error(
-                                                            'The input is not a valid number!',
-                                                          ),
-                                                        );
-                                                      }
-                                                      return Promise.resolve();
-                                                    },
-                                                  },
-                                                ]} // Add validation rule
-                                              >
-                                                <Input
-                                                  type="number" // Set input type to number
-                                                  min={0} // Optional: set minimum value
-                                                  step={1}
-                                                  onChange={(e) => {
-                                                    const value =
-                                                      e.target.value;
-                                                    form.setFieldsValue({
-                                                      [task.taskId]: {
-                                                        actualValue: value
-                                                          ? Number(value)
-                                                          : '',
-                                                      },
-                                                    });
-                                                  }}
-                                                />
-                                              </Form.Item>
-                                            )}
-                                        </Row>
                                       </div>
                                     </Form.Item>
-                                    {selectedStatuses[task?.taskId] ===
+                                    {/* Actual Value Form Item, with both conditions */}
+                                    {selectedStatuses[task.taskId] === 'Not' &&
+                                      keyresult?.metricType?.name !==
+                                        NAME.ACHIEVE &&
+                                      keyresult?.metricType?.name !==
+                                        NAME.MILESTONE && (
+                                        <Form.Item
+                                          key={`${task.taskId}-actualValue`}
+                                          name={[task.taskId, 'actualValue']}
+                                          className="mb-2"
+                                          label="Actual value:" // Optional label
+                                          rules={[
+                                            {
+                                              required: true,
+                                              message:
+                                                'Please enter an actual value!',
+                                            },
+                                            {
+                                              validator: (rule, value) => {
+                                                if (!value) {
+                                                  return Promise.reject(
+                                                    new Error(
+                                                      'Please enter an actual value!',
+                                                    ),
+                                                  );
+                                                }
+                                                if (isNaN(value)) {
+                                                  return Promise.reject(
+                                                    new Error(
+                                                      'The input is not a valid number!',
+                                                    ),
+                                                  );
+                                                }
+                                                return Promise.resolve();
+                                              },
+                                            },
+                                          ]}
+                                        >
+                                          <Input
+                                            width="50%"
+                                            type="number"
+                                            min={0}
+                                            step={1}
+                                            onChange={(e) => {
+                                              const value = e.target.value;
+                                              form.setFieldsValue({
+                                                [task.taskId]: {
+                                                  actualValue: value
+                                                    ? Number(value)
+                                                    : '',
+                                                },
+                                              });
+                                            }}
+                                          />
+                                        </Form.Item>
+                                      )}
+                                    {/* Comment Form Item, only with the 'Not' status condition */}
+                                    {selectedStatuses[task.taskId] ===
                                       'Not' && (
                                       <Form.Item
-                                        key={task.taskId}
+                                        key={`${task.taskId}-comment`}
                                         name={[task.taskId, 'comment']}
                                         className="mb-2"
-                                        label={`Reason:`} // Optional label
+                                        label="Reason:" // Optional label
                                         rules={[
                                           {
                                             required: true,
-                                            message: 'Please select a comment!',
+                                            message:
+                                              'Please provide a comment!',
                                           },
-                                        ]} // Add validation rule
+                                        ]}
                                       >
                                         <div
                                           style={{
@@ -277,25 +270,27 @@ function CreateReport() {
                                             style={{
                                               paddingRight: '100px',
                                               flex: 1,
-                                            }} // Use flex to allow TextArea to grow
+                                            }}
                                           />
                                           <div
                                             style={{
                                               position: 'absolute',
-                                              right: '100px', // Position the vertical line
+                                              right: '100px',
                                               top: '0',
                                               bottom: '0',
-                                              width: '1px', // Width of the vertical line
-                                              backgroundColor: '#ccc', // Color of the vertical line
+                                              width: '1px',
+                                              backgroundColor: '#ccc',
                                             }}
                                           />
                                           <Text
-                                            className="text-white bg-primary rounded px-4 py-1 text-xs"
+                                            className="text-white bg-primary"
                                             style={{
                                               position: 'absolute',
-                                              right: '10px', // Position the button inside the TextArea
+                                              right: '10px',
                                               top: '50%',
-                                              transform: 'translateY(-50%)', // Center the button vertically
+                                              padding: '8px 16px', // 2x (vertical) and 4x (horizontal) assuming x = 4px
+                                              borderRadius: '8px', // Rounded corners, adjust as needed
+                                              transform: 'translateY(-50%)',
                                             }}
                                           >
                                             Reason
@@ -313,7 +308,7 @@ function CreateReport() {
                             <div key={task.id} className="mb-4 ml-2">
                               <Form.Item
                                 key={tasksIndex}
-                                name={[task.taskId, 'comment']}
+                                name={[task.taskId, 'status']}
                                 className="mb-2"
                               >
                                 <div className="grid">
@@ -355,18 +350,71 @@ function CreateReport() {
                                   </div>
                                 </div>
                               </Form.Item>
+                              {/* Actual Value Form Item, with both conditions */}
+                              {selectedStatuses[task.taskId] === 'Not' &&
+                                keyresult?.metricType?.name !== NAME.ACHIEVE &&
+                                keyresult?.metricType?.name !==
+                                  NAME.MILESTONE && (
+                                  <Form.Item
+                                    key={`${task.taskId}-actualValue`}
+                                    name={[task.taskId, 'actualValue']}
+                                    className="mb-2"
+                                    label="Actual value:" // Optional label
+                                    rules={[
+                                      {
+                                        required: true,
+                                        message:
+                                          'Please enter an actual value!', // Show if the field is empty
+                                      },
+                                      {
+                                        validator: (
+                                          _, // eslint-disable-line @typescript-eslint/naming-convention
+                                          value, // eslint-disable-line @typescript-eslint/naming-convention
+                                        ) => {
+                                          // eslint-disable-next-line no-underscore-dangle
+                                          if (value && isNaN(value)) {
+                                            return Promise.reject(
+                                              new Error(
+                                                'The input is not a valid number!',
+                                              ), // Show if the value is not a number
+                                            );
+                                          }
+                                          return Promise.resolve(); // Proceed to next rule if the value is valid
+                                        },
+                                      },
+                                    ]}
+                                  >
+                                    <Input
+                                      width="50%"
+                                      type="number"
+                                      min={0}
+                                      step={1}
+                                      onChange={(e) => {
+                                        const value = e.target.value;
+                                        form.setFieldsValue({
+                                          [task.taskId]: {
+                                            actualValue: value
+                                              ? Number(value)
+                                              : '',
+                                          },
+                                        });
+                                      }}
+                                    />
+                                  </Form.Item>
+                                )}
+                              {/* Comment Form Item, only with the 'Not' status condition */}
                               {selectedStatuses[task.taskId] === 'Not' && (
                                 <Form.Item
-                                  key={task.taskId}
+                                  key={`${task.taskId}-comment`}
                                   name={[task.taskId, 'comment']}
                                   className="mb-2"
-                                  label={`Reason:`} // Optional label
+                                  label="Reason:" // Optional label
                                   rules={[
                                     {
                                       required: true,
                                       message: 'Please provide a comment!',
                                     },
-                                  ]} // Add validation rule
+                                  ]}
                                 >
                                   <div
                                     style={{
@@ -377,25 +425,27 @@ function CreateReport() {
                                   >
                                     <TextArea
                                       rows={4}
-                                      style={{ paddingRight: '100px', flex: 1 }} // Use flex to allow TextArea to grow
+                                      style={{ paddingRight: '100px', flex: 1 }}
                                     />
                                     <div
                                       style={{
                                         position: 'absolute',
-                                        right: '100px', // Position the vertical line
+                                        right: '100px',
                                         top: '0',
                                         bottom: '0',
-                                        width: '1px', // Width of the vertical line
-                                        backgroundColor: '#ccc', // Color of the vertical line
+                                        width: '1px',
+                                        backgroundColor: '#ccc',
                                       }}
                                     />
                                     <Text
                                       className="text-white bg-primary"
                                       style={{
                                         position: 'absolute',
-                                        right: '10px', // Position the button inside the TextArea
+                                        right: '10px',
                                         top: '50%',
-                                        transform: 'translateY(-50%)', // Center the button vertically
+                                        padding: '8px 16px', // 2x (vertical) and 4x (horizontal) assuming x = 4px
+                                        borderRadius: '8px', // Rounded corners, adjust as needed
+                                        transform: 'translateY(-50%)',
                                       }}
                                     >
                                       Reason
@@ -413,8 +463,14 @@ function CreateReport() {
               </Collapse>
             ))}
             <Row className="flex justify-center space-x-4 mt-4">
-              <Button htmlType="button">Cancel</Button>
-              <Button htmlType="submit" className="bg-primary text-white">
+              <Button htmlType="button" onClick={() => onClose()}>
+                Cancel
+              </Button>
+              <Button
+                loading={createReportLoading}
+                htmlType="submit"
+                className="bg-primary text-white"
+              >
                 Create Report
               </Button>
             </Row>
