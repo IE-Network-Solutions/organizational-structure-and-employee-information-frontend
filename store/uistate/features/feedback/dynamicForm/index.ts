@@ -98,14 +98,13 @@ export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
     })),
   deleteOption: (questionId, optionIndex) =>
     set((state) => ({
-      questions: state.questions.map(
-        (q) =>
-          q.id === questionId
-            ? {
-                ...q,
-                field: q.field.filter((notused, index) => index !== optionIndex),
-              }
-            : q,
+      questions: state.questions.map((q) =>
+        q.id === questionId
+          ? {
+              ...q,
+              field: q.field.filter((notused, index) => index !== optionIndex),
+            }
+          : q,
       ),
     })),
   setPageSize: (pageSize) => set({ pageSize }),

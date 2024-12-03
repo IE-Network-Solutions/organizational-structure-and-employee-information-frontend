@@ -9,8 +9,9 @@ import CardList from '../card-list';
 import { useGetBirthDay } from '@/store/server/features/dashboard/birthday/queries';
 import { useGetWorkAnniversary } from '@/store/server/features/dashboard/work-anniversary/queries';
 import { MdKey } from 'react-icons/md';
-import AccessGuard from '@/utils/permissionGuard';
+import PermissionWraper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
 
 const Header = () => {
   const { userId } = useAuthenticationStore();
@@ -19,6 +20,8 @@ const Header = () => {
   const { data: birthDays, isLoading: birthdayLoading } = useGetBirthDay();
   const { data: workAnniversary, isLoading: workLoading } =
     useGetWorkAnniversary();
+  const {data: allPlanningPeriods} = useGetAllPlanningPeriods();
+  const planningPeriod = allPlanningPeriods?.items?.find((planningPeriod) => (planningPeriod.name == 'Weekly'));
 
   return (
     <>
@@ -92,7 +95,7 @@ const Header = () => {
             </div>
           </div> */}
         </Card>
-        <AccessGuard permissions={[Permissions.ViewCompanyOkr]}>
+        <PermissionWraper permissions={[Permissions.ViewCompanyOkr]}>
           <Card
             loading={isLoading}
             className="rounded-lg min-w-[300px] bg-white  relative p-2"
@@ -117,7 +120,7 @@ const Header = () => {
               </div>
             </div>
           </Card>
-        </AccessGuard>
+        </PermissionWraper>
         <Card
           loading={isLoading}
           className="rounded-lg shadow-lg min-w-[300px] bg-light_purple text-center relative p-2"
@@ -169,7 +172,7 @@ const Header = () => {
         {/* Left Column */}
         <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
           <RookStarsList
-            planningPeriodId={'planningPeriodId'}
+            planningPeriodId={planningPeriod ? planningPeriod.id : ''}
             title="Rock Star Of The Week"
           />
           <ApprovalStatus />
@@ -178,7 +181,7 @@ const Header = () => {
         {/* Right Column */}
         <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
           <RookStarsList
-            planningPeriodId={'planningPeriodId'}
+            planningPeriodId={planningPeriod ? planningPeriod.id : ''}
             title="Leaders Board"
           />
           <CardList

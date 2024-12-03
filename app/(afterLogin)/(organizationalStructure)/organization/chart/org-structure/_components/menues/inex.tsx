@@ -66,7 +66,7 @@ export const orgComposeAndMergeMenues = (
         style={{ paddingRight: '64px' }}
         onClick={() => showDrawer('archive', 'Archive', 'Archive Level')}
       >
-        Archive
+        Transfer
       </Menu.Item>
     </AccessGuard>
     <AccessGuard permissions={[Permissions.MergeDepartment]}>
@@ -77,16 +77,6 @@ export const orgComposeAndMergeMenues = (
         onClick={() => showDrawer('merge', 'Merge', 'Merge Department')}
       >
         Merge
-      </Menu.Item>
-    </AccessGuard>
-    <AccessGuard permissions={[Permissions.DissolveDepartment]}>
-      <Menu.Item
-        key="3"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('dissolve', 'Dissove', 'Dessolve Department')}
-      >
-        Dissolve
       </Menu.Item>
     </AccessGuard>
   </Menu>

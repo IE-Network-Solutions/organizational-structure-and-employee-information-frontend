@@ -113,19 +113,13 @@ const MettingDataTable = ({
     {
       title: 'Created By',
       dataIndex: 'createdBy',
-      render: (
-        notused,
-        record,
-      ) =>
+      render: (notused, record) =>
         record.createdBy ? getEmployeeData(record.createdBy)?.firstName : '-',
     },
     {
       title: 'Attendees',
       dataIndex: 'userId',
-      render: (
-        notused,
-        record,
-      ) => (
+      render: (notused, record) => (
         <div>
           {record.userId
             ?.map((id: string) => getEmployeeData(id)?.firstName)
@@ -138,10 +132,7 @@ const MettingDataTable = ({
       title: 'Action',
       dataIndex: 'action',
       width: 100,
-      render: (
-        notused,
-        record,
-      ) => (
+      render: (notused, record) => (
         <div className="flex space-x-2">
           <Button
             type="primary"
