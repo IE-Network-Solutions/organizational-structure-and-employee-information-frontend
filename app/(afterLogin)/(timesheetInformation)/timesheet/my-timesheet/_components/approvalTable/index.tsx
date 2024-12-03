@@ -3,7 +3,7 @@ import React from 'react';
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Popconfirm, Table, Input } from 'antd';
+import { Button, Popconfirm, Table, Input, Avatar } from 'antd';
 import {
   LeaveRequestStatus,
   LeaveRequestStatusBadgeTheme,
@@ -11,6 +11,8 @@ import {
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { useSetApproveLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
+import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import { UserOutlined } from '@ant-design/icons';
 
 const ApprovalTable = () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -51,10 +53,10 @@ const ApprovalTable = () => {
   };
 
   const cancel: any = () => {};
-
   const allFilterData = data?.items?.map((item: any, index: number) => {
     return {
       key: index,
+      userId: item?.userId,
       startAt: item?.startAt,
       endAt: item?.endAt,
       days: item?.days,
@@ -123,7 +125,43 @@ const ApprovalTable = () => {
       ),
     };
   });
+  const EmpRender = ({ userId }: any) => {
+    const {
+      isLoading,
+      data: employeeData,
+      isError,
+    } = useGetSimpleEmployee(userId);
+
+    if (isLoading) return <div>...</div>;
+    if (isError) return <>-</>;
+
+    return employeeData ? (
+      <div className="flex items-center gap-1.5">
+        <div className="mx-1 text-sm">
+          {employeeData?.employeeInformation?.employeeAttendanceId}
+        </div>
+        <Avatar size={24} icon={<UserOutlined />} />
+        <div className="flex-1">
+          <div className="text-xs text-gray-900">
+            {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
+            {employeeData?.lastName || '-'}
+          </div>
+          <div className="text-[10px] leading-4 text-gray-600">
+            {employeeData?.email}
+          </div>
+        </div>
+      </div>
+    ) : (
+      '-'
+    );
+  };
   const columns: TableColumnsType<any> = [
+    {
+      title: 'Employee Name',
+      dataIndex: 'userId',
+      key: 'createdBy',
+      render: (text: string) => <EmpRender userId={text} />,
+    },
     {
       title: 'From',
       dataIndex: 'startAt',

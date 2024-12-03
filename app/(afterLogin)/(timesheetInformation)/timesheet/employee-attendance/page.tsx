@@ -11,7 +11,7 @@ import { useGetAttendances } from '@/store/server/features/timesheet/attendance/
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useAttendanceImport } from '@/store/server/features/timesheet/attendance/mutation';
 import { fileUpload } from '@/utils/fileUpload';
-import EmployeeAttendanceSideBar from './_components/employeeAttendanceTable/sideBar';
+import EmployeeAttendanceSideBar from './_components/sideBar';
 const EmployeeAttendance = () => {
   const [isLoading, setIsLoading] = useState(false);
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
