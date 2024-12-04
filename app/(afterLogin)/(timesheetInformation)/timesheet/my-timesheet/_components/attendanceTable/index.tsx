@@ -63,7 +63,7 @@ const AttendanceTable = () => {
       dataIndex: 'clockIn',
       key: 'clockIn',
       render: (date: string) => (
-        <div>{dayjs(date).format(DATETIME_FORMAT)}</div>
+        <div>{date ? dayjs(date).format(DATETIME_FORMAT) : '-'}</div>
       ),
     },
     {
@@ -81,7 +81,7 @@ const AttendanceTable = () => {
       dataIndex: 'clockOut',
       key: 'clockOut',
       render: (date: string) => (
-        <div>{dayjs(date).format(DATETIME_FORMAT)}</div>
+        <div>{date ? dayjs(date).format(DATETIME_FORMAT) : '-'}</div>
       ),
     },
     {
@@ -163,7 +163,7 @@ const AttendanceTable = () => {
             item?.geolocations[item?.geolocations.length - 1]?.allowedArea
               ?.title ?? '',
           status: item,
-          totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
+          totalTime: `${item.startAt && item.endAt ? `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs` : '-'} `,
           overTime: item.overTimeMinutes + ' min',
           action: item,
         };

@@ -11,15 +11,16 @@ import dayjs from 'dayjs';
 
 interface ApprovalRequestCardProps {
   name: string;
-  days: number;
+  days?: number;
   startAt: string;
   endAt: string;
-  isHalfDay: string;
+  isHalfDay?: string;
   leaveType: string;
   approvalWorkflowId: string;
   nextApprover: string;
   id: string;
   approveRequesterId: string;
+  requestType: string;
 }
 
 const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
@@ -33,6 +34,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
   nextApprover,
   approveRequesterId,
   id,
+  requestType,
 }) => {
   const { rejectComment, setRejectComment } = useApprovalStore();
   const { mutate: editApprover } = useSetApproveLeaveRequest();
@@ -103,13 +105,25 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
             {employeeData?.firstName} {employeeData?.middleName}
           </p>
           <p className="font-bold text-gray-500 text-[12px]">{leaveType}</p>
-          <p className="text-[10px] text-gray-500">
-            {dayjs(startAt).format('MMM DD, YYYY') || '-'} to{' '}
-            {dayjs(endAt).format('MMM DD, YYYY') || '-'}
-          </p>
-          <p className="text-[10px] text-gray-500">
-            (for {days} day) {isHalfDay ? 'Half Day' : ''}
-          </p>
+          {requestType === 'BranchTransfer' ? (
+            <>
+              <p className="text-[10px] text-gray-500">
+                {startAt || '-'} to {endAt || '-'}
+              </p>
+            </>
+          ) : requestType === 'Leave' ? (
+            <>
+              <p className="text-[10px] text-gray-500">
+                {dayjs(startAt).format('MMM DD, YYYY') || '-'} to{' '}
+                {dayjs(endAt).format('MMM DD, YYYY') || '-'}
+              </p>
+              <p className="text-[10px] text-gray-500">
+                (for {days} day) {isHalfDay ? 'Half Day' : ''}
+              </p>
+            </>
+          ) : (
+            ''
+          )}
           <p className="text-[10px] text-gray-500">{name}</p>
         </div>
       </div>
