@@ -15,7 +15,7 @@ import {
 import { EmploymentType, LocationType } from '@/types/enumTypes';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
-import TextEditor from '@/components/form/textEditor';
+import TextArea from 'antd/es/input/TextArea';
 
 const { Option } = Select;
 interface CreateJobsProps {
