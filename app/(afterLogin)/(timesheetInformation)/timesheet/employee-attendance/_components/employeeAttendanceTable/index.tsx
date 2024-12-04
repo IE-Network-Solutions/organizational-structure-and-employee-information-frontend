@@ -171,12 +171,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       render: (text: string) => <div>{text}</div>,
     },
     {
-      title: 'Approval Status',
-      dataIndex: 'approvalStatus',
-      key: 'approvalStatus',
-      render: () => <div>-</div>,
-    },
-    {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
@@ -214,7 +208,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           status: item,
           totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
           overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,
-          approvalStatus: item,
           action: item,
         };
       });

@@ -24,6 +24,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             />
           </Form.Item>
         </Col>
+        <Col span={5}></Col>
         <Col span={5}>
           <Form.Item name="type">
             <Select
@@ -37,18 +38,6 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
               options={attendanceRecordTypeOption}
             />
           </Form.Item>
-        </Col>
-        <Col span={5}>
-          <Button
-            className="w-full"
-            disabled={true}
-            size="large"
-            id="approveButtonId"
-            type="primary"
-            htmlType="button"
-          >
-            Approve
-          </Button>
         </Col>
       </Row>
     </Form>
