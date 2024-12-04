@@ -203,7 +203,7 @@ const CustomFieldsDrawer: React.FC<{
                     >
                       <Input placeholder="Option" />
                     </Form.Item>
-                    {fields.length > 1 && (
+                    {fields.length > 0 && (
                       <MinusCircleOutlined
                         className="dynamic-delete-button"
                         onClick={() => remove(field.name)}
