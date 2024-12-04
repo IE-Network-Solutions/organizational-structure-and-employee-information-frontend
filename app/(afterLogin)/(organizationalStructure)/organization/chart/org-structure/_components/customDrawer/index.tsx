@@ -1,6 +1,6 @@
 import React from 'react';
 import CustomButton from '@/components/common/buttons/customButton';
-import { ArchiveForm, DissolveForm, MergeForm, DeleteForm } from '../forms';
+import { MergeForm, DeleteForm, TransferForm } from '../forms';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { FormInstance } from 'antd';
 
@@ -29,12 +29,10 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
 }) => {
   const renderDrawerContent = () => {
     switch (drawerContent) {
-      case 'archive':
-        return <ArchiveForm />;
+      case 'transfer':
+        return <TransferForm />;
       case 'merge':
         return <MergeForm />;
-      case 'dissolve':
-        return <DissolveForm />;
       case 'delete':
         return <DeleteForm form={form}/>;
       default:

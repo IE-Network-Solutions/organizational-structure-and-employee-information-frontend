@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import { Card, Dropdown, message } from 'antd';
+import { Card, Dropdown } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
@@ -31,7 +31,11 @@ import {
   orgComposeAndMergeMenues,
   showDrawer,
 } from '../menues/inex';
-import { useMergingDepartment } from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
+import {
+  useMergingDepartment,
+  useTransferDepartment,
+} from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
+import { useTransferStore } from '@/store/uistate/features/organizationStructure/orgState/transferDepartmentsStore';
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { Form } from 'antd';
 
@@ -102,7 +106,8 @@ const [form] = Form.useForm();
     setIsDeleteConfirmVisible,
     chartDownlaodLoading,
   } = useOrganizationStore();
-  const { mergeDepartment, resetStore } = useMergeStore();
+  const { transferDepartment, resetStore } = useTransferStore();
+  const { mergeData } = useMergeStore();
 
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -111,6 +116,9 @@ const [form] = Form.useForm();
   const { mutate: updateDepartment } = useUpdateOrgChart();
   const { mutate: deleteDepartment, isLoading: deleteLoading } =
     useDeleteOrgChart();
+  const { mutate: transferDepartments, isLoading: isTransferLoading } =
+    useTransferDepartment();
+
   const {
     mutate: mergeDepartments,
     isLoading,
@@ -287,7 +295,7 @@ const [form] = Form.useForm();
           />
         </div>
         <CustomDrawer
-          loading={isLoading}
+          loading={transferDepartment ? isTransferLoading : isLoading}
           visible={drawerVisible}
           onClose={() => {
             closeDrawer();
@@ -297,10 +305,13 @@ const [form] = Form.useForm();
           drawerContent={drawerContent}
           footerButtonText={footerButtonText}
           onSubmit={() => {
-            if (mergeDepartment) {
-              mergeDepartments(mergeDepartment);
-            } else {
-              message.error('Merge department is not defined');
+            if (footerButtonText == 'Transfer') {
+              if (transferDepartment) {
+                transferDepartments(transferDepartment);
+              }
+            }
+            if (footerButtonText == 'Merge') {
+              mergeDepartments(mergeData);
             }
           }}
           title={drawTitle}
