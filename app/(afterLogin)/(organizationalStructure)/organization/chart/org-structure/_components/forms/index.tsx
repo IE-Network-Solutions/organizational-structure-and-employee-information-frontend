@@ -296,7 +296,6 @@ export const DeleteForm: React.FC<DeleteFormProps> = ({ form }) => {
 
   const { departmentTobeDeletedId, setShiftDepartmentId, departmentTobeShiftedId } = useOrganizationStore();
   const { data: departments } = useGetDepartments();
-
   const OPTIONS = departments?.map((item: any) => ({
     value: item.id,
     label: item.name,
