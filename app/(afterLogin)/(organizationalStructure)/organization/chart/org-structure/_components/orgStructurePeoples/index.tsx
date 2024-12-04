@@ -62,7 +62,7 @@ const renderTreeNodes = (
             onEdit={() => onEdit(item)}
             onAdd={() => onAdd(item)}
             onDelete={() => {showDrawer('delete', 'Delete', 'Delete Department');
-              setDepartmentTobeDeletedId(item.name);
+              setDepartmentTobeDeletedId(item?.id);
             }}
             isRoot={isRoot}
           />
