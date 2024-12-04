@@ -8,7 +8,7 @@ const getAllRecognitionTypes = async () => {
     const tenantId = useAuthenticationStore.getState().tenantId;
   
     return crudRequest({
-      url: `${ORG_DEV_URL}/recognition-type`,
+      url: `${ORG_DEV_URL}/recognition-type/parent`,
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
