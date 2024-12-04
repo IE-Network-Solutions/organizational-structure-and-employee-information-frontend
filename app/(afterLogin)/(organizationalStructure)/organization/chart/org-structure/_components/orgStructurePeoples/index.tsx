@@ -299,7 +299,7 @@ const [form] = Form.useForm();
           visible={drawerVisible}
           onClose={() => {
             closeDrawer();
-            resetStore;
+            resetStore();
             setDepartmentTobeDeletedId('');
           }}
           drawerContent={drawerContent}

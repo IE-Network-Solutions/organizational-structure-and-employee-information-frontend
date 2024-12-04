@@ -2,8 +2,14 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { useTransferStore } from '@/store/uistate/features/organizationStructure/orgState/transferDepartmentsStore';
-import { Form, message, Select } from 'antd';
+import { Form, message, Select, FormInstance } from 'antd';
 import { useEffect, useState } from 'react';
+import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
+
+interface DeleteFormProps {
+  form?: FormInstance;
+}
+
 export const TransferForm = () => {
   const {
     rootDepartment,
@@ -280,6 +286,80 @@ export const MergeForm = () => {
         <p style={{ color: '#595959' }}>
           <span style={{ marginRight: '8px' }}>ⓘ</span>This will affect the
           whole company structure.
+        </p>
+      </Form.Item>
+    </Form>
+  );
+};
+
+export const DeleteForm: React.FC<DeleteFormProps> = ({ form }) => {
+
+  const { departmentTobeDeletedId, setShiftDepartmentId, departmentTobeShiftedId } = useOrganizationStore();
+  const { data: departments } = useGetDepartments();
+
+  const OPTIONS = departments?.map((item: any) => ({
+    value: item.id,
+    label: item.name,
+  }));
+
+  const filteredChildDepartments = OPTIONS?.filter(
+    (item: any) => item.value !== departmentTobeDeletedId,
+  );
+
+  const selectedDepartment = OPTIONS?.filter(
+    (item: any) => item.value === departmentTobeDeletedId,
+  );
+
+  const handleChildDepartmentsChange = (id: string) => {
+    if ( id ) {
+      setShiftDepartmentId(id);
+    }
+  };
+
+  return (
+    <Form layout="vertical" form={form}>
+      <Form.Item
+        label="Department to be Deleted"
+        name="departmentTobeDeleted"
+        rules={[
+          { required: true, message: 'Please select the department to delete' },
+        ]}
+        
+      >
+        <Select
+          showSearch
+          style={{ width: '100%' }}
+          placeholder={selectedDepartment[0]?.label}
+          optionFilterProp="label"
+          options={selectedDepartment}
+          value={selectedDepartment[0]?.value}
+          disabled
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="Shift employees to"
+        name="ShiftWith"
+        rules={[
+          {
+            required: true,
+            message: 'Please select a department to shift employees to',
+          },
+        ]}
+      >
+        <Select
+          placeholder="Select a department to shift employees to"
+          style={{ width: '100%' }}
+          value={departmentTobeShiftedId}
+          onChange={handleChildDepartmentsChange}
+          options={filteredChildDepartments}
+        />
+      </Form.Item>
+
+      <Form.Item>
+        <p style={{ color: '#595959' }}>
+          <span style={{ marginRight: '8px' }}>ⓘ</span>This will affect the
+          whole company structure
         </p>
       </Form.Item>
     </Form>
