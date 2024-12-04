@@ -33,6 +33,10 @@ export interface CategoriesUseState {
   selectedUserId: string;
   setSelectedUserId: (selectedUserId: string) => void;
 
+  selectedRecognitionType: string;
+  setSelectedRecognitionType: (selectedRecognitionType: string) => void;
+
+
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
 
@@ -79,6 +83,9 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   selectedUserId: '',
   setSelectedUserId: (selectedUserId: string) => set({ selectedUserId }),
+
+  selectedRecognitionType: '',
+  setSelectedRecognitionType: (selectedRecognitionType: string) => set({ selectedRecognitionType }),
 
   activeTab: '1',
   setActiveTab: (activeTab: string) => set({ activeTab }),
