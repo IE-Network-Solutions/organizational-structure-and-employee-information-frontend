@@ -3,7 +3,11 @@ import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
-import { AttendanceSetShiftRequestBody } from '@/store/server/features/timesheet/attendance/interface';
+import {
+  AttendanceSetShiftRequestBody,
+  EditAttendance,
+} from '@/store/server/features/timesheet/attendance/interface';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const attendanceImport = async (file: string) => {
   return await crudRequest({
@@ -11,6 +15,15 @@ const attendanceImport = async (file: string) => {
     method: 'POST',
     headers: requestHeader(),
     data: { file },
+  });
+};
+
+const setEditAttendance = async (data: EditAttendance, id: string) => {
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/{id}?id=${id}`,
+    method: 'PATCH',
+    headers: requestHeader(),
+    data,
   });
 };
 
@@ -31,6 +44,23 @@ export const useAttendanceImport = () => {
       handleSuccessMessage(method);
     },
   });
+};
+
+export const useSetEditAttendance = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({ id, data }: { id: string; data: EditAttendance }) =>
+      setEditAttendance(data, id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('attendance');
+        NotificationMessage.success({
+          message: 'Successfully Edit',
+          description: 'Attendance successfully Edit.',
+        });
+      },
+    },
+  );
 };
 
 export const useSetCurrentAttendance = () => {

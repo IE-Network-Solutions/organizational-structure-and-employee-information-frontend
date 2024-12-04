@@ -1,37 +1,39 @@
-import React, { FC } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import UserCard from '@/components/common/userCard/userCard';
 
-export interface ApprovalStatusCardProps {
-  employee: {
-    img?: string;
-    name: string;
-    description: string;
-  };
-  status: string;
-  reason?: string;
-}
-
-const ApprovalStatusCard: FC<ApprovalStatusCardProps> = ({
-  employee,
-  reason,
-  status,
+const ApprovalStatusCard = ({
+  data,
+  userName,
+}: {
+  data: any;
+  userName: (a: string) => string;
 }) => {
   return (
     <div className="border-b border-gray-200">
       <div className="flex items-center px-3 py-4 gap-4">
-        <Image width={24} height={24} src={status} alt="" />
-        <UserCard
-          name={employee.name}
-          description={employee.description}
-          size="small"
+        <Image
+          width={24}
+          height={24}
+          src={
+            data?.action === 'Approved'
+              ? '/icons/status/verify.svg'
+              : data?.action === 'Pending'
+                ? '/icons/status/information.svg'
+                : data?.action === 'Rejected'
+                  ? '/icons/status/reject.svg'
+                  : ''
+          }
+          alt={data?.action}
         />
+        <UserCard name={userName(String(data?.approvedUserId))} size="small" />
       </div>
-
-      {reason && (
+      {data?.approvalComments?.length > 0 && (
         <div className="flex items-center gap-4 mb-2 px-5">
           <div className="text-[10px] text-gray-500">Reason</div>
-          <div className="text-xs text-gray-900">{reason}</div>
+          <div className="text-xs text-gray-900">
+            {data?.approvalComments?.[0]?.comment}
+          </div>
         </div>
       )}
     </div>

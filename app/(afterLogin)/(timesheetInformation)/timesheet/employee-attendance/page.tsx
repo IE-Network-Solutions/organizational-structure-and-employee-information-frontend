@@ -11,8 +11,9 @@ import { useGetAttendances } from '@/store/server/features/timesheet/attendance/
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useAttendanceImport } from '@/store/server/features/timesheet/attendance/mutation';
 import { fileUpload } from '@/utils/fileUpload';
-import AccessGuard from '@/utils/permissionGuard';
+import PermissionWrapper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import EmployeeAttendanceSideBar from './_components/sideBar';
 const EmployeeAttendance = () => {
   const [isLoading, setIsLoading] = useState(false);
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
@@ -76,7 +77,7 @@ const EmployeeAttendance = () => {
         description="Manage your Team Attendance"
       >
         <Space>
-          <AccessGuard permissions={[Permissions.ImportEmployeeAttendanceInformation]}>
+          <PermissionWrapper permissions={[Permissions.ImportEmployeeAttendanceInformation]}>
             <Button
               icon={<TbFileUpload size={18} />}
               size="large"
@@ -90,7 +91,7 @@ const EmployeeAttendance = () => {
             >
               Import
             </Button>
-          </AccessGuard>
+          </PermissionWrapper>
           <input
             type="file"
             id="fileImportInputId"
@@ -103,7 +104,7 @@ const EmployeeAttendance = () => {
             }}
             hidden
           />
-          <AccessGuard permissions={[Permissions.ExportEmployeeAttendanceInformation]}>
+          <PermissionWrapper permissions={[Permissions.ExportEmployeeAttendanceInformation]}>
             <Popover
               trigger="click"
               placement="bottomRight"
@@ -153,7 +154,7 @@ const EmployeeAttendance = () => {
                 Export
               </Button>
             </Popover>
-          </AccessGuard>
+          </PermissionWrapper>
         </Space>
       </PageHeader>
       <BlockWrapper className="mt-8">
