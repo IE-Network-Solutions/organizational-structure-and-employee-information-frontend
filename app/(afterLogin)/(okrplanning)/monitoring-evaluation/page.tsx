@@ -1,6 +1,4 @@
 'use client';
-import { Permissions } from '@/types/commons/permissionEnum';
-import AccessGuard from '@/utils/permissionGuard';
 import { Input, Card } from 'antd';
 import Link from 'next/link';
 import { FaArrowRightLong } from 'react-icons/fa6';
@@ -15,7 +13,6 @@ const MonitoringEvaluation = () => {
         <p className="text-gray-500">Monitoring & Evaluation</p>
       </div>
       <Search placeholder="Search" className="mb-6" size="large" />
-      <AccessGuard permissions={[Permissions.ViewReprimandAndAppreciation]}>
         <div className="grid grid-cols-3 gap-4">
           <Card className="bg-gray-100" bodyStyle={{ padding: '20px' }} hoverable>
             <h3 className="text-lg font-semibold">Reprimand & Appreciation</h3>
@@ -32,7 +29,6 @@ const MonitoringEvaluation = () => {
             </Link>
           </Card>
         </div>
-      </AccessGuard>
     </div>
   );
 };

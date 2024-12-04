@@ -88,7 +88,7 @@ const PlanningPeriod: FC = () => {
           Edit
         </Menu.Item>
       </AccessGuard>
-      <AccessGuard permissions={[Permissions.DleletePlanningPeriod]}>
+      <AccessGuard permissions={[Permissions.DeletePlanningPeriod]}>
         <Menu.Item
           key="2"
           disabled={deletePlannniggPeriod}
@@ -115,7 +115,7 @@ const PlanningPeriod: FC = () => {
             title={planningPeriod?.name}
             extra={
               <div className="flex">
-                <AccessGuard permissions={[Permissions.ActivateDeactivatePlanningPeriod]}>
+                <AccessGuard permissions={[Permissions.UpdatePlanningPeriod]}>
                   <Switch
                     checked={planningPeriod?.isActive}
                     disabled={isLoading}
