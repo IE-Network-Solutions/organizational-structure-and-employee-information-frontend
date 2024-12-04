@@ -1,15 +1,15 @@
 'use client';
-import React, { useState } from 'react';
-import { Button, Input, Select, Table, Tabs, Drawer, Form, Tag } from 'antd';
-import { FaPlus } from 'react-icons/fa';
+import React from 'react';
+import { Button, Table, Tabs } from 'antd';
+import { FaEye, FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 import { RiDeleteBin6Line } from 'react-icons/ri';
-
-const { Search } = Input;
-const { Option } = Select;
+import ScoringDrawer from './_components/criteria-drawer';
+import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
+import CriteriaFilters from './_components/criteria-filters';
 
 function Page() {
-  const [drawerVisible, setDrawerVisible] = useState(false);
+  const { openDrawer } = useDrawerStore();
 
   // Assigned Criteria by Role Data and Columns
   const assignedCriteriaData = [
@@ -56,8 +56,12 @@ function Page() {
       render: () => (
         <div className="flex space-x-2">
           <Button
+            className="flex items-center space-x-1 bg-purple text-white hover:bg-indigo-500 border-none"
+            icon={<FaEye />}
+          />
+          <Button
             type="default"
-            className="flex items-center space-x-1 bg-blue text-white hover:bg-red-600 border-none"
+            className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-500 border-none"
             icon={<GrEdit />}
           />
           <Button
@@ -124,34 +128,16 @@ function Page() {
           type="primary"
           className="flex items-center space-x-2 py-8 px-8"
           icon={<FaPlus />}
-          onClick={() => setDrawerVisible(true)}
+          onClick={openDrawer}
         >
           New Scoring Configuration
         </Button>
       </div>
 
-      {/* Filter Section */}
-      <div className="mb-6 flex space-x-4 justify-between items-center">
-        <Search
-          placeholder="Search"
-          onSearch={(value) => console.log(value)}
-          style={{ width: 200 }}
-          className="p-8"
-        />
-        <Select
-          defaultValue="All types"
-          style={{ width: 150 }}
-          onChange={(value) => console.log(value)}
-        >
-          <Option value="all">All types</Option>
-          <Option value="type1">Type 1</Option>
-          <Option value="type2">Type 2</Option>
-        </Select>
-      </div>
+      <CriteriaFilters />
 
-      {/* Tabs Section */}
-      <Tabs defaultActiveKey="1">
-        <Tabs.TabPane tab="Assigned Criteria by Role" key="1">
+      <Tabs centered defaultActiveKey="1">
+        <Tabs.TabPane tab="Scoring Configuration" key="1">
           <Table
             dataSource={assignedCriteriaData}
             columns={assignedCriteriaColumns}
@@ -166,61 +152,7 @@ function Page() {
           />
         </Tabs.TabPane>
       </Tabs>
-
-      {/* Drawer for New Scoring Configuration */}
-      <Drawer
-        title="Add New Scoring Configuration"
-        placement="right"
-        onClose={() => setDrawerVisible(false)}
-        visible={drawerVisible}
-        width={500}
-      >
-        <Form layout="vertical">
-          <Form.Item label="Name of the Scoring Configuration" required>
-            <Input placeholder="Enter the name here" />
-          </Form.Item>
-
-          <Form.Item label="Total Percentage" required>
-            <Input placeholder="Enter the total percentage" />
-          </Form.Item>
-
-          <Form.Item label="Department" required>
-            <Select mode="tags" placeholder="Select departments">
-              <Option value="Sales Manager">Sales Manager</Option>
-              <Option value="Marketing Manager">Marketing Manager</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item label="Users" required>
-            <Select mode="tags" placeholder="Select users">
-              <Option value="Pristia Candra">Pristia Candra</Option>
-              <Option value="Dagmawi H">Dagmawi H</Option>
-              <Option value="Christina B">Christina B</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item label="Choose Criteria" required>
-            <Select placeholder="Select criteria">
-              <Option value="Quality Score">Quality Score</Option>
-              <Option value="Timeliness">Timeliness</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item label="Chosen Criteria">
-            <div className="flex space-x-4">
-              <Tag closable>Quality Score</Tag>
-              <Input placeholder="Enter weight" />
-            </div>
-          </Form.Item>
-
-          <div className="flex justify-end mt-4">
-            <Button onClick={() => setDrawerVisible(false)} className="mr-4">
-              Cancel
-            </Button>
-            <Button type="primary">Add</Button>
-          </div>
-        </Form>
-      </Drawer>
+      <ScoringDrawer />
     </div>
   );
 }

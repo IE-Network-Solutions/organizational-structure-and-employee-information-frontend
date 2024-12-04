@@ -1,7 +1,7 @@
 import { Col, Input, Row, Select } from 'antd';
 import React from 'react';
 
-const CriteriaFilters = () => {
+const TargetFilters = () => {
   const { Option } = Select;
   return (
     <div className="mb-6">
@@ -36,4 +36,4 @@ const CriteriaFilters = () => {
   );
 };
 
-export default CriteriaFilters;
+export default TargetFilters;
