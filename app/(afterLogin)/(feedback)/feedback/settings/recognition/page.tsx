@@ -7,8 +7,8 @@ import AllRecognition from "../_components/recognition/allRecognition";
 import CustomDrawerLayout from "@/components/common/customDrawer";
 import { ConversationStore } from "@/store/uistate/features/conversation";
 import RecognitionForm from "../_components/recognition/createRecognition";
-import { useGetAllRecognitionType } from "@/store/server/features/recognition/queries";
-import { useAddRecognitionType } from "@/store/server/features/recognition/mutation";
+import { useGetAllRecognitionType } from "@/store/server/features/CFR/recognition/queries";
+import { useAddRecognitionType } from "@/store/server/features/CFR/recognition/mutation";
 
 const Page = () => {
     const { open, setOpen,setOpenRecognitionType,openRecognitionType, setSearchField } = ConversationStore();
@@ -33,12 +33,12 @@ const Page = () => {
     {
       key: '1',
       label: 'All Recognitions',
-      children: <AllRecognition />,
+      children: <AllRecognition data={recognitionType?.items} />,
     },
     ...(recognitionType?.items?.map((recognitionType: any, index: number) => ({
-      key: `middle-${index}`, // Ensure unique keys
+      key: `${recognitionType?.id}`, // Ensure unique keys
       label: recognitionType?.name,
-      children: <AllRecognition />,
+      children: <AllRecognition data={[recognitionType]}/>,
     })) || []),
     {
       key: 'last',
@@ -70,45 +70,7 @@ const Page = () => {
 
       </CustomDrawerLayout>
       <Drawer title={modalHeader} onClose={()=>setOpenRecognitionType(false)} open={openRecognitionType}>
-        <Form
-          layout="vertical"
-          onFinish={onFinish}
-          onFinishFailed={(errorInfo) => {
-            console.log("Validation Failed:", errorInfo);
-          }}
-        >
-          <Form.Item
-            label="Recognition Name"
-            name="name"
-            rules={[
-              { required: true, message: "Please enter the recognition name" },
-              { max: 50, message: "Name cannot exceed 50 characters" },
-            ]}
-          >
-            <Input placeholder="Enter recognition name" />
-          </Form.Item>
-
-          <Form.Item
-            label="Description"
-            name="description"
-            rules={[
-              { required: true, message: "Please enter the description" },
-              { max: 200, message: "Description cannot exceed 200 characters" },
-            ]}
-          >
-            <Input.TextArea
-              placeholder="Enter description"
-              rows={4}
-              maxLength={200}
-            />
-          </Form.Item>
-
-          <Form.Item>
-            <Button type="primary" htmlType="submit" className="w-full">
-              Submit
-            </Button>
-          </Form.Item>
-        </Form>
+         <RecognitionForm createCategory={true}/> 
       </Drawer>
       </div>
 

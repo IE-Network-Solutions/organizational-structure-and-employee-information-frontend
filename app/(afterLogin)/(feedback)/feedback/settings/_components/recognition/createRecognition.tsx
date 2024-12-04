@@ -1,16 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Input, Switch, Select, Button, Space, InputNumber, Modal } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import { useGetDepartmentsWithUsers } from "@/store/server/features/employees/employeeManagment/department/queries";
-import { useGetAllRecognitionType } from "@/store/server/features/recognition/queries";
+import { useGetAllRecognitionType, useGetRecognitionTypeById } from "@/store/server/features/CFR/recognition/queries";
 import { AggregateOperator, ConditionOperator } from "@/types/enumTypes";
-import { useAddRecognitionType } from "@/store/server/features/recognition/mutation";
+import { useAddRecognitionType, useUpdateRecognitionType } from "@/store/server/features/CFR/recognition/mutation";
+import { ConversationStore } from "@/store/uistate/features/conversation";
+import { VscRepoFetch } from "react-icons/vsc";
 
 interface RecognitionFormValues {
   id: string;
   name: string;
   description: string;
   isMonetized: boolean;
+  criteria?:string[];
   requiresCertification: boolean;
   certificationData?: {
     title: string;
@@ -21,29 +24,77 @@ interface RecognitionFormValues {
   departmentId: string;
 }
 const { Option } = Select;
-
-const RecognitionForm= () => {
+interface PropsData{
+  createCategory?:boolean
+}
+const RecognitionForm:React.FC<PropsData>= ({createCategory=false}) => {
   const [form] = Form.useForm();
+  const {setOpenRecognitionType,setSelectedRecognitionType,selectedRecognitionType } = ConversationStore();
+
   const { data: allDepartmentWithData } = useGetDepartmentsWithUsers();
   const { data: recognitionType } = useGetAllRecognitionType();
-  const { mutate: createRecognitionType } = useAddRecognitionType();
+  const { data: recognitionTypeById } = useGetRecognitionTypeById(selectedRecognitionType);
 
-  const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
+  const { mutate: createRecognitionType,isLoading:createLoading } = useAddRecognitionType();
+  const { mutate: updateRecognitionType ,isLoading:updateLoading} = useUpdateRecognitionType();
 
+
+  const [selectedCriteria, setSelectedCriteria] = useState<any>([]);
   const handleCriteriaChange = (value: string[]) => {
-    setSelectedCriteria(value);
+    const updatedCriteria = value.map((criterion) => {
+      const existingCriterion = selectedCriteria.find((item:any) => item.criterionKey === criterion);
+      return existingCriterion || { criterionKey: criterion, weight: 0, operator: null, condition: null, value: 0 };
+    });
+    setSelectedCriteria(updatedCriteria);
   };
+
   const commonClass = "text-xs text-gray-950";
   const getLabel = (text:string) => (
     <span className="text-black text-xs font-semibold">{text}</span>
   );
-console.log(recognitionType,"recognitionType")
   const onFinish = (values: RecognitionFormValues) => {
-    console.log("Form Submitted: ", values);
-    createRecognitionType(values);
+    // console.log("Form Submitted: ", values);
+    // return ;
+    if(selectedRecognitionType===''){
+      createRecognitionType(values,{
+        onSuccess:()=>{
+          setOpenRecognitionType(false);
+        }
+      });
+    }
+    else{
+      const { criteria, ...updatedValues } = values; // Destructure to omit 'criteriaKey'
+      updateRecognitionType(
+        {...updatedValues,
+           id:selectedRecognitionType
+        },{
+        onSuccess:()=>{
+          setSelectedRecognitionType('');
+          setOpenRecognitionType(false);
+        }
+      });
+    }
+
 
   };
-// console.log(selectedCriteria,"selectedCriteria")
+useEffect(() => {
+  if (recognitionTypeById) {
+    if(recognitionTypeById?.recognitionCriteria){
+      setSelectedCriteria(recognitionTypeById?.recognitionCriteria)
+    }
+    form.setFieldsValue({
+       name:recognitionTypeById?.name,
+       description:recognitionTypeById?.description,
+       criteria:recognitionTypeById?.recognitionCriteria?.map((item:any)=>{return item?.criterionKey}),
+       isMonetized:recognitionTypeById?.isMonetized,
+       requiresCertification:recognitionTypeById?.requiresCertification,
+       frequency:recognitionTypeById?.frequency,
+       departmentId:recognitionTypeById?.departmentId,
+       parentTypeId:recognitionTypeById?.parentTypeId,
+    });
+  }
+}, [recognitionTypeById, form]);
+
   return (
     <Form
       form={form}
@@ -87,7 +138,7 @@ console.log(recognitionType,"recognitionType")
           className="text-xs text-gray-950"
         />
       </Form.Item>
-      <Form.Item
+     {!createCategory && <Form.Item
         className="text-xs text-gray-950"
         label={
           <span className="text-black text-xs font-semibold">
@@ -111,83 +162,88 @@ console.log(recognitionType,"recognitionType")
           <Select.Option value="Certificate">Certificate</Select.Option>
         </Select>
       </Form.Item>
-      {selectedCriteria?.map((criteria, index) => (
-      <div className="flex gap-1" key={criteria}>
-        {/* Criteria Name */}
-        <Form.Item
-          labelAlign="left"
-          className="w-1/2 text-xs text-gray-950"
-          label={getLabel("Criteria")}
-          name={['recognitionCriteria', index, 'criterionKey']} // Scoped name
-          initialValue={criteria}
-          rules={[
-            { required: true, message: "Please select at least one criterion" },
-          ]}
-        >
-          <Input className={commonClass} disabled />
-        </Form.Item>
+      }
+       {selectedCriteria.map((criteria:any, index:number) => (
+          <div className="flex gap-1" key={criteria.criterionKey}>
+            {/* Criteria Name */}
+            <Form.Item
+              labelAlign="left"
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel("Criteria")}
+              name={['recognitionCriteria', index, 'criterionKey']}
+              initialValue={criteria.criterionKey}
+              rules={[
+                { required: true, message: "Please select at least one criterion" },
+              ]}
+            >
+              <Input className={commonClass} disabled />
+            </Form.Item>
 
-        {/* Weight */}
-        <Form.Item
-          className="w-1/2 text-xs text-gray-950"
-          label={getLabel("Weight")}
-          name={['recognitionCriteria', index, 'weight']} // Scoped name
-          rules={[{ required: true, message: "Please enter weight" }]}
-        >
-          <Input
-            type="number"
-            placeholder="Enter weight"
-            className={commonClass}
-          />
-        </Form.Item>
+            {/* Weight */}
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel("Weight")}
+              name={['recognitionCriteria', index, 'weight']}
+              initialValue={criteria.weight}
+              rules={[{ required: true, message: "Please enter weight" }]}
+            >
+              <Input
+                type="number"
+                placeholder="Enter weight"
+                className={commonClass}
+              />
+            </Form.Item>
 
-        {/* Operator */}
-        <Form.Item
-          className="w-1/2 text-xs text-gray-950"
-          label={getLabel("Operator")}
-          name={['recognitionCriteria', index, 'operator']} // Scoped name
-          rules={[{ required: true, message: "Please enter operator" }]}
-        >
-          <Select placeholder="Select operator" className={commonClass}>
-            {Object.values(AggregateOperator)?.map((operator) => (
-              <Select.Option key={operator} value={operator} className={commonClass}>
-                {operator}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
+            {/* Operator */}
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel("Operator")}
+              name={['recognitionCriteria', index, 'operator']}
+              initialValue={criteria.operator}
+              rules={[{ required: true, message: "Please enter operator" }]}
+            >
+              <Select placeholder="Select operator" className={commonClass}>
+                {Object.values(AggregateOperator).map((operator) => (
+                  <Select.Option key={operator} value={operator} className={commonClass}>
+                    {operator}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-        {/* Condition */}
-        <Form.Item
-          className="w-1/2 text-xs text-gray-950"
-          label={getLabel("Condition")}
-          name={['recognitionCriteria', index, 'condition']} // Scoped name
-          rules={[{ required: true, message: "Please enter condition" }]}
-        >
-          <Select placeholder="Select condition" className={commonClass}>
-            {Object.values(ConditionOperator)?.map((operator) => (
-              <Select.Option key={operator} value={operator} className={commonClass}>
-                {operator}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
+            {/* Condition */}
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel("Condition")}
+              name={['recognitionCriteria', index, 'condition']}
+              initialValue={criteria.condition}
+              rules={[{ required: true, message: "Please enter condition" }]}
+            >
+              <Select placeholder="Select condition" className={commonClass}>
+                {Object.values(ConditionOperator).map((operator) => (
+                  <Select.Option key={operator} value={operator} className={commonClass}>
+                    {operator}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-        {/* Value */}
-        <Form.Item
-          className="w-1/2 text-xs text-gray-950"
-          label={getLabel("Value")}
-          name={['recognitionCriteria', index, 'value']} // Scoped name
-          rules={[{ required: true, message: "Please enter value" }]}
-        >
-          <Input
-            type="number"
-            placeholder="Enter value"
-            className={commonClass}
-          />
-        </Form.Item>
-      </div>
-    ))}
+            {/* Value */}
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel("Value")}
+              name={['recognitionCriteria', index, 'value']}
+              initialValue={criteria.value}
+              rules={[{ required: true, message: "Please enter value" }]}
+            >
+              <Input
+                type="number"
+                placeholder="Enter value"
+                className={commonClass}
+              />
+            </Form.Item>
+          </div>
+        ))}
 
      <div className="flex">
         <Form.Item 
@@ -197,6 +253,7 @@ console.log(recognitionType,"recognitionType")
               Monetized
               </span>
           } 
+        initialValue={false}
         name="isMonetized" 
         valuePropName="checked">
           <Switch />
@@ -211,6 +268,7 @@ console.log(recognitionType,"recognitionType")
           }
           name="requiresCertification"
           valuePropName="checked"
+          initialValue={false}
         >
           <Switch />
         </Form.Item>
@@ -284,6 +342,7 @@ console.log(recognitionType,"recognitionType")
         </Select>
       </Form.Item>
 
+      {!createCategory&&
       <Form.Item 
         className="text-xs text-gray-950"
         label={
@@ -297,7 +356,7 @@ console.log(recognitionType,"recognitionType")
                 className="text-xs text-gray-950"
             />
       </Form.Item>
-
+       }
       <Form.Item
         className="text-xs text-gray-950"
         label={
@@ -322,10 +381,15 @@ console.log(recognitionType,"recognitionType")
         </Select>
       </Form.Item>
 
-      <Form.Item>
-        <Button type="primary" htmlType="submit" className="text-xs">
-          Create Recognition Type
+      <Form.Item >
+        <div className="flex justify-center gap-4">
+        <Button loading={recognitionTypeById==='' ? createLoading:updateLoading} type="primary" htmlType="submit" className="text-xs">
+          {recognitionTypeById==='' ? "Create" :"Update"}
         </Button>
+        <Button  onClick={()=>setSelectedRecognitionType('')} type="primary" htmlType="button" className="text-xs">
+          Cancel
+        </Button>
+        </div>
       </Form.Item>
     </Form>
   );
