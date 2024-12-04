@@ -71,7 +71,7 @@ const CourseCategorySidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: 'Create',
+      label: courseId ? <span>Edit</span> : <span>Create</span>,
       key: 'create',
       className: 'h-14',
       type: 'primary',
@@ -117,7 +117,7 @@ const CourseCategorySidebar = () => {
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            Add Course
+            {courseId ? <span>Edit Course</span> : <span>Add course </span>}
           </CustomDrawerHeader>
         }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
@@ -136,7 +136,7 @@ const CourseCategorySidebar = () => {
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
           >
-            <Input className="control" />
+            <Input id="tnaCourseNameFieldId" className="control" />
           </Form.Item>
           <Form.Item
             name="courseCategoryId"
@@ -145,6 +145,7 @@ const CourseCategorySidebar = () => {
             className="form-item"
           >
             <Select
+              id="tnaCourseCategoryFieldId"
               className="control"
               placeholder="Select Category"
               options={formatToOptions(courseCategory, 'title', 'id')}
@@ -153,6 +154,7 @@ const CourseCategorySidebar = () => {
           <Form.Item
             name="thumbnail"
             label="Thumbnail"
+            id="tnaCourseThumbnailFieldId"
             className="form-item"
             valuePropName="fileList"
             rules={[{ required: true, message: 'Required' }]}
@@ -162,6 +164,7 @@ const CourseCategorySidebar = () => {
           >
             <CustomUpload
               mode="draggable"
+              id="tnaCourseThumbnailFieldId"
               className="w-full mt-3"
               listType="picture"
               accept="image/*"
@@ -176,6 +179,7 @@ const CourseCategorySidebar = () => {
             className="form-item"
           >
             <Input.TextArea
+              id="tnaCourseDescriptionFieldId"
               className="control-tarea"
               rows={6}
               placeholder="Enter the Description"
@@ -186,6 +190,7 @@ const CourseCategorySidebar = () => {
           <Button
             type="primary"
             htmlType="button"
+            id="tnaCourseSubmitButtonId"
             loading={isLoading}
             onClick={() => {
               setIsDraft(true);

@@ -19,6 +19,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   <Button
     type={type}
     onClick={onClick}
+    id={`${title}CustomButtonId`}
     icon={icon}
     className={` h-14 px-6 py-6 rounded-lg flex justify-start items-center gap-2 ${className}`}
     {...rest}

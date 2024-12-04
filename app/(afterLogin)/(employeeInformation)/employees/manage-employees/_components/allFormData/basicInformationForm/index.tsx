@@ -18,6 +18,7 @@ import { validateEmail, validateName } from '@/utils/validation';
 import { UploadFile } from 'antd/lib';
 import { RcFile } from 'antd/es/upload';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 const { Dragger } = Upload;
@@ -69,6 +70,10 @@ const BasicInformationForm = ({ form }: any) => {
       );
     }
     return '';
+  };
+
+  const disableFutureDates = (current: any) => {
+    return current && current > dayjs().endOf('day');
   };
   return (
     <div className="">
@@ -225,7 +230,7 @@ const BasicInformationForm = ({ form }: any) => {
             id="userDateOfBirthId"
             rules={[{ required: true }]}
           >
-            <DatePicker className="w-full" />
+            <DatePicker className="w-full" disabledDate={disableFutureDates} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>

@@ -27,7 +27,7 @@ export const useGetBreakTypes = () => {
     'break-types',
     () => getBreakTypes(),
     {
-      keepPreviousData: true,
+      // keepPreviousData: true,
     },
   );
 };

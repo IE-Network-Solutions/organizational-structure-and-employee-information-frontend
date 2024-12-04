@@ -100,12 +100,6 @@ export const useAddEmployee = () => {
         description: 'Employee successfully Created',
       });
     },
-    onError: () => {
-      NotificationMessage.error({
-        message: 'Creating Failed',
-        description: 'Employee Created Failed',
-      });
-    },
   });
 };
 export const useUpdateEmployee = () => {
@@ -148,12 +142,6 @@ export const useCreateJobInformation = () => {
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Employee successfully Created',
-      });
-    },
-    onError: () => {
-      NotificationMessage.error({
-        message: 'Creating Failed',
-        description: 'Employee Created Failed',
       });
     },
   });

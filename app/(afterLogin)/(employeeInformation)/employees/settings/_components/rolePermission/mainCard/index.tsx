@@ -61,7 +61,7 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
               onClick={handleClickNewButton}
               title={`New ${tabButton}`}
               icon={<FaPlus />}
-              className="mt-4 md:mt-0"
+              className=" text-xs mt-4 md:mt-0"
             />
           )}
         </div>

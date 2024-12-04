@@ -15,6 +15,13 @@ const useOrganizationStore = create<OrganizationState>((set) => ({
     department: [],
   },
   setOrgData: (data: OrgData) => set({ orgData: data }),
+  setBranchId: (branchId: string) =>
+    set((state) => ({
+      orgData: {
+        ...state.orgData,
+        branchId,
+      },
+    })),
   addDepartment: (parentId: string, department: Omit<Department, 'id'>) =>
     set((state) => {
       const newDepartment = { ...department, id: uuidv4() };
@@ -95,6 +102,20 @@ const useOrganizationStore = create<OrganizationState>((set) => ({
   isDeleteConfirmVisible: false,
   setIsDeleteConfirmVisible: (visible: boolean) =>
     set({ isDeleteConfirmVisible: visible }),
+
+  chartDownlaodLoading: false,
+  setChartDonwnloadLoading: (chartDownlaodLoading: boolean) =>
+    set({ chartDownlaodLoading }),
+
+  drawerVisible: false,
+  drawerContent: '',
+  footerButtonText: '',
+  drawTitle: '',
+
+  setDrawerVisible: (visible: boolean) => set({ drawerVisible: visible }),
+  setDrawerContent: (content: string) => set({ drawerContent: content }),
+  setFooterButtonText: (text: string) => set({ footerButtonText: text }),
+  setDrawTitle: (title: string) => set({ drawTitle: title }),
 }));
 
 export default useOrganizationStore;

@@ -2,6 +2,9 @@
 import React from 'react';
 import { Avatar, Menu, Dropdown, Layout } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import NotificationBar from './notificationBar';
 
 const { Header } = Layout;
 
@@ -11,17 +14,17 @@ interface NavBarProps {
 }
 
 const NavBar = ({ page, handleLogout }: NavBarProps) => {
+  const router = useRouter();
+  const { userId } = useAuthenticationStore();
+
+  const handleProfileRoute = () => {
+    router.push(`/employees/manage-employees/${userId}`);
+  };
+
   const menu = (
     <Menu>
       <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/profile`}>
-          Profile
-        </a>
-      </Menu.Item>
-      <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/settings`}>
-          Settings
-        </a>
+        <a onClick={handleProfileRoute}>Profile</a>
       </Menu.Item>
       <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
     </Menu>
@@ -35,13 +38,10 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
       }}
     >
       <p>{page}</p>
-      <div className="flex items-center">
+      <div className="flex items-center gap-5">
+        <NotificationBar />
         <Dropdown overlay={menu} placement="bottomRight">
-          <Avatar
-            icon={<UserOutlined />}
-            // src={`${URL}/user/${userid}`}
-            className="cursor-pointer"
-          />
+          <Avatar icon={<UserOutlined />} className="cursor-pointer" />
         </Dropdown>
       </div>
     </Header>

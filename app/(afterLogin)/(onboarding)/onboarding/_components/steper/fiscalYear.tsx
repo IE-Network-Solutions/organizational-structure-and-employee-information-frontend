@@ -19,15 +19,21 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
     setFiscalDescriptionName,
   } = useFiscalYearStore();
 
-  const disabledDate = (current: Dayjs | null): boolean => {
+  const disabledEndDate = (current: Dayjs | null): boolean => {
     if (!current || !startDate) {
       return false;
     }
-    const startDayjs = dayjs(startDate);
-    const endDayjs = startDayjs.add(1, 'year').add(1, 'day');
-
-    return current.isBefore(endDayjs, 'day');
+    return current.isBefore(dayjs(startDate), 'day');
   };
+
+  const disabledStartDate = (current: Dayjs | null): boolean => {
+    if (!current || !endDate) {
+      return false;
+    }
+    return current.isAfter(dayjs(endDate), 'day');
+  };
+
+  /* eslint-disable @typescript-eslint/naming-convention */
 
   return (
     <div className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full">
@@ -43,6 +49,24 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
             startDate,
             endDate,
             description,
+          }}
+          onFinish={(values) => {
+            if (dayjs(values.startDate).isAfter(values.endDate)) {
+              form.setFields([
+                {
+                  name: 'startDate',
+                  errors: [
+                    'The fiscal year start date cannot be after the end date.',
+                  ],
+                },
+                {
+                  name: 'endDate',
+                  errors: [
+                    'The fiscal year end date cannot be before the start date.',
+                  ],
+                },
+              ]);
+            }
           }}
         >
           <Form.Item
@@ -96,6 +120,22 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
                 required: true,
                 message: 'Please input fiscal year starting date!',
               },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (
+                    value &&
+                    getFieldValue('endDate') &&
+                    value.isAfter(getFieldValue('endDate'))
+                  ) {
+                    return Promise.reject(
+                      new Error(
+                        'The fiscal year start date cannot be after the end date.',
+                      ),
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              }),
             ]}
           >
             <DatePicker
@@ -107,6 +147,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
                   setFiscalYearEndDate(null);
                 }
               }}
+              disabledDate={disabledStartDate}
             />
           </Form.Item>
           <Form.Item
@@ -118,24 +159,38 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
                 required: true,
                 message: 'Please input fiscal year ending date!',
               },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (
+                    value &&
+                    getFieldValue('startDate') &&
+                    value.isBefore(getFieldValue('startDate'))
+                  ) {
+                    return Promise.reject(
+                      new Error(
+                        'The fiscal year end date cannot be before the start date.',
+                      ),
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              }),
             ]}
           >
             <DatePicker
               className="h-12 w-full font-normal text-xl mt-2"
               value={endDate}
               onChange={(date) => {
-                if (startDate && date && date.isBefore(startDate)) {
-                  return;
-                }
                 setFiscalYearEndDate(date ? date : null);
               }}
-              disabledDate={disabledDate}
+              disabledDate={disabledEndDate}
             />
           </Form.Item>
         </Form>
       </div>
     </div>
   );
+  /* eslint-enable @typescript-eslint/naming-convention */
 };
 
 export default FiscalYear;

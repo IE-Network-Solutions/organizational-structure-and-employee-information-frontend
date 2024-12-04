@@ -27,6 +27,15 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     },
     {
       item: {
+        key: 'break-type',
+        icon: <CiCalendarDate />,
+        label: <p className="menu-item-label">Break Type</p>,
+        className: 'px-1',
+      },
+      link: '/timesheet/settings/break-type',
+    },
+    {
+      item: {
         key: 'leave-types-and-policies',
         icon: <FiFileText />,
         label: <p className="menu-item-label">Leave Types & Policies</p>,
@@ -73,21 +82,14 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       },
       link: '/timesheet/settings/carry-over-rule',
     },
+
     {
       item: {
-        key: 'approval-levels',
+        key: 'approval-workflow',
         icon: <TbLayoutList />,
-        label: <p className="menu-item-label">Approval Levels</p>,
+        label: <p className="menu-item-label">Approval WorkFLow</p>,
       },
-      link: '/timesheet/settings/approval-levels',
-    },
-    {
-      item: {
-        key: 'leave-request',
-        icon: <TbLayoutList />,
-        label: <p className="menu-item-label">Leave Requests</p>,
-      },
-      link: '/timesheet/settings/leave-request',
+      link: '/timesheet/settings/approvals',
     },
   ]);
 

@@ -12,12 +12,12 @@ import {
   Select,
   Spin,
 } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
 import { EmploymentType, LocationType } from '@/types/enumTypes';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import dayjs from 'dayjs';
+import TextEditor from '@/components/form/textEditor';
 
 const { Option } = Select;
-
 interface CreateJobsProps {
   close: () => void;
   form: FormInstance;
@@ -260,6 +260,18 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
               {
                 required: true,
                 message: 'Please input the expected closing date!',
+              },
+              {
+                validator({}, value) {
+                  if (!value || value.isAfter(dayjs(), 'day')) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error(
+                      'Expected end date cannot be before the current date!',
+                    ),
+                  );
+                },
               },
             ]}
           >

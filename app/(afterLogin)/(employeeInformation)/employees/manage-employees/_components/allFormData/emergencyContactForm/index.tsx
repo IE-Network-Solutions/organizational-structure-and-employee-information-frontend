@@ -5,12 +5,17 @@ import AddCustomField from '../../addCustomField';
 import DynamicFormFields from '../../dynamicFormDisplayer';
 import UseSetCategorizedFormData from '../../customField';
 import { validateEmail, validateName } from '@/utils/validation';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
 const EmergencyContactForm = () => {
   const { data: nationalities } = useGetNationalities();
   const emergencyContactForm = UseSetCategorizedFormData('emergencyContact');
+
+  const disableFutureDates = (current: any) => {
+    return current && current > dayjs().endOf('day');
+  };
 
   return (
     <div>
@@ -21,7 +26,7 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactFullName']}
+            name={['emergencyContact', 'firstName']}
             label="Full Name"
             id="emergencyContactFullName"
             rules={[
@@ -41,7 +46,7 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactLastName']}
+            name={['emergencyContact', 'lastName']}
             label="Last Name"
             id="emergencyContactLastName"
             rules={[
@@ -63,7 +68,7 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactEmailAddress']}
+            name={['emergencyContact', 'email']}
             label="Email Address"
             id="emergencyContactEmailAddress"
             rules={[
@@ -81,7 +86,7 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactGender']}
+            name={['emergencyContact', 'gender']}
             label="Gender"
             id="emergencyContactGender"
             rules={[{ required: true }]}
@@ -97,18 +102,18 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactDateOfBirth']}
+            name={['emergencyContact', 'dateOfBirth']}
             label="Date of Birth"
             id="emergencyContactDateOfBirth"
             rules={[{ required: true }]}
           >
-            <DatePicker className="w-full" />
+            <DatePicker className="w-full" disabledDate={disableFutureDates} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactNationality']}
+            name={['emergencyContact', 'nationality']}
             label="Nationality"
             id="emergencyContactNationality"
             rules={[{ required: true }]}

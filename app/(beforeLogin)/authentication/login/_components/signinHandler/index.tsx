@@ -43,11 +43,17 @@ export const useHandleSignIn = () => {
         setUserData(fetchedData?.data);
         message.success('Welcome!');
         message.loading({ content: 'Redirecting...', key: 'redirect' });
-        if (fetchedData?.data?.hasCompany === true) {
-          router.push('/employees/manage-employees');
-        } else if (fetchedData?.data?.hasCompany === false) {
+
+        if (fetchedData?.data?.hasChangedPassword === false) {
+          router.push('/authentication/new-password');
+        }
+        if (fetchedData?.data?.hasCompany === false) {
           router.push('/onboarding');
-        } else {
+        } else if (
+          fetchedData?.data?.hasCompany === true &&
+          fetchedData?.data?.hasChangedPassword === true
+        ) {
+          router.push('/dashboard');
         }
       }
     } catch (err: any) {

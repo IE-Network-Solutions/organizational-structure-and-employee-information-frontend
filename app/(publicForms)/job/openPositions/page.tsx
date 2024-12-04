@@ -31,6 +31,8 @@ const OpenPositions: React.FC = () => {
   const { searchParams } = useCandidateState();
   const { data: publicJobs, isLoading: responseLoading } = useGetJobs(
     searchParams.whatYouNeed || '',
+    currentPage,
+    pageSize,
   );
 
   const handleShareModalVisible = (jobId: string) => {

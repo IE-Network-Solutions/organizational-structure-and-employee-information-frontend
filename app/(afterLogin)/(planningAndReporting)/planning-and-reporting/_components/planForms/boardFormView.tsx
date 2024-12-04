@@ -1,3 +1,4 @@
+import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import {
   Button,
   Col,
@@ -17,6 +18,7 @@ interface BoardCardInterface {
   kId: string;
   hideTargetValue: boolean;
   name: string;
+  isMKAsTask?: boolean;
 }
 
 function BoardCardForm({
@@ -25,7 +27,10 @@ function BoardCardForm({
   handleRemoveBoard,
   hideTargetValue,
   name,
+  isMKAsTask = false,
 }: BoardCardInterface) {
+  const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
+
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
@@ -43,8 +48,21 @@ function BoardCardForm({
                 key={`${subName}-task`} // Unique key for task
                 rules={[{ required: true, message: 'Task is required' }]}
                 noStyle // Use noStyle to avoid nested Form.Item issues
+                initialValue={isMKAsTask ? mkAsATask : ''}
               >
-                <Input placeholder="Add your tasks here" />
+                <Input
+                  disabled={isMKAsTask}
+                  placeholder="Add your tasks here"
+                />
+              </Form.Item>
+              <Form.Item
+                {...restSubField}
+                name={[subName, 'achieveMK']}
+                key={`${subName}-task`} // Unique key for task
+                noStyle // Use noStyle to avoid nested Form.Item issues
+                initialValue={isMKAsTask ? true : false}
+              >
+                <Input type="hidden" />
               </Form.Item>
               <Divider className="mt-4" />
               <Form.Item
@@ -124,6 +142,7 @@ function BoardCardForm({
                               form.getFieldValue([boardsKey, subName]) || [];
                             handleAddName(currentBoardValues, name);
                             handleRemoveBoard(subName, name);
+                            setMKAsATask(null);
                           });
                       }}
                     >

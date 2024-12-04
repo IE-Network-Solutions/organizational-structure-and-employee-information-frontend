@@ -137,7 +137,7 @@ export const useResolveActionPlanById = () => {
   const queryClient = useQueryClient();
   return useMutation(resolveActionPlan, {
     onSuccess: () => {
-      queryClient.invalidateQueries('actionPlans');
+      queryClient.invalidateQueries(['actionPlans', 'delegation']);
       NotificationMessage.success({
         message: 'Successfully resolved',
         description: 'action plan status resolved successfully',

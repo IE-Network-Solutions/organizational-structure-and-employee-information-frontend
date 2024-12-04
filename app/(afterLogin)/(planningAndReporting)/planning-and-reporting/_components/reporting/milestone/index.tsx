@@ -9,9 +9,9 @@ type Task = {
   taskId: string;
   taskName: string;
   priority: 'low' | 'medium' | 'high';
-  status: 'reported' | 'pending' | 'completed';
+  status: 'reported' | 'pending' | 'completed' | 'Done';
   actualValue: string;
-  isAchived: boolean;
+  isAchieved: boolean;
 };
 
 type Props = {
@@ -29,8 +29,8 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
           align="middle"
         >
           <Col span={1}>
-            {task.isAchived ? (
-              <Tooltip title="Approve Plan">
+            {task?.status === 'Done' ? (
+              <Tooltip title="Achieved">
                 <Avatar
                   size={16}
                   alt="achieved"
