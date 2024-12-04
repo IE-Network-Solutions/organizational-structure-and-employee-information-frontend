@@ -15,7 +15,7 @@ import {
 import { EmploymentType, LocationType } from '@/types/enumTypes';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
-import TextArea from 'antd/es/input/TextArea';
+import TextEditor from '@/components/form/textEditor';
 
 const { Option } = Select;
 interface CreateJobsProps {
@@ -293,7 +293,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           },
         ]}
       >
-        <TextArea id="description" rows={4} placeholder="Description" />
+        <TextEditor placeholder="Description" />
       </Form.Item>
       <Form.Item>
         <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
