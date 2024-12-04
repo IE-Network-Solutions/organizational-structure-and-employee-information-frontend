@@ -1,7 +1,7 @@
 'use client';
 import TabLandingLayout from '@/components/tabLanding';
 import React from 'react';
-import { useConversationTypes } from '@/store/server/features/conversation/queries';
+import { useConversationTypes } from '@/store/server/features/CFR/conversation/queries';
 import ConversationTypeList from './_component/conversation';
 
 function Index() {

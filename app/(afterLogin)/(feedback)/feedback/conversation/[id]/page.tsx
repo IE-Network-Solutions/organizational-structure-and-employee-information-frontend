@@ -1,7 +1,7 @@
 'use client';
 import TabLandingLayout from '@/components/tabLanding';
 import React from 'react';
-import { useGetConversationById } from '@/store/server/features/conversation/queries';
+import { useGetConversationById } from '@/store/server/features/CFR/conversation/queries';
 import { QuestionSet, QuestionSetSkeleton } from './_components/question-set';
 import { Skeleton } from 'antd';
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';

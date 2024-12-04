@@ -5,13 +5,13 @@ import { Card, Col, Row, Skeleton, Tabs } from 'antd';
 import CollapsibleCardList from './_components/collapsableCard';
 import ActionPlans from './_components/actionPlans';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
-import { useGetAllConversationInstancesById } from '@/store/server/features/conversation/conversation-instance/queries';
+import { useGetAllConversationInstancesById } from '@/store/server/features/CFR/conversation/conversation-instance/queries';
 import ConversationInstanceDetail from './_components/biWeeklyDetail';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import CreateActionPlans from './_components/createActionPlans';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { useAddActionPlan } from '@/store/server/features/conversation/action-plan/mutation';
+import { useAddActionPlan } from '@/store/server/features/CFR/conversation/action-plan/mutation';
 import dayjs from 'dayjs';
 interface Params {
   slug: string;
