@@ -97,7 +97,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
         loading={isLoading}
         title="User Role Permission "
         extra={
-          <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+          <AccessGuard permissions={[Permissions.UpdateUserPermissions, Permissions.AssignRolesToUser]}>
             <LuPencil
               className="cursor-pointer"
               onClick={() => handleEditChange('rolePermission')}
@@ -154,7 +154,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                 ]}
               >
                 <Select
-                  mode="tags"
+                  mode="multiple"
                   style={{ width: '100%' }}
                   onChange={handlePermissionChange}
                   options={permissionList?.items.map((option) => ({
@@ -163,6 +163,10 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                   }))}
                   value={selectedPermissions}
                   allowClear
+                  showSearch
+                  filterOption={(input, option) =>
+                    option?.label?.toLowerCase().includes(input.toLowerCase()) ?? false
+                  }
                 />
               </Form.Item>
             </Col>

@@ -51,7 +51,7 @@ const Status: React.FC = () => {
     <div className="p-6">
       {/* Header section */}
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-2xl font-semibold">Status</h3>
+        <h3 className="text-2xl font-semibold">Stage</h3>
         <AccessGuard permissions={[Permissions.CreateApplicationStage]}>
           <Button
             type="primary"
@@ -59,7 +59,7 @@ const Status: React.FC = () => {
             onClick={handleOpen}
             className="bg-purple-600 h-16 font-bold"
           >
-            Define New Status
+            Define New Stage
           </Button>
         </AccessGuard>
       </div>

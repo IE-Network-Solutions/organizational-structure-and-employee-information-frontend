@@ -138,6 +138,7 @@ export enum Permissions {
   UpdateGroupPermission = 'update-group-permission',
   DeleteGroupPermission = 'delete-group-permission',
   UpdateRoleForUser = 'update-role-for-user',
+  UpdateUserPermissions = 'update-user-permissions',
 
   // Leave and Attendance Permissions
   CreateAttendanceRuleType = 'create-attendance-rule-type',

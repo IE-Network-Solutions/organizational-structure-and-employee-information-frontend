@@ -35,7 +35,7 @@ function SettingsPage() {
       label: (
         <span className="flex gap-2 mt-4">
           <TbNotes className="mt-1" />
-          <p className="font-semibold">Define Status </p>
+          <p className="font-semibold">Define Stage</p>
         </span>
       ),
       children: (
