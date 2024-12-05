@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Form, Input, Switch, Select, Button, Space, InputNumber, Modal } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import { useGetDepartmentsWithUsers } from "@/store/server/features/employees/employeeManagment/department/queries";
-import { useGetAllRecognitionType, useGetRecognitionTypeById } from "@/store/server/features/CFR/recognition/queries";
+import { useGetAllRecognitionType, useGetAllRecognitionTypeWithOutCriteria, useGetRecognitionTypeById } from "@/store/server/features/CFR/recognition/queries";
 import { AggregateOperator, ConditionOperator } from "@/types/enumTypes";
 import { useAddRecognitionType, useUpdateRecognitionType } from "@/store/server/features/CFR/recognition/mutation";
 import { ConversationStore } from "@/store/uistate/features/conversation";
@@ -29,10 +29,10 @@ interface PropsData{
 }
 const RecognitionForm:React.FC<PropsData>= ({createCategory=false}) => {
   const [form] = Form.useForm();
-  const {setOpenRecognitionType,setSelectedRecognitionType,selectedRecognitionType } = ConversationStore();
+  const {setOpenRecognitionType,parentRecognitionTypeId,setSelectedRecognitionType,selectedRecognitionType,recognitionTypeId } = ConversationStore();
 
   const { data: allDepartmentWithData } = useGetDepartmentsWithUsers();
-  const { data: recognitionType } = useGetAllRecognitionType();
+  const { data: recognitionTypeWithOutCriteria } = useGetAllRecognitionTypeWithOutCriteria();
   const { data: recognitionTypeById } = useGetRecognitionTypeById(selectedRecognitionType);
 
   const { mutate: createRecognitionType,isLoading:createLoading } = useAddRecognitionType();
@@ -48,16 +48,18 @@ const RecognitionForm:React.FC<PropsData>= ({createCategory=false}) => {
     setSelectedCriteria(updatedCriteria);
   };
 
+
+  console.log(parentRecognitionTypeId,"recognitionTypeWithOutCriteria")
   const commonClass = "text-xs text-gray-950";
   const getLabel = (text:string) => (
     <span className="text-black text-xs font-semibold">{text}</span>
   );
   const onFinish = (values: RecognitionFormValues) => {
-    // console.log("Form Submitted: ", values);
-    // return ;
+    console.log("Form Submitted: ", values);
     if(selectedRecognitionType===''){
       createRecognitionType(values,{
         onSuccess:()=>{
+          // setSelectedRecognitionType('');
           setOpenRecognitionType(false);
         }
       });
@@ -77,24 +79,28 @@ const RecognitionForm:React.FC<PropsData>= ({createCategory=false}) => {
 
 
   };
-useEffect(() => {
-  if (recognitionTypeById) {
-    if(recognitionTypeById?.recognitionCriteria){
-      setSelectedCriteria(recognitionTypeById?.recognitionCriteria)
-    }
-    form.setFieldsValue({
-       name:recognitionTypeById?.name,
-       description:recognitionTypeById?.description,
-       criteria:recognitionTypeById?.recognitionCriteria?.map((item:any)=>{return item?.criterionKey}),
-       isMonetized:recognitionTypeById?.isMonetized,
-       requiresCertification:recognitionTypeById?.requiresCertification,
-       frequency:recognitionTypeById?.frequency,
-       departmentId:recognitionTypeById?.departmentId,
-       parentTypeId:recognitionTypeById?.parentTypeId,
+  useEffect(() => {
+    // Update the `parentTypeId` field first
+    form.setFieldsValue({       
+      parentTypeId: parentRecognitionTypeId,
     });
-  }
-}, [recognitionTypeById, form]);
-
+  
+    if (selectedRecognitionType && recognitionTypeById) {
+      // Update form fields with `recognitionTypeById` values
+      form.setFieldsValue({
+        name: recognitionTypeById.name || '', // Fallback to empty string
+        description: recognitionTypeById.description || '',
+        // Uncomment and map criteria keys if needed
+        // criteria: recognitionTypeById.recognitionCriteria?.map((item: any) => item?.criterionKey) || [],
+        isMonetized: recognitionTypeById.isMonetized ?? false, // Default to false
+        requiresCertification: recognitionTypeById.requiresCertification ?? false,
+        frequency: recognitionTypeById.frequency || '', // Fallback to empty string
+        departmentId: recognitionTypeById.departmentId || null, // Default to null
+        parentTypeId: recognitionTypeById.parentTypeId || parentRecognitionTypeId, // Fallback to parentTypeId
+      });
+    }
+  }, [recognitionTypeById, parentRecognitionTypeId, form, selectedRecognitionType]);
+  
   return (
     <Form
       form={form}
@@ -138,7 +144,8 @@ useEffect(() => {
           className="text-xs text-gray-950"
         />
       </Form.Item>
-     {!createCategory && <Form.Item
+     {(!createCategory && !selectedRecognitionType) && 
+     <Form.Item
         className="text-xs text-gray-950"
         label={
           <span className="text-black text-xs font-semibold">
@@ -165,6 +172,21 @@ useEffect(() => {
       }
        {selectedCriteria.map((criteria:any, index:number) => (
           <div className="flex gap-1" key={criteria.criterionKey}>
+           {selectedRecognitionType!=='' &&
+            <Form.Item
+              labelAlign="left"
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel("Criteria")}
+              name={['recognitionCriteria', index, 'id']}
+              initialValue={criteria.id ?? ''}
+              hidden
+              rules={[
+                { required: true, message: "Please select at least one criterion" },
+              ]}
+              
+            >
+              <Input hidden className={commonClass} disabled />
+            </Form.Item>}
             {/* Criteria Name */}
             <Form.Item
               labelAlign="left"
@@ -350,11 +372,17 @@ useEffect(() => {
             Parent Type
             </span>
         }
-            name="parentTypeId">
-            <Input
+        initialValue={parentRecognitionTypeId}
+        name="parentTypeId">
+              <Select className="text-xs text-gray-950">
+                {recognitionTypeWithOutCriteria?.items?.map((item:any)=>(
+                  <Select.Option value={item?.id}>{item?.name}</Select.Option>
+                ))}
+              </Select>
+            {/* <Input
                 placeholder="Enter parent type ID (optional)"
                 className="text-xs text-gray-950"
-            />
+            /> */}
       </Form.Item>
        }
       <Form.Item
@@ -374,7 +402,7 @@ useEffect(() => {
           {allDepartmentWithData?.map((dep:any) => (
             <Option key={dep.id} value={dep.id}>
               <span className="text-xs font-semibold text-black">
-                {dep.name}
+                {dep?.name}
               </span>
             </Option>
           ))}
@@ -383,13 +411,13 @@ useEffect(() => {
 
       <Form.Item >
         <div className="flex justify-center gap-4">
-        <Button loading={recognitionTypeById==='' ? createLoading:updateLoading} type="primary" htmlType="submit" className="text-xs">
-          {recognitionTypeById==='' ? "Create" :"Update"}
+        <Button  type="primary" htmlType="submit" className="text-xs">
+          {selectedRecognitionType!=='' ? "Update":"Create"}
         </Button>
         <Button  onClick={()=>setSelectedRecognitionType('')} type="primary" htmlType="button" className="text-xs">
           Cancel
         </Button>
-        </div>
+        </div> 
       </Form.Item>
     </Form>
   );

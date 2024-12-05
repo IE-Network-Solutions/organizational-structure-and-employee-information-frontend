@@ -1,24 +1,34 @@
 import { Button, Card, Drawer, Popconfirm, Table } from 'antd'
-import React from 'react'
+import React, { useState } from 'react'
 import { FaPlus } from 'react-icons/fa';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
-import { useDeleteRecognitionCriteria } from '@/store/server/features/CFR/recognitionCriteria/mutation';
+import { useAddRecognitionCriteria, useDeleteRecognitionCriteria, useUpdateRecognitionCriteria } from '@/store/server/features/CFR/recognitionCriteria/mutation';
 import RecognitionForm from './createRecognition';
 import CustomDrawerLayout from '@/components/common/customDrawer';
+import RecognitionCriteriaModal from './updateRecognitionCriteria';
 
 
 
 interface PropsData{
   data:any;
+  all?:boolean;
 }
-const AllRecognition:React.FC<PropsData>=({data})=>{
-    const { open, setOpen, setSearchField,setSelectedRecognitionType ,selectedRecognitionType,setOpenRecognitionType,openRecognitionType} = ConversationStore();
+const AllRecognition:React.FC<PropsData>=({data,all=false})=>{
+    const { open, setOpen,setSelectedRecognitionType,setParentRecognitionTypeId, recognitionTypeId,setRecognitionTypeId,editingRowKeys, setEditingRowKeys,selectedRecognitionType} = ConversationStore();
     const {mutate:deleteRecognitionType}=useDeleteRecognitionType()
+    // const {mutate:deleteRecognitionCriteria}=useDeleteRecognitionCriteria()
+
+    const {mutate:updateCriteria}=useUpdateRecognitionCriteria()
+    const {mutate:addCriteria}=useAddRecognitionCriteria()
+
+
     const {mutate:deleteRecognitionCriteria}=useDeleteRecognitionCriteria()
 
+   
 
     const showModal = () => {
+      setParentRecognitionTypeId(data?.[0]?.id);
       setOpen(true);
     };
     const columns = [
@@ -43,23 +53,66 @@ const AllRecognition:React.FC<PropsData>=({data})=>{
         key: "condition",
       },
       {
+        title: "IsActive",
+        dataIndex: "active",
+        key: "active",
+        render: (_: any, record: any) => (
+          <p>{record?.active ? "True" : "False"}</p>
+        )
+      },
+      {
         title: "Value",
         dataIndex: "value",
         key: "value",
       },
+      {
+        title: "Action",
+        key: "action",
+        render: (_:any, record:any) =>
+           <>
+            <Button
+              type="link"
+              onClick={() => setEditingRowKeys(record)}
+            >
+              Edit
+            </Button>
+            <Popconfirm
+                title="Are you sure you want to delete this?"
+                onConfirm={() => handleDeleteItem(record?.id)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button type="primary" danger>
+                  Delete
+                </Button>
+              </Popconfirm>
+          </>
+      },
     ];
   
     const handleDeleteItem = (id:string) => {
-      deleteRecognitionType(id)
+      deleteRecognitionCriteria(id)
     };
     const handleEditItem = (id:string) => {
       setSelectedRecognitionType(id)
     };
-    const handleEditCriterion = (id:string) => {
-      deleteRecognitionType(id)
+    const handleEditCriterion = (data:any) => {
+
+      updateCriteria({...data,weight:parseInt(data?.weight),value:parseInt(data?.value)},{
+        onSuccess:()=>{
+          setEditingRowKeys({});
+        }
+      })
     };
-    const handleDeleteCriterion = (id:string) => {
-      deleteRecognitionCriteria(id);
+    const handleAddCriterion = (data:any) => {
+      addCriteria({...data,weight:parseInt(data?.weight),value:parseInt(data?.value)},{
+        onSuccess:()=>{
+          setEditingRowKeys({});
+        }
+      })
+    };
+    const handleDeleteRecognitionType = (id:string) => {
+      deleteRecognitionType(id);
     };
     const modalHeader = (
       <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -69,12 +122,12 @@ const AllRecognition:React.FC<PropsData>=({data})=>{
   return (
     <div>
         <div className='flex justify-end mb-4'>
-            <Button className='flex justify-end items-center' icon={<FaPlus/>} type="primary" onClick={showModal}>
+            {!all && <Button className='flex justify-end items-center' icon={<FaPlus/>} type="primary" onClick={showModal}>
               Recognition
-            </Button>
+            </Button>}
         </div>
         <div>
-        {data?.map((item: any) => (
+        {data?.map((item: any) => ( 
           <Card
             title={item?.name}
             extra={
@@ -82,7 +135,7 @@ const AllRecognition:React.FC<PropsData>=({data})=>{
                 <Button type="primary" onClick={() => handleEditItem(item?.id)}>Edit</Button>
                 <Popconfirm
                   title="Are you sure you want to delete this?"
-                  onConfirm={() => handleDeleteItem(item?.id)}
+                  onConfirm={() => handleDeleteRecognitionType(item?.id)}
                   okText="Yes"
                   cancelText="No"
                 >
@@ -90,6 +143,7 @@ const AllRecognition:React.FC<PropsData>=({data})=>{
                     Delete
                   </Button>
                 </Popconfirm>
+                <Button type="primary" onClick={() => setRecognitionTypeId(item?.id)}>Add criteria</Button>
               </div>
             }
           >
@@ -97,7 +151,12 @@ const AllRecognition:React.FC<PropsData>=({data})=>{
               description={
                 <Table
                   columns={columns}
-                  dataSource={item?.recognitionCriteria || []}
+                  dataSource={
+                    item?.recognitionCriteria?.map((criteria:any) => ({
+                      ...criteria,
+                      recognitionTypeId: item?.id, // Add recognitionTypeId
+                    })) || []
+                  }
                   rowKey="criterionKey" // Use a unique key for rows
                   pagination={false} // Disable pagination if not needed
                 />
@@ -111,8 +170,22 @@ const AllRecognition:React.FC<PropsData>=({data})=>{
           modalHeader={modalHeader}
           width="50%"
         >
-          <RecognitionForm /> 
+          <RecognitionForm  /> 
         </CustomDrawerLayout>
+
+        <RecognitionCriteriaModal
+            isOpen={editingRowKeys?.id}
+            onClose={() =>setEditingRowKeys({})}
+            text="Update"
+            onSubmit={handleEditCriterion}
+            data={editingRowKeys}
+          />
+          <RecognitionCriteriaModal
+            isOpen={recognitionTypeId!==''}
+            onClose={() =>setRecognitionTypeId('')}
+            text="Create"
+            onSubmit={handleAddCriterion}
+          />
         </div>
       
     </div>
