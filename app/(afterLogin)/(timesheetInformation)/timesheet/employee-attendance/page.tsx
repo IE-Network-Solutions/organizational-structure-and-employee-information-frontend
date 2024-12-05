@@ -11,7 +11,8 @@ import { useGetAttendances } from '@/store/server/features/timesheet/attendance/
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useAttendanceImport } from '@/store/server/features/timesheet/attendance/mutation';
 import { fileUpload } from '@/utils/fileUpload';
-import EmployeeAttendanceSideBar from './_components/sideBar';
+import PermissionWrapper from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 const EmployeeAttendance = () => {
   const [isLoading, setIsLoading] = useState(false);
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
@@ -69,13 +70,13 @@ const EmployeeAttendance = () => {
   };
 
   return (
-    <>
-      <div className="h-auto w-auto pr-6 pb-6 pl-3">
-        <PageHeader
-          title="Employee Attendance"
-          description="Manage your Team Attendance"
-        >
-          <Space>
+    <div className="h-auto w-auto pr-6 pb-6 pl-3">
+      <PageHeader
+        title="Employee Attendance"
+        description="Manage your Team Attendance"
+      >
+        <Space>
+          <PermissionWrapper permissions={[Permissions.ImportEmployeeAttendanceInformation]}>
             <Button
               icon={<TbFileUpload size={18} />}
               size="large"
@@ -89,20 +90,20 @@ const EmployeeAttendance = () => {
             >
               Import
             </Button>
-
-            <input
-              type="file"
-              id="fileImportInputId"
-              ref={importAttendance}
-              accept=".xlsx, .xls"
-              onChange={(e) => {
-                if (e.target.files?.length) {
-                  setFile(e.target.files[0]);
-                }
-              }}
-              hidden
-            />
-
+          </PermissionWrapper>
+          <input
+            type="file"
+            id="fileImportInputId"
+            ref={importAttendance}
+            accept=".xlsx, .xls"
+            onChange={(e) => {
+              if (e.target.files?.length) {
+                setFile(e.target.files[0]);
+              }
+            }}
+            hidden
+          />
+          <PermissionWrapper permissions={[Permissions.ExportEmployeeAttendanceInformation]}>
             <Popover
               trigger="click"
               placement="bottomRight"
@@ -152,17 +153,16 @@ const EmployeeAttendance = () => {
                 Export
               </Button>
             </Popover>
-          </Space>
-        </PageHeader>
-        <BlockWrapper className="mt-8">
-          <EmployeeAttendanceTable
-            setBodyRequest={setBodyRequest}
-            isImport={isSuccess}
-          />
-        </BlockWrapper>
-      </div>
-      <EmployeeAttendanceSideBar />
-    </>
+          </PermissionWrapper>
+        </Space>
+      </PageHeader>
+      <BlockWrapper className="mt-8">
+        <EmployeeAttendanceTable
+          setBodyRequest={setBodyRequest}
+          isImport={isSuccess}
+        />
+      </BlockWrapper>
+    </div>
   );
 };
 

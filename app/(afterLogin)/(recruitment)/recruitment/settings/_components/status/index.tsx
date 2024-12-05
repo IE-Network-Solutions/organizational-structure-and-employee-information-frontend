@@ -8,6 +8,8 @@ import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteRecruitmentStatus } from '@/store/server/features/recruitment/settings/status/mutation';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const Status: React.FC = () => {
   const {
@@ -50,14 +52,16 @@ const Status: React.FC = () => {
       {/* Header section */}
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-2xl font-semibold">Status</h3>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleOpen}
-          className="bg-purple-600 h-16 font-bold"
-        >
-          Define New Status
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateNewApplicationStatus]}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleOpen}
+            className="bg-purple-600 h-16 font-bold"
+          >
+            Define New Status
+          </Button>
+        </AccessGuard>
       </div>
 
       <div className="space-y-4 w-full">
@@ -79,20 +83,24 @@ const Status: React.FC = () => {
                 </span>
 
                 <div>
-                  <Button
-                    icon={<FaEdit />}
-                    onClick={() => handleEditStatus(status)}
-                    type="default"
-                    size={'large'}
-                    className="border-none text-blue-600 mr-2"
-                  />
-                  <Button
-                    icon={<FaTrashAlt />}
-                    onClick={() => handleDeleteStatus(status)}
-                    type="default"
-                    size={'large'}
-                    className="border-none text-red-600"
-                  />
+                  <AccessGuard permissions={[Permissions.UpdateNewApplicationStatus]}>
+                    <Button
+                      icon={<FaEdit />}
+                      onClick={() => handleEditStatus(status)}
+                      type="default"
+                      size={'large'}
+                      className="border-none text-blue-600 mr-2"
+                    />
+                  </AccessGuard>
+                  <AccessGuard permissions={[Permissions.DeleteNewApplicationStatus]}>
+                    <Button
+                      icon={<FaTrashAlt />}
+                      onClick={() => handleDeleteStatus(status)}
+                      type="default"
+                      size={'large'}
+                      className="border-none text-red-600"
+                    />
+                  </AccessGuard>
                 </div>
               </div>
             </Card>
