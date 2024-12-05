@@ -33,7 +33,7 @@ const Page = () => {
     {
       key: '1',
       label: 'All Recognitions',
-      children: <AllRecognition data={recognitionType?.items} />,
+      children: <AllRecognition data={recognitionType?.items} all={true} />,
     },
     ...(recognitionType?.items?.map((recognitionType: any, index: number) => ({
       key: `${recognitionType?.id}`, // Ensure unique keys
