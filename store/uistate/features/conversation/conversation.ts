@@ -37,6 +37,16 @@ export interface CategoriesUseState {
   setSelectedRecognitionType: (selectedRecognitionType: string) => void;
 
 
+  recognitionTypeId:string;
+   setRecognitionTypeId:(value:string)=>void
+
+   parentRecognitionTypeId:string;
+   setParentRecognitionTypeId:(value:string)=>void
+
+  editingRowKeys:any;
+   setEditingRowKeys:(valiue:any)=>void;
+
+
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
 
@@ -92,6 +102,16 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   departmentId: '',
   setDepartmentId: (departmentId: string) => set({ departmentId }),
+
+  recognitionTypeId:'',
+  setRecognitionTypeId:(recognitionTypeId:string)=>set({recognitionTypeId}),
+
+  parentRecognitionTypeId:'',
+  setParentRecognitionTypeId:(parentRecognitionTypeId:string)=>set({parentRecognitionTypeId}),
+  
+  
+ editingRowKeys:{},
+  setEditingRowKeys:(editingRowKeys:any)=>set({editingRowKeys}),
 
   searchField: initialSearchField, // Initial value
   setSearchField: (fields) => set({ searchField: fields }),

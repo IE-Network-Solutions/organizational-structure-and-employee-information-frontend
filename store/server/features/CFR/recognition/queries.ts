@@ -17,6 +17,20 @@ const getAllRecognitionTypes = async () => {
     });
   };
 
+  const getAllRecognitionTypesWithOutCriteria = async () => {
+    const token = useAuthenticationStore.getState().token;
+    const tenantId = useAuthenticationStore.getState().tenantId;
+  
+    return crudRequest({
+      url: `${ORG_DEV_URL}/recognition-type`,
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+  };
+
   const getRecognitionTypeById = async (id:string) => {
     const token = useAuthenticationStore.getState().token;
     const tenantId = useAuthenticationStore.getState().tenantId;
@@ -43,5 +57,9 @@ const getAllRecognitionTypes = async () => {
   };
 export const useGetAllRecognitionType = () => {
     return useQuery<any>('recognitionTypes', getAllRecognitionTypes);
+  };
+
+  export const useGetAllRecognitionTypeWithOutCriteria = () => {
+    return useQuery<any>('recognitionTypesWithOutCriteria', getAllRecognitionTypesWithOutCriteria);
   };
   
