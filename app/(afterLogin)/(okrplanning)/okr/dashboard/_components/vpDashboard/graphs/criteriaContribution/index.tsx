@@ -1,6 +1,7 @@
 import React from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Select } from 'antd';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -71,11 +72,12 @@ const CriteriaContributionChart: React.FC = () => {
             />
           </svg>
         </div>
-        <select className="text-sm border-gray-300 rounded">
-          <option>All Time</option>
-          <option>Yearly</option>
-          <option>Monthly</option>
-        </select>
+        <Select defaultValue="" className="text-sm border-gray-300 rounded">
+          <Select.Option value="All-Time">All Time</Select.Option>
+          <Select.Option value="Yearly">Yearly</Select.Option>
+          <Select.Option value="">Session</Select.Option>
+          <Select.Option>Monthly</Select.Option>
+        </Select>
       </div>
       <div className="relative">
         <Doughnut data={data} options={options} />

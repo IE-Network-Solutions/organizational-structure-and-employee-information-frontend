@@ -9,7 +9,7 @@ const CriteriaCard: React.FC = () => {
   const { value, change } = useVariablePayStore();
 
   return (
-    <Card className="mt-10">
+    <Card className="mt-10" bordered={false}>
       <div className="flex items-center mb-8">
         <div className="w-10 h-10 rounded-full bg-indigo-50 flex justify-center items-center">
           <BiAward size={25} fill="#0BA259" />

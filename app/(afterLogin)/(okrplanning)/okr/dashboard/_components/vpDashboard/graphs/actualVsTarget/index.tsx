@@ -9,6 +9,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Select } from 'antd';
+import { MdCheckBoxOutlineBlank } from 'react-icons/md';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -17,17 +18,13 @@ const ActualVsTargetChart: React.FC = () => {
     labels: ['Criteria 1', 'Criteria 2', 'Criteria 3', 'Criteria 4'],
     datasets: [
       {
-        label: 'Target Value',
         data: [40, 70, 10, 75],
         backgroundColor: 'rgba(178, 178, 255, 1)',
-        // borderRadius: 5,
         barThickness: 30,
       },
       {
-        label: 'Actual Value',
         data: [60, 85, 45, 90],
         backgroundColor: 'rgba(54, 54, 240, 1)',
-        // borderRadius: 5,
         barThickness: 30,
       },
     ],
@@ -37,11 +34,7 @@ const ActualVsTargetChart: React.FC = () => {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top' as const,
-        labels: {
-          font: { size: 12 },
-          color: '#333',
-        },
+        display: false,
       },
       tooltip: {
         callbacks: {
@@ -92,6 +85,16 @@ const ActualVsTargetChart: React.FC = () => {
         </Select>
       </div>
       <Bar data={data} options={options} />
+      <div className="flex items-center justify-start mt-4 ml-3 gap-4">
+        <div className="flex justify-center items-center gap-1">
+          <MdCheckBoxOutlineBlank className="w-4 h-4 rounded-full bg-[#3636F0] text-[#3636F0]" />
+          <span>Highest Average Score</span>
+        </div>
+        <div className="flex justify-center items-center gap-1">
+          <MdCheckBoxOutlineBlank className="w-4 h-4 rounded-full bg-[#B2B2FF] text-[#B2B2FF]" />
+          <span>Average Score</span>
+        </div>
+      </div>
     </div>
   );
 };
