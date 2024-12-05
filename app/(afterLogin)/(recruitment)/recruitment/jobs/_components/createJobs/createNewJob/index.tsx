@@ -215,8 +215,12 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
               className="text-sm w-full h-10"
             >
               {EmploymentType &&
-                Object.values(EmploymentType).map((type) => (
-                  <Option key={type} value={type}>
+                Object.values(EmploymentType).map((type, index) => (
+                  <Option
+                    id={`compensationOption-${index}`}
+                    key={type}
+                    value={type}
+                  >
                     {type}
                   </Option>
                 ))}
