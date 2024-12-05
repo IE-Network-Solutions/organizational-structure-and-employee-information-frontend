@@ -40,9 +40,6 @@ export enum Permissions {
   DeletePosition = 'delete-position',
   ApproveCandidate = 'approve-candidate',
   DeclineCandidate = 'decline-candidate',
-  CreateNewApplicationStatus = 'create-new-application-status',
-  UpdateNewApplicationStatus = 'update-new-application-status',
-  DeleteNewApplicationStatus = 'delete-new-application-status',
 
 
   // Course Permissions
@@ -217,6 +214,9 @@ export enum Permissions {
   CreateJobDescription = 'create-job-description',
   UpdateJobDescription = 'update-job-description',
   DeleteJobDescription = 'delete-job-description',
+  CreateApplicationStage = 'create-application-stage',
+  UpdateApplicationStage = 'update-application-stage',
+  DeleteApplicationStage = 'delete-application-stage',
 
   // Reprimand Permissions
   CreateReprimand = 'create-reprimand',

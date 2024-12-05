@@ -52,7 +52,7 @@ const Status: React.FC = () => {
       {/* Header section */}
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-2xl font-semibold">Status</h3>
-        <AccessGuard permissions={[Permissions.CreateNewApplicationStatus]}>
+        <AccessGuard permissions={[Permissions.CreateApplicationStage]}>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -83,7 +83,7 @@ const Status: React.FC = () => {
                 </span>
 
                 <div>
-                  <AccessGuard permissions={[Permissions.UpdateNewApplicationStatus]}>
+                  <AccessGuard permissions={[Permissions.UpdateApplicationStage]}>
                     <Button
                       icon={<FaEdit />}
                       onClick={() => handleEditStatus(status)}
@@ -92,7 +92,7 @@ const Status: React.FC = () => {
                       className="border-none text-blue-600 mr-2"
                     />
                   </AccessGuard>
-                  <AccessGuard permissions={[Permissions.DeleteNewApplicationStatus]}>
+                  <AccessGuard permissions={[Permissions.DeleteApplicationStage]}>
                     <Button
                       icon={<FaTrashAlt />}
                       onClick={() => handleDeleteStatus(status)}
