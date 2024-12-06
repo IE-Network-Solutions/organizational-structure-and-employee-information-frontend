@@ -1,27 +1,34 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Select, Checkbox, Space } from "antd";
+import { Form, Input, Button, Select, Checkbox, Space, Switch } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { v4 as uuidv4 } from "uuid";
+import { FieldType } from "@/types/enumTypes";
+import { ConversationStore } from "@/store/uistate/features/conversation";
+import { useAddQuestionSetOnConversationType } from "@/store/server/features/conversation/questionSet/mutation";
 
 const { Option } = Select;
 
 const QuestionSetForm = () => {
   const [questions, setQuestions] = useState<any>([]);
+  const { activeTab,setActiveTab,setOpen} = ConversationStore();
+  const { mutate:createConversationQuestionSet}=useAddQuestionSetOnConversationType();
 
   const handleAddQuestion = () => {
-    setQuestions((prev:any) => [
+    setQuestions((prev: any) => [
       ...prev,
       {
-        id: uuidv4(),
-        question: "",
-        fieldType: "",
-        field: [],
-        required: false,
-        order: prev.length + 1,
+        id: uuidv4(), // Unique question ID
+        conversationTypeId: activeTab, // Link question to the active conversation
+        question: "", // Default question text
+        fieldType: FieldType.SHORT_TEXT, // Default to SHORT_TEXT
+        field: [], // Default empty options for fields requiring options
+        required: false, // Default not mandatory
       },
     ]);
   };
 
+
+  console.log(activeTab,"activeTab")
   const handleRemoveQuestion = (id:any) => {
     setQuestions((prev:any) => prev.filter((q:any) => q.id !== id));
   };
@@ -74,7 +81,12 @@ const QuestionSetForm = () => {
   };
 
   const handleSubmit = (values:any) => {
-    const payload = { ...values, questions };
+    const payload = { ...values,conversationTypeId:activeTab, questions };
+    createConversationQuestionSet(payload,{
+      onSuccess:()=>{
+        setOpen(false);
+      }
+    })
     console.log("Submitted Data:", payload);
   };
 
@@ -94,6 +106,14 @@ const QuestionSetForm = () => {
         rules={[{ required: true, message: "Please enter a meeting agenda" }]}
       >
         <Input.TextArea />
+      </Form.Item>
+      <Form.Item
+        label="Is Active"
+        name="active"
+        initialValue={true}
+        rules={[{ required: true, message: "Please enter a m" }]}
+      >
+        <Switch />
       </Form.Item>
 
       <Form.Item label="Questions">
@@ -121,19 +141,19 @@ const QuestionSetForm = () => {
                 }
                 style={{ flex: 1 }}
               >
-                <Option value="multiple_choice">Multiple Choice</Option>
-                <Option value="checkbox">Checkbox</Option>
-                <Option value="short_text">Short Text</Option>
-                <Option value="paragraph">Paragraph</Option>
-                <Option value="time">Time</Option>
-                <Option value="dropdown">Dropdown</Option>
-                <Option value="radio">Radio</Option>
+                <Option value={FieldType.MULTIPLE_CHOICE}>Multiple Choice</Option>
+                <Option value={FieldType.CHECKBOX}>Checkbox</Option>
+                <Option value={FieldType.SHORT_TEXT}>Short Text</Option>
+                <Option value={FieldType.PARAGRAPH}>Paragraph</Option>
+                <Option value={FieldType.TIME}>Time</Option>
+                <Option value={FieldType.DROPDOWN}>Dropdown</Option>
+                <Option value={FieldType.RADIO}>Radio</Option>
               </Select>
 
               <Checkbox
-                checked={q.required}
+                checked={q.mandatory}
                 onChange={(e) =>
-                  handleChangeQuestion(q.id, "required", e.target.checked)
+                  handleChangeQuestion(q.id, "mandatory", e.target.checked)
                 }
               >
                 Required
@@ -146,9 +166,9 @@ const QuestionSetForm = () => {
             </div>
 
             {/* Options (Visible Only for Certain Field Types) */}
-            {(q.fieldType === "dropdown" ||
-              q.fieldType === "multiple_choice" ||
-              q.fieldType === "radio") && (
+            {(q.fieldType === FieldType.DROPDOWN ||
+              q.fieldType ===  FieldType.MULTIPLE_CHOICE ||
+              q.fieldType ===  FieldType.RADIO) && (
               <div style={{ marginTop: "8px" }}>
                 <p>Options:</p>
                 {q.field.map((opt:any) => (
