@@ -33,3 +33,15 @@ export interface CategoryFetch {
   pageSize: number;
   currentPage: number;
 }
+
+
+export type ConversationTypeItems = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+  name: string;
+  description: string;
+};
