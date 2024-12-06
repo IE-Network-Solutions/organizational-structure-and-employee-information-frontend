@@ -1,11 +1,13 @@
 import React from 'react';
-import { Card, Typography, Dropdown } from 'antd';
+import { Card, Typography, Dropdown, MenuProps } from 'antd';
 import { FaEllipsisVertical, FaCircle } from 'react-icons/fa6';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useGetUsersById } from '@/store/server/features/feedback/category/queries';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Title, Paragraph } = Typography;
 
@@ -22,6 +24,30 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 
   const { rows } = CategoriesManagementStore();
 
+  const items = [
+    {
+      key: 'edit',
+      label: 'Edit',
+      onClick: () => onMenuClick('edit', category),
+      permissions: [Permissions.UpdateFormCategory],
+    },
+    {
+      key: 'delete',
+      label: 'Delete',
+      onClick: () => onMenuClick('delete', category),
+      permissions: [Permissions.DeleteFormCategory],
+    },
+  ];
+
+  const filteredItems = items.filter((item) => {
+    return AccessGuard.checkAccess({ permissions: item.permissions });
+  });
+
+  const menuItems: MenuProps['items'] = filteredItems.map((item) => ({
+    key: item.key,
+    label: <span onClick={item.onClick}>{item.label}</span>,
+  }));
+
   return (
     <Card
       hoverable
@@ -34,20 +60,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           </Title>
         </Link>
         <Dropdown
-          menu={{
-            items: [
-              {
-                key: 'edit',
-                label: 'Edit',
-                onClick: () => onMenuClick('edit', category),
-              },
-              {
-                key: 'delete',
-                label: 'Delete',
-                onClick: () => onMenuClick('delete', category),
-              },
-            ],
-          }}
+          menu={{items: menuItems}}
           trigger={['click']}
           placement="bottomRight"
         >

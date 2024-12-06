@@ -15,6 +15,7 @@ pipeline {
         ORG_DEV_URL = "https://test-od.ienetworks.co/api/v1"
         RECRUITMENT_URL="https://test-recruitment-backend.ienetworks.co/api/v1"
         NEXT_PUBLIC_APPROVERS_URL="https://test-approval-backend.ienetworks.co/api/v1"
+        NOTIFICATION_URL="https://test-email-service.ienetworks.co/api/v1"
         PUBLIC_DOMAIN="https://selamnew.com"
         NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://test-time-attendance-backend.ienetworks.co/api/v1"
         NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://test-training-backend.ienetworks.co/api/v1"
@@ -66,6 +67,7 @@ pipeline {
                         NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL=${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}
                         NEXT_PUBLIC_OKR_AND_PLANNING_URL=${OKR_URL}
                         OKR_URL=${OKR_URL}
+                        NOTIFICATION_URL=${NOTIFICATION_URL}
                         RECRUITMENT_URL=${RECRUITMENT_URL}
                         PUBLIC_DOMAIN=${PUBLIC_DOMAIN}
                         NEXT_PUBLIC_API_KEY=${NEXT_PUBLIC_API_KEY}
