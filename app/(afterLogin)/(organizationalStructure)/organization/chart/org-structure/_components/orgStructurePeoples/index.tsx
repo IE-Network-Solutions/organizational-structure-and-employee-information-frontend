@@ -139,9 +139,8 @@ const [form] = Form.useForm();
     setIsFormVisible(true);
   };
 
-  const handleDelete = (departmentId: string) => {
+  const handleDelete = () => {
     setIsDeleteConfirmVisible(true);
-    setSelectedDepartment({ id: departmentId } as Department);
   };
 
   const handleFormSubmit = (values: OrgChart) => {
@@ -167,9 +166,7 @@ const [form] = Form.useForm();
   };
 
   const handleDeleteConfirm = () => {
-    if (selectedDepartment) {
-      deleteDepartment({departmentTobeDeletedId, departmentTobeShiftedId});
-    }
+    deleteDepartment({departmentTobeDeletedId, departmentTobeShiftedId});
     setIsDeleteConfirmVisible(false);
   };
 
@@ -315,7 +312,8 @@ const [form] = Form.useForm();
             if (footerButtonText == 'Merge') {
               mergeDepartments(mergeData);
             } else {
-              deleteDepartment({departmentTobeDeletedId, departmentTobeShiftedId});
+              setIsDeleteConfirmVisible(true);
+              closeDrawer();
             }
           }}
           title={drawTitle}
