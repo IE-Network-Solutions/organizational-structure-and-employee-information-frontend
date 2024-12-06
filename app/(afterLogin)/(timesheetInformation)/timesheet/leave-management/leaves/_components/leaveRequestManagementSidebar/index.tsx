@@ -14,7 +14,6 @@ import ApprovalStatusCard, {
   ApprovalStatusCardProps,
 } from '@/components/common/approvalStatuses/approvalStatusCard';
 import UserCard from '@/components/common/userCard/userCard';
-import CommentInput from '@/app/(afterLogin)/(timesheetInformation)/timesheet/leave-management/_components/leaveRequestManagementSidebar/commentInput';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';
 import dayjs from 'dayjs';
@@ -22,6 +21,7 @@ import { DATE_FORMAT } from '@/utils/constants';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useSetStatusToLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
+import CommentInput from './commentInput';
 
 const LeaveRequestManagementSidebar = () => {
   const [leaveRequest, setLeaveRequest] = useState<LeaveRequest>();
