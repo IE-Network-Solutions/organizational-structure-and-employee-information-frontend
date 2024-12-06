@@ -66,7 +66,9 @@ const ApprovalTable = () => {
       status: item?.status,
       action: (
         <div className="flex gap-4 ">
-          <PermissionWrapper permissions={[Permissions.DeclineEmployeeLeaveRequest]}>
+          <PermissionWrapper
+            permissions={[Permissions.DeclineEmployeeLeaveRequest]}
+          >
             <Popconfirm
               title="Reject Request"
               description={
@@ -104,7 +106,9 @@ const ApprovalTable = () => {
               <Button danger>Reject</Button>
             </Popconfirm>
           </PermissionWrapper>
-          <PermissionWrapper permissions={[Permissions.ApproveEmployeeLeaveRequest]}>
+          <PermissionWrapper
+            permissions={[Permissions.ApproveEmployeeLeaveRequest]}
+          >
             <Popconfirm
               title="Approve Request"
               description="Are you sure to approve this leave request?"

@@ -55,13 +55,13 @@ const DefineOkrRule = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">OKR Rule</h2>
         <AccessGuard permissions={[Permissions.CreateOkrRule]}>
-        <Button
-          type="primary"
-          className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
-          onClick={showDrawer}
-        >
-          + Add Rule
-        </Button>
+          <Button
+            type="primary"
+            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
+            onClick={showDrawer}
+          >
+            + Add Rule
+          </Button>
         </AccessGuard>
       </div>
 

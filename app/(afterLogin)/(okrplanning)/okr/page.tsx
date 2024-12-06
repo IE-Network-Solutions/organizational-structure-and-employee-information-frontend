@@ -33,7 +33,7 @@ const OKR: React.FC<any> = () => {
               onClick={showDrawer}
               className="bg-white text-black hover:bg-black hover:text-white border-2 border-black"
             />
-            </AccessGuard>
+          </AccessGuard>
           <CustomButton
             title="Set Objective"
             id="createUserButton"

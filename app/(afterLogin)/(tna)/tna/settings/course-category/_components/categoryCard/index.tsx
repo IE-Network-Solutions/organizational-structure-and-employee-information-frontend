@@ -22,7 +22,12 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({ item }) => {
         <div className="text-lg font-semibold text-gray-900 flex-1">
           {item.title}
         </div>
-        <AccessGuard permissions={[Permissions.UpdateCourseCategory, Permissions.DeleteCourseCategory]}>
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateCourseCategory,
+            Permissions.DeleteCourseCategory,
+          ]}
+        >
           <ActionButtons
             id={item?.id ?? null}
             onDelete={() => {

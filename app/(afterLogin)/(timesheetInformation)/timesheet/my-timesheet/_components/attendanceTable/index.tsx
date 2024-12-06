@@ -136,15 +136,15 @@ const AttendanceTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (item: AttendanceRecord) => (
-          <Button
-            className="w-[30px] h-[30px]"
-            icon={<IoEyeOutline size={16} />}
-            type="primary"
-            onClick={() => {
-              setViewAttendanceId(item.id);
-              setIsShowViewSidebar(true);
-            }}
-          />
+        <Button
+          className="w-[30px] h-[30px]"
+          icon={<IoEyeOutline size={16} />}
+          type="primary"
+          onClick={() => {
+            setViewAttendanceId(item.id);
+            setIsShowViewSidebar(true);
+          }}
+        />
       ),
     },
   ];

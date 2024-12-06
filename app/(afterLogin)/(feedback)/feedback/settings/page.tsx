@@ -11,7 +11,7 @@ import QuestionTemplateCard from './_components/questionsTemplate/questionTempla
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
-const {Title}=Typography
+const { Title } = Typography;
 const CFRSettings: React.FC = () => {
   const { setIsOpen } = useCustomQuestionTemplateStore();
 
