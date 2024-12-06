@@ -18,8 +18,10 @@ const Header = () => {
   const { data: birthDays, isLoading: birthdayLoading } = useGetBirthDay();
   const { data: workAnniversary, isLoading: workLoading } =
     useGetWorkAnniversary();
-  const {data: allPlanningPeriods} = useGetAllPlanningPeriods();
-  const planningPeriod = allPlanningPeriods?.items?.find((planningPeriod) => (planningPeriod.name == 'Weekly'));
+  const { data: allPlanningPeriods } = useGetAllPlanningPeriods();
+  const planningPeriod = allPlanningPeriods?.items?.find(
+    (planningPeriod) => planningPeriod.name == 'Weekly',
+  );
 
   return (
     <>

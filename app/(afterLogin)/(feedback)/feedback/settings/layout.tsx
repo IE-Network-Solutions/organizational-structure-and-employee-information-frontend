@@ -80,19 +80,17 @@ interface TimesheetSettingsLayoutProps {
   children: ReactNode;
 }
 
-const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
-  children,
-}) => {
+const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const menuItems = new SidebarMenuItem([
     {
-        item: {
-          key: 'define-questions',
-          icon: <CiCalendarDate />,
-          label: <p className="menu-item-label">Define Questions</p>,
-          className: 'px-1',
-        },
-        link: '/feedback/settings/define-questions',
+      item: {
+        key: 'define-questions',
+        icon: <CiCalendarDate />,
+        label: <p className="menu-item-label">Define Questions</p>,
+        className: 'px-1',
       },
+      link: '/feedback/settings/define-questions',
+    },
     {
       item: {
         key: 'feedback',

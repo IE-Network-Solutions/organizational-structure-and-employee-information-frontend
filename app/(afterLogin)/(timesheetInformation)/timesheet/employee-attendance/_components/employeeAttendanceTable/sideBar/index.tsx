@@ -53,10 +53,7 @@ const EmployeeAttendanceSideBar = () => {
     },
   ];
 
-  const onFinish = () => {
-    // const value = form.getFieldsValue();
-    // console.log('final value', newData, value);
-  };
+  const onFinish = () => {};
 
   React.useEffect(() => {
     if (newData) {
@@ -69,7 +66,6 @@ const EmployeeAttendanceSideBar = () => {
       form.setFieldsValue(formattedBreakType);
     }
   }, [newData, form]);
-  // console.log('new data', newData);
 
   return (
     isShowEmployeeAttendanceSidebar && (

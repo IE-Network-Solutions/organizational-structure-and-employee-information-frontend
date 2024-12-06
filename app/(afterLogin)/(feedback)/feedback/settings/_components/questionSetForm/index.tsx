@@ -1,17 +1,18 @@
-import React, { useState } from "react";
-import { Form, Input, Button, Select, Checkbox, Space, Switch } from "antd";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { v4 as uuidv4 } from "uuid";
-import { FieldType } from "@/types/enumTypes";
-import { ConversationStore } from "@/store/uistate/features/conversation";
-import { useAddQuestionSetOnConversationType } from "@/store/server/features/conversation/questionSet/mutation";
+import React, { useState } from 'react';
+import { Form, Input, Button, Select, Checkbox, Space, Switch } from 'antd';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { v4 as uuidv4 } from 'uuid';
+import { FieldType } from '@/types/enumTypes';
+import { ConversationStore } from '@/store/uistate/features/conversation';
+import { useAddQuestionSetOnConversationType } from '@/store/server/features/conversation/questionSet/mutation';
 
 const { Option } = Select;
 
 const QuestionSetForm = () => {
   const [questions, setQuestions] = useState<any>([]);
-  const { activeTab,setActiveTab,setOpen} = ConversationStore();
-  const { mutate:createConversationQuestionSet}=useAddQuestionSetOnConversationType();
+  const { activeTab, setOpen } = ConversationStore();
+  const { mutate: createConversationQuestionSet } =
+    useAddQuestionSetOnConversationType();
 
   const handleAddQuestion = () => {
     setQuestions((prev: any) => [
@@ -19,7 +20,7 @@ const QuestionSetForm = () => {
       {
         id: uuidv4(), // Unique question ID
         conversationTypeId: activeTab, // Link question to the active conversation
-        question: "", // Default question text
+        question: '', // Default question text
         fieldType: FieldType.SHORT_TEXT, // Default to SHORT_TEXT
         field: [], // Default empty options for fields requiring options
         required: false, // Default not mandatory
@@ -27,67 +28,64 @@ const QuestionSetForm = () => {
     ]);
   };
 
-
-  console.log(activeTab,"activeTab")
-  const handleRemoveQuestion = (id:any) => {
-    setQuestions((prev:any) => prev.filter((q:any) => q.id !== id));
+  const handleRemoveQuestion = (id: any) => {
+    setQuestions((prev: any) => prev.filter((q: any) => q.id !== id));
   };
 
-  const handleChangeQuestion = (id:any, key:any, value:any) => {
-    setQuestions((prev:any) =>
-      prev.map((q:any) => (q.id === id ? { ...q, [key]: value } : q))
+  const handleChangeQuestion = (id: any, key: any, value: any) => {
+    setQuestions((prev: any) =>
+      prev.map((q: any) => (q.id === id ? { ...q, [key]: value } : q)),
     );
   };
 
-  const handleAddOption = (questionId:any) => {
-    setQuestions((prev:any) =>
-      prev.map((q:any) =>
+  const handleAddOption = (questionId: any) => {
+    setQuestions((prev: any) =>
+      prev.map((q: any) =>
         q.id === questionId
           ? {
               ...q,
-              field: [...q.field, { id: uuidv4(), value: "" }],
+              field: [...q.field, { id: uuidv4(), value: '' }],
             }
-          : q
-      )
+          : q,
+      ),
     );
   };
 
-  const handleChangeOption = (questionId:any, optionId:any, value:any) => {
-    setQuestions((prev:any) =>
-      prev.map((q:any) =>
+  const handleChangeOption = (questionId: any, optionId: any, value: any) => {
+    setQuestions((prev: any) =>
+      prev.map((q: any) =>
         q.id === questionId
           ? {
               ...q,
-              field: q.field.map((opt:any) =>
-                opt.id === optionId ? { ...opt, value } : opt
+              field: q.field.map((opt: any) =>
+                opt.id === optionId ? { ...opt, value } : opt,
               ),
             }
-          : q
-      )
+          : q,
+      ),
     );
   };
 
-  const handleRemoveOption = (questionId:any, optionId:any) => {
-    setQuestions((prev:any) =>
-      prev.map((q:any) =>
+  const handleRemoveOption = (questionId: any, optionId: any) => {
+    setQuestions((prev: any) =>
+      prev.map((q: any) =>
         q.id === questionId
           ? {
               ...q,
-              field: q.field.filter((opt:any) => opt.id !== optionId),
+              field: q.field.filter((opt: any) => opt.id !== optionId),
             }
-          : q
-      )
+          : q,
+      ),
     );
   };
 
-  const handleSubmit = (values:any) => {
-    const payload = { ...values,conversationTypeId:activeTab, questions };
-    createConversationQuestionSet(payload,{
-      onSuccess:()=>{
+  const handleSubmit = (values: any) => {
+    const payload = { ...values, conversationTypeId: activeTab, questions };
+    createConversationQuestionSet(payload, {
+      onSuccess: () => {
         setOpen(false);
-      }
-    })
-    console.log("Submitted Data:", payload);
+      },
+    });
   };
 
   return (
@@ -95,7 +93,7 @@ const QuestionSetForm = () => {
       <Form.Item
         label="Name"
         name="name"
-        rules={[{ required: true, message: "Please enter a name" }]}
+        rules={[{ required: true, message: 'Please enter a name' }]}
       >
         <Input />
       </Form.Item>
@@ -103,7 +101,7 @@ const QuestionSetForm = () => {
       <Form.Item
         label="Meeting Agenda"
         name="meetingAgenda"
-        rules={[{ required: true, message: "Please enter a meeting agenda" }]}
+        rules={[{ required: true, message: 'Please enter a meeting agenda' }]}
       >
         <Input.TextArea />
       </Form.Item>
@@ -111,37 +109,39 @@ const QuestionSetForm = () => {
         label="Is Active"
         name="active"
         initialValue={true}
-        rules={[{ required: true, message: "Please enter a m" }]}
+        rules={[{ required: true, message: 'Please enter a m' }]}
       >
         <Switch />
       </Form.Item>
 
       <Form.Item label="Questions">
-        {questions.map((q:any) => (
-          <div key={q.id} style={{ marginBottom: "16px" }}>
+        {questions.map((q: any) => (
+          <div key={q.id} style={{ marginBottom: '16px' }}>
             {/* First Row: Question Input */}
-            <div style={{ display: "flex", marginBottom: "8px" }}>
+            <div style={{ display: 'flex', marginBottom: '8px' }}>
               <Input
                 placeholder="Enter question"
                 value={q.question}
                 onChange={(e) =>
-                  handleChangeQuestion(q.id, "question", e.target.value)
+                  handleChangeQuestion(q.id, 'question', e.target.value)
                 }
-                style={{ flex: 1, marginRight: "8px" }}
+                style={{ flex: 1, marginRight: '8px' }}
               />
             </div>
 
             {/* Second Row: Field Type, Required, Remove */}
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Select
                 placeholder="Select Field Type"
                 value={q.fieldType}
                 onChange={(value) =>
-                  handleChangeQuestion(q.id, "fieldType", value)
+                  handleChangeQuestion(q.id, 'fieldType', value)
                 }
                 style={{ flex: 1 }}
               >
-                <Option value={FieldType.MULTIPLE_CHOICE}>Multiple Choice</Option>
+                <Option value={FieldType.MULTIPLE_CHOICE}>
+                  Multiple Choice
+                </Option>
                 <Option value={FieldType.CHECKBOX}>Checkbox</Option>
                 <Option value={FieldType.SHORT_TEXT}>Short Text</Option>
                 <Option value={FieldType.PARAGRAPH}>Paragraph</Option>
@@ -153,7 +153,7 @@ const QuestionSetForm = () => {
               <Checkbox
                 checked={q.mandatory}
                 onChange={(e) =>
-                  handleChangeQuestion(q.id, "mandatory", e.target.checked)
+                  handleChangeQuestion(q.id, 'mandatory', e.target.checked)
                 }
               >
                 Required
@@ -161,18 +161,22 @@ const QuestionSetForm = () => {
 
               <MinusCircleOutlined
                 onClick={() => handleRemoveQuestion(q.id)}
-                style={{ color: "red", fontSize: "16px" }}
+                style={{ color: 'red', fontSize: '16px' }}
               />
             </div>
 
             {/* Options (Visible Only for Certain Field Types) */}
             {(q.fieldType === FieldType.DROPDOWN ||
-              q.fieldType ===  FieldType.MULTIPLE_CHOICE ||
-              q.fieldType ===  FieldType.RADIO) && (
-              <div style={{ marginTop: "8px" }}>
+              q.fieldType === FieldType.MULTIPLE_CHOICE ||
+              q.fieldType === FieldType.RADIO) && (
+              <div style={{ marginTop: '8px' }}>
                 <p>Options:</p>
-                {q.field.map((opt:any) => (
-                  <Space key={opt.id} align="baseline" style={{ marginBottom: "8px" }}>
+                {q.field.map((opt: any) => (
+                  <Space
+                    key={opt.id}
+                    align="baseline"
+                    style={{ marginBottom: '8px' }}
+                  >
                     <Input
                       placeholder="Enter option value"
                       value={opt.value}
@@ -182,7 +186,7 @@ const QuestionSetForm = () => {
                     />
                     <MinusCircleOutlined
                       onClick={() => handleRemoveOption(q.id, opt.id)}
-                      style={{ color: "red" }}
+                      style={{ color: 'red' }}
                     />
                   </Space>
                 ))}
@@ -190,7 +194,7 @@ const QuestionSetForm = () => {
                   type="dashed"
                   onClick={() => handleAddOption(q.id)}
                   icon={<PlusOutlined />}
-                  style={{ marginTop: "8px" }}
+                  style={{ marginTop: '8px' }}
                 >
                   Add Option
                 </Button>
@@ -203,7 +207,7 @@ const QuestionSetForm = () => {
           type="dashed"
           onClick={handleAddQuestion}
           icon={<PlusOutlined />}
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
         >
           Add Question
         </Button>

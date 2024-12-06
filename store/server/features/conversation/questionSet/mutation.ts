@@ -10,7 +10,6 @@
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
-import { CategoryData } from './interface';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -72,7 +71,7 @@ const updateConversationQuestionSet = async (data: any) => {
  * @async
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
-const deleteConversationQuestionSet = async (id:string) => {
+const deleteConversationQuestionSet = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -86,7 +85,6 @@ const deleteConversationQuestionSet = async (id:string) => {
   });
 };
 
-
 /**
  * Custom hook to update an existing category using React Query.
  * Automatically invalidates the 'categories' query cache on success.
@@ -96,16 +94,14 @@ const deleteConversationQuestionSet = async (id:string) => {
  */
 export const useUpdateConversationQuestionSet = () => {
   const queryClient = useQueryClient();
-  return useMutation(updateConversationQuestionSet,
-    {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      onSuccess: (_, variables: any) => {
-        queryClient.invalidateQueries('conversationType');
-        const method = variables?.method?.toUpperCase();
-        handleSuccessMessage(method);
-      },
+  return useMutation(updateConversationQuestionSet, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('conversationType');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
-  );
+  });
 };
 
 /**
@@ -117,16 +113,14 @@ export const useUpdateConversationQuestionSet = () => {
  */
 export const useDeleteConversationQuestionSet = () => {
   const queryClient = useQueryClient();
-  return useMutation(deleteConversationQuestionSet,
-    {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      onSuccess: (_, variables: any) => {
-        queryClient.invalidateQueries('conversationType');
-        const method = variables?.method?.toUpperCase();
-        handleSuccessMessage(method);
-      },
+  return useMutation(deleteConversationQuestionSet, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('conversationType');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
-  );
+  });
 };
 // eslint-enable-next-line @typescript-eslint/naming-convention
 

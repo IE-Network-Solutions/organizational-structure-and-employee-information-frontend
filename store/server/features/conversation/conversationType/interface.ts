@@ -34,7 +34,6 @@ export interface CategoryFetch {
   currentPage: number;
 }
 
-
 export type ConversationTypeItems = {
   id: string;
   createdAt: string;

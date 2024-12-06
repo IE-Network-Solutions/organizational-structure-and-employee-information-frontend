@@ -9,7 +9,7 @@ import React from 'react';
 import { CiMedal } from 'react-icons/ci';
 
 function Page() {
-  const {searchField}=useRecongnitionStore();
+  const { searchField } = useRecongnitionStore();
   const { data: allUserData } = useGetAllUsers();
 
   const getEmployeeData = (employeeId: string) => {
@@ -19,7 +19,6 @@ function Page() {
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
   const columns: TableColumnsType<any> = [
-
     {
       title: 'Recognition',
       dataIndex: 'recognition',
@@ -28,8 +27,8 @@ function Page() {
     {
       title: 'Employees',
       dataIndex: 'employee',
-        render: (notused, record) =>
-          record.createdBy ? getEmployeeData(record.createdBy)?.firstName : '-',
+      render: (notused, record) =>
+        record.createdBy ? getEmployeeData(record.createdBy)?.firstName : '-',
     },
     {
       title: 'Criteria',
@@ -60,7 +59,6 @@ function Page() {
       title: 'Details',
       dataIndex: 'description',
     },
-
   ];
   const items: TabsProps['items'] = [
     {
@@ -68,11 +66,17 @@ function Page() {
       label: 'All',
       children: (
         <div className="flex justify-between items-center">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Card className='bg-gray-200 font-bold' key={index} style={{ width: 300 }}>
-              <p className='flex justify-start items-centertext-green-600  font-extrabold text-xl'><CiMedal  /></p>
+          {Array.from({ length: 4 }).map((notused, index) => (
+            <Card
+              className="bg-gray-200 font-bold"
+              key={index}
+              style={{ width: 300 }}
+            >
+              <p className="flex justify-start items-centertext-green-600  font-extrabold text-xl">
+                <CiMedal />
+              </p>
               <p>Total number of recognized employees</p>
-              <p className=''>010</p>
+              <p className="">010</p>
             </Card>
           ))}
         </div>
@@ -99,34 +103,28 @@ function Page() {
       children: 'Content of Tab Pane 3',
     },
   ];
-  const handleSearchChange=()=>{
-  }
-  const handleRowClick=(record:any)=>{
-    console.log(record);
-  }
-  return <div>
-
-    <Tabs defaultActiveKey="1" items={items}  />
-    <EmployeeSearchComponent
+  const handleSearchChange = () => {};
+  const handleRowClick = (record: any) => {
+    return record;
+  };
+  return (
+    <div>
+      <Tabs defaultActiveKey="1" items={items} />
+      <EmployeeSearchComponent
         fields={searchField}
         onChange={handleSearchChange}
       />
       <Table<any>
         columns={columns}
         dataSource={[]}
-        // onChange={onChange}
-        // pagination={{
-        //   total: conversationInstances?.meta?.total ?? 0, // Total number of items
-        //   current: conversationInstances?.meta?.currentPage ?? 1, // Current page
-        //   pageSize: conversationInstances?.meta?.itemsPerPage ?? 10, // Items per page
-        // }}
         scroll={{ x: 800 }} // Enable horizontal scrolling
         className="cursor-pointer"
         onRow={(record) => ({
           onClick: () => handleRowClick(record), // Add click handler
         })}
       />
-    </div>;
+    </div>
+  );
 }
 
 export default Page;
