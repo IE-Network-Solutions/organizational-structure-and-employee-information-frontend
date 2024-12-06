@@ -8,6 +8,8 @@ import { useDeleteAppType } from '@/store/server/features/okrplanning/monitoring
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useAppTypeStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-type';
 import { AppreciationType } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-type/interface';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const DefineAppreciation = () => {
   const {
@@ -51,13 +53,15 @@ const DefineAppreciation = () => {
     <div className="p-6   w-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Appreciation</h2>
-        <Button
-          type="primary"
-          className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
-          onClick={showDrawer}
-        >
-          + Add Type
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateAppreciationType]}>
+          <Button
+            type="primary"
+            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
+            onClick={showDrawer}
+          >
+            + Add Type
+          </Button>
+        </AccessGuard>
       </div>
 
       <List
@@ -67,18 +71,22 @@ const DefineAppreciation = () => {
           <List.Item className="flex justify-between items-center py-4 px-4 rounded-xl my-3 border border-gray-200">
             <span className="">{item?.name}</span>
             <div>
-              <Button
-                icon={<EditOutlined />}
-                className="mr-2 bg-blue text-white"
-                shape="circle"
-                onClick={() => handleEditModal(item)}
-              />
-              <Button
-                icon={<DeleteOutlined />}
-                className="mr-2 bg-red-500 text-white"
-                shape="circle"
-                onClick={() => showDeleteModal(item?.id as string)}
-              />
+              <AccessGuard permissions={[Permissions.UpdateAppreciationType]}>
+                <Button
+                  icon={<EditOutlined />}
+                  className="mr-2 bg-blue text-white"
+                  shape="circle"
+                  onClick={() => handleEditModal(item)}
+                />
+              </AccessGuard>
+              <AccessGuard permissions={[Permissions.DeleteAppreciationType]}>
+                <Button
+                  icon={<DeleteOutlined />}
+                  className="mr-2 bg-red-500 text-white"
+                  shape="circle"
+                  onClick={() => showDeleteModal(item?.id as string)}
+                />
+              </AccessGuard>
             </div>
           </List.Item>
         )}

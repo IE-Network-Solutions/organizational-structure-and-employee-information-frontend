@@ -7,7 +7,7 @@ import { Card, Col, Input, Form, Row, Button } from 'antd';
 import React from 'react';
 import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../../common/infoLine';
-import { PermissionWrapper } from '@/utils/permissionGuard';
+import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
 const BankInformationComponent = ({ handleSaveChanges, id }: any) => {
@@ -24,12 +24,16 @@ const BankInformationComponent = ({ handleSaveChanges, id }: any) => {
       loading={isLoading}
       title="Bank Information"
       extra={
-        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
+        <AccessGuard
+          permissions={[Permissions.UpdateEmployeeDetails]}
+          selfShouldAccess
+          id={id}
+        >
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('bankInformation')}
           />
-        </PermissionWrapper>
+        </AccessGuard>
       }
       className="my-6"
     >

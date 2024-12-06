@@ -6,6 +6,8 @@ import { IoMdMore } from 'react-icons/io';
 import { GroupPermissionkey } from '@/types/dashboard/adminManagement';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import KebabMenu from '@/components/common/kebabMenu';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 type GroupPermissionCardProps = {
   item: GroupPermissionkey;
@@ -39,12 +41,14 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
             <IoMdMore />
           </button>
           {props?.visibleEditCardId === props?.item?.id && (
-            <KebabMenu
-              item={props?.item}
-              handleButtonClick={props?.handleButtonClick}
-              editGroupPermissionHandler={editGroupPermissionHandler}
-              deleteGroupPermissionHandler={deleteGroupPermissionHandler}
-            />
+            <AccessGuard permissions={[Permissions.UpdateGroupPermission, Permissions.DeleteGroupPermission]}>
+              <KebabMenu
+                item={props?.item}
+                handleButtonClick={props?.handleButtonClick}
+                editGroupPermissionHandler={editGroupPermissionHandler}
+                deleteGroupPermissionHandler={deleteGroupPermissionHandler}
+              />
+            </AccessGuard>
           )}
         </div>
       </div>

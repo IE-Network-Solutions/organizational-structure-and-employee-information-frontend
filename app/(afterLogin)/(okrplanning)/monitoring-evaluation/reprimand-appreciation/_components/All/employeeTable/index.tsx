@@ -6,6 +6,8 @@ import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/qu
 import { AppreciationLog } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-log/interface';
 import { AppreciationType } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-type/interface';
 import { ReprimandLog } from '@/store/uistate/features/okrplanning/monitoring-evaluation/reprimand-log/interface';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 // Define props interface for EmployeeTable
 interface EmployeeTableProps {
@@ -98,25 +100,31 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       render: (record: Record<string, string> | any) => {
         return (
           <div className="flex space-x-2">
-            <Button
-              href={
-                record?.type?.type === 'appreciation'
-                  ? `reprimand-appreciation/appreciation/${record.id}`
-                  : `reprimand-appreciation/reprimand/${record.id}`
-              }
-              className="bg-green-500 text-white border-none"
-              icon={<FaEye />}
-            />
-            <Button
-              className="bg-blue text-white border-none"
-              icon={<EditOutlined />}
-              onClick={() => handleEditModal(record)} // Pass key to edit handler
-            />
-            <Button
-              className="bg-red-500 text-white border-none"
-              icon={<DeleteOutlined />}
-              onClick={() => showDeleteModal(record.id, record)} // Pass key to delete handler
-            />
+            <AccessGuard permissions={[Permissions.ViewReprimandAndAppreciationDetails]}>
+              <Button
+                href={
+                  record?.type?.type === 'appreciation'
+                    ? `reprimand-appreciation/appreciation/${record.id}`
+                    : `reprimand-appreciation/reprimand/${record.id}`
+                }
+                className="bg-green-500 text-white border-none"
+                icon={<FaEye />}
+              />
+            </AccessGuard>
+            <AccessGuard permissions={[Permissions.EditAppreciationAndReprimand]}>
+              <Button
+                className="bg-blue text-white border-none"
+                icon={<EditOutlined />}
+                onClick={() => handleEditModal(record)} // Pass key to edit handler
+              />
+            </AccessGuard>
+            <AccessGuard permissions={[Permissions.DeleteAppreciationAndReprimand]}>
+              <Button
+                className="bg-red-500 text-white border-none"
+                icon={<DeleteOutlined />}
+                onClick={() => showDeleteModal(record.id, record)} // Pass key to delete handler
+              />
+            </AccessGuard>
           </div>
         );
       },
