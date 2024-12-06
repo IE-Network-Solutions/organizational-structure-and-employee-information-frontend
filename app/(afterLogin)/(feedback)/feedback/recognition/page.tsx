@@ -24,53 +24,7 @@ console.log(getAllRecognition,"getAllRecognition")
     );
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
-
-//   {
-//     "id": "3daceafd-6908-455e-85aa-76c97b05e318",
-//     "createdAt": "2024-12-05T08:32:05.571Z",
-//     "updatedAt": "2024-12-05T08:32:05.571Z",
-//     "deletedAt": null,
-//     "createdBy": null,
-//     "updatedBy": null,
-//     "recognitionTypeId": "e70b8e72-9ad3-481b-b044-02f6f78a3b14",
-//     "recipientId": "a3baf08b-9dc1-478c-b4d4-847963d1d771",
-//     "issuerId": "2d0987dc-435d-4c5d-9422-019a8bf9aedd",
-//     "dataImportId": "847a3fbc-9f22-41da-8301-1fb3d13f5bba",
-//     "dateIssued": "2024-11-29T11:30:00.000Z",
-//     "status": "pending",
-//     "criteriaVerified": false,
-//     "isAutomated": true,
-//     "certificateDetails": {
-//         "issuedBy": "Admin",
-//         "template": "Default Template",
-//         "certificateId": "12345"
-//     },
-//     "monetizedValue": {
-//         "amount": 150,
-//         "currency": "USD"
-//     },
-//     "calendarId": null,
-//     "monthId": null,
-//     "sessionId": null,
-//     "tenantId": "3c7e1c6f-fc6c-4f89-8437-5749b8e6dd2b",
-//     "recognitionType": {
-//         "id": "e70b8e72-9ad3-481b-b044-02f6f78a3b14",
-//         "createdAt": "2024-12-04T14:18:00.844Z",
-//         "updatedAt": "2024-12-04T14:18:00.844Z",
-//         "deletedAt": null,
-//         "createdBy": null,
-//         "updatedBy": null,
-//         "name": "recognition tw",
-//         "description": "lkjhgfdsx",
-//         "isMonetized": true,
-//         "requiresCertification": false,
-//         "certificationData": null,
-//         "frequency": "monthly",
-//         "parentTypeId": null,
-//         "departmentId": "0d407f09-71ac-4439-8e66-3eaa0dc964ee"
-//     }
-// },
-  const columns: TableColumnsType<any> = [
+const columns: TableColumnsType<any> = [
 
     {
       title: 'Recognition',
@@ -87,8 +41,18 @@ console.log(getAllRecognition,"getAllRecognition")
     {
       title: 'Criteria',
       dataIndex: 'criteria',
-      render: (notused, record) =>
-        record.createdAt ? dayjs(record.createdAt).format('YYYY-MM-DD') : '-',
+      render: (_, record) => 
+        record?.recognitionType?.criteria?.length ? (
+          <div className="flex flex-wrap gap-2">
+            {record?.recognitionType?.criteria.map((criteria: any, index: number) => (
+              <span key={index} className="px-2 py-1 bg-gray-100 rounded text-sm">
+                {criteria?.criterionKey}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <span>-</span>
+        ),
       sorter: (a, b) =>
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     },
