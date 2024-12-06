@@ -29,3 +29,11 @@ export interface AttendanceSetShiftRequestBody {
   breakTypeId?: string;
   userId: string;
 }
+export interface EditAttendance {
+  earlyByMinutes: number;
+  lateByMinutes: number;
+  endAt: string | null;
+  startAt: string | null;
+  isAbsent: boolean;
+  isOnGoing: boolean;
+}

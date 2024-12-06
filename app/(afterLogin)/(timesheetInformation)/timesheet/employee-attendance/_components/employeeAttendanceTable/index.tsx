@@ -54,18 +54,14 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setOrderBy,
     setOrderDirection,
   } = usePagination(1, 10);
-  const {
-    setIsShowEmployeeAttendanceSidebar,
-    setNewData,
-    setEmployeeAttendanceId,
-  } = useEmployeeAttendanceStore();
+  const { setIsShowEmployeeAttendanceSidebar, setEmployeeAttendanceId } =
+    useEmployeeAttendanceStore();
   const [filter, setFilter] =
     useState<Partial<AttendanceRequestBody['filter']>>();
   const { data, isFetching, refetch } = useGetAttendances(
     { page, limit, orderBy, orderDirection },
     { filter },
   );
-
   const EmpRender = ({ userId }: any) => {
     const {
       isLoading,
@@ -96,10 +92,9 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       '-'
     );
   };
-  const onEdit = ($id: string, $item: any) => {
+  const onEdit = ($id: string) => {
     setIsShowEmployeeAttendanceSidebar(true);
     setEmployeeAttendanceId($id);
-    setNewData($item);
   };
 
   const columns: TableColumnsType<any> = [
@@ -122,7 +117,9 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       dataIndex: 'clockIn',
       key: 'clockIn',
       render: (date: string) => (
-        <div>{dayjs(date).format(DATETIME_FORMAT)}</div>
+        <div>
+          {date ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT) : '-'}
+        </div>
       ),
     },
     {
@@ -130,7 +127,9 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       dataIndex: 'clockOut',
       key: 'clockOut',
       render: (date: string) => (
-        <div>{date ? dayjs(date).format(DATETIME_FORMAT) : '-'}</div>
+        <div>
+          {date ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT) : '-'}
+        </div>
       ),
     },
     {
@@ -181,7 +180,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             icon={<FiEdit2 size={16} />}
             id={`${item?.id}buttonPopOverActionForOnEditActionId`}
             type="primary"
-            onClick={() => onEdit(item?.id, item)}
+            onClick={() => onEdit(item?.id)}
           />
         );
       },

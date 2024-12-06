@@ -6,6 +6,8 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import CommentAuthorsAvatars from '../commentAuthorsAvatar';
 import CommentList from '../commentList';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 // Extend Day.js with the relative time plugin
 dayjs.extend(relativeTime);
@@ -29,9 +31,11 @@ const CommentCard: React.FC<Props> = ({
     <Card
       title={CommentAuthorsAvatars(data)}
       extra={
-        <Button type="primary" onClick={() => setViewComment(!viewComment)}>
-          Comment
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateCommentOnPlanAndReport]}>
+          <Button type="primary" onClick={() => setViewComment(!viewComment)}>
+            Comment
+          </Button>
+        </AccessGuard>
       }
     >
       {loading ? (
