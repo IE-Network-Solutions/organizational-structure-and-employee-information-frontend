@@ -5,7 +5,7 @@ import { classNames } from '@/utils/classNames';
 
 interface UserCardProps {
   avatar?: string;
-  name: string;
+  name: string | undefined;
   description?: string;
   size?: 'small' | 'medium';
 }

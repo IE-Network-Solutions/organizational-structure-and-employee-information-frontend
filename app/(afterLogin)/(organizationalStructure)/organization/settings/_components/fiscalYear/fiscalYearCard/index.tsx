@@ -6,6 +6,8 @@ import { FiscalYear } from '@/store/server/features/organizationStructure/fiscal
 import dayjs, { Dayjs } from 'dayjs';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const FiscalYearListCard: React.FC = () => {
   const { data: fiscalYears, isLoading: fiscalYearsFetchLoading } =
@@ -30,20 +32,24 @@ const FiscalYearListCard: React.FC = () => {
   };
   const renderMenu = (scheduleItem: any) => (
     <Menu onClick={handleMenuClick}>
-      <Menu.Item
-        key="edit"
-        onClick={() => handleEditFiscalYear(scheduleItem)}
-        icon={<FaEdit />}
-      >
-        Edit
-      </Menu.Item>
-      <Menu.Item
-        key="delete"
-        icon={<FaTrashAlt />}
-        onClick={() => handleDeleteFiscalYear(scheduleItem)}
-      >
-        Delete
-      </Menu.Item>
+      <AccessGuard permissions={[Permissions.UpdateCalendar]}>
+        <Menu.Item
+          key="edit"
+          onClick={() => handleEditFiscalYear(scheduleItem)}
+          icon={<FaEdit />}
+        >
+          Edit
+        </Menu.Item>
+      </AccessGuard>
+      <AccessGuard permissions={[Permissions.DeleteCalendar]}>
+        <Menu.Item
+          key="delete"
+          icon={<FaTrashAlt />}
+          onClick={() => handleDeleteFiscalYear(scheduleItem)}
+        >
+          Delete
+        </Menu.Item>
+      </AccessGuard>
     </Menu>
   );
   return (
@@ -51,9 +57,11 @@ const FiscalYearListCard: React.FC = () => {
       <Card className="shadow-md rounded-lg">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Fiscal Year</h2>
-          <Button type="primary" icon={<PlusOutlined />} onClick={openDrawer}>
-            Create
-          </Button>
+          <AccessGuard permissions={[Permissions.CreateCalendar]}>
+            <Button type="primary" icon={<PlusOutlined />} onClick={openDrawer}>
+              Create
+            </Button>
+          </AccessGuard>
         </div>
         <List
           loading={fiscalYearsFetchLoading}

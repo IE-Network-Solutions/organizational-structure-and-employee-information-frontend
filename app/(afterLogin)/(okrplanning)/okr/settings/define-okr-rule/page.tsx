@@ -9,6 +9,8 @@ import { useOkrRuleStore } from '@/store/uistate/features/okrplanning/monitoring
 import { useDeleteOkrRule } from '@/store/server/features/okrplanning/monitoring-evaluation/okr-rule/mutations';
 import { useGetOkrRule } from '@/store/server/features/okrplanning/monitoring-evaluation/okr-rule/queries';
 import OkrRuleDrawer from './okr-rule';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const DefineOkrRule = () => {
   const {
@@ -52,6 +54,7 @@ const DefineOkrRule = () => {
     <div className="p-6   w-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">OKR Rule</h2>
+        <AccessGuard permissions={[Permissions.CreateOkrRule]}>
         <Button
           type="primary"
           className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
@@ -59,6 +62,7 @@ const DefineOkrRule = () => {
         >
           + Add Rule
         </Button>
+        </AccessGuard>
       </div>
 
       <List
@@ -69,18 +73,22 @@ const DefineOkrRule = () => {
           <List.Item className="flex justify-between items-center py-4 px-4 rounded-xl my-3 border border-gray-300 ">
             <span className="">{item?.title || 'Unknown title'}</span>
             <div>
-              <Button
-                icon={<EditOutlined />}
-                className="mr-2 bg-blue text-white"
-                shape="circle"
-                onClick={() => handleEditModal(item)}
-              />
-              <Button
-                icon={<DeleteOutlined />}
-                className="mr-2 bg-red-500 text-white"
-                shape="circle"
-                onClick={() => showDeleteModal(item?.id as string)}
-              />
+              <AccessGuard permissions={[Permissions.UpdateOkrRule]}>
+                <Button
+                  icon={<EditOutlined />}
+                  className="mr-2 bg-blue text-white"
+                  shape="circle"
+                  onClick={() => handleEditModal(item)}
+                />
+              </AccessGuard>
+              <AccessGuard permissions={[Permissions.DeleteOkrRule]}>
+                <Button
+                  icon={<DeleteOutlined />}
+                  className="mr-2 bg-red-500 text-white"
+                  shape="circle"
+                  onClick={() => showDeleteModal(item?.id as string)}
+                />
+              </AccessGuard>
             </div>
           </List.Item>
         )}

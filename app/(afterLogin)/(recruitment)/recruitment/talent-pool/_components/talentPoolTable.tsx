@@ -7,6 +7,8 @@ import dayjs from 'dayjs';
 import { useMoveTalentPoolToCandidates } from '@/store/server/features/recruitment/tallentPool/mutation';
 import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
 import TransferTalentPoolToCandidateModal from './transferModal';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const TalentPoolTable: React.FC<any> = () => {
@@ -99,9 +101,11 @@ const TalentPoolTable: React.FC<any> = () => {
       title: 'Actions',
       key: 'actions',
       render: (_: any, record: any) => (
-        <Button type="primary" onClick={() => showModal(record)}>
-          Transfer
-        </Button>
+        <AccessGuard permissions={[Permissions.TransferCandidate]}>
+          <Button type="primary" onClick={() => showModal(record)}>
+            Transfer
+          </Button>
+        </AccessGuard>
       ),
     },
   ];

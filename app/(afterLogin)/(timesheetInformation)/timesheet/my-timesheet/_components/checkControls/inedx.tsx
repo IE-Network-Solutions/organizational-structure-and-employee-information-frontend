@@ -14,6 +14,8 @@ import {
 import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
@@ -79,49 +81,53 @@ const CheckControl = () => {
   switch (checkStatus) {
     case CheckStatus.notStarted:
       return (
-        <Button
-          className="h-14 text-base"
-          id="buttonCheckin"
-          size="large"
-          type="primary"
-          icon={<GoClock size={20} />}
-          loading={isLoading || isFetching}
-          onClick={() => {
-            setAttendance(true);
-          }}
-        >
-          Check in
-        </Button>
+        <AccessGuard permissions={[Permissions.CheckInRemotely]}>
+          <Button
+            className="h-14 text-base"
+            id="buttonCheckin"
+            size="large"
+            type="primary"
+            icon={<GoClock size={20} />}
+            loading={isLoading || isFetching}
+            onClick={() => {
+              setAttendance(true);
+            }}
+          >
+            Check in
+          </Button>
+        </AccessGuard>
       );
     case CheckStatus.started:
       return (
         <Space>
-          <Button
-            className="h-14 text-base px-2"
-            size="large"
-            id="buttonBreakCheckOut"
-            icon={<GoClock size={20} />}
-            loading={isLoading || isFetching}
-            onClick={() => {
-              getCoords(() => {
-                setIsShowCheckOutSidebar(true);
-              });
-            }}
-          >
-            Break Check Out
-          </Button>
-          <Button
-            className="h-14 text-base"
-            size="large"
-            id="buttonCheckOut"
-            icon={<GoClock size={20} />}
-            loading={isLoading || isFetching}
-            onClick={() => {
-              setAttendance(false);
-            }}
-          >
-            Check out
-          </Button>
+          <AccessGuard permissions={[Permissions.CheckOutRemotely]}>
+            <Button
+              className="h-14 text-base px-2"
+              size="large"
+              id="buttonBreakCheckOut"
+              icon={<GoClock size={20} />}
+              loading={isLoading || isFetching}
+              onClick={() => {
+                getCoords(() => {
+                  setIsShowCheckOutSidebar(true);
+                });
+              }}
+            >
+              Break Check Out
+            </Button>
+            <Button
+              className="h-14 text-base"
+              size="large"
+              id="buttonCheckOut"
+              icon={<GoClock size={20} />}
+              loading={isLoading || isFetching}
+              onClick={() => {
+                setAttendance(false);
+              }}
+            >
+              Check out
+            </Button>
+          </AccessGuard>
         </Space>
       );
     case CheckStatus.breaking:
@@ -132,19 +138,20 @@ const CheckControl = () => {
               {workTime} hrs
             </div>
           )}
-
-          <Button
-            className="h-14 text-base"
-            size="large"
-            id="checkInButton"
-            icon={<GoClock size={20} />}
-            loading={isLoading || isFetching}
-            onClick={() => {
-              setAttendance(true);
-            }}
-          >
-            Check in
-          </Button>
+          <AccessGuard permissions={[Permissions.CheckInRemotely]}>
+            <Button
+              className="h-14 text-base"
+              size="large"
+              id="checkInButton"
+              icon={<GoClock size={20} />}
+              loading={isLoading || isFetching}
+              onClick={() => {
+                setAttendance(true);
+              }}
+            >
+              Check in
+            </Button>
+          </AccessGuard>
         </Space>
       );
     case CheckStatus.finished:
