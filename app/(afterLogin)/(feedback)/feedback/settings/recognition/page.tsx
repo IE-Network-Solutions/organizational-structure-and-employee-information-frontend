@@ -1,28 +1,20 @@
 'use client';
-import { Button, Drawer, Form, Input, Tabs } from "antd";
-import { TabsProps } from "antd"; // Import TabsProps only if you need it.
-import { useState } from "react";
-import { FaPlus } from "react-icons/fa";
-import AllRecognition from "../_components/recognition/allRecognition";
-import CustomDrawerLayout from "@/components/common/customDrawer";
-import { ConversationStore } from "@/store/uistate/features/conversation";
-import RecognitionForm from "../_components/recognition/createRecognition";
-import { useGetAllRecognitionType } from "@/store/server/features/CFR/recognition/queries";
-import { useAddRecognitionType } from "@/store/server/features/CFR/recognition/mutation";
+import { Button, Drawer, Tabs } from 'antd';
+import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
+import { FaPlus } from 'react-icons/fa';
+import AllRecognition from '../_components/recognition/allRecognition';
+import CustomDrawerLayout from '@/components/common/customDrawer';
+import { ConversationStore } from '@/store/uistate/features/conversation';
+import RecognitionForm from '../_components/recognition/createRecognition';
+import { useGetAllRecognitionType } from '@/store/server/features/CFR/recognition/queries';
 
 const Page = () => {
-    const { open, setOpen,setOpenRecognitionType,openRecognitionType, setSearchField } = ConversationStore();
-    const {data:recognitionType}=useGetAllRecognitionType();
-    const {mutate:createRecognitionType}=useAddRecognitionType();
+  const { open, setOpen, setOpenRecognitionType, openRecognitionType } =
+    ConversationStore();
+  const { data: recognitionType } = useGetAllRecognitionType();
 
+  const onChange = () => {};
 
-  const onChange = (key: string) => {
-    console.log("Active Tab Key:", key);
-  };
-  const onFinish = (values: any) => {
-    console.log("Active Tab Key:", values);
-    createRecognitionType(values)
-  };
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Add New Recognition
@@ -35,10 +27,10 @@ const Page = () => {
       label: 'All Recognitions',
       children: <AllRecognition data={recognitionType?.items} all={true} />,
     },
-    ...(recognitionType?.items?.map((recognitionType: any, index: number) => ({
+    ...(recognitionType?.items?.map((recognitionType: any) => ({
       key: `${recognitionType?.id}`, // Ensure unique keys
       label: recognitionType?.name,
-      children: <AllRecognition data={[recognitionType]}/>,
+      children: <AllRecognition data={[recognitionType]} />,
     })) || []),
     {
       key: 'last',
@@ -56,25 +48,31 @@ const Page = () => {
     },
   ];
 
-
-  return ( 
+  return (
     <div>
-      <Tabs className="max-w-[850px] overflow-x-scrollable" defaultActiveKey="1" items={items} onChange={onChange} />
+      <Tabs
+        className="max-w-[850px] overflow-x-scrollable"
+        defaultActiveKey="1"
+        items={items}
+        onChange={onChange}
+      />
       <CustomDrawerLayout
         open={open}
         onClose={() => setOpen(false)}
         modalHeader={modalHeader}
         width="50%"
       >
-        <RecognitionForm /> 
-
+        <RecognitionForm />
       </CustomDrawerLayout>
-      <Drawer title={modalHeader} onClose={()=>setOpenRecognitionType(false)} open={openRecognitionType}>
-         <RecognitionForm createCategory={true}/> 
+      <Drawer
+        title={modalHeader}
+        onClose={() => setOpenRecognitionType(false)}
+        open={openRecognitionType}
+      >
+        <RecognitionForm createCategory={true} />
       </Drawer>
-      </div>
-
+    </div>
   );
-  };
+};
 
 export default Page;

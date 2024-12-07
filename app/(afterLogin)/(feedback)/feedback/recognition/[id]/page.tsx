@@ -1,21 +1,9 @@
 'use client';
-import EmployeeSearchComponent from '@/components/common/search/searchComponent';
 import TabLandingLayout from '@/components/tabLanding';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
 import { Card, Table, TableColumnsType } from 'antd';
-import { TableProps } from 'antd/lib';
 import React from 'react';
-import { FaBackward } from 'react-icons/fa';
 
 function Page() {
-  const {searchField}=useRecongnitionStore();
-  const { data: allUserData } = useGetAllUsers();
-
- const handleSearchChange=()=>{
-  }
-
-
   const columns: TableColumnsType = [
     {
       title: '',
@@ -26,10 +14,9 @@ function Page() {
       title: '',
       dataIndex: 'age',
     },
-
   ];
-  
-  const data= [
+
+  const data = [
     {
       key: '1',
       name: 'John Brown',
@@ -51,35 +38,34 @@ function Page() {
       age: 32,
     },
   ];
-  
-  return <div>
-    <>
-      <TabLandingLayout
-        id="conversationLayoutId"
-        onClickHandler={() => {}}
-        title="  ← Best Employee"
-        buttonTitle='print Certification'
-        buttonIcon={""}
-      >
-        <Card>
-        <Table
-            showHeader={false}
-            columns={columns}
-            bordered={false}
-            pagination={false}
-            dataSource={data}
-            style={{
-                border: "none",
-                borderCollapse: "collapse",
+
+  return (
+    <div>
+      <>
+        <TabLandingLayout
+          id="conversationLayoutId"
+          onClickHandler={() => {}}
+          title="  ← Best Employee"
+          buttonTitle="print Certification"
+          buttonIcon={''}
+        >
+          <Card>
+            <Table
+              showHeader={false}
+              columns={columns}
+              bordered={false}
+              pagination={false}
+              dataSource={data}
+              style={{
+                border: 'none',
+                borderCollapse: 'collapse',
               }}
             />
-        </Card>
-      </TabLandingLayout>
-    </>
- 
-     
-    </div>;
+          </Card>
+        </TabLandingLayout>
+      </>
+    </div>
+  );
 }
 
 export default Page;
-
