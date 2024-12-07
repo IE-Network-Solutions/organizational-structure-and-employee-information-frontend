@@ -65,7 +65,7 @@ export const useRecongnitionStore = create<CategoriesUseState>((set) => ({
     })),
 
   setTotalPages: (totalPages: number) => set({ totalPages }),
-  setPageSize: (pageSize:number) => set({ pageSize }),
-  setCurrent: (value:number) => set({ current: value }),
-  setOpen: (open:boolean) => set({ open }),
+  setPageSize: (pageSize: number) => set({ pageSize }),
+  setCurrent: (value: number) => set({ current: value }),
+  setOpen: (open: boolean) => set({ open }),
 }));

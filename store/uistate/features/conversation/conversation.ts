@@ -15,9 +15,9 @@ export interface CategoriesUseState {
   current: number;
   pageSize: number;
   totalPages: number;
- 
-  openRecognitionType:boolean;
-  setOpenRecognitionType:(vlaue:boolean)=>void;
+
+  openRecognitionType: boolean;
+  setOpenRecognitionType: (vlaue: boolean) => void;
 
   setPageSize: (pageSize: number) => void;
   setCurrent: (value: number) => void;
@@ -36,16 +36,14 @@ export interface CategoriesUseState {
   selectedRecognitionType: string;
   setSelectedRecognitionType: (selectedRecognitionType: string) => void;
 
+  recognitionTypeId: string;
+  setRecognitionTypeId: (value: string) => void;
 
-  recognitionTypeId:string;
-   setRecognitionTypeId:(value:string)=>void
+  parentRecognitionTypeId: string;
+  setParentRecognitionTypeId: (value: string) => void;
 
-   parentRecognitionTypeId:string;
-   setParentRecognitionTypeId:(value:string)=>void
-
-  editingRowKeys:any;
-   setEditingRowKeys:(valiue:any)=>void;
-
+  editingRowKeys: any;
+  setEditingRowKeys: (valiue: any) => void;
 
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
@@ -95,7 +93,8 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedUserId: (selectedUserId: string) => set({ selectedUserId }),
 
   selectedRecognitionType: '',
-  setSelectedRecognitionType: (selectedRecognitionType: string) => set({ selectedRecognitionType }),
+  setSelectedRecognitionType: (selectedRecognitionType: string) =>
+    set({ selectedRecognitionType }),
 
   activeTab: '1',
   setActiveTab: (activeTab: string) => set({ activeTab }),
@@ -103,15 +102,16 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   departmentId: '',
   setDepartmentId: (departmentId: string) => set({ departmentId }),
 
-  recognitionTypeId:'',
-  setRecognitionTypeId:(recognitionTypeId:string)=>set({recognitionTypeId}),
+  recognitionTypeId: '',
+  setRecognitionTypeId: (recognitionTypeId: string) =>
+    set({ recognitionTypeId }),
 
-  parentRecognitionTypeId:'',
-  setParentRecognitionTypeId:(parentRecognitionTypeId:string)=>set({parentRecognitionTypeId}),
-  
-  
- editingRowKeys:{},
-  setEditingRowKeys:(editingRowKeys:any)=>set({editingRowKeys}),
+  parentRecognitionTypeId: '',
+  setParentRecognitionTypeId: (parentRecognitionTypeId: string) =>
+    set({ parentRecognitionTypeId }),
+
+  editingRowKeys: {},
+  setEditingRowKeys: (editingRowKeys: any) => set({ editingRowKeys }),
 
   searchField: initialSearchField, // Initial value
   setSearchField: (fields) => set({ searchField: fields }),
@@ -126,8 +126,9 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setTotalPages: (totalPages: number) => set({ totalPages }),
   setPageSize: (pageSize) => set({ pageSize }),
 
-  openRecognitionType:false,
-  setOpenRecognitionType:(openRecognitionType:boolean)=>set({openRecognitionType}),
+  openRecognitionType: false,
+  setOpenRecognitionType: (openRecognitionType: boolean) =>
+    set({ openRecognitionType }),
 
   setCurrent: (value) => set({ current: value }),
   setOpen: (open) => set({ open }),
