@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Table, Tabs } from 'antd';
 import { FaEye, FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
@@ -7,27 +7,136 @@ import { RiDeleteBin6Line } from 'react-icons/ri';
 import ScoringDrawer from './_components/criteria-drawer';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CriteriaFilters from './_components/criteria-filters';
+import {
+  useFetchVpScoring,
+  useGetCriteriaTargets,
+} from '@/store/server/features/okrplanning/okr/criteria/queries';
+import { useDeleteVpScoring } from '@/store/server/features/okrplanning/okr/criteria/mutation';
+import DeletePopover from '@/components/common/actionButton/deletePopover';
 
 function Page() {
-  const { openDrawer } = useDrawerStore();
+  // Replace useGetCriteriaTargets and useFetchVpScoring hooks with dummy data
+  const dummyCriteriaTargets = {
+    items: [
+      {
+        id: '1',
+        name: 'Customer Satisfaction',
+        description: 'Measure customer satisfaction through surveys.',
+        sourceService: 'SurveyService',
+        sourceEndpoint: 'https://api.example.com/surveys',
+      },
+      {
+        id: '2',
+        name: 'Employee Engagement',
+        description: 'Evaluate employee engagement through polls.',
+        sourceService: 'HRService',
+        sourceEndpoint: 'https://api.example.com/hr/engagement',
+      },
+      {
+        id: '3',
+        name: 'Product Quality',
+        description: 'Track defect rates in product lines.',
+        sourceService: 'QualityControlService',
+        sourceEndpoint: 'https://api.example.com/quality',
+      },
+    ],
+  };
 
-  // Assigned Criteria by Role Data and Columns
-  const assignedCriteriaData = [
-    {
-      key: '1',
-      name: 'Manager VP Scoring',
-      totalPercentage: '30%',
-      assignedRoles: 'Sales Manager, HR Lead',
-      criteriaCount: 3,
-    },
-    {
-      key: '2',
-      name: 'Sales VP Scoring',
-      totalPercentage: '40%',
-      assignedRoles: 'Sales Team, Operations Lead',
-      criteriaCount: 5,
-    },
-  ];
+  const dummyVpScoring = {
+    items: [
+      {
+        id: '1',
+        name: 'Q1 Performance',
+        totalPercentage: 85,
+        vpScoringCriterions: [
+          { vpCriteria: { name: 'Customer Satisfaction' } },
+          { vpCriteria: { name: 'Employee Engagement' } },
+        ],
+      },
+      {
+        id: '2',
+        name: 'Q2 Performance',
+        totalPercentage: 90,
+        vpScoringCriterions: [{ vpCriteria: { name: 'Product Quality' } }],
+      },
+    ],
+  };
+
+  // Replace hooks with dummy data
+  const { data: criteriaData, isLoading: criteriaLoading } = {
+    data: dummyCriteriaTargets,
+    isLoading: false,
+  };
+
+  const { data: vpScoringData, isLoading: vpScoringLoading } = {
+    data: dummyVpScoring,
+    isLoading: false,
+  };
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('All Types');
+
+  const { openDrawer } = useDrawerStore();
+  // const { data: criteriaData, isLoading: criteriaLoading } =
+  //   useGetCriteriaTargets();
+  // const { data: vpScoringData, isLoading: vpScoringLoading } =
+  //   useFetchVpScoring();
+  const { mutate: deleteVpScoring } = useDeleteVpScoring();
+
+  const handleDelete = (id: string) => {
+    deleteVpScoring(id);
+  };
+
+  const handleSearch = (value: string) => setSearchTerm(value);
+
+  const handleTypeChange = (value: string) => setSelectedType(value);
+
+  const handleEditClick = (id: string) => {
+    openDrawer(id);
+  };
+
+  const criteriaTypes: string[] = (criteriaData?.items || []).map(
+    (item: any) => item.name,
+  );
+
+  const availableCriteriaData = criteriaData?.items
+    ?.map((item: any) => ({
+      key: item.id,
+      name: item.name, // Type is the `name`
+      description: item.description,
+      sourceService: item.sourceService,
+      sourceEndPoint: item.sourceEndpoint,
+    }))
+    .filter((item: any) => {
+      const matchesSearch = item.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesType =
+        selectedType === 'All Types' ||
+        item.name.toLowerCase() === selectedType?.toLowerCase();
+      return matchesSearch && matchesType;
+    });
+
+  const assignedCriteriaData = vpScoringData?.items
+    ?.map((item: any) => ({
+      key: item.id,
+      name: item.name,
+      totalPercentage: item.totalPercentage,
+      criteriaCount: item.vpScoringCriterions.length,
+      types: item.vpScoringCriterions.map(
+        (criterion: any) => criterion.vpCriteria.name,
+      ),
+    }))
+    .filter((item: any) => {
+      const matchesSearch = item.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesType =
+        selectedType === 'All Types' ||
+        item.types.some((type: string) => type === selectedType);
+
+      return matchesSearch && matchesType;
+    });
 
   const assignedCriteriaColumns = [
     {
@@ -41,11 +150,6 @@ function Page() {
       key: 'totalPercentage',
     },
     {
-      title: 'Assigned Roles',
-      dataIndex: 'assignedRoles',
-      key: 'assignedRoles',
-    },
-    {
       title: 'Criteria Count',
       dataIndex: 'criteriaCount',
       key: 'criteriaCount',
@@ -53,41 +157,23 @@ function Page() {
     {
       title: 'Action',
       key: 'action',
-      render: () => (
+      render: (record: any) => (
         <div className="flex space-x-2">
-          <Button
-            className="flex items-center space-x-1 bg-purple text-white hover:bg-indigo-500 border-none"
-            icon={<FaEye />}
-          />
           <Button
             type="default"
             className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-500 border-none"
             icon={<GrEdit />}
+            onClick={() => handleEditClick(record.key)}
           />
-          <Button
-            type="default"
-            className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-            icon={<RiDeleteBin6Line />}
-          />
+          <DeletePopover onDelete={() => handleDelete(record.key)}>
+            <Button
+              type="default"
+              className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
+              icon={<RiDeleteBin6Line />}
+            />
+          </DeletePopover>
         </div>
       ),
-    },
-  ];
-
-  const availableCriteriaData = [
-    {
-      key: '1',
-      name: 'Quality Score',
-      description: 'Score based on quality of work',
-      sourceService: 'OKR, CFR',
-      sourceEndPoint: 'https://api.example.com/criteria/quality-score',
-    },
-    {
-      key: '2',
-      name: 'Timeliness',
-      description: 'Score based on delivery time',
-      sourceService: 'OKR',
-      sourceEndPoint: 'https://api.example.com/criteria/timeliness',
     },
   ];
 
@@ -128,13 +214,17 @@ function Page() {
           type="primary"
           className="flex items-center space-x-2 py-8 px-8"
           icon={<FaPlus />}
-          onClick={openDrawer}
+          onClick={() => openDrawer()}
         >
           New Scoring Configuration
         </Button>
       </div>
 
-      <CriteriaFilters />
+      <CriteriaFilters
+        onSearch={handleSearch}
+        onTypeChange={handleTypeChange}
+        criteriaNames={['All Types', ...criteriaTypes]} // Add "All Types" as an option
+      />
 
       <Tabs centered defaultActiveKey="1">
         <Tabs.TabPane tab="Scoring Configuration" key="1">
@@ -142,6 +232,7 @@ function Page() {
             dataSource={assignedCriteriaData}
             columns={assignedCriteriaColumns}
             pagination={{ pageSize: 5 }}
+            loading={vpScoringLoading}
           />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Available Criteria" key="2">
@@ -149,6 +240,7 @@ function Page() {
             dataSource={availableCriteriaData}
             columns={availableCriteriaColumns}
             pagination={{ pageSize: 5 }}
+            loading={criteriaLoading}
           />
         </Tabs.TabPane>
       </Tabs>

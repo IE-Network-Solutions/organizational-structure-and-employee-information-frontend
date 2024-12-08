@@ -11,8 +11,7 @@ const AssignTargetDrawer: React.FC = () => {
   const { isDrawerVisible, closeDrawer } = useDrawerStore();
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
 
-  // Generate months dynamically
-  const months = Array.from({ length: 12 }, (_, i) => ({
+  const months = Array.from({ length: 3 }, (_, i) => ({
     value: `Month${i + 1}`,
     label: `Month ${i + 1}`,
   }));

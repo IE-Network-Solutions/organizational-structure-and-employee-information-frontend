@@ -1,38 +1,29 @@
 'use client';
-import React, { useState } from 'react';
-import { Button, Input, Select, Table } from 'antd';
+import React from 'react';
+import { Button, Table } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import AssignTargetDrawer from './_components/assign-target-drawer';
 import TargetFilters from './_components/target-filters';
-
-const { Search } = Input;
-const { Option } = Select;
+import { useTargetAssignment } from '@/store/server/features/okrplanning/okr/target/queries';
 
 function Page() {
+  const { data: targetAssignmentData, isLoading: targetAssignmentLoading } =
+    useTargetAssignment();
+
   const { openDrawer } = useDrawerStore();
 
-  // Table Data and Columns
-  const dataSource = [
-    {
-      key: '1',
-      department: 'Manager VP Scoring',
-      criteriaName: 'Criteria 1',
-      month1: '10%',
-      month2: '15%',
-      month3: '5%',
-    },
-    {
-      key: '2',
-      department: 'Sales VP Scoring',
-      criteriaName: 'Criteria 2',
-      month1: '20%',
-      month2: '10%',
-      month3: '10%',
-    },
-  ];
+  const dataSource =
+    targetAssignmentData?.items.map((item: any) => ({
+      key: item.id,
+      department: item.department || '--',
+      criteriaName: item.vpCriteria.name,
+      month1: item.month,
+      month2: item.month,
+      month3: item.month,
+    })) || [];
 
   const columns = [
     {
@@ -89,7 +80,7 @@ function Page() {
           type="primary"
           className="flex items-center space-x-2 py-8 px-8"
           icon={<FaPlus />}
-          onClick={openDrawer}
+          onClick={() => openDrawer()}
         >
           Assign Target
         </Button>
@@ -100,6 +91,7 @@ function Page() {
         dataSource={dataSource}
         columns={columns}
         pagination={{ pageSize: 5 }}
+        loading={targetAssignmentLoading}
       />
 
       <AssignTargetDrawer />
