@@ -29,7 +29,12 @@ const CommitmentCard: FC<CommitmentCardProps> = ({ item }) => {
             </div>
           ),
           extra: (
-            <AccessGuard permissions={[Permissions.UpdateCommitmentRule, Permissions.DeleteCommitmentRule]}>
+            <AccessGuard
+              permissions={[
+                Permissions.UpdateCommitmentRule,
+                Permissions.DeleteCommitmentRule,
+              ]}
+            >
               <ActionButtons
                 id={item?.id ?? null}
                 onEdit={(e: MouseEvent) => {

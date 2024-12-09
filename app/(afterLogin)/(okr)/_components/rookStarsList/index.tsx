@@ -6,7 +6,6 @@ const RookStarsList: React.FC<RookStarsListProps> = ({
   title,
   planningPeriodId,
 }) => {
-  
   const { data: rockStars = [] } = useGetRockStars(planningPeriodId, {
     enabled: !!planningPeriodId,
   });
