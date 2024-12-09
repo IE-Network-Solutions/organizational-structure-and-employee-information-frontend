@@ -2,12 +2,16 @@
 import React from 'react';
 import { Card, Collapse, Switch, Button, Form, Tooltip } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useGetConversationById } from '@/store/server/features/conversation/queries';
+import { useConversationTypes, useGetConversationById } from '@/store/server/features/conversation/queries';
 import { Popconfirm } from 'antd/lib';
 import {
   useDeleteConversationQuestionSet,
   useUpdateConversationQuestionSet,
 } from '@/store/server/features/conversation/questionSet/mutation';
+import { ConversationStore } from '@/store/uistate/features/conversation';
+import CustomDrawerLayout from '@/components/common/customDrawer';
+import QuestionSetForm from '../../../_components/questionSetForm';
+import { ConversationTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 
 type Question = {
   id: string;
@@ -25,14 +29,15 @@ type QuestionSet = {
 };
 
 const ConversationTypeDetail = ({ id }: { id: string }) => {
+  const { data: getAllConversationType } = useConversationTypes();
+  const {editableData,activeTab,setEditableData}=ConversationStore();
+  
+
   const { data: conversationType } = useGetConversationById(id);
   const { mutate: deleteConversationQuestionSet } =
     useDeleteConversationQuestionSet();
-  const { mutate: updateConversationQuestionSet } =
+  const { mutate: updateConversationQuestionSet,isLoading:updateIsActive } =
     useUpdateConversationQuestionSet();
-
-  // const [isModalVisible, setIsModalVisible] = useState(false);
-  // const [editingSet, setEditingSet] = useState<QuestionSet | null>(null);
   const [form] = Form.useForm();
 
   const toggleActive = (id: string, active: boolean) => {
@@ -40,10 +45,18 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
   };
 
   const handleEdit = (set: QuestionSet) => {
-    // setEditingSet(set);
-    form.setFieldsValue(set);
-    // setIsModalVisible(true);
+    setEditableData(set);
   };
+  const activeTabName =
+  getAllConversationType?.items?.find(
+    (item: ConversationTypeItems) => item.id === activeTab,
+  )?.name || '';
+
+  const modalHeader = (
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+      Edit {activeTabName}
+    </div>
+  );
 
   return (
     <div className="p-4">
@@ -61,6 +74,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
                       size="small"
                       className="text-xs text-gray-950"
                       checked={set?.active}
+                      loading={updateIsActive}
                       onChange={(value: boolean) => toggleActive(set.id, value)}
                     />
                   </Tooltip>
@@ -108,24 +122,14 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
           </Collapse>
         ),
       )}
-
-      {/* <Modal
-        visible={isModalVisible}
-        title={editingSet ? 'Edit Question Set' : 'Add Question Set'}
-        onCancel={() => setIsModalVisible(false)}
-        onOk={() => form.submit()}
-        okText="Save"
+     <CustomDrawerLayout
+        open={editableData!==null}
+        onClose={() => setEditableData(null)}
+        modalHeader={modalHeader}
+        width="40%"
       >
-        <Form form={form} onFinish={handleSave} layout="vertical">
-          <Form.Item
-            name="name"
-            label="Question Set Name"
-            rules={[{ required: true, message: 'Please enter a name' }]}
-          >
-            <Input />
-          </Form.Item>
-        </Form>
-      </Modal> */}
+        <QuestionSetForm/>
+      </CustomDrawerLayout>
     </div>
   );
 };

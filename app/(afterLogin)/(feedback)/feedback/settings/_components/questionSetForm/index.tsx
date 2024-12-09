@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Select, Checkbox, Space, Switch } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Form, Input, Button, Select, Checkbox, Space, Switch, message, Popconfirm } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { v4 as uuidv4 } from 'uuid';
 import { FieldType } from '@/types/enumTypes';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { useAddQuestionSetOnConversationType } from '@/store/server/features/conversation/questionSet/mutation';
+import { useAddQuestionSetOnConversationType, useUpdateQuestionSetWithQuestionsOnConversationType } from '@/store/server/features/conversation/questionSet/mutation';
+import { useForm } from 'antd/es/form/Form';
 
 const { Option } = Select;
-
 const QuestionSetForm = () => {
-  const [questions, setQuestions] = useState<any>([]);
-  const { activeTab, setOpen } = ConversationStore();
+  const { activeTab,editableData,setEditableData, setOpen ,questions, setQuestions} = ConversationStore();
+  const [form]=Form.useForm()
   const { mutate: createConversationQuestionSet } =
     useAddQuestionSetOnConversationType();
+    const { mutate: updateConversationQuestionSet,isLoading:updateIsLoading } =useUpdateQuestionSetWithQuestionsOnConversationType();
 
   const handleAddQuestion = () => {
     setQuestions((prev: any) => [
@@ -28,8 +29,10 @@ const QuestionSetForm = () => {
     ]);
   };
 
+
   const handleRemoveQuestion = (id: any) => {
-    setQuestions((prev: any) => prev.filter((q: any) => q.id !== id));
+    const filteredQuestions = questions.filter((q: any) => q.id !== id);
+    setQuestions(filteredQuestions);
   };
 
   const handleChangeQuestion = (id: any, key: any, value: any) => {
@@ -81,15 +84,48 @@ const QuestionSetForm = () => {
 
   const handleSubmit = (values: any) => {
     const payload = { ...values, conversationTypeId: activeTab, questions };
-    createConversationQuestionSet(payload, {
-      onSuccess: () => {
-        setOpen(false);
-      },
-    });
+    if(editableData!==null){
+      updateConversationQuestionSet(payload, {
+        onSuccess: () => {
+          setEditableData(null);
+        },
+      });
+    }
+    else{
+      createConversationQuestionSet(payload, {
+        onSuccess: () => {
+          setOpen(false);
+        },
+      });
+    }
   };
 
+  useEffect(() => {
+    if (editableData !== null) {
+      console.log(editableData, "editableData***");
+      setQuestions(editableData.conversationsQuestions || []); // Set questions state
+  
+      // Populate form fields with editableData
+      form.setFieldsValue({
+        name: editableData.name || '',
+        id: editableData.id || '',
+        // meetingAgenda: editableData.meetingAgenda || '',
+        active: editableData.active ?? true, // Default to true if undefined
+        conversationTypeId: editableData.conversationTypeId || '',
+        conversationsQuestions: editableData.conversationsQuestions || [],
+      });
+    }
+  }, [editableData, form]);
+    
+  
+
   return (
-    <Form layout="vertical" onFinish={handleSubmit}>
+      <Form
+        layout="vertical"
+        form={form} // Bind the form instance
+        onFinish={handleSubmit}
+        onFinishFailed={(e) => message.error("something unfilled or error")}
+      >
       <Form.Item
         label="Name"
         name="name"
@@ -97,14 +133,24 @@ const QuestionSetForm = () => {
       >
         <Input />
       </Form.Item>
-
+      {editableData!==null && 
+      <>
+       <Form.Item
+       hidden
+       name="id"
+       rules={[{ required: true, message: 'Please enter a name' }]}
+     >
+       <Input />
+     </Form.Item>
       <Form.Item
-        label="Meeting Agenda"
-        name="meetingAgenda"
-        rules={[{ required: true, message: 'Please enter a meeting agenda' }]}
+        hidden
+        name="conversationTypeId"
+        rules={[{ required: true, message: 'Please enter a name' }]}
       >
-        <Input.TextArea />
+        <Input />
       </Form.Item>
+      </>}
+
       <Form.Item
         label="Is Active"
         name="active"
@@ -115,7 +161,7 @@ const QuestionSetForm = () => {
       </Form.Item>
 
       <Form.Item label="Questions">
-        {questions.map((q: any) => (
+        {questions?.map((q: any) => (
           <div key={q.id} style={{ marginBottom: '16px' }}>
             {/* First Row: Question Input */}
             <div style={{ display: 'flex', marginBottom: '8px' }}>
@@ -213,10 +259,22 @@ const QuestionSetForm = () => {
         </Button>
       </Form.Item>
 
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Submit
-        </Button>
+      <Form.Item >
+        <div className='flex justify-center space-x-4'>
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+          <Popconfirm
+            title="Are you sure you want to reset the form?"
+            onConfirm={() => form.resetFields()} // Reset form fields on confirmation
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="default" htmlType="reset" >
+              Reset
+            </Button>
+          </Popconfirm>
+        </div>
       </Form.Item>
     </Form>
   );
