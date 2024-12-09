@@ -1,8 +1,11 @@
 // const { data: conversationType, isLoading } = useGetConversationById(id);
 import React from 'react';
-import { Card, Collapse, Switch, Button, Form, Tooltip } from 'antd';
+import { Card, Collapse, Switch, Button, Tooltip } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useConversationTypes, useGetConversationById } from '@/store/server/features/conversation/queries';
+import {
+  useConversationTypes,
+  useGetConversationById,
+} from '@/store/server/features/conversation/queries';
 import { Popconfirm } from 'antd/lib';
 import {
   useDeleteConversationQuestionSet,
@@ -30,15 +33,13 @@ type QuestionSet = {
 
 const ConversationTypeDetail = ({ id }: { id: string }) => {
   const { data: getAllConversationType } = useConversationTypes();
-  const {editableData,activeTab,setEditableData}=ConversationStore();
-  
+  const { editableData, activeTab, setEditableData } = ConversationStore();
 
   const { data: conversationType } = useGetConversationById(id);
   const { mutate: deleteConversationQuestionSet } =
     useDeleteConversationQuestionSet();
-  const { mutate: updateConversationQuestionSet,isLoading:updateIsActive } =
+  const { mutate: updateConversationQuestionSet, isLoading: updateIsActive } =
     useUpdateConversationQuestionSet();
-  const [form] = Form.useForm();
 
   const toggleActive = (id: string, active: boolean) => {
     updateConversationQuestionSet({ id, active });
@@ -48,9 +49,9 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
     setEditableData(set);
   };
   const activeTabName =
-  getAllConversationType?.items?.find(
-    (item: ConversationTypeItems) => item.id === activeTab,
-  )?.name || '';
+    getAllConversationType?.items?.find(
+      (item: ConversationTypeItems) => item.id === activeTab,
+    )?.name || '';
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -122,13 +123,13 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
           </Collapse>
         ),
       )}
-     <CustomDrawerLayout
-        open={editableData!==null}
+      <CustomDrawerLayout
+        open={editableData !== null}
         onClose={() => setEditableData(null)}
         modalHeader={modalHeader}
         width="40%"
       >
-        <QuestionSetForm/>
+        <QuestionSetForm />
       </CustomDrawerLayout>
     </div>
   );

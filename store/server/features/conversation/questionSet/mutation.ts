@@ -168,7 +168,6 @@ export const useAddQuestionSetOnConversationType = () => {
 };
 // eslint-enable-next-line @typescript-eslint/naming-convention
 
-
 /**
  * Custom hook to delete a category using React Query.
  * Automatically invalidates the 'categories' query cache on success.

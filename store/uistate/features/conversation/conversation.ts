@@ -20,8 +20,8 @@ export interface CategoriesUseState {
   setCurrent: (value: number) => void;
   setOpen: (value: boolean) => void;
 
-  questions:any;
-  setQuestions:(questions:any)=>void;
+  questions: any;
+  setQuestions: (questions: any) => void;
 
   selectedDepartment: string[];
   setSelectedDepartment: (department: string[]) => void;
@@ -73,8 +73,8 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedDepartment: (selectedDepartment: string[]) =>
     set({ selectedDepartment }),
 
-  questions:[],
-  setQuestions:(questions:any)=>set({questions}),
+  questions: [],
+  setQuestions: (questions: any) => set({ questions }),
 
   setOfUser: [],
   setSetOfUser: (setOfUser: any[]) => set({ setOfUser }),
@@ -90,7 +90,6 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   editableData: null,
   setEditableData: (editableData: any) => set({ editableData }),
-
 
   departmentId: '',
   setDepartmentId: (departmentId: string) => set({ departmentId }),
