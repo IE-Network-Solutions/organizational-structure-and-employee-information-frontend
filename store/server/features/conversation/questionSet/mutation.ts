@@ -49,6 +49,30 @@ const addQuestionSetOnConversationType = async (data: any) => {
  * @param {string} id - The ID of the category to be updated.
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
+const updateQuestionSetWithQuestionsOnConversationType = async (data: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/question-set/question-set/update-with-questions/${data?.id}`,
+    method: 'patch',
+    data,
+    headers,
+  });
+};
+
+/**
+ * Sends a request to update an existing category in the system.
+ *
+ * @function
+ * @async
+ * @param {CategoryData} data - The updated category data.
+ * @param {string} id - The ID of the category to be updated.
+ * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
+ */
 const updateConversationQuestionSet = async (data: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -134,6 +158,27 @@ export const useDeleteConversationQuestionSet = () => {
 export const useAddQuestionSetOnConversationType = () => {
   const queryClient = useQueryClient();
   return useMutation(addQuestionSetOnConversationType, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('conversationType');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+// eslint-enable-next-line @typescript-eslint/naming-convention
+
+
+/**
+ * Custom hook to delete a category using React Query.
+ * Automatically invalidates the 'categories' query cache on success.
+ *
+ * @function
+ * @returns {UseMutationResult} The mutation result object with methods to execute the mutation and handle its status.
+ */
+export const useUpdateQuestionSetWithQuestionsOnConversationType = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateQuestionSetWithQuestionsOnConversationType, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('conversationType');
