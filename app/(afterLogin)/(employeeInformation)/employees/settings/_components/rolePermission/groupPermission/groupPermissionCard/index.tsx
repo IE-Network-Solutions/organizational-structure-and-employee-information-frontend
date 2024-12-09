@@ -41,7 +41,12 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
             <IoMdMore />
           </button>
           {props?.visibleEditCardId === props?.item?.id && (
-            <AccessGuard permissions={[Permissions.UpdateGroupPermission, Permissions.DeleteGroupPermission]}>
+            <AccessGuard
+              permissions={[
+                Permissions.UpdateGroupPermission,
+                Permissions.DeleteGroupPermission,
+              ]}
+            >
               <KebabMenu
                 item={props?.item}
                 handleButtonClick={props?.handleButtonClick}

@@ -194,7 +194,9 @@ const ApprovalListTable = () => {
                   setSelectedItem(item);
                   setLevel(1);
                   setApproverType(
-                    item?.approvalWorkflowType ? item?.approvalWorkflowType : '-',
+                    item?.approvalWorkflowType
+                      ? item?.approvalWorkflowType
+                      : '-',
                   );
                 }}
               >
@@ -213,7 +215,9 @@ const ApprovalListTable = () => {
                   setLevel(item?.approvers ? item?.approvers?.length : '-');
                   setWorkflowApplies(item?.entityType ? item?.entityType : '-');
                   setApproverType(
-                    item?.approvalWorkflowType ? item?.approvalWorkflowType : '-',
+                    item?.approvalWorkflowType
+                      ? item?.approvalWorkflowType
+                      : '-',
                   );
                 }}
               >

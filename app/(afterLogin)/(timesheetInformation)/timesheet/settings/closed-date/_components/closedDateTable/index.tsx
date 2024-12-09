@@ -76,7 +76,12 @@ const ClosedDateTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (rule: any, record: any) => (
-        <AccessGuard permissions={[Permissions.UpdateClosedDate, Permissions.DeleteClosedDate]}>
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateClosedDate,
+            Permissions.DeleteClosedDate,
+          ]}
+        >
           <ActionButtons
             id={record?.id ?? null}
             onEdit={() => handleEdit(record)}
