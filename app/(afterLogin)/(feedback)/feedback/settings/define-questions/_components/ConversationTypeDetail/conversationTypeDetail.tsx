@@ -15,6 +15,8 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import QuestionSetForm from '../../../_components/questionSetForm';
 import { ConversationTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import { EmptyImage } from '@/components/emptyIndicator';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 type Question = {
   id: string;
@@ -72,6 +74,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
               title={set?.name}
               extra={
                 <div className="flex items-center space-x-2">
+                <AccessGuard permissions={[Permissions.createConversationSet]} >
                   <Tooltip title={set?.active ? 'Active' : 'Inactive'}>
                     <Switch
                       size="small"
@@ -81,12 +84,17 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
                       onChange={(value: boolean) => toggleActive(set.id, value)}
                     />
                   </Tooltip>
-                  <Button
-                    disabled={!set?.active}
-                    size="small"
-                    icon={<EditOutlined className="text-xs text-gray-950" />}
-                    onClick={() => handleEdit(set)}
-                  />
+                  </AccessGuard>
+
+                  <AccessGuard permissions={[Permissions.createConversationSet]} >
+                    <Button
+                      disabled={!set?.active}
+                      size="small"
+                      icon={<EditOutlined className="text-xs text-gray-950" />}
+                      onClick={() => handleEdit(set)}
+                    />
+                  </AccessGuard>
+                  <AccessGuard permissions={[Permissions.createConversationSet]} >
                   <Popconfirm
                     title="Are you sure you want to delete this?"
                     onConfirm={() => deleteConversationQuestionSet(set?.id)} // Action on confirm
@@ -101,6 +109,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
                       danger
                     />
                   </Popconfirm>
+                  </AccessGuard>
                 </div>
               }
             >

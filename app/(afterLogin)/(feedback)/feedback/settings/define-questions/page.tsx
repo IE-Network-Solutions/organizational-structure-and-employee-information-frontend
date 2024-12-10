@@ -9,6 +9,8 @@ import { useConversationTypes } from '@/store/server/features/conversation/queri
 import { ConversationTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import { useEffect } from 'react';
 import ConversationTypeDetail from './_components/ConversationTypeDetail/conversationTypeDetail';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const Page = () => {
   const { open, setOpen, activeTab, setActiveTab } = ConversationStore();
@@ -43,16 +45,20 @@ const Page = () => {
     <div>
       <div className="flex justify-between">
         <span className="font-bold text-lg">Questions</span>
-        {activeTab !== '' && (
-          <Button
-            icon={<FaPlus />}
-            onClick={() => setOpen(true)}
-            type="primary"
-            className="h-10 text-xs"
-          >
-            Add new {activeTabName}
-          </Button>
-        )}
+        <AccessGuard permissions={[Permissions.createConversationSet]} >
+          {activeTab !== '' && (
+            <Button
+              icon={<FaPlus />}
+              onClick={() => setOpen(true)}
+              type="primary"
+              className="h-10 text-xs"
+            >
+              Add new {activeTabName}
+            </Button>
+          )}
+        </AccessGuard>
+
+    
       </div>
       <Tabs
         defaultActiveKey={getAllConversationType?.items[0]?.id}
