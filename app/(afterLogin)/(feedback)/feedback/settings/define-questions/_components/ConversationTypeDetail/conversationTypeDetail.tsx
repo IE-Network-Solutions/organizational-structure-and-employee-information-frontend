@@ -1,6 +1,5 @@
-// const { data: conversationType, isLoading } = useGetConversationById(id);
 import React from 'react';
-import { Card, Collapse, Switch, Button, Tooltip } from 'antd';
+import { Card, Collapse, Switch, Button, Tooltip, Skeleton } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
   useConversationTypes,
@@ -15,6 +14,7 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import QuestionSetForm from '../../../_components/questionSetForm';
 import { ConversationTypeItems } from '@/store/server/features/conversation/conversationType/interface';
+import { EmptyImage } from '@/components/emptyIndicator';
 
 type Question = {
   id: string;
@@ -35,7 +35,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
   const { data: getAllConversationType } = useConversationTypes();
   const { editableData, activeTab, setEditableData } = ConversationStore();
 
-  const { data: conversationType } = useGetConversationById(id);
+  const { data: conversationType,isLoading:getConversationLoading } = useGetConversationById(id);
   const { mutate: deleteConversationQuestionSet } =
     useDeleteConversationQuestionSet();
   const { mutate: updateConversationQuestionSet, isLoading: updateIsActive } =
@@ -61,6 +61,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
 
   return (
     <div className="p-4">
+      { getConversationLoading && <Skeleton /> }
       {conversationType?.questionSets?.map(
         (set: QuestionSet, index: number) => (
           <Collapse key={index}>
@@ -123,6 +124,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
           </Collapse>
         ),
       )}
+      {conversationType?.questionSets?.length<1 && <EmptyImage/>}
       <CustomDrawerLayout
         open={editableData !== null}
         onClose={() => setEditableData(null)}
@@ -136,5 +138,3 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
 };
 
 export default ConversationTypeDetail;
-
-// export default ConversationTypeDetail
