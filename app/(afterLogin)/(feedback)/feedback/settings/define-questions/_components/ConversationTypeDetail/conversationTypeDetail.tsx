@@ -35,7 +35,8 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
   const { data: getAllConversationType } = useConversationTypes();
   const { editableData, activeTab, setEditableData } = ConversationStore();
 
-  const { data: conversationType,isLoading:getConversationLoading } = useGetConversationById(id);
+  const { data: conversationType, isLoading: getConversationLoading } =
+    useGetConversationById(id);
   const { mutate: deleteConversationQuestionSet } =
     useDeleteConversationQuestionSet();
   const { mutate: updateConversationQuestionSet, isLoading: updateIsActive } =
@@ -61,7 +62,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
 
   return (
     <div className="p-4">
-      { getConversationLoading && <Skeleton /> }
+      {getConversationLoading && <Skeleton />}
       {conversationType?.questionSets?.map(
         (set: QuestionSet, index: number) => (
           <Collapse key={index}>
@@ -124,7 +125,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
           </Collapse>
         ),
       )}
-      {conversationType?.questionSets?.length<1 && <EmptyImage/>}
+      {conversationType?.questionSets?.length < 1 && <EmptyImage />}
       <CustomDrawerLayout
         open={editableData !== null}
         onClose={() => setEditableData(null)}
