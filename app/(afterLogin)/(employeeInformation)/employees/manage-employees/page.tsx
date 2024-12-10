@@ -8,8 +8,6 @@ import UserTable from './_components/userTable';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import EmployeeSearch from './_components/userSearch';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 
 const ManageEmployees: React.FC<any> = () => {
   const { setOpen } = useEmployeeManagementStore();
@@ -30,13 +28,13 @@ const ManageEmployees: React.FC<any> = () => {
             subtitle="Manage your Employees"
           />
           <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
-              <CustomButton
-                title="Create user"
-                id="createUserButton"
-                icon={<FaPlus className="mr-2" />}
-                onClick={showDrawer}
-                className="bg-blue-600 hover:bg-blue-700"
-              />
+            <CustomButton
+              title="Create user"
+              id="createUserButton"
+              icon={<FaPlus className="mr-2" />}
+              onClick={showDrawer}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
             <UserSidebar onClose={onClose} />
           </div>
         </div>
