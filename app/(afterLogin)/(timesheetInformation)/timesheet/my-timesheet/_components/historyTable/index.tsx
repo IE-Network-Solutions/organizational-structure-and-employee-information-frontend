@@ -139,7 +139,12 @@ const HistoryTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (item: LeaveRequest) => (
-        <AccessGuard permissions={[Permissions.UpdateLeaveRequest, Permissions.DeleteLeaveRequest]}>
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateLeaveRequest,
+            Permissions.DeleteLeaveRequest,
+          ]}
+        >
           <ActionButtons
             id={item?.id ?? null}
             disableDelete={

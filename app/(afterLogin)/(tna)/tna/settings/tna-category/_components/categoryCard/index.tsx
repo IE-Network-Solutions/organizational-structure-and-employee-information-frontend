@@ -22,7 +22,12 @@ const TnaCategoryCard: FC<TnaCategoryCardProps> = ({ item }) => {
         <div className="text-lg font-semibold text-gray-900 flex-1">
           {item.name}
         </div>
-        <AccessGuard permissions={[Permissions.UpdateTnaCategory, Permissions.DeleteTnaCategory]}>
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateTnaCategory,
+            Permissions.DeleteTnaCategory,
+          ]}
+        >
           <ActionButtons
             id={item?.id ?? null}
             onDelete={() => {

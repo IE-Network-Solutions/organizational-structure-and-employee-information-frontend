@@ -32,15 +32,14 @@ class NMenuItem {
 
   filterItemsByPermissions(): MenuItem[] {
     return this.items
-      .filter((item) => 
-        AccessGuard.checkAccess({ permissions: item.permissions })
+      .filter((item) =>
+        AccessGuard.checkAccess({ permissions: item.permissions }),
       )
       .map((item) => item.item);
   }
 }
 
 const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
-
   const router = useRouter();
   const pathname = usePathname();
   const [currentItem, setCurrentItem] = useState<string>('');

@@ -1,5 +1,4 @@
 export enum Permissions {
-
   // Could not be found Permissions that needs to be changed
   ViewAllEmployeePlan = 'view-all-employee-plan',
   ViewAllPlan = 'view-all-plan',
@@ -27,7 +26,7 @@ export enum Permissions {
   UpdateAppreciationType = 'update-appreciation-type',
   DeleteAppreciationType = 'delete-appreciation-type',
   CreateOkrRule = 'create-okr-rule',
-  
+
   UpdateLeaveRequest = 'update-leave-request',
   DeleteLeaveRequest = 'delete-leave-request',
   ViewAttendanceDetails = 'view-attendance-details',
@@ -40,7 +39,6 @@ export enum Permissions {
   DeletePosition = 'delete-position',
   ApproveCandidate = 'approve-candidate',
   DeclineCandidate = 'decline-candidate',
-
 
   // Course Permissions
   UpdateCourse = 'update-course',

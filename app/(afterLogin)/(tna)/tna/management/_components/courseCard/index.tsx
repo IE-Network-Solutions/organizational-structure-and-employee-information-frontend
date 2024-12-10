@@ -73,7 +73,9 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
         />
       </Card>
       <div className="action-buttons mt-2 flex gap-2">
-        <AccessGuard permissions={[Permissions.UpdateCourse, Permissions.DeleteCourse]}>
+        <AccessGuard
+          permissions={[Permissions.UpdateCourse, Permissions.DeleteCourse]}
+        >
           <ActionButton
             id={item?.id ?? null}
             onEdit={() => {

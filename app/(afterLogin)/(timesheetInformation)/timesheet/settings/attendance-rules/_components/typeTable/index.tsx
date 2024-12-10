@@ -60,7 +60,12 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
       dataIndex: 'action',
       key: 'action',
       render: (item: AttendanceNotificationRule) => (
-        <AccessGuard permissions={[Permissions.UpdateAttendanceRule, Permissions.DeleteAttendanceRule]}>
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateAttendanceRule,
+            Permissions.DeleteAttendanceRule,
+          ]}
+        >
           <ActionButtons
             id={item?.id ?? null}
             loading={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
@@ -106,7 +111,12 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
           <div className="text-lg text-gray-900 font-bold flex-1">
             {type.title}
           </div>
-          <AccessGuard permissions={[Permissions.UpdateAttendanceRuleType, Permissions.DeleteAttendanceRuleType]}>
+          <AccessGuard
+            permissions={[
+              Permissions.UpdateAttendanceRuleType,
+              Permissions.DeleteAttendanceRuleType,
+            ]}
+          >
             <Space size={12}>
               <Switch
                 id="switchButtonForTypeId"

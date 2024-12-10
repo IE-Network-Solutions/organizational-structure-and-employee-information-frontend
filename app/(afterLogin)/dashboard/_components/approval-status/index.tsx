@@ -9,10 +9,10 @@ import { useGetBranchTransferApproveById } from '@/store/server/features/employe
 
 const ApprovalStatus: FC = () => {
   const { userId } = useAuthenticationStore();
-  const { data: LeaveTransferData } = useGetApprovalLeaveRequest(userId);
+  const { data: LeaveTransferData } = useGetApprovalLeaveRequest(userId, 1, 4);
   const { data: BranchTransferData } = useGetBranchTransferApproveById(
     userId,
-    10,
+    4,
     1,
   );
   const { approverType, setApproverType } = useDashboardApprovalStore();
