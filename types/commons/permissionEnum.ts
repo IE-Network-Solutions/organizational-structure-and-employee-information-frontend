@@ -243,4 +243,35 @@ export enum Permissions {
 
   // Miscellaneous Permissions
   SetMaximumCarryOverLimit = 'set-maximum-carry-over-limit',
+
+  //Conversation
+
+  createConversationSet = 'create-conversation-set',
+  DeleteConversationSet = 'delete-conversation-set',
+  EditConversationSet = 'edit-conversation-set',
+
+  CreateConversationType = 'create-conversation-type',
+
+ //Recognition
+  CreateRecognition = 'create-recognition',
+  DeleteRecognition = 'delete-recognition',
+  EditRecognition = 'edit-recognition',
+
+  AddRecognitionCriteria = 'create-recognition-criteria',
+  DeleteRecognitionCriteria = 'delete-recognition-criteria',
+  EditRecognitionCriteria = 'edit-recognition-criteria',
+  // //oneToOne
+  // CreateOneToOne = 'create-one-to-one',
+  // DeleteOneToOne = 'delete-one-to-one',
+  // EditOneToOne = 'edit-one-to-one',
+
+  // //feedback
+  // CreateFeedack = 'create-feedback',
+  // DeleteFeedack = 'delete-feedback',
+  // EditFeedack = 'edit-feedback',
+
+  // //recognition
+  // CreateRecognitionType = 'create-recognition-type',
+  // DeleteRecognitionType = 'delete-recognition-type',
+  // EditRecognitionType = 'edit-recognition-type',
 }

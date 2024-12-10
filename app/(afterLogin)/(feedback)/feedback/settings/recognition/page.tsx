@@ -7,6 +7,8 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import RecognitionForm from '../_components/recognition/createRecognition';
 import { useGetAllRecognitionType } from '@/store/server/features/CFR/recognition/queries';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const Page = () => {
   const { open, setOpen, setOpenRecognitionType, openRecognitionType } =
@@ -35,6 +37,7 @@ const Page = () => {
     {
       key: 'last',
       label: (
+        <AccessGuard permissions={[Permissions.CreateRecognition]}>
         <Button
           onClick={() => setOpenRecognitionType(true)}
           icon={<FaPlus />}
@@ -43,8 +46,8 @@ const Page = () => {
         >
           Category
         </Button>
+        </AccessGuard>
       ),
-      children: 'Content of Tab Pane 5',
     },
   ];
 

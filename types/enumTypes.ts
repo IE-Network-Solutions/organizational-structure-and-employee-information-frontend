@@ -58,6 +58,14 @@ export enum NAME {
   KPI = 'KPI',
 }
 
+export enum ConversationType {
+  'Bi-weekly' = 'BiWeekly',
+  'One-to-One' = 'OneToOne',
+  'Feedback' = 'Feedback',
+  'Recognition' = 'Recognition',
+  ''=""
+}
+
 export const SelectData = [
   { key: '1', value: 'weekly', label: 'Weekly' },
   { key: '2', value: 'monthly', label: 'Monthly' },
