@@ -7,7 +7,6 @@ import { useGetCriteriaTargets } from '@/store/server/features/okrplanning/okr/c
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
   useGetActiveSession,
-  useGetTargetAssignment,
   useGetTargetAssignmentById,
 } from '@/store/server/features/okrplanning/okr/target/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -39,10 +38,8 @@ const AssignTargetDrawer: React.FC = () => {
       month: [],
     });
   };
-
-  // Populate fields when data is fetched
   useEffect(() => {
-    if (getTargetById) {
+    if (currentId && getTargetById) {
       form.setFieldsValue({
         department: getTargetById.departmentId,
         criteria: getTargetById.vpCriteriaId,
@@ -51,7 +48,7 @@ const AssignTargetDrawer: React.FC = () => {
       });
       setSelectedMonths([getTargetById.month]);
     }
-  }, [getTargetById]);
+  }, [currentId, getTargetById]);
 
   const onSubmit = (values: any) => {
     const target = values.month.map((month: string) => ({
@@ -70,10 +67,8 @@ const AssignTargetDrawer: React.FC = () => {
 
     if (getTargetById && currentId) {
       updateAssignedTarget({ id: currentId, values: payload });
-      console.log('-------------------------update payload:', payload);
     } else {
       createAssignTarget(payload);
-      console.log('-------------------------create payload:', payload);
     }
     resetState();
     closeDrawer();
@@ -101,6 +96,7 @@ const AssignTargetDrawer: React.FC = () => {
               onClick={() => {
                 form.resetFields();
                 closeDrawer();
+                resetState();
               }}
             />
             <CustomButton
@@ -117,12 +113,7 @@ const AssignTargetDrawer: React.FC = () => {
         onFinish={onSubmit}
         className="space-y-4"
       >
-        {/* Department Select */}
-        <Form.Item
-          label="Department"
-          name="department"
-          rules={[{ required: true, message: 'Please select a department' }]}
-        >
+        <Form.Item label="Department" name="department">
           <Select
             placeholder="Select Department"
             onChange={handleDepartmentChange}
@@ -136,7 +127,6 @@ const AssignTargetDrawer: React.FC = () => {
           </Select>
         </Form.Item>
 
-        {/* Criteria Select */}
         <Form.Item
           label="Choose Criteria"
           name="criteria"
@@ -157,19 +147,18 @@ const AssignTargetDrawer: React.FC = () => {
           </Select>
         </Form.Item>
 
-        {/* Dynamic Month Selection */}
         <Form.Item
           name="month"
           label="Month"
-          rules={[
-            { required: true, message: 'Please select at least one month!' },
-          ]}
+          rules={[{ required: true, message: 'Please select a month!' }]}
         >
           <Select
             className="h-12"
-            mode="multiple"
-            placeholder="Select months"
-            onChange={setSelectedMonths}
+            mode={currentId ? undefined : 'multiple'} // Single selection when currentId exists
+            placeholder="Select a month"
+            onChange={
+              (value) => setSelectedMonths(currentId ? [value] : value) // Normalize to an array
+            }
           >
             {activeSessionData?.months?.map((month: any) => (
               <Option key={month.id} value={month.name}>
@@ -179,8 +168,7 @@ const AssignTargetDrawer: React.FC = () => {
           </Select>
         </Form.Item>
 
-        {/* Dynamic Fields for Month Target */}
-        {selectedMonths.map((month) => (
+        {selectedMonths?.map((month) => (
           <div key={month} className="flex items-center gap-4">
             <Form.Item>
               <Input value={month} disabled className="flex-1 h-12" />

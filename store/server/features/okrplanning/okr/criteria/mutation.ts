@@ -67,13 +67,12 @@ const deleteVpScoring = async (id: string) => {
   }
 };
 
-// Custom hook for deleting VP Scoring
 export const useDeleteVpScoring = () => {
   const queryClient = useQueryClient();
 
   return useMutation(deleteVpScoring, {
     onSuccess: () => {
-      queryClient.invalidateQueries('VpScoringInformation'); // Adjust the query name as needed
+      queryClient.invalidateQueries('VpScoringInformation');
     },
     onError: (error) => {
       NotificationMessage.error({
@@ -90,8 +89,8 @@ const updateVpScoring = async ({ id, values }: { id: string; values: any }) => {
 
   try {
     await crudRequest({
-      url: `${OKR_AND_PLANNING_URL}/vp-scoring/${id}`, // Include the id in the URL
-      method: 'PUT', // Use PATCH method for update
+      url: `${OKR_AND_PLANNING_URL}/vp-scoring/${id}`,
+      method: 'PUT',
       data: values,
       headers: {
         Authorization: `Bearer ${token}`,

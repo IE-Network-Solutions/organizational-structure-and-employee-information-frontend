@@ -16,22 +16,13 @@ import {
 const { Option } = Select;
 
 const ScoringDrawer: React.FC = () => {
-  const {
-    mutate: updateScoring,
-    isLoading: isUpdating,
-    isSuccess: isUpdateSuccess,
-  } = useUpdateVpScoring();
+  const { mutate: updateScoring, isLoading: isUpdating } = useUpdateVpScoring();
 
-  const {
-    mutate: vpScoringMutate,
-    isLoading,
-    isSuccess,
-  } = useCreateVpScoring();
+  const { mutate: vpScoringMutate, isLoading } = useCreateVpScoring();
 
   const { isDrawerVisible, closeDrawer, currentId } = useDrawerStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: criteriaData } = useGetCriteriaTargets();
-  const [userIds, setUserIds] = useState<string[]>([]);
   const [weights, setWeights] = useState<Record<string, string>>({});
   const [selectedCriteria, setSelectedCriteria] = useState<
     { name: string; vpCriteriaId: string }[]
@@ -40,14 +31,12 @@ const ScoringDrawer: React.FC = () => {
     null,
   );
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
-
   const { data: scoringData } = useFetchVpScoringById(currentId || '');
 
   const [form] = Form.useForm();
 
   useEffect(() => {
     if (scoringData && criteriaData) {
-      // Populate form with scoring data
       form.setFieldsValue({
         name: scoringData.name,
         totalPercentage: scoringData.totalPercentage,
@@ -80,8 +69,6 @@ const ScoringDrawer: React.FC = () => {
           {},
         ),
       );
-
-      // setUserIds(scoringData.userVpScoring.map((item: any) => item.userId));
     }
   }, [scoringData, criteriaData, form]);
 
@@ -136,7 +123,6 @@ const ScoringDrawer: React.FC = () => {
   const resetState = () => {
     setWeights({});
     setSelectedCriteria([]);
-    setUserIds([]);
     setSelectedDepartment(null);
     setFilteredUsers([]);
     form.resetFields();

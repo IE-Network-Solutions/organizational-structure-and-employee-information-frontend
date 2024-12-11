@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Button, Table, Tabs } from 'antd';
-import { FaEye, FaPlus } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import ScoringDrawer from './_components/criteria-drawer';
@@ -30,9 +30,7 @@ function Page() {
   };
 
   const handleSearch = (value: string) => setSearchTerm(value);
-
   const handleTypeChange = (value: string) => setSelectedType(value);
-
   const handleEditClick = (id: string) => {
     openDrawer(id);
   };
@@ -44,7 +42,7 @@ function Page() {
   const availableCriteriaData = criteriaData?.items
     ?.map((item: any) => ({
       key: item.id,
-      name: item.name, // Type is the `name`
+      name: item.name,
       description: item.description,
       sourceService: item.sourceService,
       sourceEndPoint: item.sourceEndpoint,

@@ -9,7 +9,6 @@ const TargetFilters = () => {
         <Col lg={18} sm={24} xs={24}>
           <div className="w-full">
             <Input
-              // id={`inputEmployeeNames${searchParams.employee_name}`}
               placeholder="Search"
               onChange={(e) => {}}
               className="w-full h-14"
@@ -20,7 +19,6 @@ const TargetFilters = () => {
 
         <Col lg={4} sm={24} xs={24}>
           <Select
-            // id={`selectBranches${searchParams.allOffices}`}
             placeholder="All Types"
             onChange={() => {}}
             allowClear

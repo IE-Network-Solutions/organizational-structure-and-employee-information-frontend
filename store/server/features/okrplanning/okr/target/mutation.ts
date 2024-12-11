@@ -70,7 +70,7 @@ export const useDeleteAssignedTarget = () => {
 
   return useMutation(deleteAssignedTarget, {
     onSuccess: () => {
-      queryClient.invalidateQueries('targetAssignment'); // Adjust the query name as needed
+      queryClient.invalidateQueries('targetAssignment');
     },
     onError: (error) => {
       NotificationMessage.error({
@@ -94,7 +94,7 @@ const updateAssignedTarget = async ({
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/criteria-targets/bulk/${id}`,
-      method: 'PUT', // Use PATCH method for update
+      method: 'PUT',
       data: values,
       headers: {
         Authorization: `Bearer ${token}`,

@@ -7,10 +7,7 @@ import { RiDeleteBin6Line } from 'react-icons/ri';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import AssignTargetDrawer from './_components/assign-target-drawer';
 import TargetFilters from './_components/target-filters';
-import {
-  useGetActiveSession,
-  useGetTargetAssignment,
-} from '@/store/server/features/okrplanning/okr/target/queries';
+import { useGetTargetAssignment } from '@/store/server/features/okrplanning/okr/target/queries';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
 import { useDeleteAssignedTarget } from '@/store/server/features/okrplanning/okr/target/mutation';
