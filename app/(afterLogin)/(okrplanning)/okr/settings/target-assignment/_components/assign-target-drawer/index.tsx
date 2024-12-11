@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Select, Input, Switch, Button, Form } from 'antd';
+import { Select, Input, Form } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CustomButton from '@/components/common/buttons/customButton';
@@ -74,8 +74,8 @@ const AssignTargetDrawer: React.FC = () => {
     closeDrawer();
   };
 
-  const handleDepartmentChange = (value: string) => {};
-  const handleCriteriaChange = (values: string[]) => {};
+  const handleDepartmentChange = () => {};
+  const handleCriteriaChange = () => {};
 
   return (
     <CustomDrawerLayout

@@ -10,7 +10,7 @@ const TargetFilters = () => {
           <div className="w-full">
             <Input
               placeholder="Search"
-              onChange={(e) => {}}
+              onChange={() => {}}
               className="w-full h-14"
               allowClear
             />

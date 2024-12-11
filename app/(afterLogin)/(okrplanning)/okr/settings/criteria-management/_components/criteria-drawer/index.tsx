@@ -129,7 +129,6 @@ const ScoringDrawer: React.FC = () => {
   };
 
   const onFinish = async (values: any) => {
-    console.log();
     try {
       const mappedUsers = values.users.map((userId: string) => {
         const existingUser = scoringData?.userVpScoring?.find(
