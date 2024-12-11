@@ -28,7 +28,7 @@ const getAttendances = async (
 
 const getCurrentAttendance = async (userId: string) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/attendance/shift`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/shift/user`,
     method: 'GET',
     headers: requestHeader(),
     params: { userId: userId },
