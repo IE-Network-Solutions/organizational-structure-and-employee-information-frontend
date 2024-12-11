@@ -15,72 +15,14 @@ import { useDeleteVpScoring } from '@/store/server/features/okrplanning/okr/crit
 import DeletePopover from '@/components/common/actionButton/deletePopover';
 
 function Page() {
-  // Replace useGetCriteriaTargets and useFetchVpScoring hooks with dummy data
-  const dummyCriteriaTargets = {
-    items: [
-      {
-        id: '1',
-        name: 'Customer Satisfaction',
-        description: 'Measure customer satisfaction through surveys.',
-        sourceService: 'SurveyService',
-        sourceEndpoint: 'https://api.example.com/surveys',
-      },
-      {
-        id: '2',
-        name: 'Employee Engagement',
-        description: 'Evaluate employee engagement through polls.',
-        sourceService: 'HRService',
-        sourceEndpoint: 'https://api.example.com/hr/engagement',
-      },
-      {
-        id: '3',
-        name: 'Product Quality',
-        description: 'Track defect rates in product lines.',
-        sourceService: 'QualityControlService',
-        sourceEndpoint: 'https://api.example.com/quality',
-      },
-    ],
-  };
-
-  const dummyVpScoring = {
-    items: [
-      {
-        id: '1',
-        name: 'Q1 Performance',
-        totalPercentage: 85,
-        vpScoringCriterions: [
-          { vpCriteria: { name: 'Customer Satisfaction' } },
-          { vpCriteria: { name: 'Employee Engagement' } },
-        ],
-      },
-      {
-        id: '2',
-        name: 'Q2 Performance',
-        totalPercentage: 90,
-        vpScoringCriterions: [{ vpCriteria: { name: 'Product Quality' } }],
-      },
-    ],
-  };
-
-  // Replace hooks with dummy data
-  const { data: criteriaData, isLoading: criteriaLoading } = {
-    data: dummyCriteriaTargets,
-    isLoading: false,
-  };
-
-  const { data: vpScoringData, isLoading: vpScoringLoading } = {
-    data: dummyVpScoring,
-    isLoading: false,
-  };
-
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All Types');
 
   const { openDrawer } = useDrawerStore();
-  // const { data: criteriaData, isLoading: criteriaLoading } =
-  //   useGetCriteriaTargets();
-  // const { data: vpScoringData, isLoading: vpScoringLoading } =
-  //   useFetchVpScoring();
+  const { data: criteriaData, isLoading: criteriaLoading } =
+    useGetCriteriaTargets();
+  const { data: vpScoringData, isLoading: vpScoringLoading } =
+    useFetchVpScoring();
   const { mutate: deleteVpScoring } = useDeleteVpScoring();
 
   const handleDelete = (id: string) => {

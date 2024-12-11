@@ -7,23 +7,37 @@ import { RiDeleteBin6Line } from 'react-icons/ri';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import AssignTargetDrawer from './_components/assign-target-drawer';
 import TargetFilters from './_components/target-filters';
-import { useTargetAssignment } from '@/store/server/features/okrplanning/okr/target/queries';
+import {
+  useGetActiveSession,
+  useGetTargetAssignment,
+} from '@/store/server/features/okrplanning/okr/target/queries';
+import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
+import DeletePopover from '@/components/common/actionButton/deletePopover';
+import { useDeleteAssignedTarget } from '@/store/server/features/okrplanning/okr/target/mutation';
 
 function Page() {
   const { data: targetAssignmentData, isLoading: targetAssignmentLoading } =
-    useTargetAssignment();
-
+    useGetTargetAssignment();
+  const { data: departmentData } = useGetDepartmentsWithUsers();
+  const { mutate: deleteAssignedTarget } = useDeleteAssignedTarget();
   const { openDrawer } = useDrawerStore();
+  {
+  }
 
   const dataSource =
-    targetAssignmentData?.items.map((item: any) => ({
-      key: item.id,
-      department: item.department || '--',
-      criteriaName: item.vpCriteria.name,
-      month1: item.month,
-      month2: item.month,
-      month3: item.month,
-    })) || [];
+    targetAssignmentData?.items.map((item: any) => {
+      const matchingDepartment = departmentData?.find(
+        (dept: any) => dept.id == item.departmentId,
+      );
+
+      return {
+        key: item.id,
+        department: matchingDepartment ? matchingDepartment.name : '--',
+        criteriaName: item.vpCriteria.name,
+        month: item.month,
+        target: item.target,
+      };
+    }) || [];
 
   const columns = [
     {
@@ -37,40 +51,44 @@ function Page() {
       key: 'criteriaName',
     },
     {
-      title: 'Month 1',
-      dataIndex: 'month1',
-      key: 'month1',
+      title: 'Month',
+      dataIndex: 'month',
+      key: 'month',
     },
     {
-      title: 'Month 2',
-      dataIndex: 'month2',
-      key: 'month2',
-    },
-    {
-      title: 'Month 3',
-      dataIndex: 'month3',
-      key: 'month3',
+      title: 'Target',
+      dataIndex: 'target',
+      key: 'target',
     },
     {
       title: 'Action',
       key: 'action',
-      render: () => (
+      render: (record: any) => (
         <div className="flex space-x-2">
           <Button
             type="default"
-            className="flex items-center space-x-1 bg-blue text-white hover:bg-red-600 border-none"
+            className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-600 border-none"
             icon={<GrEdit />}
-            onClick={() => {}}
+            onClick={() => handleEditClick(record.key)}
           />
-          <Button
-            type="default"
-            className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-            icon={<RiDeleteBin6Line />}
-          />
+          <DeletePopover onDelete={() => handleDelete(record.key)}>
+            <Button
+              type="default"
+              className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
+              icon={<RiDeleteBin6Line />}
+            />
+          </DeletePopover>
         </div>
       ),
     },
   ];
+
+  const handleEditClick = (id: string) => {
+    openDrawer(id);
+  };
+  const handleDelete = (id: string) => {
+    deleteAssignedTarget(id);
+  };
 
   return (
     <div className="p-10">

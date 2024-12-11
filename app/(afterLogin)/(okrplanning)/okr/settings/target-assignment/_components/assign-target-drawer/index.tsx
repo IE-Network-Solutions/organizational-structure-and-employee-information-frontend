@@ -1,30 +1,96 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Select, Input, Switch, Button, Form } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CustomButton from '@/components/common/buttons/customButton';
+import { useGetCriteriaTargets } from '@/store/server/features/okrplanning/okr/criteria/queries';
+import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
+import {
+  useGetActiveSession,
+  useGetTargetAssignment,
+  useGetTargetAssignmentById,
+} from '@/store/server/features/okrplanning/okr/target/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import {
+  useCreateAssignTarget,
+  useUpdateAssignedTargets,
+} from '@/store/server/features/okrplanning/okr/target/mutation';
 
 const { Option } = Select;
 
 const AssignTargetDrawer: React.FC = () => {
+  const { data: criteriaData } = useGetCriteriaTargets();
+  const { data: departmentData } = useGetDepartmentsWithUsers();
+  const { data: activeSessionData } = useGetActiveSession();
+  const { mutate: createAssignTarget } = useCreateAssignTarget();
+  const { mutate: updateAssignedTarget } = useUpdateAssignedTargets();
   const [form] = Form.useForm();
-  const { isDrawerVisible, closeDrawer } = useDrawerStore();
+  const { isDrawerVisible, closeDrawer, currentId } = useDrawerStore();
+  const { userId } = useAuthenticationStore();
+  const { data: getTargetById } = useGetTargetAssignmentById(currentId || '');
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
 
-  const months = Array.from({ length: 3 }, (_, i) => ({
-    value: `Month${i + 1}`,
-    label: `Month ${i + 1}`,
-  }));
+  const resetState = () => {
+    form.resetFields();
+    setSelectedMonths([]);
+    form.setFieldsValue({
+      department: '',
+      criteria: '',
+      month: [],
+    });
+  };
+
+  // Populate fields when data is fetched
+  useEffect(() => {
+    if (getTargetById) {
+      form.setFieldsValue({
+        department: getTargetById.departmentId,
+        criteria: getTargetById.vpCriteriaId,
+        month: [getTargetById.month],
+        [getTargetById.month]: getTargetById.target,
+      });
+      setSelectedMonths([getTargetById.month]);
+    }
+  }, [getTargetById]);
 
   const onSubmit = (values: any) => {
-    console.log('Form Submitted:', values);
+    const target = values.month.map((month: string) => ({
+      month,
+      target: values[month],
+    }));
+
+    const payload: Record<string, any> = {
+      departmentId: values.department,
+      vpCriteriaId: values.criteria,
+      target,
+      ...(getTargetById && currentId
+        ? { updatedBy: userId }
+        : { createdBy: userId }),
+    };
+
+    if (getTargetById && currentId) {
+      updateAssignedTarget({ id: currentId, values: payload });
+      console.log('-------------------------update payload:', payload);
+    } else {
+      createAssignTarget(payload);
+      console.log('-------------------------create payload:', payload);
+    }
+    resetState();
+    closeDrawer();
   };
+
+  const handleDepartmentChange = (value: string) => {};
+  const handleCriteriaChange = (values: string[]) => {};
 
   return (
     <CustomDrawerLayout
       open={isDrawerVisible}
       onClose={closeDrawer}
-      modalHeader={<span className="text-xl font-semibold">Assign Target</span>}
+      modalHeader={
+        <span className="text-xl font-semibold">
+          {currentId ? 'Update Target' : 'Assign Target'}
+        </span>
+      }
       width="700px"
       footer={
         <div className="flex justify-center items-center w-full h-full">
@@ -37,7 +103,10 @@ const AssignTargetDrawer: React.FC = () => {
                 closeDrawer();
               }}
             />
-            <CustomButton title={'Assign'} onClick={() => form.submit()} />
+            <CustomButton
+              title={currentId ? 'Update' : 'Assign'}
+              onClick={() => form.submit()}
+            />
           </div>
         </div>
       }
@@ -50,26 +119,41 @@ const AssignTargetDrawer: React.FC = () => {
       >
         {/* Department Select */}
         <Form.Item
+          label="Department"
           name="department"
-          label="Choose Department"
-          rules={[{ required: true, message: 'Please select a department!' }]}
+          rules={[{ required: true, message: 'Please select a department' }]}
         >
-          <Select placeholder="Select" className="h-12">
-            <Option value="HR">HR</Option>
-            <Option value="Operations">Operations</Option>
-            <Option value="Marketing">Marketing</Option>
+          <Select
+            placeholder="Select Department"
+            onChange={handleDepartmentChange}
+            className="w-full h-12"
+          >
+            {departmentData?.map((dept: any) => (
+              <Option key={dept.id} value={dept.id}>
+                {dept.name}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
 
         {/* Criteria Select */}
         <Form.Item
-          name="criteria"
           label="Choose Criteria"
-          rules={[{ required: true, message: 'Please select a criteria!' }]}
+          name="criteria"
+          rules={[
+            { required: true, message: 'Please select at least one criteria' },
+          ]}
         >
-          <Select placeholder="Select" className="h-12">
-            <Option value="Criteria1">Criteria 1</Option>
-            <Option value="Criteria2">Criteria 2</Option>
+          <Select
+            placeholder="Select criteria"
+            onChange={handleCriteriaChange}
+            className="flex-1 h-12"
+          >
+            {criteriaData?.items?.map((criteria: any) => (
+              <Option key={criteria.id} value={criteria.id}>
+                {criteria.name}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
 
@@ -85,28 +169,37 @@ const AssignTargetDrawer: React.FC = () => {
             className="h-12"
             mode="multiple"
             placeholder="Select months"
-            options={months}
             onChange={setSelectedMonths}
-          />
+          >
+            {activeSessionData?.months?.map((month: any) => (
+              <Option key={month.id} value={month.name}>
+                {month.name}
+              </Option>
+            ))}
+          </Select>
         </Form.Item>
-        <div className="mt-10">Chosen Month</div>
 
+        {/* Dynamic Fields for Month Target */}
         {selectedMonths.map((month) => (
           <div key={month} className="flex items-center gap-4">
-            <Input value={month} disabled className="flex-1 h-12" />
+            <Form.Item>
+              <Input value={month} disabled className="flex-1 h-12" />
+            </Form.Item>
             <Form.Item
-              name={`${month.toLowerCase().replace(' ', '_')}_weight`}
+              name={`${month}`}
               className="flex-1"
               rules={[{ required: true, message: 'Enter the weight here!' }]}
             >
-              <Input placeholder="Enter Weight" className="h-12" />
+              <Input
+                placeholder="Enter Weight"
+                type="number"
+                min={0}
+                max={100}
+                className="h-12"
+              />
             </Form.Item>
           </div>
         ))}
-
-        <Form.Item name="deductible" label="Is it a deductible Criteria?">
-          <Switch />
-        </Form.Item>
       </Form>
     </CustomDrawerLayout>
   );

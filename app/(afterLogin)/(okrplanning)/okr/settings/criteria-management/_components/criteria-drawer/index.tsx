@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, notification, Select } from 'antd';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CustomDrawerLayout from '@/components/common/customDrawer';
@@ -15,170 +15,188 @@ import {
 
 const { Option } = Select;
 
-interface Department {
-  id: string;
-  name: string;
-  users: { firstName: string; lastName: string; id: string }[];
-}
-
-interface Criterion {
-  id: string;
-  name: string;
-}
-
-interface ScoringData {
-  name: string;
-  totalPercentage: string;
-  userVpScoring: { userId: string }[];
-  vpScoringCriterions: { vpCriteriaId: string; weight: string }[];
-}
-
 const ScoringDrawer: React.FC = () => {
-  const { isDrawerVisible, closeDrawer, currentId } = useDrawerStore();
-  const { data: departmentData } = useGetDepartmentsWithUsers();
-  const { data: criteriaData } = useGetCriteriaTargets();
-  const [userIds, setUserIds] = useState<string[]>([]);
-  const [criteriaIds, setCriteriaIds] = useState<string[]>([]);
-  const [weights, setWeights] = useState<Record<string, string>>({});
-
-  const {
-    mutate: vpScoringMutate,
-    isLoading,
-    isSuccess,
-  } = useCreateVpScoring();
-  const {
-    data: scoringData,
-    isLoading: isFetchingScoring,
-    error: fetchError,
-  } = useFetchVpScoringById(currentId || '');
   const {
     mutate: updateScoring,
     isLoading: isUpdating,
     isSuccess: isUpdateSuccess,
   } = useUpdateVpScoring();
 
-  const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
-  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
-  const [availableUsers, setAvailableUsers] = useState<
-    { name: string; id: string }[]
+  const {
+    mutate: vpScoringMutate,
+    isLoading,
+    isSuccess,
+  } = useCreateVpScoring();
+
+  const { isDrawerVisible, closeDrawer, currentId } = useDrawerStore();
+  const { data: departmentData } = useGetDepartmentsWithUsers();
+  const { data: criteriaData } = useGetCriteriaTargets();
+  const [userIds, setUserIds] = useState<string[]>([]);
+  const [weights, setWeights] = useState<Record<string, string>>({});
+  const [selectedCriteria, setSelectedCriteria] = useState<
+    { name: string; vpCriteriaId: string }[]
   >([]);
+  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
+    null,
+  );
+  const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
+
+  const { data: scoringData } = useFetchVpScoringById(currentId || '');
+
   const [form] = Form.useForm();
 
-  const usersByDepartment = useMemo(() => {
-    const map: Record<string, { name: string; id: string }[]> = {};
-    if (departmentData) {
-      departmentData.forEach((department: Department) => {
-        const { name, users } = department;
-        map[name] = users.map((user) => ({
-          name: `${user.firstName} ${user.lastName}`,
-          id: user.id,
-        }));
-      });
-    }
-    return map;
-  }, [departmentData]);
-
   useEffect(() => {
-    if (scoringData) {
-      console.log('--------------------scoringData--------', scoringData);
+    if (scoringData && criteriaData) {
+      // Populate form with scoring data
       form.setFieldsValue({
         name: scoringData.name,
         totalPercentage: scoringData.totalPercentage,
-        users: scoringData.userVpScoring.map((user: any) => user.userId),
+        users: scoringData.userVpScoring.map((item: any) => item.userId),
         criteria: scoringData.vpScoringCriterions.map(
-          (criterion: any) => criterion.vpCriteriaId,
+          (item: any) =>
+            criteriaData.items?.find((c: any) => c.id === item.vpCriteriaId)
+              ?.name,
         ),
       });
 
-      setUserIds(scoringData.userVpScoring.map((user: any) => user.userId));
-      setCriteriaIds(
-        scoringData.vpScoringCriterions.map(
-          (criterion: any) => criterion.vpCriteriaId,
+      setSelectedCriteria(
+        scoringData.vpScoringCriterions.map((item: any) => {
+          const criteria = criteriaData.items?.find(
+            (c: any) => c.id === item.vpCriteriaId,
+          );
+          return {
+            name: criteria?.name || '',
+            vpCriteriaId: item.vpCriteriaId,
+          };
+        }),
+      );
+
+      setWeights(
+        scoringData.vpScoringCriterions.reduce(
+          (acc: any, item: any) => ({
+            ...acc,
+            [item.vpCriteriaId]: item.weight,
+          }),
+          {},
         ),
       );
-      setWeights(
-        scoringData.vpScoringCriterions.reduce((acc: any, criterion: any) => {
-          acc[criterion.vpCriteriaId] = criterion.weight;
-          return acc;
-        }, {}),
-      );
 
-      // Set the criteria names as selectedCriteria
-      const selectedCriteriaNames = scoringData.vpScoringCriterions
-        .map((criterion: any) => {
-          const criteria = criteriaData?.items?.find(
-            (c: Criterion) => c.id === criterion.vpCriteriaId,
-          );
-          return criteria?.name;
-        })
-        .filter(Boolean);
-
-      setSelectedCriteria(selectedCriteriaNames);
+      // setUserIds(scoringData.userVpScoring.map((item: any) => item.userId));
     }
   }, [scoringData, criteriaData, form]);
 
   useEffect(() => {
-    const users = selectedDepartments
-      .flatMap((dept) => usersByDepartment[dept] || [])
-      .filter(
-        (user, index, self) =>
-          self.findIndex((u) => u.id === user.id) === index,
+    if (selectedDepartment) {
+      const department = departmentData?.find(
+        (dept: any) => dept.id === selectedDepartment,
       );
-    setAvailableUsers(users);
-  }, [selectedDepartments, usersByDepartment]);
+      setFilteredUsers(department?.users || []);
+    } else {
+      setFilteredUsers([]);
+    }
+  }, [selectedDepartment, departmentData]);
+
+  const handleDepartmentChange = (value: string) => {
+    setSelectedDepartment(value);
+  };
 
   const handleCriteriaChange = (values: string[]) => {
-    setSelectedCriteria(values);
+    const newCriteria = values
+      .filter(
+        (value) =>
+          !selectedCriteria.some((criteria) => criteria.name === value),
+      )
+      .map((criteriaName) => {
+        const criteriaItem = criteriaData?.items?.find(
+          (item: any) => item.name === criteriaName,
+        );
+        return {
+          name: criteriaItem?.name || '',
+          vpCriteriaId: criteriaItem?.id || '',
+        };
+      });
+
+    const updatedCriteria = selectedCriteria.filter((criteria) =>
+      values.includes(criteria.name),
+    );
+
+    const removedCriteriaIds = selectedCriteria
+      .filter((criteria) => !values.includes(criteria.name))
+      .map((criteria) => criteria.vpCriteriaId);
+
+    setSelectedCriteria([...updatedCriteria, ...newCriteria]);
+
+    setWeights((prev) => {
+      const updatedWeights = { ...prev };
+      removedCriteriaIds.forEach((id) => delete updatedWeights[id]);
+      return updatedWeights;
+    });
+  };
+
+  const resetState = () => {
+    setWeights({});
+    setSelectedCriteria([]);
+    setUserIds([]);
+    setSelectedDepartment(null);
+    setFilteredUsers([]);
+    form.resetFields();
   };
 
   const onFinish = async (values: any) => {
+    console.log();
     try {
-      const criteriaIds = selectedCriteria
-        .map((criteriaName) => {
-          const criteria = criteriaData?.items?.find(
-            (c: Criterion) => c.name === criteriaName,
-          );
-          return criteria ? criteria.id : null;
-        })
-        .filter(Boolean);
+      const mappedUsers = values.users.map((userId: string) => {
+        const existingUser = scoringData?.userVpScoring?.find(
+          (item: any) => item.userId === userId,
+        );
 
-      const payload = {
+        const userMapping: Record<string, string> = { userId };
+        if (existingUser?.id) {
+          userMapping.id = existingUser.id;
+        }
+        return userMapping;
+      });
+
+      const mappedCriteria = selectedCriteria.map((criteria) => {
+        const existingCriterion = scoringData?.vpScoringCriterions?.find(
+          (item: any) => item.vpCriteriaId === criteria.vpCriteriaId,
+        );
+
+        const criteriaMapping: Record<string, string> = {
+          vpCriteriaId: criteria.vpCriteriaId,
+          weight:
+            weights[criteria.vpCriteriaId] || existingCriterion?.weight || '0',
+        };
+
+        if (existingCriterion?.id) {
+          criteriaMapping.id = existingCriterion.id;
+        }
+        return criteriaMapping;
+      });
+
+      const payload: Record<string, any> = {
         name: values.name,
         totalPercentage: parseFloat(values.totalPercentage),
-        vpScoringCriteria: criteriaIds.map((criteriaId, index) => ({
-          id: criteriaId.id,
-          vpCriteriaId: criteriaId,
-          weight: parseFloat(values[`${selectedCriteria[index]}_weight`]),
-        })),
-        createUserVpScoringDto: values.users.map((userId: string) => ({
-          userId,
-        })),
+        createUserVpScoringDto: mappedUsers,
+        vpScoringCriteria: mappedCriteria,
       };
 
-      // Wrap the payload inside 'values' for update or create
-      const finalPayload = {
-        id: currentId || '', // Use currentId for updating or leave empty for create
-        values: payload, // Wrap the actual data inside 'values'
-      };
-
-      // Handle creation or update
       if (currentId) {
-        updateScoring(finalPayload); // Pass the structured object for update
+        payload.id = currentId;
+        await updateScoring({ id: currentId, values: payload });
       } else {
-        vpScoringMutate(payload); // Pass the structured object for create
+        await vpScoringMutate(payload);
       }
 
-      if (isSuccess || isUpdateSuccess) {
-        form.resetFields();
-        closeDrawer();
-      }
-    } catch (error: any) {
+      resetState();
+      closeDrawer();
+    } catch (error) {
       notification.error({
-        message: 'Error',
-        description: error.message || 'Failed to save VP Scoring.',
+        message: 'Operation failed',
       });
     }
   };
+
   return (
     <CustomDrawerLayout
       open={isDrawerVisible}
@@ -198,12 +216,12 @@ const ScoringDrawer: React.FC = () => {
               type="default"
               title="Cancel"
               onClick={() => {
-                form.resetFields();
+                resetState();
                 closeDrawer();
               }}
             />
             <CustomButton
-              loading={isLoading || isUpdating}
+              loading={isUpdating || isLoading}
               title={currentId ? 'Update' : 'Add'}
               onClick={() => form.submit()}
             />
@@ -227,7 +245,13 @@ const ScoringDrawer: React.FC = () => {
             { required: true, message: 'Please enter the total percentage' },
           ]}
         >
-          <Input placeholder="Enter the total percentage" className="h-12" />
+          <Input
+            type="number"
+            min={0}
+            max={100}
+            placeholder="Enter the total percentage"
+            className="h-12"
+          />
         </Form.Item>
 
         <Form.Item
@@ -236,13 +260,12 @@ const ScoringDrawer: React.FC = () => {
           rules={[{ required: true, message: 'Please select a department' }]}
         >
           <Select
-            mode="multiple"
             placeholder="Select Department"
+            onChange={handleDepartmentChange}
             className="w-full h-12"
-            onChange={(values) => setSelectedDepartments(values)}
           >
-            {departmentData?.map((dept: Department) => (
-              <Option key={dept.id} value={dept.name}>
+            {departmentData?.map((dept: any) => (
+              <Option key={dept.id} value={dept.id}>
                 {dept.name}
               </Option>
             ))}
@@ -258,14 +281,11 @@ const ScoringDrawer: React.FC = () => {
             mode="multiple"
             placeholder="Add Users"
             className="w-full h-12"
-            disabled={!selectedDepartments.length}
-          >
-            {availableUsers.map((user) => (
-              <Option key={user.id} value={user.id}>
-                {user.name}
-              </Option>
-            ))}
-          </Select>
+            options={filteredUsers.map((user: any) => ({
+              value: user.id,
+              label: `${user.firstName} ${user.lastName}`,
+            }))}
+          />
         </Form.Item>
 
         <Form.Item
@@ -288,26 +308,21 @@ const ScoringDrawer: React.FC = () => {
             ))}
           </Select>
         </Form.Item>
+
         <div className="flex mt-5">
           <span className="flex-1 h-12">Criteria Name</span>
           <span className="flex-1 h-12">Weight</span>
         </div>
 
-        {selectedCriteria.map((criteriaName, index) => (
-          <div key={criteriaName} className="flex items-center gap-4">
+        {selectedCriteria.map((criteria) => (
+          <div key={criteria.vpCriteriaId} className="flex items-center gap-4">
             <Form.Item className="flex-1">
-              <Input value={criteriaName} disabled className="flex-1 h-12" />
+              <Input value={criteria.name} disabled className="flex-1 h-12" />
             </Form.Item>
             <Form.Item
               className="flex-1"
-              name={`${criteriaName}_weight`}
-              initialValue={
-                weights[
-                  criteriaData?.items?.find(
-                    (c: Criterion) => c.name === criteriaName,
-                  )?.id
-                ] || ''
-              }
+              name={`${criteria.vpCriteriaId}_weight`}
+              initialValue={weights[criteria.vpCriteriaId] || ''}
             >
               <Input
                 type="number"
@@ -315,15 +330,10 @@ const ScoringDrawer: React.FC = () => {
                 min={0}
                 max={100}
                 onChange={(e) => {
-                  const criteriaId = criteriaData?.items?.find(
-                    (c: Criterion) => c.name === criteriaName,
-                  )?.id;
-                  if (criteriaId) {
-                    setWeights((prev) => ({
-                      ...prev,
-                      [criteriaId]: e.target.value,
-                    }));
-                  }
+                  setWeights((prev) => ({
+                    ...prev,
+                    [criteria.vpCriteriaId]: e.target.value,
+                  }));
                 }}
               />
             </Form.Item>
