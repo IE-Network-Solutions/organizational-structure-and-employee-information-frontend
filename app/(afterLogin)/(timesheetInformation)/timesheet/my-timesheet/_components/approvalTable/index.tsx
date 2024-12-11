@@ -15,15 +15,22 @@ import PermissionWrapper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { UserOutlined } from '@ant-design/icons';
+import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet/myTimesheet/currentApproval';
 
 const ApprovalTable = () => {
+  const { pageSize, userCurrentPage, setUserCurrentPage } =
+    useCurrentLeaveApprovalStore();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
   const userRollId = useAuthenticationStore.getState().userData.roleId;
   const { rejectComment, setRejectComment } = useApprovalStore();
   const { mutate: editApprover } = useSetApproveLeaveRequest();
 
-  const { data, isFetching } = useGetApprovalLeaveRequest(userId);
+  const { data, isFetching } = useGetApprovalLeaveRequest(
+    userId,
+    userCurrentPage,
+    pageSize,
+  );
 
   const reject: any = (e: {
     approvalWorkflowId: any;
@@ -202,7 +209,9 @@ const ApprovalTable = () => {
       dataIndex: 'action',
     },
   ];
-
+  const onPageChange = (page: number) => {
+    setUserCurrentPage(page);
+  };
   return (
     <>
       {data?.items?.length > 0 ? (
@@ -216,6 +225,12 @@ const ApprovalTable = () => {
             columns={columns}
             loading={isFetching}
             dataSource={allFilterData}
+            pagination={{
+              total: data?.meta?.totalItems,
+              current: userCurrentPage,
+              pageSize: pageSize,
+              onChange: onPageChange,
+            }}
           />
         </>
       ) : (

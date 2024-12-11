@@ -29,12 +29,16 @@ const getLeaveRequest = async (
   });
 };
 
-const getApprovalLeaveRequest = async (requesterId: string) => {
+const getApprovalLeaveRequest = async (
+  requesterId: string,
+  page: number,
+  limit: number,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/currentApprover/${requesterId}`,
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/currentApprover/${requesterId}?page=${page}&limit=${limit}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -88,10 +92,14 @@ export const useGetLeaveRequest = (
   );
 };
 
-export const useGetApprovalLeaveRequest = (requesterId: string) => {
+export const useGetApprovalLeaveRequest = (
+  requesterId: string,
+  page: number,
+  limit: number,
+) => {
   return useQuery<any>(
-    ['current_approval', requesterId],
-    () => getApprovalLeaveRequest(requesterId),
+    ['current_approval', requesterId, limit, page],
+    () => getApprovalLeaveRequest(requesterId, page, limit),
     {
       keepPreviousData: true,
     },
