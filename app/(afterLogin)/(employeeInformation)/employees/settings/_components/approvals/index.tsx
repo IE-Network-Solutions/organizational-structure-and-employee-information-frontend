@@ -9,6 +9,8 @@ import { FaPlus } from 'react-icons/fa';
 import { ApprovalWorkFlowComponent } from '@/components/Approval/approvalWorkFlow';
 import ApprovalWorkFlowSettingComponent from '@/components/Approval/ApprovalWorkFlowSetting';
 import ApprovalBranchFilter from './_component/approvalFilter';
+import PermissionWraper from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 import { IoArrowBack } from 'react-icons/io5';
 
 const Approvals = () => {
@@ -116,16 +118,19 @@ const Approvals = () => {
         <div>
           <div className="mb-10 flex justify-between">
             <div className="text-2xl font-bold ">List Of Approval</div>
-            <Button
-              className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
-              onClick={() => setAddDepartmentApproval(true)}
-            >
-              <FaPlus className="text-white" />
-              <span> Add Approval</span>
-            </Button>
+            <PermissionWraper permissions={[Permissions.CreateApprover]}>
+              <Button
+                className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
+                onClick={() => setAddDepartmentApproval(true)}
+              >
+                <FaPlus className="text-white" />
+                <span> Add Approval</span>
+              </Button>
+            </PermissionWraper>
           </div>
           <div className="flex flex-col gap-4">
-            <ApprovalBranchFilter /> <ApprovalTable />
+            <ApprovalBranchFilter />
+            <ApprovalTable />
           </div>
         </div>
       )}

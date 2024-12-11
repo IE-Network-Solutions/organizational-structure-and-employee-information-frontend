@@ -11,9 +11,9 @@ import OffboardingTask from './_components/offboarding';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import OffboardingFormControl from './_components/offboarding/_components/offboardingFormControl';
 import { useFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
-import { useRouter } from 'next/navigation';
-import { PermissionWrapper } from '@/utils/permissionGuard';
+import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useRouter } from 'next/navigation';
 
 interface Params {
   id: string;
@@ -76,7 +76,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       <Row gutter={[16, 24]}>
         <Col lg={8} md={10} xs={24}>
           <BasicInfo id={id} />
-          <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
+          <AccessGuard permissions={[Permissions.EndEmployment]}>
             <div className="flex gap-3">
               <div>
                 <Button
@@ -91,7 +91,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
                 </Button>
               </div>
             </div>
-          </PermissionWrapper>
+          </AccessGuard>
         </Col>
         <Col lg={16} md={14} xs={24}>
           <Card>

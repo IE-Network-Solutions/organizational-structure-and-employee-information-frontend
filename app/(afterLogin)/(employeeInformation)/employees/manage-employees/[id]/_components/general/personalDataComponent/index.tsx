@@ -10,7 +10,7 @@ import { useGetNationalities } from '@/store/server/features/employees/employeeM
 import { InfoLine } from '../../common/infoLine';
 import dayjs from 'dayjs';
 import UpdateUserInfo from './updateUserInfo';
-import { PermissionWrapper } from '@/utils/permissionGuard';
+import PermissionWrapper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import ChangePasswordModal from './_components/changePasswordModal';
 import { useModalStore } from '@/store/uistate/features/authentication/changePasswordModal';

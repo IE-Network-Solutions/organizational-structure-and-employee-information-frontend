@@ -6,6 +6,8 @@ import EmployementTypeSideDrawer from './_components/employementTypeSideDrawer';
 import { EmployeTypeManagementStore } from '@/store/uistate/features/employees/settings/emplyeTypeDrawer';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { EmploymentTypeInfo } from '@/store/server/features/employees/employeeManagment/employmentType/interface';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const EmploymentType = () => {
   const { setOpen, pageSize, setPageSize, setPage, page } =
@@ -52,13 +54,15 @@ const EmploymentType = () => {
           <div className="text-black font-bold text-lg mb-2 sm:mb-0">
             Employment Type
           </div>
-          <Button
-            className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
-            onClick={showDrawer}
-          >
-            <FaPlus className="text-white" />
-            <span>Add New Type</span>
-          </Button>
+          <AccessGuard permissions={[Permissions.CreateEmploymentType]}>
+            <Button
+              className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
+              onClick={showDrawer}
+            >
+              <FaPlus className="text-white" />
+              <span>Add New Type</span>
+            </Button>
+          </AccessGuard>
         </div>
       </Card>
       <EmployementTypeSideDrawer onClose={onClose} />

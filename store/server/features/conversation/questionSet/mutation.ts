@@ -10,11 +10,9 @@
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
-import { CategoryData } from './interface';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
-import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 
 /**
  * Sends a request to add a new category to the system.
@@ -24,7 +22,7 @@ import { CategoriesManagementStore } from '@/store/uistate/features/feedback/cat
  * @param {CategoryData} data - The category data to be added.
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
-const addCategory = async (data: any) => {
+const addQuestionSetOnConversationType = async (data: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const createdBy = useAuthenticationStore.getState().userId;
@@ -33,8 +31,9 @@ const addCategory = async (data: any) => {
     Authorization: `Bearer ${token}`,
     createdByUserId: createdBy || '',
   };
+
   return await crudRequest({
-    url: `${ORG_DEV_URL}/form-categories`,
+    url: `${ORG_DEV_URL}/question-set`,
     method: 'POST',
     data,
     headers,
@@ -50,7 +49,7 @@ const addCategory = async (data: any) => {
  * @param {string} id - The ID of the category to be updated.
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
-const updateFormCategory = async (data: CategoryData, id: string) => {
+const updateQuestionSetWithQuestionsOnConversationType = async (data: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -58,8 +57,32 @@ const updateFormCategory = async (data: CategoryData, id: string) => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${ORG_DEV_URL}/form-categories/${id}`,
-    method: 'PUT',
+    url: `${ORG_DEV_URL}/question-set/question-set/update-with-questions/${data?.id}`,
+    method: 'patch',
+    data,
+    headers,
+  });
+};
+
+/**
+ * Sends a request to update an existing category in the system.
+ *
+ * @function
+ * @async
+ * @param {CategoryData} data - The updated category data.
+ * @param {string} id - The ID of the category to be updated.
+ * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
+ */
+const updateConversationQuestionSet = async (data: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/question-set/${data?.id}`,
+    method: 'patch',
     data,
     headers,
   });
@@ -72,42 +95,19 @@ const updateFormCategory = async (data: CategoryData, id: string) => {
  * @async
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
-const deleteFormCategory = async () => {
+const deleteConversationQuestionSet = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
-  const deletedItem = CategoriesManagementStore.getState().deletedItem;
-  const pageSize = CategoriesManagementStore.getState().pageSize;
-  const current = CategoriesManagementStore.getState().current;
   return await crudRequest({
-    url: `${ORG_DEV_URL}/form-categories/${deletedItem}?limit=${pageSize}&&page=${current}`,
+    url: `${ORG_DEV_URL}/question-set/${id}`,
     method: 'DELETE',
     headers,
   });
 };
-
-/**
- * Custom hook to add a new category using React Query.
- * Automatically invalidates the 'categories' query cache on success.
- *
- * @function
- * @returns {UseMutationResult} The mutation result object with methods to execute the mutation and handle its status.
- */
-export const useAddCategory = () => {
-  const queryClient = useQueryClient();
-  return useMutation(addCategory, {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('categories');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
-    },
-  });
-};
-// eslint-enable-next-line @typescript-eslint/naming-convention
 
 /**
  * Custom hook to update an existing category using React Query.
@@ -116,20 +116,35 @@ export const useAddCategory = () => {
  * @function
  * @returns {UseMutationResult} The mutation result object with methods to execute the mutation and handle its status.
  */
-export const useUpdateFormCategory = () => {
+export const useUpdateConversationQuestionSet = () => {
   const queryClient = useQueryClient();
-  return useMutation(
-    ({ data, id }: { data: CategoryData; id: string }) =>
-      updateFormCategory(data, id),
-    {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      onSuccess: (_, variables: any) => {
-        queryClient.invalidateQueries('categories');
-        const method = variables?.method?.toUpperCase();
-        handleSuccessMessage(method);
-      },
+  return useMutation(updateConversationQuestionSet, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('conversationType');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
-  );
+  });
+};
+
+/**
+ * Custom hook to update an existing category using React Query.
+ * Automatically invalidates the 'categories' query cache on success.
+ *
+ * @function
+ * @returns {UseMutationResult} The mutation result object with methods to execute the mutation and handle its status.
+ */
+export const useDeleteConversationQuestionSet = () => {
+  const queryClient = useQueryClient();
+  return useMutation(deleteConversationQuestionSet, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('conversationType');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
 };
 // eslint-enable-next-line @typescript-eslint/naming-convention
 
@@ -140,12 +155,32 @@ export const useUpdateFormCategory = () => {
  * @function
  * @returns {UseMutationResult} The mutation result object with methods to execute the mutation and handle its status.
  */
-export const useDeleteFormCategory = () => {
+export const useAddQuestionSetOnConversationType = () => {
   const queryClient = useQueryClient();
-  return useMutation(deleteFormCategory, {
+  return useMutation(addQuestionSetOnConversationType, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('categories');
+      queryClient.invalidateQueries('conversationType');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+// eslint-enable-next-line @typescript-eslint/naming-convention
+
+/**
+ * Custom hook to delete a category using React Query.
+ * Automatically invalidates the 'categories' query cache on success.
+ *
+ * @function
+ * @returns {UseMutationResult} The mutation result object with methods to execute the mutation and handle its status.
+ */
+export const useUpdateQuestionSetWithQuestionsOnConversationType = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateQuestionSetWithQuestionsOnConversationType, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('conversationType');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
