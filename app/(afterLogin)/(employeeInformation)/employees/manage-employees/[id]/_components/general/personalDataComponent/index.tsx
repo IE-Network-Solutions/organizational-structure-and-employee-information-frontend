@@ -37,7 +37,7 @@ function PersonalDataComponent({
     <>
       <Card
         loading={isLoading}
-        title="Personal Info DFGH"
+        title="Personal Info"
         extra={
           <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]} selfShouldAccess id={id}>
             <LuPencil
