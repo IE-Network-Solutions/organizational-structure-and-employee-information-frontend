@@ -28,18 +28,20 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 const columns: TableColumnsType<EmployeeData> = [
   {
-    title: 'Employee Id',
+    title: 'Id',
     dataIndex: 'employee_attendance_id',
     sorter: (a, b) => {
       const idA = a.employee_attendance_id ?? 0;
       const idB = b.employee_attendance_id ?? 0;
       return idA - idB;
     },
+    width: 50,
   },
   {
     title: 'Employee Name',
     dataIndex: 'employee_name',
     ellipsis: true,
+    width: 150,
   },
   {
     title: 'Job Position',

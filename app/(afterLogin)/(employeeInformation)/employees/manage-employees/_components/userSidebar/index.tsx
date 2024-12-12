@@ -53,12 +53,12 @@ const UserSidebar = (props: any) => {
     </div>
   );
 
-  const handleCreateUser = async() => {
-     await form.validateFields();
-     const allValues = form.getFieldsValue(true);
-     createEmployee(transformData(allValues));
+  const handleCreateUser = async () => {
+    await form.validateFields();
+    const allValues = form.getFieldsValue(true);
+    createEmployee(transformData(allValues));
   };
-  const handleContinueClick = async() => {
+  const handleContinueClick = async () => {
     if (current !== 2) {
       // await form.validateFields();
       await form.validateFields();
@@ -76,7 +76,6 @@ const UserSidebar = (props: any) => {
       setOpen(false);
     }
   };
-
 
   const customDot = (step: number) => (
     <div
@@ -125,27 +124,37 @@ const UserSidebar = (props: any) => {
           }
         >
           {current === 0 && (
-            <Card  className="p-4 sm:p-6">
+            <Card className="p-4 sm:p-6">
               <BasicInformationForm form={form} />
               <EmployeeAddressForm />
               <EmergencyContactForm />
               <BankInformationForm />
-              <ButtonContinue handleContinueClick={handleContinueClick} handleBackClick={handleBackClick} />
+              <ButtonContinue
+                handleContinueClick={handleContinueClick}
+                handleBackClick={handleBackClick}
+              />
             </Card>
           )}
           {current === 1 && (
-            <Card  className="p-4 sm:p-6">
+            <Card className="p-4 sm:p-6">
               <JobTimeLineForm />
               <RolePermissionForm form={form} />
               <WorkScheduleForm />
-              <ButtonContinue handleContinueClick={handleContinueClick} handleBackClick={handleBackClick}/>
+              <ButtonContinue
+                handleContinueClick={handleContinueClick}
+                handleBackClick={handleBackClick}
+              />
             </Card>
           )}
           {current === 2 && (
-            <Card  className="p-4 sm:p-6">
+            <Card className="p-4 sm:p-6">
               <AdditionalInformationForm />
               <DocumentUploadForm />
-              <ButtonContinue handleBackClick={handleBackClick} handleContinueClick={handleContinueClick} isLoading={isLoading}/>
+              <ButtonContinue
+                handleBackClick={handleBackClick}
+                handleContinueClick={handleContinueClick}
+                isLoading={isLoading}
+              />
             </Card>
           )}
         </Form>

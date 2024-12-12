@@ -242,7 +242,6 @@ export enum Permissions {
   // Miscellaneous Permissions
   SetMaximumCarryOverLimit = 'set-maximum-carry-over-limit',
 
-
   //Conversation
 
   createConversationSet = 'create-conversation-set',
@@ -251,7 +250,7 @@ export enum Permissions {
 
   CreateConversationType = 'create-conversation-type',
 
- //Recognition
+  //Recognition
   CreateRecognition = 'create-recognition',
   DeleteRecognition = 'delete-recognition',
   EditRecognition = 'edit-recognition',
@@ -273,5 +272,4 @@ export enum Permissions {
   // CreateRecognitionType = 'create-recognition-type',
   // DeleteRecognitionType = 'delete-recognition-type',
   // EditRecognitionType = 'edit-recognition-type',
-
 }

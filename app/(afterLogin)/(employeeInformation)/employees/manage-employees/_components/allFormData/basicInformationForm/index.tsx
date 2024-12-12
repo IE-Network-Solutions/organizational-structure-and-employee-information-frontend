@@ -85,9 +85,6 @@ const BasicInformationForm = ({ form }: any) => {
             style={{ textAlign: 'center' }}
             name="profileImage"
             id="profileImageId"
-            rules={[
-              { required: true, message: 'Please upload your profile image!' },
-            ]}
           >
             <Dragger
               name="files"
@@ -134,6 +131,7 @@ const BasicInformationForm = ({ form }: any) => {
             id="userFirstNameId"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('name', value)
                     ? Promise.resolve()
@@ -154,6 +152,7 @@ const BasicInformationForm = ({ form }: any) => {
             id="userMiddleNameId"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('Middle Name', value)
                     ? Promise.resolve()
@@ -174,6 +173,7 @@ const BasicInformationForm = ({ form }: any) => {
             id="userLastNameId"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('Last Name', value)
                     ? Promise.resolve()
@@ -196,6 +196,7 @@ const BasicInformationForm = ({ form }: any) => {
             id="userEmailId"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateEmail(value)
                     ? Promise.resolve()
