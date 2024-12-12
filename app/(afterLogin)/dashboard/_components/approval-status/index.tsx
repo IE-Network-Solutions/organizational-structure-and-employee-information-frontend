@@ -4,16 +4,32 @@ import { Empty, Select } from 'antd';
 import ApprovalRequestCard from './approval-status-card';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
+import { useDashboardApprovalStore } from '@/store/uistate/features/dashboard/approval';
+import { useGetBranchTransferApproveById } from '@/store/server/features/employees/approval/queries';
 
 const ApprovalStatus: FC = () => {
   const { userId } = useAuthenticationStore();
-  const { data } = useGetApprovalLeaveRequest(userId);
+  const { data: LeaveTransferData } = useGetApprovalLeaveRequest(userId, 1, 4);
+  const { data: BranchTransferData } = useGetBranchTransferApproveById(
+    userId,
+    4,
+    1,
+  );
+  const { approverType, setApproverType } = useDashboardApprovalStore();
 
   const requests = [
     {
-      type: 'Leave Request',
+      type: 'Leave',
+      value: 'Leave Request',
+    },
+    {
+      type: 'BranchTransfer',
+      value: 'Branch Transfer Request',
     },
   ];
+  const handleChange = (value: string) => {
+    setApproverType(value);
+  };
 
   return (
     <div className="bg-white p-3 rounded-lg w-full">
@@ -26,34 +42,60 @@ const ApprovalStatus: FC = () => {
             className="min-w-10   text-sm font-semibold border-none"
             options={requests.map((item) => ({
               value: item.type,
-              label: item.type,
+              label: item.value,
             }))}
-            defaultValue={requests[0].type}
             bordered={false}
+            onChange={handleChange}
           />
         </div>
       </div>
       <div className="md:h-[325px] overflow-y-auto scrollbar-none">
-        {data?.items?.length ? (
-          <div className="">
-            {data?.items.map((request: any, index: number) => (
-              <ApprovalRequestCard
-                key={index}
-                id={request.id}
-                name={request.name}
-                days={request.days}
-                approveRequesterId={request.userId}
-                startAt={request.startAt}
-                endAt={request.endAt}
-                isHalfDay={request.isHalfDay}
-                leaveType={request.leaveType.title}
-                approvalWorkflowId={request.approvalWorkflowId}
-                nextApprover={request.nextApprover?.[0]?.stepOrder}
-              />
-            ))}
-          </div>
+        {approverType === 'BranchTransfer' ? (
+          BranchTransferData?.items?.length ? (
+            <div>
+              {BranchTransferData.items.map((request: any, index: number) => (
+                <ApprovalRequestCard
+                  key={index}
+                  id={request.id}
+                  name={request.name}
+                  approveRequesterId={request.userId}
+                  startAt={request?.currentBranch?.name}
+                  endAt={request?.requestBranch?.name}
+                  leaveType={'Branch Transfer Request'}
+                  approvalWorkflowId={request.approvalWorkflowId}
+                  nextApprover={request.nextApprover?.[0]?.stepOrder}
+                  requestType={approverType}
+                />
+              ))}
+            </div>
+          ) : (
+            <Empty />
+          )
+        ) : approverType === 'Leave' ? (
+          LeaveTransferData?.items?.length ? (
+            <div>
+              {LeaveTransferData.items.map((request: any, index: number) => (
+                <ApprovalRequestCard
+                  key={index}
+                  id={request.id}
+                  name={request.name}
+                  days={request.days}
+                  approveRequesterId={request.userId}
+                  startAt={request.startAt}
+                  endAt={request.endAt}
+                  isHalfDay={request.isHalfDay}
+                  leaveType={request.leaveType.title}
+                  approvalWorkflowId={request.approvalWorkflowId}
+                  nextApprover={request.nextApprover?.[0]?.stepOrder}
+                  requestType={approverType}
+                />
+              ))}
+            </div>
+          ) : (
+            <Empty />
+          )
         ) : (
-          <Empty />
+          <Empty /> // Optional: Render this if `approverType` does not match any cases
         )}
       </div>
     </div>

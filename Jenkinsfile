@@ -8,6 +8,7 @@ pipeline {
         REPO_DIR = 'osei-front'
         SSH_CREDENTIALS_ID = 'pepproduction'
 
+
         ORG_AND_EMP_URL="https://org-emp-backend.selamnew.com/api/v1"
         NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://okr-backend.selamnew.com/api/v1"
         OKR_URL="https://okr-backend.selamnew.com/api/v1"
@@ -15,6 +16,7 @@ pipeline {
         ORG_DEV_URL = "https://od-backend.selamnew.com/api/v1"
         RECRUITMENT_URL="https://recruitment-backend.selamnew.com/api/v1"
         NEXT_PUBLIC_APPROVERS_URL="https://approval-backend.selamnew.com/api/v1"
+      
         PUBLIC_DOMAIN="https://selamnew.com"
         NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://time-attendance-backend.selamnew.com/api/v1"
         NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://training-backend.selamnew.com/api/v1"
@@ -66,6 +68,7 @@ pipeline {
                         NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL=${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}
                         NEXT_PUBLIC_OKR_AND_PLANNING_URL=${OKR_URL}
                         OKR_URL=${OKR_URL}
+                        NOTIFICATION_URL=${NOTIFICATION_URL}
                         RECRUITMENT_URL=${RECRUITMENT_URL}
                         PUBLIC_DOMAIN=${PUBLIC_DOMAIN}
                         NEXT_PUBLIC_API_KEY=${NEXT_PUBLIC_API_KEY}
@@ -101,7 +104,8 @@ pipeline {
             }
         }
     }
-     post {
+        post {
+
         success {
             echo 'Nest js application deployed successfully!'
         }

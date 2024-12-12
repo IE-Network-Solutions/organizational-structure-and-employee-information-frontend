@@ -6,6 +6,8 @@ import { usePositionState } from '@/store/uistate/features/employees/positions';
 import { useDeletePosition } from '@/store/server/features/employees/positions/mutation';
 import PositionsEdit from '../positionEdit';
 import RecruitmentPagination from '@/app/(afterLogin)/(recruitment)/recruitment/_components';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const PositionCards: React.FC = () => {
   const { data: positions } = useGetPositions();
@@ -51,20 +53,24 @@ const PositionCards: React.FC = () => {
           >
             <div className="text-medium font-medium">{position?.name}</div>
             <div className="flex items-center justify-center gap-2">
-              <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
-                <Pencil
-                  size={15}
-                  className="text-white cursor-pointer"
-                  onClick={() => handlePositionEditModalOpen(position)}
-                />
-              </div>
-              <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
-                <Trash2
-                  size={15}
-                  className="text-white cursor-pointer"
-                  onClick={() => handlePositionDeleteModalOpen(position)}
-                />
-              </div>
+              <AccessGuard permissions={[Permissions.UpdatePosition]}>
+                <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+                  <Pencil
+                    size={15}
+                    className="text-white cursor-pointer"
+                    onClick={() => handlePositionEditModalOpen(position)}
+                  />
+                </div>
+              </AccessGuard>
+              <AccessGuard permissions={[Permissions.DeletePosition]}>
+                <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
+                  <Trash2
+                    size={15}
+                    className="text-white cursor-pointer"
+                    onClick={() => handlePositionDeleteModalOpen(position)}
+                  />
+                </div>
+              </AccessGuard>
             </div>
           </div>
         ))

@@ -6,6 +6,8 @@ import { FaPlus } from 'react-icons/fa';
 import CustomFieldsDrawer from './customFieldsDrawer';
 import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
 import CustomFieldsCard from './customFieldsCard';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Title } = Typography;
 
@@ -30,13 +32,15 @@ const CustomAddJobFields: React.FC = () => {
       <Card>
         <div className="flex items-center justify-between">
           <Title level={5}>Custom Fields</Title>
-          <CustomButton
-            title="New Field"
-            id="createUserButton"
-            icon={<FaPlus size={13} className="mr-2" />}
-            onClick={showDrawer}
-            className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
-          />
+          <AccessGuard permissions={[Permissions.CreateCustomFields]}>
+            <CustomButton
+              title="New Field"
+              id="createUserButton"
+              icon={<FaPlus size={13} className="mr-2" />}
+              onClick={showDrawer}
+              className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
+            />
+          </AccessGuard>
         </div>
         <CustomFieldsCard />
       </Card>

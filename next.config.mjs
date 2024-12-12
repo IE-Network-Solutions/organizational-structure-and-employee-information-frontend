@@ -16,6 +16,8 @@ const nextConfig = {
     PUBLIC_DOMAIN: process.env.PUBLIC_DOMAIN,
     OKR_URL: process.env.OKR_URL,
     APPROVER_URL: process.env.NEXT_PUBLIC_APPROVERS_URL,
+
+    ORG_DEV: process.env.ORG_DEV,
   },
 };
 

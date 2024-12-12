@@ -29,6 +29,8 @@ import {
 } from '@/types/tna/tna';
 import FileButton from '@/components/common/fileButton';
 import { useDeleteTna } from '@/store/server/features/tna/review/mutation';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const TnaReviewPage = () => {
   const router = useRouter();
@@ -172,32 +174,38 @@ const TnaReviewPage = () => {
       key: 'action',
       render: (item: TrainingNeedAssessment) => (
         <Space>
-          <Button
-            id={`${item.id}tnaShowTnaReviewSidebarButtonId`}
-            className="w-[30px] h-[30px]"
-            icon={<FiEdit2 size={16} />}
-            type="primary"
-            disabled={
-              item.certStatus === TrainingNeedAssessmentCertStatus.COMPLETED
-            }
-            onClick={() => {
-              setTnaId(item.id);
-              setIsShowTnaReviewSidebar(true);
-            }}
-          />
-          <ActionButton
-            onOpen={() => {
-              router.push('/tna/review/' + item.id);
-            }}
-            onDelete={
-              item.certStatus !== TrainingNeedAssessmentCertStatus.COMPLETED
-                ? () => {
-                    deleteTna([item.id]);
-                  }
-                : undefined
-            }
-            id={item.id ?? null}
-          />
+          <AccessGuard permissions={[Permissions.UpdateTna]}>
+            <Button
+              id={`${item.id}tnaShowTnaReviewSidebarButtonId`}
+              className="w-[30px] h-[30px]"
+              icon={<FiEdit2 size={16} />}
+              type="primary"
+              disabled={
+                item.certStatus === TrainingNeedAssessmentCertStatus.COMPLETED
+              }
+              onClick={() => {
+                setTnaId(item.id);
+                setIsShowTnaReviewSidebar(true);
+              }}
+            />
+          </AccessGuard>
+          <AccessGuard
+            permissions={[Permissions.UpdateTna, Permissions.DeleteTna]}
+          >
+            <ActionButton
+              onOpen={() => {
+                router.push('/tna/review/' + item.id);
+              }}
+              onDelete={
+                item.certStatus !== TrainingNeedAssessmentCertStatus.COMPLETED
+                  ? () => {
+                      deleteTna([item.id]);
+                    }
+                  : undefined
+              }
+              id={item.id ?? null}
+            />
+          </AccessGuard>
         </Space>
       ),
     },
@@ -225,15 +233,17 @@ const TnaReviewPage = () => {
                 );
               }}
             />
-            <Button
-              icon={<LuPlus size={16} />}
-              className="h-[54px]"
-              type="primary"
-              size="large"
-              onClick={() => setIsShowTnaReviewSidebar(true)}
-            >
-              New TNA
-            </Button>
+            <AccessGuard permissions={[Permissions.CreateTna]}>
+              <Button
+                icon={<LuPlus size={16} />}
+                className="h-[54px]"
+                type="primary"
+                size="large"
+                onClick={() => setIsShowTnaReviewSidebar(true)}
+              >
+                New TNA
+              </Button>
+            </AccessGuard>
           </Space>
         </PageHeader>
 

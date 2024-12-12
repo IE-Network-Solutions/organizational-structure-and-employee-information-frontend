@@ -6,6 +6,8 @@ import { FaPlus } from 'react-icons/fa';
 import PositionCards from './positionCards';
 import { usePositionState } from '@/store/uistate/features/employees/positions';
 import CreatePosition from './createPosition';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Title } = Typography;
 
@@ -24,13 +26,15 @@ const Positions: React.FC = () => {
       <Card>
         <div className="flex items-center justify-between">
           <Title level={5}>Employee Positions</Title>
-          <CustomButton
-            title="New Position"
-            id="createUserButton"
-            icon={<FaPlus size={13} className="mr-2" />}
-            onClick={showDrawer}
-            className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
-          />
+          <AccessGuard permissions={[Permissions.CreatePosition]}>
+            <CustomButton
+              title="New Position"
+              id="createUserButton"
+              icon={<FaPlus size={13} className="mr-2" />}
+              onClick={showDrawer}
+              className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
+            />
+          </AccessGuard>
         </div>
         <PositionCards />
       </Card>

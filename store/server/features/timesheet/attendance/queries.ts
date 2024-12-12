@@ -25,10 +25,17 @@ const getAttendances = async (
     params: query,
   });
 };
+const getSingleAttendances = async (id: string) => {
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/{id}?id=${id}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
 
 const getCurrentAttendance = async (userId: string) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/attendance/shift`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/shift/user`,
     method: 'GET',
     headers: requestHeader(),
     params: { userId: userId },
@@ -60,6 +67,17 @@ export const useGetAttendances = (
     {
       keepPreviousData: isKeepData,
       enabled: isEnabled,
+    },
+  );
+};
+
+export const useGetSingleAttendances = (id: string) => {
+  return useQuery<AttendanceRecord>(
+    ['current-attendance', id],
+    () => getSingleAttendances(id),
+    {
+      // Ensure id is a non-empty, non-null string
+      enabled: id !== null && id !== undefined && id.trim() !== '',
     },
   );
 };
