@@ -39,15 +39,6 @@ import { useTransferStore } from '@/store/uistate/features/organizationStructure
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { Form } from 'antd';
 
-
-
-
-
-
-
-
-
-
 const renderTreeNodes = (
   data: Department[],
   onEdit: (department: Department) => void,
@@ -77,19 +68,6 @@ const renderTreeNodes = (
       </TreeNode>
     );
   });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const OrgChartComponent: React.FC = () => {
 
@@ -217,7 +195,7 @@ const [form] = Form.useForm();
     <div className="w-full overflow-x-auto">
       <Card
         className="w-full"
-        title={<div className="text-2xl font-bold">ORG Structure tt</div>}
+        title={<div className="text-2xl font-bold">ORG Structure</div>}
         extra={
           <div className="py-4 flex justify-center items-center gap-4">
             <Dropdown

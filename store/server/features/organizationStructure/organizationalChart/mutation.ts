@@ -52,7 +52,7 @@ const deleteOrgChart = async (departmentTobeDeletedId: string, departmentTobeShi
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/${departmentTobeDeletedId}`,
     method: 'DELETE',
-    data: departmentTobeShiftedId,
+    data: {departmentTobeShiftedId},
     headers,
   });
 };
