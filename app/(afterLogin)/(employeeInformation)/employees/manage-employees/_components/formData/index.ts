@@ -13,7 +13,7 @@ export const transformData = (data: any) => {
       middleName: data.userMiddleName,
       lastName: data.userLastName,
       email: data.userEmail,
-      profileImage: data.profileImage.file.originFileObj || '',
+      profileImage: data?.profileImage?.file?.originFileObj ?? '',
       roleId: data.roleId,
     },
     createRolePermissionDto: {
@@ -49,7 +49,7 @@ export const transformData = (data: any) => {
       workScheduleId: data.workScheduleId,
     },
     createEmployeeDocumentDto: {
-      documentName: data.documentName.file.originFileObj || '',
+      documentName: data?.documentName?.file?.originFileObj ?? '',
     },
   };
 

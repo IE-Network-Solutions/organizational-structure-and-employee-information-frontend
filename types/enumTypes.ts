@@ -68,4 +68,11 @@ export const SelectData = [
 export enum APPROVALTYPES {
   LEAVE = 'Leave',
   BRANCHREQUEST = 'BranchRequest',
-}
+};
+
+
+export const JobActionStatus = [
+  { id: 'New', name: 'New' },
+  { id: 'Promotion', name: 'Promotion' },
+  { id: 'Transfer', name: 'Transfer' },
+];

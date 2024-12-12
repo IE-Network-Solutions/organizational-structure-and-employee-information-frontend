@@ -3,6 +3,7 @@ import { useGetBranches } from '@/store/server/features/employees/employeeManagm
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetPositions } from '@/store/server/features/employees/positions/queries';
+import { JobActionStatus } from '@/types/enumTypes';
 import {
   Button,
   Col,
@@ -17,11 +18,7 @@ import React, { useState } from 'react';
 import { AiOutlineReload } from 'react-icons/ai';
 
 const JobTimeLineForm = () => {
-  const status = [
-    { id: 'New', name: 'New' },
-    { id: 'Promotion', name: 'Promotion' },
-    { id: 'Transfer', name: 'Transfer' },
-  ];
+
   const { data: departmentData, refetch: departmentsRefetch } =
     useGetDepartments();
   const { data: employementType, refetch: employmentTypeRefetch } =
@@ -199,7 +196,7 @@ const JobTimeLineForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="w-full font-semibold text-xs"
-            name={'jobAction'}
+            name='jobAction'
             id="jobAction"
             label="Status"
             rules={[{ required: true, message: 'Please select Status' }]}
@@ -210,8 +207,8 @@ const JobTimeLineForm = () => {
               showSearch
               optionFilterProp="label"
               placeholder="Select Status"
-              options={status?.map((status: any, index: number) => ({
-                value: index,
+              options={JobActionStatus?.map((status: any) => ({
+                value: status?.id,
                 label: `${status?.name ? status?.name : ''} `,
               }))}
             />
