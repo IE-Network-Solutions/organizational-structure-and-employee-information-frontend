@@ -34,7 +34,12 @@ const AreaCard: FC<AreaCardProps> = ({ item }) => {
                 </span>
               </div>
             </div>
-            <AccessGuard permissions={[Permissions.UpdateAllowedArea, Permissions.DeleteAllowedArea]}>
+            <AccessGuard
+              permissions={[
+                Permissions.UpdateAllowedArea,
+                Permissions.DeleteAllowedArea,
+              ]}
+            >
               <ActionButton
                 id={item.id ?? null}
                 onEdit={() => {

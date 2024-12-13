@@ -72,8 +72,12 @@ export default function OkrTab() {
       searchObjParams?.metricTypeId,
     );
 
-  const canVieTeamOkr = AccessGuard.checkAccess({permissions: [Permissions.ViewTeamOkr]});
-  const canVieCompanyOkr = AccessGuard.checkAccess({permissions: [Permissions.ViewCompanyOkr]});
+  const canVieTeamOkr = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewTeamOkr],
+  });
+  const canVieCompanyOkr = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewCompanyOkr],
+  });
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -126,7 +130,7 @@ export default function OkrTab() {
             </div>
           )}
         </TabPane>
-        { canVieTeamOkr &&
+        {canVieTeamOkr && (
           <TabPane tab="Team OKR" key={2}>
             <OkrProgress />
             {teamLoading && (
@@ -156,8 +160,9 @@ export default function OkrTab() {
                 <EmptyImage />
               </div>
             )}
-          </TabPane>}
-        { canVieCompanyOkr &&
+          </TabPane>
+        )}
+        {canVieCompanyOkr && (
           <TabPane tab="Company OKR" key={3}>
             <OkrProgress />
             {companyLoading && (
@@ -189,7 +194,7 @@ export default function OkrTab() {
               </div>
             )}
           </TabPane>
-        }
+        )}
       </Tabs>
     </div>
   );

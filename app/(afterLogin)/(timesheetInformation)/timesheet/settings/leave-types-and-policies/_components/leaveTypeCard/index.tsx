@@ -18,8 +18,8 @@ export interface LeaveTypeCardProps {
 }
 
 const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
-  
-  const { mutate: deleteLeaveType, isLoading: isDeleteLoading } = useDeleteLeaveType();
+  const { mutate: deleteLeaveType, isLoading: isDeleteLoading } =
+    useDeleteLeaveType();
   const { mutate: setActive, isLoading } = useUpdateLeaveTypeActive();
 
   const onDelete = () => {

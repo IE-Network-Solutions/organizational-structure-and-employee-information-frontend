@@ -189,7 +189,9 @@ const TnaReviewPage = () => {
               }}
             />
           </AccessGuard>
-          <AccessGuard permissions={[Permissions.UpdateTna, Permissions.DeleteTna]}>
+          <AccessGuard
+            permissions={[Permissions.UpdateTna, Permissions.DeleteTna]}
+          >
             <ActionButton
               onOpen={() => {
                 router.push('/tna/review/' + item.id);

@@ -76,7 +76,9 @@ const EmployeeAttendance = () => {
         description="Manage your Team Attendance"
       >
         <Space>
-          <PermissionWrapper permissions={[Permissions.ImportEmployeeAttendanceInformation]}>
+          <PermissionWrapper
+            permissions={[Permissions.ImportEmployeeAttendanceInformation]}
+          >
             <Button
               icon={<TbFileUpload size={18} />}
               size="large"
@@ -103,7 +105,9 @@ const EmployeeAttendance = () => {
             }}
             hidden
           />
-          <PermissionWrapper permissions={[Permissions.ExportEmployeeAttendanceInformation]}>
+          <PermissionWrapper
+            permissions={[Permissions.ExportEmployeeAttendanceInformation]}
+          >
             <Popover
               trigger="click"
               placement="bottomRight"
