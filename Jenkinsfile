@@ -61,7 +61,7 @@ pipeline {
                 sshagent (credentials: [SSH_CREDENTIALS_ID]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cat > ~/$REPO_DIR/.env <<EOF
-                        ENV=production
+                        NODE_ENV=production
                         ORG_AND_EMP_URL=${ORG_AND_EMP_URL}
                         TENANT_MGMT_URL=${TENANT_MGMT_URL}
                         ORG_DEV_URL=${ORG_DEV_URL}
