@@ -1,8 +1,6 @@
 'use client';
-
 import { QueryCache, QueryClient, QueryClientProvider } from 'react-query';
 import { ReactNode, Suspense } from 'react';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useRouter } from 'next/navigation';
 import { handleNetworkError } from '@/utils/showErrorResponse';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
