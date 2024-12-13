@@ -51,10 +51,9 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
             router.replace('/authentication/login');
           }
         }
-        if( process.env.NODE_ENV!=='production'){
+        if (process.env.NODE_ENV !== 'production') {
           handleNetworkError(error);
         }
-        
       },
     }),
   });
