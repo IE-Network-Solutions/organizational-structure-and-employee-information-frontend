@@ -30,7 +30,12 @@ const CarryOverCard: FC<CarryOverCardProps> = ({ item }) => {
           <div className="flex-1 text-lg font-semibold text-gray-900">
             {item.title}
           </div>
-          <AccessGuard permissions={[Permissions.UpdateCarryOverRule, Permissions.DeleteCarryOverRule]}>
+          <AccessGuard
+            permissions={[
+              Permissions.UpdateCarryOverRule,
+              Permissions.DeleteCarryOverRule,
+            ]}
+          >
             <Space size={12}>
               <Switch
                 id="carryOverSwitchAbleCardButtonId"

@@ -100,7 +100,9 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       render: (record: Record<string, string> | any) => {
         return (
           <div className="flex space-x-2">
-            <AccessGuard permissions={[Permissions.ViewReprimandAndAppreciationDetails]}>
+            <AccessGuard
+              permissions={[Permissions.ViewReprimandAndAppreciationDetails]}
+            >
               <Button
                 href={
                   record?.type?.type === 'appreciation'
@@ -111,14 +113,18 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                 icon={<FaEye />}
               />
             </AccessGuard>
-            <AccessGuard permissions={[Permissions.EditAppreciationAndReprimand]}>
+            <AccessGuard
+              permissions={[Permissions.EditAppreciationAndReprimand]}
+            >
               <Button
                 className="bg-blue text-white border-none"
                 icon={<EditOutlined />}
                 onClick={() => handleEditModal(record)} // Pass key to edit handler
               />
             </AccessGuard>
-            <AccessGuard permissions={[Permissions.DeleteAppreciationAndReprimand]}>
+            <AccessGuard
+              permissions={[Permissions.DeleteAppreciationAndReprimand]}
+            >
               <Button
                 className="bg-red-500 text-white border-none"
                 icon={<DeleteOutlined />}

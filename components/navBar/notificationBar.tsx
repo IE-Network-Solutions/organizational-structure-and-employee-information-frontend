@@ -1,4 +1,4 @@
-import { Avatar, Menu, Dropdown,Badge, Spin, Tooltip } from 'antd';
+import { Avatar, Menu, Dropdown, Badge, Spin, Tooltip } from 'antd';
 import { useNotificationDetailStore } from '@/store/uistate/features/notification';
 import { useGetNotifications } from '@/store/server/features/notification/queries';
 import { NotificationType } from '@/store/server/features/notification/interface';

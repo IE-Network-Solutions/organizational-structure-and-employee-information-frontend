@@ -78,7 +78,9 @@ function DetailPage({ params: { id } }: AppreciationDetailProps) {
               onClick={() => handleEditModal()}
             />
           </AccessGuard>
-          <AccessGuard permissions={[Permissions.DeleteAppreciationAndReprimand]}>
+          <AccessGuard
+            permissions={[Permissions.DeleteAppreciationAndReprimand]}
+          >
             <Button
               onClick={() => showDeleteModal(appDetail?.id || '')} // Pass key to delete handler
               className="bg-red-500 text-white border-none"

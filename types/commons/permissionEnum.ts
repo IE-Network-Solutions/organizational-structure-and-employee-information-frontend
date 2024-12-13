@@ -1,5 +1,4 @@
 export enum Permissions {
-
   // Could not be found Permissions that needs to be changed
   ViewAllEmployeePlan = 'view-all-employee-plan',
   ViewAllPlan = 'view-all-plan',
@@ -27,7 +26,7 @@ export enum Permissions {
   UpdateAppreciationType = 'update-appreciation-type',
   DeleteAppreciationType = 'delete-appreciation-type',
   CreateOkrRule = 'create-okr-rule',
-  
+
   UpdateLeaveRequest = 'update-leave-request',
   DeleteLeaveRequest = 'delete-leave-request',
   ViewAttendanceDetails = 'view-attendance-details',
@@ -40,7 +39,6 @@ export enum Permissions {
   DeletePosition = 'delete-position',
   ApproveCandidate = 'approve-candidate',
   DeclineCandidate = 'decline-candidate',
-
 
   // Course Permissions
   UpdateCourse = 'update-course',
@@ -243,4 +241,37 @@ export enum Permissions {
 
   // Miscellaneous Permissions
   SetMaximumCarryOverLimit = 'set-maximum-carry-over-limit',
+
+
+  //Conversation
+
+  createConversationSet = 'create-conversation-set',
+  DeleteConversationSet = 'delete-conversation-set',
+  EditConversationSet = 'edit-conversation-set',
+
+  CreateConversationType = 'create-conversation-type',
+
+ //Recognition
+  CreateRecognition = 'create-recognition',
+  DeleteRecognition = 'delete-recognition',
+  EditRecognition = 'edit-recognition',
+
+  AddRecognitionCriteria = 'create-recognition-criteria',
+  DeleteRecognitionCriteria = 'delete-recognition-criteria',
+  EditRecognitionCriteria = 'edit-recognition-criteria',
+  // //oneToOne
+  // CreateOneToOne = 'create-one-to-one',
+  // DeleteOneToOne = 'delete-one-to-one',
+  // EditOneToOne = 'edit-one-to-one',
+
+  // //feedback
+  // CreateFeedack = 'create-feedback',
+  // DeleteFeedack = 'delete-feedback',
+  // EditFeedack = 'edit-feedback',
+
+  // //recognition
+  // CreateRecognitionType = 'create-recognition-type',
+  // DeleteRecognitionType = 'delete-recognition-type',
+  // EditRecognitionType = 'edit-recognition-type',
+
 }

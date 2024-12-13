@@ -83,7 +83,9 @@ const Status: React.FC = () => {
                 </span>
 
                 <div>
-                  <AccessGuard permissions={[Permissions.UpdateApplicationStage]}>
+                  <AccessGuard
+                    permissions={[Permissions.UpdateApplicationStage]}
+                  >
                     <Button
                       icon={<FaEdit />}
                       onClick={() => handleEditStatus(status)}
@@ -92,7 +94,9 @@ const Status: React.FC = () => {
                       className="border-none text-blue-600 mr-2"
                     />
                   </AccessGuard>
-                  <AccessGuard permissions={[Permissions.DeleteApplicationStage]}>
+                  <AccessGuard
+                    permissions={[Permissions.DeleteApplicationStage]}
+                  >
                     <Button
                       icon={<FaTrashAlt />}
                       onClick={() => handleDeleteStatus(status)}

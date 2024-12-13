@@ -12,8 +12,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Title } = Typography;
-
-const QuestionTemplate: React.FC = () => {
+const CFRSettings: React.FC = () => {
   const { setIsOpen } = useCustomQuestionTemplateStore();
 
   const showDrawer = () => {
@@ -62,4 +61,4 @@ const QuestionTemplate: React.FC = () => {
   );
 };
 
-export default QuestionTemplate;
+export default CFRSettings;

@@ -60,7 +60,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           </Title>
         </Link>
         <Dropdown
-          menu={{items: menuItems}}
+          menu={{ items: menuItems }}
           trigger={['click']}
           placement="bottomRight"
         >

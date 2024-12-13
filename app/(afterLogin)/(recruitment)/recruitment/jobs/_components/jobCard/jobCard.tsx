@@ -110,9 +110,7 @@ const JobCard: React.FC = () => {
                         </span>
                       </div>
                       {job?.jobStatus == 'Closed' ? (
-                        <div
-                          className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border"
-                        >
+                        <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border">
                           {job?.jobStatus}
                         </div>
                       ) : (
