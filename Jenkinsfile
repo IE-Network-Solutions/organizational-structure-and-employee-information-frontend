@@ -16,7 +16,7 @@ pipeline {
         ORG_DEV_URL = "https://od-backend.selamnew.com/api/v1"
         RECRUITMENT_URL="https://recruitment-backend.selamnew.com/api/v1"
         NEXT_PUBLIC_APPROVERS_URL="https://approval-backend.selamnew.com/api/v1"
-        NOTIFICATION_URL = "email-service.selamnew.com"
+        NOTIFICATION_URL = "https://email-service.selamnew.com"
         PUBLIC_DOMAIN="https://selamnew.com"
         NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://time-attendance-backend.selamnew.com/api/v1"
         NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://training-backend.selamnew.com/api/v1"
