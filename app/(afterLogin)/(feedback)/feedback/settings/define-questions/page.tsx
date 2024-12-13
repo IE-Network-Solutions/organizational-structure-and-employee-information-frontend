@@ -45,7 +45,7 @@ const Page = () => {
     <div>
       <div className="flex justify-between">
         <span className="font-bold text-lg">Questions</span>
-        <AccessGuard permissions={[Permissions.createConversationSet]} >
+        <AccessGuard permissions={[Permissions.createConversationSet]}>
           {activeTab !== '' && (
             <Button
               icon={<FaPlus />}
@@ -57,8 +57,6 @@ const Page = () => {
             </Button>
           )}
         </AccessGuard>
-
-    
       </div>
       <Tabs
         defaultActiveKey={getAllConversationType?.items[0]?.id}

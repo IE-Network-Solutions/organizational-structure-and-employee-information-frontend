@@ -56,7 +56,8 @@ const renderTreeNodes = (
             data={item}
             onEdit={() => onEdit(item)}
             onAdd={() => onAdd(item)}
-            onDelete={() => {showDrawer('delete', 'Delete', 'Delete Department');
+            onDelete={() => {
+              showDrawer('delete', 'Delete', 'Delete Department');
               setDepartmentTobeDeletedId(item?.id);
             }}
             isRoot={isRoot}
@@ -64,15 +65,21 @@ const renderTreeNodes = (
         }
       >
         {item.department &&
-          renderTreeNodes(item.department, onEdit, onAdd, onDelete, isRoot=false, setDepartmentTobeDeletedId)}
+          renderTreeNodes(
+            item.department,
+            onEdit,
+            onAdd,
+            onDelete,
+            (isRoot = false),
+            setDepartmentTobeDeletedId,
+          )}
       </TreeNode>
     );
   });
 
 const OrgChartComponent: React.FC = () => {
+  const [form] = Form.useForm();
 
-const [form] = Form.useForm();
-  
   const {
     isFormVisible,
     setIsFormVisible,
@@ -144,7 +151,7 @@ const [form] = Form.useForm();
   };
 
   const handleDeleteConfirm = () => {
-    deleteDepartment({departmentTobeDeletedId, departmentTobeShiftedId});
+    deleteDepartment({ departmentTobeDeletedId, departmentTobeShiftedId });
     setIsDeleteConfirmVisible(false);
   };
 
@@ -250,7 +257,7 @@ const [form] = Form.useForm();
                   handleAdd,
                   handleDelete,
                   false,
-                  setDepartmentTobeDeletedId
+                  setDepartmentTobeDeletedId,
                 )}
               </Tree>
             </div>

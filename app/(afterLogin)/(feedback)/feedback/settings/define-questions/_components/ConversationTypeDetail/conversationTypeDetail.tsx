@@ -74,19 +74,25 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
               title={set?.name}
               extra={
                 <div className="flex items-center space-x-2">
-                <AccessGuard permissions={[Permissions.createConversationSet]} >
-                  <Tooltip title={set?.active ? 'Active' : 'Inactive'}>
-                    <Switch
-                      size="small"
-                      className="text-xs text-gray-950"
-                      checked={set?.active}
-                      loading={updateIsActive}
-                      onChange={(value: boolean) => toggleActive(set.id, value)}
-                    />
-                  </Tooltip>
+                  <AccessGuard
+                    permissions={[Permissions.createConversationSet]}
+                  >
+                    <Tooltip title={set?.active ? 'Active' : 'Inactive'}>
+                      <Switch
+                        size="small"
+                        className="text-xs text-gray-950"
+                        checked={set?.active}
+                        loading={updateIsActive}
+                        onChange={(value: boolean) =>
+                          toggleActive(set.id, value)
+                        }
+                      />
+                    </Tooltip>
                   </AccessGuard>
 
-                  <AccessGuard permissions={[Permissions.createConversationSet]} >
+                  <AccessGuard
+                    permissions={[Permissions.createConversationSet]}
+                  >
                     <Button
                       disabled={!set?.active}
                       size="small"
@@ -94,21 +100,23 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
                       onClick={() => handleEdit(set)}
                     />
                   </AccessGuard>
-                  <AccessGuard permissions={[Permissions.createConversationSet]} >
-                  <Popconfirm
-                    title="Are you sure you want to delete this?"
-                    onConfirm={() => deleteConversationQuestionSet(set?.id)} // Action on confirm
-                    okText="Yes"
-                    cancelText="No"
-                    placement="topRight"
+                  <AccessGuard
+                    permissions={[Permissions.createConversationSet]}
                   >
-                    <Button
-                      disabled={!set?.active}
-                      size="small"
-                      icon={<DeleteOutlined />}
-                      danger
-                    />
-                  </Popconfirm>
+                    <Popconfirm
+                      title="Are you sure you want to delete this?"
+                      onConfirm={() => deleteConversationQuestionSet(set?.id)} // Action on confirm
+                      okText="Yes"
+                      cancelText="No"
+                      placement="topRight"
+                    >
+                      <Button
+                        disabled={!set?.active}
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        danger
+                      />
+                    </Popconfirm>
                   </AccessGuard>
                 </div>
               }

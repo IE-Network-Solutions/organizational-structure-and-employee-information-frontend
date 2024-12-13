@@ -46,7 +46,6 @@ const getApprovalLeaveRequest = async (
   page: number,
   limit: number,
 ) => {
-
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
