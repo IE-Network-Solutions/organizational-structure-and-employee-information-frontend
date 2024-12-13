@@ -4,8 +4,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   AppstoreOutlined,
   BarChartOutlined,
-  UserOutlined,
   MenuOutlined,
+  UserOutlined,
+  SwapOutlined,
 } from '@ant-design/icons';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
@@ -121,6 +122,12 @@ const menuItems: MenuProps['items'] = [
         className: 'font-bold',
       },
       {
+        key: '/feedback/succession-plan',
+        label: 'Succession',
+        icon: <SwapOutlined />,
+        className: 'font-bold',
+      },
+      {
         key: '/feedback/settings',
         label: 'Settings',
         className: 'font-bold',
@@ -207,7 +214,6 @@ const userItems: MenuProps['items'] = [
       {
         key: '/feedback/categories',
         label: 'Form',
-        icon: <UserOutlined />,
         className: 'font-bold',
       },
     ],
@@ -406,7 +412,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               />
             </div>
           )}
-
           <NavBar page="" handleLogout={handleLogout} />
         </Header>
         <Content
