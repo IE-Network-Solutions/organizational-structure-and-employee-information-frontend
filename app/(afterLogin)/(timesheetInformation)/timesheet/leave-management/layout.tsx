@@ -5,7 +5,6 @@ import { SidebarMenuItem } from '@/types/sidebarMenu';
 import TopbarMenu from '@/components/topbarMenu';
 import { HiQueueList } from 'react-icons/hi2';
 import { FaRegCalendarMinus } from 'react-icons/fa';
-
 interface TimesheetSettingsLayoutProps {
   children: ReactNode;
 }
@@ -14,7 +13,7 @@ const NewSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const menuItems = new SidebarMenuItem([
     {
       item: {
-        key: 'closed-date',
+        key: 'leaves',
         icon: <FaRegCalendarMinus />,
         label: <p className="menu-item-label">Leave Management</p>,
         className: 'px-1',
@@ -23,7 +22,7 @@ const NewSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     },
     {
       item: {
-        key: 'break-type',
+        key: 'leave-balance',
         icon: <HiQueueList />,
         label: <p className="menu-item-label">Leave Balance</p>,
         className: 'px-1',
