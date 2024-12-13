@@ -1,7 +1,16 @@
 import { Col, Input, Row, Select } from 'antd';
 import React from 'react';
 
-const TargetFilters = () => {
+interface TargetFiltersProps {
+  onSearchChange: (value: string) => void;
+  onTypeChange: (value: string) => void;
+  targetNames: string[];
+}
+const TargetFilters: React.FC<TargetFiltersProps> = ({
+  onSearchChange,
+  onTypeChange,
+  targetNames,
+}) => {
   const { Option } = Select;
   return (
     <div className="mb-6">
@@ -9,10 +18,10 @@ const TargetFilters = () => {
         <Col lg={18} sm={24} xs={24}>
           <div className="w-full">
             <Input
-              placeholder="Search"
-              onChange={() => {}}
+              placeholder="Search by Department"
               className="w-full h-14"
               allowClear
+              onChange={(e) => onSearchChange(e.target.value)}
             />
           </div>
         </Col>
@@ -20,13 +29,15 @@ const TargetFilters = () => {
         <Col lg={4} sm={24} xs={24}>
           <Select
             placeholder="All Types"
-            onChange={() => {}}
+            onChange={(value) => onTypeChange(value)}
             allowClear
             className="w-full h-14"
           >
-            <Option value="all">All types</Option>
-            <Option value="type1">Type 1</Option>
-            <Option value="type2">Type 2</Option>
+            {targetNames?.map((name) => (
+              <Option key={name} value={name}>
+                {name}
+              </Option>
+            ))}
           </Select>
         </Col>
       </Row>

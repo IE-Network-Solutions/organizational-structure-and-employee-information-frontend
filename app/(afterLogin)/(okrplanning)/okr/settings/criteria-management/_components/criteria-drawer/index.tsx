@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Form, Input, notification, Select } from 'antd';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CustomDrawerLayout from '@/components/common/customDrawer';
@@ -12,30 +12,36 @@ import {
   useCreateVpScoring,
   useUpdateVpScoring,
 } from '@/store/server/features/okrplanning/okr/criteria/mutation';
+import useCriteriaManagementStore from '@/store/uistate/features/okrplanning/okrSetting/criteriaManagmentStore';
 
 const { Option } = Select;
 
 const ScoringDrawer: React.FC = () => {
-  const { mutate: updateScoring, isLoading: isUpdating } = useUpdateVpScoring();
+  const { mutate: updateScoring, isLoading: isUpdatingLoading } =
+    useUpdateVpScoring();
 
-  const { mutate: vpScoringMutate, isLoading } = useCreateVpScoring();
+  const { mutate: vpScoringMutate, isLoading: isCreateLoading } =
+    useCreateVpScoring();
 
   const { isDrawerVisible, closeDrawer, currentId } = useDrawerStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: criteriaData } = useGetCriteriaTargets();
-  const [weights, setWeights] = useState<Record<string, string>>({});
-  const [selectedCriteria, setSelectedCriteria] = useState<
-    { name: string; vpCriteriaId: string }[]
-  >([]);
-  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
-    null,
-  );
-  const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
+  const {
+    weights,
+    selectedCriteria,
+    selectedDepartment,
+    filteredUsers,
+    setWeights,
+    setSelectedCriteria,
+    setSelectedDepartment,
+    setFilteredUsers,
+  } = useCriteriaManagementStore();
   const { data: scoringData } = useFetchVpScoringById(currentId || '');
 
   const [form] = Form.useForm();
 
   useEffect(() => {
+    resetState();
     if (scoringData && criteriaData) {
       form.setFieldsValue({
         name: scoringData.name,
@@ -77,11 +83,16 @@ const ScoringDrawer: React.FC = () => {
       const department = departmentData?.find(
         (dept: any) => dept.id === selectedDepartment,
       );
-      setFilteredUsers(department?.users || []);
+      const departmentUsers = department?.users || [];
+      setFilteredUsers(departmentUsers);
+
+      form.setFieldsValue({
+        users: departmentUsers.map((user: any) => user.id),
+      });
     } else {
       setFilteredUsers([]);
     }
-  }, [selectedDepartment, departmentData]);
+  }, [selectedDepartment, departmentData, form]);
 
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
@@ -107,17 +118,17 @@ const ScoringDrawer: React.FC = () => {
       values.includes(criteria.name),
     );
 
-    const removedCriteriaIds = selectedCriteria
-      .filter((criteria) => !values.includes(criteria.name))
-      .map((criteria) => criteria.vpCriteriaId);
-
     setSelectedCriteria([...updatedCriteria, ...newCriteria]);
 
-    setWeights((prev) => {
-      const updatedWeights = { ...prev };
-      removedCriteriaIds.forEach((id) => delete updatedWeights[id]);
-      return updatedWeights;
-    });
+    setWeights(
+      scoringData.vpScoringCriterions.reduce(
+        (acc: any, item: any) => ({
+          ...acc,
+          [item.vpCriteriaId]: item.weight,
+        }),
+        {},
+      ),
+    );
   };
 
   const resetState = () => {
@@ -206,7 +217,7 @@ const ScoringDrawer: React.FC = () => {
               }}
             />
             <CustomButton
-              loading={isUpdating || isLoading}
+              loading={isUpdatingLoading || isCreateLoading}
               title={currentId ? 'Update' : 'Add'}
               onClick={() => form.submit()}
             />
@@ -265,7 +276,7 @@ const ScoringDrawer: React.FC = () => {
           <Select
             mode="multiple"
             placeholder="Add Users"
-            className="w-full h-12"
+            className="w-full min-h-12"
             options={filteredUsers.map((user: any) => ({
               value: user.id,
               label: `${user.firstName} ${user.lastName}`,
@@ -315,10 +326,13 @@ const ScoringDrawer: React.FC = () => {
                 min={0}
                 max={100}
                 onChange={(e) => {
-                  setWeights((prev) => ({
-                    ...prev,
+                  const { weights, setWeights } =
+                    useCriteriaManagementStore.getState();
+                  const updatedWeights = {
+                    ...weights,
                     [criteria.vpCriteriaId]: e.target.value,
-                  }));
+                  };
+                  setWeights(updatedWeights);
                 }}
               />
             </Form.Item>

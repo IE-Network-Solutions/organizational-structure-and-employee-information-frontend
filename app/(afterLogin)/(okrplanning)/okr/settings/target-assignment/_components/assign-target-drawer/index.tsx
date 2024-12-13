@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Select, Input, Form } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
@@ -24,10 +24,15 @@ const AssignTargetDrawer: React.FC = () => {
   const { mutate: createAssignTarget } = useCreateAssignTarget();
   const { mutate: updateAssignedTarget } = useUpdateAssignedTargets();
   const [form] = Form.useForm();
-  const { isDrawerVisible, closeDrawer, currentId } = useDrawerStore();
+  const {
+    isDrawerVisible,
+    closeDrawer,
+    currentId,
+    setSelectedMonths,
+    selectedMonths,
+  } = useDrawerStore();
   const { userId } = useAuthenticationStore();
   const { data: getTargetById } = useGetTargetAssignmentById(currentId || '');
-  const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
 
   const resetState = () => {
     form.resetFields();

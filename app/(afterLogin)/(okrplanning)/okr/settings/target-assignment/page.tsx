@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Table } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
@@ -11,18 +11,24 @@ import { useGetTargetAssignment } from '@/store/server/features/okrplanning/okr/
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
 import { useDeleteAssignedTarget } from '@/store/server/features/okrplanning/okr/target/mutation';
+import { useGetCriteriaTargets } from '@/store/server/features/okrplanning/okr/criteria/queries';
 
 function Page() {
+  const [searchText, setSearchText] = useState('');
+  const [selectedType, setSelectedType] = useState('All Types');
+  const { data: criteriaData } = useGetCriteriaTargets();
+
   const { data: targetAssignmentData, isLoading: targetAssignmentLoading } =
     useGetTargetAssignment();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { mutate: deleteAssignedTarget } = useDeleteAssignedTarget();
   const { openDrawer } = useDrawerStore();
-  {
-  }
 
-  const dataSource =
-    targetAssignmentData?.items.map((item: any) => {
+  const criteriaTypes: string[] = (criteriaData?.items || []).map(
+    (item: any) => item.name,
+  );
+  const dataSource = targetAssignmentData?.items
+    .map((item: any) => {
       const matchingDepartment = departmentData?.find(
         (dept: any) => dept.id == item.departmentId,
       );
@@ -34,7 +40,16 @@ function Page() {
         month: item.month,
         target: item.target,
       };
-    }) || [];
+    })
+    .filter((item: any) => {
+      const matchesSearch = item.department
+        ?.toLowerCase()
+        .includes(searchText.toLowerCase());
+      const matchesType =
+        selectedType === 'All Types' ||
+        item.criteriaName?.toLowerCase().includes(selectedType.toLowerCase());
+      return matchesSearch && matchesType;
+    });
 
   const columns = [
     {
@@ -86,6 +101,7 @@ function Page() {
   const handleDelete = (id: string) => {
     deleteAssignedTarget(id);
   };
+  const handleTypeChange = (value: string) => setSelectedType(value);
 
   return (
     <div className="p-10">
@@ -101,7 +117,11 @@ function Page() {
         </Button>
       </div>
 
-      <TargetFilters />
+      <TargetFilters
+        onSearchChange={setSearchText}
+        onTypeChange={handleTypeChange}
+        targetNames={['All Types', ...criteriaTypes]}
+      />
       <Table
         dataSource={dataSource}
         columns={columns}

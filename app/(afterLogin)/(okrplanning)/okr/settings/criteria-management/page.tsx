@@ -147,7 +147,6 @@ function Page() {
 
   return (
     <div className="p-10 justify-center items-center">
-      {/* Header Section */}
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Criteria Management</h1>
         <Button
@@ -163,7 +162,7 @@ function Page() {
       <CriteriaFilters
         onSearch={handleSearch}
         onTypeChange={handleTypeChange}
-        criteriaNames={['All Types', ...criteriaTypes]} // Add "All Types" as an option
+        criteriaNames={['All Types', ...criteriaTypes]}
       />
 
       <Tabs centered defaultActiveKey="1">
