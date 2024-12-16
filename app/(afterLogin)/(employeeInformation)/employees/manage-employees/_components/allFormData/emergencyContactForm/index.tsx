@@ -23,7 +23,7 @@ const EmergencyContactForm = () => {
             className="font-semibold text-xs"
             name={['emergencyContact', 'firstName']}
             label="First Name"
-            id="emergencyContactFullName"
+            id="emergencyContactFirstName"
             rules={[
               {
                 required: true,
