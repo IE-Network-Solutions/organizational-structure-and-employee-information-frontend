@@ -40,7 +40,7 @@ export const EmployeeDetails = ({
 
   return (
     <Space size="small">
-      <Avatar src={profileImage} />
+      <Avatar src={profileImage} className="h-5 w-5" />
       {userName}
     </Space>
   );
@@ -315,10 +315,14 @@ const ScoringDrawer: React.FC = () => {
         <Form.Item
           label="Users"
           name="users"
-          className="w-full"
+          className="flex-1 min-h-12"
           rules={[{ required: true, message: 'Please select users' }]}
         >
-          <Select mode="multiple" placeholder="Add Users" className="w-full">
+          <Select
+            mode="multiple"
+            placeholder="Add Users"
+            className="w-full h-12"
+          >
             {filteredUsers.length > 0
               ? filteredUsers.map((user: any) => (
                   <Select.Option key={user.id} value={user.id}>
