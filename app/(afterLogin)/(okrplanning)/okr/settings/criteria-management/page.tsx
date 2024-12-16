@@ -45,7 +45,6 @@ function Page() {
       name: item.name,
       description: item.description,
       sourceService: item.sourceService,
-      sourceEndPoint: item.sourceEndpoint,
     }))
     .filter((item: any) => {
       const matchesSearch = item.name
@@ -132,16 +131,6 @@ function Page() {
       title: 'Source Service',
       dataIndex: 'sourceService',
       key: 'sourceService',
-    },
-    {
-      title: 'Source Endpoint',
-      dataIndex: 'sourceEndPoint',
-      key: 'sourceEndPoint',
-      render: (text: any) => (
-        <a href={text} target="_blank" rel="noopener noreferrer">
-          {text}
-        </a>
-      ),
     },
   ];
 
