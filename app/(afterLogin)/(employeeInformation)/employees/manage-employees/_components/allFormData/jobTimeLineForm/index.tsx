@@ -2,7 +2,7 @@
 import { useGetBranches } from '@/store/server/features/employees/employeeManagment/branchOffice/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
-import { useGetPositions } from '@/store/server/features/employees/positions/queries';
+import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
 import { JobActionStatus } from '@/types/enumTypes';
 import {
   Button,
@@ -24,7 +24,7 @@ const JobTimeLineForm = () => {
     useGetEmployementTypes();
   const { data: branchOfficeData, refetch: branchOfficeRefetch } =
     useGetBranches();
-  const { data: positions, refetch: positionRefetch } = useGetPositions();
+  const { data: positions, refetch: positionRefetch } = useGetAllPositions();
 
   const [contractType, setContractType] = useState<string>('Permanent');
 
