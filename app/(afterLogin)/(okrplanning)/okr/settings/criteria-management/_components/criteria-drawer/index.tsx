@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form, Input, notification, Select } from 'antd';
+import { Avatar, Form, Input, notification, Select, Space, Spin } from 'antd';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomButton from '@/components/common/buttons/customButton';
@@ -14,8 +14,37 @@ import {
 } from '@/store/server/features/okrplanning/okr/criteria/mutation';
 import useCriteriaManagementStore from '@/store/uistate/features/okrplanning/okrSetting/criteriaManagmentStore';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 
 const { Option } = Select;
+export const EmployeeDetails = ({
+  empId,
+  fallbackProfileImage,
+}: {
+  empId: string;
+  fallbackProfileImage?: string;
+}) => {
+  const { data: userDetails, isLoading, error } = useGetEmployee(empId);
+
+  if (isLoading)
+    return (
+      <>
+        <Spin />
+      </>
+    );
+
+  if (error || !userDetails) return '-';
+
+  const userName = userDetails?.firstName || '-';
+  const profileImage = fallbackProfileImage;
+
+  return (
+    <Space size="small">
+      <Avatar src={profileImage} />
+      {userName}
+    </Space>
+  );
+};
 
 const ScoringDrawer: React.FC = () => {
   const {
@@ -286,17 +315,22 @@ const ScoringDrawer: React.FC = () => {
         <Form.Item
           label="Users"
           name="users"
+          className="w-full"
           rules={[{ required: true, message: 'Please select users' }]}
         >
-          <Select
-            mode="multiple"
-            placeholder="Add Users"
-            className="w-full min-h-12"
-            options={filteredUsers.map((user: any) => ({
-              value: user.id,
-              label: `${user.firstName} ${user.lastName}`,
-            }))}
-          />
+          <Select mode="multiple" placeholder="Add Users" className="w-full">
+            {filteredUsers.length > 0
+              ? filteredUsers.map((user: any) => (
+                  <Select.Option key={user.id} value={user.id}>
+                    <EmployeeDetails empId={user.id} />
+                  </Select.Option>
+                ))
+              : form.getFieldValue('users')?.map((empId: string) => (
+                  <Select.Option key={empId} value={empId}>
+                    <EmployeeDetails empId={empId} />
+                  </Select.Option>
+                ))}
+          </Select>
         </Form.Item>
 
         <Form.Item
