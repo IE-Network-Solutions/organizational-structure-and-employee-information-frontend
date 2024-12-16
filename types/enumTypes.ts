@@ -68,11 +68,15 @@ export const SelectData = [
 export enum APPROVALTYPES {
   LEAVE = 'Leave',
   BRANCHREQUEST = 'BranchRequest',
-};
-
-
+}
 export const JobActionStatus = [
   { id: 'New', name: 'New' },
   { id: 'Promotion', name: 'Promotion' },
   { id: 'Transfer', name: 'Transfer' },
+];
+export const FilterOptions = [
+  { key: '1', value: 'monthly', label: 'Monthly' },
+  { key: '2', value: 'session', label: 'Session' },
+  { key: '3', value: 'yearly', label: 'Yearly' },
+  { key: '4', value: 'all-time', label: 'All-Time' },
 ];

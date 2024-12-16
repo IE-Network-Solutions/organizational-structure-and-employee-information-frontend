@@ -92,6 +92,9 @@ export interface ObjectiveProps {
   myOkr: boolean;
 }
 export interface OKRState {
+  isVP: boolean;
+  toggleDashboard: () => void;
+
   revenue: number;
   financialSales: number;
   progressRevenue: number;
