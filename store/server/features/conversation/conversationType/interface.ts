@@ -44,3 +44,14 @@ export type ConversationTypeItems = {
   name: string;
   description: string;
 };
+
+export type FeedbackTypeItems = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+  category: string;
+  description: string;
+};
