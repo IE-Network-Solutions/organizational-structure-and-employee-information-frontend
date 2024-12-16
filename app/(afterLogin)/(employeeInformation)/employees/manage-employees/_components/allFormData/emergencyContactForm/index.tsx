@@ -22,7 +22,7 @@ const EmergencyContactForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'firstName']}
-            label="Full Name"
+            label="First Name"
             id="emergencyContactFullName"
             rules={[
               {

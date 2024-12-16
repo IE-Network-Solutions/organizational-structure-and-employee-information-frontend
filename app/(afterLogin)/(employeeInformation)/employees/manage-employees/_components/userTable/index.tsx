@@ -35,7 +35,7 @@ const columns: TableColumnsType<EmployeeData> = [
       const idB = b.employee_attendance_id ?? 0;
       return idA - idB;
     },
-    width: 50,
+    width: 70,
   },
   {
     title: 'Employee Name',
