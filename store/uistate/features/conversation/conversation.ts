@@ -1,3 +1,4 @@
+import { Variants } from 'antd/es/config-provider';
 import { create } from 'zustand';
 interface SearchFieldOption {
   key: string;
@@ -34,6 +35,12 @@ export interface CategoriesUseState {
 
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
+
+  variantType: string;
+  setVariantType: (variantType: string) => void;
+
+  selectedFeedback: any;
+  setSelectedFeedback: (selectedFeedback: any) => void;
 
   editableData: any;
   setEditableData: (activeTab: any) => void;
@@ -84,6 +91,12 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   selectedUserId: '',
   setSelectedUserId: (selectedUserId: string) => set({ selectedUserId }),
+
+  variantType: 'appreciation',
+  setVariantType: (variantType: string) => set({variantType}),
+
+  selectedFeedback: null,
+  setSelectedFeedback: (selectedFeedback: any) => set({selectedFeedback}),
 
   activeTab: '1',
   setActiveTab: (activeTab: string) => set({ activeTab }),
