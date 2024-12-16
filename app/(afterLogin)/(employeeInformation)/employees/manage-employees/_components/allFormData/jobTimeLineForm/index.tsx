@@ -25,7 +25,6 @@ const JobTimeLineForm = () => {
   const { data: branchOfficeData, refetch: branchOfficeRefetch } =
     useGetBranches();
   const { data: positions, refetch: positionRefetch } = useGetAllPositions();
-  console.log('***', positions);
 
   const [contractType, setContractType] = useState<string>('Permanent');
 
