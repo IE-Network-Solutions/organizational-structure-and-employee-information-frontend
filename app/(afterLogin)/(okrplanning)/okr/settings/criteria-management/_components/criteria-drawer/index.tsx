@@ -13,15 +13,22 @@ import {
   useUpdateVpScoring,
 } from '@/store/server/features/okrplanning/okr/criteria/mutation';
 import useCriteriaManagementStore from '@/store/uistate/features/okrplanning/okrSetting/criteriaManagmentStore';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const { Option } = Select;
 
 const ScoringDrawer: React.FC = () => {
-  const { mutate: updateScoring, isLoading: isUpdatingLoading } =
-    useUpdateVpScoring();
+  const {
+    mutate: updateScoring,
+    isLoading: isUpdatingLoading,
+    isSuccess: isUpdateSuccess,
+  } = useUpdateVpScoring();
 
-  const { mutate: vpScoringMutate, isLoading: isCreateLoading } =
-    useCreateVpScoring();
+  const {
+    mutate: vpScoringMutate,
+    isLoading: isCreateLoading,
+    isSuccess: isCreateSuccess,
+  } = useCreateVpScoring();
 
   const { isDrawerVisible, closeDrawer, currentId } = useDrawerStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
@@ -36,6 +43,8 @@ const ScoringDrawer: React.FC = () => {
     setSelectedDepartment,
     setFilteredUsers,
   } = useCriteriaManagementStore();
+  const { userId } = useAuthenticationStore();
+
   const { data: scoringData } = useFetchVpScoringById(currentId || '');
 
   const [form] = Form.useForm();
@@ -131,6 +140,13 @@ const ScoringDrawer: React.FC = () => {
     );
   };
 
+  useEffect(() => {
+    if (isCreateSuccess || isUpdateSuccess) {
+      resetState();
+      closeDrawer();
+    }
+  }, [isCreateSuccess, isUpdateSuccess]);
+
   const resetState = () => {
     setWeights({});
     setSelectedCriteria([]);
@@ -179,13 +195,12 @@ const ScoringDrawer: React.FC = () => {
 
       if (currentId) {
         payload.id = currentId;
+        payload.updatedBy = userId; // Add `updatedBy` if `currentId` exists
         await updateScoring({ id: currentId, values: payload });
       } else {
+        payload.createdBy = userId; // Add `createdBy` if `currentId` does not exist
         await vpScoringMutate(payload);
       }
-
-      resetState();
-      closeDrawer();
     } catch (error) {
       notification.error({
         message: 'Operation failed',
@@ -217,7 +232,7 @@ const ScoringDrawer: React.FC = () => {
               }}
             />
             <CustomButton
-              loading={isUpdatingLoading || isCreateLoading}
+              loading={currentId ? isUpdatingLoading : isCreateLoading}
               title={currentId ? 'Update' : 'Add'}
               onClick={() => form.submit()}
             />

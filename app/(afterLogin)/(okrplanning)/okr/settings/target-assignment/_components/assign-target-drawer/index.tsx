@@ -21,8 +21,16 @@ const AssignTargetDrawer: React.FC = () => {
   const { data: criteriaData } = useGetCriteriaTargets();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: activeSessionData } = useGetActiveSession();
-  const { mutate: createAssignTarget } = useCreateAssignTarget();
-  const { mutate: updateAssignedTarget } = useUpdateAssignedTargets();
+  const {
+    mutate: createAssignTarget,
+    isLoading: isCreateLoading,
+    isSuccess: isCreateSuccess,
+  } = useCreateAssignTarget();
+  const {
+    mutate: updateAssignedTarget,
+    isLoading: isUpdateLoading,
+    isSuccess: isUpdateSuccess,
+  } = useUpdateAssignedTargets();
   const [form] = Form.useForm();
   const {
     isDrawerVisible,
@@ -55,6 +63,13 @@ const AssignTargetDrawer: React.FC = () => {
     }
   }, [currentId, getTargetById]);
 
+  useEffect(() => {
+    if (isCreateSuccess || isUpdateSuccess) {
+      resetState();
+      closeDrawer();
+    }
+  }, [isCreateSuccess, isUpdateSuccess]);
+
   const onSubmit = (values: any) => {
     const target = values.month.map((month: string) => ({
       month,
@@ -75,8 +90,6 @@ const AssignTargetDrawer: React.FC = () => {
     } else {
       createAssignTarget(payload);
     }
-    resetState();
-    closeDrawer();
   };
 
   const handleDepartmentChange = () => {};
@@ -107,6 +120,7 @@ const AssignTargetDrawer: React.FC = () => {
             <CustomButton
               title={currentId ? 'Update' : 'Assign'}
               onClick={() => form.submit()}
+              loading={currentId ? isUpdateLoading : isCreateLoading}
             />
           </div>
         </div>

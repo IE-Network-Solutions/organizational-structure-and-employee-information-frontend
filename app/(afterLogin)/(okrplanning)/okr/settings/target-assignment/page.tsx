@@ -47,7 +47,9 @@ function Page() {
         .includes(searchText.toLowerCase());
       const matchesType =
         selectedType === 'All Types' ||
-        item.criteriaName?.toLowerCase().includes(selectedType.toLowerCase());
+        item.criteriaName
+          ?.toLowerCase()
+          .includes(selectedType?.toLowerCase() || '');
       return matchesSearch && matchesType;
     });
 
