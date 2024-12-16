@@ -34,26 +34,31 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
     isLoading: rolePermissionUpdateLoading,
   } = useUpdateEmployeeRolePermission();
 
-  const { setEdit, edit, selectedPermissions, setSelectedPermissions } = useEmployeeManagementStore();
+  const { setEdit, edit, selectedPermissions, setSelectedPermissions } =
+    useEmployeeManagementStore();
 
   useEffect(() => {
-      const allPermissionIds =
-        employeeData?.userPermissions?.map((perm: any) => perm.permissionId) || [];
-      form.setFieldsValue({
-        permission: allPermissionIds,
-        roleId: employeeData?.roleId,
-      });
+    const allPermissionIds =
+      employeeData?.userPermissions?.map((perm: any) => perm.permissionId) ||
+      [];
+    form.setFieldsValue({
+      permission: allPermissionIds,
+      roleId: employeeData?.roleId,
+    });
   }, [employeeData, form]);
 
   const onRoleChangeHandler = useCallback(
     (value: string) => {
-      const selectedRole = rolesWithPermission?.find((role) => role.id === value);
-      const newPermissions = selectedRole?.permissions?.map((item: any) => item.id) || [];
-  
+      const selectedRole = rolesWithPermission?.find(
+        (role) => role.id === value,
+      );
+      const newPermissions =
+        selectedRole?.permissions?.map((item: any) => item.id) || [];
+
       setSelectedRoleOnList(selectedRole);
       setSelectedRoleOnOption(value);
       setSelectedPermissions(newPermissions);
-  
+
       form.setFieldsValue({
         permission: newPermissions,
         roleId: value,
@@ -67,7 +72,6 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
       form,
     ],
   );
-  
 
   const handlePermissionChange = useCallback(
     (value: string[]) => {
@@ -75,7 +79,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
     },
     [setSelectedPermissions],
   );
-  
+
   const handleUpdateUserRolePermission = (values: any) => {
     employeeRolePermissionUpdate({ id, values });
     setEdit('rolePermission');
@@ -135,38 +139,46 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
           </Row>
           <Row gutter={16}>
             <Col xs={24} sm={24}>
-            <Form.Item
-              className="font-semibold text-xs"
-              name="permission"
-              id="setOfPermission"
-              label="Set of Permissions"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please select at least one permission!',
-                },
-              ]}
-            >
-            <Select
-              mode="multiple"
-              style={{ width: '100%', overflowY: 'auto' }}
-              onChange={handlePermissionChange}
-              options={selectedRoleOnOption ? rolesWithPermission?.find((role) => role.id === selectedRoleOnOption)?.permissions.map((perm) => ({
-                  label: perm.name,
-                  value: perm.id,
-                })) : employeeData?.userPermissions?.map((perm: any) => ({
-                  label: perm.permission.name,
-                  value: perm.permissionId,
-                }))}
-              value={selectedPermissions}
-              allowClear
-              showSearch
-              filterOption={(input, option) =>
-                String(option?.label).toLowerCase().includes(input.toLowerCase())
-              }
-              dropdownStyle={{ maxHeight: '200px', overflowY: 'auto' }}
-            />
-            </Form.Item>
+              <Form.Item
+                className="font-semibold text-xs"
+                name="permission"
+                id="setOfPermission"
+                label="Set of Permissions"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select at least one permission!',
+                  },
+                ]}
+              >
+                <Select
+                  mode="multiple"
+                  style={{ width: '100%', overflowY: 'auto' }}
+                  onChange={handlePermissionChange}
+                  options={
+                    selectedRoleOnOption
+                      ? rolesWithPermission
+                          ?.find((role) => role.id === selectedRoleOnOption)
+                          ?.permissions.map((perm) => ({
+                            label: perm.name,
+                            value: perm.id,
+                          }))
+                      : employeeData?.userPermissions?.map((perm: any) => ({
+                          label: perm.permission.name,
+                          value: perm.permissionId,
+                        }))
+                  }
+                  value={selectedPermissions}
+                  allowClear
+                  showSearch
+                  filterOption={(input, option) =>
+                    String(option?.label)
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  dropdownStyle={{ maxHeight: '200px', overflowY: 'auto' }}
+                />
+              </Form.Item>
             </Col>
           </Row>
           <Row className="flex justify-end">

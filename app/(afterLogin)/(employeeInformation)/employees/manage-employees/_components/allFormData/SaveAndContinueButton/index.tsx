@@ -4,14 +4,16 @@ import React from 'react';
 
 interface Props {
   isLoading?: boolean;
-  handleContinueClick:any
-  handleBackClick:any
+  handleContinueClick: any;
+  handleBackClick: any;
 }
 
-const ButtonContinue: React.FC<Props> = ({ isLoading,handleBackClick,handleContinueClick }) => {
+const ButtonContinue: React.FC<Props> = ({
+  isLoading,
+  handleBackClick,
+  handleContinueClick,
+}) => {
   const { current } = useEmployeeManagementStore();
-
-
 
   return (
     <Form.Item className="font-semibold text-xs">

@@ -13,7 +13,7 @@ interface CustomDrawerProps {
   onSubmit: () => void;
   drawerContent: string;
   width?: string;
-  form?: FormInstance
+  form?: FormInstance;
 }
 
 const CustomDrawer: React.FC<CustomDrawerProps> = ({
@@ -34,7 +34,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       case 'merge':
         return <MergeForm />;
       case 'delete':
-        return <DeleteForm form={form}/>;
+        return <DeleteForm form={form} />;
       default:
         return null;
     }

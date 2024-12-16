@@ -118,8 +118,10 @@ const useOrganizationStore = create<OrganizationState>((set) => ({
   setDrawerContent: (content: string) => set({ drawerContent: content }),
   setFooterButtonText: (text: string) => set({ footerButtonText: text }),
   setDrawTitle: (title: string) => set({ drawTitle: title }),
-  setDepartmentTobeDeletedId: (departmentTobeDeletedId: string) => set({ departmentTobeDeletedId }),
-  setShiftDepartmentId: (departmentTobeShiftedId: string) => set({ departmentTobeShiftedId })
+  setDepartmentTobeDeletedId: (departmentTobeDeletedId: string) =>
+    set({ departmentTobeDeletedId }),
+  setShiftDepartmentId: (departmentTobeShiftedId: string) =>
+    set({ departmentTobeShiftedId }),
 }));
 
 export default useOrganizationStore;
