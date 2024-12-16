@@ -294,11 +294,7 @@ const ScoringDrawer: React.FC = () => {
           />
         </Form.Item>
 
-        <Form.Item
-          label="Department"
-          name="department"
-          rules={[{ required: true, message: 'Please select a department' }]}
-        >
+        <Form.Item label="Department" name="department">
           <Select
             placeholder="Select Department"
             onChange={handleDepartmentChange}
