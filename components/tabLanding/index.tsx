@@ -18,6 +18,7 @@ interface TabLandingLayoutProps {
   allowSearch?: boolean;
   searchFields?: any[];
   handleSearchChange?: () => void;
+  enableButton?:boolean;
 }
 
 const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
@@ -28,6 +29,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   onClickHandler,
   id,
   children,
+  enableButton=true
 }) => {
   return (
     <div className="min-h-screen h-auto w-full p-4">
@@ -35,13 +37,13 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb title={title} subtitle={subtitle ?? ''} />
           <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
-            <CustomButton
+           {enableButton&&<CustomButton
               title={buttonTitle}
               id={`${id}-createButtonId`}
               icon={buttonIcon ?? <FaPlus />}
               onClick={onClickHandler}
               className="text-xs bg-blue-600 hover:bg-blue-700 h-4"
-            />
+            />}
           </div>
         </div>
         <div className="w-full h-auto">{children}</div>
