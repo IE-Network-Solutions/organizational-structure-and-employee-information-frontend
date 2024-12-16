@@ -223,9 +223,11 @@ function PersonalDataComponent({
                 <InfoLine
                   title="Joined Date"
                   value={
-                    dayjs(
-                      employeeData?.employeeInformation?.joinedDate,
-                    )?.format('DD MMMM, YYYY') || '-'
+                    employeeData?.employeeInformation?.joinedDate
+                      ? dayjs(
+                          employeeData?.employeeInformation?.joinedDate,
+                        )?.format('DD MMMM, YYYY')
+                      : '-'
                   }
                 />
               </Col>

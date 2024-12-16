@@ -3,30 +3,33 @@ import { useGetBranches } from '@/store/server/features/employees/employeeManagm
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetPositions } from '@/store/server/features/employees/positions/queries';
-import { Col, DatePicker, Form, Radio, Row, Select, Switch } from 'antd';
-import dayjs from 'dayjs';
+import { JobActionStatus } from '@/types/enumTypes';
+import {
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Radio,
+  Row,
+  Select,
+  Switch,
+} from 'antd';
 import React, { useState } from 'react';
-
-const { Option } = Select;
+import { AiOutlineReload } from 'react-icons/ai';
 
 const JobTimeLineForm = () => {
-  const status = [
-    { id: 'Promotion', name: 'Promotion' },
-    { id: 'Transfer', name: 'Transfer' },
-    { id: 'New', name: 'New' },
-  ];
-  const { data: departmentData } = useGetDepartments();
-  const { data: employementType } = useGetEmployementTypes();
-  const { data: branchOfficeData } = useGetBranches();
-  const { data: positions } = useGetPositions();
+  const { data: departmentData, refetch: departmentsRefetch } =
+    useGetDepartments();
+  const { data: employementType, refetch: employmentTypeRefetch } =
+    useGetEmployementTypes();
+  const { data: branchOfficeData, refetch: branchOfficeRefetch } =
+    useGetBranches();
+  const { data: positions, refetch: positionRefetch } = useGetPositions();
 
   const [contractType, setContractType] = useState<string>('Permanent');
 
   const handleContractTypeChange = (e: any) => {
     setContractType(e.target.value);
-  };
-  const disablePastDates = (current: any) => {
-    return current && current < dayjs().startOf('day');
   };
 
   return (
@@ -45,7 +48,7 @@ const JobTimeLineForm = () => {
               { required: true, message: 'Please select the joined date' },
             ]}
           >
-            <DatePicker className="w-full" disabledDate={disablePastDates} />
+            <DatePicker className="w-full" />
           </Form.Item>
         </Col>
       </Row>
@@ -56,18 +59,33 @@ const JobTimeLineForm = () => {
             className="font-semibold text-xs"
             name="positionId"
             id="jobTitle"
-            label="Position"
+            label={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span>Position</span>{' '}
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<AiOutlineReload size={14} className="text-gray-600" />}
+                  onClick={() => {
+                    positionRefetch();
+                  }}
+                />
+              </div>
+            }
             rules={[
               { required: true, message: 'Please select an position type' },
             ]}
           >
-            <Select placeholder="Select position type" allowClear>
-              {positions?.items?.map((position: any) => (
-                <Option key={position?.id} value={position?.id}>
-                  {position?.name}
-                </Option>
-              ))}
-            </Select>
+            <Select
+              showSearch
+              optionFilterProp="label"
+              placeholder="Select position type"
+              allowClear
+              options={positions?.items?.map((positions: any) => ({
+                value: positions?.id,
+                label: `${positions?.name ? positions?.name : ''} `,
+              }))}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
@@ -75,18 +93,33 @@ const JobTimeLineForm = () => {
             className="font-semibold text-xs"
             name={'employementTypeId'}
             id="employementTypeId"
-            label="Employment Type"
+            label={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span>Employment Type</span>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<AiOutlineReload size={14} className="text-gray-600" />}
+                  onClick={() => {
+                    employmentTypeRefetch();
+                  }}
+                />
+              </div>
+            }
             rules={[
               { required: true, message: 'Please select an employment type' },
             ]}
           >
-            <Select placeholder="Select an employment type" allowClear>
-              {employementType?.items?.map((item: any, index: number) => (
-                <Option key={index} value={item?.id}>
-                  {item?.name}
-                </Option>
-              ))}
-            </Select>
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              placeholder="Select an employment type"
+              options={employementType?.items?.map((employementType: any) => ({
+                value: employementType?.id,
+                label: `${employementType?.name ? employementType?.name : ''} `,
+              }))}
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -96,39 +129,65 @@ const JobTimeLineForm = () => {
             className="w-full font-semibold text-xs"
             name={'departmentId'}
             id="departmentId"
-            label="Team"
+            label={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span>Team</span>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<AiOutlineReload size={14} className="text-gray-600" />}
+                  onClick={() => {
+                    departmentsRefetch();
+                  }}
+                />
+              </div>
+            }
             rules={[{ required: true, message: 'Please select a Team' }]}
           >
-            <Select className="w-full" placeholder="Select a Team" allowClear>
-              {departmentData?.map((department: any, index: number) => (
-                <Option key={index} value={department?.id}>
-                  {department?.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              placeholder="Select a Team"
+              options={departmentData?.map((department: any) => ({
+                value: department?.id,
+                label: `${department?.name ? department?.name : ''} `,
+              }))}
+            />
+          </Form.Item>{' '}
         </Col>
         <Col xs={24} sm={12}>
           <Form.Item
             className="w-full font-semibold text-xs"
             name={'branchId'}
             id="branchId"
-            label="Branch Office"
+            label={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span>Branch Office</span>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<AiOutlineReload size={14} className="text-gray-600" />}
+                  onClick={() => {
+                    branchOfficeRefetch();
+                  }}
+                />
+              </div>
+            }
             rules={[
               { required: true, message: 'Please select a branch office' },
             ]}
           >
             <Select
-              className="w-full"
-              placeholder="Select a branch office"
               allowClear
-            >
-              {branchOfficeData?.items?.map((branch, index: number) => (
-                <Option key={index} value={branch?.id}>
-                  {branch?.name}
-                </Option>
-              ))}
-            </Select>
+              showSearch
+              optionFilterProp="label"
+              placeholder="Select a branch office"
+              options={branchOfficeData?.items?.map((branch: any) => ({
+                value: branch?.id,
+                label: `${branch?.name ? branch?.name : ''} `,
+              }))}
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -136,18 +195,21 @@ const JobTimeLineForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="w-full font-semibold text-xs"
-            name={'jobAction'}
+            name="jobAction"
             id="jobAction"
             label="Status"
             rules={[{ required: true, message: 'Please select Status' }]}
           >
-            <Select className="w-full" placeholder="Select Status" allowClear>
-              {status?.map((status: any, index: number) => (
-                <Option key={index} value={status?.id}>
-                  {status?.name}
-                </Option>
-              ))}
-            </Select>
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              placeholder="Select Status"
+              options={JobActionStatus?.map((status: any) => ({
+                value: status?.id,
+                label: `${status?.name ? status?.name : ''} `,
+              }))}
+            />
           </Form.Item>
         </Col>
       </Row>

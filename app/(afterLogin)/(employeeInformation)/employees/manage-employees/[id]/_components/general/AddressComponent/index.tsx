@@ -52,7 +52,10 @@ const AddressComponent = ({
           <Row gutter={[16, 24]}>
             <Col lg={16}>
               {Object.entries(
-                employeeData?.employeeInformation?.addresses || {},
+                employeeData?.employeeInformation?.addresses || {
+                  country: '',
+                  city: '',
+                },
               ).map(([key, val]) => (
                 <Form.Item
                   key={key}

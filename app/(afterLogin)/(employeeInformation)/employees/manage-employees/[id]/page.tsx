@@ -67,10 +67,14 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   return (
     <div className="bg-[#F5F5F5] px-2 h-auto min-h-screen">
       <div className="flex gap-2 items-center mb-4">
-        <MdKeyboardArrowLeft
-          className="text-lg sm:text-2xl"
+        <Button
+          value={'back'}
+          name="back"
           onClick={handleGoBack}
-        />
+          className="border-none bg-transparent p-0"
+        >
+          <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
+        </Button>
         <h4 className="text-base sm:text-lg md:text-xl">Detail Employee</h4>
       </div>
       <Row gutter={[16, 24]}>
