@@ -1,8 +1,6 @@
 'use client';
-
 import { QueryCache, QueryClient, QueryClientProvider } from 'react-query';
 import { ReactNode, Suspense } from 'react';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useRouter } from 'next/navigation';
 import { handleNetworkError } from '@/utils/showErrorResponse';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -50,17 +48,10 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
           if (error.response.status === 401) {
             router.replace('/authentication/login');
           }
-          NotificationMessage.error({
-            message: 'Error',
-            description: error.response.data.message,
-          });
-        } else {
-          NotificationMessage.error({
-            message: 'Error',
-            description: error.message,
-          });
         }
-        handleNetworkError(error);
+        if (process.env.NODE_ENV !== 'production') {
+          handleNetworkError(error);
+        }
       },
     }),
   });
