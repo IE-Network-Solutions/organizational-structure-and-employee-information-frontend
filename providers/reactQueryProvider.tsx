@@ -1,5 +1,4 @@
 'use client';
-
 import { QueryCache, QueryClient, QueryClientProvider } from 'react-query';
 import { ReactNode, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
@@ -50,10 +49,9 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
             router.replace('/authentication/login');
           }
         }
-        if( process.env.NODE_ENV!=='production'){
+        if (process.env.NODE_ENV !== 'production') {
           handleNetworkError(error);
         }
-        
       },
     }),
   });

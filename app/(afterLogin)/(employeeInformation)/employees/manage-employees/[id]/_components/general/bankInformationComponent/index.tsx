@@ -50,15 +50,22 @@ const BankInformationComponent = ({ handleSaveChanges, id }: any) => {
           <Row gutter={[16, 24]}>
             <Col lg={16}>
               {Object.entries(
-                employeeData?.employeeInformation?.bankInformation || {},
+                employeeData?.employeeInformation?.bankInformation || {
+                  bankName: '',
+                  branch: '',
+                  accountName: '',
+                  accountNumber: '',
+                },
               ).map(([key, val]) => (
                 <Form.Item
                   key={key}
                   name={key}
                   label={key}
-                  rules={[
-                    { required: true, message: `Please enter the ${key}` },
-                  ]} // Example validation
+                  rules={
+                    ['bankName', 'accountNumber'].includes(key)
+                      ? [{ required: true, message: `Please enter the ${key}` }]
+                      : []
+                  }
                 >
                   <Input placeholder={key} defaultValue={val?.toString()} />
                 </Form.Item>

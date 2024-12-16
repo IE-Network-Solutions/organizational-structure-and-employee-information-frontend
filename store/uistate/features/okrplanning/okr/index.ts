@@ -4,6 +4,9 @@ import { devtools } from 'zustand/middleware';
 
 export const useOKRStore = create<OKRState>()(
   devtools((set) => ({
+    isVP: true,
+    toggleDashboard: () => set((state) => ({ isVP: !state.isVP })),
+
     revenue: 123050,
     financialSales: 10050,
     progressRevenue: 56.02,
