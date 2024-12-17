@@ -20,6 +20,20 @@ const getPositions = async () => {
     headers,
   });
 };
+const getAllPositions = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
+
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/positions`,
+    method: 'GET',
+    headers,
+  });
+};
 
 const getPositionsByID = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
@@ -40,6 +54,9 @@ const getPositionsByID = async (id: string) => {
 
 export const useGetPositions = () => {
   return useQuery('positions', getPositions);
+};
+export const useGetAllPositions = () => {
+  return useQuery('allPositions', getAllPositions);
 };
 export const useGetPositionsById = (id: string) => {
   return useQuery(['positions', id], () => getPositionsByID(id));
