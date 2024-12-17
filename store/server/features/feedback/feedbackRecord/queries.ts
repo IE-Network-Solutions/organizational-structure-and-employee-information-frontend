@@ -8,7 +8,7 @@ import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
-const fetchFeedbackTypeById = async (id:string) => {
+const fetchFeedbackRecordById = async (id:string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -21,7 +21,7 @@ const fetchFeedbackTypeById = async (id:string) => {
     headers,
   });
 };
-const fetchAllFeedbackTypes = async (pageSize?: number, current?: number) => {
+const fetchAllFeedbackRecord = async (pageSize?: number, current?: number) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -29,22 +29,22 @@ const fetchAllFeedbackTypes = async (pageSize?: number, current?: number) => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${ORG_DEV_URL}/feedback-type`,
+    url: `${ORG_DEV_URL}/feedback-record`,
     method: 'GET',
     headers,
   });
 };
-export const useFetchFeedbackTypeById = (id: string) => {
+export const useFetchFeedbackRecordById = (id: string) => {
   return useQuery(
-    ['feedbackType', id], // Include `id` in the query key for caching
-    () => fetchFeedbackTypeById(id), // Fetch function
+    ['feedbackRecord', id], // Include `id` in the query key for caching
+    () => fetchFeedbackRecordById(id), // Fetch function
     {
       enabled: !!id, // Conditionally enable the query
     }
   );
 };
-export const useFetchAllFeedbackTypes = (pageSize?: number, current?: number) => {
-  return useQuery(['feedbackTypes', pageSize, current], () =>
-    fetchAllFeedbackTypes(pageSize, current),
+export const useFetchAllFeedbackRecord = (pageSize?: number, current?: number) => {
+  return useQuery(['feedbackRecord', pageSize, current], () =>
+    fetchAllFeedbackRecord(pageSize, current),
   );
 };

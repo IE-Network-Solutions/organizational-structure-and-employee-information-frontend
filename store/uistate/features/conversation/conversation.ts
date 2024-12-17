@@ -1,3 +1,4 @@
+import { FeedbackItem, FeedbackRecord, FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import { Variants } from 'antd/es/config-provider';
 import { create } from 'zustand';
 interface SearchFieldOption {
@@ -44,6 +45,10 @@ export interface CategoriesUseState {
 
   variantType: string;
   setVariantType: (variantType: string) => void;
+
+  selectedFeedbackRecord: FeedbackRecord|null;
+  setSelectedFeedbackRecord: (selectedFeedbackRecord: FeedbackRecord|null) => void;
+
 
   selectedFeedback: any;
   setSelectedFeedback: (selectedFeedback: any) => void;
@@ -103,6 +108,9 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   selectedFeedback: null,
   setSelectedFeedback: (selectedFeedback: any) => set({selectedFeedback}),
+
+  selectedFeedbackRecord: null,
+  setSelectedFeedbackRecord: (selectedFeedbackRecord: FeedbackRecord|null) => set({selectedFeedbackRecord}),
 
   activeTab: '1',
   setActiveTab: (activeTab: string) => set({ activeTab }),
