@@ -1,15 +1,10 @@
 'use client';
-import { Button, Tabs } from 'antd';
+import {Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { FaPlus } from 'react-icons/fa';
-import QuestionSetForm from '../_components/questionSetForm';
-import { useConversationTypes } from '@/store/server/features/conversation/queries';
-import { ConversationTypeItems, FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
+import {  FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import { useEffect } from 'react';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
 import FeedbackTypeDetail from './_components/feedbackTypeDetail';
 import CreateFeedback from './_components/createFeedback';

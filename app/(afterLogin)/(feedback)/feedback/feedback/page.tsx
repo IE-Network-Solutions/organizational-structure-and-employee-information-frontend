@@ -1,10 +1,7 @@
 'use client';
-import { Button, Card, Drawer, Popconfirm, Table, Tabs } from 'antd';
+import { Button, Card, Popconfirm, Table, Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
-import { FaPlus } from 'react-icons/fa';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-
-import AccessGuard from '@/utils/permissionGuard';
 import TabLandingLayout from '@/components/tabLanding';
 import { PiPlus } from 'react-icons/pi';
 import EmployeeSearchComponent from '@/components/common/search/searchComponent';
@@ -14,10 +11,9 @@ import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedb
 import { FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
-import { useFetchAllFeedback } from '@/store/server/features/feedback/feedback/queries';
 import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
 import dayjs from 'dayjs';
-import { Edit2Icon, Edit3 } from 'lucide-react';
+import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 
