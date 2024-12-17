@@ -7,12 +7,20 @@ import { IoIosNotificationsOutline } from 'react-icons/io';
 import { AiFillNotification } from 'react-icons/ai';
 import { CgCloseO } from 'react-icons/cg';
 import Link from 'next/link';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { NotificationDetailVisible } from '@/app/(afterLogin)/(employeeInformation)/employees/notification/_component/notificationDetail';
 
 function NotificationBar() {
-  const { setIsNotificationDetailVisible, setSelectedNotificationId } =
-    useNotificationDetailStore();
+  const userId = useAuthenticationStore.getState().userId;
+
+  const {
+    setIsNotificationDetailVisible,
+    selectedNotificationId,
+    setSelectedNotificationId,
+  } = useNotificationDetailStore();
+
   const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
-  const { data, isLoading } = useGetNotifications();
+  const { data, isLoading } = useGetNotifications(userId);
   const unReadNotification = data?.filter(
     (item: NotificationType) => item.status == 'ACTIVE',
   );
@@ -60,7 +68,6 @@ function NotificationBar() {
                     className="flex items-center p-2 cursor-pointer"
                     onClick={() => {
                       handleShowNotificationDetails(notification?.id);
-                      updateNotification(notification?.id);
                     }}
                   >
                     <Avatar icon={<AiFillNotification />} />
@@ -104,18 +111,25 @@ function NotificationBar() {
     </Menu>
   );
   return (
-    <Dropdown
-      className="border-[#ececee] border-[1px] rounded-md"
-      overlay={notificationMenu}
-      trigger={['click']}
-    >
-      <Badge
-        count={unReadNotification?.length > 0 ? unReadNotification?.length : 0}
-        className="bg-gray-300 p-2 rounded-lg"
+    <>
+      <Dropdown
+        className="border-[#ececee] border-[1px] rounded-md"
+        overlay={notificationMenu}
+        trigger={['click']}
       >
-        <IoIosNotificationsOutline size={20} />
-      </Badge>
-    </Dropdown>
+        <Badge
+          count={
+            unReadNotification?.length > 0 ? unReadNotification?.length : 0
+          }
+          className="bg-gray-300 p-2 rounded-lg"
+        >
+          <IoIosNotificationsOutline size={20} />
+        </Badge>
+      </Dropdown>
+      {selectedNotificationId && (
+        <NotificationDetailVisible id={selectedNotificationId} />
+      )}
+    </>
   );
 }
 
