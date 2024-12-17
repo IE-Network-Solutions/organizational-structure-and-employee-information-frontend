@@ -4,12 +4,10 @@
  */
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useCustomQuestionTemplateStore } from '@/store/uistate/features/feedback/settings';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
-
 
 const createFeedbackRecord = async (data: any) => {
   const token = useAuthenticationStore.getState().token;

@@ -294,65 +294,78 @@ export const MergeForm = () => {
 };
 
 export const DeleteForm: React.FC<DeleteFormProps> = ({ form }) => {
-
-  const { departmentTobeDeletedId, setShiftDepartmentId, departmentTobeShiftedId } = useOrganizationStore();
+  const {
+    departmentTobeDeletedId,
+    setShiftDepartmentId,
+    departmentTobeShiftedId,
+  } = useOrganizationStore();
   const { data: orgStructureData } = useGetOrgCharts();
 
   function excludeDescendants(
-      data: OrgChart | undefined,
-      selectedId: string
+    data: OrgChart | undefined,
+    selectedId: string,
   ): Array<{ value: string | undefined; label: string | undefined }> {
-      const descendants = new Set<string>();
+    const descendants = new Set<string>();
 
-      function collectDescendants(node: OrgChart | undefined): void {
-          if (node?.department && node.department.length > 0) {
-              node.department.forEach((child) => {
-                  if (child.id) {
-                      descendants.add(child.id);
-                  }
-                  collectDescendants(child);
-              });
+    function collectDescendants(node: OrgChart | undefined): void {
+      if (node?.department && node.department.length > 0) {
+        node.department.forEach((child) => {
+          if (child.id) {
+            descendants.add(child.id);
           }
+          collectDescendants(child);
+        });
+      }
+    }
+
+    function findAndExclude(node: OrgChart | undefined): void {
+      if (!node) return;
+
+      if (node.id === selectedId) {
+        collectDescendants(node);
+      } else if (node.department && node.department.length > 0) {
+        node.department.forEach((child) => findAndExclude(child));
+      }
+    }
+
+    findAndExclude(data);
+
+    const flatList: Array<{
+      value: string | undefined;
+      label: string | undefined;
+    }> = [];
+
+    function flattenAndFilter(node: OrgChart | undefined): void {
+      if (!node) return;
+
+      if (node.id && !descendants.has(node.id)) {
+        flatList.push({
+          value: node.id,
+          label: node.name,
+        });
       }
 
-      function findAndExclude(node: OrgChart | undefined): void {
-          if (!node) return;
-
-          if (node.id === selectedId) {
-              collectDescendants(node);
-          } else if (node.department && node.department.length > 0) {
-              node.department.forEach((child) => findAndExclude(child));
-          }
+      if (node.department && node.department.length > 0) {
+        node.department.forEach((child) => flattenAndFilter(child));
       }
+    }
 
-      findAndExclude(data);
-
-      const flatList: Array<{ value: string | undefined; label: string | undefined }> = [];
-      
-      function flattenAndFilter(node: OrgChart | undefined): void {
-          if (!node) return;
-
-          if (node.id && !descendants.has(node.id)) {
-              flatList.push({
-                  value: node.id,
-                  label: node.name,
-              });
-          }
-
-          if (node.department && node.department.length > 0) {
-              node.department.forEach((child) => flattenAndFilter(child));
-          }
-      }
-
-      flattenAndFilter(data);
-      return flatList;
+    flattenAndFilter(data);
+    return flatList;
   }
 
-  const shiftOptions = excludeDescendants(orgStructureData, departmentTobeDeletedId)
-  const selectedDepartment = shiftOptions?.filter((item: any) => item.value === departmentTobeDeletedId);
-  const filteredShiftOptions = shiftOptions?.filter((item: any) => item.value !== departmentTobeDeletedId);
+  const shiftOptions = excludeDescendants(
+    orgStructureData,
+    departmentTobeDeletedId,
+  );
+  const selectedDepartment = shiftOptions?.filter(
+    (item: any) => item.value === departmentTobeDeletedId,
+  );
+  const filteredShiftOptions = shiftOptions?.filter(
+    (item: any) => item.value !== departmentTobeDeletedId,
+  );
   const handleChildDepartmentsChange = (id: string) => {
-    if ( id ) {
+    if (id) {
       setShiftDepartmentId(id);
     }
   };
@@ -365,7 +378,6 @@ export const DeleteForm: React.FC<DeleteFormProps> = ({ form }) => {
         rules={[
           { required: true, message: 'Please select the department to delete' },
         ]}
-        
       >
         <Select
           showSearch

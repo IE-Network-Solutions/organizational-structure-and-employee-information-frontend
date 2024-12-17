@@ -72,11 +72,11 @@ export interface FeedbackItem {
 
 export type FeedbackRecord = {
   id: string;
-  createdAt: string;  // Can also be Date if you're handling it as a Date object
-  updatedAt: string;  // Can also be Date if you're handling it as a Date object
-  deletedAt: string | null;  // Nullable if the value can be null
-  createdBy: string | null;  // Nullable if the value can be null
-  updatedBy: string | null;  // Nullable if the value can be null
+  createdAt: string; // Can also be Date if you're handling it as a Date object
+  updatedAt: string; // Can also be Date if you're handling it as a Date object
+  deletedAt: string | null; // Nullable if the value can be null
+  createdBy: string | null; // Nullable if the value can be null
+  updatedBy: string | null; // Nullable if the value can be null
   issuerId: string;
   recipientId: string;
   feedbackTypeId: string;
@@ -86,4 +86,3 @@ export type FeedbackRecord = {
   points: number;
   tenantId: string;
 };
-

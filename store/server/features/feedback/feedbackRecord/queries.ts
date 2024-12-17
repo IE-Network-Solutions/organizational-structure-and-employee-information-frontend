@@ -8,7 +8,7 @@ import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
-const fetchFeedbackRecordById = async (id:string) => {
+const fetchFeedbackRecordById = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -21,7 +21,7 @@ const fetchFeedbackRecordById = async (id:string) => {
     headers,
   });
 };
-const fetchAllFeedbackRecord = async (pageSize?: number, current?: number) => {
+const fetchAllFeedbackRecord = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -40,11 +40,14 @@ export const useFetchFeedbackRecordById = (id: string) => {
     () => fetchFeedbackRecordById(id), // Fetch function
     {
       enabled: !!id, // Conditionally enable the query
-    }
+    },
   );
 };
-export const useFetchAllFeedbackRecord = (pageSize?: number, current?: number) => {
+export const useFetchAllFeedbackRecord = (
+  pageSize?: number,
+  current?: number,
+) => {
   return useQuery(['feedbackRecord', pageSize, current], () =>
-    fetchAllFeedbackRecord(pageSize, current),
+    fetchAllFeedbackRecord(),
   );
 };

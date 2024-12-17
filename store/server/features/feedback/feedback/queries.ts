@@ -31,7 +31,7 @@ import { useQuery } from 'react-query';
  * @param {number} current - The current page number to fetch.
  * @returns {Promise<any>} The response from the API.
  */
-const fetchAllFeedbackTypes = async (pageSize?: number, current?: number) => {
+const fetchAllFeedbackTypes = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -56,6 +56,6 @@ const fetchAllFeedbackTypes = async (pageSize?: number, current?: number) => {
  */
 export const useFetchAllFeedback = (pageSize?: number, current?: number) => {
   return useQuery(['feedbackTypes', pageSize, current], () =>
-    fetchAllFeedbackTypes(pageSize, current),
+    fetchAllFeedbackTypes(),
   );
 };

@@ -18,7 +18,6 @@ import React, { useState } from 'react';
 import { AiOutlineReload } from 'react-icons/ai';
 
 const JobTimeLineForm = () => {
-
   const { data: departmentData, refetch: departmentsRefetch } =
     useGetDepartments();
   const { data: employementType, refetch: employmentTypeRefetch } =
@@ -196,7 +195,7 @@ const JobTimeLineForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="w-full font-semibold text-xs"
-            name='jobAction'
+            name="jobAction"
             id="jobAction"
             label="Status"
             rules={[{ required: true, message: 'Please select Status' }]}

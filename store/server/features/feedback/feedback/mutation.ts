@@ -4,7 +4,6 @@
  */
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useCustomQuestionTemplateStore } from '@/store/uistate/features/feedback/settings';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -67,7 +66,7 @@ const updateFeedback = async (data: any) => {
  * @function deleteQuestionTemplate
  * @returns {Promise<any>} The response from the API.
  */
-const deleteFeedback = async (id:string) => {
+const deleteFeedback = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -109,18 +108,16 @@ export const useCreateFeedback = () => {
  */
 export const useUpdateFeedback = () => {
   const queryClient = useQueryClient();
-  return useMutation(updateFeedback,
-    {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      onSuccess: (_, variables: any) => {
-        queryClient.invalidateQueries('feedback');
-        queryClient.invalidateQueries('feedbackTypes');
+  return useMutation(updateFeedback, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('feedback');
+      queryClient.invalidateQueries('feedbackTypes');
 
-        const method = variables?.method?.toUpperCase();
-        handleSuccessMessage(method);
-      },
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
     },
-  );
+  });
 };
 // eslint-enable-next-line @typescript-eslint/naming-convention
 

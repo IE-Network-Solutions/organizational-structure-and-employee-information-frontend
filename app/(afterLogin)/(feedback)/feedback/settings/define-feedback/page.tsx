@@ -1,16 +1,24 @@
 'use client';
-import {Tabs } from 'antd';
+import { Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import {  FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
+import { FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import { useEffect } from 'react';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
 import FeedbackTypeDetail from './_components/feedbackTypeDetail';
 import CreateFeedback from './_components/createFeedback';
 
 const Page = () => {
-  const { selectedFeedback,variantType, activeTab, setActiveTab,open,setOpen,setSelectedFeedback } = ConversationStore();
+  const {
+    selectedFeedback,
+    variantType,
+    activeTab,
+    setActiveTab,
+    open,
+    setOpen,
+    setSelectedFeedback,
+  } = ConversationStore();
   const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
 
   const onChange = (key: string) => {
@@ -29,11 +37,10 @@ const Page = () => {
       (item: FeedbackTypeItems) => item.id === activeTab,
     )?.category || '';
 
-
   const modalHeader = (
     <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-       <p>Add New {activeTabName}</p>
-       <p>{variantType} type</p>
+      <p>Add New {activeTabName}</p>
+      <p>{variantType} type</p>
     </div>
   );
   const items: TabsProps['items'] = getAllFeedbackTypes?.items?.map(
@@ -49,13 +56,13 @@ const Page = () => {
       <div className="flex flex-col gap-10">
         <span className="font-bold text-lg">Feedback</span>
 
-        <div className='mt-5'>
+        <div className="mt-5">
           <Tabs
             defaultActiveKey={getAllFeedbackTypes?.items?.[0]?.id}
             items={items}
             onChange={onChange}
           />
-      </div>
+        </div>
       </div>
 
       <CustomDrawerLayout
@@ -64,7 +71,7 @@ const Page = () => {
         modalHeader={modalHeader}
         width="30%"
       >
-        <CreateFeedback/>
+        <CreateFeedback />
       </CustomDrawerLayout>
     </div>
   );
