@@ -24,6 +24,7 @@ import { LuUsers2 } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
+import SimpleLogo from '../common/logo/simpleLogo';
 
 const menuItems: MenuProps['items'] = [
   {
@@ -325,9 +326,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         }}
         collapsedWidth={isMobile ? 80 : 80}
       >
+        <div className="my-2">{collapsed && <SimpleLogo />}</div>
+
         <div className="flex justify-between px-4 my-4">
           <div className=" flex items-center gap-2">
-            <Logo type="selamnew" />
+            {!collapsed && <Logo type="selamnew" />}
           </div>
 
           <div onClick={toggleCollapsed} className="text-black text-xl">
