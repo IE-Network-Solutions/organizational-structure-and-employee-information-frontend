@@ -1,5 +1,5 @@
 'use client';
-import { Button, Card, Drawer, Table, Tabs } from 'antd';
+import { Button, Card, Drawer, Popconfirm, Table, Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import { FaPlus } from 'react-icons/fa';
 import { ConversationStore } from '@/store/uistate/features/conversation';
@@ -14,22 +14,51 @@ import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedb
 import { FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
+import { useFetchAllFeedback } from '@/store/server/features/feedback/feedback/queries';
+import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
+import dayjs from 'dayjs';
+import { Edit2Icon, Edit3 } from 'lucide-react';
+import { MdDeleteOutline } from 'react-icons/md';
+import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 
 const Page = () => {
-  const { open, setOpen,setVariantType,variantType,setActiveTab,activeTab} =
+  const { open, setOpen,setVariantType,setSelectedFeedbackRecord,selectedFeedbackRecord,variantType,setActiveTab,activeTab} =
     ConversationStore();
     const {data:getAllUsersData}=useGetAllUsers();
      const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
+     const { data: getAllFeedbackRecord } = useFetchAllFeedbackRecord();
+     const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
+
+     const { data: getAllUsers } = useGetAllUsers();
+
+
+const editHandler=(record:any)=>{
+  setSelectedFeedbackRecord(record)
+}
+const handleDelete=(id:string)=>{
+  deleteFeedbackRecord(id,{
+    onSuccess:()=>{
+
+    }
+  })
+}
 
   const onChange = (key: string) => {
       setVariantType(key);
   };
-  useEffect(()=>setActiveTab(getAllFeedbackTypes?.items?.[0]?.id),[]);
+  useEffect(() => {
+    if (getAllFeedbackTypes?.items?.length) {
+      setActiveTab(getAllFeedbackTypes.items[0].id);
+    }
+  }, [getAllFeedbackTypes]);
+
   const onChangeFeedbackType = (key: string) => {
     setActiveTab(key);
-};
+  };
 
- const activeTabName=getAllFeedbackTypes?.items?.find((item:FeedbackTypeItems)=>item?.id===activeTab)?.category
+  const activeTabName = getAllFeedbackTypes?.items?.find(
+    (item: FeedbackTypeItems) => item.id === activeTab
+  )?.category ?? '';
   const handleSearchChange = () => {};
 
   const modalHeader = (
@@ -38,8 +67,6 @@ const Page = () => {
     </div>
   );
 
-
-  console.log(activeTab,"activeTab");
   const items: TabsProps['items'] = [
     {
       key: 'all',
@@ -61,33 +88,69 @@ const Page = () => {
     },
   ];
 
-  const columns = [
-    {
-      title: 'givenBy',
-      dataIndex: 'issuerId',
-      key: 'issurerId',
+const columns = [
+  {
+    title: 'Given By',
+    dataIndex: 'issuerId',
+    key: 'issuerId',
+    render: (notused: any, record: any) => {
+      const user = getAllUsers?.items?.find(
+        (item: any) => item.id === record.issuerId
+      );
+      return user ? `${user.firstName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
     },
-    {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
+  },
+  {
+    title: 'Type',
+    dataIndex: 'feedbackTypeId',
+    key: 'feedbackTypeId',
+    render: (_: any, record: any) => {
+      const feedbackType = getAllFeedbackTypes?.items?.find(
+        (item: any) => item.id === record.feedbackTypeId
+      );
+      return feedbackType?.category || 'Unknown'; // Return the category or a fallback value
     },
-    {
-      title: 'Reason',
-      dataIndex: 'reason',
-      key: 'reason',
+  },
+  {
+    title: 'Reason',
+    dataIndex: 'reason',
+    key: 'reason',
+  },
+  {
+    title: 'Given Date',
+    dataIndex: 'createdAt',
+    key: 'createdAt',
+    render: (_: any, record: any) => {
+      return record.createdAt ? dayjs(record.createdAt).format('YYYY-MM-DD') : 'N/A';
     },
-    {
-      title: 'Given Date',
-      dataIndex: 'givenDate',
-      key: 'givenDate',
+  },
+  {
+    title: 'Action',
+    dataIndex: 'action',
+    key: 'action',
+    render: (_: any, record: any) => {
+      return (
+        <p className="flex gap-2">
+          <Button
+            size="small"
+            onClick={() => editHandler(record)}
+            icon={<Edit2Icon className="w-4 h-4 text-xs" />}
+            type="primary"
+          />
+          <Popconfirm
+            title="Are you sure you want to delete?"
+            onConfirm={() => handleDelete(record?.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button size="small" icon={<MdDeleteOutline />} danger type="primary" />
+          </Popconfirm>
+        </p>
+      );
     },
-    {
-      title: 'Action',
-      dataIndex: 'action',
-      key: 'action',
-    },
-  ]
+  }
+];
+
 
   const searchField=[
     {
@@ -155,25 +218,19 @@ const Page = () => {
             fields={searchField}
             onChange={handleSearchChange}
           />
-          <Table dataSource={[]} columns={columns} />;
+          <Table dataSource={getAllFeedbackRecord??[]} columns={columns} />
         </TabLandingLayout>
     </div>
     <div>
 
       <CustomDrawerLayout
-        open={open}
-        onClose={() => setOpen(false)}
+        open={(open && activeTabName!=='') || (selectedFeedbackRecord!==null) }
+        onClose={() => {setOpen(false);setSelectedFeedbackRecord(null);}}
         modalHeader={modalHeader}
         width="30%"
       >
         <CreateFeedbackForm/>
       </CustomDrawerLayout>
-      {/* <Drawer
-        title={modalHeader}
-        onClose={() => setOpenRecognitionType(false)}
-        open={openRecognitionType}
-      >
-      </Drawer> */}
     </div>
   </TabLandingLayout>
 
