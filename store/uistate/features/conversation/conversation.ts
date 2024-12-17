@@ -11,6 +11,12 @@ interface SearchField {
   options: SearchFieldOption[];
   widthRatio: number;
 }
+interface SearchField {
+  key: string;
+  placeholder: string;
+  options: SearchFieldOption[];
+  widthRatio: number;
+}
 export interface CategoriesUseState {
   open: boolean;
   current: number;
