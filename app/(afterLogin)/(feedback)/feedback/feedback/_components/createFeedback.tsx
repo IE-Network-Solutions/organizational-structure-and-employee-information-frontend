@@ -1,22 +1,74 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Form, Select, Input, Button } from "antd";
 import { useGetAllUsers } from "@/store/server/features/employees/employeeManagment/queries";
-import { useFetchAllFeedbackTypes } from "@/store/server/features/feedback/feedbackType/queries";
-import { FeedbackTypeItems } from "@/store/server/features/conversation/conversationType/interface";
+import { useFetchFeedbackTypeById } from "@/store/server/features/feedback/feedbackType/queries";
+import { FeedbackItem } from "@/store/server/features/conversation/conversationType/interface";
+import { ConversationStore } from "@/store/uistate/features/conversation";
+import { useAuthenticationStore } from "@/store/uistate/features/authentication";
+import { useCreateFeedbackRecord, useUpdateFeedbackRecord } from "@/store/server/features/feedback/feedbackRecord/mutation";
 
 const { TextArea } = Input;
 
 const CreateFeedbackForm: React.FC = () => {
   const [form] = Form.useForm();
-     const {data:getAllUsersData}=useGetAllUsers();
-     const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
+  const {userId}=useAuthenticationStore()
+  const { activeTab,setOpen,selectedFeedbackRecord,setSelectedFeedbackRecord} =ConversationStore();
+  const {data:getAllUsersData}=useGetAllUsers();
+  const { data: getAllFeedbackTypeById } = useFetchFeedbackTypeById(activeTab);
+  const { mutate: createFeedbackRecord } = useCreateFeedbackRecord();
+  const { mutate: updateFeedbackRecord } = useUpdateFeedbackRecord();
+
+
+
 
   const onFinish = (values: any) => {
-    console.log("Form Values:", values);
-    // Handle form submission here
+
+    if(selectedFeedbackRecord!==null){
+      const updatedValues = {
+        ...values,
+        points: getAllFeedbackTypeById?.feedback?.find(
+          (feedback: FeedbackItem) => feedback.id === values.feedbackId
+        )?.points || 0, // Default to 0 if feedback is not found or points are undefined
+        issuerId: userId,
+        feedbackTypeId:activeTab
+      };
+      updateFeedbackRecord(updatedValues,{
+        onSuccess:()=>{
+          setOpen(false);
+          setSelectedFeedbackRecord(null)
+        }
+      })
+    }
+    else{
+      const updatedValues = {
+        ...values,
+        points: getAllFeedbackTypeById?.feedback?.find(
+          (feedback: FeedbackItem) => feedback.id === values.feedbackId
+        )?.points || 0, // Default to 0 if feedback is not found or points are undefined
+        issuerId: userId,
+        feedbackTypeId:activeTab
+      };
+      createFeedbackRecord(updatedValues,{
+        onSuccess:()=>{
+          setOpen(false);
+          setSelectedFeedbackRecord(null)
+        }
+      })
+    }
   };
 
 
+  useEffect(()=>{
+    if(selectedFeedbackRecord!==null)
+    form.setFieldsValue({
+      id:selectedFeedbackRecord?.id,
+      recipientId:selectedFeedbackRecord?.recipientId,
+      feedbackId:selectedFeedbackRecord?.feedbackId,
+      reason:selectedFeedbackRecord?.reason,
+      action:selectedFeedbackRecord?.action,
+    })
+  },[])
+  console.log(getAllFeedbackTypeById,"getAllFeedbackTypeById")
   return (
     <Form
       form={form}
@@ -24,36 +76,47 @@ const CreateFeedbackForm: React.FC = () => {
       onFinish={onFinish}
       initialValues={{
         employeeId: [],
-        type: undefined,
+        feedbackId: undefined,
         reason: "",
         action: "",
         cc: [],
       }}
     >
+     {selectedFeedbackRecord!==null &&
+      <Form.Item
+        name="id"
+      >
+      </Form.Item>}
       {/* Select Employee ID */}
       <Form.Item
-        name="employeeId"
+        name="recipientId"
         label="Select Employee ID"
         rules={[{ required: true, message: "Please select at least one employee!" }]}
       >
         <Select
-          mode="multiple"
+          // mode="multiple"
           placeholder="Select employee(s)"
           options={getAllUsersData?.items?.map((item:any)=>
-            ({key:item?.id,value:`${item?.firstName} ${item?.lastName}`})) ?? []} // Empty initially, will be updated dynamically
+            ({key:item?.id,value:item?.id,label:`${item?.firstName} ${item?.lastName}`})) ?? []} // Empty initially, will be updated dynamically
         />
       </Form.Item>
 
       {/* Select Type */}
       <Form.Item
-        name="type"
-        label="Select Type"
-        rules={[{ required: true, message: "Please select a type!" }]}
+
+        name="feedbackId"
+        label="Select Feedback"
+        rules={[{ required: true, message: "Please select at least one type!" }]}
       >
         <Select
-          placeholder="Select a type"
-          options={getAllFeedbackTypes?.items?.map((feedbackType:FeedbackTypeItems)=>
-            ({key:feedbackType?.id,value:feedbackType?.category}))??[]}
+          placeholder="Select Feedback"
+          options={
+            getAllFeedbackTypeById?.feedback?.map((feedback: FeedbackItem) => ({
+              key: feedback.id,
+              label: feedback.name,
+              value: feedback?.id,
+            })) ?? []
+          }
         />
       </Form.Item>
 
@@ -76,7 +139,8 @@ const CreateFeedbackForm: React.FC = () => {
       </Form.Item>
 
       {/* CC */}
-      <Form.Item
+      {selectedFeedbackRecord===null &&
+        <Form.Item
         name="cc"
         label="CC"
         rules={[{ required: true, message: "Please select at least one CC!" }]}
@@ -86,13 +150,19 @@ const CreateFeedbackForm: React.FC = () => {
           placeholder="Select CC employee(s)"
           options={getAllUsersData?.items?.map((item:any)=>
             ({key:item?.id,value:`${item?.firstName} ${item?.lastName}`})) ?? []}         />
-      </Form.Item>
+      </Form.Item>}
 
       {/* Submit Button */}
       <Form.Item>
+        {selectedFeedbackRecord!==null ?
+        <Button type="primary" htmlType="submit">
+          Update
+        </Button>
+      :
         <Button type="primary" htmlType="submit">
           Submit
         </Button>
+      }
       </Form.Item>
     </Form>
   );
