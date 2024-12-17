@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { handleNetworkError } from '@/utils/showErrorResponse';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { ReactQueryDevtools } from 'react-query/devtools';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { removeCookie } from '@/helpers/storageHelper';
 
 /**
  * Interface for the props of the ReactQueryWrapper component
@@ -23,13 +25,29 @@ interface ReactQueryWrapperProps {
 
 const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   const router = useRouter();
+  const {setLocalId, setTenantId, setToken, setUserId, setError } =
+    useAuthenticationStore();
+
+  const handleLogout = () => {
+    setToken('');
+    setTenantId('');
+    setLocalId('');
+    removeCookie('token');
+    router.push(`/authentication/login`);
+    setUserId('');
+    setLocalId('');
+    setError('');
+    removeCookie('token');
+    removeCookie('tenantId');
+    window.location.reload();
+  };
 
   const queryClient = new QueryClient({
     defaultOptions: {
       mutations: {
         onError(error: any) {
           if (error?.response?.status === 401) {
-            router.replace('/authentication/login');
+            handleLogout();
           }
           handleNetworkError(error);
         },
@@ -46,7 +64,7 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       onError(error: any) {
         if (error.response) {
           if (error.response.status === 401) {
-            router.replace('/authentication/login');
+            handleLogout();
           }
         }
         if (process.env.NODE_ENV !== 'production') {
