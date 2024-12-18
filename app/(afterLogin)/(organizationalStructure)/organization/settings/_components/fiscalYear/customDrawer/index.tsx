@@ -15,7 +15,7 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 import { useDebounce } from '@/utils/useDebounce';
 
 interface FiscalYearDrawerProps {
-  form?: FormInstance;
+  form: FormInstance<any> | undefined;
   handleNextStep?: () => void;
 }
 const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
@@ -23,6 +23,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
   handleNextStep,
 }) => {
   const [form] = Form.useForm();
+
   const {
     setFormData,
     current,
@@ -49,6 +50,9 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     setEditMode(false);
     setSelectedFiscalYear(null);
   };
+  const valuesss = form?.getFieldsValue();
+
+  console.log(valuesss, 'valuessyyyys');
 
   useEffect(() => {
     if (isEditMode && selectedFiscalYear) {
@@ -64,6 +68,8 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
 
   const handleSubmit = () => {
     const formValues = form?.getFieldsValue();
+
+    console.log(formValues, 'formValues');
 
     const groupMonthsIntoSessions = () => {
       /* eslint-disable @typescript-eslint/naming-convention */
@@ -136,29 +142,27 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
         handleSubmit();
       }}
       preserve={true}
-      // initialValues={formData}
       onValuesChange={() => {
         handleValuesChange(form?.getFieldsValue());
       }}
+      validateTrigger="onBlur"
     >
-      <div hidden={current !== 0}>
-        <FiscalYear form={form} />
-      </div>
-      <div hidden={current !== 1}>
+      {current === 0 && <FiscalYear form={form} />}
+      {current === 1 && (
         <SessionDrawer
           form={form}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
         />
-      </div>
-      <div hidden={current !== 2}>
+      )}
+      {current === 2 && (
         <MonthDrawer
           form={form}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
           onNextStep={handleNextStep}
         />
-      </div>
+      )}
     </Form>
   );
   return departments?.length ? (

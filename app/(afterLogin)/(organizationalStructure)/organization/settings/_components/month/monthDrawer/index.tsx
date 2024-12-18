@@ -4,15 +4,37 @@ import { useSessionStore } from '@/store/uistate/features/organizationStructure/
 import { Button, Col, DatePicker, Form, Input, Row, Spin } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { FormInstance } from 'antd/lib';
-import dayjs, { Dayjs } from 'dayjs';
-import React, { useEffect } from 'react';
+import dayjs from 'dayjs';
+import React from 'react';
 
 interface DrawerProps {
-  form: FormInstance;
+  form: FormInstance<any> | undefined;
   isCreateLoading: boolean;
   isUpdateLoading: boolean;
   onNextStep?: () => void;
 }
+
+const classifyMonths = (
+  startMonth: number,
+  endMonth: number,
+  calendarType: string,
+) => {
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const sections: { [key: number]: number[] } = {};
+
+  let sectionSize = 12;
+  if (calendarType === 'Quarter') sectionSize = 3;
+  else if (calendarType === 'Semester') sectionSize = 6;
+  else sectionSize = 12;
+
+  months.forEach((month, index) => {
+    const section = Math.floor(index / sectionSize) + 1;
+    if (!sections[section]) sections[section] = [];
+    sections[section].push(month);
+  });
+
+  return sections;
+};
 
 const MonthDrawer: React.FC<DrawerProps> = ({
   form,
@@ -30,190 +52,124 @@ const MonthDrawer: React.FC<DrawerProps> = ({
 
   const { data: departments } = useGetDepartments();
 
-  const months = [
-    'Month-1',
-    'Month-2',
-    'Month-3',
-    'Month-4',
-    'Month-5',
-    'Month-6',
-    'Month-7',
-    'Month-8',
-    'Month-9',
-    'Month-10',
-    'Month-11',
-    'Month-12',
-  ];
+  const fiscalStart = fiscalYearStart ? fiscalYearStart.toDate() : new Date();
+  const fiscalEnd = fiscalYearEnd ? fiscalYearEnd.toDate() : new Date();
 
-  const getMonthRange = (monthIndex: number): { start: Dayjs; end: Dayjs } => {
-    if (!fiscalYearStart) return { start: dayjs(), end: dayjs() };
+  const startMonth = fiscalStart.getMonth() + 1;
+  const endMonth = fiscalEnd.getMonth() + 1;
 
-    const startMonth = fiscalYearStart.month();
-    const yearOffset = monthIndex >= startMonth ? 0 : 1;
-    const currentYear = fiscalYearStart.year() + yearOffset;
+  const groupedMonths = classifyMonths(startMonth, endMonth, calendarType);
 
-    const start =
-      monthIndex === startMonth
-        ? fiscalYearStart
-        : dayjs().year(currentYear).month(monthIndex).startOf('month');
-    const end = start.endOf('month');
-
-    return { start, end };
-  };
-
-  const validateMonthDates = (rule: any, value: any, callback: any) => {
-    if (!value) {
-      callback();
-      return;
-    }
-
-    const fieldName = rule.field;
-    const monthIndex = fieldName.split('_')[1];
-    const isStartDate = fieldName.startsWith('monthStartDate');
-
-    const startDate = isStartDate
-      ? value
-      : form.getFieldValue(`monthStartDate_${monthIndex}`);
-    const endDate = isStartDate
-      ? form.getFieldValue(`monthEndDate_${monthIndex}`)
-      : value;
-
-    if (!startDate || !endDate) {
-      callback();
-      return;
-    }
-
-    if (startDate.isAfter(endDate)) {
-      callback('Start date cannot be after end date!');
-      return;
-    }
-
-    if (fiscalYearStart && fiscalYearEnd) {
-      if (
-        startDate.isBefore(fiscalYearStart, 'day') ||
-        endDate.isAfter(fiscalYearEnd, 'day')
-      ) {
-        callback(
-          `Month dates must be within the fiscal year range (${fiscalYearStart.format(
-            'DD/MM/YYYY',
-          )} - ${fiscalYearEnd.format('DD/MM/YYYY')})!`,
-        );
-        return;
-      }
-    }
-
-    if (monthIndex > 0) {
-      const previousEndDate = form.getFieldValue(
-        `monthEndDate_${parseInt(monthIndex) - 1}`,
-      );
-      if (previousEndDate && startDate.isBefore(previousEndDate)) {
-        callback(
-          `This month's start date cannot overlap with the previous month's end date.`,
-        );
-        return;
-      }
-    }
-
-    callback();
-  };
-
-  useEffect(() => {
-    form?.resetFields();
-
-    const initialValues: any = {};
-    if (selectedFiscalYear?.sessions?.length > 0) {
-      const allMonths = selectedFiscalYear.sessions.flatMap(
-        (session: any) => session.months || [],
-      );
-
-      allMonths.forEach((month: any, index: number) => {
-        initialValues[`monthName_${index}`] = month.name || '';
-        initialValues[`monthDescription_${index}`] = month.description || '';
-        initialValues[`monthStartDate_${index}`] = month.startDate
-          ? dayjs(month.startDate)
-          : null;
-        initialValues[`monthEndDate_${index}`] = month.endDate
-          ? dayjs(month.endDate)
-          : null;
-      });
+  const generateMonthName = (section: number, index: number) => {
+    if (calendarType === 'Quarter') {
+      return `Month ${index + 1} (Q${section})`;
+    } else if (calendarType === 'Semester') {
+      return `Month ${index + 1} (S${section})`;
     } else {
-      months.forEach((month, index) => {
-        const { start, end } = getMonthRange(index);
-        initialValues[`monthName_${index}`] = month;
-        initialValues[`monthStartDate_${index}`] = start;
-        initialValues[`monthEndDate_${index}`] = end;
-      });
+      return `Month ${index + 1}`;
     }
+  };
 
-    setTimeout(() => {
-      form?.setFieldsValue(initialValues);
-      form?.validateFields();
-    }, 0);
-  }, [selectedFiscalYear?.id, form, fiscalYearStart, calendarType]);
+  const getMonthStartEndDates = (month: number) => {
+    const fiscalStarts = dayjs(fiscalStart);
+
+    const startDate = fiscalStarts
+      .month(fiscalStarts.month() + (month - 1))
+      .date(fiscalStarts.date());
+
+    const endDate = startDate.clone().add(1, 'month').subtract(1, 'day');
+    return { startDate, endDate };
+  };
 
   return (
     <div className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full">
       <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-4">
         Set up Month
       </div>
-      {months.map((month: any, index: number) => (
-        <React.Fragment key={index}>
-          <Form.Item
-            id={`monthNameId_${index}`}
-            name={`monthName_${index}`}
-            label={<span className="font-medium">Month Name</span>}
-            rules={[
-              { required: true, message: `Please input the month name!` },
-            ]}
-          >
-            <Input
-              size="large"
-              className="w-full text-sm"
-              placeholder={`Enter month name`}
-            />
-          </Form.Item>
 
-          <Row gutter={[16, 10]}>
-            <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-              <Form.Item
-                id={`monthStartDateId_${index}`}
-                name={`monthStartDate_${index}`}
-                label={<span className="font-medium">Start Date</span>}
-                rules={[
-                  { required: true, message: 'Please input the start date!' },
-                  { validator: validateMonthDates },
-                ]}
-              >
-                <DatePicker className="w-full" />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-              <Form.Item
-                id={`monthEndDateId_${index}`}
-                name={`monthEndDate_${index}`}
-                label={<span className="font-medium">End Date</span>}
-                rules={[
-                  { required: true, message: 'Please input the end date!' },
-                  { validator: validateMonthDates },
-                ]}
-              >
-                <DatePicker className="w-full" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item
-            id={`monthDescriptionId_${index}`}
-            name={`monthDescription_${index}`}
-            label={<span className="font-medium">Description</span>}
-          >
-            <TextArea
-              placeholder="Enter description"
-              className={'h-32 font-normal text-sm mt-2'}
-              size="large"
-            />
-          </Form.Item>
-        </React.Fragment>
-      ))}
+      {Object.entries(groupedMonths).map(([section, months]) => {
+        return (
+          <div key={section} className="mb-6">
+            {months.map((month, index) => {
+              const { startDate, endDate } = getMonthStartEndDates(month);
+              const monthName = `Month-${month}`;
+              return (
+                <React.Fragment key={month}>
+                  <Form.Item
+                    id={`monthNameId_${month}`}
+                    name={`monthName_${month}`}
+                    label={
+                      <span className="font-medium">
+                        {generateMonthName(Number(section), index)}
+                      </span>
+                    }
+                    rules={[
+                      {
+                        required: true,
+                        message: `Please input the month name!`,
+                      },
+                    ]}
+                    initialValue={monthName}
+                  >
+                    <Input
+                      size="large"
+                      className="w-full text-sm"
+                      placeholder={`Enter name for month ${month}`}
+                    />
+                  </Form.Item>
+
+                  <Row gutter={[16, 10]}>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Item
+                        id={`monthStartDateId_${month}`}
+                        name={`monthStartDate_${month}`}
+                        label={<span className="font-medium">Start Date</span>}
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Please input the start date!',
+                          },
+                        ]}
+                        initialValue={startDate}
+                      >
+                        <DatePicker className="w-full" />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Item
+                        id={`monthEndDateId_${month}`}
+                        name={`monthEndDate_${month}`}
+                        label={<span className="font-medium">End Date</span>}
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Please input the end date!',
+                          },
+                        ]}
+                        initialValue={endDate}
+                      >
+                        <DatePicker className="w-full" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
+                  <Form.Item
+                    id={`monthDescriptionId_${month}`}
+                    name={`monthDescription_${month}`}
+                    label={<span className="font-medium">Description</span>}
+                  >
+                    <TextArea
+                      placeholder={`Enter description for month ${month}`}
+                      className={'h-32 font-normal text-sm mt-2'}
+                      size="large"
+                    />
+                  </Form.Item>
+                </React.Fragment>
+              );
+            })}
+          </div>
+        );
+      })}
 
       <Form.Item>
         <div className="flex justify-center w-full px-6 py-6 gap-8">
@@ -224,8 +180,8 @@ const MonthDrawer: React.FC<DrawerProps> = ({
             Previous
           </Button>
           <Button
-            // htmlType={departments?.length > 0 ? 'submit' : 'button'}
-            htmlType="submit"
+            htmlType={departments?.length > 0 ? 'submit' : 'button'}
+            // htmlType="submit"
             // onClick={() => {
             //   if (!departments?.length && onNextStep) {
             //     onNextStep();

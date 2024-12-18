@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import React, { useEffect } from 'react';
 
 interface SessionDrawerProps {
-  form: FormInstance;
+  form: FormInstance<any> | undefined;
   isCreateLoading: boolean;
   isUpdateLoading: boolean;
 }
@@ -25,6 +25,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
     fiscalYearEnd,
     fiscalYearStart,
   } = useFiscalYearDrawerStore();
+  console.log(fiscalYearStart, 'fiscalYearStart');
 
   const year = fiscalYearEnd ? dayjs(fiscalYearEnd).year() : null;
 
@@ -36,19 +37,29 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
       case 'Quarter':
         for (let i = 0; i < 4; i++) {
           const start = dayjs(fiscalYearStart).add(i * 3, 'month');
-          const end = start.clone().add(2, 'month').endOf('month');
+          let end = start.clone().add(3, 'month').subtract(1, 'day');
+
+          if (start.date() > fiscalYearStart.date()) {
+            end = end.date(start.date());
+          }
+
           if (start.isAfter(fiscalYearEnd)) break;
+
           ranges.push({
             start: start.isBefore(fiscalYearStart) ? fiscalYearStart : start,
             end: end.isAfter(fiscalYearEnd) ? fiscalYearEnd : end,
           });
         }
         break;
+
       case 'Semester':
         ranges.push(
           {
             start: fiscalYearStart,
-            end: dayjs(fiscalYearStart).add(5, 'month').endOf('month'),
+            end: dayjs(fiscalYearStart)
+              .add(5, 'month')
+              .date(fiscalYearStart.date())
+              .endOf('day'),
           },
           {
             start: dayjs(fiscalYearStart).add(6, 'month'),
@@ -56,13 +67,15 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
           },
         );
         break;
+
       case 'Year':
         ranges.push({ start: fiscalYearStart, end: fiscalYearEnd });
         break;
+
       default:
         return [];
     }
-    return ranges.map(({ start, end }) => ({
+    return ranges?.map(({ start, end }) => ({
       start: start.isBefore(fiscalYearStart) ? fiscalYearStart : start,
       end: end.isAfter(fiscalYearEnd) ? fiscalYearEnd : end,
     }));
@@ -100,48 +113,6 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
 
     callback();
   };
-
-  // useEffect(() => {
-  //   const defaultValues = getDateRanges(year).reduce(
-  //     (acc: any, range: any, index: number) => {
-  //       return {
-  //         ...acc,
-  //         [`sessionName${index}`]: `Session ${index + 1}`,
-  //         [`sessionStartDate_${index}`]: range?.start,
-  //         [`sessionEndDate_${index}`]: range?.end,
-  //       };
-  //     },
-  //     {},
-  //   );
-
-  //   if (!selectedFiscalYear) {
-  //     form?.setFieldsValue(defaultValues);
-  //     return;
-  //   }
-
-  //   const sessionValues =
-  //     selectedFiscalYear.sessions?.reduce(
-  //       (acc: any, session: any, index: number) => {
-  //         return {
-  //           ...acc,
-  //           [`sessionName${index}`]: session?.name,
-  //           [`sessionDescription${index}`]: session?.description,
-  //           [`sessionStartDate_${index}`]: dayjs(session?.startDate),
-  //           [`sessionEndDate_${index}`]: dayjs(session?.endDate),
-  //         };
-  //       },
-  //       {},
-  //     ) || {};
-
-  //   form?.setFieldsValue(sessionValues);
-  // }, [
-  //   selectedFiscalYear,
-  //   calendarType,
-  //   form,
-  //   year,
-  //   fiscalYearStart,
-  //   fiscalYearEnd,
-  // ]);
 
   useEffect(() => {
     const dateRanges = getDateRanges(year);
@@ -206,24 +177,6 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
             </Form.Item>
             <Row gutter={[16, 6]} className="mb-4">
               <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                {/* <Form.Item
-                id={`sessionStartDateId_${index}`}
-                name={`sessionStartDate_${index}`}
-                label={
-                  <span className="font-medium">
-                    Session {index + 1} Start Date
-                  </span>
-                }
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: 'Please input the session Start Date!',
-                //   },
-                //   { validator: validateSessionDates },
-                // ]}
-              >
-                <DatePicker format="DD-MMM-YYYY" className="w-full" />
-              </Form.Item> */}
                 <Form.Item
                   name={`sessionStartDate_${index}`}
                   label={`Session ${index + 1} Start Date`}
@@ -243,24 +196,6 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                 </Form.Item>
               </Col>
               <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                {/* <Form.Item
-                id={`sessionEndDateId_${index}`}
-                name={`sessionEndDate_${index}`}
-                label={
-                  <span className="font-medium">
-                    Session {index + 1} End Date
-                  </span>
-                }
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: 'Please input the session End Date!',
-                //   },
-                //   { validator: validateSessionDates },
-                // ]}
-              >
-                <DatePicker format="DD-MMM-YYYY" className="w-full" />
-              </Form.Item> */}
                 <Form.Item
                   name={`sessionEndDate_${index}`}
                   label={`Session ${index + 1} End Date`}

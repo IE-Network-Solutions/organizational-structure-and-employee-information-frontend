@@ -7,7 +7,7 @@ export interface DrawerState {
   isEditMode: boolean;
   isDeleteMode: boolean;
   current: number;
-  calendarType: string | null;
+  calendarType: string;
   pageSize: number;
   currentPage: number;
   selectedYear: number;
