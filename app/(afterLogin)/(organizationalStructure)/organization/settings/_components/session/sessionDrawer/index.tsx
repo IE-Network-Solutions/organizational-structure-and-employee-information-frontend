@@ -25,6 +25,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
     fiscalYearEnd,
     fiscalYearStart,
   } = useFiscalYearDrawerStore();
+
   console.log(fiscalYearStart, 'fiscalYearStart');
 
   const year = fiscalYearEnd ? dayjs(fiscalYearEnd).year() : null;
