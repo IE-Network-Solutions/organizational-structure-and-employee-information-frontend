@@ -114,11 +114,13 @@ const QuestionSetForm = () => {
       updateConversationQuestionSet(payload, {
         onSuccess: () => {
           setEditableData(null);
+          form.resetFields();
         },
       });
     } else {
       createConversationQuestionSet(payload, {
         onSuccess: () => {
+          form.resetFields();
           setOpen(false);
         },
       });
