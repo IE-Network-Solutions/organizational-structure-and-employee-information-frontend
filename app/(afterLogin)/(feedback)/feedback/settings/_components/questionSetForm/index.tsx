@@ -35,8 +35,10 @@ const QuestionSetForm = () => {
     useUpdateQuestionSetWithQuestionsOnConversationType();
 
   const handleAddQuestion = () => {
-    setQuestions((prev: any) => [
-      ...prev,
+    const currentQuestions = questions; // Step 1: Get the current state
+
+    const updatedQuestions = [
+      ...currentQuestions,
       {
         id: uuidv4(), // Unique question ID
         conversationTypeId: activeTab, // Link question to the active conversation
@@ -44,8 +46,11 @@ const QuestionSetForm = () => {
         fieldType: FieldType.SHORT_TEXT, // Default to SHORT_TEXT
         field: [], // Default empty options for fields requiring options
         required: false, // Default not mandatory
+        action: null, // Default action property
       },
-    ]);
+    ]; // Step 2: Update the state with the new question
+    setQuestions(updatedQuestions); // Step 3: Set the new state
+
   };
 
   const handleRemoveQuestion = (id: any) => {
@@ -54,51 +59,54 @@ const QuestionSetForm = () => {
   };
 
   const handleChangeQuestion = (id: any, key: any, value: any) => {
-    setQuestions((prev: any) =>
-      prev.map((q: any) => (q.id === id ? { ...q, [key]: value } : q)),
+    const currentQuestions = questions;
+    const updatedQuestions = currentQuestions.map((q: any) =>
+      q.id === id ? { ...q, [key]: value } : q
     );
+    setQuestions(updatedQuestions);
   };
 
   const handleAddOption = (questionId: any) => {
-    setQuestions((prev: any) =>
-      prev.map((q: any) =>
-        q.id === questionId
-          ? {
-              ...q,
-              field: [...q.field, { id: uuidv4(), value: '' }],
-            }
-          : q,
-      ),
+    const currentQuestions = questions;
+    const updatedQuestions = currentQuestions.map((q: any) =>
+      q.id === questionId
+        ? {
+            ...q,
+            field: [...q.field, { id: uuidv4(), value: '' }],
+          }
+        : q
     );
+    setQuestions(updatedQuestions);
   };
 
   const handleChangeOption = (questionId: any, optionId: any, value: any) => {
-    setQuestions((prev: any) =>
-      prev.map((q: any) =>
-        q.id === questionId
-          ? {
-              ...q,
-              field: q.field.map((opt: any) =>
-                opt.id === optionId ? { ...opt, value } : opt,
-              ),
-            }
-          : q,
-      ),
+    const currentQuestions = questions;
+    const updatedQuestions = currentQuestions.map((q: any) =>
+      q.id === questionId
+        ? {
+            ...q,
+            field: q.field.map((opt: any) =>
+              opt.id === optionId ? { ...opt, value } : opt
+            ),
+          }
+        : q
     );
+    setQuestions(updatedQuestions);
   };
 
   const handleRemoveOption = (questionId: any, optionId: any) => {
-    setQuestions((prev: any) =>
-      prev.map((q: any) =>
-        q.id === questionId
-          ? {
-              ...q,
-              field: q.field.filter((opt: any) => opt.id !== optionId),
-            }
-          : q,
-      ),
+    const currentQuestions = questions;
+    const updatedQuestions = currentQuestions.map((q: any) =>
+      q.id === questionId
+        ? {
+            ...q,
+            field: q.field.filter((opt: any) => opt.id !== optionId),
+          }
+        : q
     );
+    setQuestions(updatedQuestions);
   };
+  
 
   const handleSubmit = (values: any) => {
     const payload = { ...values, conversationTypeId: activeTab, questions };
@@ -120,7 +128,6 @@ const QuestionSetForm = () => {
   useEffect(() => {
     if (editableData !== null) {
       setQuestions(editableData.conversationsQuestions || []); // Set questions state
-
       // Populate form fields with editableData
       form.setFieldsValue({
         name: editableData.name || '',
@@ -250,14 +257,14 @@ const QuestionSetForm = () => {
                     />
                   </Space>
                 ))}
-                <Button
-                  type="dashed"
-                  onClick={() => handleAddOption(q.id)}
-                  icon={<PlusOutlined />}
-                  style={{ marginTop: '8px' }}
-                >
-                  Add Option
-                </Button>
+              <Button
+                type="dashed"
+                onClick={() => handleAddOption(q.id)}
+                icon={<PlusOutlined />}
+                style={{ marginTop: '8px', display: 'inline-block' }}
+              >
+                Add Option
+              </Button>
               </div>
             )}
           </div>
