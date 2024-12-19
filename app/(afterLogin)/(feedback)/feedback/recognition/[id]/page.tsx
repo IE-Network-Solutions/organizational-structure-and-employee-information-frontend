@@ -1,6 +1,6 @@
 'use client';
 import TabLandingLayout from '@/components/tabLanding';
-import { Card, Table, TableColumnsType } from 'antd';
+import { Card, Col, Row, Table, TableColumnsType } from 'antd';
 import React from 'react';
 
 function Page() {
@@ -50,7 +50,27 @@ function Page() {
           buttonIcon={''}
         >
           <Card>
-            <Table
+                <Row gutter={[16, 16]} style={{ width: 'auto' }}>
+                  <Col xs={24} sm={10} md={10} lg={10} xl={10} >
+                    Brown
+                  </Col>
+                  <Col xs={24} sm={14} md={14} lg={14} xl={14}>
+                    97
+                  </Col>
+                </Row>
+                <Row gutter={[16, 16]} style={{ width: 'auto' }}>
+                  <Col xs={24} sm={10} md={10} lg={10} xl={10} ></Col>
+                  <Col xs={24} sm={14} md={14} lg={14} xl={14}></Col>
+                </Row>
+                {/* Additional rows */}
+                {[...Array(4)].map((_, index) => (
+                  <Row gutter={[16, 16]} style={{ width: 'auto' }} key={index}>
+                    <Col xs={24} sm={10} md={10} lg={10} xl={10} ></Col>
+                    <Col xs={24} sm={14} md={14} lg={14} xl={14}></Col>
+                  </Row>
+                ))}
+          </Card>
+            {/* <Table
               showHeader={false}
               columns={columns}
               bordered={false}
@@ -60,8 +80,7 @@ function Page() {
                 border: 'none',
                 borderCollapse: 'collapse',
               }}
-            />
-          </Card>
+            /> */}
         </TabLandingLayout>
       </>
     </div>

@@ -116,7 +116,7 @@ function Page() {
   // };
   return (
     <div>
-      <Tabs className="ml-[3%]" defaultActiveKey="1" items={items} />
+      <Tabs className="ml-[3%] max-w-[90%]" defaultActiveKey="1" items={items}  />
 
       <>
         <TabLandingLayout
