@@ -102,3 +102,5 @@ export const FilterOptions = [
   { key: '3', value: 'yearly', label: 'Yearly' },
   { key: '4', value: 'all-time', label: 'All-Time' },
 ];
+
+export const commonClass = 'text-sm text-gray-950';

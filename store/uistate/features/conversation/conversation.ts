@@ -1,9 +1,17 @@
+// import { FeedbackRecord } from '@/store/server/features/conversation/conversationType/interface';
+import { FeedbackRecord } from '@/store/server/features/CFR/conversation/action-plan/interface';
 import { create } from 'zustand';
 interface SearchFieldOption {
   key: string;
   value: string;
 }
 
+interface SearchField {
+  key: string;
+  placeholder: string;
+  options: SearchFieldOption[];
+  widthRatio: number;
+}
 interface SearchField {
   key: string;
   placeholder: string;
@@ -50,6 +58,17 @@ export interface CategoriesUseState {
 
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
+
+  variantType: string;
+  setVariantType: (variantType: string) => void;
+
+  selectedFeedbackRecord: FeedbackRecord | null;
+  setSelectedFeedbackRecord: (
+    selectedFeedbackRecord: FeedbackRecord | null,
+  ) => void;
+
+  selectedFeedback: any;
+  setSelectedFeedback: (selectedFeedback: any) => void;
 
   editableData: any;
   setEditableData: (activeTab: any) => void;
@@ -104,6 +123,15 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   selectedRecognitionType: '',
   setSelectedRecognitionType: (selectedRecognitionType: string) =>
     set({ selectedRecognitionType }),
+  variantType: 'appreciation',
+  setVariantType: (variantType: string) => set({ variantType }),
+
+  selectedFeedback: null,
+  setSelectedFeedback: (selectedFeedback: any) => set({ selectedFeedback }),
+
+  selectedFeedbackRecord: null,
+  setSelectedFeedbackRecord: (selectedFeedbackRecord: FeedbackRecord | null) =>
+    set({ selectedFeedbackRecord }),
 
   activeTab: '1',
   setActiveTab: (activeTab: string) => set({ activeTab }),

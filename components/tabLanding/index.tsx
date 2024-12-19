@@ -10,11 +10,15 @@ import { FaPlus } from 'react-icons/fa';
 interface TabLandingLayoutProps {
   title: string | any;
   subtitle?: string | any;
-  buttonTitle?: string;
+  buttonTitle: string | any;
   buttonIcon?: ReactNode;
   onClickHandler: () => void;
   id: string;
   children?: ReactNode;
+  allowSearch?: boolean;
+  searchFields?: any[];
+  handleSearchChange?: () => void;
+  enableButton?: boolean;
 }
 
 const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
@@ -25,6 +29,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   onClickHandler,
   id,
   children,
+  enableButton = true,
 }) => {
   return (
     <div className="min-h-screen h-auto w-full p-4">
