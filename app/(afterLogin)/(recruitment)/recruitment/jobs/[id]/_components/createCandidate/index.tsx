@@ -70,8 +70,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   const stageId = foundStage ? foundStage.id : '';
   const { mutate: createCandidate } = useCreateCandidate();
 
-  const { data: jobById } = useGetJobsByID(jobId ?? '');
-
   const handleDocumentChange = (info: any) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
     setDocumentFileList(fileList);
