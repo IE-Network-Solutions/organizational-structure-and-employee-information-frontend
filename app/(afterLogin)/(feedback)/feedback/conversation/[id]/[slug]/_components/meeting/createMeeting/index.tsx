@@ -43,6 +43,7 @@ const CreateMeeting = ({
     selectedUsers,
     setSelectedUsers,
   } = useOrganizationalDevelopment();
+  
 
   const { data: questionSet } = useGetQuestionSetByConversationId(slug);
   const { data: allUserData, isLoading: userDataLoading } = useGetAllUsers();
@@ -114,6 +115,7 @@ const CreateMeeting = ({
           form1.resetFields();
           form2.resetFields();
           onClose();
+          setChildrenDrawer(false);
         },
       });
     } catch (error) {
@@ -142,6 +144,7 @@ const CreateMeeting = ({
   );
   const onChangeHandler = (selectedDepartmentIds: string[]) => {
     if (selectedDepartmentIds?.length === 0) {
+      // form1?.setFieldValue('userId', [])
       setSetOfUser([]);
     } else {
       const usersInSelectedDepartments = allUserData?.items?.filter(
