@@ -25,7 +25,7 @@ function Index() {
     >
  <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {isLoading ? (
-        Array.from({ length: 4 }).map((_, index) => (
+        Array.from({ length: 4 }).map((notused, index) => (
           <div key={index} className="p-4 border rounded shadow-sm">
             <Skeleton active />
           </div>
