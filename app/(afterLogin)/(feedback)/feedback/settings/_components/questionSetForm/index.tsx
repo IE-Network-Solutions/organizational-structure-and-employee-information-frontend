@@ -114,6 +114,7 @@ const QuestionSetForm = () => {
       updateConversationQuestionSet(payload, {
         onSuccess: () => {
           setEditableData(null);
+          setQuestions([])
           form.resetFields();
         },
       });
@@ -121,6 +122,7 @@ const QuestionSetForm = () => {
       createConversationQuestionSet(payload, {
         onSuccess: () => {
           form.resetFields();
+          setQuestions([])
           setOpen(false);
         },
       });
@@ -190,6 +192,7 @@ const QuestionSetForm = () => {
             <div style={{ display: 'flex', marginBottom: '8px' }}>
               <Input
                 placeholder="Enter question"
+                required
                 value={q.question}
                 onChange={(e) =>
                   handleChangeQuestion(q.id, 'question', e.target.value)
@@ -240,7 +243,7 @@ const QuestionSetForm = () => {
               q.fieldType === FieldType.RADIO) && (
               <div style={{ marginTop: '8px' }}>
                 <p>Options:</p>
-                {q.field.map((opt: any) => (
+                {q?.field?.map((opt: any) => (
                   <Space
                     key={opt.id}
                     align="baseline"
@@ -248,6 +251,7 @@ const QuestionSetForm = () => {
                   >
                     <Input
                       placeholder="Enter option value"
+                      required
                       value={opt.value}
                       onChange={(e) =>
                         handleChangeOption(q.id, opt.id, e.target.value)
@@ -300,7 +304,7 @@ const QuestionSetForm = () => {
             cancelText="No"
           >
             <Button type="default" htmlType="reset">
-              Reset
+               Reset
             </Button>
           </Popconfirm>
         </div>

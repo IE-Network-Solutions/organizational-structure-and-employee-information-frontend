@@ -129,7 +129,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
                       {question?.field.map((option, index) => (
                         <li key={option?.key} className="flex items-start">
                           <span className="font-bold mr-2">
-                            {String.fromCharCode(97 + index)}.
+                            {String.fromCharCode(65 + index)}.
                           </span>
                           <span>{option?.value}</span>
                         </li>

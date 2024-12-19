@@ -3,9 +3,10 @@ import TabLandingLayout from '@/components/tabLanding';
 import React from 'react';
 import { useConversationTypes } from '@/store/server/features/conversation/queries';
 import ConversationTypeList from './_component/conversation';
+import { Empty, Skeleton } from 'antd';
 
 function Index() {
-  const { data: conversationData } = useConversationTypes();
+  const { data: conversationData,isLoading } = useConversationTypes();
   const cardsData = conversationData?.items?.map((item: any) => ({
     id: item?.id,
     name: item.name,
@@ -22,11 +23,23 @@ function Index() {
       subtitle="Conversations / bi-weekly"
       allowSearch={false}
     >
-      <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {cardsData?.map((item: any, index: number) => (
+ <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {isLoading ? (
+        Array.from({ length: 4 }).map((notused, index) => (
+          <div key={index} className="p-4 border rounded shadow-sm">
+            <Skeleton active />
+          </div>
+        ))
+      ) : cardsData?.length > 0 ? (
+        cardsData.map((item: any, index: number) => (
           <ConversationTypeList key={index} data={item} />
-        ))}
-      </div>
+        ))
+      ) : (
+        <div className="col-span-full">
+          <Empty description="No conversations found" />
+        </div>
+      )}
+    </div>
     </TabLandingLayout>
   );
 }
