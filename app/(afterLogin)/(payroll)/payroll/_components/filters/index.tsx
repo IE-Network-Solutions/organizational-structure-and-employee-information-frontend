@@ -12,9 +12,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
     onSearch(e.target.value);
   };
 
-  const handleTypeChange = (value: string) => {
-    console.log('Selected Value:', value);
-  };
+  const handleTypeChange = () => {};
 
   return (
     <div className="mb-6">

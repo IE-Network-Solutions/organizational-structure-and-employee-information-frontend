@@ -8,7 +8,7 @@ import Drawer from './_components/drawer';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 
 const EmployeeInformation = () => {
-  const [searchText, setSearchText] = useState('');
+  const [searchText] = useState('');
   const router = useRouter();
   const { openDrawer } = useDrawerStore();
 
@@ -91,7 +91,7 @@ const EmployeeInformation = () => {
       key: 'allowances',
       render: (allowances: any) =>
         allowances.map((item: any) => {
-          let color = item === 'Not Entitled' ? 'red' : 'blue';
+          const color = item === 'Not Entitled' ? 'red' : 'blue';
           return (
             <Tag color={color} key={item}>
               {item}
@@ -137,7 +137,6 @@ const EmployeeInformation = () => {
       ),
     },
   ];
-
 
   const handleDetail = (value: any) => {
     router.push(`/employee-information/${value.key}`);
