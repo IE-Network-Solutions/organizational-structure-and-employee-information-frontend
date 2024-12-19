@@ -49,7 +49,14 @@ const ChangeStatusModal: React.FC = () => {
             <Button key="cancel" onClick={handleChangeStatusModalClose}>
               Cancel
             </Button>
-            <Button key="submit" type="primary" onClick={() => form.submit()}>
+            <Button
+              key="submit"
+              type="primary"
+              onClick={() => {
+                form.submit();
+                setChangeStatusModalVisible(false);
+              }}
+            >
               Change Status
             </Button>
           </>,
