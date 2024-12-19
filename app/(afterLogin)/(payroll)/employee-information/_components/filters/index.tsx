@@ -1,14 +1,13 @@
 import { Col, Input, Row, Select } from 'antd';
 import React from 'react';
 
-interface CriteriaFiltersProps {}
 
 const Filters = () => {
   const { Option } = Select;
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {};
+  const handleSearch = () => {};
 
-  const handleTypeChange = (value: string) => {};
+  const handleTypeChange = () => {};
 
   return (
     <div className="mb-6">

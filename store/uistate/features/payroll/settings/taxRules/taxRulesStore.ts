@@ -11,7 +11,7 @@ interface DrawerStore {
 const useDrawerStore = create<DrawerStore>((set) => ({
   isDrawerVisible: false,
   currentTaxRule: null,
-  openDrawer: (id?: string) => {
+  openDrawer: () => {
     set({ isDrawerVisible: true });
   },
   closeDrawer: () => set({ isDrawerVisible: false, currentTaxRule: null }),

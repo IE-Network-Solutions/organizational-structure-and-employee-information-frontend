@@ -33,7 +33,7 @@ const Pension = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_: any, record: any) => (
+      render: () => (
         <Space size="middle">
           <Button type="primary" icon={<EditOutlined />} />
           <Button type="primary" danger icon={<DeleteOutlined />} />

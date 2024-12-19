@@ -122,7 +122,7 @@ const EmployeeInformation = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (record: any) => (
+      render: () => (
         <Space size="middle">
           <Button
             type="primary"
@@ -138,10 +138,7 @@ const EmployeeInformation = () => {
     },
   ];
 
-  // Search filter handler
-  const handleSearch = (value: any) => {
-    setSearchText(value);
-  };
+
   const handleDetail = (value: any) => {
     router.push(`/employee-information/${value.key}`);
   };

@@ -3,7 +3,6 @@ import { Card, Tabs, Typography, Row, Col, Space, Button, Divider } from 'antd';
 import {
   MailOutlined,
   PhoneOutlined,
-  EditOutlined,
   PrinterOutlined,
 } from '@ant-design/icons';
 

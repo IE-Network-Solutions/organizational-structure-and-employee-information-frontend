@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Form, Input, Select } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomButton from '@/components/common/buttons/customButton';
@@ -9,7 +9,7 @@ const { Option } = Select;
 const Drawer: React.FC = () => {
   const { isDrawerVisible, closeDrawer } = useDrawerStore();
 
-  const onFinish = async (values: any) => {};
+  const onFinish = async () => {};
 
   return (
     <CustomDrawerLayout

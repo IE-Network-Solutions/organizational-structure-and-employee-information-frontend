@@ -57,9 +57,7 @@ const Drawer: React.FC = () => {
       } else {
         createTaxRule(taxRuleData);
       }
-    } catch (error) {
-      console.error('Error saving tax rule', error);
-    }
+    } catch (error) {}
   };
 
   return (

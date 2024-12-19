@@ -80,7 +80,7 @@ const Banks = () => {
               type="primary"
               shape="circle"
               icon={<EditOutlined />}
-              onClick={() => handleEdit(record)}
+              onClick={() => handleEdit()}
             />
           </Tooltip>
           <Popconfirm
@@ -101,9 +101,7 @@ const Banks = () => {
     },
   ];
 
-  const handleEdit = (record: any) => {
-    console.log('Editing:', record);
-  };
+  const handleEdit = () => {};
 
   const handleDelete = (key: any) => {
     const newData = data.filter((item) => item.key !== key);
