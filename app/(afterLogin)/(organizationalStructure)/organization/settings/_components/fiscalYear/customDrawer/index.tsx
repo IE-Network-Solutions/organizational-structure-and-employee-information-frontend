@@ -5,7 +5,6 @@ import {
   useUpdateFiscalYear,
 } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
-import { Form } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect } from 'react';
 import SessionDrawer from '../../session/sessionDrawer';
@@ -13,16 +12,21 @@ import MonthDrawer from '../../month/monthDrawer';
 import { FormInstance } from 'antd/lib';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useDebounce } from '@/utils/useDebounce';
+import { Form } from 'antd';
 
 interface FiscalYearDrawerProps {
-  form: FormInstance<any> | undefined;
+  form: FormInstance<any>;
   handleNextStep?: () => void;
+  updateIsLoading: boolean;
+  createIsLoading: boolean;
 }
 const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
-  // form,
+  form,
   handleNextStep,
+  createIsLoading,
+  updateIsLoading,
 }) => {
-  const [form] = Form.useForm();
+  // const [form] = Form.useForm();
 
   const {
     setFormData,
@@ -37,11 +41,11 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     setSelectedFiscalYear,
   } = useFiscalYearDrawerStore();
 
-  const { mutate: updateFiscalYear, isLoading: updateIsLoading } =
-    useUpdateFiscalYear();
+  // const { mutate: updateFiscalYear, isLoading: updateIsLoading } =
+  //   useUpdateFiscalYear();
 
-  const { mutate: createFiscalYear, isLoading: createIsLoading } =
-    useCreateFiscalYear();
+  // const { mutate: createFiscalYear, isLoading: createIsLoading } =
+  //   useCreateFiscalYear();
 
   const { data: departments } = useGetDepartments();
 
@@ -52,11 +56,11 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
   };
   const valuesss = form?.getFieldsValue();
 
-  console.log(valuesss, 'valuessyyyys');
+  console.log(valuesss, form, 'valuessyyyys');
 
   useEffect(() => {
     if (isEditMode && selectedFiscalYear) {
-      form.setFieldsValue({
+      form?.setFieldsValue({
         fiscalYearName: selectedFiscalYear?.name,
         fiscalYearDescription: selectedFiscalYear?.description,
         fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
@@ -66,87 +70,89 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     }
   }, [isEditMode, selectedFiscalYear, form, calendarType]);
 
-  const handleSubmit = () => {
-    const formValues = form?.getFieldsValue();
+  // const handleSubmit = () => {
+  //   console.log(form, 'this is formssss');
+  //   const formValues = form?.getFieldsValue();
 
-    console.log(formValues, 'formValues');
+  //   console.log(formValues, 'formValues');
 
-    const groupMonthsIntoSessions = () => {
-      /* eslint-disable @typescript-eslint/naming-convention */
-      const months = Object.keys(formValues)
-        .filter((key) => key.startsWith('monthName_'))
-        .map((_, index) => ({
-          name: formValues[`monthName_${index}`],
-          description: formValues[`monthDescription_${index}`],
-          startDate: formValues[`monthStartDate_${index}`],
-          endDate: formValues[`monthEndDate_${index}`],
-        }));
-      /* eslint-enable @typescript-eslint/naming-convention */
+  //   const groupMonthsIntoSessions = () => {
+  //     /* eslint-disable @typescript-eslint/naming-convention */
+  //     const months = Object.keys(formValues)
+  //       .filter((key) => key.startsWith('monthName_'))
+  //       .map((_, index) => ({
+  //         name: formValues[`monthName_${index}`],
+  //         description: formValues[`monthDescription_${index}`],
+  //         startDate: formValues[`monthStartDate_${index}`],
+  //         endDate: formValues[`monthEndDate_${index}`],
+  //       }));
+  //     /* eslint-enable @typescript-eslint/naming-convention */
 
-      if (calendarType === 'Quarter') {
-        return [
-          { name: 'Session 1', months: months.slice(0, 3) },
-          { name: 'Session 2', months: months.slice(3, 6) },
-          { name: 'Session 3', months: months.slice(6, 9) },
-          { name: 'Session 4', months: months.slice(9, 12) },
-        ];
-      } else if (calendarType === 'Semester') {
-        return [
-          { name: 'Session 1', months: months.slice(0, 6) },
-          { name: 'Session 2', months: months.slice(6, 12) },
-        ];
-      } else if (calendarType === 'Year') {
-        return [{ name: 'Session 1', months }];
-      }
+  //     if (calendarType === 'Quarter') {
+  //       return [
+  //         { name: 'Session 1', months: months.slice(0, 3) },
+  //         { name: 'Session 2', months: months.slice(3, 6) },
+  //         { name: 'Session 3', months: months.slice(6, 9) },
+  //         { name: 'Session 4', months: months.slice(9, 12) },
+  //       ];
+  //     } else if (calendarType === 'Semester') {
+  //       return [
+  //         { name: 'Session 1', months: months.slice(0, 6) },
+  //         { name: 'Session 2', months: months.slice(6, 12) },
+  //       ];
+  //     } else if (calendarType === 'Year') {
+  //       return [{ name: 'Session 1', months }];
+  //     }
 
-      return [];
-    };
+  //     return [];
+  //   };
 
-    const sessions = groupMonthsIntoSessions();
+  //   const sessions = groupMonthsIntoSessions();
 
-    if (isEditMode) {
-      updateFiscalYear({
-        id: selectedFiscalYear?.id,
-        fiscalYear: {
-          name: formValues?.fiscalYearName,
-          description: formValues?.fiscalYearDescription,
-          startDate: formValues?.fiscalYearStartDate,
-          endDate: formValues?.fiscalYearEndDate,
-          sessions: formValues?.sessions,
-        },
-      });
-    } else {
-      createFiscalYear({
-        name: formValues?.fiscalYearName,
-        description: formValues?.fiscalYearDescription,
-        endDate: formValues?.fiscalYearEndDate,
-        startDate: formValues?.fiscalYearStartDate,
-        sessions: sessions.map((session, index) => ({
-          name: formValues[`sessionName${index}`] || session?.name,
-          description: formValues[`sessionDescription${index}`] || '',
-          startDate: formValues[`sessionStartDate_${index}`] || '',
-          endDate: formValues[`sessionEndDate_${index}`] || '',
-          months: session?.months,
-        })),
-      });
-    }
-  };
+  //   if (isEditMode) {
+  //     updateFiscalYear({
+  //       id: selectedFiscalYear?.id,
+  //       fiscalYear: {
+  //         name: formValues?.fiscalYearName,
+  //         description: formValues?.fiscalYearDescription,
+  //         startDate: formValues?.fiscalYearStartDate,
+  //         endDate: formValues?.fiscalYearEndDate,
+  //         sessions: formValues?.sessions,
+  //       },
+  //     });
+  //   } else {
+  //     createFiscalYear({
+  //       name: formValues?.fiscalYearName,
+  //       description: formValues?.fiscalYearDescription,
+  //       endDate: formValues?.fiscalYearEndDate,
+  //       startDate: formValues?.fiscalYearStartDate,
+  //       sessions: sessions.map((session, index) => ({
+  //         name: formValues[`sessionName${index}`] || session?.name,
+  //         description: formValues[`sessionDescription${index}`] || '',
+  //         startDate: formValues[`sessionStartDate_${index}`] || '',
+  //         endDate: formValues[`sessionEndDate_${index}`] || '',
+  //         months: session?.months,
+  //       })),
+  //     });
+  //   }
+  // };
 
-  const handleValuesChange = useDebounce(setFormData, 1500);
+  // const handleValuesChange = useDebounce(setFormData, 1500);
 
   const formContent = (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={() => {
-        handleSubmit();
-      }}
-      preserve={true}
-      onValuesChange={() => {
-        handleValuesChange(form?.getFieldsValue());
-      }}
-      validateTrigger="onBlur"
-    >
+    // <Form
+    //   form={form}
+    //   layout="vertical"
+    //   onFinish={() => {
+    //     handleSubmit();
+    //   }}
+    //   preserve={true}
+    //   onValuesChange={() => {
+    //     handleValuesChange(form?.getFieldsValue());
+    //   }}
+    //   validateTrigger="onBlur"
+    // >
+    <div>
       {current === 0 && <FiscalYear form={form} />}
       {current === 1 && (
         <SessionDrawer
@@ -163,7 +169,8 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           onNextStep={handleNextStep}
         />
       )}
-    </Form>
+    </div>
+    // </Form>
   );
   return departments?.length ? (
     <CustomDrawerLayout

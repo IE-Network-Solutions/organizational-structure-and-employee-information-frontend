@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import React, { useEffect } from 'react';
 
 interface SessionDrawerProps {
-  form: FormInstance<any> | undefined;
+  form: FormInstance<any>;
   isCreateLoading: boolean;
   isUpdateLoading: boolean;
 }
@@ -25,8 +25,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
     fiscalYearEnd,
     fiscalYearStart,
   } = useFiscalYearDrawerStore();
-
-  console.log(fiscalYearStart, 'fiscalYearStart');
+  console.log(fiscalYearStart);
 
   const year = fiscalYearEnd ? dayjs(fiscalYearEnd).year() : null;
 

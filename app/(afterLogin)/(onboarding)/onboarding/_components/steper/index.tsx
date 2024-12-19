@@ -12,6 +12,7 @@ import useOrganizationStore from '@/store/uistate/features/organizationStructure
 import {
   useCreateFiscalYear,
   useDeleteFiscalYear,
+  useUpdateFiscalYear,
 } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import {
   useCreateSchedule,
@@ -36,6 +37,8 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 import { useRouter } from 'next/navigation';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 import CustomWorFiscalYearDrawer from '@/app/(afterLogin)/(organizationalStructure)/organization/settings/_components/fiscalYear/customDrawer';
+import { useDebounce } from '@/utils/useDebounce';
+import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 
 // const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -47,6 +50,8 @@ const OnboaringSteper: React.FC = () => {
   const forms = [form1, form2, form3, form4];
 
   const { data: departments } = useGetDepartments();
+  const { setFormData, isEditMode, selectedFiscalYear, calendarType } =
+    useFiscalYearDrawerStore();
   const router = useRouter();
   useEffect(() => {
     if (departments?.length > 0) {
@@ -68,6 +73,8 @@ const OnboaringSteper: React.FC = () => {
   const { orgData } = useOrganizationStore();
   const { getFiscalYear } = useFiscalYearStore();
   const createFiscalYear = useCreateFiscalYear();
+  const updateFiscalYear = useUpdateFiscalYear();
+
   const deleteFiscalYear = useDeleteFiscalYear();
   const createSchedule = useCreateSchedule();
   const deleteSchedule = useDeleteSchedule();
@@ -111,6 +118,75 @@ const OnboaringSteper: React.FC = () => {
     //   data: { id: tenantId, companyProfileImage: companyProfileImage },
     // };
   }
+
+  const handleSubmit = () => {
+    console.log(form3, 'this is formssss');
+    const formValues = form3?.getFieldsValue();
+
+    console.log(formValues, 'formValues');
+
+    const groupMonthsIntoSessions = () => {
+      /* eslint-disable @typescript-eslint/naming-convention */
+      const months = Object.keys(formValues)
+        .filter((key) => key.startsWith('monthName_'))
+        .map((_, index) => ({
+          name: formValues[`monthName_${index}`],
+          description: formValues[`monthDescription_${index}`],
+          startDate: formValues[`monthStartDate_${index}`],
+          endDate: formValues[`monthEndDate_${index}`],
+        }));
+      /* eslint-enable @typescript-eslint/naming-convention */
+
+      if (calendarType === 'Quarter') {
+        return [
+          { name: 'Session 1', months: months.slice(0, 3) },
+          { name: 'Session 2', months: months.slice(3, 6) },
+          { name: 'Session 3', months: months.slice(6, 9) },
+          { name: 'Session 4', months: months.slice(9, 12) },
+        ];
+      } else if (calendarType === 'Semester') {
+        return [
+          { name: 'Session 1', months: months.slice(0, 6) },
+          { name: 'Session 2', months: months.slice(6, 12) },
+        ];
+      } else if (calendarType === 'Year') {
+        return [{ name: 'Session 1', months }];
+      }
+
+      return [];
+    };
+
+    const sessions = groupMonthsIntoSessions();
+
+    if (isEditMode) {
+      updateFiscalYear.mutate({
+        id: selectedFiscalYear?.id,
+        fiscalYear: {
+          name: formValues?.fiscalYearName,
+          description: formValues?.fiscalYearDescription,
+          startDate: formValues?.fiscalYearStartDate,
+          endDate: formValues?.fiscalYearEndDate,
+          sessions: formValues?.sessions,
+        },
+      });
+    } else {
+      createFiscalYear.mutate({
+        name: formValues?.fiscalYearName,
+        description: formValues?.fiscalYearDescription,
+        endDate: formValues?.fiscalYearEndDate,
+        startDate: formValues?.fiscalYearStartDate,
+        sessions: sessions.map((session, index) => ({
+          name: formValues[`sessionName${index}`] || session?.name,
+          description: formValues[`sessionDescription${index}`] || '',
+          startDate: formValues[`sessionStartDate_${index}`] || '',
+          endDate: formValues[`sessionEndDate_${index}`] || '',
+          months: session?.months,
+        })),
+      });
+    }
+  };
+
+  const handleValuesChange = useDebounce(setFormData, 1500);
 
   const onSubmitOnboarding = async () => {
     toggleLoading();
@@ -186,10 +262,25 @@ const OnboaringSteper: React.FC = () => {
     {
       title: 'Step 3',
       content: (
-        <CustomWorFiscalYearDrawer
+        <Form
           form={form3}
-          handleNextStep={handleNextStep}
-        />
+          layout="vertical"
+          onFinish={() => {
+            handleSubmit();
+          }}
+          // preserve={true}
+          onValuesChange={() => {
+            handleValuesChange(form3?.getFieldsValue());
+          }}
+          // validateTrigger="onBlur"
+        >
+          <CustomWorFiscalYearDrawer
+            createIsLoading={createFiscalYear.isLoading}
+            updateIsLoading={updateFiscalYear.isLoading}
+            form={form3}
+            handleNextStep={handleNextStep}
+          />
+        </Form>
       ),
     },
     {

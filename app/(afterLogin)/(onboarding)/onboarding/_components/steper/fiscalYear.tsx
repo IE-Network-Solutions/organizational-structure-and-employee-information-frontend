@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useDebounce } from '@/utils/useDebounce';
 
 interface FiscalYearProps {
-  form: FormInstance<any> | undefined;
+  form: FormInstance<any>;
 }
 
 const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
