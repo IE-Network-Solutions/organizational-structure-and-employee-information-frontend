@@ -51,6 +51,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   } = useCandidateState();
 
   const { searchParams } = useCandidateState();
+
   const { data: jobList } = useGetJobs(
     searchParams?.whatYouNeed || '',
     pageSize,
@@ -211,9 +212,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
         >
           <Select
             className="text-sm w-full h-10"
-            placeholder={
-              jobById && jobById ? jobById?.jobTitle : 'Select a job type'
-            }
+            placeholder="Select a job type"
             disabled={!!jobId}
           >
             {jobList &&
