@@ -32,11 +32,16 @@ export enum CarryOverPeriod {
 }
 
 export enum AccrualRulePeriod {
+  DAILY = 'daily',
   MONTHLY = 'monthly',
   YEAR = 'year',
   QUARTER = 'quarter',
 }
 
+type AllowedUserAccess = {
+  allowedAreaId: string;
+  userId: string;
+};
 export interface AllowedArea extends DateInfo {
   id: string;
   title: string;
@@ -44,6 +49,8 @@ export interface AllowedArea extends DateInfo {
   distance: number;
   latitude: number;
   longitude: number;
+  isGlobal: boolean;
+  allowedUserAccesses?: AllowedUserAccess[];
 }
 
 export interface CarryOverRule extends DateInfo {
