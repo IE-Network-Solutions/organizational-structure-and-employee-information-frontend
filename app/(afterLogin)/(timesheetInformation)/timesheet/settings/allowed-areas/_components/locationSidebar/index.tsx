@@ -1,7 +1,7 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import React, { useEffect, useState } from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Form, Input, InputNumber, Space, Spin } from 'antd';
+import { Form, Input, InputNumber, Select, Space, Spin, Switch } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -9,9 +9,11 @@ import CustomDrawerFooterButton, {
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useSetAllowedArea } from '@/store/server/features/timesheet/allowedArea/mutation';
 import { useGetAllowedArea } from '@/store/server/features/timesheet/allowedArea/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const LocationSidebar = () => {
   const [areaId, setAreaId] = useState('');
+  const [showUsers, setShowUsers] = useState(false);
   const {
     isShowLocationSidebar: isShow,
     setIsShowLocationSidebar: setIsShow,
@@ -25,6 +27,7 @@ const LocationSidebar = () => {
     isFetching,
     refetch,
   } = useGetAllowedArea({ id: areaId });
+  const { data: users } = useGetAllUsers();
 
   const [form] = Form.useForm();
 
@@ -45,6 +48,12 @@ const LocationSidebar = () => {
       form.setFieldValue('latitude', item.latitude);
       form.setFieldValue('longitude', item.longitude);
       form.setFieldValue('distance', Number(item.distance));
+      form.setFieldValue('isGlobal', Boolean(item.isGlobal));
+      form.setFieldValue(
+        'allowedUserAccesses',
+        item.allowedUserAccesses?.map((e) => e.userId),
+      );
+      setShowUsers(!item.isGlobal);
     }
   }, [allowedAreaData]);
 
@@ -88,6 +97,8 @@ const LocationSidebar = () => {
       latitude: value.latitude,
       longitude: value.longitude,
       distance: Number(value.distance),
+      isGlobal: Boolean(value.isGlobal),
+      allowedUserAccesses: value.allowedUserAccesses,
     });
   };
 
@@ -154,11 +165,41 @@ const LocationSidebar = () => {
                 name="distance"
               >
                 <InputNumber
-                  min={1}
+                  min={0.1}
+                  
                   className="w-full py-[11px] mt-2.5"
                   placeholder="Enter radius in km"
                 />
               </Form.Item>
+              <Form.Item
+                id="isGlobalLocation"
+                label="Is Global"
+                name="isGlobal"
+              >
+                <Switch
+                  defaultChecked
+                  onChange={(checked) => setShowUsers(!checked)}
+                />
+              </Form.Item>
+              {showUsers && (
+                <Form.Item
+                  id="userAccessList"
+                  label="Select Users"
+                  name="allowedUserAccesses"
+                >
+                  <Select
+                    mode="multiple"
+                    showSearch
+                    placeholder="Select a person"
+                    className="w-full"
+                    optionFilterProp="label"
+                    options={users?.items?.map((list: any) => ({
+                      value: list?.id,
+                      label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+                    }))}
+                  />
+                </Form.Item>
+              )}
             </Space>
           </Form>
         </Spin>
