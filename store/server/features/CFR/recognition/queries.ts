@@ -41,8 +41,9 @@ const getAllRecognitions = async ({
   const queryString = [
     `limit=${pageSize}`,
     `page=${current}`,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ...Object.entries(searchValue)
-      .filter(([notused, value]) => value)
+      .filter(([notused, value]) => value) // eslint-disable-line @typescript-eslint/no-unused-vars
       .map(([key, value]) => `${key}=${value}`),
   ].join('&'); // Join all query parameters with '&'
 
