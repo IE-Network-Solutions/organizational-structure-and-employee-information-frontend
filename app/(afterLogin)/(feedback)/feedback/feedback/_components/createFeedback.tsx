@@ -2,13 +2,13 @@ import React, { useEffect } from 'react';
 import { Form, Select, Input, Button } from 'antd';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchFeedbackTypeById } from '@/store/server/features/feedback/feedbackType/queries';
-import { FeedbackItem } from '@/store/server/features/conversation/conversationType/interface';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
   useCreateFeedbackRecord,
   useUpdateFeedbackRecord,
 } from '@/store/server/features/feedback/feedbackRecord/mutation';
+import { FeedbackItem } from '@/store/server/features/CFR/conversation/action-plan/interface';
 
 const { TextArea } = Input;
 
