@@ -18,10 +18,7 @@ import cvUpload from '@/public/image/cvUpload.png';
 import { CandidateType } from '@/types/enumTypes';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import {
-  useGetJobs,
-  useGetJobsByID,
-} from '@/store/server/features/recruitment/job/queries';
+import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 
 const { Dragger } = Upload;
@@ -51,6 +48,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   } = useCandidateState();
 
   const { searchParams } = useCandidateState();
+
   const { data: jobList } = useGetJobs(
     searchParams?.whatYouNeed || '',
     pageSize,
@@ -68,8 +66,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
 
   const stageId = foundStage ? foundStage.id : '';
   const { mutate: createCandidate } = useCreateCandidate();
-
-  const { data: jobById } = useGetJobsByID(jobId ?? '');
 
   const handleDocumentChange = (info: any) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
@@ -211,9 +207,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
         >
           <Select
             className="text-sm w-full h-10"
-            placeholder={
-              jobById && jobById ? jobById?.jobTitle : 'Select a job type'
-            }
+            placeholder="Select a job type"
             disabled={!!jobId}
           >
             {jobList &&
