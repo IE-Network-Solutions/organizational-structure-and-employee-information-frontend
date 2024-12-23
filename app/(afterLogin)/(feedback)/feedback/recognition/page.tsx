@@ -206,7 +206,7 @@ function Page() {
           id="conversationLayoutId"
           onClickHandler={() => {
             const fiscalActiveYearId = getActiveFisicalYear?.id;
-            const activeSession = getActiveFisicalYear?.sessions.find(
+            const activeSession = getActiveFisicalYear?.sessions?.find(
               (item: Session) => item.active,
             );
 
