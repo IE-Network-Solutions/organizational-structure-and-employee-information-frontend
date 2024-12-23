@@ -126,12 +126,12 @@ function BasicInfo({ id }: { id: string }) {
         <p>
           {employeeData?.employeeJobInformation?.find(
             (e: any) => e.isPositionActive === true,
-          )?.jobTitle || '-'}
+          )?.position?.name || '-'}
         </p>
         <Tag color="purple-inverse">
           {employeeData?.employeeJobInformation?.find(
             (e: any) => e.isPositionActive === true,
-          )?.employmentType?.name || '-'}
+          )?.employementType?.name || '-'}
         </Tag>
         <Divider className="my-2" />
       </div>
@@ -198,7 +198,7 @@ function BasicInfo({ id }: { id: string }) {
           actions={[<MdKeyboardArrowRight key="arrow" />]}
         >
           <List.Item.Meta
-            title={<p className="text-xs font-light">Department</p>}
+            title={<p className="text-xs font-light">Team</p>}
             description={
               <p className="font-bold text-black text-sm">
                 {employeeData?.employeeJobInformation?.find(

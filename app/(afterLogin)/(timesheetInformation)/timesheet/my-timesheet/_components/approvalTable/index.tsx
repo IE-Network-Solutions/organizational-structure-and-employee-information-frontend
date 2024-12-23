@@ -231,6 +231,7 @@ const ApprovalTable = () => {
               pageSize: pageSize,
               onChange: onPageChange,
             }}
+            scroll={{ x: 'min-content' }}
           />
         </>
       ) : (
