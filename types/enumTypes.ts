@@ -64,7 +64,7 @@ export enum ConversationType {
   'One-to-One' = 'OneToOne',
   'Feedback' = 'Feedback',
   'Recognition' = 'Recognition',
-  ''=""
+  '' = '',
 }
 
 export const SelectData = [

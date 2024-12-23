@@ -14,7 +14,7 @@ export type SearchValue = {
   calendarId?: string;
   monthId?: string;
   sessionId?: string;
-  employeeId?:string;
+  employeeId?: string;
 };
 export interface CategoriesUseState {
   open: boolean;
@@ -31,7 +31,7 @@ export interface CategoriesUseState {
   updateFieldOptions: (key: string, name: any) => void;
 
   searchValue: Record<string, string | undefined>; // Dynamic object to store selected values
-  updateSearchValue: (key: string, value: string) => void; 
+  updateSearchValue: (key: string, value: string) => void;
 }
 const initialSearchField: SearchField[] = [
   {
@@ -66,7 +66,7 @@ export const useRecongnitionStore = create<CategoriesUseState>((set) => ({
   pageSize: 10,
   totalPages: 1,
 
-  searchValue:{},
+  searchValue: {},
   updateSearchValue: (key, value) =>
     set((state) => ({
       searchValue: {
@@ -78,7 +78,8 @@ export const useRecongnitionStore = create<CategoriesUseState>((set) => ({
   setSearchField: (fields) => set({ searchField: fields }),
 
   selectedRecognitionType: '1',
-  setSelectedRecognitionType: (selectedRecognitionType: string) => set({selectedRecognitionType}),
+  setSelectedRecognitionType: (selectedRecognitionType: string) =>
+    set({ selectedRecognitionType }),
 
   updateFieldOptions: (key: string, newOptions: any) =>
     set((state) => ({

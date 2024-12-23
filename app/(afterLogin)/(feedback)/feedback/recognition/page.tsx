@@ -7,8 +7,15 @@ import {
   useGetAllRecognitionType,
 } from '@/store/server/features/CFR/recognition/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { FiscalYear, Month, Session } from '@/store/server/features/organizationStructure/fiscalYear/interface';
-import { useGetActiveFiscalYears, useGetAllFiscalYears   } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import {
+  FiscalYear,
+  Month,
+  Session,
+} from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import {
+  useGetActiveFiscalYears,
+  useGetAllFiscalYears,
+} from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
 import { Card, Table, TableColumnsType, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
@@ -18,16 +25,27 @@ import React from 'react';
 import { CiMedal } from 'react-icons/ci';
 import { useRouter } from 'next/navigation';
 function Page() {
-  const { updateSearchValue,searchValue,selectedRecognitionType,setSelectedRecognitionType, current, pageSize } = useRecongnitionStore();
+  const {
+    updateSearchValue,
+    searchValue,
+    selectedRecognitionType,
+    setSelectedRecognitionType,
+    current,
+    pageSize,
+  } = useRecongnitionStore();
   const { data: allUserData } = useGetAllUsers();
   const { data: recognitionType } = useGetAllRecognitionType();
-  const { data: getAllRecognition } = useGetAllRecognition({searchValue,current, pageSize});
+  const { data: getAllRecognition } = useGetAllRecognition({
+    searchValue,
+    current,
+    pageSize,
+  });
   const { mutate: createRecognition } = useCreateRecognition();
 
-  const { data: getActiveFisicalYear } = useGetActiveFiscalYears()
+  const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
   const { data: getAllFisicalYear } = useGetAllFiscalYears();
   const navigate = useRouter();
-  
+
   const getEmployeeData = (employeeId: string) => {
     const employeeDataDetail = allUserData?.items?.find(
       (emp: any) => emp?.id === employeeId,
@@ -90,8 +108,9 @@ function Page() {
     {
       title: 'Details',
       dataIndex: 'description',
-      render: (notused, record) =>
+      render: (notused, record) => (
         <p>{record?.recognitionType?.description ?? '-'}</p>
+      ),
     },
   ];
   const items: TabsProps['items'] = [
@@ -121,75 +140,100 @@ function Page() {
       label: item.name,
     })) || []), // Fallback to an empty array if recognitionType?.items is undefined
   ];
-  const searcFields= [
-      {
-        key: 'employeeId',
-        placeholder: 'search by Employee',
-        options: allUserData?.items?.map((item: any) => ({
+  const searcFields = [
+    {
+      key: 'employeeId',
+      placeholder: 'search by Employee',
+      options:
+        allUserData?.items?.map((item: any) => ({
           key: item?.id,
           value: `${item?.firstName} ${item?.lastName}`, // Correctly concatenating firstName and lastName
         })) ?? [],
-        widthRatio: 0.4,
-      },
-      {
-        key: 'yearId',
-        placeholder: 'Filter by year',
-        options: getAllFisicalYear?.items?.map((item:any)=>({key:item?.id,value:item?.name})) ??[],
-        widthRatio: 0.2,
-      },
-      {
-        key: 'sessionId',
-        placeholder: 'Select by session',
-        options: getAllFisicalYear?.items
-        ?.find((item: FiscalYear) => item?.id === searchValue?.year)?.sessions
-        ?.map((session: Session) => ({ key: session?.id, value: session?.name })) ?? [],    
-        widthRatio: 0.2,
-      },
-      {
-        key: 'monthId',
-        placeholder: 'Filter by month',
-        options: getAllFisicalYear?.items
+      widthRatio: 0.4,
+    },
+    {
+      key: 'yearId',
+      placeholder: 'Filter by year',
+      options:
+        getAllFisicalYear?.items?.map((item: any) => ({
+          key: item?.id,
+          value: item?.name,
+        })) ?? [],
+      widthRatio: 0.2,
+    },
+    {
+      key: 'sessionId',
+      placeholder: 'Select by session',
+      options:
+        getAllFisicalYear?.items
+          ?.find((item: FiscalYear) => item?.id === searchValue?.year)
+          ?.sessions?.map((session: Session) => ({
+            key: session?.id,
+            value: session?.name,
+          })) ?? [],
+      widthRatio: 0.2,
+    },
+    {
+      key: 'monthId',
+      placeholder: 'Filter by month',
+      options:
+        getAllFisicalYear?.items
           ?.find((item: FiscalYear) => item?.id === searchValue?.year)
           ?.sessions?.find((item: Session) => item?.id === searchValue?.session)
-          ?.months?.map((month: Month) => ({ key: month?.id, value: month?.name })) ?? [],
-        widthRatio: 0.2,
-      },
-      
+          ?.months?.map((month: Month) => ({
+            key: month?.id,
+            value: month?.name,
+          })) ?? [],
+      widthRatio: 0.2,
+    },
   ];
-  const handleSearchChange = (key:string,value:string) => {
-    updateSearchValue(value,key)
+  const handleSearchChange = (key: string, value: string) => {
+    updateSearchValue(value, key);
   };
   const handleRowClick = (record: any) => {
     navigate.push(`/feedback/recognition/${record.id}`);
   };
   return (
     <div>
-      <Tabs className="ml-[3%] max-w-[90%]" defaultActiveKey="1" items={items} onChange={(key)=>setSelectedRecognitionType(key)}  />
+      <Tabs
+        className="ml-[3%] max-w-[90%]"
+        defaultActiveKey="1"
+        items={items}
+        onChange={(key) => setSelectedRecognitionType(key)}
+      />
       <>
         <TabLandingLayout
           id="conversationLayoutId"
           onClickHandler={() => {
             const fiscalActiveYearId = getActiveFisicalYear?.id;
-            const activeSession = getActiveFisicalYear?.sessions.find((item: Session) => item.active);
-          
+            const activeSession = getActiveFisicalYear?.sessions.find(
+              (item: Session) => item.active,
+            );
+
             if (activeSession) {
-              const activeMonth = activeSession.months?.find((item: Month) => item.active);
+              const activeMonth = activeSession.months?.find(
+                (item: Month) => item.active,
+              );
               const recognitionTypeId = selectedRecognitionType;
 
               // Correcting how the object is passed
-             fiscalActiveYearId && activeMonth && createRecognition({
-                recognitionTypeId,
-                calendarId:fiscalActiveYearId,
-                sessionId: activeSession?.id, // Assigning directly
-                monthId: activeMonth?.id // Assigning directly
-              });
+              fiscalActiveYearId &&
+                activeMonth &&
+                createRecognition({
+                  recognitionTypeId,
+                  calendarId: fiscalActiveYearId,
+                  sessionId: activeSession?.id, // Assigning directly
+                  monthId: activeMonth?.id, // Assigning directly
+                });
             } else {
             }
           }}
           title="Recognition"
           subtitle="Manage Recognition"
-          buttonTitle={selectedRecognitionType!=='1' ? "Generate Recognition":false}
-          buttonIcon={<PlusIcon/>}
+          buttonTitle={
+            selectedRecognitionType !== '1' ? 'Generate Recognition' : false
+          }
+          buttonIcon={<PlusIcon />}
         >
           <EmployeeSearchComponent
             fields={searcFields}

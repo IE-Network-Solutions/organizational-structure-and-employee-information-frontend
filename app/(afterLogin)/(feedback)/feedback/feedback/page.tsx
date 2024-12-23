@@ -57,7 +57,6 @@ const Page = () => {
     setActiveTab(key);
   };
 
-
   const activeTabName =
     getAllFeedbackTypes?.items?.find(
       (item: FeedbackTypeItems) => item.id === activeTab,

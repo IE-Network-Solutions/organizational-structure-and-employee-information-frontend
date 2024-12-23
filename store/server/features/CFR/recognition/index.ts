@@ -1,5 +1,5 @@
 export interface RecognitionParams {
-  searchValue:Record<string, string | undefined>;
+  searchValue: Record<string, string | undefined>;
   current: number;
-  pageSize: number
+  pageSize: number;
 }

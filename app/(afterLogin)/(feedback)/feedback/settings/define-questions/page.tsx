@@ -64,7 +64,7 @@ const Page = () => {
         onChange={onChange}
       />
       <CustomDrawerLayout
-        open={open && activeTabName!==''}
+        open={open && activeTabName !== ''}
         onClose={() => setOpen(false)}
         modalHeader={modalHeader}
         width="40%"

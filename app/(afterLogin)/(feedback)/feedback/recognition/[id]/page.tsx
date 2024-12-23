@@ -13,45 +13,45 @@ interface RecognitionDetailsProps {
 
 function Page({ params: { id } }: RecognitionDetailsProps) {
   const { data: allUserData } = useGetAllUsers();
-  const {data:getRecognitionById}=useGetRecognitionById(id);
+  const { data: getRecognitionById } = useGetRecognitionById(id);
   const getEmployeeData = (employeeId: string) => {
     const employeeDataDetail = allUserData?.items?.find(
       (emp: any) => emp?.id === employeeId,
     );
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
-const columns: TableColumnsType = [
-  {
-    title: 'Criteria',
-    dataIndex: 'criterionKey',
-    render: (value) => <span>{value ?? '-'}</span>,
-  },
-  {
-    title: 'Weight',
-    dataIndex: 'weight',
-    render: (value) => <span>{value ?? '-'}</span>,
-  },
-  {
-    title: 'Operator',
-    dataIndex: 'operator',
-    render: (value) => <span>{value ?? '-'}</span>,
-  },
-  {
-    title: 'Condition',
-    dataIndex: 'condition',
-    render: (value) => <span>{value ?? '-'}</span>,
-  },
-  {
-    title: 'Value',
-    dataIndex: 'value',
-    render: (value) => <span>{value ?? '-'}</span>,
-  },
-  {
-    title: 'Score',
-    dataIndex: 'age',
-    render: (notUsed, record) => <span>{record?.score ?? '-'}</span>,
-  },
-];
+  const columns: TableColumnsType = [
+    {
+      title: 'Criteria',
+      dataIndex: 'criterionKey',
+      render: (value) => <span>{value ?? '-'}</span>,
+    },
+    {
+      title: 'Weight',
+      dataIndex: 'weight',
+      render: (value) => <span>{value ?? '-'}</span>,
+    },
+    {
+      title: 'Operator',
+      dataIndex: 'operator',
+      render: (value) => <span>{value ?? '-'}</span>,
+    },
+    {
+      title: 'Condition',
+      dataIndex: 'condition',
+      render: (value) => <span>{value ?? '-'}</span>,
+    },
+    {
+      title: 'Value',
+      dataIndex: 'value',
+      render: (value) => <span>{value ?? '-'}</span>,
+    },
+    {
+      title: 'Score',
+      dataIndex: 'age',
+      render: (notUsed, record) => <span>{record?.score ?? '-'}</span>,
+    },
+  ];
   return (
     <div>
       <>
@@ -66,28 +66,34 @@ const columns: TableColumnsType = [
             <Row gutter={[16, 16]} style={{ width: 'auto' }}>
               <Col span={24}>
                 <Row>
-                  <Col span={8} style={{ fontWeight: 'bold' }}>Employee</Col>
+                  <Col span={8} style={{ fontWeight: 'bold' }}>
+                    Employee
+                  </Col>
                   <Col span={12}>
                     {`${getEmployeeData(getRecognitionById?.issuerId)?.firstName || 'N/A'} ${
-                      getEmployeeData(getRecognitionById?.issuerId)?.lastName || 'N/A'
+                      getEmployeeData(getRecognitionById?.issuerId)?.lastName ||
+                      'N/A'
                     }`}
                   </Col>
                 </Row>
               </Col>
               <Col span={24}>
                 <Row>
-                  <Col span={8} style={{ fontWeight: 'bold' }}>Issued Date</Col>
-                  <Col span={12}>
-                    {getRecognitionById?.dateIssued || 'N/A'}
+                  <Col span={8} style={{ fontWeight: 'bold' }}>
+                    Issued Date
                   </Col>
+                  <Col span={12}>{getRecognitionById?.dateIssued || 'N/A'}</Col>
                 </Row>
               </Col>
               <Col span={24}>
                 <Row>
-                  <Col span={8} style={{ fontWeight: 'bold' }}>Recognized By</Col>
+                  <Col span={8} style={{ fontWeight: 'bold' }}>
+                    Recognized By
+                  </Col>
                   <Col span={12}>
                     {`${getEmployeeData(getRecognitionById?.issuerId)?.firstName || 'N/A'} ${
-                      getEmployeeData(getRecognitionById?.issuerId)?.lastName || 'N/A'
+                      getEmployeeData(getRecognitionById?.issuerId)?.lastName ||
+                      'N/A'
                     }`}
                   </Col>
                 </Row>
@@ -110,7 +116,9 @@ const columns: TableColumnsType = [
               </Col>
               <Col span={24}>
                 <Row>
-                  <Col span={8} style={{ fontWeight: 'bold' }}>Details</Col>
+                  <Col span={8} style={{ fontWeight: 'bold' }}>
+                    Details
+                  </Col>
                   <Col span={12}>
                     {getRecognitionById?.recognitionType?.description || 'N/A'}
                   </Col>
@@ -118,16 +126,16 @@ const columns: TableColumnsType = [
               </Col>
             </Row>
           </Card>
-            <Table
-              columns={columns}
-              bordered={false}
-              pagination={false}
-              dataSource={getRecognitionById?.recognitionType?.criteria ?? []}
-              style={{
-                border: 'none',
-                borderCollapse: 'collapse',
-              }}
-            />
+          <Table
+            columns={columns}
+            bordered={false}
+            pagination={false}
+            dataSource={getRecognitionById?.recognitionType?.criteria ?? []}
+            style={{
+              border: 'none',
+              borderCollapse: 'collapse',
+            }}
+          />
         </TabLandingLayout>
       </>
     </div>

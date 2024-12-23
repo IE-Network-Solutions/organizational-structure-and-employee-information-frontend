@@ -43,7 +43,6 @@ const CreateMeeting = ({
     selectedUsers,
     setSelectedUsers,
   } = useOrganizationalDevelopment();
-  
 
   const { data: questionSet } = useGetQuestionSetByConversationId(slug);
   const { data: allUserData, isLoading: userDataLoading } = useGetAllUsers();

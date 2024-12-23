@@ -38,14 +38,14 @@ const Page = () => {
       key: 'last',
       label: (
         <AccessGuard permissions={[Permissions.CreateRecognition]}>
-        <Button
-          onClick={() => setOpenRecognitionType(true)}
-          icon={<FaPlus />}
-          type="primary"
-          className="flex gap-2"
-        >
-          Category
-        </Button>
+          <Button
+            onClick={() => setOpenRecognitionType(true)}
+            icon={<FaPlus />}
+            type="primary"
+            className="flex gap-2"
+          >
+            Category
+          </Button>
         </AccessGuard>
       ),
     },

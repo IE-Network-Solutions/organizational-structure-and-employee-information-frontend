@@ -80,22 +80,22 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
       key: 'action',
       render: (notused: any, record: any) => (
         <>
-        <AccessGuard permissions={[Permissions.EditRecognitionCriteria]}>
-          <Button type="link" onClick={() => setEditingRowKeys(record)}>
-            Edit
-          </Button>
+          <AccessGuard permissions={[Permissions.EditRecognitionCriteria]}>
+            <Button type="link" onClick={() => setEditingRowKeys(record)}>
+              Edit
+            </Button>
           </AccessGuard>
           <AccessGuard permissions={[Permissions.DeleteRecognitionCriteria]}>
-          <Popconfirm
-            title="Are you sure you want to delete this?"
-            onConfirm={() => handleDeleteItem(record?.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="primary" danger>
-              Delete
-            </Button>
-          </Popconfirm>
+            <Popconfirm
+              title="Are you sure you want to delete this?"
+              onConfirm={() => handleDeleteItem(record?.id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="primary" danger>
+                Delete
+              </Button>
+            </Popconfirm>
           </AccessGuard>
         </>
       ),
@@ -140,15 +140,15 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
     <div>
       <div className="flex justify-end mb-4">
         {!all && (
-        <AccessGuard permissions={[Permissions.AddRecognitionCriteria]}>
-          <Button
-            className="flex justify-end items-center"
-            icon={<FaPlus />}
-            type="primary"
-            onClick={showModal}
-          >
-            Recognition
-          </Button>
+          <AccessGuard permissions={[Permissions.AddRecognitionCriteria]}>
+            <Button
+              className="flex justify-end items-center"
+              icon={<FaPlus />}
+              type="primary"
+              onClick={showModal}
+            >
+              Recognition
+            </Button>
           </AccessGuard>
         )}
       </div>
@@ -159,31 +159,37 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
             title={item?.name}
             extra={
               <div className="flex justify-end gap-2">
-             <AccessGuard permissions={[Permissions.EditRecognitionCriteria]}>
-                <Button type="primary" onClick={() => handleEditItem(item?.id)}>
-                  Edit
-                </Button>
-                </AccessGuard>
-                <AccessGuard permissions={[Permissions.DeleteRecognitionCriteria]}>
-
-                <Popconfirm
-                  title="Are you sure you want to delete this?"
-                  onConfirm={() => handleDeleteRecognitionType(item?.id)}
-                  okText="Yes"
-                  cancelText="No"
+                <AccessGuard
+                  permissions={[Permissions.EditRecognitionCriteria]}
                 >
-                  <Button type="primary" danger>
-                    Delete
+                  <Button
+                    type="primary"
+                    onClick={() => handleEditItem(item?.id)}
+                  >
+                    Edit
                   </Button>
-                </Popconfirm>
+                </AccessGuard>
+                <AccessGuard
+                  permissions={[Permissions.DeleteRecognitionCriteria]}
+                >
+                  <Popconfirm
+                    title="Are you sure you want to delete this?"
+                    onConfirm={() => handleDeleteRecognitionType(item?.id)}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button type="primary" danger>
+                      Delete
+                    </Button>
+                  </Popconfirm>
                 </AccessGuard>
                 <AccessGuard permissions={[Permissions.AddRecognitionCriteria]}>
-                <Button
-                  type="primary"
-                  onClick={() => setRecognitionTypeId(item?.id)}
-                >
-                  Add criteria
-                </Button>
+                  <Button
+                    type="primary"
+                    onClick={() => setRecognitionTypeId(item?.id)}
+                  >
+                    Add criteria
+                  </Button>
                 </AccessGuard>
               </div>
             }
