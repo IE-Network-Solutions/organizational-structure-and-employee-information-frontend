@@ -34,6 +34,35 @@ const updateRecognitionType = async (data: any) => {
     headers,
   });
 };
+
+const createRecognition = async (
+  { recognitionTypeId, calendarId, sessionId, monthId }: {
+    recognitionTypeId: string;
+    calendarId: string;
+    sessionId: string;
+    monthId: string;
+  })=>{
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId;
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition`,
+    method: 'post',
+    data:{
+      issuerId:userId,
+      recognitionTypeId,
+      calendarId,
+      sessionId,
+      monthId
+    },
+    headers,
+  });
+};
 const deleteRecognitionType = async (id: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -80,5 +109,17 @@ export const useAddRecognitionType = () => {
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
+  });
+};
+export const useCreateRecognition = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createRecognition,{
+    onSuccess: (notused, variables: any) => {
+      queryClient.invalidateQueries('recognitions');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+    // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
+
   });
 };

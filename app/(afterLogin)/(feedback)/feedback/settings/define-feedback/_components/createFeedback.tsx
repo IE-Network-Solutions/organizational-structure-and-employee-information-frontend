@@ -112,7 +112,7 @@ function CreateFeedback() {
               {
                 type: 'number',
                 min: 0,
-                max: 10,
+                max: 100,
                 message: 'Weight must be between 0 and 100.',
               },
             ]}

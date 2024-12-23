@@ -33,19 +33,26 @@ const getAllRecognitionTypesWithOutCriteria = async () => {
 };
 const getAllRecognitions = async (
   {
-    // employeeId,
-    // yearId,
-    // sessionId,
-    // monthId,
+    searchValue,
+    current,
+    pageSize
   }: RecognitionParams,
 ) => {
   const token = useAuthenticationStore.getState().token;
-  const tenantId = '3c7e1c6f-fc6c-4f89-8437-5749b8e6dd2b';
-  // useAuthenticationStore.getState().tenantId;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const queryString = [
+    `limit=${pageSize}`,
+    `page=${current}`,
+    ...Object.entries(searchValue) 
+      .filter(([key, value]) => value)  
+      .map(([key, value]) => `${key}=${value}`), 
+  ]
+    .join('&');  // Join all query parameters with '&'
 
+
+    console.log(queryString,"**************************")
   return crudRequest({
-    url: `${ORG_DEV_URL}/recognition`,
-    // ?employeeId=${employeeId}&yearId=${yearId}&sessionId=${sessionId}&monthId=${monthId}
+    url: `${ORG_DEV_URL}/recognition?${queryString}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -53,6 +60,20 @@ const getAllRecognitions = async (
     },
   });
 };
+
+const getRecognitionsById = async (id:string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${ORG_DEV_URL}/recognition/${id}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 
 const getRecognitionTypeById = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
@@ -88,14 +109,21 @@ export const useGetAllRecognitionTypeWithOutCriteria = () => {
     getAllRecognitionTypesWithOutCriteria,
   );
 };
+
+export const useGetRecognitionById = (id:string) => {
+   return useQuery<any>(
+     ['recognitions',id], // Unique query key based on params
+     () => getRecognitionsById(id),
+   );
+ };
 export const useGetAllRecognition = ({
-  employeeId,
-  yearId,
-  sessionId,
-  monthId,
+ searchValue,
+  current,
+  pageSize
 }: RecognitionParams) => {
   return useQuery<any>(
-    ['recognitions', employeeId, yearId, sessionId, monthId], // Unique query key based on params
-    () => getAllRecognitions({ employeeId, yearId, sessionId, monthId }),
+    ['recognitions', searchValue, current, pageSize], // Unique query key based on params
+    () => getAllRecognitions({ searchValue, current, pageSize }),
   );
 };
+

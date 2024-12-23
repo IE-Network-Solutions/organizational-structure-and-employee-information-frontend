@@ -3,11 +3,11 @@ import { Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import { useEffect } from 'react';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
 import FeedbackTypeDetail from './_components/feedbackTypeDetail';
 import CreateFeedback from './_components/createFeedback';
+import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 
 const Page = () => {
   const {

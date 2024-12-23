@@ -1,6 +1,5 @@
 export interface RecognitionParams {
-  employeeId?: string;
-  yearId?: string;
-  sessionId?: string;
-  monthId?: string;
+  searchValue:Record<string, string | undefined>;
+  current: number;
+  pageSize: number
 }

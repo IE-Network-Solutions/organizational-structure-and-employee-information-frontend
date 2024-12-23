@@ -8,7 +8,6 @@ import EmployeeSearchComponent from '@/components/common/search/searchComponent'
 import { useEffect } from 'react';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
-import { FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
 import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
@@ -16,6 +15,7 @@ import dayjs from 'dayjs';
 import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
+import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 
 const Page = () => {
   const {
@@ -56,6 +56,7 @@ const Page = () => {
   const onChangeFeedbackType = (key: string) => {
     setActiveTab(key);
   };
+
 
   const activeTabName =
     getAllFeedbackTypes?.items?.find(
@@ -117,6 +118,17 @@ const Page = () => {
       title: 'Reason',
       dataIndex: 'reason',
       key: 'reason',
+    },
+    {
+      title: 'Reciepent',
+      dataIndex: 'recipientId',
+      key: 'recipientId',
+      render: (notused: any, record: any) => {
+        const user = getAllUsers?.items?.find(
+          (item: any) => item.id === record.recipientId,
+        );
+        return user ? `${user.firstName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
+      },
     },
     {
       title: 'Given Date',
@@ -186,7 +198,6 @@ const Page = () => {
     <TabLandingLayout
       buttonTitle="Generate report"
       id="conversationLayoutId"
-      enableButton={false}
       onClickHandler={() => {}}
       title="Feedback"
       subtitle="Manage your Feedback"

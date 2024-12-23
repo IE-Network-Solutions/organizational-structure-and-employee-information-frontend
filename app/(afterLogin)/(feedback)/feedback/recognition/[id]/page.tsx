@@ -1,44 +1,61 @@
 'use client';
 import TabLandingLayout from '@/components/tabLanding';
+import { useGetRecognitionById } from '@/store/server/features/CFR/recognition/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { Card, Col, Row, Table, TableColumnsType } from 'antd';
 import React from 'react';
+interface Params {
+  id: string;
+}
+interface RecognitionDetailsProps {
+  params: Params;
+}
 
-function Page() {
-  const columns: TableColumnsType = [
-    {
-      title: '',
-      dataIndex: 'name',
-      width: '30%',
-    },
-    {
-      title: '',
-      dataIndex: 'age',
-    },
-  ];
+function Page({ params: { id } }: RecognitionDetailsProps) {
+  const { data: allUserData } = useGetAllUsers();
+  const {data:getRecognitionById}=useGetRecognitionById(id);
+  const getEmployeeData = (employeeId: string) => {
+    const employeeDataDetail = allUserData?.items?.find(
+      (emp: any) => emp?.id === employeeId,
+    );
+    return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
+  };
+const columns: TableColumnsType = [
+  {
+    title: 'Criteria',
+    dataIndex: 'criterionKey',
+    render: (value) => <span>{value ?? '-'}</span>,
+  },
+  {
+    title: 'Weight',
+    dataIndex: 'weight',
+    render: (value) => <span>{value ?? '-'}</span>,
+  },
+  {
+    title: 'Operator',
+    dataIndex: 'operator',
+    render: (value) => <span>{value ?? '-'}</span>,
+  },
+  {
+    title: 'Condition',
+    dataIndex: 'condition',
+    render: (value) => <span>{value ?? '-'}</span>,
+  },
+  {
+    title: 'Value',
+    dataIndex: 'value',
+    render: (value) => <span>{value ?? '-'}</span>,
+  },
+  {
+    title: 'Score',
+    dataIndex: 'age',
+    render: (notUsed, record) => <span>{record?.score ?? '-'}</span>,
+  },
+];
 
-  const data = [
-    {
-      key: '1',
-      name: 'John Brown',
-      age: 32,
-    },
-    {
-      key: '2',
-      name: 'Jim Green',
-      age: 42,
-    },
-    {
-      key: '3',
-      name: 'Joe Black',
-      age: 32,
-    },
-    {
-      key: '4',
-      name: 'Jim Red',
-      age: 32,
-    },
-  ];
 
+
+  console.log(getRecognitionById,"getRecognitionById")
   return (
     <div>
       <>
@@ -50,37 +67,71 @@ function Page() {
           buttonIcon={''}
         >
           <Card>
-                <Row gutter={[16, 16]} style={{ width: 'auto' }}>
-                  <Col xs={24} sm={10} md={10} lg={10} xl={10} >
-                    Brown
-                  </Col>
-                  <Col xs={24} sm={14} md={14} lg={14} xl={14}>
-                    97
+            <Row gutter={[16, 16]} style={{ width: 'auto' }}>
+              <Col span={24}>
+                <Row>
+                  <Col span={8} style={{ fontWeight: 'bold' }}>Employee</Col>
+                  <Col span={12}>
+                    {`${getEmployeeData(getRecognitionById?.issuerId)?.firstName || 'N/A'} ${
+                      getEmployeeData(getRecognitionById?.issuerId)?.lastName || 'N/A'
+                    }`}
                   </Col>
                 </Row>
-                <Row gutter={[16, 16]} style={{ width: 'auto' }}>
-                  <Col xs={24} sm={10} md={10} lg={10} xl={10} ></Col>
-                  <Col xs={24} sm={14} md={14} lg={14} xl={14}></Col>
+              </Col>
+              <Col span={24}>
+                <Row>
+                  <Col span={8} style={{ fontWeight: 'bold' }}>Issued Date</Col>
+                  <Col span={12}>
+                    {getRecognitionById?.dateIssued || 'N/A'}
+                  </Col>
                 </Row>
-                {/* Additional rows */}
-                {[...Array(4)].map((_, index) => (
-                  <Row gutter={[16, 16]} style={{ width: 'auto' }} key={index}>
-                    <Col xs={24} sm={10} md={10} lg={10} xl={10} ></Col>
-                    <Col xs={24} sm={14} md={14} lg={14} xl={14}></Col>
-                  </Row>
-                ))}
+              </Col>
+              <Col span={24}>
+                <Row>
+                  <Col span={8} style={{ fontWeight: 'bold' }}>Recognized By</Col>
+                  <Col span={12}>
+                    {`${getEmployeeData(getRecognitionById?.issuerId)?.firstName || 'N/A'} ${
+                      getEmployeeData(getRecognitionById?.issuerId)?.lastName || 'N/A'
+                    }`}
+                  </Col>
+                </Row>
+              </Col>
+              <Col span={24}>
+                <Row>
+                  <Col span={8} style={{ fontWeight: 'bold' }}>
+                    Total Number of Appreciation
+                  </Col>
+                  <Col span={12}>0</Col>
+                </Row>
+              </Col>
+              <Col span={24}>
+                <Row>
+                  <Col span={8} style={{ fontWeight: 'bold' }}>
+                    Total Number of Reprimand
+                  </Col>
+                  <Col span={12}>0</Col>
+                </Row>
+              </Col>
+              <Col span={24}>
+                <Row>
+                  <Col span={8} style={{ fontWeight: 'bold' }}>Details</Col>
+                  <Col span={12}>
+                    {getRecognitionById?.recognitionType?.description || 'N/A'}
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
           </Card>
-            {/* <Table
-              showHeader={false}
+            <Table
               columns={columns}
               bordered={false}
               pagination={false}
-              dataSource={data}
+              dataSource={getRecognitionById?.recognitionType?.criteria ?? []}
               style={{
                 border: 'none',
                 borderCollapse: 'collapse',
               }}
-            /> */}
+            />
         </TabLandingLayout>
       </>
     </div>
