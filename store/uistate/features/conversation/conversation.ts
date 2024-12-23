@@ -1,4 +1,3 @@
-// import { FeedbackRecord } from '@/store/server/features/conversation/conversationType/interface';
 import { FeedbackRecord } from '@/store/server/features/CFR/conversation/action-plan/interface';
 import { create } from 'zustand';
 interface SearchFieldOption {
