@@ -52,10 +52,6 @@ const columns: TableColumnsType = [
     render: (notUsed, record) => <span>{record?.score ?? '-'}</span>,
   },
 ];
-
-
-
-  console.log(getRecognitionById,"getRecognitionById")
   return (
     <div>
       <>

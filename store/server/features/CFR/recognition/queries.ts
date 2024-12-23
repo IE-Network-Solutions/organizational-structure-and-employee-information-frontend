@@ -31,26 +31,21 @@ const getAllRecognitionTypesWithOutCriteria = async () => {
     },
   });
 };
-const getAllRecognitions = async (
-  {
-    searchValue,
-    current,
-    pageSize
-  }: RecognitionParams,
-) => {
+const getAllRecognitions = async ({
+  searchValue,
+  current,
+  pageSize,
+}: RecognitionParams) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const queryString = [
     `limit=${pageSize}`,
     `page=${current}`,
-    ...Object.entries(searchValue) 
-      .filter(([key, value]) => value)  
-      .map(([key, value]) => `${key}=${value}`), 
-  ]
-    .join('&');  // Join all query parameters with '&'
+    ...Object.entries(searchValue)
+      .filter(([notused, value]) => value)
+      .map(([key, value]) => `${key}=${value}`),
+  ].join('&'); // Join all query parameters with '&'
 
-
-    console.log(queryString,"**************************")
   return crudRequest({
     url: `${ORG_DEV_URL}/recognition?${queryString}`,
     method: 'GET',
@@ -61,7 +56,7 @@ const getAllRecognitions = async (
   });
 };
 
-const getRecognitionsById = async (id:string) => {
+const getRecognitionsById = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
@@ -73,7 +68,6 @@ const getRecognitionsById = async (id:string) => {
     },
   });
 };
-
 
 const getRecognitionTypeById = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
@@ -110,20 +104,19 @@ export const useGetAllRecognitionTypeWithOutCriteria = () => {
   );
 };
 
-export const useGetRecognitionById = (id:string) => {
-   return useQuery<any>(
-     ['recognitions',id], // Unique query key based on params
-     () => getRecognitionsById(id),
-   );
- };
+export const useGetRecognitionById = (id: string) => {
+  return useQuery<any>(
+    ['recognitions', id], // Unique query key based on params
+    () => getRecognitionsById(id),
+  );
+};
 export const useGetAllRecognition = ({
- searchValue,
+  searchValue,
   current,
-  pageSize
+  pageSize,
 }: RecognitionParams) => {
   return useQuery<any>(
     ['recognitions', searchValue, current, pageSize], // Unique query key based on params
     () => getAllRecognitions({ searchValue, current, pageSize }),
   );
 };
-
