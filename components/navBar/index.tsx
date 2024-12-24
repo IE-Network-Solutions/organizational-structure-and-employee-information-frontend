@@ -110,6 +110,12 @@ const menuItems: MenuProps['items'] = [
         icon: <FiSettings />,
       },
       {
+        key: '/feedback/feedback',
+        label: 'Feedback',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
         key: '/feedback/recognition',
         label: 'Recognition',
         className: 'font-bold',
@@ -179,40 +185,40 @@ const menuItems: MenuProps['items'] = [
 ];
 
 const userItems: MenuProps['items'] = [
-  {
-    key: '/okr-planning',
-    label: 'OKR',
-    icon: <CiStar size={20} />,
-    className: 'font-bold',
-    children: [
-      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold' },
-      { key: '/okr', label: 'OKR', className: 'font-bold' },
-      {
-        key: '/planning-and-reporting',
-        label: 'Planning and Reporting',
-        className: 'font-bold',
-      },
-      {
-        key: '/monitoring-evaluation',
-        label: 'Monitoring & Evaluation',
-        className: 'font-bold',
-      },
-    ],
-  },
-  {
-    key: '/feedback',
-    label: 'CFR',
-    icon: <UserOutlined />,
-    className: 'font-bold',
-    children: [
-      {
-        key: '/feedback/categories',
-        label: 'Form',
-        icon: <UserOutlined />,
-        className: 'font-bold',
-      },
-    ],
-  },
+  //   {
+  //     key: '/okr-planning',
+  //     label: 'OKR',
+  //     icon: <CiStar size={20} />,
+  //     className: 'font-bold',
+  //     children: [
+  //       { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold' },
+  //       { key: '/okr', label: 'OKR', className: 'font-bold' },
+  //       {
+  //         key: '/planning-and-reporting',
+  //         label: 'Planning and Reporting',
+  //         className: 'font-bold',
+  //       },
+  //       {
+  //         key: '/monitoring-evaluation',
+  //         label: 'Monitoring & Evaluation',
+  //         className: 'font-bold',
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     key: '/feedback',
+  //     label: 'CFR',
+  //     icon: <UserOutlined />,
+  //     className: 'font-bold',
+  //     children: [
+  //       {
+  //         key: '/feedback/categories',
+  //         label: 'Form',
+  //         icon: <UserOutlined />,
+  //         className: 'font-bold',
+  //       },
+  //     ],
+  //   },
   {
     key: '/tna',
     icon: <BarChartOutlined />,
@@ -224,7 +230,7 @@ const userItems: MenuProps['items'] = [
         label: 'Training Management',
         className: 'font-bold',
       },
-      { key: '/tna/review', label: 'TNA', className: 'font-bold' },
+      // { key: '/tna/review', label: 'TNA', className: 'font-bold' },
     ],
   },
   {

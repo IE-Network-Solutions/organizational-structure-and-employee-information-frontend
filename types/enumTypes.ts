@@ -59,6 +59,14 @@ export enum NAME {
   KPI = 'KPI',
 }
 
+export enum ConversationType {
+  'Bi-weekly' = 'BiWeekly',
+  'One-to-One' = 'OneToOne',
+  'Feedback' = 'Feedback',
+  'Recognition' = 'Recognition',
+  '' = '',
+}
+
 export const SelectData = [
   { key: '1', value: 'weekly', label: 'Weekly' },
   { key: '2', value: 'monthly', label: 'Monthly' },
@@ -70,6 +78,19 @@ export enum APPROVALTYPES {
   BRANCHREQUEST = 'BranchRequest',
 }
 
+// Enum for aggregate operators
+export enum AggregateOperator {
+  ADDITION = 'ADDITION',
+  SUBTRACTION = 'SUBTRACTION',
+}
+
+// Enum for condition operators
+export enum ConditionOperator {
+  EQUALS = 'EQUALS',
+  GREATER_THAN = 'GREATER_THAN',
+  LESS_THAN = 'LESS_THAN',
+  RANGE = 'RANGE',
+}
 export const JobActionStatus = [
   { id: 'New', name: 'New' },
   { id: 'Promotion', name: 'Promotion' },
@@ -81,3 +102,5 @@ export const FilterOptions = [
   { key: '3', value: 'yearly', label: 'Yearly' },
   { key: '4', value: 'all-time', label: 'All-Time' },
 ];
+
+export const commonClass = 'text-sm text-gray-950';

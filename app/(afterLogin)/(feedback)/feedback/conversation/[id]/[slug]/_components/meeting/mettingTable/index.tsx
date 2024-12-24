@@ -14,11 +14,11 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import {
   useDeleteConversationInstancesById,
   useUpdateConversationInstancesById,
-} from '@/store/server/features/conversation/conversation-instance/mutations';
+} from '@/store/server/features/CFR/conversation/conversation-instance/mutations';
 import {
   useGetAllConversationInstancesById,
   useGetAllConversationInstancesByQuestionSetId,
-} from '@/store/server/features/conversation/conversation-instance/queries';
+} from '@/store/server/features/CFR/conversation/conversation-instance/queries';
 import { useRouter } from 'next/navigation';
 import EmployeeSearchComponent from '@/components/common/search/searchComponent';
 

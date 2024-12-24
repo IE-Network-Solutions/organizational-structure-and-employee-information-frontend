@@ -5,12 +5,12 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { FaPlus } from 'react-icons/fa';
 import QuestionSetForm from '../_components/questionSetForm';
-import { useConversationTypes } from '@/store/server/features/conversation/queries';
-import { ConversationTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import { useEffect } from 'react';
 import ConversationTypeDetail from './_components/ConversationTypeDetail/conversationTypeDetail';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useConversationTypes } from '@/store/server/features/CFR/conversation/queries';
+import { ConversationTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 
 const Page = () => {
   const { open, setOpen, activeTab, setActiveTab } = ConversationStore();
@@ -64,7 +64,7 @@ const Page = () => {
         onChange={onChange}
       />
       <CustomDrawerLayout
-        open={open && activeTab!==''}
+        open={open && activeTabName !== ''}
         onClose={() => setOpen(false)}
         modalHeader={modalHeader}
         width="40%"

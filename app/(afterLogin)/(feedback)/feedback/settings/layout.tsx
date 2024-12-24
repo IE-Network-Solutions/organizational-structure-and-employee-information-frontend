@@ -14,6 +14,15 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const menuItems = new SidebarMenuItem([
     {
       item: {
+        key: 'define-feedback',
+        icon: <CiCalendarDate />,
+        label: <p className="menu-item-label">Define Feedback</p>,
+        className: 'px-1',
+      },
+      link: '/feedback/settings/define-feedback',
+    },
+    {
+      item: {
         key: 'define-questions',
         icon: <CiCalendarDate />,
         label: <p className="menu-item-label">Define Questions</p>,
@@ -21,15 +30,15 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       },
       link: '/feedback/settings/define-questions',
     },
-    {
-      item: {
-        key: 'feedback',
-        icon: <CiCalendarDate />,
-        label: <p className="menu-item-label">Feedback</p>,
-        className: 'px-1',
-      },
-      link: '/feedback/settings/feedback',
-    },
+    // {
+    //   item: {
+    //     key: 'feedback',
+    //     icon: <CiCalendarDate />,
+    //     label: <p className="menu-item-label">Feedback</p>,
+    //     className: 'px-1',
+    //   },
+    //   link: '/feedback/settings/feedback',
+    // },
     {
       item: {
         key: 'recognition-setting',
