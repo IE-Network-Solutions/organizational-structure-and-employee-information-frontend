@@ -7,9 +7,9 @@ import {
   MdEdit,
   MdDelete,
 } from 'react-icons/md';
-import { useGetAllActionPlansByConversationInstanceId } from '@/store/server/features/conversation/action-plan/queries';
+import { useGetAllActionPlansByConversationInstanceId } from '@/store/server/features/CFR/conversation/action-plan/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useDeleteActionPlanByid } from '@/store/server/features/conversation/action-plan/mutation';
+import { useDeleteActionPlanByid } from '@/store/server/features/CFR/conversation/action-plan/mutation';
 
 interface Employee {
   id: string;

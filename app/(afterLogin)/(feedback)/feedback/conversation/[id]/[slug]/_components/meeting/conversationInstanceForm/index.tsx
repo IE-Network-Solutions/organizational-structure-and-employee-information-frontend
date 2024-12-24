@@ -45,7 +45,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
     selectedDepartments,
     selectedUsers,
   } = useOrganizationalDevelopment();
-  const { setOfUser, setSetOfUser,setOpen } = ConversationStore();
+  const { setOfUser, setSetOfUser, setOpen } = ConversationStore();
 
   const handleAgendaChange = (value: string, index: number) => {
     const updatedAgenda = [...agendaItems];
@@ -272,7 +272,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
       </Button>
 
       <div className="flex justify-center mt-10">
-      <Popconfirm
+        <Popconfirm
           title="Are you sure you want to cancel and reset the form?"
           onConfirm={() => {
             setOpen(false);
@@ -281,9 +281,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
           okText="Yes"
           cancelText="No"
         >
-          <Button style={{ marginRight: 8 }}>
-            Cancel
-          </Button>
+          <Button style={{ marginRight: 8 }}>Cancel</Button>
         </Popconfirm>
         {isEdit ? (
           <Button htmlType="submit" type="primary">

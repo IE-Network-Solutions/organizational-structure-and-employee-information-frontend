@@ -24,7 +24,7 @@ const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
       <div className="mt-auto">
         <Link href={`/feedback/conversation/${id}`} passHref>
           <span className="flex justify-end items-center text-blue-500 hover:text-blue-700">
-          <FaLongArrowAltRight />
+            <FaLongArrowAltRight />
           </span>
         </Link>
       </div>

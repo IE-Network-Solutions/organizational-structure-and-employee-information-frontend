@@ -251,6 +251,7 @@ export enum Permissions {
   CreateConversationType = 'create-conversation-type',
 
   //Recognition
+  //Recognition
   CreateRecognition = 'create-recognition',
   DeleteRecognition = 'delete-recognition',
   EditRecognition = 'edit-recognition',

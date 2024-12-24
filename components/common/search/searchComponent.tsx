@@ -47,7 +47,7 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
                 .includes(input.toLowerCase())
             }
           >
-            {field.options.map((option) => (
+            {field.options?.map((option) => (
               <Option key={option.key} value={option.key}>
                 {option.value}
               </Option>

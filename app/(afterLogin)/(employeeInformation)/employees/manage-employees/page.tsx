@@ -30,14 +30,14 @@ const ManageEmployees: React.FC<any> = () => {
             subtitle="Manage your Employees"
           />
           <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
-            <AccessGuard permissions={[Permissions.RegisterNewEmployee]}>
-              <CustomButton
-                title="Create user"
-                id="createUserButton"
-                icon={<FaPlus className="mr-2" />}
-                onClick={showDrawer}
-                className="bg-blue-600 hover:bg-blue-700"
-              />
+          <AccessGuard permissions={[Permissions.RegisterNewEmployee]}>
+            <CustomButton
+              title="Create user"
+              id="createUserButton"
+              icon={<FaPlus className="mr-2" />}
+              onClick={showDrawer}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
             </AccessGuard>
             <UserSidebar onClose={onClose} />
           </div>

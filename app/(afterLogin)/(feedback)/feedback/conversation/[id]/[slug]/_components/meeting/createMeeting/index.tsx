@@ -6,9 +6,9 @@ import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { useGetQuestionSetByConversationId } from '@/store/server/features/conversation/questionSet/queries';
+import { useGetQuestionSetByConversationId } from '@/store/server/features/CFR/conversation/questionSet/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useCreateConversationResponse } from '@/store/server/features/conversation/conversation-response/mutation';
+import { useCreateConversationResponse } from '@/store/server/features/CFR/conversation/conversation-response/mutation';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { v4 as uuidv4 } from 'uuid';
@@ -43,7 +43,6 @@ const CreateMeeting = ({
     selectedUsers,
     setSelectedUsers,
   } = useOrganizationalDevelopment();
-  
 
   const { data: questionSet } = useGetQuestionSetByConversationId(slug);
   const { data: allUserData, isLoading: userDataLoading } = useGetAllUsers();

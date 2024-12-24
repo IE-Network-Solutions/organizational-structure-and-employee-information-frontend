@@ -16,7 +16,7 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import {
   useAddQuestionSetOnConversationType,
   useUpdateQuestionSetWithQuestionsOnConversationType,
-} from '@/store/server/features/conversation/questionSet/mutation';
+} from '@/store/server/features/CFR/conversation/mutation';
 
 const { Option } = Select;
 const QuestionSetForm = () => {
@@ -50,7 +50,6 @@ const QuestionSetForm = () => {
       },
     ]; // Step 2: Update the state with the new question
     setQuestions(updatedQuestions); // Step 3: Set the new state
-
   };
 
   const handleRemoveQuestion = (id: any) => {
@@ -61,7 +60,7 @@ const QuestionSetForm = () => {
   const handleChangeQuestion = (id: any, key: any, value: any) => {
     const currentQuestions = questions;
     const updatedQuestions = currentQuestions.map((q: any) =>
-      q.id === id ? { ...q, [key]: value } : q
+      q.id === id ? { ...q, [key]: value } : q,
     );
     setQuestions(updatedQuestions);
   };
@@ -74,7 +73,7 @@ const QuestionSetForm = () => {
             ...q,
             field: [...q.field, { id: uuidv4(), value: '' }],
           }
-        : q
+        : q,
     );
     setQuestions(updatedQuestions);
   };
@@ -86,10 +85,10 @@ const QuestionSetForm = () => {
         ? {
             ...q,
             field: q.field.map((opt: any) =>
-              opt.id === optionId ? { ...opt, value } : opt
+              opt.id === optionId ? { ...opt, value } : opt,
             ),
           }
-        : q
+        : q,
     );
     setQuestions(updatedQuestions);
   };
@@ -102,11 +101,10 @@ const QuestionSetForm = () => {
             ...q,
             field: q.field.filter((opt: any) => opt.id !== optionId),
           }
-        : q
+        : q,
     );
     setQuestions(updatedQuestions);
   };
-  
 
   const handleSubmit = (values: any) => {
     const payload = { ...values, conversationTypeId: activeTab, questions };
@@ -114,7 +112,7 @@ const QuestionSetForm = () => {
       updateConversationQuestionSet(payload, {
         onSuccess: () => {
           setEditableData(null);
-          setQuestions([])
+          setQuestions([]);
           form.resetFields();
         },
       });
@@ -122,7 +120,7 @@ const QuestionSetForm = () => {
       createConversationQuestionSet(payload, {
         onSuccess: () => {
           form.resetFields();
-          setQuestions([])
+          setQuestions([]);
           setOpen(false);
         },
       });
@@ -263,14 +261,14 @@ const QuestionSetForm = () => {
                     />
                   </Space>
                 ))}
-              <Button
-                type="dashed"
-                onClick={() => handleAddOption(q.id)}
-                icon={<PlusOutlined />}
-                style={{ marginTop: '8px', display: 'inline-block' }}
-              >
-                Add Option
-              </Button>
+                <Button
+                  type="dashed"
+                  onClick={() => handleAddOption(q.id)}
+                  icon={<PlusOutlined />}
+                  style={{ marginTop: '8px', display: 'inline-block' }}
+                >
+                  Add Option
+                </Button>
               </div>
             )}
           </div>
@@ -304,7 +302,7 @@ const QuestionSetForm = () => {
             cancelText="No"
           >
             <Button type="default" htmlType="reset">
-               Reset
+              Reset
             </Button>
           </Popconfirm>
         </div>

@@ -110,6 +110,12 @@ const menuItems: MenuProps['items'] = [
         icon: <FiSettings />,
       },
       {
+        key: '/feedback/feedback',
+        label: 'Feedback',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
         key: '/feedback/recognition',
         label: 'Recognition',
         className: 'font-bold',
