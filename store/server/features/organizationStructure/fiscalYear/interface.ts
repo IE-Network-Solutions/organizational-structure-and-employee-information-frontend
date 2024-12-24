@@ -61,7 +61,7 @@ export interface FiscalYear {
     }[];
   }[];
   closedDates?: ClosedDates[];
-  sessions?: Session[];
+  // sessions?: Session[];
 }
 
 export interface FiscalYearResponse {
