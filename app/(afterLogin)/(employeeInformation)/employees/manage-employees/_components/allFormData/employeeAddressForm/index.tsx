@@ -21,6 +21,7 @@ const EmployeeAddressForm = () => {
             id="addressCountryId"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('country', value)
                     ? Promise.resolve()
@@ -41,6 +42,7 @@ const EmployeeAddressForm = () => {
             id="addressCityId"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('city', value)
                     ? Promise.resolve()

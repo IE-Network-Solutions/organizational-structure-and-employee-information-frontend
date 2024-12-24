@@ -18,6 +18,8 @@ import { EmployeeData } from '@/types/dashboard/adminManagement';
 import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 import { useDeletePlanningUser } from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 // Define columns with correct type
 
@@ -129,23 +131,27 @@ const PlanAssignment: React.FC = () => {
       // eslint-disable-next-line
       render: (_: any, record: any) => (
         <div>
-          <button
-            className="bg-green-700 font-bold text-white rounded px-2 py-1 text-xs"
-            onClick={() => record.actions.edit()}
-            style={{ marginRight: 8 }}
-          >
-            <MdModeEditOutline />
-          </button>
-          <Popconfirm
-            title="Are you sure you want to delete this item?"
-            onConfirm={() => record.actions.delete()}
-            okText="Yes"
-            cancelText="No"
-          >
-            <button className="bg-red-600 font-bold text-white rounded px-2 py-1 text-xs">
-              <MdDeleteForever />
+          <AccessGuard permissions={[Permissions.UpdateAssignedPlanningPeriod]}>
+            <button
+              className="bg-green-700 font-bold text-white rounded px-2 py-1 text-xs"
+              onClick={() => record.actions.edit()}
+              style={{ marginRight: 8 }}
+            >
+              <MdModeEditOutline />
             </button>
-          </Popconfirm>
+          </AccessGuard>
+          <AccessGuard permissions={[Permissions.DeleteAssignedPlanningPeriod]}>
+            <Popconfirm
+              title="Are you sure you want to delete this item?"
+              onConfirm={() => record.actions.delete()}
+              okText="Yes"
+              cancelText="No"
+            >
+              <button className="bg-red-600 font-bold text-white rounded px-2 py-1 text-xs">
+                <MdDeleteForever />
+              </button>
+            </Popconfirm>
+          </AccessGuard>
         </div>
       ),
     },
@@ -154,12 +160,14 @@ const PlanAssignment: React.FC = () => {
     <div className="p-6 rounded-lg shadow-md">
       <div className="flex justify-between mb-4">
         <h2 className="text-lg font-semibold">Plan Assignation</h2>
-        <Button
-          onClick={showDrawer}
-          className="bg-blue text-white h-8 font-semibold w-32 border-none"
-        >
-          Assign
-        </Button>
+        <AccessGuard permissions={[Permissions.AssignPlanningPeriod]}>
+          <Button
+            onClick={showDrawer}
+            className="bg-blue text-white h-8 font-semibold w-32 border-none"
+          >
+            Assign
+          </Button>
+        </AccessGuard>
       </div>
 
       <Input.Search

@@ -11,6 +11,8 @@ import { useGetAttendances } from '@/store/server/features/timesheet/attendance/
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useAttendanceImport } from '@/store/server/features/timesheet/attendance/mutation';
 import { fileUpload } from '@/utils/fileUpload';
+import PermissionWrapper from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 const EmployeeAttendance = () => {
   const [isLoading, setIsLoading] = useState(false);
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
@@ -74,20 +76,23 @@ const EmployeeAttendance = () => {
         description="Manage your Team Attendance"
       >
         <Space>
-          <Button
-            icon={<TbFileUpload size={18} />}
-            size="large"
-            id="importEmployeeAttendanceId"
-            loading={isFetching || isLoading || isLoadingImport}
-            onClick={() => {
-              if (importAttendance) {
-                importAttendance.current?.click();
-              }
-            }}
+          <PermissionWrapper
+            permissions={[Permissions.ImportEmployeeAttendanceInformation]}
           >
-            Import
-          </Button>
-
+            <Button
+              icon={<TbFileUpload size={18} />}
+              size="large"
+              id="importEmployeeAttendanceId"
+              loading={isFetching || isLoading || isLoadingImport}
+              onClick={() => {
+                if (importAttendance) {
+                  importAttendance.current?.click();
+                }
+              }}
+            >
+              Import
+            </Button>
+          </PermissionWrapper>
           <input
             type="file"
             id="fileImportInputId"
@@ -100,56 +105,59 @@ const EmployeeAttendance = () => {
             }}
             hidden
           />
-
-          <Popover
-            trigger="click"
-            placement="bottomRight"
-            title={
-              <div className="text-base text-gray-900 font-bold">
-                What file you want to export?
-              </div>
-            }
-            content={
-              <div className="pt-4">
-                <Row gutter={20}>
-                  <Col span={12}>
-                    <Button
-                      size="small"
-                      className={buttonClass}
-                      type="primary"
-                      id="excelTypeOfFileToImportId"
-                      icon={<TbLayoutList size={16} />}
-                      onClick={() => onExport('EXCEL')}
-                    >
-                      Excel
-                    </Button>
-                  </Col>
-                  <Col span={12}>
-                    <Button
-                      size="small"
-                      className={buttonClass}
-                      type="primary"
-                      id="pdfTypeOfFileToImportId"
-                      icon={<LuBookmark size={16} />}
-                      onClick={() => onExport('PDF')}
-                    >
-                      PDF
-                    </Button>
-                  </Col>
-                </Row>
-              </div>
-            }
+          <PermissionWrapper
+            permissions={[Permissions.ExportEmployeeAttendanceInformation]}
           >
-            <Button
-              icon={<TbFileDownload size={18} />}
-              size="large"
-              type="primary"
-              id="exportEmployeeAttendanceId"
-              loading={isFetching || isLoading || isLoadingImport}
+            <Popover
+              trigger="click"
+              placement="bottomRight"
+              title={
+                <div className="text-base text-gray-900 font-bold">
+                  What file you want to export?
+                </div>
+              }
+              content={
+                <div className="pt-4">
+                  <Row gutter={20}>
+                    <Col span={12}>
+                      <Button
+                        size="small"
+                        className={buttonClass}
+                        type="primary"
+                        id="excelTypeOfFileToImportId"
+                        icon={<TbLayoutList size={16} />}
+                        onClick={() => onExport('EXCEL')}
+                      >
+                        Excel
+                      </Button>
+                    </Col>
+                    <Col span={12}>
+                      <Button
+                        size="small"
+                        className={buttonClass}
+                        type="primary"
+                        id="pdfTypeOfFileToImportId"
+                        icon={<LuBookmark size={16} />}
+                        onClick={() => onExport('PDF')}
+                      >
+                        PDF
+                      </Button>
+                    </Col>
+                  </Row>
+                </div>
+              }
             >
-              Export
-            </Button>
-          </Popover>
+              <Button
+                icon={<TbFileDownload size={18} />}
+                size="large"
+                type="primary"
+                id="exportEmployeeAttendanceId"
+                loading={isFetching || isLoading || isLoadingImport}
+              >
+                Export
+              </Button>
+            </Popover>
+          </PermissionWrapper>
         </Space>
       </PageHeader>
       <BlockWrapper className="mt-8">

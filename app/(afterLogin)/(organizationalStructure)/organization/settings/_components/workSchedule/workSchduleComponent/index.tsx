@@ -1,44 +1,73 @@
-import { Button, Card, Collapse, Dropdown, Menu, Space } from 'antd';
 import React from 'react';
+import { Button, Card, Collapse, Dropdown, Menu, Space } from 'antd';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { MoreOutlined, PlusOutlined } from '@ant-design/icons';
 import { useFetchSchedule } from '@/store/server/features/organizationStructure/workSchedule/queries';
-import { useWorkScheduleDrawerStore } from '@/store/uistate/features/organizations/settings/workSchedule/useStore';
+import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 function WorkScheduleTab() {
   const handleMenuClick = () => {};
   const { data: workScheudleData } = useFetchSchedule();
   const { Panel } = Collapse;
-  const { openDrawer, setEditMode, setDeleteMode, setSelectedSchedule } =
-    useWorkScheduleDrawerStore();
+  const {
+    setDetail,
+    setScheduleName,
+    setId,
+    setStandardHours,
+    openDrawer,
+    setEditMode,
+    setDeleteMode,
+  } = useScheduleStore();
 
   const handleEditSchedule = (data: any) => {
+    setScheduleName(data.name);
+    setId(data.id);
+    let updatedDetails = {};
+    data.detail.forEach((dayData: any) => {
+      updatedDetails = {
+        id: dayData.id,
+        dayOfWeek: dayData.day,
+        hours: dayData.duration,
+        startTime: dayData.startTime,
+        endTime: dayData.endTime,
+        status: dayData.workDay,
+      };
+      setDetail(dayData.day, updatedDetails);
+      setStandardHours(
+        useScheduleStore.getState().standardHours + Number(dayData.duration),
+      );
+    });
     openDrawer();
     setEditMode(true);
-    setSelectedSchedule(data);
   };
 
   const handleDeleteSchedule = (data: any) => {
-    setSelectedSchedule(data);
+    setId(data.id);
     setDeleteMode(true);
   };
 
   const renderMenu = (scheduleItem: any) => (
     <Menu onClick={handleMenuClick}>
-      <Menu.Item
-        key="edit"
-        onClick={() => handleEditSchedule(scheduleItem)}
-        icon={<FaEdit />}
-      >
-        Edit
-      </Menu.Item>
-      <Menu.Item
-        key="delete"
-        icon={<FaTrashAlt />}
-        onClick={() => handleDeleteSchedule(scheduleItem)}
-      >
-        Delete
-      </Menu.Item>
+      <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
+        <Menu.Item
+          key="edit"
+          onClick={() => handleEditSchedule(scheduleItem)}
+          icon={<FaEdit />}
+        >
+          Edit
+        </Menu.Item>
+      </AccessGuard>
+      <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
+        <Menu.Item
+          key="delete"
+          icon={<FaTrashAlt />}
+          onClick={() => handleDeleteSchedule(scheduleItem)}
+        >
+          Delete
+        </Menu.Item>
+      </AccessGuard>
     </Menu>
   );
 
@@ -46,16 +75,18 @@ function WorkScheduleTab() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Work Schedule</h2>
-        <Space>
-          <Button
-            type="primary"
-            className="h-12"
-            icon={<PlusOutlined />}
-            onClick={openDrawer}
-          >
-            New Schedule
-          </Button>
-        </Space>
+        <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
+          <Space>
+            <Button
+              type="primary"
+              className="h-12"
+              icon={<PlusOutlined />}
+              onClick={openDrawer}
+            >
+              New Schedule
+            </Button>
+          </Space>
+        </AccessGuard>
       </div>
 
       <Collapse
@@ -112,13 +143,16 @@ function WorkScheduleTab() {
                     <div key={detailIndex} className="text-sm mb-2">
                       <div className="grid grid-cols-3 gap-4 items-center">
                         <div className="text-black">
-                          {dayDetail?.dayOfWeek ?? '-'}
+                          {dayDetail?.day ?? '-'}
                         </div>
                         <div className="text-center">
-                          {dayDetail.startTime} - {dayDetail.endTime}
+                          {dayDetail.workDay ? dayDetail.startTime : ''} -{' '}
+                          {dayDetail.workDay ? dayDetail.endTime : ''}
                         </div>
                         <div className="font-semibold text-right">
-                          {dayDetail.hours ?? '-'}
+                          {dayDetail.workDay
+                            ? Number(dayDetail.duration).toFixed(1)
+                            : '-'}
                         </div>
                       </div>
                     </div>

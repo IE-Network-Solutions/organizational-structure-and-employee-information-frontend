@@ -9,6 +9,8 @@ import { FaPlus } from 'react-icons/fa';
 import WhatYouNeed from './[id]/_components/candidateSearch/whatYouNeed';
 import ShareToSocialMedia from './_components/modals/share';
 import AddFormResult from './_components/modals/result';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const RecruitmentPage: React.FC = () => {
   const { setAddNewDrawer } = useJobState();
@@ -26,13 +28,15 @@ const RecruitmentPage: React.FC = () => {
         </div>
         <div className="flex items-center my-4 gap-4 md:gap-8">
           <WhatYouNeed />
-          <CustomButton
-            title="Add New"
-            id="createUserButton"
-            icon={<FaPlus className="mr-2" />}
-            onClick={() => handleAddNewDrawer()}
-            className="bg-blue-600 hover:bg-blue-700"
-          />
+          <AccessGuard permissions={[Permissions.CreateJobDescription]}>
+            <CustomButton
+              title="Add New"
+              id="createUserButton"
+              icon={<FaPlus className="mr-2" />}
+              onClick={() => handleAddNewDrawer()}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
+          </AccessGuard>
         </div>
       </div>
       <div>

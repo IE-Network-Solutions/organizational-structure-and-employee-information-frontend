@@ -47,6 +47,7 @@ export const useCreateFiscalYear = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
       closeFiscalYearDrawer();
+      handleSuccessMessage('PUT');
       NotificationMessage.success({
         message: 'Fiscal year created successfully!',
         description: 'Fiscal year has been successfully created',
@@ -64,6 +65,7 @@ export const useUpdateFiscalYear = () => {
     {
       onSuccess: (variables: any) => {
         queryClient.invalidateQueries('fiscalYears');
+
         closeFiscalYearDrawer();
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method);
@@ -77,10 +79,8 @@ export const useDeleteFiscalYear = () => {
   return useMutation((id: string) => deleteFiscalYear(id), {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
-      NotificationMessage.success({
-        message: 'Fiscal year deleted successfully!',
-        description: 'Fiscal year has been successfully deleted',
-      });
+
+      handleSuccessMessage('DELETE');
     },
   });
 };

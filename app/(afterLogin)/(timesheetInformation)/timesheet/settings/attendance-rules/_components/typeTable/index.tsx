@@ -14,6 +14,8 @@ import {
 } from '@/store/server/features/timesheet/attendanceNotificationType/mutation';
 import { useDeleteAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/mutation';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 export interface TypeTableProps {
   type: AttendanceNotificationType;
@@ -58,17 +60,24 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
       dataIndex: 'action',
       key: 'action',
       render: (item: AttendanceNotificationRule) => (
-        <ActionButtons
-          id={item?.id ?? null}
-          loading={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
-          onEdit={() => {
-            setAttendanceRuleId(item.id);
-            setIsShowCreateRuleSidebar(true);
-          }}
-          onDelete={() => {
-            deleteRule(item.id);
-          }}
-        />
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateAttendanceRule,
+            Permissions.DeleteAttendanceRule,
+          ]}
+        >
+          <ActionButtons
+            id={item?.id ?? null}
+            loading={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
+            onEdit={() => {
+              setAttendanceRuleId(item.id);
+              setIsShowCreateRuleSidebar(true);
+            }}
+            onDelete={() => {
+              deleteRule(item.id);
+            }}
+          />
+        </AccessGuard>
       ),
     },
   ];
@@ -102,25 +111,32 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
           <div className="text-lg text-gray-900 font-bold flex-1">
             {type.title}
           </div>
-          <Space size={12}>
-            <Switch
-              id="switchButtonForTypeId"
-              checkedChildren={<CheckOutlined />}
-              unCheckedChildren={<CloseOutlined />}
-              value={type.isActive}
-              onChange={activeChange}
-            />
-            <ActionButton
-              id={type?.id ?? null}
-              onEdit={() => {
-                setAttendanceTypeId(type.id);
-                setIsShowRulesAddTypeSidebar(true);
-              }}
-              onDelete={() => {
-                deleteType(type.id);
-              }}
-            />
-          </Space>
+          <AccessGuard
+            permissions={[
+              Permissions.UpdateAttendanceRuleType,
+              Permissions.DeleteAttendanceRuleType,
+            ]}
+          >
+            <Space size={12}>
+              <Switch
+                id="switchButtonForTypeId"
+                checkedChildren={<CheckOutlined />}
+                unCheckedChildren={<CloseOutlined />}
+                value={type.isActive}
+                onChange={activeChange}
+              />
+              <ActionButton
+                id={type?.id ?? null}
+                onEdit={() => {
+                  setAttendanceTypeId(type.id);
+                  setIsShowRulesAddTypeSidebar(true);
+                }}
+                onDelete={() => {
+                  deleteType(type.id);
+                }}
+              />
+            </Space>
+          </AccessGuard>
         </div>
 
         <Table columns={columns} dataSource={tableData} pagination={false} />

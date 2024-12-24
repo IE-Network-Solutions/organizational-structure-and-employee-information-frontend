@@ -7,6 +7,7 @@ export enum FieldType {
   DROPDOWN = 'dropdown',
   RADIO = 'radio',
 }
+
 export const PlanningType = [
   { key: 'myPlan', value: 'my plan' },
   { key: 'allPlan', value: 'all Plan' },
@@ -62,4 +63,21 @@ export const SelectData = [
   { key: '1', value: 'weekly', label: 'Weekly' },
   { key: '2', value: 'monthly', label: 'Monthly' },
   { key: '3', value: 'quarterly', label: 'Quarterly' },
+];
+
+export enum APPROVALTYPES {
+  LEAVE = 'Leave',
+  BRANCHREQUEST = 'BranchRequest',
+}
+
+export const JobActionStatus = [
+  { id: 'New', name: 'New' },
+  { id: 'Promotion', name: 'Promotion' },
+  { id: 'Transfer', name: 'Transfer' },
+];
+export const FilterOptions = [
+  { key: '1', value: 'monthly', label: 'Monthly' },
+  { key: '2', value: 'session', label: 'Session' },
+  { key: '3', value: 'yearly', label: 'Yearly' },
+  { key: '4', value: 'all-time', label: 'All-Time' },
 ];

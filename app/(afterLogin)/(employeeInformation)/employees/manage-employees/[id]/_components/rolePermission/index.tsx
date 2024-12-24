@@ -1,13 +1,14 @@
 'use client';
 import { useUpdateEmployeeRolePermission } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetPermissionsWithOutPagination } from '@/store/server/features/employees/settings/permission/queries';
 import { useGetRolesWithPermission } from '@/store/server/features/employees/settings/role/queries';
 import {
   EditState,
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 import { Button, Card, Col, Form, Row, Select } from 'antd';
 import React, { useEffect, useCallback } from 'react';
 import { LuPencil } from 'react-icons/lu';
@@ -20,37 +21,55 @@ interface Ids {
 const RolePermission: React.FC<Ids> = ({ id }) => {
   const [form] = Form.useForm();
   const { data: employeeData, isLoading } = useGetEmployee(id);
-  const { data: permissionList } = useGetPermissionsWithOutPagination();
   const { data: rolesWithPermission } = useGetRolesWithPermission();
+
   const {
     setSelectedRoleOnOption,
     setSelectedRoleOnList,
     selectedRoleOnOption,
   } = useSettingStore();
+
   const {
     mutate: employeeRolePermissionUpdate,
     isLoading: rolePermissionUpdateLoading,
   } = useUpdateEmployeeRolePermission();
+
   const { setEdit, edit, selectedPermissions, setSelectedPermissions } =
     useEmployeeManagementStore();
+
+  useEffect(() => {
+    const allPermissionIds =
+      employeeData?.userPermissions?.map((perm: any) => perm.permissionId) ||
+      [];
+    form.setFieldsValue({
+      permission: allPermissionIds,
+      roleId: employeeData?.roleId,
+    });
+  }, [employeeData, form]);
 
   const onRoleChangeHandler = useCallback(
     (value: string) => {
       const selectedRole = rolesWithPermission?.find(
         (role) => role.id === value,
       );
-      setSelectedRoleOnList(selectedRole);
-      setSelectedRoleOnOption(value);
-
       const newPermissions =
         selectedRole?.permissions?.map((item: any) => item.id) || [];
+
+      setSelectedRoleOnList(selectedRole);
+      setSelectedRoleOnOption(value);
       setSelectedPermissions(newPermissions);
+
+      form.setFieldsValue({
+        permission: newPermissions,
+        roleId: value,
+      });
     },
     [
       rolesWithPermission,
       setSelectedRoleOnList,
       setSelectedRoleOnOption,
       setSelectedPermissions,
+      form,
     ],
   );
 
@@ -61,44 +80,27 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
     [setSelectedPermissions],
   );
 
-  useEffect(() => {
-    if (employeeData) {
-      form.setFieldsValue({
-        roleId: employeeData?.role?.id,
-        permission: employeeData?.userPermissions?.map(
-          (perm: any) => perm?.permissionId,
-        ),
-      });
-      setSelectedRoleOnOption(employeeData?.role?.id);
-      setSelectedPermissions(
-        employeeData?.userPermissions?.map((perm: any) => perm?.permissionId),
-      );
-    }
-  }, [
-    edit.rolePermission,
-    employeeData,
-    form,
-    setSelectedRoleOnOption,
-    setSelectedPermissions,
-  ]);
-
   const handleUpdateUserRolePermission = (values: any) => {
     employeeRolePermissionUpdate({ id, values });
     setEdit('rolePermission');
   };
+
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
   };
+
   return (
     <div>
       <Card
         loading={isLoading}
         title="User Role Permission "
         extra={
-          <LuPencil
-            className="cursor-pointer"
-            onClick={() => handleEditChange('rolePermission')}
-          />
+          <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+            <LuPencil
+              className="cursor-pointer"
+              onClick={() => handleEditChange('rolePermission')}
+            />
+          </AccessGuard>
         }
         className="my-6"
       >
@@ -150,15 +152,31 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                 ]}
               >
                 <Select
-                  mode="tags"
-                  style={{ width: '100%' }}
+                  mode="multiple"
+                  style={{ width: '100%', overflowY: 'auto' }}
                   onChange={handlePermissionChange}
-                  options={permissionList?.items.map((option) => ({
-                    label: option.name,
-                    value: option.id,
-                  }))}
+                  options={
+                    selectedRoleOnOption
+                      ? rolesWithPermission
+                          ?.find((role) => role.id === selectedRoleOnOption)
+                          ?.permissions.map((perm) => ({
+                            label: perm.name,
+                            value: perm.id,
+                          }))
+                      : employeeData?.userPermissions?.map((perm: any) => ({
+                          label: perm.permission.name,
+                          value: perm.permissionId,
+                        }))
+                  }
                   value={selectedPermissions}
                   allowClear
+                  showSearch
+                  filterOption={(input, option) =>
+                    String(option?.label)
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  dropdownStyle={{ maxHeight: '200px', overflowY: 'auto' }}
                 />
               </Form.Item>
             </Col>

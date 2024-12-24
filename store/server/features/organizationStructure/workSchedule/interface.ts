@@ -17,10 +17,11 @@ export interface Schedule {
 
 export interface DayOfWeekResponse {
   id: string;
-  dayOfWeek: string;
+  day: string;
   startTime?: string | null;
   endTime?: string | null;
-  hours?: string;
+  duration?: string;
+  workDay: boolean;
 }
 
 export interface ResponseSchedule {
