@@ -9,7 +9,7 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   selectedFiscalYear: null,
   isDeleteMode: false,
   current: 0,
-  calendarType: null,
+  calendarType: '',
   pageSize: 5,
   currentPage: 1,
   selectedYear: new Date().getFullYear(),
@@ -21,7 +21,7 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
     }),
   setCurrentPage: (value: number) => set({ currentPage: value }),
   setPageSize: (value: number) => set({ pageSize: value }),
-  setCalendarType: (value: string | null) => set({ calendarType: value }),
+  setCalendarType: (value: string) => set({ calendarType: value }),
   toggleFiscalYearDrawer: () =>
     set((state) => ({ isFiscalYearOpen: !state.isFiscalYearOpen })),
   closeFiscalYearDrawer: () => set({ isFiscalYearOpen: false }),
@@ -42,4 +42,18 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   fiscalYearStart: null,
   setFiscalYearStart: (value: Dayjs) => set({ fiscalYearStart: value }),
   clearFormData: () => set({ formData: {} }),
+
+  sessionData: [],
+  setSessionData: (value: any[]) => set({ sessionData: value }),
+
+  fiscalYearFormValues: {},
+  setFiscalYearFormValues: (newData) => set({ fiscalYearFormValues: newData }),
+
+  monthRangeValues: [],
+  setMonthRangeFormValues: (newData) =>
+    set((state) =>
+      JSON.stringify(state.monthRangeValues) !== JSON.stringify(newData)
+        ? { monthRangeValues: newData }
+        : state,
+    ),
 }));

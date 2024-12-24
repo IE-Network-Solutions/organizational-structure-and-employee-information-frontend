@@ -26,7 +26,7 @@ const createFiscalYear = async (fiscalYear: FiscalYear) => {
 const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
-    method: 'PATCH',
+    method: 'PUT',
     data: fiscalYear,
     headers,
   });
