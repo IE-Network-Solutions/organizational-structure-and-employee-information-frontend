@@ -85,7 +85,7 @@ const EmployeeAttendance = () => {
                 icon={<TbFileUpload size={18} />}
                 size="large"
                 id="importEmployeeAttendanceId"
-                loading={isFetching || isLoading || isLoadingImport}
+                loading={isLoading || isLoadingImport}
                 onClick={() => {
                   if (importAttendance) {
                     importAttendance.current?.click();
@@ -154,7 +154,7 @@ const EmployeeAttendance = () => {
                   size="large"
                   type="primary"
                   id="exportEmployeeAttendanceId"
-                  loading={isFetching || isLoading || isLoadingImport}
+                  loading={isFetching || isLoading}
                 >
                   Export
                 </Button>
