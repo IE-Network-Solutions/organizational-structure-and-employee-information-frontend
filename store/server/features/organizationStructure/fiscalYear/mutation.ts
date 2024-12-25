@@ -14,7 +14,7 @@ const headers = {
   Authorization: `Bearer ${token}`,
 };
 
-const createFiscalYear = async (fiscalYear: FiscalYear) => {
+const createFiscalYear = async (fiscalYear: any) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars`,
     method: 'POST',
@@ -60,7 +60,7 @@ export const useUpdateFiscalYear = () => {
   const { closeFiscalYearDrawer } = useFiscalYearDrawerStore();
   const queryClient = useQueryClient();
   return useMutation(
-    (data: { id: string; fiscalYear: FiscalYear }) =>
+    (data: { id: string; fiscalYear: any }) =>
       updateFiscalYear(data.id, data.fiscalYear),
     {
       onSuccess: (variables: any) => {
