@@ -5,6 +5,7 @@ import { ClosedDates, FiscalYear } from './interface';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -25,7 +26,7 @@ const createFiscalYear = async (fiscalYear: FiscalYear) => {
 const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
-    method: 'PATCH',
+    method: 'PUT',
     data: fiscalYear,
     headers,
   });
@@ -47,6 +48,10 @@ export const useCreateFiscalYear = () => {
       queryClient.invalidateQueries('fiscalYears');
       closeFiscalYearDrawer();
       handleSuccessMessage('PUT');
+      NotificationMessage.success({
+        message: 'Fiscal year created successfully!',
+        description: 'Fiscal year has been successfully created',
+      });
     },
   });
 };
