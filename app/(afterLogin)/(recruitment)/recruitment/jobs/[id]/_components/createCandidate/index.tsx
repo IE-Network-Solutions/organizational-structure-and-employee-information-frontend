@@ -15,7 +15,6 @@ import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 import cvUpload from '@/public/image/cvUpload.png';
-import { CandidateType } from '@/types/enumTypes';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';

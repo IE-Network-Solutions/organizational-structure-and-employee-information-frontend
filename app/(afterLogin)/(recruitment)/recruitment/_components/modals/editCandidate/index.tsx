@@ -6,7 +6,6 @@ import {
   Form,
   Input,
   InputNumber,
-  Modal,
   Row,
   Select,
   Upload,
@@ -15,7 +14,6 @@ import Image from 'next/image';
 import React, { useEffect } from 'react';
 import cvUpload from '@/public/image/cvUpload.png';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
-import { CandidateType } from '@/types/enumTypes';
 import { FaInfoCircle } from 'react-icons/fa';
 import TextArea from 'antd/es/input/TextArea';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -34,8 +32,6 @@ const EditCandidate: React.FC = () => {
     selectedCandidateId,
     setDocumentFileList,
     removeDocument,
-    isClient,
-    setIsClient,
     documentFileList,
     setEditCandidateModal,
     currentPage,
