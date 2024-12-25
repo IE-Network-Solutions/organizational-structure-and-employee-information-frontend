@@ -195,52 +195,30 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item
-          id="jobId"
-          name="jobInformationId"
-          label={
-            <span className="text-md font-semibold text-gray-700">Job</span>
-          }
-          rules={
-            jobId ? [] : [{ required: true, message: 'Please select a job' }]
-          }
-        >
-          <Select
-            className="text-sm w-full h-10"
-            placeholder="Select a job type"
-            disabled={!!jobId}
-          >
-            {jobList &&
-              jobList?.items?.map((job: any) => (
-                <Option key={job?.id} value={job?.id}>
-                  {job?.jobTitle}
-                </Option>
-              ))}
-          </Select>
-        </Form.Item>
 
         <Row gutter={16}>
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
             <Form.Item
-              id="candidateTypeId"
-              name="candidateType"
+              id="jobId"
+              name="jobInformationId"
               label={
-                <span className="text-md font-semibold text-gray-700">
-                  Candidate Type
-                </span>
+                <span className="text-md font-semibold text-gray-700">Job</span>
               }
-              rules={[
-                { required: true, message: 'Please input the job name!' },
-              ]}
+              rules={
+                jobId
+                  ? []
+                  : [{ required: true, message: 'Please select a job' }]
+              }
             >
               <Select
                 className="text-sm w-full h-10"
                 placeholder="Select a job type"
+                disabled={!!jobId}
               >
-                {CandidateType &&
-                  Object?.values(CandidateType).map((type) => (
-                    <Option key={type} value={type}>
-                      {type}
+                {jobList &&
+                  jobList?.items?.map((job: any) => (
+                    <Option key={job?.id} value={job?.id}>
+                      {job?.jobTitle}
                     </Option>
                   ))}
               </Select>
