@@ -39,7 +39,7 @@ export type Session = {
   endDate: string; // ISO 8601 date string
   active: boolean;
   tenantId: string;
-  months: Month[]; // Adjust based on the structure of "months"
+  months?: Month[]; // Adjust based on the structure of "months"
 };
 
 export interface FiscalYear {
