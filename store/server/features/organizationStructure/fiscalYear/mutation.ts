@@ -91,7 +91,7 @@ const updateClosedDate = async (
 ) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${fiscalYearId}`,
-    method: 'PATCH',
+    method: 'PUT',
     data: { closedDates },
     headers,
   });
