@@ -19,6 +19,7 @@ import { CandidateType } from '@/types/enumTypes';
 import { FaInfoCircle } from 'react-icons/fa';
 import TextArea from 'antd/es/input/TextArea';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import CustomDrawerLayout from '@/components/common/customDrawer';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -64,14 +65,6 @@ const EditCandidate: React.FC = () => {
     }, 0);
   };
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient || !editCandidateModal) {
-    return null;
-  }
-
   const handleFormSubmit = () => {
     const formValues = form.getFieldsValue();
 
@@ -97,15 +90,42 @@ const EditCandidate: React.FC = () => {
     updateCandidate({ data: formData, id: selectedCandidateId });
     setEditCandidateModal(false);
   };
+  const editCandidateHeader = (
+    <div className="flex flex-col items-center">Edit Candidate</div>
+  );
+
+  useEffect(() => {
+    if (editCandidate && selectedCandidateId) {
+      form.setFieldsValue({
+        fullName: editCandidate?.fullName,
+        email: editCandidate?.email,
+        phoneNumber: editCandidate?.phoneNumber,
+        jobInformationId: editCandidate?.jobCandidate?.map(
+          (item: any) => item?.jobInformation?.jobTitle,
+        ),
+        coverLetter: editCandidate?.jobCandidate?.map(
+          (item: any) => item?.coverLetter,
+        ),
+        resumeUrl: editCandidate?.resumeUrl
+          ? {
+              uid: editCandidate?.resumeUrl,
+              name: editCandidate?.resumeUrl,
+              status: 'done',
+              url: editCandidate?.resumeUrl,
+            }
+          : undefined,
+      });
+    }
+  }, [editCandidate, selectedCandidateId]);
 
   return (
     editCandidateModal && (
-      <Modal
-        title="Edit Candidate"
+      <CustomDrawerLayout
         open={editCandidateModal}
-        onCancel={() => setEditCandidateModal(false)}
+        onClose={() => setEditCandidateModal(false)}
+        modalHeader={editCandidateHeader}
+        width="40%"
         footer={null}
-        destroyOnClose
       >
         <Form
           form={form}
@@ -161,7 +181,10 @@ const EditCandidate: React.FC = () => {
                   </span>
                 }
                 rules={[
-                  { required: true, message: 'Please input the phone number!' },
+                  {
+                    required: true,
+                    message: 'Please input the phone number!',
+                  },
                 ]}
               >
                 <Input
@@ -321,7 +344,7 @@ const EditCandidate: React.FC = () => {
             </div>
           </Form.Item>
         </Form>
-      </Modal>
+      </CustomDrawerLayout>
     )
   );
 };
