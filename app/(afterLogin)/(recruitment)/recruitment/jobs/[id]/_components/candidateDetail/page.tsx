@@ -1,14 +1,11 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
-import { Button, Tabs } from 'antd';
-import React, { useCallback } from 'react';
+import { Tabs } from 'antd';
+import React from 'react';
 import { FaPhone } from 'react-icons/fa';
 import { MdOutlineMail } from 'react-icons/md';
 import CoverLetter from '../tabs/coverLetter';
-import CandidateActivity from '../tabs/activity';
 import JobResponse from '../tabs/response';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 
 const CandidateDetail: React.FC = ({}) => {
   const { candidateDetailDrawer, setCandidateDetailDrawer, selectedCandidate } =
@@ -43,9 +40,6 @@ const CandidateDetail: React.FC = ({}) => {
     //   children: <CandidateActivity selectedCandidate={selectedCandidate} />,
     // },
   ];
-  const handleClose = useCallback(() => {
-    setCandidateDetailDrawer(false);
-  }, [setCandidateDetailDrawer]);
 
   const candidateDrawerHeader = (
     <div className="flex flex-col items-between justify-center gap-2">
