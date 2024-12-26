@@ -60,8 +60,16 @@ const AssignTargetDrawer: React.FC = () => {
         [getTargetById.month]: getTargetById.target,
       });
       setSelectedMonths([getTargetById.month]);
+    } else if (!currentId && !getTargetById) {
+      // If there's no `clientId` or `currentId`, select all active months
+      const allActiveMonths =
+        activeSessionData?.months?.map((month: any) => month.name) || [];
+      form.setFieldsValue({
+        month: allActiveMonths,
+      });
+      setSelectedMonths(allActiveMonths);
     }
-  }, [currentId, getTargetById]);
+  }, [currentId, getTargetById, activeSessionData]);
 
   useEffect(() => {
     if (isCreateSuccess || isUpdateSuccess) {
