@@ -15,13 +15,16 @@ import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensat
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 
 const AllowanceEntitlementTable = () => {
-
   const { setIsAllowanceEntitlementSidebarOpen, isAllowanceGlobal } = useAllowanceEntitlementStore();
-  const {mutate: deleteAllowanceEntitlement} = useDeleteAllowanceEntitlement();
-  const {id} = useParams();
-  const { data: allowanceEntitlementData, isLoading: fiscalActiveYearFetchLoading } = useFetchAllowanceEntitlements(id);
+  const { mutate: deleteAllowanceEntitlement } = useDeleteAllowanceEntitlement();
+  const { id } = useParams();
+  const {
+    data: allowanceEntitlementData,
+    isLoading: fiscalActiveYearFetchLoading,
+  } = useFetchAllowanceEntitlements(id);
 
-    const transformedData = allowanceEntitlementData?.map((item: any) => ({
+  const transformedData =
+    allowanceEntitlementData?.map((item: any) => ({
       id: item.id,
       userId: item.employeeId,
       isRate: item.compensationItem.isRate,
@@ -29,13 +32,9 @@ const AllowanceEntitlementTable = () => {
       ApplicableTo: item.compensationItem.applicableTo,
     })) || [];
 
-  const handleEdit = (record: any) => {
-  };
-  
   const handleDelete = (id: string) => {
     deleteAllowanceEntitlement(id);
   };
-  
 
   const columns: TableColumnsType<any> = [
     {
@@ -43,7 +42,7 @@ const AllowanceEntitlementTable = () => {
       dataIndex: 'userId',
       key: 'userId',
       sorter: true,
-      render: (userId: string) => <EmployeeDetails empId={userId}/>,
+      render: (userId: string) => <EmployeeDetails empId={userId} />,
     },
     {
       title: 'Type',
@@ -57,7 +56,7 @@ const AllowanceEntitlementTable = () => {
       dataIndex: 'Amount',
       key: 'Amount',
       sorter: true,
-      render: (text: string, record) => <div>{text ?  `${text} ETB` : '-'}</div>,
+      render: (text: string) => <div>{text ? `${text} ETB` : '-'}</div>,
     },
     {
       title: 'Action',
@@ -72,7 +71,7 @@ const AllowanceEntitlementTable = () => {
         >
           <ActionButtons
             id={record?.id ?? null}
-            onEdit={() => handleEdit(record)}
+            onEdit={() => {}}
             disableEdit
             onDelete={() => handleDelete(record.id)}
           />
@@ -91,14 +90,16 @@ const AllowanceEntitlementTable = () => {
         <Input addonBefore={<SearchOutlined />} placeholder="Search by name" />
         <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
           <Button
-              size="large"
-              type="primary"
-              id="createNewClosedHolidayFieldId"
-              icon={<LuPlus size={18} />}
-              onClick={() => {setIsAllowanceEntitlementSidebarOpen(true)}}
-              disabled={isAllowanceGlobal}
-              >
-              Employees
+            size="large"
+            type="primary"
+            id="createNewClosedHolidayFieldId"
+            icon={<LuPlus size={18} />}
+            onClick={() => {
+              setIsAllowanceEntitlementSidebarOpen(true);
+            }}
+            disabled={isAllowanceGlobal}
+          >
+            Employees
           </Button>
         </AccessGuard>
       </Space>

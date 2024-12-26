@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { useFetchAllowance } from '@/store/server/features/compensation/allowance/queries';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation';
 
-const singleAllowancePage = () => {
+const SingleAllowancePage = () => {
 
   const { id } = useParams();
   const { data: allowanceData } = useFetchAllowance(id);
@@ -29,4 +29,4 @@ const singleAllowancePage = () => {
   );
 };
 
-export default singleAllowancePage;
+export default SingleAllowancePage;

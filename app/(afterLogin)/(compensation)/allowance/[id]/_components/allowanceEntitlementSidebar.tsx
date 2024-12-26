@@ -12,7 +12,7 @@ import CustomLabel from '@/components/form/customLabel/customLabel';
   
   const AllowanceEntitlementSideBar = () => {
 
-    const { isAllowanceEntitlementSidebarOpen, resetStore, departmentUsers, setDepartmentUsers, selectedDepartment, setSelectedDepartment, setIsAllowanceEntitlementSidebarOpen} = useAllowanceEntitlementStore();
+    const { isAllowanceEntitlementSidebarOpen, resetStore, departmentUsers, setDepartmentUsers, selectedDepartment, setSelectedDepartment } = useAllowanceEntitlementStore();
     const {mutate: createAllowanceEntitlement} = useCreateAllowanceEntitlement();
     const [form] = Form.useForm();
     const { data: departments, isLoading } = useGetDepartmentsWithUsers();

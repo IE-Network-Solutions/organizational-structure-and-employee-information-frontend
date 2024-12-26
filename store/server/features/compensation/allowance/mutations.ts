@@ -67,7 +67,7 @@ const deleteAllowanceEntitlement = async (id: string) => {
 export const useCreateAllowanceEntitlement = () => {
   const queryClient = useQueryClient();
   return useMutation(createAllowanceEntitlement, {
-    onSuccess: (_, variables: any) => {
+    onSuccess: (notused: any, variables: any) => {
       queryClient.invalidateQueries('allowanceEntitlement');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
@@ -84,7 +84,7 @@ export const useCreateAllowanceEntitlement = () => {
 export const useDeleteAllowanceEntitlement = () => {
     const queryClient = useQueryClient();
     return useMutation(deleteAllowanceEntitlement, {
-      onSuccess: (_, variables: any) => {
+      onSuccess: (notused: any, variables: any) => {
         queryClient.invalidateQueries('allowanceEntitlement');
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method);
