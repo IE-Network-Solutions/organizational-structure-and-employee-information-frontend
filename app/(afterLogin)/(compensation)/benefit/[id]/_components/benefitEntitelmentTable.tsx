@@ -61,14 +61,14 @@ const BenefitEntitlementTable = () => {
       dataIndex: 'Amount',
       key: 'Amount',
       sorter: true,
-      render: (text: string, record) => <div>{text == 'PER-EMPLOYEE' ? `Selected Employee` : `All Employees`}</div>,
+      render: (text: string, record) => <div>{text ? record.isRate ? `${text}% of base salary` : `${text} ETB` : '-'}</div>,
     },
     {
       title: 'Aplicable To',
       dataIndex: 'ApplicableTo',
       key: 'ApplicableTo',
       sorter: true,
-      render: (text: string, record) => <div>{text ? `${text} ETB` : '-'}</div>,
+      render: (text: string, record) => <div>{(text === 'PER-EMPLOYEE') ? 'Selected Employee' : 'All Employees'}</div>,
     },
     {
       title: 'Action',

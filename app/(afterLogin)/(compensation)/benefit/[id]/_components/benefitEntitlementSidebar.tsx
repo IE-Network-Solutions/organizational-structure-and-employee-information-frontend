@@ -12,11 +12,12 @@ import CustomDrawerFooterButton, {
   
   const BenefitEntitlementSideBar = () => {
   
-    const { departmentUsers, setDepartmentUsers, isBenefitEntitlementSidebarOpen, selectedDepartment, setSelectedDepartment, resetStore } = useBenefitEntitlementStore();
+    const { departmentUsers, setDepartmentUsers, benefitMode, isBenefitEntitlementSidebarOpen, selectedDepartment, setSelectedDepartment, resetStore } = useBenefitEntitlementStore();
     const { mutate: createBenefitEntitlement } = useCreateBenefitEntitlement();
     const [ form ] = Form.useForm();
     const { data: departments, isLoading } = useGetDepartmentsWithUsers();
     const { id } = useParams();
+    console.log('benefitMode', benefitMode);
     
     const footerModalItems: CustomDrawerFooterButtonProps[] = [
       {
@@ -95,7 +96,7 @@ import CustomDrawerFooterButton, {
               </Form.Item>
               <Form.Item
                 name="settlementPeriod"
-                label={'Settlemnet Period'}
+                label={benefitMode == 'DEBIT' ? 'Settlemnet Period' : 'Number of Pay Periods'}
                 rules={[{ required: true, message: 'Settlemnet period is equired!' }]}
                 className="form-item"
               >
