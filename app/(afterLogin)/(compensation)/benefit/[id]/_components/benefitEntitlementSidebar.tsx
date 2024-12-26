@@ -17,7 +17,6 @@ import CustomDrawerFooterButton, {
     const [ form ] = Form.useForm();
     const { data: departments, isLoading } = useGetDepartmentsWithUsers();
     const { id } = useParams();
-    console.log('benefitMode', benefitMode);
     
     const footerModalItems: CustomDrawerFooterButtonProps[] = [
       {

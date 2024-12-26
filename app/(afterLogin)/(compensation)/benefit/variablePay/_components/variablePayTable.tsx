@@ -1,76 +1,47 @@
 import React from 'react';
-import { Input, message, Select, Space, Spin, Table } from 'antd';
+import { Input, Select, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
-import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import ActionButtons from '@/components/common/actionButton/actionButtons';
-import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { useUpdateClosedDate } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 import { SearchOutlined } from '@ant-design/icons';
+import { useGetVariablePay } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 
 const VariablePayTable = () => {
-    
-  const { setIsShowClosedDateSidebar, setSelectedClosedDate } = useTimesheetSettingsStore();
-  const { data: fiscalActiveYear, isLoading: fiscalActiveYearFetchLoading } = useGetActiveFiscalYears();
-  const { mutate: updateClosedDate } = useUpdateClosedDate();
+  const { data: allUsersVariablePay, isLoading } = useGetVariablePay();
 
-  const handleEdit = (record: any) => {
-    setSelectedClosedDate(record);
-    setIsShowClosedDateSidebar(true);
-  };
+  console.log("allUsersVariablePay", allUsersVariablePay);
 
-  const handleDelete = (record: any) => {
-    const fiscalYearId = fiscalActiveYear?.id;
-
-    const updatedClosedDatesArray =
-      fiscalActiveYear?.closedDates?.filter(
-        (item: any) => item.id !== record.id,
-      ) || [];
-
-    if (fiscalYearId) {
-      updateClosedDate(
-        { fiscalYearId, closedDates: updatedClosedDatesArray },
-        {
-          onSuccess: () => {
-            message.success(`${record.name} deleted successfully.`);
-          },
-          onError: () => {
-            message.error(`Failed to delete ${record.name}.`);
-          },
-        },
-      );
-    }
-  };
 
   const sampleClosedDates = [
     {
       id: 1,
       name: 'End of Q1',
-      Type: 'Rate',
-      Amount: '20% of salery',
-      'Applicable to': 'Finance Team',
+      VpInPercentile: 'Rate',
+      VpInBirr: '20% of salery',
+      VpScore: 'Finance Team',
+      Benefit: '20% of salery',
     },
     {
       id: 2,
       name: 'Mid-Year Review',
-      Type: 'Fixed',
-      Amount: 1500,
-      'Applicable to': 'All Departments',
+      VpInPercentile: 'Fixed',
+      VpInBirr: 1500,
+      VpScore: 'All Departments',
+      Benefit: '20% of salery',
     },
     {
       id: 3,
       name: 'End of Fiscal Year',
-      Type: 'Fixed',
-      Amount: 5000,
-      'Applicable to': 'Management',
+      VpInPercentile: 'Fixed',
+      VpInBirr: 5000,
+      VpScore: 'Management',
+      Benefit: '20% of salery',
     },
     {
       id: 4,
       name: 'Special Bonus',
-      Type: 'Fixed',
-      Amount: 2000,
-      'Applicable to': 'HR & Admin',
+      VpInPercentile: 'Fixed',
+      VpInBirr: 2000,
+      VpScore: 'HR & Admin',
+      Benefit: '20% of salery',
     },
   ];
   
@@ -79,54 +50,42 @@ const VariablePayTable = () => {
     {
       title: 'Name',
       dataIndex: 'name',
-      key: 'dateNaming',
+      key: 'name',
       sorter: true,
       render: (text: string) => <div>{text || '-'}</div>,
     },
     {
-      title: 'Type',
-      dataIndex: 'Type',
-      key: 'Type',
+      title: 'VP in %',
+      dataIndex: 'VpInPercentile',
+      key: 'VpInPercentile',
       sorter: true,
       render: (text: string) => <div>{text || '-'}</div>,
     },
     {
-      title: 'Amount',
-      dataIndex: 'Amount',
-      key: 'Amount',
+      title: 'Total VP in Birr',
+      dataIndex: 'VpInBirr',
+      key: 'VpInBirr',
       sorter: true,
       render: (text: string) => <div>{text || '-'}</div>,
     },
     {
-      title: 'Applicable to',
-      dataIndex: 'Applicable to',
-      key: 'Applicable to',
+      title: 'VP Score',
+      dataIndex: 'VpScore',
+      key: 'VpScore',
       sorter: true,
       render: (text: string) => <div>{text || '-'}</div>,
     },
     {
-      title: 'Action',
-      dataIndex: 'action',
-      key: 'action',
-      render: (rule: any, record: any) => (
-        <AccessGuard
-          permissions={[
-            Permissions.UpdateClosedDate,
-            Permissions.DeleteClosedDate,
-          ]}
-        >
-          <ActionButtons
-            id={record?.id ?? null}
-            onEdit={() => handleEdit(record)}
-            onDelete={() => handleDelete(record)}
-          />
-        </AccessGuard>
-      ),
+      title: 'Benefit',
+      dataIndex: 'Benefit',
+      key: 'Benefit',
+      sorter: true,
+      render: (text: string) => <div>{text || '-'}</div>,
     },
   ];
 
   return (
-    <Spin spinning={fiscalActiveYearFetchLoading}>
+    <Spin spinning={isLoading}>
       <Space
         direction="horizontal"
         size="large"

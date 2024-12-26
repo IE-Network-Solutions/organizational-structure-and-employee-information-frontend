@@ -20,7 +20,6 @@ const BenefitEntitlementTable = () => {
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
   const { id } = useParams();
   const { data: benefitEntitlementsData, isLoading } = useFetchBenefitEntitlement(id);
-  console.log("benefitEntitlementData", benefitEntitlementsData);
 
   const transformedData = Array.isArray(benefitEntitlementsData)
   ? benefitEntitlementsData.map((item: any) => ({
