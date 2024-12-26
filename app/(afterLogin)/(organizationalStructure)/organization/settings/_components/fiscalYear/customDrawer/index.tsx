@@ -29,7 +29,6 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     selectedFiscalYear,
     calendarType,
     isFiscalYearOpen,
-    workingHour,
     closeFiscalYearDrawer,
     setEditMode,
     setSelectedFiscalYear,
