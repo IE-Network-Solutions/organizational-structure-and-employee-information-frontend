@@ -14,7 +14,7 @@ const headers = {
   Authorization: `Bearer ${token}`,
 };
 
-const createFiscalYear = async (fiscalYear: FiscalYear) => {
+const createFiscalYear = async (fiscalYear: any) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars`,
     method: 'POST',
@@ -26,7 +26,7 @@ const createFiscalYear = async (fiscalYear: FiscalYear) => {
 const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
-    method: 'PATCH',
+    method: 'PUT',
     data: fiscalYear,
     headers,
   });
@@ -47,6 +47,7 @@ export const useCreateFiscalYear = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
       closeFiscalYearDrawer();
+      handleSuccessMessage('PUT');
       NotificationMessage.success({
         message: 'Fiscal year created successfully!',
         description: 'Fiscal year has been successfully created',
@@ -59,11 +60,12 @@ export const useUpdateFiscalYear = () => {
   const { closeFiscalYearDrawer } = useFiscalYearDrawerStore();
   const queryClient = useQueryClient();
   return useMutation(
-    (data: { id: string; fiscalYear: FiscalYear }) =>
+    (data: { id: string; fiscalYear: any }) =>
       updateFiscalYear(data.id, data.fiscalYear),
     {
       onSuccess: (variables: any) => {
         queryClient.invalidateQueries('fiscalYears');
+
         closeFiscalYearDrawer();
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method);
@@ -77,10 +79,8 @@ export const useDeleteFiscalYear = () => {
   return useMutation((id: string) => deleteFiscalYear(id), {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
-      NotificationMessage.success({
-        message: 'Fiscal year deleted successfully!',
-        description: 'Fiscal year has been successfully deleted',
-      });
+
+      handleSuccessMessage('DELETE');
     },
   });
 };

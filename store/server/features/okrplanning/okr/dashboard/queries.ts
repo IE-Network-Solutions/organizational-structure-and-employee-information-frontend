@@ -85,15 +85,17 @@ export const useGetPlanningPeriods = () => {
   return useQuery('periods', getPlanningPeriods);
 };
 
-export const useGetRockStars = (planningPeriodId: string) => {
+export const useGetRockStars = (planningPeriodId: string, options: any) => {
   return useQuery(
     ['rockStars', planningPeriodId],
     () => getRockStars(planningPeriodId),
     {
+      ...options,
       keepPreviousData: true,
     },
   );
 };
+
 export const useGetPerformance = (planningPeriodId: string, userId: string) => {
   return useQuery(
     ['performance', planningPeriodId, userId],

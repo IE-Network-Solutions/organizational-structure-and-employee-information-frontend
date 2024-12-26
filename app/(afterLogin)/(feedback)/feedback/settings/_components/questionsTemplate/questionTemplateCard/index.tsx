@@ -8,6 +8,8 @@ import { useDeleteQuestionTemplate } from '@/store/server/features/feedback/sett
 import FeedbackPagination from '../../../../_components/feedbackPagination';
 import EditQuestionTemplate from './questionTemplateEdit';
 import { Spin } from 'antd';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const QuestionTemplateCard: React.FC<any> = () => {
   const {
@@ -66,20 +68,24 @@ const QuestionTemplateCard: React.FC<any> = () => {
               {questions?.customFieldName}
             </div>
             <div className="flex items-center justify-center gap-2">
-              <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
-                <Pencil
-                  size={15}
-                  className="text-white cursor-pointer"
-                  onClick={() => handleQuestionModalOpen(questions)}
-                />
-              </div>
-              <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
-                <Trash2
-                  size={15}
-                  className="text-white cursor-pointer"
-                  onClick={() => handleDeleteModalOpen(questions)}
-                />
-              </div>
+              <AccessGuard permissions={[Permissions.UpdateCustomFields]}>
+                <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+                  <Pencil
+                    size={15}
+                    className="text-white cursor-pointer"
+                    onClick={() => handleQuestionModalOpen(questions)}
+                  />
+                </div>
+              </AccessGuard>
+              <AccessGuard permissions={[Permissions.DeleteCustomFields]}>
+                <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
+                  <Trash2
+                    size={15}
+                    className="text-white cursor-pointer"
+                    onClick={() => handleDeleteModalOpen(questions)}
+                  />
+                </div>
+              </AccessGuard>
             </div>
           </div>
         ))

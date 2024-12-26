@@ -13,7 +13,7 @@ export const transformData = (data: any) => {
       middleName: data.userMiddleName,
       lastName: data.userLastName,
       email: data.userEmail,
-      profileImage: data.profileImage.file.originFileObj,
+      profileImage: data?.profileImage?.file?.originFileObj ?? '',
       roleId: data.roleId,
     },
     createRolePermissionDto: {
@@ -39,6 +39,7 @@ export const transformData = (data: any) => {
       positionId: data.positionId,
       branchId: data.branchId,
       isPositionActive: true,
+      jobAction: data?.jobAction,
       effectiveStartDate: formatDate(data.joinedDate),
       effectiveEndDate: formatDate(data.effectiveEndDate),
       employementTypeId: data.employementTypeId,
@@ -48,7 +49,7 @@ export const transformData = (data: any) => {
       workScheduleId: data.workScheduleId,
     },
     createEmployeeDocumentDto: {
-      documentName: data.documentName.file.originFileObj,
+      documentName: data?.documentName?.file?.originFileObj ?? '',
     },
   };
 
@@ -76,8 +77,11 @@ export const transformData = (data: any) => {
   );
 
   // Append files separately
-  formData.append('profileImage', data.profileImage.file.originFileObj);
-  formData.append('documentName', data.documentName.file.originFileObj);
-
+  if (data.profileImage?.file?.originFileObj) {
+    formData.append('profileImage', data.profileImage.file.originFileObj);
+  }
+  if (data.documentName?.file?.originFileObj) {
+    formData.append('documentName', data.documentName.file.originFileObj);
+  }
   return formData;
 };

@@ -11,7 +11,6 @@ export interface DrawerState {
   pageSize: number;
   currentPage: number;
   selectedYear: number;
-  sessionFormValues: any;
   formData: Record<string, any>;
   setFormData: (newData: Record<string, any>) => void;
   fiscalYearEnd: Dayjs | null;
@@ -19,11 +18,10 @@ export interface DrawerState {
   fiscalYearStart: Dayjs | null;
   setFiscalYearStart: (fiscalYearStartDate: Dayjs) => void;
   clearFormData: () => void;
-  setSessionFormValues: (values: any) => void;
   setSelectedYear: (year: number) => void;
   setCurrentPage: (currentPage: number) => void;
   setPageSize: (value: number) => void;
-  setCalendarType: (value: string | null) => void;
+  setCalendarType: (value: string) => void;
   setDeleteMode: (isDelete: boolean) => void;
   toggleFiscalYearDrawer: () => void;
   closeFiscalYearDrawer: () => void;
@@ -32,4 +30,16 @@ export interface DrawerState {
   setSelectedFiscalYear: (fiscalYear: any) => void;
   setEditMode: (isEdit: boolean) => void; // Toggle edit mode
   setCurrent: (current: number) => void; // Update the current fiscal year
+
+  sessionData: any[];
+  setSessionData: (data: any) => void;
+
+  fiscalYearFormValues: Record<string, any>;
+  setFiscalYearFormValues: (newData: Record<string, any>) => void;
+
+  sessionFormValues: Record<string, any>;
+  setSessionFormValues: (newData: Record<string, any>) => void;
+
+  monthRangeValues: any;
+  setMonthRangeFormValues: (newData: any) => void;
 }

@@ -29,13 +29,13 @@ const TalentPoolDrawer: React.FC = () => {
           id: selectedTalentPool?.id || '',
           category: {
             ...values,
-            name: values.name,
+            title: values.title,
             updatedBy: userId,
           },
         });
       } else {
         createTalentPoolCategory({
-          title: values.name,
+          title: values.title,
           description: values.description,
           createdBy: userId,
         });

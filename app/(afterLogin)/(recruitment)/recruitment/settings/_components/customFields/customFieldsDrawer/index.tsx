@@ -21,6 +21,7 @@ import {
   useUpdateCustomFieldsTemplate,
 } from '@/store/server/features/recruitment/settings/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { FieldType } from '@/types/enumTypes';
 
 const { Option } = Select;
 
@@ -184,6 +185,28 @@ const CustomFieldsDrawer: React.FC<{
       <Form.List
         name="field"
         initialValue={isEdit ? question?.form?.field || [] : []}
+        rules={[
+          {
+            /* eslint-disable @typescript-eslint/naming-convention */
+            validator: async (_, names) => {
+              /* eslint-enable @typescript-eslint/naming-convention */
+              const type = form?.getFieldValue('fieldType');
+              if (
+                type === FieldType.MULTIPLE_CHOICE ||
+                type === FieldType.CHECKBOX
+              ) {
+                if (!names || names.length < 2) {
+                  return Promise.reject(
+                    NotificationMessage.warning({
+                      message: `At least ${2} options are required`,
+                      description: 'Please add additional fields.',
+                    }),
+                  );
+                }
+              }
+            },
+          },
+        ]}
       >
         {(fields, { add, remove }) => {
           const questionType = form.getFieldValue('fieldType');
@@ -205,7 +228,7 @@ const CustomFieldsDrawer: React.FC<{
                     >
                       <Input placeholder="Option" />
                     </Form.Item>
-                    {fields.length > 1 && (
+                    {fields.length > 0 && (
                       <MinusCircleOutlined
                         className="dynamic-delete-button"
                         onClick={() => remove(field.name)}
@@ -239,7 +262,7 @@ const CustomFieldsDrawer: React.FC<{
       <Form.Item>
         <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-8">
           <Button
-            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border:none"
             htmlType="submit"
           >
             {isEdit ? 'Update Template' : 'Create'}

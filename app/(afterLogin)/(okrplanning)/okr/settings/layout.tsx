@@ -2,6 +2,7 @@
 import { FC, ReactNode, useEffect, useState } from 'react';
 import { Card, ConfigProvider, Menu, MenuProps } from 'antd';
 import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
+import { HiOutlineBriefcase } from 'react-icons/hi2';
 import { usePathname, useRouter } from 'next/navigation';
 import { RiAwardFill } from 'react-icons/ri';
 import { FaBomb } from 'react-icons/fa';
@@ -134,6 +135,44 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'define-okr-rule' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/define-okr-rule',
+    },
+    {
+      item: {
+        key: 'criteria-management',
+        icon: (
+          <RiAwardFill
+            className={
+              currentItem === 'criteria-management'
+                ? 'text-[#4DAEF0]'
+                : 'text-gray-500'
+            }
+          />
+        ),
+        label: (
+          <p className="font-bold text-sm text-gray-900">Criteria Management</p>
+        ),
+        className: currentItem === 'criteria-management' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/criteria-management',
+    },
+    {
+      item: {
+        key: 'target-assignment',
+        icon: (
+          <HiOutlineBriefcase
+            className={
+              currentItem === 'target-assignment'
+                ? 'text-[#4DAEF0]'
+                : 'text-gray-500'
+            }
+          />
+        ),
+        label: (
+          <p className="font-bold text-sm text-gray-900">Target Assignment</p>
+        ),
+        className: currentItem === 'target-assignment' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/target-assignment',
     },
   ]);
 

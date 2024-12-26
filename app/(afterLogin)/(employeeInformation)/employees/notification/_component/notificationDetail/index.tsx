@@ -1,5 +1,7 @@
 import { NotificationType } from '@/store/server/features/notification/interface';
+import { useUpdateNotificationStatus } from '@/store/server/features/notification/mutation';
 import { useGetNotifications } from '@/store/server/features/notification/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useNotificationDetailStore } from '@/store/uistate/features/notification';
 import { Modal } from 'antd';
 
@@ -8,14 +10,17 @@ interface NotificationDetailProps {
 }
 
 export const NotificationDetailVisible = ({ id }: NotificationDetailProps) => {
+  const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
+  const userId = useAuthenticationStore.getState().userId;
+
+  const { data } = useGetNotifications(userId);
+  const newData = data?.filter((item: NotificationType) => item.id == id);
   const { isNotificationDetailVisible, setIsNotificationDetailVisible } =
     useNotificationDetailStore();
   const handleClose = () => {
     setIsNotificationDetailVisible(false);
+    updateNotificationStatus(newData?.[0]?.id);
   };
-  const { data } = useGetNotifications();
-  const newData = data?.filter((item: NotificationType) => item.id == id);
-
   return (
     <Modal
       title="Notification Details"

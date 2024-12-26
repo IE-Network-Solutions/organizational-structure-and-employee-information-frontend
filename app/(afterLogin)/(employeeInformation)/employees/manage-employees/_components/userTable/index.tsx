@@ -24,11 +24,24 @@ import WorkScheduleForm from '../allFormData/workScheduleForm';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import dayjs from 'dayjs';
 import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 const columns: TableColumnsType<EmployeeData> = [
+  {
+    title: 'Id',
+    dataIndex: 'employee_attendance_id',
+    sorter: (a, b) => {
+      const idA = a.employee_attendance_id ?? 0;
+      const idB = b.employee_attendance_id ?? 0;
+      return idA - idB;
+    },
+    width: 70,
+  },
   {
     title: 'Employee Name',
     dataIndex: 'employee_name',
     ellipsis: true,
+    width: 150,
   },
   {
     title: 'Job Position',
@@ -95,7 +108,8 @@ const UserTable = () => {
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
   const data = allFilterData?.items?.map((item: any) => {
-    const fullName = item?.firstName + ' ' + item?.middleName;
+    const fullName =
+      item?.firstName + ' ' + (item?.middleName ? item?.middleName : '');
     const shortEmail = item?.email;
     const displayName =
       fullName.length > MAX_NAME_LENGTH
@@ -107,6 +121,7 @@ const UserTable = () => {
         : shortEmail;
     return {
       key: item?.id,
+      employee_attendance_id: item?.employeeInformation?.employeeAttendanceId,
       employee_name: (
         <Tooltip
           title={
@@ -117,7 +132,7 @@ const UserTable = () => {
             </>
           }
         >
-          <div className="flex items-center flex-wrap sm:flex-row justify-center gap-2">
+          <div className="flex items-center flex-wrap sm:flex-row justify-start gap-2">
             <div className="relative w-6 h-6 rounded-full overflow-hidden">
               <Image
                 src={
@@ -168,55 +183,55 @@ const UserTable = () => {
       role: item?.role?.name ? item?.role?.name : ' - ',
       action: (
         <div className="flex gap-4 text-white">
-          <Link href={`manage-employees/${item?.id}`}>
-            <Button
-              id={`editUserButton${item?.id}`}
-              disabled={item?.deletedAt !== null}
-              className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
-            >
-              <FaEye />
-            </Button>
-          </Link>
-          {item.deletedAt === null ? (
-            <Tooltip title={'Deactive Employee'}>
+          <AccessGuard permissions={[Permissions.ViewEmployeeDetail]}>
+            <Link href={`manage-employees/${item?.id}`}>
               <Button
-                id={`deleteUserButton${item?.id}`}
-                disabled={item?.deletedAt !== null}
-                className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
-                onClick={(e) => {
-                  e.stopPropagation(); // Stop event propagation
-                  setDeleteModal(true);
-                  setDeletedItem(item?.id);
-                }}
+                id={`editUserButton${item?.id}`}
+                className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
               >
-                <MdAirplanemodeActive />
+                <FaEye />
               </Button>
-            </Tooltip>
-          ) : (
-            <Tooltip title={'Activate Employee'}>
-              <Button
-                type="primary"
-                htmlType="submit"
-                value={'submit'}
-                name="submit"
-                onClick={(e) => {
-                  e.stopPropagation(); // Stop event propagation
-                  handelRehireModal(item);
-                }}
-                disabled={item.deletedAt === null}
-              >
-                <MdAirplanemodeInactive />
-              </Button>
-            </Tooltip>
-          )}
+            </Link>
+          </AccessGuard>
+          <AccessGuard permissions={[Permissions.DeleteEmployee]}>
+            {item.deletedAt === null ? (
+              <Tooltip title={'Deactive Employee'}>
+                <Button
+                  id={`deleteUserButton${item?.id}`}
+                  disabled={item?.deletedAt !== null}
+                  className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteModal(true);
+                    setDeletedItem(item?.id);
+                  }}
+                >
+                  <MdAirplanemodeActive />
+                </Button>
+              </Tooltip>
+            ) : (
+              <Tooltip title={'Activate Employee'}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  value={'submit'}
+                  name="submit"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handelRehireModal(item);
+                  }}
+                  disabled={item.deletedAt === null}
+                >
+                  <MdAirplanemodeInactive />
+                </Button>
+              </Tooltip>
+            )}
+          </AccessGuard>
         </div>
       ),
     };
   });
 
-  const handleRowClick = (item: any) => {
-    window.location.href = `manage-employees/${item?.key}`;
-  };
   const handleDeleteConfirm = () => {
     employeeDeleteMuation();
   };
@@ -257,9 +272,6 @@ const UserTable = () => {
       <Table
         className="w-full cursor-pointer"
         columns={columns}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record), // Row click handler
-        })}
         dataSource={data}
         pagination={{
           total: allFilterData?.meta?.totalItems,

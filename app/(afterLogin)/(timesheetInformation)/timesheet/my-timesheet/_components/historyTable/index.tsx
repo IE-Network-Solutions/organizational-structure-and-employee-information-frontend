@@ -23,6 +23,8 @@ import { defaultTablePagination } from '@/utils/defaultTablePagination';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const HistoryTable = () => {
   const { userId } = useAuthenticationStore();
@@ -137,28 +139,35 @@ const HistoryTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (item: LeaveRequest) => (
-        <ActionButtons
-          id={item?.id ?? null}
-          disableDelete={
-            item.status === LeaveRequestStatus.APPROVED ||
-            item.status === LeaveRequestStatus.DECLINED
-          }
-          disableEdit={
-            item.status === LeaveRequestStatus.APPROVED ||
-            item.status === LeaveRequestStatus.DECLINED
-          }
-          onEdit={() => {
-            isShow(true);
-            setLeaveRequestSidebarData(item.id);
-          }}
-          onDelete={() => {
-            deleteLeaveRequest(item.id);
-          }}
-          onDetail={() => {
-            isShowDetail(true);
-            setLeaveRequestSidebarData(item.id);
-          }}
-        />
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateLeaveRequest,
+            Permissions.DeleteLeaveRequest,
+          ]}
+        >
+          <ActionButtons
+            id={item?.id ?? null}
+            disableDelete={
+              item.status === LeaveRequestStatus.APPROVED ||
+              item.status === LeaveRequestStatus.DECLINED
+            }
+            disableEdit={
+              item.status === LeaveRequestStatus.APPROVED ||
+              item.status === LeaveRequestStatus.DECLINED
+            }
+            onEdit={() => {
+              isShow(true);
+              setLeaveRequestSidebarData(item.id);
+            }}
+            onDelete={() => {
+              deleteLeaveRequest(item.id);
+            }}
+            onDetail={() => {
+              isShowDetail(true);
+              setLeaveRequestSidebarData(item.id);
+            }}
+          />
+        </AccessGuard>
       ),
     },
   ];
@@ -187,7 +196,7 @@ const HistoryTable = () => {
     <>
       <div className="flex items-center mb-6">
         <div className="flex-1 flex items-center gap-0.5">
-          <div className="text-2xl font-bold text-gray-900">Leave History</div>
+          <div className="text-2xl font-bold text-gray-900">My Leave</div>
           <Button
             type="text"
             size="small"
@@ -197,16 +206,17 @@ const HistoryTable = () => {
             }}
           ></Button>
         </div>
-
-        <Button
-          size="large"
-          type="primary"
-          icon={<LuPlus size={16} />}
-          className="h-12"
-          onClick={() => isShow(true)}
-        >
-          Add New Request
-        </Button>
+        <AccessGuard permissions={[Permissions.SubmitLeaveRequest]}>
+          <Button
+            size="large"
+            type="primary"
+            icon={<LuPlus size={16} />}
+            className="h-12"
+            onClick={() => isShow(true)}
+          >
+            Add New Request
+          </Button>
+        </AccessGuard>
       </div>
       <HistoryTableFilter onChange={onFilterChange} />
       <Table
@@ -221,6 +231,7 @@ const HistoryTable = () => {
           setOrderDirection(sorter['order']);
           setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
         }}
+        scroll={{ x: 'min-content' }}
       />
     </>
   );

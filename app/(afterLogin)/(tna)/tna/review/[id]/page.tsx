@@ -21,6 +21,8 @@ import TnaUpdateSidebar from '@/app/(afterLogin)/(tna)/tna/review/[id]/_componen
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import FileButton from '@/components/common/fileButton';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const TnaDetailPage = () => {
   const { isShowTnaUpdateSidebar, setTnaId, setIsShowTnaUpdateSidebar } =
@@ -157,21 +159,23 @@ const TnaDetailPage = () => {
             </div>
 
             <div className="flex justify-end mt-6">
-              <CustomButton
-                title="Update TNA"
-                type="primary"
-                id="tnaUpdateCustomButtonId"
-                icon={<FiEdit2 size={16} />}
-                size="large"
-                disabled={
-                  data.items[0].certStatus ===
-                  TrainingNeedAssessmentCertStatus.COMPLETED
-                }
-                onClick={() => {
-                  setTnaId(data.items[0].id);
-                  setIsShowTnaUpdateSidebar(true);
-                }}
-              />
+              <AccessGuard permissions={[Permissions.UpdateTna]}>
+                <CustomButton
+                  title="Update TNA"
+                  type="primary"
+                  id="tnaUpdateCustomButtonId"
+                  icon={<FiEdit2 size={16} />}
+                  size="large"
+                  disabled={
+                    data.items[0].certStatus ===
+                    TrainingNeedAssessmentCertStatus.COMPLETED
+                  }
+                  onClick={() => {
+                    setTnaId(data.items[0].id);
+                    setIsShowTnaUpdateSidebar(true);
+                  }}
+                />
+              </AccessGuard>
             </div>
           </Spin>
         )}

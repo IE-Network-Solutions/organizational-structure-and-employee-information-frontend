@@ -4,10 +4,11 @@ import { Button, Col, DatePicker, Form, Input, Row, Spin } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { generateSessionData } from '../sessionIdentifier';
 
 interface SessionDrawerProps {
-  form: FormInstance<any>;
+  form: FormInstance;
   isCreateLoading: boolean;
   isUpdateLoading: boolean;
 }
@@ -20,66 +21,35 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   const { sessionId } = useSessionStore();
   const {
     calendarType,
-    selectedFiscalYear,
     setCurrent,
     fiscalYearEnd,
     fiscalYearStart,
+    setSessionFormValues,
+    isEditMode,
+    selectedFiscalYear,
+    setCalendarType,
   } = useFiscalYearDrawerStore();
-  console.log(fiscalYearStart);
 
-  const year = fiscalYearEnd ? dayjs(fiscalYearEnd).year() : null;
-
-  const getDateRanges = (year: number | null) => {
-    if (!year || !fiscalYearStart || !fiscalYearEnd) return [];
-
-    const ranges = [];
+  const getNumberOfSessionsCalenderType = () => {
     switch (calendarType) {
       case 'Quarter':
-        for (let i = 0; i < 4; i++) {
-          const start = dayjs(fiscalYearStart).add(i * 3, 'month');
-          let end = start.clone().add(3, 'month').subtract(1, 'day');
-
-          if (start.date() > fiscalYearStart.date()) {
-            end = end.date(start.date());
-          }
-
-          if (start.isAfter(fiscalYearEnd)) break;
-
-          ranges.push({
-            start: start.isBefore(fiscalYearStart) ? fiscalYearStart : start,
-            end: end.isAfter(fiscalYearEnd) ? fiscalYearEnd : end,
-          });
-        }
-        break;
-
+        return 4;
       case 'Semester':
-        ranges.push(
-          {
-            start: fiscalYearStart,
-            end: dayjs(fiscalYearStart)
-              .add(5, 'month')
-              .date(fiscalYearStart.date())
-              .endOf('day'),
-          },
-          {
-            start: dayjs(fiscalYearStart).add(6, 'month'),
-            end: fiscalYearEnd,
-          },
-        );
-        break;
-
+        return 2;
       case 'Year':
-        ranges.push({ start: fiscalYearStart, end: fiscalYearEnd });
-        break;
-
+        return 1;
       default:
-        return [];
+        return 0;
     }
-    return ranges?.map(({ start, end }) => ({
-      start: start.isBefore(fiscalYearStart) ? fiscalYearStart : start,
-      end: end.isAfter(fiscalYearEnd) ? fiscalYearEnd : end,
-    }));
   };
+
+  const [sessionData, setSessionData] = useState(
+    generateSessionData(
+      fiscalYearStart,
+      fiscalYearEnd,
+      getNumberOfSessionsCalenderType(),
+    ),
+  );
 
   const validateSessionDates = (rule: any, value: any, callback: any) => {
     const startDate = value;
@@ -115,144 +85,221 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   };
 
   useEffect(() => {
-    const dateRanges = getDateRanges(year);
+    const updatedSessionData = sessionData.map((session: any) => ({
+      ...session,
+      sessionStartDate: session.sessionStartDate
+        ? dayjs(session.sessionStartDate)
+        : null,
+      sessionEndDate: session.sessionEndDate
+        ? dayjs(session.sessionEndDate)
+        : null,
+    }));
 
-    const defaultValues = dateRanges?.reduce(
-      (acc: any, range: any, index: number) => ({
-        ...acc,
-        [`sessionName${index}`]: `Session ${index + 1}`,
-        [`sessionStartDate_${index}`]: range?.start,
-        [`sessionEndDate_${index}`]: range?.end,
-      }),
-      {},
-    );
+    form?.setFieldsValue({
+      sessionData: updatedSessionData,
+    });
+  }, [sessionData, form]);
 
-    const sessionValues = selectedFiscalYear
-      ? selectedFiscalYear.sessions?.reduce(
-          (acc: any, session: any, index: number) => ({
-            ...acc,
-            [`sessionName${index}`]: session?.name,
-            [`sessionDescription${index}`]: session?.description,
-            [`sessionStartDate_${index}`]: dayjs(session?.startDate),
-            [`sessionEndDate_${index}`]: dayjs(session?.endDate),
-          }),
-          {},
-        )
-      : defaultValues;
+  const handleSessionChange = (index: number, field: string, value: any) => {
+    const updatedSessionData = [...sessionData];
+    updatedSessionData[index] = {
+      ...updatedSessionData[index],
+      [field]: value,
+    };
+  };
 
-    form?.setFieldsValue(sessionValues);
-  }, [
-    // selectedFiscalYear,
-    calendarType,
-    form,
-    year,
-    fiscalYearStart,
-    fiscalYearEnd,
-  ]);
+  const handleNext = () => {
+    const currentValues = form.getFieldsValue();
+    setSessionFormValues(currentValues);
+    setCurrent(2);
+  };
+
+  useEffect(() => {
+    if (isEditMode && selectedFiscalYear) {
+      const sessions = selectedFiscalYear?.sessions || [];
+
+      const inferredCalendarType =
+        sessions.length === 4
+          ? 'Quarter'
+          : sessions.length === 2
+            ? 'Semester'
+            : sessions.length === 1
+              ? 'Year'
+              : '';
+
+      setCalendarType(inferredCalendarType);
+
+      let updatedSessionData;
+
+      if (inferredCalendarType === 'Year') {
+        updatedSessionData = sessions?.length
+          ? [
+              {
+                sessionName: sessions[0]?.name || '',
+                sessionStartDate: sessions[0]?.startDate
+                  ? dayjs(sessions[0]?.startDate)
+                  : null,
+                sessionEndDate: sessions[0]?.endDate
+                  ? dayjs(sessions[0]?.endDate)
+                  : null,
+                sessionDescription: sessions[0]?.description || '',
+              },
+            ]
+          : [];
+      } else if (
+        inferredCalendarType === 'Semester' ||
+        inferredCalendarType === 'Quarter'
+      ) {
+        updatedSessionData = sessions.map((session: any) => ({
+          sessionName: session.name || '',
+          sessionStartDate: session.startDate ? dayjs(session.startDate) : null,
+          sessionEndDate: session.endDate ? dayjs(session.endDate) : null,
+          sessionDescription: session.description || '',
+        }));
+      } else {
+        updatedSessionData = [];
+      }
+
+      setSessionData(updatedSessionData);
+      if (updatedSessionData && updatedSessionData.length > 0) {
+        form.setFieldsValue({
+          sessionData: updatedSessionData,
+        });
+      }
+    }
+  }, [isEditMode, selectedFiscalYear, form]);
 
   return (
     <div className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full">
       <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-4">
         Set up Session
       </div>
+      <Form form={form} layout="vertical">
+        {sessionData.map((item, index) => {
+          return (
+            <div className="my-3" key={index}>
+              <Form.Item
+                id={`sessionNameId_${index}`}
+                name={['sessionData', index, 'sessionName']}
+                initialValue={item.sessionName}
+                label={
+                  <span className="font-medium">Session {index + 1} Name</span>
+                }
+                rules={[
+                  { required: true, message: 'Please input the session name!' },
+                ]}
+              >
+                <Input
+                  size="large"
+                  className="w-full font-normal text-sm"
+                  placeholder="Enter session name"
+                  onChange={(e) => {
+                    handleSessionChange(index, 'sessionName', e.target.value);
+                  }}
+                />
+              </Form.Item>
 
-      {getDateRanges(year).map((range, index) => {
-        return (
-          <div className="my-3" key={index}>
-            <Form.Item
-              id={`sessionNameId_${index}`}
-              name={`sessionName${index}`}
-              label={
-                <span className="font-medium">Session {index + 1} Name</span>
-              }
-              rules={[
-                { required: true, message: 'Please input the session name!' },
-              ]}
+              <Row gutter={[16, 6]} className="mb-4">
+                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                  <Form.Item
+                    name={['sessionData', index, 'sessionStartDate']}
+                    label={`Session ${index + 1} Start Date`}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please input the session Start Date!',
+                      },
+                      { validator: validateSessionDates },
+                    ]}
+                  >
+                    <DatePicker
+                      format="YYYY-MM-DD"
+                      className="w-full"
+                      onChange={(date) => {
+                        handleSessionChange(
+                          index,
+                          'sessionStartDate',
+                          date.format('YYYY-MM-DD'),
+                        );
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                  <Form.Item
+                    name={['sessionData', index, 'sessionEndDate']}
+                    label={`Session ${index + 1} End Date`}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please input the session End Date!',
+                      },
+                      { validator: validateSessionDates },
+                    ]}
+                  >
+                    <DatePicker
+                      format="YYYY-MM-DD"
+                      className="w-full"
+                      onChange={(date) => {
+                        handleSessionChange(
+                          index,
+                          'sessionEndDate',
+
+                          date.format('YYYY-MM-DD'),
+                        );
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item
+                id={`sessionDescriptionId_${index}`}
+                name={['sessionData', index, 'sessionDescription']}
+                label={<span className="font-medium">Description</span>}
+                initialValue={item.sessionDescription}
+              >
+                <TextArea
+                  placeholder="Enter description"
+                  rows={2}
+                  className="h-32 font-normal text-sm mt-2"
+                  size="large"
+                  onChange={(e) =>
+                    handleSessionChange(
+                      index,
+                      'sessionDescription',
+                      e.target.value,
+                    )
+                  }
+                />
+              </Form.Item>
+            </div>
+          );
+        })}
+
+        <Form.Item>
+          <div className="flex justify-center w-full px-6 py-6 gap-8">
+            <Button
+              onClick={() => setCurrent(0)}
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
             >
-              <Input
-                size="large"
-                className="w-full font-normal text-sm"
-                placeholder="Enter session name"
-              />
-            </Form.Item>
-            <Row gutter={[16, 6]} className="mb-4">
-              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                <Form.Item
-                  name={`sessionStartDate_${index}`}
-                  label={`Session ${index + 1} Start Date`}
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please input the session Start Date!',
-                    },
-                    { validator: validateSessionDates },
-                  ]}
-                >
-                  <DatePicker
-                    format="DD-MMM-YYYY"
-                    className="w-full"
-                    value={form?.getFieldValue(`sessionStartDate_${index}`)}
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                <Form.Item
-                  name={`sessionEndDate_${index}`}
-                  label={`Session ${index + 1} End Date`}
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please input the session End Date!',
-                    },
-                    { validator: validateSessionDates },
-                  ]}
-                >
-                  <DatePicker
-                    format="DD-MMM-YYYY"
-                    className="w-full"
-                    value={form?.getFieldValue(`sessionEndDate_${index}`)}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Form.Item
-              id={`sessionDescriptionId_${index}`}
-              name={`sessionDescription${index}`}
-              label={<span className="font-medium">Description</span>}
+              Previous
+            </Button>
+            <Button
+              onClick={handleNext}
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
             >
-              <TextArea
-                placeholder="Enter description"
-                rows={2}
-                className={'h-32 font-normal text-sm mt-2'}
-                size="large"
-              />
-            </Form.Item>
+              {isCreateLoading || isUpdateLoading ? (
+                <Spin />
+              ) : sessionId ? (
+                <span>Edit</span>
+              ) : (
+                <span>Next</span>
+              )}
+            </Button>
           </div>
-        );
-      })}
-
-      <Form.Item>
-        <div className="flex justify-center w-full px-6 py-6 gap-8">
-          <Button
-            onClick={() => setCurrent(0)}
-            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
-          >
-            Previous
-          </Button>
-          <Button
-            onClick={() => setCurrent(2)}
-            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
-          >
-            {isCreateLoading || isUpdateLoading ? (
-              <Spin />
-            ) : sessionId ? (
-              <span>Edit</span>
-            ) : (
-              <span>Next</span>
-            )}
-          </Button>
-        </div>
-      </Form.Item>
+        </Form.Item>
+      </Form>
     </div>
   );
 };

@@ -36,6 +36,7 @@ const FiscalYearListCard: React.FC = () => {
   if (fiscalYearsFetchLoading) {
     return <p>Loading...</p>;
   }
+
   return (
     <div className=" mx-auto p-4">
       <div className="flex justify-between items-center mb-4">

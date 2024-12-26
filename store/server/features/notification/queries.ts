@@ -1,16 +1,16 @@
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { NOTIFICATION_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
-const userId = useAuthenticationStore.getState().userId;
-const getNotifications = async () => {
+const getNotifications = async (userId: string) => {
+  // return [];
   return crudRequest({
     url: `${NOTIFICATION_URL}/notification/all-notifications/${userId}`,
     method: 'GET',
   });
 };
-export const useGetNotifications = () =>
-  useQuery<any>(['notifications'], () => getNotifications(), {
+export const useGetNotifications = (userId: string) =>
+  useQuery<any>(['notifications', userId], () => getNotifications(userId), {
     keepPreviousData: true,
+    enabled: !!userId,
   });

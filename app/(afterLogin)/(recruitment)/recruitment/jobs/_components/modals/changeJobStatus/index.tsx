@@ -20,14 +20,16 @@ const ChangeStatusModal: React.FC = () => {
   const handleChangeStatusModalClose = () => {
     setChangeStatusModalVisible(false);
   };
+
   const handleStatusUpdate = (values: any) => {
     const updatedStatus = {
       updatedBy,
-      id: selectedJob.id,
+      id: selectedJob?.id,
       jobStatus: values?.status,
     };
-    setChangeStatusModalVisible(false);
+
     updateJobStatus({ data: updatedStatus, id: selectedJobId });
+    setChangeStatusModalVisible(false);
   };
 
   React.useEffect(() => {
@@ -37,6 +39,7 @@ const ChangeStatusModal: React.FC = () => {
       });
     }
   }, [form, selectedJob]);
+
   return (
     isChangeStatusModalVisible && (
       <Modal
@@ -44,23 +47,7 @@ const ChangeStatusModal: React.FC = () => {
         open={isChangeStatusModalVisible}
         onCancel={handleChangeStatusModalClose}
         centered
-        footer={[
-          <>
-            <Button key="cancel" onClick={handleChangeStatusModalClose}>
-              Cancel
-            </Button>
-            <Button
-              key="submit"
-              type="primary"
-              onClick={() => {
-                form.submit();
-                setChangeStatusModalVisible(false);
-              }}
-            >
-              Change Status
-            </Button>
-          </>,
-        ]}
+        footer={null}
       >
         <Form
           requiredMark={false}
@@ -85,6 +72,15 @@ const ChangeStatusModal: React.FC = () => {
                   </Select.Option>
                 ))}
             </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <Button key="cancel" onClick={handleChangeStatusModalClose}>
+              Cancel
+            </Button>
+            <Button htmlType="submit" type="primary">
+              Change Status
+            </Button>
           </Form.Item>
         </Form>
       </Modal>

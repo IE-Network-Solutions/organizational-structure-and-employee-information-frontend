@@ -1,5 +1,5 @@
 'use client';
-import { Card, Tabs } from 'antd';
+import { Card, Form, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import React, { useEffect, useState } from 'react';
 import { TbNotes } from 'react-icons/tb';
@@ -13,7 +13,7 @@ import CustomDeleteFiscalYear from '../_components/fiscalYear/deleteModal';
 
 function SettingsPage() {
   const [tabPosition, setTabPosition] = useState<'left' | 'top'>('left');
-
+  const [form] = Form.useForm();
   useEffect(() => {
     const updateTabPosition = () => {
       if (window.innerWidth < 768) {
@@ -31,6 +31,8 @@ function SettingsPage() {
       window.removeEventListener('resize', updateTabPosition);
     };
   }, []);
+
+  const handleStepChange = () => {};
 
   const items: TabsProps['items'] = [
     {
@@ -81,7 +83,10 @@ function SettingsPage() {
         tabPosition={tabPosition}
       />
       <CustomWorkingScheduleDrawer />
-      <CustomWorFiscalYearDrawer />
+      <CustomWorFiscalYearDrawer
+        form={form}
+        handleNextStep={handleStepChange}
+      />
       <CustomDeleteWorkingSchduel />
       <CustomDeleteFiscalYear />
     </>

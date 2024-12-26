@@ -5,6 +5,8 @@ import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/se
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useUpdateClosedDate } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const ClosedDateTable = () => {
   const { setIsShowClosedDateSidebar, setSelectedClosedDate } =
@@ -74,11 +76,18 @@ const ClosedDateTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (rule: any, record: any) => (
-        <ActionButtons
-          id={record?.id ?? null}
-          onEdit={() => handleEdit(record)}
-          onDelete={() => handleDelete(record)}
-        />
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateClosedDate,
+            Permissions.DeleteClosedDate,
+          ]}
+        >
+          <ActionButtons
+            id={record?.id ?? null}
+            onEdit={() => handleEdit(record)}
+            onDelete={() => handleDelete(record)}
+          />
+        </AccessGuard>
       ),
     },
   ];
