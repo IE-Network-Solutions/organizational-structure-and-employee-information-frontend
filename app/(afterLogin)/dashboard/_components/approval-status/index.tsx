@@ -30,6 +30,7 @@ const ApprovalStatus: FC = () => {
   const handleChange = (value: string) => {
     setApproverType(value);
   };
+  console.log(approverType, 'approverType');
 
   return (
     <div className="bg-white p-3 rounded-lg w-full">
@@ -45,6 +46,7 @@ const ApprovalStatus: FC = () => {
               label: item.value,
             }))}
             bordered={false}
+            defaultValue="Leave"
             onChange={handleChange}
           />
         </div>
