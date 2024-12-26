@@ -11,6 +11,7 @@ import MonthDrawer from '../../month/monthDrawer';
 import { FormInstance } from 'antd/lib';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Form } from 'antd';
+import { Month, Session } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 
 interface FiscalYearDrawerProps {
   form: FormInstance;
@@ -139,12 +140,12 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       startDate: fiscalYearFormValues?.fiscalYearStartDate,
       endDate: fiscalYearFormValues?.fiscalYearEndDate,
       description: fiscalYearFormValues?.fiscalYearDescription,
-      sessions: fiscalYearData?.map((session: any) => ({
+      sessions: fiscalYearData?.map((session: Session) => ({
         name: session?.name,
         description: session?.description,
         startDate: session?.startDate,
         endDate: session?.endDate,
-        months: session?.months.map((month: any) => ({
+        months: session?.months?.map((month: Month) => ({
           name: month?.name,
           description: month?.description,
           startDate: month?.startDate,

@@ -8,6 +8,7 @@ export interface ClosedDates {
   description?: string;
   date: Dayjs | string;
 }
+
 export type Month = {
   id: string;
   createdAt: string; // ISO 8601 date string
@@ -26,42 +27,29 @@ export type Month = {
 
 export type Session = {
   id: string;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
-  deletedAt: string | null; // Nullable ISO date string
+  createdAt: string; // ISO 8601 date string
+  updatedAt: string; // ISO 8601 date string
+  deletedAt: string | null; // Nullable ISO 8601 date string
   createdBy: string | null;
   updatedBy: string | null;
   name: string;
   description: string | null;
   calendarId: string;
-  startDate: string; // ISO date string
-  endDate: string; // ISO date string
+  startDate: string; // ISO 8601 date string
+  endDate: string; // ISO 8601 date string
   active: boolean;
   tenantId: string;
-  months: Month[]; // Adjust based on the structure of "months"
+  months?: Month[]; // Adjust based on the structure of "months"
 };
+
 export interface FiscalYear {
   id?: string;
   name: string;
   description: string;
   startDate: Dayjs | null;
   endDate: Dayjs | null;
-  sessions?: {
-    id?: string;
-    name: string;
-    description?: string;
-    startDate: Dayjs | null;
-    endDate: Dayjs | null;
-    months?: {
-      id?: string;
-      name: string;
-      description?: string;
-      startDate: Dayjs | null;
-      endDate: Dayjs | null;
-    }[];
-  }[];
+  sessions?: Session[]; // Use the Session type here
   closedDates?: ClosedDates[];
-  // sessions?: Session[];
 }
 
 export interface FiscalYearResponse {
