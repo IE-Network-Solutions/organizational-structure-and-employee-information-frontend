@@ -29,7 +29,7 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({
           ),
           className: 'px-1',
         },
-        link: `/compensation/allowance/${allowance.id}`,
+        link: `/allowance/${allowance.id}`,
       })) || [];
 
       const allAllowanceItem = {
@@ -39,7 +39,7 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({
           label: <p className="menu-item-label">All Allowances</p>,
           className: 'px-1',
         },
-        link: '/compensation/allowance/allAllowance',
+        link: '/allowance/allAllowance',
       };
 
       setMenuItems([

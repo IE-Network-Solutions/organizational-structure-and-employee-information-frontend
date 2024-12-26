@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation';
 
 const AllowancePage = () => {
-   redirect('/compensation/allowance/allAllowance');
+   redirect('/allowance/allAllowance');
   return null;
 };
 

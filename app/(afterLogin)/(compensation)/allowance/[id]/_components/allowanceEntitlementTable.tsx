@@ -1,5 +1,5 @@
 import React from 'react';
-import { Avatar, Input, Space, Spin, Table } from 'antd';
+import { Input, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import AccessGuard from '@/utils/permissionGuard';
@@ -16,7 +16,7 @@ import { EmployeeDetails } from '../../../_components/employeeDetails';
 
 const AllowanceEntitlementTable = () => {
 
-  const { setIsAllowanceEntitlementSidebarOpen} = useAllowanceEntitlementStore();
+  const { setIsAllowanceEntitlementSidebarOpen, isAllowanceGlobal } = useAllowanceEntitlementStore();
   const {mutate: deleteAllowanceEntitlement} = useDeleteAllowanceEntitlement();
   const {id} = useParams();
   const { data: allowanceEntitlementData, isLoading: fiscalActiveYearFetchLoading } = useFetchAllowanceEntitlements(id);
@@ -31,7 +31,7 @@ const AllowanceEntitlementTable = () => {
 
   const handleEdit = (record: any) => {
   };
-  console.log("allowanceEntitlementDataallowanceEntitlementDataallowanceEntitlementData", allowanceEntitlementData);
+  
   const handleDelete = (id: string) => {
     deleteAllowanceEntitlement(id);
   };
@@ -88,13 +88,14 @@ const AllowanceEntitlementTable = () => {
         size="large"
         style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
       >
-        <Input addonBefore={<SearchOutlined />} placeholder="large size" />
+        <Input addonBefore={<SearchOutlined />} placeholder="Search by name" />
         <Button
             size="large"
             type="primary"
             id="createNewClosedHolidayFieldId"
             icon={<LuPlus size={18} />}
             onClick={() => {setIsAllowanceEntitlementSidebarOpen(true)}}
+            disabled={isAllowanceGlobal}
             >
             Employees
         </Button>
