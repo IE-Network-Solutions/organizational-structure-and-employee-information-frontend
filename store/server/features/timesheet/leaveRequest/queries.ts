@@ -28,6 +28,18 @@ const getLeaveRequest = async (
     params: queryData,
   });
 };
+const getEmployeeLeave = async (
+  pageSize: number,
+  currentPage: number,
+  userId: string,
+) => {
+  const response = await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-balance/all?page=${currentPage}&limit=${pageSize}&userId=${userId}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+  return response;
+};
 
 const getApprovalLeaveRequest = async (
   requesterId: string,
@@ -74,6 +86,19 @@ const getSingleApprovalLog = async (requestId: string) => {
     },
   });
   return response;
+};
+export const useGetEmployeeLeave = (
+  pageSize: number,
+  currentPage: number,
+  userId: string,
+) => {
+  return useQuery<any>(
+    ['approvals', pageSize, currentPage, userId],
+    () => getEmployeeLeave(pageSize, currentPage, userId),
+    {
+      keepPreviousData: true,
+    },
+  );
 };
 
 export const useGetLeaveRequest = (

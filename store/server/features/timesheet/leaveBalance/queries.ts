@@ -14,12 +14,11 @@ const getLeaveBalance = async (userId: string) => {
   });
 };
 
-export const useGetLeaveBalance = (userId: string) => {
-  return useQuery<ApiResponse<LeaveBalance>>(
-    'leave-balance',
+export const useGetLeaveBalance = (userId: string) =>
+  useQuery<ApiResponse<LeaveBalance>>(
+    ['leave-balance', userId],
     () => getLeaveBalance(userId),
     {
-      keepPreviousData: true,
+      enabled: !!userId,
     },
   );
-};

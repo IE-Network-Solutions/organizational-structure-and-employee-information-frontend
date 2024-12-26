@@ -165,7 +165,7 @@ const menuItems: MenuProps['items'] = [
         className: 'font-bold',
       },
       {
-        key: '/timesheet/leave-management',
+        key: '/timesheet/leave-management/leaves',
         label: 'Leave Management',
         className: 'font-bold',
       },
