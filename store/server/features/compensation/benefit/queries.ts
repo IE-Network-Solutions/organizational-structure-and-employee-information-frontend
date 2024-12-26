@@ -1,6 +1,6 @@
 /**
  * @module fetchAllowanceTypesTemplate
- * This module provides a function and custom hook to fetch question templates from the API with pagination support.
+ * This module provides a function and custom hooks to fetch benefit data from the API.
  */
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -23,12 +23,11 @@ import { useQuery } from 'react-query';
  */
 
 /**
- * Fetches the question templates from the API, using pagination details such as page size and current page.
+ * Fetches benefit entitlement details for a specific benefit from the API.
  *
  * @async
- * @function fetchQuestionTemplate
- * @param {number} pageSize - The number of question templates to fetch per page.
- * @param {number} current - The current page number to fetch.
+ * @function fetchBenefitEntitlement
+ * @param {string | string[]} benefitId - The ID of the benefit for which entitlements are being fetched.
  * @returns {Promise<any>} The response from the API.
  */
 const fetchBenefitEntitlement = async (benefitId: string | string[]) => {
@@ -46,12 +45,11 @@ const fetchBenefitEntitlement = async (benefitId: string | string[]) => {
 };
 
 /**
- * Fetches the question templates from the API, using pagination details such as page size and current page.
+ * Fetches details for a specific benefit from the API.
  *
  * @async
- * @function fetchQuestionTemplate
- * @param {number} pageSize - The number of question templates to fetch per page.
- * @param {number} current - The current page number to fetch.
+ * @function fetchBenefit
+ * @param {string | string[]} id - The ID of the benefit to fetch.
  * @returns {Promise<any>} The response from the API.
  */
 const fetchBenefit = async (id: string | string[]) => {
@@ -69,12 +67,10 @@ const fetchBenefit = async (id: string | string[]) => {
 };
 
 /**
- * Fetches the question templates from the API, using pagination details such as page size and current page.
+ * Fetches a list of all benefits from the API.
  *
  * @async
- * @function fetchQuestionTemplate
- * @param {number} pageSize - The number of question templates to fetch per page.
- * @param {number} current - The current page number to fetch.
+ * @function fetchBenefits
  * @returns {Promise<any>} The response from the API.
  */
 const fetchBenefits = async () => {
@@ -92,12 +88,10 @@ const fetchBenefits = async () => {
 };
 
 /**
- * Custom hook to fetch question templates with pagination using React Query's useQuery hook.
- * The query's cache key is based on the `pageSize` and `current` page number to ensure proper cache handling.
+ * Custom hook to fetch benefit entitlements using React Query's useQuery hook.
  *
- * @param {number} pageSize - The number of question templates to fetch per page.
- * @param {number} current - The current page number to fetch.
- * @returns {QueryObject} The query object for fetching question templates.
+ * @param {string | string[]} benefitId - The ID of the benefit for which entitlements are being fetched.
+ * @returns {QueryObject} The query object for fetching benefit entitlements.
  */
 export const useFetchBenefitEntitlement = (benefitId: string | string[]) => {
   return useQuery(['benefitEntitlement'], () =>
@@ -106,12 +100,10 @@ export const useFetchBenefitEntitlement = (benefitId: string | string[]) => {
 };
 
 /**
- * Custom hook to fetch question templates with pagination using React Query's useQuery hook.
- * The query's cache key is based on the `pageSize` and `current` page number to ensure proper cache handling.
+ * Custom hook to fetch a specific benefit using React Query's useQuery hook.
  *
- * @param {number} pageSize - The number of question templates to fetch per page.
- * @param {number} current - The current page number to fetch.
- * @returns {QueryObject} The query object for fetching question templates.
+ * @param {string | string[]} benefitId - The ID of the benefit to fetch.
+ * @returns {QueryObject} The query object for fetching the benefit.
  */
 export const useFetchBenefit = (benefitId: string | string[]) => {
   return useQuery(['benefit'], () =>
@@ -120,12 +112,9 @@ export const useFetchBenefit = (benefitId: string | string[]) => {
 };
 
 /**
- * Custom hook to fetch question templates with pagination using React Query's useQuery hook.
- * The query's cache key is based on the `pageSize` and `current` page number to ensure proper cache handling.
+ * Custom hook to fetch all benefits using React Query's useQuery hook.
  *
- * @param {number} pageSize - The number of question templates to fetch per page.
- * @param {number} current - The current page number to fetch.
- * @returns {QueryObject} The query object for fetching question templates.
+ * @returns {QueryObject} The query object for fetching all benefits.
  */
 export const useFetchBenefits = () => {
   return useQuery(['benefits'], () =>

@@ -6,7 +6,7 @@ import { useFetchBenefit } from '@/store/server/features/compensation/benefit/qu
 import { useParams } from 'next/navigation';
 
 const BenefitEntitlemetPage = () => {
-  const {id} = useParams();
+  const { id } = useParams();
   const { data: benefitData } = useFetchBenefit(id);
 
   return (

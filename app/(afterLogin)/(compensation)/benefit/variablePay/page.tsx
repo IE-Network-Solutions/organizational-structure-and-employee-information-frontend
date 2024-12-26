@@ -7,7 +7,7 @@ const VariablePayPage = () => {
 
   return (
     <>
-      <PageHeader title="" size="small">
+      <PageHeader title="Variable Pay" size="small">
       </PageHeader>
       <VariablePayTable />
     </>

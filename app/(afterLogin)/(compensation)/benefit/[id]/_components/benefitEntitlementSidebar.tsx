@@ -28,7 +28,7 @@ import CustomDrawerFooterButton, {
         onClick: () => onClose(),
       },
       {
-        label:  <span>Create</span>,
+        label: <span>Create</span>,
         key: 'create',
         className: 'h-14',
         type: 'primary',
@@ -41,7 +41,6 @@ import CustomDrawerFooterButton, {
     const onClose = () => {
       form.resetFields();
       resetStore();
-      setSelectedDepartment(null);
     };
     
     const onFormSubmit = (formValues: any) => {
@@ -51,7 +50,7 @@ import CustomDrawerFooterButton, {
         totalAmount: Number(formValues.amount),
         settlementPeriod: Number(formValues.settlementPeriod),
     });
-      // onClose();
+      onClose();
     };
   
     const handleDepartmentChange = (value: string) => {
@@ -89,7 +88,7 @@ import CustomDrawerFooterButton, {
               <Form.Item
                 name="amount"
                 label={'Total Amount'}
-                rules={[{ required: true, message: 'Required' }]}
+                rules={[{ required: true, message: 'Total amount is equired!' }]}
                 className="form-item"
               >
                 <Input className="control" type='number' placeholder='Total Ammount' style={{ height: '32px', padding: '4px 8px' }} />
@@ -97,7 +96,7 @@ import CustomDrawerFooterButton, {
               <Form.Item
                 name="settlementPeriod"
                 label={'Settlemnet Period'}
-                rules={[{ required: true, message: 'Required' }]}
+                rules={[{ required: true, message: 'Settlemnet period is equired!' }]}
                 className="form-item"
               >
                 <Input className="control" type='number' placeholder='Settlement Period' style={{ height: '32px', padding: '4px 8px' }} />
@@ -106,7 +105,7 @@ import CustomDrawerFooterButton, {
               <Form.Item
                 name="department"
                 label="Select Department"
-                rules={[{ required: true, message: 'Please select a department' }]}
+                rules={[{ required: true, message: 'Department is equired!' }]}
                 className="form-item"
               >
                 <Select placeholder="Select a department" onChange={handleDepartmentChange}>
@@ -121,7 +120,7 @@ import CustomDrawerFooterButton, {
               <Form.Item
                 name="employees"
                 label="Select Employees"
-                rules={[{ required: true, message: 'Please select employees' }]}
+                rules={[{ required: true, message: 'Employee is equired!' }]}
                 className="form-item"
               >
                 <Select

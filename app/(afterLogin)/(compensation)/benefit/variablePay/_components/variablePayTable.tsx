@@ -11,10 +11,8 @@ import { SearchOutlined } from '@ant-design/icons';
 
 const VariablePayTable = () => {
     
-  const { setIsShowClosedDateSidebar, setSelectedClosedDate } =
-    useTimesheetSettingsStore();
-  const { data: fiscalActiveYear, isLoading: fiscalActiveYearFetchLoading } =
-    useGetActiveFiscalYears();
+  const { setIsShowClosedDateSidebar, setSelectedClosedDate } = useTimesheetSettingsStore();
+  const { data: fiscalActiveYear, isLoading: fiscalActiveYearFetchLoading } = useGetActiveFiscalYears();
   const { mutate: updateClosedDate } = useUpdateClosedDate();
 
   const handleEdit = (record: any) => {

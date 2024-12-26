@@ -1,6 +1,6 @@
 /**
  * @module benefitEntitlementMutation
- * This module provides functions and custom hooks for managing question templates (create, update, and delete) using CRUD operations via API requests.
+ * This module provides functions and custom hooks for managing benefit entitlements (create and delete) using CRUD operations via API requests.
  */
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -9,13 +9,12 @@ import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
-
 /**
- * Deletes a custom question template by sending a DELETE request to the API.
- * The request includes pagination details such as the current page and page size for managing the UI state.
+ * Creates a new benefit entitlement by sending a POST request to the API.
  *
  * @async
- * @function deleteQuestionTemplate
+ * @function createBenefitEntitlement
+ * @param {Object} data - The data for the new benefit entitlement.
  * @returns {Promise<any>} The response from the API.
  */
 const createBenefitEntitlement = async (data: any) => {
@@ -35,11 +34,11 @@ const createBenefitEntitlement = async (data: any) => {
 };
 
 /**
- * Deletes a custom question template by sending a DELETE request to the API.
- * The request includes pagination details such as the current page and page size for managing the UI state.
+ * Deletes a benefit entitlement by sending a DELETE request to the API.
  *
  * @async
- * @function deleteQuestionTemplate
+ * @function deleteBenefitEntitlement
+ * @param {string} id - The ID of the benefit entitlement to delete.
  * @returns {Promise<any>} The response from the API.
  */
 const deleteBenefitEntitlement = async (id: string) => {
@@ -57,16 +56,15 @@ const deleteBenefitEntitlement = async (id: string) => {
   });
 };
 
-
 /**
- * Custom hook to delete a question template using React Query's useMutation hook.
- * On success, the cache for `questionTemplate` is invalidated and a success message is displayed.
+ * Custom hook to delete a benefit entitlement using React Query's useMutation hook.
+ * On success, the cache for `benefitEntitlement` is invalidated and a success message is displayed.
  *
- * @returns {MutationObject} The mutation object for deleting a question template.
+ * @returns {MutationObject} The mutation object for deleting a benefit entitlement.
  */
-export const useCreateBenefitEntitlement = () => {
+export const useDeleteBenefitEntitlement = () => {
   const queryClient = useQueryClient();
-  return useMutation(createBenefitEntitlement, {
+  return useMutation(deleteBenefitEntitlement, {
     onSuccess: (unused: any, variables: any) => {
       queryClient.invalidateQueries('benefitEntitlement');
       const method = variables?.method?.toUpperCase();
@@ -76,14 +74,14 @@ export const useCreateBenefitEntitlement = () => {
 };
 
 /**
- * Custom hook to delete a question template using React Query's useMutation hook.
- * On success, the cache for `questionTemplate` is invalidated and a success message is displayed.
+ * Custom hook to create a benefit entitlement using React Query's useMutation hook.
+ * On success, the cache for `benefitEntitlement` is invalidated and a success message is displayed.
  *
- * @returns {MutationObject} The mutation object for deleting a question template.
+ * @returns {MutationObject} The mutation object for creating a benefit entitlement.
  */
-export const useDeleteBenefitEntitlement = () => {
+export const useCreateBenefitEntitlement = () => {
   const queryClient = useQueryClient();
-  return useMutation(deleteBenefitEntitlement, {
+  return useMutation(createBenefitEntitlement, {
     onSuccess: (unused: any, variables: any) => {
       queryClient.invalidateQueries('benefitEntitlement');
       const method = variables?.method?.toUpperCase();

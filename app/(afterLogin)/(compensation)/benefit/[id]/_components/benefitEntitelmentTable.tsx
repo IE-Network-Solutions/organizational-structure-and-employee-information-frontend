@@ -8,7 +8,7 @@ import { SearchOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import BenefitEntitlementSideBar from './benefitEntitlementSidebar';
-import { useFetchBenefits } from '@/store/server/features/compensation/benefit/queries';
+import { useFetchBenefitEntitlement } from '@/store/server/features/compensation/benefit/queries';
 import { useParams } from 'next/navigation';
 import { useDeleteBenefitEntitlement } from '@/store/server/features/compensation/benefit/mutations';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
@@ -19,15 +19,18 @@ const BenefitEntitlementTable = () => {
   const { setIsBenefitEntitlementSidebarOpen } = useBenefitEntitlementStore();
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
   const { id } = useParams();
-  const { data: benefitEntitlementData, isLoading } = useFetchBenefits();
+  const { data: benefitEntitlementsData, isLoading } = useFetchBenefitEntitlement(id);
+  console.log("benefitEntitlementData", benefitEntitlementsData);
 
-    const transformedData = benefitEntitlementData?.map((item: any) => ({
+  const transformedData = Array.isArray(benefitEntitlementsData)
+  ? benefitEntitlementsData.map((item: any) => ({
       id: item.id,
       userId: item.employeeId,
       isRate: item.compensationItem.isRate,
       Amount: item.totalAmount,
       ApplicableTo: item.compensationItem.applicableTo,
-    })) || [];
+    }))
+  : [];
 
   const handleBenefitEntitlementAdd = () => {
     setIsBenefitEntitlementSidebarOpen(true);
@@ -58,7 +61,14 @@ const BenefitEntitlementTable = () => {
       dataIndex: 'Amount',
       key: 'Amount',
       sorter: true,
-      render: (text: string, record) => <div>{text ? record.isRate ? `${text}% of base salary` : `${text} ETB` : '-'}</div>,
+      render: (text: string, record) => <div>{text == 'PER-EMPLOYEE' ? `Selected Employee` : `All Employees`}</div>,
+    },
+    {
+      title: 'Aplicable To',
+      dataIndex: 'ApplicableTo',
+      key: 'ApplicableTo',
+      sorter: true,
+      render: (text: string, record) => <div>{text ? `${text} ETB` : '-'}</div>,
     },
     {
       title: 'Action',
@@ -67,8 +77,8 @@ const BenefitEntitlementTable = () => {
       render: (rule: any, record: any) => (
         <AccessGuard
           permissions={[
-            Permissions.UpdateClosedDate,
-            Permissions.DeleteClosedDate,
+            Permissions.UpdateBenefitEntitlement,
+            Permissions.DeleteBenefitEntitlement,
           ]}
         >
           <ActionButtons
@@ -90,15 +100,17 @@ const BenefitEntitlementTable = () => {
         style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
       >
         <Input addonBefore={<SearchOutlined />} placeholder="Search by name" />
-        <Button
-            size="large"
-            type="primary"
-            id="createNewClosedHolidayFieldId"
-            icon={<LuPlus size={18} />}
-            onClick={handleBenefitEntitlementAdd}
-            >
-            Employees
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateBenefitEntitlement]}>
+          <Button
+              size="large"
+              type="primary"
+              id="createNewClosedHolidayFieldId"
+              icon={<LuPlus size={18} />}
+              onClick={handleBenefitEntitlementAdd}
+              >
+              Employees
+          </Button>
+        </AccessGuard>
       </Space>
       <Table
         className="mt-6"

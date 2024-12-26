@@ -29,7 +29,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({
           ),
           className: 'px-1',
         },
-        link: `/compensation/benefit/${allowance.id}`,
+        link: `/benefit/${allowance.id}`,
       })) || [];
 
       const allAllowanceItem = {
@@ -39,7 +39,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({
           label: <p className="menu-item-label">Variable Pay</p>,
           className: 'px-1',
         },
-        link: '/compensation/benefit/variablePay',
+        link: '/benefit/variablePay',
       };
 
       setMenuItems([
