@@ -4,7 +4,7 @@ import { CiCalendarDate } from 'react-icons/ci';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import SidebarMenu from '@/components/sidebarMenu';
-import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
+import { useFetchAllowances } from '@/store/server/features/compensation/allowance/queries';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 
 interface TimesheetSettingsLayoutProps {
@@ -14,7 +14,7 @@ interface TimesheetSettingsLayoutProps {
 const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({
   children,
 }) => {
-  const { data } = useFetchAllowanceTypes();
+  const { data } = useFetchAllowances();
   const [menuItems, setMenuItems] = useState<any>([]);
 
   useEffect(() => {

@@ -3,15 +3,15 @@ import React from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import DynamicAllowanceEntitlementTable from './_components/allowanceEntitlementTable';
 import { useParams } from 'next/navigation';
-import { useFetchBenefit } from '@/store/server/features/compensation/benefit/queries';
+import { useFetchAllowance } from '@/store/server/features/compensation/allowance/queries';
 
 const singleAllowancePage = () => {
-  const {id} = useParams();
-  const { data: benefitData } = useFetchBenefit(id);
+  const { id } = useParams();
+  const { data: allowanceData } = useFetchAllowance(id);
 
   return (
     <>
-      <PageHeader title={benefitData?.name ? benefitData?.name : ''} size="small">
+      <PageHeader title={allowanceData?.name ? allowanceData?.name : ''} size="small">
       </PageHeader>
       <DynamicAllowanceEntitlementTable />
     </>

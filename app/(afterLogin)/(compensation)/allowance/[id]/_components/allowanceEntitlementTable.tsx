@@ -12,7 +12,7 @@ import AllowanceEntitlementSideBar from './allowanceEntitlementSidebar';
 import { useFetchAllowanceEntitlements } from '@/store/server/features/compensation/allowance/queries';
 import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
-import { EmployeeDetails } from '../../../benefit/[id]/_components/benefitEntitlementTable';
+import { EmployeeDetails } from '../../../_components/employeeDetails';
 
 const AllowanceEntitlementTable = () => {
 

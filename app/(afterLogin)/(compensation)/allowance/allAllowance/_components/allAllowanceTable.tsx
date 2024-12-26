@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
-import { useFetchAllBenefits } from '@/store/server/features/compensation/benefit/queries';
-import { EmployeeDetails } from '../../../benefit/[id]/_components/benefitEntitlementTable';
+import { useFetchAllowances } from '@/store/server/features/compensation/allowance/queries';
+import { EmployeeDetails } from '../../../_components/employeeDetails';
 
 const AllAllowanceTable = () => {
-  const {data: allCompensationsData} = useFetchAllBenefits();
+  const {data: allCompensationsData} = useFetchAllowances();
 
   const [pagination, setPagination] = useState({
     current: 1,
