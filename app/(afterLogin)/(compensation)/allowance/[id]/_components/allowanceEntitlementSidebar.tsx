@@ -5,49 +5,19 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { Form, Select, Spin } from 'antd';
 import { useEffect, useState } from 'react';
-import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
-import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
+import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useCreateAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutation';
+import { useCreateAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
   
   const AllowanceEntitlementSideBar = () => {
-  
-    const { isAllowanceEntitlementOpen, setIsAllowanceEntitlementOpen } = useAllowanceEntitlementStore();
-    const { setIsBenefitRecurring, setIsRateBenefit, selectedBenefitRecord} = useCompensationSettingStore();
+
+    const { isAllowanceEntitlementSidebarOpen, resetStore, departmentUsers, setDepartmentUsers, selectedDepartment, setSelectedDepartment, setIsAllowanceEntitlementSidebarOpen} = useAllowanceEntitlementStore();
     const {mutate: createAllowanceEntitlement} = useCreateAllowanceEntitlement();
     const [form] = Form.useForm();
     const { data: departments, isLoading } = useGetDepartmentsWithUsers();
-    const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
-    const [departmentUsers, setDepartmentUsers] = useState<any[]>([]);
     const {id} = useParams();
-  
-    useEffect(() => {
-      if (selectedBenefitRecord) {
-        setIsRateBenefit(selectedBenefitRecord.isRate);
-        setIsBenefitRecurring(selectedBenefitRecord.isRecurring);
-        form.setFieldsValue({
-          name: selectedBenefitRecord.name || '',
-          description: selectedBenefitRecord.description || '',
-          isRate: !!selectedBenefitRecord.isRate, // Ensure boolean value
-          isAllEmployee: selectedBenefitRecord.applicableTo === 'GLOBAL',
-          isRecurring: !!selectedBenefitRecord.isRecurring, // Ensure boolean value
-          defaultAmount: selectedBenefitRecord.defaultAmount
-            ? parseInt(selectedBenefitRecord.defaultAmount.match(/\d+/)?.[0], 10) // Extract number from string
-            : '',
-          mode: selectedBenefitRecord.mode || undefined, // Set undefined if no value
-          frequency: selectedBenefitRecord.frequency || undefined, // Set undefined if no value
-        });
-      } else {
-        form.resetFields();
-        form.setFieldsValue({
-          isRate: false,
-          isAllEmployee: false,
-          isRecurring: false,
-        })
-      }
-    }, [selectedBenefitRecord, form]);
     
     const footerModalItems: CustomDrawerFooterButtonProps[] = [
       {
@@ -59,7 +29,7 @@ import CustomLabel from '@/components/form/customLabel/customLabel';
         onClick: () => onClose(),
       },
       {
-        label: selectedBenefitRecord ? <span>Edit</span> : <span>Create</span>,
+        label: <span>Create</span>,
         key: 'create',
         className: 'h-14',
         type: 'primary',
@@ -71,7 +41,7 @@ import CustomLabel from '@/components/form/customLabel/customLabel';
   
     const onClose = () => {
       form.resetFields();
-      setIsAllowanceEntitlementOpen(false);
+      resetStore();
       setSelectedDepartment(null);
     };
   
@@ -83,33 +53,26 @@ import CustomLabel from '@/components/form/customLabel/customLabel';
     });
       onClose();
     };
-  
-    // Handle department change
+
     const handleDepartmentChange = (value: string) => {
-      setSelectedDepartment(value);
-      // Find the selected department and set its users
+      setSelectedDepartment(value)
       const department = departments.find((dept: any) => dept.name === value);
       if (department) {
-        setDepartmentUsers(department.users); // Assuming `users` is an array inside each department
-        // Set all users as selected for the department
+        setDepartmentUsers(department.users);
         form.setFieldsValue({
-          employees: department.users.map((user: any) => user.id), // Pre-select all users for the department
+          employees: department.users.map((user: any) => user.id),
         });
       }
     };
   
     return (
-      isAllowanceEntitlementOpen && (
+      isAllowanceEntitlementSidebarOpen && (
         <CustomDrawerLayout
-          open={isAllowanceEntitlementOpen}
+          open={isAllowanceEntitlementSidebarOpen}
           onClose={onClose}
           modalHeader={
             <CustomDrawerHeader className="flex justify-center">
-              {selectedBenefitRecord ? (
-                <span>Edit Allowance Entitlement</span>
-              ) : (
                 <span>Add Allowance Entitlement</span>
-              )}
             </CustomDrawerHeader>
           }
           footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
@@ -119,7 +82,7 @@ import CustomLabel from '@/components/form/customLabel/customLabel';
             <Form
               layout="vertical"
               form={form}
-              onFinish={(values) => onFormSubmit(values)} // Assuming you have onFormSubmit function
+              onFinish={(values) => onFormSubmit(values)}
               requiredMark={CustomLabel}
             >
               <Form.Item

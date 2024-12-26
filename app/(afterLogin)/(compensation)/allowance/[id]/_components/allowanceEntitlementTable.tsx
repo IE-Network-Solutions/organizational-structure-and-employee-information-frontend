@@ -7,16 +7,16 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { SearchOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
-import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
+import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/index';
 import AllowanceEntitlementSideBar from './allowanceEntitlementSidebar';
 import { useFetchAllowanceEntitlements } from '@/store/server/features/compensation/allowance/queries';
 import { useParams } from 'next/navigation';
-import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutation';
+import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { EmployeeDetails } from '../../../benefit/[id]/_components/benefitEntitlementTable';
 
 const AllowanceEntitlementTable = () => {
 
-  const { setIsAllowanceEntitlementOpen} = useAllowanceEntitlementStore();
+  const { setIsAllowanceEntitlementSidebarOpen} = useAllowanceEntitlementStore();
   const {mutate: deleteAllowanceEntitlement} = useDeleteAllowanceEntitlement();
   const {id} = useParams();
   const { data: allowanceEntitlementData, isLoading: fiscalActiveYearFetchLoading } = useFetchAllowanceEntitlements(id);
@@ -94,7 +94,7 @@ const AllowanceEntitlementTable = () => {
             type="primary"
             id="createNewClosedHolidayFieldId"
             icon={<LuPlus size={18} />}
-            onClick={() => {setIsAllowanceEntitlementOpen(true)}}
+            onClick={() => {setIsAllowanceEntitlementSidebarOpen(true)}}
             >
             Employees
         </Button>
