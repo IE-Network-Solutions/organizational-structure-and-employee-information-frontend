@@ -45,6 +45,7 @@ const AssignTargetDrawer: React.FC = () => {
   const resetState = () => {
     form.resetFields();
     setSelectedMonths([]);
+    getTargetById;
     form.setFieldsValue({
       department: '',
       criteria: '',
@@ -60,8 +61,7 @@ const AssignTargetDrawer: React.FC = () => {
         [getTargetById.month]: getTargetById.target,
       });
       setSelectedMonths([getTargetById.month]);
-    } else if (!currentId && !getTargetById) {
-      // If there's no `clientId` or `currentId`, select all active months
+    } else if (!currentId) {
       const allActiveMonths =
         activeSessionData?.months?.map((month: any) => month.name) || [];
       form.setFieldsValue({
@@ -85,7 +85,7 @@ const AssignTargetDrawer: React.FC = () => {
     }));
 
     const payload: Record<string, any> = {
-      departmentId: values.department,
+      departmentId: values.department || null,
       vpCriteriaId: values.criteria,
       target,
       ...(getTargetById && currentId

@@ -9,7 +9,7 @@ const createAssignTarget = async (values: any) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
-    await crudRequest({
+    const response = await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/criteria-targets`,
       method: 'POST',
       data: values,
@@ -18,10 +18,14 @@ const createAssignTarget = async (values: any) => {
         tenantId: tenantId,
       },
     });
+    const duplicateMonths = response?.duplicateTarget || [];
+    const duplicateMessage = duplicateMonths.length
+      ? `But The following months are duplicated: ${duplicateMonths.join(', ')}.`
+      : '';
 
     NotificationMessage.success({
       message: 'Successfully Created',
-      description: 'Target successfully Assigned.',
+      description: `Target successfully Assigned. ${duplicateMessage}`,
     });
   } catch (error) {
     throw error;
