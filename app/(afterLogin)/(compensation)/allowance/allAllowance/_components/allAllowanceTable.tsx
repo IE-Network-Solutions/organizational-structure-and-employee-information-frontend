@@ -69,7 +69,7 @@ const AllAllowanceTable = () => {
       sorter: true,
       render: (text: string) => <div>{text || '-'}</div>,
     },
-  // Dynamically adding columns if allCompensationsData is an array
+    
   ...(Array.isArray(allCompensationsData)
     ? allCompensationsData.map((item: any) => ({
         title: item?.name,

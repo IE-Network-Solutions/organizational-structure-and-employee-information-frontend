@@ -12,7 +12,7 @@ const AllAllowancePage = () => {
   return (
     <>
       <PageHeader title="All Allowance Entitlement" size="small">
-        <AccessGuard permissions={[Permissions.CreateClosedDate]}>
+        <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
           <Button
             size="large"
             type="primary"

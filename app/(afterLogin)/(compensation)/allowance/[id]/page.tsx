@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import DynamicAllowanceEntitlementTable from './_components/allowanceEntitlementTable';
+import AllowanceEntitlementTable from './_components/allowanceEntitlementTable';
 import { useParams } from 'next/navigation';
 import { useFetchAllowance } from '@/store/server/features/compensation/allowance/queries';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation';
@@ -24,7 +24,7 @@ const singleAllowancePage = () => {
     <>
       <PageHeader title={allowanceData?.name ? allowanceData?.name : ''} size="small">
       </PageHeader>
-      <DynamicAllowanceEntitlementTable />
+      <AllowanceEntitlementTable />
     </>
   );
 };

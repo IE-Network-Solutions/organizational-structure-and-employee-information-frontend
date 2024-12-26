@@ -66,8 +66,8 @@ const AllowanceEntitlementTable = () => {
       render: (rule: any, record: any) => (
         <AccessGuard
           permissions={[
-            Permissions.UpdateClosedDate,
-            Permissions.DeleteClosedDate,
+            Permissions.UpdateAllowanceEntitlement,
+            Permissions.DeleteAllowanceEntitlement,
           ]}
         >
           <ActionButtons
@@ -89,16 +89,18 @@ const AllowanceEntitlementTable = () => {
         style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
       >
         <Input addonBefore={<SearchOutlined />} placeholder="Search by name" />
-        <Button
-            size="large"
-            type="primary"
-            id="createNewClosedHolidayFieldId"
-            icon={<LuPlus size={18} />}
-            onClick={() => {setIsAllowanceEntitlementSidebarOpen(true)}}
-            disabled={isAllowanceGlobal}
-            >
-            Employees
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
+          <Button
+              size="large"
+              type="primary"
+              id="createNewClosedHolidayFieldId"
+              icon={<LuPlus size={18} />}
+              onClick={() => {setIsAllowanceEntitlementSidebarOpen(true)}}
+              disabled={isAllowanceGlobal}
+              >
+              Employees
+          </Button>
+        </AccessGuard>
       </Space>
       <Table
         className="mt-6"
