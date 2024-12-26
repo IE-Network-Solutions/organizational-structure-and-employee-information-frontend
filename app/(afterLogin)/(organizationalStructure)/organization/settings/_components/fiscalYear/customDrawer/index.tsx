@@ -196,14 +196,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       onClose={handleCancel}
       open={isFiscalYearOpen}
       width="50%"
-      footer={
-        <div className="flex justify-between items-center w-full h-full">
-          <div className="flex justify items-center gap-2">
-            <span>Total Working hours:</span>
-            <span>{workingHour ?? '-'}</span>
-          </div>
-        </div>
-      }
+      footer={null}
     >
       {formContent}
     </CustomDrawerLayout>
