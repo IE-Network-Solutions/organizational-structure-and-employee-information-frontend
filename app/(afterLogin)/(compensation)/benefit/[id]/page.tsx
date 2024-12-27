@@ -9,10 +9,14 @@ import { useBenefitEntitlementStore } from '@/store/uistate/features/compensatio
 const BenefitEntitlemetPage = () => {
   const { id } = useParams();
   const { data: benefitData } = useFetchBenefit(id);
-  const { setBenefitMode } = useBenefitEntitlementStore();
+  const { setBenefitMode, setBenefitDefaultAmount, setBenefitApplicableTo } = useBenefitEntitlementStore();
   
   useEffect(() => {
     setBenefitMode(benefitData?.mode);
+    setBenefitApplicableTo(benefitData?.applicableTo);
+    if (benefitData?.mode == 'CREDIT') {
+      setBenefitDefaultAmount(benefitData?.defaultAmount);
+    }
   }, [benefitData, setBenefitMode]);
 
   return (

@@ -13,11 +13,37 @@ import CustomDrawerFooterButton, {
   
   const BenefitEntitlementSideBar = () => {
   
-    const { departmentUsers, setDepartmentUsers, benefitMode, isBenefitEntitlementSidebarOpen, selectedDepartment, setSelectedDepartment, resetStore } = useBenefitEntitlementStore();
+    const { departmentUsers, setDepartmentUsers, benefitMode, isBenefitEntitlementSidebarOpen, selectedDepartment, setSelectedDepartment, resetStore, benefitDefaultAmount } = useBenefitEntitlementStore();
     const { mutate: createBenefitEntitlement } = useCreateBenefitEntitlement();
-    const [ form ] = Form.useForm();
     const { data: departments, isLoading } = useGetDepartmentsWithUsers();
     const { id } = useParams();
+    const [ form ] = Form.useForm();
+
+    const onClose = () => {
+      form.resetFields();
+      resetStore();
+    };
+    
+    const onFormSubmit = (formValues: any) => {
+      createBenefitEntitlement({
+        compensationItemId: id,
+        employeeIds: formValues.employees,
+        totalAmount: benefitMode == 'CREDIT' ? benefitDefaultAmount : Number(formValues.amount),
+        settlementPeriod: Number(formValues.settlementPeriod),
+    });
+      onClose();
+    };
+  
+    const handleDepartmentChange = (value: string) => {
+      setSelectedDepartment(value);
+      const department = departments.find((dept: any) => dept.name === value);
+      if (department) {
+        setDepartmentUsers(department.users);
+        form.setFieldsValue({
+          employees: department.users.map((user: any) => user.id),
+        });
+      }
+    };
     
     const footerModalItems: CustomDrawerFooterButtonProps[] = [
       {
@@ -38,32 +64,6 @@ import CustomDrawerFooterButton, {
         onClick: () => form.submit(),
       },
     ];
-  
-    const onClose = () => {
-      form.resetFields();
-      resetStore();
-    };
-    
-    const onFormSubmit = (formValues: any) => {
-      createBenefitEntitlement({
-        compensationItemId: id,
-        employeeIds: formValues.employees,
-        totalAmount: Number(formValues.amount),
-        settlementPeriod: Number(formValues.settlementPeriod),
-    });
-      onClose();
-    };
-  
-    const handleDepartmentChange = (value: string) => {
-      setSelectedDepartment(value);
-      const department = departments.find((dept: any) => dept.name === value);
-      if (department) {
-        setDepartmentUsers(department.users);
-        form.setFieldsValue({
-          employees: department.users.map((user: any) => user.id),
-        });
-      }
-    };
   
     return (
       isBenefitEntitlementSidebarOpen && (
@@ -89,10 +89,21 @@ import CustomDrawerFooterButton, {
               <Form.Item
                 name="amount"
                 label={'Total Amount'}
-                rules={[{ required: true, message: 'Total amount is required!' }]}
+                rules={[
+                  {
+                    required: benefitMode != 'CREDIT',
+                    message: 'Total amount is required!',
+                  },
+                ]}
                 className="form-item"
               >
-                <Input className="control" type='number' placeholder='Total Ammount' style={{ height: '32px', padding: '4px 8px' }} />
+                <Input
+                  className="control"
+                  type='number'
+                  placeholder={benefitMode == 'DEBIT' ? 'Total Ammount' : benefitDefaultAmount.toString()}
+                  style={{ height: '32px', padding: '4px 8px' }}
+                  disabled={benefitMode == 'CREDIT'}
+                />
               </Form.Item>
               <Form.Item
                 name="settlementPeriod"

@@ -20,6 +20,11 @@ const VariablePayTable = () => {
     Benefit: '',
   })) || [];
 
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',
@@ -57,11 +62,6 @@ const VariablePayTable = () => {
       render: (text: string) => <div>{text || '-'}</div>,
     },
   ];
-
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
 
   return (
     <Spin spinning={isLoading}>

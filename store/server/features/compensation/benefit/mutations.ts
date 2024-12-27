@@ -68,7 +68,7 @@ export const useDeleteBenefitEntitlement = () => {
     onSuccess: (unused: any, variables: any) => {
       queryClient.invalidateQueries('benefitEntitlement');
       const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      handleSuccessMessage(method, 'Benefit entitlement successfully deleted.');
     },
   });
 };
@@ -85,7 +85,7 @@ export const useCreateBenefitEntitlement = () => {
     onSuccess: (unused: any, variables: any) => {
       queryClient.invalidateQueries('benefitEntitlement');
       const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      handleSuccessMessage(method, 'Benefit entitlement successfully created.');
     },
   });
 };

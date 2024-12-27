@@ -15,7 +15,7 @@ import { useBenefitEntitlementStore } from '@/store/uistate/features/compensatio
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 
 const BenefitEntitlementTable = () => {
-  const { setIsBenefitEntitlementSidebarOpen, currentPage, pageSize, setCurrentPage, setPageSize } = useBenefitEntitlementStore();
+  const { setIsBenefitEntitlementSidebarOpen, currentPage, pageSize, setCurrentPage, setPageSize, BenefitApplicableTo } = useBenefitEntitlementStore();
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
   const { id } = useParams();
   const { data: benefitEntitlementsData, isLoading } = useFetchBenefitEntitlement(id);
@@ -27,6 +27,7 @@ const BenefitEntitlementTable = () => {
         isRate: item.compensationItem.isRate,
         Amount: item.totalAmount,
         ApplicableTo: item.compensationItem.applicableTo,
+        mode: item.compensationItem.mode,
       }))
     : [];
 
@@ -54,19 +55,26 @@ const BenefitEntitlementTable = () => {
       render: (isRate: string) => <div>{isRate ? 'Rate' : 'Fixed'}</div>,
     },
     {
+      title: 'Mode',
+      dataIndex: 'mode',
+      key: 'mode',
+      sorter: true,
+      render: (mode: string) => <div>{mode == 'CREDIT' ? 'Credit' : 'Debit'}</div>,
+    },
+    {
       title: 'Amount',
       dataIndex: 'Amount',
       key: 'Amount',
       sorter: true,
-      render: (text: string, record) =>
-        <div>{text ? (record.isRate ? `${text}% of base salary` : `${text} ETB`) : '-'}</div>,
+      render: (Amount: string, record) =>
+        <div>{Amount ? (record.isRate ? `${Amount}% of base salary` : `${Amount} ETB`) : '-'}</div>,
     },
     {
       title: 'Applicable To',
       dataIndex: 'ApplicableTo',
       key: 'ApplicableTo',
       sorter: true,
-      render: (text: string) => <div>{text === 'PER-EMPLOYEE' ? 'Selected Employee' : 'All Employees'}</div>,
+      render: (ApplicableTo: string) => <div>{ApplicableTo === 'PER-EMPLOYEE' ? 'Selected Employee' : 'All Employees'}</div>,
     },
     {
       title: 'Action',
@@ -110,6 +118,7 @@ const BenefitEntitlementTable = () => {
             id="createNewClosedHolidayFieldId"
             icon={<LuPlus size={18} />}
             onClick={handleBenefitEntitlementAdd}
+            disabled={BenefitApplicableTo == 'GLOBAL'}
           >
             Employees
           </Button>
