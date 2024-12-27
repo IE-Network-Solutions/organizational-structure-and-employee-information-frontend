@@ -15,7 +15,7 @@ const BenefitTypePage = () => {
   return (
     <>
       <PageHeader title="Bennefit Types" size="small">
-        <AccessGuard permissions={[Permissions.CreateClosedDate]}>
+        <AccessGuard permissions={[Permissions.CreateBenefitType]}>
           <Button
             size="large"
             type="primary"

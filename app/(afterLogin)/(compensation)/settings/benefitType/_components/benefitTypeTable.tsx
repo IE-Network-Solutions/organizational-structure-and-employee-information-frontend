@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
@@ -12,9 +12,8 @@ import { useCompensationSettingStore } from '@/store/uistate/features/compensati
 const BenefitTypeTable = () => {
   const { data, isLoading } = useFetchAllowanceTypes();
   const { mutate: deleteAllowanceType } = useDeleteAllowanceType();
-  const [ tableData, setTableData ] = useState([]);
   const { benefitPageSize, benefitCurrentPage, setBenefitPageSize, setBenefitCurrentPage } = useCompensationTypeTablesStore();
-  const { setSelectedBenefitRecord, setIsBenefitOpen } = useCompensationSettingStore();
+  const { setSelectedBenefitRecord, setIsBenefitOpen, tableData, setTableData } = useCompensationSettingStore();
 
   useEffect(() => {
     if (data) {
@@ -88,8 +87,8 @@ const BenefitTypeTable = () => {
       render: (rule: any, record: any) => (
         <AccessGuard
           permissions={[
-            Permissions.UpdateClosedDate,
-            Permissions.DeleteClosedDate,
+            Permissions.UpdateBenefitType,
+            Permissions.DeleteBenefitType,
           ]}
         >
           <ActionButtons

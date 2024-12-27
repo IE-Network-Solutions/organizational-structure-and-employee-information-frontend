@@ -5,7 +5,7 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { Form, Input, Select, Spin, Switch } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import { useCreateAllowanceType } from '@/store/server/features/compensation/settings/mutations';
@@ -18,33 +18,23 @@ export const COMPENSATION_PERIOD=['MONTHLY', 'WEEKLY']
   
 const AllowanceTypeSideBar = () => {
 
-  const {isAllowanceOpen, isRateAllowance, isAllEmployee, setIsAllEmployee, setIsRateAllowance, resetStore} = useCompensationSettingStore();
-  const {mutate: createAllowanceType, isLoading} = useCreateAllowanceType();
+  const { isAllowanceOpen, isRateAllowance, isAllEmployee, setIsAllEmployee, setIsRateAllowance, resetStore, selectedDepartment, setSelectedDepartment, departmentUsers, setDepartmentUsers, selectedAllowanceRecord } = useCompensationSettingStore();
+  const { mutate: createAllowanceType, isLoading } = useCreateAllowanceType();
   const { data: departments } = useGetDepartmentsWithUsers();
-  const [form] = Form.useForm();
-  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
-  const [departmentUsers, setDepartmentUsers] = useState<any[]>([]);
+  const [ form ] = Form.useForm();
 
-  
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-14',
-      size: 'large',
-      loading: false,
-      onClick: () => onClose(),
-    },
-    {
-      label: <span>Create</span>,
-      key: 'create',
-      className: 'h-14',
-      type: 'primary',
-      size: 'large',
-      loading: isLoading,
-      onClick: () => form.submit(),
-    },
-  ];
+  useEffect(() => {
+    if (selectedAllowanceRecord) {
+      setIsAllEmployee(selectedAllowanceRecord.applicableTo == 'GLOBAL');
+      form.setFieldsValue({
+        name: selectedAllowanceRecord.name,
+        description: selectedAllowanceRecord.description,
+        isRate: selectedAllowanceRecord.isRate,
+        defaultAmount: selectedAllowanceRecord.defaultAmount,
+        isAllEmployee: selectedAllowanceRecord.applicableTo == 'GLOBAL' ? true : false,
+      });
+    }
+  }, [selectedAllowanceRecord, form]);   
 
   const onClose = () => {
     form.resetFields();
@@ -79,9 +69,32 @@ const AllowanceTypeSideBar = () => {
       });
     }
   };
+
   const handleAllEmployeeChange = (checked: any) => {
     setIsAllEmployee(checked);
   };
+
+  const footerModalItems: CustomDrawerFooterButtonProps[] = [
+    {
+      label: 'Cancel',
+      key: 'cancel',
+      className: 'h-14',
+      size: 'large',
+      loading: false,
+      onClick: () => onClose(),
+    },
+    {
+      label: selectedAllowanceRecord ? <span>Update</span>: <span>Create</span>,
+      key: 'create',
+      className: 'h-14',
+      type: 'primary',
+      size: 'large',
+      loading: isLoading,
+      disabled: selectedAllowanceRecord,
+      onClick: () => form.submit(),
+    },
+  ];
+
   return (
     isAllowanceOpen && (
       <CustomDrawerLayout
@@ -89,7 +102,11 @@ const AllowanceTypeSideBar = () => {
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
+            {selectedAllowanceRecord ? (
+              <span>Edit Allowance Type</span>
+            ) : (
               <span>Add Allowance Type</span>
+            )}
           </CustomDrawerHeader>
         }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
@@ -143,6 +160,7 @@ const AllowanceTypeSideBar = () => {
               unCheckedChildren={<CloseOutlined />}
               onChange={handleAllEmployeeChange}
               checked={isAllEmployee}
+              disabled={selectedAllowanceRecord}
               />
               </Form.Item>
             </div>
@@ -154,7 +172,7 @@ const AllowanceTypeSideBar = () => {
             >
               <Input className="control" type='number' placeholder='Enter Allowance Ammount' style={{ height: '32px', padding: '4px 8px' }} />
             </Form.Item>
-            { !isAllEmployee && (
+            { (!isAllEmployee && !selectedAllowanceRecord) && (
               <>    
               <Form.Item
                 className="form-item"

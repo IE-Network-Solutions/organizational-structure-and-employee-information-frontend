@@ -15,7 +15,7 @@ const AllowanceTypePage = () => {
   return (
     <>
       <PageHeader title="Allowance Types" size="small">
-        <AccessGuard permissions={[Permissions.CreateClosedDate]}>
+        <AccessGuard permissions={[Permissions.CreateAllowanceType]}>
           <Button
             size="large"
             type="primary"

@@ -68,7 +68,7 @@ export const useCreateAllowanceType = () => {
     onSuccess: (unused: any, variables: any) => {
       queryClient.invalidateQueries('allowanceType');
       const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      handleSuccessMessage(method, 'Compensation type successfully created.');
     },
   });
 };
@@ -85,7 +85,7 @@ export const useDeleteAllowanceType = () => {
     onSuccess: (unused: any, variables: any) => {
       queryClient.invalidateQueries('allowanceType');
       const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      handleSuccessMessage(method, 'Compensation type successfully deleted.');
     },
   });
 };

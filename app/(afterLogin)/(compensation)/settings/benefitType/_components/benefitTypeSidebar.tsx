@@ -28,7 +28,6 @@ import CustomDrawerFooterButton, {
       if (selectedBenefitRecord) {
         setIsAllEmployee(selectedBenefitRecord.applicableTo == 'GLOBAL');
         setBenefitMode(selectedBenefitRecord.mode);
-        console.log("selectedBenefitRecord", selectedBenefitRecord);
         form.setFieldsValue({
           name: selectedBenefitRecord.name,
           description: selectedBenefitRecord.description,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
@@ -6,13 +6,13 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
 import { useDeleteAllowanceType } from '@/store/server/features/compensation/settings/mutations';
-import { useCompensationTypeTablesStore } from '@/store/uistate/features/compensation/settings';
+import { useCompensationSettingStore, useCompensationTypeTablesStore } from '@/store/uistate/features/compensation/settings';
 
 const AllowanceTypeTable = () => {
   const { data, isLoading } = useFetchAllowanceTypes();
   const { mutate: deleteAllowanceType } = useDeleteAllowanceType();
-  const { allowanceCurrentPage, allowancePageSize, setAllowanceCurrentPage, setAllowancePageSize } = useCompensationTypeTablesStore();
-  const [ tableData, setTableData ] = useState([]);
+  const { allowanceCurrentPage, allowancePageSize, setAllowanceCurrentPage, setAllowancePageSize, } = useCompensationTypeTablesStore();
+  const { setSelectedAllowanceRecord, setIsAllowanceOpen, tableData, setTableData } = useCompensationSettingStore();
 
   useEffect(() => {
     if (data) {
@@ -25,6 +25,16 @@ const AllowanceTypeTable = () => {
     deleteAllowanceType(id);
   };
   
+  const handleAllowanceEdit = (record: string) => {
+    setSelectedAllowanceRecord(record);
+    setIsAllowanceOpen(true);
+  };
+
+  const handleTableChange = (pagination: any) => {
+    setAllowanceCurrentPage(pagination.current);
+    setAllowancePageSize(pagination.pageSize);
+  };
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',
@@ -66,38 +76,25 @@ const AllowanceTypeTable = () => {
         applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees',
     },
     {
-      title: 'Is Recurring',
-      dataIndex: 'isRecurring',
-      key: 'isRecurring',
-      sorter: true,
-      render: (isRecurring: boolean) => <div>{isRecurring ? 'Yes' : 'No'}</div>,
-    },
-    {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
       render: (rule: any, record: any) => (
         <AccessGuard
           permissions={[
-            Permissions.UpdateClosedDate,
-            Permissions.DeleteClosedDate,
+            Permissions.UpdateAllowanceType,
+            Permissions.DeleteAllowanceType,
           ]}
         >
           <ActionButtons
             id={record?.id ?? null}
-            disableEdit
-            onEdit={() => {}}
+            onEdit={() => handleAllowanceEdit(record)}
             onDelete={() => handleDelete(record.id)}
           />
         </AccessGuard>
       ),
     },
   ];
-  
-  const handleTableChange = (pagination: any) => {
-    setAllowanceCurrentPage(pagination.current);
-    setAllowancePageSize(pagination.pageSize);
-  };
 
   return (
     <Spin spinning={isLoading}>
