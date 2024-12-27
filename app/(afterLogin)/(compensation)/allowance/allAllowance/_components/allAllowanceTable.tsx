@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { useFetchAllowances } from '@/store/server/features/compensation/allowance/queries';
