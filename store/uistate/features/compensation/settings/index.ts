@@ -2,8 +2,6 @@ import { create } from 'zustand';
 
 export interface CompensationSettingTypes {
   isAllowanceOpen: boolean;
-  isAllowanceRecurring: boolean;
-  isBenefitRecurring: boolean;
   isRateAllowance: boolean;
   isBenefitOpen: boolean;
   allEmployeeSelectedBenefit: boolean;
@@ -13,8 +11,6 @@ export interface CompensationSettingTypes {
   isAllEmployee: boolean;
 
   setIsAllowanceOpen: (value: boolean) => void;
-  setIsAllowanceRecurring: (value: boolean) => void;
-  setIsBenefitRecurring: (value: boolean) => void;
   setIsRateAllowance: (value: boolean) => void;
   setIsBenefitOpen: (value: boolean) => void;
   setAllEmployeeSelectedBenefit: (value: boolean) => void;
@@ -28,7 +24,6 @@ export interface CompensationSettingTypes {
 
 const initialState = {
   isAllowanceOpen: false,
-  isAllowanceRecurring: false,
   isBenefitRecurring: false,
   isRateAllowance: false,
   isBenefitOpen: false,
@@ -44,8 +39,6 @@ export const useCompensationSettingStore = create<CompensationSettingTypes>(
     ...initialState,
 
     setIsAllowanceOpen: (value) => set({ isAllowanceOpen: value }),
-    setIsAllowanceRecurring: (value) => set({ isAllowanceRecurring: value }),
-    setIsBenefitRecurring: (value) => set({ isBenefitRecurring: value }),
     setIsRateAllowance: (value) => set({ isRateAllowance: value }),
     setIsBenefitOpen: (value) => set({ isBenefitOpen: value }),
     setAllEmployeeSelectedBenefit: (value) => set({ allEmployeeSelectedBenefit: value }),

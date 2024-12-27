@@ -12,14 +12,13 @@ import { useCreateAllowanceType } from '@/store/server/features/compensation/set
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
   
 const { TextArea } = Input;
-const { Option } = Select;
 
-export const COMPENSATION_MODE=['CREDIT' , 'DEBIT']
+export const COMPENSATION_MODE=['CREDIT' , 'DEBIT'] // CREDIT IS CONSIDERED AS TO BE PAID TO THE EMPLOYEE, LIKE A GIFT
 export const COMPENSATION_PERIOD=['MONTHLY', 'WEEKLY']
   
 const AllowanceTypeSideBar = () => {
 
-  const {isAllowanceOpen, isRateAllowance, setIsAllowanceRecurring, isAllEmployee, setIsAllEmployee, isAllowanceRecurring, setIsRateAllowance, resetStore} = useCompensationSettingStore();
+  const {isAllowanceOpen, isRateAllowance, isAllEmployee, setIsAllEmployee, setIsRateAllowance, resetStore} = useCompensationSettingStore();
   const {mutate: createAllowanceType, isLoading} = useCreateAllowanceType();
   const { data: departments } = useGetDepartmentsWithUsers();
   const [form] = Form.useForm();
@@ -52,25 +51,16 @@ const AllowanceTypeSideBar = () => {
     resetStore();
   };
 
-  const onRecuranceChange = (checked: any) => {
-    setIsAllowanceRecurring(checked);
-  };
-
   const onRateToggle = (checked: any) => {
     setIsRateAllowance(checked);
   };
 
   const onFormSubmit = (formValues: any) => {
-    console.log("formValuesformValues", formValues);
     createAllowanceType({
       name: formValues.name,
       description: formValues.description,
       type: "ALLOWANCE",
       mode: "CREDIT",
-      isRecurring: formValues.isRecurring,
-      frequency: formValues.isRecurring
-        ? formValues.frequency
-        : null,
       isRate: formValues.isRate,
       defaultAmount: Number(formValues.defaultAmount),
       applicableTo: formValues.isAllEmployee ? 'GLOBAL' : 'PER-EMPLOYEE',
@@ -155,18 +145,6 @@ const AllowanceTypeSideBar = () => {
               checked={isAllEmployee}
               />
               </Form.Item>
-              <Form.Item
-              name="isRecurring"
-              label="Is Recurring"
-              className="form-item"
-              initialValue={false}
-              >
-              <Switch
-              checkedChildren={<CheckOutlined />}
-              unCheckedChildren={<CloseOutlined />}
-              onChange={onRecuranceChange}
-              />
-              </Form.Item>
             </div>
             <Form.Item
               name="defaultAmount"
@@ -176,25 +154,6 @@ const AllowanceTypeSideBar = () => {
             >
               <Input className="control" type='number' placeholder='Enter Allowance Ammount' style={{ height: '32px', padding: '4px 8px' }} />
             </Form.Item>
-            {(!!isAllowanceRecurring) && (
-              <Form.Item
-                name="frequency"
-                label="Frequency"
-                rules={[{ required: true, message: 'Required' }]}
-                className="form-item"
-              >
-                <Select
-                  placeholder="Select frequency"
-                  style={{ width: 200 }}
-                >
-                  {COMPENSATION_PERIOD.map((type) => (
-                    <Option key={type} value={type}>
-                      {type}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            )}
             { !isAllEmployee && (
               <>    
               <Form.Item

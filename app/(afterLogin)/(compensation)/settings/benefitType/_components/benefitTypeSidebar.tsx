@@ -13,14 +13,13 @@ import CustomDrawerFooterButton, {
   import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
   
   const { TextArea } = Input;
-  const { Option } = Select;
   
-  export const COMPENSATION_MODE=['CREDIT' , 'DEBIT']
+  export const COMPENSATION_MODE=['CREDIT' , 'DEBIT'] // CREDIT IS CONSIDERED AS TO BE PAID TO THE EMPLOYEE, LIKE A GIFT
   export const COMPENSATION_PERIOD=['MONTHLY', 'WEEKLY']
   
   const BenefitypeSideBar = () => {
   
-    const {isBenefitOpen, setBenefitMode, benefitMode, isBenefitRecurring, isRateBenefit, setIsBenefitRecurring, setIsAllEmployee, isAllEmployee, setIsRateBenefit, resetStore} = useCompensationSettingStore();
+    const {isBenefitOpen, setBenefitMode, benefitMode, isRateBenefit, setIsAllEmployee, isAllEmployee, setIsRateBenefit, resetStore} = useCompensationSettingStore();
     const {mutate: createAllowanceType, isLoading} = useCreateAllowanceType();
     const [form] = Form.useForm();
     const { data: departments } = useGetDepartmentsWithUsers();
@@ -57,8 +56,7 @@ import CustomDrawerFooterButton, {
     };
   
     const onFormSubmit = (formValues: any) => {
-      console.log("Benefit formValuesformValues", formValues);
-        createAllowanceType({
+      createAllowanceType({
         name: formValues.name,
         description: formValues.description,
         type: "MERIT",
@@ -66,7 +64,8 @@ import CustomDrawerFooterButton, {
         isRate: formValues.mode == 'CREDIT' ? formValues.isRate : false,
         defaultAmount: formValues.mode == 'CREDIT' ? Number(formValues.defaultAmount) : null,
         applicableTo: formValues.mode == 'CREDIT' ? formValues.isAllEmployee ? 'GLOBAL' : 'PER-EMPLOYEE' : 'PER-EMPLOYEE',
-        employeeIds: formValues.mode == 'CREDIT' ? !formValues.isAllEmployee ? formValues.employees : [] : [],
+        employeeIds: formValues.employees ? formValues.employees : [],
+        settlementPeriod: formValues.NoOfPayPeriod ? Number(formValues.NoOfPayPeriod) : null,
       });
       onClose();
     };
@@ -89,10 +88,6 @@ import CustomDrawerFooterButton, {
   
     const handleAllEmployeeChange = (checked: any) => {
       setIsAllEmployee(checked);
-    };
-  
-    const onRecuranceChange = (checked: any) => {
-      setIsBenefitRecurring(checked);
     };
   
     return (
@@ -118,7 +113,7 @@ import CustomDrawerFooterButton, {
               <Form.Item
                 name="name"
                 label="Name"
-                rules={[{ required: true, message: 'Required' }]}
+                rules={[{ required: true, message: 'Name is Required!' }]}
                 className="form-item"
               >
                 <Input className="control" placeholder='Benefit Name' style={{ height: '32px', padding: '4px 8px' }} />
@@ -126,7 +121,7 @@ import CustomDrawerFooterButton, {
               <Form.Item
                 name="description"
                 label="Description"
-                rules={[{ required: true, message: 'Required' }]}
+                rules={[{ required: true, message: 'Description is Required!' }]}
                 className="form-item"
               >
                 <TextArea  className="control" autoSize={{ minRows: 3, maxRows: 5 }} placeholder='Description' style={{ height: '32px', padding: '4px 8px' }} />
@@ -134,15 +129,15 @@ import CustomDrawerFooterButton, {
               <Form.Item
                 name="mode"
                 label="Mode"
-                rules={[{ required: true, message: 'Required' }]}
+                rules={[{ required: true, message: 'Mode is Required!' }]}
                 className="form-item"
               >
               <Radio.Group onChange={handleModeChange} value={benefitMode}>
-                <Radio value="DEBIT">Debit</Radio>
                 <Radio value="CREDIT">Credit</Radio>
+                <Radio value="DEBIT">Debit</Radio>
               </Radio.Group>
               </Form.Item>
-              {benefitMode == "DEBIT" && (
+              {benefitMode == "CREDIT" && (
               <>
                 <div style={{ display: 'flex', gap: '20px' }}>
                   <Form.Item
@@ -157,13 +152,12 @@ import CustomDrawerFooterButton, {
                       onChange={onRateToggle}
                     />
                   </Form.Item>
-  
                   <Form.Item
                     name="isAllEmployee"
                     label="All Employees are entitled"
                     className="form-item"
                     initialValue={true}
-                    rules={[{ required: true, message: 'Required' }]}
+                    rules={[{ required: true, message: 'Employee selection is Required!' }]}
                   >
                   <Switch
                     checkedChildren={<CheckOutlined />}
@@ -172,25 +166,13 @@ import CustomDrawerFooterButton, {
                     onChange={handleAllEmployeeChange}
                   />
                   </Form.Item>
-                  <Form.Item
-                  name="isRecurring"
-                  label="Is Recurring"
-                  className="form-item"
-                  initialValue={false}
-                  >
-                  <Switch
-                  checkedChildren={<CheckOutlined />}
-                  unCheckedChildren={<CloseOutlined />}
-                  onChange={onRecuranceChange}
-                  />
-                  </Form.Item>
                 </div>
-  
+                <div style={{ display: 'flex', gap: '20px' }}>
                 <Form.Item
                   name="defaultAmount"
-                  label={isRateBenefit ? 'Rate' : 'Fixed Amount'}
+                  label={isRateBenefit ? 'Rate Amount' : 'Fixed Amount'}
                   className="form-item"
-                  rules={[{ required: true, message: 'Required' }]}
+                  rules={[{ required: true, message: 'Amount is Required' }]}
                 >
                   <Input
                     className="control"
@@ -199,32 +181,23 @@ import CustomDrawerFooterButton, {
                     style={{ height: '32px', padding: '4px 8px' }}
                   />
                 </Form.Item>
-                {(!!isBenefitRecurring) && (
-                <Form.Item
-                  name="frequency"
-                  label="Frequency"
-                  rules={[{ required: true, message: 'Required' }]}
+                { !isAllEmployee && (
+                  <Form.Item
+                  name="NoOfPayPeriod"
+                  label={'Number of Pay Period'}
+                  rules={[{ required: true, message: 'Number of Pay Period is required!'}]}
                   className="form-item"
-                >
-                  <Select
-                    placeholder="Select frequency"
-                    style={{ width: 200 }}
                   >
-                    {COMPENSATION_PERIOD.map((type) => (
-                      <Option key={type} value={type}>
-                        {type}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              )}
+                    <Input className="control" type='number' placeholder={"Number of Pay Period"} style={{ height: '32px', padding: '4px 8px' }} />
+                  </Form.Item>
+                )}
+                </div>
                 { !isAllEmployee && (
                 <>    
                 <Form.Item
                   className="form-item"
                   name="department"
                   label="Select Department"
-                  rules={[{ required: true, message: 'Please select a department' }]}
                 >
                   <Select placeholder="Select a department" onChange={handleDepartmentChange}>
                     {departments?.map((department: any) => (
@@ -239,7 +212,6 @@ import CustomDrawerFooterButton, {
                   className="form-item"
                   name="employees"
                   label="Select Employees"
-                  rules={[{ required: true, message: 'Please select employees' }]}
                 >
                   <Select
                     mode="multiple"
