@@ -56,3 +56,38 @@ export const useCompensationSettingStore = create<CompensationSettingTypes>(
     setIsAllEmployee: (value) => set({ isAllEmployee: value}),
   })
 );
+
+interface CompensationTypeTables {
+  benefitCurrentPage: number;
+  allowancePageSize: number;
+  allowanceCurrentPage: number;
+  benefitPageSize: number;
+
+  setBenefitCurrentPage: (value: number) => void;
+  setAllowanceCurrentPage: (value: number) => void;
+  setBenefitPageSize: (value: number) => void;
+  setAllowancePageSize: (value: number) => void;
+
+  resetStore: () => void;
+}
+
+const compensationTypeTablesInitialState = {
+  benefitCurrentPage: 1,
+  allowancePageSize: 10,
+  allowanceCurrentPage: 1,
+  benefitPageSize: 10,
+};
+
+export const useCompensationTypeTablesStore = create<CompensationTypeTables>(
+  (set) => ({
+    ...compensationTypeTablesInitialState,
+
+    setBenefitCurrentPage: (value) => set({ benefitCurrentPage: value }),
+    setAllowanceCurrentPage: (value) => set({ allowanceCurrentPage: value }),
+
+    setAllowancePageSize: (value) => set({ allowancePageSize: value }),
+    setBenefitPageSize: (value) => set({ benefitPageSize: value }),
+
+    resetStore: () => set(compensationTypeTablesInitialState),
+  })
+);

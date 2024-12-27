@@ -76,7 +76,7 @@ const AllowanceTypeSideBar = () => {
       applicableTo: formValues.isAllEmployee ? 'GLOBAL' : 'PER-EMPLOYEE',
       employeeIds: !formValues.isAllEmployee ? formValues.employees : [],
     });
-    // onClose();
+    onClose();
   };
 
   const handleDepartmentChange = (value: string) => {

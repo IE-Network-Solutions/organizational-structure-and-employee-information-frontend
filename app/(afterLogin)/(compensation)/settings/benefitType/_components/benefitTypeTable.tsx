@@ -6,11 +6,13 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
 import { useDeleteAllowanceType } from '@/store/server/features/compensation/settings/mutations';
+import { useCompensationTypeTablesStore } from '@/store/uistate/features/compensation/settings';
 
 const BenefitTypeTable = () => {
   const { data, isLoading } = useFetchAllowanceTypes();
   const { mutate: deleteAllowanceType } = useDeleteAllowanceType();
   const [ tableData, setTableData ] = useState([]);
+  const { benefitPageSize, benefitCurrentPage, setBenefitPageSize, setBenefitCurrentPage } = useCompensationTypeTablesStore();
 
   useEffect(() => {
     if (data) {
@@ -93,6 +95,11 @@ const BenefitTypeTable = () => {
       ),
     },
   ];
+
+  const handleTableChange = (pagination: any) => {
+    setBenefitCurrentPage(pagination.current);
+    setBenefitPageSize(pagination.pageSize);
+  };
   
 
   return (
@@ -101,7 +108,13 @@ const BenefitTypeTable = () => {
         className="mt-6"
         columns={columns}
         dataSource={tableData}
-        pagination={false}
+        pagination={{
+          current: benefitCurrentPage,
+          pageSize: benefitPageSize,
+          total: tableData.length,
+          showSizeChanger: true,
+        }}
+        onChange={handleTableChange}
       />
     </Spin>
   );

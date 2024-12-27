@@ -68,7 +68,7 @@ import CustomDrawerFooterButton, {
         applicableTo: formValues.mode == 'CREDIT' ? formValues.isAllEmployee ? 'GLOBAL' : 'PER-EMPLOYEE' : 'PER-EMPLOYEE',
         employeeIds: formValues.mode == 'CREDIT' ? !formValues.isAllEmployee ? formValues.employees : [] : [],
       });
-      // onClose();
+      onClose();
     };
   
     const handleModeChange = (e: RadioChangeEvent) => {

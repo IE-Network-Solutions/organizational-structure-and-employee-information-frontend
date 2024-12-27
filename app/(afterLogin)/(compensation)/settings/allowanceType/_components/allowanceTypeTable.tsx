@@ -6,10 +6,12 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
 import { useDeleteAllowanceType } from '@/store/server/features/compensation/settings/mutations';
+import { useCompensationTypeTablesStore } from '@/store/uistate/features/compensation/settings';
 
 const AllowanceTypeTable = () => {
   const { data, isLoading } = useFetchAllowanceTypes();
   const { mutate: deleteAllowanceType } = useDeleteAllowanceType();
+  const { allowanceCurrentPage, allowancePageSize, setAllowanceCurrentPage, setAllowancePageSize } = useCompensationTypeTablesStore();
   const [ tableData, setTableData ] = useState([]);
 
   useEffect(() => {
@@ -92,6 +94,10 @@ const AllowanceTypeTable = () => {
     },
   ];
   
+  const handleTableChange = (pagination: any) => {
+    setAllowanceCurrentPage(pagination.current);
+    setAllowancePageSize(pagination.pageSize);
+  };
 
   return (
     <Spin spinning={isLoading}>
@@ -99,7 +105,13 @@ const AllowanceTypeTable = () => {
         className="mt-6"
         columns={columns}
         dataSource={tableData}
-        pagination={false}
+        pagination={{
+          current: allowanceCurrentPage,
+          pageSize: allowancePageSize,
+          total: tableData.length,
+          showSizeChanger: true,
+        }}
+        onChange={handleTableChange}
       />
     </Spin>
   );
