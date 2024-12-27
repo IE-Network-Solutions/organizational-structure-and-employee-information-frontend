@@ -8,19 +8,17 @@ import { useAllAllowanceStore } from '@/store/uistate/features/compensation';
 const AllAllowanceTable = () => {
   const {data: allCompensationsData} = useFetchAllowances();
   const { currentPage, pageSize, setCurrentPage, setPageSize} = useAllAllowanceStore();
-  
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
 
-  const allEntitlementData = Array.isArray(allCompensationsData)
-  ? allCompensationsData.reduce(
+  const allAllowanceEntitlementData = Array.isArray(allCompensationsData)
+  ? allCompensationsData.filter((allowanceEntitlement: any) => allowanceEntitlement.type == 'ALLOWANCE')
+  : [];
+
+  const allEntitlementData = Array.isArray(allAllowanceEntitlementData)
+  ? allAllowanceEntitlementData.reduce(
       (acc: any, benefit: any) => acc.concat(benefit.compensationItmeEntitlement),
       []
     )
   : [];
-
 
   const groupByEmployeeId = allEntitlementData?.reduce((acc: any, item: any) => {
       if (!acc[item.employeeId]) {
@@ -47,6 +45,11 @@ const AllAllowanceTable = () => {
     return dataRow;
   });
 
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',
@@ -63,8 +66,8 @@ const AllAllowanceTable = () => {
       render: (text: string) => <div>{text || '-'}</div>,
     },
     
-  ...(Array.isArray(allCompensationsData)
-    ? allCompensationsData.map((item: any) => ({
+  ...(Array.isArray(allAllowanceEntitlementData)
+    ? allAllowanceEntitlementData.map((item: any) => ({
         title: item?.name,
         dataIndex: item?.id,
         key: item?.id,
