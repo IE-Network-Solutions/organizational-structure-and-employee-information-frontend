@@ -15,7 +15,7 @@ import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensat
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 
 const AllowanceEntitlementTable = () => {
-  const { setIsAllowanceEntitlementSidebarOpen, isAllowanceGlobal } = useAllowanceEntitlementStore();
+  const { setIsAllowanceEntitlementSidebarOpen, isAllowanceGlobal, currentPage, pageSize, setCurrentPage, setPageSize } = useAllowanceEntitlementStore();
   const { mutate: deleteAllowanceEntitlement } = useDeleteAllowanceEntitlement();
   const { id } = useParams();
   const {
@@ -31,6 +31,11 @@ const AllowanceEntitlementTable = () => {
       Amount: item.totalAmount,
       ApplicableTo: item.compensationItem.applicableTo,
     })) || [];
+
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
 
   const handleDelete = (id: string) => {
     deleteAllowanceEntitlement(id);
@@ -107,7 +112,13 @@ const AllowanceEntitlementTable = () => {
         className="mt-6"
         columns={columns}
         dataSource={transformedData}
-        pagination={false}
+        pagination={{
+          current: currentPage,
+          pageSize,
+          total: transformedData.length,
+          showSizeChanger: true,
+        }}
+        onChange={handleTableChange}
       />
       <AllowanceEntitlementSideBar />
     </Spin>

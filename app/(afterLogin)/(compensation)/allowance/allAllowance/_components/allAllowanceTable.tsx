@@ -3,17 +3,15 @@ import { Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { useFetchAllowances } from '@/store/server/features/compensation/allowance/queries';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
+import { useAllAllowanceStore } from '@/store/uistate/features/compensation';
 
 const AllAllowanceTable = () => {
   const {data: allCompensationsData} = useFetchAllowances();
-
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-  });
+  const { currentPage, pageSize, setCurrentPage, setPageSize} = useAllAllowanceStore();
   
-  const handleTableChange = (page: number, pageSize: number) => {
-    setPagination({ current: page, pageSize });
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
   };
 
   const allEntitlementData = Array.isArray(allCompensationsData)
@@ -49,11 +47,6 @@ const AllAllowanceTable = () => {
     return dataRow;
   });
 
-  const paginatedData = dataSource.slice(
-    (pagination.current - 1) * pagination.pageSize,
-    pagination.current * pagination.pageSize
-  );
-
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',
@@ -85,15 +78,14 @@ const AllAllowanceTable = () => {
       <Table
         className="mt-6"
         columns={columns}
-        dataSource={paginatedData}
+        dataSource={dataSource}
         pagination={{
-          current: pagination.current,
-          pageSize: pagination.pageSize,
+          current: currentPage,
+          pageSize,
           total: dataSource.length,
           showSizeChanger: true,
-          onChange: handleTableChange,
-          showQuickJumper: true,
         }}
+        onChange={handleTableChange}
       />
     </Spin>
   );
