@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Input, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
@@ -15,21 +15,20 @@ import { useBenefitEntitlementStore } from '@/store/uistate/features/compensatio
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 
 const BenefitEntitlementTable = () => {
-
-  const { setIsBenefitEntitlementSidebarOpen } = useBenefitEntitlementStore();
+  const { setIsBenefitEntitlementSidebarOpen, currentPage, pageSize, setCurrentPage, setPageSize } = useBenefitEntitlementStore();
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
   const { id } = useParams();
   const { data: benefitEntitlementsData, isLoading } = useFetchBenefitEntitlement(id);
 
   const transformedData = Array.isArray(benefitEntitlementsData)
-  ? benefitEntitlementsData.map((item: any) => ({
-      id: item.id,
-      userId: item.employeeId,
-      isRate: item.compensationItem.isRate,
-      Amount: item.totalAmount,
-      ApplicableTo: item.compensationItem.applicableTo,
-    }))
-  : [];
+    ? benefitEntitlementsData.map((item: any) => ({
+        id: item.id,
+        userId: item.employeeId,
+        isRate: item.compensationItem.isRate,
+        Amount: item.totalAmount,
+        ApplicableTo: item.compensationItem.applicableTo,
+      }))
+    : [];
 
   const handleBenefitEntitlementAdd = () => {
     setIsBenefitEntitlementSidebarOpen(true);
@@ -38,7 +37,6 @@ const BenefitEntitlementTable = () => {
   const handleDelete = (id: string) => {
     deleteBenefitEntitlement(id);
   };
-  
 
   const columns: TableColumnsType<any> = [
     {
@@ -46,7 +44,7 @@ const BenefitEntitlementTable = () => {
       dataIndex: 'userId',
       key: 'userId',
       sorter: true,
-      render: (userId: string) => <EmployeeDetails empId={userId}/>,
+      render: (userId: string) => <EmployeeDetails empId={userId} />,
     },
     {
       title: 'Type',
@@ -60,14 +58,15 @@ const BenefitEntitlementTable = () => {
       dataIndex: 'Amount',
       key: 'Amount',
       sorter: true,
-      render: (text: string, record) => <div>{text ? record.isRate ? `${text}% of base salary` : `${text} ETB` : '-'}</div>,
+      render: (text: string, record) =>
+        <div>{text ? (record.isRate ? `${text}% of base salary` : `${text} ETB`) : '-'}</div>,
     },
     {
-      title: 'Aplicable To',
+      title: 'Applicable To',
       dataIndex: 'ApplicableTo',
       key: 'ApplicableTo',
       sorter: true,
-      render: (text: string, record) => <div>{(text === 'PER-EMPLOYEE') ? 'Selected Employee' : 'All Employees'}</div>,
+      render: (text: string) => <div>{text === 'PER-EMPLOYEE' ? 'Selected Employee' : 'All Employees'}</div>,
     },
     {
       title: 'Action',
@@ -91,6 +90,11 @@ const BenefitEntitlementTable = () => {
     },
   ];
 
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
+
   return (
     <Spin spinning={isLoading}>
       <Space
@@ -101,13 +105,13 @@ const BenefitEntitlementTable = () => {
         <Input addonBefore={<SearchOutlined />} placeholder="Search by name" />
         <AccessGuard permissions={[Permissions.CreateBenefitEntitlement]}>
           <Button
-              size="large"
-              type="primary"
-              id="createNewClosedHolidayFieldId"
-              icon={<LuPlus size={18} />}
-              onClick={handleBenefitEntitlementAdd}
-              >
-              Employees
+            size="large"
+            type="primary"
+            id="createNewClosedHolidayFieldId"
+            icon={<LuPlus size={18} />}
+            onClick={handleBenefitEntitlementAdd}
+          >
+            Employees
           </Button>
         </AccessGuard>
       </Space>
@@ -115,7 +119,13 @@ const BenefitEntitlementTable = () => {
         className="mt-6"
         columns={columns}
         dataSource={transformedData}
-        pagination={false}
+        pagination={{
+          current: currentPage,
+          pageSize,
+          total: transformedData.length,
+          showSizeChanger: true,
+        }}
+        onChange={handleTableChange}
       />
       <BenefitEntitlementSideBar />
     </Spin>
