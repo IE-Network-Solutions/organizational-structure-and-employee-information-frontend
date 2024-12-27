@@ -88,7 +88,7 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run format'
                         ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && pm2 delete staging-pep-app || true'
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run build && PORT=3005 pm2 start npm --name "staging-pep-app" -- start'
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run build && PORT=3005 sudo pm2 start npm --name "staging-pep-app" -- start'
                     """
                 }
             }
