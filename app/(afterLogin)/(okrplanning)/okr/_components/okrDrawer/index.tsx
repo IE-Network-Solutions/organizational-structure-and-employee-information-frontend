@@ -154,7 +154,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     }
   }, [objectiveValue, form]);
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div className="w-full flex justify-center items-center gap-4 pt-2">
       <CustomButton
         id="cancel-button"
         type="default"
@@ -178,6 +178,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       modalHeader={modalHeader}
       footer={footer}
       width={'50%'}
+      paddingBottom={10}
     >
       <Form
         id="okr-form"

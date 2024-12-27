@@ -10,7 +10,6 @@ import {
   Col,
 } from 'antd';
 import { GoPlus } from 'react-icons/go';
-import { validateName } from '@/utils/validation';
 import { CiDollar } from 'react-icons/ci';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
@@ -43,6 +42,23 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   };
 
   const { data: metrics } = useGetMetrics();
+
+  const validateName = (
+    key: string,
+    name: string,
+    isRequire?: boolean,
+  ): string | null => {
+    if (isRequire === false) {
+      return '';
+    }
+    if (!name) {
+      return `${key} is required.`;
+    }
+    if (name.length < 3 || name.length > 80) {
+      return `${key} must be between 3 and 80 characters long.`;
+    }
+    return null;
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-2" id={`currency-form-${index}`}>

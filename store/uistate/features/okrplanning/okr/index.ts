@@ -122,11 +122,15 @@ export const useOKRStore = create<OKRState>()(
             i === index ? { ...item, [field]: value } : item,
           ),
         },
-        keyResultValue: state.keyResultValue.map((item: any, i: number) =>
-          i === index ? { ...item, [field]: value } : item,
-        ),
+       
       })),
-
+      updateKeyResultValue: (index: number, field: keyof KeyResult, value: any) =>
+        set((state) => ({
+         
+          keyResultValue: state.keyResultValue.map((item: any, i: number) =>
+            i === index ? { ...item, [field]: value } : item,
+          ),
+        })),
     handleKeyResultChange: (value: any, index: number, field: string) =>
       set((state) => {
         const newKeyResult = [...state.objectiveValue.keyResults];
