@@ -56,6 +56,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       [field]: newObjectiveName,
     });
   };
+
   useEffect(() => {
     setObjectiveValue({
       ...objectiveValue,
@@ -128,9 +129,15 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               }
             }
           }
-
+          const modifiedObjectiveValue = { ...objectiveValue };
+          if (
+            modifiedObjectiveValue?.allignedKeyResultId === '' ||
+            modifiedObjectiveValue?.allignedKeyResultId === null
+          ) {
+            delete modifiedObjectiveValue.allignedKeyResultId;
+          }
           // If all checks pass, proceed with the objective creation
-          createObjective(objectiveValue, {
+          createObjective(modifiedObjectiveValue, {
             onSuccess: () => {
               handleDrawerClose();
             },
