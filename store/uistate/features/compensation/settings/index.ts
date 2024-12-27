@@ -9,6 +9,9 @@ export interface CompensationSettingTypes {
   selectedModeBenefit: string;
   benefitMode: string;
   isAllEmployee: boolean;
+  selectedBenefitRecord: any | null;
+  selectedDepartment: string | null;
+  departmentUsers: any[];
 
   setIsAllowanceOpen: (value: boolean) => void;
   setIsRateAllowance: (value: boolean) => void;
@@ -16,13 +19,16 @@ export interface CompensationSettingTypes {
   setAllEmployeeSelectedBenefit: (value: boolean) => void;
   setIsRateBenefit: (value: boolean) => void;
   setSelectedModeBenefit: (selectedModeBenefit: string) => void;
-
-  resetStore: () => void; // Reset function
+  setSelectedBenefitRecord: (selectedBenefitRecord: any | null) => void;
   setBenefitMode: (value: any) => void;
   setIsAllEmployee: (value: any) => void;
+  setSelectedDepartment: (value: any) => void;
+  setDepartmentUsers: (value: any) => void;
+
+  resetStore: () => void;
 }
 
-const initialState = {
+const compensationSettingInitialState = {
   isAllowanceOpen: false,
   isBenefitRecurring: false,
   isRateAllowance: false,
@@ -32,11 +38,14 @@ const initialState = {
   selectedModeBenefit: '',
   benefitMode: '',
   isAllEmployee: true,
+  selectedBenefitRecord: null,
+  selectedDepartment: null,
+  departmentUsers: [],
 };
 
 export const useCompensationSettingStore = create<CompensationSettingTypes>(
   (set) => ({
-    ...initialState,
+    ...compensationSettingInitialState,
 
     setIsAllowanceOpen: (value) => set({ isAllowanceOpen: value }),
     setIsRateAllowance: (value) => set({ isRateAllowance: value }),
@@ -44,9 +53,13 @@ export const useCompensationSettingStore = create<CompensationSettingTypes>(
     setAllEmployeeSelectedBenefit: (value) => set({ allEmployeeSelectedBenefit: value }),
     setIsRateBenefit: (value) => set({ isRateBenefit: value }),
     setSelectedModeBenefit: (value) => set({ selectedModeBenefit: value }),
-    resetStore: () => set(initialState),
     setBenefitMode: (value) => set({ benefitMode: value}),
     setIsAllEmployee: (value) => set({ isAllEmployee: value}),
+    setSelectedBenefitRecord: (value) => set({ selectedBenefitRecord: value}),
+    setSelectedDepartment: (value) => set({ selectedDepartment: value}),
+    setDepartmentUsers: (value) => set({ departmentUsers: value}),
+
+    resetStore: () => set(compensationSettingInitialState),
   })
 );
 

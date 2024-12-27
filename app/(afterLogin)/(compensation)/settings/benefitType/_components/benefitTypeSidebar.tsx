@@ -5,7 +5,7 @@ import CustomDrawerFooterButton, {
   import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
   import { Form, Input, Radio, Select, Spin, Switch } from 'antd';
   import CustomLabel from '@/components/form/customLabel/customLabel';
-  import { useState } from 'react';
+  import { useEffect } from 'react';
   import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
   import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
   import { useCreateAllowanceType } from '@/store/server/features/compensation/settings/mutations';
@@ -19,32 +19,27 @@ import CustomDrawerFooterButton, {
   
   const BenefitypeSideBar = () => {
   
-    const {isBenefitOpen, setBenefitMode, benefitMode, isRateBenefit, setIsAllEmployee, isAllEmployee, setIsRateBenefit, resetStore} = useCompensationSettingStore();
-    const {mutate: createAllowanceType, isLoading} = useCreateAllowanceType();
-    const [form] = Form.useForm();
+    const { isBenefitOpen, setBenefitMode, benefitMode, isRateBenefit, setIsAllEmployee, isAllEmployee, setIsRateBenefit, resetStore, selectedBenefitRecord, selectedDepartment, setSelectedDepartment, departmentUsers, setDepartmentUsers } = useCompensationSettingStore();
+    const { mutate: createAllowanceType, isLoading } = useCreateAllowanceType();
+    const [ form ] = Form.useForm();
     const { data: departments } = useGetDepartmentsWithUsers();
-    const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
-    const [departmentUsers, setDepartmentUsers] = useState<any[]>([]);
+
+    useEffect(() => {
+      if (selectedBenefitRecord) {
+        setIsAllEmployee(selectedBenefitRecord.applicableTo == 'GLOBAL');
+        setBenefitMode(selectedBenefitRecord.mode);
+        console.log("selectedBenefitRecord", selectedBenefitRecord);
+        form.setFieldsValue({
+          name: selectedBenefitRecord.name,
+          description: selectedBenefitRecord.description,
+          isRate: selectedBenefitRecord.isRate,
+          defaultAmount: selectedBenefitRecord.defaultAmount,
+          isAllEmployee: selectedBenefitRecord.applicableTo == 'GLOBAL' ? true : false,
+          mode: selectedBenefitRecord.mode,
+        });
+      }
+    }, [selectedBenefitRecord, form]);    
     
-    const footerModalItems: CustomDrawerFooterButtonProps[] = [
-      {
-        label: 'Cancel',
-        key: 'cancel',
-        className: 'h-14',
-        size: 'large',
-        loading: false,
-        onClick: () => onClose(),
-      },
-      {
-        label: <span>Create</span>,
-        key: 'create',
-        className: 'h-14',
-        type: 'primary',
-        size: 'large',
-        loading: isLoading,
-        onClick: () => form.submit(),
-      },
-    ];
   
     const onClose = () => {
       form.resetFields();
@@ -89,6 +84,27 @@ import CustomDrawerFooterButton, {
     const handleAllEmployeeChange = (checked: any) => {
       setIsAllEmployee(checked);
     };
+
+    const footerModalItems: CustomDrawerFooterButtonProps[] = [
+      {
+        label: 'Cancel',
+        key: 'cancel',
+        className: 'h-14',
+        size: 'large',
+        loading: false,
+        onClick: () => onClose(),
+      },
+      {
+        label: selectedBenefitRecord ? <span>Update</span> : <span>Create</span>,
+        key: 'create',
+        className: 'h-14',
+        type: 'primary',
+        size: 'large',
+        loading: isLoading,
+        disabled: selectedBenefitRecord,
+        onClick: () => form.submit(),
+      },
+    ];
   
     return (
       isBenefitOpen && (
@@ -97,7 +113,11 @@ import CustomDrawerFooterButton, {
           onClose={() => onClose()}
           modalHeader={
             <CustomDrawerHeader className="flex justify-center">
+              {selectedBenefitRecord ? (
+                <span>Edit Benefit Type</span>
+              ) : (
                 <span>Add Benefit Type</span>
+              )}
             </CustomDrawerHeader>
           }
           footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
@@ -132,19 +152,19 @@ import CustomDrawerFooterButton, {
                 rules={[{ required: true, message: 'Mode is Required!' }]}
                 className="form-item"
               >
-              <Radio.Group onChange={handleModeChange} value={benefitMode}>
+              <Radio.Group onChange={handleModeChange} value={benefitMode} disabled={selectedBenefitRecord}>
                 <Radio value="CREDIT">Credit</Radio>
                 <Radio value="DEBIT">Debit</Radio>
               </Radio.Group>
               </Form.Item>
-              {benefitMode == "CREDIT" && (
+              { benefitMode  == "CREDIT" && (
               <>
                 <div style={{ display: 'flex', gap: '20px' }}>
                   <Form.Item
                     name="isRate"
                     label={'Is Rate'}
                     className="form-item"
-                    initialValue={false}
+                    initialValue={!selectedBenefitRecord && false}
                   >
                     <Switch
                       checkedChildren={<CheckOutlined />}
@@ -156,7 +176,7 @@ import CustomDrawerFooterButton, {
                     name="isAllEmployee"
                     label="All Employees are entitled"
                     className="form-item"
-                    initialValue={true}
+                    initialValue={!selectedBenefitRecord ? true : selectedBenefitRecord.applicableTo == 'GLOBAL' ? true : false }
                     rules={[{ required: true, message: 'Employee selection is Required!' }]}
                   >
                   <Switch
@@ -164,6 +184,7 @@ import CustomDrawerFooterButton, {
                     unCheckedChildren={<CloseOutlined />}
                     checked={form.getFieldValue('isAllEmployee')}
                     onChange={handleAllEmployeeChange}
+                    disabled={selectedBenefitRecord}
                   />
                   </Form.Item>
                 </div>
@@ -181,7 +202,7 @@ import CustomDrawerFooterButton, {
                     style={{ height: '32px', padding: '4px 8px' }}
                   />
                 </Form.Item>
-                { !isAllEmployee && (
+                { (!isAllEmployee && !selectedBenefitRecord) && (
                   <Form.Item
                   name="NoOfPayPeriod"
                   label={'Number of Pay Period'}
@@ -192,7 +213,7 @@ import CustomDrawerFooterButton, {
                   </Form.Item>
                 )}
                 </div>
-                { !isAllEmployee && (
+                { (!isAllEmployee && !selectedBenefitRecord) && (
                 <>    
                 <Form.Item
                   className="form-item"
