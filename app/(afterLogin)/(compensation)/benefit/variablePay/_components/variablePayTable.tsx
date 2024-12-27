@@ -3,48 +3,19 @@ import { Input, Select, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { SearchOutlined } from '@ant-design/icons';
 import { useGetVariablePay } from '@/store/server/features/okrplanning/okr/dashboard/queries';
+import { EmployeeDetails } from '../../../_components/employeeDetails';
 
 const VariablePayTable = () => {
   const { data: allUsersVariablePay, isLoading } = useGetVariablePay();
 
-  console.log("allUsersVariablePay", allUsersVariablePay);
-
-
-  const sampleClosedDates = [
-    {
-      id: 1,
-      name: 'End of Q1',
-      VpInPercentile: 'Rate',
-      VpInBirr: '20% of salery',
-      VpScore: 'Finance Team',
-      Benefit: '20% of salery',
-    },
-    {
-      id: 2,
-      name: 'Mid-Year Review',
-      VpInPercentile: 'Fixed',
-      VpInBirr: 1500,
-      VpScore: 'All Departments',
-      Benefit: '20% of salery',
-    },
-    {
-      id: 3,
-      name: 'End of Fiscal Year',
-      VpInPercentile: 'Fixed',
-      VpInBirr: 5000,
-      VpScore: 'Management',
-      Benefit: '20% of salery',
-    },
-    {
-      id: 4,
-      name: 'Special Bonus',
-      VpInPercentile: 'Fixed',
-      VpInBirr: 2000,
-      VpScore: 'HR & Admin',
-      Benefit: '20% of salery',
-    },
-  ];
-  
+  const tableData = allUsersVariablePay?.items?.map((variablePay: any) => ({
+    id: variablePay.id,
+    name: variablePay.userId,
+    VpInPercentile: variablePay.vpScoring.totalPercentage,
+    VpInBirr: '',
+    VpScore: variablePay.vpScore,
+    Benefit: '',
+  })) || [];
 
   const columns: TableColumnsType<any> = [
     {
@@ -52,7 +23,7 @@ const VariablePayTable = () => {
       dataIndex: 'name',
       key: 'name',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) =><EmployeeDetails empId={text}/>
     },
     {
       title: 'VP in %',
@@ -91,14 +62,13 @@ const VariablePayTable = () => {
         size="large"
         style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
       >
-        <Input addonBefore={<SearchOutlined />} placeholder="large size" />
+        <Input addonBefore={<SearchOutlined />} placeholder="Search by name" />
         <Select
-          placeholder="Sort by"
+          placeholder="Sort by vp score"
           style={{ width: 150 }}
           options={[
-            { value: 'age', label: 'Age' },
-            { value: 'name', label: 'Name' },
-            { value: 'date', label: 'Date' },
+            { value: 'accending', label: 'accending' },
+            { value: 'decending', label: 'decending' },
           ]}
         />
         <Select
@@ -107,23 +77,21 @@ const VariablePayTable = () => {
           options={[
             { value: 'active', label: 'Active' },
             { value: 'inactive', label: 'Inactive' },
-            { value: 'closed', label: 'Closed' },
           ]}
         />
         <Select
-          placeholder="Filter by"
+          placeholder="Filter by month"
           style={{ width: 150 }}
           options={[
-            { value: 'active', label: 'Active' },
-            { value: 'inactive', label: 'Inactive' },
-            { value: 'closed', label: 'Closed' },
+            { value: 'accending', label: 'accending' },
+            { value: 'decending', label: 'decending' },
           ]}
         />
       </Space>
       <Table
         className="mt-6"
         columns={columns}
-        dataSource={sampleClosedDates}
+        dataSource={tableData}
         pagination={false}
       />
     </Spin>

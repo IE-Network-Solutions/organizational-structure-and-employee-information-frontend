@@ -50,7 +50,7 @@ const deleteBenefitEntitlement = async (id: string) => {
   };
 
   return await crudRequest({
-    url: `${PAYROLL_URL}/employee-compensation-item/${id}`,
+    url: `${PAYROLL_URL}/compensation-item-entitlement/${id}`,
     method: 'DELETE',
     headers,
   });
