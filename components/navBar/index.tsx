@@ -219,8 +219,8 @@ const menuItems: MenuProps['items'] = [
         className: 'font-bold',
       },
       {
-        key: '/settings',
-        label: 'Settings',
+        key: '/setting',
+        label: 'Setting',
         className: 'font-bold',
       },
     ],
