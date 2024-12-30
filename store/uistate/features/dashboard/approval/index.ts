@@ -7,7 +7,7 @@ interface UserState {
 }
 export const useDashboardApprovalStore = create<UserState>()(
   devtools((set) => ({
-    approverType: null,
+    approverType: 'Leave',
     setApproverType: (approverType: string | null) =>
       set({ approverType: approverType }),
   })),

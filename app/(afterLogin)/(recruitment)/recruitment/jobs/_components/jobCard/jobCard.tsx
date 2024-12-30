@@ -69,6 +69,11 @@ const JobCard: React.FC = () => {
     </div>
   );
 
+  const handleStatusChange = (job: any) => {
+    setChangeStatusModalVisible(true);
+    setSelectedJobId(job?.id);
+  };
+
   return (
     <>
       {jobList?.items && jobList?.items?.length >= 1 ? (
@@ -77,7 +82,7 @@ const JobCard: React.FC = () => {
             {
               label: 'Change Status',
               key: '1',
-              onClick: () => setChangeStatusModalVisible(true),
+              onClick: () => handleStatusChange(job),
               permissions: [Permissions.UpdateJobDescription],
             },
             {
