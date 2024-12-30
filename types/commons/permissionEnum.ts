@@ -1,4 +1,5 @@
 export enum Permissions {
+
   // Allowance type permissions
   CreateAllowanceType = 'create-allowance-type',
   UpdateAllowanceType = 'update-allowance-type',
@@ -8,6 +9,16 @@ export enum Permissions {
   CreateBenefitType = 'create-benefit-type',
   UpdateBenefitType = 'update-benefit-type',
   DeleteBenefitType = 'delete-benefit-type',
+
+  // Compensation and Benefit Permissions
+  CreateAllowanceEntitlement = 'create-allowance-entitlement',
+  UpdateAllowanceEntitlement = 'update-allowance-entitlement',
+  DeleteAllowanceEntitlement = 'delete-allowance-entitlement',
+
+  CreateBenefitEntitlement = 'create-benefit-entitlement',
+  UpdateBenefitEntitlement = 'update-benefit-entitlement',
+  DeleteBenefitEntitlement = 'delete-benefit-entitlement',
+
 
   // Could not be found Permissions that needs to be changed
   ViewAllEmployeePlan = 'view-all-employee-plan',

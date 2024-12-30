@@ -56,6 +56,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       [field]: newObjectiveName,
     });
   };
+
   useEffect(() => {
     setObjectiveValue({
       ...objectiveValue,
@@ -128,9 +129,15 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               }
             }
           }
-
+          const modifiedObjectiveValue = { ...objectiveValue };
+          if (
+            modifiedObjectiveValue?.allignedKeyResultId === '' ||
+            modifiedObjectiveValue?.allignedKeyResultId === null
+          ) {
+            delete modifiedObjectiveValue.allignedKeyResultId;
+          }
           // If all checks pass, proceed with the objective creation
-          createObjective(objectiveValue, {
+          createObjective(modifiedObjectiveValue, {
             onSuccess: () => {
               handleDrawerClose();
             },
@@ -154,7 +161,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     }
   }, [objectiveValue, form]);
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div className="w-full flex justify-center items-center gap-4 pt-2">
       <CustomButton
         id="cancel-button"
         type="default"
@@ -178,6 +185,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       modalHeader={modalHeader}
       footer={footer}
       width={'50%'}
+      paddingBottom={10}
     >
       <Form
         id="okr-form"

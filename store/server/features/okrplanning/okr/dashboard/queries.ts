@@ -71,6 +71,19 @@ const getRockStars = async (planningPeriodId: string) => {
   });
 };
 
+const getVariablePay = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${OKR_URL}/vp-score-instance`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 export const useGetUserObjectiveDashboard = (postId: number | string) => {
   return useQuery<ResponseData>(
     ['ObjectiveDashboard', postId],
@@ -100,6 +113,16 @@ export const useGetPerformance = (planningPeriodId: string, userId: string) => {
   return useQuery(
     ['performance', planningPeriodId, userId],
     () => getPerformance(planningPeriodId, userId),
+    {
+      keepPreviousData: true,
+    },
+  );
+};
+
+export const useGetVariablePay = () => {
+  return useQuery(
+    ['variablePay'],
+    () => getVariablePay(),
     {
       keepPreviousData: true,
     },

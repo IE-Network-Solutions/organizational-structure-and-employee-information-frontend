@@ -55,6 +55,7 @@ export interface Objective {
   objectiveProgress?: number;
   keyResults?: KeyResult[] | any;
   user?: User;
+  keyResultValue?: KeyResult[] | any;
 }
 export const defaultObjective: Objective = {
   allignedKeyResultId: '',
@@ -65,6 +66,7 @@ export const defaultObjective: Objective = {
   completedKeyResults: 0,
   objectiveProgress: 0,
   keyResults: [],
+  keyResultValue:[]
 };
 interface SearchObjParams {
   userId: string;
