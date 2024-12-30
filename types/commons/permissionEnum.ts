@@ -1,4 +1,9 @@
 export enum Permissions {
+  // Compensation and Benefit Permissions
+  CreateAllowanceEntitlement = 'create-allowance-entitlement',
+  UpdateAllowanceEntitlement = 'update-allowance-entitlement',
+  DeleteAllowanceEntitlement = 'delete-allowance-entitlement',
+
   // Could not be found Permissions that needs to be changed
   ViewAllEmployeePlan = 'view-all-employee-plan',
   ViewAllPlan = 'view-all-plan',

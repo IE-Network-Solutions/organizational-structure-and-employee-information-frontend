@@ -202,6 +202,29 @@ const menuItems: MenuProps['items'] = [
       },
     ],
   },
+  {
+    key: '/compensation',
+    icon: <CiCalendar />,
+    className: 'font-bold',
+    label: 'Compensation & Benefit',
+    children: [
+      {
+        key: '/allowance',
+        label: 'Allowance',
+        className: 'font-bold',
+      },
+      {
+        key: '/benefit',
+        label: 'Benefit',
+        className: 'font-bold',
+      },
+      {
+        key: '/settings',
+        label: 'Settings',
+        className: 'font-bold',
+      },
+    ],
+  },
 ];
 
 const userItems: MenuProps['items'] = [
