@@ -4,6 +4,10 @@ export enum Permissions {
   UpdateAllowanceEntitlement = 'update-allowance-entitlement',
   DeleteAllowanceEntitlement = 'delete-allowance-entitlement',
 
+  CreateBenefitEntitlement = 'create-benefit-entitlement',
+  UpdateBenefitEntitlement = 'update-benefit-entitlement',
+  DeleteBenefitEntitlement = 'delete-benefit-entitlement',
+
   // Could not be found Permissions that needs to be changed
   ViewAllEmployeePlan = 'view-all-employee-plan',
   ViewAllPlan = 'view-all-plan',
