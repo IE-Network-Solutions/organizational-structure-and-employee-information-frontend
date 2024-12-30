@@ -219,7 +219,7 @@ const menuItems: MenuProps['items'] = [
         className: 'font-bold',
       },
       {
-        key: '/setting',
+        key: '/compensationSetting',
         label: 'Setting',
         className: 'font-bold',
       },

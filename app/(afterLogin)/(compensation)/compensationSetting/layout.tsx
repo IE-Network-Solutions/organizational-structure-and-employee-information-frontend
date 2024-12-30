@@ -21,7 +21,7 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
         label: <p className="menu-item-label">Allowance Type</p>,
         className: 'px-1',
       },
-      link: '/setting/allowanceType',
+      link: '/compensationSetting/allowanceType',
     },
     {
       item: {
@@ -30,7 +30,7 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
         label: <p className="menu-item-label">Benefit Type</p>,
         className: 'px-1',
       },
-      link: '/setting/benefitType',
+      link: '/compensationSetting/benefitType',
     },
   ]);
 
