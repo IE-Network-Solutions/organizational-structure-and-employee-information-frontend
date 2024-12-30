@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation';
 
 const CompensationSettings = () => {
-   redirect('/settings/allowanceType');
+   redirect('/setting/allowanceType');
   return null;
 };
 
