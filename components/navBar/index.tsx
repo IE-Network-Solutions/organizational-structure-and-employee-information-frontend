@@ -220,7 +220,7 @@ const menuItems: MenuProps['items'] = [
       },
       {
         key: '/compensationSetting',
-        label: 'Setting',
+        label: 'Settings',
         className: 'font-bold',
       },
     ],
