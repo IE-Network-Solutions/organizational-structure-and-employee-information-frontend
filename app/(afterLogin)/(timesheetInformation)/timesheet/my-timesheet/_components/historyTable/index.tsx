@@ -232,6 +232,10 @@ const HistoryTable = () => {
           setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
         }}
         scroll={{ x: 'min-content' }}
+<<<<<<< develop
+=======
+
+>>>>>>> production
       />
     </>
   );
