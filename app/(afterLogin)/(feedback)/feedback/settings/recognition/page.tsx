@@ -35,31 +35,30 @@ const Page = () => {
       label: recognitionType?.name,
       children: <AllRecognition data={[recognitionType]} />,
     })) || []),
-    {
-      key: 'last',
-      label: (
-        <AccessGuard permissions={[Permissions.CreateRecognition]}>
-          <Button
-            onClick={() => setOpenRecognitionType(true)}
-            icon={<FaPlus />}
-            type="primary"
-            className="flex gap-2"
-          >
-            Category
-          </Button>
-        </AccessGuard>
-      ),
-    },
   ];
 
   return (
     <div>
-      <Tabs
-        className="max-w-[850px] overflow-x-scrollable"
-        defaultActiveKey="1"
-        items={items}
-        onChange={onChange}
-      />
+      <div className='flex justify-start'>
+        <Tabs
+          className="max-w-[850px] overflow-x-scrollable"
+          defaultActiveKey="1"
+          items={items}
+          onChange={onChange}
+        />
+        <AccessGuard permissions={[Permissions.CreateRecognition]}>
+            <Button
+              onClick={() => setOpenRecognitionType(true)}
+              icon={<FaPlus />}
+              type="primary"
+              className="flex gap-2"
+            >
+              Category
+            </Button>
+          </AccessGuard>
+      </div>
+     
+
       <CustomDrawerLayout
         open={open}
         onClose={() => setOpen(false)}
