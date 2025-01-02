@@ -30,7 +30,7 @@ const AreaCard: FC<AreaCardProps> = ({ item }) => {
               <div className="flex items-center gap-2 text-gray-500">
                 <GoLocation size={16} />
                 <span className="text-xs">
-                  {item.latitude} - {item.longitude}
+                {item.latitude} - {item.longitude} 
                 </span>
               </div>
             </div>
