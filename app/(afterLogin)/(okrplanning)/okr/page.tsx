@@ -2,7 +2,6 @@
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
 import React, { useState } from 'react';
-import { AiOutlineFileAdd } from 'react-icons/ai';
 import { FaPlus } from 'react-icons/fa';
 import OkrDrawer from './_components/okrDrawer';
 import Dashboard from './_components/dashboard';
