@@ -19,7 +19,7 @@ interface TabLandingLayoutProps {
   allowSearch?: boolean;
   searchFields?: any[];
   disabledMessage?:string;
-  buttonDisabled:boolean;
+  buttonDisabled?:boolean;
   handleSearchChange?: () => void;
 }
 
@@ -40,7 +40,36 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb title={title} subtitle={subtitle ?? ''} />
           <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
-            {buttonTitle && !buttonDisabled && (
+            {!buttonDisabled ? 
+              buttonTitle &&
+              <CustomButton
+                title={buttonTitle}
+                id={`${id}-createButtonId`}
+                icon={buttonIcon ?? <FaPlus />}
+                onClick={onClickHandler}
+                className="text-xs bg-blue-600 hover:bg-blue-700 h-4"
+              />
+              :
+              buttonTitle &&
+              <Tooltip
+                  title={disabledMessage ?? ''}
+                  placement="top"
+                  overlayClassName="custom-tooltip"
+                >
+                  <Button
+                    type="primary"
+                    disabled
+                    id={`${title}CustomButtonId`}
+                    icon={buttonIcon ?? <FaPlus />}
+                    className={`h-14 px-6 py-6 rounded-lg flex justify-start items-center gap-2 text-xs bg-blue-600 hover:bg-blue-700 h-4`}
+                  >
+                    <div className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight">
+                      {buttonTitle}
+                    </div>
+                  </Button>
+                </Tooltip>
+             }
+            {/* {buttonTitle && (
               <CustomButton
                 title={buttonTitle}
                 id={`${id}-createButtonId`}
@@ -50,24 +79,8 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
               />
             )}
             {buttonDisabled && (
-              <Tooltip
-                title={disabledMessage ?? ''}
-                placement="top"
-                overlayClassName="custom-tooltip"
-              >
-                <Button
-                  type="primary"
-                  disabled
-                  id={`${title}CustomButtonId`}
-                  icon={buttonIcon ?? <FaPlus />}
-                  className={`h-14 px-6 py-6 rounded-lg flex justify-start items-center gap-2 text-xs bg-blue-600 hover:bg-blue-700 h-4`}
-                >
-                  <div className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight">
-                    {title}
-                  </div>
-                </Button>
-              </Tooltip>
-            )}
+              
+            )} */}
           </div>
         </div>
         <div className="w-full h-auto">{children}</div>
