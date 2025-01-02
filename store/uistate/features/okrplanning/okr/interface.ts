@@ -66,7 +66,7 @@ export const defaultObjective: Objective = {
   completedKeyResults: 0,
   objectiveProgress: 0,
   keyResults: [],
-  keyResultValue:[]
+  keyResultValue: [],
 };
 interface SearchObjParams {
   userId: string;

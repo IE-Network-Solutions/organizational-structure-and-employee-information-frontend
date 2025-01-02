@@ -8,7 +8,6 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import AllAllowanceTable from './_components/allAllowanceTable';
 
 const AllAllowancePage = () => {
-
   return (
     <>
       <PageHeader title="All Allowance Entitlement" size="small">

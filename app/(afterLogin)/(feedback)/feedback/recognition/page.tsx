@@ -28,7 +28,7 @@ function Page() {
   const {
     updateSearchValue,
     searchValue,
-    selectedRecognitionType,    
+    selectedRecognitionType,
     setSelectedRecognitionType,
     activeSessionId,
     setActiveSession,
@@ -52,31 +52,27 @@ function Page() {
   const { data: getAllFisicalYear } = useGetAllFiscalYears();
   const navigate = useRouter();
 
-
   useEffect(() => {
     if (getActiveFisicalYear) {
       const fiscalActiveYearId = getActiveFisicalYear?.id;
       const activeSession = getActiveFisicalYear?.sessions?.find(
-        (item: Session) => item.active
+        (item: Session) => item.active,
       );
-  
+
       let activeMonthId = ''; // Default value in case no active month is found
       if (activeSession) {
         const activeMonth = activeSession.months?.find(
-          (item: Month) => item.active
+          (item: Month) => item.active,
         );
         activeMonthId = activeMonth?.id ?? '';
       }
-  
+
       // Update state values
       setFiscalActiveYearId(fiscalActiveYearId ?? '');
       setActiveMonthId(activeMonthId);
       setActiveSession(activeSession?.id ?? '');
     }
   }, [getActiveFisicalYear]);
-  
-
-
 
   const getEmployeeData = (employeeId: string) => {
     const employeeDataDetail = allUserData?.items?.find(
@@ -237,21 +233,23 @@ function Page() {
         <TabLandingLayout
           id="conversationLayoutId"
           onClickHandler={() => {
-              const recognitionTypeId = selectedRecognitionType;
-              // Correcting how the object is passed
-              fiscalActiveYearId &&
-                activeMonthId &&
-                createRecognition({
-                  recognitionTypeId,
-                  calendarId: fiscalActiveYearId,
-                  sessionId: activeSessionId, // Assigning directly
-                  monthId: activeMonthId, // Assigning directly
-                });
+            const recognitionTypeId = selectedRecognitionType;
+            // Correcting how the object is passed
+            fiscalActiveYearId &&
+              activeMonthId &&
+              createRecognition({
+                recognitionTypeId,
+                calendarId: fiscalActiveYearId,
+                sessionId: activeSessionId, // Assigning directly
+                monthId: activeMonthId, // Assigning directly
+              });
           }}
           title="Recognition"
           subtitle="Manage Recognition"
-          buttonDisabled={!fiscalActiveYearId ||  !activeMonthId || !activeSessionId}
-          disabledMessage={"make sure you have active session id"}
+          buttonDisabled={
+            !fiscalActiveYearId || !activeMonthId || !activeSessionId
+          }
+          disabledMessage={'make sure you have active session id'}
           buttonTitle={
             selectedRecognitionType !== '1' ? 'Generate Recognition' : false
           }

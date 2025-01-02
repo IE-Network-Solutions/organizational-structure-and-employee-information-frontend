@@ -100,23 +100,11 @@ const fetchAllowance = async (allowanceId: string | string[]) => {
  * @param {number} current - The current page number to fetch.
  * @returns {QueryObject} The query object for fetching question templates.
  */
-export const useFetchAllowanceEntitlements = (allowanceId: string | string[]) => {
+export const useFetchAllowanceEntitlements = (
+  allowanceId: string | string[],
+) => {
   return useQuery(['allowanceEntitlement'], () =>
     fetchAllowanceEntitlements(allowanceId),
-  );
-}
-
-/**
- * Custom hook to fetch question templates with pagination using React Query's useQuery hook.
- * The query's cache key is based on the `pageSize` and `current` page number to ensure proper cache handling.
- *
- * @param {number} pageSize - The number of question templates to fetch per page.
- * @param {number} current - The current page number to fetch.
- * @returns {QueryObject} The query object for fetching question templates.
- */
-export const useFetchAllowances = () => {
-  return useQuery(['allowanceType'], () =>
-    fetchAllowances(),
   );
 };
 
@@ -128,8 +116,18 @@ export const useFetchAllowances = () => {
  * @param {number} current - The current page number to fetch.
  * @returns {QueryObject} The query object for fetching question templates.
  */
+export const useFetchAllowances = () => {
+  return useQuery(['allowanceType'], () => fetchAllowances());
+};
+
+/**
+ * Custom hook to fetch question templates with pagination using React Query's useQuery hook.
+ * The query's cache key is based on the `pageSize` and `current` page number to ensure proper cache handling.
+ *
+ * @param {number} pageSize - The number of question templates to fetch per page.
+ * @param {number} current - The current page number to fetch.
+ * @returns {QueryObject} The query object for fetching question templates.
+ */
 export const useFetchAllowance = (allowanceId: string | string[]) => {
-  return useQuery(['benefit'], () =>
-    fetchAllowance(allowanceId),
-  );
+  return useQuery(['benefit'], () => fetchAllowance(allowanceId));
 };

@@ -15,8 +15,16 @@ import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensat
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 
 const AllowanceEntitlementTable = () => {
-  const { setIsAllowanceEntitlementSidebarOpen, isAllowanceGlobal, currentPage, pageSize, setCurrentPage, setPageSize } = useAllowanceEntitlementStore();
-  const { mutate: deleteAllowanceEntitlement } = useDeleteAllowanceEntitlement();
+  const {
+    setIsAllowanceEntitlementSidebarOpen,
+    isAllowanceGlobal,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+  } = useAllowanceEntitlementStore();
+  const { mutate: deleteAllowanceEntitlement } =
+    useDeleteAllowanceEntitlement();
   const { id } = useParams();
   const {
     data: allowanceEntitlementData,
