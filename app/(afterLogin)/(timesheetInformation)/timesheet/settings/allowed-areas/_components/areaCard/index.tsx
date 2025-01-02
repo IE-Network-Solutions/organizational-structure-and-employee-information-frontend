@@ -31,6 +31,7 @@ const AreaCard: FC<AreaCardProps> = ({ item }) => {
                 <GoLocation size={16} />
                 <span className="text-xs">
                 {item.latitude} - {item.longitude} 
+
                 </span>
               </div>
             </div>
