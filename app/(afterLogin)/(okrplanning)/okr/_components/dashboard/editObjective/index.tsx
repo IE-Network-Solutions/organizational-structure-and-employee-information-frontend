@@ -222,8 +222,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 onChange={(value) =>
                   handleObjectiveChange(value, 'allignedKeyResultId')
                 }
-                filterOption={(input, option) =>
-                  option?.children?.toLowerCase().includes(input.toLowerCase())
+                filterOption={(input: any, option: any) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
                 }
               >
                 {keyResultByUser?.items.map((keyResult) => (
@@ -302,7 +302,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               Add Key Result
             </Button>
           </div>
-          {objectiveValue.keyResults?.map((keyValue, index) => (
+          {objectiveValue.keyResults?.map((keyValue:any, index:number) => (
             <KeyResultView
               key={index}
               objective={objective}
@@ -311,7 +311,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               isEdit={false}
             />
           ))}
-          {objective?.keyResults?.map((keyItem, index) => (
+          {objective?.keyResults?.map((keyItem:any, index:number) => (
             <KeyResultForm
               key={index}
               keyItem={keyItem}
