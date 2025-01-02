@@ -5,6 +5,7 @@ import { FaPlus } from 'react-icons/fa';
 import AllRecognition from '../_components/recognition/allRecognition';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
+
 import RecognitionForm from '../_components/recognition/createRecognition';
 import { useGetAllRecognitionType } from '@/store/server/features/CFR/recognition/queries';
 import AccessGuard from '@/utils/permissionGuard';
@@ -72,7 +73,7 @@ const Page = () => {
         onClose={() => setOpenRecognitionType(false)}
         open={openRecognitionType}
       >
-        <RecognitionForm createCategory={true} />
+        <RecognitionForm createCategory={true} onClose={()=>setOpenRecognitionType(false)} />
       </Drawer>
     </div>
   );
