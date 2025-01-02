@@ -121,7 +121,13 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
           <div className="flex gap-4">
             <div className="flex items-center gap-2">
               <div className="bg-light_purple text-blue font-semibold text-sm p-1 w-16 sm:w-20 text-center rounded-lg">
-                {keyResult?.currentValue || 0}
+                {keyResult?.metricType?.name === 'Milestone'
+                  ? keyResult?.milestones?.filter(
+                      (e: any) => e.status === 'Completed',
+                    )?.length || 0
+                  : keyResult?.metricType?.name === 'Achieve'
+                    ? keyResult?.progress
+                    : keyResult?.currentValue || 0}
               </div>
               <div className="flex items-center gap-1">
                 <div className="text-blue text-xl">&#x2022;</div>
@@ -130,12 +136,14 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
                 </div>
               </div>
             </div>
-
+            <div className="text-xl">|</div>
             <div className="flex items-center gap-2">
               <div className="bg-light_purple text-blue font-semibold text-sm p-1 w-16 sm:w-20 text-center rounded-lg">
                 {keyResult?.metricType?.name === 'Milestone'
-                  ? keyResult?.milestones?.length
-                  : keyResult?.targetValue || 0}
+                  ? keyResult?.milestones?.length || 0
+                  : keyResult?.metricType?.name === 'Achieve'
+                    ? '100'
+                    : keyResult?.targetValue || 0}
               </div>
               <div className="flex items-center gap-1">
                 <div className="text-blue text-xl">&#x2022;</div>

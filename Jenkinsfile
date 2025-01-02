@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        REMOTE_SERVER = 'ubuntu@139.185.51.164'
+        REMOTE_SERVER = 'ubuntu@139.185.53.18'
         REPO_URL = 'https://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@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git'
-        BRANCH_NAME = 'production'
+        BRANCH_NAME = 'develop'
         REPO_DIR = 'osei-front'
-        SSH_CREDENTIALS_ID = 'pepproduction'
+        SSH_CREDENTIALS_ID = 'peptest'
 
 
         ORG_AND_EMP_URL="https://org-emp-backend.selamnew.com/api/v1"
@@ -101,7 +101,7 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run format'
                         ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && sudo pm2 delete selamnew-app || true'
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run build && PORT=3001 sudo pm2 start npm --name "selamnew-app" -- start'
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run build && PORT=3001 sudo pm2 start npm --name "test-osei-front-app" -- start'
                     """
                 }
             }
