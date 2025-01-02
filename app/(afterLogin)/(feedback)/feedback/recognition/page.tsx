@@ -21,7 +21,7 @@ import { Card, Table, TableColumnsType, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import dayjs from 'dayjs';
 import { PlusIcon } from 'lucide-react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CiMedal } from 'react-icons/ci';
 import { useRouter } from 'next/navigation';
 function Page() {
@@ -30,6 +30,12 @@ function Page() {
     searchValue,
     selectedRecognitionType,    
     setSelectedRecognitionType,
+    activeSessionId,
+    setActiveSession,
+    activeMonthId,
+    setActiveMonthId,
+    fiscalActiveYearId,
+    setFiscalActiveYearId,
     current,
     pageSize,
   } = useRecongnitionStore();
@@ -45,6 +51,32 @@ function Page() {
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
   const { data: getAllFisicalYear } = useGetAllFiscalYears();
   const navigate = useRouter();
+
+
+  useEffect(() => {
+    if (getActiveFisicalYear) {
+      const fiscalActiveYearId = getActiveFisicalYear?.id;
+      const activeSession = getActiveFisicalYear?.sessions?.find(
+        (item: Session) => item.active
+      );
+  
+      let activeMonthId = ''; // Default value in case no active month is found
+      if (activeSession) {
+        const activeMonth = activeSession.months?.find(
+          (item: Month) => item.active
+        );
+        activeMonthId = activeMonth?.id ?? '';
+      }
+  
+      // Update state values
+      setFiscalActiveYearId(fiscalActiveYearId ?? '');
+      setActiveMonthId(activeMonthId);
+      setActiveSession(activeSession?.id ?? '');
+    }
+  }, [getActiveFisicalYear]);
+  
+
+
 
   const getEmployeeData = (employeeId: string) => {
     const employeeDataDetail = allUserData?.items?.find(
@@ -205,31 +237,21 @@ function Page() {
         <TabLandingLayout
           id="conversationLayoutId"
           onClickHandler={() => {
-            const fiscalActiveYearId = getActiveFisicalYear?.id;
-            const activeSession = getActiveFisicalYear?.sessions?.find(
-              (item: Session) => item.active,
-            );
-
-            if (activeSession) {
-              const activeMonth = activeSession.months?.find(
-                (item: Month) => item.active,
-              );
               const recognitionTypeId = selectedRecognitionType;
-
               // Correcting how the object is passed
               fiscalActiveYearId &&
-                activeMonth &&
+                activeMonthId &&
                 createRecognition({
                   recognitionTypeId,
                   calendarId: fiscalActiveYearId,
-                  sessionId: activeSession?.id, // Assigning directly
-                  monthId: activeMonth?.id, // Assigning directly
+                  sessionId: activeSessionId, // Assigning directly
+                  monthId: activeMonthId, // Assigning directly
                 });
-            } else {
-            }
           }}
           title="Recognition"
           subtitle="Manage Recognition"
+          buttonDisabled={!fiscalActiveYearId ||  !activeMonthId || !activeSessionId}
+          disabledMessage={"make sure you have active session id"}
           buttonTitle={
             selectedRecognitionType !== '1' ? 'Generate Recognition' : false
           }
