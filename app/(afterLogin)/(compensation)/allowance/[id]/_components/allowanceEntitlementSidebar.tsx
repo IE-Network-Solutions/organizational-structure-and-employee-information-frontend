@@ -4,7 +4,7 @@ import CustomDrawerFooterButton, {
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { Form, Select, Spin } from 'antd';
-import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation';
+import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useCreateAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { useParams } from 'next/navigation';
