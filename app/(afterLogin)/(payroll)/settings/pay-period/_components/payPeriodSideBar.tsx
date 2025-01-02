@@ -20,7 +20,6 @@ const { RangePicker } = DatePicker;
 
 const PayPeriodSideBar = () => {
   const [form] = Form.useForm();
-  const { id } = useParams();
 
   const {
     isPayPeriodSidebarVisible,
@@ -129,7 +128,7 @@ const PayPeriodSideBar = () => {
   );
 
   const deleteDivision = (index: number) => {
-    const updatedDivisions = divisions.filter((_, i) => i !== index);
+    const updatedDivisions = divisions.filter((unused, i) => i !== index);
     setDivisions(updatedDivisions);
   };
 
