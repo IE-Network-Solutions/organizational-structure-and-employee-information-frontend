@@ -44,7 +44,7 @@ const RecognitionCriteriaModal = ({
       .validateFields()
       .then((values) => {
         onSubmit(values);
-         form.resetFields();
+        form.resetFields();
         onClose();
       })
       .catch(() => {});

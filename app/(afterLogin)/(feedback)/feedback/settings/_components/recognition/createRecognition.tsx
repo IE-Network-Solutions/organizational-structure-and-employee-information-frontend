@@ -30,9 +30,12 @@ interface RecognitionFormValues {
 const { Option } = Select;
 interface PropsData {
   createCategory?: boolean;
-  onClose?:any
+  onClose?: any;
 }
-const RecognitionForm: React.FC<PropsData> = ({ createCategory = false,onClose }) => {
+const RecognitionForm: React.FC<PropsData> = ({
+  createCategory = false,
+  onClose,
+}) => {
   const [form] = Form.useForm();
   const {
     setOpenRecognitionType,
@@ -71,16 +74,15 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false,onClose }
   };
   const validateTotalWeight = () => {
     const totalWeight = selectedCriteria.reduce(
-      (sum:any, criterion:any) => sum + parseFloat(criterion.weight || 0),
-      0
+      (sum: any, criterion: any) => sum + parseFloat(criterion.weight || 0),
+      0,
     );
-    setTotalWeight(totalWeight)
+    setTotalWeight(totalWeight);
     if (totalWeight !== 1) {
       return Promise.reject(
-        new Error("The total weight of all criteria must equal 1.")
+        new Error('The total weight of all criteria must equal 1.'),
       );
-    }
-    else{
+    } else {
       return Promise.resolve();
     }
   };
@@ -206,11 +208,13 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false,onClose }
             className="text-xs text-gray-950"
             onChange={handleCriteriaChange}
           >
-          <Select.Option value="KPI">KPI</Select.Option>
-          <Select.Option value="OKR">OKR Score</Select.Option>
-          <Select.Option value="ATTENDANCE">Attendance</Select.Option>
-          <Select.Option value="CERTIFICATE">Certificate</Select.Option>
-          <Select.Option value="ENGAGEMENT_SCORE">Engagment score</Select.Option>
+            <Select.Option value="KPI">KPI</Select.Option>
+            <Select.Option value="OKR">OKR Score</Select.Option>
+            <Select.Option value="ATTENDANCE">Attendance</Select.Option>
+            <Select.Option value="CERTIFICATE">Certificate</Select.Option>
+            <Select.Option value="ENGAGEMENT_SCORE">
+              Engagment score
+            </Select.Option>
           </Select>
         </Form.Item>
       )}
@@ -230,7 +234,7 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false,onClose }
                   message: 'Please enter weight',
                 },
                 {
-                  validator: (_, value) => {
+                  validator: (notused, value) => {
                     const weight = parseFloat(value || 0);
                     const total = totalWeight - criteria.weight + weight;
                     if (total > 1) {
@@ -270,7 +274,7 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false,onClose }
             name={['recognitionCriteria', index, 'weight']}
             initialValue={criteria.weight}
             rules={[
-              { required: true, message: "Please enter weight" },
+              { required: true, message: 'Please enter weight' },
               {
                 validator: () => validateTotalWeight(),
               },
@@ -488,31 +492,29 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false,onClose }
 
       <Form.Item>
         <div className="flex justify-center gap-4">
-          <Button 
-           disabled={selectedRecognitionType === '' && totalWeight !== 1}
-           type="primary" htmlType="submit" className="text-xs">
+          <Button
+            disabled={selectedRecognitionType === '' && totalWeight !== 1}
+            type="primary"
+            htmlType="submit"
+            className="text-xs"
+          >
             {selectedRecognitionType !== '' ? 'Update' : 'Create'}
           </Button>
           <Popconfirm
-              title="Are you sure you want to cancel?"
-              onConfirm={() =>{ 
-                form.resetFields();
-                setSelectedRecognitionType(''); 
-                setOpenRecognitionType(false);
-              }}
-              okText="Yes"
-              cancelText="No"
-              placement="top"
-            >
-              <Button
-                type="primary"
-                danger
-                htmlType="button"
-                className="text-xs"
-              >
-                Cancel
-              </Button>
-            </Popconfirm>
+            title="Are you sure you want to cancel?"
+            onConfirm={() => {
+              form.resetFields();
+              setSelectedRecognitionType('');
+              setOpenRecognitionType(false);
+            }}
+            okText="Yes"
+            cancelText="No"
+            placement="top"
+          >
+            <Button type="primary" danger htmlType="button" className="text-xs">
+              Cancel
+            </Button>
+          </Popconfirm>
         </div>
       </Form.Item>
     </Form>

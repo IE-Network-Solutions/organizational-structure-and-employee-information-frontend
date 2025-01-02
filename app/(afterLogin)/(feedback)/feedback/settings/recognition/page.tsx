@@ -73,7 +73,10 @@ const Page = () => {
         onClose={() => setOpenRecognitionType(false)}
         open={openRecognitionType}
       >
-        <RecognitionForm createCategory={true} onClose={()=>setOpenRecognitionType(false)} />
+        <RecognitionForm
+          createCategory={true}
+          onClose={() => setOpenRecognitionType(false)}
+        />
       </Drawer>
     </div>
   );
