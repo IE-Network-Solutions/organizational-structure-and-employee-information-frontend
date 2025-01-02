@@ -153,6 +153,7 @@ const MilestoneView: React.FC<OKRProps> = ({
       },
     });
   }
+  console.log(keyValue,"**&*&");
   return (
     <div
       className="py-4  border-b-[1px] border-gray-300"
@@ -269,6 +270,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                 </div>
 
                 <Input
+                  disabled={milestone?.status=="Completed"}
                   id={`milestone-title-${index}-${mindex}`}
                   placeholder="Milestone Name"
                   value={milestone.title || ''}
@@ -279,6 +281,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                 />
 
                 <InputNumber
+                  disabled={milestone?.status=="Completed"}
                   id={`milestone-weight-${index}-${mindex}`}
                   min={0}
                   max={100}
@@ -290,6 +293,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                 />
 
                 <Button
+                  disabled={milestone?.status=="Completed"}
                   id={`remove-milestone-${index}-${mindex}`}
                   icon={<VscClose size={20} />}
                   onClick={() =>

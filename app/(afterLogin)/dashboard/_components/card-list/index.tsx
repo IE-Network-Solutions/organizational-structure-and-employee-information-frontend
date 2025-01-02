@@ -52,7 +52,7 @@ const CardList: FC<CardListProps> = ({ title, people, loading, type }) => {
       {people?.length ? (
         <div className="">
           <PersonCard
-            name={people[currentPersonIndex]?.user?.firstName || ''}
+            name={`${people[currentPersonIndex]?.user?.firstName} ${people[currentPersonIndex]?.user?.lastName} ` || ''}
             imgSrc={people[currentPersonIndex]?.user?.profileImage || ''}
           />
           <div className="flex justify-center items-center gap-2 ">
