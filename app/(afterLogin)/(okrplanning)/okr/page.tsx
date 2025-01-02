@@ -26,13 +26,13 @@ const OKR: React.FC<any> = () => {
         />
         <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
           <AccessGuard permissions={[Permissions.ViewOkrReports]}>
-            <CustomButton
+            {/* <CustomButton
               title="Download"
               id="createUserButton"
               icon={<AiOutlineFileAdd size={20} className="mr-2" />}
               onClick={showDrawer}
               className="bg-white text-black hover:bg-black hover:text-white border-2 border-black"
-            />
+            /> */}
           </AccessGuard>
           <CustomButton
             title="Set Objective"
