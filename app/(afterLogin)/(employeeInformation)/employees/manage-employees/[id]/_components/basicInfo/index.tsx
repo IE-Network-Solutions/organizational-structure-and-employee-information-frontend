@@ -234,7 +234,9 @@ function BasicInfo({ id }: { id: string }) {
           />
         </List.Item>
         {employeeData?.reportingTo?.id ? (
-          <Link href={`/employees/manage-employees/${employeeData.reportingTo.id}`}>
+          <Link
+            href={`/employees/manage-employees/${employeeData.reportingTo.id}`}
+          >
             <List.Item
               key="Manager"
               actions={[<MdKeyboardArrowRight key="arrow" />]}
@@ -255,21 +257,15 @@ function BasicInfo({ id }: { id: string }) {
             </List.Item>
           </Link>
         ) : (
-          <List.Item
-            key="Manager"
-            className="text-gray-500 cursor-not-allowed"
-          >
+          <List.Item key="Manager" className="text-gray-500 cursor-not-allowed">
             <List.Item.Meta
               title={<p className="text-xs font-light">Manager</p>}
               description={
-                <p className="font-bold text-black text-sm">
-                  Not Assigned
-                </p>
+                <p className="font-bold text-black text-sm">Not Assigned</p>
               }
             />
           </List.Item>
         )}
-
       </List>
     </Card>
   );

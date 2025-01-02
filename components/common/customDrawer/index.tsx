@@ -22,7 +22,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   width,
   hideButton = false,
   footer = null,
-  paddingBottom=50
+  paddingBottom = 50,
 }) => {
   // Default width
   const { isClient, setIsClient, currentWidth, setCurrentWidth } =

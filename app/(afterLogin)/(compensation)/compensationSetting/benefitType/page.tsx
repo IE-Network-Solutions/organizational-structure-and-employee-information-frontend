@@ -21,7 +21,9 @@ const BenefitTypePage = () => {
             type="primary"
             id="createNewClosedHolidayFieldId"
             icon={<LuPlus size={18} />}
-            onClick={() => { setIsBenefitOpen(true)}}
+            onClick={() => {
+              setIsBenefitOpen(true);
+            }}
           >
             New Benefit Type
           </Button>

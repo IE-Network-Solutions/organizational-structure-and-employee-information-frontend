@@ -138,7 +138,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
             </div>
             <div className="text-xl">|</div>
             <div className="flex items-center gap-2">
-              <div className="bg-light_purple text-blue font-semibold text-sm p-1 w-16 sm:w-20 text-center rounded-lg">
+              <div className="bg-light_purple text-blue font-semibold text-sm p-1 min-w-16 sm:min-w-20 text-center rounded-lg">
                 {keyResult?.metricType?.name === 'Milestone'
                   ? keyResult?.milestones?.length || 0
                   : keyResult?.metricType?.name === 'Achieve'
