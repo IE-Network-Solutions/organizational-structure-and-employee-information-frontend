@@ -5,6 +5,7 @@ import JobTimeLineForm from '../../../../_components/allFormData/jobTimeLineForm
 import WorkScheduleForm from '../../../../_components/allFormData/workScheduleForm';
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
+import { useEffect } from 'react';
 
 interface Ids {
   id: string;
@@ -16,11 +17,22 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
     setIsAddEmployeeJobInfoModalVisible,
   } = useEmployeeManagementStore();
 
-  const { mutate: createJobInformation } = useCreateJobInformation();
+  const {
+    isLoading,
+    isSuccess,
+    mutate: createJobInformation,
+  } = useCreateJobInformation();
 
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      form.resetFields();
+      handleClose();
+    }
+  }, [isSuccess]);
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
     values.userId = id;
@@ -30,9 +42,6 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
       ? values.departmentLeadOrNot
       : (values.departmentLeadOrNot = false);
     createJobInformation(values);
-
-    form.resetFields();
-    setIsAddEmployeeJobInfoModalVisible(false);
   };
 
   return (
@@ -47,11 +56,16 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
       >
         <Form form={form} onFinish={createTsks} layout="vertical">
           <JobTimeLineForm />
-          <WorkScheduleForm />
           <BasicSalaryForm />
+          <WorkScheduleForm />
           <Form.Item>
             <Row className="flex justify-end gap-3">
-              <Button type="primary" htmlType="submit" name="submit">
+              <Button
+                type="primary"
+                htmlType="submit"
+                name="submit"
+                loading={isLoading}
+              >
                 Submit
               </Button>
               <Button

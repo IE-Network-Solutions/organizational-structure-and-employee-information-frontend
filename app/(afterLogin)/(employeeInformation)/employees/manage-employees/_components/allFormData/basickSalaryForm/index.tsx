@@ -16,7 +16,11 @@ const BasicSalaryForm: React.FC = () => {
             label="Basic Salary"
             rules={[{ required: true, message: 'Basic Salary is Required' }]}
           >
-            <InputNumber placeholder="Enter basic salary" min={0} />
+            <InputNumber
+              placeholder="Enter basic salary"
+              className="w-full"
+              min={0}
+            />
           </Form.Item>
         </Col>
       </Row>
