@@ -120,11 +120,7 @@ export const useGetPerformance = (planningPeriodId: string, userId: string) => {
 };
 
 export const useGetVariablePay = () => {
-  return useQuery(
-    ['variablePay'],
-    () => getVariablePay(),
-    {
-      keepPreviousData: true,
-    },
-  );
+  return useQuery(['variablePay'], () => getVariablePay(), {
+    keepPreviousData: true,
+  });
 };

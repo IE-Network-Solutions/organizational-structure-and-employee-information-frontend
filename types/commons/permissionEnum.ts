@@ -1,5 +1,4 @@
 export enum Permissions {
-
   // Allowance type permissions
   CreateAllowanceType = 'create-allowance-type',
   UpdateAllowanceType = 'update-allowance-type',

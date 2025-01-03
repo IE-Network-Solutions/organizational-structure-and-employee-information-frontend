@@ -7,11 +7,10 @@ import { useFetchAllowance } from '@/store/server/features/compensation/allowanc
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 
 const SingleAllowancePage = () => {
-
   const { id } = useParams();
   const { data: allowanceData } = useFetchAllowance(id);
   const { setIsAllowanceGlobal } = useAllowanceEntitlementStore();
-  
+
   useEffect(() => {
     if (allowanceData?.applicableTo === 'GLOBAL') {
       setIsAllowanceGlobal(true);
@@ -22,8 +21,10 @@ const SingleAllowancePage = () => {
 
   return (
     <>
-      <PageHeader title={allowanceData?.name ? allowanceData?.name : ''} size="small">
-      </PageHeader>
+      <PageHeader
+        title={allowanceData?.name ? allowanceData?.name : ''}
+        size="small"
+      ></PageHeader>
       <AllowanceEntitlementTable />
     </>
   );

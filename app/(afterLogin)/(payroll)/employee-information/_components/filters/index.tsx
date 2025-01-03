@@ -1,7 +1,6 @@
 import { Col, Input, Row, Select } from 'antd';
 import React from 'react';
 
-
 const Filters = () => {
   const { Option } = Select;
 

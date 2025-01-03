@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation';
 
 const BenefitPage = () => {
-   redirect('/benefit/variablePay');
+  redirect('/benefit/variablePay');
   return null;
 };
 
