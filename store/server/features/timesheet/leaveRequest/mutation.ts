@@ -14,7 +14,7 @@ const setLeaveRequest = async ({
   userId: string;
 }) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/make`,
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/make  `,
     method: 'POST',
     headers: requestHeader(),
     data: { item: { ...item, user: userId } },

@@ -11,9 +11,9 @@ const headers = {
   Authorization: `Bearer ${token}`,
 };
 
-const getAllFiscalYears = async (pageSize: number, currentPage: number) => {
+const getAllFiscalYears = async (pageSize?: number, currentPage?: number) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars?limit=${pageSize}&&page=${currentPage}`,
+    url: `${ORG_AND_EMP_URL}/calendars?limit=${pageSize ?? 10}&&page=${currentPage ?? 1}`,
     method: 'GET',
     headers,
   });
@@ -36,7 +36,7 @@ const getFiscalYear = async (id: string) => {
   });
 };
 
-export const useGetAllFiscalYears = (pageSize: number, currentPage: number) =>
+export const useGetAllFiscalYears = (pageSize?: number, currentPage?: number) =>
   useQuery<FiscalYearResponse>(['fiscalYears', pageSize, currentPage], () =>
     getAllFiscalYears(pageSize, currentPage),
   );

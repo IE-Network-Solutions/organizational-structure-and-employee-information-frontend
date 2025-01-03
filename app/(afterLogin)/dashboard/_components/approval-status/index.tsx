@@ -45,6 +45,7 @@ const ApprovalStatus: FC = () => {
               label: item.value,
             }))}
             bordered={false}
+            defaultValue="Leave"
             onChange={handleChange}
           />
         </div>

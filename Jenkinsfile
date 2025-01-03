@@ -8,23 +8,24 @@ pipeline {
         REPO_DIR = 'osei-front'
         SSH_CREDENTIALS_ID = 'peptest'
 
-        ORG_AND_EMP_URL="https://test-org-emp.ienetworks.co/api/v1"
-        NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://test-okr-backend.ienetworks.co/api/v1"
-        OKR_URL="https://test-okr-backend.ienetworks.co/api/v1"
-        TENANT_MGMT_URL="https://test-tenant-backend.ienetworks.co/api/v1"
-        ORG_DEV_URL = "https://test-od.ienetworks.co/api/v1"
-        RECRUITMENT_URL="https://test-recruitment-backend.ienetworks.co/api/v1"
-        NEXT_PUBLIC_APPROVERS_URL="https://test-approval-backend.ienetworks.co/api/v1"
-        NOTIFICATION_URL="https://test-email-service.ienetworks.co/api/v1"
-        PUBLIC_DOMAIN="https://selamnew.com"
-        NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://test-time-attendance-backend.ienetworks.co/api/v1"
-        NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://test-training-backend.ienetworks.co/api/v1"
-        NEXT_PUBLIC_API_KEY="AIzaSyDDOSSGJy2izlW9CzhzhjHUTEVur0J16zs"
-        NEXT_PUBLIC_AUTH_DOMIAN="pep-authentication.firebaseapp.com"
-        NEXT_PUBLIC_PROJECT_ID="pep-authentication"
-        NEXT_PUBLIC_STORAGE_BUCKET="pep-authentication.appspot.com"
-        NEXT_PUBLIC_MESSAGE_SENDER_ID="871958776875"
-        NEXT_PUBLIC_APP_ID="1:871958776875:web:426ec9b0b49fc35df1ae6e"
+
+       ORG_AND_EMP_URL="https://test-org-emp.ienetworks.co/api/v1"
+NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://test-okr-backend.ienetworks.co/api/v1"
+OKR_URL="https://test-okr-backend.ienetworks.co/api/v1"
+TENANT_MGMT_URL="https://test-tenant-backend.ienetworks.co/api/v1"
+ORG_DEV_URL = "https://test-od.ienetworks.co/api/v1"
+NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://test-time-attendance-backend.ienetworks.co/api/v1"
+NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://test-training-backend.ienetworks.co/api/v1"
+RECRUITMENT_URL="https://test-recruitment-backend.ienetworks.co/api/v1"
+NEXT_PUBLIC_APPROVERS_URL="https://test-approval-backend.ienetworks.co/api/v1"
+PUBLIC_DOMAIN="https://selamnew.com"
+NOTIFICATION_URL='https://test-email-service.ienetworks.co/api/v1'
+NEXT_PUBLIC_API_KEY="AIzaSyDDOSSGJy2izlW9CzhzhjHUTEVur0J16zs"
+NEXT_PUBLIC_AUTH_DOMIAN="pep-authentication.firebaseapp.com"
+NEXT_PUBLIC_PROJECT_ID="pep-authentication"
+NEXT_PUBLIC_STORAGE_BUCKET="pep-authentication.appspot.com"
+NEXT_PUBLIC_MESSAGE_SENDER_ID="871958776875"
+NEXT_PUBLIC_APP_ID="1:871958776875:web:426ec9b0b49fc35df1ae6e"
     }
 
     stages {
@@ -60,7 +61,9 @@ pipeline {
                 sshagent (credentials: [SSH_CREDENTIALS_ID]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cat > ~/$REPO_DIR/.env <<EOF
-                        NODE_ENV=development
+
+                        NODE_ENV=production
+
                         ORG_AND_EMP_URL=${ORG_AND_EMP_URL}
                         TENANT_MGMT_URL=${TENANT_MGMT_URL}
                         ORG_DEV_URL=${ORG_DEV_URL}
@@ -97,14 +100,15 @@ pipeline {
                 sshagent (credentials: [SSH_CREDENTIALS_ID]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run format'
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && pm2 delete test-osei-front-app || true'
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run build && PORT=3001 pm2 start npm --name "test-osei-front-app" -- start'
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && sudo pm2 delete test-osei-front-app || true'
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run build && PORT=3001 sudo pm2 start npm --name "test-osei-front-app" -- start'
                     """
                 }
             }
         }
     }
         post {
+
         success {
             echo 'Nest js application deployed successfully!'
         }

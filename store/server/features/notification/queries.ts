@@ -3,7 +3,6 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
 const getNotifications = async (userId: string) => {
-  // return [];
   return crudRequest({
     url: `${NOTIFICATION_URL}/notification/all-notifications/${userId}`,
     method: 'GET',
