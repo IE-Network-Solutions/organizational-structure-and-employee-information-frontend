@@ -25,7 +25,8 @@ interface ReactQueryWrapperProps {
 
 const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   const router = useRouter();
-  const {setLocalId, setTenantId, setToken, setUserId, setError } = useAuthenticationStore();
+  const { setLocalId, setTenantId, setToken, setUserId, setError } =
+    useAuthenticationStore();
 
   const handleLogout = () => {
     setToken('');

@@ -50,7 +50,5 @@ const fetchAllowanceTypes = async () => {
  * @returns {QueryObject} The query object for fetching compensation types.
  */
 export const useFetchAllowanceTypes = () => {
-  return useQuery(['allowanceType'], () =>
-    fetchAllowanceTypes(),
-  );
+  return useQuery(['allowanceType'], () => fetchAllowanceTypes());
 };

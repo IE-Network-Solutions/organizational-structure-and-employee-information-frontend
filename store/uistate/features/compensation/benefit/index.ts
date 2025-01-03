@@ -1,38 +1,38 @@
 import { create } from 'zustand';
 
 interface BenefitEntitlementTypes {
-    isBenefitEntitlementSidebarOpen: boolean;
-    selectedDepartment: string | null;
-    departmentUsers: any[];
-    benefitMode: string;
-    BenefitApplicableTo: string;
-    benefitDefaultAmount: number;
+  isBenefitEntitlementSidebarOpen: boolean;
+  selectedDepartment: string | null;
+  departmentUsers: any[];
+  benefitMode: string;
+  BenefitApplicableTo: string;
+  benefitDefaultAmount: number;
 
-    currentPage: number;
-    pageSize: number;
+  currentPage: number;
+  pageSize: number;
 
-    setIsBenefitEntitlementSidebarOpen: (value: boolean) => void;
-    setSelectedDepartment: (value: string | null) => void;
-    setDepartmentUsers: (value: any[]) => void;
-    setBenefitMode: (value: string) => void;
-    setCurrentPage: (value: number) => void;
-    setPageSize: (value: number) => void;
-    setBenefitDefaultAmount: (value: number) => void;
-    setBenefitApplicableTo: (value: string) => void;
+  setIsBenefitEntitlementSidebarOpen: (value: boolean) => void;
+  setSelectedDepartment: (value: string | null) => void;
+  setDepartmentUsers: (value: any[]) => void;
+  setBenefitMode: (value: string) => void;
+  setCurrentPage: (value: number) => void;
+  setPageSize: (value: number) => void;
+  setBenefitDefaultAmount: (value: number) => void;
+  setBenefitApplicableTo: (value: string) => void;
 
-    resetStore: () => void;
+  resetStore: () => void;
 }
 
 const benefitEntitlementInitialState = {
-    isBenefitEntitlementSidebarOpen: false,
-    selectedDepartment: null,
-    departmentUsers: [],
-    benefitMode: '',
-    BenefitApplicableTo: '',
-    benefitDefaultAmount: 0,
+  isBenefitEntitlementSidebarOpen: false,
+  selectedDepartment: null,
+  departmentUsers: [],
+  benefitMode: '',
+  BenefitApplicableTo: '',
+  benefitDefaultAmount: 0,
 
-    currentPage: 1,
-    pageSize: 10,
+  currentPage: 1,
+  pageSize: 10,
 };
 
 interface VariablePayTypes {
@@ -54,7 +54,8 @@ export const useBenefitEntitlementStore = create<BenefitEntitlementTypes>(
   (set) => ({
     ...benefitEntitlementInitialState,
 
-    setIsBenefitEntitlementSidebarOpen: (value) => set({ isBenefitEntitlementSidebarOpen: value }),
+    setIsBenefitEntitlementSidebarOpen: (value) =>
+      set({ isBenefitEntitlementSidebarOpen: value }),
     setSelectedDepartment: (value) => set({ selectedDepartment: value }),
     setDepartmentUsers: (value) => set({ departmentUsers: value }),
     setBenefitMode: (value) => set({ benefitMode: value }),
@@ -74,16 +75,14 @@ export const useBenefitEntitlementStore = create<BenefitEntitlementTypes>(
         };
       });
     },
-  })
+  }),
 );
 
-export const useVariablePayStore = create<VariablePayTypes>(
-  (set) => ({
-    ...variablePayInitialState,
+export const useVariablePayStore = create<VariablePayTypes>((set) => ({
+  ...variablePayInitialState,
 
-    setCurrentPage: (value) => set({ currentPage: value }),
-    setPageSize: (value) => set({ pageSize: value }),
+  setCurrentPage: (value) => set({ currentPage: value }),
+  setPageSize: (value) => set({ pageSize: value }),
 
-    resetStore: () => set(variablePayInitialState),
-  })
-);
+  resetStore: () => set(variablePayInitialState),
+}));

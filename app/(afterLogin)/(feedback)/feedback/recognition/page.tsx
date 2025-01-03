@@ -28,7 +28,7 @@ function Page() {
   const {
     updateSearchValue,
     searchValue,
-    selectedRecognitionType,    
+    selectedRecognitionType,
     setSelectedRecognitionType,
     current,
     pageSize,

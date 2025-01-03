@@ -6,17 +6,32 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
 import { useDeleteAllowanceType } from '@/store/server/features/compensation/settings/mutations';
-import { useCompensationSettingStore, useCompensationTypeTablesStore } from '@/store/uistate/features/compensation/settings';
+import {
+  useCompensationSettingStore,
+  useCompensationTypeTablesStore,
+} from '@/store/uistate/features/compensation/settings';
 
 const AllowanceTypeTable = () => {
   const { data, isLoading } = useFetchAllowanceTypes();
   const { mutate: deleteAllowanceType } = useDeleteAllowanceType();
-  const { allowanceCurrentPage, allowancePageSize, setAllowanceCurrentPage, setAllowancePageSize, } = useCompensationTypeTablesStore();
-  const { setSelectedAllowanceRecord, setIsAllowanceOpen, tableData, setTableData } = useCompensationSettingStore();
+  const {
+    allowanceCurrentPage,
+    allowancePageSize,
+    setAllowanceCurrentPage,
+    setAllowancePageSize,
+  } = useCompensationTypeTablesStore();
+  const {
+    setSelectedAllowanceRecord,
+    setIsAllowanceOpen,
+    tableData,
+    setTableData,
+  } = useCompensationSettingStore();
 
   useEffect(() => {
     if (data) {
-      const filteredData = data.filter((item: any) => item.type === 'ALLOWANCE');
+      const filteredData = data.filter(
+        (item: any) => item.type === 'ALLOWANCE',
+      );
       setTableData(filteredData);
     }
   }, [data]);
@@ -24,7 +39,7 @@ const AllowanceTypeTable = () => {
   const handleDelete = (id: string) => {
     deleteAllowanceType(id);
   };
-  
+
   const handleAllowanceEdit = (record: string) => {
     setSelectedAllowanceRecord(record);
     setIsAllowanceOpen(true);
@@ -63,9 +78,7 @@ const AllowanceTypeTable = () => {
       key: 'amount',
       sorter: true,
       render: (amount: number, record: any) =>
-        !record.isRate
-          ? `${amount} ETB`
-          : `${amount}% of base salary`,
+        !record.isRate ? `${amount} ETB` : `${amount}% of base salary`,
     },
     {
       title: 'Applicable to',

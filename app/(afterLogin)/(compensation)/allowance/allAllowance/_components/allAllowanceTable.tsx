@@ -6,40 +6,47 @@ import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useAllAllowanceStore } from '@/store/uistate/features/compensation';
 
 const AllAllowanceTable = () => {
-  const {data: allCompensationsData} = useFetchAllowances();
-  const { currentPage, pageSize, setCurrentPage, setPageSize} = useAllAllowanceStore();
+  const { data: allCompensationsData } = useFetchAllowances();
+  const { currentPage, pageSize, setCurrentPage, setPageSize } =
+    useAllAllowanceStore();
 
   const allAllowanceEntitlementData = Array.isArray(allCompensationsData)
-  ? allCompensationsData.filter((allowanceEntitlement: any) => allowanceEntitlement.type == 'ALLOWANCE')
-  : [];
+    ? allCompensationsData.filter(
+        (allowanceEntitlement: any) => allowanceEntitlement.type == 'ALLOWANCE',
+      )
+    : [];
 
   const allEntitlementData = Array.isArray(allAllowanceEntitlementData)
-  ? allAllowanceEntitlementData.reduce(
-      (acc: any, benefit: any) => acc.concat(benefit.compensationItmeEntitlement),
-      []
-    )
-  : [];
+    ? allAllowanceEntitlementData.reduce(
+        (acc: any, benefit: any) =>
+          acc.concat(benefit.compensationItmeEntitlement),
+        [],
+      )
+    : [];
 
-  const groupByEmployeeId = allEntitlementData?.reduce((acc: any, item: any) => {
+  const groupByEmployeeId = allEntitlementData?.reduce(
+    (acc: any, item: any) => {
       if (!acc[item.employeeId]) {
         acc[item.employeeId] = { employeeId: item.employeeId, allowance: [] };
-    }
-    acc[item.employeeId].allowance.push({
-      compensationItemId: item?.compensationItemId,
-      totalAmount: item?.totalAmount,
-    });
+      }
+      acc[item.employeeId].allowance.push({
+        compensationItemId: item?.compensationItemId,
+        totalAmount: item?.totalAmount,
+      });
 
-    return acc;
-  }, {});
+      return acc;
+    },
+    {},
+  );
 
   const result = Object.values(groupByEmployeeId ?? {});
 
-  const dataSource = result.map((employee:any) => {
+  const dataSource = result.map((employee: any) => {
     const dataRow: any = {
       key: employee.employeeId,
       employeeId: employee.employeeId,
     };
-    employee.allowance.forEach((allowance:any) => {
+    employee.allowance.forEach((allowance: any) => {
       dataRow[allowance.compensationItemId] = allowance.totalAmount;
     });
     return dataRow;
@@ -56,7 +63,9 @@ const AllAllowanceTable = () => {
       dataIndex: 'name',
       key: 'dateNaming',
       sorter: true,
-      render: (notused:any,record: any) => <EmployeeDetails empId= {record?.employeeId} />,
+      render: (notused: any, record: any) => (
+        <EmployeeDetails empId={record?.employeeId} />
+      ),
     },
     {
       title: 'Role',
@@ -65,15 +74,15 @@ const AllAllowanceTable = () => {
       sorter: true,
       render: (text: string) => <div>{text || '-'}</div>,
     },
-    
-  ...(Array.isArray(allAllowanceEntitlementData)
-    ? allAllowanceEntitlementData.map((item: any) => ({
-        title: item?.name,
-        dataIndex: item?.id,
-        key: item?.id,
-        render: (text: string) => <div>{text || '-'}</div>,
-      }))
-    : []),
+
+    ...(Array.isArray(allAllowanceEntitlementData)
+      ? allAllowanceEntitlementData.map((item: any) => ({
+          title: item?.name,
+          dataIndex: item?.id,
+          key: item?.id,
+          render: (text: string) => <div>{text || '-'}</div>,
+        }))
+      : []),
   ];
 
   return (
