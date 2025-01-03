@@ -9,6 +9,8 @@ import { useFetchActiveFiscalYearPayPeriods } from '@/store/server/features/payr
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useDeletePayPeriod, useChangePayPeriodStatus } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import dayjs from 'dayjs';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 const { Title } = Typography;
 
 const PayPeriod = () => {
@@ -91,18 +93,20 @@ const PayPeriod = () => {
       key: 'action',
       render: (record: any) => (
         <Space size="middle">
-          <Switch
-          checked={record.status === 'OPEN'}
-          onChange={(checked) => onStatusChange(record, checked)}
-          checkedChildren="Open"
-          unCheckedChildren="Close"
-          />
-          <Button
-            type="primary"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDeletePayPeriod(record.id)}
-          />
+          <AccessGuard permissions={[Permissions.UpdatePayPeriod, Permissions.DeletePayPeriod]}>
+            <Switch
+            checked={record.status === 'OPEN'}
+            onChange={(checked) => onStatusChange(record, checked)}
+            checkedChildren="Open"
+            unCheckedChildren="Close"
+            />
+            <Button
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => handleDeletePayPeriod(record.id)}
+            />
+          </AccessGuard>
         </Space>
       ),
     },
@@ -112,14 +116,16 @@ const PayPeriod = () => {
     <div className="p-6">
       <div className="flex justify-between items-center">
         <Title level={3}>Pay Period</Title>
-        <Button
-          type="default"
-          icon={<PlusOutlined />}
-          style={{ marginBottom: '20px' }}
-          onClick={handleAddPayPeriod}
-        >
-          Pay Period
-        </Button>
+        <AccessGuard permissions={[Permissions.CreatePayPeriod]}>
+          <Button
+            type="default"
+            icon={<PlusOutlined />}
+            style={{ marginBottom: '20px' }}
+            onClick={handleAddPayPeriod}
+          >
+            Pay Period
+          </Button>
+        </AccessGuard>
       </div>
       <Spin spinning={isLoading}>
       <Table

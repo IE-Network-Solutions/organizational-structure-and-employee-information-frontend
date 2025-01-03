@@ -17,7 +17,7 @@ const getTaxRule = async () => {
 };
 
 /**
- * Fetches details for a specific benefit from the API.
+ * Fetches details for the active fiscal year from the API.
  *
  * @async
  * @function fetchActiveFiscalYearPayPeriods
@@ -44,7 +44,7 @@ const getTaxRuleById = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${PAYROLL_DEV_URL}/tax-rules/${id}`, // Added the ID to the URL
+    url: `${PAYROLL_DEV_URL}/tax-rules/${id}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,

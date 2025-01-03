@@ -69,11 +69,10 @@ const deleteTaxRule = async (id: string) => {
 };
 
 /**
- * Deletes a custom question template by sending a DELETE request to the API.
- * The request includes pagination details such as the current page and page size for managing the UI state.
+ * Create pay periods by sending a POST request to the API.
  *
  * @async
- * @function deleteQuestionTemplate
+ * @function createPayPeriods
  * @returns {Promise<any>} The response from the API.
  */
 const createPayPeriods = async (data: any[]) => {
@@ -93,11 +92,10 @@ const createPayPeriods = async (data: any[]) => {
 };
 
 /**
- * Deletes a custom question template by sending a DELETE request to the API.
- * The request includes pagination details such as the current page and page size for managing the UI state.
+ * Deletes a pay period by sending a DELETE request to the API.
  *
  * @async
- * @function deleteQuestionTemplate
+ * @function deletePayPeriod
  * @returns {Promise<any>} The response from the API.
  */
 const deletePayPeriod = async (payPeriodId: string) => {
@@ -197,8 +195,8 @@ export const useUpdateTaxRule = () => {
 };
 
 /**
- * Custom hook to delete a question template using React Query's useMutation hook.
- * On success, the cache for `questionTemplate` is invalidated and a success message is displayed.
+ * Custom hook to create pay periods using React Query's useMutation hook.
+ * On success, the cache for `payPeriods` is invalidated and a success message is displayed.
  *
  * @returns {MutationObject} The mutation object for deleting a question template.
  */
@@ -214,8 +212,8 @@ export const useCreatePayPeriods = () => {
 };
 
 /**
- * Custom hook to delete a question template using React Query's useMutation hook.
- * On success, the cache for `questionTemplate` is invalidated and a success message is displayed.
+ * Custom hook to delete a pay period using React Query's useMutation hook.
+ * On success, the cache for `payPeriods` is invalidated and a success message is displayed.
  *
  * @returns {MutationObject} The mutation object for deleting a question template.
  */
