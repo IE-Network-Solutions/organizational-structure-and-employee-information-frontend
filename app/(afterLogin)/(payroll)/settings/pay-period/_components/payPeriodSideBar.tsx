@@ -189,10 +189,8 @@ const PayPeriodSideBar = () => {
                         const [start, end] = values;
                         const newDivisions = [...divisions];
 
-                        // Adjust the current range
                         newDivisions[index] = [start, end];
-
-                        // Adjust the next range if it exists
+                        
                         if (index + 1 < newDivisions.length) {
                           const nextStart = dayjs(newDivisions[index + 1][1]);
                           if (dayjs(end).isBefore(nextStart)) {
@@ -200,7 +198,6 @@ const PayPeriodSideBar = () => {
                           }
                         }
 
-                        // Adjust the previous range if it exists
                         if (index - 1 >= 0) {
                           const prevEnd = dayjs(newDivisions[index - 1][1]);
                           if (dayjs(start).isAfter(prevEnd)) {

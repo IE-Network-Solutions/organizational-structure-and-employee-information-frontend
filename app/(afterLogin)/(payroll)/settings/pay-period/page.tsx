@@ -33,32 +33,13 @@ const PayPeriod = () => {
   };
   
   const onStatusChange = (record: any, checked: boolean) => {
-  
     const newStatus = checked ? 'OPEN' : 'CLOSED';
-    const today = dayjs();
-    const isTodayInRange = today.isBetween(
-      dayjs(record.startDate),
-      dayjs(record.endDate),
-      null,
-      '[]'
-    );
-  
-    if (newStatus === 'OPEN') {
-      if (isTodayInRange) {
-        changePayPeriodStatus({ payPeriodId: record.id, status: newStatus });
-      } else {
-        notification.warning({
-          message: 'Cannot Open Pay Period',
-          description:
-            'Pay period can only be opened if today falls within its start and end date.',
-          placement: 'topRight',
-        });
-      }
-    } else {
-      changePayPeriodStatus({ payPeriodId: record.id, status: newStatus });
-    }
-  };
-  
+    changePayPeriodStatus({
+      payPeriodId: record.id,
+      status: newStatus,
+      activeFiscalYearId: activeFiscalYear?.id,
+    });
+  };  
 
   const dataSource = Array.isArray(payPeriods)
   ? payPeriods.map((payPeriod: any) => ({
@@ -97,8 +78,8 @@ const PayPeriod = () => {
             <Switch
             checked={record.status === 'OPEN'}
             onChange={(checked) => onStatusChange(record, checked)}
-            checkedChildren="Open"
-            unCheckedChildren="Close"
+            checkedChildren="Opened"
+            unCheckedChildren="Closed"
             />
             <Button
               type="primary"
