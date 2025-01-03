@@ -4,6 +4,7 @@ import { useCreateJobInformation } from '@/store/server/features/employees/emplo
 import JobTimeLineForm from '../../../../_components/allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../../../../_components/allFormData/workScheduleForm';
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
+import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
 
 interface Ids {
   id: string;
@@ -23,10 +24,13 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
     values.userId = id;
+    values.basicSalary = parseInt(values.basicSalary.toString(), 10);
+
     values.departmentLeadOrNot
       ? values.departmentLeadOrNot
       : (values.departmentLeadOrNot = false);
     createJobInformation(values);
+
     form.resetFields();
     setIsAddEmployeeJobInfoModalVisible(false);
   };
@@ -44,7 +48,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
         <Form form={form} onFinish={createTsks} layout="vertical">
           <JobTimeLineForm />
           <WorkScheduleForm />
-
+          <BasicSalaryForm />
           <Form.Item>
             <Row className="flex justify-end gap-3">
               <Button type="primary" htmlType="submit" name="submit">
