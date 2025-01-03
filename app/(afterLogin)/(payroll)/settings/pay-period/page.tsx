@@ -2,7 +2,6 @@
 import React from 'react';
 import { Table, Button, Space, Typography, Switch, Spin } from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { notification } from 'antd';
 import PayPeriodSideBar from './_components/payPeriodSideBar';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
 import { useFetchActiveFiscalYearPayPeriods } from '@/store/server/features/payroll/setting/tax-rule/queries';
