@@ -212,6 +212,10 @@ const ApprovalTable = () => {
   const onPageChange = (page: number) => {
     setUserCurrentPage(page);
   };
+  const onAllRequest = () => {
+    console.log(data?.items, 'onAllRequest');
+    alert('onAllRequest');
+  };
   return (
     <>
       {data?.items?.length > 0 ? (
@@ -220,6 +224,11 @@ const ApprovalTable = () => {
             <div className="text-2xl font-bold text-gray-900">
               Waiting for my approval
             </div>
+          </div>
+          <div className="flex items-center justify-end mb-6">
+            <Button type="primary" onClick={() => onAllRequest()}>
+              Approve All
+            </Button>
           </div>
           <Table
             columns={columns}
