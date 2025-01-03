@@ -45,7 +45,7 @@ const Header = () => {
           <div className="flex flex-col">
             <div className="">
               <div className="text-2xl font-bold ">
-                {objectiveDashboard?.userOkr || 0} %
+                {Number(objectiveDashboard?.userOkr).toLocaleString() || 0} %
               </div>
             </div>
 
@@ -79,7 +79,9 @@ const Header = () => {
           <div className="flex flex-col">
             <div className="">
               <div className="text-2xl font-bold ">
-                {objectiveDashboard?.supervisorOkr || 0} %
+                {Number(objectiveDashboard?.supervisorOkr).toLocaleString() ||
+                  0}{' '}
+                %
               </div>
             </div>
 
@@ -113,7 +115,9 @@ const Header = () => {
             <div className="flex flex-col">
               <div className="">
                 <div className="text-2xl font-bold ">
-                  {objectiveDashboard?.companyOkr || 0} %
+                  {Number(objectiveDashboard?.companyOkr)?.toLocaleString() ||
+                    0}{' '}
+                  %
                 </div>
               </div>
 
