@@ -13,13 +13,16 @@ import { useCreatePayPeriods } from '@/store/server/features/payroll/setting/tax
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import isBetween from 'dayjs/plugin/isBetween';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 dayjs.extend(isBetween);
+dayjs.extend(isSameOrBefore);
 const { RangePicker } = DatePicker;
+const { Option } = Select;
 
 const PayPeriodSideBar = () => {
-  const [form] = Form.useForm();
 
+  const [form] = Form.useForm();
   const {
     isPayPeriodSidebarVisible,
     payPeriodMode,
@@ -30,49 +33,6 @@ const PayPeriodSideBar = () => {
   } = usePayPeriodStore();
   const { mutate: createPayPeriods} = useCreatePayPeriods();
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
-
-  const onClose = () => {
-    form.resetFields();
-    resetStore();
-  };
-
-  const onFormSubmit = () => {
-    const today = dayjs();
-    const transformedData = divisions.map(([start, end]) => ({
-      startDate: dayjs(start).format("YYYY-MM-DD"),
-      endDate: dayjs(end).format("YYYY-MM-DD"),
-      status: today.isBetween(dayjs(start), dayjs(end), "day", "[]") ? "OPEN" : "CLOSED",
-      activeFiscalYearId: activeFiscalYear?.id,
-    }));
-    createPayPeriods(transformedData);
-    onClose();
-  };
-
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-14',
-      size: 'large',
-      loading: false,
-      onClick: () => onClose(),
-    },
-    {
-      label: <span>Create</span>,
-      key: 'create',
-      className: 'h-14',
-      type: 'primary',
-      size: 'large',
-      loading: false,
-      onClick: () => form.submit(),
-    },
-  ];
-
-  const modeOptions = [
-    { label: 'Weekly', value: 'Weekly' },
-    { label: 'Bi-weekly', value: 'Bi-weekly' },
-    { label: 'Monthly', value: 'Monthly' },
-  ];
 
   const calculateDivisions = (mode: string) => {
     if (!activeFiscalYear) return;
@@ -126,10 +86,70 @@ const PayPeriodSideBar = () => {
       `${dayjs(range[0]).format('MMMM D, YYYY')} - ${dayjs(range[1]).format('MMMM D, YYYY')}`
   );
 
-  const deleteDivision = (index: number) => {
+  const allMonths = activeFiscalYear?.sessions?.flatMap(session => session.months);
+  const monthsWithStartEndDates = allMonths?.map(month => ({
+    id: month?.id,
+    startDate: month?.startDate,
+    monthName: dayjs(month?.startDate).format('MMMM'),
+    endDate: month?.endDate,
+  }));
+
+  const onFormSubmit = () => {
+    const transformedData = divisions.map((division) => ({
+      startDate: dayjs(division[0]).format("YYYY-MM-DD"),
+      endDate: dayjs(division[1]).format("YYYY-MM-DD"),
+      monthId: division.monthId,
+      status: "CLOSED",
+      activeFiscalYearId: activeFiscalYear?.id,
+    }));
+    createPayPeriods(transformedData);
+    onClose();
+  };
+  
+  const handleDeleteDivision = (index: number) => {
     const updatedDivisions = divisions.filter((unused, i) => i !== index);
     setDivisions(updatedDivisions);
   };
+
+  const handleMonthSelect = (value: string, index: number) => {
+    const newDivisions = [...divisions];
+    newDivisions[index] = {
+      ...newDivisions[index],
+      monthId: value,
+    };
+    setDivisions(newDivisions);
+  };
+
+  const onClose = () => {
+    form.resetFields();
+    resetStore();
+  };
+
+  const footerModalItems: CustomDrawerFooterButtonProps[] = [
+    {
+      label: 'Cancel',
+      key: 'cancel',
+      className: 'h-14',
+      size: 'large',
+      loading: false,
+      onClick: () => onClose(),
+    },
+    {
+      label: <span>Create</span>,
+      key: 'create',
+      className: 'h-14',
+      type: 'primary',
+      size: 'large',
+      loading: false,
+      onClick: () => form.submit(),
+    },
+  ];
+
+  const modeOptions = [
+    { label: 'Weekly', value: 'Weekly' },
+    { label: 'Bi-weekly', value: 'Bi-weekly' },
+    { label: 'Monthly', value: 'Monthly' },
+  ];
 
   return (
     isPayPeriodSidebarVisible && (
@@ -180,9 +200,9 @@ const PayPeriodSideBar = () => {
               <div className="mt-4">
                 {divisions.map((range, index) => (
                   <div key={index} className="my-2">
+                    <div className='flex justify-between'>
                     <RangePicker
                       value={[dayjs(range[0]), dayjs(range[1])]}
-                      className="w-full"
                       onChange={(values) => {
                         if (!values || values.length !== 2) return;
 
@@ -231,33 +251,74 @@ const PayPeriodSideBar = () => {
                         return false;
                       }}
                     />
-                    <div className='flex flex-row justify-between items-center mt-2'>
-                      <p className="text-sm text-gray-500">
-                        {dayjs(range[0]).format('MMMM D, YYYY')} -{' '}
-                        {dayjs(range[1]).format('MMMM D, YYYY')}
-                      </p>
-                      {index === divisions.length - 1 && (
-                        <Popover
-                          content={<span>{`${dayjs(range[0]).format('MMMM D, YYYY')} - ${dayjs(range[1]).format('MMMM D, YYYY')}`}</span>}
-                          title="Delete Pay Period Range"
-                          trigger="hover"
-                          placement="left"
-                        >
-                          <Button
-                            type="primary"
-                            size="small"
-                            icon={<DeleteOutlined />}
-                            onClick={() => deleteDivision(index)}
-                            danger
-                          />
-                        </Popover>
-                      )}
-                    </div>
+                    <Form.Item
+                        name={`monthId${index}`}
+                        label="Pay Period month"
+                        rules={[{ required: true, message: 'Please select pay period month' }]}
+                      >
+                      <Select
+                        placeholder="Select a month"
+                        style={{ width: 200 }}
+                        onChange={(value) => handleMonthSelect(value, index)}
+                      >
+                        {(() => {
+                          const rangeStart = dayjs(range[0]);
+                          const rangeEnd = dayjs(range[1]);
+                          
+                          const rangeAverage = rangeStart.add(rangeEnd.diff(rangeStart) / 2, 'ms');
+
+                          const suitableMonths = (monthsWithStartEndDates ?? [])
+                            .filter((month) => {
+                              const startDate = dayjs(month.startDate);
+                              return startDate.isSameOrBefore(rangeEnd, 'month');
+                            })
+                            .map((month) => ({
+                              ...month,
+                              distance: Math.abs(dayjs(month.startDate).diff(rangeAverage, 'days')),
+                            }))
+                            .sort((a, b) => a.distance - b.distance)
+                            .slice(0, 3)
+                            .sort((a, b) => {
+                              const startDateA = dayjs(a.startDate);
+                              const startDateB = dayjs(b.startDate);
+                              return startDateA.isBefore(startDateB) ? -1 : 1;
+                            });
+
+                          return suitableMonths.map((month) => (
+                            <Option key={month.id} value={month.id}>
+                              {`${month?.monthName}`}
+                            </Option>
+                          ));
+                        })()}
+                      </Select>
+                    </Form.Item>
                   </div>
+                  <div className='flex flex-row justify-between items-center mt-2'>
+                    <p className="text-sm text-gray-500">
+                      {dayjs(range[0]).format('MMMM D, YYYY')} -{' '}
+                      {dayjs(range[1]).format('MMMM D, YYYY')}
+                    </p>
+                    {index === divisions.length - 1 && (
+                      <Popover
+                        content={<span>{`${dayjs(range[0]).format('MMMM D, YYYY')} - ${dayjs(range[1]).format('MMMM D, YYYY')}`}</span>}
+                        title="Delete Pay Period Range"
+                        trigger="hover"
+                        placement="left"
+                      >
+                        <Button
+                          type="primary"
+                          size="small"
+                          icon={<DeleteOutlined />}
+                          onClick={() => handleDeleteDivision(index)}
+                          danger
+                        />
+                      </Popover>
+                    )}
+                  </div>
+                </div>
                 ))}
               </div>
             )}
-
           </Form>
         </Spin>
       </CustomDrawerLayout>
