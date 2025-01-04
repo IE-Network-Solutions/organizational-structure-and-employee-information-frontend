@@ -5,6 +5,7 @@ import { FaPlus } from 'react-icons/fa';
 import AllRecognition from '../_components/recognition/allRecognition';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
+
 import RecognitionForm from '../_components/recognition/createRecognition';
 import { useGetAllRecognitionType } from '@/store/server/features/CFR/recognition/queries';
 import AccessGuard from '@/utils/permissionGuard';
@@ -34,31 +35,30 @@ const Page = () => {
       label: recognitionType?.name,
       children: <AllRecognition data={[recognitionType]} />,
     })) || []),
-    {
-      key: 'last',
-      label: (
-        <AccessGuard permissions={[Permissions.CreateRecognition]}>
-          <Button
-            onClick={() => setOpenRecognitionType(true)}
-            icon={<FaPlus />}
-            type="primary"
-            className="flex gap-2"
-          >
-            Category
-          </Button>
-        </AccessGuard>
-      ),
-    },
   ];
 
   return (
     <div>
-      <Tabs
-        className="max-w-[850px] overflow-x-scrollable"
-        defaultActiveKey="1"
-        items={items}
-        onChange={onChange}
-      />
+      <div className='flex justify-start'>
+        <Tabs
+          className="max-w-[850px] overflow-x-scrollable"
+          defaultActiveKey="1"
+          items={items}
+          onChange={onChange}
+        />
+        <AccessGuard permissions={[Permissions.CreateRecognition]}>
+            <Button
+              onClick={() => setOpenRecognitionType(true)}
+              icon={<FaPlus />}
+              type="primary"
+              className="flex gap-2"
+            >
+              Category
+            </Button>
+          </AccessGuard>
+      </div>
+     
+
       <CustomDrawerLayout
         open={open}
         onClose={() => setOpen(false)}
@@ -72,7 +72,10 @@ const Page = () => {
         onClose={() => setOpenRecognitionType(false)}
         open={openRecognitionType}
       >
-        <RecognitionForm createCategory={true} />
+        <RecognitionForm
+          createCategory={true}
+          onClose={() => setOpenRecognitionType(false)}
+        />
       </Drawer>
     </div>
   );

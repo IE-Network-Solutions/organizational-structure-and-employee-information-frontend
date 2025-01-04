@@ -3,12 +3,11 @@ import { Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { useFetchAllowances } from '@/store/server/features/compensation/allowance/queries';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
-import { useAllAllowanceStore } from '@/store/uistate/features/compensation';
+import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allowance';
 
 const AllAllowanceTable = () => {
-  const { data: allCompensationsData } = useFetchAllowances();
-  const { currentPage, pageSize, setCurrentPage, setPageSize } =
-    useAllAllowanceStore();
+  const { data: allCompensationsData, isLoading } = useFetchAllowances();
+  const { currentPage, pageSize, setCurrentPage, setPageSize} = useAllAllowanceStore();
 
   const allAllowanceEntitlementData = Array.isArray(allCompensationsData)
     ? allCompensationsData.filter(
@@ -86,7 +85,7 @@ const AllAllowanceTable = () => {
   ];
 
   return (
-    <Spin spinning={false}>
+    <Spin spinning={isLoading}>
       <Table
         className="mt-6"
         columns={columns}

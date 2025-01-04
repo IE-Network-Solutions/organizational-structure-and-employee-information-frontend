@@ -4,7 +4,7 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import AllowanceEntitlementTable from './_components/allowanceEntitlementTable';
 import { useParams } from 'next/navigation';
 import { useFetchAllowance } from '@/store/server/features/compensation/allowance/queries';
-import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation';
+import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 
 const SingleAllowancePage = () => {
   const { id } = useParams();
