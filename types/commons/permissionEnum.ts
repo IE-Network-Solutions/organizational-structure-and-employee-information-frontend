@@ -23,6 +23,27 @@ export enum Permissions {
   UpdatePayPeriod = 'update-pay-period',
   DeletePayPeriod = 'delete-pay-period',
 
+  // Payroll permissions
+  CreateBankExport = 'create-bank-export',
+  CreateBankLetter = 'create-bank-letter',
+  GeneratePayroll = 'generate-payroll',
+
+  CreateTaxRule = 'create-tax-rule',
+  UpdateTaxRule = 'update-tax-rule',
+  DeleteTaxRule = 'delete-tax-rule',
+
+  CreatePensionRule = 'create-pension-rule',
+  UpdatePensionRule = 'update-pension-rule',
+  DeletePensionRule = 'delete-pension-rule',
+
+  CreateCostSharingRule = 'create-cost-sharing-rule',
+  UpdateCostSharingRule = 'update-cost-sharing-rule',
+  DeleteCostSharingRule = 'delete-cost-sharing-rule',
+
+  CreateBankInformation = 'create-bank-information',
+  UpdateBankInformation = 'update-bank-information',
+  DeleteBankInformation = 'delete-bank-information',
+
   // Could not be found Permissions that needs to be changed
   ViewAllEmployeePlan = 'view-all-employee-plan',
   ViewAllPlan = 'view-all-plan',

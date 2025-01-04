@@ -7,6 +7,8 @@ import { useGetTaxRule } from '@/store/server/features/payroll/setting/tax-rule/
 import { useDeleteTaxRule } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import useDrawerStore from '@/store/uistate/features/payroll/settings/taxRules/taxRulesStore';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 const { Title } = Typography;
 
 const TaxRules = () => {
@@ -49,21 +51,24 @@ const TaxRules = () => {
       key: 'action',
       render: (text: any, record: any) => (
         <Space size="middle">
-          <Tooltip title="Edit">
-            <Button
-              type="primary"
-              className=" border-none rounded-xl"
-              icon={<EditOutlined />}
-              onClick={() => handleEdit(record)}
-            />
-          </Tooltip>
-
+          <AccessGuard permissions={[Permissions.UpdateTaxRule]}>
+            <Tooltip title="Edit">
+              <Button
+                type="primary"
+                className=" border-none rounded-xl"
+                icon={<EditOutlined />}
+                onClick={() => handleEdit(record)}
+              />
+            </Tooltip>
+          </AccessGuard>
+          <AccessGuard permissions={[Permissions.DeleteTaxRule]}>
           <DeletePopover onDelete={() => handleDelete(record.id)}>
             <Button
               className="bg-red-600 text-white border-none rounded-xl"
               icon={<DeleteOutlined />}
             />
           </DeletePopover>
+          </AccessGuard>
         </Space>
       ),
     },
@@ -86,9 +91,11 @@ const TaxRules = () => {
     <div className="p-6">
       <div className="flex justify-between items-center">
         <Title level={3}>Tax Rule</Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAddRule}>
-          Add Tax Rule
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateTaxRule]}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddRule}>
+            Add Tax Rule
+          </Button>
+        </AccessGuard>
       </div>
 
       <Table
