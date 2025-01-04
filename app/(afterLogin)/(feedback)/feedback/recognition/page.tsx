@@ -255,7 +255,7 @@ function Page() {
             selectedRecognitionType !== '1' ? 'Generate Recognition' : false
           }
           buttonIcon={<PlusIcon />}
-          permissionsNeeded={[Permissions.CreateRecognision]}
+          permissionsNeeded={[Permissions.CreateRecognition]}
         >
           <EmployeeSearchComponent
             fields={searcFields}

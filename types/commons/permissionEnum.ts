@@ -59,7 +59,6 @@ export enum Permissions {
   CreateAppreciation = 'create-appreciation',
   UpdateAppreciation = 'update-appreciation',
   DeleteAppreciation = 'delete-appreciation',
-  CreateRecognision = 'create-recognision',
   
   CreateCfrFormCategory = 'create-cfr-form-category',
   DeleteCfrFormCategory = 'delete-cfr-form-category',
