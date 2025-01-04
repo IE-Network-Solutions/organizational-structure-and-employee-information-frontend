@@ -22,6 +22,7 @@ export interface Milestone {
   id?: string;
   title: string;
   weight: number;
+  status?: string;
 }
 
 export interface MetricType {
@@ -46,7 +47,7 @@ export interface KeyResult {
 
 export interface Objective {
   id?: string;
-  allignedKeyResultId?: string;
+  allignedKeyResultId?: string | null;
   title: string;
   deadline: string;
   userId: string;
@@ -55,6 +56,7 @@ export interface Objective {
   objectiveProgress?: number;
   keyResults?: KeyResult[] | any;
   user?: User;
+  keyResultValue?: KeyResult[] | any;
 }
 export const defaultObjective: Objective = {
   allignedKeyResultId: '',
@@ -65,6 +67,7 @@ export const defaultObjective: Objective = {
   completedKeyResults: 0,
   objectiveProgress: 0,
   keyResults: [],
+  keyResultValue: [],
 };
 interface SearchObjParams {
   userId: string;
@@ -92,6 +95,9 @@ export interface ObjectiveProps {
   myOkr: boolean;
 }
 export interface OKRState {
+  isVP: boolean;
+  toggleDashboard: () => void;
+
   revenue: number;
   financialSales: number;
   progressRevenue: number;
@@ -145,4 +151,6 @@ export interface OKRState {
   setCompanyCurrentPage: (companyCurrentPage: number) => void;
   okrTab: number | string;
   setOkrTab: (okrTab: number | string) => void;
+  alignment: boolean;
+  setAlignment: (alignment: boolean) => void;
 }

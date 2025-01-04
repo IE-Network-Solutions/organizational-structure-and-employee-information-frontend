@@ -234,7 +234,7 @@ const MilestoneView: React.FC<OKRProps> = ({
         <div className="flex gap-10 items-center">
           <Form.Item
             layout="horizontal"
-            className="w-full h-5  font-bold"
+            className="w-full h-5 font-bold"
             label="Deadline"
           >
             <DatePicker
@@ -245,10 +245,18 @@ const MilestoneView: React.FC<OKRProps> = ({
               }}
               format="YYYY-MM-DD"
               disabledDate={(current) => {
-                return current && current < dayjs().startOf('day');
+                const startOfToday = dayjs().startOf('day');
+                const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
+
+                // Disable dates before today and above the objective deadline
+                return (
+                  current &&
+                  (current < startOfToday || current > objectiveDeadline)
+                );
               }}
             />
           </Form.Item>
+
           <div className="text-end w-full">
             {keyValue.milestones?.length != 0 &&
               keyValue.milestones &&
@@ -269,6 +277,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                 </div>
 
                 <Input
+                  disabled={milestone?.status == 'Completed'}
                   id={`milestone-title-${index}-${mindex}`}
                   placeholder="Milestone Name"
                   value={milestone.title || ''}
@@ -279,6 +288,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                 />
 
                 <InputNumber
+                  disabled={milestone?.status == 'Completed'}
                   id={`milestone-weight-${index}-${mindex}`}
                   min={0}
                   max={100}
@@ -290,6 +300,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                 />
 
                 <Button
+                  disabled={milestone?.status == 'Completed'}
                   id={`remove-milestone-${index}-${mindex}`}
                   icon={<VscClose size={20} />}
                   onClick={() =>

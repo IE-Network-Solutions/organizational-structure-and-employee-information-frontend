@@ -10,7 +10,7 @@ const { Option } = Select;
 
 const FormSearch: React.FC = () => {
   const { searchFormParams, setSearchFormParams } = CategoriesManagementStore();
-  const { data: users } = useFetchUsers();
+  const { data: users } = useFetchUsers(searchFormParams?.form_name);
   const handleSearchForms = async (
     value: string | boolean,
     keyValue: keyof typeof searchFormParams,

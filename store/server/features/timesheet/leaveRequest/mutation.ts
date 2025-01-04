@@ -14,7 +14,7 @@ const setLeaveRequest = async ({
   userId: string;
 }) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/make`,
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/make  `,
     method: 'POST',
     headers: requestHeader(),
     data: { item: { ...item, user: userId } },
@@ -53,6 +53,7 @@ export const useSetLeaveRequest = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('leave-request');
+      queryClient.invalidateQueries('current_approval');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -88,6 +89,9 @@ export const useSetApproveLeaveRequest = () => {
     onSuccess: (data, variables: any) => {
       queryClient.invalidateQueries(['current_approval', data?.approvedUserId]);
       queryClient.invalidateQueries(['leave-request']);
+      queryClient.invalidateQueries(['transferApprovalRequest']);
+      queryClient.invalidateQueries(['myTansferRequest']);
+      queryClient.invalidateQueries(['transferRequest']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

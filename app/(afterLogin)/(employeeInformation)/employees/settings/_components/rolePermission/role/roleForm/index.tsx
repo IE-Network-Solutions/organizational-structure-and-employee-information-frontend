@@ -71,7 +71,7 @@ const ListOfRoles = () => {
           val.includes(group.id.toString()),
         )
         .flatMap((group: GroupPermissionItem) =>
-          group.permission.map((item: Permission) => ({
+          group.permissions.map((item: Permission) => ({
             value: item.id,
             label: item.name,
           })),

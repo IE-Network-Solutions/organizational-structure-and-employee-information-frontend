@@ -66,7 +66,6 @@ function Planning() {
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
 
-
   return (
     <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
@@ -99,6 +98,25 @@ function Planning() {
             />
           </div>
         </Tooltip>
+        {/* {selectedUser.includes(userId) &&
+          ((transformedData?.[0]?.isReported ?? false) ||
+            transformedData?.length === 0) && (
+            <CustomButton
+              disabled={
+                !(
+                  selectedUser.includes(userId) &&
+                  ((transformedData?.[0]?.isReported ?? false) ||
+                    transformedData?.length === 0)
+                )
+              }
+              title={`Create ${activeTabName} Plan`}
+              id="createActiveTabName"
+              icon={<FaPlus className="mr-2" />}
+              onClick={() => setOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
+          </div> */}
+        {/* </Tooltip> */}
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
@@ -148,7 +166,7 @@ function Planning() {
                         <span className="mr-4 text-gray-500">
                           {dayjs(dataItem?.createdAt).format(DATETIME_FORMAT)}
                         </span>
-                        {!dataItem?.isValidated  && (
+                        {!dataItem?.isValidated && (
                           <>
                             <Col className="mr-2">
                               <Tooltip title="Edit Plan">
@@ -166,7 +184,9 @@ function Planning() {
                                 />
                               </Tooltip>
                             </Col>
-                            {userId === getEmployeeData(dataItem?.createdBy)?.reportingTo?.id && (
+                            {userId ===
+                              getEmployeeData(dataItem?.createdBy)?.reportingTo
+                                ?.id && (
                               <>
                                 <Col className="mr-2">
                                   <Tooltip title="Approve Plan">
@@ -176,7 +196,9 @@ function Planning() {
                                       className="cursor-pointer"
                                       shape="square"
                                       style={{ backgroundColor: '#148220' }}
-                                      onClick={() => handleApproveHandler(dataItem?.id, true)}
+                                      onClick={() =>
+                                        handleApproveHandler(dataItem?.id, true)
+                                      }
                                       icon={<IoCheckmarkSharp />}
                                     />
                                   </Tooltip>
@@ -189,7 +211,12 @@ function Planning() {
                                       className="cursor-pointer"
                                       shape="square"
                                       style={{ backgroundColor: '#b50d20' }}
-                                      onClick={() => handleApproveHandler(dataItem?.id, false)}
+                                      onClick={() =>
+                                        handleApproveHandler(
+                                          dataItem?.id,
+                                          false,
+                                        )
+                                      }
                                       icon={<IoIosClose />}
                                     />
                                   </Tooltip>

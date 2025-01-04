@@ -20,4 +20,5 @@ export interface CreateEmployeeJobInformationInterface {
   workScheduleId: string;
   joinedDate: string;
   effectiveEndDate: string | null;
+  basicSalary: number;
 }

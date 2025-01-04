@@ -104,15 +104,12 @@ export const useUpdateTalentPoolCategory = () => {
 export const useDeleteTalentPoolCategory = () => {
   const queryClient = useQueryClient();
 
-  const {
-    setDeleteMode,
-  } = useTalentPoolSettingsStore();
+  const { setDeleteMode } = useTalentPoolSettingsStore();
   return useMutation(deleteTalentPoolCategory, {
-    
     onSuccess: () => {
       queryClient.invalidateQueries('talentPoolCategory');
       handleSuccessMessage('DELETE');
-      setDeleteMode(false)
+      setDeleteMode(false);
     },
   });
 };

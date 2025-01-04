@@ -1,3 +1,4 @@
+'use client';
 import { Pagination, Spin, Tabs } from 'antd';
 import React from 'react';
 import ObjectiveCard from '../objectivecard';
@@ -12,6 +13,8 @@ import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/de
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { EmptyImage } from '@/components/emptyIndicator';
 import OkrProgress from '../okrprogress';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 export default function OkrTab() {
   const { TabPane } = Tabs;
@@ -69,6 +72,13 @@ export default function OkrTab() {
       searchObjParams?.metricTypeId,
     );
 
+  const canVieTeamOkr = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewTeamOkr],
+  });
+  const canVieCompanyOkr = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewCompanyOkr],
+  });
+
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     if (pageSize) {
@@ -120,67 +130,71 @@ export default function OkrTab() {
             </div>
           )}
         </TabPane>
-        <TabPane tab="Team OKR" key={2}>
-          <OkrProgress />
-          {teamLoading && (
-            <Spin
-              size="large"
-              style={{ color: 'white' }}
-              className="text-white text-center flex w-full justify-center"
-            />
-          )}
-          {teamObjective?.items?.length !== 0 ? (
-            <>
-              {teamObjective?.items?.map((obj: any) => (
-                <ObjectiveCard key={obj.id} myOkr={false} objective={obj} />
-              ))}
-              <Pagination
-                total={teamObjective?.meta?.totalItems}
-                current={teamObjective?.meta?.currentPage}
-                pageSize={teamPageSize}
-                onChange={onTeamPageChange}
-                showSizeChanger={true}
-                onShowSizeChange={onTeamPageChange}
-                pageSizeOptions={['5', '10', '20', '50', '100']}
+        {canVieTeamOkr && (
+          <TabPane tab="Team OKR" key={2}>
+            <OkrProgress />
+            {teamLoading && (
+              <Spin
+                size="large"
+                style={{ color: 'white' }}
+                className="text-white text-center flex w-full justify-center"
               />
-            </>
-          ) : (
-            <div className="flex justify-center">
-              <EmptyImage />
-            </div>
-          )}
-        </TabPane>
-        <TabPane tab="Company OKR" key={3}>
-          <OkrProgress />
-          {companyLoading && (
-            <Spin
-              size="large"
-              style={{ color: 'white' }}
-              className="text-white text-center flex w-full justify-center"
-            />
-          )}
-          {companyObjective?.items?.length !== 0 ? (
-            <>
-              {companyObjective?.items?.map((obj: any) => (
-                <ObjectiveCard key={obj.id} myOkr={false} objective={obj} />
-              ))}
+            )}
+            {teamObjective?.items?.length !== 0 ? (
+              <>
+                {teamObjective?.items?.map((obj: any) => (
+                  <ObjectiveCard key={obj.id} myOkr={false} objective={obj} />
+                ))}
+                <Pagination
+                  total={teamObjective?.meta?.totalItems}
+                  current={teamObjective?.meta?.currentPage}
+                  pageSize={teamPageSize}
+                  onChange={onTeamPageChange}
+                  showSizeChanger={true}
+                  onShowSizeChange={onTeamPageChange}
+                  pageSizeOptions={['5', '10', '20', '50', '100']}
+                />
+              </>
+            ) : (
+              <div className="flex justify-center">
+                <EmptyImage />
+              </div>
+            )}
+          </TabPane>
+        )}
+        {canVieCompanyOkr && (
+          <TabPane tab="Company OKR" key={3}>
+            <OkrProgress />
+            {companyLoading && (
+              <Spin
+                size="large"
+                style={{ color: 'white' }}
+                className="text-white text-center flex w-full justify-center"
+              />
+            )}
+            {companyObjective?.items?.length !== 0 ? (
+              <>
+                {companyObjective?.items?.map((obj: any) => (
+                  <ObjectiveCard key={obj.id} myOkr={false} objective={obj} />
+                ))}
 
-              <Pagination
-                total={companyObjective?.meta?.totalItems}
-                current={companyObjective?.meta?.currentPage}
-                pageSize={companyPageSize}
-                onChange={onCompanyPageChange}
-                showSizeChanger={true}
-                onShowSizeChange={onCompanyPageChange}
-                pageSizeOptions={['5', '10', '20', '50', '100']}
-              />
-            </>
-          ) : (
-            <div className="flex justify-center">
-              <EmptyImage />
-            </div>
-          )}
-        </TabPane>
+                <Pagination
+                  total={companyObjective?.meta?.totalItems}
+                  current={companyObjective?.meta?.currentPage}
+                  pageSize={companyPageSize}
+                  onChange={onCompanyPageChange}
+                  showSizeChanger={true}
+                  onShowSizeChange={onCompanyPageChange}
+                  pageSizeOptions={['5', '10', '20', '50', '100']}
+                />
+              </>
+            ) : (
+              <div className="flex justify-center">
+                <EmptyImage />
+              </div>
+            )}
+          </TabPane>
+        )}
       </Tabs>
     </div>
   );
