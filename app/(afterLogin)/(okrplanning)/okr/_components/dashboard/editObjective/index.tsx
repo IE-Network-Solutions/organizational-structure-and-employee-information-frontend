@@ -167,13 +167,15 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   };
 
   useEffect(() => {
-    setAlignment(Boolean(objectiveValue?.allignedKeyResultId));
 
     setObjectiveValue({
       ...objectiveValue,
       title: objectiveTitle || '',
     });
   }, [objectiveTitle, objectiveValue?.allignedKeyResultId]);
+  useEffect(() => {
+    setAlignment(Boolean(objectiveValue?.allignedKeyResultId));
+  }, [objectiveValue?.allignedKeyResultId]);
   const handleAlignment = () => {
     const updatedAlignment = !alignment;
     setAlignment(updatedAlignment);

@@ -2,6 +2,7 @@ import { Col, Form, Input, InputNumber, Row, Select, Space } from 'antd';
 import SubTaskComponent from './createSubtaskForm';
 import { MdCancel } from 'react-icons/md';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { NAME } from '@/types/enumTypes';
 
 interface DefaultCardInterface {
   kId: string;
@@ -13,6 +14,8 @@ interface DefaultCardInterface {
   planningPeriodId: string;
   userId: string;
   planningUserId: string;
+  isMKAsTask:boolean;
+  keyResult:any;
 }
 
 function DefaultCardForm({
@@ -24,9 +27,11 @@ function DefaultCardForm({
   userId,
   planningPeriodId,
   planningUserId,
+  isMKAsTask=false,
+  keyResult,
 }: DefaultCardInterface) {
   const { setWeight } = PlanningAndReportingStore();
-
+  
   return (
     <Form.List name={name}>
       {(fields, { remove }, { errors }) => (
@@ -96,7 +101,7 @@ function DefaultCardForm({
                     label={'Task'}
                     key={`${field.key}-task`} // Unique key for task
                   >
-                    <Input placeholder="Task name" />
+                    <Input disabled={isMKAsTask} placeholder="Task name" />
                   </Form.Item>
                 </Col>
                 <Col lg={12} sm={24}>
@@ -115,7 +120,7 @@ function DefaultCardForm({
                       key={`${field.key}-priority`} // Unique key for priority
                     >
                       <Select
-                        className="w-24"
+                        className="w-full"
                         options={[
                           {
                             label: 'High',
@@ -151,6 +156,7 @@ function DefaultCardForm({
                     >
                       <InputNumber
                         placeholder="0"
+                         className="w-full"
                         onChange={() => {
                           const fieldValue = form.getFieldValue(name) || [];
                           const totalWeight = fieldValue.reduce(
@@ -166,7 +172,7 @@ function DefaultCardForm({
                     </Form.Item>
 
                     <MdCancel
-                      className="text-primary cursor-pointer"
+                      className="text-primary cursor-pointer mt-2"
                       size={20}
                       onClick={() => {
                         remove(field.name);
@@ -184,22 +190,57 @@ function DefaultCardForm({
               </Row>
 
               <Form.Item
-                className="my-4"
-                label={'Target Amount'}
-                {...field}
-                name={[field.name, 'targetValue']}
-                hidden={hasTargetValue}
-                key={`${field.key}-targetValue`} // Unique key for targetValue
-              >
-                <InputNumber
-                  min={0}
-                  formatter={(value) =>
-                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                  }
-                />
-              </Form.Item>
+  className="mb-4"
+  label="Target"
+  {...field}
+  name={[field.name, 'targetValue']}
+  hidden={hasTargetValue}
+  key={`${field.key}-targetValue`} // Unique key for targetValue
+  rules={[
+    {
+      validator(_, value) {
+        // Log the value and calculated limit for debugging
+        console.log(
+          value,
+          keyResult.targetValue - keyResult.currentValue,
+          "&&&& Target Value Validation"
+        );
+        if (
+          keyResult?.metricType?.name === NAME.ACHIEVE ||
+          keyResult?.metricType?.name === NAME.MILESTONE
+        ) {
+          return Promise.resolve(); // Skip validation
+        }
+        // Handle null or undefined value
+        if (value === null || value === undefined) {
+          return Promise.reject(new Error("Please enter a target value."));
+        }
+
+        // Validate against the key result limits
+        if (value <= keyResult.targetValue - keyResult.currentValue) {
+          return Promise.resolve();
+        }
+
+        return Promise.reject(
+          new Error(
+            "Your target value shouldn't be greater than your key result target value."
+          )
+        );
+      },
+    },
+  ]}
+>
+  <InputNumber
+  className='w-28'
+    min={0} // Ensure the value can't go below 0
+    formatter={(value) =>
+      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    }
+  />
+</Form.Item>
+
               {planningPeriodId && planningUserId && (
-                <Form.Item label="Sub tasks" className="mx-8">
+                <Form.Item label="Sub tasks" className="border p-4 rounded-md">
                   <SubTaskComponent
                     field={field}
                     kId={kId}

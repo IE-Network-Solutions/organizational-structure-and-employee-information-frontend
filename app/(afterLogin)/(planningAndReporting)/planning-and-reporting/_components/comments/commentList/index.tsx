@@ -11,13 +11,14 @@ import {
 } from '@/store/server/features/okrplanning/reportComments/mutations';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { CommentsData } from '@/types/okr';
-import { Button, Col, Input, Form, Row, Avatar } from 'antd';
+import { Button, Col, Input, Form, Row, Avatar,Collapse } from 'antd';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import dayjs from 'dayjs';
 import CommentActionMenu from '../commentActionMenu';
 import { FaUser } from 'react-icons/fa';
 import { useState } from 'react';
+const { Panel } = Collapse;
 
 dayjs.extend(relativeTime);
 
@@ -116,46 +117,55 @@ const CommentList = ({
   };
   return (
     <div className="w-full">
-      {data.map((commentData) => (
-        <div
-          key={commentData.id}
-          className="flex mb-4 p-3 border-b last:border-b-0"
-        >
-          <Avatar
-            src={
-              getUserDetail(commentData.commentedBy)?.profileImage || undefined
+      <Collapse defaultActiveKey={[]} accordion>
+        {data.map((commentData) => (
+          <Panel
+            key={commentData.id}
+            header={
+              <div className="flex items-center">
+                <Avatar
+                  src={
+                    getUserDetail(commentData.commentedBy)?.profileImage || undefined
+                  }
+                  icon={
+                    !getUserDetail(commentData.commentedBy)?.profileImage ? (
+                      <FaUser />
+                    ) : undefined
+                  }
+                  alt={getUserDetail(commentData.commentedBy)?.fullName || 'User'}
+                  className="mr-3"
+                />
+                <span>
+                  {getUserDetail(commentData.commentedBy)?.fullName || 'Unknown User'}
+                </span>
+              </div>
             }
-            icon={
-              !getUserDetail(commentData.commentedBy)?.profileImage ? (
-                <FaUser />
-              ) : undefined
-            }
-            alt={getUserDetail(commentData.commentedBy)?.fullName || 'User'}
-            className="mr-3"
-          />
-          <Row
-            justify="space-between"
-            align="middle"
-            className="w-full mb-4 p-3 border-b last:border-b-0"
           >
-            <Col>
-              <div className="text-xs font-semibold">
-                {getUserDetail(commentData.commentedBy)?.fullName}
-              </div>
-              <div className="text-gray-700">{commentData.comment}</div>
-              <div className="text-gray-500 text-xs">
-                {dayjs(commentData.createdAt).fromNow()}
-              </div>
-            </Col>
-            <Col hidden={commentData.commentedBy !== userId}>
-              <CommentActionMenu
-                onEdit={() => handleEdit(commentData)}
-                onDelete={() => handleDelete(commentData?.id)}
-              />
-            </Col>
-          </Row>
-        </div>
-      ))}
+            <Row
+              justify="space-between"
+              align="middle"
+              className="w-full mb-4 p-3 border-b last:border-b-0"
+            >
+              <Col>
+                <div className="text-xs font-semibold">
+                  {getUserDetail(commentData.commentedBy)?.fullName}
+                </div>
+                <div className="text-gray-700">{commentData.comment}</div>
+                <div className="text-gray-500 text-xs">
+                  {dayjs(commentData.createdAt).fromNow()}
+                </div>
+              </Col>
+              <Col hidden={commentData.commentedBy !== userId}>
+                <CommentActionMenu
+                  onEdit={() => handleEdit(commentData)}
+                  onDelete={() => handleDelete(commentData?.id)}
+                />
+              </Col>
+            </Row>
+          </Panel>
+        ))}
+      </Collapse>
+
       <Form
         form={form}
         layout="inline"

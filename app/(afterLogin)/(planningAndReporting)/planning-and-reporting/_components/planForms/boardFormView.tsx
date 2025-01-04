@@ -10,6 +10,7 @@ import {
   Select,
   Space,
 } from 'antd';
+import { NAME } from '@/types/enumTypes';
 
 interface BoardCardInterface {
   form: any;
@@ -19,6 +20,7 @@ interface BoardCardInterface {
   hideTargetValue: boolean;
   name: string;
   isMKAsTask?: boolean;
+  keyResult:any;
 }
 
 function BoardCardForm({
@@ -28,9 +30,10 @@ function BoardCardForm({
   hideTargetValue,
   name,
   isMKAsTask = false,
+  keyResult
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
-
+console.log(keyResult,"%%%%")
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
@@ -65,22 +68,54 @@ function BoardCardForm({
                 <Input type="hidden" />
               </Form.Item>
               <Divider className="mt-4" />
+              { (keyResult?.metricType?.name != NAME.ACHIEVE ||
+          keyResult?.metricType?.name != NAME.MILESTONE) &&
               <Form.Item
-                hidden={hideTargetValue}
-                label="Target"
-                {...restSubField}
-                name={[subName, 'targetValue']}
-                key={`${subName}-targetValue`} // Unique key for targetValue
-              >
-                <InputNumber
-                  defaultValue={0}
-                  formatter={(value) =>
-                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                  }
-                />
-              </Form.Item>
+  hidden={hideTargetValue}
+  label="Target"
+  {...restSubField}
+  name={[subName, 'targetValue']}
+  key={`${subName}-targetValue`}
+  rules={[
+    {
+      validator(_, value) {
+        // Log the value and calculated limit for debugging
+        console.log(value, keyResult.targetValue - keyResult.currentValue, "&&&&0");
+        if (
+          keyResult?.metricType?.name === NAME.ACHIEVE ||
+          keyResult?.metricType?.name === NAME.MILESTONE
+        ) {
+          return Promise.resolve(); // Skip validation
+        }
+        // Handle null or undefined value
+        if (value === null || value === undefined) {
+          return Promise.reject(new Error("Please enter a target value."));
+        }
+        
+        // Validate against the key result limits
+        if (value <= keyResult.targetValue - keyResult.currentValue) {
+          return Promise.resolve();
+        }
+        
+        return Promise.reject(
+          new Error("Your target value shouldn't be greater than your key result target value.")
+        );
+      },
+    },
+  ]}
+>
+  <InputNumber
+    className='w-28'
+    defaultValue={0} // Set a default value to avoid null issues
+    formatter={(value) =>
+      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    }
+  />
+</Form.Item>}
 
-              <Row justify="space-between">
+
+
+              <Row justify="space-between" align={'middle'}>
                 <Col>
                   <Space size={10}>
                     <Form.Item
@@ -94,7 +129,7 @@ function BoardCardForm({
                     >
                       <InputNumber
                         placeholder={'0'}
-                        className="w-16"
+                        className="w-28"
                         min={0}
                         max={100}
                       />
@@ -110,7 +145,7 @@ function BoardCardForm({
                     >
                       <Select
                         placeholder="Select Priority"
-                        className="w-24"
+                        className="w-28"
                         options={[
                           {
                             label: <div className="text-error">High</div>,

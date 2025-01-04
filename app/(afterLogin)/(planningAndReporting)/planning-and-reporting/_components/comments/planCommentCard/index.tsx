@@ -26,12 +26,12 @@ const CommentCard: React.FC<Props> = ({
   isPlanCard,
 }) => {
   const { viewComment, setViewComment } = PlanningAndReportingStore();
-
+  console.log(data,"datadata")
   return (
     <Card
-      title={CommentAuthorsAvatars(data)}
+      title={<div className='flex flex-col gap-1' >{CommentAuthorsAvatars(data)} Comments {data?.length}</div>}
       extra={
-        <AccessGuard permissions={[Permissions.CreateCommentOnPlanAndReport]}>
+        <AccessGuard permissions={[Permissions.CreateCommentOnPlanAndReport]}  selfShouldAccess={true}>
           <Button type="primary" onClick={() => setViewComment(!viewComment)}>
             Comment
           </Button>
@@ -49,9 +49,9 @@ const CommentCard: React.FC<Props> = ({
         </>
       ) : (
         <>
-          {viewComment && (
+         
             <CommentList data={data} planId={planId} isPlanCard={isPlanCard} />
-          )}
+          
         </>
       )}
     </Card>
