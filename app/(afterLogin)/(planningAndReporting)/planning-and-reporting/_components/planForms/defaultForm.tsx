@@ -14,8 +14,8 @@ interface DefaultCardInterface {
   planningPeriodId: string;
   userId: string;
   planningUserId: string;
-  isMKAsTask: boolean;
-  keyResult: any;
+  isMKAsTask?: boolean;
+  keyResult?: any;
 }
 
 function DefaultCardForm({
