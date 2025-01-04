@@ -4,6 +4,8 @@ import { Table, Button, Space, Tooltip, Popconfirm, Typography } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import Drawer from './_components/drawer';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 const { Title } = Typography;
 
 const Banks = () => {
@@ -75,27 +77,31 @@ const Banks = () => {
       key: 'action',
       render: (text: any, record: any) => (
         <Space size="middle">
-          <Tooltip title="Edit">
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              onClick={() => handleEdit()}
-            />
-          </Tooltip>
-          <Popconfirm
-            title="Are you sure to delete this bank?"
-            onConfirm={() => handleDelete(record.key)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Tooltip title="Delete">
+          <AccessGuard permissions={[Permissions. UpdateBankInformation]}>
+            <Tooltip title="Edit">
               <Button
-                className="bg-red-600 text-white border-none"
-                icon={<DeleteOutlined />}
+                type="primary"
+                shape="circle"
+                icon={<EditOutlined />}
+                onClick={() => handleEdit()}
               />
             </Tooltip>
-          </Popconfirm>
+          </AccessGuard>
+          <AccessGuard permissions={[Permissions.DeleteBankInformation]}>
+            <Popconfirm
+              title="Are you sure to delete this bank?"
+              onConfirm={() => handleDelete(record.key)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Tooltip title="Delete">
+                <Button
+                  className="bg-red-600 text-white border-none"
+                  icon={<DeleteOutlined />}
+                />
+              </Tooltip>
+            </Popconfirm>
+          </AccessGuard>
         </Space>
       ),
     },
@@ -116,14 +122,16 @@ const Banks = () => {
     <div className="p-6">
       <div className="flex justify-between items-center">
         <Title level={3}>Banks</Title>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleAddBank}
-          style={{ marginBottom: '16px' }}
-        >
-          Add Bank
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateBankInformation]}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleAddBank}
+            style={{ marginBottom: '16px' }}
+          >
+            Add Bank
+          </Button>
+        </AccessGuard>
       </div>
 
       <Table dataSource={data} columns={columns} pagination={false} bordered />

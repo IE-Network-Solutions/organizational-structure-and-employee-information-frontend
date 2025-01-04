@@ -80,7 +80,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
       key: 'action',
       render: (notused: any, record: any) => (
         <>
-          <AccessGuard permissions={[Permissions.EditRecognitionCriteria]}>
+          <AccessGuard permissions={[Permissions.UpdateRecognitionCriteria]}>
             <Button type="link" onClick={() => setEditingRowKeys(record)}>
               Edit
             </Button>
@@ -140,7 +140,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
     <div>
       <div className="flex justify-end mb-4">
         {!all && (
-          <AccessGuard permissions={[Permissions.AddRecognitionCriteria]}>
+          <AccessGuard permissions={[Permissions.CreateRecognition]}>
             <Button
               className="flex justify-end items-center"
               icon={<FaPlus />}
@@ -160,7 +160,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
             extra={
               <div className="flex justify-end gap-2">
                 <AccessGuard
-                  permissions={[Permissions.EditRecognitionCriteria]}
+                  permissions={[Permissions.UpdateRecognition]}
                 >
                   <Button
                     type="primary"
@@ -170,7 +170,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
                   </Button>
                 </AccessGuard>
                 <AccessGuard
-                  permissions={[Permissions.DeleteRecognitionCriteria]}
+                  permissions={[Permissions.DeleteRecognition]}
                 >
                   <Popconfirm
                     title="Are you sure you want to delete this?"
@@ -183,7 +183,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
                     </Button>
                   </Popconfirm>
                 </AccessGuard>
-                <AccessGuard permissions={[Permissions.AddRecognitionCriteria]}>
+                <AccessGuard permissions={[Permissions.CreateRecognitionCriteria]}>
                   <Button
                     type="primary"
                     onClick={() => setRecognitionTypeId(item?.id)}

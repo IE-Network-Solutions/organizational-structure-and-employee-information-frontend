@@ -29,13 +29,13 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
       key: 'edit',
       label: 'Edit',
       onClick: () => onMenuClick('edit', category),
-      permissions: [Permissions.UpdateFormCategory],
+      permissions: [Permissions.UpdateCfrFormCategory],
     },
     {
       key: 'delete',
       label: 'Delete',
       onClick: () => onMenuClick('delete', category),
-      permissions: [Permissions.DeleteFormCategory],
+      permissions: [Permissions.DeleteCfrFormCategory],
     },
   ];
 
@@ -43,9 +43,9 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
     return AccessGuard.checkAccess({ permissions: item.permissions });
   });
 
-  const menuItems: MenuProps['items'] = filteredItems.map((item) => ({
-    key: item.key,
-    label: <span onClick={item.onClick}>{item.label}</span>,
+  const menuItems: MenuProps['items'] = filteredItems.map((filteredItems) => ({
+    key: filteredItems.key,
+    label: <span onClick={filteredItems.onClick}>{filteredItems.label}</span>,
   }));
 
   return (

@@ -46,19 +46,17 @@ const Page = () => {
           items={items}
           onChange={onChange}
         />
-        <AccessGuard permissions={[Permissions.CreateRecognition]}>
-            <Button
-              onClick={() => setOpenRecognitionType(true)}
-              icon={<FaPlus />}
-              type="primary"
-              className="flex gap-2"
-            >
-              Category
-            </Button>
-          </AccessGuard>
+        <AccessGuard permissions={[Permissions.CreateRecognitionCategory]}>
+          <Button
+            onClick={() => setOpenRecognitionType(true)}
+            icon={<FaPlus />}
+            type="primary"
+            className="flex gap-2"
+          >
+            Category
+          </Button>
+        </AccessGuard>
       </div>
-     
-
       <CustomDrawerLayout
         open={open}
         onClose={() => setOpen(false)}

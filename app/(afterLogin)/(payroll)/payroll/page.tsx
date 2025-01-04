@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { Table, Card, Row, Col, Button } from 'antd';
 import { ArrowUpOutlined } from '@ant-design/icons';
 import Filters from './_components/filters';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -208,21 +210,27 @@ const Payroll = () => {
       <div className="flex justify-between items-center gap-4">
         <h2 style={{ marginBottom: '20px' }}>Payroll</h2>
         <div className="flex gap-4">
-          <Button
-            type="default"
-            className="text-white bg-violet-300 border-none p-6"
-          >
-            Export Bank
-          </Button>
-          <Button
-            type="default"
-            className="text-white bg-violet-300 border-none p-6"
-          >
-            Bank Letter
-          </Button>
-          <Button type="primary" className="p-6">
-            Generate Payroll
-          </Button>
+          <AccessGuard permissions={[Permissions.CreateBankExport]}>
+            <Button
+              type="default"
+              className="text-white bg-violet-300 border-none p-6"
+            >
+              Export Bank
+            </Button>
+          </AccessGuard>
+          <AccessGuard permissions={[Permissions.CreateBankLetter]}>
+            <Button
+              type="default"
+              className="text-white bg-violet-300 border-none p-6"
+            >
+              Bank Letter
+            </Button>
+          </AccessGuard>
+          <AccessGuard permissions={[Permissions.GeneratePayroll]}>
+            <Button type="primary" className="p-6">
+              Generate Payroll
+            </Button>
+          </AccessGuard>
         </div>
       </div>
 

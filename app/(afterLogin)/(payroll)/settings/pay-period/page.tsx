@@ -73,13 +73,15 @@ const PayPeriod = () => {
       key: 'action',
       render: (record: any) => (
         <Space size="middle">
-          <AccessGuard permissions={[Permissions.UpdatePayPeriod, Permissions.DeletePayPeriod]}>
+          <AccessGuard permissions={[Permissions.UpdatePayPeriod]}>
             <Switch
             checked={record.status === 'OPEN'}
             onChange={(checked) => onStatusChange(record, checked)}
             checkedChildren="Opened"
             unCheckedChildren="Closed"
             />
+          </AccessGuard>
+          <AccessGuard permissions={[Permissions.DeletePayPeriod]}>
             <Button
               type="primary"
               danger

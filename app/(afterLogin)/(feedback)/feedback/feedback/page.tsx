@@ -16,6 +16,8 @@ import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 
 const Page = () => {
   const {
@@ -146,25 +148,29 @@ const Page = () => {
       render: (notused: any, record: any) => {
         return (
           <p className="flex gap-2">
-            <Button
-              size="small"
-              onClick={() => editHandler(record)}
-              icon={<Edit2Icon className="w-4 h-4 text-xs" />}
-              type="primary"
-            />
-            <Popconfirm
-              title="Are you sure you want to delete?"
-              onConfirm={() => handleDelete(record?.id)}
-              okText="Yes"
-              cancelText="No"
-            >
+            <AccessGuard permissions={[Permissions.UpdateAppreciation]}>
               <Button
                 size="small"
-                icon={<MdDeleteOutline />}
-                danger
+                onClick={() => editHandler(record)}
+                icon={<Edit2Icon className="w-4 h-4 text-xs" />}
                 type="primary"
               />
-            </Popconfirm>
+            </AccessGuard>
+            <AccessGuard permissions={[Permissions.UpdateAppreciation]}>
+              <Popconfirm
+                title="Are you sure you want to delete?"
+                onConfirm={() => handleDelete(record?.id)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button
+                  size="small"
+                  icon={<MdDeleteOutline />}
+                  danger
+                  type="primary"
+                />
+              </Popconfirm>
+            </AccessGuard>
           </p>
         );
       },
@@ -201,6 +207,7 @@ const Page = () => {
       title="Feedback"
       subtitle="Manage your Feedback"
       allowSearch={false}
+      permissionsNeeded={[Permissions.GenerateFeedbackReport]}
     >
       <div className="flex justify-end">
         <Tabs
@@ -238,6 +245,7 @@ const Page = () => {
           title={<div className="text-lg">{variantType}</div>}
           subtitle={`Given up on  ${variantType}`}
           allowSearch={false}
+          permissionsNeeded={[Permissions.CreateAppreciation]}
         >
           <EmployeeSearchComponent
             fields={searchField}

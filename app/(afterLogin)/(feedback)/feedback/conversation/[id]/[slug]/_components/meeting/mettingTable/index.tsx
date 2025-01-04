@@ -21,6 +21,8 @@ import {
 } from '@/store/server/features/CFR/conversation/conversation-instance/queries';
 import { useRouter } from 'next/navigation';
 import EmployeeSearchComponent from '@/components/common/search/searchComponent';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const MettingDataTable = ({
   conversationTypeId,
@@ -134,26 +136,30 @@ const MettingDataTable = ({
       width: 100,
       render: (notused, record) => (
         <div className="flex space-x-2">
-          <Button
-            type="primary"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(record.id);
-            }}
-          >
-            Edit
-          </Button>
-          <Popconfirm
-            title="Are you sure you want to delete this item?"
-            description="This action cannot be undone."
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="primary" danger onClick={(e) => e.stopPropagation()}>
-              Delete
+          <AccessGuard selfShouldAccess id={record.userId} permissions={[Permissions.UpdateMeeting]}>
+            <Button
+              type="primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEdit(record.id);
+              }}
+            >
+              Edit
             </Button>
-          </Popconfirm>
+          </AccessGuard>
+          <AccessGuard permissions={[Permissions.DeleteMeeting]}>
+            <Popconfirm
+              title="Are you sure you want to delete this item?"
+              description="This action cannot be undone."
+              onConfirm={() => handleDelete(record.id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="primary" danger onClick={(e) => e.stopPropagation()}>
+                Delete
+              </Button>
+            </Popconfirm>
+          </AccessGuard>
         </div>
       ),
     },
