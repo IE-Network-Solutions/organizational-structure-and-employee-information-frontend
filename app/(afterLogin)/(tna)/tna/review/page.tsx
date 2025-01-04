@@ -126,7 +126,15 @@ const TnaReviewPage = () => {
       title: 'Attachment',
       dataIndex: 'attachment',
       key: 'attachment',
-      sorter: true,
+      sorter: (a, b) => {
+        const nameA = a.attachment?.[0]?.attachmentFile
+          ? formatLinkToUploadFile(a.attachment[0].attachmentFile).name
+          : '';
+        const nameB = b.attachment?.[0]?.attachmentFile
+          ? formatLinkToUploadFile(b.attachment[0].attachmentFile).name
+          : '';
+        return nameA.localeCompare(nameB);
+      },
       render: (trainingProofs: TrainingProof[]) => {
         return (
           <div>

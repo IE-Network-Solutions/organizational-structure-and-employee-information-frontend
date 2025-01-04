@@ -1,22 +1,24 @@
 import React from 'react';
 import { Card, Collapse, Switch, Button, Tooltip, Skeleton } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import {
-  useConversationTypes,
-  useGetConversationById,
-} from '@/store/server/features/conversation/queries';
+
 import { Popconfirm } from 'antd/lib';
-import {
-  useDeleteConversationQuestionSet,
-  useUpdateConversationQuestionSet,
-} from '@/store/server/features/conversation/questionSet/mutation';
+
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import QuestionSetForm from '../../../_components/questionSetForm';
-import { ConversationTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import { EmptyImage } from '@/components/emptyIndicator';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import {
+  useConversationTypes,
+  useGetConversationById,
+} from '@/store/server/features/CFR/conversation/queries';
+import {
+  useDeleteConversationQuestionSet,
+  useUpdateConversationQuestionSet,
+} from '@/store/server/features/CFR/conversation/mutation';
+import { ConversationTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 
 type Question = {
   id: string;
@@ -129,7 +131,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
                       {question?.field.map((option, index) => (
                         <li key={option?.key} className="flex items-start">
                           <span className="font-bold mr-2">
-                            {String.fromCharCode(97 + index)}.
+                            {String.fromCharCode(65 + index)}.
                           </span>
                           <span>{option?.value}</span>
                         </li>

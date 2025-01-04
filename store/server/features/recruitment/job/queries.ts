@@ -56,8 +56,9 @@ export const useGetJobs = (
   currentPage: number,
   pageSize: number,
 ) => {
-  return useQuery(['jobs', whatYouNeed, currentPage, pageSize], () =>
-    getJobs(whatYouNeed, currentPage, pageSize),
+  return useQuery(
+    ['jobs', whatYouNeed, (currentPage = 1), (pageSize = 5)],
+    () => getJobs(whatYouNeed, currentPage, pageSize),
   );
 };
 

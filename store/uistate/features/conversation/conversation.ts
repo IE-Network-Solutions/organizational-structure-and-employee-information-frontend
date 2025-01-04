@@ -1,3 +1,4 @@
+import { FeedbackRecord } from '@/store/server/features/CFR/conversation/action-plan/interface';
 import { create } from 'zustand';
 interface SearchFieldOption {
   key: string;
@@ -10,14 +11,24 @@ interface SearchField {
   options: SearchFieldOption[];
   widthRatio: number;
 }
+interface SearchField {
+  key: string;
+  placeholder: string;
+  options: SearchFieldOption[];
+  widthRatio: number;
+}
 export interface CategoriesUseState {
   open: boolean;
   current: number;
   pageSize: number;
   totalPages: number;
 
+  openRecognitionType: boolean;
+  setOpenRecognitionType: (vlaue: boolean) => void;
+
   setPageSize: (pageSize: number) => void;
   setCurrent: (value: number) => void;
+
   setOpen: (value: boolean) => void;
 
   questions: any;
@@ -32,8 +43,31 @@ export interface CategoriesUseState {
   selectedUserId: string;
   setSelectedUserId: (selectedUserId: string) => void;
 
+  selectedRecognitionType: string;
+  setSelectedRecognitionType: (selectedRecognitionType: string) => void;
+
+  recognitionTypeId: string;
+  setRecognitionTypeId: (value: string) => void;
+
+  parentRecognitionTypeId: string;
+  setParentRecognitionTypeId: (value: string) => void;
+
+  editingRowKeys: any;
+  setEditingRowKeys: (valiue: any) => void;
+
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
+
+  variantType: string;
+  setVariantType: (variantType: string) => void;
+
+  selectedFeedbackRecord: FeedbackRecord | null;
+  setSelectedFeedbackRecord: (
+    selectedFeedbackRecord: FeedbackRecord | null,
+  ) => void;
+
+  selectedFeedback: any;
+  setSelectedFeedback: (selectedFeedback: any) => void;
 
   editableData: any;
   setEditableData: (activeTab: any) => void;
@@ -85,6 +119,19 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   selectedUserId: '',
   setSelectedUserId: (selectedUserId: string) => set({ selectedUserId }),
 
+  selectedRecognitionType: '',
+  setSelectedRecognitionType: (selectedRecognitionType: string) =>
+    set({ selectedRecognitionType }),
+  variantType: 'appreciation',
+  setVariantType: (variantType: string) => set({ variantType }),
+
+  selectedFeedback: null,
+  setSelectedFeedback: (selectedFeedback: any) => set({ selectedFeedback }),
+
+  selectedFeedbackRecord: null,
+  setSelectedFeedbackRecord: (selectedFeedbackRecord: FeedbackRecord | null) =>
+    set({ selectedFeedbackRecord }),
+
   activeTab: '1',
   setActiveTab: (activeTab: string) => set({ activeTab }),
 
@@ -93,6 +140,17 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   departmentId: '',
   setDepartmentId: (departmentId: string) => set({ departmentId }),
+
+  recognitionTypeId: '',
+  setRecognitionTypeId: (recognitionTypeId: string) =>
+    set({ recognitionTypeId }),
+
+  parentRecognitionTypeId: '',
+  setParentRecognitionTypeId: (parentRecognitionTypeId: string) =>
+    set({ parentRecognitionTypeId }),
+
+  editingRowKeys: {},
+  setEditingRowKeys: (editingRowKeys: any) => set({ editingRowKeys }),
 
   searchField: initialSearchField, // Initial value
   setSearchField: (fields) => set({ searchField: fields }),
@@ -106,6 +164,11 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   setTotalPages: (totalPages: number) => set({ totalPages }),
   setPageSize: (pageSize) => set({ pageSize }),
+
+  openRecognitionType: false,
+  setOpenRecognitionType: (openRecognitionType: boolean) =>
+    set({ openRecognitionType }),
+
   setCurrent: (value) => set({ current: value }),
   setOpen: (open) => set({ open }),
 }));

@@ -110,6 +110,12 @@ const menuItems: MenuProps['items'] = [
         icon: <FiSettings />,
       },
       {
+        key: '/feedback/feedback',
+        label: 'Feedback',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
         key: '/feedback/recognition',
         label: 'Recognition',
         className: 'font-bold',
@@ -148,6 +154,26 @@ const menuItems: MenuProps['items'] = [
       },
     ],
   },
+  // payroll
+  {
+    key: '/payroll',
+    icon: <PiSuitcaseSimpleThin />,
+    className: 'font-bold',
+    label: 'Payroll',
+    children: [
+      // {
+      //   key: '/employee-information',
+      //   label: 'Employee Information',
+      //   className: 'font-bold',
+      // },
+      { key: '/payroll', label: 'Payroll', className: 'font-bold' },
+      {
+        key: '/settings',
+        label: 'Settings',
+        className: 'font-bold',
+      },
+    ],
+  },
   {
     key: '/timesheet',
     icon: <CiCalendar />,
@@ -171,6 +197,29 @@ const menuItems: MenuProps['items'] = [
       },
       {
         key: '/timesheet/settings/closed-date',
+        label: 'Settings',
+        className: 'font-bold',
+      },
+    ],
+  },
+  {
+    key: '/compensation',
+    icon: <CiCalendar />,
+    className: 'font-bold',
+    label: 'Compensation & Benefit',
+    children: [
+      {
+        key: '/allowance',
+        label: 'Allowance',
+        className: 'font-bold',
+      },
+      {
+        key: '/benefit',
+        label: 'Benefit',
+        className: 'font-bold',
+      },
+      {
+        key: '/compensationSetting',
         label: 'Settings',
         className: 'font-bold',
       },

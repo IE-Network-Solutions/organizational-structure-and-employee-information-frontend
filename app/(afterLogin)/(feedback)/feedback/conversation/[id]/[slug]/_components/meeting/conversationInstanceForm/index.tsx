@@ -7,6 +7,7 @@ import {
   TimePicker,
   Select,
   Checkbox,
+  Popconfirm,
 } from 'antd';
 import { CgClose } from 'react-icons/cg';
 import { TiPlusOutline } from 'react-icons/ti';
@@ -44,7 +45,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
     selectedDepartments,
     selectedUsers,
   } = useOrganizationalDevelopment();
-  const { setOfUser, setSetOfUser } = ConversationStore();
+  const { setOfUser, setSetOfUser, setOpen } = ConversationStore();
 
   const handleAgendaChange = (value: string, index: number) => {
     const updatedAgenda = [...agendaItems];
@@ -271,9 +272,17 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
       </Button>
 
       <div className="flex justify-center mt-10">
-        <Button onClick={() => form.resetFields()} style={{ marginRight: 8 }}>
-          Cancel
-        </Button>
+        <Popconfirm
+          title="Are you sure you want to cancel and reset the form?"
+          onConfirm={() => {
+            setOpen(false);
+            form.resetFields();
+          }}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button style={{ marginRight: 8 }}>Cancel</Button>
+        </Popconfirm>
         {isEdit ? (
           <Button htmlType="submit" type="primary">
             Edit
