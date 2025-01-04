@@ -164,7 +164,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                             value: perm.id,
                           }))
                       : employeeData?.userPermissions?.map((perm: any) => ({
-                          label: perm.permission.name,
+                          label: perm.permission?.name,
                           value: perm.permissionId,
                         }))
                   }
