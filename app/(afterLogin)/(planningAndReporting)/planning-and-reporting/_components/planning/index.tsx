@@ -65,7 +65,6 @@ function Planning() {
 
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
-  console.log(transformedData,"00000")
   return (
     <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
@@ -131,11 +130,19 @@ function Planning() {
               <div>
                 <Row gutter={16} className="items-center">
                   <Col xs={4} sm={2} md={1}>
-                  {getEmployeeData(dataItem?.createdBy)?.profileImage?
-                    <Avatar src={getEmployeeData(dataItem?.createdBy)?.profileImage}  style={{ verticalAlign: 'middle' }} size="default"/>
-                    :<Avatar icon={<UserOutlined />} style={{ verticalAlign: 'middle' }} size="default"/>
-                      
-                    }
+                    {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
+                      <Avatar
+                        src={getEmployeeData(dataItem?.createdBy)?.profileImage}
+                        style={{ verticalAlign: 'middle' }}
+                        size="default"
+                      />
+                    ) : (
+                      <Avatar
+                        icon={<UserOutlined />}
+                        style={{ verticalAlign: 'middle' }}
+                        size="default"
+                      />
+                    )}
                   </Col>
                   <Col xs={20} sm={22} md={23}>
                     <Row className="font-bold text-lg">
@@ -150,12 +157,11 @@ function Planning() {
                       </Row>
                     </Row>
                     <Row className="flex justify-between items-center">
-                      <Row gutter={16} justify={'start'} align={"middle"} >
+                      <Row gutter={16} justify={'start'} align={'middle'}>
                         <Col className="text-gray-500 text-xs">Status</Col>
                         <Col>
                           <div
                             className={` py-1 px-1 text-white rounded-md ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
-                            
                           >
                             <MdOutlinePending size={14} />
                           </div>
@@ -166,15 +172,16 @@ function Planning() {
                       </Row>
                       <Col span={10} className="flex justify-end items-center">
                         <span className="mr-4 text-gray-500">
-                          {dayjs(dataItem?.createdAt).format('MMMM DD YYYY, h:mm:ss A')}
-
+                          {dayjs(dataItem?.createdAt).format(
+                            'MMMM DD YYYY, h:mm:ss A',
+                          )}
                         </span>
                         {!dataItem?.isValidated && (
                           <>
                             <Col className="mr-2">
                               <Tooltip title="Edit Plan">
                                 <Button
-                                  className="cursor-pointer bg-primary text-white border-none w-7 h-7"                             
+                                  className="cursor-pointer bg-primary text-white border-none w-7 h-7"
                                   onClick={() => {
                                     setEditing(true);
                                     setSelectedPlanId(dataItem?.id);
@@ -247,72 +254,111 @@ function Planning() {
                   {keyResult?.milestones?.map(
                     (milestone: any, milestoneIndex: number) => (
                       <Row key={milestoneIndex}>
-                         {keyResult?.metricType?.name === NAME.MILESTONE&&<Col className="ml-5 mb-1"  span={24}>
-                          <strong>{`${milestoneIndex + 1}. ${milestone?.title ?? milestone?.description ?? 'No milestone Title'}`}</strong>
-                        </Col>}
+                        {keyResult?.metricType?.name === NAME.MILESTONE && (
+                          <Col className="ml-5 mb-1" span={24}>
+                            <strong>{`${milestoneIndex + 1}. ${milestone?.title ?? milestone?.description ?? 'No milestone Title'}`}</strong>
+                          </Col>
+                        )}
                         {milestone?.tasks?.map(
                           (task: any, taskIndex: number) => (
-                            <Col className="ml-8 mb-1" span={24} key={taskIndex}>
-  <Row align={'middle'} justify={'space-between'}>
-    <Col span={12}>
-    <Text className="text-xs">
-  {keyResult?.metricType?.name === NAME.MILESTONE
-    ? `${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`
-    : `${taskIndex + 1} ${task?.task}`}
-</Text>
-    </Col>
-    <Col span={12}>
-      <Row justify="start" align={'middle'} className="gap-1">
-        {/* Priority Section */}
-        <Col>
-          <Text type="secondary" className="text-[10px] mr-2">
-            <span className="text-xl " style={{ color: 'blue' }}>
-              &bull;
-            </span>{' '}
-            Priority
-          </Text>
-          <Tag
-            className="font-bold border-none w-16  text-center capitalize text-[10px]"
-            color={
-              task?.priority === 'high'
-                ? 'red'
-                : task?.priority === 'medium'
-                ? 'orange'
-                : 'green'
-            }
-          >
-            {task?.priority || 'None'}
-          </Tag>
-        </Col>
+                            <Col
+                              className="ml-8 mb-1"
+                              span={24}
+                              key={taskIndex}
+                            >
+                              <Row align={'middle'} justify={'space-between'}>
+                                <Col span={12}>
+                                  <Text className="text-xs">
+                                    {keyResult?.metricType?.name ===
+                                    NAME.MILESTONE
+                                      ? `${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`
+                                      : `${taskIndex + 1} ${task?.task}`}
+                                  </Text>
+                                </Col>
+                                <Col span={12}>
+                                  <Row
+                                    justify="start"
+                                    align={'middle'}
+                                    className="gap-1"
+                                  >
+                                    {/* Priority Section */}
+                                    <Col>
+                                      <Text
+                                        type="secondary"
+                                        className="text-[10px] mr-2"
+                                      >
+                                        <span
+                                          className="text-xl "
+                                          style={{ color: 'blue' }}
+                                        >
+                                          &bull;
+                                        </span>{' '}
+                                        Priority
+                                      </Text>
+                                      <Tag
+                                        className="font-bold border-none w-16  text-center capitalize text-[10px]"
+                                        color={
+                                          task?.priority === 'high'
+                                            ? 'red'
+                                            : task?.priority === 'medium'
+                                              ? 'orange'
+                                              : 'green'
+                                        }
+                                      >
+                                        {task?.priority || 'None'}
+                                      </Tag>
+                                    </Col>
 
-        {/* Point Section */}
-       
+                                    {/* Point Section */}
 
-        {/* Target Section */}
-        <Col className="text-xs" >
-        <Text type="secondary" className="text-[10px] mr-2">
-            <span className="text-xl " style={{ color: 'blue' }}>
-              &bull;
-            </span>{' '}
-            Weight:
-          </Text>
-          <Tag className="font-bold border-none w-16  text-center cap text-blue text-[10px]" color="#B2B2FF">{task?.weight || 0}</Tag>
-        </Col>
-        {keyResult?.metricType?.name!="Milestone"&&
-        <Col className="text-xs" >
-        <Text type="secondary" className="text-[10px] mr-2">
-            <span className="text-xl " style={{ color: 'blue' }}>
-              &bull;
-            </span>{' '}
-            Target:
-          </Text>
-          <Tag className="font-bold border-none w-16  text-center cap text-blue text-[10px]" color="#B2B2FF">{task?.targetValue || 'N/A'}</Tag>
-        </Col>}
-      </Row>
-    </Col>
-  </Row>
-</Col>
-
+                                    {/* Target Section */}
+                                    <Col className="text-xs">
+                                      <Text
+                                        type="secondary"
+                                        className="text-[10px] mr-2"
+                                      >
+                                        <span
+                                          className="text-xl "
+                                          style={{ color: 'blue' }}
+                                        >
+                                          &bull;
+                                        </span>{' '}
+                                        Weight:
+                                      </Text>
+                                      <Tag
+                                        className="font-bold border-none w-16  text-center cap text-blue text-[10px]"
+                                        color="#B2B2FF"
+                                      >
+                                        {task?.weight || 0}
+                                      </Tag>
+                                    </Col>
+                                    {keyResult?.metricType?.name !=
+                                      'Milestone' && (
+                                      <Col className="text-xs">
+                                        <Text
+                                          type="secondary"
+                                          className="text-[10px] mr-2"
+                                        >
+                                          <span
+                                            className="text-xl "
+                                            style={{ color: 'blue' }}
+                                          >
+                                            &bull;
+                                          </span>{' '}
+                                          Target:
+                                        </Text>
+                                        <Tag
+                                          className="font-bold border-none w-16  text-center cap text-blue text-[10px]"
+                                          color="#B2B2FF"
+                                        >
+                                          {task?.targetValue || 'N/A'}
+                                        </Tag>
+                                      </Col>
+                                    )}
+                                  </Row>
+                                </Col>
+                              </Row>
+                            </Col>
                           ),
                         )}
                       </Row>
@@ -366,13 +412,12 @@ function Planning() {
               ),
             )}
             <CommentCard
-            planId={dataItem?.id}
-            data={dataItem?.comments}
-            loading={getPlanningLoading}
-            isPlanCard={true}
-          />
+              planId={dataItem?.id}
+              data={dataItem?.comments}
+              loading={getPlanningLoading}
+              isPlanCard={true}
+            />
           </Card>
-
         </>
       ))}
 

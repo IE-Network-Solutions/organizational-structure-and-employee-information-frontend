@@ -11,7 +11,6 @@ interface KPIMetricsProps {
 }
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
-  console.log(keyResult,"Planing")
   return (
     <div className="py-3 px-2 sm:px-4 bg-white shadow-sm rounded-lg border">
       <div className="grid grid-cols-12 sm:justify-between mb-5 items-start">
@@ -21,20 +20,16 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
         </div>
         <div className="flex flex-col items-end justify-end col-span-12 sm:col-span-4 mt-3 sm:mt-0">
           <div className="flex flex-col items-center justify-start">
-            
             <div className="flex items-center gap-2">
-            <Progress
-              type="circle"
-              showInfo={false}
-              percent={keyResult?.progress}
-              size={20}
-            />
-            <span className="text-lg">{keyResult?.progress || 0}%</span>
+              <Progress
+                type="circle"
+                showInfo={false}
+                percent={keyResult?.progress}
+                size={20}
+              />
+              <span className="text-lg">{keyResult?.progress || 0}%</span>
             </div>
             <span className="text-[8px]">KR progress</span>
-            
-           
-            
           </div>
         </div>
       </div>
@@ -43,7 +38,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
         <div className="flex gap-4 ml-0 sm:ml-10">
           <div className="flex items-center gap-2">
             <div className="bg-light_purple text-blue font-semibold text-xs flex items-center p-2 rounded-lg">
-              {keyResult?.metricType?.name || "-"}
+              {keyResult?.metricType?.name || '-'}
             </div>
             <div className="flex items-center gap-1">
               <div className="text-blue text-xl">&#x2022;</div>
@@ -55,7 +50,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
 
           <div className="flex items-center gap-2">
             <div className="bg-light_purple text-blue font-semibold text-xs flex items-center p-2 rounded-lg">
-              {keyResult?.weight||0}
+              {keyResult?.weight || 0}
             </div>
             <div className="flex items-center gap-1">
               <div className="text-blue text-xl">&#x2022;</div>
@@ -106,8 +101,6 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
           </div>
         </div>
       </div>
-
-     
     </div>
   );
 };

@@ -53,8 +53,6 @@ function CreateReport() {
   const { data: allUnReportedPlanningTask } =
     useGetUnReportedPlanning(planningPeriodId);
 
-
-    console.log(allUnReportedPlanningTask,"allUnReportedPlanningTask")
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       {planningPeriodName}

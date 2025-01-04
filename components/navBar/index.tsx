@@ -228,22 +228,21 @@ const menuItems: MenuProps['items'] = [
 ];
 
 const userItems: MenuProps['items'] = [
-    {
-      key: '/okr-planning',
-      label: 'OKR',
-      icon: <CiStar size={20} />,
-      className: 'font-bold',
-      children: [
-        { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold' },
-        { key: '/okr', label: 'OKR', className: 'font-bold' },
-        {
-          key: '/planning-and-reporting',
-          label: 'Planning and Reporting',
-          className: 'font-bold',
-        },
-       
-      ],
-    },
+  {
+    key: '/okr-planning',
+    label: 'OKR',
+    icon: <CiStar size={20} />,
+    className: 'font-bold',
+    children: [
+      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold' },
+      { key: '/okr', label: 'OKR', className: 'font-bold' },
+      {
+        key: '/planning-and-reporting',
+        label: 'Planning and Reporting',
+        className: 'font-bold',
+      },
+    ],
+  },
   //   {
   //     key: '/feedback',
   //     label: 'CFR',

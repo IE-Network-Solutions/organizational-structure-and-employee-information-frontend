@@ -11,7 +11,7 @@ import {
 } from '@/store/server/features/okrplanning/reportComments/mutations';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { CommentsData } from '@/types/okr';
-import { Button, Col, Input, Form, Row, Avatar,Collapse } from 'antd';
+import { Button, Col, Input, Form, Row, Avatar, Collapse } from 'antd';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import dayjs from 'dayjs';
@@ -125,18 +125,22 @@ const CommentList = ({
               <div className="flex items-center">
                 <Avatar
                   src={
-                    getUserDetail(commentData.commentedBy)?.profileImage || undefined
+                    getUserDetail(commentData.commentedBy)?.profileImage ||
+                    undefined
                   }
                   icon={
                     !getUserDetail(commentData.commentedBy)?.profileImage ? (
                       <FaUser />
                     ) : undefined
                   }
-                  alt={getUserDetail(commentData.commentedBy)?.fullName || 'User'}
+                  alt={
+                    getUserDetail(commentData.commentedBy)?.fullName || 'User'
+                  }
                   className="mr-3"
                 />
                 <span>
-                  {getUserDetail(commentData.commentedBy)?.fullName || 'Unknown User'}
+                  {getUserDetail(commentData.commentedBy)?.fullName ||
+                    'Unknown User'}
                 </span>
               </div>
             }

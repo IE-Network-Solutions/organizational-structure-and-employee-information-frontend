@@ -167,7 +167,6 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   };
 
   useEffect(() => {
-
     setObjectiveValue({
       ...objectiveValue,
       title: objectiveTitle || '',
@@ -304,7 +303,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               Add Key Result
             </Button>
           </div>
-          {objectiveValue.keyResults?.map((keyValue:any, index:number) => (
+          {objectiveValue.keyResults?.map((keyValue: any, index: number) => (
             <KeyResultView
               key={index}
               objective={objective}
@@ -313,7 +312,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               isEdit={false}
             />
           ))}
-          {objective?.keyResults?.map((keyItem:any, index:number) => (
+          {objective?.keyResults?.map((keyItem: any, index: number) => (
             <KeyResultForm
               key={index}
               keyItem={keyItem}

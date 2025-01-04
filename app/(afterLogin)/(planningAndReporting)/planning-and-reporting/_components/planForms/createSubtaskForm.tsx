@@ -35,7 +35,6 @@ function SubTaskComponent({
           style={{
             display: 'flex',
             flexDirection: 'column',
-            
           }}
         >
           {subFields.map((subField) => (
@@ -102,14 +101,13 @@ function SubTaskComponent({
                 </Col>
                 <Col>
                   <Form.Item
-                  
                     label={'Target'}
                     {...subField}
                     name={[subField.name, 'targetValue']}
                     key={`target-${subField.key}`}
                     hidden={hasTargetValue}
                   >
-                    <InputNumber   className="w-32" placeholder="20" min={0} />
+                    <InputNumber className="w-32" placeholder="20" min={0} />
                   </Form.Item>
                 </Col>
                 <Col>
@@ -177,7 +175,12 @@ function SubTaskComponent({
               </Row>
             </>
           ))}
-          <Button className='w-24 text-xs' type="dashed" onClick={() => subOpt.add()} block>
+          <Button
+            className="w-24 text-xs"
+            type="dashed"
+            onClick={() => subOpt.add()}
+            block
+          >
             + Add Sub Task
           </Button>
         </div>
