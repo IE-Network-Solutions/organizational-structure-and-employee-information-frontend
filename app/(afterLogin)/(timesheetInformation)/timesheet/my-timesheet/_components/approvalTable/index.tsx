@@ -10,12 +10,25 @@ import {
 } from '@/types/timesheet/settings';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useApprovalStore } from '@/store/uistate/features/approval';
-import { useSetApproveLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
+import {
+  useSetAllApproveLeaveRequest,
+  useSetApproveLeaveRequest,
+} from '@/store/server/features/timesheet/leaveRequest/mutation';
 import PermissionWrapper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { UserOutlined } from '@ant-design/icons';
 import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet/myTimesheet/currentApproval';
+
+interface ModifiedData {
+  approvalWorkflowId: string;
+  stepOrder: number;
+  requestId: string;
+  approvedUserId: string;
+  approverRoleId: string;
+  action: string;
+  tenantId: string;
+}
 
 const ApprovalTable = () => {
   const { pageSize, userCurrentPage, setUserCurrentPage } =
@@ -25,6 +38,7 @@ const ApprovalTable = () => {
   const userRollId = useAuthenticationStore.getState().userData.roleId;
   const { rejectComment, setRejectComment } = useApprovalStore();
   const { mutate: editApprover } = useSetApproveLeaveRequest();
+  const { mutate: editAllApprover } = useSetAllApproveLeaveRequest();
 
   const { data, isFetching } = useGetApprovalLeaveRequest(
     userId,
@@ -213,8 +227,18 @@ const ApprovalTable = () => {
     setUserCurrentPage(page);
   };
   const onAllRequest = () => {
-    console.log(data?.items, 'onAllRequest');
-    alert('onAllRequest');
+    const modifiedData: ModifiedData[] = data?.items.map((item: any) => ({
+      approvalWorkflowId: item?.approvalWorkflowId,
+      stepOrder: item?.nextApprover?.[0]?.stepOrder,
+      requestId: item?.id,
+      approvedUserId: userId,
+      approverRoleId: userRollId,
+      action: 'Approved',
+      tenantId: tenantId,
+    }));
+
+    console.log('old', data?.items, 'new', modifiedData);
+    editAllApprover(modifiedData);
   };
   return (
     <>

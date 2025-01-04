@@ -46,6 +46,14 @@ const setApproveLeaveRequest = async (data: any) => {
     data,
   });
 };
+const setAllApproveLeaveRequest = async (data: any) => {
+  return await crudRequest({
+    url: `${APPROVER_URL}/approval-logs/allCurrentApproval`,
+    method: 'POST',
+    headers: requestHeader(),
+    data,
+  });
+};
 
 export const useSetLeaveRequest = () => {
   const queryClient = useQueryClient();
@@ -86,6 +94,20 @@ export const useSetStatusToLeaveRequest = () => {
 export const useSetApproveLeaveRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setApproveLeaveRequest, {
+    onSuccess: (data, variables: any) => {
+      queryClient.invalidateQueries(['current_approval', data?.approvedUserId]);
+      queryClient.invalidateQueries(['leave-request']);
+      queryClient.invalidateQueries(['transferApprovalRequest']);
+      queryClient.invalidateQueries(['myTansferRequest']);
+      queryClient.invalidateQueries(['transferRequest']);
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+export const useSetAllApproveLeaveRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(setAllApproveLeaveRequest, {
     onSuccess: (data, variables: any) => {
       queryClient.invalidateQueries(['current_approval', data?.approvedUserId]);
       queryClient.invalidateQueries(['leave-request']);
