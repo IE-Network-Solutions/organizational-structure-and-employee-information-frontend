@@ -77,9 +77,9 @@ function BoardCardForm({
                   key={`${subName}-targetValue`}
                   rules={[
                     {
-                      validator(_, value) {
+                      validator(value: any) {
                         // Log the value and calculated limit for debugging
-                       
+
                         if (
                           keyResult?.metricType?.name === NAME.ACHIEVE ||
                           keyResult?.metricType?.name === NAME.MILESTONE

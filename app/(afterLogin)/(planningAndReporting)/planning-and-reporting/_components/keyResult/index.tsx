@@ -1,16 +1,11 @@
-import { Progress, Dropdown, Typography } from 'antd';
+import { Progress } from 'antd';
 import { FC } from 'react';
-import { IoIosMore } from 'react-icons/io';
 import { MdKey } from 'react-icons/md';
-
-const { Text, Title } = Typography;
-
 interface KPIMetricsProps {
   keyResult?: any;
-  myOkr?: boolean;
 }
 
-const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
+const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
   return (
     <div className="py-3 px-2 sm:px-4 bg-white shadow-sm rounded-lg border">
       <div className="grid grid-cols-12 sm:justify-between mb-5 items-start">

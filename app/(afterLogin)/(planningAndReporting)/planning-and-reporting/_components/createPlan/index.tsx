@@ -158,7 +158,10 @@ function CreatePlan() {
                                     {kr?.milestones?.map(
                                       (ml: Record<string, any>) => {
                                         return (
-                                          <div className="flex items-center">
+                                          <div
+                                            key={ml?.id}
+                                            className="flex items-center"
+                                          >
                                             <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
                                               {weights[
                                                 `names-${kr?.id + ml?.id}`
