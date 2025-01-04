@@ -5,6 +5,7 @@ import { useGetConversationById } from '@/store/server/features/CFR/conversation
 import { QuestionSet, QuestionSetSkeleton } from './_components/question-set';
 import { Skeleton } from 'antd';
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
+import { Permissions } from '@/types/commons/permissionEnum';
 interface Params {
   id: string;
 }
@@ -45,6 +46,7 @@ function Index({ params }: { params: Params }) {
           `Conversations / ${conversationType?.name}`
         )
       }
+      permissionsNeeded={[Permissions.CreateConversationReport]}
     >
       <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {isLoading

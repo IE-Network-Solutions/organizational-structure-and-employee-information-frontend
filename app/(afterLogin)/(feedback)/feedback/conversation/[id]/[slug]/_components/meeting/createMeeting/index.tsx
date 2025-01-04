@@ -16,6 +16,8 @@ import dayjs from 'dayjs';
 import ConversationInstanceForm from '../conversationInstanceForm';
 import QuestionResponseForm from '../questionResponseForm';
 import ActionPlanDrawer from '../actionPlanDrawer';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Step } = Steps;
 
@@ -275,14 +277,16 @@ const CreateMeeting = ({
             ))}
 
             <div className="flex justify-center items-center gap-4 space-x-2 my-7">
-              <Button
-                htmlType="button"
-                type="primary"
-                className="px-8 text-xs"
-                onClick={showChildrenDrawer}
-              >
-                Action Plan
-              </Button>
+              <AccessGuard permissions={[Permissions.CreateActionPlan]}>
+                <Button
+                  htmlType="button"
+                  type="primary"
+                  className="px-8 text-xs"
+                  onClick={showChildrenDrawer}
+                >
+                  Action Plan
+                </Button>
+              </AccessGuard>
             </div>
 
             {/* Navigation Buttons */}

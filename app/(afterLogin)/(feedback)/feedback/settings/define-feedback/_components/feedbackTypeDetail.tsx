@@ -1,5 +1,7 @@
 import { useDeleteFeedback } from '@/store/server/features/feedback/feedback/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 import { Button, Card, Popconfirm, Tabs } from 'antd';
 import { Edit2Icon } from 'lucide-react';
 import React from 'react';
@@ -11,9 +13,8 @@ interface FeedbackTypeDetailProps {
 }
 
 function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
-  const { mutate: deleteFeedback, isLoading: deleteLoading } =
-    useDeleteFeedback();
 
+  const { mutate: deleteFeedback, isLoading: deleteLoading } = useDeleteFeedback();
   const { setVariantType, setOpen, setSelectedFeedback } = ConversationStore();
 
   const onChange = (key: string) => {
@@ -26,6 +27,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
   const editHandler = (item: string) => {
     setSelectedFeedback(item);
   };
+
   const tabItems = [
     {
       key: 'appreciation', // Ant Design Tabs expect "key" instead of "id"
@@ -33,15 +35,17 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
       children: (
         <>
           <div className="flex justify-end text-xs mx-2">
-            <Button
-              type="primary"
-              htmlType="button"
-              icon={<BiPlus />}
-              title="Add Type"
-              onClick={() => setOpen(true)}
-            >
-              Add Type
-            </Button>
+            <AccessGuard permissions={[Permissions.CreateAppreciationType]}>
+              <Button
+                type="primary"
+                htmlType="button"
+                icon={<BiPlus />}
+                title="Add Type"
+                onClick={() => setOpen(true)}
+              >
+                Add Type
+              </Button>
+            </AccessGuard>
           </div>
           {feedbackTypeDetail?.feedback
             ?.filter((item: any) => item?.variant === 'appreciation')
@@ -50,12 +54,15 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
                 <div className="flex justify-between">
                   <p>{item?.name}</p>
                   <p className="flex gap-2">
+                  <AccessGuard permissions={[Permissions.UpdateAppreciationType]}>
                     <Button
                       size="small"
                       onClick={() => editHandler(item)}
                       icon={<Edit2Icon className="w-4 h-4 text-xs" />}
                       type="primary"
                     />
+                  </AccessGuard>
+                  <AccessGuard permissions={[Permissions.DeleteAppreciationType]}>
                     <Popconfirm
                       title="Are you sure you want to delete?"
                       onConfirm={() => handleDelete(item?.id)}
@@ -70,6 +77,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
                         type="primary"
                       />
                     </Popconfirm>
+                  </AccessGuard>
                   </p>
                 </div>
               </Card>
@@ -83,15 +91,17 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
       children: (
         <>
           <div className="flex justify-end text-xs mx-2">
-            <Button
-              type="primary"
-              htmlType="button"
-              icon={<BiPlus />}
-              title="Add Type"
-              onClick={() => setOpen(true)}
-            >
-              Add Type
-            </Button>
+            <AccessGuard permissions={[Permissions.CreateReprimandType]}>
+              <Button
+                type="primary"
+                htmlType="button"
+                icon={<BiPlus />}
+                title="Add Type"
+                onClick={() => setOpen(true)}
+              >
+                Add Type
+              </Button>
+            </AccessGuard>
           </div>
           {feedbackTypeDetail?.feedback
             ?.filter((item: any) => item?.variant === 'reprimand')
@@ -100,25 +110,29 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
                 <div className="flex justify-between">
                   <p>{item?.name}</p>
                   <p className="flex gap-2">
-                    <Button
-                      size="small"
-                      onClick={() => editHandler(item)}
-                      icon={<Edit2Icon className="w-4 h-4 text-xs" />}
-                      type="primary"
-                    />
-                    <Popconfirm
-                      title="Are you sure you want to delete?"
-                      onConfirm={() => handleDelete(item?.id)}
-                      okText="Yes"
-                      cancelText="No"
-                    >
+                    <AccessGuard permissions={[Permissions.UpdateReprimandType]}>
                       <Button
                         size="small"
-                        icon={<MdDeleteOutline />}
-                        danger
+                        onClick={() => editHandler(item)}
+                        icon={<Edit2Icon className="w-4 h-4 text-xs" />}
                         type="primary"
                       />
-                    </Popconfirm>
+                    </AccessGuard>
+                    <AccessGuard permissions={[Permissions.DeleteReprimandType]}>
+                      <Popconfirm
+                        title="Are you sure you want to delete?"
+                        onConfirm={() => handleDelete(item?.id)}
+                        okText="Yes"
+                        cancelText="No"
+                      >
+                        <Button
+                          size="small"
+                          icon={<MdDeleteOutline />}
+                          danger
+                          type="primary"
+                        />
+                      </Popconfirm>
+                    </AccessGuard>
                   </p>
                 </div>
               </Card>

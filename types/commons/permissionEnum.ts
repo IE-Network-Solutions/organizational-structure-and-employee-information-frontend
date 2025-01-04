@@ -1,15 +1,14 @@
 export enum Permissions {
-  // Allowance type permissions
+  
+  // Compensation and Benefit Permissions
   CreateAllowanceType = 'create-allowance-type',
   UpdateAllowanceType = 'update-allowance-type',
   DeleteAllowanceType = 'delete-allowance-type',
 
-  // Benefit type permissions
   CreateBenefitType = 'create-benefit-type',
   UpdateBenefitType = 'update-benefit-type',
   DeleteBenefitType = 'delete-benefit-type',
 
-  // Compensation and Benefit Permissions
   CreateAllowanceEntitlement = 'create-allowance-entitlement',
   UpdateAllowanceEntitlement = 'update-allowance-entitlement',
   DeleteAllowanceEntitlement = 'delete-allowance-entitlement',
@@ -44,6 +43,40 @@ export enum Permissions {
   UpdateBankInformation = 'update-bank-information',
   DeleteBankInformation = 'delete-bank-information',
 
+  //Conversation
+
+  createConversationSet = 'create-conversation-set',
+  DeleteConversationSet = 'delete-conversation-set',
+  EditConversationSet = 'edit-conversation-set',
+  CreateConversationType = 'create-conversation-type',
+
+  CreateConversationReport = 'create-conversation-report',
+  CreateActionPlan = 'create-actions-plan',
+  CreateNewMeeting = 'create-new-meeting',
+  UpdateMeeting = 'update-meeting',
+  DeleteMeeting = 'delete-meeting',
+  GenerateFeedbackReport = 'generate-feedback-report',
+  CreateAppreciation = 'create-appreciation',
+  UpdateAppreciation = 'update-appreciation',
+  DeleteAppreciation = 'delete-appreciation',
+  CreateRecognision = 'create-recognision',
+  
+  CreateCfrFormCategory = 'create-cfr-form-category',
+  DeleteCfrFormCategory = 'delete-cfr-form-category',
+  UpdateCfrFormCategory = 'update-cfr-form-category',
+
+  CreateRecognitionCategory = 'create-recognision-category',
+  UpdateRecognitionCategory = 'update-recognision-category',
+  DeleteRecognitionCategory = 'delete-recognision-category',
+
+  CreateRecognition = 'create-recognision',
+  UpdateRecognition = 'update-recognision',
+  DeleteRecognition = 'delete-recognision',
+
+  CreateRecognitionCriteria = 'create-recognision-criteria',
+  UpdateRecognitionCriteria = 'update-recognision-criteria',
+  DeleteRecognitionCriteria = 'delete-recognision-criteria',
+
   // Could not be found Permissions that needs to be changed
   ViewAllEmployeePlan = 'view-all-employee-plan',
   ViewAllPlan = 'view-all-plan',
@@ -52,14 +85,12 @@ export enum Permissions {
   ViewReprimandAndAppreciationDetails = 'view-reprimand-and-appreciation-details',
   EditAppreciationAndReprimand = 'edit-appreciation-and-reprimand',
   DeleteAppreciationAndReprimand = 'delete-appreciation-and-reprimand',
-  CreateAppreciation = 'create-appreciation',
   CreateCustomFields = 'create-custom-fields',
   UpdateCustomFields = 'update-custom-fields',
   DeleteCustomFields = 'delete-custom-fields',
   CreateCommentOnPlanAndReport = 'create-comment-on-Plan-and-report',
   UpdateCommentOnPlanAndReport = 'update-comment-on-Plan-and-report',
   DeleteCommentOnPlanAndReport = 'delete-comment-on-Plan-and-report',
-  CreateFormCategory = 'create-form-category',
   UpdatePlanningPeriod = 'update-planning-period',
   DeletePlanningPeriod = 'delete-planning-period',
   AssignPlanningPeriod = 'assign-planning-period',
@@ -270,10 +301,6 @@ export enum Permissions {
   UpdatePerformanceReview = 'update-performance-review',
   DeletePerformanceReview = 'delete-performance-review',
 
-  // Form Category Permissions
-  DeleteFormCategory = 'delete-form-category',
-  UpdateFormCategory = 'update-form-category',
-
   // Template Questions Permissions
   CreateTemplateQuestions = 'create-template-questions',
   UpdateTemplateQuestions = 'update-template-questions',
@@ -287,23 +314,6 @@ export enum Permissions {
   // Miscellaneous Permissions
   SetMaximumCarryOverLimit = 'set-maximum-carry-over-limit',
 
-  //Conversation
-
-  createConversationSet = 'create-conversation-set',
-  DeleteConversationSet = 'delete-conversation-set',
-  EditConversationSet = 'edit-conversation-set',
-
-  CreateConversationType = 'create-conversation-type',
-
-  //Recognition
-  //Recognition
-  CreateRecognition = 'create-recognition',
-  DeleteRecognition = 'delete-recognition',
-  EditRecognition = 'edit-recognition',
-
-  AddRecognitionCriteria = 'create-recognition-criteria',
-  DeleteRecognitionCriteria = 'delete-recognition-criteria',
-  EditRecognitionCriteria = 'edit-recognition-criteria',
   // //oneToOne
   // CreateOneToOne = 'create-one-to-one',
   // DeleteOneToOne = 'delete-one-to-one',

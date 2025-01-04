@@ -4,6 +4,7 @@ import React from 'react';
 import { useConversationTypes } from '@/store/server/features/CFR/conversation/queries';
 import ConversationTypeList from './_component/conversation';
 import { Empty, Skeleton } from 'antd';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 function Index() {
   const { data: conversationData, isLoading } = useConversationTypes();
@@ -21,6 +22,7 @@ function Index() {
       onClickHandler={() => generateReportHandler}
       title="Conversation types"
       subtitle="Conversations / bi-weekly"
+      permissionsNeeded={[Permissions.CreateConversationReport]}
     >
       <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {isLoading ? (

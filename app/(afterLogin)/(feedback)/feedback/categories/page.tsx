@@ -28,7 +28,7 @@ const Categories: React.FC = () => {
           subtitle="Manage your categories"
         />
         <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
-          <AccessGuard permissions={[Permissions.CreateFormCategory]}>
+          <AccessGuard permissions={[Permissions.CreateCfrFormCategory]}>
             <CustomButton
               title="Create Category"
               id="createUserButton"

@@ -24,6 +24,7 @@ import { PlusIcon } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { CiMedal } from 'react-icons/ci';
 import { useRouter } from 'next/navigation';
+import { Permissions } from '@/types/commons/permissionEnum';
 function Page() {
   const {
     updateSearchValue,
@@ -254,6 +255,7 @@ function Page() {
             selectedRecognitionType !== '1' ? 'Generate Recognition' : false
           }
           buttonIcon={<PlusIcon />}
+          permissionsNeeded={[Permissions.CreateRecognision]}
         >
           <EmployeeSearchComponent
             fields={searcFields}

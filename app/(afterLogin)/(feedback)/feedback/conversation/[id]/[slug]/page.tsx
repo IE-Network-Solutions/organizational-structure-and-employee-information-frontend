@@ -13,6 +13,7 @@ import CreateActionPlans from './_components/createActionPlans';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useAddActionPlan } from '@/store/server/features/CFR/conversation/action-plan/mutation';
 import dayjs from 'dayjs';
+import { Permissions } from '@/types/commons/permissionEnum';
 interface Params {
   slug: string;
 }
@@ -128,6 +129,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
         </span>
       }
       subtitle=""
+      permissionsNeeded={[Permissions.CreateActionPlan]}
     >
       <Row gutter={[16, 24]}>
         <Col lg={8} md={10} xs={24}>

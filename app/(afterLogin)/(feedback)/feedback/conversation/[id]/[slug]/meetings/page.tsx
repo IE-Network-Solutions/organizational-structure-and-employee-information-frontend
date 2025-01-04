@@ -8,6 +8,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import CreateMeeting from '../_components/meeting/createMeeting';
 import MettingDataTable from '../_components/meeting/mettingTable';
+import { Permissions } from '@/types/commons/permissionEnum';
 interface Params {
   id: string;
   slug: string;
@@ -68,6 +69,7 @@ const Page = ({ params }: { params: Params }) => {
         onClickHandler={() => setOpen(true)}
         title="Bi-Weekly"
         subtitle="Conversations / bi-weekly "
+        permissionsNeeded={[Permissions.CreateNewMeeting]}
       >
         <MettingDataTable conversationTypeId={id} slug={slug} />
       </TabLandingLayout>
