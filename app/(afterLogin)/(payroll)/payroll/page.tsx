@@ -1,13 +1,67 @@
 'use client';
-import React, { useState } from 'react';
-import { Table, Card, Row, Col, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Table, Card, Row, Col, Button, notification } from 'antd';
 import { ArrowUpOutlined } from '@ant-design/icons';
 import Filters from './_components/filters';
+import {
+  useGetAllActiveBasicSalary,
+  useGetPayRoll,
+} from '@/store/server/features/payroll/payroll/queries';
+import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutation';
+import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-management/_components/criteria-drawer';
 
 const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  // const { data } = useGetTaxRule();
+  const { data: payroll } = useGetPayRoll();
+  const {
+    data: allActiveSalary,
+    isLoading,
+    isError,
+  } = useGetAllActiveBasicSalary();
+  const {
+    mutate: createPayroll,
+    isLoading: isCreatingPayroll,
+    isSuccess: isCreatePayrollSuccess,
+  } = useCreatePayroll();
+
+  const { data: activeYears } = useGetAllFiscalYears();
+
+  useEffect(() => {
+    if (isCreatePayrollSuccess) {
+      notification.success({
+        message: 'Payroll Generated',
+        description: 'Payroll has been successfully generated.',
+      });
+    }
+    console.log('----------------------payroll------------', payroll);
+    console.log('----------------------activeYears------------', activeYears);
+  }, [isCreatePayrollSuccess, payroll, activeYears]);
+
+  const [loading, setLoading] = useState(false);
+
+  const handleGeneratePayroll = async () => {
+    if (!allActiveSalary || allActiveSalary.length === 0) {
+      notification.error({
+        message: 'No Active Salaries',
+        description:
+          'There is no active salary data available to generate payroll.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      createPayroll(allActiveSalary);
+    } catch (error) {
+      notification.error({
+        message: 'Error Generating Payroll',
+        description: 'An error occurred while generating payroll.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const cardData = [
     { title: 'Total Amount', value: '7,456,345 ETB', growth: '12.7%' },
@@ -17,159 +71,44 @@ const Payroll = () => {
     { title: 'Total Deduction', value: '4,000,345 ETB', growth: '12.7%' },
   ];
 
-  const dataSource = [
-    {
-      key: '1',
-      name: 'Abraham Dulla',
-      salary: '10,000 ETB',
-      allowance: '10,000 ETB',
-      taxable: '10,000 ETB',
-      benefits: '10,000 ETB',
-      deduction: '10,000 ETB',
-      income: '10,000 ETB',
-      tax: '10,000 ETB',
-      pension: '500 ETB', // Employee Pension
-      companypension: '1000 ETB', // Company Pension
-      costsharing: '300 ETB', // Cost Sharing
-      netincome: '9000 ETB', // Net Income
-    },
-    {
-      key: '2',
-      name: 'Hanna Baptista',
-      salary: '20,000 ETB',
-      allowance: '20,000 ETB',
-      taxable: '20,000 ETB',
-      benefits: '20,000 ETB',
-      deduction: '20,000 ETB',
-      income: '20,000 ETB',
-      tax: '20,000 ETB',
-      pension: '1000 ETB',
-      companypension: '2000 ETB',
-      costsharing: '500 ETB',
-      netincome: '18000 ETB',
-    },
-    {
-      key: '3',
-      name: 'Miracle Geidt',
-      salary: '20,000 ETB',
-      allowance: '20,000 ETB',
-      taxable: '20,000 ETB',
-      benefits: '20,000 ETB',
-      deduction: '20,000 ETB',
-      income: '20,000 ETB',
-      tax: '20,000 ETB',
-      pension: '1200 ETB',
-      companypension: '2400 ETB',
-      costsharing: '600 ETB',
-      netincome: '18000 ETB',
-    },
-    {
-      key: '4',
-      name: 'Rayna Torff',
-      salary: '20,000 ETB',
-      allowance: '20,000 ETB',
-      taxable: '20,000 ETB',
-      benefits: '20,000 ETB',
-      deduction: '20,000 ETB',
-      income: '20,000 ETB',
-      tax: '20,000 ETB',
-      pension: '1500 ETB',
-      companypension: '3000 ETB',
-      costsharing: '700 ETB',
-      netincome: '17000 ETB',
-    },
-    {
-      key: '5',
-      name: 'Giana Lipshutz',
-      salary: '20,000 ETB',
-      allowance: '20,000 ETB',
-      taxable: '20,000 ETB',
-      benefits: '20,000 ETB',
-      deduction: '20,000 ETB',
-      income: '20,000 ETB',
-      tax: '20,000 ETB',
-      pension: '1100 ETB',
-      companypension: '2200 ETB',
-      costsharing: '550 ETB',
-      netincome: '18500 ETB',
-    },
-    {
-      key: '6',
-      name: 'James George',
-      salary: '20,000 ETB',
-      allowance: '20,000 ETB',
-      taxable: '20,000 ETB',
-      benefits: '20,000 ETB',
-      deduction: '20,000 ETB',
-      income: '20,000 ETB',
-      tax: '20,000 ETB',
-      pension: '1300 ETB',
-      companypension: '2600 ETB',
-      costsharing: '600 ETB',
-      netincome: '18400 ETB',
-    },
-  ].filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
   const columns = [
     {
       title: 'Full Name',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'employeeId',
+      key: 'employeeId',
       minWidth: 200,
       render: (notused: any, record: any) => {
-        return (
-          <div className="flex gap-2 justify-start items-center">
-            <img
-              src="https://picsum.photos/200"
-              alt="Profile"
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: '50%',
-                objectFit: 'cover',
-              }}
-            />
-            <span>{record.name}</span>
-          </div>
-        );
+        return <EmployeeDetails empId={record?.employeeId} />;
       },
     },
     {
       title: 'Basic Salary',
-      dataIndex: 'salary',
-      key: 'salary',
+      dataIndex: 'netPay',
+      key: 'netPay',
       minWidth: 200,
     },
     {
       title: 'Total Allowance',
-      dataIndex: 'allowance',
-      key: 'allowance',
-      minWidth: 200,
-    },
-    {
-      title: 'Taxable Allowance',
-      dataIndex: 'taxable',
-      key: 'taxable',
+      dataIndex: 'totalAllowance',
+      key: 'totalAllowance',
       minWidth: 200,
     },
     {
       title: 'Total Benefits',
-      dataIndex: 'benefits',
-      key: 'benefits',
+      dataIndex: 'totalMerit',
+      key: 'totalMerit',
       minWidth: 200,
     },
     {
       title: 'Total Deduction',
-      dataIndex: 'deduction',
-      key: 'deduction',
+      dataIndex: 'totalDeductions',
+      key: 'totalDeductions',
       minWidth: 200,
     },
     {
       title: 'Gross Income',
-      dataIndex: 'income',
-      key: 'income',
+      dataIndex: 'grossSalary',
+      key: 'grossSalary',
       minWidth: 200,
     },
     { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 200 },
@@ -202,7 +141,6 @@ const Payroll = () => {
   const handleSearch = (value: string) => {
     setSearchTerm(value);
   };
-
   return (
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4">
@@ -220,7 +158,13 @@ const Payroll = () => {
           >
             Bank Letter
           </Button>
-          <Button type="primary" className="p-6">
+          <Button
+            type="primary"
+            className="p-6"
+            onClick={handleGeneratePayroll}
+            loading={isCreatingPayroll || loading}
+            disabled={isCreatingPayroll || loading}
+          >
             Generate Payroll
           </Button>
         </div>
@@ -259,7 +203,7 @@ const Payroll = () => {
       </Row>
       <div className="overflow-x-auto scrollbar-none">
         <Table
-          dataSource={dataSource}
+          dataSource={payroll}
           columns={columns}
           pagination={{
             current: currentPage,
