@@ -261,5 +261,7 @@ export const useOKRStore = create<OKRState>()(
       set({ companyCurrentPage }),
     okrTab: 1,
     setOkrTab: (okrTab: number | string) => set({ okrTab }),
+    alignment: false,
+    setAlignment: (alignment: boolean) => set({ alignment }),
   })),
 );

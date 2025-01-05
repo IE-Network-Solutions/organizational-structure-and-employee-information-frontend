@@ -20,6 +20,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     handleKeyResultChange,
     handleSingleKeyResultChange,
     removeKeyResultValue,
+    objectiveValue,
   } = useOKRStore();
 
   const handleChange = (value: any, field: string) => {
@@ -115,7 +116,14 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               }}
               format="YYYY-MM-DD"
               disabledDate={(current) => {
-                return current && current < dayjs().startOf('day');
+                const startOfToday = dayjs().startOf('day');
+                const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
+
+                // Disable dates before today and above the objective deadline
+                return (
+                  current &&
+                  (current < startOfToday || current > objectiveDeadline)
+                );
               }}
               aria-label="Key Result Deadline"
             />
