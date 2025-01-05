@@ -219,6 +219,7 @@ function EditPlan() {
                                                 }
                                                 userId={userId}
                                                 planningUserId={planningUserId}
+                                                keyResult={kr}
                                               />
                                             )}
                                           <BoardCardForm
@@ -230,6 +231,8 @@ function EditPlan() {
                                             kId={kr?.id}
                                             hideTargetValue={hasTargetValue}
                                             name={kr?.id + ml?.id}
+                                            keyResult={kr}
+
                                           />
                                         </>
                                       </>
@@ -265,6 +268,8 @@ function EditPlan() {
                                     planningPeriodId={planningPeriodId}
                                     userId={userId}
                                     planningUserId={planningUserId}
+                                    keyResult={kr}
+
                                   />
                                 )}
                                 <BoardCardForm
@@ -274,6 +279,8 @@ function EditPlan() {
                                   kId={kr?.id}
                                   hideTargetValue={hasTargetValue}
                                   name={kr?.id}
+                                  keyResult={kr}
+
                                 />
                               </>
                             )}
