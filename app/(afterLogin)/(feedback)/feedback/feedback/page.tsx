@@ -8,6 +8,7 @@ import EmployeeSearchComponent from '@/components/common/search/searchComponent'
 import { useEffect } from 'react';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
+// import { FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
 import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
@@ -48,7 +49,7 @@ const Page = () => {
     setVariantType(key);
   };
   useEffect(() => {
-    if (getAllFeedbackTypes?.items?.length) {
+    if (getAllFeedbackTypes?.items?.length>0) {
       setActiveTab(getAllFeedbackTypes.items[0].id);
     }
   }, [getAllFeedbackTypes]);
@@ -119,17 +120,6 @@ const Page = () => {
       key: 'reason',
     },
     {
-      title: 'Reciepent',
-      dataIndex: 'recipientId',
-      key: 'recipientId',
-      render: (notused: any, record: any) => {
-        const user = getAllUsers?.items?.find(
-          (item: any) => item.id === record.recipientId,
-        );
-        return user ? `${user.firstName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
-      },
-    },
-    {
       title: 'Given Date',
       dataIndex: 'createdAt',
       key: 'createdAt',
@@ -193,9 +183,11 @@ const Page = () => {
       widthRatio: 0.5,
     },
   ];
+
+
   return (
     <TabLandingLayout
-      buttonTitle="Generate report"
+      // buttonTitle="Generate report"
       id="conversationLayoutId"
       onClickHandler={() => {}}
       title="Feedback"
@@ -235,6 +227,8 @@ const Page = () => {
           buttonIcon={<PiPlus />}
           id="conversationLayoutId"
           onClickHandler={() => setOpen(true)}
+          disabledMessage='Please select a feedback type'
+          buttonDisabled={activeTab===''}
           title={<div className="text-lg">{variantType}</div>}
           subtitle={`Given up on  ${variantType}`}
           allowSearch={false}
