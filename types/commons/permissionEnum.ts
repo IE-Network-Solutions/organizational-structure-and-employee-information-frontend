@@ -23,6 +23,10 @@ export enum Permissions {
   UpdatePayPeriod = 'update-pay-period',
   DeletePayPeriod = 'delete-pay-period',
 
+  // Employee details/Offboarding menu permission
+  DownloadOffBoardingTasksReport = 'download-off-boarding-tasks-report',
+  DeletedOffBoardingTasks = 'delete-off-boarding-tasks',
+
   // Could not be found Permissions that needs to be changed
   ViewAllEmployeePlan = 'view-all-employee-plan',
   ViewAllPlan = 'view-all-plan',
