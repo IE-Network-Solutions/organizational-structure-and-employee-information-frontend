@@ -317,7 +317,10 @@ const ScoringDrawer: React.FC = () => {
           <Select
             mode="multiple"
             placeholder="Add Users"
-            className="w-full h-12"
+            className="w-full "
+            style={{
+              overflow: 'auto',
+            }}
           >
             {filteredUsers.length > 0
               ? filteredUsers.map((user: any) => (
@@ -344,7 +347,10 @@ const ScoringDrawer: React.FC = () => {
             mode="multiple"
             placeholder="Select criteria"
             onChange={handleCriteriaChange}
-            className="flex-1 h-12"
+            className="flex-1 w-full "
+            style={{
+              overflow: 'auto',
+            }}
           >
             {criteriaData?.items?.map((criteria: any) => (
               <Option key={criteria.id} value={criteria.name}>
