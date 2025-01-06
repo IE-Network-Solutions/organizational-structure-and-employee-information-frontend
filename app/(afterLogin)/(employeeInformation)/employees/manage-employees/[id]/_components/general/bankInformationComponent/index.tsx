@@ -7,7 +7,7 @@ import { Card, Col, Input, Form, Row, Button } from 'antd';
 import React from 'react';
 import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../../common/infoLine';
-import { PermissionWrapper } from '@/utils/permissionGuard';
+import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
 const BankInformationComponent = ({ handleSaveChanges, id }: any) => {
@@ -24,12 +24,16 @@ const BankInformationComponent = ({ handleSaveChanges, id }: any) => {
       loading={isLoading}
       title="Bank Information"
       extra={
-        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
+        <AccessGuard
+          permissions={[Permissions.UpdateEmployeeDetails]}
+          selfShouldAccess
+          id={id}
+        >
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('bankInformation')}
           />
-        </PermissionWrapper>
+        </AccessGuard>
       }
       className="my-6"
     >
@@ -46,15 +50,22 @@ const BankInformationComponent = ({ handleSaveChanges, id }: any) => {
           <Row gutter={[16, 24]}>
             <Col lg={16}>
               {Object.entries(
-                employeeData?.employeeInformation?.bankInformation || {},
+                employeeData?.employeeInformation?.bankInformation || {
+                  bankName: '',
+                  branch: '',
+                  accountName: '',
+                  accountNumber: '',
+                },
               ).map(([key, val]) => (
                 <Form.Item
                   key={key}
                   name={key}
                   label={key}
-                  rules={[
-                    { required: true, message: `Please enter the ${key}` },
-                  ]} // Example validation
+                  rules={
+                    ['bankName', 'accountNumber'].includes(key)
+                      ? [{ required: true, message: `Please enter the ${key}` }]
+                      : []
+                  }
                 >
                   <Input placeholder={key} defaultValue={val?.toString()} />
                 </Form.Item>

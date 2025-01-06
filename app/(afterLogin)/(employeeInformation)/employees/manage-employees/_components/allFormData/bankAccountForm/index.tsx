@@ -22,6 +22,7 @@ const BankInformationForm = () => {
             label="Bank Name"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('Bank Name', value)
                     ? Promise.resolve()
@@ -42,8 +43,9 @@ const BankInformationForm = () => {
             label="Branch"
             rules={[
               {
+                required: false,
                 validator: (rule, value) =>
-                  !validateName('Branch', value)
+                  !validateName('Branch', value, false)
                     ? Promise.resolve()
                     : Promise.reject(
                         new Error(validateName('Branch', value) || ''),
@@ -64,8 +66,9 @@ const BankInformationForm = () => {
             id="bankInformationAccountName"
             rules={[
               {
+                required: false,
                 validator: (rule, value) =>
-                  !validateName('Account Name', value)
+                  !validateName('Account Name', value, false)
                     ? Promise.resolve()
                     : Promise.reject(
                         new Error(validateName('Account Name', value) || ''),

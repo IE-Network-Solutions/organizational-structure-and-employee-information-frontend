@@ -6,7 +6,10 @@ import WorkScheduleComponent from './workSchedule';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { CreateEmployeeJobInformation } from './addEmployeeJobInfrmation';
 import { FaPlus } from 'react-icons/fa';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 import DownloadJobInformation from './downloadJobInformation';
+import BasicSalary from './basicSalary';
 
 function Job({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -108,10 +111,11 @@ function Job({ id }: { id: string }) {
         title={'Job Information'}
         extra={
           <div className=" flex items-center justify-center gap-3">
-            <FaPlus
-              onClick={handleAddEmployeeJobInformation}
-              className="text-xl"
-            />
+            <AccessGuard
+              permissions={[Permissions.UpdateEmployeeJobInformation]}
+            >
+              <FaPlus onClick={handleAddEmployeeJobInformation} />
+            </AccessGuard>
             <DownloadJobInformation id={id} />
           </div>
         }
@@ -125,6 +129,7 @@ function Job({ id }: { id: string }) {
       </Card>
       <WorkScheduleComponent id={id} />
       <CreateEmployeeJobInformation id={id} />
+      <BasicSalary id={id} />
     </>
   );
 }

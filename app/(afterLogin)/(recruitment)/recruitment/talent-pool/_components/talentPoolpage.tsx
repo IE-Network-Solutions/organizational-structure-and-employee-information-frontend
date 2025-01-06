@@ -5,6 +5,8 @@ import CandidateTable from './talentPoolTable';
 import Pagination from './pagination';
 import { Button } from 'antd';
 import AddCandidate from './addDrawer';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 // import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const TalentPoolPage = () => {
@@ -28,9 +30,11 @@ const TalentPoolPage = () => {
             This is the talent pool data of the candidates
           </div>
         </div>
-        <Button className="h-12" type="primary" onClick={handleAdd}>
-          Add Candidate to Talent Pool
-        </Button>
+        <AccessGuard permissions={[Permissions.TransferCandidate]}>
+          <Button className="h-12" type="primary" onClick={handleAdd}>
+            Add Candidate to Talent Pool
+          </Button>
+        </AccessGuard>
       </div>
 
       <Filters />

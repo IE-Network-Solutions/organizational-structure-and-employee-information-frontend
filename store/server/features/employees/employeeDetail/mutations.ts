@@ -71,7 +71,7 @@ const updateEmployeeInformation = async (id: string, values: any) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/users/update/user-info/by-user-id/${id}`,
+    url: `${ORG_AND_EMP_URL}/users/${id}`,
     method: 'patch',
     headers: {
       Authorization: `Bearer ${token}`,

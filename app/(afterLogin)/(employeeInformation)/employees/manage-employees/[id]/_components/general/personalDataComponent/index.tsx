@@ -10,7 +10,7 @@ import { useGetNationalities } from '@/store/server/features/employees/employeeM
 import { InfoLine } from '../../common/infoLine';
 import dayjs from 'dayjs';
 import UpdateUserInfo from './updateUserInfo';
-import { PermissionWrapper } from '@/utils/permissionGuard';
+import PermissionWrapper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import ChangePasswordModal from './_components/changePasswordModal';
 import { useModalStore } from '@/store/uistate/features/authentication/changePasswordModal';
@@ -39,7 +39,11 @@ function PersonalDataComponent({
         loading={isLoading}
         title="Personal Info"
         extra={
-          <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
+          <PermissionWrapper
+            permissions={[Permissions.UpdateEmployeeDetails]}
+            selfShouldAccess
+            id={id}
+          >
             <LuPencil
               className="cursor-pointer text-black"
               color="#BFBFBF"
@@ -219,9 +223,11 @@ function PersonalDataComponent({
                 <InfoLine
                   title="Joined Date"
                   value={
-                    dayjs(
-                      employeeData?.employeeInformation?.joinedDate,
-                    )?.format('DD MMMM, YYYY') || '-'
+                    employeeData?.employeeInformation?.joinedDate
+                      ? dayjs(
+                          employeeData?.employeeInformation?.joinedDate,
+                        )?.format('DD MMMM, YYYY')
+                      : '-'
                   }
                 />
               </Col>

@@ -24,22 +24,24 @@ import WorkScheduleForm from '../allFormData/workScheduleForm';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import dayjs from 'dayjs';
 import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
-import { PermissionWrapper } from '@/utils/permissionGuard';
+import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 const columns: TableColumnsType<EmployeeData> = [
   {
-    title: 'Employee Id',
+    title: 'Id',
     dataIndex: 'employee_attendance_id',
     sorter: (a, b) => {
       const idA = a.employee_attendance_id ?? 0;
       const idB = b.employee_attendance_id ?? 0;
       return idA - idB;
     },
+    width: 70,
   },
   {
     title: 'Employee Name',
     dataIndex: 'employee_name',
     ellipsis: true,
+    width: 150,
   },
   {
     title: 'Job Position',
@@ -181,16 +183,17 @@ const UserTable = () => {
       role: item?.role?.name ? item?.role?.name : ' - ',
       action: (
         <div className="flex gap-4 text-white">
-          <Link href={`manage-employees/${item?.id}`}>
-            <Button
-              id={`editUserButton${item?.id}`}
-              disabled={item?.deletedAt !== null}
-              className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
-            >
-              <FaEye />
-            </Button>
-          </Link>
-          <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
+          <AccessGuard permissions={[Permissions.ViewEmployeeDetail]}>
+            <Link href={`manage-employees/${item?.id}`}>
+              <Button
+                id={`editUserButton${item?.id}`}
+                className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
+              >
+                <FaEye />
+              </Button>
+            </Link>
+          </AccessGuard>
+          <AccessGuard permissions={[Permissions.DeleteEmployee]}>
             {item.deletedAt === null ? (
               <Tooltip title={'Deactive Employee'}>
                 <Button
@@ -214,7 +217,7 @@ const UserTable = () => {
                   value={'submit'}
                   name="submit"
                   onClick={(e) => {
-                    e.stopPropagation(); // Stop event propagation
+                    e.stopPropagation();
                     handelRehireModal(item);
                   }}
                   disabled={item.deletedAt === null}
@@ -223,7 +226,7 @@ const UserTable = () => {
                 </Button>
               </Tooltip>
             )}
-          </PermissionWrapper>
+          </AccessGuard>
         </div>
       ),
     };

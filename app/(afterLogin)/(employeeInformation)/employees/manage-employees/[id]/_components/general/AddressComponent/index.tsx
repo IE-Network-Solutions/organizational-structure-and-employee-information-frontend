@@ -7,7 +7,7 @@ import {
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../../common/infoLine';
-import { PermissionWrapper } from '@/utils/permissionGuard';
+import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
 const AddressComponent = ({
@@ -28,12 +28,16 @@ const AddressComponent = ({
       loading={isLoading}
       title="Address"
       extra={
-        <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
+        <AccessGuard
+          permissions={[Permissions.UpdateEmployeeDetails]}
+          selfShouldAccess
+          id={id}
+        >
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('addresses')}
           />
-        </PermissionWrapper>
+        </AccessGuard>
       }
       className="my-6"
     >
@@ -48,7 +52,10 @@ const AddressComponent = ({
           <Row gutter={[16, 24]}>
             <Col lg={16}>
               {Object.entries(
-                employeeData?.employeeInformation?.addresses || {},
+                employeeData?.employeeInformation?.addresses || {
+                  country: '',
+                  city: '',
+                },
               ).map(([key, val]) => (
                 <Form.Item
                   key={key}

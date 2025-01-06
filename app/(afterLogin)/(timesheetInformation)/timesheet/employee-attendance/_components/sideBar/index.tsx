@@ -155,8 +155,7 @@ const EmployeeAttendanceSideBar = () => {
           footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
           width="400px"
         >
-          <Spin size="large" spinning={!employeeData?.employeeJobInformation} />
-          <Spin spinning={isAttendanceLoading || isUserLoading}>
+          <Spin size="large" spinning={isAttendanceLoading || isUserLoading}>
             <Form
               layout="vertical"
               form={form}

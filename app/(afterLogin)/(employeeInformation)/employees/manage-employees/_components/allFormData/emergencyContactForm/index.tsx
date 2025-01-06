@@ -1,21 +1,16 @@
 import React from 'react';
-import { Col, DatePicker, Form, Input, Row, Select } from 'antd';
+import { Col, Form, Input, Row, Select } from 'antd';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import AddCustomField from '../../addCustomField';
 import DynamicFormFields from '../../dynamicFormDisplayer';
 import UseSetCategorizedFormData from '../../customField';
-import { validateEmail, validateName } from '@/utils/validation';
-import dayjs from 'dayjs';
+import { validateName, validatePhoneNumber } from '@/utils/validation';
 
 const { Option } = Select;
 
 const EmergencyContactForm = () => {
   const { data: nationalities } = useGetNationalities();
   const emergencyContactForm = UseSetCategorizedFormData('emergencyContact');
-
-  const disableFutureDates = (current: any) => {
-    return current && current > dayjs().endOf('day');
-  };
 
   return (
     <div>
@@ -27,10 +22,11 @@ const EmergencyContactForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'firstName']}
-            label="Full Name"
-            id="emergencyContactFullName"
+            label="First Name"
+            id="emergencyContactFirstName"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('Full Name', value)
                     ? Promise.resolve()
@@ -51,6 +47,7 @@ const EmergencyContactForm = () => {
             id="emergencyContactLastName"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('Last Name', value)
                     ? Promise.resolve()
@@ -68,15 +65,18 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'email']}
-            label="Email Address"
-            id="emergencyContactEmailAddress"
+            name={['emergencyContact', 'phoneNumber']}
+            label="Phone Number"
+            id="phoneNumber"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
-                  !validateEmail(value)
+                  !validatePhoneNumber(value)
                     ? Promise.resolve()
-                    : Promise.reject(new Error(validateEmail(value) || '')),
+                    : Promise.reject(
+                        new Error(validatePhoneNumber(value) || ''),
+                      ),
               },
             ]}
           >
@@ -99,17 +99,6 @@ const EmergencyContactForm = () => {
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col xs={24} sm={12}>
-          <Form.Item
-            className="font-semibold text-xs"
-            name={['emergencyContact', 'dateOfBirth']}
-            label="Date of Birth"
-            id="emergencyContactDateOfBirth"
-            rules={[{ required: true }]}
-          >
-            <DatePicker className="w-full" disabledDate={disableFutureDates} />
-          </Form.Item>
-        </Col>
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"

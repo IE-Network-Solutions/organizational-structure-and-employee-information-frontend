@@ -12,6 +12,8 @@ import { useBranchStore } from '@/store/uistate/features/organizationStructure/b
 import DeleteModal from '@/components/common/deleteModal';
 import { BiPlus } from 'react-icons/bi';
 import BranchForm from '@/app/(afterLogin)/(employeeInformation)/_components/branchForm';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const Branches = () => {
   const { data: branches, isLoading } = useGetBranches();
@@ -65,10 +67,14 @@ const Branches = () => {
 
   const menu = (branch: Branch) => (
     <Menu>
-      <Menu.Item onClick={() => handleEdit(branch)}>Edit</Menu.Item>
-      <Menu.Item danger onClick={() => showDeleteModal(branch)}>
-        Delete
-      </Menu.Item>
+      <AccessGuard permissions={[Permissions.UpdateBranch]}>
+        <Menu.Item onClick={() => handleEdit(branch)}>Edit</Menu.Item>
+      </AccessGuard>
+      <AccessGuard permissions={[Permissions.DeleteBranch]}>
+        <Menu.Item danger onClick={() => showDeleteModal(branch)}>
+          Delete
+        </Menu.Item>
+      </AccessGuard>
     </Menu>
   );
   return (
@@ -78,10 +84,11 @@ const Branches = () => {
           <h2 className="text-xl custom:text-xl md:text-2xl lg:text-4xl font-semibold">
             Branches
           </h2>
-
-          <Button icon={<BiPlus />} type="primary" onClick={handleAddNew}>
-            Add
-          </Button>
+          <AccessGuard permissions={[Permissions.CreateBranch]}>
+            <Button icon={<BiPlus />} type="primary" onClick={handleAddNew}>
+              Add
+            </Button>
+          </AccessGuard>
         </div>
         <List
           className="max-h-[400px] overflow-y-scroll"
