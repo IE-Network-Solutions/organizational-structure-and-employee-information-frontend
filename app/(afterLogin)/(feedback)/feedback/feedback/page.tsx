@@ -216,7 +216,7 @@ const Page = () => {
                   Vs Last Week
                 </p>
               </div>
-              <p className="text-gray-400 capitalize">
+              <p className="text-gray-400 capitalize my-1">
                 Total number of appreciations received
               </p>
               <p className="font-bold text-lg">010</p>
