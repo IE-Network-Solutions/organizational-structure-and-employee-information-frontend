@@ -3,6 +3,7 @@ import TabLandingLayout from '@/components/tabLanding';
 import { useGetRecognitionById } from '@/store/server/features/CFR/recognition/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { Card, Col, Row, Table, TableColumnsType } from 'antd';
+import dayjs from 'dayjs';
 import React from 'react';
 interface Params {
   id: string;
@@ -14,6 +15,7 @@ interface RecognitionDetailsProps {
 function Page({ params: { id } }: RecognitionDetailsProps) {
   const { data: allUserData } = useGetAllUsers();
   const { data: getRecognitionById } = useGetRecognitionById(id);
+
   const getEmployeeData = (employeeId: string) => {
     const employeeDataDetail = allUserData?.items?.find(
       (emp: any) => emp?.id === employeeId,
@@ -24,7 +26,7 @@ function Page({ params: { id } }: RecognitionDetailsProps) {
     {
       title: 'Criteria',
       dataIndex: 'criterionKey',
-      render: (value) => <span>{value ?? '-'}</span>,
+      render: (value) => <span>{value ?? '-'}</span>, 
     },
     {
       title: 'Weight',
@@ -82,7 +84,11 @@ function Page({ params: { id } }: RecognitionDetailsProps) {
                   <Col span={8} style={{ fontWeight: 'bold' }}>
                     Issued Date
                   </Col>
-                  <Col span={12}>{getRecognitionById?.dateIssued || 'N/A'}</Col>
+                  <Col span={12}>
+                    {getRecognitionById?.dateIssued 
+                      ? dayjs(getRecognitionById.dateIssued).format('MMMM D, YYYY') // Format as "Month Day, Year"
+                      : 'N/A'}
+                  </Col>
                 </Row>
               </Col>
               <Col span={24}>
