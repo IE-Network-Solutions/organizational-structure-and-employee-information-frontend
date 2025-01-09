@@ -12,7 +12,6 @@ import {
   useDeleteKeyResult,
   useDeleteMilestone,
 } from '@/store/server/features/okrplanning/okr/objective/mutations';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const MilestoneView: React.FC<OKRProps> = ({
   keyValue,
@@ -31,10 +30,7 @@ const MilestoneView: React.FC<OKRProps> = ({
     handleMilestoneSingleChange,
     removeKeyResultValue,
   } = useOKRStore();
-  const milestoneWeightSum = keyValue?.milestones.reduce(
-    (acc, milestone) => acc + milestone.weight,
-    0,
-  );
+ 
   const handleAddMilestone = (index: number) => {
     const newMilestone: Milestone = {
       title: '',
@@ -105,17 +101,13 @@ const MilestoneView: React.FC<OKRProps> = ({
     }
   };
   const addMilestone = (index: number) => {
-    if (milestoneWeightSum >= 100) {
-      NotificationMessage?.warning({
-        message: 'Please Milestone weight should be not greater than 100 ',
-      });
-    } else {
+   
       if (isEdit) {
         handleAddMilestoneSingleMilestone();
       } else {
         handleAddMilestone(index);
       }
-    }
+   
   };
   const milestoneChange = (
     value: any,
