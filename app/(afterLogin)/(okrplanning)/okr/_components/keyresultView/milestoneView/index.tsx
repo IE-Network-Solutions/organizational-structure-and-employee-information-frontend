@@ -30,7 +30,7 @@ const MilestoneView: React.FC<OKRProps> = ({
     handleMilestoneSingleChange,
     removeKeyResultValue,
   } = useOKRStore();
- 
+
   const handleAddMilestone = (index: number) => {
     const newMilestone: Milestone = {
       title: '',
@@ -101,13 +101,11 @@ const MilestoneView: React.FC<OKRProps> = ({
     }
   };
   const addMilestone = (index: number) => {
-   
-      if (isEdit) {
-        handleAddMilestoneSingleMilestone();
-      } else {
-        handleAddMilestone(index);
-      }
-   
+    if (isEdit) {
+      handleAddMilestoneSingleMilestone();
+    } else {
+      handleAddMilestone(index);
+    }
   };
   const milestoneChange = (
     value: any,

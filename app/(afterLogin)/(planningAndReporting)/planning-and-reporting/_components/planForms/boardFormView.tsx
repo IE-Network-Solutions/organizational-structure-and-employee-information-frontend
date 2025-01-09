@@ -77,42 +77,60 @@ function BoardCardForm({
                   key={`${subName}-targetValue`}
                   rules={[
                     {
-                       /* eslint-disable @typescript-eslint/naming-convention */
-                      validator(_,value: any) {
-                         /* eslint-enable @typescript-eslint/naming-convention */
+                      /* eslint-disable @typescript-eslint/naming-convention */
+                      validator(_, value: any) {
+                        /* eslint-enable @typescript-eslint/naming-convention */
                         // Check if keyResult is available
-                        if (!keyResult || !keyResult.targetValue || !keyResult.currentValue) {
-                          return Promise.reject(new Error("Key result data is incomplete."));
+                        if (
+                          !keyResult ||
+                          !keyResult.targetValue ||
+                          !keyResult.currentValue
+                        ) {
+                          return Promise.reject(
+                            new Error('Key result data is incomplete.'),
+                          );
                         }
-                
-                  
+
                         // Skip validation for specific metric types
-                        if (keyResult?.metricType?.name === NAME.ACHIEVE || keyResult?.metricType?.name === NAME.MILESTONE) {
+                        if (
+                          keyResult?.metricType?.name === NAME.ACHIEVE ||
+                          keyResult?.metricType?.name === NAME.MILESTONE
+                        ) {
                           return Promise.resolve(); // Skip validation
                         }
-                  
+
                         // Handle null or undefined value
                         if (value === null || value === undefined) {
-                          return Promise.reject(new Error('Please enter a target value.'));
+                          return Promise.reject(
+                            new Error('Please enter a target value.'),
+                          );
                         }
-                  
+
                         // Ensure value is a valid number
                         const numericValue = Number(value);
                         if (isNaN(numericValue)) {
-                          return Promise.reject(new Error('Please enter a valid number.'));
+                          return Promise.reject(
+                            new Error('Please enter a valid number.'),
+                          );
                         }
-                  
+
                         // Validate against the key result limits
-                        if (numericValue <= keyResult.targetValue - keyResult.currentValue) {
+                        if (
+                          numericValue <=
+                          keyResult.targetValue - keyResult.currentValue
+                        ) {
                           return Promise.resolve(); // Validation passed
                         }
-                  
+
                         // Reject with custom error message
-                        return Promise.reject(new Error("Your target value shouldn't be greater than your key result target value."));
+                        return Promise.reject(
+                          new Error(
+                            "Your target value shouldn't be greater than your key result target value.",
+                          ),
+                        );
                       },
                     },
                   ]}
-                  
                 >
                   <InputNumber
                     className="w-28"

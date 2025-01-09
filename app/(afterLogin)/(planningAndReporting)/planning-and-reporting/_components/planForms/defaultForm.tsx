@@ -198,8 +198,8 @@ function DefaultCardForm({
                 key={`${field.key}-targetValue`} // Unique key for targetValue
                 rules={[
                   {
-                     /* eslint-disable @typescript-eslint/naming-convention */
-                     validator(_,value: any) {
+                    /* eslint-disable @typescript-eslint/naming-convention */
+                    validator(_, value: any) {
                       /* eslint-enable @typescript-eslint/naming-convention */
                       if (
                         keyResult?.metricType?.name === NAME.ACHIEVE ||
