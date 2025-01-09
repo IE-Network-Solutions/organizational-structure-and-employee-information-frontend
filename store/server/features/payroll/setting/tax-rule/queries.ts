@@ -24,7 +24,9 @@ const getTaxRule = async () => {
  * @param {string} activeFiscalYearId - The ID of the benefit to fetch.
  * @returns {Promise<any>} The response from the API.
  */
-const fetchActiveFiscalYearPayPeriods = async (activeFiscalYearId: string | undefined) => {
+const fetchActiveFiscalYearPayPeriods = async (
+  activeFiscalYearId: string | undefined,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -63,12 +65,14 @@ export const useGetTaxRuleById = (id: string) =>
  * @param {string | undefined} activeFiscalYearId - The ID of the active fiscal year to fetch pay periods for.
  * @returns {QueryObject} The query object for fetching the pay periods.
  */
-export const useFetchActiveFiscalYearPayPeriods = (activeFiscalYearId: string | undefined) => {
+export const useFetchActiveFiscalYearPayPeriods = (
+  activeFiscalYearId: string | undefined,
+) => {
   return useQuery(
     ['payPeriods', activeFiscalYearId], // Use the fiscal year ID as part of the query key
     () => fetchActiveFiscalYearPayPeriods(activeFiscalYearId!),
     {
       enabled: !!activeFiscalYearId, // Ensure the query only runs when the ID is defined
-    }
+    },
   );
 };

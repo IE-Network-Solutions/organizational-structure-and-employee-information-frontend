@@ -199,7 +199,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           onChange={() => handleAlignment()}
           className="mb-4"
         >
-         Change Objective Name
+          Change Objective Name
         </Checkbox>
         <Row gutter={[16, 16]} className="w-full">
           {/* Objective/Alignment */}
@@ -210,7 +210,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               label="Supervisor Key Result"
               rules={[
                 {
-                  required: reportsToId?true: false,
+                  required: reportsToId ? true : false,
                   message: 'Please select a Supervisor Key Result',
                 },
               ]}

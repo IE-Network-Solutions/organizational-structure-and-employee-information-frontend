@@ -119,7 +119,11 @@ function CreatePlan() {
               (e: Record<string, any>, panelIndex: number) => {
                 return (
                   <Collapse.Panel
-                    header={` Objective ${e.title}`}
+                    header={
+                      <div>
+                        <strong>Objective:</strong> {e.title}
+                      </div>
+                    }
                     key={panelIndex}
                   >
                     {e?.keyResults?.map(
@@ -154,25 +158,7 @@ function CreatePlan() {
                                 </div>
 
                                 {hasMilestone ? (
-                                  <>
-                                    {kr?.milestones?.map(
-                                      (ml: Record<string, any>) => {
-                                        return (
-                                          <div
-                                            key={ml?.id}
-                                            className="flex items-center"
-                                          >
-                                            <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
-                                              {weights[
-                                                `names-${kr?.id + ml?.id}`
-                                              ] || 0}
-                                              %
-                                            </div>
-                                          </div>
-                                        );
-                                      },
-                                    )}
-                                  </>
+                                  <></>
                                 ) : (
                                   <>
                                     <div className="flex gap-3 items-center">
@@ -248,6 +234,13 @@ function CreatePlan() {
                                                 />
                                               </Tooltip>
                                             )}
+
+                                            <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
+                                              {weights[
+                                                `names-${kr?.id + ml?.id}`
+                                              ] || 0}
+                                              %
+                                            </div>
                                           </div>
                                         </div>
                                         <>
