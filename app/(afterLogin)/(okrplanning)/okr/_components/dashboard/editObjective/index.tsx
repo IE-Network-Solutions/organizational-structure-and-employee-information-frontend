@@ -210,7 +210,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               label="Supervisor Key Result"
               rules={[
                 {
-                  required: keyResultByUser?.items?.length ?true: false,
+                  required: reportsToId?true: false,
                   message: 'Please select a Supervisor Key Result',
                 },
               ]}
