@@ -11,6 +11,7 @@ pipeline {
 
 
        ORG_AND_EMP_URL="https://org-emp-backend.selamnew.com/api/v1"
+        PAYROLL_URL="payroll-backend.selamnew.com/api/v1"
 NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://okr-backend.selamnew.com/api/v1"
 OKR_URL="https://okr-backend.selamnew.com/api/v1"
 TENANT_MGMT_URL="https://test-tenant-backend.ienetworks.co/api/v1"
