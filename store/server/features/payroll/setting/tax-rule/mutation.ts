@@ -1,6 +1,6 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { PAYROLL_DEV_URL, PAYROLL_URL } from '@/utils/constants';
+import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
@@ -11,7 +11,7 @@ const createTaxRule = async (values: any) => {
 
   try {
     await crudRequest({
-      url: `${PAYROLL_DEV_URL}/tax-rules`,
+      url: `${PAYROLL_URL}/tax-rules`,
       method: 'POST',
       data: values,
       headers: {
@@ -51,7 +51,7 @@ const deleteTaxRule = async (id: string) => {
 
   try {
     await crudRequest({
-      url: `${PAYROLL_DEV_URL}/tax-rules/${id}`,
+      url: `${PAYROLL_URL}/tax-rules/${id}`,
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -160,7 +160,7 @@ const updateTaxRule = async ({ id, values }: { id: string; values: any }) => {
 
   try {
     await crudRequest({
-      url: `${PAYROLL_DEV_URL}/tax-rules/${id}`,
+      url: `${PAYROLL_URL}/tax-rules/${id}`,
       method: 'PUT',
       data: values,
       headers: {
