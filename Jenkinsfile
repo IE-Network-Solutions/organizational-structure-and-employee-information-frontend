@@ -9,6 +9,7 @@ pipeline {
         SSH_CREDENTIALS_ID = 'pepproduction'
 
 
+
        ORG_AND_EMP_URL="https://org-emp-backend.selamnew.com/api/v1"
 NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://okr-backend.selamnew.com/api/v1"
 OKR_URL="https://okr-backend.selamnew.com/api/v1"
@@ -71,6 +72,7 @@ NEXT_PUBLIC_APP_ID="1:649403733776:web:1adb71a0c8f60dafdcb795"
                         NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL=${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}
                         NEXT_PUBLIC_OKR_AND_PLANNING_URL=${OKR_URL}
                         OKR_URL=${OKR_URL}
+                         PAYROLL_URL=${ PAYROLL_URL}
                         NOTIFICATION_URL=${NOTIFICATION_URL}
                         RECRUITMENT_URL=${RECRUITMENT_URL}
                         PUBLIC_DOMAIN=${PUBLIC_DOMAIN}
