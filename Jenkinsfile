@@ -8,7 +8,7 @@ pipeline {
         REPO_DIR = 'osei-front'
         SSH_CREDENTIALS_ID = 'peptest'
 
-
+        PAYROLL_URL="https://payroll.ienetworks.co/api/v1"
        ORG_AND_EMP_URL="https://test-org-emp.ienetworks.co/api/v1"
 NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://test-okr-backend.ienetworks.co/api/v1"
 OKR_URL="https://test-okr-backend.ienetworks.co/api/v1"
@@ -71,6 +71,7 @@ NEXT_PUBLIC_APP_ID="1:871958776875:web:426ec9b0b49fc35df1ae6e"
                         NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL=${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}
                         NEXT_PUBLIC_OKR_AND_PLANNING_URL=${OKR_URL}
                         OKR_URL=${OKR_URL}
+                         PAYROLL_URL=${ PAYROLL_URL}
                         NOTIFICATION_URL=${NOTIFICATION_URL}
                         RECRUITMENT_URL=${RECRUITMENT_URL}
                         PUBLIC_DOMAIN=${PUBLIC_DOMAIN}
