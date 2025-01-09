@@ -183,7 +183,6 @@ const NumericForm: React.FC<OKRFormProps> = ({
                     required: true,
                     message: 'Please enter the initial value',
                   },
-                  
                 ]}
               >
                 <InputNumber

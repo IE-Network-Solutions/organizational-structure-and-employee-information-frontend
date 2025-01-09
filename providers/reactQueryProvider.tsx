@@ -84,8 +84,7 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   };
 
   return (
-    <Suspense fallback={<FullPageSpinner />}
-    >
+    <Suspense fallback={<FullPageSpinner />}>
       <QueryClientProvider client={queryClient}>
         {children}
         <ReactQueryDevtools />
