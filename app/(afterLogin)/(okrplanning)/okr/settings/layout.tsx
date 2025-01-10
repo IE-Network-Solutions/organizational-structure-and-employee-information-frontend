@@ -5,7 +5,6 @@ import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
 import { HiOutlineBriefcase } from 'react-icons/hi2';
 import { usePathname, useRouter } from 'next/navigation';
 import { RiAwardFill } from 'react-icons/ri';
-import { FaBomb } from 'react-icons/fa';
 
 interface OkrSettingsLayoutProps {
   children: ReactNode;
