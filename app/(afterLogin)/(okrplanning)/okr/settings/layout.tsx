@@ -5,7 +5,6 @@ import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
 import { HiOutlineBriefcase } from 'react-icons/hi2';
 import { usePathname, useRouter } from 'next/navigation';
 import { RiAwardFill } from 'react-icons/ri';
-import { FaBomb } from 'react-icons/fa';
 
 interface OkrSettingsLayoutProps {
   children: ReactNode;
@@ -79,44 +78,44 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
       },
       link: '/okr/settings/planning-assignation',
     },
-    {
-      item: {
-        key: 'define-appreciation',
-        icon: (
-          <RiAwardFill
-            className={
-              currentItem === 'define-appreciation'
-                ? 'text-[#4DAEF0]'
-                : 'text-gray-500'
-            }
-          />
-        ),
-        label: (
-          <p className="font-bold text-sm text-gray-900">Define Appreciation</p>
-        ),
-        className: currentItem === 'define-appreciation' ? 'px-4' : 'px-1',
-      },
-      link: '/okr/settings/define-appreciation',
-    },
-    {
-      item: {
-        key: 'define-reprimand',
-        icon: (
-          <FaBomb
-            className={
-              currentItem === 'define-reprimand'
-                ? 'text-[#4DAEF0]'
-                : 'text-gray-500'
-            }
-          />
-        ),
-        label: (
-          <p className="font-bold text-sm text-gray-900">Define Reprimand</p>
-        ),
-        className: currentItem === 'define-reprimand' ? 'px-4' : 'px-1',
-      },
-      link: '/okr/settings/define-reprimand',
-    },
+    // {
+    //   item: {
+    //     key: 'define-appreciation',
+    //     icon: (
+    //       <RiAwardFill
+    //         className={
+    //           currentItem === 'define-appreciation'
+    //             ? 'text-[#4DAEF0]'
+    //             : 'text-gray-500'
+    //         }
+    //       />
+    //     ),
+    //     label: (
+    //       <p className="font-bold text-sm text-gray-900">Define Appreciation</p>
+    //     ),
+    //     className: currentItem === 'define-appreciation' ? 'px-4' : 'px-1',
+    //   },
+    //   link: '/okr/settings/define-appreciation',
+    // },
+    // {
+    //   item: {
+    //     key: 'define-reprimand',
+    //     icon: (
+    //       <FaBomb
+    //         className={
+    //           currentItem === 'define-reprimand'
+    //             ? 'text-[#4DAEF0]'
+    //             : 'text-gray-500'
+    //         }
+    //       />
+    //     ),
+    //     label: (
+    //       <p className="font-bold text-sm text-gray-900">Define Reprimand</p>
+    //     ),
+    //     className: currentItem === 'define-reprimand' ? 'px-4' : 'px-1',
+    //   },
+    //   link: '/okr/settings/define-reprimand',
+    // },
     {
       item: {
         key: 'define-okr-rule',

@@ -39,7 +39,7 @@ const Page = () => {
 
   return (
     <div>
-      <div className='flex justify-start'>
+      <div className="flex justify-start">
         <Tabs
           className="max-w-[850px] overflow-x-scrollable"
           defaultActiveKey="1"
@@ -47,17 +47,16 @@ const Page = () => {
           onChange={onChange}
         />
         <AccessGuard permissions={[Permissions.CreateRecognition]}>
-            <Button
-              onClick={() => setOpenRecognitionType(true)}
-              icon={<FaPlus />}
-              type="primary"
-              className="flex gap-2"
-            >
-              Category
-            </Button>
-          </AccessGuard>
+          <Button
+            onClick={() => setOpenRecognitionType(true)}
+            icon={<FaPlus />}
+            type="primary"
+            className="flex gap-2"
+          >
+            Category
+          </Button>
+        </AccessGuard>
       </div>
-     
 
       <CustomDrawerLayout
         open={open}

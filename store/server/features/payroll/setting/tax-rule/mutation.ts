@@ -1,6 +1,6 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { PAYROLL_DEV_URL, PAYROLL_URL } from '@/utils/constants';
+import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
@@ -11,7 +11,7 @@ const createTaxRule = async (values: any) => {
 
   try {
     await crudRequest({
-      url: `${PAYROLL_DEV_URL}/tax-rules`,
+      url: `${PAYROLL_URL}/tax-rules`,
       method: 'POST',
       data: values,
       headers: {
@@ -51,7 +51,7 @@ const deleteTaxRule = async (id: string) => {
 
   try {
     await crudRequest({
-      url: `${PAYROLL_DEV_URL}/tax-rules/${id}`,
+      url: `${PAYROLL_URL}/tax-rules/${id}`,
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -122,7 +122,11 @@ const deletePayPeriod = async (payPeriodId: string) => {
  * @param {string} status - The new status of the pay period (e.g., 'OPEN' or 'CLOSED').
  * @returns {Promise<any>} The response from the API.
  */
-const changePayPeriodStatus = async (payPeriodId: string, status: string, activeFiscalYearId: string | undefined): Promise<any> => {
+const changePayPeriodStatus = async (
+  payPeriodId: string,
+  status: string,
+  activeFiscalYearId: string | undefined,
+): Promise<any> => {
   const { token, tenantId } = useAuthenticationStore.getState();
 
   const headers = {
@@ -160,7 +164,7 @@ const updateTaxRule = async ({ id, values }: { id: string; values: any }) => {
 
   try {
     await crudRequest({
-      url: `${PAYROLL_DEV_URL}/tax-rules/${id}`,
+      url: `${PAYROLL_URL}/tax-rules/${id}`,
       method: 'PUT',
       data: values,
       headers: {
@@ -238,13 +242,22 @@ export const useChangePayPeriodStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ payPeriodId, status, activeFiscalYearId }: { payPeriodId: string; status: string, activeFiscalYearId: string | undefined }) =>
-      changePayPeriodStatus(payPeriodId, status, activeFiscalYearId),
+    ({
+      payPeriodId,
+      status,
+      activeFiscalYearId,
+    }: {
+      payPeriodId: string;
+      status: string;
+      activeFiscalYearId: string | undefined;
+    }) => changePayPeriodStatus(payPeriodId, status, activeFiscalYearId),
     {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries('payPeriods');
-        handleSuccessMessage(`Pay period status changed to ${variables.status.toUpperCase()}`);
-      }
-    }
+        handleSuccessMessage(
+          `Pay period status changed to ${variables.status.toUpperCase()}`,
+        );
+      },
+    },
   );
 };

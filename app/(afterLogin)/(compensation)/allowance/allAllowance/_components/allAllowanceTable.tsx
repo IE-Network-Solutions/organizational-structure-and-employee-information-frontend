@@ -7,7 +7,8 @@ import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allo
 
 const AllAllowanceTable = () => {
   const { data: allCompensationsData, isLoading } = useFetchAllowances();
-  const { currentPage, pageSize, setCurrentPage, setPageSize} = useAllAllowanceStore();
+  const { currentPage, pageSize, setCurrentPage, setPageSize } =
+    useAllAllowanceStore();
 
   const allAllowanceEntitlementData = Array.isArray(allCompensationsData)
     ? allCompensationsData.filter(
