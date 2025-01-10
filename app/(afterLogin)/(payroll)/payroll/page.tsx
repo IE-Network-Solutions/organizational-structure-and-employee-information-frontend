@@ -8,25 +8,17 @@ import {
   useGetPayRoll,
 } from '@/store/server/features/payroll/payroll/queries';
 import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutation';
-import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-management/_components/criteria-drawer';
 
 const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
   const { data: payroll } = useGetPayRoll();
-  const {
-    data: allActiveSalary,
-    isLoading,
-    isError,
-  } = useGetAllActiveBasicSalary();
+  const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const {
     mutate: createPayroll,
     isLoading: isCreatingPayroll,
     isSuccess: isCreatePayrollSuccess,
   } = useCreatePayroll();
-
-  const { data: activeYears } = useGetAllFiscalYears();
 
   useEffect(() => {
     if (isCreatePayrollSuccess) {
@@ -35,9 +27,7 @@ const Payroll = () => {
         description: 'Payroll has been successfully generated.',
       });
     }
-    console.log('----------------------payroll------------', payroll);
-    console.log('----------------------activeYears------------', activeYears);
-  }, [isCreatePayrollSuccess, payroll, activeYears]);
+  }, [isCreatePayrollSuccess]);
 
   const [loading, setLoading] = useState(false);
 
@@ -138,9 +128,7 @@ const Payroll = () => {
     },
   ];
 
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-  };
+  const handleSearch = () => {};
   return (
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4">
