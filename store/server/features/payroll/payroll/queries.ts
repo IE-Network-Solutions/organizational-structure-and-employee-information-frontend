@@ -30,4 +30,18 @@ const getAllActiveBasicSalary = async () => {
   });
 };
 export const useGetAllActiveBasicSalary = () =>
-  useQuery('payroll', getAllActiveBasicSalary);
+  useQuery('allBasicSalary', getAllActiveBasicSalary);
+
+const getActivePayroll = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${PAYROLL_DEV_URL}/payroll/find-all-payroll-by-pay-period`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+export const useGetActivePayroll = () => useQuery('payroll', getActivePayroll);

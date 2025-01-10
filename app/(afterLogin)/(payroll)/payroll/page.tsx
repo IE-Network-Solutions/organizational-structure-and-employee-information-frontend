@@ -4,16 +4,17 @@ import { Table, Card, Row, Col, Button, notification } from 'antd';
 import { ArrowUpOutlined } from '@ant-design/icons';
 import Filters from './_components/filters';
 import {
+  useGetActivePayroll,
   useGetAllActiveBasicSalary,
-  useGetPayRoll,
 } from '@/store/server/features/payroll/payroll/queries';
 import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutation';
 import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-management/_components/criteria-drawer';
 
 const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const { data: payroll } = useGetPayRoll();
+  const { data: payroll } = useGetActivePayroll();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
+
   const {
     mutate: createPayroll,
     isLoading: isCreatingPayroll,

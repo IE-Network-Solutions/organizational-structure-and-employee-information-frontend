@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Col, Input, Row, Select } from 'antd';
+import { Col, Row, Select } from 'antd';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const { Option } = Select;
 
@@ -10,10 +11,13 @@ interface FiltersProps {
 
 const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
+  const { data: employeeData } = useGetAllUsers();
+
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
   const [fiscalYears, setFiscalYears] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [months, setMonths] = useState<any[]>([]);
+  const [filteredEmployees, setFilteredEmployees] = useState<any[]>([]);
 
   useEffect(() => {
     if (getAllFiscalYears) {
@@ -42,8 +46,13 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
     }
   }, [getAllFiscalYears]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  useEffect(() => {
+    if (employeeData) {
+      setFilteredEmployees(employeeData.items || []);
+    }
+  }, [employeeData]);
+
+  const handleEmployeeSelect = (value: string) => {
     setSearchValue((prev) => ({ ...prev, employeeId: value }));
     onSearch('employeeId', value);
   };
@@ -72,12 +81,43 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
         style={{ flexWrap: 'wrap' }}
       >
         <Col xl={8} lg={10} md={12} sm={24} xs={24}>
-          <Input
+          <Select
+            showSearch
             placeholder="Search by Name"
-            onChange={handleInputChange}
+            onChange={handleEmployeeSelect}
+            value={
+              filteredEmployees.find(
+                (employee) => employee.id === searchValue.employeeId,
+              )
+                ? `${
+                    filteredEmployees.find(
+                      (employee) => employee.id === searchValue.employeeId,
+                    )?.firstName
+                  } ${
+                    filteredEmployees.find(
+                      (employee) => employee.id === searchValue.employeeId,
+                    )?.lastName
+                  }`
+                : ''
+            }
             allowClear
-            style={{ height: '48px' }}
-          />
+            style={{ width: '100%', height: '48px' }}
+            onSearch={(value) => {
+              setSearchValue((prev) => ({ ...prev, employeeId: value }));
+            }}
+          >
+            {filteredEmployees
+              .filter((employee) =>
+                employee.firstName
+                  ?.toLowerCase()
+                  ?.includes(searchValue.employeeId?.toLowerCase() || ''),
+              )
+              .map((employee) => (
+                <Option key={employee.id} value={employee.id}>
+                  {employee.firstName} &nbsp; {employee.lastName}
+                </Option>
+              ))}
+          </Select>
         </Col>
 
         <Col xl={4} lg={5} md={6} sm={12} xs={24}>
@@ -129,6 +169,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
             ))}
           </Select>
         </Col>
+
         <Col xl={4} lg={5} md={6} sm={12} xs={24}>
           <Select
             placeholder="Pay Period"
