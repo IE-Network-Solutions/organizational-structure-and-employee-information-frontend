@@ -52,8 +52,8 @@ const PlanAssignment: React.FC = () => {
     );
 
     // Destructure firstName and lastName with fallback
-    const firstName = employee?.firstName || 'unknown';
-    const lastName = employee?.lastName || 'unknown';
+    const firstName = employee?.firstName || '-';
+    const lastName = employee?.lastName || '';
 
     return `${firstName} ${lastName}`;
   };
