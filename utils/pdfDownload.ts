@@ -100,7 +100,7 @@ export const handlePDFDownload = (
 
         // Draw Table Rows
         doc.setTextColor('#444444');
-        rows.forEach((row: Array<string | number>, rowIndex: number) => {
+        rows.forEach((row: Array<string | number>) => {
             const rowData = header.reduce((acc, headerValue, index) => {
                 acc[headerValue] = row[index];
                 return acc;
