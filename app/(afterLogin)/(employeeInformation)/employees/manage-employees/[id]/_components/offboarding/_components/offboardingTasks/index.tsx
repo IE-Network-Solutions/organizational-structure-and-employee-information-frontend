@@ -26,12 +26,12 @@ import { MdDelete } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { OffBoardingTasksUpdateStatus } from '@/store/server/features/employees/offboarding/interface';
-import jsPDF from 'jspdf';
 import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import dayjs from 'dayjs';
+import { handlePDFDownload } from '@/utils/pdfDownload';
 
 interface Ids {
   id: string;
@@ -100,9 +100,50 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
     error,
   } = useFetchOffboardingTasks(id);
   const { tenantId } = useAuthenticationStore.getState();
-  const { data: companyInfo } = useGetCompanyProfileByTenantId(tenantId);
+  const { data: companyDetails } = useGetCompanyProfileByTenantId(tenantId);
   const { data: userDetails } = useGetEmployee(id);
   const { userId } = useAuthenticationStore();
+
+  const employeeFullName = `${userDetails?.firstName || 'N/A'} ${userDetails?.lastName || 'N/A'}`;
+  const jobRole = userDetails?.employeeJobInformation?.[0].position?.name || 'N/A';
+  const joinedDate = dayjs(userDetails?.employeeJobInformation?.[0].effectiveStartDate).format('MMMM D, YYYY') || 'N/A';
+  const terminationDate = dayjs(offboardingTermination?.effectiveDate).format('MMMM D, YYYY') || 'N/A';
+  const companyName = companyDetails?.companyName || 'The company';
+  const address = companyDetails?.address || 'Address not provided';
+  const phoneNumber = companyDetails?.phoneNumber || 'Phone not available';
+  const companyEmail = companyDetails?.companyEmail || 'Email not provided';  
+  const downloadFileName = `Handover_Tasks_Report_${dayjs().format('YYYY-MM-DD_HH-mm')}.pdf`;
+  type TerminationType = 'Resignation' | 'Termination' | 'Death';
+  const terminationType: TerminationType = offboardingTermination?.type ?? 'Resignation';
+
+  const terminationDetails: Record<TerminationType, { verb: string; reason: string }> = {
+    Resignation: {
+      verb: 'submitted a formal resignation effective',
+      reason: `The reason for resignation was, ${offboardingTermination?.reason || 'not provided'}.`,
+    },
+    Termination: {
+      verb: 'was terminated effective',
+      reason: `The reason for termination was, ${offboardingTermination?.reason || 'not provided'}.`,
+    },
+    Death: {
+      verb: 'passed away on',
+      reason: `This document details the status and descriptions of all tasks, assigned approvers, and relevant handover details to ensure a smooth transition and operational continuity during this difficult time.`,
+    },
+  };
+
+  const defaultDetails = {
+    verb: `termination type was recorded as ${terminationType}`,
+    reason: '',
+  };
+  
+  const terminationInfo = terminationDetails[terminationType] || defaultDetails;
+  
+  // Construct the base paragraph
+  const baseParagraph = `
+    This report pertains to ${employeeFullName}, who served as ${jobRole} at ${companyName}.
+    The employee joined the organization on ${joinedDate} and ${terminationInfo.verb} ${terminationDate}.
+    ${terminationInfo.reason || 'This document details the status and descriptions of all tasks, assigned approvers, and relevant handover details to ensure a smooth transition and operational continuity.'}
+  `.trim();
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading tasks</div>;
@@ -114,149 +155,45 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
     offboardingTaskDelete(value);
   };
 
-  const handleHandOverTasksReportPDFDownload = (data: any) => {
-
-    const employeeFullName = `${userDetails?.firstName || 'N/A'} ${userDetails?.lastName || 'N/A'}`;
-    const jobRole = userDetails?.employeeJobInformation?.[0].position?.name || 'N/A';
-    const joinedDate = dayjs(userDetails?.employeeJobInformation?.[0].effectiveStartDate).format('MMMM D, YYYY') || 'N/A';
-    const terminationDate = dayjs(offboardingTermination?.effectiveDate).format('MMMM D, YYYY') || 'N/A';
-    const terminationType = offboardingTermination?.type || 'N/A';
+  const tables = [
+    {
+      title: 'Tasks Overview',
+      paragraph: 'This table provides an overview of the handover tasks, including their names, statuses, descriptions, and approvers.',
+      header: ['No', 'Task Name', 'Status', 'Description', 'Approver'],
+      rows: offboardingTasks.map((task: any, index: number) => [
+        index + 1,
+        task.title,
+        task.isCompleted ? 'Completed' : 'Pending',
+        task.description,
+        task.approver ? `${task.approver.firstName} ${task.approver.lastName}` : 'Not Assigned'
+      ]),
+      colWidths: [10, 50, 25, 50, 40],
+      style: {
+        titlefontSize: 14,
+        titlecolor: '#003366',
+        paragraphfontSize: 12,
+        paragraphcolor: '#000000',
+      },
+    },
+  ];
   
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
-    const margin = 10;
-    const lineHeight = 10;
-    
-    let y = margin;
-    let pageNumber = 1;
-  
-    const addNewPageIfNeeded = (requiredHeight: number) => {
-      if (y + requiredHeight > pageHeight - margin - 10) {
-        doc.text(`Page ${pageNumber}`, pageWidth - margin - 20, pageHeight - margin - 5);
-        pageNumber++;
-        doc.addPage();
-        y = margin;
-      }
-    };
-  
-    // Header
-    doc.setFontSize(16);
-    doc.setTextColor('#4da6ff');
-    doc.text(companyInfo?.companyName || 'Company Name', margin, y);
-    y += lineHeight;
-  
-    doc.setFontSize(12);
-    doc.text(companyInfo?.address || 'Address not provided', margin, y);
-    y += lineHeight;
-    doc.text(companyInfo?.phoneNumber || 'Phone not available', margin, y);
-    y += lineHeight;
-    doc.setLineWidth(0.5);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += lineHeight + 5;
-  
-    // Title
-    doc.setFontSize(22);
-    doc.setTextColor('#003366');
-    const title = 'HANDOVER TASKS REPORT';
-    const titleWidth = doc.getTextWidth(title);
-    const titleX = (pageWidth - titleWidth) / 2;
-    doc.text(title, titleX, y);
-    y += lineHeight + 5;
-  
-    // Paragraph
-    doc.setFontSize(12);
-    doc.setTextColor('#444444');
-    
-    // Dynamic paragraph generation based on termination type
-    let paragraph;
-    if (terminationType === 'Resignation') {
-      paragraph = `This report pertains to ${employeeFullName}, who served as ${jobRole} at ${
-        companyInfo?.companyName || 'the company'
-      }. The employee joined the organization on ${joinedDate} and submitted a formal resignation effective ${terminationDate}. 
-      The reason for resignation was ${offboardingTermination?.reason || 'not provided'}. This document details the status and descriptions of all tasks, assigned approvers, and relevant handover details to ensure a smooth transition and operational continuity.`;
-    } else if (terminationType === 'Termination') {
-      paragraph = `This report pertains to ${employeeFullName}, who served as ${jobRole} at ${
-        companyInfo?.companyName || 'the company'
-      }. The employee joined the organization on ${joinedDate} and was terminated effective ${terminationDate}. 
-      The reason for termination was ${offboardingTermination?.reason || 'not provided'}. This document details the status and descriptions of all tasks, assigned approvers, and relevant handover details to ensure a smooth transition and operational continuity.`;
-    } else if (terminationType === 'Death') {
-      paragraph = `This report pertains to ${employeeFullName}, who served as ${jobRole} at ${
-        companyInfo?.companyName || 'the company'
-      }. The employee joined the organization on ${joinedDate} and passed away on ${terminationDate}. 
-      This document details the status and descriptions of all tasks, assigned approvers, and relevant handover details to ensure a smooth transition and operational continuity during this difficult time.`;
-    } else {
-      paragraph = `This report pertains to ${employeeFullName}, who served as ${jobRole} at ${
-        companyInfo?.companyName || 'the company'
-      }. The employee joined the organization on ${joinedDate}, and the termination type was recorded as ${terminationType}. 
-      This document details the status and descriptions of all tasks, assigned approvers, and relevant handover details to ensure a smooth transition and operational continuity.`;
-    }
-  
-    const paragraphWidth = pageWidth - 2 * margin;
-    const paragraphLines = doc.splitTextToSize(paragraph, paragraphWidth);
-    paragraphLines.forEach((line: any) => {
-      addNewPageIfNeeded(lineHeight);
-      doc.text(line, margin, y);
-      y += lineHeight;
-    });
-    y += 5;
-  
-    // Table Header
-    const colWidths = [10, 50, 25, 50, 40];
-    const headerRow = ['No', 'Task Name', 'Status', 'Description', 'Approver'];
-    const rowHeight = 10;
-    const tableStartX = margin;
-    const tableEndX = pageWidth - margin;
-  
-    // Draw table header
-    doc.setFontSize(10);
-    doc.setTextColor('#ffffff');
-    doc.setFillColor('#4da6ff');
-    doc.rect(tableStartX, y, tableEndX - tableStartX, rowHeight, 'F');
-  
-    let currentX = tableStartX;
-    headerRow.forEach((header, index) => {
-      doc.text(header, currentX + 2, y + 7);
-      currentX += colWidths[index];
-    });
-    y += rowHeight;
-  
-    // Draw table rows
-    doc.setTextColor('#444444');
-    data.forEach((item: any, index: number) => {
-      const taskName = item.title?.length > 25 ? item.title.substring(0, 25) + '...' : item.title || 'N/A';
-      const status = item.isCompleted ? 'Completed' : 'Pending';
-      const description = item.description?.length > 25 ? item.description.substring(0, 25) + '...' : item.description || 'No description provided';
-      const approver = `${item.approver?.firstName || 'N/A'} ${item.approver?.lastName || ''}`;
-  
-      addNewPageIfNeeded(rowHeight);
-  
-      currentX = tableStartX;
-      const rowData = [index + 1, taskName, status, description, approver];
-  
-      rowData.forEach((cell, cellIndex) => {
-        const cellText =
-          typeof cell === 'string' ? doc.splitTextToSize(cell, colWidths[cellIndex]) : `${cell}`;
-        doc.text(cellText, currentX + 2, y + 7);
-        currentX += colWidths[cellIndex];
-      });
-  
-      // Draw row border
-      doc.setDrawColor(200);
-      doc.line(tableStartX, y, tableEndX, y);
-      doc.line(tableStartX, y + rowHeight, tableEndX, y + rowHeight);
-  
-      y += rowHeight;
-    });
-  
-    // Last Page Number
-    doc.text(`Page ${pageNumber}`, pageWidth - margin - 20, pageHeight - margin - 5);
-  
-    // Save the PDF
-    const fileName = `Handover_Tasks_Report_for_${employeeFullName}_${dayjs().format('YYYY-MM-DD_HH-mm')}.pdf`;
-    doc.save(fileName);
+  const opening = {
+    header: {
+      companyName: companyName,
+      address: address,
+      phoneNumber: phoneNumber,
+      companyEmail: companyEmail
+    },
+    pageTitle: 'HANDOVER TASKS REPORT',
+    pageParagraph: `${baseParagraph}`,
+    style: {
+      titlefontSize: 22,
+      titlecolor: '#003366',
+      paragraphfontSize: 12,
+      paragraphcolor: '#000000',
+    },
   };
-
+  
   const menuItems = [
     {
       key: '1',
@@ -304,7 +241,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
               <Button
                 type="default"
                 icon={<DownloadOutlined />}
-                onClick={() => handleHandOverTasksReportPDFDownload(offboardingTasks)}
+                onClick={() => handlePDFDownload(opening, tables, downloadFileName)}
               />
             </AccessGuard>
           </div>
