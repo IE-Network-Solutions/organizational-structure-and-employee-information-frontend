@@ -31,9 +31,9 @@ function BoardCardForm({
   name,
   isMKAsTask = false,
   keyResult,
+
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
-  console.log(form, 'namename');
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
@@ -44,6 +44,7 @@ function BoardCardForm({
               className="border-2 border-primary px-4 py-2 rounded-lg m-4 shadow-lg "
               key={key}
               label={<div className="text-xs">Task</div>}
+            
             >
               <Form.Item
                 {...restSubField}
@@ -52,11 +53,12 @@ function BoardCardForm({
                 rules={[{ required: true, message: 'Task is required' }]}
                 noStyle // Use noStyle to avoid nested Form.Item issues
                 initialValue={isMKAsTask ? mkAsATask : ''}
+                
               >
                 <Input
                   disabled={isMKAsTask}
                   placeholder="Add your tasks here"
-                  className="text-[12px]"
+                  className='text-[12px]'
                 />
               </Form.Item>
               <Form.Item
@@ -148,7 +150,8 @@ function BoardCardForm({
                 <Col>
                   <Space size={10}>
                     <Form.Item
-                      label={<div className="text-xs">Weight</div>}
+                   
+                   label={<div className="text-xs">Weight</div>}
                       {...restSubField}
                       name={[subName, 'weight']}
                       key={`${subName}-weight`} // Unique key for weight
@@ -164,7 +167,7 @@ function BoardCardForm({
                       />
                     </Form.Item>
                     <Form.Item
-                      label={<div className="text-xs">Priority</div>}
+                     label={<div className="text-xs">Priority</div>}
                       {...restSubField}
                       name={[subName, 'priority']}
                       key={`${subName}-priority`} // Unique key for priority
@@ -173,27 +176,19 @@ function BoardCardForm({
                       ]}
                     >
                       <Select
-                        placeholder={
-                          <div className="text-xs">Select Priority</div>
-                        }
+                        placeholder={<div className="text-xs">Select Priority</div>}
                         className="w-32 h-7"
                         options={[
                           {
-                            label: (
-                              <div className="text-error text-xs">High</div>
-                            ),
+                            label: <div className="text-error text-xs">High</div>,
                             value: 'high',
                           },
                           {
-                            label: (
-                              <div className="text-warning text-xs">Medium</div>
-                            ),
+                            label: <div className="text-warning text-xs">Medium</div>,
                             value: 'medium',
                           },
                           {
-                            label: (
-                              <div className="text-success text-xs">Low</div>
-                            ),
+                            label: <div className="text-success text-xs">Low</div>,
                             value: 'low',
                           },
                         ]}

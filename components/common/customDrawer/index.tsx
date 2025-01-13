@@ -25,37 +25,38 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   paddingBottom = 50,
 }) => {
   // Default width
-  const { isClient, setIsClient, currentWidth, setCurrentWidth } =
-    useDrawerStore();
+  const { isClient, setIsClient, currentWidth, setCurrentWidth } = useDrawerStore();
 
-  useEffect(() => {
-    setIsClient(true);
+useEffect(() => {
+  setIsClient(true);
 
-    const updateWidth = () => {
-      if (window.innerWidth <= 768) {
-        setCurrentWidth('90%');
-      } else {
-        setCurrentWidth(width || '70%');
-      }
+  const updateWidth = () => {
+   
 
-      console.log('Current Width after update:', currentWidth);
-    };
+    if (window.innerWidth <= 768) {
+      setCurrentWidth('90%');
+    } else {
+      setCurrentWidth(width || '70%');
+    }
 
-    // Run the width update once on mount
-    updateWidth();
+  };
 
-    // Add the resize event listener
-    window.addEventListener('resize', updateWidth);
+  // Run the width update once on mount
+  updateWidth();
 
-    // Cleanup the event listener on unmount
-    return () => {
-      window.removeEventListener('resize', updateWidth);
-    };
-  }, [width, currentWidth, setCurrentWidth]);
+  // Add the resize event listener
+  window.addEventListener('resize', updateWidth);
+
+  // Cleanup the event listener on unmount
+  return () => {
+    window.removeEventListener('resize', updateWidth);
+  };
+}, [width, currentWidth, setCurrentWidth]);
+
+
 
   // Render the component only on the client side
   if (!isClient) return null;
-  console.log(currentWidth, 'currentWidth');
   return (
     <div>
       <>
@@ -82,7 +83,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
       {/* removed the padding because it is not needed for Drawer */}
       <Drawer
         title={modalHeader}
-        width={width || currentWidth}
+        width={width||currentWidth}
         closable={false}
         onClose={onClose}
         open={open}
