@@ -1,9 +1,9 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
-import { Avatar, Button, Card, Col, Row, Tag, Tooltip, Typography } from 'antd';
+import { Avatar, Button, Card, Col, Dropdown, Menu, Pagination, Popconfirm, Row, Spin, Tag, Tooltip, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
-import { IoIosClose } from 'react-icons/io';
+import { IoIosClose, IoMdMore } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
 import KeyResultMetrics from '../keyResult';
 import {
@@ -12,17 +12,19 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { IoCheckmarkSharp } from 'react-icons/io5';
-import { useApprovalPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/mutations';
+import { useApprovalPlanningPeriods, useDeletePlanById } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
 import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { NAME, PlanningType } from '@/types/enumTypes';
-import { AiOutlineEdit } from 'react-icons/ai';
+import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 const { Text, Title } = Typography;
 
 function Planning() {
@@ -32,6 +34,8 @@ function Planning() {
     activePlanPeriod,
     setSelectedPlanId,
     setEditing,
+    page,
+    setPage,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
@@ -39,15 +43,18 @@ function Planning() {
     useApprovalPlanningPeriods();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
+  const { mutate: handleDeletePlan,isLoading:planDeleteLoading } = useDeletePlanById();
+
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
   const { data: allPlanning, isLoading: getPlanningLoading } = useGetPlanning({
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '', // Provide a default string value
+    page
   });
 
-  const transformedData = groupPlanTasksByKeyResultAndMilestone(allPlanning);
+  const transformedData = groupPlanTasksByKeyResultAndMilestone(allPlanning?.items);
 
   const handleApproveHandler = (id: string, value: boolean) => {
     const data = {
@@ -65,7 +72,78 @@ function Planning() {
 
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
+
+  const actionsMenu = (dataItem:any, handleApproveHandler:any, isApprovalLoading:any) => (
+    <Menu>
+      <Menu.Item key="approve">
+        <Tooltip title="Approve Plan">
+          <Button
+            type="text"
+            icon={<IoCheckmarkSharp />}
+            loading={isApprovalLoading}
+            onClick={() => handleApproveHandler(dataItem?.id, true)}
+            className='text-green-500'
+          >
+            Approve
+          </Button>
+        </Tooltip>
+      </Menu.Item>
+      <Menu.Item key="reject">
+        <Tooltip title="Reject Plan">
+          <Button
+            type="text"
+            danger
+            icon={<IoIosClose />}
+            onClick={() => handleApproveHandler(dataItem?.id, false)}
+          >
+            Reject
+          </Button>
+        </Tooltip>
+      </Menu.Item>
+    </Menu>
+  );
+  const actionsMenuEditandDelte = (dataItem: any, setEditing: any, setSelectedPlanId: any, setOpen: any) => (
+    <Menu>
+      <Menu.Item key="edit">
+        <Tooltip title="Edit Plan">
+          <Button
+            type="text"
+            icon={<AiOutlineEdit />}
+            onClick={() => {
+              setEditing(true);
+              setSelectedPlanId(dataItem?.id);
+              setOpen(true);
+            }}
+          >
+            Edit
+          </Button>
+        </Tooltip>
+      </Menu.Item>
+      <Menu.Item key="delete">
+      <Popconfirm
+        title="Are you sure to delete this plan?"
+        onConfirm={() => handleDeletePlan(dataItem?.id)}
+        okText="Yes"
+        cancelText="No"
+      >
+        <Tooltip title="Delete Plan">
+          <Button
+            type="text"
+            style={{ color: 'red' }} // Red text for delete action
+            icon={<AiOutlineDelete />}
+            loading={planDeleteLoading}
+          >
+            Delete
+          </Button>
+        </Tooltip>
+      </Popconfirm>
+    </Menu.Item>
+    </Menu>
+  );
+  
+  
   return (
+    <Spin spinning={getPlanningLoading} tip="Loading...">
     <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Planning</Title>
@@ -159,57 +237,36 @@ function Planning() {
                             'MMMM DD YYYY, h:mm:ss A',
                           )}
                         </span>
-                        {!dataItem?.isValidated && (
+                        {/* {!dataItem?.isValidated && ( */}
                           <>
-                            <Col className="mr-2">
-                              <Tooltip title="Edit Plan">
-                                {userId === dataItem?.createdBy && (
-                                  <Button
-                                    className="cursor-pointer bg-primary text-white border-none w-7 h-7"
-                                    onClick={() => {
-                                      setEditing(true);
-                                      setSelectedPlanId(dataItem?.id);
-                                      setOpen(true);
-                                    }}
-                                    icon={<AiOutlineEdit />}
-                                  />
-                                )}
-                              </Tooltip>
-                            </Col>
-                            {userId ===
-                              getEmployeeData(dataItem?.createdBy)?.reportingTo
-                                ?.id && (
-                              <>
-                                <Col className="mr-2">
-                                  <Tooltip title="Approve Plan">
-                                    <Button
-                                      className="cursor-pointer bg-primary text-white border-none w-7 h-7"
-                                      onClick={() =>
-                                        handleApproveHandler(dataItem?.id, true)
-                                      }
-                                      icon={<IoCheckmarkSharp />}
-                                      loading={isApprovalLoading}
-                                    />
-                                  </Tooltip>
-                                </Col>
-                                <Col>
-                                  <Tooltip title="Reject Plan">
-                                    <Button
-                                      className="cursor-pointer bg-red-500 text-white border-none w-7 h-7"
-                                      onClick={() =>
-                                        handleApproveHandler(
-                                          dataItem?.id,
-                                          false,
-                                        )
-                                      }
-                                      icon={<IoIosClose size={16} />}
-                                    />
-                                  </Tooltip>
-                                </Col>
-                              </>
-                            )}
-                          </>
-                        )}
+
+                      {(userId === getEmployeeData(dataItem?.createdBy)?.reportingTo?.id || <AccessGuard
+                                permissions={[
+                                  Permissions.approveAndRejectPlan,
+                                ]}/>) && (
+                          <Dropdown overlay={actionsMenu(dataItem, handleApproveHandler, isApprovalLoading)} trigger={['click']}>
+                            <Button
+                              type="text"
+                              icon={<IoMdMore className='text-2xl font-bold' />}
+                              className="cursor-pointer text-green border-none  hover:text-success"
+                            />
+                          </Dropdown>
+                         )}
+
+                          {(userId === dataItem?.createdBy ||    
+                              <AccessGuard
+                                permissions={[
+                                  Permissions.editAndDeletePlan,
+                                ]}
+                              />) && (
+                            <Dropdown overlay={actionsMenuEditandDelte(dataItem, setEditing, setSelectedPlanId, setOpen)} trigger={['click']}>
+                              <Button
+                                type="text"
+                                icon={<IoMdMore className='text-2xl' />}
+                                className="cursor-pointer  text-black border-none  hover:text-primary"
+                              />
+                            </Dropdown>)}
+                      </>
                       </Col>
                     </Row>
                   </Col>
@@ -401,7 +458,13 @@ function Planning() {
           </Card>
         </>
       ))}
-
+      <Pagination
+         disabled={allPlanning?.items?.length <= 0}
+         className='flex justify-end'
+         total={allPlanning?.meta?.totalPages}
+         current={allPlanning?.meta?.page}
+         onChange={(page) => setPage(page)}
+       />
       {transformedData?.length <= 0 && (
         <div className="flex justify-center">
           <div>
@@ -420,6 +483,7 @@ function Planning() {
         </div>
       )}
     </div>
+    </Spin>
   );
 }
 export default Planning;
