@@ -89,11 +89,11 @@ const menuItems: MenuProps['items'] = [
         label: 'Planning and Reporting',
         className: 'font-bold',
       },
-      {
-        key: '/monitoring-evaluation',
-        label: 'Monitoring & Evaluation',
-        className: 'font-bold',
-      },
+      // {
+      //   key: '/monitoring-evaluation',
+      //   label: 'Monitoring & Evaluation',
+      //   className: 'font-bold',
+      // },
       { key: '/okr/settings', label: 'Settings', className: 'font-bold' },
     ],
   },

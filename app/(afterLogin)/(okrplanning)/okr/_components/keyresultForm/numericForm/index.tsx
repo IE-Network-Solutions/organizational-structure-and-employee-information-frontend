@@ -183,14 +183,6 @@ const NumericForm: React.FC<OKRFormProps> = ({
                     required: true,
                     message: 'Please enter the initial value',
                   },
-                  {
-                    validator: (form, value) =>
-                      value && value >= 0
-                        ? Promise.resolve()
-                        : Promise.reject(
-                            new Error('Initial value must be non-negative'),
-                          ),
-                  },
                 ]}
               >
                 <InputNumber

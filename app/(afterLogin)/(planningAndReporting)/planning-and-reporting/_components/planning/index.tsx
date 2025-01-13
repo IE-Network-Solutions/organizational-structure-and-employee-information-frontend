@@ -35,7 +35,8 @@ function Planning() {
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
-  const { mutate: approvalPlanningPeriod } = useApprovalPlanningPeriods();
+  const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
+    useApprovalPlanningPeriods();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
   const planningPeriodId =
@@ -106,6 +107,8 @@ function Planning() {
         <>
           <Card
             key={index}
+            className="mb-2"
+            loading={getPlanningLoading}
             title={
               <div>
                 <Row gutter={16} className="items-center">
@@ -160,15 +163,17 @@ function Planning() {
                           <>
                             <Col className="mr-2">
                               <Tooltip title="Edit Plan">
-                                <Button
-                                  className="cursor-pointer bg-primary text-white border-none w-7 h-7"
-                                  onClick={() => {
-                                    setEditing(true);
-                                    setSelectedPlanId(dataItem?.id);
-                                    setOpen(true);
-                                  }}
-                                  icon={<AiOutlineEdit />}
-                                />
+                                {userId === dataItem?.createdBy && (
+                                  <Button
+                                    className="cursor-pointer bg-primary text-white border-none w-7 h-7"
+                                    onClick={() => {
+                                      setEditing(true);
+                                      setSelectedPlanId(dataItem?.id);
+                                      setOpen(true);
+                                    }}
+                                    icon={<AiOutlineEdit />}
+                                  />
+                                )}
                               </Tooltip>
                             </Col>
                             {userId ===
@@ -177,34 +182,27 @@ function Planning() {
                               <>
                                 <Col className="mr-2">
                                   <Tooltip title="Approve Plan">
-                                    <Avatar
-                                      size={16}
-                                      alt="approve plan"
-                                      className="cursor-pointer"
-                                      shape="square"
-                                      style={{ backgroundColor: '#148220' }}
+                                    <Button
+                                      className="cursor-pointer bg-primary text-white border-none w-7 h-7"
                                       onClick={() =>
                                         handleApproveHandler(dataItem?.id, true)
                                       }
                                       icon={<IoCheckmarkSharp />}
+                                      loading={isApprovalLoading}
                                     />
                                   </Tooltip>
                                 </Col>
                                 <Col>
                                   <Tooltip title="Reject Plan">
-                                    <Avatar
-                                      size={16}
-                                      alt="Reject Plan"
-                                      className="cursor-pointer"
-                                      shape="square"
-                                      style={{ backgroundColor: '#b50d20' }}
+                                    <Button
+                                      className="cursor-pointer bg-red-500 text-white border-none w-7 h-7"
                                       onClick={() =>
                                         handleApproveHandler(
                                           dataItem?.id,
                                           false,
                                         )
                                       }
-                                      icon={<IoIosClose />}
+                                      icon={<IoIosClose size={16} />}
                                     />
                                   </Tooltip>
                                 </Col>
@@ -233,7 +231,10 @@ function Planning() {
                   />
                   {keyResult?.milestones?.map(
                     (milestone: any, milestoneIndex: number) => (
-                      <Row key={milestoneIndex}>
+                      <Row
+                        className=" rounded-lg py-3 pr-3"
+                        key={milestoneIndex}
+                      >
                         {keyResult?.metricType?.name === NAME.MILESTONE && (
                           <Col className="ml-5 mb-1" span={24}>
                             <strong>{`${milestoneIndex + 1}. ${milestone?.title ?? milestone?.description ?? 'No milestone Title'}`}</strong>
@@ -248,11 +249,11 @@ function Planning() {
                             >
                               <Row align={'middle'} justify={'space-between'}>
                                 <Col span={12}>
-                                  <Text className="text-xs">
+                                  <Text className="text-sm">
                                     {keyResult?.metricType?.name ===
                                     NAME.MILESTONE
                                       ? `${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`
-                                      : `${taskIndex + 1} ${task?.task}`}
+                                      : `${taskIndex + 1}. ${task?.task}`}
                                   </Text>
                                 </Col>
                                 <Col span={12}>
