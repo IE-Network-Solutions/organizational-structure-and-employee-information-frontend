@@ -99,14 +99,15 @@ function CreatePlan() {
       },
     );
   };
+  console.log(mkAsATask, 'mkAsATask');
   return (
     open && (
       <CustomDrawerLayout
         open={open === true && isEditing === false ? true : false}
         onClose={onClose}
         modalHeader={modalHeader}
-        width="65%"
-        paddingBottom={5}
+        width={'60%'}
+        paddingBottom={10}
       >
         <Form
           layout="vertical"
@@ -149,10 +150,10 @@ function CreatePlan() {
                               </div>
                               <div className="flex justify-between">
                                 <div className="flex items-center gap-2">
-                                  <span className="rounded-lg border-gray-200 border bg-gray-300 w-7 h-7 text-xs flex items-center justify-center">
+                                  <span className="rounded-lg border-gray-200 border bg-gray-300 w-6 h-6 text-[12px] flex items-center justify-center">
                                     {resultIndex + 1}{' '}
                                   </span>
-                                  <span className="text-sm font-normal">
+                                  <span className="text-[12px] font-semibold">
                                     {kr?.title}
                                   </span>
                                 </div>
@@ -203,7 +204,9 @@ function CreatePlan() {
                                     return (
                                       <>
                                         <div className="flex  items-center justify-between">
-                                          <span>{ml?.title}</span>
+                                          <span className="text-xs">
+                                            {ml?.title}
+                                          </span>
                                           <div className="flex gap-2 items-center">
                                             <Button
                                               onClick={() => {
@@ -226,6 +229,10 @@ function CreatePlan() {
                                                   className="text-[10px] text-primary"
                                                   icon={<FaPlus />}
                                                   onClick={() => {
+                                                    console.log(
+                                                      'Milestone Title:',
+                                                      ml,
+                                                    );
                                                     setMKAsATask(ml?.title);
                                                     handleAddBoard(
                                                       kr?.id + ml?.id,

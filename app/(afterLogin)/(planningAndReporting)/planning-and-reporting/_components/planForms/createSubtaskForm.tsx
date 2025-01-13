@@ -94,20 +94,24 @@ function SubTaskComponent({
                       },
                     ]}
                     key={`task-${subField.key}`}
-                    label="Task"
+                    label={<div className="text-xs">Task</div>}
                   >
-                    <Input placeholder="Task name" />
+                    <Input className="text-xs" placeholder="Task name" />
                   </Form.Item>
                 </Col>
                 <Col>
                   <Form.Item
-                    label={'Target'}
+                    label={<div className="text-xs">Target</div>}
                     {...subField}
                     name={[subField.name, 'targetValue']}
                     key={`target-${subField.key}`}
                     hidden={hasTargetValue}
                   >
-                    <InputNumber className="w-32" placeholder="20" min={0} />
+                    <InputNumber
+                      className="w-32 text-xs"
+                      placeholder="20"
+                      min={0}
+                    />
                   </Form.Item>
                 </Col>
                 <Col>
@@ -123,25 +127,25 @@ function SubTaskComponent({
                         },
                       ]}
                       key={`priority-${subField.key}`}
-                      label="Priority"
+                      label={<div className="text-xs">Priority</div>}
                     >
                       <Select
-                        className="w-32"
+                        className="w-32 h-7 text-xs"
                         options={[
                           {
                             label: 'High',
                             value: 'high',
-                            className: 'text-error',
+                            className: 'text-error text-xs',
                           },
                           {
                             label: 'Medium',
                             value: 'medium',
-                            className: 'text-warning',
+                            className: 'text-warning text-xs',
                           },
                           {
                             label: 'Low',
                             value: 'low',
-                            className: 'text-success',
+                            className: 'text-success text-xs',
                           },
                         ]}
                       />
@@ -176,8 +180,8 @@ function SubTaskComponent({
             </>
           ))}
           <Button
-            className="w-24 text-xs"
-            type="dashed"
+            className="w-16 h-2 text-[10px] "
+            type="link"
             onClick={() => subOpt.add()}
             block
           >

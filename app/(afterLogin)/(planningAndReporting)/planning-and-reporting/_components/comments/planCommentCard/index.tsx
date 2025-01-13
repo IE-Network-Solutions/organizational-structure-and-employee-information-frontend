@@ -55,7 +55,9 @@ const CommentCard: React.FC<Props> = ({
         </>
       ) : (
         <>
-          <CommentList data={data} planId={planId} isPlanCard={isPlanCard} />
+          {viewComment && (
+            <CommentList data={data} planId={planId} isPlanCard={isPlanCard} />
+          )}
         </>
       )}
     </Card>
