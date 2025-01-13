@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Table, Card, Row, Col, Button, notification } from 'antd';
-import { ArrowUpOutlined } from '@ant-design/icons';
+import { Table, Row, Button, notification } from 'antd';
 import Filters from './_components/filters';
 import {
   useGetActivePayroll,
@@ -9,10 +8,13 @@ import {
 } from '@/store/server/features/payroll/payroll/queries';
 import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutation';
 import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-management/_components/criteria-drawer';
+import PayrollCard from './_components/cards';
 
 const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const { data: payroll } = useGetActivePayroll();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
+
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
 
   const {
@@ -28,7 +30,7 @@ const Payroll = () => {
         description: 'Payroll has been successfully generated.',
       });
     }
-  }, [isCreatePayrollSuccess]);
+  }, [isCreatePayrollSuccess, payroll]);
 
   const [loading, setLoading] = useState(false);
 
@@ -43,7 +45,13 @@ const Payroll = () => {
     }
     setLoading(true);
     try {
-      createPayroll(allActiveSalary);
+      const payrollData = {
+        payrollItems: allActiveSalary.map((item: any) => ({
+          ...item,
+          basicSalary: parseInt(item.basicSalary, 10),
+        })),
+      };
+      createPayroll(payrollData);
     } catch (error) {
       notification.error({
         message: 'Error Generating Payroll',
@@ -53,14 +61,6 @@ const Payroll = () => {
       setLoading(false);
     }
   };
-
-  const cardData = [
-    { title: 'Total Amount', value: '7,456,345 ETB', growth: '12.7%' },
-    { title: 'Net Paid Amount', value: '4,000,345 ETB', growth: '12.7%' },
-    { title: 'Total Allowance', value: '4,000,345 ETB', growth: '12.7%' },
-    { title: 'Total Benefit', value: '4,000,345 ETB', growth: '12.7%' },
-    { title: 'Total Deduction', value: '4,000,345 ETB', growth: '12.7%' },
-  ];
 
   const columns = [
     {
@@ -110,12 +110,6 @@ const Payroll = () => {
       minWidth: 200,
     },
     {
-      title: 'Company Pension',
-      dataIndex: 'companypension',
-      key: 'companypension',
-      minWidth: 200,
-    },
-    {
       title: 'Cost Sharing',
       dataIndex: 'costsharing',
       key: 'costsharing',
@@ -123,13 +117,34 @@ const Payroll = () => {
     },
     {
       title: 'Net Income',
-      dataIndex: 'netincome',
-      key: 'netincome',
+      dataIndex: 'netPay',
+      key: 'netPay',
       minWidth: 200,
     },
   ];
 
-  const handleSearch = () => {};
+  const handleSearch = (searchValues: any) => {
+    const queryParams = new URLSearchParams();
+
+    if (searchValues?.employeeId) {
+      queryParams.append('employeeId', searchValues.employeeId);
+    }
+    if (searchValues?.yearId) {
+      queryParams.append('yearId', searchValues.yearId);
+    }
+    if (searchValues?.sessionId) {
+      queryParams.append('sessionId', searchValues.sessionId);
+    }
+    if (searchValues?.monthId) {
+      queryParams.append('monthId', searchValues.monthId);
+    }
+
+    const searchParams = queryParams.toString()
+      ? `?${queryParams.toString()}`
+      : '';
+    setSearchQuery(searchParams);
+    refetch();
+  };
   return (
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4">
@@ -171,28 +186,28 @@ const Payroll = () => {
         }}
         className="scrollbar-none"
       >
-        {cardData.map((card, index) => (
-          <Col
-            key={index}
-            style={{
-              flex: '0 0 auto',
-              minWidth: '350px',
-            }}
-            className="flex-none"
-          >
-            <Card bordered={false} className="bg-slate-100 my-4">
-              <h3>{card.value}</h3>
-              <p>{card.title}</p>
-              <span style={{ color: 'green' }}>
-                <ArrowUpOutlined /> {card.growth} ↑ vs last pay period
-              </span>
-            </Card>
-          </Col>
-        ))}
+        <PayrollCard
+          title="Total Amount"
+          value={payroll?.totalGrossPaymentAmount}
+        />
+        <PayrollCard
+          title="Net Paid Amount"
+          value={payroll?.totalNetPayAmount || '--'}
+        />
+        <PayrollCard
+          title="Total Allowance"
+          value={payroll?.totalAllowanceAmount}
+        />
+
+        <PayrollCard title="Total Benefit" value={payroll?.totalMeritAmount} />
+        <PayrollCard
+          title="Total Deduction"
+          value={payroll?.totalDeductionsAmount}
+        />
       </Row>
       <div className="overflow-x-auto scrollbar-none">
         <Table
-          dataSource={payroll}
+          dataSource={payroll?.payrolls || []}
           columns={columns}
           pagination={{
             current: currentPage,
