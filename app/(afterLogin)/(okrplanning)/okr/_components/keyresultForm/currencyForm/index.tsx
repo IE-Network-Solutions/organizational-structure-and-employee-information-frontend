@@ -54,8 +54,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
     if (!name) {
       return `${key} is required.`;
     }
-    if (name.length < 3 || name.length > 80) {
-      return `${key} must be between 3 and 80 characters long.`;
+    if (name.length < 3) {
+      return `${key} must be between 3 greater than characters long.`;
     }
     return null;
   };

@@ -1,6 +1,6 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
-import { Avatar, Card, Col, Row, Tag, Tooltip, Typography } from 'antd';
+import { Avatar, Button, Card, Col, Row, Tag, Tooltip, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { IoIosClose } from 'react-icons/io';
@@ -18,12 +18,11 @@ import dayjs from 'dayjs';
 import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { PlanningType } from '@/types/enumTypes';
-import { DATETIME_FORMAT } from '@/utils/constants';
+import { NAME, PlanningType } from '@/types/enumTypes';
 import { AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
-
+import { UserOutlined } from '@ant-design/icons';
 const { Text, Title } = Typography;
 
 function Planning() {
@@ -65,7 +64,6 @@ function Planning() {
 
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
-
   return (
     <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
@@ -98,25 +96,6 @@ function Planning() {
             />
           </div>
         </Tooltip>
-        {/* {selectedUser.includes(userId) &&
-          ((transformedData?.[0]?.isReported ?? false) ||
-            transformedData?.length === 0) && (
-            <CustomButton
-              disabled={
-                !(
-                  selectedUser.includes(userId) &&
-                  ((transformedData?.[0]?.isReported ?? false) ||
-                    transformedData?.length === 0)
-                )
-              }
-              title={`Create ${activeTabName} Plan`}
-              id="createActiveTabName"
-              icon={<FaPlus className="mr-2" />}
-              onClick={() => setOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-            />
-          </div> */}
-        {/* </Tooltip> */}
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
@@ -131,9 +110,19 @@ function Planning() {
               <div>
                 <Row gutter={16} className="items-center">
                   <Col xs={4} sm={2} md={1}>
-                    <Avatar style={{ verticalAlign: 'middle' }} size="default">
-                      user
-                    </Avatar>
+                    {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
+                      <Avatar
+                        src={getEmployeeData(dataItem?.createdBy)?.profileImage}
+                        style={{ verticalAlign: 'middle' }}
+                        size="default"
+                      />
+                    ) : (
+                      <Avatar
+                        icon={<UserOutlined />}
+                        style={{ verticalAlign: 'middle' }}
+                        size="default"
+                      />
+                    )}
                   </Col>
                   <Col xs={20} sm={22} md={23}>
                     <Row className="font-bold text-lg">
@@ -148,15 +137,14 @@ function Planning() {
                       </Row>
                     </Row>
                     <Row className="flex justify-between items-center">
-                      <Row gutter={16} justify={'start'}>
+                      <Row gutter={16} justify={'start'} align={'middle'}>
                         <Col className="text-gray-500 text-xs">Status</Col>
                         <Col>
-                          <Avatar
-                            size={16}
-                            shape="square"
-                            className={`-mt-2 ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
-                            icon={<MdOutlinePending />}
-                          />
+                          <div
+                            className={` py-1 px-1 text-white rounded-md ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
+                          >
+                            <MdOutlinePending size={14} />
+                          </div>
                         </Col>
                         <Col className="text-xs -ml-3">
                           {dataItem?.isValidated ? 'Closed' : 'Open'}
@@ -164,17 +152,16 @@ function Planning() {
                       </Row>
                       <Col span={10} className="flex justify-end items-center">
                         <span className="mr-4 text-gray-500">
-                          {dayjs(dataItem?.createdAt).format(DATETIME_FORMAT)}
+                          {dayjs(dataItem?.createdAt).format(
+                            'MMMM DD YYYY, h:mm:ss A',
+                          )}
                         </span>
                         {!dataItem?.isValidated && (
                           <>
                             <Col className="mr-2">
                               <Tooltip title="Edit Plan">
-                                <Avatar
-                                  size={16}
-                                  alt="edit plan"
-                                  className="cursor-pointer bg-primary"
-                                  shape="square"
+                                <Button
+                                  className="cursor-pointer bg-primary text-white border-none w-7 h-7"
                                   onClick={() => {
                                     setEditing(true);
                                     setSelectedPlanId(dataItem?.id);
@@ -247,66 +234,107 @@ function Planning() {
                   {keyResult?.milestones?.map(
                     (milestone: any, milestoneIndex: number) => (
                       <Row key={milestoneIndex}>
-                        <Col span={24}>
-                          <strong>{`${milestoneIndex + 1}. ${milestone?.title ?? milestone?.description ?? 'No milestone Title'}`}</strong>
-                        </Col>
+                        {keyResult?.metricType?.name === NAME.MILESTONE && (
+                          <Col className="ml-5 mb-1" span={24}>
+                            <strong>{`${milestoneIndex + 1}. ${milestone?.title ?? milestone?.description ?? 'No milestone Title'}`}</strong>
+                          </Col>
+                        )}
                         {milestone?.tasks?.map(
                           (task: any, taskIndex: number) => (
-                            <Col className="ml-5" span={24} key={taskIndex}>
-                              <Row>
-                                <Col>
-                                  <Text className="text-xs">{`${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`}</Text>
+                            <Col
+                              className="ml-8 mb-1"
+                              span={24}
+                              key={taskIndex}
+                            >
+                              <Row align={'middle'} justify={'space-between'}>
+                                <Col span={12}>
+                                  <Text className="text-xs">
+                                    {keyResult?.metricType?.name ===
+                                    NAME.MILESTONE
+                                      ? `${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`
+                                      : `${taskIndex + 1} ${task?.task}`}
+                                  </Text>
                                 </Col>
-                                <Col>
-                                  <Row justify="start" className="gap-1">
+                                <Col span={12}>
+                                  <Row
+                                    justify="start"
+                                    align={'middle'}
+                                    className="gap-1"
+                                  >
+                                    {/* Priority Section */}
                                     <Col>
                                       <Text
                                         type="secondary"
-                                        className="text-xs"
+                                        className="text-[10px] mr-2"
                                       >
-                                        <span style={{ color: 'blue' }}>
+                                        <span
+                                          className="text-xl "
+                                          style={{ color: 'blue' }}
+                                        >
                                           &bull;
                                         </span>{' '}
-                                        Priority:{' '}
+                                        Priority
                                       </Text>
                                       <Tag
+                                        className="font-bold border-none w-16  text-center capitalize text-[10px]"
                                         color={
                                           task?.priority === 'high'
                                             ? 'red'
-                                            : 'green'
+                                            : task?.priority === 'medium'
+                                              ? 'orange'
+                                              : 'green'
                                         }
                                       >
                                         {task?.priority || 'None'}
                                       </Tag>
                                     </Col>
+
+                                    {/* Point Section */}
+
+                                    {/* Target Section */}
                                     <Col className="text-xs">
                                       <Text
                                         type="secondary"
-                                        className="text-xs"
+                                        className="text-[10px] mr-2"
                                       >
-                                        <span style={{ color: 'blue' }}>
+                                        <span
+                                          className="text-xl "
+                                          style={{ color: 'blue' }}
+                                        >
                                           &bull;
                                         </span>{' '}
-                                        point:{' '}
+                                        Weight:
                                       </Text>
-                                      <Tag color="blue">
-                                        {task?.weight || 'N/A'}
-                                      </Tag>
-                                    </Col>
-                                    <Col className="text-xs">
-                                      <Text
-                                        type="secondary"
-                                        className="text-xs"
+                                      <Tag
+                                        className="font-bold border-none w-16  text-center cap text-blue text-[10px]"
+                                        color="#B2B2FF"
                                       >
-                                        <span style={{ color: 'blue' }}>
-                                          &bull;
-                                        </span>{' '}
-                                        Target:{' '}
-                                      </Text>
-                                      <Tag color="blue">
-                                        {task?.targetValue || 'N/A'}
+                                        {task?.weight || 0}
                                       </Tag>
                                     </Col>
+                                    {keyResult?.metricType?.name !=
+                                      'Milestone' && (
+                                      <Col className="text-xs">
+                                        <Text
+                                          type="secondary"
+                                          className="text-[10px] mr-2"
+                                        >
+                                          <span
+                                            className="text-xl "
+                                            style={{ color: 'blue' }}
+                                          >
+                                            &bull;
+                                          </span>{' '}
+                                          Target:
+                                        </Text>
+                                        <Tag
+                                          className="font-bold border-none w-16  text-center cap text-blue text-[10px]"
+                                          color="#B2B2FF"
+                                        >
+                                          {task?.targetValue || 'N/A'}
+                                        </Tag>
+                                      </Col>
+                                    )}
                                   </Row>
                                 </Col>
                               </Row>
@@ -363,13 +391,13 @@ function Planning() {
                 </>
               ),
             )}
+            <CommentCard
+              planId={dataItem?.id}
+              data={dataItem?.comments}
+              loading={getPlanningLoading}
+              isPlanCard={true}
+            />
           </Card>
-          <CommentCard
-            planId={dataItem?.id}
-            data={dataItem?.comments}
-            loading={getPlanningLoading}
-            isPlanCard={true}
-          />
         </>
       ))}
 
