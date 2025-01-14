@@ -99,9 +99,10 @@ function Planning() {
     isApprovalLoading: any,
   ) => (
     <Menu>
+    {!dataItem?.isValidated ?
       <Menu.Item key="approve">
-        <Tooltip title="Approve Plan">
-          <Button
+        <Tooltip title={isApprovalLoading ? "Processing approval..." : "Approve Plan! Once you approve, you can't edit"}>
+        <Button
             type="text"
             icon={<IoCheckmarkSharp />}
             loading={isApprovalLoading}
@@ -112,6 +113,7 @@ function Planning() {
           </Button>
         </Tooltip>
       </Menu.Item>
+      :
       <Menu.Item key="reject">
         <Tooltip title="Reject Plan">
           <Button
@@ -124,6 +126,7 @@ function Planning() {
           </Button>
         </Tooltip>
       </Menu.Item>
+      }
     </Menu>
   );
   const actionsMenuEditandDelte = (
@@ -133,7 +136,8 @@ function Planning() {
     setOpen: any,
   ) => (
     <Menu>
-      <Menu.Item key="edit">
+      {!dataItem?.isValidated ?
+        <Menu.Item key="edit">
         <Tooltip title="Edit Plan">
           <Button
             type="text"
@@ -148,6 +152,7 @@ function Planning() {
           </Button>
         </Tooltip>
       </Menu.Item>
+      :
       <Menu.Item key="delete">
         <Popconfirm
           title="Are you sure to delete this plan?"
@@ -167,6 +172,7 @@ function Planning() {
           </Tooltip>
         </Popconfirm>
       </Menu.Item>
+      }
     </Menu>
   );
 
@@ -274,11 +280,7 @@ function Planning() {
                           <>
                             {(userId ===
                               getEmployeeData(dataItem?.createdBy)?.reportingTo
-                                ?.id || (
-                              <AccessGuard
-                                permissions={[Permissions.approveAndRejectPlan]}
-                              />
-                            )) && (
+                                ?.id) && (
                               <Dropdown
                                 overlay={actionsMenu(
                                   dataItem,
@@ -296,11 +298,7 @@ function Planning() {
                                 />
                               </Dropdown>
                             )}
-                            {(userId === dataItem?.createdBy || (
-                              <AccessGuard
-                                permissions={[Permissions.editAndDeletePlan]}
-                              />
-                            )) && (
+                            {userId === dataItem?.createdBy  && (
                               <Dropdown
                                 overlay={actionsMenuEditandDelte(
                                   dataItem,
