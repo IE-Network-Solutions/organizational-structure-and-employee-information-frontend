@@ -11,7 +11,10 @@ import MonthDrawer from '../../month/monthDrawer';
 import { FormInstance } from 'antd/lib';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Form } from 'antd';
-import { Month, Session } from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import {
+  Month,
+  Session,
+} from '@/store/server/features/organizationStructure/fiscalYear/interface';
 
 interface FiscalYearDrawerProps {
   form: FormInstance;

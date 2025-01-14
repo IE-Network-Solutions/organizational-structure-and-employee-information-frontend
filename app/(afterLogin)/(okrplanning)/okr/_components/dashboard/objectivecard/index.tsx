@@ -96,8 +96,8 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   <div className="text-xs text-gray-600">
                     <span className="text-sm text-blue">
                       {Number(objective?.objectiveProgress)?.toLocaleString()}%
-                    </span>
-                   {" "} Objective Progress
+                    </span>{' '}
+                    Objective Progress
                   </div>
                   <Progress
                     percent={objective?.objectiveProgress}

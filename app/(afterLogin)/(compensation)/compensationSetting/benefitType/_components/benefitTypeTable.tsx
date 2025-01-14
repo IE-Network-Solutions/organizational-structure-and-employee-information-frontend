@@ -12,8 +12,18 @@ import { useCompensationSettingStore } from '@/store/uistate/features/compensati
 const BenefitTypeTable = () => {
   const { data, isLoading } = useFetchAllowanceTypes();
   const { mutate: deleteAllowanceType } = useDeleteAllowanceType();
-  const { benefitPageSize, benefitCurrentPage, setBenefitPageSize, setBenefitCurrentPage } = useCompensationTypeTablesStore();
-  const { setSelectedBenefitRecord, setIsBenefitOpen, tableData, setTableData } = useCompensationSettingStore();
+  const {
+    benefitPageSize,
+    benefitCurrentPage,
+    setBenefitPageSize,
+    setBenefitCurrentPage,
+  } = useCompensationTypeTablesStore();
+  const {
+    setSelectedBenefitRecord,
+    setIsBenefitOpen,
+    tableData,
+    setTableData,
+  } = useCompensationSettingStore();
 
   useEffect(() => {
     if (data) {
@@ -30,7 +40,7 @@ const BenefitTypeTable = () => {
     setSelectedBenefitRecord(record);
     setIsBenefitOpen(true);
   };
-  
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',
@@ -58,7 +68,9 @@ const BenefitTypeTable = () => {
       dataIndex: 'mode',
       key: 'mode',
       sorter: true,
-      render: (mode: string) => <div>{mode == 'CREDIT' ? 'Credit' : 'Debit'}</div>,
+      render: (mode: string) => (
+        <div>{mode == 'CREDIT' ? 'Credit' : 'Debit'}</div>
+      ),
     },
     {
       title: 'Amount',
@@ -66,10 +78,10 @@ const BenefitTypeTable = () => {
       key: 'defaultAmount',
       sorter: true,
       render: (amount: number, record: any) =>
-        (amount && amount != 0) ?
-        !record.isRate
-          ? `${amount} ETB`
-          : `${amount}% of base salary`
+        amount && amount != 0
+          ? !record.isRate
+            ? `${amount} ETB`
+            : `${amount}% of base salary`
           : '-',
     },
     {
@@ -105,7 +117,6 @@ const BenefitTypeTable = () => {
     setBenefitCurrentPage(pagination.current);
     setBenefitPageSize(pagination.pageSize);
   };
-  
 
   return (
     <Spin spinning={isLoading}>

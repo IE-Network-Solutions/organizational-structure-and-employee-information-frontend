@@ -9,8 +9,9 @@ import { useBenefitEntitlementStore } from '@/store/uistate/features/compensatio
 const BenefitEntitlemetPage = () => {
   const { id } = useParams();
   const { data: benefitData } = useFetchBenefit(id);
-  const { setBenefitMode, setBenefitDefaultAmount, setBenefitApplicableTo } = useBenefitEntitlementStore();
-  
+  const { setBenefitMode, setBenefitDefaultAmount, setBenefitApplicableTo } =
+    useBenefitEntitlementStore();
+
   useEffect(() => {
     setBenefitMode(benefitData?.mode);
     setBenefitApplicableTo(benefitData?.applicableTo);
@@ -21,8 +22,10 @@ const BenefitEntitlemetPage = () => {
 
   return (
     <>
-      <PageHeader title={benefitData?.name ? benefitData?.name : ''} size="small">
-      </PageHeader>
+      <PageHeader
+        title={benefitData?.name ? benefitData?.name : ''}
+        size="small"
+      ></PageHeader>
       <BenefitEntitlementTable />
     </>
   );
