@@ -346,10 +346,11 @@ const RecognitionForm: React.FC<PropsData> = ({
         </div>
       ))}
 
-     {!createCategory && !selectedRecognitionType &&
-      <div className="mt-2 text-xs text-gray-600">
-        Total Weight: {totalWeight} {totalWeight !== 1 && '(Must equal 1)'}
-      </div>}
+      {!createCategory && !selectedRecognitionType && (
+        <div className="mt-2 text-xs text-gray-600">
+          Total Weight: {totalWeight} {totalWeight !== 1 && '(Must equal 1)'}
+        </div>
+      )}
       <div className="flex">
         <Form.Item
           className="text-xs text-gray-950"
@@ -490,7 +491,11 @@ const RecognitionForm: React.FC<PropsData> = ({
       <Form.Item>
         <div className="flex justify-center gap-4">
           <Button
-            disabled={(!createCategory && !selectedRecognitionType) ? totalWeight !== 1 : false}
+            disabled={
+              !createCategory && !selectedRecognitionType
+                ? totalWeight !== 1
+                : false
+            }
             type="primary"
             htmlType="submit"
             className="text-xs"
