@@ -217,7 +217,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         initialValues={objectiveValue}
       >
         <Checkbox checked={alignment} onChange={() => handleAlignment()}>
-          Align your Objective with your Supervisor
+          Change Objective Name
         </Checkbox>
         <Row gutter={[16, 16]} className="w-full">
           {/* Objective/Alignment */}
@@ -229,7 +229,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               label="Supervisor Key Result"
               rules={[
                 {
-                  required: true,
+                  required: reportsToId ? true : false,
                   message: 'Please enter the Objective name',
                 },
               ]}

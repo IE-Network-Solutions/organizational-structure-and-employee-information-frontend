@@ -167,13 +167,14 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   };
 
   useEffect(() => {
-    setAlignment(Boolean(objectiveValue?.allignedKeyResultId));
-
     setObjectiveValue({
       ...objectiveValue,
       title: objectiveTitle || '',
     });
   }, [objectiveTitle, objectiveValue?.allignedKeyResultId]);
+  useEffect(() => {
+    setAlignment(Boolean(objectiveValue?.allignedKeyResultId));
+  }, [objectiveValue?.allignedKeyResultId]);
   const handleAlignment = () => {
     const updatedAlignment = !alignment;
     setAlignment(updatedAlignment);
@@ -198,7 +199,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           onChange={() => handleAlignment()}
           className="mb-4"
         >
-          Align your Objective with your Supervisor
+          Change Objective Name
         </Checkbox>
         <Row gutter={[16, 16]} className="w-full">
           {/* Objective/Alignment */}
@@ -209,7 +210,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               label="Supervisor Key Result"
               rules={[
                 {
-                  required: alignment,
+                  required: reportsToId ? true : false,
                   message: 'Please select a Supervisor Key Result',
                 },
               ]}
@@ -302,7 +303,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               Add Key Result
             </Button>
           </div>
-          {objectiveValue.keyResults?.map((keyValue:any, index:number) => (
+          {objectiveValue.keyResults?.map((keyValue: any, index: number) => (
             <KeyResultView
               key={index}
               objective={objective}
@@ -311,7 +312,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               isEdit={false}
             />
           ))}
-          {objective?.keyResults?.map((keyItem:any, index:number) => (
+          {objective?.keyResults?.map((keyItem: any, index: number) => (
             <KeyResultForm
               key={index}
               keyItem={keyItem}

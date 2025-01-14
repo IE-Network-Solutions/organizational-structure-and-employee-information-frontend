@@ -9,6 +9,7 @@ import { FaPlus } from 'react-icons/fa';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import DownloadJobInformation from './downloadJobInformation';
+import BasicSalary from './basicSalary';
 
 function Job({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -128,6 +129,7 @@ function Job({ id }: { id: string }) {
       </Card>
       <WorkScheduleComponent id={id} />
       <CreateEmployeeJobInformation id={id} />
+      <BasicSalary id={id} />
     </>
   );
 }

@@ -15,7 +15,7 @@ const getPayRoll = async () => {
     },
   });
 };
-export const useGetPayRoll = () => useQuery('taxRules', getPayRoll);
+export const useGetPayRoll = () => useQuery('payroll', getPayRoll);
 
 const getAllActiveBasicSalary = async () => {
   const token = useAuthenticationStore.getState().token;

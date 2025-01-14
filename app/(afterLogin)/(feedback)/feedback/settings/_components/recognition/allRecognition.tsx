@@ -154,6 +154,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
       </div>
       <div>
         {data?.map((item: any) => (
+          <>
           <Card
             key={item?.id}
             title={item?.name}
@@ -210,6 +211,50 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
               }
             />
           </Card>
+
+          {item?.children?.map((item:any)=>(
+            <Card          
+              key={item?.id}
+              title={item?.name}
+              extra={
+              <div className="flex justify-end gap-2">
+                {/* <AccessGuard
+                  permissions={[Permissions.EditRecognitionCriteria]}
+                >
+                  <Button
+                    type="primary"
+                    onClick={() => handleEditItem(item?.id)}
+                  >
+                    Edit
+                  </Button>
+                </AccessGuard>
+                <AccessGuard
+                  permissions={[Permissions.DeleteRecognitionCriteria]}
+                >
+                  <Popconfirm
+                    title="Are you sure you want to delete this?"
+                    onConfirm={() => handleDeleteRecognitionType(item?.id)}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button type="primary" danger>
+                      Delete
+                    </Button>
+                  </Popconfirm>
+                </AccessGuard>
+                <AccessGuard permissions={[Permissions.AddRecognitionCriteria]}>
+                  <Button
+                    type="primary"
+                    onClick={() => setRecognitionTypeId(item?.id)}
+                  >
+                    Add criteria
+                  </Button>
+                </AccessGuard> */}
+              </div>
+            }
+          >
+          </Card>))}
+          </>
         ))}
         <CustomDrawerLayout
           open={selectedRecognitionType !== ''}
