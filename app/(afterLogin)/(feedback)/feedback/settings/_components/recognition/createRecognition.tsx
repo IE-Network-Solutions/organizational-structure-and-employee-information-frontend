@@ -53,7 +53,6 @@ const RecognitionForm: React.FC<PropsData> = ({
   const { mutate: createRecognitionType } = useAddRecognitionType();
   const { mutate: updateRecognitionType } = useUpdateRecognitionType();
   const [totalWeight, setTotalWeight] = useState<number>(0);
-
   const [selectedCriteria, setSelectedCriteria] = useState<any>([]);
   const handleCriteriaChange = (value: string[]) => {
     const updatedCriteria = value.map((criterion) => {
@@ -92,9 +91,6 @@ const RecognitionForm: React.FC<PropsData> = ({
     <span className="text-black text-xs font-semibold">{text}</span>
   );
   const onFinish = (values: RecognitionFormValues) => {
-    // if (totalWeight !== 1) {
-    //     return false;
-    // }
     if (selectedRecognitionType === '') {
       createRecognitionType(values, {
         onSuccess: () => {
@@ -350,9 +346,11 @@ const RecognitionForm: React.FC<PropsData> = ({
         </div>
       ))}
 
-      <div className="mt-2 text-xs text-gray-600">
-        Total Weight: {totalWeight} {totalWeight !== 1 && '(Must equal 1)'}
-      </div>
+      {!createCategory && !selectedRecognitionType && (
+        <div className="mt-2 text-xs text-gray-600">
+          Total Weight: {totalWeight} {totalWeight !== 1 && '(Must equal 1)'}
+        </div>
+      )}
       <div className="flex">
         <Form.Item
           className="text-xs text-gray-950"
@@ -493,7 +491,11 @@ const RecognitionForm: React.FC<PropsData> = ({
       <Form.Item>
         <div className="flex justify-center gap-4">
           <Button
-            disabled={selectedRecognitionType === '' && totalWeight !== 1}
+            disabled={
+              !createCategory && !selectedRecognitionType
+                ? totalWeight !== 1
+                : false
+            }
             type="primary"
             htmlType="submit"
             className="text-xs"

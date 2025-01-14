@@ -24,6 +24,10 @@ export enum Permissions {
   DeletePayPeriod = 'delete-pay-period',
 
   // Could not be found Permissions that needs to be changed
+
+  approveAndRejectPlan = 'approve-and-reject-plan',
+  editAndDeletePlan = 'edit-and-delete-plan',
+
   ViewAllEmployeePlan = 'view-all-employee-plan',
   ViewAllPlan = 'view-all-plan',
   ViewAllStatusPlan = 'view-all-status-plan',
