@@ -51,7 +51,7 @@ const Page = () => {
             onClick={() => setOpenRecognitionType(true)}
             icon={<FaPlus />}
             type="primary"
-            className="flex gap-2"
+            className="flex gap-2 ml-2 mt-3"
           >
             Category
           </Button>
@@ -67,6 +67,7 @@ const Page = () => {
         <RecognitionForm />
       </CustomDrawerLayout>
       <Drawer
+        width={600} // Adjust the width as needed
         title={modalHeader}
         onClose={() => setOpenRecognitionType(false)}
         open={openRecognitionType}
