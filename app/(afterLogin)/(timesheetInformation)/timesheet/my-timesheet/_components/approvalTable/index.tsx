@@ -1,9 +1,8 @@
 import React from 'react';
-
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Popconfirm, Table, Input, Avatar } from 'antd';
+import { Button, Popconfirm, Table, Input, Avatar, Spin } from 'antd';
 import {
   LeaveRequestStatus,
   LeaveRequestStatusBadgeTheme,
@@ -19,26 +18,20 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { UserOutlined } from '@ant-design/icons';
 import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet/myTimesheet/currentApproval';
-
-interface ModifiedData {
-  approvalWorkflowId: string;
-  stepOrder: number;
-  requestId: string;
-  approvedUserId: string;
-  approverRoleId: string;
-  action: string;
-  tenantId: string;
-}
+import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
+import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
 
 const ApprovalTable = () => {
   const { pageSize, userCurrentPage, setUserCurrentPage } =
     useCurrentLeaveApprovalStore();
+  const { allPageSize, allUserCurrentPage } = useAllCurrentLeaveApprovedStore();
+
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
   const userRollId = useAuthenticationStore.getState().userData.roleId;
   const { rejectComment, setRejectComment } = useApprovalStore();
   const { mutate: editApprover } = useSetApproveLeaveRequest();
-  const { mutate: editAllApprover } = useSetAllApproveLeaveRequest();
+  const { mutate: editAllApprover, isLoading } = useSetAllApproveLeaveRequest();
 
   const { data, isFetching } = useGetApprovalLeaveRequest(
     userId,
@@ -227,18 +220,14 @@ const ApprovalTable = () => {
     setUserCurrentPage(page);
   };
   const onAllRequest = () => {
-    const modifiedData: ModifiedData[] = data?.items.map((item: any) => ({
-      approvalWorkflowId: item?.approvalWorkflowId,
-      stepOrder: item?.nextApprover?.[0]?.stepOrder,
-      requestId: item?.id,
-      approvedUserId: userId,
-      approverRoleId: userRollId,
-      action: 'Approved',
-      tenantId: tenantId,
-    }));
+    const body: AllLeaveRequestApproveData = {
+      userId: userId,
+      roleId: userRollId,
+      limit: allPageSize,
+      page: allUserCurrentPage,
+    };
 
-    console.log('old', data?.items, 'new', modifiedData);
-    editAllApprover(modifiedData);
+    editAllApprover(body);
   };
   return (
     <>
@@ -250,7 +239,12 @@ const ApprovalTable = () => {
             </div>
           </div>
           <div className="flex items-center justify-end mb-6">
-            <Button type="primary" onClick={() => onAllRequest()}>
+            <Button
+              disabled={isLoading}
+              type="primary"
+              onClick={() => onAllRequest()}
+            >
+              <Spin spinning={isLoading} />
               Approve All
             </Button>
           </div>
