@@ -1,13 +1,13 @@
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
-import { PAYROLL_DEV_URL, PAYROLL_URL } from '@/utils/constants';
+import { PAYROLL_URL } from '@/utils/constants';
 
 const getTaxRule = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${PAYROLL_DEV_URL}/tax-rules`,
+    url: `${PAYROLL_URL}/tax-rules`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -46,7 +46,7 @@ const getTaxRuleById = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${PAYROLL_DEV_URL}/tax-rules/${id}`,
+    url: `${PAYROLL_URL}/tax-rules/${id}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
