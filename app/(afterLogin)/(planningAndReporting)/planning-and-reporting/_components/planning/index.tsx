@@ -40,8 +40,6 @@ import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
-import { Permissions } from '@/types/commons/permissionEnum';
-import AccessGuard from '@/utils/permissionGuard';
 const { Text, Title } = Typography;
 
 function Planning() {
@@ -99,34 +97,40 @@ function Planning() {
     isApprovalLoading: any,
   ) => (
     <Menu>
-    {!dataItem?.isValidated ?
-      <Menu.Item key="approve">
-        <Tooltip title={isApprovalLoading ? "Processing approval..." : "Approve Plan! Once you approve, you can't edit"}>
-        <Button
-            type="text"
-            icon={<IoCheckmarkSharp />}
-            loading={isApprovalLoading}
-            onClick={() => handleApproveHandler(dataItem?.id, true)}
-            className="text-green-500"
+      {!dataItem?.isValidated ? (
+        <Menu.Item key="approve">
+          <Tooltip
+            title={
+              isApprovalLoading
+                ? 'Processing approval...'
+                : "Approve Plan! Once you approve, you can't edit"
+            }
           >
-            Approve
-          </Button>
-        </Tooltip>
-      </Menu.Item>
-      :
-      <Menu.Item key="reject">
-        <Tooltip title="Reject Plan">
-          <Button
-            type="text"
-            danger
-            icon={<IoIosClose />}
-            onClick={() => handleApproveHandler(dataItem?.id, false)}
-          >
-            Reject
-          </Button>
-        </Tooltip>
-      </Menu.Item>
-      }
+            <Button
+              type="text"
+              icon={<IoCheckmarkSharp />}
+              loading={isApprovalLoading}
+              onClick={() => handleApproveHandler(dataItem?.id, true)}
+              className="text-green-500"
+            >
+              Approve
+            </Button>
+          </Tooltip>
+        </Menu.Item>
+      ) : (
+        <Menu.Item key="reject">
+          <Tooltip title="Reject Plan">
+            <Button
+              type="text"
+              danger
+              icon={<IoIosClose />}
+              onClick={() => handleApproveHandler(dataItem?.id, false)}
+            >
+              Reject
+            </Button>
+          </Tooltip>
+        </Menu.Item>
+      )}
     </Menu>
   );
   const actionsMenuEditandDelte = (
@@ -136,43 +140,43 @@ function Planning() {
     setOpen: any,
   ) => (
     <Menu>
-      {!dataItem?.isValidated ?
+      {!dataItem?.isValidated ? (
         <Menu.Item key="edit">
-        <Tooltip title="Edit Plan">
-          <Button
-            type="text"
-            icon={<AiOutlineEdit />}
-            onClick={() => {
-              setEditing(true);
-              setSelectedPlanId(dataItem?.id);
-              setOpen(true);
-            }}
-          >
-            Edit
-          </Button>
-        </Tooltip>
-      </Menu.Item>
-      :
-      <Menu.Item key="delete">
-        <Popconfirm
-          title="Are you sure to delete this plan?"
-          onConfirm={() => handleDeletePlan(dataItem?.id)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Tooltip title="Delete Plan">
+          <Tooltip title="Edit Plan">
             <Button
               type="text"
-              style={{ color: 'red' }} // Red text for delete action
-              icon={<AiOutlineDelete />}
-              loading={planDeleteLoading}
+              icon={<AiOutlineEdit />}
+              onClick={() => {
+                setEditing(true);
+                setSelectedPlanId(dataItem?.id);
+                setOpen(true);
+              }}
             >
-              Delete
+              Edit
             </Button>
           </Tooltip>
-        </Popconfirm>
-      </Menu.Item>
-      }
+        </Menu.Item>
+      ) : (
+        <Menu.Item key="delete">
+          <Popconfirm
+            title="Are you sure to delete this plan?"
+            onConfirm={() => handleDeletePlan(dataItem?.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Tooltip title="Delete Plan">
+              <Button
+                type="text"
+                style={{ color: 'red' }} // Red text for delete action
+                icon={<AiOutlineDelete />}
+                loading={planDeleteLoading}
+              >
+                Delete
+              </Button>
+            </Tooltip>
+          </Popconfirm>
+        </Menu.Item>
+      )}
     </Menu>
   );
 
@@ -278,9 +282,9 @@ function Planning() {
                           </span>
                           {/* {!dataItem?.isValidated && ( */}
                           <>
-                            {(userId ===
+                            {userId ===
                               getEmployeeData(dataItem?.createdBy)?.reportingTo
-                                ?.id) && (
+                                ?.id && (
                               <Dropdown
                                 overlay={actionsMenu(
                                   dataItem,
@@ -298,7 +302,7 @@ function Planning() {
                                 />
                               </Dropdown>
                             )}
-                            {userId === dataItem?.createdBy  && (
+                            {userId === dataItem?.createdBy && (
                               <Dropdown
                                 overlay={actionsMenuEditandDelte(
                                   dataItem,
