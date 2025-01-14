@@ -1,13 +1,13 @@
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL, PAYROLL_DEV_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL, PAYROLL_URL } from '@/utils/constants';
 
 const getPayRoll = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${PAYROLL_DEV_URL}/payroll`,
+    url: `${PAYROLL_URL}/payroll`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -36,7 +36,7 @@ const getActivePayroll = async (searchParams = '') => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${PAYROLL_DEV_URL}/payroll/find-all-payroll-by-pay-period${searchParams}`,
+    url: `${PAYROLL_URL}/payroll/find-all-payroll-by-pay-period${searchParams}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -53,7 +53,7 @@ const getPayPeroid = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${PAYROLL_DEV_URL}/pay-period`,
+    url: `${PAYROLL_URL}/pay-period`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
