@@ -16,14 +16,20 @@ function FeedbackCard({
   appreciationText,
   total,
   contributorCount,
-  type
+  type,
 }: FeedbackCardProps) {
   return (
     <div>
       <Card className="bg-gray-100">
         <div className="flex justify-between">
-          <Avatar className={`bg-gray-300 ${type==='appreciation' ?  'text-green-800' :'text-red-400'} -mt-2`}>
-            {type==='appreciation' ?<LuAward />:<FaBomb className='text-red-600' />}
+          <Avatar
+            className={`bg-gray-300 ${type === 'appreciation' ? 'text-green-800' : 'text-red-400'} -mt-2`}
+          >
+            {type === 'appreciation' ? (
+              <LuAward />
+            ) : (
+              <FaBomb className="text-red-600" />
+            )}
           </Avatar>
           <p className="flex text-xs text-gray-400">
             <span className="flex text-green-800 mx-2">

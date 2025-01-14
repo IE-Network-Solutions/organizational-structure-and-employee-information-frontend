@@ -54,7 +54,7 @@ function Page() {
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
   const { data: getAllFisicalYear } = useGetAllFiscalYears();
   const navigate = useRouter();
-useEffect(() => {
+  useEffect(() => {
     if (getActiveFisicalYear) {
       const fiscalActiveYearId = getActiveFisicalYear?.id;
       const activeSession = getActiveFisicalYear?.sessions?.find(
@@ -149,28 +149,32 @@ useEffect(() => {
       label: 'All',
       children: (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <Card
-              className="bg-gray-100 font-bold"
-              key={`all-card-${1}`}
-              style={{ width: '100%' }} // Full width in grid cells
-            >
-              <p className="flex justify-start items-center text-green-600 font-extrabold text-xl">
-                <CiMedal />
-              </p>
-              <p className='text-gray-400 text-xs mt-4'>Total number of recognized employees</p>
-              <p>{`0${totalRecogniion?.totalRecognitions ?? 0}`}</p>
-            </Card>
-            <Card
-              className="bg-gray-100 font-bold"
-              key={`all-card-${2}`}
-              style={{ width: '100%' }} // Full width in grid cells
-            >
-              <p className="flex justify-start items-center text-green-600 font-extrabold text-xl">
-                <CiMedal />
-              </p>
-              <p className='text-gray-400 text-xs mt-4'>Total number of Criteria</p>
-              <p>{`0${totalRecogniion?.totalCriteria ?? 0}`}</p>
-            </Card>
+          <Card
+            className="bg-gray-100 font-bold"
+            key={`all-card-${1}`}
+            style={{ width: '100%' }} // Full width in grid cells
+          >
+            <p className="flex justify-start items-center text-green-600 font-extrabold text-xl">
+              <CiMedal />
+            </p>
+            <p className="text-gray-400 text-xs mt-4">
+              Total number of recognized employees
+            </p>
+            <p>{`0${totalRecogniion?.totalRecognitions ?? 0}`}</p>
+          </Card>
+          <Card
+            className="bg-gray-100 font-bold"
+            key={`all-card-${2}`}
+            style={{ width: '100%' }} // Full width in grid cells
+          >
+            <p className="flex justify-start items-center text-green-600 font-extrabold text-xl">
+              <CiMedal />
+            </p>
+            <p className="text-gray-400 text-xs mt-4">
+              Total number of Criteria
+            </p>
+            <p>{`0${totalRecogniion?.totalCriteria ?? 0}`}</p>
+          </Card>
         </div>
       ),
     },

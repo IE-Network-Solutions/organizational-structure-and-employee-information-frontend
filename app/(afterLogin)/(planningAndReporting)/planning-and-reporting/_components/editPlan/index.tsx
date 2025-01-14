@@ -142,7 +142,6 @@ function EditPlan() {
       });
     }
   }, [planGroupData]);
-  console.log(planGroupData, '*****************');
 
   return (
     open && (
@@ -274,10 +273,6 @@ function EditPlan() {
                                                   className="text-[10px] text-primary"
                                                   icon={<FaPlus />}
                                                   onClick={() => {
-                                                    console.log(
-                                                      'Milestone Title:',
-                                                      ml,
-                                                    );
                                                     setMKAsATask(ml?.title);
                                                     handleAddBoard(
                                                       kr?.id + ml?.id,

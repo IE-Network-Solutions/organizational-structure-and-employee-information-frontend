@@ -203,31 +203,30 @@ const Page = () => {
         />
       </div>
       <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Card key={index} className="bg-gray-100">
-              <div className="flex justify-between">
-                <Avatar className="bg-gray-300 text-green-800 -mt-2">
-                  <LuAward />
-                </Avatar>
-                <p className="flex text-xs text-gray-400">
-                  <span className="flex text-green-800 mx-2">
-                    <FaLongArrowAltUp /> 12.7%
-                  </span>
-                  Vs Last Week
-                </p>
-              </div>
-              <p className="text-gray-400 capitalize my-1">
-                Total number of appreciations received
+        {Array.from({ length: 4 }).map((notused, index) => (
+          <Card key={index} className="bg-gray-100">
+            <div className="flex justify-between">
+              <Avatar className="bg-gray-300 text-green-800 -mt-2">
+                <LuAward />
+              </Avatar>
+              <p className="flex text-xs text-gray-400">
+                <span className="flex text-green-800 mx-2">
+                  <FaLongArrowAltUp /> 12.7%
+                </span>
+                Vs Last Week
               </p>
-              <p className="font-bold text-lg">010</p>
-              <p className="flex justify-end text-xs text-gray-400 space-x-2">
-                <LuUsers />
-                <span>87 employees contributed</span>
-              </p>
-            </Card>
-          ))}
-        </div>
-
+            </div>
+            <p className="text-gray-400 capitalize my-1">
+              Total number of appreciations received
+            </p>
+            <p className="font-bold text-lg">010</p>
+            <p className="flex justify-end text-xs text-gray-400 space-x-2">
+              <LuUsers />
+              <span>87 employees contributed</span>
+            </p>
+          </Card>
+        ))}
+      </div>
 
       <Tabs
         className="max-w-[850px]"
@@ -252,7 +251,9 @@ const Page = () => {
           disabledMessage="Please select a feedback type"
           buttonDisabled={activeTab === ''}
           title={<div className="text-lg capitalize">{variantType}</div>}
-          subtitle={<div className='capitalize'>{`Given up on  ${variantType}`}</div>}
+          subtitle={
+            <div className="capitalize">{`Given up on  ${variantType}`}</div>
+          }
           allowSearch={false}
         >
           <EmployeeSearchComponent

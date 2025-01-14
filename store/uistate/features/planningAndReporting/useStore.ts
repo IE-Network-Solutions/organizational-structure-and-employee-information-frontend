@@ -40,7 +40,6 @@ export interface PlanningAndReporting {
   page: number; // Map task IDs to their statuses
   setPage: (page: number) => void; // Function to update status
 
-
   selectedPlanId: string;
   setSelectedPlanId: (selectedPlanId: string) => void;
 }
@@ -86,9 +85,8 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     weights: {},
     totalWeight: 0,
 
-
     page: 1, // Map task IDs to their statuses
-    setPage: (page: number) => set({page}), // Function to update status
+    setPage: (page: number) => set({ page }), // Function to update status
 
     setWeight: (key, weight) =>
       set((state) => {

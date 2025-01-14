@@ -37,8 +37,6 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
       } else {
         setCurrentWidth(width || '70%');
       }
-
-      console.log('Current Width after update:', currentWidth);
     };
 
     // Run the width update once on mount
@@ -55,7 +53,6 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
 
   // Render the component only on the client side
   if (!isClient) return null;
-  console.log(currentWidth, 'currentWidth');
   return (
     <div>
       <>

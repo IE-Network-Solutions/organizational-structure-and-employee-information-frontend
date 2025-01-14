@@ -26,7 +26,7 @@ function Page({ params: { id } }: RecognitionDetailsProps) {
     {
       title: 'Criteria',
       dataIndex: 'criterionKey',
-      render: (value) => <span>{value ?? '-'}</span>, 
+      render: (value) => <span>{value ?? '-'}</span>,
     },
     {
       title: 'Weight',
@@ -85,8 +85,10 @@ function Page({ params: { id } }: RecognitionDetailsProps) {
                     Issued Date
                   </Col>
                   <Col span={12}>
-                    {getRecognitionById?.dateIssued 
-                      ? dayjs(getRecognitionById.dateIssued).format('MMMM D, YYYY') // Format as "Month Day, Year"
+                    {getRecognitionById?.dateIssued
+                      ? dayjs(getRecognitionById.dateIssued).format(
+                          'MMMM D, YYYY',
+                        ) // Format as "Month Day, Year"
                       : 'N/A'}
                   </Col>
                 </Row>

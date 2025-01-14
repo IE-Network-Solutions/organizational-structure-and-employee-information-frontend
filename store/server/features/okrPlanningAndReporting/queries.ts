@@ -16,20 +16,20 @@ const getPlanningData = async (params: DataType) => {
     Authorization: `Bearer ${token}`,
   };
 
-   if(params?.page){
+  if (params?.page) {
     return await crudRequest({
       url: `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}?page=${params?.page}`,
       method: 'post',
       data: params?.userId.length === 0 ? [''] : params?.userId,
       headers,
     });
-   }
-    return await crudRequest({
-      url: `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}`,
-      method: 'post',
-      data: params?.userId.length === 0 ? [''] : params?.userId,
-      headers,
-    });
+  }
+  return await crudRequest({
+    url: `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}`,
+    method: 'post',
+    data: params?.userId.length === 0 ? [''] : params?.userId,
+    headers,
+  });
 };
 
 const getAllUnReportedPlanningTask = async (

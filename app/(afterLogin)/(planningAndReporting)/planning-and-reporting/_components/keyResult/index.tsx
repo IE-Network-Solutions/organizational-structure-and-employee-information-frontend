@@ -6,7 +6,6 @@ interface KPIMetricsProps {
 }
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
-  console.log(keyResult, 'jdfdlhfbdsjb');
   return (
     <div className="py-3 px-2 sm:px-4 bg-white shadow-sm rounded-lg border">
       <div className="grid grid-cols-12 sm:justify-between mb-2 items-start">

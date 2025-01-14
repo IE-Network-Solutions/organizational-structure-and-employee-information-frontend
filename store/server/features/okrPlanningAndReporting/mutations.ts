@@ -84,15 +84,13 @@ export const useCreateReportForUnReportedtasks = () => {
 export const useDeletePlanById = () => {
   const queryClient = useQueryClient();
 
-  return useMutation(deletePlanById,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('okrPlans');
-        NotificationMessage.success({
-          message: 'Successfully Deleted',
-          description: 'OKR plan Deleted successfully',
-        });
-      },
+  return useMutation(deletePlanById, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('okrPlans');
+      NotificationMessage.success({
+        message: 'Successfully Deleted',
+        description: 'OKR plan Deleted successfully',
+      });
     },
-  );
+  });
 };

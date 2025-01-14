@@ -8,9 +8,9 @@ interface FeedbackRecord {
 
 interface FeedbackStats {
   received: string;
-  totalReceived:number;
+  totalReceived: number;
   issued: string;
-  totalIssued:number;
+  totalIssued: number;
 }
 
 interface FeedbackStatResponse {
@@ -51,7 +51,9 @@ export class FeedbackService {
   }
 
   // Core method to calculate feedback stats
-  static getFeedbackStats(feedbackRecordData: FeedbackRecord[]): FeedbackStatResponse {
+  static getFeedbackStats(
+    feedbackRecordData: FeedbackRecord[],
+  ): FeedbackStatResponse {
     const userId = useAuthenticationStore.getState().userId;
 
     const thisWeekRange = {
@@ -67,7 +69,12 @@ export class FeedbackService {
     // Helper function to calculate stats for a feedback type
     const calculateFeedbackStats = (
       variant: string,
-    ): { received: string; totalReceived:number; issued: string,totalIssued:number; } => {
+    ): {
+      received: string;
+      totalReceived: number;
+      issued: string;
+      totalIssued: number;
+    } => {
       const thisWeekReceived = this.filterFeedbackData(
         feedbackRecordData,
         variant,
@@ -105,7 +112,10 @@ export class FeedbackService {
       )?.length;
 
       return {
-        received: this.calculatePercentageChange(thisWeekReceived, lastWeekReceived),
+        received: this.calculatePercentageChange(
+          thisWeekReceived,
+          lastWeekReceived,
+        ),
         totalReceived: thisWeekReceived,
         issued: this.calculatePercentageChange(thisWeekIssued, lastWeekIssued),
         totalIssued: thisWeekIssued,

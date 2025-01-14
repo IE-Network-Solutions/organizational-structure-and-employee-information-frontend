@@ -99,7 +99,6 @@ function CreatePlan() {
       },
     );
   };
-  console.log(mkAsATask, 'mkAsATask');
   return (
     open && (
       <CustomDrawerLayout
@@ -229,10 +228,6 @@ function CreatePlan() {
                                                   className="text-[10px] text-primary"
                                                   icon={<FaPlus />}
                                                   onClick={() => {
-                                                    console.log(
-                                                      'Milestone Title:',
-                                                      ml,
-                                                    );
                                                     setMKAsATask(ml?.title);
                                                     handleAddBoard(
                                                       kr?.id + ml?.id,
