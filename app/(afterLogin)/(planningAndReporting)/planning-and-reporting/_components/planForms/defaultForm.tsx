@@ -98,10 +98,14 @@ function DefaultCardForm({
                           'Please input a task name or delete this field.',
                       },
                     ]}
-                    label={'Task'}
+                    label={<div className="text-xs">Task</div>}
                     key={`${field.key}-task`} // Unique key for task
                   >
-                    <Input disabled={isMKAsTask} placeholder="Task name" />
+                    <Input
+                      className="text-xs"
+                      disabled={isMKAsTask}
+                      placeholder="Task name"
+                    />
                   </Form.Item>
                 </Col>
                 <Col lg={12} sm={24}>
@@ -109,7 +113,7 @@ function DefaultCardForm({
                     <Form.Item
                       {...field}
                       name={[field.name, 'priority']}
-                      label={'Priority'}
+                      label={<div className="text-xs">Priority</div>}
                       validateTrigger={['onChange', 'onBlur']}
                       rules={[
                         {
@@ -120,22 +124,22 @@ function DefaultCardForm({
                       key={`${field.key}-priority`} // Unique key for priority
                     >
                       <Select
-                        className="w-full"
+                        className="w-32 h-7 text-xs"
                         options={[
                           {
                             label: 'High',
                             value: 'high',
-                            className: 'text-error',
+                            className: 'text-error text-xs',
                           },
                           {
                             label: 'Medium',
                             value: 'medium',
-                            className: 'text-warning',
+                            className: 'text-warning text-xs',
                           },
                           {
                             label: 'Low',
                             value: 'low',
-                            className: 'text-success',
+                            className: 'text-success text-xs',
                           },
                         ]}
                       />
@@ -143,7 +147,7 @@ function DefaultCardForm({
 
                     <Form.Item
                       {...field}
-                      label={'Weight'}
+                      label={<div className="text-xs">Weight</div>}
                       name={[field.name, 'weight']}
                       validateTrigger={['onChange', 'onBlur']}
                       rules={[
@@ -156,7 +160,7 @@ function DefaultCardForm({
                     >
                       <InputNumber
                         placeholder="0"
-                        className="w-full"
+                        className="w-32 text-xs"
                         onChange={() => {
                           const fieldValue = form.getFieldValue(name) || [];
                           const totalWeight = fieldValue.reduce(
@@ -191,7 +195,7 @@ function DefaultCardForm({
 
               <Form.Item
                 className="mb-4"
-                label="Target"
+                label={<div className="text-xs">Target</div>}
                 {...field}
                 name={[field.name, 'targetValue']}
                 hidden={hasTargetValue}
@@ -232,7 +236,7 @@ function DefaultCardForm({
                 ]}
               >
                 <InputNumber
-                  className="w-28"
+                  className="w-32 text-xs"
                   min={0} // Ensure the value can't go below 0
                   formatter={(value) =>
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -241,7 +245,10 @@ function DefaultCardForm({
               </Form.Item>
 
               {planningPeriodId && planningUserId && (
-                <Form.Item label="Sub tasks" className="border p-4 rounded-md">
+                <Form.Item
+                  label={<div className="text-xs">Sub Tasks</div>}
+                  className="border px-4 py-1 rounded-md"
+                >
                   <SubTaskComponent
                     field={field}
                     kId={kId}
