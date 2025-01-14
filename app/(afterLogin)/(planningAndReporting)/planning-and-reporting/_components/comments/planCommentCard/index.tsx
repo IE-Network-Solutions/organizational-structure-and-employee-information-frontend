@@ -29,19 +29,20 @@ const CommentCard: React.FC<Props> = ({
   return (
     <Card
       title={
-        <div className="flex flex-col gap-1">
-          {CommentAuthorsAvatars(data)} Comments {data?.length}
+        <div className="flex flex-col gap-1 text-sm">
+          {CommentAuthorsAvatars(data)} Comments 
         </div>
       }
       extra={
-        <AccessGuard
-          permissions={[Permissions.CreateCommentOnPlanAndReport]}
-          selfShouldAccess={true}
-        >
-          <Button type="primary" onClick={() => setViewComment(!viewComment)}>
-            Comment
+        // <AccessGuard
+        //   permissions={[Permissions.CreateCommentOnPlanAndReport]}
+        //   selfShouldAccess={true}
+        // >
+        
+          <Button className='text-xs' type="primary" onClick={() => setViewComment(!viewComment)}>
+            Comment {data?.length}
           </Button>
-        </AccessGuard>
+        // </AccessGuard>
       }
     >
       {loading ? (

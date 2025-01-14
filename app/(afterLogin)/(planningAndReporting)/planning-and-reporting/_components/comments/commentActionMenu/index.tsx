@@ -12,12 +12,12 @@ const CommentActionMenu = ({
 }) => {
   const menu = (
     <Menu>
-      <AccessGuard permissions={[Permissions.UpdateCommentOnPlanAndReport]}>
+      {/* <AccessGuard permissions={[Permissions.UpdateCommentOnPlanAndReport]}> */}
         <Menu.Item key="edit" onClick={onEdit}>
           Edit
         </Menu.Item>
-      </AccessGuard>
-      <AccessGuard permissions={[Permissions.DeleteCommentOnPlanAndReport]}>
+      {/* </AccessGuard> */}
+      {/* <AccessGuard permissions={[Permissions.DeleteCommentOnPlanAndReport]}> */}
         <Menu.Item key="delete">
           <Popconfirm
             title="Are you sure you want to delete this comment?"
@@ -28,15 +28,15 @@ const CommentActionMenu = ({
             Delete
           </Popconfirm>
         </Menu.Item>
-      </AccessGuard>
+      {/* </AccessGuard> */}
     </Menu>
   );
 
   return (
     <Dropdown overlay={menu} trigger={['click']}>
-      <AccessGuard permissions={[Permissions.CreateCommentOnPlanAndReport]}>
+      {/* <AccessGuard permissions={[Permissions.CreateCommentOnPlanAndReport]}> */}
         <Button type="text" icon={<MoreOutlined />} />
-      </AccessGuard>
+      {/* </AccessGuard> */}
     </Dropdown>
   );
 };

@@ -32,14 +32,14 @@ const CommentList = ({
   isPlanCard: boolean;
 }) => {
   const { data: allUsers } = useGetAllUsers();
-  const { mutate: onAddPlanComment } = useAddPlanComment();
-  const { mutate: onAddReportComment } = useAddReportComment();
+  const { mutate: onAddPlanComment,isLoading:addPlanLoading } = useAddPlanComment();
+  const { mutate: onAddReportComment,isLoading:addReportLoading } = useAddReportComment();
 
-  const { mutate: deletePlanComment } = useDeletePlanComment();
-  const { mutate: deleteReportComment } = useDeleteReportComment();
+  const { mutate: deletePlanComment,isLoading:deletePlanLoading } = useDeletePlanComment();
+  const { mutate: deleteReportComment,isLoading:deleteReportLoading } = useDeleteReportComment();
 
-  const { mutate: onUpdatePlanComment } = useUpdatePlanComment();
-  const { mutate: onUpdateReportComment } = useUpdateReportComment();
+  const { mutate: onUpdatePlanComment,isLoading:editPlanLoading } = useUpdatePlanComment();
+  const { mutate: onUpdateReportComment,isLoading:editReportLoading } = useUpdateReportComment();
 
   const [editingCommentId, setEditingCommentId] = useState<string>('');
 
@@ -115,14 +115,20 @@ const CommentList = ({
       deleteReportComment(id);
     }
   };
+  console.log(data,userId,"6767")
   return (
     <div className="w-full">
-      <Collapse defaultActiveKey={[]} accordion>
+    
         {data.map((commentData) => (
-          <Panel
-            key={commentData.id}
-            header={
-              <div className="flex items-center">
+         
+            <Row
+              justify="space-between"
+              align="middle"
+              className="w-full p-3 border-b last:border-b-0"
+            >
+              <Col>
+              
+                <div className="text-xs font-semibold flex items-center">
                 <Avatar
                   src={
                     getUserDetail(commentData.commentedBy)?.profileImage ||
@@ -136,22 +142,8 @@ const CommentList = ({
                   alt={
                     getUserDetail(commentData.commentedBy)?.fullName || 'User'
                   }
-                  className="mr-3"
+                  className="mr-1"
                 />
-                <span>
-                  {getUserDetail(commentData.commentedBy)?.fullName ||
-                    'Unknown User'}
-                </span>
-              </div>
-            }
-          >
-            <Row
-              justify="space-between"
-              align="middle"
-              className="w-full mb-4 p-3 border-b last:border-b-0"
-            >
-              <Col>
-                <div className="text-xs font-semibold">
                   {getUserDetail(commentData.commentedBy)?.fullName}
                 </div>
                 <div className="text-gray-700">{commentData.comment}</div>
@@ -159,16 +151,16 @@ const CommentList = ({
                   {dayjs(commentData.createdAt).fromNow()}
                 </div>
               </Col>
-              <Col hidden={commentData.commentedBy !== userId}>
+              <Col hidden={commentData?.commentedBy !==userId}>
                 <CommentActionMenu
                   onEdit={() => handleEdit(commentData)}
                   onDelete={() => handleDelete(commentData?.id)}
                 />
               </Col>
             </Row>
-          </Panel>
+          
         ))}
-      </Collapse>
+      
 
       <Form
         form={form}
@@ -198,7 +190,11 @@ const CommentList = ({
           </Col>
           <Col span={4}>
             <Form.Item>
-              <Button type="primary" htmlType="submit" className="w-full">
+              <Button loading={addPlanLoading||addReportLoading||
+deletePlanLoading||
+deleteReportLoading||
+editPlanLoading||
+editReportLoading} type="primary" htmlType="submit" className="w-full">
                 Send
               </Button>
             </Form.Item>

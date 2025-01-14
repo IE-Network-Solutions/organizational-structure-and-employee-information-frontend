@@ -35,8 +35,7 @@ function Planning() {
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
-  const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
-    useApprovalPlanningPeriods();
+  const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } = useApprovalPlanningPeriods();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
   const planningPeriodId =
@@ -182,51 +181,52 @@ function Planning() {
                           <>
                             <Col className="mr-2">
                               <Tooltip title="Edit Plan">
-                                {userId === dataItem?.createdBy && (
-                                  <Button
-                                    className="cursor-pointer bg-primary text-white border-none w-7 h-7"
-                                    onClick={() => {
-                                      setEditing(true);
-                                      setSelectedPlanId(dataItem?.id);
-                                      setOpen(true);
-                                    }}
-                                    icon={<AiOutlineEdit />}
-                                  />
-                                )}
+                              {userId === dataItem?.createdBy
+                                 &&
+                                <Button
+                                  className="cursor-pointer bg-primary text-white border-none w-7 h-7"
+                                  onClick={() => {
+                                    setEditing(true);
+                                    setSelectedPlanId(dataItem?.id);
+                                    setOpen(true);
+                                  }}
+                                  icon={<AiOutlineEdit />}
+                                />}
                               </Tooltip>
                             </Col>
-                            {userId ===
+                            {/* {userId ===
                               getEmployeeData(dataItem?.createdBy)?.reportingTo
-                                ?.id && (
+                                ?.id && ( */}
                               <>
                                 <Col className="mr-2">
                                   <Tooltip title="Approve Plan">
                                     <Button
-                                      className="cursor-pointer bg-primary text-white border-none w-7 h-7"
-                                      onClick={() =>
-                                        handleApproveHandler(dataItem?.id, true)
-                                      }
-                                      icon={<IoCheckmarkSharp />}
-                                      loading={isApprovalLoading}
-                                    />
+                                  className="cursor-pointer bg-primary text-white border-none w-7 h-7"
+                                  onClick={() =>
+                                    handleApproveHandler(dataItem?.id, true)
+                                  }
+                                  icon={<IoCheckmarkSharp />}
+                                  loading={isApprovalLoading}
+                                />
                                   </Tooltip>
                                 </Col>
                                 <Col>
                                   <Tooltip title="Reject Plan">
-                                    <Button
-                                      className="cursor-pointer bg-red-500 text-white border-none w-7 h-7"
-                                      onClick={() =>
-                                        handleApproveHandler(
-                                          dataItem?.id,
-                                          false,
-                                        )
-                                      }
-                                      icon={<IoIosClose size={16} />}
-                                    />
+                                    
+                                     <Button
+                                  className="cursor-pointer bg-red-500 text-white border-none w-7 h-7"
+                                  onClick={() =>
+                                    handleApproveHandler(
+                                      dataItem?.id,
+                                      false,
+                                    )
+                                  }
+                                  icon={<IoIosClose size={16} />}
+                                />
                                   </Tooltip>
                                 </Col>
                               </>
-                            )}
+                            {/* )} */}
                           </>
                         )}
                       </Col>
@@ -250,10 +250,7 @@ function Planning() {
                   />
                   {keyResult?.milestones?.map(
                     (milestone: any, milestoneIndex: number) => (
-                      <Row
-                        className=" rounded-lg py-3 pr-3"
-                        key={milestoneIndex}
-                      >
+                      <Row className=' rounded-lg py-1 pr-3' key={milestoneIndex}>
                         {keyResult?.metricType?.name === NAME.MILESTONE && (
                           <Col className="ml-5 mb-1" span={24}>
                             <strong>{`${milestoneIndex + 1}. ${milestone?.title ?? milestone?.description ?? 'No milestone Title'}`}</strong>
@@ -288,7 +285,7 @@ function Planning() {
                                         className="text-[10px] mr-2"
                                       >
                                         <span
-                                          className="text-xl "
+                                          className="text-xl"
                                           style={{ color: 'blue' }}
                                         >
                                           &bull;
