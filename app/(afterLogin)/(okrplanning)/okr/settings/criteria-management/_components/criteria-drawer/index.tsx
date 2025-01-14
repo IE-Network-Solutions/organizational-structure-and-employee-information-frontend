@@ -225,10 +225,10 @@ const ScoringDrawer: React.FC = () => {
       if (currentId) {
         payload.id = currentId;
         payload.updatedBy = userId; // Add `updatedBy` if `currentId` exists
-        await updateScoring({ id: currentId, values: payload });
+        updateScoring({ id: currentId, values: payload });
       } else {
         payload.createdBy = userId; // Add `createdBy` if `currentId` does not exist
-        await vpScoringMutate(payload);
+        vpScoringMutate(payload);
       }
     } catch (error) {
       notification.error({
@@ -275,7 +275,7 @@ const ScoringDrawer: React.FC = () => {
           name="name"
           rules={[{ required: true, message: 'Please enter the name' }]}
         >
-          <Input placeholder="Enter the name here" className="h-12" />
+          <Input placeholder="Enter the name here" />
         </Form.Item>
 
         <Form.Item
@@ -290,7 +290,6 @@ const ScoringDrawer: React.FC = () => {
             min={0}
             max={100}
             placeholder="Enter the total percentage"
-            className="h-12"
           />
         </Form.Item>
 
@@ -298,7 +297,6 @@ const ScoringDrawer: React.FC = () => {
           <Select
             placeholder="Select Department"
             onChange={handleDepartmentChange}
-            className="w-full h-12"
           >
             {departmentData?.map((dept: any) => (
               <Option key={dept.id} value={dept.id}>
@@ -317,7 +315,8 @@ const ScoringDrawer: React.FC = () => {
           <Select
             mode="multiple"
             placeholder="Add Users"
-            className="w-full h-12"
+            className="w-full min-h-12"
+
           >
             {filteredUsers.length > 0
               ? filteredUsers.map((user: any) => (
@@ -344,7 +343,8 @@ const ScoringDrawer: React.FC = () => {
             mode="multiple"
             placeholder="Select criteria"
             onChange={handleCriteriaChange}
-            className="flex-1 h-12"
+            className="flex-1 min-h-12"
+
           >
             {criteriaData?.items?.map((criteria: any) => (
               <Option key={criteria.id} value={criteria.name}>
