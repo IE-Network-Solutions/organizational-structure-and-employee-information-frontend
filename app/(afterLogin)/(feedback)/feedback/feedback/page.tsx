@@ -1,5 +1,5 @@
 'use client';
-import { Button, Card, Popconfirm, Table, Tabs } from 'antd';
+import { Avatar, Button, Card, Popconfirm, Table, Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import TabLandingLayout from '@/components/tabLanding';
@@ -8,6 +8,7 @@ import EmployeeSearchComponent from '@/components/common/search/searchComponent'
 import { useEffect } from 'react';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
+// import { FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
 import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
@@ -16,6 +17,8 @@ import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
+import { LuAward, LuUsers } from 'react-icons/lu';
+import { FaLongArrowAltUp } from 'react-icons/fa';
 
 const Page = () => {
   const {
@@ -48,7 +51,7 @@ const Page = () => {
     setVariantType(key);
   };
   useEffect(() => {
-    if (getAllFeedbackTypes?.items?.length) {
+    if (getAllFeedbackTypes?.items?.length > 0) {
       setActiveTab(getAllFeedbackTypes.items[0].id);
     }
   }, [getAllFeedbackTypes]);
@@ -119,17 +122,6 @@ const Page = () => {
       key: 'reason',
     },
     {
-      title: 'Reciepent',
-      dataIndex: 'recipientId',
-      key: 'recipientId',
-      render: (notused: any, record: any) => {
-        const user = getAllUsers?.items?.find(
-          (item: any) => item.id === record.recipientId,
-        );
-        return user ? `${user.firstName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
-      },
-    },
-    {
       title: 'Given Date',
       dataIndex: 'createdAt',
       key: 'createdAt',
@@ -193,9 +185,10 @@ const Page = () => {
       widthRatio: 0.5,
     },
   ];
+
   return (
     <TabLandingLayout
-      buttonTitle="Generate report"
+      // buttonTitle="Generate report"
       id="conversationLayoutId"
       onClickHandler={() => {}}
       title="Feedback"
@@ -211,7 +204,27 @@ const Page = () => {
       </div>
       <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((notused, index) => (
-          <Card key={index}>{index}</Card>
+          <Card key={index} className="bg-gray-100">
+            <div className="flex justify-between">
+              <Avatar className="bg-gray-300 text-green-800 -mt-2">
+                <LuAward />
+              </Avatar>
+              <p className="flex text-xs text-gray-400">
+                <span className="flex text-green-800 mx-2">
+                  <FaLongArrowAltUp /> 12.7%
+                </span>
+                Vs Last Week
+              </p>
+            </div>
+            <p className="text-gray-400 capitalize my-1">
+              Total number of appreciations received
+            </p>
+            <p className="font-bold text-lg">010</p>
+            <p className="flex justify-end text-xs text-gray-400 space-x-2">
+              <LuUsers />
+              <span>87 employees contributed</span>
+            </p>
+          </Card>
         ))}
       </div>
 
@@ -235,8 +248,12 @@ const Page = () => {
           buttonIcon={<PiPlus />}
           id="conversationLayoutId"
           onClickHandler={() => setOpen(true)}
-          title={<div className="text-lg">{variantType}</div>}
-          subtitle={`Given up on  ${variantType}`}
+          disabledMessage="Please select a feedback type"
+          buttonDisabled={activeTab === ''}
+          title={<div className="text-lg capitalize">{variantType}</div>}
+          subtitle={
+            <div className="capitalize">{`Given up on  ${variantType}`}</div>
+          }
           allowSearch={false}
         >
           <EmployeeSearchComponent
