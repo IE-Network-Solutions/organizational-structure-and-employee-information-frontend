@@ -98,25 +98,7 @@ function Planning() {
             />
           </div>
         </Tooltip>
-        {/* {selectedUser.includes(userId) &&
-          ((transformedData?.[0]?.isReported ?? false) ||
-            transformedData?.length === 0) && (
-            <CustomButton
-              disabled={
-                !(
-                  selectedUser.includes(userId) &&
-                  ((transformedData?.[0]?.isReported ?? false) ||
-                    transformedData?.length === 0)
-                )
-              }
-              title={`Create ${activeTabName} Plan`}
-              id="createActiveTabName"
-              icon={<FaPlus className="mr-2" />}
-              onClick={() => setOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-            />
-          </div> */}
-        {/* </Tooltip> */}
+
       </div>
       <EmployeeSearch
         optionArray1={employeeData?.items}
