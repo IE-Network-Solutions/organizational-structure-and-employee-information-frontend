@@ -234,8 +234,6 @@ const CreateMeeting = ({
     return groupedResult;
   };
 
-
-  
   return (
     <>
       <Steps

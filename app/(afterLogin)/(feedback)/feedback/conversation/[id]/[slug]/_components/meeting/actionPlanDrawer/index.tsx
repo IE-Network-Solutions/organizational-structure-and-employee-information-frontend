@@ -64,24 +64,22 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
       >
         {Array.from(
           { length: numberOfActionPlan },
-          (notused,index) => (
+          (notused, index) => (
             <Card
               key={index}
               title={
                 <div
                   className="flex justify-end text-red-600 cursor-pointer"
-                  onClick={() =>{
-                    // setNumberOfActionPlan(numberOfActionPlan - 1)
+                  onClick={() => {
                     const currentValues = form.getFieldsValue();
-
-                  // Remove the specific index from the array
-                  const updatedValues = Array.from({ length: numberOfActionPlan })
-                    .map((_, i) => currentValues[i])
-                    .filter((_, i) => i !== index);
-
-                  // Update the form values and adjust `numberOfActionPlan`
-                  form.setFieldsValue(updatedValues);
-                  setNumberOfActionPlan(numberOfActionPlan - 1);
+                    const updatedValues = Array.from({
+                      length: numberOfActionPlan,
+                    })
+                      .map((notused, i) => currentValues[i])
+                      .filter((notused, i) => i !== index);
+                    // Update the form values and adjust `numberOfActionPlan`
+                    form.setFieldsValue(updatedValues);
+                    setNumberOfActionPlan(numberOfActionPlan - 1);
                   }}
                 >
                   <TiDeleteOutline />

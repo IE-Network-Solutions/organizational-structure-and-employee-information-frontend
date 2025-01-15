@@ -21,17 +21,14 @@ const getConversationInstanceByQuestionSetId = async (
   id: string,
   userId: string | null,
   departmentId: string | null,
-  page?:number,
-  pageSize?:number
+  page?: number,
+  pageSize?: number,
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   // Build the URL dynamically based on non-empty parameters
-  const buildUrlWithParams = (
-    baseUrl: string,
-    params: Record<string, string | null>,
-  ) => {
+  const buildUrlWithParams = (baseUrl: string, params: Record<string, any>) => {
     const queryString = Object.entries(params)
       .filter(([, value]) => value != null && value !== '') // Exclude null, undefined, and empty string
       .map(([key, value]) => `${key}=${encodeURIComponent(value as string)}`)
@@ -44,6 +41,8 @@ const getConversationInstanceByQuestionSetId = async (
     {
       userId,
       departmentId,
+      page,
+      pageSize,
     },
   );
 
@@ -86,12 +85,19 @@ export const useGetAllConversationInstancesByQuestionSetId = (
   id: string,
   userId: string,
   departmentId: string,
-  page?:number,
-  pageSize?:number
+  page?: number,
+  pageSize?: number,
 ) => {
   return useQuery<any>(
     'conversation-instances',
-    () => getConversationInstanceByQuestionSetId(id, userId, departmentId,page,pageSize),
+    () =>
+      getConversationInstanceByQuestionSetId(
+        id,
+        userId,
+        departmentId,
+        page,
+        pageSize,
+      ),
     {
       enabled: typeof id === 'string' && id.length > 0,
       // keepPreviousData: true,

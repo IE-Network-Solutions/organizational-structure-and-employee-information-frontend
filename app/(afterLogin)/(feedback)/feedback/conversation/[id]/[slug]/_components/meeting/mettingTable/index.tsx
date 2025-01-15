@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Table, Button, Popconfirm, Form, Spin } from 'antd';
+import { Table, Button, Popconfirm, Form } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
@@ -55,8 +55,17 @@ const MettingDataTable = ({
   const router = useRouter();
 
   const { data: allUserData } = useGetAllUsers();
-  const { data: conversationInstances,isLoading:getInstanceLoading, refetch: refetchConversationInstances } =
-    useGetAllConversationInstancesByQuestionSetId(slug, userId, departmentId,page,pageSize);
+  const {
+    data: conversationInstances,
+    isLoading: getInstanceLoading,
+    refetch: refetchConversationInstances,
+  } = useGetAllConversationInstancesByQuestionSetId(
+    slug,
+    userId,
+    departmentId,
+    page,
+    pageSize,
+  );
 
   // Fetch data for a single conversation instance
   const { data: singleConvestionInstance } =
@@ -150,7 +159,10 @@ const MettingDataTable = ({
           <Popconfirm
             title="Are you sure you want to delete this item?"
             description="This action cannot be undone."
-            onConfirm={(e:any) =>{e.stopPropagation(); handleDelete(record.id)}}
+            onConfirm={(e: any) => {
+              e.stopPropagation();
+              handleDelete(record.id);
+            }}
             okText="Yes"
             cancelText="No"
           >
@@ -292,7 +304,6 @@ const MettingDataTable = ({
           />
         </Form>
       </CustomDrawerLayout>
-      
     </div>
   );
 };
