@@ -21,6 +21,8 @@ const getConversationInstanceByQuestionSetId = async (
   id: string,
   userId: string | null,
   departmentId: string | null,
+  page?:number,
+  pageSize?:number
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -84,10 +86,12 @@ export const useGetAllConversationInstancesByQuestionSetId = (
   id: string,
   userId: string,
   departmentId: string,
+  page?:number,
+  pageSize?:number
 ) => {
   return useQuery<any>(
     'conversation-instances',
-    () => getConversationInstanceByQuestionSetId(id, userId, departmentId),
+    () => getConversationInstanceByQuestionSetId(id, userId, departmentId,page,pageSize),
     {
       enabled: typeof id === 'string' && id.length > 0,
       // keepPreviousData: true,

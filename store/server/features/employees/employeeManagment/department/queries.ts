@@ -4,8 +4,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
+
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
@@ -45,6 +44,8 @@ const getDepartmentsWithUsers = async () => {
  */
 
 const getDepartment = async (id: string) => {
+const token = useAuthenticationStore.getState().token;
+const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
