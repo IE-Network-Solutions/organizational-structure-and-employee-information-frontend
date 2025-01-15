@@ -256,16 +256,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           setOrderDirection(sorter['order']);
           setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
         }}
-        // onRow={(rowData: CommonObject) => {
-        //   return {
-        //     onClick: () => {
-        //       setLeaveRequestId(rowData.key);
-        //       console.log(rowData.key, rowData.workflowId, '###', rowData);
-        //       setLeaveRequestWorkflowId(rowData.key);
-        //       setIsShowLeaveRequestManagementSidebar(true);
-        //     },
-        //   };
-        // }}
       />
     </div>
   );
