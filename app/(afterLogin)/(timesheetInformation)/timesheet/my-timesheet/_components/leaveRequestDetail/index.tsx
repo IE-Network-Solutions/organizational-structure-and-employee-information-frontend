@@ -28,6 +28,8 @@ const LeaveRequestDetail = () => {
     setIsShowLeaveRequestDetail,
     leaveRequestSidebarData,
     setLeaveRequestSidebarData,
+    leaveRequestSidebarWorkflowData,
+    setLeaveRequestSidebarWorkflowData,
   } = useMyTimesheetStore();
 
   const { data: employeeData } = useGetAllUsers();
@@ -38,6 +40,7 @@ const LeaveRequestDetail = () => {
 
   const onClose = () => {
     setLeaveRequestSidebarData(null);
+    setLeaveRequestSidebarWorkflowData(null);
     setIsShowLeaveRequestDetail(false);
   };
 
@@ -47,7 +50,9 @@ const LeaveRequestDetail = () => {
 
   const { data: logData } = useGetSingleApprovalLog(
     leaveRequestSidebarData ?? '',
+    leaveRequestSidebarWorkflowData ?? '',
   );
+
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -57,10 +62,25 @@ const LeaveRequestDetail = () => {
       onClick: () => {
         onClose();
         setLeaveRequestSidebarData(null);
+        setLeaveRequestSidebarWorkflowData(null);
       },
     },
   ];
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
+  type ApprovalRecord = {
+    approverId: string; // UUID
+    userId: string; // UUID
+    stepOrder: number;
+    status: 'Approved' | 'Rejected' | 'Pending'; // Adjust enum as needed
+    conditionField: string | null;
+    conditionRangeValue: string | null;
+    tenantId: string; // UUID
+    approvalLogId: string; // UUID
+    requestId: string; // UUID
+    approvalWorkflowId: string; // UUID
+    action: 'Approved' | 'Rejected'; // Adjust enum as needed
+    approvalComments: any;
+  };
 
   return (
     isShowLeaveRequestDetail && (
@@ -162,13 +182,15 @@ const LeaveRequestDetail = () => {
                 <ApprovalStatusesInfo />
               </div>
 
-              {logData?.items?.map((approvalCard, idx) => (
-                <ApprovalStatusCard
-                  key={idx}
-                  data={approvalCard}
-                  userName={userData}
-                />
-              ))}
+              {logData
+                ?.sort((a, b) => a.stepOrder - b.stepOrder)
+                ?.map((approvalCard: ApprovalRecord, idx: any) => (
+                  <ApprovalStatusCard
+                    key={idx}
+                    data={approvalCard}
+                    userName={userData}
+                  />
+                ))}
             </div>
             <Divider className="my-8 h-[5px] bg-gray-200" />
 

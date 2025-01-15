@@ -16,6 +16,7 @@ type MyTimesheetState = {
   isShowLeaveRequestSidebar: boolean;
   isShowLeaveRequestDetail: boolean;
   leaveRequestSidebarData: string | null;
+  leaveRequestSidebarWorkflowData: string | null;
   isShowCheckOutSidebar: boolean;
   checkStatus: CheckStatus;
   leaveTypes: LeaveType[];
@@ -32,6 +33,9 @@ type MyTimesheetAction = {
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
   setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail: boolean) => void;
   setLeaveRequestSidebarData: (leaveRequestSidebarData: string | null) => void;
+  setLeaveRequestSidebarWorkflowData: (
+    leaveRequestSidebarWorkflowData: string | null,
+  ) => void;
   setIsShowCheckOutSidebar: (isShowCheckOutSidebar: boolean) => void;
   setCheckStatus: (checkStatus: CheckStatus) => void;
   setLeaveTypes: (leaveTypes: LeaveType[]) => void;
@@ -66,6 +70,11 @@ const useMyTimesheetSlice: StateCreator<
   leaveRequestSidebarData: null,
   setLeaveRequestSidebarData: (leaveRequestSidebarData) => {
     set({ leaveRequestSidebarData });
+  },
+
+  leaveRequestSidebarWorkflowData: null,
+  setLeaveRequestSidebarWorkflowData: (leaveRequestSidebarWorkflowData) => {
+    set({ leaveRequestSidebarWorkflowData });
   },
 
   isShowCheckOutSidebar: false,

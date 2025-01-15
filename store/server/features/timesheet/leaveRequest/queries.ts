@@ -73,12 +73,12 @@ const getSingleLeaveRequest = async (requestId: string) => {
   });
   return response;
 };
-const getSingleApprovalLog = async (requestId: string) => {
+const getSingleApprovalLog = async (requestId: string, workflowId: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
-    url: `${APPROVER_URL}/approval-logs/${requestId}`,
+    url: `${APPROVER_URL}/approver/status/${requestId}/${workflowId}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -139,10 +139,13 @@ export const useGetSingleLeaveRequest = (requestId: string) => {
     },
   );
 };
-export const useGetSingleApprovalLog = (requestId: string) => {
+export const useGetSingleApprovalLog = (
+  requestId: string,
+  workflowId: string,
+) => {
   return useQuery<SingleLogResponse<SingleLogRequest>>(
-    ['single-leave-log', requestId],
-    () => getSingleApprovalLog(requestId),
+    ['single-leave-log', requestId, workflowId],
+    () => getSingleApprovalLog(requestId, workflowId),
     {
       enabled: !!requestId,
     },

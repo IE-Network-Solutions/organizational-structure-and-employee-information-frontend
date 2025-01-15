@@ -35,6 +35,7 @@ const HistoryTable = () => {
     setIsShowLeaveRequestDetail: isShowDetail,
     setIsShowLeaveRequestSidebar: isShow,
     setLeaveRequestSidebarData,
+    setLeaveRequestSidebarWorkflowData,
   } = useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
   const {
@@ -165,6 +166,7 @@ const HistoryTable = () => {
             onDetail={() => {
               isShowDetail(true);
               setLeaveRequestSidebarData(item.id);
+              setLeaveRequestSidebarWorkflowData(item.approvalWorkflowId);
             }}
           />
         </AccessGuard>
