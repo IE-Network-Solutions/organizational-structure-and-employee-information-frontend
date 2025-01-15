@@ -140,43 +140,44 @@ function Planning() {
     setOpen: any,
   ) => (
     <Menu>
-      {!dataItem?.isValidated && 
-      <div>
-        <Menu.Item key="edit">
-          <Tooltip title="Edit Plan">
-            <Button
-              type="text"
-              icon={<AiOutlineEdit />}
-              onClick={() => {
-                setEditing(true);
-                setSelectedPlanId(dataItem?.id);
-                setOpen(true);
-              }}
-            >
-              Edit
-            </Button>
-          </Tooltip>
-        </Menu.Item>
-        <Menu.Item key="delete">
-          <Popconfirm
-            title="Are you sure to delete this plan?"
-            onConfirm={() => handleDeletePlan(dataItem?.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Tooltip title="Delete Plan">
+      {!dataItem?.isValidated && (
+        <div>
+          <Menu.Item key="edit">
+            <Tooltip title="Edit Plan">
               <Button
                 type="text"
-                style={{ color: 'red' }} // Red text for delete action
-                icon={<AiOutlineDelete />}
-                loading={planDeleteLoading}
+                icon={<AiOutlineEdit />}
+                onClick={() => {
+                  setEditing(true);
+                  setSelectedPlanId(dataItem?.id);
+                  setOpen(true);
+                }}
               >
-                Delete
+                Edit
               </Button>
             </Tooltip>
-          </Popconfirm>
-        </Menu.Item>
-      </div>}
+          </Menu.Item>
+          <Menu.Item key="delete">
+            <Popconfirm
+              title="Are you sure to delete this plan?"
+              onConfirm={() => handleDeletePlan(dataItem?.id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Tooltip title="Delete Plan">
+                <Button
+                  type="text"
+                  style={{ color: 'red' }} // Red text for delete action
+                  icon={<AiOutlineDelete />}
+                  loading={planDeleteLoading}
+                >
+                  Delete
+                </Button>
+              </Tooltip>
+            </Popconfirm>
+          </Menu.Item>
+        </div>
+      )}
     </Menu>
   );
 
