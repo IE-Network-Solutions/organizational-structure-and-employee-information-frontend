@@ -177,16 +177,16 @@ const LeaveRequestManagementSidebar = () => {
               <div className="my-2.5">
                 <ApprovalStatusesInfo />
               </div>
-
-              {logData
-                ?.sort((a, b) => a.stepOrder - b.stepOrder)
-                ?.map((approvalCard: ApprovalRecord, idx: any) => (
-                  <ApprovalStatusCard
-                    key={idx}
-                    data={approvalCard}
-                    userName={userData}
-                  />
-                ))}
+              {Array.isArray(logData) &&
+                logData
+                  ?.sort((a, b) => a.stepOrder - b.stepOrder)
+                  ?.map((approvalCard: ApprovalRecord, idx: number) => (
+                    <ApprovalStatusCard
+                      key={idx}
+                      data={approvalCard}
+                      userName={userData}
+                    />
+                  ))}
             </div>
             <Divider className="my-8 h-[5px] bg-gray-200" />
 
