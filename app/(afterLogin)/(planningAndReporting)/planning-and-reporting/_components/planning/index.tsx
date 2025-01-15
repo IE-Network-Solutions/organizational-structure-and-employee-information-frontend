@@ -17,7 +17,7 @@ import {
 } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
-import { IoIosClose, IoMdMore } from 'react-icons/io';
+import { IoIosClose, IoIosOpen, IoMdMore } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
 import KeyResultMetrics from '../keyResult';
 import {
@@ -97,36 +97,25 @@ function Planning() {
   ) => (
     <Menu>
       {!dataItem?.isValidated ? (
-        <Menu.Item key="approve">
+        <Menu.Item  icon={<IoCheckmarkSharp />}
+        
+        onClick={() => handleApproveHandler(dataItem?.id, true)}
+        className="text-green-500" key="approve">
           <Tooltip
             title={
               isApprovalLoading
                 ? 'Processing approval...'
                 : "Approve Plan! Once you approve, you can't edit"
             }
-          >
-            <Button
-              type="text"
-              icon={<IoCheckmarkSharp />}
-              loading={isApprovalLoading}
-              onClick={() => handleApproveHandler(dataItem?.id, true)}
-              className="text-green-500"
-            >
+          >         
               Approve
-            </Button>
           </Tooltip>
         </Menu.Item>
       ) : (
-        <Menu.Item key="reject">
-          <Tooltip title="Reject Plan">
-            <Button
-              type="text"
-              danger
-              icon={<IoIosClose />}
-              onClick={() => handleApproveHandler(dataItem?.id, false)}
-            >
-              Reject
-            </Button>
+        <Menu.Item className='text-red-400'  icon={<IoIosOpen size={16} />}
+        onClick={() => handleApproveHandler(dataItem?.id, false)} key="reject">
+          <Tooltip title="Open approved Plan">       
+              Open
           </Tooltip>
         </Menu.Item>
       )}
@@ -138,45 +127,42 @@ function Planning() {
     setSelectedPlanId: any,
     setOpen: any,
   ) => (
+  
     <Menu>
-      {!dataItem?.isValidated ? (
-        <Menu.Item key="edit">
-          <Tooltip title="Edit Plan">
-            <Button
-              type="text"
-              icon={<AiOutlineEdit />}
-              onClick={() => {
-                setEditing(true);
-                setSelectedPlanId(dataItem?.id);
-                setOpen(true);
-              }}
-            >
-              Edit
-            </Button>
-          </Tooltip>
-        </Menu.Item>
-      ) : (
-        <Menu.Item key="delete">
-          <Popconfirm
-            title="Are you sure to delete this plan?"
-            onConfirm={() => handleDeletePlan(dataItem?.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Tooltip title="Delete Plan">
-              <Button
-                type="text"
-                style={{ color: 'red' }} // Red text for delete action
-                icon={<AiOutlineDelete />}
-                loading={planDeleteLoading}
-              >
-                Delete
-              </Button>
-            </Tooltip>
-          </Popconfirm>
-        </Menu.Item>
-      )}
-    </Menu>
+  {/* Edit Plan */}
+  <Menu.Item 
+    icon={<AiOutlineEdit size={16} />} 
+    onClick={() => {
+      setEditing(true);
+      setSelectedPlanId(dataItem?.id);
+      setOpen(true);
+    }} 
+    key="edit"
+  >
+    <Tooltip title="Edit Plan">
+      <span>Edit</span>
+    </Tooltip>
+  </Menu.Item>
+
+  {/* Delete Plan */}
+  <Menu.Item 
+    className="text-red-400" 
+    icon={<AiOutlineDelete size={16} />} 
+    key="delete"
+  >
+    <Popconfirm
+      title="Are you sure you want to delete this plan?"
+      onConfirm={() => handleDeletePlan(dataItem?.id || "")}
+      okText="Yes"
+      cancelText="No"
+    >
+      <Tooltip title="Delete Plan">
+        <span>Delete</span>
+      </Tooltip>
+    </Popconfirm>
+  </Menu.Item>
+</Menu>
+
   );
 
   return (
@@ -301,7 +287,7 @@ function Planning() {
                                 />
                               </Dropdown>
                             )}
-                            {userId === dataItem?.createdBy && (
+                            {(userId === dataItem?.createdBy && dataItem?.isValidated==false) &&   (
                               <Dropdown
                                 overlay={actionsMenuEditandDelte(
                                   dataItem,
