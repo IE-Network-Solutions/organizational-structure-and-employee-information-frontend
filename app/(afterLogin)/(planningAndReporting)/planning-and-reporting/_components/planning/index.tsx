@@ -140,7 +140,8 @@ function Planning() {
     setOpen: any,
   ) => (
     <Menu>
-      {!dataItem?.isValidated ? (
+      {!dataItem?.isValidated && 
+      <div>
         <Menu.Item key="edit">
           <Tooltip title="Edit Plan">
             <Button
@@ -156,7 +157,6 @@ function Planning() {
             </Button>
           </Tooltip>
         </Menu.Item>
-      ) : (
         <Menu.Item key="delete">
           <Popconfirm
             title="Are you sure to delete this plan?"
@@ -176,7 +176,7 @@ function Planning() {
             </Tooltip>
           </Popconfirm>
         </Menu.Item>
-      )}
+      </div>}
     </Menu>
   );
 

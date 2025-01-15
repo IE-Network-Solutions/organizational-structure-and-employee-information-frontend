@@ -1,6 +1,6 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
-import { Avatar, Card, Col, Row, Tooltip, Typography } from 'antd';
+import { Avatar, Card, Col, Row, Spin, Tooltip, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { MdOutlinePending } from 'react-icons/md';
@@ -51,6 +51,7 @@ function Reporting() {
   };
 
   return (
+    <Spin spinning={getReportLoading} tip="Loading...">
     <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
         <Title level={5}>Reporting</Title>
@@ -198,6 +199,7 @@ function Reporting() {
         </div>
       )}
     </div>
+    </Spin>
   );
 }
 export default Reporting;
