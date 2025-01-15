@@ -53,7 +53,7 @@ function Reporting() {
   return (
     <div className="min-h-screen">
       <div className="flex flex-wrap justify-between items-center my-4 gap-4">
-        <Title level={5}>Planning</Title>
+        <Title level={5}>Reporting</Title>
         <Tooltip
           title={
             !(

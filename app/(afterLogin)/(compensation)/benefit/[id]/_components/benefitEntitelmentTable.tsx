@@ -15,10 +15,18 @@ import { useBenefitEntitlementStore } from '@/store/uistate/features/compensatio
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 
 const BenefitEntitlementTable = () => {
-  const { setIsBenefitEntitlementSidebarOpen, currentPage, pageSize, setCurrentPage, setPageSize, BenefitApplicableTo } = useBenefitEntitlementStore();
+  const {
+    setIsBenefitEntitlementSidebarOpen,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    BenefitApplicableTo,
+  } = useBenefitEntitlementStore();
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
   const { id } = useParams();
-  const { data: benefitEntitlementsData, isLoading } = useFetchBenefitEntitlement(id);
+  const { data: benefitEntitlementsData, isLoading } =
+    useFetchBenefitEntitlement(id);
 
   const transformedData = Array.isArray(benefitEntitlementsData)
     ? benefitEntitlementsData.map((item: any) => ({
@@ -59,22 +67,37 @@ const BenefitEntitlementTable = () => {
       dataIndex: 'mode',
       key: 'mode',
       sorter: true,
-      render: (mode: string) => <div>{mode == 'CREDIT' ? 'Credit' : 'Debit'}</div>,
+      render: (mode: string) => (
+        <div>{mode == 'CREDIT' ? 'Credit' : 'Debit'}</div>
+      ),
     },
     {
       title: 'Amount',
       dataIndex: 'Amount',
       key: 'Amount',
       sorter: true,
-      render: (amount: string, record) =>
-        <div>{amount ? (record.isRate ? `${amount}% of base salary` : `${amount} ETB`) : '-'}</div>,
+      render: (amount: string, record) => (
+        <div>
+          {amount
+            ? record.isRate
+              ? `${amount}% of base salary`
+              : `${amount} ETB`
+            : '-'}
+        </div>
+      ),
     },
     {
       title: 'Applicable To',
       dataIndex: 'ApplicableTo',
       key: 'ApplicableTo',
       sorter: true,
-      render: (applicableTo: string) => <div>{applicableTo === 'PER-EMPLOYEE' ? 'Selected Employee' : 'All Employees'}</div>,
+      render: (applicableTo: string) => (
+        <div>
+          {applicableTo === 'PER-EMPLOYEE'
+            ? 'Selected Employee'
+            : 'All Employees'}
+        </div>
+      ),
     },
     {
       title: 'Action',

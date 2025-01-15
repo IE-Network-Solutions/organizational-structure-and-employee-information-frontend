@@ -70,7 +70,7 @@ export interface CategoriesUseState {
   setSelectedFeedback: (selectedFeedback: any) => void;
 
   editableData: any;
-  setEditableData: (activeTab: any) => void;
+  setEditableData: (editableData: any) => void;
 
   departmentId: string;
   setDepartmentId: (departmentid: string) => void;
@@ -132,7 +132,7 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedFeedbackRecord: (selectedFeedbackRecord: FeedbackRecord | null) =>
     set({ selectedFeedbackRecord }),
 
-  activeTab: '1',
+  activeTab: '',
   setActiveTab: (activeTab: string) => set({ activeTab }),
 
   editableData: null,

@@ -47,7 +47,6 @@ export const useCreateFiscalYear = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
       closeFiscalYearDrawer();
-      handleSuccessMessage('PUT');
       NotificationMessage.success({
         message: 'Fiscal year created successfully!',
         description: 'Fiscal year has been successfully created',

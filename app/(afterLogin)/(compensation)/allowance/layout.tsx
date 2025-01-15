@@ -11,26 +11,29 @@ interface TimesheetSettingsLayoutProps {
   children: ReactNode;
 }
 
-const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({
-  children,
-}) => {
+const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const { data } = useFetchAllowances();
   const [menuItems, setMenuItems] = useState<any>([]);
 
   useEffect(() => {
     if (data) {
-      const filteredData = data.filter((item: any) => item.type === 'ALLOWANCE');
-      const dynamicMenuItems = filteredData?.map((allowance: any) => ({
-        item: {
-          key: allowance.id,
-          icon: <CiCalendarDate />,
-          label: (
-            <p className="menu-item-label">{allowance.name || 'Unnamed Allowance'}</p>
-          ),
-          className: 'px-1',
-        },
-        link: `/allowance/${allowance.id}`,
-      })) || [];
+      const filteredData = data.filter(
+        (item: any) => item.type === 'ALLOWANCE',
+      );
+      const dynamicMenuItems =
+        filteredData?.map((allowance: any) => ({
+          item: {
+            key: allowance.id,
+            icon: <CiCalendarDate />,
+            label: (
+              <p className="menu-item-label">
+                {allowance.name || 'Unnamed Allowance'}
+              </p>
+            ),
+            className: 'px-1',
+          },
+          link: `/allowance/${allowance.id}`,
+        })) || [];
 
       const allAllowanceItem = {
         item: {
@@ -42,10 +45,7 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({
         link: '/allowance/allAllowance',
       };
 
-      setMenuItems([
-        allAllowanceItem,
-        ...dynamicMenuItems,
-      ]);
+      setMenuItems([allAllowanceItem, ...dynamicMenuItems]);
     }
   }, [data]);
 

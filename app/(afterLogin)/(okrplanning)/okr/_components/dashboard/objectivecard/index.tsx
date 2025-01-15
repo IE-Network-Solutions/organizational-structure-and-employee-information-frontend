@@ -30,8 +30,10 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
 
   const showDrawer = () => {
     setOpen(true);
-    setObjectiveValue(objective);
+    setObjectiveValue(objective); // Update the objective value
   };
+
+  // Monitor `objectiveValue` change
 
   const onClose = () => {
     setOpen(false);
@@ -41,7 +43,6 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const completedKeyResults =
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
-
   const menu = (
     <Menu
       items={[
@@ -94,7 +95,9 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 {/* Objective Progress */}
                 <div className="grid items-center">
                   <div className="text-xs text-gray-600">
-                    {Number(objective?.objectiveProgress)?.toLocaleString()}%
+                    <span className="text-sm text-blue">
+                      {Number(objective?.objectiveProgress)?.toLocaleString()}%
+                    </span>{' '}
                     Objective Progress
                   </div>
                   <Progress

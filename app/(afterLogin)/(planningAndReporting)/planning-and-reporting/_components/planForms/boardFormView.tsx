@@ -10,6 +10,7 @@ import {
   Select,
   Space,
 } from 'antd';
+import { NAME } from '@/types/enumTypes';
 
 interface BoardCardInterface {
   form: any;
@@ -19,6 +20,7 @@ interface BoardCardInterface {
   hideTargetValue: boolean;
   name: string;
   isMKAsTask?: boolean;
+  keyResult: any;
 }
 
 function BoardCardForm({
@@ -28,9 +30,9 @@ function BoardCardForm({
   hideTargetValue,
   name,
   isMKAsTask = false,
+  keyResult,
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
-
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
@@ -38,9 +40,9 @@ function BoardCardForm({
           {subfields.map(({ key, name: subName, ...restSubField }) => (
             <Form.Item
               required={false}
-              className="border-2 border-primary p-4 rounded-lg m-4 shadow-lg"
+              className="border-2 border-primary px-4 py-2 rounded-lg m-4 shadow-lg "
               key={key}
-              label={'Task'}
+              label={<div className="text-xs">Task</div>}
             >
               <Form.Item
                 {...restSubField}
@@ -53,6 +55,7 @@ function BoardCardForm({
                 <Input
                   disabled={isMKAsTask}
                   placeholder="Add your tasks here"
+                  className="text-[12px]"
                 />
               </Form.Item>
               <Form.Item
@@ -64,27 +67,87 @@ function BoardCardForm({
               >
                 <Input type="hidden" />
               </Form.Item>
-              <Divider className="mt-4" />
-              <Form.Item
-                hidden={hideTargetValue}
-                label="Target"
-                {...restSubField}
-                name={[subName, 'targetValue']}
-                key={`${subName}-targetValue`} // Unique key for targetValue
-              >
-                <InputNumber
-                  defaultValue={0}
-                  formatter={(value) =>
-                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                  }
-                />
-              </Form.Item>
+              <Divider className="mt-2 mb-2" />
+              {(keyResult?.metricType?.name != NAME.ACHIEVE ||
+                keyResult?.metricType?.name != NAME.MILESTONE) && (
+                <Form.Item
+                  hidden={hideTargetValue}
+                  label={<div className="text-xs">Target</div>}
+                  {...restSubField}
+                  name={[subName, 'targetValue']}
+                  key={`${subName}-targetValue`}
+                  rules={[
+                    {
+                      /* eslint-disable @typescript-eslint/naming-convention */
+                      validator(_, value: any) {
+                        /* eslint-enable @typescript-eslint/naming-convention */
+                        // Check if keyResult is available
+                        if (
+                          !keyResult ||
+                          !keyResult.targetValue ||
+                          !keyResult.currentValue
+                        ) {
+                          return Promise.reject(
+                            new Error('Key result data is incomplete.'),
+                          );
+                        }
 
-              <Row justify="space-between">
+                        // Skip validation for specific metric types
+                        if (
+                          keyResult?.metricType?.name === NAME.ACHIEVE ||
+                          keyResult?.metricType?.name === NAME.MILESTONE
+                        ) {
+                          return Promise.resolve(); // Skip validation
+                        }
+
+                        // Handle null or undefined value
+                        if (value === null || value === undefined) {
+                          return Promise.reject(
+                            new Error('Please enter a target value.'),
+                          );
+                        }
+
+                        // Ensure value is a valid number
+                        const numericValue = Number(value);
+                        if (isNaN(numericValue)) {
+                          return Promise.reject(
+                            new Error('Please enter a valid number.'),
+                          );
+                        }
+
+                        // Validate against the key result limits
+                        if (
+                          numericValue <=
+                          keyResult.targetValue - keyResult.currentValue
+                        ) {
+                          return Promise.resolve(); // Validation passed
+                        }
+
+                        // Reject with custom error message
+                        return Promise.reject(
+                          new Error(
+                            "Your target value shouldn't be greater than your key result target value.",
+                          ),
+                        );
+                      },
+                    },
+                  ]}
+                >
+                  <InputNumber
+                    className="w-28 text-xs"
+                    defaultValue={0} // Set a default value to avoid null issues
+                    formatter={(value) =>
+                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                    }
+                  />
+                </Form.Item>
+              )}
+
+              <Row justify="space-between" align={'middle'}>
                 <Col>
                   <Space size={10}>
                     <Form.Item
-                      label="Weight"
+                      label={<div className="text-xs">Weight</div>}
                       {...restSubField}
                       name={[subName, 'weight']}
                       key={`${subName}-weight`} // Unique key for weight
@@ -94,13 +157,13 @@ function BoardCardForm({
                     >
                       <InputNumber
                         placeholder={'0'}
-                        className="w-16"
+                        className="w-28 text-xs"
                         min={0}
                         max={100}
                       />
                     </Form.Item>
                     <Form.Item
-                      label="Priority"
+                      label={<div className="text-xs">Priority</div>}
                       {...restSubField}
                       name={[subName, 'priority']}
                       key={`${subName}-priority`} // Unique key for priority
@@ -109,19 +172,27 @@ function BoardCardForm({
                       ]}
                     >
                       <Select
-                        placeholder="Select Priority"
-                        className="w-24"
+                        placeholder={
+                          <div className="text-xs">Select Priority</div>
+                        }
+                        className="w-32 h-7"
                         options={[
                           {
-                            label: <div className="text-error">High</div>,
+                            label: (
+                              <div className="text-error text-xs">High</div>
+                            ),
                             value: 'high',
                           },
                           {
-                            label: <div className="text-warning">Medium</div>,
+                            label: (
+                              <div className="text-warning text-xs">Medium</div>
+                            ),
                             value: 'medium',
                           },
                           {
-                            label: <div className="text-success">Low</div>,
+                            label: (
+                              <div className="text-success text-xs">Low</div>
+                            ),
                             value: 'low',
                           },
                         ]}

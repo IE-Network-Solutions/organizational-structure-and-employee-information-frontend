@@ -7,7 +7,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { SearchOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
-import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/index';
+import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 import AllowanceEntitlementSideBar from './allowanceEntitlementSidebar';
 import { useFetchAllowanceEntitlements } from '@/store/server/features/compensation/allowance/queries';
 import { useParams } from 'next/navigation';
@@ -15,8 +15,16 @@ import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensat
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 
 const AllowanceEntitlementTable = () => {
-  const { setIsAllowanceEntitlementSidebarOpen, isAllowanceGlobal, currentPage, pageSize, setCurrentPage, setPageSize } = useAllowanceEntitlementStore();
-  const { mutate: deleteAllowanceEntitlement } = useDeleteAllowanceEntitlement();
+  const {
+    setIsAllowanceEntitlementSidebarOpen,
+    isAllowanceGlobal,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+  } = useAllowanceEntitlementStore();
+  const { mutate: deleteAllowanceEntitlement } =
+    useDeleteAllowanceEntitlement();
   const { id } = useParams();
   const {
     data: allowanceEntitlementData,
