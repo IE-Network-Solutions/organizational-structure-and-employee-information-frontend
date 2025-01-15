@@ -293,7 +293,9 @@ const OrgChartComponent: React.FC = () => {
               if (transferDepartment) {
                 transferDepartments(transferDepartment);
               }
+
             } else if (footerButtonText == 'Merge') {
+
               mergeDepartments(mergeData);
             } else {
               setIsDeleteConfirmVisible(true);
