@@ -14,6 +14,7 @@ type MyTimesheetState = {
   filter: Partial<LeaveRequestBody['filter']>;
   isShowViewSidebar: boolean;
   isShowLeaveRequestSidebar: boolean;
+  isLoading: boolean;
   isShowLeaveRequestDetail: boolean;
   leaveRequestSidebarData: string | null;
   leaveRequestSidebarWorkflowData: string | null;
@@ -31,6 +32,7 @@ type MyTimesheetAction = {
   setFilter: (filter: Partial<LeaveRequestBody['filter']>) => void;
   setIsShowViewSidebar: (isShowViewSidebar: boolean) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
+  setIsLoading: (isLoading: boolean) => void;
   setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail: boolean) => void;
   setLeaveRequestSidebarData: (leaveRequestSidebarData: string | null) => void;
   setLeaveRequestSidebarWorkflowData: (
@@ -60,6 +62,11 @@ const useMyTimesheetSlice: StateCreator<
   isShowLeaveRequestSidebar: false,
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar) => {
     set({ isShowLeaveRequestSidebar });
+  },
+
+  isLoading: false,
+  setIsLoading: (isLoading) => {
+    set({ isLoading });
   },
 
   isShowLeaveRequestDetail: false,

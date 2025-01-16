@@ -9,6 +9,7 @@ import { LeaveRequestStatus } from '@/types/timesheet/settings';
 import React from 'react';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
+  useGetSingleApproval,
   useGetSingleApprovalLog,
   useGetSingleLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/queries';
@@ -53,6 +54,9 @@ const LeaveRequestDetail = () => {
     leaveRequestSidebarWorkflowData ?? '',
   );
 
+  const { data: approverLog } = useGetSingleApproval(
+    leaveRequestSidebarData ?? '',
+  );
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -172,6 +176,21 @@ const LeaveRequestDetail = () => {
                 </Col>
               )}
             </Row>
+            {leaveData?.items?.status == 'pending' && (
+              <div>
+                <Divider className="my-8 h-[5px] bg-gray-200" />
+                <div>
+                  <div className="flex items-center justify-between mt-5 mb-4">
+                    <div className="text-sm font-semibold text-gray-900">
+                      Next Approver
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 flex gap-2">
+                      Level {(approverLog?.items?.length ?? 0) + 1}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             <Divider className="my-8 h-[5px] bg-gray-200" />
             <div>
               <div className="text-lg font-semibold text-gray-900">
