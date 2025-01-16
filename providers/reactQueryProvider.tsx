@@ -102,7 +102,7 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
             useAuthenticationStore.getState().setToken(refreshedToken);
           }
         } catch (error) {
-          console.error('Error refreshing token:', error);
+          handleNetworkError(error);
         }
       }
     }
