@@ -41,7 +41,7 @@ const Dashboard: React.FC<any> = () => {
           />
           <ObjectiveKeyResult />
           <Performance />
-          <div className="flex justify-between">
+          {/* <div className="flex justify-between">
             <div className="text-xl font-bold">Achievement</div>
           </div>
           <div className="flex">
@@ -67,7 +67,7 @@ const Dashboard: React.FC<any> = () => {
                 </Col>
               </Row>
             </div>
-          </div>
+          </div> */}
         </div>
       ) : (
         <VPdashboard />
