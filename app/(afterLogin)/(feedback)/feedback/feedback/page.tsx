@@ -11,13 +11,14 @@ import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedb
 // import { FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
-import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
+import { useFetchAllFeedbackRecord, useFetchFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/queries';
 import dayjs from 'dayjs';
 import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { FeedbackService } from './_components/feedbackAnalytics';
 
 const Page = () => {
   const {
@@ -32,15 +33,21 @@ const Page = () => {
     setActiveTab,
     activeTab,
   } = ConversationStore();
+  const userIdData = useAuthenticationStore.getState().userId;
+
   const { data: getAllUsersData } = useGetAllUsers();
   const { data: getAllFeedbackTypes, isLoading: getFeedbackTypeLoading } =
     useFetchAllFeedbackTypes();
   const { data: getAllFeedbackRecord } = useFetchAllFeedbackRecord();
+  const { data: getFeedbackRecord } = useFetchFeedbackRecordById(userIdData);
+
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
 
   const { data: getAllUsers } = useGetAllUsers();
-  const userIdData = useAuthenticationStore.getState().userId;
   const [filteredFeedbackRecord, setFilteredFeedbackRecord] = useState<any>([]);
+
+
+  const feedbackAnaliytics=FeedbackService?.getFeedbackStats(getFeedbackRecord)
   const editHandler = (record: any) => {
     setSelectedFeedbackRecord(record);
   };

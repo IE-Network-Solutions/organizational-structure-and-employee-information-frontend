@@ -236,6 +236,9 @@ function Page() {
   const handleRowClick = (record: any) => {
     navigate.push(`/feedback/recognition/${record.id}`);
   };
+
+
+  console.log(getActiveFisicalYear,!fiscalActiveYearId , !activeMonthId , !activeSessionId,"activeSessionId")
   return (
     <div>
       <Tabs
