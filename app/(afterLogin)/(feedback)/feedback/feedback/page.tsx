@@ -1,5 +1,5 @@
 'use client';
-import { Avatar, Button, Card, Popconfirm, Table, Tabs } from 'antd';
+import { Button, Popconfirm, Spin, Table, Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import TabLandingLayout from '@/components/tabLanding';
@@ -17,8 +17,6 @@ import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
-import { LuAward, LuUsers } from 'react-icons/lu';
-import { FaLongArrowAltUp } from 'react-icons/fa';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const Page = () => {
@@ -35,14 +33,15 @@ const Page = () => {
     activeTab,
   } = ConversationStore();
   const { data: getAllUsersData } = useGetAllUsers();
-  const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
+  const { data: getAllFeedbackTypes, isLoading: getFeedbackTypeLoading } =
+    useFetchAllFeedbackTypes();
   const { data: getAllFeedbackRecord } = useFetchAllFeedbackRecord();
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
 
   const { data: getAllUsers } = useGetAllUsers();
- const userIdData=useAuthenticationStore.getState().userId
- const [filteredFeedbackRecord, setFilteredFeedbackRecord] = useState<any>([]);
- const editHandler = (record: any) => {
+  const userIdData = useAuthenticationStore.getState().userId;
+  const [filteredFeedbackRecord, setFilteredFeedbackRecord] = useState<any>([]);
+  const editHandler = (record: any) => {
     setSelectedFeedbackRecord(record);
   };
   const handleDelete = (id: string) => {
@@ -55,25 +54,27 @@ const Page = () => {
 
   useEffect(() => {
     let data = getAllFeedbackRecord ?? []; // Default to an empty array if data is undefined
-  
+
     // Filter by variantType
     if (variantType) {
-      data = data.filter((item: any) => item?.feedbackVariant?.variant === variantType);
-    }
-  
-    // Filter by activeTab
-    if (activeTab) {
-      console.log(activeTab,"activeTab")
-      data = data.filter((item: any) => item?.feedbackTypeId === activeTab);
-    }
-  
-    // // Filter by userId
-    if (userId !== 'all') {
-      data = data.filter((item: any) => 
-        item?.recipientId === userId || item?.issuerId === userId
+      data = data.filter(
+        (item: any) => item?.feedbackVariant?.variant === variantType,
       );
     }
-  
+
+    // Filter by activeTab
+    if (activeTab) {
+      data = data.filter((item: any) => item?.feedbackTypeId === activeTab);
+    }
+
+    // // Filter by userId
+    if (userId !== 'all') {
+      data = data.filter(
+        (item: any) =>
+          item?.recipientId === userId || item?.issuerId === userId,
+      );
+    }
+
     // Update the state with the filtered data
     setFilteredFeedbackRecord(data);
   }, [getAllFeedbackRecord, variantType, activeTab, userId, userIdData]);
@@ -82,8 +83,8 @@ const Page = () => {
     setVariantType(key);
   };
   const onChangeUserType = (key: string) => {
-    const data=key==='personal' ? userIdData :'all';
-     setUserId(data)
+    const data = key === 'personal' ? userIdData : 'all';
+    setUserId(data);
   };
   useEffect(() => {
     if (getAllFeedbackTypes?.items?.length > 0) {
@@ -231,11 +232,13 @@ const Page = () => {
       allowSearch={false}
     >
       <div className="flex justify-end">
-        <Tabs
-          defaultActiveKey="personal"
-          items={items}
-          onChange={onChangeUserType}
-        />
+        <Spin spinning={getFeedbackTypeLoading} tip="Loading...">
+          <Tabs
+            defaultActiveKey="personal"
+            items={items}
+            onChange={onChangeUserType}
+          />
+        </Spin>
       </div>
       <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {/* {Array.from({ length: 4 }).map((notused, index) => (

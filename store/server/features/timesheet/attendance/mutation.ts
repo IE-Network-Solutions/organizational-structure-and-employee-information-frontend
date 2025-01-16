@@ -58,7 +58,9 @@ export const useAttendanceImport = () => {
         error?.response?.data?.errors &&
         error?.response?.data?.errors.length > 0
       ) {
-        useAttendanceImportErrorModalStore.getState().showModal(error.response.data.errors || []);
+        useAttendanceImportErrorModalStore
+          .getState()
+          .showModal(error.response.data.errors || []);
       }
     },
   });
