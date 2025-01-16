@@ -2,7 +2,6 @@ import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplannin
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { Card, Col, Progress, Row } from 'antd';
 import React from 'react';
-import { FaArrowUp } from 'react-icons/fa';
 
 const ObjectiveKeyResult: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;

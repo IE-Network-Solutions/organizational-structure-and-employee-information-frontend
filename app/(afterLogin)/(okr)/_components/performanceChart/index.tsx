@@ -48,7 +48,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
             ? `Day ${score.day}`
             : '',
     ),
-  
+
     datasets: [
       {
         data: scores?.map((score: any) => score?.totalscore),
@@ -79,7 +79,6 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
       },
     },
   };
-  console.log(scores,")()()(")
   return (
     <div className="mb-10">
       <Bar data={data} options={options} />

@@ -1,8 +1,8 @@
 'use client';
-import { Col, Row, Space, Switch } from 'antd';
+import { Space, Switch } from 'antd';
 import React from 'react';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import ProgressCard from '@/app/(afterLogin)/(okr)/_components/achievementCard';
+// import ProgressCard from '@/app/(afterLogin)/(okr)/_components/achievementCard';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import ObjectiveKeyResult from './_components/objectiveKeyResult';
 import Performance from './_components/Performance';
@@ -10,10 +10,10 @@ import VPdashboard from './_components/vpDashboard';
 
 const Dashboard: React.FC<any> = () => {
   const {
-    revenue,
-    financialSales,
-    progressRevenue,
-    progressSales,
+    // revenue,
+    // financialSales,
+    // progressRevenue,
+    // progressSales,
     isVP,
     toggleDashboard,
   } = useOKRStore();
