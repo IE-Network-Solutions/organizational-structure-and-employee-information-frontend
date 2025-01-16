@@ -6,8 +6,9 @@ import { handleNetworkError } from '@/utils/showErrorResponse';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { removeCookie } from '@/helpers/storageHelper';
+import { removeCookie, setCookie } from '@/helpers/storageHelper';
 import { Spin } from 'antd';
+import { auth } from '@/utils/firebaseConfig';
 
 /**
  * Interface for the props of the ReactQueryWrapper component
@@ -23,7 +24,32 @@ interface ReactQueryWrapperProps {
  * @param children The child components to be wrapped by the QueryClientProvider
  * @returns The QueryClientProvider wrapping the children
  */
+export const refreshToken = async () => {
+  const getCookieFromDocument = (key: string): string | null => {
+    const cookies = document.cookie.split('; ');
+    const cookie = cookies.find((c) => c.startsWith(`${key}=`));
+    return cookie ? cookie.split('=')[1] : null;
+  };
 
+  const token = getCookieFromDocument('token');
+  if (token) {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const refreshedToken = await user.getIdToken(true); // Force refresh token
+        if (refreshedToken !== token) {
+          setCookie('token', refreshedToken, 30);
+          useAuthenticationStore.getState().setToken(refreshedToken);
+          console.log(
+            '------------------automatically refresh Token successfully  ----------------',
+          );
+        }
+      } catch (error) {
+        console.error('Error refreshing token:', error);
+      }
+    }
+  }
+};
 const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   const router = useRouter();
   const { setLocalId, setTenantId, setToken, setUserId, setError } =
@@ -48,7 +74,7 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       mutations: {
         onError(error: any) {
           if (error?.response?.status === 401) {
-            handleLogout();
+            // refreshToken();
           }
           handleNetworkError(error);
         },
@@ -65,7 +91,7 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       onError(error: any) {
         if (error.response) {
           if (error.response.status === 401) {
-            handleLogout();
+            // refreshToken();
           }
         }
         if (process.env.NODE_ENV !== 'production') {
