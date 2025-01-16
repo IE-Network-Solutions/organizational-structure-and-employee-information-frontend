@@ -17,7 +17,7 @@ import {
 } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
-import { IoIosClose, IoIosOpen, IoMdMore } from 'react-icons/io';
+import { IoIosOpen, IoMdMore } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
 import KeyResultMetrics from '../keyResult';
 import {
@@ -54,11 +54,11 @@ function Planning() {
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
-  const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } = useApprovalPlanningPeriods();
+  const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
+    useApprovalPlanningPeriods();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
-  const { mutate: handleDeletePlan, isLoading: planDeleteLoading } =
-    useDeletePlanById();
+  const { mutate: handleDeletePlan } = useDeletePlanById();
 
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
@@ -97,26 +97,30 @@ function Planning() {
   ) => (
     <Menu>
       {!dataItem?.isValidated ? (
-        <Menu.Item  icon={<IoCheckmarkSharp />}
-        
-        onClick={() => handleApproveHandler(dataItem?.id, true)}
-        className="text-green-500" key="approve">
+        <Menu.Item
+          icon={<IoCheckmarkSharp />}
+          onClick={() => handleApproveHandler(dataItem?.id, true)}
+          className="text-green-500"
+          key="approve"
+        >
           <Tooltip
             title={
               isApprovalLoading
                 ? 'Processing approval...'
                 : "Approve Plan! Once you approve, you can't edit"
             }
-          >         
-              Approve
+          >
+            Approve
           </Tooltip>
         </Menu.Item>
       ) : (
-        <Menu.Item className='text-red-400'  icon={<IoIosOpen size={16} />}
-        onClick={() => handleApproveHandler(dataItem?.id, false)} key="reject">
-          <Tooltip title="Open approved Plan">       
-              Open
-          </Tooltip>
+        <Menu.Item
+          className="text-red-400"
+          icon={<IoIosOpen size={16} />}
+          onClick={() => handleApproveHandler(dataItem?.id, false)}
+          key="reject"
+        >
+          <Tooltip title="Open approved Plan">Open</Tooltip>
         </Menu.Item>
       )}
     </Menu>
@@ -127,42 +131,40 @@ function Planning() {
     setSelectedPlanId: any,
     setOpen: any,
   ) => (
-  
     <Menu>
-  {/* Edit Plan */}
-  <Menu.Item 
-    icon={<AiOutlineEdit size={16} />} 
-    onClick={() => {
-      setEditing(true);
-      setSelectedPlanId(dataItem?.id);
-      setOpen(true);
-    }} 
-    key="edit"
-  >
-    <Tooltip title="Edit Plan">
-      <span>Edit</span>
-    </Tooltip>
-  </Menu.Item>
+      {/* Edit Plan */}
+      <Menu.Item
+        icon={<AiOutlineEdit size={16} />}
+        onClick={() => {
+          setEditing(true);
+          setSelectedPlanId(dataItem?.id);
+          setOpen(true);
+        }}
+        key="edit"
+      >
+        <Tooltip title="Edit Plan">
+          <span>Edit</span>
+        </Tooltip>
+      </Menu.Item>
 
-  {/* Delete Plan */}
-  <Menu.Item 
-    className="text-red-400" 
-    icon={<AiOutlineDelete size={16} />} 
-    key="delete"
-  >
-    <Popconfirm
-      title="Are you sure you want to delete this plan?"
-      onConfirm={() => handleDeletePlan(dataItem?.id || "")}
-      okText="Yes"
-      cancelText="No"
-    >
-      <Tooltip title="Delete Plan">
-        <span>Delete</span>
-      </Tooltip>
-    </Popconfirm>
-  </Menu.Item>
-</Menu>
-
+      {/* Delete Plan */}
+      <Menu.Item
+        className="text-red-400"
+        icon={<AiOutlineDelete size={16} />}
+        key="delete"
+      >
+        <Popconfirm
+          title="Are you sure you want to delete this plan?"
+          onConfirm={() => handleDeletePlan(dataItem?.id || '')}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Tooltip title="Delete Plan">
+            <span>Delete</span>
+          </Tooltip>
+        </Popconfirm>
+      </Menu.Item>
+    </Menu>
   );
 
   return (
@@ -287,23 +289,24 @@ function Planning() {
                                 />
                               </Dropdown>
                             )}
-                            {(userId === dataItem?.createdBy && dataItem?.isValidated==false) &&   (
-                              <Dropdown
-                                overlay={actionsMenuEditandDelte(
-                                  dataItem,
-                                  setEditing,
-                                  setSelectedPlanId,
-                                  setOpen,
-                                )}
-                                trigger={['click']}
-                              >
-                                <Button
-                                  type="text"
-                                  icon={<IoMdMore className="text-2xl" />}
-                                  className="cursor-pointer  text-black border-none  hover:text-primary"
-                                />
-                              </Dropdown>
-                            )}
+                            {userId === dataItem?.createdBy &&
+                              dataItem?.isValidated == false && (
+                                <Dropdown
+                                  overlay={actionsMenuEditandDelte(
+                                    dataItem,
+                                    setEditing,
+                                    setSelectedPlanId,
+                                    setOpen,
+                                  )}
+                                  trigger={['click']}
+                                >
+                                  <Button
+                                    type="text"
+                                    icon={<IoMdMore className="text-2xl" />}
+                                    className="cursor-pointer  text-black border-none  hover:text-primary"
+                                  />
+                                </Dropdown>
+                              )}
                           </>
                         </Col>
                       </Row>
@@ -314,7 +317,7 @@ function Planning() {
             >
               {dataItem?.keyResults?.map(
                 (keyResult: any, keyResultIndex: number) => (
-                  <>
+                  <div key={keyResult?.id} className="">
                     <KeyResultMetrics
                       keyResult={
                         keyResult ?? {
@@ -327,8 +330,8 @@ function Planning() {
                     {keyResult?.milestones?.map(
                       (milestone: any, milestoneIndex: number) => (
                         <Row
-                          className=" rounded-lg py-3 pr-3"
-                          key={milestoneIndex}
+                          className="rounded-lg py-1 pr-3"
+                          key={milestone?.id}
                         >
                           {keyResult?.metricType?.name === NAME.MILESTONE && (
                             <Col className="ml-5 mb-1" span={24}>
@@ -337,104 +340,93 @@ function Planning() {
                           )}
                           {milestone?.tasks?.map(
                             (task: any, taskIndex: number) => (
-                              <Col
-                                className="ml-8 mb-1"
-                                span={24}
-                                key={taskIndex}
+                              <Row
+                                key={task.id}
+                                align={'middle'}
+                                justify={'space-between'}
+                                className="w-full"
                               >
-                                <Row align={'middle'} justify={'space-between'}>
-                                  <Col span={12}>
-                                    <Text className="text-sm">
-                                      {keyResult?.metricType?.name ===
-                                      NAME.MILESTONE
-                                        ? `${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`
-                                        : `${taskIndex + 1}. ${task?.task}`}
-                                    </Text>
-                                  </Col>
-                                  <Col span={12}>
-                                    <Row
-                                      justify="start"
-                                      align={'middle'}
-                                      className="gap-1"
+                                <Col className="ml-8 mb-1">
+                                  <Text className="text-sm">
+                                    {keyResult?.metricType?.name ===
+                                    NAME.MILESTONE
+                                      ? `${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`
+                                      : `${taskIndex + 1}. ${task?.task}`}
+                                  </Text>
+                                </Col>
+                                <Col className="">
+                                  <Text
+                                    type="secondary"
+                                    className="text-[10px] mr-2"
+                                  >
+                                    <span
+                                      className="text-xl"
+                                      style={{ color: 'blue' }}
                                     >
-                                      {/* Priority Section */}
-                                      <Col>
-                                        <Text
-                                          type="secondary"
-                                          className="text-[10px] mr-2"
-                                        >
-                                          <span
-                                            className="text-xl "
-                                            style={{ color: 'blue' }}
-                                          >
-                                            &bull;
-                                          </span>{' '}
-                                          Priority
-                                        </Text>
-                                        <Tag
-                                          className="font-bold border-none w-16  text-center capitalize text-[10px]"
-                                          color={
-                                            task?.priority === 'high'
-                                              ? 'red'
-                                              : task?.priority === 'medium'
-                                                ? 'orange'
-                                                : 'green'
-                                          }
-                                        >
-                                          {task?.priority || 'None'}
-                                        </Tag>
-                                      </Col>
+                                      &bull;
+                                    </span>{' '}
+                                    Priority
+                                  </Text>
+                                  <Tag
+                                    className="font-bold border-none w-16 text-center capitalize text-[10px]"
+                                    color={
+                                      task?.priority === 'high'
+                                        ? 'red'
+                                        : task?.priority === 'medium'
+                                          ? 'orange'
+                                          : 'green'
+                                    }
+                                  >
+                                    {task?.priority || 'None'}
+                                  </Tag>
 
-                                      {/* Point Section */}
+                                  {/* Point Section */}
 
-                                      {/* Target Section */}
-                                      <Col className="text-xs">
-                                        <Text
-                                          type="secondary"
-                                          className="text-[10px] mr-2"
+                                  {/* Target Section */}
+                                  <Text
+                                    type="secondary"
+                                    className="text-[10px] mr-2"
+                                  >
+                                    <span
+                                      className="text-xl"
+                                      style={{ color: 'blue' }}
+                                    >
+                                      &bull;
+                                    </span>{' '}
+                                    Weight:
+                                  </Text>
+                                  <Tag
+                                    className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
+                                    color="#B2B2FF"
+                                  >
+                                    {task?.weight || 0}
+                                  </Tag>
+
+                                  {keyResult?.metricType?.name !==
+                                    'Milestone' && (
+                                    <>
+                                      <Text
+                                        type="secondary"
+                                        className="text-[10px]"
+                                      >
+                                        <span
+                                          className="text-xl"
+                                          style={{ color: 'blue' }}
                                         >
-                                          <span
-                                            className="text-xl "
-                                            style={{ color: 'blue' }}
-                                          >
-                                            &bull;
-                                          </span>{' '}
-                                          Weight:
-                                        </Text>
-                                        <Tag
-                                          className="font-bold border-none w-16  text-center cap text-blue text-[10px]"
-                                          color="#B2B2FF"
-                                        >
-                                          {task?.weight || 0}
-                                        </Tag>
-                                      </Col>
-                                      {keyResult?.metricType?.name !=
-                                        'Milestone' && (
-                                        <Col className="text-xs">
-                                          <Text
-                                            type="secondary"
-                                            className="text-[10px] mr-2"
-                                          >
-                                            <span
-                                              className="text-xl "
-                                              style={{ color: 'blue' }}
-                                            >
-                                              &bull;
-                                            </span>{' '}
-                                            Target:
-                                          </Text>
-                                          <Tag
-                                            className="font-bold border-none w-16  text-center cap text-blue text-[10px]"
-                                            color="#B2B2FF"
-                                          >
-                                            {task?.targetValue || 'N/A'}
-                                          </Tag>
-                                        </Col>
-                                      )}
-                                    </Row>
-                                  </Col>
-                                </Row>
-                              </Col>
+                                          &bull;
+                                        </span>{' '}
+                                        Target:
+                                      </Text>
+                                      <Tag
+                                        className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
+                                        color="#B2B2FF"
+                                      >
+                                        {task?.targetValue || 'N/A'}
+                                      </Tag>
+                                    </>
+                                  )}
+                                </Col>
+                              </Row>
                             ),
                           )}
                         </Row>
@@ -494,7 +486,7 @@ function Planning() {
                         </Col>
                       </Row>
                     ))}
-                  </>
+                  </div>
                 ),
               )}
               <CommentCard
