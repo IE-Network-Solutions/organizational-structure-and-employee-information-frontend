@@ -187,7 +187,7 @@ const EmployeeAttendance = () => {
       </div>
       <EmployeeAttendanceSideBar />
       {/* <BreakImportSidebar /> */}
-      <AttendanceImportErrorModal/>
+      <AttendanceImportErrorModal />
     </>
   );
 };
