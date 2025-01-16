@@ -7,14 +7,15 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 
 import RecognitionForm from '../_components/recognition/createRecognition';
-import { useGetAllRecognitionType } from '@/store/server/features/CFR/recognition/queries';
+import { useGetAllRecognitionData } from '@/store/server/features/CFR/recognition/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
 const Page = () => {
   const { open, setOpen, setOpenRecognitionType, openRecognitionType } =
     ConversationStore();
-  const { data: recognitionType } = useGetAllRecognitionType();
+  // const { data: recognitionType } = useGetAllRecognitionType();
+  const { data: recognitionType } = useGetAllRecognitionData();
 
   const onChange = () => {};
 
@@ -51,7 +52,7 @@ const Page = () => {
             onClick={() => setOpenRecognitionType(true)}
             icon={<FaPlus />}
             type="primary"
-            className="flex gap-2"
+            className="flex gap-2 ml-2 mt-3"
           >
             Category
           </Button>
@@ -67,6 +68,7 @@ const Page = () => {
         <RecognitionForm />
       </CustomDrawerLayout>
       <Drawer
+        width={600} // Adjust the width as needed
         title={modalHeader}
         onClose={() => setOpenRecognitionType(false)}
         open={openRecognitionType}

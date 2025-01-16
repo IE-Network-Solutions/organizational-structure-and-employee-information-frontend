@@ -10,7 +10,7 @@ interface StoreState {
 const useDrawerStore = create<StoreState>((set) => ({
   isClient: false,
   setIsClient: (value) => set({ isClient: value }),
-  currentWidth: '40%',
+  currentWidth: '60%',
   setCurrentWidth: (value) => set({ currentWidth: value }),
 }));
 

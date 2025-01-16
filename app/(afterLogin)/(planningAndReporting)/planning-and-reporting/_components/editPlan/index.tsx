@@ -12,6 +12,8 @@ import {
   AllPlanningPeriods,
   useGetPlanningById,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { FaPlus } from 'react-icons/fa';
+import { NAME } from '@/types/enumTypes';
 
 function EditPlan() {
   const {
@@ -26,6 +28,8 @@ function EditPlan() {
     setWeight,
     resetWeights,
     totalWeight,
+    mkAsATask,
+    setMKAsATask,
   } = PlanningAndReportingStore();
   const { userId } = useAuthenticationStore();
   const [form] = Form.useForm();
@@ -71,6 +75,7 @@ function EditPlan() {
     }, 0);
     setWeight(namesKey, totalWeight);
   };
+
   const handleAddBoard = (kId: string) => {
     const boardsKey = `board-${kId}`;
     const board = form.getFieldValue(boardsKey) || [];
@@ -144,7 +149,7 @@ function EditPlan() {
         open={open === true && isEditing === true ? true : false}
         onClose={onClose}
         modalHeader={modalHeader}
-        width="40%"
+        width="70%"
         paddingBottom={5}
       >
         <Form
@@ -157,7 +162,14 @@ function EditPlan() {
             {objective?.items?.map(
               (e: Record<string, any>, panelIndex: number) => {
                 return (
-                  <Collapse.Panel header={e.title} key={panelIndex}>
+                  <Collapse.Panel
+                    header={
+                      <div>
+                        <strong>Objective:</strong> {e.title}
+                      </div>
+                    }
+                    key={panelIndex}
+                  >
                     {e?.keyResults?.map(
                       (kr: Record<string, any>, resultIndex: number) => {
                         const hasMilestone =
@@ -165,18 +177,68 @@ function EditPlan() {
                             ? true
                             : false;
                         const hasTargetValue =
-                          kr?.metricType?.name === 'Achieve' ||
-                          kr?.metricType?.name === 'Milestone'
+                          kr?.metricType?.name === NAME.ACHIEVE ||
+                          kr?.metricType?.name === NAME.MILESTONE
                             ? true
                             : false;
                         return (
                           <>
-                            {' '}
                             <div
-                              className="flex justify-between"
+                              className="flex flex-col justify-between"
                               key={resultIndex}
                             >
-                              <h4>{kr?.title}</h4>
+                              <div className="flex justify-between">
+                                <span className="font-bold">Key Result: </span>
+                                <span className="font-bold">Weight </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="rounded-lg border-gray-200 border bg-gray-300 w-6 h-6 text-[12px] flex items-center justify-center">
+                                    {resultIndex + 1}{' '}
+                                  </span>
+                                  <span className="text-[12px] font-semibold">
+                                    {kr?.title}
+                                  </span>
+                                </div>
+
+                                {hasMilestone ? (
+                                  <></>
+                                ) : (
+                                  <>
+                                    <div className="flex gap-3 items-center">
+                                      <Button
+                                        onClick={() => handleAddBoard(kr?.id)}
+                                        type="link"
+                                        icon={<BiPlus />}
+                                        iconPosition="start"
+                                        className="text-[10px]"
+                                      >
+                                        Add Plan Task
+                                      </Button>
+                                      {kr?.metricType?.name ===
+                                        NAME.ACHIEVE && (
+                                        <Tooltip
+                                          className=" ml-5"
+                                          title="Plan keyResult as a Task"
+                                        >
+                                          <Button
+                                            size="small"
+                                            className="text-[10px] text-primary"
+                                            icon={<FaPlus />}
+                                            onClick={() => {
+                                              setMKAsATask(kr?.title);
+                                              handleAddBoard(kr?.id);
+                                            }}
+                                          />
+                                        </Tooltip>
+                                      )}
+                                      <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
+                                        {weights[`names-${kr?.id}`] || 0}%
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
                             </div>
                             {hasMilestone ? (
                               <>
@@ -184,23 +246,48 @@ function EditPlan() {
                                   (ml: Record<string, any>) => {
                                     return (
                                       <>
-                                        <div className="flex gap-3">
-                                          <span>{ml?.title}</span>{' '}
-                                          <Button
-                                            onClick={() =>
-                                              handleAddBoard(kr?.id + ml?.id)
-                                            }
-                                            type="link"
-                                            icon={<BiPlus />}
-                                            iconPosition="start"
-                                          >
-                                            Add Plan Task
-                                          </Button>{' '}
-                                          <div>
-                                            Total Weight:
-                                            {weights[
-                                              `names-${kr?.id + ml?.id}`
-                                            ] || 0}
+                                        <div className="flex  items-center justify-between">
+                                          <span className="text-xs">
+                                            {ml?.title}
+                                          </span>
+                                          <div className="flex gap-2 items-center">
+                                            <Button
+                                              onClick={() => {
+                                                setMKAsATask(null);
+                                                handleAddBoard(kr?.id + ml?.id);
+                                              }}
+                                              type="link"
+                                              icon={<BiPlus size={14} />}
+                                              iconPosition="start"
+                                              className="text-[10px]"
+                                            >
+                                              Add Plan Task
+                                            </Button>
+
+                                            {kr?.metricType?.name ===
+                                              NAME.MILESTONE && (
+                                              <Tooltip title="Plan Milestone as a Task">
+                                                <Button
+                                                  disabled={ml.achieveMK}
+                                                  size="small"
+                                                  className="text-[10px] text-primary"
+                                                  icon={<FaPlus />}
+                                                  onClick={() => {
+                                                    setMKAsATask(ml?.title);
+                                                    handleAddBoard(
+                                                      kr?.id + ml?.id,
+                                                    );
+                                                  }}
+                                                />
+                                              </Tooltip>
+                                            )}
+
+                                            <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
+                                              {weights[
+                                                `names-${kr?.id + ml?.id}`
+                                              ] || 0}
+                                              %
+                                            </div>
                                           </div>
                                         </div>
                                         <>
@@ -219,6 +306,9 @@ function EditPlan() {
                                                 }
                                                 userId={userId}
                                                 planningUserId={planningUserId}
+                                                isMKAsTask={
+                                                  mkAsATask ? true : false
+                                                }
                                                 keyResult={kr}
                                               />
                                             )}
@@ -231,6 +321,9 @@ function EditPlan() {
                                             kId={kr?.id}
                                             hideTargetValue={hasTargetValue}
                                             name={kr?.id + ml?.id}
+                                            isMKAsTask={
+                                              mkAsATask ? true : false
+                                            }
                                             keyResult={kr}
                                           />
                                         </>
@@ -241,20 +334,6 @@ function EditPlan() {
                               </>
                             ) : (
                               <>
-                                <div className="flex gap-3">
-                                  <Button
-                                    onClick={() => handleAddBoard(kr?.id)}
-                                    type="link"
-                                    icon={<BiPlus />}
-                                    iconPosition="start"
-                                  >
-                                    Add Plan Task
-                                  </Button>
-                                  <div>
-                                    Total Weight:
-                                    {weights[`names-${kr?.id}`] || 0}
-                                  </div>
-                                </div>
                                 <Divider className="my-2" />
                                 {planningPeriodId && planningUserId && (
                                   <DefaultCardForm
@@ -267,6 +346,7 @@ function EditPlan() {
                                     planningPeriodId={planningPeriodId}
                                     userId={userId}
                                     planningUserId={planningUserId}
+                                    isMKAsTask={mkAsATask ? true : false}
                                     keyResult={kr}
                                   />
                                 )}
@@ -277,6 +357,7 @@ function EditPlan() {
                                   kId={kr?.id}
                                   hideTargetValue={hasTargetValue}
                                   name={kr?.id}
+                                  isMKAsTask={mkAsATask ? true : false}
                                   keyResult={kr}
                                 />
                               </>

@@ -27,25 +27,32 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   // Default width
   const { isClient, setIsClient, currentWidth, setCurrentWidth } =
     useDrawerStore();
+
   useEffect(() => {
     setIsClient(true);
+
     const updateWidth = () => {
       if (window.innerWidth <= 768) {
         setCurrentWidth('90%');
       } else {
-        setCurrentWidth(width || '40%');
+        setCurrentWidth(width || '70%');
       }
     };
+
+    // Run the width update once on mount
     updateWidth();
+
+    // Add the resize event listener
     window.addEventListener('resize', updateWidth);
+
+    // Cleanup the event listener on unmount
     return () => {
       window.removeEventListener('resize', updateWidth);
     };
-  }, [width]);
+  }, [width, currentWidth, setCurrentWidth]);
 
   // Render the component only on the client side
   if (!isClient) return null;
-
   return (
     <div>
       <>
@@ -72,7 +79,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
       {/* removed the padding because it is not needed for Drawer */}
       <Drawer
         title={modalHeader}
-        width={currentWidth}
+        width={width || currentWidth}
         closable={false}
         onClose={onClose}
         open={open}
