@@ -1,5 +1,5 @@
 'use client';
-import { Button, Popconfirm, Spin, Table, Tabs } from 'antd';
+import { Button, Form, Popconfirm, Spin, Table, Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import TabLandingLayout from '@/components/tabLanding';
@@ -11,7 +11,10 @@ import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedb
 // import { FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
-import { useFetchAllFeedbackRecord, useFetchFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/queries';
+import {
+  useFetchAllFeedbackRecord,
+  useFetchFeedbackRecordById,
+} from '@/store/server/features/feedback/feedbackRecord/queries';
 import dayjs from 'dayjs';
 import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
@@ -41,13 +44,15 @@ const Page = () => {
   const { data: getAllFeedbackRecord } = useFetchAllFeedbackRecord();
   const { data: getFeedbackRecord } = useFetchFeedbackRecordById(userIdData);
 
+  const [form] = Form.useForm();
+
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
 
   const { data: getAllUsers } = useGetAllUsers();
   const [filteredFeedbackRecord, setFilteredFeedbackRecord] = useState<any>([]);
 
-
-  const feedbackAnaliytics=FeedbackService?.getFeedbackStats(getFeedbackRecord)
+  const feedbackAnaliytics =
+    FeedbackService?.getFeedbackStats(getFeedbackRecord);
   const editHandler = (record: any) => {
     setSelectedFeedbackRecord(record);
   };
@@ -57,12 +62,10 @@ const Page = () => {
     });
   };
 
-  // console.log({"getAllFeedbackRecord":getAllFeedbackRecord, "variantType":variantType, "activeTab":activeTab, "userId":userId, "userIdData":userIdData},"getAllFeedbackRecord")
-
   useEffect(() => {
     let data = getAllFeedbackRecord ?? []; // Default to an empty array if data is undefined
-
     // Filter by variantType
+
     if (variantType) {
       data = data.filter(
         (item: any) => item?.feedbackVariant?.variant === variantType,
@@ -93,11 +96,13 @@ const Page = () => {
     const data = key === 'personal' ? userIdData : 'all';
     setUserId(data);
   };
+
   useEffect(() => {
+    setUserId(userIdData);
     if (getAllFeedbackTypes?.items?.length > 0) {
       setActiveTab(getAllFeedbackTypes.items[0].id);
     }
-  }, [getAllFeedbackTypes]);
+  }, [getAllFeedbackTypes, userIdData]);
 
   const onChangeFeedbackType = (key: string) => {
     setActiveTab(key);
@@ -239,13 +244,11 @@ const Page = () => {
       allowSearch={false}
     >
       <div className="flex justify-end">
-        <Spin spinning={getFeedbackTypeLoading} tip="Loading...">
-          <Tabs
-            defaultActiveKey="personal"
-            items={items}
-            onChange={onChangeUserType}
-          />
-        </Spin>
+        <Tabs
+          defaultActiveKey="personal"
+          items={items}
+          onChange={onChangeUserType}
+        />
       </div>
       <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {/* {Array.from({ length: 4 }).map((notused, index) => (
@@ -272,16 +275,17 @@ const Page = () => {
           </Card>
         ))} */}
       </div>
-
-      <Tabs
-        className="max-w-[850px]"
-        defaultActiveKey={activeTab}
-        items={getAllFeedbackTypes?.items?.map((item: FeedbackTypeItems) => ({
-          key: item?.id,
-          label: item?.category,
-        }))}
-        onChange={onChangeFeedbackType}
-      />
+      <Spin spinning={getFeedbackTypeLoading} tip="Loading...">
+        <Tabs
+          className="max-w-[850px]"
+          defaultActiveKey={activeTab}
+          items={getAllFeedbackTypes?.items?.map((item: FeedbackTypeItems) => ({
+            key: item?.id,
+            label: item?.category,
+          }))}
+          onChange={onChangeFeedbackType}
+        />
+      </Spin>
       <Tabs
         defaultActiveKey="appreciation"
         items={variantTypeItems}
@@ -305,7 +309,11 @@ const Page = () => {
             fields={searchField}
             onChange={handleSearchChange}
           />
-          <Table dataSource={filteredFeedbackRecord ?? []} columns={columns} />
+          <Table
+            loading={getFeedbackRecordLoading}
+            dataSource={filteredFeedbackRecord ?? []}
+            columns={columns}
+          />
         </TabLandingLayout>
       </div>
       <div>
@@ -316,11 +324,12 @@ const Page = () => {
           onClose={() => {
             setOpen(false);
             setSelectedFeedbackRecord(null);
+            form.resetFields();
           }}
           modalHeader={modalHeader}
-          width="30%"
+          width="40%"
         >
-          <CreateFeedbackForm />
+          <CreateFeedbackForm form={form} />
         </CustomDrawerLayout>
       </div>
     </TabLandingLayout>

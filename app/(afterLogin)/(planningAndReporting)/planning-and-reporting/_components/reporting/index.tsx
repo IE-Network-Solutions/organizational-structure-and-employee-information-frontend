@@ -20,6 +20,7 @@ import { ReportingType } from '@/types/enumTypes';
 import TasksDisplayer from './milestone';
 import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
+import { UserOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 
@@ -100,12 +101,21 @@ function Reporting() {
                 <div>
                   <Row gutter={16} className="items-center">
                     <Col xs={4} sm={2} md={1}>
-                      <Avatar
-                        style={{ verticalAlign: 'middle' }}
-                        size="default"
-                      >
-                        user
-                      </Avatar>
+                      {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
+                        <Avatar
+                          src={
+                            getEmployeeData(dataItem?.createdBy)?.profileImage
+                          }
+                          style={{ verticalAlign: 'middle' }}
+                          size="default"
+                        />
+                      ) : (
+                        <Avatar
+                          icon={<UserOutlined />}
+                          style={{ verticalAlign: 'middle' }}
+                          size="default"
+                        />
+                      )}
                     </Col>
                     <Col xs={20} sm={22} md={23}>
                       <Row className="font-bold text-lg">
@@ -119,19 +129,18 @@ function Reporting() {
                               : '')}
                         </Row>
                       </Row>
-                      <Row className="flex justify-between items-center">
-                        <Row gutter={16} justify={'start'}>
+                      <Row className="flex justify-between items-center space-x-3">
+                        <Row gutter={16} justify={'start'} align={'middle'}>
                           <Col className="text-gray-500 text-xs">Status</Col>
                           <Col>
-                            <Avatar
-                              size={16}
-                              shape="square"
-                              className={`-mt-2 ${dataItem?.status ? 'bg-green-300' : 'bg-yellow-300'}`}
-                              icon={<MdOutlinePending />}
-                            />
+                            <div
+                              className={` py-1 px-1 text-white rounded-md ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
+                            >
+                              <MdOutlinePending size={14} />
+                            </div>
                           </Col>
                           <Col className="text-xs -ml-3">
-                            {dataItem?.status ? 'Closed' : 'Open'}
+                            {dataItem?.isValidated ? 'Closed' : 'Open'}
                           </Col>
                         </Row>
                         <Col
