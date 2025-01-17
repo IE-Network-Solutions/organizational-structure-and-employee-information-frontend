@@ -6,9 +6,8 @@ import React, {
   useState,
 } from 'react';
 import LeaveManagementTableFilter from './tableFilter';
-import { Avatar, Table } from 'antd';
+import { Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
-import { UserOutlined } from '@ant-design/icons';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { TbFileDownload } from 'react-icons/tb';
 import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
