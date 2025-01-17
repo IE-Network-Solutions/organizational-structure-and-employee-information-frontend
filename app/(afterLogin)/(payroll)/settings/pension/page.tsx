@@ -1,6 +1,6 @@
 'use client';
-import { Table, Button, Space, Typography } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Table, Button, Typography } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import React from 'react';
 const { Title } = Typography;
 
