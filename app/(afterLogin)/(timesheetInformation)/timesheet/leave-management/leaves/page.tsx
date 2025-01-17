@@ -9,16 +9,17 @@ import { LuBookmark } from 'react-icons/lu';
 import LeaveRequestManagementSidebar from './_components/leaveRequestManagementSidebar';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import { useEffect, useState } from 'react';
-import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import LeaveRequestSidebar from '../../my-timesheet/_components/leaveRequestSidebar';
+import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 
 const LeaveManagement = () => {
   const [bodyRequest, setBodyRequest] = useState<LeaveRequestBody>(
     {} as LeaveRequestBody,
   );
-  const { setLeaveTypes } = useLeaveManagementStore();
+  const { setLeaveTypes } = useMyTimesheetStore();
   const { data: leaveTypesData } = useGetLeaveTypes();
   const {
     data: leaveRequestData,
@@ -117,6 +118,7 @@ const LeaveManagement = () => {
       </div>
 
       <LeaveRequestManagementSidebar />
+      <LeaveRequestSidebar />
     </>
   );
 };
