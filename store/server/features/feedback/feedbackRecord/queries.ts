@@ -38,9 +38,9 @@ export const useFetchFeedbackRecordById = (id: string) => {
   return useQuery(
     ['feedbackRecord', id], // Include `id` in the query key for caching
     () => fetchFeedbackRecordById(id), // Fetch function
-    {
-      enabled: !!id, // Conditionally enable the query
-    },
+    // {
+    //   enabled: !!id, // Conditionally enable the query
+    // },
   );
 };
 export const useFetchAllFeedbackRecord = (

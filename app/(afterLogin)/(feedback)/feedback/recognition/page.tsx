@@ -237,8 +237,6 @@ function Page() {
     navigate.push(`/feedback/recognition/${record.id}`);
   };
 
-
-  console.log(getActiveFisicalYear,!fiscalActiveYearId , !activeMonthId , !activeSessionId,"activeSessionId")
   return (
     <div>
       <Tabs
