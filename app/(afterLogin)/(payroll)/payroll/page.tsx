@@ -12,7 +12,7 @@ import PayrollCard from './_components/cards';
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 import * as ExcelJS from 'exceljs';
 
-export const EmployeeBasicSalary = ({ id }: { id: string }) => {
+const EmployeeBasicSalary = ({ id }: { id: string }) => {
   const { data, error } = useGetBasicSalaryById(id);
   if (error || !data) {
     return '--';
