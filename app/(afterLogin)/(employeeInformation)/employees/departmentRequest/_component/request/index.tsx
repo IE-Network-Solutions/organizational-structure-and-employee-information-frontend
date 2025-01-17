@@ -59,6 +59,7 @@ const Request = ({
   };
   const {
     setBranchRequestSidebarData,
+    setBranchRequestSidebarWorkflowData,
     setIsShowBranchRequestDetail: isShowDetail,
   } = useMyBranchApprovalStore();
   const { mutate: deleteRequest } = useDeleteBranchTransferRequest();
@@ -109,6 +110,7 @@ const Request = ({
             onDetail={() => {
               isShowDetail(true);
               setBranchRequestSidebarData(data.id);
+              setBranchRequestSidebarWorkflowData(data.approvalWorkflowId);
             }}
           />
         );
