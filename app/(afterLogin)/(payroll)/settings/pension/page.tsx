@@ -30,16 +30,6 @@ const Pension = () => {
       dataIndex: 'employerContribution',
       key: 'employerContribution',
     },
-    {
-      title: 'Action',
-      key: 'action',
-      render: () => (
-        <Space size="middle">
-          <Button type="primary" icon={<EditOutlined />} />
-          <Button type="primary" danger icon={<DeleteOutlined />} />
-        </Space>
-      ),
-    },
   ];
 
   return (

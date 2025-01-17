@@ -10,19 +10,16 @@ import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutati
 import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-management/_components/criteria-drawer';
 import PayrollCard from './_components/cards';
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
 
 export const EmployeeBasicSalary = ({ id }: { id: string }) => {
-  const { isLoading, data, error } = useGetBasicSalaryById(id);
-  if (isLoading) {
-    return <Spin />;
-  }
+  const { data, error } = useGetBasicSalaryById(id);
   if (error || !data) {
     return '--';
   }
   const employeeBasicSalary =
     data.find((item: any) => item.status)?.basicSalary || '--';
-  return <Space size="small">{employeeBasicSalary}</Space>;
+  return employeeBasicSalary;
 };
 const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -99,118 +96,107 @@ const Payroll = () => {
     refetch();
   };
 
-  const exportToExcel = (data: any[], fileName: string) => {
-    // Extract unique types for allowances, deductions, and merits
-    const uniqueAllowances = Array.from(
-      new Set(
-        data.flatMap((item) =>
-          item.breakdown.allowances.map((entry: any) => entry.type),
-        ),
-      ),
-    );
+  const handleExportPayroll = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Payroll Data');
 
-    const uniqueDeductions = Array.from(
-      new Set(
-        data.flatMap((item) =>
-          item.breakdown.deductions.map((entry: any) => entry.type),
-        ),
-      ),
-    );
-
-    const uniqueMerits = Array.from(
-      new Set(
-        data.flatMap((item) =>
-          item.breakdown.merits.map((entry: any) => entry.type),
-        ),
-      ),
-    );
-
-    // Define headers dynamically
-    const headers = [
-      [
-        'Employee Name',
-        'Gross Salary',
-        'Net Pay',
-        ...uniqueAllowances.map((type) => `${type}`), // Allowance columns
-        ...uniqueDeductions.map((type) => `${type}`), // Deduction columns
-        ...uniqueMerits.map((type) => `${type}`), // Merit columns
-        'Total Allowance',
-        'Total Deductions',
-        'Total Merit',
-      ],
+    worksheet.columns = [
+      { header: 'Full Name', key: 'fullName', width: 40 },
+      { header: 'Basic Salary', key: 'basicSalary', width: 30 },
+      { header: 'Total Allowance', key: 'totalAllowance', width: 30 },
+      { header: 'Total Benefits', key: 'totalBenefits', width: 30 },
+      { header: 'Total Deduction', key: 'totalDeductions', width: 30 },
+      { header: 'Gross Income', key: 'grossIncome', width: 30 },
+      { header: 'Tax', key: 'tax', width: 30 },
+      { header: 'Employee Pension', key: 'employeePension', width: 30 },
+      { header: 'Cost Sharing', key: 'costSharing', width: 30 },
+      { header: 'Net Income', key: 'netIncome', width: 30 },
     ];
 
-    // Map the payroll data to match the headers
-    const rows = data.map((item) => {
-      // Map allowances, deductions, and merits to their respective columns
-      const allowanceMap = uniqueAllowances.reduce(
-        (acc, type) => {
-          acc[type] =
-            item.breakdown.allowances.find((entry: any) => entry.type === type)
-              ?.amount || '0.00';
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
+    for (const item of payroll?.payrolls || []) {
+      const basicSalary = <EmployeeBasicSalary id={item?.employeeId} />;
+      worksheet.addRow({
+        fullName: item?.employeeId,
+        basicSalary,
+        totalAllowance: item?.totalAllowance,
+        totalBenefits: item?.totalMerit,
+        totalDeductions: item?.totalDeductions,
+        grossIncome: item?.grossSalary,
+        tax: item?.tax,
+        employeePension: item?.pension,
+        costSharing: item?.costsharing,
+        netIncome: item?.netPay,
+      });
+    }
 
-      const deductionMap = uniqueDeductions.reduce(
-        (acc, type) => {
-          acc[type] =
-            item.breakdown.deductions.find((entry: any) => entry.type === type)
-              ?.amount || '0.00';
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
+    worksheet.getRow(1).font = { bold: true, size: 18 };
+    const buffer = await workbook.xlsx.writeBuffer();
 
-      const meritMap = uniqueMerits.reduce(
-        (acc, type) => {
-          acc[type] =
-            item.breakdown.merits.find((entry: any) => entry.type === type)
-              ?.amount || '0.00';
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'payroll_data.xlsx';
+    link.click();
+  };
+  const handleBankLetter = (amount: any) => {
+    const dynamicData = {
+      date: '16-01-2025',
+      reference: 'IE/FIN/250116/001',
+      bankName: 'Enat Bank',
+      branch: 'Mexico Derartu Tulu branch',
+      month: 'December 2024',
+      amount: amount,
+      amountWords:
+        'five million three hundred fifty-five thousand nine hundred thirty-eight point five eight',
+      accountNumber: '0061101660052002',
+    };
 
-      return [
-        item.employeeId, // Employee Name
-        item.grossSalary || '0.00', // Gross Salary
-        item.netPay || '0.00', // Net Pay
-        ...uniqueAllowances.map((type) => allowanceMap[type]), // Allowance values
-        ...uniqueDeductions.map((type) => deductionMap[type]), // Deduction values
-        ...uniqueMerits.map((type) => meritMap[type]), // Merit values
-        item.totalAllowance || '0.00', // Total Allowance
-        item.totalDeductions || '0.00', // Total Deductions
-        item.totalMerit || '0.00', // Total Merit
-      ];
+    const bankLetterContent = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+        <head><title>Bank Letter</title></head>
+        <body>
+          <p style="text-align: right;">P.O.Box 122321 Addis Ababa Ethiopia</p>
+          <p style="text-align: right;">info@ienetworksolutions.com</p>
+          <p style="text-align: right;">www.ienetworksolutions.com</p>
+          <br/>
+          <p>Date: ${dynamicData.date}</p>
+          <p>Ref: ${dynamicData.reference}</p>
+          <br/>
+          <p>To: - ${dynamicData.bankName}</p>
+          <p>${dynamicData.branch}</p>
+          <p>Addis Ababa</p>
+          <br/>
+          <p><b>Subject:</b> ${dynamicData.month} Salary Transfer Request</p>
+          <br/>
+          <p>
+            We hereby authorize your branch to transfer ETB ${dynamicData.amount} (${dynamicData.amountWords}) for the month of ${dynamicData.month} 
+            for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch 
+            of ${dynamicData.bankName}.
+          </p>
+          <p>
+            Please deduct the transfer service charges from IE Network Solutions PLC account ${dynamicData.accountNumber} maintained at ${dynamicData.branch}.
+          </p>
+          <br/>
+          <p>Sincerely</p>
+          <br/><br/><br/>
+          <p>IE Network Solutions PLC</p>
+          <p>
+            T: +251(0) 115 570544   |   M: +251(0) 911 511275 / +251(0) 911 210654 / +251(0) 930 105789   |   F: +251(0) 115 57 05 4
+          </p>
+        </body>
+      </html>
+    `;
+
+    const blob = new Blob([bankLetterContent], {
+      type: 'application/msword',
     });
 
-    // Combine headers and rows
-    const worksheetData = [...headers, ...rows];
-
-    // Create a worksheet
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-    // Add column widths for better readability
-    worksheet['!cols'] = [
-      { wch: 25 }, // Employee Name
-      { wch: 15 }, // Gross Salary
-      { wch: 15 }, // Net Pay
-      ...uniqueAllowances.map(() => ({ wch: 20 })), // Allowances
-      ...uniqueDeductions.map(() => ({ wch: 20 })), // Deductions
-      ...uniqueMerits.map(() => ({ wch: 20 })), // Merits
-      { wch: 20 }, // Total Allowance
-      { wch: 20 }, // Total Deductions
-      { wch: 20 }, // Total Merit
-    ];
-
-    // Create a workbook and append the worksheet
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Payroll');
-
-    // Write the workbook to an Excel file
-    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Bank_Letter.doc';
+    link.click();
   };
 
   const columns = [
@@ -227,7 +213,7 @@ const Payroll = () => {
       title: 'Basic Salary',
       dataIndex: 'basicSalary',
       key: 'basicSalary',
-      minWidth: 200,
+      minWidth: 150,
       render: (notused: any, record: any) => {
         return <EmployeeBasicSalary id={record?.employeeId} />;
       },
@@ -236,49 +222,46 @@ const Payroll = () => {
       title: 'Total Allowance',
       dataIndex: 'totalAllowance',
       key: 'totalAllowance',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Total Benefits',
       dataIndex: 'totalMerit',
       key: 'totalMerit',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Total Deduction',
       dataIndex: 'totalDeductions',
       key: 'totalDeductions',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Gross Income',
       dataIndex: 'grossSalary',
       key: 'grossSalary',
-      minWidth: 200,
+      minWidth: 150,
     },
-    { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 200 },
+    { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 150 },
     {
       title: 'Employee Pension',
       dataIndex: 'pension',
       key: 'pension',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Cost Sharing',
       dataIndex: 'costsharing',
       key: 'costsharing',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Net Income',
       dataIndex: 'netPay',
       key: 'netPay',
-      minWidth: 200,
+      minWidth: 150,
     },
   ];
-  const handleExportPayroll = () => {
-    exportToExcel(payroll?.payrolls, 'PayrollData');
-  };
 
   return (
     <div style={{ padding: '20px' }}>
@@ -288,15 +271,25 @@ const Payroll = () => {
           <Button
             type="default"
             className="text-white bg-violet-300 border-none p-6"
-            onClick={handleExportPayroll}
+            onClick={() => {}}
           >
             Export Bank
           </Button>
           <Button
             type="default"
             className="text-white bg-violet-300 border-none p-6"
+            onClick={() => {
+              handleBankLetter(payroll?.totalGrossPaymentAmount);
+            }}
           >
             Bank Letter
+          </Button>
+          <Button
+            type="default"
+            className="text-white bg-violet-300 border-none p-6"
+            onClick={handleExportPayroll}
+          >
+            Export Payroll
           </Button>
           <Button
             type="primary"
