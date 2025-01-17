@@ -43,7 +43,10 @@ const LeaveRequestManagementSidebar = () => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return `${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`.trim();
   };
-
+  const userImage = (id: string) => {
+    const user = employeeData?.items?.find((item: any) => item.id === id);
+    return user?.profileImage;
+  };
   const onClose = () => {
     setLeaveRequestId(null);
     setLeaveRequestWorkflowId(null);
@@ -100,6 +103,10 @@ const LeaveRequestManagementSidebar = () => {
                 name={
                   leaveData?.items?.userId &&
                   userData(String(leaveData?.items?.userId))
+                }
+                profileImage={
+                  leaveData?.items?.userId &&
+                  userImage(String(leaveData?.items?.userId))
                 }
                 size="small"
               />
@@ -185,6 +192,7 @@ const LeaveRequestManagementSidebar = () => {
                       key={idx}
                       data={approvalCard}
                       userName={userData}
+                      userImage={userImage}
                     />
                   ))}
             </div>

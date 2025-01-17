@@ -29,6 +29,7 @@ import { useGetSimpleEmployee } from '@/store/server/features/employees/employee
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
+import UserCard from '@/components/common/userCard/userCard';
 
 interface LeaveManagementTableProps {
   setBodyRequest: Dispatch<SetStateAction<LeaveRequestBody>>;
@@ -71,18 +72,19 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
 
     if (isLoading) return <div>...</div>;
     if (isError) return <>-</>;
+    const fullName = `${employeeData?.firstName || '-'} ${employeeData?.middleName || '-'} ${employeeData?.lastName || '-'}`;
 
     return employeeData ? (
       <div className="flex items-center gap-1.5">
         <div className="mx-1 text-sm">
           {employeeData?.employeeInformation?.employeeAttendanceId}
-        </div>
-        <Avatar size={24} icon={<UserOutlined />} />
+        </div>{' '}
         <div className="flex-1">
-          <div className="text-xs text-gray-900">
-            {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
-            {employeeData?.lastName || '-'}
-          </div>
+          <UserCard
+            name={fullName}
+            profileImage={employeeData?.profileImage}
+            size="small"
+          />
           <div className="text-[10px] leading-4 text-gray-600">
             {employeeData?.email}
           </div>

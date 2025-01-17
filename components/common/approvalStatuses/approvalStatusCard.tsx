@@ -11,7 +11,6 @@ const ApprovalStatusCard = ({
   userName: (a: string) => string;
   userImage: (a: any) => any;
 }) => {
-  console.log('***', data?.userId, userImage(String(data?.userId)));
   return (
     <div className="border-b border-gray-200">
       <div className="flex items-center px-3 py-4 gap-4">
