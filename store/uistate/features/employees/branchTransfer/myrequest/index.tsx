@@ -8,10 +8,6 @@ interface UserState {
   setPageSize: (pageSize: number) => void;
   branchRequestSidebarData: string;
   setBranchRequestSidebarData: (branchRequestSidebarData: string) => void;
-  branchRequestSidebarWorkflowData: string;
-  setBranchRequestSidebarWorkflowData: (
-    branchRequestSidebarWorkflowData: string,
-  ) => void;
   isShowBranchRequestDetail: boolean;
   setIsShowBranchRequestDetail: (isShowBranchRequestDetail: boolean) => void;
 }
@@ -25,10 +21,6 @@ export const useMyBranchApprovalStore = create<UserState>()(
     branchRequestSidebarData: '',
     setBranchRequestSidebarData: (branchRequestSidebarData: string) =>
       set({ branchRequestSidebarData }),
-    branchRequestSidebarWorkflowData: '',
-    setBranchRequestSidebarWorkflowData: (
-      branchRequestSidebarWorkflowData: string,
-    ) => set({ branchRequestSidebarWorkflowData }),
     isShowBranchRequestDetail: false,
     setIsShowBranchRequestDetail: (isShowBranchRequestDetail: boolean) =>
       set({ isShowBranchRequestDetail }),
