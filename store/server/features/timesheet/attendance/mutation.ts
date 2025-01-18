@@ -20,7 +20,7 @@ const attendanceImport = async (file: string) => {
 
 const setEditAttendance = async (data: EditAttendance, id: string) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/attendance/{id}?id=${id}`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/${id}`,
     method: 'PATCH',
     headers: requestHeader(),
     data,
