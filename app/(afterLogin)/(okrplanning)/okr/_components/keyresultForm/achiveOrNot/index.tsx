@@ -26,7 +26,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
-  const { setKeyResult } = useOKRStore();
+  const { setKeyResult, objectiveValue } = useOKRStore();
 
   const handleAddKeyResult = () => {
     form
@@ -112,7 +112,13 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                   value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
-                    return current && current < dayjs().startOf('day');
+                    const startOfToday = dayjs().startOf('day');
+                    const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
+
+                    return (
+                      current &&
+                      (current < startOfToday || current > objectiveDeadline)
+                    );
                   }}
                   onChange={(date) =>
                     updateKeyResult(

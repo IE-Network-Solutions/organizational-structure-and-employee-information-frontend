@@ -123,7 +123,7 @@ const CustomJobQuestionsDisplay: React.FC<JobDisplayParams> = ({
                     key={q.id}
                     style={{ width: '100%' }}
                     onChange={(e: string[]) => {
-                      const checkedValues = e.map((el) => {
+                      const checkedValues = e?.map((el) => {
                         return {
                           value: el,
                           id: uuidv4(),

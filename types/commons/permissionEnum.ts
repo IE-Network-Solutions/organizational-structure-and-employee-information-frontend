@@ -18,7 +18,16 @@ export enum Permissions {
   UpdateBenefitEntitlement = 'update-benefit-entitlement',
   DeleteBenefitEntitlement = 'delete-benefit-entitlement',
 
+  // PayPeriod permissions
+  CreatePayPeriod = 'create-pay-period',
+  UpdatePayPeriod = 'update-pay-period',
+  DeletePayPeriod = 'delete-pay-period',
+
   // Could not be found Permissions that needs to be changed
+
+  approveAndRejectPlan = 'approve-and-reject-plan',
+  editAndDeletePlan = 'edit-and-delete-plan',
+
   ViewAllEmployeePlan = 'view-all-employee-plan',
   ViewAllPlan = 'view-all-plan',
   ViewAllStatusPlan = 'view-all-status-plan',

@@ -5,6 +5,8 @@ import { useGetAllFiscalYears } from '@/store/server/features/organizationStruct
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import Pagination from '../../pagination';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const FiscalYearListCard: React.FC = () => {
   const {
@@ -41,9 +43,11 @@ const FiscalYearListCard: React.FC = () => {
     <div className=" mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Fiscal Year</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={openDrawer}>
-          Create Fiscal Year
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateCalendar]}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={openDrawer}>
+            Create Fiscal Year
+          </Button>
+        </AccessGuard>
       </div>
       {fiscalYears?.items && fiscalYears?.items.length > 0 ? (
         fiscalYears?.items?.map((fYear: FiscalYear) => (
@@ -57,25 +61,31 @@ const FiscalYearListCard: React.FC = () => {
                   {fYear?.startDate + ' ' + '—' + ' ' + fYear?.endDate}
                 </div>
               </div>
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: 'edit',
-                      label: 'Edit',
-                      onClick: () => handleMenuClick('edit', fYear),
-                    },
-                    {
-                      key: 'delete',
-                      label: <span className="text-red-500">Delete</span>,
-                      onClick: () => handleMenuClick('delete', fYear),
-                    },
-                  ],
-                }}
-                trigger={['click']}
+              <AccessGuard
+                permissions={[
+                  Permissions.UpdateCalendar || Permissions.DeleteCalendar,
+                ]}
               >
-                <MoreOutlined className="text-lg cursor-pointer" />
-              </Dropdown>
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: 'edit',
+                        label: 'Edit',
+                        onClick: () => handleMenuClick('edit', fYear),
+                      },
+                      {
+                        key: 'delete',
+                        label: <span className="text-red-500">Delete</span>,
+                        onClick: () => handleMenuClick('delete', fYear),
+                      },
+                    ],
+                  }}
+                  trigger={['click']}
+                >
+                  <MoreOutlined className="text-lg cursor-pointer" />
+                </Dropdown>
+              </AccessGuard>
             </div>
           </Card>
         ))
