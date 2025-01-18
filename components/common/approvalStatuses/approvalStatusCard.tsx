@@ -5,9 +5,11 @@ import UserCard from '@/components/common/userCard/userCard';
 const ApprovalStatusCard = ({
   data,
   userName,
+  userImage,
 }: {
   data: any;
   userName: (a: string) => string;
+  userImage: (a: any) => any;
 }) => {
   return (
     <div className="border-b border-gray-200">
@@ -27,7 +29,11 @@ const ApprovalStatusCard = ({
           }
           alt={data?.status}
         />
-        <UserCard name={userName(String(data?.userId))} size="small" />
+        <UserCard
+          name={userName(String(data?.userId))}
+          profileImage={data?.userId && userImage(String(data?.userId))}
+          size="small"
+        />
       </div>
       {data?.approvalComments?.length > 0 && (
         <div className="flex items-center gap-4 mb-2 px-5">
