@@ -21,7 +21,9 @@ const AllowanceTypePage = () => {
             type="primary"
             id="createNewClosedHolidayFieldId"
             icon={<LuPlus size={18} />}
-            onClick={() => { setIsAllowanceOpen(true)}}
+            onClick={() => {
+              setIsAllowanceOpen(true);
+            }}
           >
             New Allowance Type
           </Button>

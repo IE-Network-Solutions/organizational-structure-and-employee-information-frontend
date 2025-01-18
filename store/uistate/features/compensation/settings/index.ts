@@ -82,17 +82,19 @@ export const useCompensationSettingStore = create<CompensationSettingTypes>(
 
     setIsAllowanceOpen: (value) => set({ isAllowanceOpen: value }),
     setIsRateAllowance: (value) => set({ isRateAllowance: value }),
-    setSelectedAllowanceRecord: (value) => set({ selectedAllowanceRecord: value}),
+    setSelectedAllowanceRecord: (value) =>
+      set({ selectedAllowanceRecord: value }),
 
     setIsBenefitOpen: (value) => set({ isBenefitOpen: value }),
-    setAllEmployeeSelectedBenefit: (value) => set({ allEmployeeSelectedBenefit: value }),
+    setAllEmployeeSelectedBenefit: (value) =>
+      set({ allEmployeeSelectedBenefit: value }),
     setIsRateBenefit: (value) => set({ isRateBenefit: value }),
     setSelectedModeBenefit: (value) => set({ selectedModeBenefit: value }),
-    setBenefitMode: (value) => set({ benefitMode: value}),
-    setSelectedBenefitRecord: (value) => set({ selectedBenefitRecord: value}),
-    setSelectedDepartment: (value) => set({ selectedDepartment: value}),
-    setDepartmentUsers: (value) => set({ departmentUsers: value}),
-    setTableData: (value) => set({ tableData: value}),
+    setBenefitMode: (value) => set({ benefitMode: value }),
+    setSelectedBenefitRecord: (value) => set({ selectedBenefitRecord: value }),
+    setSelectedDepartment: (value) => set({ selectedDepartment: value }),
+    setDepartmentUsers: (value) => set({ departmentUsers: value }),
+    setTableData: (value) => set({ tableData: value }),
 
     resetStore: () => {
       set((state) => {
@@ -103,8 +105,8 @@ export const useCompensationSettingStore = create<CompensationSettingTypes>(
         };
       });
     },
-    setIsAllEmployee: (value) => set({ isAllEmployee: value}),
-  })
+    setIsAllEmployee: (value) => set({ isAllEmployee: value }),
+  }),
 );
 
 export const useCompensationTypeTablesStore = create<CompensationTypeTables>(
@@ -118,5 +120,5 @@ export const useCompensationTypeTablesStore = create<CompensationTypeTables>(
     setAllowancePageSize: (value) => set({ allowancePageSize: value }),
 
     resetStore: () => set(compensationTypeTablesInitialState),
-  })
+  }),
 );

@@ -7,6 +7,7 @@ import { useQuery } from 'react-query';
 
 interface User {
   firstName: string;
+  lastName: string | null;
   profileImage: string | null;
 }
 

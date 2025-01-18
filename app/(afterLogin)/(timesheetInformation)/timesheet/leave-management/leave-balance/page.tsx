@@ -6,6 +6,7 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Form, Select, Space } from 'antd';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBalance';
+import DownloadLeaveBalance from './_components/Download';
 
 const LeaveBalance = () => {
   const [form] = Form.useForm();
@@ -20,6 +21,9 @@ const LeaveBalance = () => {
     <div className="h-auto w-auto pr-6 pb-6 pl-3">
       <BlockWrapper>
         <PageHeader title="Leave Balance">
+          <div className="pb-4">
+            <DownloadLeaveBalance />
+          </div>
           <Space size={20}>
             <div className=""></div>
             <Form form={form} onValuesChange={handleChange}>

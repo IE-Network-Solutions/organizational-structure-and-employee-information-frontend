@@ -9,6 +9,7 @@ import { LeaveRequestStatus } from '@/types/timesheet/settings';
 import React from 'react';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
+  useGetSingleApproval,
   useGetSingleApprovalLog,
   useGetSingleLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/queries';
@@ -28,6 +29,8 @@ const LeaveRequestDetail = () => {
     setIsShowLeaveRequestDetail,
     leaveRequestSidebarData,
     setLeaveRequestSidebarData,
+    leaveRequestSidebarWorkflowData,
+    setLeaveRequestSidebarWorkflowData,
   } = useMyTimesheetStore();
 
   const { data: employeeData } = useGetAllUsers();
@@ -38,6 +41,7 @@ const LeaveRequestDetail = () => {
 
   const onClose = () => {
     setLeaveRequestSidebarData(null);
+    setLeaveRequestSidebarWorkflowData(null);
     setIsShowLeaveRequestDetail(false);
   };
 
@@ -46,6 +50,11 @@ const LeaveRequestDetail = () => {
   );
 
   const { data: logData } = useGetSingleApprovalLog(
+    leaveRequestSidebarData ?? '',
+    leaveRequestSidebarWorkflowData ?? '',
+  );
+
+  const { data: approverLog } = useGetSingleApproval(
     leaveRequestSidebarData ?? '',
   );
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
@@ -57,10 +66,25 @@ const LeaveRequestDetail = () => {
       onClick: () => {
         onClose();
         setLeaveRequestSidebarData(null);
+        setLeaveRequestSidebarWorkflowData(null);
       },
     },
   ];
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
+  type ApprovalRecord = {
+    approverId: string; // UUID
+    userId: string; // UUID
+    stepOrder: number;
+    status: 'Approved' | 'Rejected' | 'Pending'; // Adjust enum as needed
+    conditionField: string | null;
+    conditionRangeValue: string | null;
+    tenantId: string; // UUID
+    approvalLogId: string; // UUID
+    requestId: string; // UUID
+    approvalWorkflowId: string; // UUID
+    action: 'Approved' | 'Rejected'; // Adjust enum as needed
+    approvalComments: any;
+  };
 
   return (
     isShowLeaveRequestDetail && (
@@ -152,6 +176,21 @@ const LeaveRequestDetail = () => {
                 </Col>
               )}
             </Row>
+            {leaveData?.items?.status == 'pending' && (
+              <div>
+                <Divider className="my-8 h-[5px] bg-gray-200" />
+                <div>
+                  <div className="flex items-center justify-between mt-5 mb-4">
+                    <div className="text-sm font-semibold text-gray-900">
+                      Next Approver
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 flex gap-2">
+                      Level {(approverLog?.items?.length ?? 0) + 1}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             <Divider className="my-8 h-[5px] bg-gray-200" />
             <div>
               <div className="text-lg font-semibold text-gray-900">
@@ -161,14 +200,16 @@ const LeaveRequestDetail = () => {
               <div className="my-2.5">
                 <ApprovalStatusesInfo />
               </div>
-
-              {logData?.items?.map((approvalCard, idx) => (
-                <ApprovalStatusCard
-                  key={idx}
-                  data={approvalCard}
-                  userName={userData}
-                />
-              ))}
+              {Array.isArray(logData) &&
+                logData
+                  ?.sort((a, b) => a.stepOrder - b.stepOrder)
+                  ?.map((approvalCard: ApprovalRecord, idx: number) => (
+                    <ApprovalStatusCard
+                      key={idx}
+                      data={approvalCard}
+                      userName={userData}
+                    />
+                  ))}
             </div>
             <Divider className="my-8 h-[5px] bg-gray-200" />
 

@@ -20,13 +20,16 @@ interface SearchField {
 export interface CategoriesUseState {
   open: boolean;
   current: number;
-  pageSize: number;
   totalPages: number;
+  pageSize: number;
+  setPageSize: (pageSize: number) => void;
+
+  page: number;
+  setPage: (page: number) => void;
 
   openRecognitionType: boolean;
   setOpenRecognitionType: (vlaue: boolean) => void;
 
-  setPageSize: (pageSize: number) => void;
   setCurrent: (value: number) => void;
 
   setOpen: (value: boolean) => void;
@@ -70,7 +73,7 @@ export interface CategoriesUseState {
   setSelectedFeedback: (selectedFeedback: any) => void;
 
   editableData: any;
-  setEditableData: (activeTab: any) => void;
+  setEditableData: (editableData: any) => void;
 
   departmentId: string;
   setDepartmentId: (departmentid: string) => void;
@@ -101,8 +104,16 @@ const initialSearchField: SearchField[] = [
 export const ConversationStore = create<CategoriesUseState>((set) => ({
   open: false,
   current: 0,
-  pageSize: 4,
-  totalPages: 1,
+  totalPages: 10,
+
+  pageSize: 10,
+  setPageSize: (pageSize: number) => set({ pageSize }),
+
+  setTotalPages: (totalPages: number) => set({ totalPages }),
+
+  page: 1,
+  setPage: (page: number) => set({ page }),
+
   selectedDepartment: [],
   setSelectedDepartment: (selectedDepartment: string[]) =>
     set({ selectedDepartment }),
@@ -132,7 +143,7 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedFeedbackRecord: (selectedFeedbackRecord: FeedbackRecord | null) =>
     set({ selectedFeedbackRecord }),
 
-  activeTab: '1',
+  activeTab: '',
   setActiveTab: (activeTab: string) => set({ activeTab }),
 
   editableData: null,
@@ -161,9 +172,6 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
         field.key === key ? { ...field, options: newOptions } : field,
       ),
     })),
-
-  setTotalPages: (totalPages: number) => set({ totalPages }),
-  setPageSize: (pageSize) => set({ pageSize }),
 
   openRecognitionType: false,
   setOpenRecognitionType: (openRecognitionType: boolean) =>
