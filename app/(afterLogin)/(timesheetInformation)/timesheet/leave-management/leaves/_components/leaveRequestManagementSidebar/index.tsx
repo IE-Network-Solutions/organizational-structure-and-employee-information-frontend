@@ -55,8 +55,8 @@ const LeaveRequestManagementSidebar = () => {
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
-      label: 'Cloth',
-      key: 'cloth',
+      label: 'Close',
+      key: 'close',
       className: 'h-[56px] text-base ',
       size: 'large',
       onClick: () => {

@@ -50,7 +50,7 @@ const getApprovalLeaveRequest = async (
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/currentApprover/${requesterId}?page=${page}&limit=${limit}`,
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/approval/current-approver/${requesterId}?page=${page}&limit=${limit}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
