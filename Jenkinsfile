@@ -9,10 +9,13 @@ pipeline {
         SSH_CREDENTIALS_ID = 'peptest'
 
 
- ORG_AND_EMP_URL="https://test-org-emp.ienetworks.co/api/v1"
- PAYROLL_URL="https://payroll.ienetworks.co/api/v1"
-NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://test-okr-backend.ienetworks.co/api/v1"
-OKR_URL="https://test-okr-backend.ienetworks.co/api/v1"
+
+
+       ORG_AND_EMP_URL="https://org-emp-backend.selamnew.com/api/v1"
+        PAYROLL_URL="https://payroll-backend.selamnew.com/api/v1"
+NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://okr-backend.selamnew.com/api/v1"
+OKR_URL="https://okr-backend.selamnew.com/api/v1"
+
 TENANT_MGMT_URL="https://test-tenant-backend.ienetworks.co/api/v1"
 ORG_DEV_URL = "https://test-od.ienetworks.co/api/v1"
 NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://test-time-attendance-backend.ienetworks.co/api/v1"
