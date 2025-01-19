@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  Button,
-  Input,
-  DatePicker,
-  Form,
-  InputNumber,
-  Tooltip,
-  Popconfirm,
-} from 'antd';
+import { Button, Input, DatePicker, Form, InputNumber, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { VscClose } from 'react-icons/vsc';
 import { GoPlus } from 'react-icons/go';
@@ -42,154 +34,55 @@ const MilestoneView: React.FC<OKRProps> = ({
   const handleAddMilestone = (index: number) => {
     const newMilestone: Milestone = {
       title: '',
-      weight: 0, // Will be calculated dynamically
-      status: 'In Progress', // Optional default status
+      weight: 0,
     };
-
     const updatedObjectiveValue = {
       ...objectiveValue,
-      keyResults: objectiveValue?.keyResults.map((item: any, i: number) => {
-        if (i === index) {
-          const currentMilestones = item.milestones || [];
-
-          // Separate completed and non-completed milestones
-          const completedMilestones = currentMilestones.filter(
-            (milestone: Milestone) => milestone.status === 'Completed',
-          );
-          const nonCompletedMilestones = currentMilestones.filter(
-            (milestone: Milestone) => milestone.status !== 'Completed',
-          );
-
-          const totalMilestones = nonCompletedMilestones.length + 1; // Include the new milestone
-          const remainingWeight =
-            100 -
-            completedMilestones.reduce(
-              (sum: number, milestone: Milestone) => sum + milestone.weight,
-              0,
-            );
-
-          // Recalculate weights for non-completed milestones and the new milestone
-          const updatedMilestones = [
-            ...completedMilestones, // Keep completed milestones unchanged
-            ...nonCompletedMilestones.map((milestone: Milestone) => ({
-              ...milestone,
-              weight: remainingWeight / totalMilestones,
-            })),
-            {
-              ...newMilestone,
-              weight: remainingWeight / totalMilestones,
-            },
-          ];
-
-          return {
-            ...item,
-            milestones: updatedMilestones,
-          };
-        }
-        return item;
-      }),
+      keyResults: objectiveValue?.keyResults.map((item: any, i: number) =>
+        i === index
+          ? {
+              ...item,
+              milestones: [...item.milestones, newMilestone],
+            }
+          : item,
+      ),
     };
-
     setObjectiveValue(updatedObjectiveValue);
   };
-
   const handleAddMilestoneSingleMilestone = () => {
-    const currentMilestones = keyResultValue.milestones || [];
-
-    // Separate completed and non-completed milestones
-    const completedMilestones = currentMilestones.filter(
-      (milestone: any) => milestone.status === 'Completed',
-    );
-    const nonCompletedMilestones = currentMilestones.filter(
-      (milestone: any) => milestone.status !== 'Completed',
-    );
-
-    // Calculate remaining weight after accounting for completed milestones
-    const remainingWeight =
-      100 -
-      completedMilestones.reduce(
-        (sum: number, milestone: any) => sum + milestone.weight,
-        0,
-      );
-
-    const totalNonCompletedMilestones = nonCompletedMilestones.length + 1; // Include the new milestone
-
     const newMilestone = {
       title: '',
-      weight: remainingWeight / totalNonCompletedMilestones,
-      status: 'In Progress', // Optional default status
+      weight: 0,
     };
-
-    // Recalculate weights for non-completed milestones
-    const updatedMilestones = [
-      ...completedMilestones, // Keep completed milestones unchanged
-      ...nonCompletedMilestones.map((milestone: any) => ({
-        ...milestone,
-        weight: remainingWeight / totalNonCompletedMilestones,
-      })),
-      newMilestone, // Add the new milestone
-    ];
-
-    // Update the key result value
     const updatedKeyResultValue = {
       ...keyResultValue,
-      milestones: updatedMilestones,
+      milestones: [...keyResultValue.milestones, newMilestone],
     };
-
     setKeyResultValue(updatedKeyResultValue);
   };
 
   const handleRemoveMilestone = (index: number, mId: any) => {
     const newKeyResult = [...objectiveValue?.keyResults];
-    const currentMilestones = newKeyResult[index]?.milestones || [];
-
-    // Separate completed and non-completed milestones
-    const completedMilestones = currentMilestones.filter(
-      (milestone: any) => milestone.status === 'Completed',
+    const updatedMilestones = newKeyResult[index].milestones.filter(
+      (form: any, mi: number) => mi !== mId,
     );
-    const nonCompletedMilestones = currentMilestones.filter(
-      (milestone: any) => milestone.status !== 'Completed',
-    );
-
-    // Remove the milestone with the specified ID
-    /* eslint-enable @typescript-eslint/naming-convention */
-    const updatedNonCompletedMilestones = nonCompletedMilestones.filter(
-      (notused: any, mi: number) => mi !== mId,
-    );
-    /* eslint-disable @typescript-eslint/naming-convention */
-    // Calculate the remaining weight for non-completed milestones
-    const remainingWeight =
-      100 -
-      completedMilestones.reduce(
-        (sum: number, milestone: any) => sum + milestone.weight,
-        0,
-      );
-
-    const totalNonCompletedMilestones = updatedNonCompletedMilestones.length;
-
-    // Recalculate weights for non-completed milestones
-    const recalculatedMilestones = [
-      ...completedMilestones, // Keep completed milestones unchanged
-      ...updatedNonCompletedMilestones.map((milestone: any) => ({
-        ...milestone,
-        weight: remainingWeight / totalNonCompletedMilestones,
-      })),
-    ];
-
-    // Update the key result
     newKeyResult[index] = {
       ...newKeyResult[index],
-      milestones: recalculatedMilestones,
+      milestones: updatedMilestones,
     };
-
     const updatedObjectiveValue = {
       ...objectiveValue,
-      keyResults: newKeyResult,
+      keyResults: objectiveValue.keyResults.map((item: any, i: number) =>
+        i === index
+          ? {
+              ...item,
+              milestones: updatedMilestones,
+            }
+          : item,
+      ),
     };
-
     setObjectiveValue(updatedObjectiveValue);
   };
-
   const handleRemoveSingleMilestone = (mId: any) => {
     const updatedMilestones = keyResultValue.milestones.filter(
       (form: any, mi: any) => mi !== mId,
@@ -313,26 +206,19 @@ const MilestoneView: React.FC<OKRProps> = ({
                 onClick={() => addMilestone(index)}
               />
             </Tooltip>
-            <Popconfirm
-              title="Are you sure you want to remove this key result?"
-              onConfirm={() =>
-                keyValue?.id
-                  ? handleKeyResultDelete(keyValue?.id)
-                  : removeKeyResultValue(index)
-              }
-              okText={'Yes'}
-              cancelText="No"
-              placement="top"
-            >
-              <Tooltip color="gray" title="Remove Key Result">
-                <Button
-                  id={`remove-key-result-${index}`}
-                  className="rounded-full w-5 h-5"
-                  icon={<VscClose size={20} />}
-                  type="primary"
-                />
-              </Tooltip>
-            </Popconfirm>
+            <Tooltip color="gray" title="Remove Key Result">
+              <Button
+                id={`remove-key-result-${index}`}
+                className="rounded-full w-5 h-5"
+                icon={<VscClose size={20} />}
+                type="primary"
+                onClick={() =>
+                  keyValue?.id
+                    ? handleKeyResultDelete(keyValue?.id)
+                    : removeKeyResultValue(index)
+                }
+              />
+            </Tooltip>
           </div>
         </div>
         <div className="flex gap-10 items-center">
@@ -403,34 +289,18 @@ const MilestoneView: React.FC<OKRProps> = ({
                   }
                 />
 
-                <Popconfirm
-                  title="Are you sure you want to remove this milestone?"
-                  onConfirm={() =>
+                <Button
+                  disabled={milestone?.status == 'Completed'}
+                  id={`remove-milestone-${index}-${mindex}`}
+                  icon={<VscClose size={20} />}
+                  onClick={() =>
                     milestone?.id
                       ? handleMilestoneDelete(milestone?.id, mindex)
                       : milestoneRemove(index, mindex)
                   }
-                  okText="Yes"
-                  cancelText="No"
-                  placement="top"
-                  disabled={milestone?.status === 'Completed'} // Disable Popconfirm if the milestone is completed
-                >
-                  <Tooltip
-                    title={
-                      milestone?.status === 'Completed'
-                        ? 'This milestone is completed and cannot be removed.'
-                        : 'Remove Milestone'
-                    }
-                  >
-                    <Button
-                      disabled={milestone?.status === 'Completed'}
-                      id={`remove-milestone-${index}-${mindex}`}
-                      icon={<VscClose size={20} />}
-                      className="rounded-full w-5 h-5"
-                      type="primary"
-                    />
-                  </Tooltip>
-                </Popconfirm>
+                  className="rounded-full w-5 h-5"
+                  type="primary"
+                />
               </div>
             ))}
           </Form.Item>

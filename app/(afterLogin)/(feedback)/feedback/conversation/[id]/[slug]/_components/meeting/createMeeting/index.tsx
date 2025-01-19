@@ -115,7 +115,6 @@ const CreateMeeting = ({
           form2.resetFields();
           onClose();
           setChildrenDrawer(false);
-          setCurrentStep(0);
         },
       });
     } catch (error) {
@@ -233,7 +232,6 @@ const CreateMeeting = ({
 
     return groupedResult;
   };
-
   return (
     <>
       <Steps
@@ -269,7 +267,6 @@ const CreateMeeting = ({
               <QuestionResponseForm
                 key={`attendee_${attendee.id}_${attendeeIndex}`}
                 attendee={attendee}
-                formData={form1.getFieldsValue}
                 attendeeIndex={attendeeIndex}
                 attendeesOptions={attendeesOptions}
                 questionSet={questionSet}

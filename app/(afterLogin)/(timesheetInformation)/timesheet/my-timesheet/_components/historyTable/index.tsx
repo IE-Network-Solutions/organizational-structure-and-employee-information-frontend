@@ -4,10 +4,7 @@ import { TableColumnsType } from '@/types/table/table';
 import { Button, Table } from 'antd';
 import { TbFileDownload } from 'react-icons/tb';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
-import {
-  useGetLeaveRequest,
-  useGetSingleApproval,
-} from '@/store/server/features/timesheet/leaveRequest/queries';
+import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { CommonObject } from '@/types/commons/commonObject';
 import {
@@ -28,7 +25,6 @@ import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const HistoryTable = () => {
   const { userId } = useAuthenticationStore();
@@ -38,11 +34,7 @@ const HistoryTable = () => {
   const {
     setIsShowLeaveRequestDetail: isShowDetail,
     setIsShowLeaveRequestSidebar: isShow,
-    setLeaveRequestSidebarWorkflowData,
-    leaveRequestSidebarData,
     setLeaveRequestSidebarData,
-    isLoading,
-    setIsLoading,
   } = useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
   const {
@@ -62,21 +54,7 @@ const HistoryTable = () => {
     { filter },
   );
   const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
-  const { data: approverLog } = useGetSingleApproval(
-    leaveRequestSidebarData ?? '',
-  );
-  useEffect(() => {
-    if (isLoading && approverLog) {
-      if (approverLog?.items?.length > 0) {
-        NotificationMessage.warning({
-          message: `The Approval Process has been begin you can't continue to edit the leave request`,
-        });
-      } else {
-        isShow(true);
-      }
-      setIsLoading(false);
-    }
-  }, [approverLog, isLoading, leaveRequestSidebarData]);
+
   useEffect(() => {
     if (data && data.items) {
       setTableData(() =>
@@ -178,8 +156,8 @@ const HistoryTable = () => {
               item.status === LeaveRequestStatus.DECLINED
             }
             onEdit={() => {
+              isShow(true);
               setLeaveRequestSidebarData(item.id);
-              setIsLoading(true);
             }}
             onDelete={() => {
               deleteLeaveRequest(item.id);
@@ -187,7 +165,6 @@ const HistoryTable = () => {
             onDetail={() => {
               isShowDetail(true);
               setLeaveRequestSidebarData(item.id);
-              setLeaveRequestSidebarWorkflowData(item.approvalWorkflowId);
             }}
           />
         </AccessGuard>

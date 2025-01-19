@@ -79,6 +79,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
       },
     },
   };
+
   return (
     <div className="mb-10">
       <Bar data={data} options={options} />

@@ -6,8 +6,9 @@ import React, {
   useState,
 } from 'react';
 import LeaveManagementTableFilter from './tableFilter';
-import { Table } from 'antd';
+import { Avatar, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
+import { UserOutlined } from '@ant-design/icons';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { TbFileDownload } from 'react-icons/tb';
 import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
@@ -16,7 +17,6 @@ import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveReque
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
 import {
-  LeaveRequest,
   LeaveRequestStatus,
   LeaveRequestStatusBadgeTheme,
 } from '@/types/timesheet/settings';
@@ -25,10 +25,6 @@ import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import ActionButtons from '@/components/common/actionButton/actionButtons';
-import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
-import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
-import UserCard from '@/components/common/userCard/userCard';
 
 interface LeaveManagementTableProps {
   setBodyRequest: Dispatch<SetStateAction<LeaveRequestBody>>;
@@ -37,13 +33,8 @@ interface LeaveManagementTableProps {
 const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   setBodyRequest,
 }) => {
-  const {
-    setIsShowLeaveRequestManagementSidebar,
-    setLeaveRequestId,
-    setLeaveRequestWorkflowId,
-  } = useLeaveManagementStore();
-  const { setIsShowLeaveRequestSidebar: isShow, setLeaveRequestSidebarData } =
-    useMyTimesheetStore();
+  const { setIsShowLeaveRequestManagementSidebar, setLeaveRequestId } =
+    useLeaveManagementStore();
   const [tableData, setTableData] = useState<any[]>([]);
   const {
     page,
@@ -60,7 +51,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     { page, limit, orderBy, orderDirection },
     { filter },
   );
-  const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
 
   const EmpRender = ({ userId }: any) => {
     const {
@@ -71,19 +61,18 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
 
     if (isLoading) return <div>...</div>;
     if (isError) return <>-</>;
-    const fullName = `${employeeData?.firstName || '-'} ${employeeData?.middleName || '-'} ${employeeData?.lastName || '-'}`;
 
     return employeeData ? (
       <div className="flex items-center gap-1.5">
         <div className="mx-1 text-sm">
           {employeeData?.employeeInformation?.employeeAttendanceId}
-        </div>{' '}
+        </div>
+        <Avatar size={24} icon={<UserOutlined />} />
         <div className="flex-1">
-          <UserCard
-            name={fullName}
-            profileImage={employeeData?.profileImage}
-            size="small"
-          />
+          <div className="text-xs text-gray-900">
+            {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
+            {employeeData?.lastName || '-'}
+          </div>
           <div className="text-[10px] leading-4 text-gray-600">
             {employeeData?.email}
           </div>
@@ -157,36 +146,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
         </StatusBadge>
       ),
     },
-    {
-      title: 'Action',
-      dataIndex: 'action',
-      key: 'action',
-      render: (item: LeaveRequest) => (
-        <ActionButtons
-          id={item?.id ?? null}
-          disableDelete={
-            item.status === LeaveRequestStatus.APPROVED ||
-            item.status === LeaveRequestStatus.DECLINED
-          }
-          disableEdit={
-            item.status === LeaveRequestStatus.APPROVED ||
-            item.status === LeaveRequestStatus.DECLINED
-          }
-          onEdit={() => {
-            isShow(true);
-            setLeaveRequestSidebarData(item.id);
-          }}
-          onDelete={() => {
-            deleteLeaveRequest(item.id);
-          }}
-          onDetail={() => {
-            setIsShowLeaveRequestManagementSidebar(true);
-            setLeaveRequestId(item.id);
-            setLeaveRequestWorkflowId(item.approvalWorkflowId);
-          }}
-        />
-      ),
-    },
   ];
 
   useEffect(() => {
@@ -206,7 +165,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
             : '-',
           attachment: item.justificationDocument,
           status: item.status,
-          action: item,
         })),
       );
     }
@@ -256,6 +214,14 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           setLimit(pagination.pageSize ?? 10);
           setOrderDirection(sorter['order']);
           setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+        }}
+        onRow={(rowData: CommonObject) => {
+          return {
+            onClick: () => {
+              setLeaveRequestId(rowData.key);
+              setIsShowLeaveRequestManagementSidebar(true);
+            },
+          };
         }}
       />
     </div>

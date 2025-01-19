@@ -219,7 +219,7 @@ const CreateActionPlan = (props: any) => {
                       <Option key="active" value={'pending'}>
                         Pending
                       </Option>
-                      <Option key="completed" value={'solved'}>
+                      <Option key="active" value={'solved'}>
                         Solved
                       </Option>
                     </Select>

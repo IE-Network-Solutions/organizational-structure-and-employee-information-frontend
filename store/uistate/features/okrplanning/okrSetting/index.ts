@@ -12,8 +12,6 @@ interface OKRSettingStore {
 
   page: number;
   setPage: (page: number) => void;
-  userId: string | null;
-  setUserId: (userId: string | null) => void;
 }
 
 export const useOKRSettingStore = create<OKRSettingStore>()(
@@ -29,7 +27,5 @@ export const useOKRSettingStore = create<OKRSettingStore>()(
 
     page: 1,
     setPage: (page: number) => set({ page }),
-    userId: null,
-    setUserId: (userId: string | null) => set({ userId }),
   })),
 );

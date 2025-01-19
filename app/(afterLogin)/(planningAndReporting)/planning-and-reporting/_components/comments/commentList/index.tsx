@@ -11,13 +11,14 @@ import {
 } from '@/store/server/features/okrplanning/reportComments/mutations';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { CommentsData } from '@/types/okr';
-import { Button, Col, Input, Form, Row, Avatar } from 'antd';
+import { Button, Col, Input, Form, Row, Avatar, Collapse } from 'antd';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import dayjs from 'dayjs';
 import CommentActionMenu from '../commentActionMenu';
 import { FaUser } from 'react-icons/fa';
 import { useState } from 'react';
+const { Panel } = Collapse;
 
 dayjs.extend(relativeTime);
 
@@ -31,20 +32,14 @@ const CommentList = ({
   isPlanCard: boolean;
 }) => {
   const { data: allUsers } = useGetAllUsers();
-  const { mutate: onAddPlanComment, isLoading: addPlanLoading } =
-    useAddPlanComment();
-  const { mutate: onAddReportComment, isLoading: addReportLoading } =
-    useAddReportComment();
+  const { mutate: onAddPlanComment } = useAddPlanComment();
+  const { mutate: onAddReportComment } = useAddReportComment();
 
-  const { mutate: deletePlanComment, isLoading: deletePlanLoading } =
-    useDeletePlanComment();
-  const { mutate: deleteReportComment, isLoading: deleteReportLoading } =
-    useDeleteReportComment();
+  const { mutate: deletePlanComment } = useDeletePlanComment();
+  const { mutate: deleteReportComment } = useDeleteReportComment();
 
-  const { mutate: onUpdatePlanComment, isLoading: editPlanLoading } =
-    useUpdatePlanComment();
-  const { mutate: onUpdateReportComment, isLoading: editReportLoading } =
-    useUpdateReportComment();
+  const { mutate: onUpdatePlanComment } = useUpdatePlanComment();
+  const { mutate: onUpdateReportComment } = useUpdateReportComment();
 
   const [editingCommentId, setEditingCommentId] = useState<string>('');
 
@@ -122,43 +117,58 @@ const CommentList = ({
   };
   return (
     <div className="w-full">
-      {data.map((commentData) => (
-        <Row
-          key={commentData.id}
-          justify="space-between"
-          align="middle"
-          className="w-full p-3 border-b last:border-b-0"
-        >
-          <Col>
-            <div className="text-xs font-semibold flex items-center">
-              <Avatar
-                src={
-                  getUserDetail(commentData.commentedBy)?.profileImage ||
-                  undefined
-                }
-                icon={
-                  !getUserDetail(commentData.commentedBy)?.profileImage ? (
-                    <FaUser />
-                  ) : undefined
-                }
-                alt={getUserDetail(commentData.commentedBy)?.fullName || 'User'}
-                className="mr-1"
-              />
-              {getUserDetail(commentData.commentedBy)?.fullName}
-            </div>
-            <div className="text-gray-700">{commentData.comment}</div>
-            <div className="text-gray-500 text-xs">
-              {dayjs(commentData.createdAt).fromNow()}
-            </div>
-          </Col>
-          <Col hidden={commentData?.commentedBy !== userId}>
-            <CommentActionMenu
-              onEdit={() => handleEdit(commentData)}
-              onDelete={() => handleDelete(commentData?.id)}
-            />
-          </Col>
-        </Row>
-      ))}
+      <Collapse defaultActiveKey={[]} accordion>
+        {data.map((commentData) => (
+          <Panel
+            key={commentData.id}
+            header={
+              <div className="flex items-center">
+                <Avatar
+                  src={
+                    getUserDetail(commentData.commentedBy)?.profileImage ||
+                    undefined
+                  }
+                  icon={
+                    !getUserDetail(commentData.commentedBy)?.profileImage ? (
+                      <FaUser />
+                    ) : undefined
+                  }
+                  alt={
+                    getUserDetail(commentData.commentedBy)?.fullName || 'User'
+                  }
+                  className="mr-3"
+                />
+                <span>
+                  {getUserDetail(commentData.commentedBy)?.fullName ||
+                    'Unknown User'}
+                </span>
+              </div>
+            }
+          >
+            <Row
+              justify="space-between"
+              align="middle"
+              className="w-full mb-4 p-3 border-b last:border-b-0"
+            >
+              <Col>
+                <div className="text-xs font-semibold">
+                  {getUserDetail(commentData.commentedBy)?.fullName}
+                </div>
+                <div className="text-gray-700">{commentData.comment}</div>
+                <div className="text-gray-500 text-xs">
+                  {dayjs(commentData.createdAt).fromNow()}
+                </div>
+              </Col>
+              <Col hidden={commentData.commentedBy !== userId}>
+                <CommentActionMenu
+                  onEdit={() => handleEdit(commentData)}
+                  onDelete={() => handleDelete(commentData?.id)}
+                />
+              </Col>
+            </Row>
+          </Panel>
+        ))}
+      </Collapse>
 
       <Form
         form={form}
@@ -188,19 +198,7 @@ const CommentList = ({
           </Col>
           <Col span={4}>
             <Form.Item>
-              <Button
-                loading={
-                  addPlanLoading ||
-                  addReportLoading ||
-                  deletePlanLoading ||
-                  deleteReportLoading ||
-                  editPlanLoading ||
-                  editReportLoading
-                }
-                type="primary"
-                htmlType="submit"
-                className="w-full"
-              >
+              <Button type="primary" htmlType="submit" className="w-full">
                 Send
               </Button>
             </Form.Item>

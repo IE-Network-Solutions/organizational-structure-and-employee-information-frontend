@@ -75,31 +75,6 @@ function CreateReport() {
   const formattedData =
     allUnReportedPlanningTask &&
     groupUnReportedTasksByKeyResultAndMilestone(allUnReportedPlanningTask);
-  const totalWeight = formattedData?.reduce((sum: number, objective: any) => {
-    return (
-      sum +
-      objective?.keyResults?.reduce((keyResultSum: number, keyResult: any) => {
-        return (
-          keyResultSum +
-          keyResult?.milestones?.reduce(
-            (milestoneSum: number, milestone: any) => {
-              return (
-                milestoneSum +
-                milestone?.tasks?.reduce((taskSum: number, task: any) => {
-                  // Check if the task's status is NOT 'Not'
-                  if (selectedStatuses[task.taskId] !== 'Not') {
-                    return taskSum + (task.weight || 0);
-                  }
-                  return taskSum; // Skip adding weight if status is 'Not'
-                }, 0)
-              );
-            },
-            0,
-          )
-        );
-      }, 0)
-    );
-  }, 0);
 
   return (
     openReportModal && (
@@ -127,27 +102,12 @@ function CreateReport() {
                           <p>Weight</p>
                         </Row>
                         <Row className="flex justify-between">
-                          <p className="flex items-center gap-2">
-                            <Text className="rounded-lg border-gray-200 border bg-gray-200 w-6 h-6 text-[12px] flex items-center justify-center">
-                              {index + 1}.
-                            </Text>
+                          <p>
+                            <Text className="mx-2 text-xs">{index ?? 0}.</Text>
                             {keyresult?.title}
                           </p>
-                          <Text className="rounded-lg px-1   border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
-                            {keyresult?.milestones?.reduce(
-                              (totalWeight: number, milestone: any) => {
-                                return (
-                                  totalWeight +
-                                  (milestone?.tasks?.reduce(
-                                    (taskWeight: number, task: any) =>
-                                      taskWeight + (task?.weight || 0),
-                                    0,
-                                  ) || 0)
-                                );
-                              },
-                              0,
-                            )}
-                            %
+                          <Text className="ml-2 text-xs">
+                            {keyresult?.weight ?? 0}%
                           </Text>
                         </Row>
                         <Row className="flex mt-4 justify-between text-xs">
@@ -159,7 +119,7 @@ function CreateReport() {
                             milestone?.tasks &&
                             milestone?.tasks?.length > 0 && (
                               <div key={milestoneIndex} className="mb-4 ml-4">
-                                <h4 className="font-semibold text-xs mb-1">
+                                <h4 className="font-semibold text-xs mb-2">
                                   {milestone?.title}
                                 </h4>
                                 {milestone?.tasks?.map((task: any) => (
@@ -177,12 +137,7 @@ function CreateReport() {
                                     >
                                       <div className="grid">
                                         <div className="flex items-center justify-between ml-1">
-                                          {/* Radio Group for Status */}
-                                          <div className="flex  items-center  space-x-2">
-                                            <Text className="rounded-lg border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
-                                              {index + 1}.{milestoneIndex + 1}.
-                                            </Text>
-
+                                          <Row>
                                             <Radio.Group
                                               className="text-xs"
                                               onChange={(e) =>
@@ -195,42 +150,29 @@ function CreateReport() {
                                                 selectedStatuses[task.taskId]
                                               } // Bind value from Zustand
                                             >
-                                              <Radio value="Done">Done</Radio>
-                                              <Radio value="Not">Not</Radio>
+                                              <Radio value={'Done'}>Done</Radio>
+                                              <Radio value={'Not'}>Not</Radio>
                                             </Radio.Group>
-                                            <Tooltip title={task.taskName}>
-                                              <span className="font-medium text-xs truncate">
-                                                {task.taskName}
-                                              </span>
-                                            </Tooltip>
-                                          </div>
-
-                                          {/* Task Details */}
-                                          <div className="flex items-center space-y-1">
-                                            {/* Task Name */}
-
-                                            {/* Priority and Value */}
-                                            <div className="flex items-center space-x-2">
-                                              <Tag
-                                                className="font-bold border-none w-16  text-center capitalize text-[10px]"
-                                                color={
-                                                  task?.priority === 'high'
-                                                    ? 'red'
-                                                    : task?.priority ===
-                                                        'medium'
-                                                      ? 'orange'
-                                                      : 'green'
-                                                }
-                                              >
-                                                {task?.priority || 'None'}
-                                              </Tag>
-                                              <span className="rounded-lg border-gray-200 border bg-gray-200 mni-w-6 min-h-6 px-1 text-[12px] flex items-center justify-center">
-                                                {task.weight}%
-                                              </span>
-                                            </div>
-                                          </div>
+                                          </Row>
+                                          <Tooltip title={task.taskName}>
+                                            <span className="font-medium text-xs">
+                                              {task.taskName.length > 20
+                                                ? `${task.taskName.substring(0, 20)}...`
+                                                : task.taskName}
+                                            </span>
+                                          </Tooltip>
+                                          <Tag
+                                            color={getPriorityColor(
+                                              task.priority,
+                                            )}
+                                            className="uppercase"
+                                          >
+                                            {task.priority}
+                                          </Tag>
+                                          <span className="text-gray-600">
+                                            {task.actualValue}
+                                          </span>
                                         </div>
-
                                         <Row>
                                           {keyresult?.metricType?.name ===
                                             NAME.ACHIEVE && (
@@ -253,7 +195,7 @@ function CreateReport() {
                                         <Form.Item
                                           key={`${task.taskId}-actualValue`}
                                           name={[task.taskId, 'actualValue']}
-                                          className="mb-1"
+                                          className="mb-2"
                                           label="Actual value:" // Optional label
                                           rules={[
                                             {
@@ -520,20 +462,6 @@ function CreateReport() {
                 </Collapse.Panel>
               </Collapse>
             ))}
-            <div className="flex items-center mt-2 gap-2">
-              <span className="text-black">Total Point:</span>
-              <span
-                className={`${
-                  totalWeight > 84
-                    ? 'text-green-500'
-                    : totalWeight >= 64
-                      ? 'text-orange'
-                      : 'text-red-500'
-                }`}
-              >
-                {totalWeight}%
-              </span>
-            </div>
             <Row className="flex justify-center space-x-4 mt-4">
               <Button htmlType="button" onClick={() => onClose()}>
                 Cancel

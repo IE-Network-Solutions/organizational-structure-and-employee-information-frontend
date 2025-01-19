@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Tag, Typography, Tooltip } from 'antd';
+import { Row, Col, Tag, Typography, Tooltip, Avatar } from 'antd';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { IoIosClose } from 'react-icons/io';
 
@@ -27,67 +27,54 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
           className="flex task-row space-y-1"
           gutter={4}
           align="middle"
-          justify="space-between" // Only justifying the space between taskName and others
         >
-          <Col className="flex gap-2">
+          <Col span={1}>
             {task?.status === 'Done' ? (
-              <div className="py-1 px-1 w-4 h-4 text-white flex items-center justify-center rounded-md bg-green-600">
-                <IoCheckmarkSharp size={14} />
-              </div>
+              <Tooltip title="Achieved">
+                <Avatar
+                  size={16}
+                  alt="achieved"
+                  className="cursor-pointer"
+                  shape="square"
+                  style={{ backgroundColor: '#148220' }}
+                  icon={<IoCheckmarkSharp />}
+                />
+              </Tooltip>
             ) : (
               <Tooltip title="Not Achieved">
-                <div className="py-1 text-xl px-1 w-4 h-4 text-white flex items-center justify-center rounded-md bg-red-600">
-                  <IoIosClose />
-                </div>
+                <Avatar
+                  size={16}
+                  alt="Reject Plan"
+                  className="cursor-pointer"
+                  shape="square"
+                  style={{ backgroundColor: '#b50d20' }}
+                  icon={<IoIosClose />}
+                />
               </Tooltip>
             )}
+          </Col>
+          <Col>
             <Text className="text-xs">{`${taskIndex + 1}. ${task.taskName}`}</Text>
           </Col>
-
-          {/* This section is now justified to space between taskName and the rest */}
           <Col>
-            <Text type="secondary" className="text-[10px] mr-2">
-              <span className="text-xl" style={{ color: 'blue' }}>
-                &bull;
-              </span>{' '}
-              Priority
+            <Text type="secondary" className="text-xs">
+              <span style={{ color: 'blue' }}>&bull;</span> Priority:{' '}
             </Text>
-            <Tag
-              className="font-bold border-none w-16 text-center capitalize text-[10px]"
-              color={
-                task?.priority === 'high'
-                  ? 'red'
-                  : task?.priority === 'medium'
-                    ? 'orange'
-                    : 'green'
-              }
-            >
-              {task?.priority || 'None'}
+            <Tag color={task.priority === 'high' ? 'red' : 'green'}>
+              {task.priority || 'None'}
             </Tag>
-            <Text type="secondary" className="text-[10px] mr-2">
-              <span className="text-xl" style={{ color: 'blue' }}>
-                &bull;
-              </span>{' '}
-              Actual Value
+          </Col>
+          <Col>
+            <Text type="secondary" className="text-xs">
+              <span style={{ color: 'blue' }}>&bull;</span> Actual Value:{' '}
             </Text>
-            <Tag
-              className="font-bold border-none w-16 text-center capitalize text-[10px]"
-              color={'blue'}
-            >
-              {task?.actualValue || 'None'}
-            </Tag>
-            <Text type="secondary" className="text-[10px] mr-2">
-              <span className="text-xl" style={{ color: 'blue' }}>
-                &bull;
-              </span>{' '}
-              Target
+            <Tag color="blue">{task.actualValue || 'N/A'}</Tag>
+          </Col>
+          <Col>
+            <Text type="secondary" className="text-xs">
+              <span style={{ color: 'blue' }}>&bull;</span> Status:{' '}
             </Text>
-            <Tag
-              className="font-bold border-none w-10 text-center cap text-blue text-[10px]"
-              color="#B2B2FF"
-            >
-              {0}
-            </Tag>
+            <Tag color="blue">{task.status || 'N/A'}</Tag>
           </Col>
         </Row>
       ))}

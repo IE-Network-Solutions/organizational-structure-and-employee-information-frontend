@@ -4,10 +4,7 @@ import { APPROVER_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { requestHeader } from '@/helpers/requestHeader';
-import {
-  AllLeaveRequestApproveData,
-  LeaveRequestStatusBody,
-} from '@/store/server/features/timesheet/leaveRequest/interface';
+import { LeaveRequestStatusBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 
 const setLeaveRequest = async ({
   item,
@@ -47,15 +44,6 @@ const setApproveLeaveRequest = async (data: any) => {
     method: 'POST',
     headers: requestHeader(),
     data,
-  });
-};
-const setAllApproveLeaveRequest = async (data: AllLeaveRequestApproveData) => {
-  const roleId = { roleId: data?.roleId };
-  return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/CurrentApproved/${data?.userId}?page=${data?.page}&limit=${data?.limit}`,
-    method: 'POST',
-    headers: requestHeader(),
-    data: roleId,
   });
 };
 
@@ -100,20 +88,6 @@ export const useSetApproveLeaveRequest = () => {
   return useMutation(setApproveLeaveRequest, {
     onSuccess: (data, variables: any) => {
       queryClient.invalidateQueries(['current_approval', data?.approvedUserId]);
-      queryClient.invalidateQueries(['leave-request']);
-      queryClient.invalidateQueries(['transferApprovalRequest']);
-      queryClient.invalidateQueries(['myTansferRequest']);
-      queryClient.invalidateQueries(['transferRequest']);
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
-    },
-  });
-};
-export const useSetAllApproveLeaveRequest = () => {
-  const queryClient = useQueryClient();
-  return useMutation(setAllApproveLeaveRequest, {
-    onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries(['current_approval', data?.userId]);
       queryClient.invalidateQueries(['leave-request']);
       queryClient.invalidateQueries(['transferApprovalRequest']);
       queryClient.invalidateQueries(['myTansferRequest']);

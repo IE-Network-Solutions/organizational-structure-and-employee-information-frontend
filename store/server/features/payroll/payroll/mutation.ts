@@ -35,11 +35,10 @@ export const useCreatePayroll = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('payroll');
     },
-    onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message;
+    onError: (error) => {
       NotificationMessage.error({
-        message: 'PayRoll Creation Failed',
-        description: errorMessage,
+        message: error + '',
+        description: 'PayRoll Creation Failed.',
       });
     },
   });

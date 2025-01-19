@@ -74,8 +74,6 @@ export const useCreateConversationResponse = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('categories');
-      queryClient.invalidateQueries('conversation-instances');
-
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
