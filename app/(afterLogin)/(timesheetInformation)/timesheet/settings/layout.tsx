@@ -87,7 +87,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       item: {
         key: 'approval-workflow',
         icon: <TbLayoutList />,
-        label: <p className="menu-item-label">Approval Workflow</p>,
+        label: <p className="menu-item-label">Approval WorkFLow</p>,
       },
       link: '/timesheet/settings/approvals',
     },

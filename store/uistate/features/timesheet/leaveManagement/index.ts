@@ -5,7 +5,6 @@ type LeaveManagementState = {
   isShowLeaveRequestManagementSidebar: boolean;
   leaveTypes: LeaveType[];
   leaveRequestId: string | null;
-  leaveRequestWorkflowId: string | null;
   selectedUserId: string | null;
 };
 
@@ -15,7 +14,6 @@ type LeaveManagementAction = {
   ) => void;
   setLeaveTypes: (leaveTypes: LeaveType[]) => void;
   setLeaveRequestId: (leaveRequestId: string | null) => void;
-  setLeaveRequestWorkflowId: (leaveRequestWorkflowId: string | null) => void;
   setSelectedUserId: (selectedUserId: string | null) => void;
 };
 
@@ -35,11 +33,6 @@ const leaveManagementSlice: StateCreator<
   leaveRequestId: null,
   setLeaveRequestId: (leaveRequestId: string | null) => {
     set({ leaveRequestId });
-  },
-
-  leaveRequestWorkflowId: null,
-  setLeaveRequestWorkflowId: (leaveRequestWorkflowId: string | null) => {
-    set({ leaveRequestWorkflowId });
   },
 
   selectedUserId: null,

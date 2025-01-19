@@ -1,8 +1,8 @@
 'use client';
-import { Space, Switch } from 'antd';
+import { Col, Row, Space, Switch } from 'antd';
 import React from 'react';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-// import ProgressCard from '@/app/(afterLogin)/(okr)/_components/achievementCard';
+import ProgressCard from '@/app/(afterLogin)/(okr)/_components/achievementCard';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import ObjectiveKeyResult from './_components/objectiveKeyResult';
 import Performance from './_components/Performance';
@@ -10,10 +10,10 @@ import VPdashboard from './_components/vpDashboard';
 
 const Dashboard: React.FC<any> = () => {
   const {
-    // revenue,
-    // financialSales,
-    // progressRevenue,
-    // progressSales,
+    revenue,
+    financialSales,
+    progressRevenue,
+    progressSales,
     isVP,
     toggleDashboard,
   } = useOKRStore();
@@ -41,7 +41,7 @@ const Dashboard: React.FC<any> = () => {
           />
           <ObjectiveKeyResult />
           <Performance />
-          {/* <div className="flex justify-between">
+          <div className="flex justify-between">
             <div className="text-xl font-bold">Achievement</div>
           </div>
           <div className="flex">
@@ -67,7 +67,7 @@ const Dashboard: React.FC<any> = () => {
                 </Col>
               </Row>
             </div>
-          </div> */}
+          </div>
         </div>
       ) : (
         <VPdashboard />

@@ -46,13 +46,9 @@ const fetchPlanningPeriodAssignedForSingleUser = async () => {
   });
 };
 
-const fetchPlanningPeriodWithUser = async (
-  page: number,
-  pageSize: number,
-  userId: string,
-) => {
+const fetchPlanningPeriodWithUser = async (page: number, pageSize: number) => {
   return crudRequest({
-    url: `${OKR_URL}/Planning-periods/assignment/getAssignedUsers?page=${page}&limit=${pageSize}&userId=${userId}`,
+    url: `${OKR_URL}/Planning-periods/assignment/getAssignedUsers?page=${page}&limit=${pageSize}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -76,12 +72,8 @@ export const useGetAssignedPlanningPeriodForUserId = () =>
     fetchPlanningPeriodAssignedForSingleUser(),
   );
 
-export const useGetAllAssignedUser = (
-  page: number,
-  pageSize: number,
-  userId: string,
-) =>
+export const useGetAllAssignedUser = (page: number, pageSize: number) =>
   useQuery<PaginatedPlanningPeriodUsers>(
-    ['allPlanningPeriodUser', page, pageSize, userId],
-    () => fetchPlanningPeriodWithUser(page, pageSize, userId),
+    ['allPlanningPeriodUser', page, pageSize],
+    () => fetchPlanningPeriodWithUser(page, pageSize),
   );

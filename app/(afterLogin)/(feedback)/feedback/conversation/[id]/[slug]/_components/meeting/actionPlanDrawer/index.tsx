@@ -63,24 +63,18 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
         onFinish={handleCreateBiWeeklyWithActionPlan}
       >
         {Array.from(
+          /* eslint-disable @typescript-eslint/naming-convention */
           { length: numberOfActionPlan },
-          (notused, index) => (
+          (
+            __ /* eslint-disable @typescript-eslint/naming-convention */,
+            index,
+          ) => (
             <Card
               key={index}
               title={
                 <div
                   className="flex justify-end text-red-600 cursor-pointer"
-                  onClick={() => {
-                    const currentValues = form.getFieldsValue();
-                    const updatedValues = Array.from({
-                      length: numberOfActionPlan,
-                    })
-                      .map((notused, i) => currentValues[i])
-                      .filter((notused, i) => i !== index);
-                    // Update the form values and adjust `numberOfActionPlan`
-                    form.setFieldsValue(updatedValues);
-                    setNumberOfActionPlan(numberOfActionPlan - 1);
-                  }}
+                  onClick={() => setNumberOfActionPlan(numberOfActionPlan - 1)}
                 >
                   <TiDeleteOutline />
                 </div>
@@ -182,7 +176,7 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
                       <Option key="pending" value="pending">
                         Pending
                       </Option>
-                      <Option key="completed" value="completed">
+                      <Option key="solved" value="solved">
                         Solved
                       </Option>
                     </Select>

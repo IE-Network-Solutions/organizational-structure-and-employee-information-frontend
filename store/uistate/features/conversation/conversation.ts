@@ -20,16 +20,13 @@ interface SearchField {
 export interface CategoriesUseState {
   open: boolean;
   current: number;
-  totalPages: number;
   pageSize: number;
-  setPageSize: (pageSize: number) => void;
-
-  page: number;
-  setPage: (page: number) => void;
+  totalPages: number;
 
   openRecognitionType: boolean;
   setOpenRecognitionType: (vlaue: boolean) => void;
 
+  setPageSize: (pageSize: number) => void;
   setCurrent: (value: number) => void;
 
   setOpen: (value: boolean) => void;
@@ -104,16 +101,8 @@ const initialSearchField: SearchField[] = [
 export const ConversationStore = create<CategoriesUseState>((set) => ({
   open: false,
   current: 0,
-  totalPages: 10,
-
-  pageSize: 10,
-  setPageSize: (pageSize: number) => set({ pageSize }),
-
-  setTotalPages: (totalPages: number) => set({ totalPages }),
-
-  page: 1,
-  setPage: (page: number) => set({ page }),
-
+  pageSize: 4,
+  totalPages: 1,
   selectedDepartment: [],
   setSelectedDepartment: (selectedDepartment: string[]) =>
     set({ selectedDepartment }),
@@ -172,6 +161,9 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
         field.key === key ? { ...field, options: newOptions } : field,
       ),
     })),
+
+  setTotalPages: (totalPages: number) => set({ totalPages }),
+  setPageSize: (pageSize) => set({ pageSize }),
 
   openRecognitionType: false,
   setOpenRecognitionType: (openRecognitionType: boolean) =>

@@ -29,7 +29,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
         </div>
       </div>
 
-      <div className="mb-2 flex flex-col sm:flex-row justify-between items-start sm:items-end">
+      {/* <div className="mb-2 flex flex-col sm:flex-row justify-between items-start sm:items-end">
         <div className="flex gap-4 ml-0 sm:ml-10">
           <div className="flex items-center gap-2">
             <div className="bg-light_purple text-blue font-semibold text-[10px]   w-16 sm:w-20  text-center p-1  rounded-lg">
@@ -95,7 +95,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

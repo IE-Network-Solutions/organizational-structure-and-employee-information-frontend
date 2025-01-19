@@ -67,27 +67,31 @@ const EmployeeAttendanceSideBar = () => {
   const onFinish = () => {
     const value = form.getFieldsValue();
     const dayOfTheWeek = value?.startAt.format('dddd');
-    const checkIn = value?.startAt.format('HH.mm ');
-    const checkOut = value?.endAt.format('HH.mm ');
+    const checkIn = value?.startAt.format('HH.mm A');
+    const checkOut = value?.endAt.format('HH.mm A');
+    const workSchedule = value?.isAbsent
+      ? null
+      : employeeData?.employeeJobInformation?.find(
+          (item: any) => item.isPositionActive === true,
+        )?.workSchedule?.detail;
 
-    const workScheduleData = employeeData?.employeeJobInformation
-      ?.find((item: any) => item.isPositionActive === true)
-      ?.workSchedule?.detail?.find(
-        (item: any) => item.dayOfWeek === dayOfTheWeek,
-      );
+    const workScheduleData = isAbsent
+      ? ''
+      : workSchedule?.find((day: any) => day.dayOfWeek === dayOfTheWeek);
 
     const lateByMinutes = value?.isAbsent
       ? 0
-      : dayjs(`${checkIn}`, 'hh:mm').diff(
-          dayjs(`${workScheduleData.startTime}`, 'hh:mm'),
+      : dayjs(`${checkIn}`, 'hh:mm A').diff(
+          dayjs(`${workScheduleData.startTime}`, 'hh:mm A'),
           'minute',
         );
     const earlyByMinutes = value?.isAbsent
       ? 0
-      : dayjs(
-          dayjs(`${workScheduleData.endTime}`, 'hh:mm A').format('HH:mm'),
-          'hh:mm',
-        ).diff(dayjs(`${checkOut}`, 'hh:mm'), 'minute');
+      : dayjs(`${workScheduleData.endTime}`, 'hh:mm A').diff(
+          dayjs(`${checkOut}`, 'hh:mm A'),
+          'minute',
+        );
+
     updateLeaveRequest(
       {
         id: employeeAttendanceId,

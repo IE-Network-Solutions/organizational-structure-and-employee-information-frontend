@@ -27,36 +27,27 @@ const LeaveRequestManagementSidebar = () => {
     setIsShowLeaveRequestManagementSidebar: setIsShow,
     leaveRequestId,
     setLeaveRequestId,
-    leaveRequestWorkflowId,
-    setLeaveRequestWorkflowId,
   } = useLeaveManagementStore();
 
   const { data: leaveData, isLoading } = useGetSingleLeaveRequest(
     leaveRequestId ?? '',
   );
-  const { data: logData } = useGetSingleApprovalLog(
-    leaveRequestId ?? '',
-    leaveRequestWorkflowId ?? '',
-  );
+  const { data: logData } = useGetSingleApprovalLog(leaveRequestId ?? '');
   const { data: employeeData } = useGetAllUsers();
   const userData = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return `${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`.trim();
   };
-  const userImage = (id: string) => {
-    const user = employeeData?.items?.find((item: any) => item.id === id);
-    return user?.profileImage;
-  };
+
   const onClose = () => {
     setLeaveRequestId(null);
-    setLeaveRequestWorkflowId(null);
     setIsShow(false);
   };
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
-      label: 'Close',
-      key: 'close',
+      label: 'Cloth',
+      key: 'cloth',
       className: 'h-[56px] text-base ',
       size: 'large',
       onClick: () => {
@@ -66,20 +57,7 @@ const LeaveRequestManagementSidebar = () => {
   ];
 
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
-  type ApprovalRecord = {
-    approverId: string; // UUID
-    userId: string; // UUID
-    stepOrder: number;
-    status: 'Approved' | 'Rejected' | 'Pending'; // Adjust enum as needed
-    conditionField: string | null;
-    conditionRangeValue: string | null;
-    tenantId: string; // UUID
-    approvalLogId: string; // UUID
-    requestId: string; // UUID
-    approvalWorkflowId: string; // UUID
-    action: 'Approved' | 'Rejected'; // Adjust enum as needed
-    approvalComments: any;
-  };
+
   return (
     isShow && (
       <CustomDrawerLayout
@@ -103,10 +81,6 @@ const LeaveRequestManagementSidebar = () => {
                 name={
                   leaveData?.items?.userId &&
                   userData(String(leaveData?.items?.userId))
-                }
-                profileImage={
-                  leaveData?.items?.userId &&
-                  userImage(String(leaveData?.items?.userId))
                 }
                 size="small"
               />
@@ -184,17 +158,14 @@ const LeaveRequestManagementSidebar = () => {
               <div className="my-2.5">
                 <ApprovalStatusesInfo />
               </div>
-              {Array.isArray(logData) &&
-                logData
-                  ?.sort((a, b) => a.stepOrder - b.stepOrder)
-                  ?.map((approvalCard: ApprovalRecord, idx: number) => (
-                    <ApprovalStatusCard
-                      key={idx}
-                      data={approvalCard}
-                      userName={userData}
-                      userImage={userImage}
-                    />
-                  ))}
+
+              {logData?.items?.map((approvalCard, idx) => (
+                <ApprovalStatusCard
+                  key={idx}
+                  data={approvalCard}
+                  userName={userData}
+                />
+              ))}
             </div>
             <Divider className="my-8 h-[5px] bg-gray-200" />
 

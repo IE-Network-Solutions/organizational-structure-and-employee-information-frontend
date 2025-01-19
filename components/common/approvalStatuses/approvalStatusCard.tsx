@@ -5,35 +5,28 @@ import UserCard from '@/components/common/userCard/userCard';
 const ApprovalStatusCard = ({
   data,
   userName,
-  userImage,
 }: {
   data: any;
   userName: (a: string) => string;
-  userImage: (a: any) => any;
 }) => {
   return (
     <div className="border-b border-gray-200">
       <div className="flex items-center px-3 py-4 gap-4">
-        <div>Level {data?.stepOrder}</div>
         <Image
           width={24}
           height={24}
           src={
-            data?.status === 'Approved'
+            data?.action === 'Approved'
               ? '/icons/status/verify.svg'
-              : data?.status === 'Pending'
+              : data?.action === 'Pending'
                 ? '/icons/status/information.svg'
-                : data?.status === 'Rejected'
+                : data?.action === 'Rejected'
                   ? '/icons/status/reject.svg'
                   : ''
           }
-          alt={data?.status}
+          alt={data?.action}
         />
-        <UserCard
-          name={userName(String(data?.userId))}
-          profileImage={data?.userId && userImage(String(data?.userId))}
-          size="small"
-        />
+        <UserCard name={userName(String(data?.approvedUserId))} size="small" />
       </div>
       {data?.approvalComments?.length > 0 && (
         <div className="flex items-center gap-4 mb-2 px-5">
