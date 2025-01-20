@@ -10,7 +10,6 @@ import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutati
 import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-management/_components/criteria-drawer';
 import PayrollCard from './_components/cards';
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
-import * as ExcelJS from 'exceljs';
 import { useExportData } from './_components/excel';
 import { useGenerateBankLetter } from './_components/Latter';
 
