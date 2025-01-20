@@ -11,6 +11,8 @@ import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-manag
 import PayrollCard from './_components/cards';
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 import * as ExcelJS from 'exceljs';
+import { useExportData } from './_components/excel';
+import { useGenerateBankLetter } from './_components/Latter';
 
 const EmployeeBasicSalary = ({ id }: { id: string }) => {
   const { data, error } = useGetBasicSalaryById(id);
@@ -21,6 +23,7 @@ const EmployeeBasicSalary = ({ id }: { id: string }) => {
     data.find((item: any) => item.status)?.basicSalary || '--';
   return employeeBasicSalary;
 };
+
 const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,6 +37,11 @@ const Payroll = () => {
     isSuccess: isCreatePayrollSuccess,
   } = useCreatePayroll();
 
+  const { exportToExcel } = useExportData();
+  const { generateBankLetter } = useGenerateBankLetter();
+
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (isCreatePayrollSuccess) {
       notification.success({
@@ -42,8 +50,6 @@ const Payroll = () => {
       });
     }
   }, [isCreatePayrollSuccess, payroll]);
-
-  const [loading, setLoading] = useState(false);
 
   const handleGeneratePayroll = async () => {
     if (!allActiveSalary || allActiveSalary.length === 0) {
@@ -97,106 +103,45 @@ const Payroll = () => {
   };
 
   const handleExportPayroll = async () => {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Payroll Data');
-
-    worksheet.columns = [
-      { header: 'Full Name', key: 'fullName', width: 40 },
-      { header: 'Basic Salary', key: 'basicSalary', width: 30 },
-      { header: 'Total Allowance', key: 'totalAllowance', width: 30 },
-      { header: 'Total Benefits', key: 'totalBenefits', width: 30 },
-      { header: 'Total Deduction', key: 'totalDeductions', width: 30 },
-      { header: 'Gross Income', key: 'grossIncome', width: 30 },
-      { header: 'Tax', key: 'tax', width: 30 },
-      { header: 'Employee Pension', key: 'employeePension', width: 30 },
-      { header: 'Cost Sharing', key: 'costSharing', width: 30 },
-      { header: 'Net Income', key: 'netIncome', width: 30 },
-    ];
-
-    for (const item of payroll?.payrolls || []) {
-      const basicSalary = <EmployeeBasicSalary id={item?.employeeId} />;
-      worksheet.addRow({
-        fullName: item?.employeeId,
-        basicSalary,
-        totalAllowance: item?.totalAllowance,
-        totalBenefits: item?.totalMerit,
-        totalDeductions: item?.totalDeductions,
-        grossIncome: item?.grossSalary,
-        tax: item?.tax,
-        employeePension: item?.pension,
-        costSharing: item?.costsharing,
-        netIncome: item?.netPay,
+    if (!payroll?.payrolls || payroll.payrolls.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
       });
+      return;
     }
-
-    worksheet.getRow(1).font = { bold: true, size: 18 };
-    const buffer = await workbook.xlsx.writeBuffer();
-
-    const blob = new Blob([buffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'payroll_data.xlsx';
-    link.click();
+    setLoading(true);
+    try {
+      await exportToExcel(payroll.payrolls, columns, 'Payroll Data');
+    } catch (error) {
+      notification.error({
+        message: 'Error Exporting Data',
+        description: 'An error occurred while exporting data.',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
-  const handleBankLetter = (amount: any) => {
-    const dynamicData = {
-      date: '16-01-2025',
-      reference: 'IE/FIN/250116/001',
-      bankName: 'Enat Bank',
-      branch: 'Mexico Derartu Tulu branch',
-      month: 'December 2024',
-      amount: amount,
-      amountWords:
-        'five million three hundred fifty-five thousand nine hundred thirty-eight point five eight',
-      accountNumber: '0061101660052002',
-    };
 
-    const bankLetterContent = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-        <head><title>Bank Letter</title></head>
-        <body>
-          <p style="text-align: right;">P.O.Box 122321 Addis Ababa Ethiopia</p>
-          <p style="text-align: right;">info@ienetworksolutions.com</p>
-          <p style="text-align: right;">www.ienetworksolutions.com</p>
-          <br/>
-          <p>Date: ${dynamicData.date}</p>
-          <p>Ref: ${dynamicData.reference}</p>
-          <br/>
-          <p>To: - ${dynamicData.bankName}</p>
-          <p>${dynamicData.branch}</p>
-          <p>Addis Ababa</p>
-          <br/>
-          <p><b>Subject:</b> ${dynamicData.month} Salary Transfer Request</p>
-          <br/>
-          <p>
-            We hereby authorize your branch to transfer ETB ${dynamicData.amount} (${dynamicData.amountWords}) for the month of ${dynamicData.month} 
-            for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch 
-            of ${dynamicData.bankName}.
-          </p>
-          <p>
-            Please deduct the transfer service charges from IE Network Solutions PLC account ${dynamicData.accountNumber} maintained at ${dynamicData.branch}.
-          </p>
-          <br/>
-          <p>Sincerely</p>
-          <br/><br/><br/>
-          <p>IE Network Solutions PLC</p>
-          <p>
-            T: +251(0) 115 570544   |   M: +251(0) 911 511275 / +251(0) 911 210654 / +251(0) 930 105789   |   F: +251(0) 115 57 05 4
-          </p>
-        </body>
-      </html>
-    `;
-
-    const blob = new Blob([bankLetterContent], {
-      type: 'application/msword',
-    });
-
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'Bank_Letter.doc';
-    link.click();
+  const handleBankLetter = async (amount: any) => {
+    if (!amount) {
+      notification.error({
+        message: 'Amount Missing',
+        description: 'Please provide the amount for the bank letter.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      await generateBankLetter(amount, payroll?.payrolls);
+    } catch (error) {
+      notification.error({
+        message: 'Error Generating Bank Letter',
+        description: 'An error occurred while generating the bank letter.',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const columns = [
@@ -340,10 +285,9 @@ const Payroll = () => {
           columns={columns}
           pagination={{
             current: currentPage,
-            pageSize: 6,
-            onChange: (page) => setCurrentPage(page),
+            pageSize: 10,
+            onChange: setCurrentPage,
           }}
-          bordered
         />
       </div>
     </div>
