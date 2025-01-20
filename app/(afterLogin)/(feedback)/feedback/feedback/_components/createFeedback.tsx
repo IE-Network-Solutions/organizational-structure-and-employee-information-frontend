@@ -12,8 +12,7 @@ import { FeedbackItem } from '@/store/server/features/CFR/conversation/action-pl
 
 const { TextArea } = Input;
 
-const CreateFeedbackForm: React.FC = () => {
-  const [form] = Form.useForm();
+const CreateFeedbackForm = ({ form }: { form: any }) => {
   const { userId } = useAuthenticationStore();
   const {
     activeTab,
@@ -57,6 +56,7 @@ const CreateFeedbackForm: React.FC = () => {
         onSuccess: () => {
           setOpen(false);
           setSelectedFeedbackRecord(null);
+          form.resetFields();
         },
       });
     }
@@ -71,7 +71,7 @@ const CreateFeedbackForm: React.FC = () => {
         reason: selectedFeedbackRecord?.reason,
         action: selectedFeedbackRecord?.action,
       });
-  }, []);
+  }, [selectedFeedbackRecord]);
   return (
     <Form
       form={form}
@@ -87,23 +87,28 @@ const CreateFeedbackForm: React.FC = () => {
     >
       {selectedFeedbackRecord !== null && <Form.Item name="id"></Form.Item>}
       {/* Select Employee ID */}
+
       <Form.Item
         name="recipientId"
-        label="Select Employee ID"
+        label="Select Employee"
         rules={[
           { required: true, message: 'Please select at least one employee!' },
         ]}
       >
         <Select
-          // mode="multiple"
-          placeholder="Select employee(s)"
+          showSearch
+          placeholder="Select employee"
           options={
             getAllUsersData?.items?.map((item: any) => ({
-              key: item?.id,
-              value: item?.id,
-              label: `${item?.firstName} ${item?.lastName}`,
+              label: `${item?.firstName} ${item?.lastName}`, // `label` for display
+              value: item?.id, // `value` for internal use
             })) ?? []
-          } // Empty initially, will be updated dynamically
+          }
+          filterOption={(input, option) =>
+            (option?.label as string)
+              ?.toLowerCase()
+              .includes(input.toLowerCase())
+          }
         />
       </Form.Item>
 
@@ -116,13 +121,19 @@ const CreateFeedbackForm: React.FC = () => {
         ]}
       >
         <Select
+          showSearch
           placeholder="Select Feedback"
           options={
             getAllFeedbackTypeById?.feedback?.map((feedback: FeedbackItem) => ({
-              key: feedback.id,
-              label: feedback.name,
-              value: feedback?.id,
+              key: feedback.id, // Optional, used for React rendering optimization
+              label: feedback.name, // Text displayed in the dropdown
+              value: feedback.id, // Unique identifier
             })) ?? []
+          }
+          filterOption={(input, option) =>
+            (option?.label as string)
+              ?.toLowerCase()
+              .includes(input.toLowerCase())
           }
         />
       </Form.Item>
