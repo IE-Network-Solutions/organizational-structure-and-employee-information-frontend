@@ -2,12 +2,11 @@ pipeline {
     agent any
 
     environment {
-        REMOTE_SERVER = 'ubuntu@139.185.53.18'
+        REMOTE_SERVER = 'ubuntu@139.185.51.164'
         REPO_URL = 'https://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@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git'
-        BRANCH_NAME = 'develop'
+        BRANCH_NAME = 'production'
         REPO_DIR = 'osei-front'
-        SSH_CREDENTIALS_ID = 'peptest'
-
+        SSH_CREDENTIALS_ID = 'pepproduction'
 
 
 
@@ -15,21 +14,20 @@ pipeline {
         PAYROLL_URL="https://payroll-backend.selamnew.com/api/v1"
 NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://okr-backend.selamnew.com/api/v1"
 OKR_URL="https://okr-backend.selamnew.com/api/v1"
-
 TENANT_MGMT_URL="https://test-tenant-backend.ienetworks.co/api/v1"
-ORG_DEV_URL = "https://test-od.ienetworks.co/api/v1"
-NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://test-time-attendance-backend.ienetworks.co/api/v1"
-NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://test-training-backend.ienetworks.co/api/v1"
-RECRUITMENT_URL="https://test-recruitment-backend.ienetworks.co/api/v1"
-NEXT_PUBLIC_APPROVERS_URL="https://test-approval-backend.ienetworks.co/api/v1"
+ORG_DEV_URL = "https://od-backend.selamnew.com/api/v1"
+NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://time-attendance-backend.selamnew.com/api/v1"
+NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://training-backend.selamnew.com/api/v1"
+RECRUITMENT_URL="https://recruitment-backend.selamnew.com/api/v1"
+NEXT_PUBLIC_APPROVERS_URL="https://approval-backend.selamnew.com/api/v1"
 PUBLIC_DOMAIN="https://selamnew.com"
-NOTIFICATION_URL='https://test-email-service.ienetworks.co/api/v1'
-NEXT_PUBLIC_API_KEY="AIzaSyDDOSSGJy2izlW9CzhzhjHUTEVur0J16zs"
-NEXT_PUBLIC_AUTH_DOMIAN="pep-authentication.firebaseapp.com"
-NEXT_PUBLIC_PROJECT_ID="pep-authentication"
-NEXT_PUBLIC_STORAGE_BUCKET="pep-authentication.appspot.com"
-NEXT_PUBLIC_MESSAGE_SENDER_ID="871958776875"
-NEXT_PUBLIC_APP_ID="1:871958776875:web:426ec9b0b49fc35df1ae6e"
+NOTIFICATION_URL='https://email-service.selamnew.com'
+NEXT_PUBLIC_API_KEY="AIzaSyC2H3_6GRQe48d2xZ0JJ2tjs1vX0eGboSw"
+NEXT_PUBLIC_AUTH_DOMIAN="selamnew-workspace.firebaseapp.com"
+NEXT_PUBLIC_PROJECT_ID="selamnew-workspace"
+NEXT_PUBLIC_STORAGE_BUCKET="selamnew-workspace.appspot.com"
+NEXT_PUBLIC_MESSAGE_SENDER_ID="649403733776"
+NEXT_PUBLIC_APP_ID="1:649403733776:web:1adb71a0c8f60dafdcb795"
     }
 
     stages {
@@ -69,13 +67,13 @@ NEXT_PUBLIC_APP_ID="1:871958776875:web:426ec9b0b49fc35df1ae6e"
                         NODE_ENV=production
 
                         ORG_AND_EMP_URL=${ORG_AND_EMP_URL}
-                        PAYROLL_URL=${PAYROLL_URL}
                         TENANT_MGMT_URL=${TENANT_MGMT_URL}
                         ORG_DEV_URL=${ORG_DEV_URL}
                         NEXT_PUBLIC_TRAIN_AND_LEARNING_URL=${NEXT_PUBLIC_TRAIN_AND_LEARNING_URL}
                         NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL=${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}
                         NEXT_PUBLIC_OKR_AND_PLANNING_URL=${OKR_URL}
                         OKR_URL=${OKR_URL}
+                         PAYROLL_URL=${PAYROLL_URL}
                         NOTIFICATION_URL=${NOTIFICATION_URL}
                         RECRUITMENT_URL=${RECRUITMENT_URL}
                         PUBLIC_DOMAIN=${PUBLIC_DOMAIN}
@@ -105,8 +103,8 @@ NEXT_PUBLIC_APP_ID="1:871958776875:web:426ec9b0b49fc35df1ae6e"
                 sshagent (credentials: [SSH_CREDENTIALS_ID]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run format'
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && sudo pm2 delete test-osei-front-app || true'
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run build && PORT=3001 sudo pm2 start npm --name "test-osei-front-app" -- start'
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && sudo pm2 delete selamnew-app || true'
+                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run build && PORT=3001 sudo pm2 start npm --name "selamnew-app" -- start'
                     """
                 }
             }
