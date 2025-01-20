@@ -17,6 +17,8 @@ const RequestDetail = () => {
     setIsShowBranchRequestDetail,
     branchRequestSidebarData,
     setBranchRequestSidebarData,
+    branchRequestSidebarWorkflowData,
+    setBranchRequestSidebarWorkflowData,
   } = useMyBranchApprovalStore();
 
   const { data: employeeData } = useGetAllUsers();
@@ -31,6 +33,7 @@ const RequestDetail = () => {
 
   const onClose = () => {
     setBranchRequestSidebarData('');
+    setBranchRequestSidebarWorkflowData('');
     setIsShowBranchRequestDetail(false);
   };
 
@@ -39,6 +42,7 @@ const RequestDetail = () => {
   );
   const { data: logData } = useGetSingleApprovalLog(
     branchRequestSidebarData ?? '',
+    branchRequestSidebarWorkflowData ?? '',
   );
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -49,6 +53,7 @@ const RequestDetail = () => {
       onClick: () => {
         onClose();
         setBranchRequestSidebarData('');
+        setBranchRequestSidebarWorkflowData('');
       },
     },
   ];

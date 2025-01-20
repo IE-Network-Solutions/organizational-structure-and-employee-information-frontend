@@ -41,3 +41,5 @@ next-env.d.ts
 yarn.lock
 
 .idea
+
+Jenkinsfile

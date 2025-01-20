@@ -4,6 +4,7 @@ type EmployeeAttendanceState = {
   isShowEmployeeAttendanceSidebar: boolean;
   isAbsent: boolean;
   employeeAttendanceId: string | '';
+  isShowBreakAttendanceImportSidebar: boolean;
 };
 
 type EmployeeAttendanceStateAction = {
@@ -12,6 +13,9 @@ type EmployeeAttendanceStateAction = {
   ) => void;
   setIsAbsent: (isAbsent: boolean) => void;
   setEmployeeAttendanceId: (employeeAttendanceId: string | '') => void;
+  setIsShowBreakAttendanceImportSidebar: (
+    isShowBreakAttendanceImportSidebar: boolean,
+  ) => void;
 };
 
 const employeeAttendanceSlice: StateCreator<
@@ -31,6 +35,13 @@ const employeeAttendanceSlice: StateCreator<
   employeeAttendanceId: '',
   setEmployeeAttendanceId: (employeeAttendanceId: string | '') => {
     set({ employeeAttendanceId });
+  },
+
+  isShowBreakAttendanceImportSidebar: false,
+  setIsShowBreakAttendanceImportSidebar: (
+    isShowBreakAttendanceImportSidebar: boolean,
+  ) => {
+    set({ isShowBreakAttendanceImportSidebar });
   },
 });
 

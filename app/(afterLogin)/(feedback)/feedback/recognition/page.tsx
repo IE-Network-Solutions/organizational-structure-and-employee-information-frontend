@@ -4,7 +4,7 @@ import TabLandingLayout from '@/components/tabLanding';
 import { useCreateRecognition } from '@/store/server/features/CFR/recognition/mutation';
 import {
   useGetAllRecognition,
-  useGetAllRecognitionType,
+  useGetAllRecognitionData,
   useGetTotalRecognition,
 } from '@/store/server/features/CFR/recognition/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -41,7 +41,7 @@ function Page() {
     pageSize,
   } = useRecongnitionStore();
   const { data: allUserData } = useGetAllUsers();
-  const { data: recognitionType } = useGetAllRecognitionType();
+  const { data: recognitionType } = useGetAllRecognitionData();
   const { data: totalRecogniion } = useGetTotalRecognition();
 
   const { data: getAllRecognition } = useGetAllRecognition({
@@ -264,7 +264,7 @@ function Page() {
           buttonDisabled={
             !fiscalActiveYearId || !activeMonthId || !activeSessionId
           }
-          disabledMessage={'make sure you have active session id'}
+          disabledMessage={'make sure you have active session'}
           buttonTitle={
             selectedRecognitionType !== '1' ? 'Generate Recognition' : false
           }

@@ -1,30 +1,37 @@
 import React from 'react';
-
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Popconfirm, Table, Input, Avatar } from 'antd';
+import { Button, Popconfirm, Table, Input, Avatar, Spin } from 'antd';
 import {
   LeaveRequestStatus,
   LeaveRequestStatusBadgeTheme,
 } from '@/types/timesheet/settings';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useApprovalStore } from '@/store/uistate/features/approval';
-import { useSetApproveLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
+import {
+  useSetAllApproveLeaveRequest,
+  useSetApproveLeaveRequest,
+} from '@/store/server/features/timesheet/leaveRequest/mutation';
 import PermissionWrapper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { UserOutlined } from '@ant-design/icons';
 import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet/myTimesheet/currentApproval';
+import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
+import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
 
 const ApprovalTable = () => {
   const { pageSize, userCurrentPage, setUserCurrentPage } =
     useCurrentLeaveApprovalStore();
+  const { allPageSize, allUserCurrentPage } = useAllCurrentLeaveApprovedStore();
+
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
   const userRollId = useAuthenticationStore.getState().userData.roleId;
   const { rejectComment, setRejectComment } = useApprovalStore();
   const { mutate: editApprover } = useSetApproveLeaveRequest();
+  const { mutate: editAllApprover, isLoading } = useSetAllApproveLeaveRequest();
 
   const { data, isFetching } = useGetApprovalLeaveRequest(
     userId,
@@ -212,6 +219,16 @@ const ApprovalTable = () => {
   const onPageChange = (page: number) => {
     setUserCurrentPage(page);
   };
+  const onAllRequest = () => {
+    const body: AllLeaveRequestApproveData = {
+      userId: userId,
+      roleId: userRollId,
+      limit: allPageSize,
+      page: allUserCurrentPage,
+    };
+
+    editAllApprover(body);
+  };
   return (
     <>
       {data?.items?.length > 0 ? (
@@ -220,6 +237,16 @@ const ApprovalTable = () => {
             <div className="text-2xl font-bold text-gray-900">
               Waiting for my approval
             </div>
+          </div>
+          <div className="flex items-center justify-end mb-6">
+            <Button
+              disabled={isLoading}
+              type="primary"
+              onClick={() => onAllRequest()}
+            >
+              <Spin spinning={isLoading} />
+              Approve All
+            </Button>
           </div>
           <Table
             columns={columns}
