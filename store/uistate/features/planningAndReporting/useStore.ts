@@ -20,7 +20,7 @@ export interface PlanningAndReporting {
 
   isEditing: boolean;
   setEditing: (open: boolean) => void;
-  
+
   activeTab: number;
   setActiveTab: (activeTab: number) => void;
 
@@ -44,7 +44,6 @@ export interface PlanningAndReporting {
 
   selectedPlanId: string;
   setSelectedPlanId: (selectedPlanId: string) => void;
-
 
   selectedReportId: string;
   setSelectedReportId: (selectedReportId: string) => void;
@@ -83,7 +82,8 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     setSelectedPlanId: (selectedPlanId: string) => set({ selectedPlanId }),
 
     selectedReportId: '',
-    setSelectedReportId: (selectedReportId: string) => set({ selectedReportId }),
+    setSelectedReportId: (selectedReportId: string) =>
+      set({ selectedReportId }),
 
     activePlanPeriod: 1,
     setActivePlanPeriod: (activePlanPeriod: number) =>

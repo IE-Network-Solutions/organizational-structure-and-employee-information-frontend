@@ -19,8 +19,6 @@ const approveOrRejectPlanningPeriods = async (planningData: any) => {
   });
 };
 
-
-
 const approveOrRejectReporting = async (reportingData: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -83,10 +81,7 @@ const createReportForUnReportedtasks = async (
     headers,
   });
 };
-const editReport = async (
-  values: any,
-  selectedReportId: string,
-) => {
+const editReport = async (values: any, selectedReportId: string) => {
   const token = useAuthenticationStore.getState().token; // Assuming you have a way to get the token
   const tenantId = useAuthenticationStore.getState().tenantId; // Assuming you have a way to get the tenantId
 
@@ -139,7 +134,6 @@ export const useEditReportByReportId = () => {
     ({ values, selectedReportId }: { values: any; selectedReportId: string }) =>
       editReport(values, selectedReportId),
     {
-      
       onSuccess: () => {
         queryClient.invalidateQueries('okrReports');
         NotificationMessage.success({
@@ -177,7 +171,6 @@ export const useDeleteReportById = () => {
     },
   });
 };
-
 
 export const useApprovalReporting = () => {
   const queryClient = useQueryClient();
