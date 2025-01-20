@@ -17,8 +17,10 @@ export interface PlanningAndReporting {
   setOpen: (open: boolean) => void;
   openReportModal: boolean;
   setOpenReportModal: (open: boolean) => void;
+
   isEditing: boolean;
   setEditing: (open: boolean) => void;
+  
   activeTab: number;
   setActiveTab: (activeTab: number) => void;
 
@@ -42,6 +44,10 @@ export interface PlanningAndReporting {
 
   selectedPlanId: string;
   setSelectedPlanId: (selectedPlanId: string) => void;
+
+
+  selectedReportId: string;
+  setSelectedReportId: (selectedReportId: string) => void;
 }
 const userId = useAuthenticationStore.getState().userId;
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
@@ -75,6 +81,9 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
 
     selectedPlanId: '',
     setSelectedPlanId: (selectedPlanId: string) => set({ selectedPlanId }),
+
+    selectedReportId: '',
+    setSelectedReportId: (selectedReportId: string) => set({ selectedReportId }),
 
     activePlanPeriod: 1,
     setActivePlanPeriod: (activePlanPeriod: number) =>
