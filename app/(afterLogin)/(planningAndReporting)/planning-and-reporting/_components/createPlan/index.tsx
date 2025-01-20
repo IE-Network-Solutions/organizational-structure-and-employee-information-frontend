@@ -7,9 +7,10 @@ import { useCreatePlanTasks } from '@/store/server/features/employees/planning/m
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import DefaultCardForm from '../planForms/defaultForm';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { AllPlanningPeriods, useGetPlanningPeriodsHierarchy } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { FaPlus } from 'react-icons/fa';
 import { NAME } from '@/types/enumTypes';
+import { Milestone } from 'lucide-react';
 
 function CreatePlan() {
   const {
@@ -37,6 +38,12 @@ function CreatePlan() {
   const { data: planningPeriods } = AllPlanningPeriods();
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
+    const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
+      userId,
+      planningPeriodId || '' // Provide a default string value if undefined
+    );
+    
+
   // Ensure planningPeriods is always an array before using find
   const safePlanningPeriods = Array.isArray(planningPeriods)
     ? planningPeriods
@@ -87,8 +94,8 @@ function CreatePlan() {
         .filter((value) => Array.isArray(value))
         .flat();
     };
-
     const finalValues = mergeValues(values);
+    console.log(finalValues,"finalValues")
     createTask(
       { tasks: finalValues },
       {
@@ -99,7 +106,9 @@ function CreatePlan() {
       },
     );
   };
-  return (
+  console.log(userId,
+    planningPeriodId,planningPeriodHierarchy,"planningPeriodHierarchy")
+return (
     open && (
       <CustomDrawerLayout
         open={open === true && isEditing === false ? true : false}
@@ -114,6 +123,7 @@ function CreatePlan() {
           name="dynamic_form_item"
           onFinish={handleOnFinish}
         >
+          {planningPeriodHierarchy?.parentPlan==null?
           <Collapse defaultActiveKey={0}>
             {objective?.items?.map(
               (e: Record<string, any>, panelIndex: number) => {
@@ -325,7 +335,124 @@ function CreatePlan() {
                 );
               },
             )}
-          </Collapse>
+          </Collapse>: 
+         <Collapse defaultActiveKey={0}>
+         {planningPeriodHierarchy?.parentPlan?.plans?.map(
+           (plan: Record<string, any>, panelIndex: number) => (
+             <Collapse.Panel
+               header={
+                 <div>
+                   <strong>Plan Name:</strong> {plan.name}
+                 </div>
+               }
+               key={panelIndex}
+             >
+               <div className="flex flex-col justify-between">
+                 {/* Iterate over tasks within each plan */}
+                 {plan?.tasks?.map((task: Record<string, any>, taskIndex: number) => (
+                   <div key={taskIndex}>
+                     <div className="flex items-center  ">
+                       <span className="font-bold">Key Result:</span>
+                       <span className={`text-sm font-normal ${task?.keyResult?.title}`}>
+                         {task?.keyResult?.title}
+                       </span>
+                     </div>
+                    
+                     {task?.milestone && (
+                       <div className="flex items-center justify-between ml-2">
+                        <div>
+
+                        <span className="font-bold">Milestone:</span>
+                         <span className="text-xs">{task.milestone.title}</span>
+                         </div>
+                        
+                       </div>
+                     )}
+                       <span className="font-bold">Task:</span>
+                     <div className="flex  items-center mb-2 justify-between">
+                      
+                      <div className='flex items-center gap-1'> 
+                    
+                       <span className="rounded-lg border-gray-200 border bg-gray-300 w-6 h-6 text-[12px] flex items-center justify-center">
+                         {taskIndex + 1}.
+                       </span>
+                     
+                       <span className="text-[12px] font-normal">{task.task}</span>
+                      
+                       </div>
+                       <div className='flex items-center'>
+                       <Button
+                        onClick={() => {
+                          setMKAsATask(null);
+                          handleAddBoard(task?.keyResult?.id + task?.milestone?.id);
+                          console.log(task?.keyResult?.id + task?.milestone?.id,"dink new")
+                        }}
+                        type="link"
+                        icon={<BiPlus size={14} />}
+                        iconPosition="start"
+                        className="text-[10px]"
+                      >
+                        Add Plan Task
+                      </Button>
+                       <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
+                     
+                       {weights[
+                                                `names-${task?.keyResult?.id + task?.milestone?.id}`
+                                              ] || 0}
+                                              %
+                        </div>
+                        </div>
+                     </div>
+                     <Divider className="my-2" />
+                     {/* Iterate over milestones within each task */}
+                    
+                     <DefaultCardForm
+                                                kId={task?.keyResult?.id}
+                                                // hasTargetValue={hasTargetValue}
+                                                // hasMilestone={hasMilestone}
+                                                milestoneId={task?.milestone?.id}
+                                                name={`names-${task?.keyResult?.id + task?.milestone?.id}`}
+                                                form={form}
+                                                planningPeriodId={
+                                                  planningPeriodId || ''
+                                                }
+                                                userId={userId}
+                                                parentPlanId={
+                                                  plan.id || ''
+                                                  }
+
+                                                planningUserId={planningUserId || ''}
+                                                planTaskId={task.id || ''}
+                                                isMKAsTask={
+                                                  mkAsATask ? true : false
+                                                }
+                                                keyResult={task?.keyResult}
+                                                targetValue={task?.targetValue}
+                                              />
+                  <BoardCardForm
+                  form={form}
+                  handleAddName={handleAddName}
+                  handleRemoveBoard={
+                    handleRemoveBoard
+                  }
+                  kId={task?.keyResult?.id}
+                  // hideTargetValue={hasTargetValue}
+                  name={task?.keyResult?.id + task?.milestone?.id}
+                  isMKAsTask={
+                    mkAsATask ? true : false
+                  }
+                  keyResult={task?.keyResult}
+                  targetValue={task?.targetValue}
+                />
+                   </div>
+                 ))}
+               </div>
+             </Collapse.Panel>
+           )
+         )}
+       </Collapse>
+       
+        }
 
           <Form.Item className="mt-10">
             <div className="my-2">Total Weights:{totalWeight} / 100</div>

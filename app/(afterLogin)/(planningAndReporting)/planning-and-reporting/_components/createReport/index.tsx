@@ -88,7 +88,7 @@ function CreateReport() {
                 milestone?.tasks?.reduce((taskSum: number, task: any) => {
                   // Check if the task's status is NOT 'Not'
                   if (selectedStatuses[task.taskId] !== 'Not') {
-                    return taskSum + (task.weight || 0);
+                    return Number(taskSum) + Number(task.weight || 0);
                   }
                   return taskSum; // Skip adding weight if status is 'Not'
                 }, 0)
@@ -107,7 +107,7 @@ function CreateReport() {
         open={openReportModal === true && isEditing === false ? true : false}
         onClose={onClose}
         modalHeader={modalHeader}
-        width="50%"
+        width="65%"
       >
         {formattedData?.length > 0 ? (
           <Form
@@ -137,10 +137,10 @@ function CreateReport() {
                             {keyresult?.milestones?.reduce(
                               (totalWeight: number, milestone: any) => {
                                 return (
-                                  totalWeight +
+                                  Number(totalWeight) +
                                   (milestone?.tasks?.reduce(
                                     (taskWeight: number, task: any) =>
-                                      taskWeight + (task?.weight || 0),
+                                      Number(taskWeight) + Number(task?.weight || 0),
                                     0,
                                   ) || 0)
                                 );
@@ -200,7 +200,7 @@ function CreateReport() {
                                             </Radio.Group>
                                             <Tooltip title={task.taskName}>
                                               <span className="font-medium text-xs truncate">
-                                                {task.taskName}
+                                                {task.taskName?.length>=40?task.taskName?.slice(0,40):task.taskName}
                                               </span>
                                             </Tooltip>
                                           </div>

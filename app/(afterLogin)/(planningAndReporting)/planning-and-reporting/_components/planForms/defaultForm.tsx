@@ -6,16 +6,19 @@ import { NAME } from '@/types/enumTypes';
 
 interface DefaultCardInterface {
   kId: string;
-  hasTargetValue: boolean;
-  hasMilestone: boolean;
+  hasTargetValue?: boolean;
+  hasMilestone?: boolean;
   milestoneId: string | null;
   name: string;
   form: any;
   planningPeriodId: string;
   userId: string;
   planningUserId: string;
+  parentPlanId?:string;
+  planTaskId?:string;
   isMKAsTask?: boolean;
   keyResult?: any;
+  targetValue?:number
 }
 
 function DefaultCardForm({
@@ -27,10 +30,14 @@ function DefaultCardForm({
   userId,
   planningPeriodId,
   planningUserId,
+  planTaskId,
+  parentPlanId,
   isMKAsTask = false,
   keyResult,
+  targetValue,
 }: DefaultCardInterface) {
   const { setWeight } = PlanningAndReportingStore();
+  console.log(keyResult?.metricType?.name,"&&&*&")
 
   return (
     <Form.List name={name}>
@@ -44,6 +51,24 @@ function DefaultCardForm({
                 initialValue={milestoneId || null}
                 noStyle
                 key={`${field.key}-milestoneId`} // Unique key for milestoneId
+              >
+                <Input type="hidden" />
+              </Form.Item>
+              <Form.Item
+                {...field}
+                name={[field.name, 'parentPlanId']}
+                initialValue={parentPlanId || null}
+                noStyle
+                key={`${field.key}-parentPlanId`} // Unique key for milestoneId
+              >
+                <Input type="hidden" />
+              </Form.Item>
+              <Form.Item
+                {...field}
+                name={[field.name, 'parentTaskId']}
+                initialValue={planTaskId || null}
+                noStyle
+                key={`${field.key}-parentTaskId`} // Unique key for milestoneId
               >
                 <Input type="hidden" />
               </Form.Item>
@@ -192,7 +217,8 @@ function DefaultCardForm({
                   </Space>
                 </Col>
               </Row>
-
+              {(keyResult?.metricType?.name !== NAME.ACHIEVE &&
+                keyResult?.metricType?.name !== NAME.MILESTONE) && (        
               <Form.Item
                 className="mb-4"
                 label={<div className="text-xs">Target</div>}
@@ -219,18 +245,25 @@ function DefaultCardForm({
                       }
 
                       // Validate against the key result limits
-                      if (
-                        value <=
-                        keyResult.targetValue - keyResult.currentValue
-                      ) {
-                        return Promise.resolve();
+                      if (targetValue !== null && targetValue !== undefined) {
+                        // Check if numericValue is within the targetValue
+                        if (value <= targetValue) {
+                          return Promise.resolve(); // Validation passed
+                        }
+                      } else {
+                        // Fallback check if targetValue does not exist
+                        if (value <= (keyResult.targetValue - keyResult.currentValue)) {
+                          return Promise.resolve(); // Validation passed
+                        }
                       }
-
+                      
+                      // If neither condition is satisfied, reject the promise
                       return Promise.reject(
                         new Error(
-                          "Your target value shouldn't be greater than your key result target value.",
-                        ),
+                          "Your target value shouldn't exceed the allowed limits."
+                        )
                       );
+                      
                     },
                   },
                 ]}
@@ -243,6 +276,7 @@ function DefaultCardForm({
                   }
                 />
               </Form.Item>
+            )}
 
               {planningPeriodId && planningUserId && (
                 <Form.Item

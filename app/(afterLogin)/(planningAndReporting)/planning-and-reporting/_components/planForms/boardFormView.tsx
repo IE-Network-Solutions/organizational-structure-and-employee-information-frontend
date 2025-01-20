@@ -17,10 +17,11 @@ interface BoardCardInterface {
   handleAddName: (arg1: Record<string, string>, arg2: string) => void;
   handleRemoveBoard: (arg1: number, arg2: string) => void;
   kId: string;
-  hideTargetValue: boolean;
+  hideTargetValue?: boolean;
   name: string;
   isMKAsTask?: boolean;
   keyResult: any;
+  targetValue?:number;
 }
 
 function BoardCardForm({
@@ -31,8 +32,10 @@ function BoardCardForm({
   name,
   isMKAsTask = false,
   keyResult,
+  targetValue
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
+  console.log(keyResult?.metricType?.name,"keyResult?.metricType?.name")
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
@@ -68,8 +71,8 @@ function BoardCardForm({
                 <Input type="hidden" />
               </Form.Item>
               <Divider className="mt-2 mb-2" />
-              {(keyResult?.metricType?.name != NAME.ACHIEVE ||
-                keyResult?.metricType?.name != NAME.MILESTONE) && (
+              {(keyResult?.metricType?.name !== NAME.ACHIEVE &&
+               keyResult?.metricType?.name !== NAME.MILESTONE) && (
                 <Form.Item
                   hidden={hideTargetValue}
                   label={<div className="text-xs">Target</div>}
@@ -116,18 +119,25 @@ function BoardCardForm({
                         }
 
                         // Validate against the key result limits
-                        if (
-                          numericValue <=
-                          keyResult.targetValue - keyResult.currentValue
-                        ) {
-                          return Promise.resolve(); // Validation passed
+                        if (targetValue !== null && targetValue !== undefined) {
+                          // Check if numericValue is within the targetValue
+                          if (numericValue <= targetValue) {
+                            return Promise.resolve(); // Validation passed
+                          }
+                        } else {
+                          // Fallback check if targetValue does not exist
+                          if (numericValue <= (keyResult.targetValue - keyResult.currentValue)) {
+                            return Promise.resolve(); // Validation passed
+                          }
                         }
-
-                        // Reject with custom error message
+                        
+                        // If neither condition is satisfied, reject the promise
                         return Promise.reject(
                           new Error(
-                            "Your target value shouldn't be greater than your key result target value.",
-                          ),
+                            "Your target value shouldn't exceed the allowed limits."
+                          )
+                        
+                        
                         );
                       },
                     },

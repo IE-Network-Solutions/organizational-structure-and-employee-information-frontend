@@ -23,6 +23,7 @@ import KeyResultMetrics from '../keyResult';
 import {
   AllPlanningPeriods,
   useGetPlanning,
+  useGetPlanningPeriodsHierarchy,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { IoCheckmarkSharp } from 'react-icons/io5';
@@ -166,7 +167,10 @@ function Planning() {
       </Menu.Item>
     </Menu>
   );
-
+   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
+      userId,
+      planningPeriodId || '' // Provide a default string value if undefined
+    );
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -189,7 +193,7 @@ function Planning() {
                   !(
                     selectedUser.includes(userId) &&
                     ((transformedData?.[0]?.isReported ?? false) ||
-                      transformedData?.length === 0)
+                      transformedData?.length === 0) && planningPeriodHierarchy?.parentPlan?.plans?.length!=0
                   )
                 }
                 title={`Create ${activeTabName} Plan`}
