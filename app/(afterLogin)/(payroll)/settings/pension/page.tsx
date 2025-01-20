@@ -1,6 +1,6 @@
 'use client';
-import { Table, Button, Space, Typography } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Table, Button, Typography } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import React from 'react';
 const { Title } = Typography;
 
@@ -29,16 +29,6 @@ const Pension = () => {
       title: 'Employer Contribution',
       dataIndex: 'employerContribution',
       key: 'employerContribution',
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: () => (
-        <Space size="middle">
-          <Button type="primary" icon={<EditOutlined />} />
-          <Button type="primary" danger icon={<DeleteOutlined />} />
-        </Space>
-      ),
     },
   ];
 
