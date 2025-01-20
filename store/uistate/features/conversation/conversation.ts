@@ -67,7 +67,6 @@ export interface CategoriesUseState {
   givenDate: any;
   setGivenDate: (givenDate: any) => void;
 
-
   variantType: string;
   setVariantType: (variantType: string) => void;
 

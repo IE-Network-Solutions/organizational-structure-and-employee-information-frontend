@@ -20,6 +20,7 @@ export const groupTasksByKeyResultAndMilestone = (reportTasks: any) => {
       status: task.status,
       actualValue: task.actualValue,
       isAchived: task.isAchived,
+      customReason: task.customReason,
     };
 
     // If milestone is null or undefined, push task directly to the tasks array

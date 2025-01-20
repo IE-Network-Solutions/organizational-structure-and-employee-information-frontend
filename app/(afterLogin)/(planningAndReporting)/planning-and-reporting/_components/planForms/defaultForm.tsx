@@ -14,11 +14,11 @@ interface DefaultCardInterface {
   planningPeriodId: string;
   userId: string;
   planningUserId: string;
-  parentPlanId?:string;
-  planTaskId?:string;
+  parentPlanId?: string;
+  planTaskId?: string;
   isMKAsTask?: boolean;
   keyResult?: any;
-  targetValue?:number
+  targetValue?: number;
 }
 
 function DefaultCardForm({
@@ -37,7 +37,7 @@ function DefaultCardForm({
   targetValue,
 }: DefaultCardInterface) {
   const { setWeight } = PlanningAndReportingStore();
-  console.log(keyResult?.metricType?.name,"&&&*&")
+  console.log(planTaskId, '&&&*&');
 
   return (
     <Form.List name={name}>
@@ -217,66 +217,71 @@ function DefaultCardForm({
                   </Space>
                 </Col>
               </Row>
-              {(keyResult?.metricType?.name !== NAME.ACHIEVE &&
-                keyResult?.metricType?.name !== NAME.MILESTONE) && (        
-              <Form.Item
-                className="mb-4"
-                label={<div className="text-xs">Target</div>}
-                {...field}
-                name={[field.name, 'targetValue']}
-                hidden={hasTargetValue}
-                key={`${field.key}-targetValue`} // Unique key for targetValue
-                rules={[
-                  {
-                    /* eslint-disable @typescript-eslint/naming-convention */
-                    validator(_, value: any) {
-                      /* eslint-enable @typescript-eslint/naming-convention */
-                      if (
-                        keyResult?.metricType?.name === NAME.ACHIEVE ||
-                        keyResult?.metricType?.name === NAME.MILESTONE
-                      ) {
-                        return Promise.resolve(); // Skip validation
-                      }
-                      // Handle null or undefined value
-                      if (value === null || value === undefined) {
-                        return Promise.reject(
-                          new Error('Please enter a target value.'),
-                        );
-                      }
+              {keyResult?.metricType?.name !== NAME.ACHIEVE &&
+                keyResult?.metricType?.name !== NAME.MILESTONE && (
+                  <Form.Item
+                    className="mb-4"
+                    label={<div className="text-xs">Target</div>}
+                    {...field}
+                    name={[field.name, 'targetValue']}
+                    hidden={hasTargetValue}
+                    key={`${field.key}-targetValue`} // Unique key for targetValue
+                    rules={[
+                      {
+                        /* eslint-disable @typescript-eslint/naming-convention */
+                        validator(_, value: any) {
+                          /* eslint-enable @typescript-eslint/naming-convention */
+                          if (
+                            keyResult?.metricType?.name === NAME.ACHIEVE ||
+                            keyResult?.metricType?.name === NAME.MILESTONE
+                          ) {
+                            return Promise.resolve(); // Skip validation
+                          }
+                          // Handle null or undefined value
+                          if (value === null || value === undefined) {
+                            return Promise.reject(
+                              new Error('Please enter a target value.'),
+                            );
+                          }
 
-                      // Validate against the key result limits
-                      if (targetValue !== null && targetValue !== undefined) {
-                        // Check if numericValue is within the targetValue
-                        if (value <= targetValue) {
-                          return Promise.resolve(); // Validation passed
-                        }
-                      } else {
-                        // Fallback check if targetValue does not exist
-                        if (value <= (keyResult.targetValue - keyResult.currentValue)) {
-                          return Promise.resolve(); // Validation passed
-                        }
+                          // Validate against the key result limits
+                          if (
+                            targetValue !== null &&
+                            targetValue !== undefined
+                          ) {
+                            // Check if numericValue is within the targetValue
+                            if (value <= targetValue) {
+                              return Promise.resolve(); // Validation passed
+                            }
+                          } else {
+                            // Fallback check if targetValue does not exist
+                            if (
+                              value <=
+                              keyResult.targetValue - keyResult.currentValue
+                            ) {
+                              return Promise.resolve(); // Validation passed
+                            }
+                          }
+
+                          // If neither condition is satisfied, reject the promise
+                          return Promise.reject(
+                            new Error(
+                              "Your target value shouldn't exceed the allowed limits.",
+                            ),
+                          );
+                        },
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      className="w-32 text-xs"
+                      min={0} // Ensure the value can't go below 0
+                      formatter={(value) =>
+                        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                       }
-                      
-                      // If neither condition is satisfied, reject the promise
-                      return Promise.reject(
-                        new Error(
-                          "Your target value shouldn't exceed the allowed limits."
-                        )
-                      );
-                      
-                    },
-                  },
-                ]}
-              >
-                <InputNumber
-                  className="w-32 text-xs"
-                  min={0} // Ensure the value can't go below 0
-                  formatter={(value) =>
-                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                  }
-                />
-              </Form.Item>
-            )}
+                    />
+                  </Form.Item>
+                )}
 
               {planningPeriodId && planningUserId && (
                 <Form.Item

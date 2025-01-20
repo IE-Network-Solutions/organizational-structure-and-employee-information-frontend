@@ -1,10 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Select,DatePicker } from 'antd';
+import { Select, DatePicker } from 'antd';
 
-
-const { RangePicker } = DatePicker
+const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 interface Option {
@@ -25,9 +24,7 @@ interface DynamicSearchProps {
   fields: FieldConfig[]; // Array of field configurations
 }
 
-const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
-  fields,
-}) => {
+const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({ fields }) => {
   return (
     <div className="flex justify-start w-full">
       {fields.map((field) => (
@@ -35,35 +32,37 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
           key={field.key}
           className={`w-full md:w-${Math.round(field.widthRatio / 12)} p-2`}
         >
-          {field?.type==='start-end-date'?
-          <RangePicker
-          onChange={(dates, dateStrings) => {
-            if (field?.onChange) {
-              field.onChange(dateStrings); // Pass formatted date strings to the handler
-            }
-          }}
-          className="w-full h-14"
-        />:
-          <Select
-            placeholder={field.placeholder}
-            onChange={(value:string) => field?.onChange(value)}
-            allowClear
-            showSearch
-            className="w-full h-14"
-            optionFilterProp="children"
-            filterOption={(input: any, option: any) =>
-              option?.children
-                ?.toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-          >
-            {field.options?.map((option) => (
-              <Option key={option.key} value={option.key}>
-                {option.value}
-              </Option>
-            ))}
-          </Select>}
+          {field?.type === 'start-end-date' ? (
+            <RangePicker
+              onChange={(dates, dateStrings) => {
+                if (field?.onChange) {
+                  field.onChange(dateStrings); // Pass formatted date strings to the handler
+                }
+              }}
+              className="w-full h-14"
+            />
+          ) : (
+            <Select
+              placeholder={field.placeholder}
+              onChange={(value: string) => field?.onChange(value)}
+              allowClear
+              showSearch
+              className="w-full h-14"
+              optionFilterProp="children"
+              filterOption={(input: any, option: any) =>
+                option?.children
+                  ?.toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+            >
+              {field.options?.map((option) => (
+                <Option key={option.key} value={option.key}>
+                  {option.value}
+                </Option>
+              ))}
+            </Select>
+          )}
         </div>
       ))}
     </div>

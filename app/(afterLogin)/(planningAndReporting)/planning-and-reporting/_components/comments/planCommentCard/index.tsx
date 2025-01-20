@@ -32,23 +32,24 @@ const CommentCard: React.FC<Props> = ({
         </div>
       }
       extra={
-        !viewComment?
-        <Button
-          className="text-xs"
-          type="primary"
-          onClick={() => setViewComment(!viewComment)}
-        >
-          Comment {data?.length}
-        </Button>: 
-        <Button
-          className="text-xs border "
-        
-          onClick={() => setViewComment(!viewComment)}
-          iconPosition='end'
-          icon={<MdClose/>}
-        >
-          Cancel
-        </Button>
+        !viewComment ? (
+          <Button
+            className="text-xs"
+            type="primary"
+            onClick={() => setViewComment(!viewComment)}
+          >
+            Comment {data?.length}
+          </Button>
+        ) : (
+          <Button
+            className="text-xs border "
+            onClick={() => setViewComment(!viewComment)}
+            iconPosition="end"
+            icon={<MdClose />}
+          >
+            Cancel
+          </Button>
+        )
       }
     >
       {loading ? (

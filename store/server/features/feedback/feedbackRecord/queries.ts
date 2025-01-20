@@ -21,7 +21,12 @@ const fetchFeedbackRecordById = async (id: string) => {
     headers,
   });
 };
-const fetchAllFeedbackRecord = async (pageSize:number,page:number,empId:string,date:[]) => {
+const fetchAllFeedbackRecord = async (
+  pageSize: number,
+  page: number,
+  empId: string,
+  date: [],
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -29,8 +34,8 @@ const fetchAllFeedbackRecord = async (pageSize:number,page:number,empId:string,d
     Authorization: `Bearer ${token}`,
   };
   const url = date?.length
-  ? `${ORG_DEV_URL}/feedback-record?limit=${pageSize}&page=${page}&startDate=${date[0]}&endDate=${date[1]}&useId=${empId}`
-  : `${ORG_DEV_URL}/feedback-record?limit=${pageSize}&page=${page}&useId=${empId}`;
+    ? `${ORG_DEV_URL}/feedback-record?limit=${pageSize}&page=${page}&startDate=${date[0]}&endDate=${date[1]}&useId=${empId}`
+    : `${ORG_DEV_URL}/feedback-record?limit=${pageSize}&page=${page}&useId=${empId}`;
   return await crudRequest({
     url: url,
     method: 'GET',
@@ -52,7 +57,7 @@ export const useFetchAllFeedbackRecord = (
   empId?: string,
   date?: [],
 ) => {
-  return useQuery(['feedbackRecord', pageSize, page,empId,date], () =>
-    fetchAllFeedbackRecord(pageSize,page,empId,date),
+  return useQuery(['feedbackRecord', pageSize, page, empId, date], () =>
+    fetchAllFeedbackRecord(pageSize, page, empId, date),
   );
 };

@@ -32,7 +32,10 @@ const getPlanningData = async (params: DataType) => {
     headers,
   });
 };
-const getPlanningPeriodsHierarchy = async (userId: string, planningPeriodId: string) => {
+const getPlanningPeriodsHierarchy = async (
+  userId: string,
+  planningPeriodId: string,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -40,12 +43,11 @@ const getPlanningPeriodsHierarchy = async (userId: string, planningPeriodId: str
     Authorization: `Bearer ${token}`,
   };
 
-    return await crudRequest({
-      url: `${OKR_URL}/planning-periods/parent-hierarchy/${planningPeriodId}/user/${userId}`,
-      method: 'get',
-      headers,
-    });
-
+  return await crudRequest({
+    url: `${OKR_URL}/planning-periods/parent-hierarchy/${planningPeriodId}/user/${userId}`,
+    method: 'get',
+    headers,
+  });
 };
 
 const getAllUnReportedPlanningTask = async (
@@ -147,13 +149,16 @@ export const useGetPlanning = (params: DataType) => {
   });
 };
 
-export const useGetPlanningPeriodsHierarchy = (userId: string, planningPeriodId: string) => {
+export const useGetPlanningPeriodsHierarchy = (
+  userId: string,
+  planningPeriodId: string,
+) => {
   return useQuery<any>(
     ['planningPeriodsHierarchy', { userId, planningPeriodId }],
-    () => getPlanningPeriodsHierarchy(userId, planningPeriodId ),
+    () => getPlanningPeriodsHierarchy(userId, planningPeriodId),
     {
       enabled: !!userId && !!planningPeriodId, // Ensure both are truthy
-    }
+    },
   );
 };
 

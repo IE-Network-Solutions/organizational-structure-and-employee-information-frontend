@@ -23,7 +23,8 @@ export const crudRequest = async ({
   params,
 }: RequestParams) => {
   const userId = useAuthenticationStore.getState().userId;
-  headers = { ...headers, requestedBy: userId };
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  headers = { ...headers, requestedBy: userId, tenantId };
 
   try {
     const config: AxiosRequestConfig = {

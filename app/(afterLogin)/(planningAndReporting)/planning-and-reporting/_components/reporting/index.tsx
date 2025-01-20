@@ -1,6 +1,18 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
-import { Avatar, Button, Card, Col, Dropdown, Menu, Popconfirm, Row, Spin, Tooltip, Typography } from 'antd';
+import {
+  Avatar,
+  Button,
+  Card,
+  Col,
+  Dropdown,
+  Menu,
+  Popconfirm,
+  Row,
+  Spin,
+  Tooltip,
+  Typography,
+} from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { MdOutlinePending } from 'react-icons/md';
@@ -24,21 +36,32 @@ import { UserOutlined } from '@ant-design/icons';
 import { IoIosOpen, IoMdMore } from 'react-icons/io';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
-import { useApprovalReporting, useDeleteReportById } from '@/store/server/features/okrPlanningAndReporting/mutations';
+import {
+  useApprovalReporting,
+  useDeleteReportById,
+} from '@/store/server/features/okrPlanningAndReporting/mutations';
 
 const { Title } = Typography;
 
 function Reporting() {
-  const { setOpenReportModal, selectedUser, activePlanPeriod,setSelectedReportId,selectedReportId,setOpen,setEditing} =
-    PlanningAndReportingStore();
+  const {
+    setOpenReportModal,
+    selectedUser,
+    activePlanPeriod,
+    setSelectedReportId,
+    selectedReportId,
+    setOpen,
+    setEditing,
+  } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
   const { mutate: handleDeleteReport } = useDeleteReportById();
-  
-    const { mutate: ReportApproval, isLoading: isApprovalLoading } =useApprovalReporting();
-    const planningPeriodId =
+
+  const { mutate: ReportApproval, isLoading: isApprovalLoading } =
+    useApprovalReporting();
+  const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
   const { data: allReporting, isLoading: getReportLoading } = useGetReporting({
@@ -65,8 +88,7 @@ function Reporting() {
     ReportApproval(data);
   };
 
-
-  console.log(selectedReportId,"selectedReportId")
+  console.log(selectedReportId, 'selectedReportId');
   const actionsMenu = (
     dataItem: any,
     handleApproveHandler: any,
@@ -90,7 +112,7 @@ function Reporting() {
             Approve
           </Tooltip>
         </Menu.Item>
-       ) : ( 
+      ) : (
         <Menu.Item
           className="text-red-400"
           icon={<IoIosOpen size={16} />}
@@ -99,7 +121,7 @@ function Reporting() {
         >
           <Tooltip title="Open approved Plan">Open</Tooltip>
         </Menu.Item>
-       )} 
+      )}
     </Menu>
   );
   const actionsMenuEditandDelte = (
@@ -141,7 +163,6 @@ function Reporting() {
       </Menu.Item>
     </Menu>
   );
-
 
   return (
     <Spin spinning={getReportLoading} tip="Loading...">
@@ -240,13 +261,15 @@ function Reporting() {
                           className="flex justify-end items-center"
                         >
                           <>
-                          <span className="mr-4 text-gray-500">
-                            {dayjs(dataItem?.createdAt).format(
-                              'MMMM D YYYY, h:mm:ss A',
-                            )}
-                          </span>
+                            <span className="mr-4 text-gray-500">
+                              {dayjs(dataItem?.createdAt).format(
+                                'MMMM D YYYY, h:mm:ss A',
+                              )}
+                            </span>
                             {userId ===
-                             getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.reportingTo?.id && ( 
+                              getEmployeeData(
+                                dataItem?.userId ?? dataItem?.createdBy,
+                              )?.reportingTo?.id && (
                               <Dropdown
                                 overlay={actionsMenu(
                                   dataItem,
@@ -263,9 +286,10 @@ function Reporting() {
                                   className="cursor-pointer text-green border-none  hover:text-success"
                                 />
                               </Dropdown>
-                            )} 
-                             {userId === (dataItem?.userId ?? dataItem?.createdBy) &&
-                               dataItem?.isValidated == false && (
+                            )}
+                            {userId ===
+                              (dataItem?.userId ?? dataItem?.createdBy) &&
+                              dataItem?.isValidated == false && (
                                 <Dropdown
                                   overlay={actionsMenuEditandDelte(
                                     dataItem,
@@ -281,7 +305,7 @@ function Reporting() {
                                     className="cursor-pointer  text-black border-none  hover:text-primary"
                                   />
                                 </Dropdown>
-                              )} 
+                              )}
                           </>
 
                           <Col className="mr-2"></Col>

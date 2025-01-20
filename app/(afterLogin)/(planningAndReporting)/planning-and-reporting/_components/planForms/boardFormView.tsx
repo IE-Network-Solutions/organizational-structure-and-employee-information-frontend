@@ -21,7 +21,7 @@ interface BoardCardInterface {
   name: string;
   isMKAsTask?: boolean;
   keyResult: any;
-  targetValue?:number;
+  targetValue?: number;
 }
 
 function BoardCardForm({
@@ -32,10 +32,10 @@ function BoardCardForm({
   name,
   isMKAsTask = false,
   keyResult,
-  targetValue
+  targetValue,
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
-  console.log(keyResult?.metricType?.name,"keyResult?.metricType?.name")
+  console.log(keyResult?.metricType?.name, 'keyResult?.metricType?.name');
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
@@ -71,87 +71,91 @@ function BoardCardForm({
                 <Input type="hidden" />
               </Form.Item>
               <Divider className="mt-2 mb-2" />
-              {(keyResult?.metricType?.name !== NAME.ACHIEVE &&
-               keyResult?.metricType?.name !== NAME.MILESTONE) && (
-                <Form.Item
-                  hidden={hideTargetValue}
-                  label={<div className="text-xs">Target</div>}
-                  {...restSubField}
-                  name={[subName, 'targetValue']}
-                  key={`${subName}-targetValue`}
-                  rules={[
-                    {
-                      /* eslint-disable @typescript-eslint/naming-convention */
-                      validator(_, value: any) {
-                        /* eslint-enable @typescript-eslint/naming-convention */
-                        // Check if keyResult is available
-                        if (
-                          !keyResult ||
-                          !keyResult.targetValue ||
-                          !keyResult.currentValue
-                        ) {
-                          return Promise.reject(
-                            new Error('Key result data is incomplete.'),
-                          );
-                        }
-
-                        // Skip validation for specific metric types
-                        if (
-                          keyResult?.metricType?.name === NAME.ACHIEVE ||
-                          keyResult?.metricType?.name === NAME.MILESTONE
-                        ) {
-                          return Promise.resolve(); // Skip validation
-                        }
-
-                        // Handle null or undefined value
-                        if (value === null || value === undefined) {
-                          return Promise.reject(
-                            new Error('Please enter a target value.'),
-                          );
-                        }
-
-                        // Ensure value is a valid number
-                        const numericValue = Number(value);
-                        if (isNaN(numericValue)) {
-                          return Promise.reject(
-                            new Error('Please enter a valid number.'),
-                          );
-                        }
-
-                        // Validate against the key result limits
-                        if (targetValue !== null && targetValue !== undefined) {
-                          // Check if numericValue is within the targetValue
-                          if (numericValue <= targetValue) {
-                            return Promise.resolve(); // Validation passed
+              {keyResult?.metricType?.name !== NAME.ACHIEVE &&
+                keyResult?.metricType?.name !== NAME.MILESTONE && (
+                  <Form.Item
+                    hidden={hideTargetValue}
+                    label={<div className="text-xs">Target</div>}
+                    {...restSubField}
+                    name={[subName, 'targetValue']}
+                    key={`${subName}-targetValue`}
+                    rules={[
+                      {
+                        /* eslint-disable @typescript-eslint/naming-convention */
+                        validator(_, value: any) {
+                          /* eslint-enable @typescript-eslint/naming-convention */
+                          // Check if keyResult is available
+                          if (
+                            !keyResult ||
+                            !keyResult.targetValue ||
+                            !keyResult.currentValue
+                          ) {
+                            return Promise.reject(
+                              new Error('Key result data is incomplete.'),
+                            );
                           }
-                        } else {
-                          // Fallback check if targetValue does not exist
-                          if (numericValue <= (keyResult.targetValue - keyResult.currentValue)) {
-                            return Promise.resolve(); // Validation passed
+
+                          // Skip validation for specific metric types
+                          if (
+                            keyResult?.metricType?.name === NAME.ACHIEVE ||
+                            keyResult?.metricType?.name === NAME.MILESTONE
+                          ) {
+                            return Promise.resolve(); // Skip validation
                           }
-                        }
-                        
-                        // If neither condition is satisfied, reject the promise
-                        return Promise.reject(
-                          new Error(
-                            "Your target value shouldn't exceed the allowed limits."
-                          )
-                        
-                        
-                        );
+
+                          // Handle null or undefined value
+                          if (value === null || value === undefined) {
+                            return Promise.reject(
+                              new Error('Please enter a target value.'),
+                            );
+                          }
+
+                          // Ensure value is a valid number
+                          const numericValue = Number(value);
+                          if (isNaN(numericValue)) {
+                            return Promise.reject(
+                              new Error('Please enter a valid number.'),
+                            );
+                          }
+
+                          // Validate against the key result limits
+                          if (
+                            targetValue !== null &&
+                            targetValue !== undefined
+                          ) {
+                            // Check if numericValue is within the targetValue
+                            if (numericValue <= targetValue) {
+                              return Promise.resolve(); // Validation passed
+                            }
+                          } else {
+                            // Fallback check if targetValue does not exist
+                            if (
+                              numericValue <=
+                              keyResult.targetValue - keyResult.currentValue
+                            ) {
+                              return Promise.resolve(); // Validation passed
+                            }
+                          }
+
+                          // If neither condition is satisfied, reject the promise
+                          return Promise.reject(
+                            new Error(
+                              "Your target value shouldn't exceed the allowed limits.",
+                            ),
+                          );
+                        },
                       },
-                    },
-                  ]}
-                >
-                  <InputNumber
-                    className="w-28 text-xs"
-                    defaultValue={0} // Set a default value to avoid null issues
-                    formatter={(value) =>
-                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                    }
-                  />
-                </Form.Item>
-              )}
+                    ]}
+                  >
+                    <InputNumber
+                      className="w-28 text-xs"
+                      defaultValue={0} // Set a default value to avoid null issues
+                      formatter={(value) =>
+                        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                      }
+                    />
+                  </Form.Item>
+                )}
 
               <Row justify="space-between" align={'middle'}>
                 <Col>

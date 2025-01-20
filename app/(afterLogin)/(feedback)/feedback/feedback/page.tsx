@@ -36,16 +36,16 @@ const Page = () => {
     givenDate,
     setGivenDate,
     pageSize,
-setPageSize,
-page,
-setPage,
+    setPageSize,
+    page,
+    setPage,
   } = ConversationStore();
   const [form] = Form.useForm();
   const { data: getAllUsersData } = useGetAllUsers();
   const { data: getAllFeedbackTypes, isLoading: getFeedbackTypeLoading } =
     useFetchAllFeedbackTypes();
   const { data: getAllFeedbackRecord, isLoading: getFeedbackRecordLoading } =
-    useFetchAllFeedbackRecord(pageSize,page,empId,givenDate);
+    useFetchAllFeedbackRecord(pageSize, page, empId, givenDate);
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
 
   const { data: getAllUsers } = useGetAllUsers();
@@ -175,10 +175,16 @@ setPage,
     {
       title: 'Reason',
       dataIndex: 'reason',
-      render: (notused: any,record: any) => {
-        return record.reason
-          ? <Tooltip title={record?.reason}>{record?.reason?.length>=40?record?.reason?.slice(0,40)+"....":record?.reason} </Tooltip> 
-          : 'N/A';
+      render: (notused: any, record: any) => {
+        return record.reason ? (
+          <Tooltip title={record?.reason}>
+            {record?.reason?.length >= 40
+              ? record?.reason?.slice(0, 40) + '....'
+              : record?.reason}{' '}
+          </Tooltip>
+        ) : (
+          'N/A'
+        );
       },
     },
     {
@@ -212,7 +218,7 @@ setPage,
               cancelText="No"
             >
               <Button
-                disabled={record.issuerId!==userIdData}
+                disabled={record.issuerId !== userIdData}
                 size="small"
                 icon={<MdDeleteOutline />}
                 danger
@@ -228,7 +234,7 @@ setPage,
   const searchField = [
     {
       key: 'employee',
-      type:'select',
+      type: 'select',
       placeholder: 'Select Employee',
       options:
         getAllUsersData?.items?.map((item: any) => ({
@@ -236,11 +242,11 @@ setPage,
           value: `${item?.firstName} ${item?.lastName}`,
         })) ?? [], // Empty initially, will be updated dynamically
       widthRatio: 0.5,
-      onChange:(value:string)=>setEmpId(value)
+      onChange: (value: string) => setEmpId(value),
     },
     {
       key: 'allTypes',
-      type:'start-end-date',
+      type: 'start-end-date',
       placeholder: 'Select Type',
       options:
         getAllFeedbackTypes?.items?.map((feedbackType: FeedbackTypeItems) => ({
@@ -248,10 +254,10 @@ setPage,
           value: feedbackType?.category,
         })) ?? [], // Empty initially, will be updated dynamically
       widthRatio: 0.5,
-      onChange:(value:string)=>setGivenDate(value)
+      onChange: (value: string) => setGivenDate(value),
     },
   ];
-console.log(empId,filteredFeedbackRecord,"&*&*")
+  console.log(empId, filteredFeedbackRecord, '&*&*');
   return (
     <TabLandingLayout
       // buttonTitle="Generate report"
@@ -323,28 +329,26 @@ console.log(empId,filteredFeedbackRecord,"&*&*")
           }
           allowSearch={false}
         >
-          <EmployeeSearchComponent
-            fields={searchField}
+          <EmployeeSearchComponent fields={searchField} />
+          <Table
+            loading={getFeedbackRecordLoading}
+            dataSource={filteredFeedbackRecord}
+            columns={columns}
+            pagination={{
+              showSizeChanger: true, // Enables "page size" dropdown
+              showQuickJumper: true, // Enables jumping to a specific page
+              pageSizeOptions: ['10', '20', '50', '100'], // Page size options
+              defaultPageSize: 10, // Default page size
+              total: filteredFeedbackRecord?.items?.length || 0, // Total number of items
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} of ${total} items`, // Display pagination info
+              onChange: (page, pageSize) => {
+                setPage(page);
+                setPageSize(pageSize);
+                // Optional: Implement server-side pagination logic here if needed
+              },
+            }}
           />
-         <Table
-  loading={getFeedbackRecordLoading}
-  dataSource={filteredFeedbackRecord}
-  columns={columns}
-  pagination={{
-    showSizeChanger: true, // Enables "page size" dropdown
-    showQuickJumper: true, // Enables jumping to a specific page
-    pageSizeOptions: ['10', '20', '50', '100'], // Page size options
-    defaultPageSize: 10, // Default page size
-    total: filteredFeedbackRecord?.items?.length || 0, // Total number of items
-    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`, // Display pagination info
-    onChange: (page, pageSize) => {
-      setPage(page);
-      setPageSize(pageSize)
-      // Optional: Implement server-side pagination logic here if needed
-    },
-  }}
-/>
-
         </TabLandingLayout>
       </div>
       <div>
