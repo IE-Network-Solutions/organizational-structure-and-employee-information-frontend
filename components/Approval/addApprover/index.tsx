@@ -47,12 +47,12 @@ const AddApproverComponent = ({
           <Form.Item
             className="text-lg font-bold mt-3 mb-1"
             name="workFlownName"
-            label="WorkFlow Name"
+            label="Workflow Name"
             rules={[
-              { required: true, message: 'Please enter a workFlow name!' },
+              { required: true, message: 'Please enter a workflow name!' },
             ]}
           >
-            <Input disabled placeholder="Enter WorkFlow Name" />
+            <Input disabled placeholder="Enter Workflow Name" />
           </Form.Item>
 
           <div className="my-3">

@@ -98,6 +98,21 @@ const getReportingData = async (params: DataType) => {
   });
 };
 
+const getReportingDataById = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/okr-report/${id}`,
+    method: 'get',
+    headers,
+  });
+};
+
 const getAllPlanningPeriods = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -154,6 +169,12 @@ export const useGetPlanningById = (planningId: string) => {
 export const useGetReporting = (params: DataType) => {
   return useQuery<any>(['okrReports', params], () => getReportingData(params), {
     enabled: !!params?.planPeriodId, // Enable the query only when planningPeriodId is defined
+  });
+};
+
+export const useGetReportingById = (id: string) => {
+  return useQuery<any>(['okrReport', id], () => getReportingDataById(id), {
+    enabled: !!id, // Enable the query only when planningPeriodId is defined
   });
 };
 
