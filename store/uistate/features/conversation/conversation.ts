@@ -16,6 +16,7 @@ interface SearchField {
   placeholder: string;
   options: SearchFieldOption[];
   widthRatio: number;
+  onChange: (value: string) => void; // Added the onChange handler
 }
 export interface CategoriesUseState {
   open: boolean;
@@ -61,6 +62,12 @@ export interface CategoriesUseState {
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
 
+  empId?: string | null | undefined;
+  setEmpId: (empId: string | null) => void;
+
+  givenDate: any;
+  setGivenDate: (givenDate: any) => void;
+
   variantType: string;
   setVariantType: (variantType: string) => void;
 
@@ -92,12 +99,14 @@ const initialSearchField: SearchField[] = [
     placeholder: 'Select Employee',
     options: [], // Empty initially, will be updated dynamically
     widthRatio: 0.5,
+    onChange: () => {},
   },
   {
     key: 'department',
     placeholder: 'Select Department',
     options: [], // Empty initially, will be updated dynamically
     widthRatio: 0.5,
+    onChange: () => {},
   },
 ];
 
@@ -145,6 +154,12 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   activeTab: '',
   setActiveTab: (activeTab: string) => set({ activeTab }),
+
+  empId: null as string | null,
+  setEmpId: (empId: string | null) => set({ empId }),
+
+  givenDate: [],
+  setGivenDate: (givenDate: any) => set({ givenDate }),
 
   editableData: null,
   setEditableData: (editableData: any) => set({ editableData }),

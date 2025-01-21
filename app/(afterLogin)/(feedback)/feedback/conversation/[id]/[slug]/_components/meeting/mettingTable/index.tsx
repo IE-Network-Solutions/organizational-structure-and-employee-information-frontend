@@ -183,11 +183,11 @@ const MettingDataTable = ({
   const handleDelete = (key: string) => {
     deleteConversationInstance(key);
   };
-  const handleSearchChange = (value: any, key: string) => {
-    if (key === 'department') {
-      setDepartmentId(value);
-    } else if (key === 'employee') {
-      setUserId(value);
+  const handleSearchChange = (value: { key: string; value: any }) => {
+    if (value.key === 'department') {
+      setDepartmentId(value.value);
+    } else if (value.key === 'employee') {
+      setUserId(value.value);
     } else {
       return;
     }

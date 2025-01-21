@@ -18,12 +18,13 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     activeTab,
     setOpen,
     selectedFeedbackRecord,
+    variantType,
     setSelectedFeedbackRecord,
   } = ConversationStore();
   const { data: getAllUsersData } = useGetAllUsers();
   const { data: getAllFeedbackTypeById } = useFetchFeedbackTypeById(activeTab);
-  const { mutate: createFeedbackRecord } = useCreateFeedbackRecord();
-  const { mutate: updateFeedbackRecord } = useUpdateFeedbackRecord();
+  const { mutate: createFeedbackRecord,isLoading: loadingCreateFeedbackRecord} = useCreateFeedbackRecord();
+  const { mutate: updateFeedbackRecord,isLoading: loadingUpdateFeedbackRecord } = useUpdateFeedbackRecord();
 
   const onFinish = (values: any) => {
     if (selectedFeedbackRecord !== null) {
@@ -99,10 +100,12 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           showSearch
           placeholder="Select employee"
           options={
-            getAllUsersData?.items?.map((item: any) => ({
-              label: `${item?.firstName} ${item?.lastName}`, // `label` for display
-              value: item?.id, // `value` for internal use
-            })) ?? []
+            getAllUsersData?.items
+              ?.filter((i: any) => i.id !== userId)
+              ?.map((item: any) => ({
+                label: `${item?.firstName} ${item?.lastName}`, // `label` for display
+                value: item?.id, // `value` for internal use
+              })) ?? []
           }
           filterOption={(input, option) =>
             (option?.label as string)
@@ -124,17 +127,20 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           showSearch
           placeholder="Select Feedback"
           options={
-            getAllFeedbackTypeById?.feedback?.map((feedback: FeedbackItem) => ({
-              key: feedback.id, // Optional, used for React rendering optimization
-              label: feedback.name, // Text displayed in the dropdown
-              value: feedback.id, // Unique identifier
-            })) ?? []
+            getAllFeedbackTypeById?.feedback
+              ?.filter((i: any) => i.variant === variantType)
+              ?.map((feedback: FeedbackItem) => ({
+                key: feedback.id, // Optional, used for React rendering optimization
+                label: feedback.name, // Text displayed in the dropdown
+                value: feedback.id, // Unique identifier
+              })) ?? []
           }
           filterOption={(input, option) =>
             (option?.label as string)
               ?.toLowerCase()
               .includes(input.toLowerCase())
           }
+          
         />
       </Form.Item>
 
@@ -190,7 +196,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
             Update
           </Button>
         ) : (
-          <Button type="primary" htmlType="submit">
+          <Button loading={loadingCreateFeedbackRecord || loadingUpdateFeedbackRecord} type="primary" htmlType="submit">
             Submit
           </Button>
         )}
