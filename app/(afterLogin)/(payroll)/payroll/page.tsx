@@ -9,6 +9,19 @@ import {
 import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutation';
 import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-management/_components/criteria-drawer';
 import PayrollCard from './_components/cards';
+import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+import { useExportData } from './_components/excel';
+import { useGenerateBankLetter } from './_components/Latter';
+
+const EmployeeBasicSalary = ({ id }: { id: string }) => {
+  const { data, error } = useGetBasicSalaryById(id);
+  if (error || !data) {
+    return '--';
+  }
+  const employeeBasicSalary =
+    data.find((item: any) => item.status)?.basicSalary || '--';
+  return employeeBasicSalary;
+};
 
 const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,6 +36,11 @@ const Payroll = () => {
     isSuccess: isCreatePayrollSuccess,
   } = useCreatePayroll();
 
+  const { exportToExcel } = useExportData();
+  const { generateBankLetter } = useGenerateBankLetter();
+
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (isCreatePayrollSuccess) {
       notification.success({
@@ -31,8 +49,6 @@ const Payroll = () => {
       });
     }
   }, [isCreatePayrollSuccess, payroll]);
-
-  const [loading, setLoading] = useState(false);
 
   const handleGeneratePayroll = async () => {
     if (!allActiveSalary || allActiveSalary.length === 0) {
@@ -62,67 +78,6 @@ const Payroll = () => {
     }
   };
 
-  const columns = [
-    {
-      title: 'Full Name',
-      dataIndex: 'employeeId',
-      key: 'employeeId',
-      minWidth: 200,
-      render: (notused: any, record: any) => {
-        return <EmployeeDetails empId={record?.employeeId} />;
-      },
-    },
-    {
-      title: 'Basic Salary',
-      dataIndex: 'netPay',
-      key: 'netPay',
-      minWidth: 200,
-    },
-    {
-      title: 'Total Allowance',
-      dataIndex: 'totalAllowance',
-      key: 'totalAllowance',
-      minWidth: 200,
-    },
-    {
-      title: 'Total Benefits',
-      dataIndex: 'totalMerit',
-      key: 'totalMerit',
-      minWidth: 200,
-    },
-    {
-      title: 'Total Deduction',
-      dataIndex: 'totalDeductions',
-      key: 'totalDeductions',
-      minWidth: 200,
-    },
-    {
-      title: 'Gross Income',
-      dataIndex: 'grossSalary',
-      key: 'grossSalary',
-      minWidth: 200,
-    },
-    { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 200 },
-    {
-      title: 'Employee Pension',
-      dataIndex: 'pension',
-      key: 'pension',
-      minWidth: 200,
-    },
-    {
-      title: 'Cost Sharing',
-      dataIndex: 'costsharing',
-      key: 'costsharing',
-      minWidth: 200,
-    },
-    {
-      title: 'Net Income',
-      dataIndex: 'netPay',
-      key: 'netPay',
-      minWidth: 200,
-    },
-  ];
-
   const handleSearch = (searchValues: any) => {
     const queryParams = new URLSearchParams();
 
@@ -145,6 +100,113 @@ const Payroll = () => {
     setSearchQuery(searchParams);
     refetch();
   };
+
+  const handleExportPayroll = async () => {
+    if (!payroll?.payrolls || payroll.payrolls.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      await exportToExcel(payroll.payrolls, columns, 'Payroll Data');
+    } catch (error) {
+      notification.error({
+        message: 'Error Exporting Data',
+        description: 'An error occurred while exporting data.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBankLetter = async (amount: any) => {
+    if (!amount) {
+      notification.error({
+        message: 'Amount Missing',
+        description: 'Please provide the amount for the bank letter.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      await generateBankLetter(amount, payroll?.payrolls);
+    } catch (error) {
+      notification.error({
+        message: 'Error Generating Bank Letter',
+        description: 'An error occurred while generating the bank letter.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const columns = [
+    {
+      title: 'Full Name',
+      dataIndex: 'employeeId',
+      key: 'employeeId',
+      minWidth: 200,
+      render: (notused: any, record: any) => {
+        return <EmployeeDetails empId={record?.employeeId} />;
+      },
+    },
+    {
+      title: 'Basic Salary',
+      dataIndex: 'basicSalary',
+      key: 'basicSalary',
+      minWidth: 150,
+      render: (notused: any, record: any) => {
+        return <EmployeeBasicSalary id={record?.employeeId} />;
+      },
+    },
+    {
+      title: 'Total Allowance',
+      dataIndex: 'totalAllowance',
+      key: 'totalAllowance',
+      minWidth: 150,
+    },
+    {
+      title: 'Total Benefits',
+      dataIndex: 'totalMerit',
+      key: 'totalMerit',
+      minWidth: 150,
+    },
+    {
+      title: 'Total Deduction',
+      dataIndex: 'totalDeductions',
+      key: 'totalDeductions',
+      minWidth: 150,
+    },
+    {
+      title: 'Gross Income',
+      dataIndex: 'grossSalary',
+      key: 'grossSalary',
+      minWidth: 150,
+    },
+    { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 150 },
+    {
+      title: 'Employee Pension',
+      dataIndex: 'pension',
+      key: 'pension',
+      minWidth: 150,
+    },
+    {
+      title: 'Cost Sharing',
+      dataIndex: 'costsharing',
+      key: 'costsharing',
+      minWidth: 150,
+    },
+    {
+      title: 'Net Income',
+      dataIndex: 'netPay',
+      key: 'netPay',
+      minWidth: 150,
+    },
+  ];
+
   return (
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4">
@@ -153,14 +215,25 @@ const Payroll = () => {
           <Button
             type="default"
             className="text-white bg-violet-300 border-none p-6"
+            onClick={() => {}}
           >
             Export Bank
           </Button>
           <Button
             type="default"
             className="text-white bg-violet-300 border-none p-6"
+            onClick={() => {
+              handleBankLetter(payroll?.totalGrossPaymentAmount);
+            }}
           >
             Bank Letter
+          </Button>
+          <Button
+            type="default"
+            className="text-white bg-violet-300 border-none p-6"
+            onClick={handleExportPayroll}
+          >
+            Export Payroll
           </Button>
           <Button
             type="primary"
@@ -192,7 +265,7 @@ const Payroll = () => {
         />
         <PayrollCard
           title="Net Paid Amount"
-          value={payroll?.totalNetPayAmount || '--'}
+          value={payroll?.totalNetPayAmount}
         />
         <PayrollCard
           title="Total Allowance"
@@ -211,12 +284,9 @@ const Payroll = () => {
           columns={columns}
           pagination={{
             current: currentPage,
-            pageSize: 8,
-            total: 50,
-            showSizeChanger: true,
-            onChange: (page) => setCurrentPage(page),
+            pageSize: 10,
+            onChange: setCurrentPage,
           }}
-          bordered
         />
       </div>
     </div>

@@ -12,6 +12,7 @@ import { useApprovalStore } from '@/store/uistate/features/approval';
 import {
   useSetAllApproveLeaveRequest,
   useSetApproveLeaveRequest,
+  useSetRejectLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import PermissionWrapper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -31,7 +32,10 @@ const ApprovalTable = () => {
   const userRollId = useAuthenticationStore.getState().userData.roleId;
   const { rejectComment, setRejectComment } = useApprovalStore();
   const { mutate: editApprover } = useSetApproveLeaveRequest();
-  const { mutate: editAllApprover, isLoading } = useSetAllApproveLeaveRequest();
+  const { mutate: allApprover, isLoading: allApproveIsLoading } =
+    useSetAllApproveLeaveRequest();
+  const { mutate: allReject, isLoading: allRejectIsLoading } =
+    useSetRejectLeaveRequest();
 
   const { data, isFetching } = useGetApprovalLeaveRequest(
     userId,
@@ -81,6 +85,30 @@ const ApprovalTable = () => {
       action: (
         <div className="flex gap-4 ">
           <PermissionWrapper
+            permissions={[Permissions.ApproveEmployeeLeaveRequest]}
+          >
+            <Popconfirm
+              title="Approve Request"
+              description="Are you sure to approve this leave request?"
+              onConfirm={() => {
+                confirm({
+                  approvalWorkflowId: item?.approvalWorkflowId,
+                  stepOrder: item?.nextApprover?.[0]?.stepOrder,
+                  requestId: item?.id,
+                  approvedUserId: userId,
+                  approverRoleId: userRollId,
+                  action: 'Approved',
+                  tenantId: tenantId,
+                });
+              }}
+              onCancel={cancel}
+              okText="Approve"
+              cancelText="Cancel"
+            >
+              <Button type="primary">Approve</Button>
+            </Popconfirm>
+          </PermissionWrapper>
+          <PermissionWrapper
             permissions={[Permissions.DeclineEmployeeLeaveRequest]}
           >
             <Popconfirm
@@ -118,30 +146,6 @@ const ApprovalTable = () => {
               okButtonProps={{ disabled: !rejectComment }}
             >
               <Button danger>Reject</Button>
-            </Popconfirm>
-          </PermissionWrapper>
-          <PermissionWrapper
-            permissions={[Permissions.ApproveEmployeeLeaveRequest]}
-          >
-            <Popconfirm
-              title="Approve Request"
-              description="Are you sure to approve this leave request?"
-              onConfirm={() => {
-                confirm({
-                  approvalWorkflowId: item?.approvalWorkflowId,
-                  stepOrder: item?.nextApprover?.[0]?.stepOrder,
-                  requestId: item?.id,
-                  approvedUserId: userId,
-                  approverRoleId: userRollId,
-                  action: 'Approved',
-                  tenantId: tenantId,
-                });
-              }}
-              onCancel={cancel}
-              okText="Approve"
-              cancelText="Cancel"
-            >
-              <Button type="primary">Approve</Button>
             </Popconfirm>
           </PermissionWrapper>
         </div>
@@ -219,7 +223,7 @@ const ApprovalTable = () => {
   const onPageChange = (page: number) => {
     setUserCurrentPage(page);
   };
-  const onAllRequest = () => {
+  const onAllApproveRequest = () => {
     const body: AllLeaveRequestApproveData = {
       userId: userId,
       roleId: userRollId,
@@ -227,7 +231,17 @@ const ApprovalTable = () => {
       page: allUserCurrentPage,
     };
 
-    editAllApprover(body);
+    allApprover(body);
+  };
+  const onAllRejectRequest = () => {
+    const body: AllLeaveRequestApproveData = {
+      userId: userId,
+      roleId: userRollId,
+      limit: allPageSize,
+      page: allUserCurrentPage,
+    };
+
+    allReject(body);
   };
   return (
     <>
@@ -239,14 +253,38 @@ const ApprovalTable = () => {
             </div>
           </div>
           <div className="flex items-center justify-end mb-6">
-            <Button
-              disabled={isLoading}
-              type="primary"
-              onClick={() => onAllRequest()}
-            >
-              <Spin spinning={isLoading} />
-              Approve All
-            </Button>
+            <div className="flex items-center gap-10 mb-6">
+              <Popconfirm
+                title="All Approve Request"
+                description="Are you sure to approve all leave request?"
+                onConfirm={() => {
+                  onAllApproveRequest();
+                }}
+                onCancel={cancel}
+                okText="Approve All"
+                cancelText="Cancel"
+              >
+                <Button disabled={allApproveIsLoading} type="primary">
+                  <Spin spinning={allApproveIsLoading} />
+                  Approve All
+                </Button>{' '}
+              </Popconfirm>
+              <Popconfirm
+                title="All Reject Request"
+                description="Are you sure to reject all leave request?"
+                onConfirm={() => {
+                  onAllRejectRequest();
+                }}
+                onCancel={cancel}
+                okText="Reject All"
+                cancelText="Cancel"
+              >
+                <Button disabled={allRejectIsLoading} danger>
+                  <Spin spinning={allRejectIsLoading} />
+                  Reject All
+                </Button>
+              </Popconfirm>
+            </div>
           </div>
           <Table
             columns={columns}
