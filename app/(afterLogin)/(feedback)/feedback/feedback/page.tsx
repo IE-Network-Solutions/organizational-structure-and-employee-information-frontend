@@ -1,11 +1,6 @@
 'use client';
-<<<<<<< HEAD
 import { Button, Form, Popconfirm, Spin, Table, Tabs, Tooltip } from 'antd';
 import { TabsProps } from 'antd';
-=======
-import { Button, Form, Popconfirm, Spin, Table, Tabs, Tooltip } from 'antd';
-import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
->>>>>>> c487905d79f572149af9ac3bea27373113cae2c0
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import TabLandingLayout from '@/components/tabLanding';
 import { PiPlus } from 'react-icons/pi';
