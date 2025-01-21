@@ -1,10 +1,11 @@
-import { useGetAllIncentiveData } from '@/store/server/features/incentive/queries';
+import { useGetAllIncentiveData } from '@/store/server/features/incentive/other/queries';
 import {
   AllIncentiveData,
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
-import { Table, TableColumnsType } from 'antd';
+import { Avatar, Table, TableColumnsType, Tooltip } from 'antd';
 import React from 'react';
+import { UserOutlined } from '@ant-design/icons';
 
 const columns: TableColumnsType<AllIncentiveData> = [
   {
@@ -59,11 +60,30 @@ const AllIncentiveTable: React.FC = () => {
   const allIncentiveTableData = incentiveData?.map((item: AllIncentiveData) => {
     return {
       recognition: item?.recognition,
-      employee_name: item?.employee_name,
+      employee_name: (
+        <Tooltip>
+          <div className="flex flex-wrap items-center justify-start gap-3">
+            <Avatar icon={<UserOutlined />} />
+            <span>{item?.employee_name}</span>
+          </div>
+        </Tooltip>
+      ),
       role: item?.role,
-      criteria: item?.criteria,
-      bonus: item?.bonus,
-      status: item?.status,
+      criteria: (
+        <div className="rounded-xl p-3 mx-2 bg-[#D3E4F0] text-[#1D9BF0] font-semibold inline-block">
+          {item?.criteria}
+        </div>
+      ),
+      bonus: (
+        <div>
+          {item?.bonus} {''}ETB
+        </div>
+      ),
+      status: (
+        <div className="rounded-xl p-1 mx-2 bg-[#D3E4F0] text-[#1D9BF0] font-semibold inline-block">
+          {item?.status}
+        </div>
+      ),
     };
   });
 

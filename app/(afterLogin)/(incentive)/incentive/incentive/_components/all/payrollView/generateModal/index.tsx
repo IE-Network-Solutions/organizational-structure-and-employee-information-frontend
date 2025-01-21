@@ -1,5 +1,5 @@
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
-import { Button, Form, Modal, Select, Switch } from 'antd';
+import { Form, Modal, Select, Switch } from 'antd';
 import React from 'react';
 
 const GenerateModal: React.FC = () => {
@@ -10,23 +10,33 @@ const GenerateModal: React.FC = () => {
     setShowGenerateModal(false);
   };
 
-  const onChange = (checked: boolean) => {};
+  const onChange = () => {};
   const handleSubmit = () => {};
   return (
     <Modal
-      title="Generate Incentive"
+      title={<div className="font-semibold text-md">Generate Incentive</div>}
       open={showGenerateModal}
       onClose={handleModalClose}
       centered
+      okText="Generate"
     >
-      Generate for all unpaid Incentives
-      <Switch onChange={onChange} />
-      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        className="my-4"
+      >
+        <Form.Item
+          label="Generate for all unpaid Incentives"
+          valuePropName="checked"
+        >
+          <Switch onChange={onChange} />
+        </Form.Item>
         <Form.Item
           rules={[{ required: true, message: 'Please select a session!' }]}
           label={<span className="font-semibold">Select Session</span>}
         >
-          <Select size="large">
+          <Select size="large" placeholder="Select session">
             <Select.Option value="1">Branch A</Select.Option>
             <Select.Option value="2">Branch B</Select.Option>
             <Select.Option value="3">Branch C</Select.Option>
@@ -36,16 +46,16 @@ const GenerateModal: React.FC = () => {
           rules={[{ required: true, message: 'Please select a pay period!' }]}
           label={<span className="">Pay Period</span>}
         >
-          <Select size="large">
+          <Select size="large" placeholder="Select period">
             <Select.Option value="1">Branch A</Select.Option>
             <Select.Option value="2">Branch B</Select.Option>
             <Select.Option value="3">Branch C</Select.Option>
           </Select>
         </Form.Item>
-        <Form.Item>
+        {/* <Form.Item>
           <Button>Cancel</Button>
           <Button htmlType="submit">Generate</Button>
-        </Form.Item>
+        </Form.Item> */}
       </Form>
     </Modal>
   );

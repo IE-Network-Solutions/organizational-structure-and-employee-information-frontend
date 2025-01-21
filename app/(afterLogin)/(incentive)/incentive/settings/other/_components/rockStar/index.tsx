@@ -10,7 +10,7 @@ import {
 } from '@/store/uistate/features/incentive/incentive';
 import { Button, Col, Form, Input, Radio, Row, Tag, Typography } from 'antd';
 import { RadioChangeEvent } from 'antd/lib';
-import React, { useState } from 'react';
+import React from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const plainOptions = ['Fixed', 'Formula'];
@@ -18,7 +18,7 @@ const plainOptions = ['Fixed', 'Formula'];
 const { Text } = Typography;
 
 const RockStartOfTheWeek: React.FC<RockStarOfTheWeekProps> = ({
-  title = 'Rock Star of the Week',
+  // title = 'Rock Star of the Week',
   criteriaOptions = [
     'KPI',
     'Earned Schedule',
@@ -26,7 +26,7 @@ const RockStartOfTheWeek: React.FC<RockStarOfTheWeekProps> = ({
     'Actual Time',
     'Other criteria',
   ],
-  onSubmit,
+  // onSubmit,
 }) => {
   const {
     rockStarDrawer,
@@ -36,12 +36,10 @@ const RockStartOfTheWeek: React.FC<RockStarOfTheWeekProps> = ({
     addOperand,
     clearFormula,
     setRockStarDrawer,
-    removeItem,
   } = useIncentiveStore();
   const [form] = Form.useForm();
 
-  const [value1, setValue1] = useState('Apple');
-  const [openDrawer, setOpenDrawer] = useState("false";)
+  const [value1, setValue1] = React.useState('Apple');
 
   const handleClose = () => {
     setRockStarDrawer(false);
@@ -69,10 +67,7 @@ const RockStartOfTheWeek: React.FC<RockStarOfTheWeekProps> = ({
     setValue1(value);
   };
 
-  const handleSubmit = (values: any) => {
-  };
-
-  const [selectedOperand, setSelectedOperand] = useState<string | null>(null);
+  const handleSubmit = () => {};
 
   const handleCriteriaClick = (item: string) => {
     addCriteria(item);
@@ -93,11 +88,11 @@ const RockStartOfTheWeek: React.FC<RockStarOfTheWeekProps> = ({
     clearFormula();
   };
 
-  const handleFinish = (values: any) => {
-    if (onSubmit) {
-      onSubmit({ ...values, formula: [...criteria, ...operands] });
-    }
-  };
+  // const handleFinish = (values: any) => {
+  //   if (onSubmit) {
+  //     onSubmit({ ...values, formula: [...criteria, ...operands] });
+  //   }
+  // };
 
   return (
     <CustomDrawerLayout

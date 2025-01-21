@@ -39,6 +39,20 @@ export interface RockStarOfTheWeekProps {
   onSubmit?: (values: any) => void;
 }
 
+export interface RecordType {
+  id: string;
+  fiscalYear: string;
+  status: string;
+  categories: string[];
+  totalAmount: string;
+  employeeCount: number;
+}
+export interface Records {
+  Records: RecordType[];
+}
+
+// export type Records = RecordType[];
+
 interface SearchParams {
   employee_name: string;
   byProject: string;

@@ -58,7 +58,7 @@ const OtherIncentiveSetting: React.FC = () => {
     }
   };
 
-  const handleProjectIncentiveEdit = (value: OtherIncentiveSettingParams) => {
+  const handleProjectIncentiveEdit = () => {
     setProjectIncentiveDrawer(true);
   };
 

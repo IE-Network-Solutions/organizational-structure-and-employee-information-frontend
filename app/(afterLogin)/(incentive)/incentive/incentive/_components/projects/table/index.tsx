@@ -1,4 +1,4 @@
-import { useGetProjectIncentiveData } from '@/store/server/features/incentive/queries';
+import { useGetProjectIncentiveData } from '@/store/server/features/incentive/other/queries';
 import {
   ProjectIncentiveData,
   useIncentiveStore,

@@ -6,13 +6,11 @@ import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHea
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { Button, Form, Select, Upload } from 'antd';
 import React from 'react';
-import { InboxOutlined } from '@ant-design/icons';
 import { MdOutlineUploadFile } from 'react-icons/md';
 
 const ImportDrawerData: React.FC = () => {
   const [form] = Form.useForm();
-  const { openProjectDrawer, file, setFile, setOpenProjectDrawer } =
-    useIncentiveStore();
+  const { openProjectDrawer, file, setOpenProjectDrawer } = useIncentiveStore();
 
   const handleClose = () => {
     setOpenProjectDrawer(false);
@@ -51,12 +49,12 @@ const ImportDrawerData: React.FC = () => {
   const uploadProps = {
     name: 'file',
     multiple: false,
-    beforeUpload: (file: File) => {
-      setFile(file);
+    beforeUpload: () => {
+      // setFile(file);
       return false;
     },
     onRemove: () => {
-      setFile(null);
+      // setFile(null);
     },
   };
 

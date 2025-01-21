@@ -119,7 +119,13 @@ const IncentivePage: React.FC = () => {
       default:
         return null;
     }
-  }, [activeKey, setOpenProjectDrawer, setOpenProjectDrawer, setIsPayrollView]);
+  }, [
+    activeKey,
+    isPayrollView,
+    setOpenProjectDrawer,
+    setOpenProjectDrawer,
+    setIsPayrollView,
+  ]);
 
   const handleTabChange = (key: string) => {
     setActiveKey(key);

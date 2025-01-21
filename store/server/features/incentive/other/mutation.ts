@@ -1,7 +1,7 @@
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { requestHeader } from '@/helpers/requestHeader';
 import { INCENTIVE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
 const setIncentiveFormula = async (items: any) => {
@@ -30,13 +30,15 @@ const deleteIncentiveFormula = async (id: string) => {
   });
 };
 
-export const useSetIncentiveFormula = (items: any) => {
+export const useSetIncentiveFormula = () => {
   const queryClient = useQueryClient();
   return useMutation(setIncentiveFormula, {
-    onSuccess: (_, variables: any) => {
+    onSuccess: () => {
       queryClient.invalidateQueries('incentiveFormula');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      NotificationMessage.success({
+        message: 'Incentive formula created successfully!',
+        description: 'Incentive formula has been successfully created',
+      });
     },
   });
 };
@@ -47,10 +49,12 @@ export const useUpdateIncentiveFormula = () => {
     ({ id, items }: { id: string; items: any }) =>
       updateIncentiveFormula(id, items),
     {
-      onSuccess: (_, variables: any) => {
+      onSuccess: () => {
         queryClient.invalidateQueries('incentiveFormula');
-        const method = variables?.method?.toUpperCase();
-        handleSuccessMessage(method);
+        NotificationMessage.success({
+          message: 'Incentive formula updated successfully!',
+          description: 'Incentive formula has been successfully updated',
+        });
       },
     },
   );
@@ -59,10 +63,12 @@ export const useUpdateIncentiveFormula = () => {
 export const useDeleteIncentiveFormula = () => {
   const queryClient = useQueryClient();
   return useMutation(({ id }: { id: string }) => deleteIncentiveFormula(id), {
-    onSuccess: (_, variables: any) => {
+    onSuccess: () => {
       queryClient.invalidateQueries('incentiveFormula');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+      NotificationMessage.success({
+        message: 'Incentive formula deleted successfully!',
+        description: 'Incentive formula has been successfully deleted',
+      });
     },
   });
 };
