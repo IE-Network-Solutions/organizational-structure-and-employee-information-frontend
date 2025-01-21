@@ -12,19 +12,19 @@ import { FeedbackItem } from '@/store/server/features/CFR/conversation/action-pl
 
 const { TextArea } = Input;
 
-const CreateFeedbackForm: React.FC = () => {
-  const [form] = Form.useForm();
+const CreateFeedbackForm = ({ form }: { form: any }) => {
   const { userId } = useAuthenticationStore();
   const {
     activeTab,
     setOpen,
     selectedFeedbackRecord,
+    variantType,
     setSelectedFeedbackRecord,
   } = ConversationStore();
   const { data: getAllUsersData } = useGetAllUsers();
   const { data: getAllFeedbackTypeById } = useFetchFeedbackTypeById(activeTab);
-  const { mutate: createFeedbackRecord } = useCreateFeedbackRecord();
-  const { mutate: updateFeedbackRecord } = useUpdateFeedbackRecord();
+  const { mutate: createFeedbackRecord,isLoading: loadingCreateFeedbackRecord} = useCreateFeedbackRecord();
+  const { mutate: updateFeedbackRecord,isLoading: loadingUpdateFeedbackRecord } = useUpdateFeedbackRecord();
 
   const onFinish = (values: any) => {
     if (selectedFeedbackRecord !== null) {
@@ -57,6 +57,7 @@ const CreateFeedbackForm: React.FC = () => {
         onSuccess: () => {
           setOpen(false);
           setSelectedFeedbackRecord(null);
+          form.resetFields();
         },
       });
     }
@@ -71,7 +72,7 @@ const CreateFeedbackForm: React.FC = () => {
         reason: selectedFeedbackRecord?.reason,
         action: selectedFeedbackRecord?.action,
       });
-  }, []);
+  }, [selectedFeedbackRecord]);
   return (
     <Form
       form={form}
@@ -87,23 +88,30 @@ const CreateFeedbackForm: React.FC = () => {
     >
       {selectedFeedbackRecord !== null && <Form.Item name="id"></Form.Item>}
       {/* Select Employee ID */}
+
       <Form.Item
         name="recipientId"
-        label="Select Employee ID"
+        label="Select Employee"
         rules={[
           { required: true, message: 'Please select at least one employee!' },
         ]}
       >
         <Select
-          // mode="multiple"
-          placeholder="Select employee(s)"
+          showSearch
+          placeholder="Select employee"
           options={
-            getAllUsersData?.items?.map((item: any) => ({
-              key: item?.id,
-              value: item?.id,
-              label: `${item?.firstName} ${item?.lastName}`,
-            })) ?? []
-          } // Empty initially, will be updated dynamically
+            getAllUsersData?.items
+              ?.filter((i: any) => i.id !== userId)
+              ?.map((item: any) => ({
+                label: `${item?.firstName} ${item?.lastName}`, // `label` for display
+                value: item?.id, // `value` for internal use
+              })) ?? []
+          }
+          filterOption={(input, option) =>
+            (option?.label as string)
+              ?.toLowerCase()
+              .includes(input.toLowerCase())
+          }
         />
       </Form.Item>
 
@@ -116,13 +124,21 @@ const CreateFeedbackForm: React.FC = () => {
         ]}
       >
         <Select
+          showSearch
           placeholder="Select Feedback"
           options={
-            getAllFeedbackTypeById?.feedback?.map((feedback: FeedbackItem) => ({
-              key: feedback.id,
-              label: feedback.name,
-              value: feedback?.id,
-            })) ?? []
+            getAllFeedbackTypeById?.feedback
+              ?.filter((i: any) => i.variant === variantType)
+              ?.map((feedback: FeedbackItem) => ({
+                key: feedback.id, // Optional, used for React rendering optimization
+                label: feedback.name, // Text displayed in the dropdown
+                value: feedback.id, // Unique identifier
+              })) ?? []
+          }
+          filterOption={(input, option) =>
+            (option?.label as string)
+              ?.toLowerCase()
+              .includes(input.toLowerCase())
           }
         />
       </Form.Item>
@@ -179,7 +195,7 @@ const CreateFeedbackForm: React.FC = () => {
             Update
           </Button>
         ) : (
-          <Button type="primary" htmlType="submit">
+          <Button loading={loadingCreateFeedbackRecord || loadingUpdateFeedbackRecord} type="primary" htmlType="submit">
             Submit
           </Button>
         )}
