@@ -76,6 +76,7 @@ export const SelectData = [
 export enum APPROVALTYPES {
   LEAVE = 'Leave',
   BRANCHREQUEST = 'BranchRequest',
+  TNA = 'TNA',
 }
 
 // Enum for aggregate operators
