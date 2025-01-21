@@ -1,6 +1,11 @@
 'use client';
-import { Button, Form, Popconfirm, Spin, Table, Tabs } from 'antd';
+<<<<<<< HEAD
+import { Button, Form, Popconfirm, Spin, Table, Tabs, Tooltip } from 'antd';
 import { TabsProps } from 'antd';
+=======
+import { Button, Form, Popconfirm, Spin, Table, Tabs, Tooltip } from 'antd';
+import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
+>>>>>>> c487905d79f572149af9ac3bea27373113cae2c0
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import TabLandingLayout from '@/components/tabLanding';
 import { PiPlus } from 'react-icons/pi';
@@ -32,6 +37,14 @@ const Page = () => {
     userId,
     setActiveTab,
     activeTab,
+    empId,
+    setEmpId,
+    givenDate,
+    setGivenDate,
+    pageSize,
+    setPageSize,
+    page,
+    setPage,
   } = ConversationStore();
   const userIdData = useAuthenticationStore.getState().userId;
 
@@ -39,9 +52,9 @@ const Page = () => {
   const { data: getAllFeedbackTypes, isLoading: getFeedbackTypeLoading } =
     useFetchAllFeedbackTypes();
   const { data: getAllFeedbackRecord, isLoading: getFeedbackRecordLoading } =
-    useFetchAllFeedbackRecord();
-
+      useFetchAllFeedbackRecord(pageSize, page, empId??'', givenDate);
   const [form] = Form.useForm();
+
 
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
 
@@ -110,7 +123,6 @@ const Page = () => {
     getAllFeedbackTypes?.items?.find(
       (item: FeedbackTypeItems) => item.id === activeTab,
     )?.category ?? '';
-  const handleSearchChange = () => {};
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -141,6 +153,17 @@ const Page = () => {
 
   const columns = [
     {
+      title: 'Issued To',
+      dataIndex: 'recipientId',
+      key: 'recipientId',
+      render: (notused: any, record: any) => {
+        const user = getAllUsers?.items?.find(
+          (item: any) => item.id === record.recipientId,
+        );
+        return user ? `${user.firstName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
+      },
+    },
+    {
       title: 'Given By',
       dataIndex: 'issuerId',
       key: 'issuerId',
@@ -165,7 +188,17 @@ const Page = () => {
     {
       title: 'Reason',
       dataIndex: 'reason',
-      key: 'reason',
+      render: (notused: any, record: any) => {
+        return record.reason ? (
+          <Tooltip title={record?.reason}>
+            {record?.reason?.length >= 40
+              ? record?.reason?.slice(0, 40) + '....'
+              : record?.reason}{' '}
+          </Tooltip>
+        ) : (
+          'N/A'
+        );
+      },
     },
     {
       title: 'Given Date',
@@ -185,6 +218,7 @@ const Page = () => {
         return (
           <p className="flex gap-2">
             <Button
+              disabled={record.issuerId !== userIdData}
               size="small"
               onClick={() => editHandler(record)}
               icon={<Edit2Icon className="w-4 h-4 text-xs" />}
@@ -197,6 +231,7 @@ const Page = () => {
               cancelText="No"
             >
               <Button
+                disabled={record.issuerId !== userIdData}
                 size="small"
                 icon={<MdDeleteOutline />}
                 danger
@@ -212,6 +247,7 @@ const Page = () => {
   const searchField = [
     {
       key: 'employee',
+      type: 'select',
       placeholder: 'Select Employee',
       options:
         getAllUsersData?.items?.map((item: any) => ({
@@ -219,9 +255,11 @@ const Page = () => {
           value: `${item?.firstName} ${item?.lastName}`,
         })) ?? [], // Empty initially, will be updated dynamically
       widthRatio: 0.5,
+      onChange: (value: string) => setEmpId(value),
     },
     {
       key: 'allTypes',
+      type: 'start-end-date',
       placeholder: 'Select Type',
       options:
         getAllFeedbackTypes?.items?.map((feedbackType: FeedbackTypeItems) => ({
@@ -229,9 +267,10 @@ const Page = () => {
           value: feedbackType?.category,
         })) ?? [], // Empty initially, will be updated dynamically
       widthRatio: 0.5,
+      onChange: (value: string) => setGivenDate(value),
     },
   ];
-
+  console.log(empId, filteredFeedbackRecord, '&*&*');
   return (
     <TabLandingLayout
       // buttonTitle="Generate report"
@@ -312,14 +351,25 @@ const Page = () => {
           }
           allowSearch={false}
         >
-          <EmployeeSearchComponent
-            fields={searchField}
-            onChange={handleSearchChange}
-          />
+          <EmployeeSearchComponent fields={searchField} />
           <Table
             loading={getFeedbackRecordLoading}
-            dataSource={filteredFeedbackRecord ?? []}
+            dataSource={filteredFeedbackRecord}
             columns={columns}
+            pagination={{
+              showSizeChanger: true, // Enables "page size" dropdown
+              showQuickJumper: true, // Enables jumping to a specific page
+              pageSizeOptions: ['10', '20', '50', '100'], // Page size options
+              defaultPageSize: 10, // Default page size
+              total: filteredFeedbackRecord?.items?.length || 0, // Total number of items
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} of ${total} items`, // Display pagination info
+              onChange: (page, pageSize) => {
+                setPage(page);
+                setPageSize(pageSize);
+                // Optional: Implement server-side pagination logic here if needed
+              },
+            }}
           />
         </TabLandingLayout>
       </div>

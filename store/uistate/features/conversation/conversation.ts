@@ -61,6 +61,12 @@ export interface CategoriesUseState {
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
 
+  empId?: string | null | undefined;
+  setEmpId: (empId: string | null) => void;
+
+  givenDate: any;
+  setGivenDate: (givenDate: any) => void;
+
   variantType: string;
   setVariantType: (variantType: string) => void;
 
@@ -145,6 +151,12 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   activeTab: '',
   setActiveTab: (activeTab: string) => set({ activeTab }),
+
+  empId: null as string | null,
+  setEmpId: (empId: string | null) => set({ empId }),
+
+  givenDate: [],
+  setGivenDate: (givenDate: any) => set({ givenDate }),
 
   editableData: null,
   setEditableData: (editableData: any) => set({ editableData }),

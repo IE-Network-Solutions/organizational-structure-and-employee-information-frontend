@@ -71,6 +71,8 @@ function EditReport() {
     </div>
   );
 
+  console.log(reportedData, 'allUnReportedPlanningTask');
+
   const handleOnFinish = (values: Record<string, any>) => {
     Object.entries(values).length > 0 &&
       editReport(
@@ -91,24 +93,35 @@ function EditReport() {
     return (
       sum +
       objective?.keyResults?.reduce((keyResultSum: number, keyResult: any) => {
-        return (
-          keyResultSum +
-          keyResult?.milestones?.reduce(
-            (milestoneSum: number, milestone: any) => {
-              return (
-                milestoneSum +
-                milestone?.tasks?.reduce((taskSum: number, task: any) => {
-                  // Check if the task's status is NOT 'Not'
-                  if (selectedStatuses[task.taskId] !== 'Not') {
-                    return taskSum + (task.weight || 0);
-                  }
-                  return taskSum; // Skip adding weight if status is 'Not'
-                }, 0)
-              );
-            },
-            0,
-          )
+        // Calculate the weight for keyResult.tasks array
+        const taskWeight = keyResult?.tasks?.reduce(
+          (taskSum: number, task: any) => {
+            if (selectedStatuses[task.taskId] !== 'Not') {
+              return taskSum + Number(task.weight || 0);
+            }
+            return taskSum;
+          },
+          0,
         );
+
+        // Calculate the weight for milestones.tasks array
+        const milestoneWeight = keyResult?.milestones?.reduce(
+          (milestoneSum: number, milestone: any) => {
+            return (
+              milestoneSum +
+              milestone?.tasks?.reduce((taskSum: number, task: any) => {
+                if (selectedStatuses[task.taskId] !== 'Not') {
+                  return taskSum + Number(task.weight || 0);
+                }
+                return taskSum;
+              }, 0)
+            );
+          },
+          0,
+        );
+
+        // Sum up task weights and milestone weights
+        return keyResultSum + taskWeight + milestoneWeight;
       }, 0)
     );
   }, 0);
@@ -122,22 +135,24 @@ function EditReport() {
         acc[task.id] = {
           status: task?.status ?? '', // Use existing status or empty string
           actualValue: Number(task?.actualValue ?? 0), // Default to 0 if null/undefined
-          comment: task?.customReason ?? '', // Default to empty string
+          customReason: task?.customReason ?? '', // Default to empty string
         };
         return acc;
       }, {});
+      console.log(data, 'reportedData');
 
       form.setFieldsValue(data); // Dynamically set form values
     }
   }, [reportedData, form]);
 
+  // console.log(reportedData,"reportedData")
   return (
     selectedReportId !== '' && (
       <CustomDrawerLayout
         open={selectedReportId !== ''}
         onClose={onClose}
         modalHeader={modalHeader}
-        width="50%"
+        width="65%"
       >
         {formattedData?.length > 0 ? (
           <Spin spinning={editReportLoading || reportedDataLoading} tip="Reporting...">
@@ -165,19 +180,28 @@ function EditReport() {
                               {keyresult?.title}
                             </p>
                             <Text className="rounded-lg px-1   border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
-                              {keyresult?.milestones?.reduce(
-                                (totalWeight: number, milestone: any) => {
-                                  return (
-                                    totalWeight +
-                                    (milestone?.tasks?.reduce(
-                                      (taskWeight: number, task: any) =>
-                                        taskWeight + (task?.weight || 0),
-                                      0,
-                                    ) || 0)
-                                  );
+                              {// Calculate weight from keyResult.tasks
+                              keyresult?.tasks?.reduce(
+                                (taskWeight: number, task: any) => {
+                                  return taskWeight + Number(task?.weight || 0);
                                 },
                                 0,
-                              )}
+                              ) +
+                                // Calculate weight from keyResult.milestones.tasks
+                                keyresult?.milestones?.reduce(
+                                  (totalWeight: number, milestone: any) => {
+                                    return (
+                                      totalWeight +
+                                      (milestone?.tasks?.reduce(
+                                        (taskWeight: number, task: any) =>
+                                          taskWeight +
+                                          Number(task?.weight || 0),
+                                        0,
+                                      ) || 0)
+                                    );
+                                  },
+                                  0,
+                                ) || 0}
                               %
                             </Text>
                           </Row>
@@ -197,7 +221,7 @@ function EditReport() {
                                     <>
                                       <Form.Item
                                         key={task.taskId}
-                                        name={[task.taskId, 'status']}
+                                        // name={[task.taskId, 'status']}
                                         className="mb-2"
                                         rules={[
                                           {
@@ -217,15 +241,18 @@ function EditReport() {
 
                                               <Radio.Group
                                                 className="text-xs"
-                                                onChange={(e) =>
-                                                  setStatus(
-                                                    task.taskId,
-                                                    e.target.value,
-                                                  )
+                                                onChange={
+                                                  (e) =>
+                                                    setStatus(
+                                                      task.taskId,
+                                                      e.target.value,
+                                                    ) // Correctly update the status
                                                 }
                                                 value={
-                                                  selectedStatuses[task.taskId]
-                                                } // Bind value from Zustand
+                                                  selectedStatuses[
+                                                    task.taskId
+                                                  ] || 'Not'
+                                                } // Fallback to "Not" if no status
                                               >
                                                 <Radio value="Done">Done</Radio>
                                                 <Radio value="Not">Not</Radio>
@@ -338,7 +365,7 @@ function EditReport() {
                                         'Not' && (
                                         <Form.Item
                                           key={`${task.taskId}-comment`}
-                                          name={[task.taskId, 'comment']}
+                                          name={[task.taskId, 'customReason']}
                                           className="mb-2"
                                           label="Reason:" // Optional label
                                           rules={[
@@ -398,13 +425,24 @@ function EditReport() {
                             (task: any, tasksIndex: number) => (
                               <div key={task.id} className="mb-4 ml-2">
                                 <Form.Item
-                                  key={tasksIndex}
-                                  name={[task.taskId, 'status']}
+                                  key={task.taskId}
+                                  // name={[task.taskId, 'status']}
                                   className="mb-2"
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: 'Please select a status!',
+                                    },
+                                  ]} // Add validation rule
                                 >
                                   <div className="grid">
                                     <div className="flex items-center justify-between ml-1">
-                                      <Row>
+                                      {/* Radio Group for Status */}
+                                      <div className="flex  items-center  space-x-2">
+                                        <Text className="rounded-lg border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
+                                          {index + 1}.{tasksIndex + 1}
+                                        </Text>
+
                                         <Radio.Group
                                           className="text-xs"
                                           onChange={(e) =>
@@ -413,35 +451,66 @@ function EditReport() {
                                               e.target.value,
                                             )
                                           }
-                                          value={selectedStatuses[task.taskId]}
+                                          value={selectedStatuses[task.taskId]} // Bind value from Zustand
                                         >
-                                          <Radio value={'Done'}>Done</Radio>
-                                          <Radio value={'Not'}>Not</Radio>
+                                          <Radio
+                                            className="text-xs"
+                                            value="Done"
+                                          >
+                                            Done
+                                          </Radio>
+                                          <Radio
+                                            className="text-xs"
+                                            value="Not"
+                                          >
+                                            Not
+                                          </Radio>
                                         </Radio.Group>
-                                      </Row>
-                                      <Tooltip title={task.taskName}>
-                                        <span className="font-medium text-xs">
-                                          {task.taskName.length > 20
-                                            ? `${task.taskName.substring(0, 20)}...`
-                                            : task.taskName}
-                                        </span>
-                                      </Tooltip>
-                                      <Tag
-                                        color={getPriorityColor(task.priority)}
-                                        className="uppercase"
-                                      >
-                                        {task.priority}
-                                      </Tag>
-                                      <span className="text-gray-600">
-                                        {task.actualValue}
-                                      </span>
+                                        <Tooltip title={task.taskName}>
+                                          <span className="font-medium text-xs truncate">
+                                            {task.taskName?.length >= 40
+                                              ? task.taskName?.slice(0, 40)
+                                              : task.taskName}
+                                          </span>
+                                        </Tooltip>
+                                      </div>
+
+                                      {/* Task Details */}
+                                      <div className="flex items-center space-y-1">
+                                        {/* Task Name */}
+
+                                        {/* Priority and Value */}
+                                        <div className="flex items-center space-x-2">
+                                          <Tag
+                                            className="font-bold border-none w-16  text-center capitalize text-[10px]"
+                                            color={
+                                              task?.priority === 'high'
+                                                ? 'red'
+                                                : task?.priority === 'medium'
+                                                  ? 'orange'
+                                                  : 'green'
+                                            }
+                                          >
+                                            {task?.priority || 'None'}
+                                          </Tag>
+                                          <span className="rounded-lg border-gray-200 border bg-gray-200 mni-w-6 min-h-6 px-1 text-[12px] flex items-center justify-center">
+                                            {task.weight}%
+                                          </span>
+                                        </div>
+                                      </div>
                                     </div>
-                                    <div className="text-xs">
-                                      Target
-                                      <Tag className="uppercase mt-1 ml-1 test-xs">
-                                        {task?.targetValue}
-                                      </Tag>
-                                    </div>
+
+                                    <Row>
+                                      {keyresult?.metricType?.name ===
+                                        NAME.ACHIEVE && (
+                                        <div className="text-xs">
+                                          Target
+                                          <Tag className="uppercase mt-1 ml-1 test-xs">
+                                            {task?.targetValue}
+                                          </Tag>
+                                        </div>
+                                      )}
+                                    </Row>
                                   </div>
                                 </Form.Item>
                                 {/* Actual Value Form Item, with both conditions */}
@@ -501,7 +570,7 @@ function EditReport() {
                                 {selectedStatuses[task.taskId] === 'Not' && (
                                   <Form.Item
                                     key={`${task.taskId}-comment`}
-                                    name={[task.taskId, 'comment']}
+                                    name={[task.taskId, 'customReason']}
                                     className="mb-2"
                                     label="Reason:" // Optional label
                                     rules={[

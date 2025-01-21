@@ -18,6 +18,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     activeTab,
     setOpen,
     selectedFeedbackRecord,
+    variantType,
     setSelectedFeedbackRecord,
   } = ConversationStore();
   const { data: getAllUsersData } = useGetAllUsers();
@@ -61,7 +62,13 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
       });
     }
   };
-
+  console.log(
+    getAllFeedbackTypeById?.feedback.filter(
+      (i: any) => i.variant !== variantType,
+    ),
+    variantType,
+    'APPP',
+  );
   useEffect(() => {
     if (selectedFeedbackRecord !== null)
       form.setFieldsValue({
@@ -99,10 +106,12 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           showSearch
           placeholder="Select employee"
           options={
-            getAllUsersData?.items?.map((item: any) => ({
-              label: `${item?.firstName} ${item?.lastName}`, // `label` for display
-              value: item?.id, // `value` for internal use
-            })) ?? []
+            getAllUsersData?.items
+              ?.filter((i: any) => i.id !== userId)
+              ?.map((item: any) => ({
+                label: `${item?.firstName} ${item?.lastName}`, // `label` for display
+                value: item?.id, // `value` for internal use
+              })) ?? []
           }
           filterOption={(input, option) =>
             (option?.label as string)
@@ -124,11 +133,13 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           showSearch
           placeholder="Select Feedback"
           options={
-            getAllFeedbackTypeById?.feedback?.map((feedback: FeedbackItem) => ({
-              key: feedback.id, // Optional, used for React rendering optimization
-              label: feedback.name, // Text displayed in the dropdown
-              value: feedback.id, // Unique identifier
-            })) ?? []
+            getAllFeedbackTypeById?.feedback
+              ?.filter((i: any) => i.variant === variantType)
+              ?.map((feedback: FeedbackItem) => ({
+                key: feedback.id, // Optional, used for React rendering optimization
+                label: feedback.name, // Text displayed in the dropdown
+                value: feedback.id, // Unique identifier
+              })) ?? []
           }
           filterOption={(input, option) =>
             (option?.label as string)

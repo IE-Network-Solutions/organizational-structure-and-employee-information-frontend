@@ -12,6 +12,7 @@ type Task = {
   status: 'reported' | 'pending' | 'completed' | 'Done';
   actualValue: string;
   isAchieved: boolean;
+  customReason: string;
 };
 
 type Props = {
@@ -19,6 +20,7 @@ type Props = {
 };
 
 const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
+  console.log(tasks, 'tasks');
   return (
     <div className="ml-4">
       {tasks?.map((task: Task, taskIndex: number) => (
@@ -41,7 +43,16 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                 </div>
               </Tooltip>
             )}
-            <Text className="text-xs">{`${taskIndex + 1}. ${task.taskName}`}</Text>
+            <Text className="text-xs flex flex-col">
+              {`${taskIndex + 1}. ${task.taskName}`}{' '}
+              {task?.customReason && (
+                <Tooltip title={task.customReason}>
+                  <Text className="text-[10px] mb-2">
+                    {`Reason: ${task.customReason?.length >= 100 ? task.customReason.slice(0, 100) + '...' : task.customReason}`}
+                  </Text>
+                </Tooltip>
+              )}
+            </Text>
           </Col>
 
           {/* This section is now justified to space between taskName and the rest */}

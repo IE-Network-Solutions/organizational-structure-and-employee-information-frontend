@@ -88,6 +88,7 @@ function Reporting() {
     ReportApproval(data);
   };
 
+  console.log(selectedReportId, 'selectedReportId');
   const actionsMenu = (
     dataItem: any,
     handleApproveHandler: any,
@@ -304,7 +305,7 @@ function Reporting() {
                                     className="cursor-pointer  text-black border-none  hover:text-primary"
                                   />
                                 </Dropdown>
-                              )}  
+                              )}
                           </>
 
                           <Col className="mr-2"></Col>

@@ -4,10 +4,11 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { AssignedPlanningPeriodLogArray } from './interface';
 interface DataType {
-  userId: string[] | [];
+  userId: string[] | [] | string;
   planPeriodId: string;
   page?: number;
 }
+
 const getPlanningData = async (params: DataType) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -28,6 +29,23 @@ const getPlanningData = async (params: DataType) => {
     url: `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}`,
     method: 'post',
     data: params?.userId.length === 0 ? [''] : params?.userId,
+    headers,
+  });
+};
+const getPlanningPeriodsHierarchy = async (
+  userId: string,
+  planningPeriodId: string,
+) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/planning-periods/parent-hierarchy/${planningPeriodId}/user/${userId}`,
+    method: 'get',
     headers,
   });
 };
@@ -130,6 +148,19 @@ export const useGetPlanning = (params: DataType) => {
       params.planPeriodId !== undefined &&
       params.planPeriodId !== '',
   });
+};
+
+export const useGetPlanningPeriodsHierarchy = (
+  userId: string,
+  planningPeriodId: string,
+) => {
+  return useQuery<any>(
+    ['planningPeriodsHierarchy', { userId, planningPeriodId }],
+    () => getPlanningPeriodsHierarchy(userId, planningPeriodId),
+    {
+      enabled: !!userId && !!planningPeriodId, // Ensure both are truthy
+    },
+  );
 };
 
 export const useGetPlanningById = (planningId: string) => {

@@ -23,6 +23,7 @@ import KeyResultMetrics from '../keyResult';
 import {
   AllPlanningPeriods,
   useGetPlanning,
+  useGetPlanningPeriodsHierarchy,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { IoCheckmarkSharp } from 'react-icons/io5';
@@ -90,6 +91,7 @@ function Planning() {
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
 
+  console.log(transformedData, 'transformedDatatransformedData');
   const actionsMenu = (
     dataItem: any,
     handleApproveHandler: any,
@@ -166,7 +168,10 @@ function Planning() {
       </Menu.Item>
     </Menu>
   );
-
+  const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
+    userId,
+    planningPeriodId || '', // Provide a default string value if undefined
+  );
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -189,7 +194,8 @@ function Planning() {
                   !(
                     selectedUser.includes(userId) &&
                     ((transformedData?.[0]?.isReported ?? false) ||
-                      transformedData?.length === 0)
+                      transformedData?.length === 0) &&
+                    planningPeriodHierarchy?.parentPlan?.plans?.length != 0
                   )
                 }
                 title={`Create ${activeTabName} Plan`}
@@ -346,6 +352,11 @@ function Planning() {
                                 justify={'space-between'}
                                 className="w-full"
                               >
+                                {task?.parentTask && (
+                                  <Col className={'ml-5 mb-1'} span={24}>
+                                    <strong>{`${task?.parentTask?.task}`}</strong>
+                                  </Col>
+                                )}
                                 <Col className="ml-8 mb-1">
                                   <Text className="text-sm">
                                     {keyResult?.metricType?.name ===
@@ -354,6 +365,7 @@ function Planning() {
                                       : `${taskIndex + 1}. ${task?.task}`}
                                   </Text>
                                 </Col>
+
                                 <Col className="">
                                   <Text
                                     type="secondary"

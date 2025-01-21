@@ -17,6 +17,7 @@ const groupTasksByKeyResultId = (plans: any) => {
         updatedAt: task?.updatedAt,
         targetValue: task?.targetValue,
         weight: task?.weight,
+        parentTask: task?.parentTask,
         milestone: { ...task?.milestone },
       });
     });
@@ -48,6 +49,7 @@ const groupByMilestone = (tasks: any[]) => {
       updatedAt: task.updatedAt,
       targetValue: task.targetValue,
       weight: task.weight,
+      parentTask: task?.parentTask,
       keyResult: { ...task.keyResult }, // Optionally include keyResult data
     });
     return acc;
@@ -55,6 +57,7 @@ const groupByMilestone = (tasks: any[]) => {
   return Object.values(milestoneMap);
 };
 export const groupPlanTasksByKeyResultAndMilestone = (plans: any) => {
+  console.log(plans, '()()');
   const groupedDataByKeyResult = groupTasksByKeyResultId(plans);
 
   return groupedDataByKeyResult?.map((plan: any) => {
