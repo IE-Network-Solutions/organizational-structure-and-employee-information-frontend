@@ -99,14 +99,14 @@ const initialSearchField: SearchField[] = [
     placeholder: 'Select Employee',
     options: [], // Empty initially, will be updated dynamically
     widthRatio: 0.5,
-    onChange: (value: string) => {},
+    onChange: () => {},
   },
   {
     key: 'department',
     placeholder: 'Select Department',
     options: [], // Empty initially, will be updated dynamically
     widthRatio: 0.5,
-    onChange: (value: string) => {},
+    onChange: () => {},
   },
 ];
 
