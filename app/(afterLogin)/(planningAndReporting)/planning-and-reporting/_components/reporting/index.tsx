@@ -1,6 +1,18 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import EmployeeSearch from '@/components/common/search/employeeSearch';
-import { Avatar, Card, Col, Row, Spin, Tooltip, Typography } from 'antd';
+import {
+  Avatar,
+  Button,
+  Card,
+  Col,
+  Dropdown,
+  Menu,
+  Popconfirm,
+  Row,
+  Spin,
+  Tooltip,
+  Typography,
+} from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { MdOutlinePending } from 'react-icons/md';
@@ -21,16 +33,34 @@ import TasksDisplayer from './milestone';
 import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
+import { IoIosOpen, IoMdMore } from 'react-icons/io';
+import { IoCheckmarkSharp } from 'react-icons/io5';
+import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
+import {
+  useApprovalReporting,
+  useDeleteReportById,
+} from '@/store/server/features/okrPlanningAndReporting/mutations';
 
 const { Title } = Typography;
 
 function Reporting() {
-  const { setOpenReportModal, selectedUser, activePlanPeriod } =
-    PlanningAndReportingStore();
+  const {
+    setOpenReportModal,
+    selectedUser,
+    activePlanPeriod,
+    setSelectedReportId,
+    selectedReportId,
+    setOpen,
+    setEditing,
+  } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
+  const { mutate: handleDeleteReport } = useDeleteReportById();
+
+  const { mutate: ReportApproval, isLoading: isApprovalLoading } =
+    useApprovalReporting();
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
@@ -39,7 +69,7 @@ function Reporting() {
     planPeriodId: planningPeriodId ?? '',
   });
   const { data: allUnReportedPlanningTask } =
-    useGetUnReportedPlanning(planningPeriodId);
+    useGetUnReportedPlanning(planningPeriodId,true);
 
   const activeTabName =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
@@ -50,6 +80,88 @@ function Reporting() {
 
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
+  const handleApproveHandler = (id: string, value: boolean) => {
+    const data = {
+      id: id,
+      value: value,
+    };
+    ReportApproval(data);
+  };
+
+  const actionsMenu = (
+    dataItem: any,
+    handleApproveHandler: any,
+    isApprovalLoading: any,
+  ) => (
+    <Menu>
+      {!dataItem?.plan?.isReportValidated ? (
+        <Menu.Item
+          icon={<IoCheckmarkSharp />}
+          onClick={() => handleApproveHandler(dataItem?.id, true)}
+          className="text-green-500"
+          key="approve"
+        >
+          <Tooltip
+            title={
+              isApprovalLoading
+                ? 'Processing approval...'
+                : "Approve Report! Once you approve, you can't edit"
+            }
+          >
+            Approve
+          </Tooltip>
+        </Menu.Item>
+      ) : (
+        <Menu.Item
+          className="text-red-400"
+          icon={<IoIosOpen size={16} />}
+          onClick={() => handleApproveHandler(dataItem?.id, false)}
+          key="reject"
+        >
+          <Tooltip title="Open approved Plan">Open</Tooltip>
+        </Menu.Item>
+      )}
+    </Menu>
+  );
+  const actionsMenuEditandDelte = (
+    dataItem: any,
+    setEditing: any,
+    setSelectedReportId: any,
+    setOpen: any,
+  ) => (
+    <Menu>
+      {/* Edit Plan */}
+      <Menu.Item
+        icon={<AiOutlineEdit size={16} />}
+        onClick={() => {
+          setSelectedReportId(dataItem?.id);
+        }}
+        key="edit"
+      >
+        <Tooltip title="Edit Plan">
+          <span>Edit</span>
+        </Tooltip>
+      </Menu.Item>
+
+      {/* Delete Plan */}
+      <Menu.Item
+        className="text-red-400"
+        icon={<AiOutlineDelete size={16} />}
+        key="delete"
+      >
+        <Popconfirm
+          title="Are you sure you want to delete this plan?"
+          onConfirm={() => handleDeleteReport(dataItem?.id || '')}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Tooltip title="Delete Plan">
+            <span>Delete</span>
+          </Tooltip>
+        </Popconfirm>
+      </Menu.Item>
+    </Menu>
+  );
 
   return (
     <Spin spinning={getReportLoading} tip="Loading...">
@@ -66,7 +178,7 @@ function Reporting() {
                   allUnReportedPlanningTask.length > 0
                 )
               )
-                ? 'Plan tasks first or get manager approval'
+                ? 'Report tasks first or get manager approval'
                 : ''
             }
           >
@@ -134,24 +246,67 @@ function Reporting() {
                           <Col className="text-gray-500 text-xs">Status</Col>
                           <Col>
                             <div
-                              className={` py-1 px-1 text-white rounded-md ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
+                              className={` py-1 px-1 text-white rounded-md ${dataItem?.plan?.isReportValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
                             >
                               <MdOutlinePending size={14} />
                             </div>
                           </Col>
                           <Col className="text-xs -ml-3">
-                            {dataItem?.isValidated ? 'Closed' : 'Open'}
+                            {dataItem?.plan?.isValidated ? 'Closed' : 'Open'}
                           </Col>
                         </Row>
                         <Col
                           span={10}
                           className="flex justify-end items-center"
                         >
-                          <span className="mr-4 text-gray-500">
-                            {dayjs(dataItem?.createdAt).format(
-                              'MMMM D YYYY, h:mm:ss A',
-                            )}
-                          </span>
+                          <>
+                            <span className="mr-4 text-gray-500">
+                              {dayjs(dataItem?.createdAt).format(
+                                'MMMM D YYYY, h:mm:ss A',
+                              )}
+                            </span>
+                            {userId ===
+                              getEmployeeData(
+                                dataItem?.userId ?? dataItem?.createdBy,
+                              )?.reportingTo?.id && (
+                              <Dropdown
+                                overlay={actionsMenu(
+                                  dataItem,
+                                  handleApproveHandler,
+                                  isApprovalLoading,
+                                )}
+                                trigger={['click']}
+                              >
+                                <Button
+                                  type="text"
+                                  icon={
+                                    <IoMdMore className="text-2xl font-bold" />
+                                  }
+                                  className="cursor-pointer text-green border-none  hover:text-success"
+                                />
+                              </Dropdown>
+                             )} 
+                            {userId ===
+                              (dataItem?.userId ?? dataItem?.createdBy) &&
+                              dataItem?.plan?.isReportValidated == false && (
+                                <Dropdown
+                                  overlay={actionsMenuEditandDelte(
+                                    dataItem,
+                                    setEditing,
+                                    setSelectedReportId,
+                                    setOpen,
+                                  )}
+                                  trigger={['click']}
+                                >
+                                  <Button
+                                    type="text"
+                                    icon={<IoMdMore className="text-2xl" />}
+                                    className="cursor-pointer  text-black border-none  hover:text-primary"
+                                  />
+                                </Dropdown>
+                              )}  
+                          </>
+
                           <Col className="mr-2"></Col>
                           <Col></Col>
                         </Col>
