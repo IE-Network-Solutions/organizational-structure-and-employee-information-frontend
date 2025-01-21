@@ -48,8 +48,6 @@ export class FeedbackService {
     user:string
   ): FeedbackRecord[] {
 
-
-    console.log( startOfWeek,endOfWeek,"PPPPPPPPPPPPPPPP")
     let filteredData: FeedbackRecord[];
 
     if (user === 'all') {
@@ -93,11 +91,6 @@ export class FeedbackService {
     };
 
 
-    console.log({
-      feedbackRecordData:feedbackRecordData,
-      lastWeekRange:lastWeekRange,
-      thisWeekRange:thisWeekRange
-    },"1**************************")
     // Helper function to calculate stats for a feedback type
     const calculateFeedbackStats = (
       variant: string,

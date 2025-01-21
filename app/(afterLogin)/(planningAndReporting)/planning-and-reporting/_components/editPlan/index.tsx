@@ -473,10 +473,6 @@ function EditPlan() {
                                     handleAddBoard(
                                       task?.keyResult?.id + task?.milestone?.id,
                                     );
-                                    console.log(
-                                      task?.keyResult?.id + task?.milestone?.id,
-                                      'dink new',
-                                    );
                                   }}
                                   type="link"
                                   icon={<BiPlus size={14} />}

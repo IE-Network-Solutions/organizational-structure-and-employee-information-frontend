@@ -88,7 +88,6 @@ function Reporting() {
     ReportApproval(data);
   };
 
-  console.log(selectedReportId, 'selectedReportId');
   const actionsMenu = (
     dataItem: any,
     handleApproveHandler: any,

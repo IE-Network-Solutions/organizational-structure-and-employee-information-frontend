@@ -20,7 +20,6 @@ type Props = {
 };
 
 const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
-  console.log(tasks, 'tasks');
   return (
     <div className="ml-4">
       {tasks?.map((task: Task, taskIndex: number) => (

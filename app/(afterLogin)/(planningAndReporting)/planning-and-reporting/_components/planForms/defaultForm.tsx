@@ -37,7 +37,6 @@ function DefaultCardForm({
   targetValue,
 }: DefaultCardInterface) {
   const { setWeight } = PlanningAndReportingStore();
-  console.log(planTaskId, '&&&*&');
 
   return (
     <Form.List name={name}>

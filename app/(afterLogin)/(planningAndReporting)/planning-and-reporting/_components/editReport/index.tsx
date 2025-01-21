@@ -71,7 +71,6 @@ function EditReport() {
     </div>
   );
 
-  console.log(reportedData, 'allUnReportedPlanningTask');
 
   const handleOnFinish = (values: Record<string, any>) => {
     Object.entries(values).length > 0 &&
@@ -139,13 +138,11 @@ function EditReport() {
         };
         return acc;
       }, {});
-      console.log(data, 'reportedData');
 
       form.setFieldsValue(data); // Dynamically set form values
     }
   }, [reportedData, form]);
 
-  // console.log(reportedData,"reportedData")
   return (
     selectedReportId !== '' && (
       <CustomDrawerLayout

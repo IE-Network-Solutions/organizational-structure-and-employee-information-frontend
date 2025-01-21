@@ -62,13 +62,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
       });
     }
   };
-  console.log(
-    getAllFeedbackTypeById?.feedback.filter(
-      (i: any) => i.variant !== variantType,
-    ),
-    variantType,
-    'APPP',
-  );
+
   useEffect(() => {
     if (selectedFeedbackRecord !== null)
       form.setFieldsValue({

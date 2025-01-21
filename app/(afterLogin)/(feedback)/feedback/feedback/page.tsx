@@ -47,16 +47,15 @@ const Page = () => {
   const { data: getAllFeedbackTypes, isLoading: getFeedbackTypeLoading } =
     useFetchAllFeedbackTypes();
   const { data: getAllFeedbackRecord, isLoading: getFeedbackRecordLoading } =
-      useFetchAllFeedbackRecord(pageSize, page, empId ?? undefined, givenDate);
+      useFetchAllFeedbackRecord({variantType,activeTab,userId,pageSize,empId, page, givenDate});
   const { data: getAllFeedbackCardData, isLoading: getFeedbackCardDataLoading } =
-  useFetchAllFeedbackRecord(undefined, undefined, empId ?? undefined, givenDate);
+  useFetchAllFeedbackRecord({variantType,activeTab,empId,userId});
   const [form] = Form.useForm();
 
 
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
 
   const { data: getAllUsers } = useGetAllUsers();
-  const [filteredFeedbackRecord, setFilteredFeedbackRecord] = useState<any>([]);
   const feedbackAnaliytics = FeedbackService?.getFeedbackStats(
     getAllFeedbackCardData?.items,userId);
 
@@ -70,36 +69,37 @@ const Page = () => {
     });
   };
 
-  useEffect(() => {
-    let data = getAllFeedbackRecord?.items ?? []; // Default to an empty array if data is undefined
-    // Filter by variantType
+  // useEffect(() => {
+  //   let data = getAllFeedbackRecord?.items ?? []; // Default to an empty array if data is undefined
+  //   // Filter by variantType
 
-    if (variantType) {
-      data = data.filter(
-        (item: any) => item?.feedbackVariant?.variant === variantType,
-      );
-    }
+  //   if (variantType) {
+  //     data = data.filter(
+  //       (item: any) => item?.feedbackVariant?.variant === variantType,
+  //     );
+  //   }
 
-    // Filter by activeTab
-    if (activeTab) {
-      data = data.filter((item: any) => item?.feedbackTypeId === activeTab);
-    }
+  //   // Filter by activeTab
+  //   if (activeTab) {
+  //     data = data.filter((item: any) => item?.feedbackTypeId === activeTab);
+  //   }
 
-    // // Filter by userId
-    if (userId !== 'all') {
-      data = data.filter(
-        (item: any) =>
-          item?.recipientId === userId || item?.issuerId === userId,
-      );
-    }
+  //   // // Filter by userId
+  //   if (userId !== 'all') {
+  //     data = data.filter(
+  //       (item: any) =>
+  //         item?.recipientId === userId || item?.issuerId === userId,
+  //     );
+  //   }
 
-    // Update the state with the filtered data
-    setFilteredFeedbackRecord(data);
-  }, [getAllFeedbackRecord, variantType, activeTab, userId, userIdData]);
+  //   // Update the state with the filtered data
+  //   setFilteredFeedbackRecord(data);
+  // }, [getAllFeedbackRecord, variantType, activeTab, userId, userIdData]);
 
   const onChange = (key: string) => {
-    setVariantType(key);
+    setVariantType(key === 'appreciation' ? 'appreciation' : 'reprimand');
   };
+  
   const onChangeUserType = (key: string) => {
     const data = key === 'personal' ? userIdData : 'all';
     setUserId(data);
@@ -357,7 +357,7 @@ const Page = () => {
           <EmployeeSearchComponent fields={searchField} />
           <Table
             loading={getFeedbackRecordLoading}
-            dataSource={filteredFeedbackRecord}
+            dataSource={getAllFeedbackRecord?.items}
             columns={columns}
             pagination={{
               current:page,
@@ -366,7 +366,7 @@ const Page = () => {
               showQuickJumper: true, // Enables jumping to a specific page
               pageSizeOptions: ['10', '20', '50', '100'], // Page size options
               defaultPageSize: 10, // Default page size
-              total: filteredFeedbackRecord?.meta?.totalItems, // Total number of items
+              total: getAllFeedbackRecord?.meta?.totalItems, // Total number of items
               showTotal: (total, range) =>
                 `${range[0]}-${range[1]} of ${total} items`, // Display pagination info
               onChange: (page, pageSize) => {

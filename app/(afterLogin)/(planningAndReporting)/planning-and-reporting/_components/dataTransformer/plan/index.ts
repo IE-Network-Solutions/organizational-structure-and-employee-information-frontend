@@ -57,7 +57,6 @@ const groupByMilestone = (tasks: any[]) => {
   return Object.values(milestoneMap);
 };
 export const groupPlanTasksByKeyResultAndMilestone = (plans: any) => {
-  console.log(plans, '()()');
   const groupedDataByKeyResult = groupTasksByKeyResultId(plans);
 
   return groupedDataByKeyResult?.map((plan: any) => {

@@ -22,28 +22,43 @@ const fetchFeedbackRecordById = async (id: string) => {
   });
 };
 const fetchAllFeedbackRecord = async (
-  pageSize?: number,
-  page?: number,
-  empId?: string,
-  date?: string[]
-) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const headers = {
-    tenantId,
-    Authorization: `Bearer ${token}`,
-  };
+  {
+    variantType,
+    activeTab,
+    userId,
+    pageSize, 
+    page, 
+    empId,
+    givenDate
+  }:{
+    variantType:'appreciation'|'reprimand',
+    activeTab:string,
+    userId:string,
+    pageSize?: number,
+    empId:string,
+    page?: number,
+    givenDate?: string[]
+  }) => {
+    const token = useAuthenticationStore.getState().token;
+    const tenantId = useAuthenticationStore.getState().tenantId;
+    const headers = {
+      tenantId,
+      Authorization: `Bearer ${token}`,
+    };
 
   // Constructing the query URL dynamically
-  const urlParams: string[] = [`useId=${empId}`];
+  const urlParams: string[] = [];
 
-  if (date?.length) {
-    urlParams.push(`startDate=${date[0]}`);
-    urlParams.push(`endDate=${date[1]}`);
+  if (givenDate?.length) {
+    urlParams.push(`startDate=${givenDate[0]}`);
+    urlParams.push(`endDate=${givenDate[1]}`);
   }
-  if (empId) urlParams.push(`userId=${empId}`);
+  if (userId && userId!=='all') urlParams.push(`userId=${userId}`);
+  if (empId && empId!=='') urlParams.push(`empId=${empId}`);
   if (pageSize) urlParams.push(`limit=${pageSize}`);
   if (page) urlParams.push(`page=${page}`);
+  if (variantType) urlParams.push(`variantType=${variantType}`);
+  if (activeTab) urlParams.push(`feedbackTypeId=${activeTab}`);
 
   const url = `${ORG_DEV_URL}/feedback-record?${urlParams.join('&')}`;
 
@@ -54,7 +69,6 @@ const fetchAllFeedbackRecord = async (
       headers,
     });
   } catch (error) {
-    console.error('Error fetching feedback records:', error);
     throw error;
   }
 };
@@ -70,13 +84,25 @@ export const useFetchFeedbackRecordById = (id: string) => {
 
 
 export const useFetchAllFeedbackRecord = (
-  pageSize?: number,
-  page?: number,
-  empId?: string,
-  date?: string[]
-) => {
-  return useQuery(['feedbackRecord', pageSize, page, empId, date], () =>
-    fetchAllFeedbackRecord(pageSize, page, empId, date)
+  {
+    variantType,
+    activeTab,
+    userId,
+    pageSize, 
+    page, 
+    empId,
+    givenDate
+  }:{
+    variantType:'appreciation'|'reprimand',
+    activeTab:string,
+    userId:string,
+    pageSize?: number,
+    empId:string,
+    page?: number,
+    givenDate?: string[]
+  }) => {
+  return useQuery(['feedbackRecord', {variantType,activeTab,userId,empId,pageSize,page,givenDate}], () =>
+    fetchAllFeedbackRecord({variantType,activeTab,userId,pageSize,empId, page, givenDate})
   );
 };
 

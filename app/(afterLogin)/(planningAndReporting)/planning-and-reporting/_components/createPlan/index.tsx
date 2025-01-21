@@ -97,7 +97,6 @@ function CreatePlan() {
         .flat();
     };
     const finalValues = mergeValues(values);
-    console.log(finalValues, 'finalValues');
     createTask(
       { tasks: finalValues },
       {
@@ -108,7 +107,6 @@ function CreatePlan() {
       },
     );
   };
-  console.log(planningPeriodHierarchy, 'planningPeriodHierarchy');
   return (
     open && (
       <CustomDrawerLayout
@@ -398,10 +396,6 @@ function CreatePlan() {
                                     setMKAsATask(null);
                                     handleAddBoard(
                                       task?.keyResult?.id + task?.milestone?.id,
-                                    );
-                                    console.log(
-                                      task?.keyResult?.id + task?.milestone?.id,
-                                      'dink new',
                                     );
                                   }}
                                   type="link"

@@ -91,7 +91,6 @@ function Planning() {
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
 
-  console.log(transformedData, 'transformedDatatransformedData');
   const actionsMenu = (
     dataItem: any,
     handleApproveHandler: any,
