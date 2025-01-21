@@ -294,7 +294,7 @@ function Planning() {
                                   className="cursor-pointer text-green border-none  hover:text-success"
                                 />
                               </Dropdown>
-                            )}
+                            )} 
                             {userId === dataItem?.createdBy &&
                               dataItem?.isValidated == false && (
                                 <Dropdown

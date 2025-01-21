@@ -69,7 +69,7 @@ function Reporting() {
     planPeriodId: planningPeriodId ?? '',
   });
   const { data: allUnReportedPlanningTask } =
-    useGetUnReportedPlanning(planningPeriodId);
+    useGetUnReportedPlanning(planningPeriodId,true);
 
   const activeTabName =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
@@ -95,7 +95,7 @@ function Reporting() {
     isApprovalLoading: any,
   ) => (
     <Menu>
-      {!dataItem?.isValidated ? (
+      {!dataItem?.plan?.isReportValidated ? (
         <Menu.Item
           icon={<IoCheckmarkSharp />}
           onClick={() => handleApproveHandler(dataItem?.id, true)}
@@ -247,13 +247,13 @@ function Reporting() {
                           <Col className="text-gray-500 text-xs">Status</Col>
                           <Col>
                             <div
-                              className={` py-1 px-1 text-white rounded-md ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
+                              className={` py-1 px-1 text-white rounded-md ${dataItem?.plan?.isReportValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
                             >
                               <MdOutlinePending size={14} />
                             </div>
                           </Col>
                           <Col className="text-xs -ml-3">
-                            {dataItem?.isValidated ? 'Closed' : 'Open'}
+                            {dataItem?.plan?.isValidated ? 'Closed' : 'Open'}
                           </Col>
                         </Row>
                         <Col
@@ -286,10 +286,10 @@ function Reporting() {
                                   className="cursor-pointer text-green border-none  hover:text-success"
                                 />
                               </Dropdown>
-                            )}
+                             )} 
                             {userId ===
                               (dataItem?.userId ?? dataItem?.createdBy) &&
-                              dataItem?.isValidated == false && (
+                              dataItem?.plan?.isReportValidated == false && (
                                 <Dropdown
                                   overlay={actionsMenuEditandDelte(
                                     dataItem,
@@ -305,7 +305,7 @@ function Reporting() {
                                     className="cursor-pointer  text-black border-none  hover:text-primary"
                                   />
                                 </Dropdown>
-                              )}
+                              )}  
                           </>
 
                           <Col className="mr-2"></Col>

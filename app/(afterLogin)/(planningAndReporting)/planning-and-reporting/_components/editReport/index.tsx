@@ -63,7 +63,7 @@ function EditReport() {
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
 
   const { data: allUnReportedPlanningTask } =
-    useGetUnReportedPlanning(planningPeriodId);
+    useGetUnReportedPlanning(planningPeriodId,false);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -139,13 +139,11 @@ function EditReport() {
         };
         return acc;
       }, {});
-      console.log(data, 'reportedData');
 
       form.setFieldsValue(data); // Dynamically set form values
     }
   }, [reportedData, form]);
 
-  // console.log(reportedData,"reportedData")
   return (
     selectedReportId !== '' && (
       <CustomDrawerLayout
@@ -155,21 +153,12 @@ function EditReport() {
         width="65%"
       >
         {formattedData?.length > 0 ? (
-          <Spin spinning={editReportLoading} tip="Reporting...">
+          <Spin spinning={editReportLoading || reportedDataLoading} tip="Reporting...">
             <Form
               layout="vertical"
               form={form}
               name="dynamic_form_item"
               onFinish={handleOnFinish}
-              initialValues={{
-                '2607a6e5-61ab-4b82-9f7a-b4e3f18ac0a1': {
-                  customReason: 'Reason here',
-                },
-                'a2ceb30d-f80e-46bc-a0b3-ff0624c6d57c': { customReason: '' },
-                '09d0cec0-b969-4d4b-822e-d623a472087d': {
-                  customReason: 'vcyfdcyfdcvg',
-                },
-              }}
             >
               {formattedData?.map((objective: any, resultIndex: number) => (
                 <Collapse defaultActiveKey={0} key={resultIndex}>
@@ -250,18 +239,15 @@ function EditReport() {
 
                                               <Radio.Group
                                                 className="text-xs"
-                                                onChange={
-                                                  (e) =>
-                                                    setStatus(
-                                                      task.taskId,
-                                                      e.target.value,
-                                                    ) // Correctly update the status
+                                                onChange={(e) =>
+                                                  setStatus(
+                                                    task.taskId,
+                                                    e.target.value,
+                                                  )
                                                 }
                                                 value={
-                                                  selectedStatuses[
-                                                    task.taskId
-                                                  ] || 'Not'
-                                                } // Fallback to "Not" if no status
+                                                  selectedStatuses[task.taskId]
+                                                } // Bind value from Zustand
                                               >
                                                 <Radio value="Done">Done</Radio>
                                                 <Radio value="Not">Not</Radio>
