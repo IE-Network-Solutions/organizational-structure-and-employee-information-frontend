@@ -257,7 +257,6 @@ const Page = () => {
       onChange: (value: string) => setGivenDate(value),
     },
   ];
-  console.log(empId, filteredFeedbackRecord, '&*&*');
   return (
     <TabLandingLayout
       // buttonTitle="Generate report"
