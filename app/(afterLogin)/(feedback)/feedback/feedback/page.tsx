@@ -48,7 +48,7 @@ const Page = () => {
   const { data: getAllUsers } = useGetAllUsers();
   const [filteredFeedbackRecord, setFilteredFeedbackRecord] = useState<any>([]);
   const feedbackAnaliytics = FeedbackService?.getFeedbackStats(
-    filteredFeedbackRecord,
+    getAllFeedbackRecord?.items,
   );
 
   const editHandler = (record: any) => {
