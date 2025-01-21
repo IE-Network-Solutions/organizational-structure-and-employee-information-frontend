@@ -22,10 +22,10 @@ const fetchFeedbackRecordById = async (id: string) => {
   });
 };
 const fetchAllFeedbackRecord = async (
-  pageSize: number,
-  page: number,
-  empId: string,
-  date: [],
+  pageSize?: number,
+  page?: number,
+  empId?: string,
+  date?: string[]
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -33,14 +33,30 @@ const fetchAllFeedbackRecord = async (
     tenantId,
     Authorization: `Bearer ${token}`,
   };
-  const url = date?.length
-    ? `${ORG_DEV_URL}/feedback-record?limit=${pageSize}&page=${page}&startDate=${date[0]}&endDate=${date[1]}&useId=${empId}`
-    : `${ORG_DEV_URL}/feedback-record?limit=${pageSize}&page=${page}&useId=${empId}`;
-  return await crudRequest({
-    url: url,
-    method: 'GET',
-    headers,
-  });
+
+  // Constructing the query URL dynamically
+  const urlParams: string[] = [`useId=${empId}`];
+
+  if (date?.length) {
+    urlParams.push(`startDate=${date[0]}`);
+    urlParams.push(`endDate=${date[1]}`);
+  }
+  if (empId) urlParams.push(`userId=${empId}`);
+  if (pageSize) urlParams.push(`limit=${pageSize}`);
+  if (page) urlParams.push(`page=${page}`);
+
+  const url = `${ORG_DEV_URL}/feedback-record?${urlParams.join('&')}`;
+
+  try {
+    return await crudRequest({
+      url: url,
+      method: 'GET',
+      headers,
+    });
+  } catch (error) {
+    console.error('Error fetching feedback records:', error);
+    throw error;
+  }
 };
 export const useFetchFeedbackRecordById = (id: string) => {
   return useQuery(
@@ -51,13 +67,16 @@ export const useFetchFeedbackRecordById = (id: string) => {
     // },
   );
 };
+
+
 export const useFetchAllFeedbackRecord = (
-  pageSize: number,
-  page: number,
+  pageSize?: number,
+  page?: number,
   empId?: string,
-  date?: [],
+  date?: string[]
 ) => {
   return useQuery(['feedbackRecord', pageSize, page, empId, date], () =>
-    fetchAllFeedbackRecord(pageSize, page, empId, date),
+    fetchAllFeedbackRecord(pageSize, page, empId, date)
   );
 };
+

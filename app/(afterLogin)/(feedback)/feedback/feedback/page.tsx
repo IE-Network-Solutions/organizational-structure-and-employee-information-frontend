@@ -18,7 +18,7 @@ import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/fe
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { FeedbackService } from './_components/feedbackAnalytics';
-import FeedbackCard from './_components/feedbackCard';
+import { FeedbackCard, FeedbackCardSkeleton } from './_components/feedbackCard';
 
 const Page = () => {
   const {
@@ -47,7 +47,9 @@ const Page = () => {
   const { data: getAllFeedbackTypes, isLoading: getFeedbackTypeLoading } =
     useFetchAllFeedbackTypes();
   const { data: getAllFeedbackRecord, isLoading: getFeedbackRecordLoading } =
-      useFetchAllFeedbackRecord(pageSize, page, empId??'', givenDate);
+      useFetchAllFeedbackRecord(pageSize, page, empId ?? undefined, givenDate);
+  const { data: getAllFeedbackCardData, isLoading: getFeedbackCardDataLoading } =
+  useFetchAllFeedbackRecord(undefined, undefined, empId ?? undefined, givenDate);
   const [form] = Form.useForm();
 
 
@@ -56,8 +58,8 @@ const Page = () => {
   const { data: getAllUsers } = useGetAllUsers();
   const [filteredFeedbackRecord, setFilteredFeedbackRecord] = useState<any>([]);
   const feedbackAnaliytics = FeedbackService?.getFeedbackStats(
-    getAllFeedbackRecord?.items,
-  );
+    getAllFeedbackCardData?.items,userId);
+
 
   const editHandler = (record: any) => {
     setSelectedFeedbackRecord(record);
@@ -211,7 +213,7 @@ const Page = () => {
       key: 'action',
       render: (notused: any, record: any) => {
         return (
-          <p className="flex gap-2">
+          <div className="flex gap-2">
             <Button
               disabled={record.issuerId !== userIdData}
               size="small"
@@ -233,7 +235,7 @@ const Page = () => {
                 type="primary"
               />
             </Popconfirm>
-          </p>
+          </div>
         );
       },
     },
@@ -265,7 +267,6 @@ const Page = () => {
       onChange: (value: string) => setGivenDate(value),
     },
   ];
-  console.log(empId, filteredFeedbackRecord, '&*&*');
   return (
     <TabLandingLayout
       // buttonTitle="Generate report"
@@ -282,6 +283,13 @@ const Page = () => {
           onChange={onChangeUserType}
         />
       </div>
+      {getFeedbackCardDataLoading ?  
+        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <FeedbackCardSkeleton key={index} />
+          ))}
+        </div>
+         :
       <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         <FeedbackCard
           appreciationPercentage={feedbackAnaliytics?.appreciationStats?.issued}
@@ -315,7 +323,7 @@ const Page = () => {
           type="reprimand"
           textType="reprimandReceived"
         />
-      </div>
+      </div>}
       <Spin spinning={getFeedbackTypeLoading} tip="Loading...">
         <Tabs
           className="max-w-[850px]"
@@ -352,17 +360,18 @@ const Page = () => {
             dataSource={filteredFeedbackRecord}
             columns={columns}
             pagination={{
+              current:page,
+              pageSize:pageSize,
               showSizeChanger: true, // Enables "page size" dropdown
               showQuickJumper: true, // Enables jumping to a specific page
               pageSizeOptions: ['10', '20', '50', '100'], // Page size options
               defaultPageSize: 10, // Default page size
-              total: filteredFeedbackRecord?.items?.length || 0, // Total number of items
+              total: filteredFeedbackRecord?.meta?.totalItems, // Total number of items
               showTotal: (total, range) =>
                 `${range[0]}-${range[1]} of ${total} items`, // Display pagination info
               onChange: (page, pageSize) => {
                 setPage(page);
                 setPageSize(pageSize);
-                // Optional: Implement server-side pagination logic here if needed
               },
             }}
           />
