@@ -272,7 +272,7 @@ function Page() {
         >
           <EmployeeSearchComponent
             fields={searcFields}
-            onChange={handleSearchChange}
+            onChange={(value) => handleSearchChange(value.key, value.value)}
           />
           <Table<any>
             columns={columns}
