@@ -7,18 +7,19 @@ import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 
 const VariablePayTable = () => {
-
   const { data: allUsersVariablePay, isLoading } = useGetVariablePay();
-  const { currentPage, pageSize, setCurrentPage, setPageSize} = useVariablePayStore();
+  const { currentPage, pageSize, setCurrentPage, setPageSize } =
+    useVariablePayStore();
 
-  const tableData = allUsersVariablePay?.items?.map((variablePay: any) => ({
-    id: variablePay.id,
-    name: variablePay.userId,
-    VpInPercentile: variablePay.vpScoring.totalPercentage,
-    VpInBirr: '',
-    VpScore: variablePay.vpScore,
-    Benefit: '',
-  })) || [];
+  const tableData =
+    allUsersVariablePay?.items?.map((variablePay: any) => ({
+      id: variablePay.id,
+      name: variablePay.userId,
+      VpInPercentile: variablePay.vpScoring.totalPercentage,
+      VpInBirr: '',
+      VpScore: variablePay.vpScore,
+      Benefit: '',
+    })) || [];
 
   const handleTableChange = (pagination: any) => {
     setCurrentPage(pagination.current);

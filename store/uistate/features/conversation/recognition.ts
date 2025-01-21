@@ -25,6 +25,15 @@ export interface CategoriesUseState {
   searchField: SearchField[];
   setSearchField: (fields: SearchField[]) => void;
 
+  activeMonthId: string;
+  setActiveMonthId: (activeMonthId: string) => void;
+
+  activeSessionId: string;
+  setActiveSession: (activeSessionId: string) => void;
+
+  fiscalActiveYearId: string;
+  setFiscalActiveYearId: (fiscalActiveYearId: string) => void;
+
   selectedRecognitionType: string;
   setSelectedRecognitionType: (selectedRecognitionType: string) => void;
 
@@ -87,6 +96,16 @@ export const useRecongnitionStore = create<CategoriesUseState>((set) => ({
         field.key === key ? { ...field, options: newOptions } : field,
       ),
     })),
+
+  activeMonthId: '',
+  setActiveMonthId: (activeMonthId: string) => set({ activeMonthId }),
+
+  activeSessionId: '',
+  setActiveSession: (activeSessionId: string) => set({ activeSessionId }),
+
+  fiscalActiveYearId: '',
+  setFiscalActiveYearId: (fiscalActiveYearId: string) =>
+    set({ fiscalActiveYearId }),
 
   setTotalPages: (totalPages: number) => set({ totalPages }),
   setPageSize: (pageSize: number) => set({ pageSize }),

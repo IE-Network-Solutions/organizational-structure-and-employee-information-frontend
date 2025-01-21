@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Switch, Select, Button, Space } from 'antd';
+import { Form, Input, Switch, Select, Button, Space, Popconfirm } from 'antd';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
   useGetAllRecognitionTypeWithOutCriteria,
@@ -30,8 +30,12 @@ interface RecognitionFormValues {
 const { Option } = Select;
 interface PropsData {
   createCategory?: boolean;
+  onClose?: any;
 }
-const RecognitionForm: React.FC<PropsData> = ({ createCategory = false }) => {
+const RecognitionForm: React.FC<PropsData> = ({
+  createCategory = false,
+  onClose,
+}) => {
   const [form] = Form.useForm();
   const {
     setOpenRecognitionType,
@@ -39,7 +43,6 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false }) => {
     setSelectedRecognitionType,
     selectedRecognitionType,
   } = ConversationStore();
-
   const { data: allDepartmentWithData } = useGetDepartmentsWithUsers();
   const { data: recognitionTypeWithOutCriteria } =
     useGetAllRecognitionTypeWithOutCriteria();
@@ -49,7 +52,7 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false }) => {
 
   const { mutate: createRecognitionType } = useAddRecognitionType();
   const { mutate: updateRecognitionType } = useUpdateRecognitionType();
-
+  const [totalWeight, setTotalWeight] = useState<number>(0);
   const [selectedCriteria, setSelectedCriteria] = useState<any>([]);
   const handleCriteriaChange = (value: string[]) => {
     const updatedCriteria = value.map((criterion) => {
@@ -68,6 +71,20 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false }) => {
     });
     setSelectedCriteria(updatedCriteria);
   };
+  const validateTotalWeight = () => {
+    const totalWeight = selectedCriteria.reduce(
+      (sum: any, criterion: any) => sum + parseFloat(criterion.weight || 0),
+      0,
+    );
+    setTotalWeight(totalWeight);
+    if (totalWeight !== 1) {
+      return Promise.reject(
+        new Error('The total weight of all criteria must equal 1.'),
+      );
+    } else {
+      return Promise.resolve();
+    }
+  };
 
   const commonClass = 'text-xs text-gray-950';
   const getLabel = (text: string) => (
@@ -77,7 +94,8 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false }) => {
     if (selectedRecognitionType === '') {
       createRecognitionType(values, {
         onSuccess: () => {
-          // setSelectedRecognitionType('');
+          form.resetFields();
+          onClose();
           setOpenRecognitionType(false);
         },
       });
@@ -87,6 +105,7 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false }) => {
         { ...updatedValues, id: selectedRecognitionType },
         {
           onSuccess: () => {
+            form.resetFields();
             setSelectedRecognitionType('');
             setOpenRecognitionType(false);
           },
@@ -187,8 +206,11 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false }) => {
           >
             <Select.Option value="KPI">KPI</Select.Option>
             <Select.Option value="OKR">OKR Score</Select.Option>
-            <Select.Option value="Attendance">Attendance</Select.Option>
-            <Select.Option value="Certificate">Certificate</Select.Option>
+            <Select.Option value="ATTENDANCE">Attendance</Select.Option>
+            <Select.Option value="CERTIFICATE">Certificate</Select.Option>
+            <Select.Option value="ENGAGEMENT_SCORE">
+              Engagment score
+            </Select.Option>
           </Select>
         </Form.Item>
       )}
@@ -205,7 +227,19 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false }) => {
               rules={[
                 {
                   required: true,
-                  message: 'Please select at least one criterion',
+                  message: 'Please enter weight',
+                },
+                {
+                  validator: (notused, value) => {
+                    const weight = parseFloat(value || 0);
+                    const total = totalWeight - criteria.weight + weight;
+                    if (total > 1) {
+                      return Promise.reject(
+                        'The total weight of all criteria must not exceed 1.',
+                      );
+                    }
+                    return Promise.resolve();
+                  },
                 },
               ]}
             >
@@ -235,12 +269,21 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false }) => {
             label={getLabel('Weight')}
             name={['recognitionCriteria', index, 'weight']}
             initialValue={criteria.weight}
-            rules={[{ required: true, message: 'Please enter weight' }]}
+            rules={[
+              { required: true, message: 'Please enter weight' },
+              {
+                validator: () => validateTotalWeight(),
+              },
+            ]}
           >
             <Input
               type="number"
               placeholder="Enter weight"
-              className={commonClass}
+              onChange={(e) => {
+                const updatedCriteria = [...selectedCriteria];
+                updatedCriteria[index].weight = parseFloat(e.target.value ?? 0);
+                setSelectedCriteria(updatedCriteria);
+              }}
             />
           </Form.Item>
 
@@ -303,6 +346,11 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false }) => {
         </div>
       ))}
 
+      {!createCategory && !selectedRecognitionType && (
+        <div className="mt-2 text-xs text-gray-600">
+          Total Weight: {totalWeight} {totalWeight !== 1 && '(Must equal 1)'}
+        </div>
+      )}
       <div className="flex">
         <Form.Item
           className="text-xs text-gray-950"
@@ -400,6 +448,7 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false }) => {
       {!createCategory && (
         <Form.Item
           className="text-xs text-gray-950"
+          hidden
           label={
             <span className="text-black text-xs font-semibold">
               Parent Type
@@ -441,17 +490,33 @@ const RecognitionForm: React.FC<PropsData> = ({ createCategory = false }) => {
 
       <Form.Item>
         <div className="flex justify-center gap-4">
-          <Button type="primary" htmlType="submit" className="text-xs">
-            {selectedRecognitionType !== '' ? 'Update' : 'Create'}
-          </Button>
           <Button
-            onClick={() => setSelectedRecognitionType('')}
+            disabled={
+              !createCategory && !selectedRecognitionType
+                ? totalWeight !== 1
+                : false
+            }
             type="primary"
-            htmlType="button"
+            htmlType="submit"
             className="text-xs"
           >
-            Cancel
+            {selectedRecognitionType !== '' ? 'Update' : 'Create'}
           </Button>
+          <Popconfirm
+            title="Are you sure you want to cancel?"
+            onConfirm={() => {
+              form.resetFields();
+              setSelectedRecognitionType('');
+              setOpenRecognitionType(false);
+            }}
+            okText="Yes"
+            cancelText="No"
+            placement="top"
+          >
+            <Button type="primary" danger htmlType="button" className="text-xs">
+              Cancel
+            </Button>
+          </Popconfirm>
         </div>
       </Form.Item>
     </Form>

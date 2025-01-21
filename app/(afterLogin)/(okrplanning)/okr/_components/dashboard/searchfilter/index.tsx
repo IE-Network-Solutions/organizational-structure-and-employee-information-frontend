@@ -66,22 +66,29 @@ const OkrSearch: React.FC = () => {
               <Col lg={12} sm={12} xs={24}>
                 <Select
                   id={`selectDepartment${searchObjParams.userId}`}
-                  placeholder="Select Department"
+                  placeholder="Search and select a department"
                   onChange={handleDepartmentChange}
                   allowClear
+                  showSearch
                   className="w-full h-14"
+                  optionFilterProp="children" // Enables searching based on the text in options
+                  filterOption={(input, option) =>
+                    (option?.children as any)
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
                 >
                   {DepartmentWithUsers?.map((item: any) => (
-                    <Option key={item?.id} value={item?.id}>
+                    <Select.Option key={item?.id} value={item?.id}>
                       {item?.name}
-                    </Option>
+                    </Select.Option>
                   ))}
                 </Select>
               </Col>
             )}
             <Col lg={12} sm={12} xs={24}>
               <Select
-                id={`selectBranches${searchObjParams.metricTypeId}`}
+                id={`selectMetricType${searchObjParams.metricTypeId}`}
                 placeholder="By Metric Type"
                 onChange={(val) => {
                   handleMetricChange(val);

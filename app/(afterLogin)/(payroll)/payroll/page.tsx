@@ -1,207 +1,211 @@
 'use client';
-import React, { useState } from 'react';
-import { Table, Card, Row, Col, Button } from 'antd';
-import { ArrowUpOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { Table, Row, Button, notification } from 'antd';
 import Filters from './_components/filters';
+import {
+  useGetActivePayroll,
+  useGetAllActiveBasicSalary,
+} from '@/store/server/features/payroll/payroll/queries';
+import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutation';
+import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-management/_components/criteria-drawer';
+import PayrollCard from './_components/cards';
+import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+import { useExportData } from './_components/excel';
+import { useGenerateBankLetter } from './_components/Latter';
+
+const EmployeeBasicSalary = ({ id }: { id: string }) => {
+  const { data, error } = useGetBasicSalaryById(id);
+  if (error || !data) {
+    return '--';
+  }
+  const employeeBasicSalary =
+    data.find((item: any) => item.status)?.basicSalary || '--';
+  return employeeBasicSalary;
+};
 
 const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  // const { data } = useGetTaxRule();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
 
-  const cardData = [
-    { title: 'Total Amount', value: '7,456,345 ETB', growth: '12.7%' },
-    { title: 'Net Paid Amount', value: '4,000,345 ETB', growth: '12.7%' },
-    { title: 'Total Allowance', value: '4,000,345 ETB', growth: '12.7%' },
-    { title: 'Total Benefit', value: '4,000,345 ETB', growth: '12.7%' },
-    { title: 'Total Deduction', value: '4,000,345 ETB', growth: '12.7%' },
-  ];
+  const { data: allActiveSalary } = useGetAllActiveBasicSalary();
 
-  const dataSource = [
-    {
-      key: '1',
-      name: 'Abraham Dulla',
-      salary: '10,000 ETB',
-      allowance: '10,000 ETB',
-      taxable: '10,000 ETB',
-      benefits: '10,000 ETB',
-      deduction: '10,000 ETB',
-      income: '10,000 ETB',
-      tax: '10,000 ETB',
-      pension: '500 ETB', // Employee Pension
-      companypension: '1000 ETB', // Company Pension
-      costsharing: '300 ETB', // Cost Sharing
-      netincome: '9000 ETB', // Net Income
-    },
-    {
-      key: '2',
-      name: 'Hanna Baptista',
-      salary: '20,000 ETB',
-      allowance: '20,000 ETB',
-      taxable: '20,000 ETB',
-      benefits: '20,000 ETB',
-      deduction: '20,000 ETB',
-      income: '20,000 ETB',
-      tax: '20,000 ETB',
-      pension: '1000 ETB',
-      companypension: '2000 ETB',
-      costsharing: '500 ETB',
-      netincome: '18000 ETB',
-    },
-    {
-      key: '3',
-      name: 'Miracle Geidt',
-      salary: '20,000 ETB',
-      allowance: '20,000 ETB',
-      taxable: '20,000 ETB',
-      benefits: '20,000 ETB',
-      deduction: '20,000 ETB',
-      income: '20,000 ETB',
-      tax: '20,000 ETB',
-      pension: '1200 ETB',
-      companypension: '2400 ETB',
-      costsharing: '600 ETB',
-      netincome: '18000 ETB',
-    },
-    {
-      key: '4',
-      name: 'Rayna Torff',
-      salary: '20,000 ETB',
-      allowance: '20,000 ETB',
-      taxable: '20,000 ETB',
-      benefits: '20,000 ETB',
-      deduction: '20,000 ETB',
-      income: '20,000 ETB',
-      tax: '20,000 ETB',
-      pension: '1500 ETB',
-      companypension: '3000 ETB',
-      costsharing: '700 ETB',
-      netincome: '17000 ETB',
-    },
-    {
-      key: '5',
-      name: 'Giana Lipshutz',
-      salary: '20,000 ETB',
-      allowance: '20,000 ETB',
-      taxable: '20,000 ETB',
-      benefits: '20,000 ETB',
-      deduction: '20,000 ETB',
-      income: '20,000 ETB',
-      tax: '20,000 ETB',
-      pension: '1100 ETB',
-      companypension: '2200 ETB',
-      costsharing: '550 ETB',
-      netincome: '18500 ETB',
-    },
-    {
-      key: '6',
-      name: 'James George',
-      salary: '20,000 ETB',
-      allowance: '20,000 ETB',
-      taxable: '20,000 ETB',
-      benefits: '20,000 ETB',
-      deduction: '20,000 ETB',
-      income: '20,000 ETB',
-      tax: '20,000 ETB',
-      pension: '1300 ETB',
-      companypension: '2600 ETB',
-      costsharing: '600 ETB',
-      netincome: '18400 ETB',
-    },
-  ].filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const {
+    mutate: createPayroll,
+    isLoading: isCreatingPayroll,
+    isSuccess: isCreatePayrollSuccess,
+  } = useCreatePayroll();
+
+  const { exportToExcel } = useExportData();
+  const { generateBankLetter } = useGenerateBankLetter();
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isCreatePayrollSuccess) {
+      notification.success({
+        message: 'Payroll Generated',
+        description: 'Payroll has been successfully generated.',
+      });
+    }
+  }, [isCreatePayrollSuccess, payroll]);
+
+  const handleGeneratePayroll = async () => {
+    if (!allActiveSalary || allActiveSalary.length === 0) {
+      notification.error({
+        message: 'No Active Salaries',
+        description:
+          'There is no active salary data available to generate payroll.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      const payrollData = {
+        payrollItems: allActiveSalary.map((item: any) => ({
+          ...item,
+          basicSalary: parseInt(item.basicSalary, 10),
+        })),
+      };
+      createPayroll(payrollData);
+    } catch (error) {
+      notification.error({
+        message: 'Error Generating Payroll',
+        description: 'An error occurred while generating payroll.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (searchValues: any) => {
+    const queryParams = new URLSearchParams();
+
+    if (searchValues?.employeeId) {
+      queryParams.append('employeeId', searchValues.employeeId);
+    }
+    if (searchValues?.yearId) {
+      queryParams.append('yearId', searchValues.yearId);
+    }
+    if (searchValues?.sessionId) {
+      queryParams.append('sessionId', searchValues.sessionId);
+    }
+    if (searchValues?.monthId) {
+      queryParams.append('monthId', searchValues.monthId);
+    }
+
+    const searchParams = queryParams.toString()
+      ? `?${queryParams.toString()}`
+      : '';
+    setSearchQuery(searchParams);
+    refetch();
+  };
+
+  const handleExportPayroll = async () => {
+    if (!payroll?.payrolls || payroll.payrolls.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      await exportToExcel(payroll.payrolls, columns, 'Payroll Data');
+    } catch (error) {
+      notification.error({
+        message: 'Error Exporting Data',
+        description: 'An error occurred while exporting data.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBankLetter = async (amount: any) => {
+    if (!amount) {
+      notification.error({
+        message: 'Amount Missing',
+        description: 'Please provide the amount for the bank letter.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      await generateBankLetter(amount, payroll?.payrolls);
+    } catch (error) {
+      notification.error({
+        message: 'Error Generating Bank Letter',
+        description: 'An error occurred while generating the bank letter.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const columns = [
     {
       title: 'Full Name',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'employeeId',
+      key: 'employeeId',
       minWidth: 200,
       render: (notused: any, record: any) => {
-        return (
-          <div className="flex gap-2 justify-start items-center">
-            <img
-              src="https://picsum.photos/200"
-              alt="Profile"
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: '50%',
-                objectFit: 'cover',
-              }}
-            />
-            <span>{record.name}</span>
-          </div>
-        );
+        return <EmployeeDetails empId={record?.employeeId} />;
       },
     },
     {
       title: 'Basic Salary',
-      dataIndex: 'salary',
-      key: 'salary',
-      minWidth: 200,
+      dataIndex: 'basicSalary',
+      key: 'basicSalary',
+      minWidth: 150,
+      render: (notused: any, record: any) => {
+        return <EmployeeBasicSalary id={record?.employeeId} />;
+      },
     },
     {
       title: 'Total Allowance',
-      dataIndex: 'allowance',
-      key: 'allowance',
-      minWidth: 200,
-    },
-    {
-      title: 'Taxable Allowance',
-      dataIndex: 'taxable',
-      key: 'taxable',
-      minWidth: 200,
+      dataIndex: 'totalAllowance',
+      key: 'totalAllowance',
+      minWidth: 150,
     },
     {
       title: 'Total Benefits',
-      dataIndex: 'benefits',
-      key: 'benefits',
-      minWidth: 200,
+      dataIndex: 'totalMerit',
+      key: 'totalMerit',
+      minWidth: 150,
     },
     {
       title: 'Total Deduction',
-      dataIndex: 'deduction',
-      key: 'deduction',
-      minWidth: 200,
+      dataIndex: 'totalDeductions',
+      key: 'totalDeductions',
+      minWidth: 150,
     },
     {
       title: 'Gross Income',
-      dataIndex: 'income',
-      key: 'income',
-      minWidth: 200,
+      dataIndex: 'grossSalary',
+      key: 'grossSalary',
+      minWidth: 150,
     },
-    { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 200 },
+    { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 150 },
     {
       title: 'Employee Pension',
       dataIndex: 'pension',
       key: 'pension',
-      minWidth: 200,
-    },
-    {
-      title: 'Company Pension',
-      dataIndex: 'companypension',
-      key: 'companypension',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Cost Sharing',
       dataIndex: 'costsharing',
       key: 'costsharing',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Net Income',
-      dataIndex: 'netincome',
-      key: 'netincome',
-      minWidth: 200,
+      dataIndex: 'netPay',
+      key: 'netPay',
+      minWidth: 150,
     },
   ];
-
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-  };
 
   return (
     <div style={{ padding: '20px' }}>
@@ -211,16 +215,33 @@ const Payroll = () => {
           <Button
             type="default"
             className="text-white bg-violet-300 border-none p-6"
+            onClick={() => {}}
           >
             Export Bank
           </Button>
           <Button
             type="default"
             className="text-white bg-violet-300 border-none p-6"
+            onClick={() => {
+              handleBankLetter(payroll?.totalGrossPaymentAmount);
+            }}
           >
             Bank Letter
           </Button>
-          <Button type="primary" className="p-6">
+          <Button
+            type="default"
+            className="text-white bg-violet-300 border-none p-6"
+            onClick={handleExportPayroll}
+          >
+            Export Payroll
+          </Button>
+          <Button
+            type="primary"
+            className="p-6"
+            onClick={handleGeneratePayroll}
+            loading={isCreatingPayroll || loading}
+            disabled={isCreatingPayroll || loading}
+          >
             Generate Payroll
           </Button>
         </div>
@@ -238,37 +259,34 @@ const Payroll = () => {
         }}
         className="scrollbar-none"
       >
-        {cardData.map((card, index) => (
-          <Col
-            key={index}
-            style={{
-              flex: '0 0 auto',
-              minWidth: '350px',
-            }}
-            className="flex-none"
-          >
-            <Card bordered={false} className="bg-slate-100 my-4">
-              <h3>{card.value}</h3>
-              <p>{card.title}</p>
-              <span style={{ color: 'green' }}>
-                <ArrowUpOutlined /> {card.growth} ↑ vs last pay period
-              </span>
-            </Card>
-          </Col>
-        ))}
+        <PayrollCard
+          title="Total Amount"
+          value={payroll?.totalGrossPaymentAmount}
+        />
+        <PayrollCard
+          title="Net Paid Amount"
+          value={payroll?.totalNetPayAmount}
+        />
+        <PayrollCard
+          title="Total Allowance"
+          value={payroll?.totalAllowanceAmount}
+        />
+
+        <PayrollCard title="Total Benefit" value={payroll?.totalMeritAmount} />
+        <PayrollCard
+          title="Total Deduction"
+          value={payroll?.totalDeductionsAmount}
+        />
       </Row>
       <div className="overflow-x-auto scrollbar-none">
         <Table
-          dataSource={dataSource}
+          dataSource={payroll?.payrolls || []}
           columns={columns}
           pagination={{
             current: currentPage,
-            pageSize: 8,
-            total: 50,
-            showSizeChanger: true,
-            onChange: (page) => setCurrentPage(page),
+            pageSize: 10,
+            onChange: setCurrentPage,
           }}
-          bordered
         />
       </div>
     </div>
