@@ -236,6 +236,7 @@ function Page() {
   const handleRowClick = (record: any) => {
     navigate.push(`/feedback/recognition/${record.id}`);
   };
+
   return (
     <div>
       <Tabs

@@ -1,6 +1,6 @@
 'use client';
 import { Button, Form, Popconfirm, Spin, Table, Tabs } from 'antd';
-import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
+import { TabsProps } from 'antd';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import TabLandingLayout from '@/components/tabLanding';
 import { PiPlus } from 'react-icons/pi';
@@ -8,7 +8,6 @@ import EmployeeSearchComponent from '@/components/common/search/searchComponent'
 import { useEffect, useState } from 'react';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
-// import { FeedbackTypeItems } from '@/store/server/features/conversation/conversationType/interface';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
 import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
@@ -18,6 +17,8 @@ import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { FeedbackService } from './_components/feedbackAnalytics';
+import FeedbackCard from './_components/feedbackCard';
 
 const Page = () => {
   const {
@@ -32,17 +33,24 @@ const Page = () => {
     setActiveTab,
     activeTab,
   } = ConversationStore();
-  const [form] = Form.useForm();
+  const userIdData = useAuthenticationStore.getState().userId;
+
   const { data: getAllUsersData } = useGetAllUsers();
   const { data: getAllFeedbackTypes, isLoading: getFeedbackTypeLoading } =
     useFetchAllFeedbackTypes();
   const { data: getAllFeedbackRecord, isLoading: getFeedbackRecordLoading } =
     useFetchAllFeedbackRecord();
+
+  const [form] = Form.useForm();
+
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
 
   const { data: getAllUsers } = useGetAllUsers();
-  const userIdData = useAuthenticationStore.getState().userId;
   const [filteredFeedbackRecord, setFilteredFeedbackRecord] = useState<any>([]);
+  const feedbackAnaliytics = FeedbackService?.getFeedbackStats(
+    filteredFeedbackRecord,
+  );
+
   const editHandler = (record: any) => {
     setSelectedFeedbackRecord(record);
   };
@@ -241,29 +249,38 @@ const Page = () => {
         />
       </div>
       <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {/* {Array.from({ length: 4 }).map((notused, index) => (
-          <Card key={index} className="bg-gray-100">
-            <div className="flex justify-between">
-              <Avatar className="bg-gray-300 text-green-800 -mt-2">
-                <LuAward />
-              </Avatar>
-              <p className="flex text-xs text-gray-400">
-                <span className="flex text-green-800 mx-2">
-                  <FaLongArrowAltUp /> 12.7%
-                </span>
-                Vs Last Week
-              </p>
-            </div>
-            <p className="text-gray-400 capitalize my-1">
-              Total number of appreciations received
-            </p>
-            <p className="font-bold text-lg">010</p>
-            <p className="flex justify-end text-xs text-gray-400 space-x-2">
-              <LuUsers />
-              <span>87 employees contributed</span>
-            </p>
-          </Card>
-        ))} */}
+        <FeedbackCard
+          appreciationPercentage={feedbackAnaliytics?.appreciationStats?.issued}
+          total={feedbackAnaliytics?.appreciationStats?.totalIssued}
+          contributorCount={feedbackAnaliytics?.appreciationStats?.totalIssued}
+          type="appreciation"
+          textType="appreciationIssued"
+        />
+        <FeedbackCard
+          appreciationPercentage={
+            feedbackAnaliytics?.appreciationStats?.received
+          }
+          total={feedbackAnaliytics?.appreciationStats?.totalReceived}
+          contributorCount={
+            feedbackAnaliytics?.appreciationStats?.totalReceived
+          }
+          type="appreciation"
+          textType="appreciationReceived"
+        />
+        <FeedbackCard
+          appreciationPercentage={feedbackAnaliytics?.reprimandStats?.issued}
+          total={feedbackAnaliytics?.reprimandStats?.totalIssued}
+          contributorCount={feedbackAnaliytics?.reprimandStats?.totalIssued}
+          type="reprimand"
+          textType="reprimandIssued"
+        />
+        <FeedbackCard
+          appreciationPercentage={feedbackAnaliytics?.reprimandStats?.received}
+          total={feedbackAnaliytics?.reprimandStats?.totalReceived}
+          contributorCount={feedbackAnaliytics?.reprimandStats?.totalReceived}
+          type="reprimand"
+          textType="reprimandReceived"
+        />
       </div>
       <Spin spinning={getFeedbackTypeLoading} tip="Loading...">
         <Tabs

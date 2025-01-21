@@ -29,8 +29,8 @@ export class FeedbackService {
     const roundedChange = Math.round(change);
 
     return change > 0
-      ? `${roundedChange}% increase`
-      : `${Math.abs(roundedChange)}% decrease`;
+      ? `${roundedChange ?? 0}% increase`
+      : `${Math.abs(roundedChange ?? 0)}% decrease`;
   }
 
   // Utility to filter feedback data by type, user, and time range
