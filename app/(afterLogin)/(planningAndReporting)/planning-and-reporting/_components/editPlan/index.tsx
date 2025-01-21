@@ -75,9 +75,10 @@ function EditPlan() {
     currentBoardValues = { ...currentBoardValues, planId: planGroupData?.id };
     form.setFieldsValue({ [namesKey]: [...names, currentBoardValues] });
     const fieldValue = form.getFieldValue(namesKey);
-    const totalWeight = fieldValue.reduce((sum: number, field: any) => {
-      return Number(sum) + Number(field.weight || 0);
+    const totalWeight = fieldValue.reduce((sum: number, field: { weight?: number }) => {
+      return sum + Number(field?.weight ?? 0);
     }, 0);
+    
     setWeight(namesKey, totalWeight);
   };
 
@@ -117,35 +118,6 @@ function EditPlan() {
   };
 
   useEffect(() => {
-    // if (planGroupData) {
-    //   const planningUserId = planGroupData?.planningUser?.id;
-    //   const userId = planGroupData?.planningUser?.userId;
-    //   const planningPeriodId = planGroupData?.planningUser?.planningPeriod?.id;
-
-    //   planGroupData.tasks?.forEach((e: any) => {
-    //     const hasMilestone = e?.milestone !== null ? true : false;
-    //     const name = hasMilestone
-    //       ? `${e?.keyResult?.id + e?.milestone?.id}`
-    //       : `${e?.keyResult?.id}`;
-
-    //     handleAddName(
-    //       {
-    //         id: e?.id,
-    //         milestoneId: e?.milestone?.id || null,
-    //         keyResultId: e?.keyResult?.id || null,
-    //         planningPeriodId: planningPeriodId || null,
-    //         planningUserId: planningUserId || null,
-    //         userId: userId || null,
-    //         task: e?.task || '',
-    //         priority: e?.priority || '',
-    //         weight: e?.weight || 0,
-    //         targetValue: e?.targetValue || 0,
-    //         planId: planGroupData?.id,
-    //       },
-    //       name,
-    //     );
-    //   });
-    // }
     if (planningPeriodHierarchy?.parentPlan?.plans) {
       const planningUserId = planGroupData?.planningUser?.id;
       const userId = planGroupData?.planningUser?.userId;
@@ -157,7 +129,7 @@ function EditPlan() {
           const name = hasMilestone
             ? `${e?.keyResult?.id + e?.milestone?.id}`
             : `${e?.keyResult?.id}`;
-
+            console.log(name,"eee")
           handleAddName(
             {
               id: e?.id,
@@ -177,8 +149,39 @@ function EditPlan() {
         },
       );
     }
-  }, [planningPeriodHierarchy?.parentPlan]);
+  }, [planningPeriodHierarchy?.parentPlan]);  
+  // useEffect(() => {
+  //    if (planGroupData) {
+  //     const planningUserId = planGroupData?.planningUser?.id;
+  //     const userId = planGroupData?.planningUser?.userId;
+  //     const planningPeriodId = planGroupData?.planningUser?.planningPeriod?.id;
 
+  //     planGroupData.tasks?.forEach((e: any) => {
+  //       const hasMilestone = e?.milestone !== null ? true : false;
+  //       const name = hasMilestone
+  //         ? `${e?.keyResult?.id + e?.milestone?.id}`
+  //         : `${e?.keyResult?.id}`;
+
+  //       handleAddName(
+  //         {
+  //           id: e?.id,
+  //           milestoneId: e?.milestone?.id || null,
+  //           keyResultId: e?.keyResult?.id || null,
+  //           planningPeriodId: planningPeriodId || null,
+  //           planningUserId: planningUserId || null,
+  //           userId: userId || null,
+  //           task: e?.task || '',
+  //           priority: e?.priority || '',
+  //           weight: e?.weight || 0,
+  //           targetValue: e?.targetValue || 0,
+  //           planId: planGroupData?.id,
+  //         },
+  //         name,
+  //       );
+  //     });
+  //   }
+  // }, [planGroupData]);
+  console.log(planningPeriodHierarchy?.parentPlan,"***")
   return (
     open && (
       <CustomDrawerLayout
@@ -471,12 +474,9 @@ function EditPlan() {
                                   onClick={() => {
                                     setMKAsATask(null);
                                     handleAddBoard(
-                                      task?.keyResult?.id + task?.milestone?.id,
+                                      task?.milestone?.id? task?.keyResult?.id + task?.milestone?.id:task?.keyResult?.id,
                                     );
-                                    console.log(
-                                      task?.keyResult?.id + task?.milestone?.id,
-                                      'dink new',
-                                    );
+                                   
                                   }}
                                   type="link"
                                   icon={<BiPlus size={14} />}
@@ -499,11 +499,11 @@ function EditPlan() {
                             {/* Iterate over milestones within each task */}
 
                           
-                                 <DefaultCardForm
+                            <DefaultCardForm
                                       kId={task?.keyResult?.id}
                                       // hasTargetValue={hasTargetValue}
                                       // hasMilestone={hasMilestone}
-                                      milestoneId={task?.milestone?.id || null}
+                                      milestoneId={null}
                                       name={
                                         task?.milestone?.id
                                         ?`names-${task?.keyResult?.id + task?.milestone?.id}`
@@ -519,17 +519,18 @@ function EditPlan() {
                                     />
                                      
                                     
-                                     <BoardCardForm
+                              <BoardCardForm
                               form={form}
                               handleAddName={handleAddName}
                               handleRemoveBoard={handleRemoveBoard}
                               kId={task?.keyResult?.id}
                               // hideTargetValue={hasTargetValue}
-                              name={task?.keyResult?.id + task?.milestone?.id}
+                              name={ task?.milestone?.id?task?.keyResult?.id + task?.milestone?.id:task?.keyResult?.id}
                               isMKAsTask={mkAsATask ? true : false}
                               keyResult={task?.keyResult}
                               targetValue={task?.targetValue}
                             />
+                            
                             
                           </div>
                         ),
