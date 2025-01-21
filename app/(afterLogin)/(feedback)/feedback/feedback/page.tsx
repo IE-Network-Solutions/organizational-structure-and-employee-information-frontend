@@ -61,7 +61,7 @@ const Page = () => {
   };
 
   useEffect(() => {
-    let data = getAllFeedbackRecord ?? []; // Default to an empty array if data is undefined
+    let data = getAllFeedbackRecord?.items ?? []; // Default to an empty array if data is undefined
     // Filter by variantType
 
     if (variantType) {

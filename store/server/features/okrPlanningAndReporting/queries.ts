@@ -34,6 +34,7 @@ const getPlanningData = async (params: DataType) => {
 
 const getAllUnReportedPlanningTask = async (
   planningPeriodId: string | undefined,
+  forPlan:boolean
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -45,7 +46,7 @@ const getAllUnReportedPlanningTask = async (
   };
 
   return await crudRequest({
-    url: `${OKR_URL}/okr-report-task/users/${userId}/planning-period/${planningPeriodId}`,
+    url: `${OKR_URL}/okr-report-task/users/${userId}/planning-period/${planningPeriodId}?forPlan=${forPlan}`,
     method: 'get',
     headers,
   });
@@ -78,6 +79,21 @@ const getReportingData = async (params: DataType) => {
     url: `${OKR_URL}/okr-report/by-planning-period/${params?.planPeriodId}`,
     method: 'post',
     data: params?.userId.length === 0 ? [''] : params?.userId,
+    headers,
+  });
+};
+
+const getReportingDataById = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/okr-report/${id}`,
+    method: 'get',
     headers,
   });
 };
@@ -131,12 +147,19 @@ export const useGetReporting = (params: DataType) => {
   });
 };
 
+export const useGetReportingById = (id: string) => {
+  return useQuery<any>(['okrReport', id], () => getReportingDataById(id), {
+    enabled: !!id, // Enable the query only when planningPeriodId is defined
+  });
+};
+
 export const useGetUnReportedPlanning = (
   planningPeriodId: string | undefined,
+  forPlan:boolean=true
 ) => {
   return useQuery<any>(
     ['okrReports', planningPeriodId],
-    () => getAllUnReportedPlanningTask(planningPeriodId),
+    () => getAllUnReportedPlanningTask(planningPeriodId,forPlan),
     {
       enabled: !!planningPeriodId, // Enable the query only when planningPeriodId is defined
     },
