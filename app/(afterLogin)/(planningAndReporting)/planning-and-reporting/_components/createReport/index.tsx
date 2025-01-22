@@ -234,11 +234,11 @@ function CreateReport() {
                                               </Radio.Group>
                                               <Tooltip title={task.taskName}>
                                                 <span className="font-medium text-xs truncate">
-                                                  {task.taskName?.length >= 40
+                                                  {task.taskName?.length >= 100
                                                     ? task.taskName?.slice(
                                                         0,
-                                                        40,
-                                                      )
+                                                        100,
+                                                      )+"..."
                                                     : task.taskName}
                                                 </span>
                                               </Tooltip>

@@ -1,6 +1,6 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { Button, Collapse, Divider, Form, Tooltip } from 'antd';
+import { Button, Collapse, Divider, Form, Spin, Tooltip } from 'antd';
 import { BiPlus } from 'react-icons/bi';
 import BoardCardForm from '../planForms/boardFormView';
 import { useCreatePlanTasks } from '@/store/server/features/employees/planning/mutation';
@@ -41,7 +41,7 @@ function CreatePlan() {
   const { data: planningPeriods } = AllPlanningPeriods();
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
-  const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
+  const { data: planningPeriodHierarchy,isLoading:loadingPlanningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
     userId,
     planningPeriodId || '', // Provide a default string value if undefined
   );
@@ -107,6 +107,7 @@ function CreatePlan() {
       },
     );
   };
+  console.log(planningPeriodHierarchy?.parentPlan, 'planningPeriodHierarchy');
   return (
     open && (
       <CustomDrawerLayout
@@ -116,6 +117,9 @@ function CreatePlan() {
         width={'60%'}
         paddingBottom={10}
       >
+      {loadingPlanningPeriodHierarchy  ? <div className="flex items-center justify-center min-h-screen">
+    <Spin size="large"  tip="Loading...." />
+  </div>:  
         <Form
           layout="vertical"
           form={form}
@@ -229,6 +233,7 @@ function CreatePlan() {
                                                 icon={<BiPlus size={14} />}
                                                 iconPosition="start"
                                                 className="text-[10px]"
+                                                disabled={ml?.status === 'Completed'}
                                               >
                                                 Add Plan Task
                                               </Button>
@@ -237,11 +242,12 @@ function CreatePlan() {
                                                 NAME.MILESTONE && (
                                                 <Tooltip title="Plan Milestone as a Task">
                                                   <Button
+                                                    disabled={ml?.status === 'Completed'}
                                                     size="small"
                                                     className="text-[10px] text-primary"
                                                     icon={<FaPlus />}
                                                     onClick={() => {
-                                                      setMKAsATask(ml?.title);
+                                                      setMKAsATask({ title: ml?.title, mid: ml?.id });
                                                       handleAddBoard(
                                                         kr?.id + ml?.id,
                                                       );
@@ -287,6 +293,7 @@ function CreatePlan() {
                                             <BoardCardForm
                                               form={form}
                                               handleAddName={handleAddName}
+                                              milestoneId={ml?.id}
                                               handleRemoveBoard={
                                                 handleRemoveBoard
                                               }
@@ -395,7 +402,9 @@ function CreatePlan() {
                                   onClick={() => {
                                     setMKAsATask(null);
                                     handleAddBoard(
-                                      task?.keyResult?.id + task?.milestone?.id,
+                                      task?.keyResult?.id +
+                                        task?.milestone?.id +
+                                        task?.id,
                                     );
                                   }}
                                   type="link"
@@ -407,7 +416,7 @@ function CreatePlan() {
                                 </Button>
                                 <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
                                   {weights[
-                                    `names-${task?.keyResult?.id + task?.milestone?.id}`
+                                    `names-${task?.keyResult?.id + task?.milestone?.id + task?.id}`
                                   ] || 0}
                                   %
                                 </div>
@@ -421,7 +430,7 @@ function CreatePlan() {
                               // hasTargetValue={hasTargetValue}
                               // hasMilestone={hasMilestone}
                               milestoneId={task?.milestone?.id}
-                              name={`names-${task?.keyResult?.id + task?.milestone?.id}`}
+                              name={`names-${task?.keyResult?.id + task?.milestone?.id + task?.id}`}
                               form={form}
                               planningPeriodId={planningPeriodId || ''}
                               userId={userId}
@@ -438,7 +447,11 @@ function CreatePlan() {
                               handleRemoveBoard={handleRemoveBoard}
                               kId={task?.keyResult?.id}
                               // hideTargetValue={hasTargetValue}
-                              name={task?.keyResult?.id + task?.milestone?.id}
+                              name={
+                                task?.keyResult?.id +
+                                task?.milestone?.id +
+                                task?.id
+                              }
                               isMKAsTask={mkAsATask ? true : false}
                               keyResult={task?.keyResult}
                               targetValue={task?.targetValue}
@@ -482,7 +495,7 @@ function CreatePlan() {
               Cancel
             </Button>
           </Form.Item>
-        </Form>
+        </Form>}
       </CustomDrawerLayout>
     )
   );

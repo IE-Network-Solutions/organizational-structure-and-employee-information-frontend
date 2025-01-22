@@ -70,6 +70,8 @@ function EditReport() {
     </div>
   );
 
+  console.log(reportedData, 'allUnReportedPlanningTask');
+
   const handleOnFinish = (values: Record<string, any>) => {
     Object.entries(values).length > 0 &&
       editReport(
@@ -243,18 +245,15 @@ function EditReport() {
 
                                               <Radio.Group
                                                 className="text-xs"
-                                                onChange={
-                                                  (e) =>
-                                                    setStatus(
-                                                      task.taskId,
-                                                      e.target.value,
-                                                    ) // Correctly update the status
+                                                onChange={(e) =>
+                                                  setStatus(
+                                                    task.taskId,
+                                                    e.target.value,
+                                                  )
                                                 }
                                                 value={
-                                                  selectedStatuses[
-                                                    task.taskId
-                                                  ] || 'Not'
-                                                } // Fallback to "Not" if no status
+                                                  selectedStatuses[task.taskId]
+                                                } // Bind value from Zustand
                                               >
                                                 <Radio value="Done">Done</Radio>
                                                 <Radio value="Not">Not</Radio>
