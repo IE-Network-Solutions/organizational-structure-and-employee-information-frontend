@@ -69,33 +69,6 @@ const Page = () => {
     });
   };
 
-  // useEffect(() => {
-  //   let data = getAllFeedbackRecord?.items ?? []; // Default to an empty array if data is undefined
-  //   // Filter by variantType
-
-  //   if (variantType) {
-  //     data = data.filter(
-  //       (item: any) => item?.feedbackVariant?.variant === variantType,
-  //     );
-  //   }
-
-  //   // Filter by activeTab
-  //   if (activeTab) {
-  //     data = data.filter((item: any) => item?.feedbackTypeId === activeTab);
-  //   }
-
-  //   // // Filter by userId
-  //   if (userId !== 'all') {
-  //     data = data.filter(
-  //       (item: any) =>
-  //         item?.recipientId === userId || item?.issuerId === userId,
-  //     );
-  //   }
-
-  //   // Update the state with the filtered data
-  //   setFilteredFeedbackRecord(data);
-  // }, [getAllFeedbackRecord, variantType, activeTab, userId, userIdData]);
-
   const onChange = (key: string) => {
     setVariantType(key === 'appreciation' ? 'appreciation' : 'reprimand');
   };
