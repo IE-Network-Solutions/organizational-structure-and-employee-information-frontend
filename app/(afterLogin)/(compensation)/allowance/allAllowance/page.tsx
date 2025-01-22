@@ -1,16 +1,33 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { Button } from 'antd';
+import { Button, Input, Space } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AllAllowanceTable from './_components/allAllowanceTable';
+import { SearchOutlined } from '@ant-design/icons';
 
-const AllAllowancePage = () => {
+const AllAllowancePage: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchChange = (e: any) => {
+    setSearchQuery(e.target.value);
+  };
   return (
     <>
-      <PageHeader title="All Allowance Entitlement" size="small">
+      <PageHeader title="All Allowance Entitlement" size="small" />
+      <Space
+        direction="horizontal"
+        size="large"
+        style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
+      >
+        <Input
+          addonBefore={<SearchOutlined />}
+          placeholder="Search by name"
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
         <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
           <Button
             size="large"
@@ -23,8 +40,8 @@ const AllAllowancePage = () => {
             Employees
           </Button>
         </AccessGuard>
-      </PageHeader>
-      <AllAllowanceTable />
+      </Space>
+      <AllAllowanceTable searchQuery={searchQuery} />
     </>
   );
 };
