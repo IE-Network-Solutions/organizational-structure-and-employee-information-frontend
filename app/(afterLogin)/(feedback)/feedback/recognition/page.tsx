@@ -4,7 +4,8 @@ import TabLandingLayout from '@/components/tabLanding';
 import { useCreateRecognition } from '@/store/server/features/CFR/recognition/mutation';
 import {
   useGetAllRecognition,
-  useGetAllRecognitionType,
+  useGetAllRecognitionData,
+  useGetTotalRecognition,
 } from '@/store/server/features/CFR/recognition/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
@@ -40,7 +41,9 @@ function Page() {
     pageSize,
   } = useRecongnitionStore();
   const { data: allUserData } = useGetAllUsers();
-  const { data: recognitionType } = useGetAllRecognitionType();
+  const { data: recognitionType } = useGetAllRecognitionData();
+  const { data: totalRecogniion } = useGetTotalRecognition();
+
   const { data: getAllRecognition } = useGetAllRecognition({
     searchValue,
     current,
@@ -51,7 +54,6 @@ function Page() {
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
   const { data: getAllFisicalYear } = useGetAllFiscalYears();
   const navigate = useRouter();
-
   useEffect(() => {
     if (getActiveFisicalYear) {
       const fiscalActiveYearId = getActiveFisicalYear?.id;
@@ -147,19 +149,32 @@ function Page() {
       label: 'All',
       children: (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((notused, index) => (
-            <Card
-              className="bg-gray-200 font-bold"
-              key={`all-card-${index}`}
-              style={{ width: '100%' }} // Full width in grid cells
-            >
-              <p className="flex justify-start items-center text-green-600 font-extrabold text-xl">
-                <CiMedal />
-              </p>
-              <p>Total number of recognized employees</p>
-              <p>010</p>
-            </Card>
-          ))}
+          <Card
+            className="bg-gray-100 font-bold"
+            key={`all-card-${1}`}
+            style={{ width: '100%' }} // Full width in grid cells
+          >
+            <p className="flex justify-start items-center text-green-600 font-extrabold text-xl">
+              <CiMedal />
+            </p>
+            <p className="text-gray-400 text-xs mt-4">
+              Total number of recognized employees
+            </p>
+            <p>{`0${totalRecogniion?.totalRecognitions ?? 0}`}</p>
+          </Card>
+          <Card
+            className="bg-gray-100 font-bold"
+            key={`all-card-${2}`}
+            style={{ width: '100%' }} // Full width in grid cells
+          >
+            <p className="flex justify-start items-center text-green-600 font-extrabold text-xl">
+              <CiMedal />
+            </p>
+            <p className="text-gray-400 text-xs mt-4">
+              Total number of Criteria
+            </p>
+            <p>{`0${totalRecogniion?.totalCriteria ?? 0}`}</p>
+          </Card>
         </div>
       ),
     },
@@ -249,7 +264,7 @@ function Page() {
           buttonDisabled={
             !fiscalActiveYearId || !activeMonthId || !activeSessionId
           }
-          disabledMessage={'make sure you have active session id'}
+          disabledMessage={'make sure you have active session'}
           buttonTitle={
             selectedRecognitionType !== '1' ? 'Generate Recognition' : false
           }
@@ -257,7 +272,7 @@ function Page() {
         >
           <EmployeeSearchComponent
             fields={searcFields}
-            onChange={handleSearchChange}
+            onChange={(value) => handleSearchChange(value.key, value.value)}
           />
           <Table<any>
             columns={columns}

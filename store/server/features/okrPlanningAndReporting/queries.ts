@@ -6,6 +6,7 @@ import { AssignedPlanningPeriodLogArray } from './interface';
 interface DataType {
   userId: string[] | [];
   planPeriodId: string;
+  page?: number;
 }
 const getPlanningData = async (params: DataType) => {
   const token = useAuthenticationStore.getState().token;
@@ -15,6 +16,14 @@ const getPlanningData = async (params: DataType) => {
     Authorization: `Bearer ${token}`,
   };
 
+  if (params?.page) {
+    return await crudRequest({
+      url: `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}?page=${params?.page}`,
+      method: 'post',
+      data: params?.userId.length === 0 ? [''] : params?.userId,
+      headers,
+    });
+  }
   return await crudRequest({
     url: `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}`,
     method: 'post',

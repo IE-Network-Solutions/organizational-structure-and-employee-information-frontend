@@ -1,24 +1,45 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Table, Card, Row, Col, Button, notification } from 'antd';
-import { ArrowUpOutlined } from '@ant-design/icons';
+import { Table, Row, Button, notification } from 'antd';
 import Filters from './_components/filters';
 import {
+  useGetActivePayroll,
   useGetAllActiveBasicSalary,
-  useGetPayRoll,
 } from '@/store/server/features/payroll/payroll/queries';
 import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutation';
 import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-management/_components/criteria-drawer';
+import PayrollCard from './_components/cards';
+import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+import { useExportData } from './_components/excel';
+import { useGenerateBankLetter } from './_components/Latter';
+
+const EmployeeBasicSalary = ({ id }: { id: string }) => {
+  const { data, error } = useGetBasicSalaryById(id);
+  if (error || !data) {
+    return '--';
+  }
+  const employeeBasicSalary =
+    data.find((item: any) => item.status)?.basicSalary || '--';
+  return employeeBasicSalary;
+};
 
 const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const { data: payroll } = useGetPayRoll();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
+
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
+
   const {
     mutate: createPayroll,
     isLoading: isCreatingPayroll,
     isSuccess: isCreatePayrollSuccess,
   } = useCreatePayroll();
+
+  const { exportToExcel } = useExportData();
+  const { generateBankLetter } = useGenerateBankLetter();
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isCreatePayrollSuccess) {
@@ -27,9 +48,7 @@ const Payroll = () => {
         description: 'Payroll has been successfully generated.',
       });
     }
-  }, [isCreatePayrollSuccess]);
-
-  const [loading, setLoading] = useState(false);
+  }, [isCreatePayrollSuccess, payroll]);
 
   const handleGeneratePayroll = async () => {
     if (!allActiveSalary || allActiveSalary.length === 0) {
@@ -42,7 +61,13 @@ const Payroll = () => {
     }
     setLoading(true);
     try {
-      createPayroll(allActiveSalary);
+      const payrollData = {
+        payrollItems: allActiveSalary.map((item: any) => ({
+          ...item,
+          basicSalary: parseInt(item.basicSalary, 10),
+        })),
+      };
+      createPayroll(payrollData);
     } catch (error) {
       notification.error({
         message: 'Error Generating Payroll',
@@ -53,13 +78,70 @@ const Payroll = () => {
     }
   };
 
-  const cardData = [
-    { title: 'Total Amount', value: '7,456,345 ETB', growth: '12.7%' },
-    { title: 'Net Paid Amount', value: '4,000,345 ETB', growth: '12.7%' },
-    { title: 'Total Allowance', value: '4,000,345 ETB', growth: '12.7%' },
-    { title: 'Total Benefit', value: '4,000,345 ETB', growth: '12.7%' },
-    { title: 'Total Deduction', value: '4,000,345 ETB', growth: '12.7%' },
-  ];
+  const handleSearch = (searchValues: any) => {
+    const queryParams = new URLSearchParams();
+
+    if (searchValues?.employeeId) {
+      queryParams.append('employeeId', searchValues.employeeId);
+    }
+    if (searchValues?.yearId) {
+      queryParams.append('yearId', searchValues.yearId);
+    }
+    if (searchValues?.sessionId) {
+      queryParams.append('sessionId', searchValues.sessionId);
+    }
+    if (searchValues?.monthId) {
+      queryParams.append('monthId', searchValues.monthId);
+    }
+
+    const searchParams = queryParams.toString()
+      ? `?${queryParams.toString()}`
+      : '';
+    setSearchQuery(searchParams);
+    refetch();
+  };
+
+  const handleExportPayroll = async () => {
+    if (!payroll?.payrolls || payroll.payrolls.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      await exportToExcel(payroll.payrolls, columns, 'Payroll Data');
+    } catch (error) {
+      notification.error({
+        message: 'Error Exporting Data',
+        description: 'An error occurred while exporting data.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBankLetter = async (amount: any) => {
+    if (!amount) {
+      notification.error({
+        message: 'Amount Missing',
+        description: 'Please provide the amount for the bank letter.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      await generateBankLetter(amount, payroll?.payrolls);
+    } catch (error) {
+      notification.error({
+        message: 'Error Generating Bank Letter',
+        description: 'An error occurred while generating the bank letter.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const columns = [
     {
@@ -73,62 +155,58 @@ const Payroll = () => {
     },
     {
       title: 'Basic Salary',
-      dataIndex: 'netPay',
-      key: 'netPay',
-      minWidth: 200,
+      dataIndex: 'basicSalary',
+      key: 'basicSalary',
+      minWidth: 150,
+      render: (notused: any, record: any) => {
+        return <EmployeeBasicSalary id={record?.employeeId} />;
+      },
     },
     {
       title: 'Total Allowance',
       dataIndex: 'totalAllowance',
       key: 'totalAllowance',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Total Benefits',
       dataIndex: 'totalMerit',
       key: 'totalMerit',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Total Deduction',
       dataIndex: 'totalDeductions',
       key: 'totalDeductions',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Gross Income',
       dataIndex: 'grossSalary',
       key: 'grossSalary',
-      minWidth: 200,
+      minWidth: 150,
     },
-    { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 200 },
+    { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 150 },
     {
       title: 'Employee Pension',
       dataIndex: 'pension',
       key: 'pension',
-      minWidth: 200,
-    },
-    {
-      title: 'Company Pension',
-      dataIndex: 'companypension',
-      key: 'companypension',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Cost Sharing',
       dataIndex: 'costsharing',
       key: 'costsharing',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Net Income',
-      dataIndex: 'netincome',
-      key: 'netincome',
-      minWidth: 200,
+      dataIndex: 'netPay',
+      key: 'netPay',
+      minWidth: 150,
     },
   ];
 
-  const handleSearch = () => {};
   return (
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4">
@@ -137,14 +215,25 @@ const Payroll = () => {
           <Button
             type="default"
             className="text-white bg-violet-300 border-none p-6"
+            onClick={() => {}}
           >
             Export Bank
           </Button>
           <Button
             type="default"
             className="text-white bg-violet-300 border-none p-6"
+            onClick={() => {
+              handleBankLetter(payroll?.totalGrossPaymentAmount);
+            }}
           >
             Bank Letter
+          </Button>
+          <Button
+            type="default"
+            className="text-white bg-violet-300 border-none p-6"
+            onClick={handleExportPayroll}
+          >
+            Export Payroll
           </Button>
           <Button
             type="primary"
@@ -170,37 +259,34 @@ const Payroll = () => {
         }}
         className="scrollbar-none"
       >
-        {cardData.map((card, index) => (
-          <Col
-            key={index}
-            style={{
-              flex: '0 0 auto',
-              minWidth: '350px',
-            }}
-            className="flex-none"
-          >
-            <Card bordered={false} className="bg-slate-100 my-4">
-              <h3>{card.value}</h3>
-              <p>{card.title}</p>
-              <span style={{ color: 'green' }}>
-                <ArrowUpOutlined /> {card.growth} ↑ vs last pay period
-              </span>
-            </Card>
-          </Col>
-        ))}
+        <PayrollCard
+          title="Total Amount"
+          value={payroll?.totalGrossPaymentAmount}
+        />
+        <PayrollCard
+          title="Net Paid Amount"
+          value={payroll?.totalNetPayAmount}
+        />
+        <PayrollCard
+          title="Total Allowance"
+          value={payroll?.totalAllowanceAmount}
+        />
+
+        <PayrollCard title="Total Benefit" value={payroll?.totalMeritAmount} />
+        <PayrollCard
+          title="Total Deduction"
+          value={payroll?.totalDeductionsAmount}
+        />
       </Row>
       <div className="overflow-x-auto scrollbar-none">
         <Table
-          dataSource={payroll}
+          dataSource={payroll?.payrolls || []}
           columns={columns}
           pagination={{
             current: currentPage,
-            pageSize: 8,
-            total: 50,
-            showSizeChanger: true,
-            onChange: (page) => setCurrentPage(page),
+            pageSize: 10,
+            onChange: setCurrentPage,
           }}
-          bordered
         />
       </div>
     </div>

@@ -1,6 +1,6 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { PAYROLL_DEV_URL } from '@/utils/constants';
+import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -10,7 +10,7 @@ const createPayroll = async (values: any) => {
 
   try {
     await crudRequest({
-      url: `${PAYROLL_DEV_URL}/payroll`,
+      url: `${PAYROLL_URL}/payroll`,
       method: 'POST',
       data: values,
       headers: {
@@ -35,10 +35,11 @@ export const useCreatePayroll = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('payroll');
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message;
       NotificationMessage.error({
-        message: error + '',
-        description: 'PayRoll Creation Failed.',
+        message: 'PayRoll Creation Failed',
+        description: errorMessage,
       });
     },
   });

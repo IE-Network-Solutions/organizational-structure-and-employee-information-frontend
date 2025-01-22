@@ -1,5 +1,5 @@
 'use client';
-import { Table, Button, Input, Popconfirm } from 'antd';
+import { Table, Button, Popconfirm, Form, Select } from 'antd';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
 import PlanningAssignationDrawer from './_components/planning-assignation-drawer';
@@ -24,12 +24,20 @@ import { Permissions } from '@/types/commons/permissionEnum';
 // Define columns with correct type
 
 const PlanAssignment: React.FC = () => {
-  const { setSelectedPlanningUser, setPage, page, pageSize, setPageSize } =
-    useOKRSettingStore();
+  const {
+    userId,
+    setUserId,
+    setSelectedPlanningUser,
+    setPage,
+    page,
+    pageSize,
+    setPageSize,
+  } = useOKRSettingStore();
   const { mutate: deletePlanningAssign } = useDeletePlanningUser();
   const { data: allUserWithPlanningPeriod } = useGetAllAssignedUser(
     page,
     pageSize,
+    userId || '',
   );
   const { data: getAllPlanningPeriod } = useGetAllPlanningPeriods();
   const { data: employeeData } = useGetAllUsers();
@@ -52,8 +60,8 @@ const PlanAssignment: React.FC = () => {
     );
 
     // Destructure firstName and lastName with fallback
-    const firstName = employee?.firstName || 'unknown';
-    const lastName = employee?.lastName || 'unknown';
+    const firstName = employee?.firstName || '-';
+    const lastName = employee?.lastName || '';
 
     return `${firstName} ${lastName}`;
   };
@@ -92,6 +100,10 @@ const PlanAssignment: React.FC = () => {
       },
     });
   }
+  const onChange = (value: string | undefined) => {
+    const id = value ? value : null;
+    setUserId(id);
+  };
 
   const dataSources = userToPlanning?.map((item: any, index: number) => ({
     id: index + 1, // Assigning a unique id based on the index
@@ -170,11 +182,21 @@ const PlanAssignment: React.FC = () => {
         </AccessGuard>
       </div>
 
-      <Input.Search
-        placeholder="Search Rule"
-        className="mb-4"
-        style={{ width: 300 }}
-      />
+      <Form.Item id="filterByLeaveRequestUserIds" name="userIds">
+        <Select
+          placeholder="Select a person"
+          showSearch
+          style={{ width: 300 }}
+          className="mb-4"
+          allowClear
+          optionFilterProp="label"
+          onChange={onChange}
+          options={employeeData?.items?.map((list: any) => ({
+            value: list?.id,
+            label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+          }))}
+        />
+      </Form.Item>
 
       <Table
         dataSource={dataSources}

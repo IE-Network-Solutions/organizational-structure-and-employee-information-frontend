@@ -40,9 +40,9 @@ function BoardCardForm({
           {subfields.map(({ key, name: subName, ...restSubField }) => (
             <Form.Item
               required={false}
-              className="border-2 border-primary p-4 rounded-lg m-4 shadow-lg"
+              className="border-2 border-primary px-4 py-2 rounded-lg m-4 shadow-lg "
               key={key}
-              label={'Task'}
+              label={<div className="text-xs">Task</div>}
             >
               <Form.Item
                 {...restSubField}
@@ -55,6 +55,7 @@ function BoardCardForm({
                 <Input
                   disabled={isMKAsTask}
                   placeholder="Add your tasks here"
+                  className="text-[12px]"
                 />
               </Form.Item>
               <Form.Item
@@ -66,12 +67,12 @@ function BoardCardForm({
               >
                 <Input type="hidden" />
               </Form.Item>
-              <Divider className="mt-4" />
+              <Divider className="mt-2 mb-2" />
               {(keyResult?.metricType?.name != NAME.ACHIEVE ||
                 keyResult?.metricType?.name != NAME.MILESTONE) && (
                 <Form.Item
                   hidden={hideTargetValue}
-                  label="Target"
+                  label={<div className="text-xs">Target</div>}
                   {...restSubField}
                   name={[subName, 'targetValue']}
                   key={`${subName}-targetValue`}
@@ -133,7 +134,7 @@ function BoardCardForm({
                   ]}
                 >
                   <InputNumber
-                    className="w-28"
+                    className="w-28 text-xs"
                     defaultValue={0} // Set a default value to avoid null issues
                     formatter={(value) =>
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -146,7 +147,7 @@ function BoardCardForm({
                 <Col>
                   <Space size={10}>
                     <Form.Item
-                      label="Weight"
+                      label={<div className="text-xs">Weight</div>}
                       {...restSubField}
                       name={[subName, 'weight']}
                       key={`${subName}-weight`} // Unique key for weight
@@ -156,13 +157,13 @@ function BoardCardForm({
                     >
                       <InputNumber
                         placeholder={'0'}
-                        className="w-28"
+                        className="w-28 text-xs"
                         min={0}
                         max={100}
                       />
                     </Form.Item>
                     <Form.Item
-                      label="Priority"
+                      label={<div className="text-xs">Priority</div>}
                       {...restSubField}
                       name={[subName, 'priority']}
                       key={`${subName}-priority`} // Unique key for priority
@@ -171,19 +172,27 @@ function BoardCardForm({
                       ]}
                     >
                       <Select
-                        placeholder="Select Priority"
-                        className="w-28"
+                        placeholder={
+                          <div className="text-xs">Select Priority</div>
+                        }
+                        className="w-32 h-7"
                         options={[
                           {
-                            label: <div className="text-error">High</div>,
+                            label: (
+                              <div className="text-error text-xs">High</div>
+                            ),
                             value: 'high',
                           },
                           {
-                            label: <div className="text-warning">Medium</div>,
+                            label: (
+                              <div className="text-warning text-xs">Medium</div>
+                            ),
                             value: 'medium',
                           },
                           {
-                            label: <div className="text-success">Low</div>,
+                            label: (
+                              <div className="text-success text-xs">Low</div>
+                            ),
                             value: 'low',
                           },
                         ]}

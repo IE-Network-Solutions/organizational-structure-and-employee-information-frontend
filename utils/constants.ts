@@ -1,5 +1,4 @@
 export const ORG_AND_EMP_URL = process.env.ORG_AND_EMP_URL;
-export const PAYROLL_DEV_URL = process.env.PAYROLL_DEV_URL;
 export const OKR_URL = process.env.OKR_URL;
 export const PAYROLL_URL = process.env.PAYROLL_URL;
 

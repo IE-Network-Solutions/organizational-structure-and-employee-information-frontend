@@ -21,15 +21,23 @@ const fetchFeedbackRecordById = async (id: string) => {
     headers,
   });
 };
-const fetchAllFeedbackRecord = async () => {
+const fetchAllFeedbackRecord = async (
+  pageSize: number,
+  page: number,
+  empId: string,
+  date: string[],
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
     Authorization: `Bearer ${token}`,
   };
+  const url = date?.length
+    ? `${ORG_DEV_URL}/feedback-record?limit=${pageSize}&page=${page}&startDate=${date[0]}&endDate=${date[1]}&useId=${empId}`
+    : `${ORG_DEV_URL}/feedback-record?limit=${pageSize}&page=${page}&useId=${empId}`;
   return await crudRequest({
-    url: `${ORG_DEV_URL}/feedback-record`,
+    url: url,
     method: 'GET',
     headers,
   });
@@ -44,10 +52,16 @@ export const useFetchFeedbackRecordById = (id: string) => {
   );
 };
 export const useFetchAllFeedbackRecord = (
-  pageSize?: number,
-  current?: number,
+  pageSize: number,
+  page: number,
+  empId?: string,
+  date: string[] = [],
 ) => {
-  return useQuery(['feedbackRecord', pageSize, current], () =>
-    fetchAllFeedbackRecord(),
+  return useQuery(
+    ['feedbackRecord', pageSize, page, empId, date],
+    () => fetchAllFeedbackRecord(pageSize, page, empId || '', date || []),
+    {
+      enabled: !!empId, // Ensure the query is enabled only when empId is defined
+    },
   );
 };
