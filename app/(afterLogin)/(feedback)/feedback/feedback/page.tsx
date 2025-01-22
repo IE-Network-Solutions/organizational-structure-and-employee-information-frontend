@@ -45,7 +45,7 @@ const Page = () => {
   const { data: getAllFeedbackTypes, isLoading: getFeedbackTypeLoading } =
     useFetchAllFeedbackTypes();
   const { data: getAllFeedbackRecord, isLoading: getFeedbackRecordLoading } =
-    useFetchAllFeedbackRecord(pageSize, page, empId, givenDate);
+    useFetchAllFeedbackRecord(pageSize, page, empId || '', givenDate);
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
 
   const { data: getAllUsers } = useGetAllUsers();

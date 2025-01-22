@@ -145,27 +145,30 @@ function CreateReport() {
                             {keyresult?.title}
                           </p>
                           <Text className="rounded-lg px-1   border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
-                            {// Calculate weight from keyResult.tasks
-                            keyresult?.tasks?.reduce(
-                              (taskWeight: number, task: any) => {
-                                return taskWeight + Number(task?.weight || 0);
-                              },
-                              0,
-                            ) +
-                              // Calculate weight from keyResult.milestones.tasks
-                              keyresult?.milestones?.reduce(
-                                (totalWeight: number, milestone: any) => {
-                                  return (
-                                    totalWeight +
-                                    (milestone?.tasks?.reduce(
-                                      (taskWeight: number, task: any) =>
-                                        taskWeight + Number(task?.weight || 0),
-                                      0,
-                                    ) || 0)
-                                  );
+                            {
+                              // Calculate weight from keyResult.tasks
+                              keyresult?.tasks?.reduce(
+                                (taskWeight: number, task: any) => {
+                                  return taskWeight + Number(task?.weight || 0);
                                 },
                                 0,
-                              ) || 0}
+                              ) +
+                                // Calculate weight from keyResult.milestones.tasks
+                                keyresult?.milestones?.reduce(
+                                  (totalWeight: number, milestone: any) => {
+                                    return (
+                                      totalWeight +
+                                      (milestone?.tasks?.reduce(
+                                        (taskWeight: number, task: any) =>
+                                          taskWeight +
+                                          Number(task?.weight || 0),
+                                        0,
+                                      ) || 0)
+                                    );
+                                  },
+                                  0,
+                                ) || 0
+                            }
                             %
                           </Text>
                         </Row>
@@ -231,11 +234,11 @@ function CreateReport() {
                                               </Radio.Group>
                                               <Tooltip title={task.taskName}>
                                                 <span className="font-medium text-xs truncate">
-                                                  {task.taskName?.length >= 40
+                                                  {task.taskName?.length >= 100
                                                     ? task.taskName?.slice(
                                                         0,
-                                                        40,
-                                                      )
+                                                        100,
+                                                      )+"..."
                                                     : task.taskName}
                                                 </span>
                                               </Tooltip>

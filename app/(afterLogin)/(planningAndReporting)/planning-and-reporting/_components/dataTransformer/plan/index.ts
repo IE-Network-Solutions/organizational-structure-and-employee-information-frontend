@@ -56,10 +56,36 @@ const groupByMilestone = (tasks: any[]) => {
   }, {}); // Start with an empty object
   return Object.values(milestoneMap);
 };
-export const groupPlanTasksByKeyResultAndMilestone = (plans: any) => {
-  console.log(plans, '()()');
-  const groupedDataByKeyResult = groupTasksByKeyResultId(plans);
 
+const groupByParentTask = (tasks: any[]) => {
+  const parentTaskMap = tasks.reduce((acc: any, task: any) => {
+    const parentTask = task.parentTaskId;
+    const parentTaskId = parentTask.id;
+    if (!acc[parentTaskId]) {
+      acc[parentTaskId] = {
+        ...parentTask, // Include milestone properties (id, name, etc.)
+        tasks: [], // Initialize an empty tasks array
+      };
+    }
+    acc[parentTaskId].tasks.push({
+      id: task.id,
+      task: task.task,
+      priority: task.priority,
+      createdAt: task.createdAt,
+      updatedAt: task.updatedAt,
+      targetValue: task.targetValue,
+      weight: task.weight,
+      parentTask: task?.parentTask,
+      keyResult: { ...task.keyResult }, // Optionally include keyResult data
+    });
+    return acc;
+  }, {}); // Start with an empty object
+  return Object.values(parentTaskMap);
+};
+export const groupPlanTasksByKeyResultAndMilestone = (plans: any) => {
+ 
+  const groupedDataByKeyResult = groupTasksByKeyResultId(plans);
+ 
   return groupedDataByKeyResult?.map((plan: any) => {
     return {
       ...plan,
@@ -67,9 +93,15 @@ export const groupPlanTasksByKeyResultAndMilestone = (plans: any) => {
         const tasksWithoutMilestone = keyResult?.tasks?.filter(
           (task: any) => !task.milestone,
         );
+         
+
         const milestones = groupByMilestone(
           keyResult?.tasks?.filter((task: any) => task.milestone),
         );
+        milestones.forEach((milestone: any) => {
+          const groupTasksByParentTask=groupByParentTask(milestone?.tasks)
+        });
+         
         return {
           ...keyResult,
           tasks: tasksWithoutMilestone, // Tasks without a milestone
@@ -79,3 +111,4 @@ export const groupPlanTasksByKeyResultAndMilestone = (plans: any) => {
     };
   });
 };
+

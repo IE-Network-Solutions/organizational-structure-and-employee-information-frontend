@@ -68,8 +68,10 @@ function Reporting() {
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '',
   });
-  const { data: allUnReportedPlanningTask } =
-    useGetUnReportedPlanning(planningPeriodId,true);
+  const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(
+    planningPeriodId,
+    true,
+  );
 
   const activeTabName =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
@@ -253,7 +255,7 @@ function Reporting() {
                             </div>
                           </Col>
                           <Col className="text-xs -ml-3">
-                            {dataItem?.plan?.isValidated ? 'Closed' : 'Open'}
+                            {dataItem?.plan?.isReportValidated ? 'Closed' : 'Open'}
                           </Col>
                         </Row>
                         <Col
@@ -266,10 +268,10 @@ function Reporting() {
                                 'MMMM D YYYY, h:mm:ss A',
                               )}
                             </span>
-                            {userId ===
+                            {/* {userId ===
                               getEmployeeData(
                                 dataItem?.userId ?? dataItem?.createdBy,
-                              )?.reportingTo?.id && (
+                              )?.reportingTo?.id && ( */}
                               <Dropdown
                                 overlay={actionsMenu(
                                   dataItem,
@@ -286,7 +288,7 @@ function Reporting() {
                                   className="cursor-pointer text-green border-none  hover:text-success"
                                 />
                               </Dropdown>
-                             )} 
+                            {/* )} */}
                             {userId ===
                               (dataItem?.userId ?? dataItem?.createdBy) &&
                               dataItem?.plan?.isReportValidated == false && (
@@ -305,7 +307,7 @@ function Reporting() {
                                     className="cursor-pointer  text-black border-none  hover:text-primary"
                                   />
                                 </Dropdown>
-                              )}  
+                              )}
                           </>
 
                           <Col className="mr-2"></Col>

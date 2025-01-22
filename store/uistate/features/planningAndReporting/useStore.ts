@@ -2,10 +2,15 @@
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { useAuthenticationStore } from '../authentication';
+type MkAsATask = {
+  title: string | null;
+  mid: string | null;
+};
 
 export interface PlanningAndReporting {
-  mkAsATask: string | null;
-  setMKAsATask: (mkAsATask: string | null) => void;
+  
+  mkAsATask: MkAsATask | null;
+setMKAsATask: (mkAsATask: MkAsATask | null) => void;
 
   newComment: string;
   setNewComment: (newComment: string) => void;
@@ -58,7 +63,7 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     setViewComment: (viewComment: boolean) => set({ viewComment }),
 
     mkAsATask: null,
-    setMKAsATask: (mkAsATask: string | null) => set({ mkAsATask }),
+    setMKAsATask: (mkAsATask: MkAsATask | null) => set({ mkAsATask }),
 
     open: false,
     setOpen: (open: boolean) => set({ open }),

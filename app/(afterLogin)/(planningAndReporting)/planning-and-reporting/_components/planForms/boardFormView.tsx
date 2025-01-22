@@ -22,6 +22,7 @@ interface BoardCardInterface {
   isMKAsTask?: boolean;
   keyResult: any;
   targetValue?: number;
+  milestoneId?: number;
 }
 
 function BoardCardForm({
@@ -33,6 +34,7 @@ function BoardCardForm({
   isMKAsTask = false,
   keyResult,
   targetValue,
+  milestoneId
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
   console.log(keyResult?.metricType?.name, 'keyResult?.metricType?.name');
@@ -53,7 +55,7 @@ function BoardCardForm({
                 key={`${subName}-task`} // Unique key for task
                 rules={[{ required: true, message: 'Task is required' }]}
                 noStyle // Use noStyle to avoid nested Form.Item issues
-                initialValue={isMKAsTask ? mkAsATask : ''}
+                initialValue={isMKAsTask ? mkAsATask?.title : ''}
               >
                 <Input
                   disabled={isMKAsTask}

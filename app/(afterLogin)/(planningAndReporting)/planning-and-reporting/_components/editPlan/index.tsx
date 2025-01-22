@@ -1,6 +1,6 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { Button, Collapse, Divider, Form, Tooltip } from 'antd';
+import { Button, Collapse, Divider, Form, Spin, Tooltip } from 'antd';
 import React, { useEffect } from 'react';
 import { BiPlus } from 'react-icons/bi';
 import BoardCardForm from '../planForms/boardFormView';
@@ -47,7 +47,7 @@ function EditPlan() {
 
   const { data: objective } = useFetchObjectives(userId);
   const { data: planningPeriods } = AllPlanningPeriods();
-  const { data: planGroupData } = useGetPlanningById(selectedPlanId);
+  const { data: planGroupData, isLoading:loadingPlanGroupData} = useGetPlanningById(selectedPlanId);
 
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
@@ -56,7 +56,7 @@ function EditPlan() {
         (item: any) => item.planningPeriod?.id === planningPeriodId,
       )?.id
     : undefined;
-  const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
+  const { data: planningPeriodHierarchy, isLoading:loadingPlanningPeriodHierarchy} = useGetPlanningPeriodsHierarchy(
     userId,
     planningPeriodId || '', // Provide a default string value if undefined
   );
@@ -76,7 +76,7 @@ function EditPlan() {
     form.setFieldsValue({ [namesKey]: [...names, currentBoardValues] });
     const fieldValue = form.getFieldValue(namesKey);
     const totalWeight = fieldValue.reduce((sum: number, field: { weight?: number }) => {
-      return sum + Number(field?.weight ?? 0);
+      return Number(sum)+ Number(field?.weight ?? 0);
     }, 0);
     
     setWeight(namesKey, totalWeight);
@@ -106,6 +106,7 @@ function EditPlan() {
         .flat();
     };
     const finalValues = mergeValues(values);
+    console.log(finalValues, 'finalValues');
     updateTask(
       { tasks: finalValues },
       {
@@ -118,29 +119,29 @@ function EditPlan() {
   };
 
   useEffect(() => {
-    if (planningPeriodHierarchy?.parentPlan?.plans) {
+    if (planningPeriodHierarchy?.parentPlan) {
       const planningUserId = planGroupData?.planningUser?.id;
       const userId = planGroupData?.planningUser?.userId;
       const planningPeriodId = planGroupData?.planningUser?.planningPeriod?.id;
 
-      planningPeriodHierarchy?.parentPlan?.plans[0]?.tasks?.forEach(
+      planningPeriodHierarchy?.planData?.find((i:any)=>i.id===selectedPlanId)?.tasks?.forEach(
         (e: any) => {
           const hasMilestone = e?.milestone !== null ? true : false;
           const name = hasMilestone
-            ? `${e?.keyResult?.id + e?.milestone?.id}`
-            : `${e?.keyResult?.id}`;
+            ? `${e?.keyResult?.id + e?.milestone?.id + e.parentTaskId}`
+            : `${e?.keyResult?.id+e.parentTaskId}`;
             console.log(name,"eee")
           handleAddName(
             {
               id: e?.id,
-              milestoneId: e?.milestone?.id || null,
-              keyResultId: e?.keyResult?.id || null,
-              planningPeriodId: planningPeriodId || null,
-              planningUserId: planningUserId || null,
-              userId: userId || null,
+              milestoneId: e?.milestone?.id,
+              keyResultId: e?.keyResult?.id ,
+              planningPeriodId: planningPeriodId,
+              planningUserId: planningUserId,
+              userId: userId,
               task: e?.task || '',
               priority: e?.priority || '',
-              weight: e?.weight || 0,
+              weight: parseInt(e?.weight) || 0,
               targetValue: e?.targetValue || 0,
               planId: planGroupData?.id,
             },
@@ -148,8 +149,36 @@ function EditPlan() {
           );
         },
       );
+    } else if (planGroupData) {
+      const planningUserId = planGroupData?.planningUser?.id;
+      const userId = planGroupData?.planningUser?.userId;
+      const planningPeriodId = planGroupData?.planningUser?.planningPeriod?.id;
+
+      planGroupData.tasks?.forEach((e: any) => {
+        const hasMilestone = e?.milestone !== null ? true : false;
+        const name = hasMilestone
+          ? `${e?.keyResult?.id + e?.milestone?.id}`
+          : `${e?.keyResult?.id}`;
+
+        handleAddName(
+          {
+            id: e?.id,
+            milestoneId: e?.milestone?.id || null,
+            keyResultId: e?.keyResult?.id || null,
+            planningPeriodId: planningPeriodId || null,
+            planningUserId: planningUserId || null,
+            userId: userId || null,
+            task: e?.task || '',
+            priority: e?.priority || '',
+            weight: e?.weight || 0,
+            targetValue: e?.targetValue || 0,
+            planId: planGroupData?.id,
+          },
+          name,
+        );
+      });
     }
-  }, [planningPeriodHierarchy?.parentPlan]);  
+  }, [planningPeriodHierarchy?.parentPlan,selectedPlanId,planGroupData]);  
   // useEffect(() => {
   //    if (planGroupData) {
   //     const planningUserId = planGroupData?.planningUser?.id;
@@ -181,7 +210,7 @@ function EditPlan() {
   //     });
   //   }
   // }, [planGroupData]);
-  console.log(planningPeriodHierarchy?.parentPlan,"***")
+  console.log(planningPeriodHierarchy,selectedPlanId,"planningPeriodHierarchy")
   return (
     open && (
       <CustomDrawerLayout
@@ -191,6 +220,9 @@ function EditPlan() {
         width="70%"
         paddingBottom={5}
       >
+        {loadingPlanningPeriodHierarchy || loadingPlanGroupData ? <div className="flex items-center justify-center min-h-screen">
+    <Spin size="large"  tip="Loading...." />
+  </div>:
         <Form
           layout="vertical"
           form={form}
@@ -400,6 +432,7 @@ function EditPlan() {
                                       userId={userId}
                                       planningUserId={planningUserId}
                                       isMKAsTask={mkAsATask ? true : false}
+                                     
                                       keyResult={kr}
                                     />
                                   )}
@@ -474,7 +507,7 @@ function EditPlan() {
                                   onClick={() => {
                                     setMKAsATask(null);
                                     handleAddBoard(
-                                      task?.milestone?.id? task?.keyResult?.id + task?.milestone?.id:task?.keyResult?.id,
+                                      task?.milestone?.id? task?.keyResult?.id + task?.milestone?.id+ task?.id:task?.keyResult?.id + task?.id,
                                     );
                                    
                                   }}
@@ -489,8 +522,8 @@ function EditPlan() {
                               <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
                                 {weights[
                                   task?.milestone?.id
-                                    ? `names-${task?.keyResult?.id + task?.milestone?.id}`
-                                    : `names-${task?.keyResult?.id}`
+                                    ? `names-${task?.keyResult?.id + task?.milestone?.id + task?.id}`
+                                    : `names-${task?.keyResult?.id+ task?.id}`
                                 ] || 0}
                                 %
                               </div>
@@ -503,19 +536,22 @@ function EditPlan() {
                                       kId={task?.keyResult?.id}
                                       // hasTargetValue={hasTargetValue}
                                       // hasMilestone={hasMilestone}
-                                      milestoneId={null}
+                                      milestoneId={task?.milestone?.id || null}
                                       name={
                                         task?.milestone?.id
-                                        ?`names-${task?.keyResult?.id + task?.milestone?.id}`
-                                        :`names-${task?.keyResult?.id}`
+                                        ?`names-${task?.keyResult?.id + task?.milestone?.id + task?.id}`
+                                        :`names-${task?.keyResult?.id + task?.id}`
                                       }
                                       form={form}
                                       planningPeriodId={planningPeriodId || ''}
                                       userId={userId}
                                       planningUserId={planningUserId ||''}
                                       isMKAsTask={mkAsATask ? true : false}
+                                      parentPlanId={plan.id || ''}
+                                      planTaskId={task.id || ''}
                                       keyResult={task?.keyResult}
                                       targetValue={task?.targetValue}
+                                      planId={planGroupData?.id}
                                     />
                                      
                                     
@@ -525,7 +561,7 @@ function EditPlan() {
                               handleRemoveBoard={handleRemoveBoard}
                               kId={task?.keyResult?.id}
                               // hideTargetValue={hasTargetValue}
-                              name={ task?.milestone?.id?task?.keyResult?.id + task?.milestone?.id:task?.keyResult?.id}
+                              name={ task?.milestone?.id?task?.keyResult?.id + task?.milestone?.id + task?.id:task?.keyResult?.id + task?.id}
                               isMKAsTask={mkAsATask ? true : false}
                               keyResult={task?.keyResult}
                               targetValue={task?.targetValue}
@@ -571,7 +607,7 @@ function EditPlan() {
               Cancel
             </Button>
           </Form.Item>
-        </Form>
+        </Form>}
       </CustomDrawerLayout>
     )
   );

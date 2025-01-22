@@ -25,7 +25,7 @@ const fetchAllFeedbackRecord = async (
   pageSize: number,
   page: number,
   empId: string,
-  date: [],
+  date: string[] = [],
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -58,6 +58,6 @@ export const useFetchAllFeedbackRecord = (
   date?: [],
 ) => {
   return useQuery(['feedbackRecord', pageSize, page, empId, date], () =>
-    fetchAllFeedbackRecord(pageSize, page, empId, date),
+    fetchAllFeedbackRecord(pageSize, page, empId || '', date || []),
   );
 };

@@ -23,8 +23,14 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
   } = ConversationStore();
   const { data: getAllUsersData } = useGetAllUsers();
   const { data: getAllFeedbackTypeById } = useFetchFeedbackTypeById(activeTab);
-  const { mutate: createFeedbackRecord } = useCreateFeedbackRecord();
-  const { mutate: updateFeedbackRecord } = useUpdateFeedbackRecord();
+  const {
+    mutate: createFeedbackRecord,
+    isLoading: loadingCreateFeedbackRecord,
+  } = useCreateFeedbackRecord();
+  const {
+    mutate: updateFeedbackRecord,
+    isLoading: loadingUpdateFeedbackRecord,
+  } = useUpdateFeedbackRecord();
 
   const onFinish = (values: any) => {
     if (selectedFeedbackRecord !== null) {
@@ -201,7 +207,11 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
             Update
           </Button>
         ) : (
-          <Button type="primary" htmlType="submit">
+          <Button
+            loading={loadingCreateFeedbackRecord || loadingUpdateFeedbackRecord}
+            type="primary"
+            htmlType="submit"
+          >
             Submit
           </Button>
         )}

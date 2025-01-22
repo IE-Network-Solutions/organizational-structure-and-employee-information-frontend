@@ -74,6 +74,8 @@ function Planning() {
     allPlanning?.items,
   );
 
+  console.log(transformedData,"allPlanning?.items")
+
   const handleApproveHandler = (id: string, value: boolean) => {
     const data = {
       id: id,
@@ -275,9 +277,9 @@ function Planning() {
                           </span>
                           {/* {!dataItem?.isValidated && ( */}
                           <>
-                            {userId ===
+                            {/* {userId ===
                               getEmployeeData(dataItem?.createdBy)?.reportingTo
-                                ?.id && (
+                                ?.id && ( */}
                               <Dropdown
                                 overlay={actionsMenu(
                                   dataItem,
@@ -288,13 +290,13 @@ function Planning() {
                               >
                                 <Button
                                   type="text"
-                                  icon={
-                                    <IoMdMore className="text-2xl font-bold" />
-                                  }
+                            
+                                    icon={<IoMdMore className="text-2xl" />}
+                                  
                                   className="cursor-pointer text-green border-none  hover:text-success"
                                 />
                               </Dropdown>
-                            )} 
+                             {/* )}  */}
                             {userId === dataItem?.createdBy &&
                               dataItem?.isValidated == false && (
                                 <Dropdown

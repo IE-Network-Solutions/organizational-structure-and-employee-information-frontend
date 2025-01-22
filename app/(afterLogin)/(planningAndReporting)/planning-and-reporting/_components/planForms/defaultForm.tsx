@@ -15,6 +15,7 @@ interface DefaultCardInterface {
   userId: string;
   planningUserId: string;
   parentPlanId?: string;
+  planId?: string;
   planTaskId?: string;
   isMKAsTask?: boolean;
   keyResult?: any;
@@ -35,9 +36,10 @@ function DefaultCardForm({
   isMKAsTask = false,
   keyResult,
   targetValue,
+  planId,
 }: DefaultCardInterface) {
   const { setWeight } = PlanningAndReportingStore();
-  console.log(planTaskId, '&&&*&');
+  console.log(planningPeriodId, userId, planningUserId, '***');
 
   return (
     <Form.List name={name}>
@@ -60,6 +62,15 @@ function DefaultCardForm({
                 initialValue={parentPlanId || null}
                 noStyle
                 key={`${field.key}-parentPlanId`} // Unique key for milestoneId
+              >
+                <Input type="hidden" />
+              </Form.Item>
+              <Form.Item
+                {...field}
+                name={[field.name, 'planId']}
+                initialValue={planId || null}
+                noStyle
+                key={`${field.key}-planId`} // Unique key for milestoneId
               >
                 <Input type="hidden" />
               </Form.Item>
@@ -127,8 +138,8 @@ function DefaultCardForm({
                     key={`${field.key}-task`} // Unique key for task
                   >
                     <Input
-                      className="text-xs"
-                      disabled={isMKAsTask}
+                      className={`text-xs` }
+                      disabled={isMKAsTask} // Disable if milestoneId exists
                       placeholder="Task name"
                     />
                   </Form.Item>
