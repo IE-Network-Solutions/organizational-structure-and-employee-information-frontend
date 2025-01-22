@@ -47,6 +47,7 @@ const IncentiveProjectSetting: React.FC = () => {
     pageSize,
     setCurrentPage,
     setPageSize,
+    setProjectIncentive,
   } = useIncentiveStore();
 
   const onPageChange = (page: number, pageSize?: number) => {
@@ -56,7 +57,8 @@ const IncentiveProjectSetting: React.FC = () => {
     }
   };
 
-  const handleProjectIncentiveEdit = () => {
+  const handleProjectIncentiveEdit = (value: ProjectIncentiveSettingParams) => {
+    setProjectIncentive(value);
     setProjectIncentiveDrawer(true);
   };
 
@@ -107,7 +109,7 @@ const IncentiveProjectSetting: React.FC = () => {
         columns={columns}
         dataSource={projectIncentiveTableData}
         pagination={{
-          total: data?.meta?.totalItems,
+          // total: data?.meta?.totalItems,
           current: currentPage,
           pageSize: pageSize,
           onChange: onPageChange,

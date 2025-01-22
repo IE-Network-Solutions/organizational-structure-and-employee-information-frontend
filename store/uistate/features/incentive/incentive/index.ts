@@ -78,6 +78,7 @@ type IncentiveState = {
   criteria: string[];
   operands: string[];
   otherIncentive: any;
+  projectIncentive: any;
 };
 
 type IncentiveActions = {
@@ -98,6 +99,7 @@ type IncentiveActions = {
   clearFormula: () => void;
   removeItem: (index: number) => void;
   setOtherIncentive: (item: any) => void;
+  setProjectIncentive: (item: any) => void;
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -175,8 +177,12 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
         operands: updatedItems.filter((item) => state.operands.includes(item)),
       };
     }),
+
   otherIncentive: null,
   setOtherIncentive: (otherIncentive) => set({ otherIncentive }),
+
+  projectIncentive: null,
+  setProjectIncentive: (projectIncentive) => set({ projectIncentive }),
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(
