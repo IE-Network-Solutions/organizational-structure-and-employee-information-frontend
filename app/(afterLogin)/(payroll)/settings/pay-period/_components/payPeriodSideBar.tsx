@@ -102,6 +102,8 @@ const PayPeriodSideBar = () => {
     endDate: month?.endDate,
   }));
 
+  // console.log(monthsWithStartEndDates,"monthsWithStartEndDates")
+
   const onFormSubmit = () => {
     const transformedData = divisions.map((division) => ({
       startDate: dayjs(division[0]).format('YYYY-MM-DD'),
@@ -110,8 +112,11 @@ const PayPeriodSideBar = () => {
       status: 'CLOSED',
       activeFiscalYearId: activeFiscalYear?.id,
     }));
-    createPayPeriods(transformedData);
-    onClose();
+    createPayPeriods(transformedData,{
+      onSuccess:()=>{
+        onClose();
+      }
+    });
   };
 
   const handleDeleteDivision = (index: number) => {
@@ -306,31 +311,30 @@ const PayPeriodSideBar = () => {
 
                             const suitableMonths = (
                               monthsWithStartEndDates ?? []
-                            )
-                              .filter((month) => {
-                                const startDate = dayjs(month.startDate);
-                                return startDate.isSameOrBefore(
-                                  rangeEnd,
-                                  'month',
-                                );
-                              })
-                              .map((month) => ({
-                                ...month,
-                                distance: Math.abs(
-                                  dayjs(month.startDate).diff(
-                                    rangeAverage,
-                                    'days',
-                                  ),
-                                ),
-                              }))
-                              .sort((a, b) => a.distance - b.distance)
-                              .slice(0, 3)
-                              .sort((a, b) => {
-                                const startDateA = dayjs(a.startDate);
-                                const startDateB = dayjs(b.startDate);
-                                return startDateA.isBefore(startDateB) ? -1 : 1;
-                              });
-
+                              )
+                              // .filter((month) => {
+                              //   const startDate = dayjs(month.startDate);
+                              //   return startDate.isSameOrBefore(
+                              //     rangeEnd,
+                              //     'month',
+                              //   );
+                              // })
+                              // .map((month) => ({
+                              //   ...month,
+                              //   distance: Math.abs(
+                              //     dayjs(month.startDate).diff(
+                              //       rangeAverage,
+                              //       'days',
+                              //     ),
+                              //   ),
+                              // }))
+                              // .sort((a, b) => a.distance - b.distance)
+                              // .slice(0, 3)
+                              // .sort((a, b) => {
+                              //   const startDateA = dayjs(a.startDate);
+                              //   const startDateB = dayjs(b.startDate);
+                              //   return startDateA.isBefore(startDateB) ? -1 : 1;
+                              // });
                             return suitableMonths.map((month) => (
                               <Option key={month.id} value={month.id}>
                                 {`${month?.monthName}`}

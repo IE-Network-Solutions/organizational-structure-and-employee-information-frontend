@@ -19,20 +19,17 @@ import {
   useGetUnReportedPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
-import { getPriorityColor } from '@/utils/showValidationErrors';
 import {
-  useCreateReportForUnReportedtasks,
   useEditReportByReportId,
 } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 const { Text } = Typography;
 
 const { TextArea } = Input;
 function EditReport() {
   const {
-    openReportModal,
     setOpenReportModal,
     activePlanPeriod,
     selectedReportId,
@@ -62,15 +59,16 @@ function EditReport() {
   const planningPeriodName =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
 
-  const { data: allUnReportedPlanningTask } =
-    useGetUnReportedPlanning(planningPeriodId,false);
+  const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(
+    planningPeriodId,
+    false,
+  );
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       {planningPeriodName}
     </div>
   );
-
 
   const handleOnFinish = (values: Record<string, any>) => {
     Object.entries(values).length > 0 &&
@@ -152,7 +150,10 @@ function EditReport() {
         width="65%"
       >
         {formattedData?.length > 0 ? (
-          <Spin spinning={editReportLoading || reportedDataLoading} tip="Reporting...">
+          <Spin
+            spinning={editReportLoading || reportedDataLoading}
+            tip="Reporting..."
+          >
             <Form
               layout="vertical"
               form={form}
@@ -177,28 +178,32 @@ function EditReport() {
                               {keyresult?.title}
                             </p>
                             <Text className="rounded-lg px-1   border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
-                              {// Calculate weight from keyResult.tasks
-                              keyresult?.tasks?.reduce(
-                                (taskWeight: number, task: any) => {
-                                  return taskWeight + Number(task?.weight || 0);
-                                },
-                                0,
-                              ) +
-                                // Calculate weight from keyResult.milestones.tasks
-                                keyresult?.milestones?.reduce(
-                                  (totalWeight: number, milestone: any) => {
+                              {
+                                // Calculate weight from keyResult.tasks
+                                keyresult?.tasks?.reduce(
+                                  (taskWeight: number, task: any) => {
                                     return (
-                                      totalWeight +
-                                      (milestone?.tasks?.reduce(
-                                        (taskWeight: number, task: any) =>
-                                          taskWeight +
-                                          Number(task?.weight || 0),
-                                        0,
-                                      ) || 0)
+                                      taskWeight + Number(task?.weight || 0)
                                     );
                                   },
                                   0,
-                                ) || 0}
+                                ) +
+                                  // Calculate weight from keyResult.milestones.tasks
+                                  keyresult?.milestones?.reduce(
+                                    (totalWeight: number, milestone: any) => {
+                                      return (
+                                        totalWeight +
+                                        (milestone?.tasks?.reduce(
+                                          (taskWeight: number, task: any) =>
+                                            taskWeight +
+                                            Number(task?.weight || 0),
+                                          0,
+                                        ) || 0)
+                                      );
+                                    },
+                                    0,
+                                  ) || 0
+                              }
                               %
                             </Text>
                           </Row>

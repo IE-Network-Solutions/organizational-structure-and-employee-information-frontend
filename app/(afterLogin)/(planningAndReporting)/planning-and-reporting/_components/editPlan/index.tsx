@@ -494,28 +494,26 @@ function EditPlan() {
                             <Divider className="my-2" />
                             {/* Iterate over milestones within each task */}
 
-                          
-                                 <DefaultCardForm
-                                      kId={task?.keyResult?.id}
-                                      // hasTargetValue={hasTargetValue}
-                                      // hasMilestone={hasMilestone}
-                                      milestoneId={task?.milestone?.id || null}
-                                      name={
-                                        task?.milestone?.id
-                                        ?`names-${task?.keyResult?.id + task?.milestone?.id}`
-                                        :`names-${task?.keyResult?.id}`
-                                      }
-                                      form={form}
-                                      planningPeriodId={planningPeriodId || ''}
-                                      userId={userId}
-                                      planningUserId={planningUserId ||''}
-                                      isMKAsTask={mkAsATask ? true : false}
-                                      keyResult={task?.keyResult}
-                                      targetValue={task?.targetValue}
-                                    />
-                                     
-                                    
-                                     <BoardCardForm
+                            <DefaultCardForm
+                              kId={task?.keyResult?.id}
+                              // hasTargetValue={hasTargetValue}
+                              // hasMilestone={hasMilestone}
+                              milestoneId={task?.milestone?.id || null}
+                              name={
+                                task?.milestone?.id
+                                  ? `names-${task?.keyResult?.id + task?.milestone?.id}`
+                                  : `names-${task?.keyResult?.id}`
+                              }
+                              form={form}
+                              planningPeriodId={planningPeriodId || ''}
+                              userId={userId}
+                              planningUserId={planningUserId || ''}
+                              isMKAsTask={mkAsATask ? true : false}
+                              keyResult={task?.keyResult}
+                              targetValue={task?.targetValue}
+                            />
+
+                            <BoardCardForm
                               form={form}
                               handleAddName={handleAddName}
                               handleRemoveBoard={handleRemoveBoard}
@@ -526,7 +524,6 @@ function EditPlan() {
                               keyResult={task?.keyResult}
                               targetValue={task?.targetValue}
                             />
-                            
                           </div>
                         ),
                       )}

@@ -43,11 +43,11 @@ const PayPeriod = () => {
   };
 
   const onStatusChange = (record: any, checked: boolean) => {
-    const newStatus = checked ? 'OPEN' : 'CLOSED';
+    // const newStatus = checked ? 'OPEN' : 'CLOSED';
     changePayPeriodStatus({
       payPeriodId: record.id,
-      status: newStatus,
-      activeFiscalYearId: activeFiscalYear?.id,
+      // status: newStatus,
+      // activeFiscalYearId: activeFiscalYear?.id,
     });
   };
 

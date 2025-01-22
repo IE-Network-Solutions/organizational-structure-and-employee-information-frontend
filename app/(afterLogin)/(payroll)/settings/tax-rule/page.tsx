@@ -86,9 +86,9 @@ const TaxRules = () => {
     <div className="p-6">
       <div className="flex justify-between items-center">
         <Title level={3}>Tax Rule</Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAddRule}>
+        {/* <Button type="primary" icon={<PlusOutlined />} onClick={handleAddRule}>
           Add Tax Rule
-        </Button>
+        </Button> */}
       </div>
 
       <Table

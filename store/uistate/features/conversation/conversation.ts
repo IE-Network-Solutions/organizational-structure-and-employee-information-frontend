@@ -67,8 +67,8 @@ export interface CategoriesUseState {
   givenDate: any;
   setGivenDate: (givenDate: any) => void;
 
-  variantType: 'appreciation'|'reprimand';
-  setVariantType: (variantType: 'appreciation'|'reprimand') => void;
+  variantType: 'appreciation' | 'reprimand';
+  setVariantType: (variantType: 'appreciation' | 'reprimand') => void;
 
   selectedFeedbackRecord: FeedbackRecord | null;
   setSelectedFeedbackRecord: (
@@ -140,7 +140,8 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedRecognitionType: (selectedRecognitionType: string) =>
     set({ selectedRecognitionType }),
   variantType: 'appreciation',
-  setVariantType: (variantType: 'appreciation'|'reprimand') => set({ variantType }),
+  setVariantType: (variantType: 'appreciation' | 'reprimand') =>
+    set({ variantType }),
 
   selectedFeedback: null,
   setSelectedFeedback: (selectedFeedback: any) => set({ selectedFeedback }),

@@ -87,7 +87,6 @@ export function FeedbackCard({
   );
 }
 
-
 export const FeedbackCardSkeleton = () => {
   return (
     <div>
@@ -99,12 +98,7 @@ export const FeedbackCardSkeleton = () => {
             className="bg-gray-300"
             shape="circle"
           />
-          <Skeleton.Button
-            active
-            size="small"
-            shape="round"
-            className="w-16"
-          />
+          <Skeleton.Button active size="small" shape="round" className="w-16" />
         </div>
         <div className="text-gray-400">
           <Skeleton.Input active size="small" className="w-3/4" />
@@ -121,4 +115,3 @@ export const FeedbackCardSkeleton = () => {
     </div>
   );
 };
-

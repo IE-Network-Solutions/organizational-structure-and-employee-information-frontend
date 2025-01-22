@@ -47,18 +47,28 @@ const Page = () => {
   const { data: getAllFeedbackTypes, isLoading: getFeedbackTypeLoading } =
     useFetchAllFeedbackTypes();
   const { data: getAllFeedbackRecord, isLoading: getFeedbackRecordLoading } =
-      useFetchAllFeedbackRecord({variantType,activeTab,userId,pageSize,empId, page, givenDate});
-  const { data: getAllFeedbackCardData, isLoading: getFeedbackCardDataLoading } =
-  useFetchAllFeedbackRecord({variantType,activeTab,empId,userId});
+    useFetchAllFeedbackRecord({
+      variantType,
+      activeTab,
+      userId,
+      pageSize,
+      empId,
+      page,
+      givenDate,
+    });
+  const {
+    data: getAllFeedbackCardData,
+    isLoading: getFeedbackCardDataLoading,
+  } = useFetchAllFeedbackRecord({ variantType, activeTab, empId, userId });
   const [form] = Form.useForm();
-
 
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
 
   const { data: getAllUsers } = useGetAllUsers();
   const feedbackAnaliytics = FeedbackService?.getFeedbackStats(
-    getAllFeedbackCardData?.items,userId);
-
+    getAllFeedbackCardData?.items,
+    userId,
+  );
 
   const editHandler = (record: any) => {
     setSelectedFeedbackRecord(record);
@@ -72,7 +82,7 @@ const Page = () => {
   const onChange = (key: string) => {
     setVariantType(key === 'appreciation' ? 'appreciation' : 'reprimand');
   };
-  
+
   const onChangeUserType = (key: string) => {
     const data = key === 'personal' ? userIdData : 'all';
     setUserId(data);
@@ -256,47 +266,54 @@ const Page = () => {
           onChange={onChangeUserType}
         />
       </div>
-      {getFeedbackCardDataLoading ?  
+      {getFeedbackCardDataLoading ? (
         <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <FeedbackCardSkeleton key={index} />
           ))}
         </div>
-         :
-      <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        <FeedbackCard
-          appreciationPercentage={feedbackAnaliytics?.appreciationStats?.issued}
-          total={feedbackAnaliytics?.appreciationStats?.totalIssued}
-          contributorCount={feedbackAnaliytics?.appreciationStats?.totalIssued}
-          type="appreciation"
-          textType="appreciationIssued"
-        />
-        <FeedbackCard
-          appreciationPercentage={
-            feedbackAnaliytics?.appreciationStats?.received
-          }
-          total={feedbackAnaliytics?.appreciationStats?.totalReceived}
-          contributorCount={
-            feedbackAnaliytics?.appreciationStats?.totalReceived
-          }
-          type="appreciation"
-          textType="appreciationReceived"
-        />
-        <FeedbackCard
-          appreciationPercentage={feedbackAnaliytics?.reprimandStats?.issued}
-          total={feedbackAnaliytics?.reprimandStats?.totalIssued}
-          contributorCount={feedbackAnaliytics?.reprimandStats?.totalIssued}
-          type="reprimand"
-          textType="reprimandIssued"
-        />
-        <FeedbackCard
-          appreciationPercentage={feedbackAnaliytics?.reprimandStats?.received}
-          total={feedbackAnaliytics?.reprimandStats?.totalReceived}
-          contributorCount={feedbackAnaliytics?.reprimandStats?.totalReceived}
-          type="reprimand"
-          textType="reprimandReceived"
-        />
-      </div>}
+      ) : (
+        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <FeedbackCard
+            appreciationPercentage={
+              feedbackAnaliytics?.appreciationStats?.issued
+            }
+            total={feedbackAnaliytics?.appreciationStats?.totalIssued}
+            contributorCount={
+              feedbackAnaliytics?.appreciationStats?.totalIssued
+            }
+            type="appreciation"
+            textType="appreciationIssued"
+          />
+          <FeedbackCard
+            appreciationPercentage={
+              feedbackAnaliytics?.appreciationStats?.received
+            }
+            total={feedbackAnaliytics?.appreciationStats?.totalReceived}
+            contributorCount={
+              feedbackAnaliytics?.appreciationStats?.totalReceived
+            }
+            type="appreciation"
+            textType="appreciationReceived"
+          />
+          <FeedbackCard
+            appreciationPercentage={feedbackAnaliytics?.reprimandStats?.issued}
+            total={feedbackAnaliytics?.reprimandStats?.totalIssued}
+            contributorCount={feedbackAnaliytics?.reprimandStats?.totalIssued}
+            type="reprimand"
+            textType="reprimandIssued"
+          />
+          <FeedbackCard
+            appreciationPercentage={
+              feedbackAnaliytics?.reprimandStats?.received
+            }
+            total={feedbackAnaliytics?.reprimandStats?.totalReceived}
+            contributorCount={feedbackAnaliytics?.reprimandStats?.totalReceived}
+            type="reprimand"
+            textType="reprimandReceived"
+          />
+        </div>
+      )}
       <Spin spinning={getFeedbackTypeLoading} tip="Loading...">
         <Tabs
           className="max-w-[850px]"
@@ -333,8 +350,8 @@ const Page = () => {
             dataSource={getAllFeedbackRecord?.items}
             columns={columns}
             pagination={{
-              current:page,
-              pageSize:pageSize,
+              current: page,
+              pageSize: pageSize,
               showSizeChanger: true, // Enables "page size" dropdown
               showQuickJumper: true, // Enables jumping to a specific page
               pageSizeOptions: ['10', '20', '50', '100'], // Page size options

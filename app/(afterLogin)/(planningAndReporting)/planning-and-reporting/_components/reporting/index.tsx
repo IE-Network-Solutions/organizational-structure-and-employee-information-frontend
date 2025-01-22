@@ -49,7 +49,6 @@ function Reporting() {
     selectedUser,
     activePlanPeriod,
     setSelectedReportId,
-    selectedReportId,
     setOpen,
     setEditing,
   } = PlanningAndReportingStore();
@@ -68,8 +67,10 @@ function Reporting() {
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '',
   });
-  const { data: allUnReportedPlanningTask } =
-    useGetUnReportedPlanning(planningPeriodId,true);
+  const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(
+    planningPeriodId,
+    true,
+  );
 
   const activeTabName =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
@@ -125,9 +126,7 @@ function Reporting() {
   );
   const actionsMenuEditandDelte = (
     dataItem: any,
-    setEditing: any,
     setSelectedReportId: any,
-    setOpen: any,
   ) => (
     <Menu>
       {/* Edit Plan */}
@@ -285,16 +284,16 @@ function Reporting() {
                                   className="cursor-pointer text-green border-none  hover:text-success"
                                 />
                               </Dropdown>
-                             )} 
+                            )}
                             {userId ===
                               (dataItem?.userId ?? dataItem?.createdBy) &&
                               dataItem?.plan?.isReportValidated == false && (
                                 <Dropdown
                                   overlay={actionsMenuEditandDelte(
                                     dataItem,
-                                    setEditing,
+                                    // setEditing,
                                     setSelectedReportId,
-                                    setOpen,
+                                    // setOpen,
                                   )}
                                   trigger={['click']}
                                 >

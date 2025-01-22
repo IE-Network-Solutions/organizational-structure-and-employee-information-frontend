@@ -4,7 +4,6 @@ import isBetween from 'dayjs/plugin/isBetween';
 
 dayjs.extend(isBetween);
 
-
 interface FeedbackRecord {
   created_at: string;
   [key: string]: any; // To allow for additional fields
@@ -39,15 +38,14 @@ export class FeedbackService {
 
   // Utility to filter feedback data by type, user, and time range
   static filterFeedbackData(
-    feedbackData: FeedbackRecord[]=[],
+    feedbackData: FeedbackRecord[] = [],
     variant: string,
     userId: string,
     key: 'issuerId' | 'recipientId',
     startOfWeek: dayjs.Dayjs,
     endOfWeek: dayjs.Dayjs,
-    user:string
+    user: string,
   ): FeedbackRecord[] {
-
     let filteredData: FeedbackRecord[];
 
     if (user === 'all') {
@@ -69,14 +67,14 @@ export class FeedbackService {
         );
       });
     }
-  
+
     return filteredData || []; // Return an empty array if nothing is filtered
   }
 
   // Core method to calculate feedback stats
   static getFeedbackStats(
     feedbackRecordData: FeedbackRecord[],
-    user:string
+    user: string,
   ): FeedbackStatResponse {
     const userId = useAuthenticationStore.getState().userId;
 
@@ -90,7 +88,6 @@ export class FeedbackService {
       end: thisWeekRange.end.subtract(1, 'week'),
     };
 
-
     // Helper function to calculate stats for a feedback type
     const calculateFeedbackStats = (
       variant: string,
@@ -100,8 +97,6 @@ export class FeedbackService {
       issued: string;
       totalIssued: number;
     } => {
-
-
       const thisWeekRangeStart = dayjs(thisWeekRange.start);
       const thisWeekRangeEnd = dayjs(thisWeekRange.end);
 
@@ -115,7 +110,7 @@ export class FeedbackService {
         'recipientId',
         thisWeekRangeStart,
         thisWeekRangeEnd,
-        user
+        user,
       )?.length;
 
       const lastWeekReceived = this.filterFeedbackData(
@@ -125,7 +120,7 @@ export class FeedbackService {
         'recipientId',
         lastWeekRangeStart,
         lastWeekRangeEnd,
-        user
+        user,
       )?.length;
 
       const thisWeekIssued = this.filterFeedbackData(
@@ -135,7 +130,7 @@ export class FeedbackService {
         'issuerId',
         thisWeekRangeStart,
         thisWeekRangeEnd,
-        user
+        user,
       )?.length;
 
       const lastWeekIssued = this.filterFeedbackData(
@@ -145,7 +140,7 @@ export class FeedbackService {
         'issuerId',
         lastWeekRangeStart,
         lastWeekRangeEnd,
-        user
+        user,
       )?.length;
 
       return {
