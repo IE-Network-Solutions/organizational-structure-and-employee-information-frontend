@@ -77,6 +77,7 @@ type IncentiveState = {
   rockStarDrawer: boolean;
   criteria: string[];
   operands: string[];
+  otherIncentive: any;
 };
 
 type IncentiveActions = {
@@ -96,6 +97,7 @@ type IncentiveActions = {
   addOperand: (item: string) => void;
   clearFormula: () => void;
   removeItem: (index: number) => void;
+  setOtherIncentive: (item: any) => void;
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -173,6 +175,8 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
         operands: updatedItems.filter((item) => state.operands.includes(item)),
       };
     }),
+  otherIncentive: null,
+  setOtherIncentive: (otherIncentive) => set({ otherIncentive }),
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(

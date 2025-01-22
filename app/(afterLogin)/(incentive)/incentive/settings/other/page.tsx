@@ -49,6 +49,7 @@ const OtherIncentiveSetting: React.FC = () => {
     setCurrentPage,
     setPageSize,
     setRockStarDrawer,
+    setOtherIncentive,
   } = useIncentiveStore();
 
   const onPageChange = (page: number, pageSize?: number) => {
@@ -58,7 +59,8 @@ const OtherIncentiveSetting: React.FC = () => {
     }
   };
 
-  const handleProjectIncentiveEdit = () => {
+  const handleProjectIncentiveEdit = (value: OtherIncentiveSettingParams) => {
+    setOtherIncentive(value);
     setProjectIncentiveDrawer(true);
   };
 
@@ -111,7 +113,7 @@ const OtherIncentiveSetting: React.FC = () => {
         columns={columns}
         dataSource={otherIncentiveSettings}
         pagination={{
-          total: data?.meta?.totalItems,
+          // total: data?.meta?.totalItems,
           current: currentPage,
           pageSize: pageSize,
           onChange: onPageChange,
