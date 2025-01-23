@@ -16,6 +16,7 @@ interface SearchField {
   placeholder: string;
   options: SearchFieldOption[];
   widthRatio: number;
+  onChange: (value: string) => void; // Added the onChange handler
 }
 export interface CategoriesUseState {
   open: boolean;
@@ -98,12 +99,14 @@ const initialSearchField: SearchField[] = [
     placeholder: 'Select Employee',
     options: [], // Empty initially, will be updated dynamically
     widthRatio: 0.5,
+    onChange: () => {},
   },
   {
     key: 'department',
     placeholder: 'Select Department',
     options: [], // Empty initially, will be updated dynamically
     widthRatio: 0.5,
+    onChange: () => {},
   },
 ];
 
