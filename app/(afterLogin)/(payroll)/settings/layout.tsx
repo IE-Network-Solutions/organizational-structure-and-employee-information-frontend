@@ -70,23 +70,6 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
     },
     {
       item: {
-        key: 'cost-sharing',
-        icon: (
-          <RiAwardFill
-            className={
-              currentItem === 'cost-sharing'
-                ? 'text-[#4DAEF0]'
-                : 'text-gray-500'
-            }
-          />
-        ),
-        label: <p className="font-bold text-sm text-gray-900">Cost Sharing</p>,
-        className: currentItem === 'cost-sharing' ? 'px-4' : 'px-1',
-      },
-      link: '/settings/cost-sharing',
-    },
-    {
-      item: {
         key: 'pay-period',
         icon: (
           <FaBomb
@@ -100,21 +83,21 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
       },
       link: '/settings/pay-period',
     },
-    {
-      item: {
-        key: 'banks',
-        icon: (
-          <TbTargetArrow
-            className={
-              currentItem === 'banks' ? 'text-[#4DAEF0]' : 'text-gray-500'
-            }
-          />
-        ),
-        label: <p className="font-bold text-sm text-gray-900">Banks</p>,
-        className: currentItem === 'banks' ? 'px-4' : 'px-1',
-      },
-      link: '/settings/banks',
-    },
+    // {
+    //   item: {
+    //     key: 'banks',
+    //     icon: (
+    //       <TbTargetArrow
+    //         className={
+    //           currentItem === 'banks' ? 'text-[#4DAEF0]' : 'text-gray-500'
+    //         }
+    //       />
+    //     ),
+    //     label: <p className="font-bold text-sm text-gray-900">Banks</p>,
+    //     className: currentItem === 'banks' ? 'px-4' : 'px-1',
+    //   },
+    //   link: '/settings/banks',
+    // },
   ]);
 
   useEffect(() => {
