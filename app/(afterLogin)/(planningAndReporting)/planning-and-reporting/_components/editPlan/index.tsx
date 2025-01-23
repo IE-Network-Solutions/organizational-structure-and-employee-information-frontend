@@ -141,7 +141,7 @@ function EditPlan() {
               userId: userId,
               task: e?.task || '',
               priority: e?.priority || '',
-              weight: parseInt(e?.weight) || 0,
+              weight: e?.weight|| 0,
               targetValue: e?.targetValue || 0,
               planId: planGroupData?.id,
             },

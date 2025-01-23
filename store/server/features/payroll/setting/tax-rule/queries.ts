@@ -29,15 +29,12 @@ const fetchActiveFiscalYearPayPeriods = async (
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const sampleActiveYearId='664d7510-9b1e-450b-bd9c-5e4441ad9570'
   const headers = {
     tenantId,
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${PAYROLL_URL}/pay-period/get-pay-period/active-year-id/${sampleActiveYearId}`,
-    // url: `${PAYROLL_URL}/pay-period/get-pay-period/active-year-id/${activeFiscalYearId}`,
-
+    url: `${PAYROLL_URL}/pay-period/get-pay-period/active-year-id/${activeFiscalYearId}`,
     method: 'GET',
     headers,
   });

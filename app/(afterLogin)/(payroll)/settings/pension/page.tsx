@@ -1,34 +1,130 @@
 'use client';
-import { Table, Button, Typography } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
-import React from 'react';
+import { Table, Button, Typography, Input } from 'antd';
+import { EditOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { useGetAllPensionRule } from '@/store/server/features/payroll/payroll/queries';
+import { useUpdatePensionRule } from '@/store/server/features/payroll/payroll/mutation';
 const { Title } = Typography;
+type PensionRule = {
+  id: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  deletedAt: string | null; // Can be null if not deleted
+  name: string; // Rule name
+  description: string; // Rule description
+  employer: string; // Employer identifier
+  employee: string; // Employee identifier
+  tenantId: string; // Tenant identifier
+};
 
 const Pension = () => {
-  const dataSource = [
-    {
-      key: '1',
-      name: 'Pension Rule 1',
-      employeeContribution: '7 %',
-      employerContribution: '11 %',
-    },
-  ];
 
+  const { data: pensionRule, isLoading } = useGetAllPensionRule();
+  const { mutate: pensionRuleUpdate, isLoading:updatePensionRule } = useUpdatePensionRule();
+
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [editedData, setEditedData] = useState<Record<string, any>>({});
+
+  // Format the data for the table
+
+
+  const isEditing = (record: any) => record.key === editingKey;
+
+  const handleEdit = (record: any) => {
+    setEditingKey(record.key);
+    setEditedData({ ...record });
+  };
+
+  const handleSave = (record: any) => {
+    console.log('Saved Data:', editedData); // Replace with API call to save
+    pensionRuleUpdate(editedData,{
+      onSuccess:()=>{
+        setEditingKey(null); // Exit editing mode
+      }
+    });
+  };
+
+  const handleInputChange = (field: string, value: any) => {
+    setEditedData((prev) => ({ ...prev, [field]: value }));
+  };
   const columns = [
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      render: (notused: any, record: PensionRule) => {
+        return isEditing(record) ? (
+          <Input
+            value={editedData.name}
+            onChange={(e) => handleInputChange('name', e.target.value)}
+          />
+        ) : (
+          record.name
+        );
+      },
     },
     {
       title: 'Employee Contribution',
-      dataIndex: 'employeeContribution',
-      key: 'employeeContribution',
+      dataIndex: 'employee',
+      key: 'employee',
+      render: (notused: any, record: PensionRule) => {
+        return isEditing(record) ? (
+          <Input
+            type='number'
+            max={100}
+            min={0}
+            value={editedData.employee}
+            onChange={(e) =>
+              handleInputChange('employee', e.target.value)
+            }
+          />
+        ) : (
+          `${record.employee}%`
+        );
+      },
     },
     {
       title: 'Employer Contribution',
-      dataIndex: 'employerContribution',
-      key: 'employerContribution',
+      dataIndex: 'employer',
+      key: 'employer',
+      render: (_: any, record: PensionRule) => {
+        return isEditing(record) ? (
+          <Input
+            type='number'
+            max={100}
+            min={0}
+            value={editedData.employer}
+            onChange={(e) =>
+              handleInputChange('employer', e.target.value)
+            }
+          />
+        ) : (
+          `${record.employer}%`
+        );
+      },
+    },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+      render: (notused: any, record: PensionRule) => {
+        const editable = isEditing(record);
+        return editable ? (
+          <Button
+            type="primary"
+            icon={<SaveOutlined />}
+            onClick={() => handleSave(record)}
+          >
+            Save
+          </Button>
+        ) : (
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+          />
+        );
+      },
     },
   ];
 
@@ -46,7 +142,7 @@ const Pension = () => {
         </Button>
       </div>
 
-      <Table dataSource={dataSource} columns={columns} pagination={false} />
+      <Table dataSource={pensionRule??[]} columns={columns} pagination={false} loading={isLoading} />
     </div>
   );
 };

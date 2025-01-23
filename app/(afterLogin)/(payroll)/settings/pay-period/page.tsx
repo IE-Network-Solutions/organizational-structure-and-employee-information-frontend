@@ -14,7 +14,15 @@ import dayjs from 'dayjs';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 const { Title } = Typography;
-
+interface DataSource {
+  key: string;
+  id: string;
+  startDate: string;
+  endDate: string;
+  range: string;
+  month: string;
+  status: string;
+}
 const PayPeriod = () => {
   const {
     setIsPayPeriodSidebarVisible,
@@ -43,16 +51,13 @@ const PayPeriod = () => {
   };
 
   const onStatusChange = (record: any, checked: boolean) => {
-    // const newStatus = checked ? 'OPEN' : 'CLOSED';
     changePayPeriodStatus({
       payPeriodId: record.id,
-      // status: newStatus,
-      // activeFiscalYearId: activeFiscalYear?.id,
     });
   };
 
-  const dataSource = Array.isArray(payPeriods)
-    ? payPeriods.map((payPeriod: any) => ({
+  const dataSource:DataSource[] = Array.isArray(payPeriods)
+    ? payPeriods.reverse().map((payPeriod: DataSource) => ({
         key: payPeriod.id,
         id: payPeriod.id,
         startDate: payPeriod.startDate,
@@ -83,13 +88,13 @@ const PayPeriod = () => {
       title: 'Action',
       key: 'action',
       render: (record: any) => (
+        <AccessGuard
+        permissions={[
+          Permissions.UpdatePayPeriod,
+          Permissions.DeletePayPeriod,
+        ]}
+      >
         <Space size="middle">
-          <AccessGuard
-            permissions={[
-              Permissions.UpdatePayPeriod,
-              Permissions.DeletePayPeriod,
-            ]}
-          >
             <Switch
               checked={record.status === 'OPEN'}
               onChange={(checked) => onStatusChange(record, checked)}
@@ -102,8 +107,9 @@ const PayPeriod = () => {
               icon={<DeleteOutlined />}
               onClick={() => handleDeletePayPeriod(record.id)}
             />
-          </AccessGuard>
         </Space>
+          </AccessGuard>
+
       ),
     },
   ];

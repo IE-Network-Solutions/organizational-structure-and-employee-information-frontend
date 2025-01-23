@@ -124,8 +124,6 @@ const deletePayPeriod = async (payPeriodId: string) => {
  */
 const changePayPeriodStatus = async (
   payPeriodId: string,
-  // status: string,
-  // activeFiscalYearId: string | undefined,
 ): Promise<any> => {
   const { token, tenantId } = useAuthenticationStore.getState();
 
@@ -137,7 +135,6 @@ const changePayPeriodStatus = async (
   return await crudRequest({
     url: `${PAYROLL_URL}/pay-period/change/pay-period-status/${payPeriodId}`,
     method: 'put',
-    data: payPeriodId,
     headers,
   });
 };
@@ -244,12 +241,8 @@ export const useChangePayPeriodStatus = () => {
   return useMutation(
     ({
       payPeriodId,
-      // status,
-      // activeFiscalYearId,
     }: {
       payPeriodId: string;
-      // status: string;
-      // activeFiscalYearId: string | undefined;
     }) => changePayPeriodStatus(payPeriodId),
     {
       onSuccess: (data, variables) => {
