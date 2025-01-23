@@ -3,6 +3,7 @@ import { MdKeyboardArrowRight } from 'react-icons/md';
 import dayjs from 'dayjs';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { ConversationStore } from '@/store/uistate/features/conversation';
+import UserCard from '@/components/common/userCard/userCard';
 
 type ConversationInstanceDetailProps = {
   conversationInstance: any;
@@ -56,7 +57,7 @@ function ConversationInstanceDetail({
                     setSelectedUserId(''); // Reset selectedUserId if it's already the same as the attendee's id
                   }
                 }}
-                className={`${selectedUserId === attendee?.id && 'ml-8 bg-indigo-100'} 
+                className={`${selectedUserId === attendee?.id && 'ml-4 bg-indigo-100'} 
                                 px-4 py-2 rounded cursor-pointer hover:bg-indigo-100
                                 sm:px-6 sm:py-3 md:px-8 md:py-4`} // Responsive padding
                 key={attendee.id}
@@ -67,24 +68,24 @@ function ConversationInstanceDetail({
                   />,
                 ]}
               >
+                
                 <div className="flex flex-col w-full">
-                  <span className="mb-1 font-semibold text-gray-700 text-xs">
+                  <span
+                    className="mb-1 font-semibold text-gray-700 text-xs truncate w-full"
+                    title={activePosition?.department?.name || '-'}
+                  >
                     {activePosition?.department?.name || '-'}
                   </span>
-                  <List.Item.Meta
-                    avatar={<Avatar src={attendee?.profileImage} />}
-                    title={
-                      <div className="flex items-center mt-2">
-                        <span className="text-xs font-medium cursor-pointer mr-2">
-                          {attendee?.firstName ?? '-'}
-                        </span>
-                        <span className="text-xs font-medium cursor-pointer">
-                          {attendee?.middleName ?? ''}{' '}
-                          {attendee?.lastName ?? ''}
-                        </span>
-                      </div>
+                  <UserCard
+                    name={
+                      <span className="text-xs font-medium cursor-pointer truncate w-full">
+                        {`${attendee?.firstName ?? '-'} ${attendee?.middleName ?? ''} ${attendee?.lastName ?? ''}`}
+                      </span>
                     }
+                    profileImage={attendee?.profileImage}
+                    size="small"
                   />
+                  
                 </div>
               </List.Item>
             );
