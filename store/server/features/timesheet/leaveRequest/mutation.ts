@@ -58,6 +58,15 @@ const setAllApproveLeaveRequest = async (data: AllLeaveRequestApproveData) => {
     data: roleId,
   });
 };
+const setAllRejectLeaveRequest = async (data: AllLeaveRequestApproveData) => {
+  const roleId = { roleId: data?.roleId };
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/CurrentRejected/${data?.userId}?page=${data?.page}&limit=${data?.limit}`,
+    method: 'POST',
+    headers: requestHeader(),
+    data: roleId,
+  });
+};
 
 export const useSetLeaveRequest = () => {
   const queryClient = useQueryClient();
@@ -112,6 +121,20 @@ export const useSetApproveLeaveRequest = () => {
 export const useSetAllApproveLeaveRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllApproveLeaveRequest, {
+    onSuccess: (data, variables: any) => {
+      queryClient.invalidateQueries(['current_approval', data?.userId]);
+      queryClient.invalidateQueries(['leave-request']);
+      queryClient.invalidateQueries(['transferApprovalRequest']);
+      queryClient.invalidateQueries(['myTansferRequest']);
+      queryClient.invalidateQueries(['transferRequest']);
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+export const useSetRejectLeaveRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(setAllRejectLeaveRequest, {
     onSuccess: (data, variables: any) => {
       queryClient.invalidateQueries(['current_approval', data?.userId]);
       queryClient.invalidateQueries(['leave-request']);
