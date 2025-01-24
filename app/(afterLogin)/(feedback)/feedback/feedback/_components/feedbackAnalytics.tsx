@@ -1,5 +1,8 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+
+dayjs.extend(isBetween);
 
 interface FeedbackRecord {
   created_at: string;
@@ -29,30 +32,49 @@ export class FeedbackService {
     const roundedChange = Math.round(change);
 
     return change > 0
-      ? `${roundedChange}% increase`
-      : `${Math.abs(roundedChange)}% decrease`;
+      ? `${roundedChange ?? 0}% increase`
+      : `${Math.abs(roundedChange ?? 0)}% decrease`;
   }
 
   // Utility to filter feedback data by type, user, and time range
   static filterFeedbackData(
-    feedbackData: FeedbackRecord[],
+    feedbackData: FeedbackRecord[] = [],
     variant: string,
     userId: string,
     key: 'issuerId' | 'recipientId',
     startOfWeek: dayjs.Dayjs,
     endOfWeek: dayjs.Dayjs,
+    user: string,
   ): FeedbackRecord[] {
-    return feedbackData?.filter(
-      (record) =>
-        record.feedbackVariant.varient === variant &&
-        record[key] === userId &&
-        dayjs(record.created_at).isBetween(startOfWeek, endOfWeek, null, '[]'),
-    );
+    let filteredData: FeedbackRecord[];
+
+    if (user === 'all') {
+      // Filter when `user` is 'all'
+      filteredData = feedbackData.filter((item) => {
+        const createdAt = dayjs(item.createdAt); // Convert to a Day.js instance
+        return (
+          item.feedbackVariant.variant === variant &&
+          createdAt.isBetween(startOfWeek, endOfWeek, null, '[]') // Inclusive range
+        );
+      });
+    } else {
+      filteredData = feedbackData.filter((item) => {
+        const createdAt = dayjs(item.createdAt); // Use dayjs for date comparisons
+        return (
+          item.feedbackVariant.variant === variant &&
+          item[key] === userId &&
+          createdAt.isBetween(startOfWeek, endOfWeek, null, '[]') // Inclusive range
+        );
+      });
+    }
+
+    return filteredData || []; // Return an empty array if nothing is filtered
   }
 
   // Core method to calculate feedback stats
   static getFeedbackStats(
     feedbackRecordData: FeedbackRecord[],
+    user: string,
   ): FeedbackStatResponse {
     const userId = useAuthenticationStore.getState().userId;
 
@@ -75,13 +97,20 @@ export class FeedbackService {
       issued: string;
       totalIssued: number;
     } => {
+      const thisWeekRangeStart = dayjs(thisWeekRange.start);
+      const thisWeekRangeEnd = dayjs(thisWeekRange.end);
+
+      const lastWeekRangeStart = dayjs(lastWeekRange.start);
+      const lastWeekRangeEnd = dayjs(lastWeekRange.end);
+
       const thisWeekReceived = this.filterFeedbackData(
         feedbackRecordData,
         variant,
         userId,
         'recipientId',
-        thisWeekRange.start,
-        thisWeekRange.end,
+        thisWeekRangeStart,
+        thisWeekRangeEnd,
+        user,
       )?.length;
 
       const lastWeekReceived = this.filterFeedbackData(
@@ -89,8 +118,9 @@ export class FeedbackService {
         variant,
         userId,
         'recipientId',
-        lastWeekRange.start,
-        lastWeekRange.end,
+        lastWeekRangeStart,
+        lastWeekRangeEnd,
+        user,
       )?.length;
 
       const thisWeekIssued = this.filterFeedbackData(
@@ -98,8 +128,9 @@ export class FeedbackService {
         variant,
         userId,
         'issuerId',
-        thisWeekRange.start,
-        thisWeekRange.end,
+        thisWeekRangeStart,
+        thisWeekRangeEnd,
+        user,
       )?.length;
 
       const lastWeekIssued = this.filterFeedbackData(
@@ -107,8 +138,9 @@ export class FeedbackService {
         variant,
         userId,
         'issuerId',
-        lastWeekRange.start,
-        lastWeekRange.end,
+        lastWeekRangeStart,
+        lastWeekRangeEnd,
+        user,
       )?.length;
 
       return {

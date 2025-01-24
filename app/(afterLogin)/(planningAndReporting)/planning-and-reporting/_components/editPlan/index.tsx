@@ -134,6 +134,7 @@ function EditPlan() {
     ) => {
       tasks?.forEach((e: any) => {
         const hasMilestone = e?.milestone !== null;
+
         const name = hasMilestone
           ? `${e?.keyResult?.id + e?.milestone?.id + (e?.parentTaskId || '')}`
           : `${e?.keyResult?.id + (e?.parentTaskId || '')}`;

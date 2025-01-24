@@ -3,7 +3,6 @@ import { FC, ReactNode, useEffect, useState } from 'react';
 import { Card, ConfigProvider, Menu, MenuProps } from 'antd';
 import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
 import { usePathname, useRouter } from 'next/navigation';
-import { RiAwardFill } from 'react-icons/ri';
 import { FaBomb } from 'react-icons/fa';
 
 interface OkrSettingsLayoutProps {
@@ -68,23 +67,23 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
       },
       link: '/settings/pension',
     },
-    {
-      item: {
-        key: 'cost-sharing',
-        icon: (
-          <RiAwardFill
-            className={
-              currentItem === 'cost-sharing'
-                ? 'text-[#4DAEF0]'
-                : 'text-gray-500'
-            }
-          />
-        ),
-        label: <p className="font-bold text-sm text-gray-900">Cost Sharing</p>,
-        className: currentItem === 'cost-sharing' ? 'px-4' : 'px-1',
-      },
-      link: '/settings/cost-sharing',
-    },
+    // {
+    //   item: {
+    //     key: 'cost-sharing',
+    //     icon: (
+    //       <RiAwardFill
+    //         className={
+    //           currentItem === 'cost-sharing'
+    //             ? 'text-[#4DAEF0]'
+    //             : 'text-gray-500'
+    //         }
+    //       />
+    //     ),
+    //     label: <p className="font-bold text-sm text-gray-900">Cost Sharing</p>,
+    //     className: currentItem === 'cost-sharing' ? 'px-4' : 'px-1',
+    //   },
+    //   link: '/settings/cost-sharing',
+    // },
     {
       item: {
         key: 'pay-period',

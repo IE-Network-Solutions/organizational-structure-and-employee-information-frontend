@@ -142,11 +142,19 @@ const QuestionSetForm = () => {
     }
   }, [editableData, form]);
 
+  const checkQuestions = () => {
+    if (questions && questions.length > 0) {
+      return Promise.resolve();
+    }
+    return Promise.reject(new Error('You must atleast add one question.'));
+  };
+
   return (
     <Form
       layout="vertical"
       form={form} // Bind the form instance
       onFinish={handleSubmit}
+      
     >
       <Form.Item
         label="Name"
@@ -178,12 +186,16 @@ const QuestionSetForm = () => {
         label="Is Active"
         name="active"
         initialValue={true}
-        rules={[{ required: true, message: 'Please enter a m' }]}
       >
         <Switch />
       </Form.Item>
 
-      <Form.Item label="Questions">
+      <Form.Item
+        label="Questions"
+        name="questions"
+        required
+        rules={[{ validator: checkQuestions }]}
+      >
         {questions?.map((q: any) => (
           <div key={q.id} style={{ marginBottom: '16px' }}>
             {/* First Row: Question Input */}

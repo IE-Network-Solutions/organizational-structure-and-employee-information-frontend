@@ -72,6 +72,7 @@ function Planning() {
     page,
   });
 
+  // console.log(allPlanning?.items,"allPlanning")
   const transformedData = groupPlanTasksByKeyResultAndMilestone(
     allPlanning?.items,
   );
