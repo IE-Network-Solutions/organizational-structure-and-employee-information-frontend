@@ -17,7 +17,9 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
 
   useEffect(() => {
     if (data) {
-      const filteredData = data.filter((item: any) => item.type === 'DEDUCTION');
+      const filteredData = data.filter(
+        (item: any) => item.type === 'DEDUCTION',
+      );
       const dynamicMenuItems =
         filteredData?.map((deduction: any) => ({
           item: {
@@ -33,17 +35,17 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           link: `/deduction/${deduction.id}`,
         })) || [];
 
-        const allAllowanceItem = {
-            item: {
-              key: 'allAllowance',
-              icon: <CiCalendarDate />,
-              label: <p className="menu-item-label">All Deductions</p>,
-              className: 'px-1',
-            },
-            link: '/deduction/allDeduction',
-          };
-    
-          setMenuItems([allAllowanceItem, ...dynamicMenuItems]);
+      const allAllowanceItem = {
+        item: {
+          key: 'allAllowance',
+          icon: <CiCalendarDate />,
+          label: <p className="menu-item-label">All Deductions</p>,
+          className: 'px-1',
+        },
+        link: '/deduction/allDeduction',
+      };
+
+      setMenuItems([allAllowanceItem, ...dynamicMenuItems]);
     }
   }, [data]);
 

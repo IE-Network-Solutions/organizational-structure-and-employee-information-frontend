@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Table, Button, Space, Tooltip, Typography } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Drawer from './_components/drawer';
 import { useGetTaxRule } from '@/store/server/features/payroll/setting/tax-rule/queries';
 import { useDeleteTaxRule } from '@/store/server/features/payroll/setting/tax-rule/mutation';
@@ -78,9 +78,9 @@ const TaxRules = () => {
     deleteTaxRule(record);
   };
 
-  const handleAddRule = () => {
-    openDrawer();
-  };
+  // const handleAddRule = () => {
+  //   openDrawer();
+  // };
 
   return (
     <div className="p-6">

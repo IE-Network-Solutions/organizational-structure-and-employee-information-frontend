@@ -50,13 +50,13 @@ const PayPeriod = () => {
     setPageSize(pagination.pageSize);
   };
 
-  const onStatusChange = (record: any, checked: boolean) => {
+  const onStatusChange = (record: any) => {
     changePayPeriodStatus({
       payPeriodId: record.id,
     });
   };
 
-  const dataSource:DataSource[] = Array.isArray(payPeriods)
+  const dataSource: DataSource[] = Array.isArray(payPeriods)
     ? payPeriods.reverse().map((payPeriod: DataSource) => ({
         key: payPeriod.id,
         id: payPeriod.id,
@@ -89,15 +89,15 @@ const PayPeriod = () => {
       key: 'action',
       render: (record: any) => (
         <AccessGuard
-        permissions={[
-          Permissions.UpdatePayPeriod,
-          Permissions.DeletePayPeriod,
-        ]}
-      >
-        <Space size="middle">
+          permissions={[
+            Permissions.UpdatePayPeriod,
+            Permissions.DeletePayPeriod,
+          ]}
+        >
+          <Space size="middle">
             <Switch
               checked={record.status === 'OPEN'}
-              onChange={(checked) => onStatusChange(record, checked)}
+              onChange={() => onStatusChange(record)}
               checkedChildren="Opened"
               unCheckedChildren="Closed"
             />
@@ -107,9 +107,8 @@ const PayPeriod = () => {
               icon={<DeleteOutlined />}
               onClick={() => handleDeletePayPeriod(record.id)}
             />
-        </Space>
-          </AccessGuard>
-
+          </Space>
+        </AccessGuard>
       ),
     },
   ];

@@ -3,7 +3,6 @@ import { FC, ReactNode, useEffect, useState } from 'react';
 import { Card, ConfigProvider, Menu, MenuProps } from 'antd';
 import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
 import { usePathname, useRouter } from 'next/navigation';
-import { RiAwardFill } from 'react-icons/ri';
 import { FaBomb } from 'react-icons/fa';
 
 interface OkrSettingsLayoutProps {

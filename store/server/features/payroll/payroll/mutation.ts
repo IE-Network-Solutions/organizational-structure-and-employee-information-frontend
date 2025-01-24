@@ -68,20 +68,19 @@ export const useCreatePayroll = () => {
   });
 };
 
-export const useUpdatePensionRule=()=>{ 
+export const useUpdatePensionRule = () => {
+  const queryClient = useQueryClient();
 
-const queryClient = useQueryClient();
-
-return useMutation(updatePensionRule, {
-  onSuccess: () => {
-    queryClient.invalidateQueries('pension-rule');
-  },
-  onError: (error: any) => {
-    const errorMessage = error?.response?.data?.message;
-    NotificationMessage.error({
-      message: 'PayRoll Creation Failed',
-      description: errorMessage,
-    });
-  },
-});
-}
+  return useMutation(updatePensionRule, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('pension-rule');
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message;
+      NotificationMessage.error({
+        message: 'PayRoll Creation Failed',
+        description: errorMessage,
+      });
+    },
+  });
+};

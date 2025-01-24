@@ -8,7 +8,7 @@ import { SearchOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
-import  DeductionEntitlementSideBar from './deductionEntitlementSidebar';
+import DeductionEntitlementSideBar from './deductionEntitlementSidebar';
 import { useFetchAllowanceEntitlements } from '@/store/server/features/compensation/allowance/queries';
 import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';

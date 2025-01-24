@@ -74,6 +74,5 @@ const getPensionRule = async () => {
   });
 };
 export const useGetPayPeriod = () => useQuery('pay-peroid', getPayPeroid);
-export const useGetAllPensionRule = () => useQuery('pension-rule', getPensionRule);
-
-
+export const useGetAllPensionRule = () =>
+  useQuery('pension-rule', getPensionRule);

@@ -5,7 +5,7 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import TabLandingLayout from '@/components/tabLanding';
 import { PiPlus } from 'react-icons/pi';
 import EmployeeSearchComponent from '@/components/common/search/searchComponent';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
 import CustomDrawerLayout from '@/components/common/customDrawer';
@@ -270,7 +270,7 @@ const Page = () => {
       </div>
       {getFeedbackCardDataLoading ? (
         <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
+          {Array.from({ length: 4 }).map((notused, index) => (
             <FeedbackCardSkeleton key={index} />
           ))}
         </div>

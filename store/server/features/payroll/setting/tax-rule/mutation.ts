@@ -122,9 +122,7 @@ const deletePayPeriod = async (payPeriodId: string) => {
  * @param {string} status - The new status of the pay period (e.g., 'OPEN' or 'CLOSED').
  * @returns {Promise<any>} The response from the API.
  */
-const changePayPeriodStatus = async (
-  payPeriodId: string,
-): Promise<any> => {
+const changePayPeriodStatus = async (payPeriodId: string): Promise<any> => {
   const { token, tenantId } = useAuthenticationStore.getState();
 
   const headers = {
@@ -239,17 +237,12 @@ export const useChangePayPeriodStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({
-      payPeriodId,
-    }: {
-      payPeriodId: string;
-    }) => changePayPeriodStatus(payPeriodId),
+    ({ payPeriodId }: { payPeriodId: string }) =>
+      changePayPeriodStatus(payPeriodId),
     {
-      onSuccess: (data, variables) => {
+      onSuccess: () => {
         queryClient.invalidateQueries('payPeriods');
-        handleSuccessMessage(
-          `Pay period status changed to`,
-        );
+        handleSuccessMessage(`Pay period status changed to`);
       },
     },
   );

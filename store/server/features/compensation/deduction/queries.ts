@@ -8,8 +8,7 @@ import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
-
-const getAllDeductionTypes = async (type:string) => {
+const getAllDeductionTypes = async (type: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -23,9 +22,6 @@ const getAllDeductionTypes = async (type:string) => {
   });
 };
 
-
-
-
-export const useGetAllDeductionTypes = (type:string) => {
+export const useGetAllDeductionTypes = (type: string) => {
   return useQuery(['deductions'], () => getAllDeductionTypes(type));
 };

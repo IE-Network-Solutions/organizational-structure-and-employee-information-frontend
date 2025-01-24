@@ -18,15 +18,14 @@ type PensionRule = {
 };
 
 const Pension = () => {
-
   const { data: pensionRule, isLoading } = useGetAllPensionRule();
-  const { mutate: pensionRuleUpdate, isLoading:updatePensionRule } = useUpdatePensionRule();
+  const { mutate: pensionRuleUpdate, isLoading: updatePensionRule } =
+    useUpdatePensionRule();
 
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editedData, setEditedData] = useState<Record<string, any>>({});
 
   // Format the data for the table
-
 
   const isEditing = (record: any) => record.key === editingKey;
 
@@ -35,12 +34,11 @@ const Pension = () => {
     setEditedData({ ...record });
   };
 
-  const handleSave = (record: any) => {
-    console.log('Saved Data:', editedData); // Replace with API call to save
-    pensionRuleUpdate(editedData,{
-      onSuccess:()=>{
+  const handleSave = () => {
+    pensionRuleUpdate(editedData, {
+      onSuccess: () => {
         setEditingKey(null); // Exit editing mode
-      }
+      },
     });
   };
 
@@ -70,13 +68,11 @@ const Pension = () => {
       render: (notused: any, record: PensionRule) => {
         return isEditing(record) ? (
           <Input
-            type='number'
+            type="number"
             max={100}
             min={0}
             value={editedData.employee}
-            onChange={(e) =>
-              handleInputChange('employee', e.target.value)
-            }
+            onChange={(e) => handleInputChange('employee', e.target.value)}
           />
         ) : (
           `${record.employee}%`
@@ -87,16 +83,14 @@ const Pension = () => {
       title: 'Employer Contribution',
       dataIndex: 'employer',
       key: 'employer',
-      render: (_: any, record: PensionRule) => {
+      render: (notused: any, record: PensionRule) => {
         return isEditing(record) ? (
           <Input
-            type='number'
+            type="number"
             max={100}
             min={0}
             value={editedData.employer}
-            onChange={(e) =>
-              handleInputChange('employer', e.target.value)
-            }
+            onChange={(e) => handleInputChange('employer', e.target.value)}
           />
         ) : (
           `${record.employer}%`
@@ -112,8 +106,9 @@ const Pension = () => {
         return editable ? (
           <Button
             type="primary"
+            loading={updatePensionRule}
             icon={<SaveOutlined />}
-            onClick={() => handleSave(record)}
+            onClick={() => handleSave()}
           >
             Save
           </Button>
@@ -142,7 +137,12 @@ const Pension = () => {
         </Button>
       </div>
 
-      <Table dataSource={pensionRule??[]} columns={columns} pagination={false} loading={isLoading} />
+      <Table
+        dataSource={pensionRule ?? []}
+        columns={columns}
+        pagination={false}
+        loading={isLoading}
+      />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Avatar } from 'antd';
-import { FaBomb, FaLongArrowAltUp } from 'react-icons/fa';
+import { FaBomb } from 'react-icons/fa';
 import { LuAward, LuUsers } from 'react-icons/lu';
 import { GoArrowDown, GoArrowUp } from 'react-icons/go';
 import { Card, Skeleton } from 'antd';
