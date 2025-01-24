@@ -21,7 +21,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
   const { data: employeeData } = useGetEmployee(id);
   const { data: basicSalary } = useGetBasicSalaryById(id);
 
-  const { mutate: createJobInformation } = useCreateJobInformation();
+  const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
