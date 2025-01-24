@@ -17,6 +17,8 @@ const groupTasksByKeyResultId = (plans: any) => {
         updatedAt: task?.updatedAt,
         targetValue: task?.targetValue,
         weight: task?.weight,
+        parentTask: task?.parentTask,
+        achieveMK: task?.achieveMK,
         milestone: { ...task?.milestone },
       });
     });
@@ -48,12 +50,43 @@ const groupByMilestone = (tasks: any[]) => {
       updatedAt: task.updatedAt,
       targetValue: task.targetValue,
       weight: task.weight,
+      parentTask: task?.parentTask,
+      achieveMK: task?.achieveMK,
       keyResult: { ...task.keyResult }, // Optionally include keyResult data
     });
     return acc;
   }, {}); // Start with an empty object
   return Object.values(milestoneMap);
 };
+
+const groupByParentTask = (tasks: any[]) => {
+  const parentTaskMap: any = {};
+
+  tasks.forEach((task) => {
+    const parentTask = task.parentTask;
+    if (!parentTask || !parentTask.id) return;
+
+    if (!parentTaskMap[parentTask.id]) {
+      parentTaskMap[parentTask.id] = {
+        ...parentTask,
+        tasks: [],
+      };
+    }
+
+    parentTaskMap[parentTask.id].tasks.push({
+      id: task.id,
+      task: task.task,
+      priority: task.priority,
+      createdAt: task.createdAt,
+      updatedAt: task.updatedAt,
+      targetValue: task.targetValue,
+      achieveMK: task.achieveMK,
+      weight: task.weight,
+    });
+  });
+  return Object.values(parentTaskMap);
+};
+
 export const groupPlanTasksByKeyResultAndMilestone = (plans: any) => {
   const groupedDataByKeyResult = groupTasksByKeyResultId(plans);
 
@@ -62,15 +95,42 @@ export const groupPlanTasksByKeyResultAndMilestone = (plans: any) => {
       ...plan,
       keyResults: plan?.keyResults?.map((keyResult: any) => {
         const tasksWithoutMilestone = keyResult?.tasks?.filter(
-          (task: any) => !task.milestone,
+          (task: any) => !task.milestone?.id,
         );
+        const tasksWithParent = tasksWithoutMilestone?.filter(
+          (task: any) => task?.parentTask?.id,
+        );
+        const tasksWithoutParent = tasksWithoutMilestone?.filter(
+          (task: any) => !task?.parentTask?.id,
+        );
+
+        const groupedTaskData = groupByParentTask(tasksWithParent);
+
         const milestones = groupByMilestone(
-          keyResult?.tasks?.filter((task: any) => task.milestone),
+          keyResult?.tasks?.filter((task: any) => task?.milestone?.id),
         );
+
+        const enhancedMilestones = milestones.map((milestone: any) => {
+          const haveParentTasks = milestone?.tasks?.filter(
+            (task: any) => task?.parentTask?.id,
+          );
+          const haveNoParentTasks = milestone?.tasks?.filter(
+            (task: any) => !task?.parentTask?.id,
+          );
+          const groupedTasksByParentTask = groupByParentTask(haveParentTasks);
+
+          return {
+            ...milestone,
+            parentTask: groupedTasksByParentTask,
+            tasks: haveNoParentTasks,
+          };
+        });
+
         return {
           ...keyResult,
-          tasks: tasksWithoutMilestone, // Tasks without a milestone
-          milestones: milestones, // Grouped tasks with a milestone
+          tasks: tasksWithoutParent,
+          parentTask: groupedTaskData,
+          milestones: enhancedMilestones,
         };
       }),
     };

@@ -18,11 +18,13 @@ interface FieldConfig {
   placeholder: string; // Placeholder for the field
   type?: string; // Placeholder for the field
   onChange?: (value: any) => void; // Callback triggered on value change
+
 }
 
 interface DynamicSearchProps {
   fields: FieldConfig[]; // Array of field configurations
   onChange?: (value: any) => void;
+
 }
 
 const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({ fields }) => {
@@ -46,6 +48,7 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({ fields }) => {
             <Select
               placeholder={field.placeholder}
               onChange={(value: string) => field?.onChange && field.onChange(value)}
+
               allowClear
               showSearch
               className="w-full h-14"
