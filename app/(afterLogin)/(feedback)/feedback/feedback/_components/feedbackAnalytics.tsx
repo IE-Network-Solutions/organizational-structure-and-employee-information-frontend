@@ -53,7 +53,7 @@ export class FeedbackService {
       filteredData = feedbackData.filter((item) => {
         const createdAt = dayjs(item.createdAt); // Convert to a Day.js instance
         return (
-          item.feedbackVariant.variant === variant &&
+          item.feedbackVariant?.variant === variant &&
           createdAt.isBetween(startOfWeek, endOfWeek, null, '[]') // Inclusive range
         );
       });
@@ -61,7 +61,7 @@ export class FeedbackService {
       filteredData = feedbackData.filter((item) => {
         const createdAt = dayjs(item.createdAt); // Use dayjs for date comparisons
         return (
-          item.feedbackVariant.variant === variant &&
+          item.feedbackVariant?.variant === variant &&
           item[key] === userId &&
           createdAt.isBetween(startOfWeek, endOfWeek, null, '[]') // Inclusive range
         );
