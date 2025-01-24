@@ -186,6 +186,7 @@ const Page = () => {
           'N/A'
         );
       },
+
       key: 'reason',
     },
     {
@@ -258,7 +259,6 @@ const Page = () => {
       onChange: (value: string) => setGivenDate(value),
     },
   ];
-
   return (
     <TabLandingLayout
       // buttonTitle="Generate report"
