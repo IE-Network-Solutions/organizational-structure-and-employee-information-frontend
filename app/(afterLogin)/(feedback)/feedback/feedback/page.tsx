@@ -186,6 +186,8 @@ const Page = () => {
           'N/A'
         );
       },
+
+      key: 'reason',
     },
     {
       title: 'Given Date',
