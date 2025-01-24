@@ -19,9 +19,7 @@ import {
   useGetUnReportedPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
-import {
-  useEditReportByReportId,
-} from '@/store/server/features/okrPlanningAndReporting/mutations';
+import { useEditReportByReportId } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
 import { useEffect } from 'react';
@@ -69,8 +67,6 @@ function EditReport() {
       {planningPeriodName}
     </div>
   );
-
-  console.log(reportedData, 'allUnReportedPlanningTask');
 
   const handleOnFinish = (values: Record<string, any>) => {
     Object.entries(values).length > 0 &&

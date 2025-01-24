@@ -8,9 +8,8 @@ type MkAsATask = {
 };
 
 export interface PlanningAndReporting {
-  
   mkAsATask: MkAsATask | null;
-setMKAsATask: (mkAsATask: MkAsATask | null) => void;
+  setMKAsATask: (mkAsATask: MkAsATask | null) => void;
 
   newComment: string;
   setNewComment: (newComment: string) => void;

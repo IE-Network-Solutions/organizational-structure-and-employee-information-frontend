@@ -2,6 +2,8 @@ import React from 'react';
 import { Row, Col, Tag, Typography, Tooltip } from 'antd';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { IoIosClose } from 'react-icons/io';
+import { FaStar } from 'react-icons/fa';
+import { MdKey } from 'react-icons/md';
 
 const { Text } = Typography;
 
@@ -13,6 +15,8 @@ type Task = {
   actualValue: string;
   isAchieved: boolean;
   customReason: string;
+  achieveMK: boolean;
+  milestone: any;
 };
 
 type Props = {
@@ -43,7 +47,18 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
               </Tooltip>
             )}
             <Text className="text-xs flex flex-col">
-              {`${taskIndex + 1}. ${task.taskName}`}{' '}
+              <span className="flex items-center gap-1">
+                {`${taskIndex + 1}. ${task.taskName}`}{' '}
+                {task?.achieveMK ? (
+                  task?.milestone ? (
+                    <FaStar size={11} />
+                  ) : (
+                    <MdKey size={12} className="" />
+                  )
+                ) : (
+                  ''
+                )}
+              </span>
               {task?.customReason && (
                 <Tooltip title={task.customReason}>
                   <Text className="text-[10px] mb-2">

@@ -49,8 +49,6 @@ function Reporting() {
     selectedUser,
     activePlanPeriod,
     setSelectedReportId,
-    setOpen,
-    setEditing,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
@@ -251,7 +249,9 @@ function Reporting() {
                             </div>
                           </Col>
                           <Col className="text-xs -ml-3">
-                            {dataItem?.plan?.isReportValidated ? 'Closed' : 'Open'}
+                            {dataItem?.plan?.isReportValidated
+                              ? 'Closed'
+                              : 'Open'}
                           </Col>
                         </Row>
                         <Col
@@ -268,22 +268,22 @@ function Reporting() {
                               getEmployeeData(
                                 dataItem?.userId ?? dataItem?.createdBy,
                               )?.reportingTo?.id && ( */}
-                              <Dropdown
-                                overlay={actionsMenu(
-                                  dataItem,
-                                  handleApproveHandler,
-                                  isApprovalLoading,
-                                )}
-                                trigger={['click']}
-                              >
-                                <Button
-                                  type="text"
-                                  icon={
-                                    <IoMdMore className="text-2xl font-bold" />
-                                  }
-                                  className="cursor-pointer text-green border-none  hover:text-success"
-                                />
-                              </Dropdown>
+                            <Dropdown
+                              overlay={actionsMenu(
+                                dataItem,
+                                handleApproveHandler,
+                                isApprovalLoading,
+                              )}
+                              trigger={['click']}
+                            >
+                              <Button
+                                type="text"
+                                icon={
+                                  <IoMdMore className="text-2xl font-bold" />
+                                }
+                                className="cursor-pointer text-green border-none  hover:text-success"
+                              />
+                            </Dropdown>
                             {/* )} */}
                             {userId ===
                               (dataItem?.userId ?? dataItem?.createdBy) &&
@@ -291,9 +291,7 @@ function Reporting() {
                                 <Dropdown
                                   overlay={actionsMenuEditandDelte(
                                     dataItem,
-                                    // setEditing,
                                     setSelectedReportId,
-                                    // setOpen,
                                   )}
                                   trigger={['click']}
                                 >
