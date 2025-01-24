@@ -1,4 +1,4 @@
-import { Avatar, Card, Divider, List } from 'antd';
+import { Card, Divider, List } from 'antd';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import dayjs from 'dayjs';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
