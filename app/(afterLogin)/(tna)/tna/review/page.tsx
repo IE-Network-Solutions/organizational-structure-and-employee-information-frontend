@@ -31,8 +31,39 @@ import FileButton from '@/components/common/fileButton';
 import { useDeleteTna } from '@/store/server/features/tna/review/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import UserCard from '@/components/common/userCard/userCard';
+import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import TnaApprovalTable from './_components/approvalTabel';
 
 const TnaReviewPage = () => {
+  const EmpRender = ({ userId }: any) => {
+    const {
+      isLoading,
+      data: employeeData,
+      isError,
+    } = useGetSimpleEmployee(userId);
+
+    if (isLoading) return <div>...</div>;
+    if (isError) return <>-</>;
+    const fullName = `${employeeData?.firstName || '-'} ${employeeData?.middleName || '-'} ${employeeData?.lastName || '-'}`;
+
+    return employeeData ? (
+      <div className="flex items-center gap-1.5">
+        <div className="flex-1">
+          <UserCard
+            name={fullName}
+            profileImage={employeeData?.profileImage}
+            size="small"
+          />
+          <div className="text-[10px] leading-4 text-gray-600">
+            {employeeData?.email}
+          </div>
+        </div>
+      </div>
+    ) : (
+      '-'
+    );
+  };
   const router = useRouter();
   const [tableData, setTableData] = useState<any[]>([]);
   const {
@@ -57,6 +88,7 @@ const TnaReviewPage = () => {
     { page, limit, orderBy, orderDirection },
     { filter },
   );
+
   const {
     mutate: deleteTna,
     isLoading: isLoadingDelete,
@@ -87,7 +119,7 @@ const TnaReviewPage = () => {
         data.items.map((item) => ({
           key: item.id,
           title: item.title,
-          createdBy: item.createdBy,
+          createdBy: item.assignedUserId,
           completedAt: item.completedAt,
           attachment: item.trainingProofs,
           status: item.status,
@@ -111,7 +143,7 @@ const TnaReviewPage = () => {
       dataIndex: 'createdBy',
       key: 'createdBy',
       sorter: true,
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => <EmpRender userId={text} />,
     },
     {
       title: 'Completed Date',
@@ -221,6 +253,7 @@ const TnaReviewPage = () => {
 
   return (
     <div className="page-wrap">
+      <TnaApprovalTable />
       <BlockWrapper>
         <PageHeader title="TNA">
           <Space size={20}>

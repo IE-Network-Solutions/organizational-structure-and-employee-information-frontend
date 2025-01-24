@@ -16,6 +16,9 @@ import {
 } from '@/types/tna/tna';
 import { useGetTna } from '@/store/server/features/tna/review/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useAllApproval } from '@/store/server/features/approver/queries';
+import { APPROVALTYPES } from '@/types/enumTypes';
+import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 
 const TnaRequestSidebar = () => {
   const {
@@ -26,6 +29,26 @@ const TnaRequestSidebar = () => {
     setTnaId,
   } = useTnaReviewStore();
   const { userId } = useAuthenticationStore();
+
+  const { data: employeeData } = useGetEmployee(userId);
+  const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
+    useAllApproval(
+      employeeData?.employeeJobInformation?.[0]?.departmentId || '',
+      APPROVALTYPES?.TNA,
+    );
+
+  const { data: approvalUserData, refetch: getUserApproval } = useAllApproval(
+    userId || '',
+    APPROVALTYPES?.TNA,
+  );
+  useEffect(() => {
+    if (employeeData?.employeeJobInformation?.[0]?.departmentId)
+      getDepartmentApproval();
+  }, [userId]);
+  useEffect(() => {
+    if (userId) getUserApproval();
+  }, [userId]);
+
   const { mutate: setTna, isLoading, isSuccess } = useSetTna();
   const { data, isFetching, refetch } = useGetTna(
     {
@@ -60,7 +83,6 @@ const TnaRequestSidebar = () => {
       onClose();
     }
   }, [isSuccess]);
-
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -71,13 +93,18 @@ const TnaRequestSidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: 'Request',
+      label:
+        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
+          ? 'You lack an assigned approver.'
+          : 'Request',
       key: 'request',
       className: 'h-14',
       type: 'primary',
       size: 'large',
       loading: isLoading || isFetching,
       onClick: () => form.submit(),
+      disabled:
+        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
     },
   ];
 
@@ -85,13 +112,18 @@ const TnaRequestSidebar = () => {
     const value = form.getFieldsValue();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { trainingNeedCategory, ...otherData } = data?.items[0] || {};
-    setTna([
+    // setTna(
+    console.log('console.log', [
       {
         ...otherData,
         ...value,
         certStatus: TrainingNeedAssessmentCertStatus.IN_PROGRESS,
         status: TrainingNeedAssessmentStatus.PENDING,
         assignedUserId: userId,
+        approvalWorkflowId:
+          approvalUserData?.length > 0
+            ? approvalUserData[0]?.id
+            : approvalDepartmentData[0]?.id,
       },
     ]);
   };
@@ -146,6 +178,23 @@ const TnaRequestSidebar = () => {
           >
             <Select
               id="tnaCategoryOptionFieldId"
+              className="control"
+              suffixIcon={
+                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+              }
+              placeholder="Select"
+              options={formatToOptions(tnaCategory, 'name', 'id')}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="currencyId"
+            label="Currency"
+            className="form-item"
+            rules={[{ required: true, message: 'Required' }]}
+          >
+            <Select
+              id="currencyId"
               className="control"
               suffixIcon={
                 <MdKeyboardArrowDown size={16} className="text-gray-900" />
