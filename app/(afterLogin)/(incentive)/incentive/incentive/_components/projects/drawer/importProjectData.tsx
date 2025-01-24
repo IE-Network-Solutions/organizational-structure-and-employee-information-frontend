@@ -3,18 +3,26 @@ import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
+import { useFetchAllPayPeriod } from '@/store/server/features/incentive/project/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
-import { Button, Form, Select, Upload } from 'antd';
+import { Button, Form, Select, Spin, Upload } from 'antd';
+import TextArea from 'antd/es/input/TextArea';
+import dayjs from 'dayjs';
 import React from 'react';
 import { MdOutlineUploadFile } from 'react-icons/md';
 
-const ImportDrawerData: React.FC = () => {
+const ImportProjectData: React.FC = () => {
   const [form] = Form.useForm();
   const { openProjectDrawer, file, setOpenProjectDrawer } = useIncentiveStore();
+
+  const { data: payPeriodData, isLoading: responseLoading } =
+    useFetchAllPayPeriod();
 
   const handleClose = () => {
     setOpenProjectDrawer(false);
   };
+
+  console.log(payPeriodData, 'payPeriodData');
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -262,8 +270,6 @@ const ImportDrawerData: React.FC = () => {
                     fill="#111827"
                   />
                 </svg>
-
-                {/* <InboxOutlined style={{ fontSize: '36px', color: '#1677ff' }} /> */}
               </p>
               <p className="text-lg font-semibold">
                 Drag & Drop here to upload
@@ -280,33 +286,55 @@ const ImportDrawerData: React.FC = () => {
             </span>
           </Upload.Dragger>
         </Form.Item>
-        <Form.Item
-          label={
-            <span className="text-normal font-medium">Select Pay Period</span>
-          }
-        >
-          <Select size="large" className="">
-            <Select.Option value="option1">Option 1</Select.Option>
-            <Select.Option value="option2">Option 2</Select.Option>
-            <Select.Option value="option3">Option 3</Select.Option>
-          </Select>
-        </Form.Item>
+        {responseLoading ? (
+          <Spin size="small" />
+        ) : (
+          <Form.Item
+            label={
+              // <span className="text-normal font-medium">Select Pay Period</span>
+              <span className="text-normal font-medium">
+                Select Pay Period <span style={{ color: 'red' }}>*</span>
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please select a pay period!',
+              },
+            ]}
+          >
+            <Select size="large" className="" placeholder="Select pay period">
+              {payPeriodData?.map((payPeriod: any) => (
+                <Select.Option value={payPeriod?.id}>
+                  {`${dayjs(payPeriod?.startDate).format('YYYY-MM-DD')} — ${dayjs(payPeriod?.endDate).format('YYYY-MM-DD')}`}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        )}
         <Form.Item
           label={
             <span className="text-normal font-medium">
               Other Necessary Information
+              <span style={{ color: 'red' }}>*</span>
             </span>
           }
+          rules={[
+            {
+              required: true,
+              message: 'Please insert other necessary information!',
+            },
+          ]}
         >
-          <Select size="large">
-            <Select.Option value="option1">Option 1</Select.Option>
-            <Select.Option value="option2">Option 2</Select.Option>
-            <Select.Option value="option3">Option 3</Select.Option>
-          </Select>
+          <TextArea
+            rows={4}
+            size="large"
+            placeholder="Insert other necessary information"
+          />
         </Form.Item>
       </Form>
     </CustomDrawerLayout>
   );
 };
 
-export default ImportDrawerData;
+export default ImportProjectData;

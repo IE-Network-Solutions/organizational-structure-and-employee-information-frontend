@@ -6,7 +6,7 @@ import { useMutation, useQueryClient } from 'react-query';
 
 const setIncentiveFormula = async (items: any) => {
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentive/formula`,
+    url: `${INCENTIVE_URL}/incentive-formulas`,
     method: 'POST',
     headers: requestHeader(),
     data: { items },

@@ -1,6 +1,7 @@
 import { requestHeader } from '@/helpers/requestHeader';
-import { INCENTIVE_URL } from '@/utils/constants';
+import { INCENTIVE_URL, ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { IdCard } from 'lucide-react';
 import { useQuery } from 'react-query';
 
 const fetchAllIncentiveData = async (
@@ -30,6 +31,43 @@ const fetchProjectIncentiveData = async (
     method: 'GET',
     headers: requestHeader(),
   });
+};
+
+const fetchAllRecognition = async () => {
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
+const fetchRecognitionById = async (recognitionId: string | sting[]) => {
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition/${recognitionId}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
+
+const fetchIncentiveCriteria = async () => {
+  return await crudRequest({
+    url: `${INCENTIVE_URL}/incentive-criteria`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
+
+export const useAllRecognition = () => {
+  return useQuery<any>('getAllRecognition', fetchAllRecognition);
+};
+
+export const useRecognitionById = (recognitionId: string | string[]) => {
+  return useQuery<any>(['getRecognitionById', recognitionId], () =>
+    fetchRecognitionById(recognitionId),
+  );
+};
+
+export const useIncentiveCriteria = () => {
+  return useQuery<any>('incentiveCriteria', fetchIncentiveCriteria);
 };
 
 export const useGetProjectIncentiveData = (

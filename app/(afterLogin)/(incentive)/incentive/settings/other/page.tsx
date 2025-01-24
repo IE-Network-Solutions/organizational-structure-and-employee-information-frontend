@@ -8,7 +8,7 @@ import { Button, Table, TableColumnsType } from 'antd';
 import { Pencil, Trash2 } from 'lucide-react';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
-import RockStartOfTheWeek from './_components/rockStar';
+import OtherIncentiveFormula from './_components/formula';
 
 const data = [
   {
@@ -73,9 +73,13 @@ const OtherIncentiveSetting: React.FC = () => {
     (item) => {
       return {
         name: 'Project Incentive',
-        recognition_criteria: 'Project Incentive',
+        recognition_criteria: (
+          <span className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1">
+            Project Incentive
+          </span>
+        ),
         action: (
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-start gap-2">
             <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
               <Pencil
                 size={15}
@@ -102,10 +106,10 @@ const OtherIncentiveSetting: React.FC = () => {
           <Button
             onClick={() => setRockStarDrawer(true)}
             type="primary"
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 p-2"
           >
-            <FaPlus size={13} className="mr-2" />
-            RockStar of the week
+            <FaPlus size={13} className="mr-1" />
+            Create Formula
           </Button>
         </PageHeader>
       </div>
@@ -121,7 +125,7 @@ const OtherIncentiveSetting: React.FC = () => {
           onShowSizeChange: onPageChange,
         }}
       />
-      <RockStartOfTheWeek />
+      <OtherIncentiveFormula />
     </div>
   );
 };

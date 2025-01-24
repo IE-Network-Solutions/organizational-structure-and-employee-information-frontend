@@ -2,7 +2,7 @@ import React from 'react';
 import IncentiveCards from '../cards';
 import IncentiveProjectsFilter from './filters';
 import ProjectIncentiveTable from './table';
-import ImportDrawerData from './drawer/importDrawerData';
+import ImportProjectData from './drawer/importProjectData';
 
 const Projects: React.FC = () => {
   return (
@@ -10,7 +10,7 @@ const Projects: React.FC = () => {
       <IncentiveCards />
       <IncentiveProjectsFilter />
       <ProjectIncentiveTable />
-      <ImportDrawerData />
+      <ImportProjectData />
     </div>
   );
 };

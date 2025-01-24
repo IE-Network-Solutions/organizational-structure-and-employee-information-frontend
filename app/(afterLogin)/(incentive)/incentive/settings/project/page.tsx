@@ -8,6 +8,7 @@ import { Button, Table, TableColumnsType } from 'antd';
 import { Pencil, Trash2 } from 'lucide-react';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
+import IncentivePagination from '../../../_components/incentivePagination';
 
 const data = [
   {
@@ -73,7 +74,11 @@ const IncentiveProjectSetting: React.FC = () => {
     (item) => {
       return {
         name: 'Project Incentive',
-        recognition_criteria: 'Project Incentive',
+        recognition_criteria: (
+          <span className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1">
+            Project Incentive
+          </span>
+        ),
         action: (
           <div className="flex items-center justify-center gap-2">
             <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
@@ -108,13 +113,20 @@ const IncentiveProjectSetting: React.FC = () => {
       <Table
         columns={columns}
         dataSource={projectIncentiveTableData}
-        pagination={{
-          // total: data?.meta?.totalItems,
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
+        pagination={false}
+      />
+      <IncentivePagination
+        current={currentPage}
+        total={10}
+        // total={jobList?.meta?.totalItems ?? 1}
+        pageSize={pageSize}
+        onChange={(page, pageSize) => {
+          setCurrentPage(page);
+          setPageSize(pageSize);
+        }}
+        onShowSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
         }}
       />
     </div>
