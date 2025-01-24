@@ -34,10 +34,8 @@ function BoardCardForm({
   isMKAsTask = false,
   keyResult,
   targetValue,
-  milestoneId
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
-  console.log(keyResult?.metricType?.name, 'keyResult?.metricType?.name');
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (

@@ -49,9 +49,6 @@ function Reporting() {
     selectedUser,
     activePlanPeriod,
     setSelectedReportId,
-    selectedReportId,
-    setOpen,
-    setEditing,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
@@ -90,7 +87,6 @@ function Reporting() {
     ReportApproval(data);
   };
 
-  console.log(selectedReportId, 'selectedReportId');
   const actionsMenu = (
     dataItem: any,
     handleApproveHandler: any,
@@ -128,9 +124,8 @@ function Reporting() {
   );
   const actionsMenuEditandDelte = (
     dataItem: any,
-    setEditing: any,
+
     setSelectedReportId: any,
-    setOpen: any,
   ) => (
     <Menu>
       {/* Edit Plan */}
@@ -255,7 +250,9 @@ function Reporting() {
                             </div>
                           </Col>
                           <Col className="text-xs -ml-3">
-                            {dataItem?.plan?.isReportValidated ? 'Closed' : 'Open'}
+                            {dataItem?.plan?.isReportValidated
+                              ? 'Closed'
+                              : 'Open'}
                           </Col>
                         </Row>
                         <Col
@@ -272,22 +269,22 @@ function Reporting() {
                               getEmployeeData(
                                 dataItem?.userId ?? dataItem?.createdBy,
                               )?.reportingTo?.id && ( */}
-                              <Dropdown
-                                overlay={actionsMenu(
-                                  dataItem,
-                                  handleApproveHandler,
-                                  isApprovalLoading,
-                                )}
-                                trigger={['click']}
-                              >
-                                <Button
-                                  type="text"
-                                  icon={
-                                    <IoMdMore className="text-2xl font-bold" />
-                                  }
-                                  className="cursor-pointer text-green border-none  hover:text-success"
-                                />
-                              </Dropdown>
+                            <Dropdown
+                              overlay={actionsMenu(
+                                dataItem,
+                                handleApproveHandler,
+                                isApprovalLoading,
+                              )}
+                              trigger={['click']}
+                            >
+                              <Button
+                                type="text"
+                                icon={
+                                  <IoMdMore className="text-2xl font-bold" />
+                                }
+                                className="cursor-pointer text-green border-none  hover:text-success"
+                              />
+                            </Dropdown>
                             {/* )} */}
                             {userId ===
                               (dataItem?.userId ?? dataItem?.createdBy) &&
@@ -295,9 +292,7 @@ function Reporting() {
                                 <Dropdown
                                   overlay={actionsMenuEditandDelte(
                                     dataItem,
-                                    setEditing,
                                     setSelectedReportId,
-                                    setOpen,
                                   )}
                                   trigger={['click']}
                                 >

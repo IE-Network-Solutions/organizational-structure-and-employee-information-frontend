@@ -16,9 +16,9 @@ import {
   Typography,
 } from 'antd';
 import React from 'react';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaStar } from 'react-icons/fa';
 import { IoIosOpen, IoMdMore } from 'react-icons/io';
-import { MdOutlinePending } from 'react-icons/md';
+import { MdKey, MdOutlinePending } from 'react-icons/md';
 import KeyResultMetrics from '../keyResult';
 import {
   AllPlanningPeriods,
@@ -41,6 +41,7 @@ import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
+import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 const { Text, Title } = Typography;
 
 function Planning() {
@@ -59,8 +60,9 @@ function Planning() {
     useApprovalPlanningPeriods();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
-  const { mutate: handleDeletePlan } = useDeletePlanById();
-
+  const { mutate: handleDeletePlan, isLoading: loadingDeletePlan } =
+    useDeletePlanById();
+  const { data: objective } = useFetchObjectives(userId);
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
@@ -73,8 +75,6 @@ function Planning() {
   const transformedData = groupPlanTasksByKeyResultAndMilestone(
     allPlanning?.items,
   );
-
-  console.log(transformedData,"allPlanning?.items")
 
   const handleApproveHandler = (id: string, value: boolean) => {
     const data = {
@@ -93,7 +93,6 @@ function Planning() {
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
 
-  console.log(transformedData, 'transformedDatatransformedData');
   const actionsMenu = (
     dataItem: any,
     handleApproveHandler: any,
@@ -170,10 +169,12 @@ function Planning() {
       </Menu.Item>
     </Menu>
   );
-  const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
-    userId,
-    planningPeriodId || '', // Provide a default string value if undefined
-  );
+  const { data: planningPeriodHierarchy, isLoading } =
+    useGetPlanningPeriodsHierarchy(
+      userId,
+      planningPeriodId || '', // Provide a default string value if undefined
+    );
+
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -181,13 +182,14 @@ function Planning() {
           <Title level={5}>Planning</Title>
           <Tooltip
             title={
-              !(
-                selectedUser.includes(userId) &&
-                ((transformedData?.[0]?.isReported ?? false) ||
-                  transformedData?.length === 0)
-              )
+              transformedData?.[0]?.isReported == false ||
+              transformedData?.length !== 0
                 ? 'Report planned tasks before'
-                : ''
+                : objective?.items?.length === 0
+                  ? 'Create Objective before you Plan'
+                  : planningPeriodHierarchy?.parentPlan?.plans?.length == 0
+                    ? `Please create ${planningPeriodHierarchy?.parentPlan?.name} Plan before creating ${activeTabName} Plan`
+                    : ''
             }
           >
             <div style={{ display: 'inline-block' }}>
@@ -197,9 +199,11 @@ function Planning() {
                     selectedUser.includes(userId) &&
                     ((transformedData?.[0]?.isReported ?? false) ||
                       transformedData?.length === 0) &&
-                    planningPeriodHierarchy?.parentPlan?.plans?.length != 0
+                    planningPeriodHierarchy?.parentPlan?.plans?.length != 0 &&
+                    objective?.items?.length != 0
                   )
                 }
+                loading={isLoading}
                 title={`Create ${activeTabName} Plan`}
                 id="createActiveTabName"
                 icon={<FaPlus className="mr-2" />}
@@ -280,23 +284,22 @@ function Planning() {
                             {/* {userId ===
                               getEmployeeData(dataItem?.createdBy)?.reportingTo
                                 ?.id && ( */}
-                              <Dropdown
-                                overlay={actionsMenu(
-                                  dataItem,
-                                  handleApproveHandler,
-                                  isApprovalLoading,
-                                )}
-                                trigger={['click']}
-                              >
-                                <Button
-                                  type="text"
-                            
-                                    icon={<IoMdMore className="text-2xl" />}
-                                  
-                                  className="cursor-pointer text-green border-none  hover:text-success"
-                                />
-                              </Dropdown>
-                             {/* )}  */}
+                            <Dropdown
+                              overlay={actionsMenu(
+                                dataItem,
+                                handleApproveHandler,
+                                isApprovalLoading,
+                              )}
+                              trigger={['click']}
+                            >
+                              <Button
+                                loading={isApprovalLoading}
+                                type="text"
+                                icon={<IoMdMore className="text-2xl" />}
+                                className="cursor-pointer text-green border-none  hover:text-success"
+                              />
+                            </Dropdown>
+                            {/* )}  */}
                             {userId === dataItem?.createdBy &&
                               dataItem?.isValidated == false && (
                                 <Dropdown
@@ -309,6 +312,7 @@ function Planning() {
                                   trigger={['click']}
                                 >
                                   <Button
+                                    loading={loadingDeletePlan}
                                     type="text"
                                     icon={<IoMdMore className="text-2xl" />}
                                     className="cursor-pointer  text-black border-none  hover:text-primary"
@@ -323,52 +327,343 @@ function Planning() {
                 </div>
               }
             >
-              {dataItem?.keyResults?.map(
-                (keyResult: any, keyResultIndex: number) => (
-                  <div key={keyResult?.id} className="">
-                    <KeyResultMetrics
-                      keyResult={
-                        keyResult ?? {
-                          id: 'defaultKeyResult',
-                          name: 'No Key Result Available',
-                          tasks: [],
-                        }
+              {dataItem?.keyResults?.map((keyResult: any) => (
+                <div key={keyResult?.id} className="">
+                  <KeyResultMetrics
+                    keyResult={
+                      keyResult ?? {
+                        id: 'defaultKeyResult',
+                        name: 'No Key Result Available',
+                        tasks: [],
                       }
-                    />
-                    {keyResult?.milestones?.map(
-                      (milestone: any, milestoneIndex: number) => (
+                    }
+                  />
+                  {keyResult?.milestones?.map(
+                    (milestone: any, milestoneIndex: number) => (
+                      <Row className="rounded-lg py-1 pr-3" key={milestone?.id}>
+                        {keyResult?.metricType?.name === NAME.MILESTONE && (
+                          <Col className="ml-5 mb-1" span={24}>
+                            <strong>{`${milestoneIndex + 1}. ${milestone?.title ?? milestone?.description ?? 'No milestone Title'}`}</strong>
+                          </Col>
+                        )}
+                        {milestone?.tasks?.length > 0 ? (
+                          <>
+                            {milestone?.tasks?.map(
+                              (task: any, taskIndex: number) => (
+                                <Row
+                                  key={task.id}
+                                  align={'middle'}
+                                  justify={'space-between'}
+                                  className="w-full"
+                                >
+                                  <Col className="ml-8 mb-1">
+                                    <Text className="text-xs flex items-center gap-1">
+                                      {`${milestoneIndex + 1}.${taskIndex + 1} ${task?.task} `}
+
+                                      {task?.achieveMK ? (
+                                        <FaStar size={11} />
+                                      ) : (
+                                        ''
+                                      )}
+                                    </Text>
+                                  </Col>
+
+                                  <Col className="">
+                                    <Text
+                                      type="secondary"
+                                      className="text-[10px] mr-2"
+                                    >
+                                      <span
+                                        className="text-xl"
+                                        style={{ color: 'blue' }}
+                                      >
+                                        &bull;
+                                      </span>{' '}
+                                      Priority
+                                    </Text>
+                                    <Tag
+                                      className="font-bold border-none w-16 text-center capitalize text-[10px]"
+                                      color={
+                                        task?.priority === 'high'
+                                          ? 'red'
+                                          : task?.priority === 'medium'
+                                            ? 'orange'
+                                            : 'green'
+                                      }
+                                    >
+                                      {task?.priority || 'None'}
+                                    </Tag>
+
+                                    {/* Point Section */}
+
+                                    {/* Target Section */}
+                                    <Text
+                                      type="secondary"
+                                      className="text-[10px] mr-2"
+                                    >
+                                      <span
+                                        className="text-xl"
+                                        style={{ color: 'blue' }}
+                                      >
+                                        &bull;
+                                      </span>{' '}
+                                      Weight:
+                                    </Text>
+                                    <Tag
+                                      className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
+                                      color="#B2B2FF"
+                                    >
+                                      {task?.weight || 0}
+                                    </Tag>
+
+                                    {keyResult?.metricType?.name !==
+                                      'Milestone' && (
+                                      <>
+                                        <Text
+                                          type="secondary"
+                                          className="text-[10px]"
+                                        >
+                                          <span
+                                            className="text-xl"
+                                            style={{ color: 'blue' }}
+                                          >
+                                            &bull;
+                                          </span>{' '}
+                                          Target:
+                                        </Text>
+                                        <Tag
+                                          className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
+                                          color="#B2B2FF"
+                                        >
+                                          {task?.targetValue || 'N/A'}
+                                        </Tag>
+                                      </>
+                                    )}
+                                  </Col>
+                                </Row>
+                              ),
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            {milestone?.parentTask?.map(
+                              (task: any, taskIndex: number) => (
+                                <Row key={task.id} className="w-full">
+                                  <Col
+                                    className="ml-6 mb-1 font-semibold"
+                                    span={24}
+                                  >
+                                    {`${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`}
+                                  </Col>
+                                  {task?.tasks?.map(
+                                    (ptask: any, pIndex: number) => (
+                                      <Row
+                                        align={'middle'}
+                                        justify={'space-between'}
+                                        key={ptask.id}
+                                        className="w-full ml-8 mb-1"
+                                      >
+                                        <Col>
+                                          <Text className="text-xs">
+                                            {`${milestoneIndex + 1}.${taskIndex + 1}.${pIndex + 1} ${ptask?.task}`}
+                                          </Text>
+                                        </Col>
+
+                                        <Col>
+                                          {/* Priority Section */}
+                                          <Text
+                                            type="secondary"
+                                            className="text-[10px] mr-2"
+                                          >
+                                            <span
+                                              className="text-xl"
+                                              style={{ color: 'blue' }}
+                                            >
+                                              &bull;
+                                            </span>{' '}
+                                            Priority
+                                          </Text>
+                                          <Tag
+                                            className="font-bold border-none w-16 text-center capitalize text-[10px]"
+                                            color={
+                                              task?.priority === 'high'
+                                                ? 'red'
+                                                : task?.priority === 'medium'
+                                                  ? 'orange'
+                                                  : 'green'
+                                            }
+                                          >
+                                            {task?.priority || 'None'}
+                                          </Tag>
+
+                                          {/* Weight Section */}
+                                          <Text
+                                            type="secondary"
+                                            className="text-[10px] mr-2"
+                                          >
+                                            <span
+                                              className="text-xl"
+                                              style={{ color: 'blue' }}
+                                            >
+                                              &bull;
+                                            </span>{' '}
+                                            Weight:
+                                          </Text>
+                                          <Tag
+                                            className="font-bold border-none w-16 text-center text-blue text-[10px]"
+                                            color="#B2B2FF"
+                                          >
+                                            {task?.weight || 0}
+                                          </Tag>
+
+                                          {/* Target Section */}
+                                          {keyResult?.metricType?.name !==
+                                            'Milestone' && (
+                                            <>
+                                              <Text
+                                                type="secondary"
+                                                className="text-[10px]"
+                                              >
+                                                <span
+                                                  className="text-xl"
+                                                  style={{ color: 'blue' }}
+                                                >
+                                                  &bull;
+                                                </span>{' '}
+                                                Target:
+                                              </Text>
+                                              <Tag
+                                                className="font-bold border-none w-16 text-center text-blue text-[10px]"
+                                                color="#B2B2FF"
+                                              >
+                                                {task?.targetValue || 'N/A'}
+                                              </Tag>
+                                            </>
+                                          )}
+                                        </Col>
+                                      </Row>
+                                    ),
+                                  )}
+                                </Row>
+                              ),
+                            )}
+                          </>
+                        )}
+                      </Row>
+                    ),
+                  )}
+                  {keyResult?.tasks?.length > 0 ? (
+                    <>
+                      {keyResult?.tasks?.map((task: any, taskIndex: number) => (
                         <Row
-                          className="rounded-lg py-1 pr-3"
-                          key={milestone?.id}
+                          key={task.id}
+                          align={'middle'}
+                          justify={'space-between'}
+                          className="w-full"
                         >
-                          {keyResult?.metricType?.name === NAME.MILESTONE && (
+                          <Col className="ml-8 mb-1">
+                            <Text className="text-xs flex items-center gap-1">
+                              {`${taskIndex + 1}. ${task?.task}`}
+                              {task?.achieveMK ? (
+                                <MdKey size={12} className="" />
+                              ) : (
+                                ''
+                              )}
+                            </Text>
+                          </Col>
+
+                          <Col className="">
+                            <Text type="secondary" className="text-[10px] mr-2">
+                              <span
+                                className="text-xl"
+                                style={{ color: 'blue' }}
+                              >
+                                &bull;
+                              </span>{' '}
+                              Priority
+                            </Text>
+                            <Tag
+                              className="font-bold border-none w-16 text-center capitalize text-[10px]"
+                              color={
+                                task?.priority === 'high'
+                                  ? 'red'
+                                  : task?.priority === 'medium'
+                                    ? 'orange'
+                                    : 'green'
+                              }
+                            >
+                              {task?.priority || 'None'}
+                            </Tag>
+
+                            {/* Point Section */}
+
+                            {/* Target Section */}
+                            <Text type="secondary" className="text-[10px] mr-2">
+                              <span
+                                className="text-xl"
+                                style={{ color: 'blue' }}
+                              >
+                                &bull;
+                              </span>{' '}
+                              Weight:
+                            </Text>
+                            <Tag
+                              className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
+                              color="#B2B2FF"
+                            >
+                              {task?.weight || 0}
+                            </Tag>
+
+                            {keyResult?.metricType?.name !== 'Milestone' && (
+                              <>
+                                <Text type="secondary" className="text-[10px]">
+                                  <span
+                                    className="text-xl"
+                                    style={{ color: 'blue' }}
+                                  >
+                                    &bull;
+                                  </span>{' '}
+                                  Target:
+                                </Text>
+                                <Tag
+                                  className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
+                                  color="#B2B2FF"
+                                >
+                                  {task?.targetValue || 'N/A'}
+                                </Tag>
+                              </>
+                            )}
+                          </Col>
+                        </Row>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      {' '}
+                      {keyResult?.parentTask?.map(
+                        (task: any, taskIndex: number) => (
+                          <Row key={task.id} className="w-full">
                             <Col className="ml-5 mb-1" span={24}>
-                              <strong>{`${milestoneIndex + 1}. ${milestone?.title ?? milestone?.description ?? 'No milestone Title'}`}</strong>
+                              <strong>
+                                {' '}
+                                {`${taskIndex + 1}. ${task?.task}`}
+                              </strong>
                             </Col>
-                          )}
-                          {milestone?.tasks?.map(
-                            (task: any, taskIndex: number) => (
+                            {task?.tasks?.map((ptask: any, pIndex: number) => (
                               <Row
-                                key={task.id}
                                 align={'middle'}
                                 justify={'space-between'}
-                                className="w-full"
+                                key={ptask.id}
+                                className="w-full ml-8 mb-1"
                               >
-                                {task?.parentTask && (
-                                  <Col className={'ml-5 mb-1'} span={24}>
-                                    <strong>{`${task?.parentTask?.task}`}</strong>
-                                  </Col>
-                                )}
-                                <Col className="ml-8 mb-1">
-                                  <Text className="text-sm">
-                                    {keyResult?.metricType?.name ===
-                                    NAME.MILESTONE
-                                      ? `${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`
-                                      : `${taskIndex + 1}. ${task?.task}`}
+                                <Col>
+                                  <Text className="text-xs">
+                                    {`${taskIndex + 1}.${pIndex + 1} ${ptask?.task}`}
                                   </Text>
                                 </Col>
 
-                                <Col className="">
+                                <Col>
+                                  {/* Priority Section */}
                                   <Text
                                     type="secondary"
                                     className="text-[10px] mr-2"
@@ -394,9 +689,7 @@ function Planning() {
                                     {task?.priority || 'None'}
                                   </Tag>
 
-                                  {/* Point Section */}
-
-                                  {/* Target Section */}
+                                  {/* Weight Section */}
                                   <Text
                                     type="secondary"
                                     className="text-[10px] mr-2"
@@ -410,12 +703,13 @@ function Planning() {
                                     Weight:
                                   </Text>
                                   <Tag
-                                    className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
+                                    className="font-bold border-none w-16 text-center text-blue text-[10px]"
                                     color="#B2B2FF"
                                   >
                                     {task?.weight || 0}
                                   </Tag>
 
+                                  {/* Target Section */}
                                   {keyResult?.metricType?.name !==
                                     'Milestone' && (
                                     <>
@@ -432,7 +726,7 @@ function Planning() {
                                         Target:
                                       </Text>
                                       <Tag
-                                        className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
+                                        className="font-bold border-none w-16 text-center text-blue text-[10px]"
                                         color="#B2B2FF"
                                       >
                                         {task?.targetValue || 'N/A'}
@@ -441,68 +735,14 @@ function Planning() {
                                   )}
                                 </Col>
                               </Row>
-                            ),
-                          )}
-                        </Row>
-                      ),
-                    )}
-                    {keyResult?.tasks?.map((task: any, taskIndex: number) => (
-                      <Row key={taskIndex}>
-                        <Col className="ml-5" span={24} key={taskIndex}>
-                          <Row>
-                            <Col>
-                              <Text className="text-xs">{`${keyResultIndex + 1}.${taskIndex + 1} ${task?.task}`}</Text>
-                            </Col>
-                            <Col>
-                              <Row justify="start" className="gap-1">
-                                <Col>
-                                  <Text type="secondary" className="text-xs">
-                                    <span style={{ color: 'blue' }}>
-                                      &bull;
-                                    </span>{' '}
-                                    Priority:{' '}
-                                  </Text>
-                                  <Tag
-                                    color={
-                                      task?.priority === 'high'
-                                        ? 'red'
-                                        : 'green'
-                                    }
-                                  >
-                                    {task?.priority || 'None'}
-                                  </Tag>
-                                </Col>
-                                <Col className="text-xs">
-                                  <Text type="secondary" className="text-xs">
-                                    <span style={{ color: 'blue' }}>
-                                      &bull;
-                                    </span>{' '}
-                                    point:{' '}
-                                  </Text>
-                                  <Tag color="blue">
-                                    {task?.weight || 'N/A'}
-                                  </Tag>
-                                </Col>
-                                <Col className="text-xs">
-                                  <Text type="secondary" className="text-xs">
-                                    <span style={{ color: 'blue' }}>
-                                      &bull;
-                                    </span>{' '}
-                                    Target:{' '}
-                                  </Text>
-                                  <Tag color="blue">
-                                    {task?.targetValue || 'N/A'}
-                                  </Tag>
-                                </Col>
-                              </Row>
-                            </Col>
+                            ))}
                           </Row>
-                        </Col>
-                      </Row>
-                    ))}
-                  </div>
-                ),
-              )}
+                        ),
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
               <CommentCard
                 planId={dataItem?.id}
                 data={dataItem?.comments}

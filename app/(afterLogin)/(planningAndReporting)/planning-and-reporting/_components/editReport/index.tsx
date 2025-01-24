@@ -19,20 +19,15 @@ import {
   useGetUnReportedPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
-import { getPriorityColor } from '@/utils/showValidationErrors';
-import {
-  useCreateReportForUnReportedtasks,
-  useEditReportByReportId,
-} from '@/store/server/features/okrPlanningAndReporting/mutations';
+import { useEditReportByReportId } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 const { Text } = Typography;
 
 const { TextArea } = Input;
 function EditReport() {
   const {
-    openReportModal,
     setOpenReportModal,
     activePlanPeriod,
     selectedReportId,
@@ -72,8 +67,6 @@ function EditReport() {
       {planningPeriodName}
     </div>
   );
-
-  console.log(reportedData, 'allUnReportedPlanningTask');
 
   const handleOnFinish = (values: Record<string, any>) => {
     Object.entries(values).length > 0 &&

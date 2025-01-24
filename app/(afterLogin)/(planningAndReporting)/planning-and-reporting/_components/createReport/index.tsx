@@ -17,10 +17,11 @@ import {
   useGetUnReportedPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
-import { getPriorityColor } from '@/utils/showValidationErrors';
 import { useCreateReportForUnReportedtasks } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
+import { FaStar } from 'react-icons/fa';
+import { MdKey } from 'react-icons/md';
 const { Text } = Typography;
 
 const { TextArea } = Input;
@@ -233,13 +234,18 @@ function CreateReport() {
                                                 </Radio>
                                               </Radio.Group>
                                               <Tooltip title={task.taskName}>
-                                                <span className="font-medium text-xs truncate">
+                                                <span className="font-medium text-xs truncate flex items-center gap-1">
                                                   {task.taskName?.length >= 100
                                                     ? task.taskName?.slice(
                                                         0,
                                                         100,
-                                                      )+"..."
+                                                      ) + '...'
                                                     : task.taskName}
+                                                  {task?.achieveMK ? (
+                                                    <FaStar size={11} />
+                                                  ) : (
+                                                    ''
+                                                  )}
                                                 </span>
                                               </Tooltip>
                                             </div>
@@ -439,10 +445,15 @@ function CreateReport() {
                                         </Radio>
                                       </Radio.Group>
                                       <Tooltip title={task.taskName}>
-                                        <span className="font-medium text-xs truncate">
+                                        <span className="font-medium text-xs truncate flex items-center gap-1">
                                           {task.taskName?.length >= 40
                                             ? task.taskName?.slice(0, 40)
                                             : task.taskName}
+                                          {task?.achieveMK ? (
+                                            <MdKey size={12} className="" />
+                                          ) : (
+                                            ''
+                                          )}
                                         </span>
                                       </Tooltip>
                                     </div>
