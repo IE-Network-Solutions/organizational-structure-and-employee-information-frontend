@@ -1,7 +1,9 @@
 import React from 'react';
-import { Row, Col, Tag, Typography, Tooltip, Avatar } from 'antd';
+import { Row, Col, Tag, Typography, Tooltip } from 'antd';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { IoIosClose } from 'react-icons/io';
+import { FaStar } from 'react-icons/fa';
+import { MdKey } from 'react-icons/md';
 
 const { Text } = Typography;
 
@@ -11,7 +13,10 @@ type Task = {
   priority: 'low' | 'medium' | 'high';
   status: 'reported' | 'pending' | 'completed' | 'Done';
   actualValue: string;
-  isAchived: boolean;
+  isAchieved: boolean;
+  customReason: string;
+  achieveMK: boolean;
+  milestone: any;
 };
 
 type Props = {
@@ -27,54 +32,87 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
           className="flex task-row space-y-1"
           gutter={4}
           align="middle"
+          justify="space-between" // Only justifying the space between taskName and others
         >
-          <Col span={1}>
+          <Col className="flex gap-2">
             {task?.status === 'Done' ? (
-              <Tooltip title="Achieved">
-                <Avatar
-                  size={16}
-                  alt="achieved"
-                  className="cursor-pointer"
-                  shape="square"
-                  style={{ backgroundColor: '#148220' }}
-                  icon={<IoCheckmarkSharp />}
-                />
-              </Tooltip>
+              <div className="py-1 px-1 w-4 h-4 text-white flex items-center justify-center rounded-md bg-green-600">
+                <IoCheckmarkSharp size={14} />
+              </div>
             ) : (
               <Tooltip title="Not Achieved">
-                <Avatar
-                  size={16}
-                  alt="Reject Plan"
-                  className="cursor-pointer"
-                  shape="square"
-                  style={{ backgroundColor: '#b50d20' }}
-                  icon={<IoIosClose />}
-                />
+                <div className="py-1 text-xl px-1 w-4 h-4 text-white flex items-center justify-center rounded-md bg-red-600">
+                  <IoIosClose />
+                </div>
               </Tooltip>
             )}
-          </Col>
-          <Col>
-            <Text className="text-xs">{`${taskIndex + 1}. ${task.taskName}`}</Text>
-          </Col>
-          <Col>
-            <Text type="secondary" className="text-xs">
-              <span style={{ color: 'blue' }}>&bull;</span> Priority:{' '}
+            <Text className="text-xs flex flex-col">
+              <span className="flex items-center gap-1">
+                {`${taskIndex + 1}. ${task.taskName}`}{' '}
+                {task?.achieveMK ? (
+                  task?.milestone ? (
+                    <FaStar size={11} />
+                  ) : (
+                    <MdKey size={12} className="" />
+                  )
+                ) : (
+                  ''
+                )}
+              </span>
+              {task?.customReason && (
+                <Tooltip title={task.customReason}>
+                  <Text className="text-[10px] mb-2">
+                    {`Reason: ${task.customReason?.length >= 100 ? task.customReason.slice(0, 100) + '...' : task.customReason}`}
+                  </Text>
+                </Tooltip>
+              )}
             </Text>
-            <Tag color={task.priority === 'high' ? 'red' : 'green'}>
-              {task.priority || 'None'}
+          </Col>
+
+          {/* This section is now justified to space between taskName and the rest */}
+          <Col>
+            <Text type="secondary" className="text-[10px] mr-2">
+              <span className="text-xl" style={{ color: 'blue' }}>
+                &bull;
+              </span>{' '}
+              Priority
+            </Text>
+            <Tag
+              className="font-bold border-none w-16 text-center capitalize text-[10px]"
+              color={
+                task?.priority === 'high'
+                  ? 'red'
+                  : task?.priority === 'medium'
+                    ? 'orange'
+                    : 'green'
+              }
+            >
+              {task?.priority || 'None'}
             </Tag>
-          </Col>
-          <Col>
-            <Text type="secondary" className="text-xs">
-              <span style={{ color: 'blue' }}>&bull;</span> Actual Value:{' '}
+            <Text type="secondary" className="text-[10px] mr-2">
+              <span className="text-xl" style={{ color: 'blue' }}>
+                &bull;
+              </span>{' '}
+              Actual Value
             </Text>
-            <Tag color="blue">{task.actualValue || 'N/A'}</Tag>
-          </Col>
-          <Col>
-            <Text type="secondary" className="text-xs">
-              <span style={{ color: 'blue' }}>&bull;</span> Status:{' '}
+            <Tag
+              className="font-bold border-none w-16 text-center capitalize text-[10px]"
+              color={'blue'}
+            >
+              {task?.actualValue || 'None'}
+            </Tag>
+            <Text type="secondary" className="text-[10px] mr-2">
+              <span className="text-xl" style={{ color: 'blue' }}>
+                &bull;
+              </span>{' '}
+              Target
             </Text>
-            <Tag color="blue">{task.status || 'N/A'}</Tag>
+            <Tag
+              className="font-bold border-none w-10 text-center cap text-blue text-[10px]"
+              color="#B2B2FF"
+            >
+              {0}
+            </Tag>
           </Col>
         </Row>
       ))}

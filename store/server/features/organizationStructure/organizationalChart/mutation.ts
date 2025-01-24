@@ -48,10 +48,14 @@ const updateOrgChart = async (id: string, data: OrgChart) => {
  * @param id - ID of the organization chart to delete.
  * @returns Promise confirming the deletion.
  */
-const deleteOrgChart = async (id: string) => {
+const deleteOrgChart = async (
+  departmentTobeDeletedId: string,
+  departmentTobeShiftedId: string,
+) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/departments/${id}`,
+    url: `${ORG_AND_EMP_URL}/departments/${departmentTobeDeletedId}`,
     method: 'DELETE',
+    data: { departmentTobeShiftedId },
     headers,
   });
 };
@@ -99,13 +103,22 @@ export const useUpdateOrgChart = () => {
  */
 export const useDeleteOrgChart = () => {
   const queryClient = useQueryClient();
-  return useMutation(deleteOrgChart, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('orgcharts');
-      // const method = variables?.method?.toUpperCase();
-      // handleSuccessMessage(method);
+  return useMutation(
+    ({
+      departmentTobeDeletedId,
+      departmentTobeShiftedId,
+    }: {
+      departmentTobeDeletedId: string;
+      departmentTobeShiftedId: string;
+    }) => deleteOrgChart(departmentTobeDeletedId, departmentTobeShiftedId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('orgcharts');
+        // const method = variables?.method?.toUpperCase();
+        // handleSuccessMessage(method);
+      },
     },
-  });
+  );
 };
 
 /* eslint-disable @typescript-eslint/naming-convention */

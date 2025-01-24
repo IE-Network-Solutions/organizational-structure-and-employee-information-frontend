@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3001",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "test": "jest",
@@ -20,6 +20,7 @@
     "chart.js": "^4.4.4",
     "company-organization-template": "file:",
     "dayjs": "^1.11.12",
+    "exceljs": "^4.4.0",
     "firebase": "^10.12.5",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.2",

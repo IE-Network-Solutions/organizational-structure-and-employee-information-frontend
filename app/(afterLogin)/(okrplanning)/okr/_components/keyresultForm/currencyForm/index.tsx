@@ -10,7 +10,6 @@ import {
   Col,
 } from 'antd';
 import { GoPlus } from 'react-icons/go';
-import { validateName } from '@/utils/validation';
 import { CiDollar } from 'react-icons/ci';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
@@ -28,7 +27,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
-  const { setKeyResult } = useOKRStore();
+  const { setKeyResult, objectiveValue } = useOKRStore();
 
   const handleAddKeyResult = () => {
     form
@@ -43,6 +42,23 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   };
 
   const { data: metrics } = useGetMetrics();
+
+  const validateName = (
+    key: string,
+    name: string,
+    isRequire?: boolean,
+  ): string | null => {
+    if (isRequire === false) {
+      return '';
+    }
+    if (!name) {
+      return `${key} is required.`;
+    }
+    if (name.length < 3) {
+      return `${key} must be between 3 greater than characters long.`;
+    }
+    return null;
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-2" id={`currency-form-${index}`}>
@@ -129,7 +145,14 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
-                    return current && current < dayjs().startOf('day');
+                    const startOfToday = dayjs().startOf('day');
+                    const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
+
+                    // Disable dates before today and above the objective deadline
+                    return (
+                      current &&
+                      (current < startOfToday || current > objectiveDeadline)
+                    );
                   }}
                   onChange={(date) =>
                     updateKeyResult(

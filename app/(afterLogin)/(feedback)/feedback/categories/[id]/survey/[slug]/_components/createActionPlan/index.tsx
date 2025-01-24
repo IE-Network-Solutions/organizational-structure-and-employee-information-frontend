@@ -37,7 +37,6 @@ const CreateActionPlan = (props: any) => {
       Add New Action Plan
     </div>
   );
-
   const plusOnClickHandler = () => {
     setNumberOfActionPlan(numberOfActionPlan + 1);
   };
@@ -220,7 +219,7 @@ const CreateActionPlan = (props: any) => {
                       <Option key="active" value={'pending'}>
                         Pending
                       </Option>
-                      <Option key="active" value={'solved'}>
+                      <Option key="completed" value={'solved'}>
                         Solved
                       </Option>
                     </Select>

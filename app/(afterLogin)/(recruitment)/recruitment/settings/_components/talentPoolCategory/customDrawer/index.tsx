@@ -29,15 +29,17 @@ const TalentPoolDrawer: React.FC = () => {
           id: selectedTalentPool?.id || '',
           category: {
             ...values,
-            name: values.name,
+            title: values.title,
+            updatedBy: userId,
           },
         });
       } else {
         createTalentPoolCategory({
-          title: values.name,
+          title: values.title,
           description: values.description,
           createdBy: userId,
         });
+        form.resetFields();
       }
       closeDrawer();
     });
@@ -48,7 +50,7 @@ const TalentPoolDrawer: React.FC = () => {
   useEffect(() => {
     if (isEditMode && selectedTalentPool) {
       form.setFieldsValue({
-        name: selectedTalentPool.title,
+        title: selectedTalentPool.title,
         description: selectedTalentPool.description,
       });
     } else {
@@ -83,7 +85,7 @@ const TalentPoolDrawer: React.FC = () => {
       <Form form={form} layout="vertical">
         <Form.Item
           label="Name"
-          name="name"
+          name="title"
           rules={[{ required: true, message: 'Please enter a title' }]}
         >
           <Input className="h-12" placeholder="Enter the category title" />

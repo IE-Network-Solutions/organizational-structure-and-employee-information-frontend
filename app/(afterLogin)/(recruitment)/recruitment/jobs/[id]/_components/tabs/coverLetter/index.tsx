@@ -1,3 +1,4 @@
+import HtmlStringDisplayer from '@/components/HtmlStringDisplayer';
 import React from 'react';
 
 interface CoverLetterProps {
@@ -7,9 +8,9 @@ interface CoverLetterProps {
 const CoverLetter: React.FC<CoverLetterProps> = ({ selectedCandidate }) => {
   return (
     <div className="text-sm font-normal">
-      {selectedCandidate?.jobCandidate?.map(
-        (item: any) => item?.coverLetter ?? '....',
-      )}
+      <HtmlStringDisplayer
+        htmlString={selectedCandidate?.jobCandidate?.[0]?.coverLetter ?? '....'}
+      />
     </div>
   );
 };

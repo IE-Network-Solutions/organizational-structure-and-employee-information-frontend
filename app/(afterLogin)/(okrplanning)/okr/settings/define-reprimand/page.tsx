@@ -8,6 +8,8 @@ import { ReprimandType } from '@/store/uistate/features/okrplanning/monitoring-e
 import { useDeleteRepType } from '@/store/server/features/okrplanning/monitoring-evaluation/reprimand-type/mutations';
 import { useRepTypeStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/reprimand-type';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const DefineReprimand = () => {
   const {
@@ -51,13 +53,15 @@ const DefineReprimand = () => {
     <div className="p-6  w-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Reprimand</h2>
-        <Button
-          type="primary"
-          className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
-          onClick={showDrawer}
-        >
-          + Add Type
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateReprimandType]}>
+          <Button
+            type="primary"
+            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
+            onClick={showDrawer}
+          >
+            + Add Type
+          </Button>
+        </AccessGuard>
       </div>
 
       <List
@@ -67,18 +71,22 @@ const DefineReprimand = () => {
           <List.Item className="flex justify-between items-center py-4 px-4 rounded-xl my-3 border border-gray-200">
             <span className="">{item?.name}</span>
             <div>
-              <Button
-                icon={<EditOutlined />}
-                className="mr-2 bg-blue text-white"
-                shape="circle"
-                onClick={() => handleEditModal(item)}
-              />
-              <Button
-                icon={<DeleteOutlined />}
-                className="mr-2 bg-red-500 text-white"
-                shape="circle"
-                onClick={() => showDeleteModal(item?.id as string)}
-              />
+              <AccessGuard permissions={[Permissions.UpdateReprimandType]}>
+                <Button
+                  icon={<EditOutlined />}
+                  className="mr-2 bg-blue text-white"
+                  shape="circle"
+                  onClick={() => handleEditModal(item)}
+                />
+              </AccessGuard>
+              <AccessGuard permissions={[Permissions.DeleteReprimandType]}>
+                <Button
+                  icon={<DeleteOutlined />}
+                  className="mr-2 bg-red-500 text-white"
+                  shape="circle"
+                  onClick={() => showDeleteModal(item?.id as string)}
+                />
+              </AccessGuard>
             </div>
           </List.Item>
         )}

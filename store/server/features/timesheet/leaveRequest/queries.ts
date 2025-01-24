@@ -22,19 +22,35 @@ const getLeaveRequest = async (
 ) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request`,
-    method: 'GET',
+    method: 'POST',
     headers: requestHeader(),
     data,
     params: queryData,
   });
 };
+const getEmployeeLeave = async (
+  pageSize: number,
+  currentPage: number,
+  userId: string,
+) => {
+  const response = await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-balance/all?page=${currentPage}&limit=${pageSize}&userId=${userId}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+  return response;
+};
 
-const getApprovalLeaveRequest = async (requesterId: string) => {
+const getApprovalLeaveRequest = async (
+  requesterId: string,
+  page: number,
+  limit: number,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/currentApprover/${requesterId}`,
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/approval/current-approver/${requesterId}?page=${page}&limit=${limit}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -57,7 +73,21 @@ const getSingleLeaveRequest = async (requestId: string) => {
   });
   return response;
 };
-const getSingleApprovalLog = async (requestId: string) => {
+const getSingleApprovalLog = async (requestId: string, workflowId: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const response = await crudRequest({
+    url: `${APPROVER_URL}/approver/status/${requestId}/${workflowId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+  return response;
+};
+const getSingleApproval = async (requestId: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -70,6 +100,19 @@ const getSingleApprovalLog = async (requestId: string) => {
     },
   });
   return response;
+};
+export const useGetEmployeeLeave = (
+  pageSize: number,
+  currentPage: number,
+  userId: string,
+) => {
+  return useQuery<any>(
+    ['approvals', pageSize, currentPage, userId],
+    () => getEmployeeLeave(pageSize, currentPage, userId),
+    {
+      keepPreviousData: true,
+    },
+  );
 };
 
 export const useGetLeaveRequest = (
@@ -88,10 +131,14 @@ export const useGetLeaveRequest = (
   );
 };
 
-export const useGetApprovalLeaveRequest = (requesterId: string) => {
+export const useGetApprovalLeaveRequest = (
+  requesterId: string,
+  page: number,
+  limit: number,
+) => {
   return useQuery<any>(
-    ['current_approval', requesterId],
-    () => getApprovalLeaveRequest(requesterId),
+    ['current_approval', requesterId, limit, page],
+    () => getApprovalLeaveRequest(requesterId, page, limit),
     {
       keepPreviousData: true,
     },
@@ -106,10 +153,22 @@ export const useGetSingleLeaveRequest = (requestId: string) => {
     },
   );
 };
-export const useGetSingleApprovalLog = (requestId: string) => {
+export const useGetSingleApprovalLog = (
+  requestId: string,
+  workflowId: string,
+) => {
   return useQuery<SingleLogResponse<SingleLogRequest>>(
-    ['single-leave-log', requestId],
-    () => getSingleApprovalLog(requestId),
+    ['single-leave-log', requestId, workflowId],
+    () => getSingleApprovalLog(requestId, workflowId),
+    {
+      enabled: !!requestId,
+    },
+  );
+};
+export const useGetSingleApproval = (requestId: string) => {
+  return useQuery<SingleLogResponse<SingleLogRequest>>(
+    ['single-leave', requestId],
+    () => getSingleApproval(requestId),
     {
       enabled: !!requestId,
     },
