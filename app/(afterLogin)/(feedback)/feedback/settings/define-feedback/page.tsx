@@ -28,14 +28,12 @@ const Page = () => {
     setSelectedFeedback,
   } = ConversationStore();
   const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
-  const [addPerspectiveModal,setAddPerspectiveModal]=useState(false);
-    const { data: departments, isLoading } = useGetDepartments();
-    const { mutate: addPerspective, isLoading:createPerspectiveLoading } = useCreatePerspective();
-    const { data: perspectiveData, isLoading:perspectiveDataLoading } = useGetAllPerspectives();
+  const [addPerspectiveModal, setAddPerspectiveModal] = useState(false);
+  const { data: departments } = useGetDepartments();
+  const { mutate: addPerspective } = useCreatePerspective();
+  const { data: perspectiveData } = useGetAllPerspectives();
 
-
-  
-  getAllFeedbackTypes
+  getAllFeedbackTypes;
   const onChange = (key: string) => {
     setActiveTab(key);
   };
@@ -44,9 +42,9 @@ const Page = () => {
     setSelectedFeedback(null);
   };
 
-  const getDepartment=(id:string)=>{
-     return departments?.find((item:Department)=>item.id=id)
-  }
+  const getDepartment = (id: string) => {
+    return departments?.find((item: Department) => (item.id = id));
+  };
   useEffect(() => {
     setActiveTab(getAllFeedbackTypes?.items?.[0]?.id);
   }, [getAllFeedbackTypes]);
@@ -71,14 +69,19 @@ const Page = () => {
     {
       key: 'perspective-list',
       label: (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+        <div
+          style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}
+        >
           Perspective List
         </div>
       ),
       children: (
         <div>
           <div className="flex justify-end">
-            <Button onClick={() => setAddPerspectiveModal(true)} icon={<FaPlus />}>
+            <Button
+              onClick={() => setAddPerspectiveModal(true)}
+              icon={<FaPlus />}
+            >
               Add Perspective
             </Button>
           </div>
@@ -86,12 +89,16 @@ const Page = () => {
             <Card className="mx-2" key={item.id}>
               <div className="flex justify-between">
                 <div>
-                  <p className='font-bold'>{item?.name}</p>
+                  <p className="font-bold">{item?.name}</p>
                   <p className="flex gap-2 ml-2 text-xs">{item?.description}</p>
                 </div>
                 <div>
-                <p className='font-bold'><strong>department</strong></p>
-                <p className="flex gap-2 ml-2 text-xs">{getDepartment(item?.departmentId).name}</p>
+                  <p className="font-bold">
+                    <strong>department</strong>
+                  </p>
+                  <p className="flex gap-2 ml-2 text-xs">
+                    {getDepartment(item?.departmentId).name}
+                  </p>
                 </div>
               </div>
             </Card>
@@ -101,17 +108,13 @@ const Page = () => {
     },
   ];
   const handleOk = async () => {
-    try {
-      const values = await form.validateFields();
-      addPerspective(values,{
-        onSuccess:()=>{
-          form.resetFields();
-          setAddPerspectiveModal(false);
-        }
-      });
-    } catch (error) {
-      console.error('Validation Failed:', error);
-    }
+    const values = await form.validateFields();
+    addPerspective(values, {
+      onSuccess: () => {
+        form.resetFields();
+        setAddPerspectiveModal(false);
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -124,8 +127,6 @@ const Page = () => {
         <span className="font-bold text-lg">Feedback</span>
 
         <div className="mt-5">
-
-
           <Tabs
             defaultActiveKey={getAllFeedbackTypes?.items?.[0]?.id}
             items={items}
@@ -142,8 +143,13 @@ const Page = () => {
       >
         <CreateFeedback />
       </CustomDrawerLayout>
-      <Modal title="Basic Modal" open={addPerspectiveModal} onOk={handleOk} onCancel={handleCancel}>
-      <Form
+      <Modal
+        title="Basic Modal"
+        open={addPerspectiveModal}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <Form
           form={form}
           layout="vertical"
           name="addPerspectiveForm"
@@ -177,25 +183,19 @@ const Page = () => {
             />
           </Form.Item>
           <Form.Item
-              name="departmentId"
-              label="Select Department"
-              rules={[
-                { required: true, message: 'Please select a department' },
-              ]}
-            >
-              <Select
-                placeholder="Select a department"
-              >
-                {departments?.map((department: any) => (
-                  <Select.Option key={department.id} value={department.id}>
-                    {department.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
+            name="departmentId"
+            label="Select Department"
+            rules={[{ required: true, message: 'Please select a department' }]}
+          >
+            <Select placeholder="Select a department">
+              {departments?.map((department: any) => (
+                <Select.Option key={department.id} value={department.id}>
+                  {department.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
         </Form>
-
-      
       </Modal>
     </div>
   );

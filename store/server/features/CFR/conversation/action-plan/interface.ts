@@ -80,7 +80,7 @@ export type FeedbackRecord = {
   issuerId: string;
   recipientId: string;
   feedbackTypeId: string;
-  perspectiveId?:string;
+  perspectiveId?: string;
   feedbackId: string;
   reason: string;
   action: string;

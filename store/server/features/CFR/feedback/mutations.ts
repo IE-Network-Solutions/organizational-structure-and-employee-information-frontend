@@ -1,8 +1,8 @@
-import { useAuthenticationStore } from "@/store/uistate/features/authentication";
-import { ORG_DEV_URL } from "@/utils/constants";
-import { crudRequest } from "@/utils/crudRequest";
-import { handleSuccessMessage } from "@/utils/showSuccessMessage";
-import { useMutation, useQueryClient } from "react-query";
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { ORG_DEV_URL } from '@/utils/constants';
+import { crudRequest } from '@/utils/crudRequest';
+import { handleSuccessMessage } from '@/utils/showSuccessMessage';
+import { useMutation, useQueryClient } from 'react-query';
 
 const createPerspective = async (values: {
   name: string;
@@ -11,7 +11,6 @@ const createPerspective = async (values: {
 }) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const userId = useAuthenticationStore.getState().userId;
 
   const headers = {
     tenantId: tenantId,
