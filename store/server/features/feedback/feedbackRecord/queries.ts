@@ -26,7 +26,6 @@ const fetchAllFeedbackRecord = async (
   page: number,
   empId: string,
   date: string[] = [],
-
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;

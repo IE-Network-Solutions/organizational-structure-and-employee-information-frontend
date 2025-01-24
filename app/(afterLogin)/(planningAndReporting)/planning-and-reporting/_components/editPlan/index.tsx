@@ -71,7 +71,7 @@ function EditPlan() {
   );
 
   const handleAddName = (
-    currentBoardValues: Record<string, string|number>,
+    currentBoardValues: Record<string, string | number>,
     kId: string,
   ) => {
     const namesKey = `names-${kId}`;
@@ -137,7 +137,6 @@ function EditPlan() {
           const name = hasMilestone
             ? `${e?.keyResult?.id + e?.milestone?.id + e.parentTaskId}`
             : `${e?.keyResult?.id + e.parentTaskId}`;
-            
 
           handleAddName(
             {
@@ -149,7 +148,7 @@ function EditPlan() {
               userId: userId,
               task: e?.task || '',
               priority: e?.priority || '',
-              weight:parseInt(e?.weight as string) || 0,
+              weight: parseInt(e?.weight as string) || 0,
               targetValue: e?.targetValue || 0,
               achieveMK: e?.achieveMK,
               planId: planGroupData?.id,
