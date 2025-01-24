@@ -17,7 +17,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
   const { setVariantType, setOpen, setSelectedFeedback } = ConversationStore();
 
   const onChange = (key: string) => {
-    const variantType=key==='appreciation' ? 'appreciation':'reprimand';
+    const variantType = key === 'appreciation' ? 'appreciation' : 'reprimand';
     setVariantType(variantType);
   };
 

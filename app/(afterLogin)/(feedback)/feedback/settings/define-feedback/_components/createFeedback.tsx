@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
-import { Form, Input, InputNumber, Button, Card } from 'antd';
+import { Form, Input, InputNumber, Button, Card, Select } from 'antd';
 import { commonClass } from '@/types/enumTypes';
 import {
   useCreateFeedback,
   useUpdateFeedback,
 } from '@/store/server/features/feedback/feedback/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
+import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
 
 function CreateFeedback() {
   const {
@@ -20,6 +21,8 @@ function CreateFeedback() {
     useCreateFeedback();
   const { mutate: updateFeedback, isLoading: feedbackUpdateLoading } =
     useUpdateFeedback();
+  const { data: perspectiveData, isLoading:getPerspectiveLoading } = useGetAllPerspectives();
+    
 
   const onFinish = (values: {
     name: string;
@@ -33,11 +36,17 @@ function CreateFeedback() {
     };
     if (selectedFeedback?.id) {
       updateFeedback(updatedValues, {
-        onSuccess: () => setSelectedFeedback(null),
+        onSuccess: () =>{
+         form.resetFields();
+         setSelectedFeedback(null)
+        }
       });
     } else {
       createFeedback(updatedValues, {
-        onSuccess: () => setOpen(false),
+        onSuccess: () =>{
+         form.resetFields();
+         setOpen(false)
+        }
       });
     }
   };
@@ -101,7 +110,24 @@ function CreateFeedback() {
               placeholder="Enter description"
             />
           </Form.Item>
-
+          <Form.Item
+              name="perspectiveId"
+              label="Select Perspective"
+              rules={[
+                { required: true, message: 'Please select a department' },
+              ]}
+            >
+              <Select
+                loading={getPerspectiveLoading}
+                placeholder="Select a perspective"
+              >
+                {perspectiveData?.map((perspective: any) => (
+                  <Select.Option key={perspective.id} value={perspective.id}>
+                    {perspective.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
           {/* Weight */}
           <Form.Item
             className={commonClass}
