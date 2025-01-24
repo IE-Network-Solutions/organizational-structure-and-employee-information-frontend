@@ -11,14 +11,13 @@ import {
   Popconfirm,
   Row,
   Spin,
-  Tag,
   Tooltip,
   Typography,
 } from 'antd';
 import React from 'react';
-import { FaPlus, FaStar } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 import { IoIosOpen, IoMdMore } from 'react-icons/io';
-import { MdKey, MdOutlinePending } from 'react-icons/md';
+import { MdOutlinePending } from 'react-icons/md';
 import KeyResultMetrics from '../keyResult';
 import {
   AllPlanningPeriods,
@@ -36,13 +35,14 @@ import dayjs from 'dayjs';
 import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { NAME, PlanningType } from '@/types/enumTypes';
+import { PlanningType } from '@/types/enumTypes';
 import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
-const { Text, Title } = Typography;
+import MilestoneTasks from './milestoneTasks';
+const { Title } = Typography;
 
 function Planning() {
   const {
@@ -281,25 +281,25 @@ function Planning() {
                           </span>
                           {/* {!dataItem?.isValidated && ( */}
                           <>
-                            {/* {userId ===
+                            {userId ===
                               getEmployeeData(dataItem?.createdBy)?.reportingTo
-                                ?.id && ( */}
-                            <Dropdown
-                              overlay={actionsMenu(
-                                dataItem,
-                                handleApproveHandler,
-                                isApprovalLoading,
-                              )}
-                              trigger={['click']}
-                            >
-                              <Button
-                                loading={isApprovalLoading}
-                                type="text"
-                                icon={<IoMdMore className="text-2xl" />}
-                                className="cursor-pointer text-green border-none  hover:text-success"
-                              />
-                            </Dropdown>
-                            {/* )}  */}
+                                ?.id && (
+                              <Dropdown
+                                overlay={actionsMenu(
+                                  dataItem,
+                                  handleApproveHandler,
+                                  isApprovalLoading,
+                                )}
+                                trigger={['click']}
+                              >
+                                <Button
+                                  loading={isApprovalLoading}
+                                  type="text"
+                                  icon={<IoMdMore className="text-2xl" />}
+                                  className="cursor-pointer text-green border-none  hover:text-success"
+                                />
+                              </Dropdown>
+                            )}
                             {userId === dataItem?.createdBy &&
                               dataItem?.isValidated == false && (
                                 <Dropdown
@@ -327,422 +327,25 @@ function Planning() {
                 </div>
               }
             >
-              {dataItem?.keyResults?.map((keyResult: any) => (
-                <div key={keyResult?.id} className="">
-                  <KeyResultMetrics
-                    keyResult={
-                      keyResult ?? {
-                        id: 'defaultKeyResult',
-                        name: 'No Key Result Available',
-                        tasks: [],
+              {dataItem?.keyResults?.map(
+                (keyResult: any, keyResultIndex: number) => (
+                  <div key={keyResult?.id} className="">
+                    <KeyResultMetrics
+                      keyResult={
+                        keyResult ?? {
+                          id: 'defaultKeyResult',
+                          name: 'No Key Result Available',
+                          tasks: [],
+                        }
                       }
-                    }
-                  />
-                  {keyResult?.milestones?.map(
-                    (milestone: any, milestoneIndex: number) => (
-                      <Row className="rounded-lg py-1 pr-3" key={milestone?.id}>
-                        {keyResult?.metricType?.name === NAME.MILESTONE && (
-                          <Col className="ml-5 mb-1" span={24}>
-                            <strong>{`${milestoneIndex + 1}. ${milestone?.title ?? milestone?.description ?? 'No milestone Title'}`}</strong>
-                          </Col>
-                        )}
-                        {milestone?.tasks?.length > 0 ? (
-                          <>
-                            {milestone?.tasks?.map(
-                              (task: any, taskIndex: number) => (
-                                <Row
-                                  key={task.id}
-                                  align={'middle'}
-                                  justify={'space-between'}
-                                  className="w-full"
-                                >
-                                  <Col className="ml-8 mb-1">
-                                    <Text className="text-xs flex items-center gap-1">
-                                      {`${milestoneIndex + 1}.${taskIndex + 1} ${task?.task} `}
-
-                                      {task?.achieveMK ? (
-                                        <FaStar size={11} />
-                                      ) : (
-                                        ''
-                                      )}
-                                    </Text>
-                                  </Col>
-
-                                  <Col className="">
-                                    <Text
-                                      type="secondary"
-                                      className="text-[10px] mr-2"
-                                    >
-                                      <span
-                                        className="text-xl"
-                                        style={{ color: 'blue' }}
-                                      >
-                                        &bull;
-                                      </span>{' '}
-                                      Priority
-                                    </Text>
-                                    <Tag
-                                      className="font-bold border-none w-16 text-center capitalize text-[10px]"
-                                      color={
-                                        task?.priority === 'high'
-                                          ? 'red'
-                                          : task?.priority === 'medium'
-                                            ? 'orange'
-                                            : 'green'
-                                      }
-                                    >
-                                      {task?.priority || 'None'}
-                                    </Tag>
-
-                                    {/* Point Section */}
-
-                                    {/* Target Section */}
-                                    <Text
-                                      type="secondary"
-                                      className="text-[10px] mr-2"
-                                    >
-                                      <span
-                                        className="text-xl"
-                                        style={{ color: 'blue' }}
-                                      >
-                                        &bull;
-                                      </span>{' '}
-                                      Weight:
-                                    </Text>
-                                    <Tag
-                                      className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
-                                      color="#B2B2FF"
-                                    >
-                                      {task?.weight || 0}
-                                    </Tag>
-
-                                    {keyResult?.metricType?.name !==
-                                      'Milestone' && (
-                                      <>
-                                        <Text
-                                          type="secondary"
-                                          className="text-[10px]"
-                                        >
-                                          <span
-                                            className="text-xl"
-                                            style={{ color: 'blue' }}
-                                          >
-                                            &bull;
-                                          </span>{' '}
-                                          Target:
-                                        </Text>
-                                        <Tag
-                                          className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
-                                          color="#B2B2FF"
-                                        >
-                                          {task?.targetValue || 'N/A'}
-                                        </Tag>
-                                      </>
-                                    )}
-                                  </Col>
-                                </Row>
-                              ),
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            {milestone?.parentTask?.map(
-                              (task: any, taskIndex: number) => (
-                                <Row key={task.id} className="w-full">
-                                  <Col
-                                    className="ml-6 mb-1 font-semibold"
-                                    span={24}
-                                  >
-                                    {`${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`}
-                                  </Col>
-                                  {task?.tasks?.map(
-                                    (ptask: any, pIndex: number) => (
-                                      <Row
-                                        align={'middle'}
-                                        justify={'space-between'}
-                                        key={ptask.id}
-                                        className="w-full ml-8 mb-1"
-                                      >
-                                        <Col>
-                                          <Text className="text-xs">
-                                            {`${milestoneIndex + 1}.${taskIndex + 1}.${pIndex + 1} ${ptask?.task}`}
-                                          </Text>
-                                        </Col>
-
-                                        <Col>
-                                          {/* Priority Section */}
-                                          <Text
-                                            type="secondary"
-                                            className="text-[10px] mr-2"
-                                          >
-                                            <span
-                                              className="text-xl"
-                                              style={{ color: 'blue' }}
-                                            >
-                                              &bull;
-                                            </span>{' '}
-                                            Priority
-                                          </Text>
-                                          <Tag
-                                            className="font-bold border-none w-16 text-center capitalize text-[10px]"
-                                            color={
-                                              task?.priority === 'high'
-                                                ? 'red'
-                                                : task?.priority === 'medium'
-                                                  ? 'orange'
-                                                  : 'green'
-                                            }
-                                          >
-                                            {task?.priority || 'None'}
-                                          </Tag>
-
-                                          {/* Weight Section */}
-                                          <Text
-                                            type="secondary"
-                                            className="text-[10px] mr-2"
-                                          >
-                                            <span
-                                              className="text-xl"
-                                              style={{ color: 'blue' }}
-                                            >
-                                              &bull;
-                                            </span>{' '}
-                                            Weight:
-                                          </Text>
-                                          <Tag
-                                            className="font-bold border-none w-16 text-center text-blue text-[10px]"
-                                            color="#B2B2FF"
-                                          >
-                                            {task?.weight || 0}
-                                          </Tag>
-
-                                          {/* Target Section */}
-                                          {keyResult?.metricType?.name !==
-                                            'Milestone' && (
-                                            <>
-                                              <Text
-                                                type="secondary"
-                                                className="text-[10px]"
-                                              >
-                                                <span
-                                                  className="text-xl"
-                                                  style={{ color: 'blue' }}
-                                                >
-                                                  &bull;
-                                                </span>{' '}
-                                                Target:
-                                              </Text>
-                                              <Tag
-                                                className="font-bold border-none w-16 text-center text-blue text-[10px]"
-                                                color="#B2B2FF"
-                                              >
-                                                {task?.targetValue || 'N/A'}
-                                              </Tag>
-                                            </>
-                                          )}
-                                        </Col>
-                                      </Row>
-                                    ),
-                                  )}
-                                </Row>
-                              ),
-                            )}
-                          </>
-                        )}
-                      </Row>
-                    ),
-                  )}
-                  {keyResult?.tasks?.length > 0 ? (
-                    <>
-                      {keyResult?.tasks?.map((task: any, taskIndex: number) => (
-                        <Row
-                          key={task.id}
-                          align={'middle'}
-                          justify={'space-between'}
-                          className="w-full"
-                        >
-                          <Col className="ml-8 mb-1">
-                            <Text className="text-xs flex items-center gap-1">
-                              {`${taskIndex + 1}. ${task?.task}`}
-                              {task?.achieveMK ? (
-                                <MdKey size={12} className="" />
-                              ) : (
-                                ''
-                              )}
-                            </Text>
-                          </Col>
-
-                          <Col className="">
-                            <Text type="secondary" className="text-[10px] mr-2">
-                              <span
-                                className="text-xl"
-                                style={{ color: 'blue' }}
-                              >
-                                &bull;
-                              </span>{' '}
-                              Priority
-                            </Text>
-                            <Tag
-                              className="font-bold border-none w-16 text-center capitalize text-[10px]"
-                              color={
-                                task?.priority === 'high'
-                                  ? 'red'
-                                  : task?.priority === 'medium'
-                                    ? 'orange'
-                                    : 'green'
-                              }
-                            >
-                              {task?.priority || 'None'}
-                            </Tag>
-
-                            {/* Point Section */}
-
-                            {/* Target Section */}
-                            <Text type="secondary" className="text-[10px] mr-2">
-                              <span
-                                className="text-xl"
-                                style={{ color: 'blue' }}
-                              >
-                                &bull;
-                              </span>{' '}
-                              Weight:
-                            </Text>
-                            <Tag
-                              className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
-                              color="#B2B2FF"
-                            >
-                              {task?.weight || 0}
-                            </Tag>
-
-                            {keyResult?.metricType?.name !== 'Milestone' && (
-                              <>
-                                <Text type="secondary" className="text-[10px]">
-                                  <span
-                                    className="text-xl"
-                                    style={{ color: 'blue' }}
-                                  >
-                                    &bull;
-                                  </span>{' '}
-                                  Target:
-                                </Text>
-                                <Tag
-                                  className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
-                                  color="#B2B2FF"
-                                >
-                                  {task?.targetValue || 'N/A'}
-                                </Tag>
-                              </>
-                            )}
-                          </Col>
-                        </Row>
-                      ))}
-                    </>
-                  ) : (
-                    <>
-                      {' '}
-                      {keyResult?.parentTask?.map(
-                        (task: any, taskIndex: number) => (
-                          <Row key={task.id} className="w-full">
-                            <Col className="ml-5 mb-1" span={24}>
-                              <strong>
-                                {' '}
-                                {`${taskIndex + 1}. ${task?.task}`}
-                              </strong>
-                            </Col>
-                            {task?.tasks?.map((ptask: any, pIndex: number) => (
-                              <Row
-                                align={'middle'}
-                                justify={'space-between'}
-                                key={ptask.id}
-                                className="w-full ml-8 mb-1"
-                              >
-                                <Col>
-                                  <Text className="text-xs">
-                                    {`${taskIndex + 1}.${pIndex + 1} ${ptask?.task}`}
-                                  </Text>
-                                </Col>
-
-                                <Col>
-                                  {/* Priority Section */}
-                                  <Text
-                                    type="secondary"
-                                    className="text-[10px] mr-2"
-                                  >
-                                    <span
-                                      className="text-xl"
-                                      style={{ color: 'blue' }}
-                                    >
-                                      &bull;
-                                    </span>{' '}
-                                    Priority
-                                  </Text>
-                                  <Tag
-                                    className="font-bold border-none w-16 text-center capitalize text-[10px]"
-                                    color={
-                                      task?.priority === 'high'
-                                        ? 'red'
-                                        : task?.priority === 'medium'
-                                          ? 'orange'
-                                          : 'green'
-                                    }
-                                  >
-                                    {task?.priority || 'None'}
-                                  </Tag>
-
-                                  {/* Weight Section */}
-                                  <Text
-                                    type="secondary"
-                                    className="text-[10px] mr-2"
-                                  >
-                                    <span
-                                      className="text-xl"
-                                      style={{ color: 'blue' }}
-                                    >
-                                      &bull;
-                                    </span>{' '}
-                                    Weight:
-                                  </Text>
-                                  <Tag
-                                    className="font-bold border-none w-16 text-center text-blue text-[10px]"
-                                    color="#B2B2FF"
-                                  >
-                                    {task?.weight || 0}
-                                  </Tag>
-
-                                  {/* Target Section */}
-                                  {keyResult?.metricType?.name !==
-                                    'Milestone' && (
-                                    <>
-                                      <Text
-                                        type="secondary"
-                                        className="text-[10px]"
-                                      >
-                                        <span
-                                          className="text-xl"
-                                          style={{ color: 'blue' }}
-                                        >
-                                          &bull;
-                                        </span>{' '}
-                                        Target:
-                                      </Text>
-                                      <Tag
-                                        className="font-bold border-none w-16 text-center text-blue text-[10px]"
-                                        color="#B2B2FF"
-                                      >
-                                        {task?.targetValue || 'N/A'}
-                                      </Tag>
-                                    </>
-                                  )}
-                                </Col>
-                              </Row>
-                            ))}
-                          </Row>
-                        ),
-                      )}
-                    </>
-                  )}
-                </div>
-              ))}
+                    />
+                    <MilestoneTasks
+                      keyResultIndex={keyResultIndex}
+                      keyResult={keyResult}
+                    />
+                  </div>
+                ),
+              )}
               <CommentCard
                 planId={dataItem?.id}
                 data={dataItem?.comments}
