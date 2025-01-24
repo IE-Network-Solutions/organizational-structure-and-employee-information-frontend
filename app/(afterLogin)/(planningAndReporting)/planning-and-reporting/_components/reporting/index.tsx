@@ -122,11 +122,7 @@ function Reporting() {
       )}
     </Menu>
   );
-  const actionsMenuEditandDelte = (
-    dataItem: any,
-
-    setSelectedReportId: any,
-  ) => (
+  const actionsMenuEditandDelte = (dataItem: any, setSelectedReportId: any) => (
     <Menu>
       {/* Edit Plan */}
       <Menu.Item

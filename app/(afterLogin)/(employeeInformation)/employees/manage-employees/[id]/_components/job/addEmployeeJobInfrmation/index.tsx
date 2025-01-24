@@ -4,8 +4,9 @@ import { useCreateJobInformation } from '@/store/server/features/employees/emplo
 import JobTimeLineForm from '../../../../_components/allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../../../../_components/allFormData/workScheduleForm';
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
-import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
 import { useEffect } from 'react';
+import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 
 interface Ids {
   id: string;
@@ -17,27 +18,62 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
     setIsAddEmployeeJobInfoModalVisible,
   } = useEmployeeManagementStore();
 
-  const {
-    isLoading,
-    isSuccess,
-    mutate: createJobInformation,
-  } = useCreateJobInformation();
+  const { data: employeeData } = useGetEmployee(id);
+  const { data: basicSalary } = useGetBasicSalaryById(id);
+
+  const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
   };
 
+  const activeJob = basicSalary?.find((job: any) => job?.status === true);
+
   useEffect(() => {
-    if (isSuccess) {
-      form.resetFields();
-      handleClose();
+    if (employeeData && employeeData.employeeJobInformation.length > 0) {
+      const jobInfo = employeeData.employeeJobInformation[0];
+
+      form.setFieldsValue({
+        positionId: jobInfo?.position?.name || '',
+        employementTypeId: jobInfo?.employementType?.name || '',
+        departmentId: jobInfo?.department?.name || '',
+        branchId: jobInfo?.branch?.name || '',
+        departmentLeadOrNot: jobInfo?.departmentLeadOrNot,
+        basicSalary: activeJob?.basicSalary.toString() || '',
+        jobAction: jobInfo?.jobAction,
+        employmentContractType:
+          jobInfo?.employementType?.name === 'Permanent'
+            ? 'Permanent'
+            : 'Contractual',
+        workScheduleId: jobInfo?.workSchedule?.name || '',
+      });
     }
-  }, [isSuccess]);
+  }, [employeeData, activeJob, form]);
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
-    values.userId = id;
-    values.basicSalary = parseInt(values.basicSalary.toString(), 10);
+    const positionId = employeeData?.employeeJobInformation?.find(
+      (job: any) => job?.position?.name === values.positionId,
+    )?.position?.id;
+    const employementTypeId = employeeData?.employeeJobInformation?.find(
+      (job: any) => job?.employementType?.name === values.employementTypeId,
+    )?.employementType?.id;
+    const departmentId = employeeData?.employeeJobInformation?.find(
+      (job: any) => job?.department?.name === values.departmentId,
+    )?.department?.id;
+    const branchId = employeeData?.employeeJobInformation?.find(
+      (job: any) => job?.branch?.name === values.branchId,
+    )?.branch?.id;
+    const workScheduleId = employeeData?.employeeJobInformation?.find(
+      (job: any) => job?.workSchedule?.name === values.workScheduleId,
+    )?.workSchedule?.id;
 
+    values.positionId = positionId || '';
+    values.employementTypeId = employementTypeId || '';
+    values.departmentId = departmentId || '';
+    values.branchId = branchId || '';
+    values.workScheduleId = workScheduleId || '';
+    values.userId = id;
+    // values.basicSalary = parseInt(values.basicSalary.toString(), 10);
     values.departmentLeadOrNot
       ? values.departmentLeadOrNot
       : (values.departmentLeadOrNot = false);
@@ -56,8 +92,11 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
       >
         <Form form={form} onFinish={createTsks} layout="vertical">
           <JobTimeLineForm />
-          <BasicSalaryForm />
-          <WorkScheduleForm />
+          <WorkScheduleForm
+            selectedWorkScheduleDetails={
+              employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
+            }
+          />
           <Form.Item>
             <Row className="flex justify-end gap-3">
               <Button
