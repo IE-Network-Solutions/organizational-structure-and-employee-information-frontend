@@ -154,7 +154,6 @@ const QuestionSetForm = () => {
       layout="vertical"
       form={form} // Bind the form instance
       onFinish={handleSubmit}
-      
     >
       <Form.Item
         label="Name"
@@ -182,11 +181,7 @@ const QuestionSetForm = () => {
         </>
       )}
 
-      <Form.Item
-        label="Is Active"
-        name="active"
-        initialValue={true}
-      >
+      <Form.Item label="Is Active" name="active" initialValue={true}>
         <Switch />
       </Form.Item>
 
