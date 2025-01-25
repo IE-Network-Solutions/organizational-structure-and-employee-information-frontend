@@ -21,47 +21,97 @@ const fetchFeedbackRecordById = async (id: string) => {
     headers,
   });
 };
-const fetchAllFeedbackRecord = async (
-  pageSize: number,
-  page: number,
-  empId: string,
-  date: string[],
-) => {
+const fetchAllFeedbackRecord = async ({
+  variantType,
+  activeTab,
+  userId,
+  pageSize,
+  page,
+  empId,
+  givenDate,
+}: {
+  variantType: 'appreciation' | 'reprimand';
+  activeTab: string;
+  userId: string;
+  pageSize?: number;
+  empId: string;
+  page?: number;
+  givenDate?: string[];
+}) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
     Authorization: `Bearer ${token}`,
   };
-  const url = date?.length
-    ? `${ORG_DEV_URL}/feedback-record?limit=${pageSize}&page=${page}&startDate=${date[0]}&endDate=${date[1]}&useId=${empId}`
-    : `${ORG_DEV_URL}/feedback-record?limit=${pageSize}&page=${page}&useId=${empId}`;
-  return await crudRequest({
-    url: url,
-    method: 'GET',
-    headers,
-  });
+
+  // Constructing the query URL dynamically
+  const urlParams: string[] = [];
+
+  if (givenDate?.length) {
+    urlParams.push(`startDate=${givenDate[0]}`);
+    urlParams.push(`endDate=${givenDate[1]}`);
+  }
+  if (userId && userId !== 'all') urlParams.push(`userId=${userId}`);
+  if (empId && empId !== '') urlParams.push(`empId=${empId}`);
+  if (pageSize) urlParams.push(`limit=${pageSize}`);
+  if (page) urlParams.push(`page=${page}`);
+  if (variantType) urlParams.push(`variantType=${variantType}`);
+  if (activeTab) urlParams.push(`feedbackTypeId=${activeTab}`);
+
+  const url = `${ORG_DEV_URL}/feedback-record?${urlParams.join('&')}`;
+
+  try {
+    return await crudRequest({
+      url: url,
+      method: 'GET',
+      headers,
+    });
+  } catch (error) {
+    throw error;
+  }
 };
 export const useFetchFeedbackRecordById = (id: string) => {
   return useQuery(
     ['feedbackRecord', id], // Include `id` in the query key for caching
     () => fetchFeedbackRecordById(id), // Fetch function
-    {
-      enabled: !!id, // Conditionally enable the query
-    },
+    // {
+    //   enabled: !!id, // Conditionally enable the query
+    // },
   );
 };
-export const useFetchAllFeedbackRecord = (
-  pageSize: number,
-  page: number,
-  empId?: string,
-  date: string[] = [],
-) => {
+
+export const useFetchAllFeedbackRecord = ({
+  variantType,
+  activeTab,
+  userId,
+  pageSize,
+  page,
+  empId,
+  givenDate,
+}: {
+  variantType: 'appreciation' | 'reprimand';
+  activeTab: string;
+  userId: string;
+  pageSize?: number;
+  empId: string;
+  page?: number;
+  givenDate?: string[];
+}) => {
   return useQuery(
-    ['feedbackRecord', pageSize, page, empId, date],
-    () => fetchAllFeedbackRecord(pageSize, page, empId || '', date || []),
-    {
-      enabled: !!empId, // Ensure the query is enabled only when empId is defined
-    },
+    [
+      'feedbackRecord',
+      { variantType, activeTab, userId, empId, pageSize, page, givenDate },
+    ],
+    () =>
+      fetchAllFeedbackRecord({
+        variantType,
+        activeTab,
+        userId,
+        pageSize,
+        empId,
+        page,
+        givenDate,
+      }),
   );
 };

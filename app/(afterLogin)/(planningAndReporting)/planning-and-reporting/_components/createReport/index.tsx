@@ -10,6 +10,7 @@ import {
   Tooltip,
   Typography,
   Input,
+  InputNumber,
 } from 'antd';
 
 import {
@@ -17,10 +18,11 @@ import {
   useGetUnReportedPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
-import { getPriorityColor } from '@/utils/showValidationErrors';
 import { useCreateReportForUnReportedtasks } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
+import { FaStar } from 'react-icons/fa';
+import { MdKey } from 'react-icons/md';
 const { Text } = Typography;
 
 const { TextArea } = Input;
@@ -79,24 +81,35 @@ function CreateReport() {
     return (
       sum +
       objective?.keyResults?.reduce((keyResultSum: number, keyResult: any) => {
-        return (
-          keyResultSum +
-          keyResult?.milestones?.reduce(
-            (milestoneSum: number, milestone: any) => {
-              return (
-                milestoneSum +
-                milestone?.tasks?.reduce((taskSum: number, task: any) => {
-                  // Check if the task's status is NOT 'Not'
-                  if (selectedStatuses[task.taskId] !== 'Not') {
-                    return taskSum + (task.weight || 0);
-                  }
-                  return taskSum; // Skip adding weight if status is 'Not'
-                }, 0)
-              );
-            },
-            0,
-          )
+        // Calculate the weight for keyResult.tasks array
+        const taskWeight = keyResult?.tasks?.reduce(
+          (taskSum: number, task: any) => {
+            if (selectedStatuses[task.taskId] === 'Done') {
+              return taskSum + Number(task.weight || 0);
+            }
+            return taskSum;
+          },
+          0,
         );
+
+        // Calculate the weight for milestones.tasks array
+        const milestoneWeight = keyResult?.milestones?.reduce(
+          (milestoneSum: number, milestone: any) => {
+            return (
+              milestoneSum +
+              milestone?.tasks?.reduce((taskSum: number, task: any) => {
+                if (selectedStatuses[task.taskId] === 'Done') {
+                  return taskSum + Number(task.weight || 0);
+                }
+                return taskSum;
+              }, 0)
+            );
+          },
+          0,
+        );
+
+        // Sum up task weights and milestone weights
+        return keyResultSum + taskWeight + milestoneWeight;
       }, 0)
     );
   }, 0);
@@ -107,7 +120,7 @@ function CreateReport() {
         open={openReportModal === true && isEditing === false ? true : false}
         onClose={onClose}
         modalHeader={modalHeader}
-        width="50%"
+        width="65%"
       >
         {formattedData?.length > 0 ? (
           <Form
@@ -134,19 +147,30 @@ function CreateReport() {
                             {keyresult?.title}
                           </p>
                           <Text className="rounded-lg px-1   border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
-                            {keyresult?.milestones?.reduce(
-                              (totalWeight: number, milestone: any) => {
-                                return (
-                                  totalWeight +
-                                  (milestone?.tasks?.reduce(
-                                    (taskWeight: number, task: any) =>
-                                      taskWeight + (task?.weight || 0),
-                                    0,
-                                  ) || 0)
-                                );
-                              },
-                              0,
-                            )}
+                            {
+                              // Calculate weight from keyResult.tasks
+                              keyresult?.tasks?.reduce(
+                                (taskWeight: number, task: any) => {
+                                  return taskWeight + Number(task?.weight || 0);
+                                },
+                                0,
+                              ) +
+                                // Calculate weight from keyResult.milestones.tasks
+                                keyresult?.milestones?.reduce(
+                                  (totalWeight: number, milestone: any) => {
+                                    return (
+                                      totalWeight +
+                                      (milestone?.tasks?.reduce(
+                                        (taskWeight: number, task: any) =>
+                                          taskWeight +
+                                          Number(task?.weight || 0),
+                                        0,
+                                      ) || 0)
+                                    );
+                                  },
+                                  0,
+                                ) || 0
+                            }
                             %
                           </Text>
                         </Row>
@@ -162,202 +186,290 @@ function CreateReport() {
                                 <h4 className="font-semibold text-xs mb-1">
                                   {milestone?.title}
                                 </h4>
-                                {milestone?.tasks?.map((task: any) => (
-                                  <>
-                                    <Form.Item
-                                      key={task.taskId}
-                                      name={[task.taskId, 'status']}
-                                      className="mb-2"
-                                      rules={[
-                                        {
-                                          required: true,
-                                          message: 'Please select a status!',
-                                        },
-                                      ]} // Add validation rule
-                                    >
-                                      <div className="grid">
-                                        <div className="flex items-center justify-between ml-1">
-                                          {/* Radio Group for Status */}
-                                          <div className="flex  items-center  space-x-2">
-                                            <Text className="rounded-lg border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
-                                              {index + 1}.{milestoneIndex + 1}.
-                                            </Text>
+                                {milestone?.tasks?.map(
+                                  (task: any, milestoneTaskIndex: any) => (
+                                    <>
+                                      <Form.Item
+                                        key={task.taskId}
+                                        name={[task.taskId, 'status']}
+                                        className="mb-2"
+                                        rules={[
+                                          {
+                                            required: true,
+                                            message: 'Please select a status!',
+                                          },
+                                        ]} // Add validation rule
+                                      >
+                                        <div className="grid">
+                                          <div className="flex items-center justify-between ml-1">
+                                            {/* Radio Group for Status */}
+                                            <div className="flex  items-center  space-x-2">
+                                              <Text className="rounded-lg border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
+                                                {index + 1}.
+                                                {milestoneTaskIndex + 1}
+                                              </Text>
 
-                                            <Radio.Group
-                                              className="text-xs"
-                                              onChange={(e) =>
-                                                setStatus(
-                                                  task.taskId,
-                                                  e.target.value,
+                                              <Radio.Group
+                                                className="text-xs"
+                                                onChange={(e) =>
+                                                  setStatus(
+                                                    task.taskId,
+                                                    e.target.value,
+                                                  )
+                                                }
+                                                value={
+                                                  selectedStatuses[task.taskId]
+                                                } // Bind value from Zustand
+                                              >
+                                                <Radio
+                                                  className="text-xs"
+                                                  value="Done"
+                                                >
+                                                  Done
+                                                </Radio>
+                                                <Radio
+                                                  className="text-xs"
+                                                  value="Not"
+                                                >
+                                                  Not
+                                                </Radio>
+                                              </Radio.Group>
+                                              <Tooltip title={task.taskName}>
+                                                <span className="font-medium text-sm truncate flex items-center gap-1">
+                                                  {task.taskName?.length >= 100
+                                                    ? task.taskName?.slice(
+                                                        0,
+                                                        100,
+                                                      ) + '...'
+                                                    : task.taskName}
+                                                  {task?.achieveMK ? (
+                                                    <FaStar size={11} />
+                                                  ) : (
+                                                    ''
+                                                  )}
+                                                </span>
+                                              </Tooltip>
+                                            </div>
+
+                                            {/* Task Details */}
+                                            <div className="flex items-center space-y-1">
+                                              {/* Task Name */}
+
+                                              {/* Priority and Value */}
+                                              <div className="flex items-center space-x-2">
+                                                <Tag
+                                                  className="font-bold border-none w-16  text-center capitalize text-[10px]"
+                                                  color={
+                                                    task?.priority === 'high'
+                                                      ? 'red'
+                                                      : task?.priority ===
+                                                          'medium'
+                                                        ? 'orange'
+                                                        : 'green'
+                                                  }
+                                                >
+                                                  {task?.priority || 'None'}
+                                                </Tag>
+                                                <span className="rounded-lg border-gray-200 border bg-gray-200 mni-w-6 min-h-6 px-1 text-[12px] flex items-center justify-center">
+                                                  {task.weight}%
+                                                </span>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <Row>
+                                            {keyresult?.metricType?.name !==
+                                              NAME.ACHIEVE &&
+                                              keyresult?.metricType?.name !==
+                                                NAME.MILESTONE && (
+                                                <div className="text-xs">
+                                                  Target
+                                                  <Tag className="uppercase mt-1 ml-1 test-xs">
+                                                    {Number(
+                                                      task?.targetValue,
+                                                    )?.toLocaleString()}
+                                                  </Tag>
+                                                </div>
+                                              )}
+                                          </Row>
+                                        </div>
+                                      </Form.Item>
+                                      {/* Actual Value Form Item, with both conditions */}
+                                      {selectedStatuses[task.taskId] &&
+                                        keyresult?.metricType?.name !==
+                                          NAME.ACHIEVE &&
+                                        keyresult?.metricType?.name !==
+                                          NAME.MILESTONE && (
+                                          <Form.Item
+                                            key={`${task.taskId}-actualValue`}
+                                            name={[task.taskId, 'actualValue']}
+                                            className="mb-2"
+                                            label={`Actual value:`} // Optional label
+                                            rules={[
+                                              {
+                                                /* eslint-disable @typescript-eslint/naming-convention */
+                                                validator(_, value: any) {
+                                                  /* eslint-enable @typescript-eslint/naming-convention */
+                                                  // Check if keyResult is available
+                                                  if (
+                                                    !keyresult ||
+                                                    !keyresult.targetValue ||
+                                                    !keyresult.currentValue
+                                                  ) {
+                                                    return Promise.reject(
+                                                      new Error(
+                                                        'Key result data is incomplete.',
+                                                      ),
+                                                    );
+                                                  }
+
+                                                  // Skip validation for specific metric types
+                                                  if (
+                                                    keyresult?.metricType
+                                                      ?.name === NAME.ACHIEVE ||
+                                                    keyresult?.metricType
+                                                      ?.name === NAME.MILESTONE
+                                                  ) {
+                                                    return Promise.resolve(); // Skip validation
+                                                  }
+
+                                                  // Handle null or undefined value
+                                                  if (
+                                                    value === null ||
+                                                    value === undefined
+                                                  ) {
+                                                    return Promise.reject(
+                                                      new Error(
+                                                        'Please enter a target value.',
+                                                      ),
+                                                    );
+                                                  }
+
+                                                  // Ensure value is a valid number
+                                                  const numericValue =
+                                                    Number(value);
+                                                  if (isNaN(numericValue)) {
+                                                    return Promise.reject(
+                                                      new Error(
+                                                        'Please enter a valid number.',
+                                                      ),
+                                                    );
+                                                  }
+
+                                                  if (
+                                                    selectedStatuses[
+                                                      task.taskId
+                                                    ] === 'Done'
+                                                  ) {
+                                                    if (
+                                                      numericValue >=
+                                                      task?.targetValue
+                                                    ) {
+                                                      return Promise.resolve(); // Validation passed
+                                                    }
+                                                  } else {
+                                                    // Fallback check if targetValue does not exist
+                                                    if (
+                                                      numericValue <=
+                                                      task?.targetValue
+                                                    ) {
+                                                      return Promise.resolve(); // Validation passed
+                                                    }
+
+                                                    // If neither condition is satisfied and the status is not 'Done', reject the promise
+                                                    return Promise.reject(
+                                                      new Error(
+                                                        `Your actual value shouldn't exceed the allowed limits which is : ${Number(task?.targetValue)?.toLocaleString()}`,
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                              },
+                                            ]}
+                                          >
+                                            <InputNumber
+                                              width="50%"
+                                              min={0}
+                                              step={1}
+                                              className="w-full"
+                                              formatter={(value) =>
+                                                `${value}`.replace(
+                                                  /\B(?=(\d{3})+(?!\d))/g,
+                                                  ',',
                                                 )
                                               }
-                                              value={
-                                                selectedStatuses[task.taskId]
-                                              } // Bind value from Zustand
-                                            >
-                                              <Radio value="Done">Done</Radio>
-                                              <Radio value="Not">Not</Radio>
-                                            </Radio.Group>
-                                            <Tooltip title={task.taskName}>
-                                              <span className="font-medium text-xs truncate">
-                                                {task.taskName}
-                                              </span>
-                                            </Tooltip>
-                                          </div>
-
-                                          {/* Task Details */}
-                                          <div className="flex items-center space-y-1">
-                                            {/* Task Name */}
-
-                                            {/* Priority and Value */}
-                                            <div className="flex items-center space-x-2">
-                                              <Tag
-                                                className="font-bold border-none w-16  text-center capitalize text-[10px]"
-                                                color={
-                                                  task?.priority === 'high'
-                                                    ? 'red'
-                                                    : task?.priority ===
-                                                        'medium'
-                                                      ? 'orange'
-                                                      : 'green'
-                                                }
-                                              >
-                                                {task?.priority || 'None'}
-                                              </Tag>
-                                              <span className="rounded-lg border-gray-200 border bg-gray-200 mni-w-6 min-h-6 px-1 text-[12px] flex items-center justify-center">
-                                                {task.weight}%
-                                              </span>
-                                            </div>
-                                          </div>
-                                        </div>
-
-                                        <Row>
-                                          {keyresult?.metricType?.name ===
-                                            NAME.ACHIEVE && (
-                                            <div className="text-xs">
-                                              Target
-                                              <Tag className="uppercase mt-1 ml-1 test-xs">
-                                                {task?.targetValue}
-                                              </Tag>
-                                            </div>
-                                          )}
-                                        </Row>
-                                      </div>
-                                    </Form.Item>
-                                    {/* Actual Value Form Item, with both conditions */}
-                                    {selectedStatuses[task.taskId] === 'Not' &&
-                                      keyresult?.metricType?.name !==
-                                        NAME.ACHIEVE &&
-                                      keyresult?.metricType?.name !==
-                                        NAME.MILESTONE && (
+                                              onChange={(e) => {
+                                                const value = e;
+                                                form.setFieldsValue({
+                                                  [task.taskId]: {
+                                                    actualValue: value
+                                                      ? Number(value)
+                                                      : '',
+                                                  },
+                                                });
+                                              }}
+                                            />
+                                          </Form.Item>
+                                        )}
+                                      {/* Comment Form Item, only with the 'Not' status condition */}
+                                      {selectedStatuses[task.taskId] ===
+                                        'Not' && (
                                         <Form.Item
-                                          key={`${task.taskId}-actualValue`}
-                                          name={[task.taskId, 'actualValue']}
-                                          className="mb-1"
-                                          label="Actual value:" // Optional label
+                                          key={`${task.taskId}-comment`}
+                                          name={[task.taskId, 'customReason']}
+                                          className="mb-2"
+                                          label="Reason:" // Optional label
                                           rules={[
                                             {
                                               required: true,
                                               message:
-                                                'Please enter an actual value!',
-                                            },
-                                            {
-                                              validator: (rule, value) => {
-                                                if (!value) {
-                                                  return Promise.reject(
-                                                    new Error(
-                                                      'Please enter an actual value!',
-                                                    ),
-                                                  );
-                                                }
-                                                if (isNaN(value)) {
-                                                  return Promise.reject(
-                                                    new Error(
-                                                      'The input is not a valid number!',
-                                                    ),
-                                                  );
-                                                }
-                                                return Promise.resolve();
-                                              },
+                                                'Please provide a comment!',
                                             },
                                           ]}
                                         >
-                                          <Input
-                                            width="50%"
-                                            type="number"
-                                            min={0}
-                                            step={1}
-                                            onChange={(e) => {
-                                              const value = e.target.value;
-                                              form.setFieldsValue({
-                                                [task.taskId]: {
-                                                  actualValue: value
-                                                    ? Number(value)
-                                                    : '',
-                                                },
-                                              });
-                                            }}
-                                          />
-                                        </Form.Item>
-                                      )}
-                                    {/* Comment Form Item, only with the 'Not' status condition */}
-                                    {selectedStatuses[task.taskId] ===
-                                      'Not' && (
-                                      <Form.Item
-                                        key={`${task.taskId}-comment`}
-                                        name={[task.taskId, 'comment']}
-                                        className="mb-2"
-                                        label="Reason:" // Optional label
-                                        rules={[
-                                          {
-                                            required: true,
-                                            message:
-                                              'Please provide a comment!',
-                                          },
-                                        ]}
-                                      >
-                                        <div
-                                          style={{
-                                            position: 'relative',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                          }}
-                                        >
-                                          <TextArea
-                                            rows={4}
-                                            style={{
-                                              paddingRight: '100px',
-                                              flex: 1,
-                                            }}
-                                          />
                                           <div
                                             style={{
-                                              position: 'absolute',
-                                              right: '100px',
-                                              top: '0',
-                                              bottom: '0',
-                                              width: '1px',
-                                              backgroundColor: '#ccc',
-                                            }}
-                                          />
-                                          <Text
-                                            className="text-white bg-primary"
-                                            style={{
-                                              position: 'absolute',
-                                              right: '10px',
-                                              top: '50%',
-                                              padding: '8px 16px', // 2x (vertical) and 4x (horizontal) assuming x = 4px
-                                              borderRadius: '8px', // Rounded corners, adjust as needed
-                                              transform: 'translateY(-50%)',
+                                              position: 'relative',
+                                              display: 'flex',
+                                              alignItems: 'center',
                                             }}
                                           >
-                                            Reason
-                                          </Text>
-                                        </div>
-                                      </Form.Item>
-                                    )}
-                                  </>
-                                ))}
+                                            <TextArea
+                                              rows={4}
+                                              style={{
+                                                paddingRight: '100px',
+                                                flex: 1,
+                                              }}
+                                            />
+                                            <div
+                                              style={{
+                                                position: 'absolute',
+                                                right: '100px',
+                                                top: '0',
+                                                bottom: '0',
+                                                width: '1px',
+                                                backgroundColor: '#ccc',
+                                              }}
+                                            />
+                                            <Text
+                                              className="text-black"
+                                              style={{
+                                                position: 'absolute',
+                                                right: '10px',
+                                                top: '50%',
+                                                padding: '8px 16px', // 2x (vertical) and 4x (horizontal) assuming x = 4px
+                                                borderRadius: '8px', // Rounded corners, adjust as needed
+                                                transform: 'translateY(-50%)',
+                                              }}
+                                            >
+                                              Reason
+                                            </Text>
+                                          </div>
+                                        </Form.Item>
+                                      )}
+                                    </>
+                                  ),
+                                )}
                               </div>
                             ),
                         )}
@@ -365,51 +477,96 @@ function CreateReport() {
                           (task: any, tasksIndex: number) => (
                             <div key={task.id} className="mb-4 ml-2">
                               <Form.Item
-                                key={tasksIndex}
+                                key={task.taskId}
                                 name={[task.taskId, 'status']}
                                 className="mb-2"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: 'Please select a status!',
+                                  },
+                                ]} // Add validation rule
                               >
                                 <div className="grid">
                                   <div className="flex items-center justify-between ml-1">
-                                    <Row>
+                                    {/* Radio Group for Status */}
+                                    <div className="flex  items-center  space-x-2">
+                                      <Text className="rounded-lg border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
+                                        {index + 1}.{tasksIndex + 1}
+                                      </Text>
+
                                       <Radio.Group
                                         className="text-xs"
                                         onChange={(e) =>
                                           setStatus(task.taskId, e.target.value)
                                         }
-                                        value={selectedStatuses[task.taskId]}
+                                        value={selectedStatuses[task.taskId]} // Bind value from Zustand
                                       >
-                                        <Radio value={'Done'}>Done</Radio>
-                                        <Radio value={'Not'}>Not</Radio>
+                                        <Radio className="text-xs" value="Done">
+                                          Done
+                                        </Radio>
+                                        <Radio className="text-xs" value="Not">
+                                          Not
+                                        </Radio>
                                       </Radio.Group>
-                                    </Row>
-                                    <Tooltip title={task.taskName}>
-                                      <span className="font-medium text-xs">
-                                        {task.taskName.length > 20
-                                          ? `${task.taskName.substring(0, 20)}...`
-                                          : task.taskName}
-                                      </span>
-                                    </Tooltip>
-                                    <Tag
-                                      color={getPriorityColor(task.priority)}
-                                      className="uppercase"
-                                    >
-                                      {task.priority}
-                                    </Tag>
-                                    <span className="text-gray-600">
-                                      {task.actualValue}
-                                    </span>
+                                      <Tooltip title={task.taskName}>
+                                        <span className="font-medium text-sm truncate flex items-center gap-1">
+                                          {task.taskName?.length >= 40
+                                            ? task.taskName?.slice(0, 40)
+                                            : task.taskName}
+                                          {task?.achieveMK ? (
+                                            <MdKey size={12} className="" />
+                                          ) : (
+                                            ''
+                                          )}
+                                        </span>
+                                      </Tooltip>
+                                    </div>
+
+                                    {/* Task Details */}
+                                    <div className="flex items-center space-y-1">
+                                      {/* Task Name */}
+
+                                      {/* Priority and Value */}
+                                      <div className="flex items-center space-x-2">
+                                        <Tag
+                                          className="font-bold border-none w-16  text-center capitalize text-[10px]"
+                                          color={
+                                            task?.priority === 'high'
+                                              ? 'red'
+                                              : task?.priority === 'medium'
+                                                ? 'orange'
+                                                : 'green'
+                                          }
+                                        >
+                                          {task?.priority || 'None'}
+                                        </Tag>
+                                        <span className="rounded-lg border-gray-200 border bg-gray-200 mni-w-6 min-h-6 px-1 text-[12px] flex items-center justify-center">
+                                          {task.weight}%
+                                        </span>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div className="text-xs">
-                                    Target
-                                    <Tag className="uppercase mt-1 ml-1 test-xs">
-                                      {task?.targetValue}
-                                    </Tag>
-                                  </div>
+
+                                  <Row>
+                                    {keyresult?.metricType?.name !==
+                                      NAME.ACHIEVE &&
+                                      keyresult?.metricType?.name !==
+                                        NAME.MILESTONE && (
+                                        <div className="text-xs">
+                                          Target
+                                          <Tag className="uppercase mt-1 ml-1 test-xs">
+                                            {Number(
+                                              task?.targetValue,
+                                            )?.toLocaleString()}
+                                          </Tag>
+                                        </div>
+                                      )}
+                                  </Row>
                                 </div>
                               </Form.Item>
                               {/* Actual Value Form Item, with both conditions */}
-                              {selectedStatuses[task.taskId] === 'Not' &&
+                              {selectedStatuses[task.taskId] &&
                                 keyresult?.metricType?.name !== NAME.ACHIEVE &&
                                 keyresult?.metricType?.name !==
                                   NAME.MILESTONE && (
@@ -417,38 +574,98 @@ function CreateReport() {
                                     key={`${task.taskId}-actualValue`}
                                     name={[task.taskId, 'actualValue']}
                                     className="mb-2"
-                                    label="Actual value:" // Optional label
+                                    label={`Actual value:`} // Optional label
                                     rules={[
                                       {
-                                        required: true,
-                                        message:
-                                          'Please enter an actual value!', // Show if the field is empty
-                                      },
-                                      {
-                                        validator: (
-                                          _, // eslint-disable-line @typescript-eslint/naming-convention
-                                          value, // eslint-disable-line @typescript-eslint/naming-convention
-                                        ) => {
-                                          // eslint-disable-next-line no-underscore-dangle
-                                          if (value && isNaN(value)) {
+                                        /* eslint-disable @typescript-eslint/naming-convention */
+                                        validator(_, value: any) {
+                                          /* eslint-enable @typescript-eslint/naming-convention */
+                                          // Check if keyResult is available
+                                          if (
+                                            !keyresult ||
+                                            !keyresult.targetValue ||
+                                            !keyresult.currentValue
+                                          ) {
                                             return Promise.reject(
                                               new Error(
-                                                'The input is not a valid number!',
-                                              ), // Show if the value is not a number
+                                                'Key result data is incomplete.',
+                                              ),
                                             );
                                           }
-                                          return Promise.resolve(); // Proceed to next rule if the value is valid
+
+                                          // Skip validation for specific metric types
+                                          if (
+                                            keyresult?.metricType?.name ===
+                                              NAME.ACHIEVE ||
+                                            keyresult?.metricType?.name ===
+                                              NAME.MILESTONE
+                                          ) {
+                                            return Promise.resolve(); // Skip validation
+                                          }
+
+                                          // Handle null or undefined value
+                                          if (
+                                            value === null ||
+                                            value === undefined
+                                          ) {
+                                            return Promise.reject(
+                                              new Error(
+                                                'Please enter a target value.',
+                                              ),
+                                            );
+                                          }
+
+                                          // Ensure value is a valid number
+                                          const numericValue = Number(value);
+                                          if (isNaN(numericValue)) {
+                                            return Promise.reject(
+                                              new Error(
+                                                'Please enter a valid number.',
+                                              ),
+                                            );
+                                          }
+
+                                          if (
+                                            selectedStatuses[task.taskId] ===
+                                            'Done'
+                                          ) {
+                                            if (
+                                              numericValue >= task?.targetValue
+                                            ) {
+                                              return Promise.resolve(); // Validation passed
+                                            }
+                                          } else {
+                                            // Fallback check if targetValue does not exist
+                                            if (
+                                              numericValue <= task?.targetValue
+                                            ) {
+                                              return Promise.resolve(); // Validation passed
+                                            }
+
+                                            // If neither condition is satisfied and the status is not 'Done', reject the promise
+                                            return Promise.reject(
+                                              new Error(
+                                                `Your actual value shouldn't exceed the allowed limits which is : ${Number(task?.targetValue)?.toLocaleString()}`,
+                                              ),
+                                            );
+                                          }
                                         },
                                       },
                                     ]}
                                   >
-                                    <Input
+                                    <InputNumber
                                       width="50%"
-                                      type="number"
                                       min={0}
                                       step={1}
+                                      className="w-full"
+                                      formatter={(value) =>
+                                        `${value}`.replace(
+                                          /\B(?=(\d{3})+(?!\d))/g,
+                                          ',',
+                                        )
+                                      }
                                       onChange={(e) => {
-                                        const value = e.target.value;
+                                        const value = e;
                                         form.setFieldsValue({
                                           [task.taskId]: {
                                             actualValue: value
@@ -464,7 +681,7 @@ function CreateReport() {
                               {selectedStatuses[task.taskId] === 'Not' && (
                                 <Form.Item
                                   key={`${task.taskId}-comment`}
-                                  name={[task.taskId, 'comment']}
+                                  name={[task.taskId, 'customReason']}
                                   className="mb-2"
                                   label="Reason:" // Optional label
                                   rules={[
@@ -496,7 +713,7 @@ function CreateReport() {
                                       }}
                                     />
                                     <Text
-                                      className="text-white bg-primary"
+                                      className="text-black "
                                       style={{
                                         position: 'absolute',
                                         right: '10px',
