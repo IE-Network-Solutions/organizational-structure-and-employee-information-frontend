@@ -65,6 +65,7 @@ const deleteReportById = async (id: any) => {
 const createReportForUnReportedtasks = async (
   values: any,
   planningPeriodId: string,
+  planId?:string,
 ) => {
   const token = useAuthenticationStore.getState().token; // Assuming you have a way to get the token
   const tenantId = useAuthenticationStore.getState().tenantId; // Assuming you have a way to get the tenantId
@@ -74,12 +75,16 @@ const createReportForUnReportedtasks = async (
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
-  return await crudRequest({
-    url: `${OKR_URL}/okr-report-task/create-report/${userId}/${planningPeriodId}`,
-    method: 'post',
-    data: values,
-    headers,
-  });
+  const url = planId
+    ? `${OKR_URL}/okr-report-task/create-report/${userId}/${planningPeriodId}?planningId=${planId}`
+    : `${OKR_URL}/okr-report-task/create-report/${userId}/${planningPeriodId}`;
+
+    return await crudRequest({
+      url,
+      method: 'POST',
+      data: values,
+      headers,
+    });
 };
 const editReport = async (values: any, selectedReportId: string) => {
   const token = useAuthenticationStore.getState().token; // Assuming you have a way to get the token
@@ -113,8 +118,8 @@ export const useCreateReportForUnReportedtasks = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ values, planningPeriodId }: { values: any; planningPeriodId: string }) =>
-      createReportForUnReportedtasks(values, planningPeriodId),
+    ({ values, planningPeriodId,planId }: { values: any; planningPeriodId: string ,planId?:string}) =>
+      createReportForUnReportedtasks(values, planningPeriodId,planId),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('okrReports');
