@@ -6,7 +6,7 @@ import { classNames } from '@/utils/classNames';
 interface UserCardProps {
   avatar?: string;
   profileImage?: any;
-  name: string | undefined|  React.ReactNode;
+  name: string | undefined | React.ReactNode;
   description?: string;
   size?: 'small' | 'medium';
 }
