@@ -1,21 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { useFetchAllowances } from '@/store/server/features/compensation/allowance/queries';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allowance';
-import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 
 const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
   const { data: allCompensationsData, isLoading } = useFetchAllowances();
   const { currentPage, pageSize, setCurrentPage, setPageSize } =
     useAllAllowanceStore();
 
-  const [employeeNameMap, setEmployeeNameMap] = useState<{
-    [key: string]: string;
-  }>({});
-
-  // Extract and process data
   const allAllowanceEntitlementData = Array.isArray(allCompensationsData)
     ? allCompensationsData.filter(
         (allowanceEntitlement: any) =>
@@ -55,25 +49,11 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
     return dataRow;
   });
 
-  // Fetch and map employee names for filtering
-  useEffect(() => {
-    const fetchEmployeeNames = async () => {
-      const nameMap: { [key: string]: string } = {};
-      for (const row of dataSource) {
-        const employeeId = row.employeeId;
-        const { data: employeeName } = useGetEmployee(employeeId); // Assuming EmployeeDetails has a method to fetch the name
-        nameMap[employeeId] = employeeName;
-      }
-      setEmployeeNameMap(nameMap);
-    };
-
-    fetchEmployeeNames();
-  }, [dataSource]);
-
-  const filteredDataSource = dataSource.filter((employee: any) => {
-    const name = employeeNameMap[employee.employeeId]?.toLowerCase() || '';
-    return name.includes(searchQuery.toLowerCase());
-  });
+  const filteredDataSource = searchQuery
+    ? dataSource.filter((employee: any) =>
+        employee.employeeId.toLowerCase().includes(searchQuery?.toLowerCase()),
+      )
+    : dataSource;
 
   const handleTableChange = (pagination: any) => {
     setCurrentPage(pagination.current);
