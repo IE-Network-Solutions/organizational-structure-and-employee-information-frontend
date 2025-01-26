@@ -4,7 +4,6 @@ import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { SearchOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import BenefitEntitlementSideBar from './benefitEntitlementSidebar';
