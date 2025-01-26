@@ -85,6 +85,12 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
       return updatedSearchValue;
     });
   };
+  const options =
+    employeeData?.items?.map((emp: any) => ({
+      value: emp.id,
+      label: `${emp.firstName || ''} ${emp.lastName}`, // Full name as label
+      employeeData: emp,
+    })) || [];
 
   return (
     <div className="mb-6">
@@ -97,18 +103,20 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
         <Col xl={8} lg={10} md={12} sm={24} xs={24}>
           <Select
             showSearch
-            placeholder="Search by Name"
-            onChange={(value) => handleSelectChange('employeeId', value)}
-            value={searchValue.employeeId || ''}
             allowClear
+            className="min-h-12"
+            placeholder="Search by name"
+            onChange={(value) => handleSelectChange('employeeId', value)}
+            filterOption={(input, option) => {
+              const label = option?.label;
+              return (
+                typeof label === 'string' &&
+                label.toLowerCase().includes(input.toLowerCase())
+              );
+            }}
+            options={options}
             style={{ width: '100%', height: '48px' }}
-          >
-            {filteredEmployees.map((employee) => (
-              <Option key={employee.id} value={employee.id}>
-                {employee.firstName} {employee.lastName}
-              </Option>
-            ))}
-          </Select>
+          />
         </Col>
 
         <Col xl={4} lg={5} md={6} sm={12} xs={24}>
