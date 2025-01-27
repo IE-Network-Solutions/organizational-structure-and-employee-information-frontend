@@ -154,7 +154,6 @@ const QuestionSetForm = () => {
       layout="vertical"
       form={form} // Bind the form instance
       onFinish={handleSubmit}
-      
     >
       <Form.Item
         label="Name"
@@ -189,6 +188,7 @@ const QuestionSetForm = () => {
         rules={[{ required: true, message: 'Please check if you want to activate this question set.' }]}
 
       >
+
         <Switch />
       </Form.Item>
 

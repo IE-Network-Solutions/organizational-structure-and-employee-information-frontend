@@ -122,11 +122,7 @@ function Reporting() {
       )}
     </Menu>
   );
-  const actionsMenuEditandDelte = (
-    dataItem: any,
-
-    setSelectedReportId: any,
-  ) => (
+  const actionsMenuEditandDelte = (dataItem: any, setSelectedReportId: any) => (
     <Menu>
       {/* Edit Plan */}
       <Menu.Item
@@ -265,27 +261,27 @@ function Reporting() {
                                 'MMMM D YYYY, h:mm:ss A',
                               )}
                             </span>
-                            {/* {userId ===
+                            {userId ===
                               getEmployeeData(
                                 dataItem?.userId ?? dataItem?.createdBy,
-                              )?.reportingTo?.id && ( */}
-                            <Dropdown
-                              overlay={actionsMenu(
-                                dataItem,
-                                handleApproveHandler,
-                                isApprovalLoading,
-                              )}
-                              trigger={['click']}
-                            >
-                              <Button
-                                type="text"
-                                icon={
-                                  <IoMdMore className="text-2xl font-bold" />
-                                }
-                                className="cursor-pointer text-green border-none  hover:text-success"
-                              />
-                            </Dropdown>
-                            {/* )} */}
+                              )?.reportingTo?.id && (
+                              <Dropdown
+                                overlay={actionsMenu(
+                                  dataItem,
+                                  handleApproveHandler,
+                                  isApprovalLoading,
+                                )}
+                                trigger={['click']}
+                              >
+                                <Button
+                                  type="text"
+                                  icon={
+                                    <IoMdMore className="text-2xl font-bold" />
+                                  }
+                                  className="cursor-pointer text-green border-none  hover:text-success"
+                                />
+                              </Dropdown>
+                            )}
                             {userId ===
                               (dataItem?.userId ?? dataItem?.createdBy) &&
                               dataItem?.plan?.isReportValidated == false && (

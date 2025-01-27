@@ -95,10 +95,6 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
                     id={`actionPlanId${index + 1}`}
                     rules={[
                       { required: true, message: 'Action title is required' },
-                      {
-                        max: 40,
-                        message: 'Action title cannot exceed 40 characters',
-                      },
                     ]}
                   >
                     <Input />
