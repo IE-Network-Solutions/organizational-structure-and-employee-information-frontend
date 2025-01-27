@@ -24,12 +24,8 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
   const [fiscalYears, setFiscalYears] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [months, setMonths] = useState<any[]>([]);
-  const [filteredEmployees, setFilteredEmployees] = useState<any[]>([]);
 
   useEffect(() => {
-    if (employeeData) {
-      setFilteredEmployees(employeeData.items || []);
-    }
     if (getAllFiscalYears) {
       setFiscalYears(getAllFiscalYears.items || []);
     }
