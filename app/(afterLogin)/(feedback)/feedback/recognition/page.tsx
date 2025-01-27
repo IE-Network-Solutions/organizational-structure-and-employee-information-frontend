@@ -236,6 +236,7 @@ function Page() {
   const handleRowClick = (record: any) => {
     navigate.push(`/feedback/recognition/${record.id}`);
   };
+
   return (
     <div>
       <Tabs
@@ -272,7 +273,7 @@ function Page() {
         >
           <EmployeeSearchComponent
             fields={searcFields}
-            onChange={handleSearchChange}
+            onChange={(value) => handleSearchChange(value.key, value.value)}
           />
           <Table<any>
             columns={columns}
