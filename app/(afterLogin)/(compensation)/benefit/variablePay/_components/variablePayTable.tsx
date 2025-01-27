@@ -5,6 +5,7 @@ import { useGetVariablePay } from '@/store/server/features/okrplanning/okr/dashb
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetAllMonth } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 
 const VariablePayTable = () => {
   const { data: allUsersVariablePay, isLoading } = useGetVariablePay();
@@ -12,6 +13,9 @@ const VariablePayTable = () => {
     useVariablePayStore();
   const [searchQuery, setSearchQuery] = useState('');
   const { data: employeeData } = useGetAllUsers();
+  const { data: months } = useGetAllMonth();
+
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
   const tableData =
     allUsersVariablePay?.items?.map((variablePay: any) => ({
@@ -69,12 +73,19 @@ const VariablePayTable = () => {
   const handleSearchChange = (value: any) => {
     setSearchQuery(value);
   };
+
   const options =
     employeeData?.items?.map((emp: any) => ({
       value: emp.id,
       label: `${emp.firstName || ''} ${emp.lastName}`, // Full name as label
       employeeData: emp,
     })) || [];
+
+  const monthOptions =
+      months?.items?.map((month: any) => ({
+        value: month.id,
+        label: month.name, // Assuming month has a 'name' field
+      })) || [];
 
   const filteredDataSource = searchQuery
     ? tableData.filter(
@@ -118,10 +129,8 @@ const VariablePayTable = () => {
           placeholder="Filter by month"
           style={{ width: 150 }}
           className="min-h-12"
-          options={[
-            { value: 'January', label: 'January' },
-            { value: 'February', label: 'February' },
-          ]}
+          options={monthOptions}
+          onChange={setSelectedMonth}
         />
       </Space>
       <Table
