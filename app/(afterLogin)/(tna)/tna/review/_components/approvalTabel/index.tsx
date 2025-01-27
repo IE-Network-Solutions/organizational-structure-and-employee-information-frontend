@@ -1,5 +1,5 @@
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
+import { useGetApprovalTNARequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { Avatar, Button, Input, Popconfirm, Spin, Table } from 'antd';
 import React from 'react';
@@ -11,73 +11,19 @@ import {
   TrainingNeedAssessmentStatusBadgeTheme,
 } from '@/types/tna/tna';
 import { useApprovalTNAStore } from '@/store/uistate/features/tna/settings/approval';
+import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 
 const TnaApprovalTable = () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
   const userRollId = useAuthenticationStore.getState().userData.roleId;
   const { rejectComment, setRejectComment } = useApprovalTNAStore();
+  const { pageSize, userCurrentPage, setUserCurrentPage } = useTnaReviewStore();
+  const { data: currentApproverData, isFetching: currentApproverIsFetching } =
+    useGetApprovalTNARequest(userId, userCurrentPage, pageSize);
 
-  //   const { data, isFetching } = useGetApprovalLeaveRequest(
-  //     userId,
-  //     // userCurrentPage,
-  //     1,
-  //     // pageSize,
-  //     5
-  //   );
-  const trainingData: any = {
-    items: [
-      {
-        title: 'Training Session 1',
-        trainingPrice: 100,
-        reason: 'Skill Development',
-        currencyId: 'USD',
-        status: 'pending',
-        assignedUserId: 'abe45de0-923b-4b2c-8851-e75b234b4485',
-      },
-      {
-        title: 'Training Session 2',
-        trainingPrice: 150,
-        reason: 'Team Building',
-        currencyId: 'USD',
-        status: 'pending',
-        assignedUserId: 'abe45de0-923b-4b2c-8851-e75b234b4485',
-      },
-      {
-        title: 'Training Session 3',
-        trainingPrice: 200,
-        reason: 'Leadership Skills',
-        currencyId: 'USD',
-        status: 'pending',
-        assignedUserId: 'abe45de0-923b-4b2c-8851-e75b234b4485',
-      },
-      {
-        title: 'Training Session 4',
-        trainingPrice: 120,
-        reason: 'Technical Skills',
-        currencyId: 'USD',
-        status: 'pending',
-        assignedUserId: 'abe45de0-923b-4b2c-8851-e75b234b4485',
-      },
-      {
-        title: 'Training Session 5',
-        trainingPrice: 180,
-        reason: 'Communication Skills',
-        currencyId: 'USD',
-        status: 'pending',
-        assignedUserId: 'abe45de0-923b-4b2c-8851-e75b234b4485',
-      },
-    ],
-    meta: {
-      currentPage: 1,
-      itemCount: 5,
-      itemsPerPage: 20,
-      totalItems: 5,
-      totalPages: 4,
-    },
-  };
   const onPageChange = (page: number) => {
-    //   setUserCurrentPage(page);
+    setUserCurrentPage(page);
   };
   const columns: TableColumnsType<any> = [
     {
@@ -191,80 +137,82 @@ const TnaApprovalTable = () => {
   };
   const cancel: any = () => {};
 
-  const allFilterData = trainingData?.items?.map((item: any, index: number) => {
-    return {
-      key: index,
-      title: item?.title,
-      assignedUserId: item?.assignedUserId,
-      trainingPrice: item?.trainingPrice,
-      reason: item?.reason,
-      currencyId: item?.currencyId,
-      status: item?.status,
-      action: (
-        <div className="flex gap-4 ">
-          <Popconfirm
-            title="Approve Request"
-            description="Are you sure to approve this leave request?"
-            onConfirm={() => {
-              confirm({
-                approvalWorkflowId: item?.approvalWorkflowId,
-                stepOrder: item?.nextApprover?.[0]?.stepOrder,
-                requestId: item?.id,
-                approvedUserId: userId,
-                approverRoleId: userRollId,
-                action: 'Approved',
-                tenantId: tenantId,
-              });
-            }}
-            onCancel={cancel}
-            okText="Approve"
-            cancelText="Cancel"
-          >
-            <Button type="primary">Approve</Button>
-          </Popconfirm>
-          <Popconfirm
-            title="Reject Request"
-            description={
-              <>
-                <p>Are you sure you want to reject this leave request?</p>
-                <Input
-                  placeholder="Add a comment"
-                  value={rejectComment}
-                  onChange={(e) => setRejectComment(e.target.value)}
-                  style={{ marginTop: 8 }}
-                />
-              </>
-            }
-            onConfirm={() => {
-              reject({
-                approvalWorkflowId: item?.approvalWorkflowId,
-                stepOrder: item?.nextApprover?.[0]?.stepOrder,
-                requestId: item?.id,
-                approvedUserId: userId,
-                approverRoleId: userRollId,
-                action: 'Rejected',
-                tenantId: tenantId,
-                comment: {
-                  comment: rejectComment,
-                  commentedBy: userId,
+  const allFilterData = currentApproverData?.items?.map(
+    (item: any, index: number) => {
+      return {
+        key: index,
+        title: item?.title,
+        assignedUserId: item?.assignedUserId,
+        trainingPrice: item?.trainingPrice,
+        reason: item?.reason,
+        currencyId: item?.currencyId,
+        status: item?.status,
+        action: (
+          <div className="flex gap-4 ">
+            <Popconfirm
+              title="Approve Request"
+              description="Are you sure to approve this leave request?"
+              onConfirm={() => {
+                confirm({
+                  approvalWorkflowId: item?.approvalWorkflowId,
+                  stepOrder: item?.nextApprover?.[0]?.stepOrder,
+                  requestId: item?.id,
+                  approvedUserId: userId,
+                  approverRoleId: userRollId,
+                  action: 'Approved',
                   tenantId: tenantId,
-                },
-              });
-            }}
-            onCancel={cancel}
-            okText="Reject"
-            cancelText="Cancel"
-            okButtonProps={{ disabled: !rejectComment }}
-          >
-            <Button danger>Reject</Button>
-          </Popconfirm>
-        </div>
-      ),
-    };
-  });
+                });
+              }}
+              onCancel={cancel}
+              okText="Approve"
+              cancelText="Cancel"
+            >
+              <Button type="primary">Approve</Button>
+            </Popconfirm>
+            <Popconfirm
+              title="Reject Request"
+              description={
+                <>
+                  <p>Are you sure you want to reject this leave request?</p>
+                  <Input
+                    placeholder="Add a comment"
+                    value={rejectComment}
+                    onChange={(e) => setRejectComment(e.target.value)}
+                    style={{ marginTop: 8 }}
+                  />
+                </>
+              }
+              onConfirm={() => {
+                reject({
+                  approvalWorkflowId: item?.approvalWorkflowId,
+                  stepOrder: item?.nextApprover?.[0]?.stepOrder,
+                  requestId: item?.id,
+                  approvedUserId: userId,
+                  approverRoleId: userRollId,
+                  action: 'Rejected',
+                  tenantId: tenantId,
+                  comment: {
+                    comment: rejectComment,
+                    commentedBy: userId,
+                    tenantId: tenantId,
+                  },
+                });
+              }}
+              onCancel={cancel}
+              okText="Reject"
+              cancelText="Cancel"
+              okButtonProps={{ disabled: !rejectComment }}
+            >
+              <Button danger>Reject</Button>
+            </Popconfirm>
+          </div>
+        ),
+      };
+    },
+  );
   return (
     <>
-      {trainingData?.items?.length > 0 ? (
+      {currentApproverData?.items?.length > 0 ? (
         <>
           <div className="flex items-center mb-6">
             <div className="text-2xl font-bold text-gray-900">
@@ -307,12 +255,12 @@ const TnaApprovalTable = () => {
           </div>
           <Table
             columns={columns}
-            // loading={isFetching}
+            loading={currentApproverIsFetching}
             dataSource={allFilterData}
             pagination={{
-              total: trainingData?.meta?.totalItems,
-              current: trainingData?.meta?.userCurrentPage,
-              pageSize: trainingData?.meta?.totalPages,
+              total: currentApproverData?.meta?.totalItems,
+              current: currentApproverData?.meta?.userCurrentPage,
+              pageSize: currentApproverData?.meta?.totalPages,
               onChange: onPageChange,
             }}
             scroll={{ x: 'min-content' }}

@@ -14,7 +14,10 @@ import {
   TrainingNeedAssessmentCertStatus,
   TrainingNeedAssessmentStatus,
 } from '@/types/tna/tna';
-import { useGetTna } from '@/store/server/features/tna/review/queries';
+import {
+  useCurrency,
+  useGetTna,
+} from '@/store/server/features/tna/review/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useAllApproval } from '@/store/server/features/approver/queries';
 import { APPROVALTYPES } from '@/types/enumTypes';
@@ -31,6 +34,7 @@ const TnaRequestSidebar = () => {
   const { userId } = useAuthenticationStore();
 
   const { data: employeeData } = useGetEmployee(userId);
+  const { data: tnaCurrency } = useCurrency();
   const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
     useAllApproval(
       employeeData?.employeeJobInformation?.[0]?.departmentId || '',
@@ -112,8 +116,7 @@ const TnaRequestSidebar = () => {
     const value = form.getFieldsValue();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { trainingNeedCategory, ...otherData } = data?.items[0] || {};
-    // setTna(
-    console.log('console.log', [
+    setTna([
       {
         ...otherData,
         ...value,
@@ -200,7 +203,7 @@ const TnaRequestSidebar = () => {
                 <MdKeyboardArrowDown size={16} className="text-gray-900" />
               }
               placeholder="Select"
-              options={formatToOptions(tnaCategory, 'name', 'id')}
+              options={formatToOptions(tnaCurrency, 'code', 'id')}
             />
           </Form.Item>
           <Form.Item
