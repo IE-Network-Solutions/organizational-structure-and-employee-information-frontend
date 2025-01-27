@@ -35,7 +35,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
           justify="space-between" // Only justifying the space between taskName and others
         >
           <Col className="flex gap-2">
-            {task?.status === 'Done' ? (
+            {task?.isAchieved ? (
               <div className="py-1 px-1 w-4 h-4 text-white flex items-center justify-center rounded-md bg-green-600">
                 <IoCheckmarkSharp size={14} />
               </div>

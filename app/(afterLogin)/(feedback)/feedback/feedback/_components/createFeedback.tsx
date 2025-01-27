@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Select, Input, Button } from 'antd';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchFeedbackTypeById } from '@/store/server/features/feedback/feedbackType/queries';
@@ -9,6 +9,8 @@ import {
   useUpdateFeedbackRecord,
 } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackItem } from '@/store/server/features/CFR/conversation/action-plan/interface';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetPerspectiveById } from '@/store/server/features/CFR/feedback/queries';
 
 const { TextArea } = Input;
 
@@ -21,8 +23,14 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     variantType,
     setSelectedFeedbackRecord,
   } = ConversationStore();
+
+  const [selectedDepartment, setSelectedDepartmentId] = useState<string | null>(
+    null,
+  );
   const { data: getAllUsersData } = useGetAllUsers();
   const { data: getAllFeedbackTypeById } = useFetchFeedbackTypeById(activeTab);
+  const { data: departments, isLoading } = useGetDepartments();
+  const { data: perspectiveData } = useGetPerspectiveById(selectedDepartment);
 
   const {
     mutate: createFeedbackRecord,
@@ -69,13 +77,33 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
       });
     }
   };
+  // Ensure perspectiveIds is always an array
+  const perspectiveIds =
+    perspectiveData
+      ?.filter(
+        (perspective: any) => perspective.departmentId === selectedDepartment,
+      )
+      ?.map((perspective: any) => perspective.id) || []; // Default to an empty array
 
+  // Ensure perspectiveIds is always an array to avoid errors
+  const filteredFeedback = getAllFeedbackTypeById?.feedback?.filter(
+    (item: any) => perspectiveIds.includes(item.perspectiveId),
+  );
+
+  // const filteredFeedback=getAllFeedbackTypeById?.feedback
   useEffect(() => {
+    const getDepartmenId = (perspectiveId: string | undefined) => {
+      const perspective = perspectiveData?.find(
+        (item: any) => item.id === perspectiveId,
+      );
+      return perspective.departmentId ?? null;
+    };
     if (selectedFeedbackRecord !== null)
       form.setFieldsValue({
         id: selectedFeedbackRecord?.id,
         recipientId: selectedFeedbackRecord?.recipientId,
         feedbackId: selectedFeedbackRecord?.feedbackId,
+        departmenId: getDepartmenId(selectedFeedbackRecord?.perspectiveId),
         reason: selectedFeedbackRecord?.reason,
         action: selectedFeedbackRecord?.action,
       });
@@ -121,7 +149,25 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           }
         />
       </Form.Item>
-
+      <Form.Item
+        name="departmentId"
+        label="Select Department"
+        rules={[{ required: true, message: 'Please select a department' }]}
+      >
+        <Select
+          loading={isLoading}
+          placeholder="Select a department"
+          onChange={(departmentId: string) =>
+            setSelectedDepartmentId(departmentId)
+          }
+        >
+          {departments?.map((department: any) => (
+            <Select.Option key={department.id} value={department.id}>
+              {department.name}
+            </Select.Option>
+          ))}
+        </Select>
+      </Form.Item>
       {/* Select Type */}
       <Form.Item
         name="feedbackId"
@@ -132,9 +178,10 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
       >
         <Select
           showSearch
+          disabled={filteredFeedback?.length < 1}
           placeholder="Select Feedback"
           options={
-            getAllFeedbackTypeById?.feedback
+            filteredFeedback
               ?.filter((i: any) => i.variant === variantType)
               ?.map((feedback: FeedbackItem) => ({
                 key: feedback.id, // Optional, used for React rendering optimization

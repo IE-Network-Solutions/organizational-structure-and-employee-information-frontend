@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form, Select } from 'antd';
 import DynamicQuestionField from '@/components/dynamicQuestionField';
 
@@ -7,7 +7,13 @@ const QuestionResponseForm = ({
   attendeesOptions,
   questionSet,
   handleAttendeeChange,
+  form,
 }: any) => {
+  useEffect(() => {
+    form.setFieldsValue({
+      [`userId_${attendeeIndex}`]: attendeesOptions[attendeeIndex]?.value,
+    });
+  }, [attendeeIndex, attendeesOptions, form]);
   return (
     <React.Fragment>
       <Form.Item
@@ -22,6 +28,7 @@ const QuestionResponseForm = ({
           className="text-black text-sm font-semibold"
           options={attendeesOptions}
           onChange={handleAttendeeChange}
+          value={attendeesOptions[attendeeIndex].value}
         />
       </Form.Item>
 

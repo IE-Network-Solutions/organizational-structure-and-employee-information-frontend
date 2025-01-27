@@ -219,6 +219,11 @@ const menuItems: MenuProps['items'] = [
         className: 'font-bold',
       },
       {
+        key: '/deduction',
+        label: 'Deduction',
+        className: 'font-bold',
+      },
+      {
         key: '/compensationSetting',
         label: 'Settings',
         className: 'font-bold',

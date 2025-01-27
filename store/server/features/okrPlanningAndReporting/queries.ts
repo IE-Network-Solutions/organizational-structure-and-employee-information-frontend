@@ -52,7 +52,7 @@ const getPlanningPeriodsHierarchy = async (
 
 const getAllUnReportedPlanningTask = async (
   planningPeriodId: string | undefined,
-  forPlan: boolean,
+  forPlan: number,
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -62,7 +62,6 @@ const getAllUnReportedPlanningTask = async (
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
-
   return await crudRequest({
     url: `${OKR_URL}/okr-report-task/users/${userId}/planning-period/${planningPeriodId}?forPlan=${forPlan}`,
     method: 'get',
@@ -186,7 +185,7 @@ export const useGetReportingById = (id: string) => {
 
 export const useGetUnReportedPlanning = (
   planningPeriodId: string | undefined,
-  forPlan: boolean = true,
+  forPlan:number,
 ) => {
   return useQuery<any>(
     ['okrReports', planningPeriodId],
