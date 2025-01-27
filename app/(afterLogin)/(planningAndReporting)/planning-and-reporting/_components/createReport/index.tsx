@@ -65,7 +65,8 @@ function CreateReport() {
     Object.entries(values).length > 0 &&
       planningPeriodId &&
       createReport(
-        { values: values, planningPeriodId: planningPeriodId ,planId: allUnReportedPlanningTask?.[0]?.plan?.id},
+        { values: values, planningPeriodId: planningPeriodId,planId: allUnReportedPlanningTask?.[0]?.plan?.id },
+
         {
           onSuccess: () => {
             onClose();

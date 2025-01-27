@@ -46,11 +46,11 @@ const DynamicQuestionField = ({
             ))}
           </Select>
         );
-        case FieldType.SHORT_TEXT:
-          return <Input />;
-        case FieldType.PARAGRAPH:
-          return <Input.TextArea rows={4} />;
-          
+      case FieldType.SHORT_TEXT:
+        return <Input />;
+      case FieldType.PARAGRAPH:
+        return <Input.TextArea rows={4} />;
+
       default:
         return <span>Custom Field</span>; // Replace with your TextEditor or another component
     }

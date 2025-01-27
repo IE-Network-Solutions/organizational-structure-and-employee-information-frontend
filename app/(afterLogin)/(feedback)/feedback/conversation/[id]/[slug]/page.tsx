@@ -13,7 +13,7 @@ import CreateActionPlans from './_components/createActionPlans';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useAddActionPlan } from '@/store/server/features/CFR/conversation/action-plan/mutation';
 import dayjs from 'dayjs';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 interface Params {
   slug: string;
 }
@@ -28,7 +28,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
     useGetAllConversationInstancesById(slug);
   const { data: allUserData } = useGetAllUsers();
   const { mutate: addActionPlan } = useAddActionPlan();
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     if (selectedUserId !== null && selectedUserId !== '') {
@@ -129,7 +129,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
       title={
         <div>
           {' '}
-          <Button type='link' onClick={() => handleRedirectback()}>
+          <Button type="link" onClick={() => handleRedirectback()}>
             ←
           </Button>{' '}
           <span>Details</span>
