@@ -18,8 +18,7 @@ const AllowanceTypeTable = () => {
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const { data, isLoading } = useFetchAllowanceTypes();
   const { mutate: deleteAllowanceType } = useDeleteAllowanceType();
-  const { mutate: updateCompensationStatus, isLoading: updateStatusLoading } =
-    useUpdateCompensationStatus();
+  const { mutate: updateCompensationStatus } = useUpdateCompensationStatus();
   const {
     allowanceCurrentPage,
     allowancePageSize,

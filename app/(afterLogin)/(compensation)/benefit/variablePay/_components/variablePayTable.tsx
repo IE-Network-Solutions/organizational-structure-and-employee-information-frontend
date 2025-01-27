@@ -15,7 +15,6 @@ const VariablePayTable = () => {
   const { data: employeeData } = useGetAllUsers();
   const { data: months } = useGetAllMonth();
 
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
   const tableData =
     allUsersVariablePay?.items?.map((variablePay: any) => ({
@@ -82,10 +81,10 @@ const VariablePayTable = () => {
     })) || [];
 
   const monthOptions =
-      months?.items?.map((month: any) => ({
-        value: month.id,
-        label: month.name, // Assuming month has a 'name' field
-      })) || [];
+    months?.items?.map((month: any) => ({
+      value: month.id,
+      label: month.name, // Assuming month has a 'name' field
+    })) || [];
 
   const filteredDataSource = searchQuery
     ? tableData.filter(
@@ -130,7 +129,7 @@ const VariablePayTable = () => {
           style={{ width: 150 }}
           className="min-h-12"
           options={monthOptions}
-          onChange={setSelectedMonth}
+          onChange={() => {}}
         />
       </Space>
       <Table
