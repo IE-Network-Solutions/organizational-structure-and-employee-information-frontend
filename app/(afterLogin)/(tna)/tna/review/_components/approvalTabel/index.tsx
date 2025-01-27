@@ -1,7 +1,7 @@
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetApprovalTNARequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { Avatar, Button, Input, Popconfirm, Spin, Table } from 'antd';
+import { Avatar, Button, Input, Popconfirm, Table } from 'antd';
 import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { TableColumnsType } from '@/types/table/table';
@@ -140,7 +140,6 @@ const TnaApprovalTable = () => {
     tenantId: string;
     comment: { comment: string; commentedBy: string; tenantId: string };
   }) => {
-    console.log(e);
     editApprover(e, {
       onSuccess: () => {
         setRejectComment('');
@@ -168,7 +167,6 @@ const TnaApprovalTable = () => {
         }
       },
     });
-    console.log(e);
   };
   const cancel: any = () => {};
 
