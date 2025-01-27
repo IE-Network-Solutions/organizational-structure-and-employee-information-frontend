@@ -49,6 +49,7 @@ function Reporting() {
     selectedUser,
     activePlanPeriod,
     setSelectedReportId,
+    activeTab
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
@@ -67,7 +68,7 @@ function Reporting() {
   });
   const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(
     planningPeriodId,
-    true,
+    activeTab,
   );
 
   const activeTabName =
