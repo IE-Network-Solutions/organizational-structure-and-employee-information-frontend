@@ -66,19 +66,19 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
               .map((item: any) => (
                 <Timeline.Item
                   key={item.id}
-                  label={new Date(item.createdAt).toLocaleDateString()}
+                  label={new Date(item?.createdAt).toLocaleDateString()}
                 >
                   <div>
                     <p>
-                      <strong>Basic Salary:</strong> ${item.basicSalary}
+                      <strong>Basic Salary:</strong> ${item?.basicSalary}
                     </p>
                     <p>
                       <strong>Status:</strong>{' '}
-                      {item.status ? 'Active' : 'Inactive'}
+                      {item?.status ? 'Active' : 'Inactive'}
                     </p>
                     <p>
                       <strong>Job Position:</strong>{' '}
-                      <BasicSalaryDetails empId={item.jobInfo.positionId} />
+                      <BasicSalaryDetails empId={item?.jobInfo?.positionId} />
                     </p>
                   </div>
                 </Timeline.Item>

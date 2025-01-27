@@ -1,7 +1,7 @@
 'use client';
 import TabLandingLayout from '@/components/tabLanding';
 import React, { useEffect } from 'react';
-import { Card, Col, Row, Skeleton, Tabs } from 'antd';
+import { Button, Card, Col, Row, Skeleton, Tabs } from 'antd';
 import CollapsibleCardList from './_components/collapsableCard';
 import ActionPlans from './_components/actionPlans';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
@@ -13,6 +13,7 @@ import CreateActionPlans from './_components/createActionPlans';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useAddActionPlan } from '@/store/server/features/CFR/conversation/action-plan/mutation';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
 interface Params {
   slug: string;
 }
@@ -27,6 +28,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
     useGetAllConversationInstancesById(slug);
   const { data: allUserData } = useGetAllUsers();
   const { mutate: addActionPlan } = useAddActionPlan();
+  const router = useRouter();
 
   useEffect(() => {
     if (selectedUserId !== null && selectedUserId !== '') {
@@ -67,7 +69,9 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
         responseData: getQuestionResponse(conversationQuestion?.id),
       }),
     );
-  const handleRedirectback = () => {};
+  const handleRedirectback = () => {
+    router.back();
+  };
 
   const handleCreateActionPlan = (values: any) => {
     const updatedData = {
@@ -123,9 +127,13 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
       id="conversationLayoutId"
       onClickHandler={() => setOpen(true)}
       title={
-        <span onClick={() => handleRedirectback} className="cursor-pointer">
-          ← Details
-        </span>
+        <div>
+          {' '}
+          <Button type="link" onClick={() => handleRedirectback()}>
+            ←
+          </Button>{' '}
+          <span>Details</span>
+        </div>
       }
       subtitle=""
     >

@@ -67,6 +67,7 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
       },
       link: '/settings/pension',
     },
+
     {
       item: {
         key: 'pay-period',
