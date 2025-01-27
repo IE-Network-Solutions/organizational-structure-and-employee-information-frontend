@@ -181,7 +181,14 @@ const QuestionSetForm = () => {
         </>
       )}
 
-      <Form.Item label="Is Active" name="active" initialValue={true}>
+      <Form.Item
+        label="Is Active"
+        name="active"
+        initialValue={true}
+        rules={[{ required: true, message: 'Please check if you want to activate this question set.' }]}
+
+      >
+
         <Switch />
       </Form.Item>
 
@@ -304,13 +311,14 @@ const QuestionSetForm = () => {
           )}
           <Popconfirm
             title="Are you sure you want to reset the form?"
-            onConfirm={() => form.resetFields()} // Reset form fields on confirmation
+            onConfirm={() => {
+              setQuestions([])
+              form.resetFields();
+            }} // Reset form fields on confirmation
             okText="Yes"
             cancelText="No"
           >
-            <Button type="default" htmlType="reset">
-              Reset
-            </Button>
+            <Button type="default">Reset</Button>
           </Popconfirm>
         </div>
       </Form.Item>
