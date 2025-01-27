@@ -43,7 +43,7 @@ const setStatusToLeaveRequest = async (data: LeaveRequestStatusBody) => {
 };
 const setApproveLeaveRequest = async (data: any) => {
   return await crudRequest({
-    url: `${APPROVER_URL}/approval-logs`,
+    url: `${APPROVER_URL}/approver/approvalLog`,
     method: 'POST',
     headers: requestHeader(),
     data,
