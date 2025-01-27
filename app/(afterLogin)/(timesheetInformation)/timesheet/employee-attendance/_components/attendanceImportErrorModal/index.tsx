@@ -40,6 +40,7 @@ const AttendanceImportErrorModal: React.FC = () => {
 
       <div style={{ marginBottom: '12px' }}>
         <h5 style={{ marginBottom: '8px' }}>Suggested Solutions:</h5>
+
         <ul
           style={{ fontSize: '14px', lineHeight: '1.4', paddingLeft: '20px' }}
         >

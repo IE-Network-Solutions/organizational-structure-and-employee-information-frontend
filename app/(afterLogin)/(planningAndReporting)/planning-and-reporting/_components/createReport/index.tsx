@@ -66,6 +66,7 @@ function CreateReport() {
       planningPeriodId &&
       createReport(
         { values: values, planningPeriodId: planningPeriodId,planId: allUnReportedPlanningTask?.[0]?.plan?.id },
+
         {
           onSuccess: () => {
             onClose();
