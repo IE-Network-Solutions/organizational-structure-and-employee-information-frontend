@@ -16,6 +16,33 @@ const getVpScore = async (id: number | string) => {
   });
 };
 
+const getVpScoreCalculate = async (id: number | string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${OKR_URL}/user-vp-scoring/calculate/vp/${id}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+const getAllCalculatedVpScore = async (userId: string[]) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${OKR_URL}/user-vp-scoring/refresh/vp`, 
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  data :{users: userId }
+  });
+};
+
 const getCriteriaByFilter = async (data: any, selectedRange: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -87,6 +114,20 @@ export const useGetAllMonth = () => {
 export const useGetVPScore = (userId: number | string) => {
   return useQuery<any>(['VPScores', userId], () => getVpScore(userId), {
     keepPreviousData: true,
+  });
+};
+
+export const useGetVpScoreCalculate = (userId: number | string) => {
+  return useQuery<any>(['VPScoresCalculate', userId], () => getVpScoreCalculate(userId), {
+    keepPreviousData: true,
+  });
+};
+
+export const useGetAllCalculatedVpScore = (userId: string[], enabled= true) => {
+  return useQuery<any>(['AllVPCalculatedScores', userId], () => getAllCalculatedVpScore(userId), {
+    enabled,
+    keepPreviousData: true,
+
   });
 };
 

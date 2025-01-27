@@ -6,7 +6,7 @@ import VariablePayTable from './_components/variablePayTable';
 const VariablePayPage = () => {
   return (
     <>
-      <PageHeader title="Variable Pay" size="small"></PageHeader>
+      {/* <PageHeader title="Variable Pay" size="small"></PageHeader> */}
       <VariablePayTable />
     </>
   );
