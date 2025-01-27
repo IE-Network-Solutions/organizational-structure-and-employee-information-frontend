@@ -5,7 +5,6 @@ import {
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { Button, Card, Progress, Skeleton, Typography } from 'antd';
 import SkeletonButton from 'antd/es/skeleton/Button';
-import SkeletonInput from 'antd/es/skeleton/Input';
 import React, { useEffect, useState } from 'react';
 import { AiOutlineReload } from 'react-icons/ai';
 import { GoArrowDown, GoArrowUp } from 'react-icons/go';
@@ -34,8 +33,6 @@ const VPPayCard: React.FC = () => {
 
   const achievedPercentage =
     (parseInt(vpScore?.score, 10) / vpScore?.maxScore) * 100;
-
-  console.log('dsf', UpdatedVpScore);
 
   return (
     <Card size="default" bordered={false}>
@@ -80,12 +77,7 @@ const VPPayCard: React.FC = () => {
                           Recalculating VP
                         </p>
                       )}
-                    {isResponseLoading ? (
-                      <SkeletonButton active />
-                    ) : (
-                      vpscore
-                    )}
-                    %
+                    {isResponseLoading ? <SkeletonButton active /> : vpscore}%
                   </Title>
                   {UpdatedVpScore?.score}
                   <div className="flex flex-wrap flex-col">

@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Input, Select, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { SearchOutlined } from '@ant-design/icons';
-import {
-  useGetVariablePay,
-} from '@/store/server/features/okrplanning/okr/dashboard/queries';
+import { useGetVariablePay } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
@@ -27,8 +25,6 @@ const VariablePayTable = () => {
     isSuccess,
   } = useGetAllCalculatedVpScore(allEmployeesIds, false);
 
-  
-
   useEffect(() => {
     if (allUsersVariablePay) {
       setTableData(
@@ -45,10 +41,7 @@ const VariablePayTable = () => {
   }, [allUsersVariablePay]);
 
   useEffect(() => {
-    
     if (isSuccess) {
-     
-      const tempTableData = [...tableData];
       setTableData(
         tableData.map((td: any) => ({
           ...td,
@@ -66,7 +59,6 @@ const VariablePayTable = () => {
               ?.vpScore || td.VpScore,
         })),
       );
-     ;
     }
   }, [isSuccess]);
 

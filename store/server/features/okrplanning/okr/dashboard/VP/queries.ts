@@ -33,13 +33,13 @@ const getAllCalculatedVpScore = async (userId: string[]) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${OKR_URL}/user-vp-scoring/refresh/vp`, 
+    url: `${OKR_URL}/user-vp-scoring/refresh/vp`,
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     },
-  data :{users: userId }
+    data: { users: userId },
   });
 };
 
@@ -118,17 +118,27 @@ export const useGetVPScore = (userId: number | string) => {
 };
 
 export const useGetVpScoreCalculate = (userId: number | string) => {
-  return useQuery<any>(['VPScoresCalculate', userId], () => getVpScoreCalculate(userId), {
-    keepPreviousData: true,
-  });
+  return useQuery<any>(
+    ['VPScoresCalculate', userId],
+    () => getVpScoreCalculate(userId),
+    {
+      keepPreviousData: true,
+    },
+  );
 };
 
-export const useGetAllCalculatedVpScore = (userId: string[], enabled= true) => {
-  return useQuery<any>(['AllVPCalculatedScores', userId], () => getAllCalculatedVpScore(userId), {
-    enabled,
-    keepPreviousData: true,
-
-  });
+export const useGetAllCalculatedVpScore = (
+  userId: string[],
+  enabled = true,
+) => {
+  return useQuery<any>(
+    ['AllVPCalculatedScores', userId],
+    () => getAllCalculatedVpScore(userId),
+    {
+      enabled,
+      keepPreviousData: true,
+    },
+  );
 };
 
 export const useGetCriteriaByFilter = (data: any, selectedRange: string) => {
