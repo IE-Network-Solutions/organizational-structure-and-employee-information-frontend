@@ -35,6 +35,7 @@ function CreateReport() {
     resetWeights,
     setStatus,
     selectedStatuses,
+    activeTab
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
 
@@ -53,7 +54,7 @@ function CreateReport() {
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
 
   const { data: allUnReportedPlanningTask } =
-    useGetUnReportedPlanning(planningPeriodId);
+    useGetUnReportedPlanning(planningPeriodId,activeTab);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
