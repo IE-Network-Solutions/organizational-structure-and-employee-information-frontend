@@ -1,6 +1,6 @@
 export const groupTasksByKeyResultAndMilestone = (reportTasks: any) => {
   const keyResultMap = reportTasks?.reduce((acc: any, task: any) => {
-    const keyResultId = task.planTask.keyResultId;
+    const keyResultId = task?.planTask?.keyResultId;
     // Initialize the keyResult entry if it doesn't exist
     if (!acc[keyResultId]) {
       acc[keyResultId] = {
