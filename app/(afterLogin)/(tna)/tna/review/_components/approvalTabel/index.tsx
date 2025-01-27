@@ -12,6 +12,10 @@ import {
 } from '@/types/tna/tna';
 import { useApprovalTNAStore } from '@/store/uistate/features/tna/settings/approval';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
+import { useSingleCurrency } from '@/store/server/features/tna/review/queries';
+import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
+import { useSetApproveLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
+import { useSetFinalApproveTnaRequest } from '@/store/server/features/tna/review/mutation';
 
 const TnaApprovalTable = () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -21,6 +25,8 @@ const TnaApprovalTable = () => {
   const { pageSize, userCurrentPage, setUserCurrentPage } = useTnaReviewStore();
   const { data: currentApproverData, isFetching: currentApproverIsFetching } =
     useGetApprovalTNARequest(userId, userCurrentPage, pageSize);
+  const { mutate: editApprover } = useSetApproveLeaveRequest();
+  const { mutate: finalApprover } = useSetFinalApproveTnaRequest();
 
   const onPageChange = (page: number) => {
     setUserCurrentPage(page);
@@ -52,12 +58,14 @@ const TnaApprovalTable = () => {
       title: 'currency',
       dataIndex: 'currencyId',
       key: 'currencyId',
+      render: (text: string) => <CurrencyName currencyId={text} />,
     },
 
     {
       title: 'Type',
-      dataIndex: 'leaveType',
-      key: 'leaveType',
+      dataIndex: 'type',
+      key: 'type',
+      render: (text: string) => <TnaName tnaId={text} />,
     },
     {
       title: 'Status',
@@ -75,6 +83,20 @@ const TnaApprovalTable = () => {
       dataIndex: 'action',
     },
   ];
+  const CurrencyName = ({ currencyId }: { currencyId: string }) => {
+    const { data: tnaSingleCurrency } = useSingleCurrency(currencyId);
+    return (
+      <div className="mx-1 text-sm">
+        {tnaSingleCurrency ? tnaSingleCurrency?.code : '-'}
+      </div>
+    );
+  };
+  const TnaName = ({ tnaId }: { tnaId: string }) => {
+    const { data: tnaCategoryData } = useGetTnaCategory({});
+    const tna = tnaCategoryData?.items?.find((tnas: any) => tnas.id === tnaId);
+    return <div className="mx-1 text-sm">{tnaId ? tna?.name : '-'}</div>;
+  };
+
   const EmpRender = ({ userId }: any) => {
     const {
       isLoading,
@@ -105,6 +127,9 @@ const TnaApprovalTable = () => {
       '-'
     );
   };
+  const finalApproval: any = (e: { requestId: string; status: string }) => {
+    finalApprover(e);
+  };
   const reject: any = (e: {
     approvalWorkflowId: any;
     stepOrder: any;
@@ -116,11 +141,12 @@ const TnaApprovalTable = () => {
     comment: { comment: string; commentedBy: string; tenantId: string };
   }) => {
     console.log(e);
-    // editApprover(e, {
-    //   onSuccess: () => {
-    //     setRejectComment('');
-    //   },
-    // });
+    editApprover(e, {
+      onSuccess: () => {
+        setRejectComment('');
+        finalApproval({ requestId: e.requestId, status: 'declined' });
+      },
+    });
   };
 
   const confirm: any = (e: {
@@ -132,7 +158,16 @@ const TnaApprovalTable = () => {
     action: string;
     tenantId: string;
   }) => {
-    // editApprover(e);
+    editApprover(e, {
+      onSuccess: (data) => {
+        if (data?.last == true) {
+          finalApproval({
+            requestId: e.requestId,
+            status: 'approved',
+          });
+        }
+      },
+    });
     console.log(e);
   };
   const cancel: any = () => {};
@@ -146,6 +181,7 @@ const TnaApprovalTable = () => {
         trainingPrice: item?.trainingPrice,
         reason: item?.reason,
         currencyId: item?.currencyId,
+        type: item?.trainingNeedCategoryId,
         status: item?.status,
         action: (
           <div className="flex gap-4 ">

@@ -113,6 +113,11 @@ export const useSetApproveLeaveRequest = () => {
       queryClient.invalidateQueries(['transferApprovalRequest']);
       queryClient.invalidateQueries(['myTansferRequest']);
       queryClient.invalidateQueries(['transferRequest']);
+      queryClient.invalidateQueries([
+        'tna-current_approval',
+        data?.approvedUserId,
+      ]);
+      queryClient.invalidateQueries(['tna']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
