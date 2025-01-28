@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { Select, Space, Spin, Table } from 'antd';
+import { Button, Select, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { useGetVariablePay } from '@/store/server/features/okrplanning/okr/dashboard/queries';
+import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetAllMonth } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+import { useState } from 'react';
 
 const VariablePayTable = () => {
   const { data: allUsersVariablePay, isLoading } = useGetVariablePay();
@@ -15,8 +17,7 @@ const VariablePayTable = () => {
   const { data: employeeData } = useGetAllUsers();
   const { data: months } = useGetAllMonth();
 
-
-  const tableData =
+  const tableData: any[] =
     allUsersVariablePay?.items?.map((variablePay: any) => ({
       id: variablePay?.id,
       name: variablePay?.userId,
@@ -25,6 +26,16 @@ const VariablePayTable = () => {
       VpScore: variablePay?.vpScore,
       Benefit: '',
     })) || [];
+
+  const allEmployeesIds: string[] = tableData.map(
+    (employee: any) => employee.name,
+  );
+
+  const {
+    refetch,
+    isLoading: UpdatedIsLoading,
+    isFetching,
+  } = useGetAllCalculatedVpScore(allEmployeesIds, false);
 
   const handleTableChange = (pagination: any) => {
     setCurrentPage(pagination.current);
@@ -93,7 +104,7 @@ const VariablePayTable = () => {
       )
     : tableData;
   return (
-    <Spin spinning={isLoading}>
+    <Spin spinning={isLoading || UpdatedIsLoading || isFetching}>
       <Space
         direction="horizontal"
         size="large"
@@ -131,6 +142,9 @@ const VariablePayTable = () => {
           options={monthOptions}
           onChange={() => {}}
         />
+        <Button type="primary" onClick={() => refetch()}>
+          Refresh VP
+        </Button>
       </Space>
       <Table
         className="mt-6"
