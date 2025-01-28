@@ -144,6 +144,10 @@ const QuestionSetForm = () => {
 
   const checkQuestions = () => {
     if (questions && questions.length > 0) {
+      const hasEmptyQuestion = questions.some((q: any) => !q.question.trim());
+      if (hasEmptyQuestion) {
+        return Promise.reject(new Error('Question text cannot be empty.'));
+      }
       return Promise.resolve();
     }
     return Promise.reject(new Error('You must atleast add one question.'));
@@ -154,7 +158,6 @@ const QuestionSetForm = () => {
       layout="vertical"
       form={form} // Bind the form instance
       onFinish={handleSubmit}
-      
     >
       <Form.Item
         label="Name"
@@ -182,11 +185,7 @@ const QuestionSetForm = () => {
         </>
       )}
 
-      <Form.Item
-        label="Is Active"
-        name="active"
-        initialValue={true}
-      >
+      <Form.Item label="Is Active" name="active" initialValue={true}>
         <Switch />
       </Form.Item>
 
@@ -202,7 +201,6 @@ const QuestionSetForm = () => {
             <div style={{ display: 'flex', marginBottom: '8px' }}>
               <Input
                 placeholder="Enter question"
-                required
                 value={q.question}
                 onChange={(e) =>
                   handleChangeQuestion(q.id, 'question', e.target.value)
