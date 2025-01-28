@@ -13,6 +13,7 @@ import {
   useSetAllApproveLeaveRequest,
   useSetAllFinalApproveLeaveRequest,
   useSetApproveLeaveRequest,
+  useSetFinalApproveLeaveRequest,
   useSetRejectLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import PermissionWrapper from '@/utils/permissionGuard';
@@ -33,6 +34,7 @@ const ApprovalTable = () => {
   const userRollId = useAuthenticationStore.getState().userData.roleId;
   const { rejectComment, setRejectComment } = useApprovalStore();
   const { mutate: editApprover } = useSetApproveLeaveRequest();
+  const { mutate: finalApprover } = useSetFinalApproveLeaveRequest();
   const { mutate: allApprover, isLoading: allApproveIsLoading } =
     useSetAllApproveLeaveRequest();
   const { mutate: allReject, isLoading: allRejectIsLoading } =
@@ -44,13 +46,18 @@ const ApprovalTable = () => {
     userCurrentPage,
     pageSize,
   );
-
+  const finalApproval: any = (e: {
+    leaveRequestId: string;
+    status: string;
+  }) => {
+    finalApprover(e);
+  };
   const reject: any = (e: {
-    approvalWorkflowId: any;
+    approvalWorkflowId: string;
     stepOrder: any;
-    requestId: any;
+    requestId: string;
     approvedUserId: string;
-    approverRoleId: any;
+    approverRoleId: string;
     action: string;
     tenantId: string;
     comment: { comment: string; commentedBy: string; tenantId: string };
@@ -58,20 +65,30 @@ const ApprovalTable = () => {
     editApprover(e, {
       onSuccess: () => {
         setRejectComment('');
+        finalApproval({ leaveRequestId: e.requestId, status: 'declined' });
       },
     });
   };
 
   const confirm: any = (e: {
-    approvalWorkflowId: any;
+    approvalWorkflowId: string;
     stepOrder: any;
-    requestId: any;
+    requestId: string;
     approvedUserId: string;
-    approverRoleId: any;
+    approverRoleId: string;
     action: string;
     tenantId: string;
   }) => {
-    editApprover(e);
+    editApprover(e, {
+      onSuccess: (data) => {
+        if (data?.last == true) {
+          finalApproval({
+            leaveRequestId: e.requestId,
+            status: 'approved',
+          });
+        }
+      },
+    });
   };
 
   const cancel: any = () => {};

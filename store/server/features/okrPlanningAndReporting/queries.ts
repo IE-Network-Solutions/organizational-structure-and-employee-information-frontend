@@ -185,7 +185,7 @@ export const useGetReportingById = (id: string) => {
 
 export const useGetUnReportedPlanning = (
   planningPeriodId: string | undefined,
-  forPlan:number,
+  forPlan: number,
 ) => {
   return useQuery<any>(
     ['okrReports', planningPeriodId],
