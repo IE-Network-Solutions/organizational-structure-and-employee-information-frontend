@@ -11,6 +11,7 @@ import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import {
   useSetAllApproveLeaveRequest,
+  useSetAllFinalApproveLeaveRequest,
   useSetApproveLeaveRequest,
   useSetRejectLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
@@ -36,6 +37,7 @@ const ApprovalTable = () => {
     useSetAllApproveLeaveRequest();
   const { mutate: allReject, isLoading: allRejectIsLoading } =
     useSetRejectLeaveRequest();
+  const { mutate: finalAllApproval } = useSetAllFinalApproveLeaveRequest();
 
   const { data, isFetching } = useGetApprovalLeaveRequest(
     userId,
@@ -231,7 +233,15 @@ const ApprovalTable = () => {
       page: allUserCurrentPage,
     };
 
-    allApprover(body);
+    allApprover(body, {
+      onSuccess: (data) => {
+        const transformData = data.items.map(({ id }: { id: string }) => ({
+          leaveRequestId: id,
+          status: 'approved',
+        }));
+        finalAllApproval(transformData);
+      },
+    });
   };
   const onAllRejectRequest = () => {
     const body: AllLeaveRequestApproveData = {
@@ -241,7 +251,15 @@ const ApprovalTable = () => {
       page: allUserCurrentPage,
     };
 
-    allReject(body);
+    allReject(body, {
+      onSuccess: (data) => {
+        const transformData = data.items.map(({ id }: { id: string }) => ({
+          leaveRequestId: id,
+          status: 'declined',
+        }));
+        finalAllApproval(transformData);
+      },
+    });
   };
   return (
     <>
