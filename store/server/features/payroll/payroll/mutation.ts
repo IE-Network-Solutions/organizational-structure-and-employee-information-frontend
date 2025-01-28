@@ -27,6 +27,29 @@ const createPayroll = async (payperoid: string, values: any) => {
     throw error;
   }
 };
+const updatePensionRule = async (values: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  try {
+    await crudRequest({
+      url: `${PAYROLL_URL}/pension-rule/${values?.id}`,
+      method: 'put',
+      data: values,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+
+    NotificationMessage.success({
+      message: 'Successfully Created',
+      description: 'PayRoll successfully Created.',
+    });
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const useCreatePayroll = () => {
   const queryClient = useQueryClient();
@@ -83,6 +106,23 @@ export const useDeletePayroll = () => {
       NotificationMessage.error({
         message: error + '',
         description: 'Failed to delete Payroll.',
+      });
+    },
+  });
+};
+
+export const useUpdatePensionRule = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(updatePensionRule, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('pension-rule');
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message;
+      NotificationMessage.error({
+        message: 'PayRoll Creation Failed',
+        description: errorMessage,
       });
     },
   });

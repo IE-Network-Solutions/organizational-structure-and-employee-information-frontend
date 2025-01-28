@@ -4,10 +4,11 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { AssignedPlanningPeriodLogArray } from './interface';
 interface DataType {
-  userId: string[] | [];
+  userId: string[] | [] | string;
   planPeriodId: string;
   page?: number;
 }
+
 const getPlanningData = async (params: DataType) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -31,9 +32,27 @@ const getPlanningData = async (params: DataType) => {
     headers,
   });
 };
+const getPlanningPeriodsHierarchy = async (
+  userId: string,
+  planningPeriodId: string,
+) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/planning-periods/parent-hierarchy/${planningPeriodId}/user/${userId}`,
+    method: 'get',
+    headers,
+  });
+};
 
 const getAllUnReportedPlanningTask = async (
   planningPeriodId: string | undefined,
+  forPlan: number,
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -43,9 +62,8 @@ const getAllUnReportedPlanningTask = async (
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
-
   return await crudRequest({
-    url: `${OKR_URL}/okr-report-task/users/${userId}/planning-period/${planningPeriodId}`,
+    url: `${OKR_URL}/okr-report-task/users/${userId}/planning-period/${planningPeriodId}?forPlan=${forPlan}`,
     method: 'get',
     headers,
   });
@@ -78,6 +96,21 @@ const getReportingData = async (params: DataType) => {
     url: `${OKR_URL}/okr-report/by-planning-period/${params?.planPeriodId}`,
     method: 'post',
     data: params?.userId.length === 0 ? [''] : params?.userId,
+    headers,
+  });
+};
+
+const getReportingDataById = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/okr-report/${id}`,
+    method: 'get',
     headers,
   });
 };
@@ -116,6 +149,19 @@ export const useGetPlanning = (params: DataType) => {
   });
 };
 
+export const useGetPlanningPeriodsHierarchy = (
+  userId: string,
+  planningPeriodId: string,
+) => {
+  return useQuery<any>(
+    ['planningPeriodsHierarchy', { userId, planningPeriodId }],
+    () => getPlanningPeriodsHierarchy(userId, planningPeriodId),
+    {
+      enabled: !!userId && !!planningPeriodId, // Ensure both are truthy
+    },
+  );
+};
+
 export const useGetPlanningById = (planningId: string) => {
   return useQuery<any>(
     ['okrPlans', planningId],
@@ -131,12 +177,19 @@ export const useGetReporting = (params: DataType) => {
   });
 };
 
+export const useGetReportingById = (id: string) => {
+  return useQuery<any>(['okrReport', id], () => getReportingDataById(id), {
+    enabled: !!id, // Enable the query only when planningPeriodId is defined
+  });
+};
+
 export const useGetUnReportedPlanning = (
   planningPeriodId: string | undefined,
+  forPlan: number,
 ) => {
   return useQuery<any>(
     ['okrReports', planningPeriodId],
-    () => getAllUnReportedPlanningTask(planningPeriodId),
+    () => getAllUnReportedPlanningTask(planningPeriodId, forPlan),
     {
       enabled: !!planningPeriodId, // Enable the query only when planningPeriodId is defined
     },

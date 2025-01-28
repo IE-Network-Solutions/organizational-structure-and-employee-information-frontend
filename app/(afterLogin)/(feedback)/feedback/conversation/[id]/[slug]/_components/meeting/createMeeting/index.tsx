@@ -274,6 +274,7 @@ const CreateMeeting = ({
                 attendeesOptions={attendeesOptions}
                 questionSet={questionSet}
                 handleAttendeeChange={handleAttendeeChange}
+                form={form1}
               />
             ))}
 

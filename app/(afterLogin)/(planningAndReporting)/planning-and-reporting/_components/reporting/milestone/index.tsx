@@ -2,6 +2,8 @@ import React from 'react';
 import { Row, Col, Tag, Typography, Tooltip } from 'antd';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { IoIosClose } from 'react-icons/io';
+import { FaStar } from 'react-icons/fa';
+import { MdKey } from 'react-icons/md';
 
 const { Text } = Typography;
 
@@ -12,6 +14,9 @@ type Task = {
   status: 'reported' | 'pending' | 'completed' | 'Done';
   actualValue: string;
   isAchieved: boolean;
+  customReason: string;
+  achieveMK: boolean;
+  milestone: any;
 };
 
 type Props = {
@@ -30,7 +35,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
           justify="space-between" // Only justifying the space between taskName and others
         >
           <Col className="flex gap-2">
-            {task?.status === 'Done' ? (
+            {task?.isAchieved ? (
               <div className="py-1 px-1 w-4 h-4 text-white flex items-center justify-center rounded-md bg-green-600">
                 <IoCheckmarkSharp size={14} />
               </div>
@@ -41,7 +46,27 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                 </div>
               </Tooltip>
             )}
-            <Text className="text-xs">{`${taskIndex + 1}. ${task.taskName}`}</Text>
+            <Text className="text-xs flex flex-col">
+              <span className="flex items-center gap-1">
+                {`${taskIndex + 1}. ${task.taskName}`}{' '}
+                {task?.achieveMK ? (
+                  task?.milestone ? (
+                    <FaStar size={11} />
+                  ) : (
+                    <MdKey size={12} className="" />
+                  )
+                ) : (
+                  ''
+                )}
+              </span>
+              {task?.customReason && (
+                <Tooltip title={task.customReason}>
+                  <Text className="text-[10px] mb-2">
+                    {`Reason: ${task.customReason?.length >= 100 ? task.customReason.slice(0, 100) + '...' : task.customReason}`}
+                  </Text>
+                </Tooltip>
+              )}
+            </Text>
           </Col>
 
           {/* This section is now justified to space between taskName and the rest */}
