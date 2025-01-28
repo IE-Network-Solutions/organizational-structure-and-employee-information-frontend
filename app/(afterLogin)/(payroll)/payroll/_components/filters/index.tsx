@@ -20,6 +20,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: payroll } = useGetActivePayroll();
 
+
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
   const [fiscalYears, setFiscalYears] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
@@ -28,6 +29,28 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
   useEffect(() => {
     if (getAllFiscalYears) {
       setFiscalYears(getAllFiscalYears.items || []);
+
+      const activeFiscalYear = getAllFiscalYears.items.find(
+        (year: any) => year.active,
+      );
+      if (activeFiscalYear) {
+        const activeSession = activeFiscalYear.sessions?.find(
+          (session) => session.active,
+        );
+        const activeMonth = activeSession?.months?.find(
+          (month) => month.active,
+        );
+
+        setSearchValue((prev) => ({
+          ...prev,
+          yearId: activeFiscalYear.id || '',
+          sessionId: activeSession?.id || '',
+          monthId: activeMonth?.id || '',
+        }));
+
+        setSessions(activeFiscalYear.sessions || []);
+        setMonths(activeSession?.months || []);
+      }
     }
   }, [getAllFiscalYears, employeeData]);
 
@@ -51,6 +74,14 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
     }
   }, [payroll?.payrolls, payPeriodData]);
 
+  const handleEmployeeSelect = (value: string) => {
+    setSearchValue((prev) => {
+      const updatedSearchValue = { ...prev, employeeId: value };
+      onSearch(updatedSearchValue);
+      return updatedSearchValue;
+    });
+  };
+
   const handleSelectChange = (key: string, value: string) => {
     setSearchValue((prev) => {
       const updatedSearchValue = { ...prev, [key]: value };
@@ -59,28 +90,18 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
         const selectedYear = fiscalYears.find((year) => year.id === value);
         setSessions(selectedYear?.sessions || []);
         setMonths([]);
-        updatedSearchValue.sessionId = '';
-        updatedSearchValue.monthId = '';
       } else if (key === 'sessionId') {
         const selectedSession = sessions.find(
           (session) => session.id === value,
         );
         setMonths(selectedSession?.months || []);
-        updatedSearchValue.monthId = '';
       }
 
-      if (key === 'monthId' || key === 'payPeriodId' || key === 'employeeId') {
-        const filteredSearchValue = {
-          employeeId: updatedSearchValue.employeeId || '',
-          monthId: updatedSearchValue.monthId || '',
-          payPeriodId: updatedSearchValue.payPeriodId || '',
-        };
-        onSearch(filteredSearchValue);
-      }
-
+      onSearch(updatedSearchValue);
       return updatedSearchValue;
     });
   };
+
   const options =
     employeeData?.items?.map((emp: any) => ({
       value: emp.id,
@@ -102,7 +123,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
             allowClear
             className="min-h-12"
             placeholder="Search by name"
-            onChange={(value) => handleSelectChange('employeeId', value)}
+            onChange={(value) => handleEmployeeSelect(value)}
             filterOption={(input, option) => {
               const label = option?.label;
               return (
@@ -111,7 +132,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
               );
             }}
             options={options}
-            style={{ width: '100%', height: '48px' }}
+            style={{ width: 300 }} // Set a width for better UX
           />
         </Col>
 
@@ -168,7 +189,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
         <Col xl={4} lg={5} md={6} sm={12} xs={24}>
           <Select
             placeholder="Pay Period"
-            onChange={(value) => handleSelectChange('payPeriodId', value)}
+            onChange={(value) => handleSelectChange('payPeriod', value)}
             value={searchValue.payPeriodId}
             allowClear
             style={{ width: '100%', height: '48px' }}
