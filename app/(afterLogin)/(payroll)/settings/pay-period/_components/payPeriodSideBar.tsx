@@ -102,8 +102,6 @@ const PayPeriodSideBar = () => {
     endDate: month?.endDate,
   }));
 
-  // console.log(monthsWithStartEndDates,"monthsWithStartEndDates")
-
   const onFormSubmit = () => {
     const transformedData = divisions.map((division) => ({
       startDate: dayjs(division[0]).format('YYYY-MM-DD'),
