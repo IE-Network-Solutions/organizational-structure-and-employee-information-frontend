@@ -20,7 +20,7 @@ import KeyResultMetrics from '../keyResult';
 import {
   AllPlanningPeriods,
   useGetReporting,
-  useGetUnReportedPlanning,
+  useGetUserPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
@@ -49,27 +49,30 @@ function Reporting() {
     selectedUser,
     activePlanPeriod,
     setSelectedReportId,
+    setSelectedPlanId,
     activeTab,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
-  const { mutate: handleDeleteReport } = useDeleteReportById();
+  const { mutate: handleDeleteReport, isLoading: loadingDeleteReport } =
+    useDeleteReportById();
 
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
-
+  const { data: allUserPlanning, isLoading: getUserPlanningLoading } =
+    useGetUserPlanning(planningPeriodId ?? '', activeTab.toString());
   const { data: allReporting, isLoading: getReportLoading } = useGetReporting({
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '',
   });
-  const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(
-    planningPeriodId,
-    activeTab,
-  );
+  // const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(
+  //   planningPeriodId ?? '',
+  //   activeTab,
+  // );
 
   const activeTabName =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
@@ -87,6 +90,14 @@ function Reporting() {
     };
     ReportApproval(data);
   };
+
+  function getTotalWeightCalculation(reportData: any) {
+    return reportData
+      ?.filter((i: any) => i.isAchieved)
+      ?.reduce((acc: any, task: any) => {
+        return acc + Number(task?.planTask?.weight);
+      }, 0);
+  }
 
   const actionsMenu = (
     dataItem: any,
@@ -130,6 +141,7 @@ function Reporting() {
         icon={<AiOutlineEdit size={16} />}
         onClick={() => {
           setSelectedReportId(dataItem?.id);
+          setSelectedPlanId(dataItem?.planId);
         }}
         key="edit"
       >
@@ -157,7 +169,6 @@ function Reporting() {
       </Menu.Item>
     </Menu>
   );
-
   return (
     <Spin spinning={getReportLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -165,32 +176,25 @@ function Reporting() {
           <Title level={5}>Reporting</Title>
           <Tooltip
             title={
-              !(
-                // selectedUser.length === 1 && selectedUser[0] === userId &&    // to check and make ensure only reports their report
-                (
-                  selectedUser.includes(userId) &&
-                  allUnReportedPlanningTask &&
-                  allUnReportedPlanningTask.length > 0
-                )
-              )
-                ? 'Report tasks first or get manager approval'
+              // selectedUser.length === 1 && selectedUser[0] === userId &&    // to check and make ensure only reports their report
+              // selectedUser.includes(userId) &&
+              allUserPlanning && allUserPlanning.length > 0
+                ? 'Please Create Plan First'
                 : ''
             }
           >
             <div style={{ display: 'inline-block' }}>
               <CustomButton
                 disabled={
-                  !(
-                    selectedUser.includes(userId) &&
-                    allUnReportedPlanningTask &&
-                    allUnReportedPlanningTask.length > 0
-                  )
+                  // selectedUser.includes(userId) &&
+                  allUserPlanning && allUserPlanning.length < 1
                 }
                 title={`Create ${activeTabName} report`}
                 id="createActiveTabName"
                 icon={<FaPlus className="mr-2" />}
                 onClick={() => setOpenReportModal(true)}
                 className="bg-blue-600 hover:bg-blue-700"
+                loading={getUserPlanningLoading}
               />
             </div>
           </Tooltip>
@@ -275,6 +279,7 @@ function Reporting() {
                                 trigger={['click']}
                               >
                                 <Button
+                                  loading={isApprovalLoading}
                                   type="text"
                                   icon={
                                     <IoMdMore className="text-2xl font-bold" />
@@ -294,6 +299,7 @@ function Reporting() {
                                   trigger={['click']}
                                 >
                                   <Button
+                                    loading={loadingDeleteReport}
                                     type="text"
                                     icon={<IoMdMore className="text-2xl" />}
                                     className="cursor-pointer  text-black border-none  hover:text-primary"
@@ -337,6 +343,20 @@ function Reporting() {
                   </>
                 ),
               )}
+              <div className="flex items-center justify-end mt-2 gap-2 text-sm">
+                <span className="text-black ">Total Point:</span>
+                <span
+                  className={`${
+                    getTotalWeightCalculation(dataItem?.reportTask) > 84
+                      ? 'text-green-500'
+                      : getTotalWeightCalculation(dataItem?.reportTask) >= 64
+                        ? 'text-orange'
+                        : 'text-red-500'
+                  }`}
+                >
+                  {getTotalWeightCalculation(dataItem?.reportTask)}%
+                </span>
+              </div>
             </Card>
             <CommentCard
               planId={dataItem?.id}

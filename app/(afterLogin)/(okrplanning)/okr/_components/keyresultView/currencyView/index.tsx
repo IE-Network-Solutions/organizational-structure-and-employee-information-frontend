@@ -109,6 +109,9 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               className="w-full text-xs"
               value={keyValue.initialValue}
               suffix={<CiDollar size={20} />}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }
               onChange={(value) => {
                 handleChange(value, 'initialValue');
               }}
@@ -132,6 +135,9 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               className="text-xs w-full"
               suffix={<CiDollar size={20} />}
               value={keyValue.targetValue}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }
               onChange={(value) => {
                 handleChange(value, 'targetValue');
               }}

@@ -130,6 +130,7 @@ export const useCreateReportForUnReportedtasks = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('okrReports');
+        queryClient.invalidateQueries('okrPlans');
         NotificationMessage.success({
           message: 'Successfully updated',
           description: 'OKR plan status successfully updated',
