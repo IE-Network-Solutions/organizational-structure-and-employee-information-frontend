@@ -35,6 +35,7 @@ function EditReport() {
     resetWeights,
     setStatus,
     selectedStatuses,
+    activeTab,
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
 
@@ -59,7 +60,7 @@ function EditReport() {
 
   const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(
     planningPeriodId,
-    false,
+    activeTab,
   );
 
   const modalHeader = (

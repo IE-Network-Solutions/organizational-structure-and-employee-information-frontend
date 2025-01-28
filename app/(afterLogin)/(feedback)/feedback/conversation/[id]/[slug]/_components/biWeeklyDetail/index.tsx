@@ -68,7 +68,6 @@ function ConversationInstanceDetail({
                   />,
                 ]}
               >
-                
                 <div className="flex flex-col w-full">
                   <span
                     className="mb-1 font-semibold text-gray-700 text-xs truncate w-full"
@@ -85,7 +84,6 @@ function ConversationInstanceDetail({
                     profileImage={attendee?.profileImage}
                     size="small"
                   />
-                  
                 </div>
               </List.Item>
             );

@@ -10,6 +10,7 @@ import {
   Tooltip,
   Typography,
   Input,
+  InputNumber,
 } from 'antd';
 
 import {
@@ -34,6 +35,7 @@ function CreateReport() {
     resetWeights,
     setStatus,
     selectedStatuses,
+    activeTab
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
 
@@ -52,7 +54,7 @@ function CreateReport() {
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
 
   const { data: allUnReportedPlanningTask } =
-    useGetUnReportedPlanning(planningPeriodId);
+    useGetUnReportedPlanning(planningPeriodId,activeTab);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -64,7 +66,8 @@ function CreateReport() {
     Object.entries(values).length > 0 &&
       planningPeriodId &&
       createReport(
-        { values: values, planningPeriodId: planningPeriodId },
+        { values: values, planningPeriodId: planningPeriodId,planId: allUnReportedPlanningTask?.[0]?.plan?.id },
+
         {
           onSuccess: () => {
             onClose();
@@ -83,7 +86,7 @@ function CreateReport() {
         // Calculate the weight for keyResult.tasks array
         const taskWeight = keyResult?.tasks?.reduce(
           (taskSum: number, task: any) => {
-            if (selectedStatuses[task.taskId] !== 'Not') {
+            if (selectedStatuses[task.taskId] === 'Done') {
               return taskSum + Number(task.weight || 0);
             }
             return taskSum;
@@ -97,7 +100,7 @@ function CreateReport() {
             return (
               milestoneSum +
               milestone?.tasks?.reduce((taskSum: number, task: any) => {
-                if (selectedStatuses[task.taskId] !== 'Not') {
+                if (selectedStatuses[task.taskId] === 'Done') {
                   return taskSum + Number(task.weight || 0);
                 }
                 return taskSum;
@@ -234,7 +237,7 @@ function CreateReport() {
                                                 </Radio>
                                               </Radio.Group>
                                               <Tooltip title={task.taskName}>
-                                                <span className="font-medium text-xs truncate flex items-center gap-1">
+                                                <span className="font-medium text-sm truncate flex items-center gap-1">
                                                   {task.taskName?.length >= 100
                                                     ? task.taskName?.slice(
                                                         0,
@@ -277,21 +280,24 @@ function CreateReport() {
                                           </div>
 
                                           <Row>
-                                            {keyresult?.metricType?.name ===
-                                              NAME.ACHIEVE && (
-                                              <div className="text-xs">
-                                                Target
-                                                <Tag className="uppercase mt-1 ml-1 test-xs">
-                                                  {task?.targetValue}
-                                                </Tag>
-                                              </div>
-                                            )}
+                                            {keyresult?.metricType?.name !==
+                                              NAME.ACHIEVE &&
+                                              keyresult?.metricType?.name !==
+                                                NAME.MILESTONE && (
+                                                <div className="text-xs">
+                                                  Target
+                                                  <Tag className="uppercase mt-1 ml-1 test-xs">
+                                                    {Number(
+                                                      task?.targetValue,
+                                                    )?.toLocaleString()}
+                                                  </Tag>
+                                                </div>
+                                              )}
                                           </Row>
                                         </div>
                                       </Form.Item>
                                       {/* Actual Value Form Item, with both conditions */}
-                                      {selectedStatuses[task.taskId] ===
-                                        'Not' &&
+                                      {selectedStatuses[task.taskId] &&
                                         keyresult?.metricType?.name !==
                                           NAME.ACHIEVE &&
                                         keyresult?.metricType?.name !==
@@ -299,42 +305,103 @@ function CreateReport() {
                                           <Form.Item
                                             key={`${task.taskId}-actualValue`}
                                             name={[task.taskId, 'actualValue']}
-                                            className="mb-1"
-                                            label="Actual value:" // Optional label
+                                            className="mb-2"
+                                            label={`Actual value:`} // Optional label
                                             rules={[
                                               {
-                                                required: true,
-                                                message:
-                                                  'Please enter an actual value!',
-                                              },
-                                              {
-                                                validator: (rule, value) => {
-                                                  if (!value) {
+                                                /* eslint-disable @typescript-eslint/naming-convention */
+                                                validator(_, value: any) {
+                                                  /* eslint-enable @typescript-eslint/naming-convention */
+                                                  // Check if keyResult is available
+                                                  if (
+                                                    !keyresult ||
+                                                    !keyresult.targetValue ||
+                                                    !keyresult.currentValue
+                                                  ) {
                                                     return Promise.reject(
                                                       new Error(
-                                                        'Please enter an actual value!',
+                                                        'Key result data is incomplete.',
                                                       ),
                                                     );
                                                   }
-                                                  if (isNaN(value)) {
+
+                                                  // Skip validation for specific metric types
+                                                  if (
+                                                    keyresult?.metricType
+                                                      ?.name === NAME.ACHIEVE ||
+                                                    keyresult?.metricType
+                                                      ?.name === NAME.MILESTONE
+                                                  ) {
+                                                    return Promise.resolve(); // Skip validation
+                                                  }
+
+                                                  // Handle null or undefined value
+                                                  if (
+                                                    value === null ||
+                                                    value === undefined
+                                                  ) {
                                                     return Promise.reject(
                                                       new Error(
-                                                        'The input is not a valid number!',
+                                                        'Please enter a target value.',
                                                       ),
                                                     );
                                                   }
-                                                  return Promise.resolve();
+
+                                                  // Ensure value is a valid number
+                                                  const numericValue =
+                                                    Number(value);
+                                                  if (isNaN(numericValue)) {
+                                                    return Promise.reject(
+                                                      new Error(
+                                                        'Please enter a valid number.',
+                                                      ),
+                                                    );
+                                                  }
+
+                                                  if (
+                                                    selectedStatuses[
+                                                      task.taskId
+                                                    ] === 'Done'
+                                                  ) {
+                                                    if (
+                                                      numericValue >=
+                                                      task?.targetValue
+                                                    ) {
+                                                      return Promise.resolve(); // Validation passed
+                                                    }
+                                                  } else {
+                                                    // Fallback check if targetValue does not exist
+                                                    if (
+                                                      numericValue <=
+                                                      task?.targetValue
+                                                    ) {
+                                                      return Promise.resolve(); // Validation passed
+                                                    }
+
+                                                    // If neither condition is satisfied and the status is not 'Done', reject the promise
+                                                    return Promise.reject(
+                                                      new Error(
+                                                        `Your actual value shouldn't exceed the allowed limits which is : ${Number(task?.targetValue)?.toLocaleString()}`,
+                                                      ),
+                                                    );
+                                                  }
                                                 },
                                               },
                                             ]}
                                           >
-                                            <Input
+                                            <InputNumber
                                               width="50%"
-                                              type="number"
                                               min={0}
                                               step={1}
+                                              className="w-full"
+                                              formatter={(value) =>
+                                                `${value}`.replace(
+                                                  /\B(?=(\d{3})+(?!\d))/g,
+                                                  ',',
+                                                )
+                                              }
                                               onChange={(e) => {
-                                                const value = e.target.value;
+                                                const value = e;
                                                 form.setFieldsValue({
                                                   [task.taskId]: {
                                                     actualValue: value
@@ -387,7 +454,7 @@ function CreateReport() {
                                               }}
                                             />
                                             <Text
-                                              className="text-white bg-primary"
+                                              className="text-black"
                                               style={{
                                                 position: 'absolute',
                                                 right: '10px',
@@ -445,7 +512,7 @@ function CreateReport() {
                                         </Radio>
                                       </Radio.Group>
                                       <Tooltip title={task.taskName}>
-                                        <span className="font-medium text-xs truncate flex items-center gap-1">
+                                        <span className="font-medium text-sm truncate flex items-center gap-1">
                                           {task.taskName?.length >= 40
                                             ? task.taskName?.slice(0, 40)
                                             : task.taskName}
@@ -484,20 +551,24 @@ function CreateReport() {
                                   </div>
 
                                   <Row>
-                                    {keyresult?.metricType?.name ===
-                                      NAME.ACHIEVE && (
-                                      <div className="text-xs">
-                                        Target
-                                        <Tag className="uppercase mt-1 ml-1 test-xs">
-                                          {task?.targetValue}
-                                        </Tag>
-                                      </div>
-                                    )}
+                                    {keyresult?.metricType?.name !==
+                                      NAME.ACHIEVE &&
+                                      keyresult?.metricType?.name !==
+                                        NAME.MILESTONE && (
+                                        <div className="text-xs">
+                                          Target
+                                          <Tag className="uppercase mt-1 ml-1 test-xs">
+                                            {Number(
+                                              task?.targetValue,
+                                            )?.toLocaleString()}
+                                          </Tag>
+                                        </div>
+                                      )}
                                   </Row>
                                 </div>
                               </Form.Item>
                               {/* Actual Value Form Item, with both conditions */}
-                              {selectedStatuses[task.taskId] === 'Not' &&
+                              {selectedStatuses[task.taskId] &&
                                 keyresult?.metricType?.name !== NAME.ACHIEVE &&
                                 keyresult?.metricType?.name !==
                                   NAME.MILESTONE && (
@@ -505,38 +576,98 @@ function CreateReport() {
                                     key={`${task.taskId}-actualValue`}
                                     name={[task.taskId, 'actualValue']}
                                     className="mb-2"
-                                    label="Actual value:" // Optional label
+                                    label={`Actual value:`} // Optional label
                                     rules={[
                                       {
-                                        required: true,
-                                        message:
-                                          'Please enter an actual value!', // Show if the field is empty
-                                      },
-                                      {
-                                        validator: (
-                                          _, // eslint-disable-line @typescript-eslint/naming-convention
-                                          value, // eslint-disable-line @typescript-eslint/naming-convention
-                                        ) => {
-                                          // eslint-disable-next-line no-underscore-dangle
-                                          if (value && isNaN(value)) {
+                                        /* eslint-disable @typescript-eslint/naming-convention */
+                                        validator(_, value: any) {
+                                          /* eslint-enable @typescript-eslint/naming-convention */
+                                          // Check if keyResult is available
+                                          if (
+                                            !keyresult ||
+                                            !keyresult.targetValue ||
+                                            !keyresult.currentValue
+                                          ) {
                                             return Promise.reject(
                                               new Error(
-                                                'The input is not a valid number!',
-                                              ), // Show if the value is not a number
+                                                'Key result data is incomplete.',
+                                              ),
                                             );
                                           }
-                                          return Promise.resolve(); // Proceed to next rule if the value is valid
+
+                                          // Skip validation for specific metric types
+                                          if (
+                                            keyresult?.metricType?.name ===
+                                              NAME.ACHIEVE ||
+                                            keyresult?.metricType?.name ===
+                                              NAME.MILESTONE
+                                          ) {
+                                            return Promise.resolve(); // Skip validation
+                                          }
+
+                                          // Handle null or undefined value
+                                          if (
+                                            value === null ||
+                                            value === undefined
+                                          ) {
+                                            return Promise.reject(
+                                              new Error(
+                                                'Please enter a target value.',
+                                              ),
+                                            );
+                                          }
+
+                                          // Ensure value is a valid number
+                                          const numericValue = Number(value);
+                                          if (isNaN(numericValue)) {
+                                            return Promise.reject(
+                                              new Error(
+                                                'Please enter a valid number.',
+                                              ),
+                                            );
+                                          }
+
+                                          if (
+                                            selectedStatuses[task.taskId] ===
+                                            'Done'
+                                          ) {
+                                            if (
+                                              numericValue >= task?.targetValue
+                                            ) {
+                                              return Promise.resolve(); // Validation passed
+                                            }
+                                          } else {
+                                            // Fallback check if targetValue does not exist
+                                            if (
+                                              numericValue <= task?.targetValue
+                                            ) {
+                                              return Promise.resolve(); // Validation passed
+                                            }
+
+                                            // If neither condition is satisfied and the status is not 'Done', reject the promise
+                                            return Promise.reject(
+                                              new Error(
+                                                `Your actual value shouldn't exceed the allowed limits which is : ${Number(task?.targetValue)?.toLocaleString()}`,
+                                              ),
+                                            );
+                                          }
                                         },
                                       },
                                     ]}
                                   >
-                                    <Input
+                                    <InputNumber
                                       width="50%"
-                                      type="number"
                                       min={0}
                                       step={1}
+                                      className="w-full"
+                                      formatter={(value) =>
+                                        `${value}`.replace(
+                                          /\B(?=(\d{3})+(?!\d))/g,
+                                          ',',
+                                        )
+                                      }
                                       onChange={(e) => {
-                                        const value = e.target.value;
+                                        const value = e;
                                         form.setFieldsValue({
                                           [task.taskId]: {
                                             actualValue: value
@@ -584,7 +715,7 @@ function CreateReport() {
                                       }}
                                     />
                                     <Text
-                                      className="text-white bg-primary"
+                                      className="text-black "
                                       style={{
                                         position: 'absolute',
                                         right: '10px',

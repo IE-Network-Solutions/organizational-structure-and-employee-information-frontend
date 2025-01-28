@@ -16,6 +16,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import EmployeeAttendanceSideBar from './_components/sideBar';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 import BreakImportSidebar from './_components/breakImportSidebar';
+
 import AttendanceImportErrorModal from './_components/attendanceImportErrorModal';
 const EmployeeAttendance = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -36,8 +37,10 @@ const EmployeeAttendance = () => {
     isLoading: isLoadingImport,
     isSuccess,
   } = useAttendanceImport();
+
   const { setIsShowBreakAttendanceImportSidebar } =
     useEmployeeAttendanceStore();
+
   useEffect(() => {
     if (data && data.file) {
       const url = new URL(TIME_AND_ATTENDANCE_URL!);
@@ -111,6 +114,18 @@ const EmployeeAttendance = () => {
               }}
               hidden
             />
+
+            {/* <Button
+              icon={<TbFileUpload size={18} />}
+              size="large"
+              id="importEmployeeAttendanceId"
+              loading={isFetching || isLoading || isLoadingImport}
+              onClick={() => {
+                setIsShowBreakAttendanceImportSidebar(true);
+              }}
+            >
+              Break Import
+            </Button> */}
             <PermissionWrapper
               permissions={[Permissions.ImportEmployeeAttendanceInformation]}
             >
@@ -192,8 +207,8 @@ const EmployeeAttendance = () => {
       </div>
       <EmployeeAttendanceSideBar />
       <BreakImportSidebar />
-
       <AttendanceImportErrorModal />
+
     </>
   );
 };

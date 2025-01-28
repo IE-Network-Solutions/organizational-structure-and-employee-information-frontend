@@ -71,7 +71,7 @@ function EditPlan() {
   );
 
   const handleAddName = (
-    currentBoardValues: Record<string, string|number>,
+    currentBoardValues: Record<string, string | number>,
     kId: string,
   ) => {
     const namesKey = `names-${kId}`;
@@ -125,67 +125,68 @@ function EditPlan() {
   };
 
   useEffect(() => {
+    const processTasks = (
+      tasks: any,
+      planningUserId: string,
+      userId: string,
+      planningPeriodId: string,
+      planId: string,
+    ) => {
+      tasks?.forEach((e: any) => {
+        const hasMilestone = e?.milestone !== null;
+
+        const name = hasMilestone
+          ? `${e?.keyResult?.id + e?.milestone?.id + (e?.parentTaskId || '')}`
+          : `${e?.keyResult?.id + (e?.parentTaskId || '')}`;
+
+        handleAddName(
+          {
+            id: e?.id,
+            milestoneId: e?.milestone?.id,
+            keyResultId: e?.keyResult?.id,
+            planningPeriodId: planningPeriodId,
+            planningUserId: planningUserId,
+            userId: userId || '',
+            task: e?.task || '',
+            priority: e?.priority || '',
+            weight: parseInt(e?.weight, 10) || 0,
+            targetValue: e?.targetValue || 0,
+            achieveMK: e?.achieveMK,
+            planId: planId,
+          },
+          name,
+        );
+      });
+    };
+
     if (planningPeriodHierarchy?.parentPlan) {
       const planningUserId = planGroupData?.planningUser?.id;
       const userId = planGroupData?.planningUser?.userId;
       const planningPeriodId = planGroupData?.planningUser?.planningPeriod?.id;
 
-      planningPeriodHierarchy?.planData
-        ?.find((i: any) => i.id === selectedPlanId)
-        ?.tasks?.forEach((e: any) => {
-          const hasMilestone = e?.milestone !== null ? true : false;
-          const name = hasMilestone
-            ? `${e?.keyResult?.id + e?.milestone?.id + e.parentTaskId}`
-            : `${e?.keyResult?.id + e.parentTaskId}`;
-            
+      const tasks = planningPeriodHierarchy?.planData?.find(
+        (i: any) => i.id === selectedPlanId,
+      )?.tasks;
 
-          handleAddName(
-            {
-              id: e?.id,
-              milestoneId: e?.milestone?.id,
-              keyResultId: e?.keyResult?.id,
-              planningPeriodId: planningPeriodId,
-              planningUserId: planningUserId,
-              userId: userId,
-              task: e?.task || '',
-              priority: e?.priority || '',
-              weight:parseInt(e?.weight as string) || 0,
-              targetValue: e?.targetValue || 0,
-              achieveMK: e?.achieveMK,
-              planId: planGroupData?.id,
-            },
-            name,
-          );
-        });
+      processTasks(
+        tasks,
+        planningUserId,
+        userId,
+        planningPeriodId,
+        planGroupData?.id,
+      );
     } else if (planGroupData) {
       const planningUserId = planGroupData?.planningUser?.id;
       const userId = planGroupData?.planningUser?.userId;
       const planningPeriodId = planGroupData?.planningUser?.planningPeriod?.id;
 
-      planGroupData.tasks?.forEach((e: any) => {
-        const hasMilestone = e?.milestone !== null ? true : false;
-        const name = hasMilestone
-          ? `${e?.keyResult?.id + e?.milestone?.id}`
-          : `${e?.keyResult?.id}`;
-
-        handleAddName(
-          {
-            id: e?.id,
-            milestoneId: e?.milestone?.id || null,
-            keyResultId: e?.keyResult?.id || null,
-            planningPeriodId: planningPeriodId || null,
-            planningUserId: planningUserId || null,
-            userId: userId || null,
-            task: e?.task || '',
-            priority: e?.priority || '',
-            weight: e?.weight || 0,
-            targetValue: e?.targetValue || 0,
-            achieveMK: e?.achieveMK,
-            planId: planGroupData?.id,
-          },
-          name,
-        );
-      });
+      processTasks(
+        planGroupData.tasks,
+        planningUserId,
+        userId,
+        planningPeriodId,
+        planGroupData?.id,
+      );
     }
   }, [planningPeriodHierarchy?.parentPlan, selectedPlanId, planGroupData]);
 
