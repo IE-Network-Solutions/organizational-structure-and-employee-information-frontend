@@ -58,9 +58,7 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish }) => {
             name="issue"
             label="Action plan"
             id="actionPlanId"
-            rules={[
-              { required: true, message: 'action title is required' }
-            ]}
+            rules={[{ required: true, message: 'action title is required' }]}
           >
             <Input />
           </Form.Item>
