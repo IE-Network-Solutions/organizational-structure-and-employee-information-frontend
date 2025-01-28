@@ -64,7 +64,7 @@ function CreateFeedback() {
   return (
     <div className="mt-5 flex justify-center">
       <Card
-        title="Create Appreciation Type"
+        title={`Create ${variantType} type`}
         bordered={true}
         style={{ width: 500 }}
       >
@@ -79,14 +79,14 @@ function CreateFeedback() {
           {/* Appreciation Type Name */}
           <Form.Item
             className={commonClass}
-            label={<div className={commonClass}>Appreciation Type Name</div>}
+            label={<div className={commonClass}>Objective</div>}
             name="name"
             rules={[
               {
                 required: true,
-                message: 'Please enter the appreciation type name!',
+                message: `Please enter the ${variantType} objective name!`,
               },
-              { max: 50, message: 'Name cannot exceed 50 characters.' },
+              { max: 250, message: 'Name cannot exceed 250 characters.' },
             ]}
           >
             <Input className={commonClass} placeholder="Enter type name" />
@@ -99,8 +99,8 @@ function CreateFeedback() {
             rules={[
               { required: true, message: 'Please enter a description!' },
               {
-                max: 200,
-                message: 'Description cannot exceed 200 characters.',
+                max: 250,
+                message: 'Description cannot exceed 250 characters.',
               },
             ]}
           >
