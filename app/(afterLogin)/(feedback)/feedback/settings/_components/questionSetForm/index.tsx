@@ -144,6 +144,10 @@ const QuestionSetForm = () => {
 
   const checkQuestions = () => {
     if (questions && questions.length > 0) {
+      const hasEmptyQuestion = questions.some((q: any) => !q.question.trim());
+      if (hasEmptyQuestion) {
+        return Promise.reject(new Error('Question text cannot be empty.'));
+      }
       return Promise.resolve();
     }
     return Promise.reject(new Error('You must atleast add one question.'));
@@ -181,6 +185,7 @@ const QuestionSetForm = () => {
         </>
       )}
 
+
       <Form.Item
         label="Is Active"
         name="active"
@@ -188,7 +193,6 @@ const QuestionSetForm = () => {
         rules={[{ required: true, message: 'Please check if you want to activate this question set.' }]}
 
       >
-
         <Switch />
       </Form.Item>
 
@@ -204,7 +208,6 @@ const QuestionSetForm = () => {
             <div style={{ display: 'flex', marginBottom: '8px' }}>
               <Input
                 placeholder="Enter question"
-                required
                 value={q.question}
                 onChange={(e) =>
                   handleChangeQuestion(q.id, 'question', e.target.value)
