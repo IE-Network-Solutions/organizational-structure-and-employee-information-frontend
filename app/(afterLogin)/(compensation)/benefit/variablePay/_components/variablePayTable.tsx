@@ -1,4 +1,4 @@
-import { Button, Input, Select, Space, Spin, Table } from 'antd';
+import { Button, Select, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { useGetVariablePay } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
@@ -16,7 +16,6 @@ const VariablePayTable = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { data: employeeData } = useGetAllUsers();
   const { data: months } = useGetAllMonth();
-
 
   const tableData: any[] =
     allUsersVariablePay?.items?.map((variablePay: any) => ({
@@ -105,7 +104,7 @@ const VariablePayTable = () => {
       )
     : tableData;
   return (
-    <Spin  spinning={isLoading || UpdatedIsLoading || isFetching}>
+    <Spin spinning={isLoading || UpdatedIsLoading || isFetching}>
       <Space
         direction="horizontal"
         size="large"
@@ -143,11 +142,11 @@ const VariablePayTable = () => {
           options={monthOptions}
           onChange={() => {}}
         />
-          <Button type="primary" onClick={() => refetch()}>
+        <Button type="primary" onClick={() => refetch()}>
           Refresh VP
         </Button>
       </Space>
-          <Table
+      <Table
         className="mt-6"
         columns={columns}
         dataSource={filteredDataSource}
