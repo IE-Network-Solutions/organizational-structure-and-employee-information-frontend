@@ -3,9 +3,8 @@ import {
   useGetVPScore,
 } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useVPStore } from '@/store/uistate/features/okrplanning/VP';
 import { Button, Card, Progress, Skeleton, Typography } from 'antd';
-import SkeletonButton from 'antd/es/skeleton/Button';
-import React, { useEffect, useState } from 'react';
 import { AiOutlineReload } from 'react-icons/ai';
 import { GoArrowDown, GoArrowUp } from 'react-icons/go';
 
@@ -13,23 +12,23 @@ const { Title } = Typography;
 const VPPayCard: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;
   const { data: vpScore, isLoading: isResponseLoading } = useGetVPScore(userId);
+  const { isUpdated, setIsUpdated } = useVPStore();
 
   const {
     data: UpdatedVpScore,
     isLoading: isUpdatedLoading,
     refetch,
     isRefetching,
-    isSuccess,
-  } = useGetVpScoreCalculate(userId);
-  const [vpscore, setVpScore] = useState<number>(0);
+  } = useGetVpScoreCalculate(userId, false);
 
-  useEffect(() => {
-    setVpScore(vpScore?.score);
-  }, [vpScore]);
+  const handleRefetch = () => {
+    refetch();
+    setIsUpdated(true);
+  };
 
-  useEffect(() => {
-    (isSuccess || isRefetching) && setVpScore(Number(UpdatedVpScore?.vpScore));
-  }, [isSuccess, isRefetching]);
+  const displayScore = isUpdated
+    ? `${UpdatedVpScore ? Number(UpdatedVpScore.vpScore) : ''}%`
+    : `${vpScore?.score}%`;
 
   const achievedPercentage =
     (parseInt(vpScore?.score, 10) / vpScore?.maxScore) * 100;
@@ -63,6 +62,7 @@ const VPPayCard: React.FC = () => {
                     />
                   }
                   onClick={() => {
+                    handleRefetch;
                     refetch();
                   }}
                 ></Button>
@@ -70,16 +70,19 @@ const VPPayCard: React.FC = () => {
               <div className="relative ">
                 <div className="flex flex-wrap items-center justify-between">
                   <Title className=" font-bold text-gray-900">
-                    {(isUpdatedLoading || isRefetching) &&
-                      !isResponseLoading && (
-                        <p className="text-sm text-blue animate-pulse">
-                          {' '}
-                          Recalculating VP
-                        </p>
-                      )}
-                    {isResponseLoading ? <SkeletonButton active /> : vpscore}%
+                    {(isResponseLoading && !vpScore) ||
+                    isUpdatedLoading ||
+                    isRefetching ? (
+                      <Skeleton
+                        active
+                        paragraph={false}
+                        title={{ width: 80 }}
+                      />
+                    ) : (
+                      `${displayScore}`
+                    )}
                   </Title>
-                  {UpdatedVpScore?.score}
+
                   <div className="flex flex-wrap flex-col">
                     <p className="text-sm text-end text-gray-500">
                       {`${achievedPercentage ? achievedPercentage.toFixed(0) : 0} % achieved out of ${vpScore?.maxScore || 0}%`}

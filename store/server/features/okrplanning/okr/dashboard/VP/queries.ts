@@ -1,7 +1,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 
 const getVpScore = async (id: number | string) => {
   const token = useAuthenticationStore.getState().token;
@@ -117,11 +117,15 @@ export const useGetVPScore = (userId: number | string) => {
   });
 };
 
-export const useGetVpScoreCalculate = (userId: number | string) => {
+export const useGetVpScoreCalculate = (
+  userId: number | string,
+  enabled = true,
+) => {
   return useQuery<any>(
     ['VPScoresCalculate', userId],
     () => getVpScoreCalculate(userId),
     {
+      enabled,
       keepPreviousData: true,
     },
   );
@@ -131,12 +135,37 @@ export const useGetAllCalculatedVpScore = (
   userId: string[],
   enabled = true,
 ) => {
-  return useQuery<any>(
-    ['AllVPCalculatedScores', userId],
+  const queryClient = useQueryClient();
+  return useQuery(
+    ['allCalculatedVpScore', userId],
     () => getAllCalculatedVpScore(userId),
     {
-      enabled,
       keepPreviousData: true,
+      enabled,
+      onSuccess: (emp) => {
+        const currentVp = queryClient.getQueryData(['variablePay']) as any;
+        const tempItemArray = [...currentVp.items];
+        const latestDataArray = tempItemArray.map((td: any) => ({
+          ...td,
+          VpInPercentile:
+            emp?.find((employee: any) => employee.userId === td.name)
+              ?.vpInPercentile || td.VpInPercentile,
+          VpInBirr:
+            emp?.find((employee: any) => employee.userId === td.name)
+              ?.vpInBirr || td.VpInBirr,
+          Benefit:
+            emp?.find((employee: any) => employee.userId === td.name)
+              ?.benefit || td.Benefit,
+          VpScore:
+            emp?.find((employee: any) => employee.userId === td.name)
+              ?.vpScore || td.VpScore,
+        }));
+        const updatedVariablePayData = {
+          ...currentVp,
+          items: latestDataArray,
+        };
+        queryClient.setQueryData(['variablePay'], updatedVariablePayData);
+      },
     },
   );
 };

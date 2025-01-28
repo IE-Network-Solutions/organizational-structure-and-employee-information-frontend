@@ -1,66 +1,36 @@
-import React, { useEffect, useState } from 'react';
 import { Button, Input, Select, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { SearchOutlined } from '@ant-design/icons';
 import { useGetVariablePay } from '@/store/server/features/okrplanning/okr/dashboard/queries';
+import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
-import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 
 const VariablePayTable = () => {
   const { data: allUsersVariablePay, isLoading } = useGetVariablePay();
   const { currentPage, pageSize, setCurrentPage, setPageSize } =
     useVariablePayStore();
-  const [tableData, setTableData] = useState<any[]>([]);
+
+  const tableData: any[] =
+    allUsersVariablePay?.items?.map((variablePay: any) => ({
+      id: variablePay.id,
+      name: variablePay.userId,
+      VpInPercentile: variablePay.vpScoring.totalPercentage,
+      VpInBirr: '',
+      VpScore: variablePay.vpScore,
+      Benefit: '',
+    })) || [];
 
   const allEmployeesIds: string[] = tableData.map(
     (employee: any) => employee.name,
   );
 
   const {
-    data: emp,
     refetch,
     isLoading: UpdatedIsLoading,
     isFetching,
-    isSuccess,
   } = useGetAllCalculatedVpScore(allEmployeesIds, false);
-
-  useEffect(() => {
-    if (allUsersVariablePay) {
-      setTableData(
-        allUsersVariablePay?.items?.map((variablePay: any) => ({
-          id: variablePay.id,
-          name: variablePay.userId,
-          VpInPercentile: variablePay.vpScoring.totalPercentage,
-          VpInBirr: '',
-          VpScore: variablePay.vpScore,
-          Benefit: '',
-        })) || [],
-      );
-    }
-  }, [allUsersVariablePay]);
-
-  useEffect(() => {
-    if (isSuccess) {
-      setTableData(
-        tableData.map((td: any) => ({
-          ...td,
-          VpInPercentile:
-            emp?.find((employee: any) => employee.userId === td.name)
-              ?.vpInPercentile || td.VpInPercentile,
-          VpInBirr:
-            emp?.find((employee: any) => employee.userId === td.name)
-              ?.vpInBirr || td.VpInBirr,
-          Benefit:
-            emp?.find((employee: any) => employee.userId === td.name)
-              ?.benefit || td.Benefit,
-          VpScore:
-            emp?.find((employee: any) => employee.userId === td.name)
-              ?.vpScore || td.VpScore,
-        })),
-      );
-    }
-  }, [isSuccess]);
 
   const handleTableChange = (pagination: any) => {
     setCurrentPage(pagination.current);
