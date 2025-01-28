@@ -67,7 +67,14 @@ const setAllRejectLeaveRequest = async (data: AllLeaveRequestApproveData) => {
     data: roleId,
   });
 };
-
+const setAllFinalApproveLeaveRequest = async (data: any) => {
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/allEscalate`,
+    method: 'POST',
+    headers: requestHeader(),
+    data,
+  });
+};
 export const useSetLeaveRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setLeaveRequest, {
@@ -141,6 +148,16 @@ export const useSetRejectLeaveRequest = () => {
       queryClient.invalidateQueries(['transferApprovalRequest']);
       queryClient.invalidateQueries(['myTansferRequest']);
       queryClient.invalidateQueries(['transferRequest']);
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+export const useSetAllFinalApproveLeaveRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(setAllFinalApproveLeaveRequest, {
+    onSuccess: (data, variables: any) => {
+      queryClient.invalidateQueries(['current_approval']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
