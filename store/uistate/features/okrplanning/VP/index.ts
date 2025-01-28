@@ -24,6 +24,11 @@ type VariablePayAction = {
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
 };
 
+interface VPState {
+  isUpdated: boolean;
+  setIsUpdated: (value: boolean) => void;
+}
+
 const VariablePaySlice: StateCreator<VariablePayState & VariablePayAction> = (
   set,
 ) => ({
@@ -58,3 +63,8 @@ const VariablePaySlice: StateCreator<VariablePayState & VariablePayAction> = (
 export const useVariablePayStore = create<VariablePayState & VariablePayAction>(
   VariablePaySlice,
 );
+
+export const useVPStore = create<VPState>((set) => ({
+  isUpdated: false,
+  setIsUpdated: (value) => set({ isUpdated: value }),
+}));

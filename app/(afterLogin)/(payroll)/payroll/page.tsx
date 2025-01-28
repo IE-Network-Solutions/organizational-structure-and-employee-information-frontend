@@ -6,7 +6,10 @@ import {
   useGetActivePayroll,
   useGetAllActiveBasicSalary,
 } from '@/store/server/features/payroll/payroll/queries';
-import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutation';
+import {
+  useCreatePayroll,
+  useDeletePayroll,
+} from '@/store/server/features/payroll/payroll/mutation';
 import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-management/_components/criteria-drawer';
 import PayrollCard from './_components/cards';
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
@@ -26,8 +29,11 @@ const EmployeeBasicSalary = ({ id }: { id: string }) => {
 const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
+  const [payPeriodQuery, setPayPeriodQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [payPeriodId, setPayPeriodId] = useState('');
 
+  const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
 
   const {
@@ -35,11 +41,9 @@ const Payroll = () => {
     isLoading: isCreatingPayroll,
     isSuccess: isCreatePayrollSuccess,
   } = useCreatePayroll();
-
+  const { mutate: deletePayroll } = useDeletePayroll();
   const { exportToExcel } = useExportData();
   const { generateBankLetter } = useGenerateBankLetter();
-
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isCreatePayrollSuccess) {
@@ -61,17 +65,33 @@ const Payroll = () => {
     }
     setLoading(true);
     try {
-      const payrollData = {
+      const payrovallData = {
         payrollItems: allActiveSalary.map((item: any) => ({
           ...item,
           basicSalary: parseInt(item.basicSalary, 10),
         })),
       };
-      createPayroll(payrollData);
+      createPayroll({ payperoid: payPeriodQuery, values: payrovallData });
     } catch (error) {
       notification.error({
         message: 'Error Generating Payroll',
         description: 'An error occurred while generating payroll.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleDeletePayroll = () => {
+    if (!window.confirm('Are you sure you want to delete this payroll?')) {
+      return;
+    }
+    setLoading(true);
+    try {
+      deletePayroll(payPeriodId);
+    } catch (error) {
+      notification.error({
+        message: 'Error Deleting Payroll',
+        description: 'An error occurred while deleting payroll.',
       });
     } finally {
       setLoading(false);
@@ -84,14 +104,14 @@ const Payroll = () => {
     if (searchValues?.employeeId) {
       queryParams.append('employeeId', searchValues.employeeId);
     }
-    if (searchValues?.yearId) {
-      queryParams.append('yearId', searchValues.yearId);
-    }
-    if (searchValues?.sessionId) {
-      queryParams.append('sessionId', searchValues.sessionId);
-    }
     if (searchValues?.monthId) {
       queryParams.append('monthId', searchValues.monthId);
+    }
+    if (searchValues?.payPeriodId) {
+      queryParams.append('payPeriodId', searchValues.payPeriodId);
+      const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+      setPayPeriodQuery(query);
+      setPayPeriodId(searchValues.payPeriodId);
     }
 
     const searchParams = queryParams.toString()
@@ -223,7 +243,7 @@ const Payroll = () => {
             type="default"
             className="text-white bg-violet-300 border-none p-6"
             onClick={() => {
-              handleBankLetter(payroll?.totalGrossPaymentAmount);
+              handleBankLetter(payroll?.totalNetPayAmount);
             }}
           >
             Bank Letter
@@ -238,11 +258,17 @@ const Payroll = () => {
           <Button
             type="primary"
             className="p-6"
-            onClick={handleGeneratePayroll}
+            onClick={
+              payroll?.payrolls.length > 0
+                ? handleDeletePayroll
+                : handleGeneratePayroll
+            }
             loading={isCreatingPayroll || loading}
             disabled={isCreatingPayroll || loading}
           >
-            Generate Payroll
+            {payroll?.payrolls.length > 0
+              ? 'Delete Payroll'
+              : 'Generate Payroll'}
           </Button>
         </div>
       </div>
@@ -284,7 +310,7 @@ const Payroll = () => {
           columns={columns}
           pagination={{
             current: currentPage,
-            pageSize: 10,
+            pageSize: 6,
             onChange: setCurrentPage,
           }}
         />
