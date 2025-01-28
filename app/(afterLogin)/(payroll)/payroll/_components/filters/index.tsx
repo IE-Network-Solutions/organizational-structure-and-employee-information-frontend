@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Col, Row, Select } from 'antd';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
+import {
+  useGetActivePayroll,
+  useGetPayPeriod,
+} from '@/store/server/features/payroll/payroll/queries';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -15,6 +18,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
   const { data: employeeData } = useGetAllUsers();
   const { data: payPeriodData } = useGetPayPeriod();
+  const { data: payroll } = useGetActivePayroll();
 
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
   const [fiscalYears, setFiscalYears] = useState<any[]>([]);
@@ -28,38 +32,28 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
     }
     if (getAllFiscalYears) {
       setFiscalYears(getAllFiscalYears.items || []);
-
-      const activeFiscalYear = getAllFiscalYears.items.find(
-        (year: any) => year.active,
-      );
-      if (activeFiscalYear) {
-        const activeSession = activeFiscalYear.sessions?.find(
-          (session) => session.active,
-        );
-        const activeMonth = activeSession?.months?.find(
-          (month) => month.active,
-        );
-
-        setSearchValue((prev) => ({
-          ...prev,
-          yearId: activeFiscalYear.id || '',
-          sessionId: activeSession?.id || '',
-          monthId: activeMonth?.id || '',
-        }));
-
-        setSessions(activeFiscalYear.sessions || []);
-        setMonths(activeSession?.months || []);
-      }
     }
   }, [getAllFiscalYears, employeeData]);
 
-  const handleEmployeeSelect = (value: string) => {
-    setSearchValue((prev) => {
-      const updatedSearchValue = { ...prev, employeeId: value };
-      onSearch(updatedSearchValue);
-      return updatedSearchValue;
-    });
-  };
+  useEffect(() => {
+    if (payroll?.payrolls.length > 0) {
+      const defaultPayPeriodId = payroll.payrolls[0]?.payPeriodId;
+      const defaultPayPeriod = payPeriodData?.find(
+        (period: any) => period.id === defaultPayPeriodId,
+      );
+
+      if (defaultPayPeriod) {
+        setSearchValue((prev) => ({
+          ...prev,
+          payPeriodId: defaultPayPeriodId,
+        }));
+        onSearch({
+          ...searchValue,
+          payPeriodId: defaultPayPeriodId,
+        });
+      }
+    }
+  }, [payroll?.payrolls, payPeriodData]);
 
   const handleSelectChange = (key: string, value: string) => {
     setSearchValue((prev) => {
@@ -69,14 +63,25 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
         const selectedYear = fiscalYears.find((year) => year.id === value);
         setSessions(selectedYear?.sessions || []);
         setMonths([]);
+        updatedSearchValue.sessionId = '';
+        updatedSearchValue.monthId = '';
       } else if (key === 'sessionId') {
         const selectedSession = sessions.find(
           (session) => session.id === value,
         );
         setMonths(selectedSession?.months || []);
+        updatedSearchValue.monthId = '';
       }
 
-      onSearch(updatedSearchValue);
+      if (key === 'monthId' || key === 'payPeriodId' || key === 'employeeId') {
+        const filteredSearchValue = {
+          employeeId: updatedSearchValue.employeeId || '',
+          monthId: updatedSearchValue.monthId || '',
+          payPeriodId: updatedSearchValue.payPeriodId || '',
+        };
+        onSearch(filteredSearchValue);
+      }
+
       return updatedSearchValue;
     });
   };
@@ -93,42 +98,16 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
           <Select
             showSearch
             placeholder="Search by Name"
-            onChange={handleEmployeeSelect} // This is fine, assuming you pass employee ID to this function
-            value={
-              filteredEmployees.find(
-                (employee) => employee.id === searchValue.employeeId,
-              )
-                ? `${
-                    filteredEmployees.find(
-                      (employee) => employee.id === searchValue.employeeId,
-                    )?.firstName
-                  } ${
-                    filteredEmployees.find(
-                      (employee) => employee.id === searchValue.employeeId,
-                    )?.lastName
-                  }`
-                : ''
-            }
+            onChange={(value) => handleSelectChange('employeeId', value)}
+            value={searchValue.employeeId || ''}
             allowClear
             style={{ width: '100%', height: '48px' }}
-            onSearch={(value) => {
-              setSearchValue((prev) => ({
-                ...prev,
-                employeeId: value, // Update the search term directly here
-              }));
-            }}
           >
-            {filteredEmployees
-              .filter((employee) =>
-                employee.firstName
-                  .toLowerCase()
-                  .startsWith(searchValue.employeeId?.toLowerCase() || ''),
-              )
-              .map((employee) => (
-                <Option key={employee.id} value={employee.id}>
-                  {employee.firstName} &nbsp; {employee.lastName}
-                </Option>
-              ))}
+            {filteredEmployees.map((employee) => (
+              <Option key={employee.id} value={employee.id}>
+                {employee.firstName} {employee.lastName}
+              </Option>
+            ))}
           </Select>
         </Col>
 
@@ -185,8 +164,8 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
         <Col xl={4} lg={5} md={6} sm={12} xs={24}>
           <Select
             placeholder="Pay Period"
-            onChange={(value) => handleSelectChange('payPeriod', value)}
-            value={searchValue.payPeriod}
+            onChange={(value) => handleSelectChange('payPeriodId', value)}
+            value={searchValue.payPeriodId}
             allowClear
             style={{ width: '100%', height: '48px' }}
           >

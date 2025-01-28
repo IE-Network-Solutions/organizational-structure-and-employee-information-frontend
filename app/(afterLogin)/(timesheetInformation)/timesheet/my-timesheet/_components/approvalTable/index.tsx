@@ -11,7 +11,9 @@ import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import {
   useSetAllApproveLeaveRequest,
+  useSetAllFinalApproveLeaveRequest,
   useSetApproveLeaveRequest,
+  useSetFinalApproveLeaveRequest,
   useSetRejectLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import PermissionWrapper from '@/utils/permissionGuard';
@@ -32,23 +34,30 @@ const ApprovalTable = () => {
   const userRollId = useAuthenticationStore.getState().userData.roleId;
   const { rejectComment, setRejectComment } = useApprovalStore();
   const { mutate: editApprover } = useSetApproveLeaveRequest();
+  const { mutate: finalApprover } = useSetFinalApproveLeaveRequest();
   const { mutate: allApprover, isLoading: allApproveIsLoading } =
     useSetAllApproveLeaveRequest();
   const { mutate: allReject, isLoading: allRejectIsLoading } =
     useSetRejectLeaveRequest();
+  const { mutate: finalAllApproval } = useSetAllFinalApproveLeaveRequest();
 
   const { data, isFetching } = useGetApprovalLeaveRequest(
     userId,
     userCurrentPage,
     pageSize,
   );
-
+  const finalApproval: any = (e: {
+    leaveRequestId: string;
+    status: string;
+  }) => {
+    finalApprover(e);
+  };
   const reject: any = (e: {
-    approvalWorkflowId: any;
+    approvalWorkflowId: string;
     stepOrder: any;
-    requestId: any;
+    requestId: string;
     approvedUserId: string;
-    approverRoleId: any;
+    approverRoleId: string;
     action: string;
     tenantId: string;
     comment: { comment: string; commentedBy: string; tenantId: string };
@@ -56,20 +65,30 @@ const ApprovalTable = () => {
     editApprover(e, {
       onSuccess: () => {
         setRejectComment('');
+        finalApproval({ leaveRequestId: e.requestId, status: 'declined' });
       },
     });
   };
 
   const confirm: any = (e: {
-    approvalWorkflowId: any;
+    approvalWorkflowId: string;
     stepOrder: any;
-    requestId: any;
+    requestId: string;
     approvedUserId: string;
-    approverRoleId: any;
+    approverRoleId: string;
     action: string;
     tenantId: string;
   }) => {
-    editApprover(e);
+    editApprover(e, {
+      onSuccess: (data) => {
+        if (data?.last == true) {
+          finalApproval({
+            leaveRequestId: e.requestId,
+            status: 'approved',
+          });
+        }
+      },
+    });
   };
 
   const cancel: any = () => {};
@@ -169,7 +188,7 @@ const ApprovalTable = () => {
         </div>
         <Avatar size={24} icon={<UserOutlined />} />
         <div className="flex-1">
-          <div className="text-xs text-gray-900">
+          <div className="text-xs text-gray-900 flex gap-2">
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
           </div>
@@ -231,7 +250,15 @@ const ApprovalTable = () => {
       page: allUserCurrentPage,
     };
 
-    allApprover(body);
+    allApprover(body, {
+      onSuccess: (data) => {
+        const transformData = data.items.map(({ id }: { id: string }) => ({
+          leaveRequestId: id,
+          status: 'approved',
+        }));
+        finalAllApproval(transformData);
+      },
+    });
   };
   const onAllRejectRequest = () => {
     const body: AllLeaveRequestApproveData = {
@@ -241,7 +268,15 @@ const ApprovalTable = () => {
       page: allUserCurrentPage,
     };
 
-    allReject(body);
+    allReject(body, {
+      onSuccess: (data) => {
+        const transformData = data.items.map(({ id }: { id: string }) => ({
+          leaveRequestId: id,
+          status: 'declined',
+        }));
+        finalAllApproval(transformData);
+      },
+    });
   };
   return (
     <>

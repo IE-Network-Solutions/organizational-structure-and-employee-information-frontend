@@ -1,19 +1,24 @@
-import React, { useEffect } from 'react';
-import { Spin, Table } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Spin, Switch, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
-import { useDeleteAllowanceType } from '@/store/server/features/compensation/settings/mutations';
+import {
+  useDeleteAllowanceType,
+  useUpdateCompensationStatus,
+} from '@/store/server/features/compensation/settings/mutations';
 import {
   useCompensationSettingStore,
   useCompensationTypeTablesStore,
 } from '@/store/uistate/features/compensation/settings';
 
 const AllowanceTypeTable = () => {
+  const [loadingId, setLoadingId] = useState<string | null>(null);
   const { data, isLoading } = useFetchAllowanceTypes();
   const { mutate: deleteAllowanceType } = useDeleteAllowanceType();
+  const { mutate: updateCompensationStatus } = useUpdateCompensationStatus();
   const {
     allowanceCurrentPage,
     allowancePageSize,
@@ -48,6 +53,17 @@ const AllowanceTypeTable = () => {
   const handleTableChange = (pagination: any) => {
     setAllowanceCurrentPage(pagination.current);
     setAllowancePageSize(pagination.pageSize);
+  };
+
+  const updateStatus = (id: string) => {
+    setLoadingId(id);
+    updateCompensationStatus(
+      { id },
+      {
+        onSuccess: () => setLoadingId(null),
+        onError: () => setLoadingId(null),
+      },
+    );
   };
 
   const columns: TableColumnsType<any> = [
@@ -87,6 +103,25 @@ const AllowanceTypeTable = () => {
       sorter: true,
       render: (applicableTo: string) =>
         applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees',
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (rule: any, record: any) => (
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateAllowanceType,
+            Permissions.DeleteAllowanceType,
+          ]}
+        >
+          <Switch
+            loading={loadingId === record.id}
+            onClick={() => updateStatus(record.id)}
+            checked={record.isActive}
+          />
+        </AccessGuard>
+      ),
     },
     {
       title: 'Action',

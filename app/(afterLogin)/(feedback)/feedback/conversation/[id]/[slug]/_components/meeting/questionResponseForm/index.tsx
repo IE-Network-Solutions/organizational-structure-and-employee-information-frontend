@@ -29,6 +29,7 @@ const QuestionResponseForm = ({
           options={attendeesOptions}
           onChange={handleAttendeeChange}
           value={attendeesOptions[attendeeIndex].value}
+          disabled
         />
       </Form.Item>
 

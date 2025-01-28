@@ -31,35 +31,43 @@ function Index({ params }: { params: Params }) {
     },
   );
 
-  const generateReportHandler = () => {};
   return (
     <TabLandingLayout
-      buttonTitle="Generate report"
+      buttonDisabled={true}
       id="conversationLayoutId"
-      onClickHandler={() => generateReportHandler}
       title={conversationType?.name}
       subtitle={
-        isLoading ? (
-          <Skeleton.Input active size="small" style={{ width: 150 }} />
-        ) : (
-          `Conversations / ${conversationType?.name}`
-        )
+      isLoading ? (
+        <Skeleton.Input active size="small" style={{ width: 150 }} />
+      ) : (
+        `Conversations / ${conversationType?.name}`
+      )
       }
     >
       <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {isLoading
-          ? /* eslint-disable @typescript-eslint/naming-convention */
-            Array.from({ length: 4 }).map((_, index) => (
-              <QuestionSetSkeleton key={index} />
-            ))
-          : /* eslint-enable @typescript-eslint/naming-convention */
+      {isLoading
+        ? /* eslint-disable @typescript-eslint/naming-convention */
+        Array.from({ length: 4 }).map((_, index) => (
+          <QuestionSetSkeleton key={index} />
+        ))
+        : /* eslint-enable @typescript-eslint/naming-convention */
 
-            questionSetListData?.map((item: any, index: any) => (
-              <QuestionSet key={index} data={item} conversationTypeId={id} />
-            ))}
+        questionSetListData?.map((item: any, index: any) => (
+          <QuestionSet key={index} data={item} conversationTypeId={id} />
+        ))}
 
-        {questionSetListData?.length <= 0 && <CustomizeRenderEmpty />}
+      
       </div>
+      <br/>
+      {questionSetListData?.length <= 0 && (
+      <div className="flex flex-col align-middle h-full w-full">
+        <CustomizeRenderEmpty />
+        <p className="text-center text-warning">
+       
+        Info: Go to settings and define question sets under define question tab.
+        </p>
+      </div>
+      )}
     </TabLandingLayout>
   );
 }
