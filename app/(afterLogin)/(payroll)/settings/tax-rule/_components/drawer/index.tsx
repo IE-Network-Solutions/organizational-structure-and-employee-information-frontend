@@ -100,7 +100,7 @@ const Drawer: React.FC = () => {
           name="name"
           rules={[{ required: true, message: 'Please input the name!' }]}
         >
-          <Input placeholder="Abraham Dulla" className="h-12" />
+          <Input placeholder="Full Name" className="h-12" />
         </Form.Item>
 
         <Form.Item
@@ -110,7 +110,7 @@ const Drawer: React.FC = () => {
             { required: true, message: 'Please input the maximum income!' },
           ]}
         >
-          <Input type="number" placeholder="40000" className="h-12" />
+          <Input type="number" placeholder="Maximum Income" className="h-12" />
         </Form.Item>
 
         <Form.Item
@@ -120,7 +120,7 @@ const Drawer: React.FC = () => {
             { required: true, message: 'Please input the minimum income!' },
           ]}
         >
-          <Input type="number" placeholder="40000" className="h-12" />
+          <Input type="number" placeholder="Minimum Income" className="h-12" />
         </Form.Item>
 
         <Form.Item
@@ -132,7 +132,7 @@ const Drawer: React.FC = () => {
             type="number"
             min={0}
             max={100}
-            placeholder="10"
+            placeholder="Rate in%"
             className="w-full h-12"
           />
         </Form.Item>
@@ -142,7 +142,11 @@ const Drawer: React.FC = () => {
           name="deduction"
           rules={[{ required: true, message: 'Please input the deduction!' }]}
         >
-          <Input type="number" placeholder="10" className="w-full h-12" />
+          <Input
+            type="number"
+            placeholder="Deduction"
+            className="w-full h-12"
+          />
         </Form.Item>
       </Form>
     </CustomDrawerLayout>

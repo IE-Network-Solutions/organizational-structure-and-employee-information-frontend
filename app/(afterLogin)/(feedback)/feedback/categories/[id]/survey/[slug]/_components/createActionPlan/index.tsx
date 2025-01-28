@@ -126,10 +126,6 @@ const CreateActionPlan = (props: any) => {
                     id={`actionPlanId${index + 1}`}
                     rules={[
                       { required: true, message: 'action title is required' },
-                      {
-                        max: 40, // Set the maximum number of characters allowed
-                        message: 'Action title cannot exceed 40 characters',
-                      },
                     ]}
                   >
                     <Input />

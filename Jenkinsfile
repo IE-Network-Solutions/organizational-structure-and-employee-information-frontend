@@ -6,7 +6,7 @@ pipeline {
         REPO_URL = 'https://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@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git'
         BRANCH_NAME = 'develop'
         REPO_DIR = 'osei-front'
-        SSH_CREDENTIALS_ID = 'peptest'
+        SSH_CREDENTIALS_ID = "peptest"
 
 
  ORG_AND_EMP_URL="https://test-org-emp.ienetworks.co/api/v1"

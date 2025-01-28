@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
-import { Card, Progress } from 'antd';
+import { Button, Card, Progress } from 'antd';
 import { GoDotFill } from 'react-icons/go';
 import { GrCircleQuestion } from 'react-icons/gr';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { FaLongArrowAltRight } from 'react-icons/fa';
 
 interface QuestionSetData {
   id: string;
@@ -51,12 +52,21 @@ const QuestionSet: React.FC<StatisticsCardProps> = ({ data }) => {
           <span>Total Attendees: </span>
           <span>{totalAttendees}</span>
         </p>
-        <Link href={`${currentPath}/${id}/meetings`} passHref>
           <p className="flex items-center justify-center text-xs hover:text-blue">
             <GoDotFill className="text-blue mr-1" />
             <span>Meetings Conducted: </span>
             <span>{meetingsConducted}</span>
           </p>
+        <Link href={`${currentPath}/${id}/meetings`} passHref>
+          <Button
+            color="default"
+            variant="outlined"
+            icon={<FaLongArrowAltRight />}
+            iconPosition="end"
+            className='my-3'
+          >
+            Details
+          </Button>
         </Link>
       </div>
     </Card>

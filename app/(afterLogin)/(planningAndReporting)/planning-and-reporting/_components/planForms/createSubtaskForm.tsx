@@ -12,7 +12,7 @@ import { MdCancel } from 'react-icons/md';
 
 interface SubTaskInterface {
   kId: string;
-  hasTargetValue: boolean;
+  hasTargetValue?: boolean;
   milestoneId: string | null;
   field: any;
   planningPeriodId: string;

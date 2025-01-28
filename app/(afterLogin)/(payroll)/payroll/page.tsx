@@ -6,15 +6,34 @@ import {
   useGetActivePayroll,
   useGetAllActiveBasicSalary,
 } from '@/store/server/features/payroll/payroll/queries';
-import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutation';
+import {
+  useCreatePayroll,
+  useDeletePayroll,
+} from '@/store/server/features/payroll/payroll/mutation';
 import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-management/_components/criteria-drawer';
 import PayrollCard from './_components/cards';
+import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+import { useExportData } from './_components/excel';
+import { useGenerateBankLetter } from './_components/Latter';
+
+const EmployeeBasicSalary = ({ id }: { id: string }) => {
+  const { data, error } = useGetBasicSalaryById(id);
+  if (error || !data) {
+    return '--';
+  }
+  const employeeBasicSalary =
+    data.find((item: any) => item.status)?.basicSalary || '--';
+  return employeeBasicSalary;
+};
 
 const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
+  const [payPeriodQuery, setPayPeriodQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [payPeriodId, setPayPeriodId] = useState('');
 
+  const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
 
   const {
@@ -22,6 +41,9 @@ const Payroll = () => {
     isLoading: isCreatingPayroll,
     isSuccess: isCreatePayrollSuccess,
   } = useCreatePayroll();
+  const { mutate: deletePayroll } = useDeletePayroll();
+  const { exportToExcel } = useExportData();
+  const { generateBankLetter } = useGenerateBankLetter();
 
   useEffect(() => {
     if (isCreatePayrollSuccess) {
@@ -31,8 +53,6 @@ const Payroll = () => {
       });
     }
   }, [isCreatePayrollSuccess, payroll]);
-
-  const [loading, setLoading] = useState(false);
 
   const handleGeneratePayroll = async () => {
     if (!allActiveSalary || allActiveSalary.length === 0) {
@@ -45,17 +65,98 @@ const Payroll = () => {
     }
     setLoading(true);
     try {
-      const payrollData = {
+      const payrovallData = {
         payrollItems: allActiveSalary.map((item: any) => ({
           ...item,
           basicSalary: parseInt(item.basicSalary, 10),
         })),
       };
-      createPayroll(payrollData);
+      createPayroll({ payperoid: payPeriodQuery, values: payrovallData });
     } catch (error) {
       notification.error({
         message: 'Error Generating Payroll',
         description: 'An error occurred while generating payroll.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleDeletePayroll = () => {
+    if (!window.confirm('Are you sure you want to delete this payroll?')) {
+      return;
+    }
+    setLoading(true);
+    try {
+      deletePayroll(payPeriodId);
+    } catch (error) {
+      notification.error({
+        message: 'Error Deleting Payroll',
+        description: 'An error occurred while deleting payroll.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (searchValues: any) => {
+    const queryParams = new URLSearchParams();
+
+    if (searchValues?.employeeId) {
+      queryParams.append('employeeId', searchValues.employeeId);
+    }
+    if (searchValues?.monthId) {
+      queryParams.append('monthId', searchValues.monthId);
+    }
+    if (searchValues?.payPeriodId) {
+      queryParams.append('payPeriodId', searchValues.payPeriodId);
+      const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+      setPayPeriodQuery(query);
+      setPayPeriodId(searchValues.payPeriodId);
+    }
+
+    const searchParams = queryParams.toString()
+      ? `?${queryParams.toString()}`
+      : '';
+    setSearchQuery(searchParams);
+    refetch();
+  };
+
+  const handleExportPayroll = async () => {
+    if (!payroll?.payrolls || payroll.payrolls.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      await exportToExcel(payroll.payrolls, columns, 'Payroll Data');
+    } catch (error) {
+      notification.error({
+        message: 'Error Exporting Data',
+        description: 'An error occurred while exporting data.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBankLetter = async (amount: any) => {
+    if (!amount) {
+      notification.error({
+        message: 'Amount Missing',
+        description: 'Please provide the amount for the bank letter.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      await generateBankLetter(amount, payroll?.payrolls);
+    } catch (error) {
+      notification.error({
+        message: 'Error Generating Bank Letter',
+        description: 'An error occurred while generating the bank letter.',
       });
     } finally {
       setLoading(false);
@@ -74,77 +175,58 @@ const Payroll = () => {
     },
     {
       title: 'Basic Salary',
-      dataIndex: 'netPay',
-      key: 'netPay',
-      minWidth: 200,
+      dataIndex: 'basicSalary',
+      key: 'basicSalary',
+      minWidth: 150,
+      render: (notused: any, record: any) => {
+        return <EmployeeBasicSalary id={record?.employeeId} />;
+      },
     },
     {
       title: 'Total Allowance',
       dataIndex: 'totalAllowance',
       key: 'totalAllowance',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Total Benefits',
       dataIndex: 'totalMerit',
       key: 'totalMerit',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Total Deduction',
       dataIndex: 'totalDeductions',
       key: 'totalDeductions',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Gross Income',
       dataIndex: 'grossSalary',
       key: 'grossSalary',
-      minWidth: 200,
+      minWidth: 150,
     },
-    { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 200 },
+    { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 150 },
     {
       title: 'Employee Pension',
       dataIndex: 'pension',
       key: 'pension',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Cost Sharing',
       dataIndex: 'costsharing',
       key: 'costsharing',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       title: 'Net Income',
       dataIndex: 'netPay',
       key: 'netPay',
-      minWidth: 200,
+      minWidth: 150,
     },
   ];
 
-  const handleSearch = (searchValues: any) => {
-    const queryParams = new URLSearchParams();
-
-    if (searchValues?.employeeId) {
-      queryParams.append('employeeId', searchValues.employeeId);
-    }
-    if (searchValues?.yearId) {
-      queryParams.append('yearId', searchValues.yearId);
-    }
-    if (searchValues?.sessionId) {
-      queryParams.append('sessionId', searchValues.sessionId);
-    }
-    if (searchValues?.monthId) {
-      queryParams.append('monthId', searchValues.monthId);
-    }
-
-    const searchParams = queryParams.toString()
-      ? `?${queryParams.toString()}`
-      : '';
-    setSearchQuery(searchParams);
-    refetch();
-  };
   return (
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4">
@@ -153,23 +235,40 @@ const Payroll = () => {
           <Button
             type="default"
             className="text-white bg-violet-300 border-none p-6"
+            onClick={() => {}}
           >
             Export Bank
           </Button>
           <Button
             type="default"
             className="text-white bg-violet-300 border-none p-6"
+            onClick={() => {
+              handleBankLetter(payroll?.totalNetPayAmount);
+            }}
           >
             Bank Letter
           </Button>
           <Button
+            type="default"
+            className="text-white bg-violet-300 border-none p-6"
+            onClick={handleExportPayroll}
+          >
+            Export Payroll
+          </Button>
+          <Button
             type="primary"
             className="p-6"
-            onClick={handleGeneratePayroll}
+            onClick={
+              payroll?.payrolls.length > 0
+                ? handleDeletePayroll
+                : handleGeneratePayroll
+            }
             loading={isCreatingPayroll || loading}
             disabled={isCreatingPayroll || loading}
           >
-            Generate Payroll
+            {payroll?.payrolls.length > 0
+              ? 'Delete Payroll'
+              : 'Generate Payroll'}
           </Button>
         </div>
       </div>
@@ -192,7 +291,7 @@ const Payroll = () => {
         />
         <PayrollCard
           title="Net Paid Amount"
-          value={payroll?.totalNetPayAmount || '--'}
+          value={payroll?.totalNetPayAmount}
         />
         <PayrollCard
           title="Total Allowance"
@@ -211,12 +310,9 @@ const Payroll = () => {
           columns={columns}
           pagination={{
             current: currentPage,
-            pageSize: 8,
-            total: 50,
-            showSizeChanger: true,
-            onChange: (page) => setCurrentPage(page),
+            pageSize: 6,
+            onChange: setCurrentPage,
           }}
-          bordered
         />
       </div>
     </div>
