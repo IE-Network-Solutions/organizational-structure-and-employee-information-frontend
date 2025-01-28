@@ -143,6 +143,9 @@ const VariablePayTable = () => {
           options={monthOptions}
           onChange={() => {}}
         />
+          <Button type="primary" onClick={() => refetch()}>
+          Refresh VP
+        </Button>
       </Space>
           <Table
         className="mt-6"
