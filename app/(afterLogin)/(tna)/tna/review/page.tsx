@@ -66,13 +66,8 @@ const TnaReviewPage = () => {
   };
   const router = useRouter();
   const [tableData, setTableData] = useState<any[]>([]);
-  const {
-    isShowTnaReviewSidebar,
-    setIsShowTnaReviewSidebar,
-    setTnaCategory,
-    setTnaId,
-  } = useTnaReviewStore();
-  const { data: tnaCategoryData } = useGetTnaCategory({});
+  const { isShowTnaReviewSidebar, setIsShowTnaReviewSidebar, setTnaId } =
+    useTnaReviewStore();
   const {
     page,
     limit,
@@ -100,12 +95,6 @@ const TnaReviewPage = () => {
       refetch();
     }
   }, [isSuccess]);
-
-  useEffect(() => {
-    if (tnaCategoryData?.items?.length) {
-      setTnaCategory(tnaCategoryData.items);
-    }
-  }, [tnaCategoryData]);
 
   useEffect(() => {
     if (!isShowTnaReviewSidebar) {

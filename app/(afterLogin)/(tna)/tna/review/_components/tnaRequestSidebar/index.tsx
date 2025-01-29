@@ -22,6 +22,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useAllApproval } from '@/store/server/features/approver/queries';
 import { APPROVALTYPES } from '@/types/enumTypes';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
 
 const TnaRequestSidebar = () => {
   const {
@@ -35,6 +36,8 @@ const TnaRequestSidebar = () => {
 
   const { data: employeeData } = useGetEmployee(userId);
   const { data: tnaCurrency } = useCurrency();
+  const { data: tnaCategoryData } = useGetTnaCategory({});
+
   const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
     useAllApproval(
       employeeData?.employeeJobInformation?.[0]?.departmentId || '',
@@ -48,7 +51,7 @@ const TnaRequestSidebar = () => {
   useEffect(() => {
     if (employeeData?.employeeJobInformation?.[0]?.departmentId)
       getDepartmentApproval();
-  }, [userId]);
+  }, [employeeData?.employeeJobInformation?.[0]?.departmentId]);
   useEffect(() => {
     if (userId) getUserApproval();
   }, [userId]);
@@ -186,7 +189,7 @@ const TnaRequestSidebar = () => {
                 <MdKeyboardArrowDown size={16} className="text-gray-900" />
               }
               placeholder="Select"
-              options={formatToOptions(tnaCategory, 'name', 'id')}
+              options={formatToOptions(tnaCategoryData?.items, 'name', 'id')}
             />
           </Form.Item>
 

@@ -1,7 +1,7 @@
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetApprovalTNARequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { Avatar, Button, Input, Popconfirm, Table } from 'antd';
+import { Avatar, Button, Input, Popconfirm, Spin, Table } from 'antd';
 import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { TableColumnsType } from '@/types/table/table';
@@ -14,8 +14,17 @@ import { useApprovalTNAStore } from '@/store/uistate/features/tna/settings/appro
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import { useSingleCurrency } from '@/store/server/features/tna/review/queries';
 import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
-import { useSetApproveLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
-import { useSetFinalApproveTnaRequest } from '@/store/server/features/tna/review/mutation';
+import {
+  useSetAllApproveTnaRequest,
+  useSetApproveLeaveRequest,
+  useSetRejectTnaRequest,
+} from '@/store/server/features/timesheet/leaveRequest/mutation';
+import {
+  useSetAllFinalApproveTnaRequest,
+  useSetFinalApproveTnaRequest,
+} from '@/store/server/features/tna/review/mutation';
+import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
+import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
 
 const TnaApprovalTable = () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -25,9 +34,14 @@ const TnaApprovalTable = () => {
   const { pageSize, userCurrentPage, setUserCurrentPage } = useTnaReviewStore();
   const { data: currentApproverData, isFetching: currentApproverIsFetching } =
     useGetApprovalTNARequest(userId, userCurrentPage, pageSize);
+  const { mutate: allApprover, isLoading: allApproveIsLoading } =
+    useSetAllApproveTnaRequest();
+  const { mutate: allReject, isLoading: allRejectIsLoading } =
+    useSetRejectTnaRequest();
   const { mutate: editApprover } = useSetApproveLeaveRequest();
   const { mutate: finalApprover } = useSetFinalApproveTnaRequest();
-
+  const { mutate: finalAllApproval } = useSetAllFinalApproveTnaRequest();
+  const { allPageSize, allUserCurrentPage } = useAllCurrentLeaveApprovedStore();
   const onPageChange = (page: number) => {
     setUserCurrentPage(page);
   };
@@ -169,7 +183,46 @@ const TnaApprovalTable = () => {
     });
   };
   const cancel: any = () => {};
+  const onAllApproveRequest = () => {
+    const body: AllLeaveRequestApproveData = {
+      userId: userId,
+      roleId: userRollId,
+      limit: allPageSize,
+      page: allUserCurrentPage,
+    };
 
+    allApprover(body, {
+      onSuccess: (data) => {
+        if (data?.items?.length > 0) {
+          const transformData = data.items.map(({ id }: { id: string }) => ({
+            requestId: id,
+            status: 'approved',
+          }));
+          finalAllApproval(transformData);
+        }
+      },
+    });
+  };
+  const onAllRejectRequest = () => {
+    const body: AllLeaveRequestApproveData = {
+      userId: userId,
+      roleId: userRollId,
+      limit: allPageSize,
+      page: allUserCurrentPage,
+    };
+
+    allReject(body, {
+      onSuccess: (data) => {
+        if (data?.items?.length > 0) {
+          const transformData = data.items.map(({ id }: { id: string }) => ({
+            requestId: id,
+            status: 'rejected',
+          }));
+          finalAllApproval(transformData);
+        }
+      },
+    });
+  };
   const allFilterData = currentApproverData?.items?.map(
     (item: any, index: number) => {
       return {
@@ -254,7 +307,7 @@ const TnaApprovalTable = () => {
             </div>
           </div>
           <div className="flex items-center justify-end mb-6">
-            {/* <div className="flex items-center gap-10 mb-6">
+            <div className="flex items-center gap-10 mb-6">
               <Popconfirm
                 title="All Approve Request"
                 description="Are you sure to approve all leave request?"
@@ -285,7 +338,7 @@ const TnaApprovalTable = () => {
                   Reject All
                 </Button>
               </Popconfirm>
-            </div> */}
+            </div>
           </div>
           <Table
             columns={columns}
@@ -293,8 +346,8 @@ const TnaApprovalTable = () => {
             dataSource={allFilterData}
             pagination={{
               total: currentApproverData?.meta?.totalItems,
-              current: currentApproverData?.meta?.userCurrentPage,
-              pageSize: currentApproverData?.meta?.totalPages,
+              current: userCurrentPage,
+              pageSize: pageSize,
               onChange: onPageChange,
             }}
             scroll={{ x: 'min-content' }}

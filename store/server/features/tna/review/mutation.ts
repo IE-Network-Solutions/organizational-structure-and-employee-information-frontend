@@ -30,7 +30,14 @@ const setFinalApproveTnaRequest = async (data: any) => {
     data,
   });
 };
-
+const setAllFinalApproveTnaRequest = async (data: any) => {
+  return await crudRequest({
+    url: `${TNA_URL}/tna/updateAllTnaApprovedOrRejected`,
+    method: 'PATCH',
+    headers: requestHeader(),
+    data,
+  });
+};
 export const useSetTna = () => {
   return useMutation(setTna, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -55,11 +62,18 @@ export const useSetFinalApproveTnaRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setFinalApproveTnaRequest, {
     onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries([
-        'tna-current_approval',
-        data?.approvedUserId,
-      ]);
+      queryClient.invalidateQueries(['tna-current_approval']);
       queryClient.invalidateQueries(['tna']);
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+export const useSetAllFinalApproveTnaRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(setAllFinalApproveTnaRequest, {
+    onSuccess: (data, variables: any) => {
+      queryClient.invalidateQueries(['tna-current_approval']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
