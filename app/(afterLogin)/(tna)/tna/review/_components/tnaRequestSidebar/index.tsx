@@ -184,7 +184,11 @@ const TnaRequestSidebar = () => {
                 <MdKeyboardArrowDown size={16} className="text-gray-900" />
               }
               placeholder="Select"
-              options={formatToOptions(tnaCategoryData?.items, 'name', 'id')}
+              options={formatToOptions(
+                tnaCategoryData?.items ?? [],
+                'name',
+                'id',
+              )}
             />
           </Form.Item>
 
