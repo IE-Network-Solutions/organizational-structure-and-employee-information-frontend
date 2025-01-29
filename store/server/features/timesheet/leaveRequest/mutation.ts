@@ -2,7 +2,6 @@ import { LeaveRequest } from '@/types/timesheet/settings';
 import { crudRequest } from '@/utils/crudRequest';
 import {
   APPROVER_URL,
-  TIME_AND_ATTENDANCE_URL,
   TNA_URL,
   ORG_AND_EMP_URL,
   TIME_AND_ATTENDANCE_URL,
@@ -235,10 +234,10 @@ export const useSetAllApproveTnaRequest = () => {
 export const useSetRejectTnaRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllRejectTnaRequest, {
-    onSuccess: (data, variables: any) => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries(['tna-current_approval', data?.userId]);
       queryClient.invalidateQueries(['tna']);
-         },
+    },
   });
 };
 export const useSetAllFinalApproveLeaveRequest = () => {
