@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Col, Row, Skeleton } from 'antd';
+import { Card, Col, Progress, Row, Skeleton } from 'antd';
 import { BiAward } from 'react-icons/bi';
 import {
   GoArrowUp,
@@ -40,7 +40,11 @@ const CriteriaCard: React.FC = () => {
             {criteriaCardData?.criteria
               .slice(visibleIndex, visibleIndex + cardsPerPage)
               .map((item: any, index: any) => {
-                const change = item?.score - item?.previousScore;
+                const change =
+                  item?.score.toFixed(2) - item?.previousScore.toFixed(2);
+                const achievedPercentage = Number(
+                  ((item?.score / 100) * item?.weight).toFixed(1),
+                );
                 return (
                   <Col key={index} xs={24} sm={12} md={8}>
                     <Card className="mt-10 bg-[#FAFAFA]" bordered={false}>
@@ -52,9 +56,25 @@ const CriteriaCard: React.FC = () => {
                       <h3 className="text-sm font-medium text-gray-500 mb-2">
                         {item?.name}
                       </h3>
-                      <p className="text-3xl font-bold text-gray-900">
-                        {parseInt(item?.weight, 10)}%
-                      </p>
+                      <div className="relative ">
+                        <div className="flex flex-wrap items-center justify-between">
+                          <p className="text-3xl font-bold text-gray-900">
+                            {Number(item?.score?.toFixed(2))}%
+                          </p>
+                          <div className="flex flex-wrap flex-col">
+                            <p className="text-sm text-end text-gray-500">
+                              {`${achievedPercentage ? achievedPercentage.toFixed(1) : 0} % achieved out of ${item?.weight || 0}%`}
+                            </p>
+                            <Progress
+                              percent={Number(
+                                ((item?.score / 100) * item?.weight).toFixed(1),
+                              )}
+                              showInfo={false}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
                       <div className="flex items-center mt-2 text-sm text-gray-500 justify-end">
                         <span
                           className={`font-medium flex items-center ${
