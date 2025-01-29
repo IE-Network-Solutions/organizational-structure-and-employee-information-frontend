@@ -185,7 +185,6 @@ const QuestionSetForm = () => {
         </>
       )}
 
-
       <Form.Item
         label="Is Active"
         name="active"

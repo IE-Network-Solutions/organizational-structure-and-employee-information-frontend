@@ -24,7 +24,8 @@ const useCriteriaManagementStore = create<CriteriaManagementState>((set) => ({
   setUserTypeFilter: (filter) => set({ userTypeFilter: filter }),
   setWeights: (weights) => set({ weights }),
   setSelectedCriteria: (criteria) => set({ selectedCriteria: criteria }),
-  setSelectedDepartment: (department) => set({ selectedDepartment: department }),
+  setSelectedDepartment: (department) =>
+    set({ selectedDepartment: department }),
   setFilteredUsers: (users) => set({ filteredUsers: users }),
 }));
 
