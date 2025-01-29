@@ -7,18 +7,19 @@ import IncentiveSettingsTable from './_components/incentiveSettingsTable';
 import { Button } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
-import IncentiveSettingsDrawer from './_components/incentiveSettingdrawer';
+import IncentiveSettingsDrawer from './_components/incentiveSettingDrawer';
 
+type Params = {
+  id: string;
+};
 const IncentiveSettings: React.FC = () => {
-  const { id } = useParams();
+  const { id } = useParams<Params>();
 
   const { setOpenIncentiveDrawer } = useIncentiveStore();
 
-  console.log(id, 'this is id');
   const { data: recognitionData, isLoading: responseLoading } =
     useRecognitionById(id);
 
-  console.log(recognitionData, 'tghis is data');
   return (
     <div>
       <div className="mb-6">
@@ -40,7 +41,7 @@ const IncentiveSettings: React.FC = () => {
           </Button>
         </PageHeader>
       </div>
-      <IncentiveSettingsTable recognitionId={id} />
+      <IncentiveSettingsTable />
       <IncentiveSettingsDrawer />
     </div>
   );

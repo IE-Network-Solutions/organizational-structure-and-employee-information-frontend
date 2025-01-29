@@ -3,26 +3,29 @@ import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { useFetchAllPayPeriod } from '@/store/server/features/incentive/project/queries';
+import {
+  useFetchAllPayPeriod,
+  useFetchIncentiveTemplate,
+} from '@/store/server/features/incentive/project/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { Button, Form, Select, Spin, Upload } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import dayjs from 'dayjs';
 import React from 'react';
 import { MdOutlineUploadFile } from 'react-icons/md';
+import DownloadExcelButton from '../../dowloadTemplateExcel';
 
 const ImportProjectData: React.FC = () => {
   const [form] = Form.useForm();
-  const { openProjectDrawer, file, setOpenProjectDrawer } = useIncentiveStore();
+  const { projectDrawer, setProjectDrawer, file } = useIncentiveStore();
 
   const { data: payPeriodData, isLoading: responseLoading } =
     useFetchAllPayPeriod();
-
+  const { data: incentiveTemplate, isLoading: templateResponseLoading } =
+    useFetchIncentiveTemplate();
   const handleClose = () => {
-    setOpenProjectDrawer(false);
+    setProjectDrawer(false);
   };
-
-  console.log(payPeriodData, 'payPeriodData');
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -66,14 +69,21 @@ const ImportProjectData: React.FC = () => {
     },
   };
 
+  console.log(incentiveTemplate, 'this si incentiveTemplate');
   return (
     <CustomDrawerLayout
-      open={openProjectDrawer}
+      open={projectDrawer}
       onClose={handleClose}
       modalHeader={
         <CustomDrawerHeader className="flex justify-between">
           <span>Import Project Data</span>
-          <Button>Download Format</Button>
+          <div>
+            {templateResponseLoading ? (
+              <button>Loading headers...</button>
+            ) : (
+              <DownloadExcelButton headers={incentiveTemplate} />
+            )}
+          </div>
         </CustomDrawerHeader>
       }
       footer={<CustomDrawerFooterButton buttons={footerModalItems} />}

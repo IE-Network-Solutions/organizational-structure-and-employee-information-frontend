@@ -35,7 +35,7 @@ const IncentiveFilter: React.FC = () => {
   };
   return (
     <div className="my-4">
-      <Row gutter={[16, 10]}>
+      <Row gutter={[16, 10]} justify="space-between">
         <Col xs={24} sm={24} md={24} lg={8} xl={8}>
           <Input
             allowClear
@@ -45,41 +45,45 @@ const IncentiveFilter: React.FC = () => {
             className="w-full h-12"
           />
         </Col>
-        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
-          <Select
-            allowClear
-            placeholder="Select Year "
-            className="w-full h-12"
-            onChange={handleCreatedByYear}
-          >
-            <Select.Option value="1">Option 1</Select.Option>
-            <Select.Option value="2">Option 2</Select.Option>
-            <Select.Option value="3">Option 3</Select.Option>
-          </Select>
-        </Col>
-        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
-          <Select
-            allowClear
-            placeholder="Select Session "
-            className="w-full h-12"
-            onChange={handleCreatedBySession}
-          >
-            <Select.Option value="1">Option 1</Select.Option>
-            <Select.Option value="2">Option 2</Select.Option>
-            <Select.Option value="3">Option 3</Select.Option>
-          </Select>
-        </Col>
-        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
-          <Select
-            allowClear
-            placeholder="Select Month "
-            className="w-full h-12"
-            onChange={handleCreatedByMonth}
-          >
-            <Select.Option value="1">Option 1</Select.Option>
-            <Select.Option value="2">Option 2</Select.Option>
-            <Select.Option value="3">Option 3</Select.Option>
-          </Select>
+        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+          <Row gutter={[8, 16]}>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+              <Select
+                allowClear
+                placeholder="Select Year "
+                className="w-full h-12"
+                onChange={handleCreatedByYear}
+              >
+                <Select.Option value="1">Option 1</Select.Option>
+                <Select.Option value="2">Option 2</Select.Option>
+                <Select.Option value="3">Option 3</Select.Option>
+              </Select>
+            </Col>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+              <Select
+                allowClear
+                placeholder="Select Session "
+                className="w-full h-12"
+                onChange={handleCreatedBySession}
+              >
+                <Select.Option value="1">Option 1</Select.Option>
+                <Select.Option value="2">Option 2</Select.Option>
+                <Select.Option value="3">Option 3</Select.Option>
+              </Select>
+            </Col>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+              <Select
+                allowClear
+                placeholder="Select Month "
+                className="w-full h-12"
+                onChange={handleCreatedByMonth}
+              >
+                <Select.Option value="1">Option 1</Select.Option>
+                <Select.Option value="2">Option 2</Select.Option>
+                <Select.Option value="3">Option 3</Select.Option>
+              </Select>
+            </Col>
+          </Row>
         </Col>
       </Row>
     </div>

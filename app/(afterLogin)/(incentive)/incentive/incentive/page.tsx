@@ -14,7 +14,7 @@ const IncentivePage: React.FC = () => {
   const {
     activeKey,
     setActiveKey,
-    setOpenProjectDrawer,
+    setProjectDrawer,
     isPayrollView,
     setIsPayrollView,
     setShowGenerateModal,
@@ -25,27 +25,47 @@ const IncentivePage: React.FC = () => {
     {
       key: '1',
       label: <span className="font-semibold text-md p-3">All</span>,
-      children: isPayrollView ? <PayRoleView /> : <All />,
+      children: (
+        <div className="mx-3">
+          {isPayrollView ? <PayRoleView operationSlot={''} /> : <All />}
+        </div>
+      ),
     },
     {
       key: '2',
       label: <span className="font-semibold text-md p-3">Projects</span>,
-      children: <Projects />,
+      children: (
+        <div className="mx-3">
+          <Projects />
+        </div>
+      ),
     },
     {
       key: '3',
       label: <span className="font-semibold text-md p-3">Sales</span>,
-      children: <Sales />,
+      children: (
+        <div className="mx-3">
+          <Sales />
+        </div>
+      ),
     },
     {
       key: '4',
       label: <span className="font-semibold text-md p-3">Management</span>,
-      children: <Management />,
+      children: (
+        <div className="mx-3">
+          <Management />
+        </div>
+      ),
     },
     {
       key: '5',
       label: <span className="font-semibold text-md p-3">Other</span>,
-      children: <Others />,
+      children: (
+        <div className="mx-3">
+          <Others />
+        </div>
+      ),
     },
   ];
 
@@ -85,7 +105,7 @@ const IncentivePage: React.FC = () => {
               Export
             </Button>
             <Button
-              onClick={() => setOpenProjectDrawer(true)}
+              onClick={() => setProjectDrawer(true)}
               className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
             >
               Import Project Data
@@ -119,13 +139,7 @@ const IncentivePage: React.FC = () => {
       default:
         return null;
     }
-  }, [
-    activeKey,
-    isPayrollView,
-    setOpenProjectDrawer,
-    setOpenProjectDrawer,
-    setIsPayrollView,
-  ]);
+  }, [activeKey, isPayrollView, setProjectDrawer, setIsPayrollView]);
 
   const handleTabChange = (key: string) => {
     setActiveKey(key);
@@ -134,15 +148,23 @@ const IncentivePage: React.FC = () => {
     }
   };
 
+  console.log(isPayrollView, 'isPayrollView');
+
   return (
     <div className="m-1">
-      <Tabs
-        tabBarStyle={{ borderBottom: '16px solid transparent' }}
-        defaultActiveKey="1"
-        items={items}
-        tabBarExtraContent={OperationsSlot}
-        onChange={handleTabChange}
-      />
+      <div className="flex items-center justify-between">
+        {isPayrollView && <PayRoleView operationSlot={OperationsSlot} />}
+      </div>
+
+      {!isPayrollView && (
+        <Tabs
+          tabBarStyle={{ borderBottom: '16px solid transparent' }}
+          defaultActiveKey="1"
+          items={items}
+          tabBarExtraContent={OperationsSlot}
+          onChange={handleTabChange}
+        />
+      )}
     </div>
   );
 };

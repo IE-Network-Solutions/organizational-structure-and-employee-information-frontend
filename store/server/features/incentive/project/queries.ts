@@ -12,6 +12,14 @@ const fetchPayPeriod = async () => {
   });
 };
 
+const fetchIncentiveTemplate = async () => {
+  return await crudRequest({
+    url: `${PAYROLL_URL}/incentive-criteria/import/template`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
+
 const fetchProjectIncentiveData = async (
   employeeName: string,
   project: string,
@@ -38,6 +46,9 @@ const fetchProjectIncentiveDataByID = async (projectId: string) => {
 
 export const useFetchAllPayPeriod = () => {
   return useQuery<FiscalYearResponseData>('getAllPayPeriod', fetchPayPeriod);
+};
+export const useFetchIncentiveTemplate = () => {
+  return useQuery<any>('getIncentiveTemplate', fetchIncentiveTemplate);
 };
 export const useGetProjectIncentiveData = (
   employeeName: string,

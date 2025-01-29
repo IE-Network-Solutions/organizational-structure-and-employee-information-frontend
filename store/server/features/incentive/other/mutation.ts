@@ -4,18 +4,18 @@ import { INCENTIVE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
-const setIncentiveFormula = async (items: any) => {
+const setIncentiveFormula = async (data: any) => {
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive-formulas`,
     method: 'POST',
     headers: requestHeader(),
-    data: { items },
+    data,
   });
 };
 
 const updateIncentiveFormula = async (id: string, items: any) => {
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentive/formula/${id}`,
+    url: `${INCENTIVE_URL}/incentive-formulas/${id}`,
     method: 'PUT',
     headers: requestHeader(),
     data: { items },
@@ -24,7 +24,7 @@ const updateIncentiveFormula = async (id: string, items: any) => {
 
 const deleteIncentiveFormula = async (id: string) => {
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentive/formula/${id}`,
+    url: `${INCENTIVE_URL}/incentive-formulas/${id}`,
     method: 'DELETE',
     headers: requestHeader(),
   });

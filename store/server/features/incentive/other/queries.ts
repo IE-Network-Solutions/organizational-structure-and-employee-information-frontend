@@ -26,7 +26,7 @@ const fetchProjectIncentiveData = async (
   session: string,
 ) => {
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentive?employee_name=${employeeName}&&project=${project}&&recognition=${recognition}&&year=${year}&&session=${session}   `,
+    url: `${INCENTIVE_URL}/incentive?employee_name=${employeeName}&&project=${project}&&recognition=${recognition}&&year=${year}&&session=${session}`,
     // url: 'https://mocki.io/v1/c4e934a6-27b5-4ccb-a83d-bd8f7ae9d294',
     method: 'GET',
     headers: requestHeader(),
@@ -40,7 +40,7 @@ const fetchAllRecognition = async () => {
     headers: requestHeader(),
   });
 };
-const fetchRecognitionById = async (recognitionId: string | sting[]) => {
+const fetchRecognitionById = async (recognitionId: string) => {
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition/${recognitionId}`,
     method: 'GET',
@@ -56,12 +56,28 @@ const fetchIncentiveCriteria = async () => {
   });
 };
 
+const fetchIncentiveFormula = async (recognitionTypeId: string) => {
+  return await crudRequest({
+    url: `${INCENTIVE_URL}/incentive-formulas/recognition-type/${recognitionTypeId}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
+
+export const useIncentiveFormulaByRecognitionId = (
+  recognitionTypeId: string,
+) => {
+  return useQuery<any>(['incentiveFormula', recognitionTypeId], () =>
+    fetchIncentiveFormula(recognitionTypeId),
+  );
+};
+
 export const useAllRecognition = () => {
   return useQuery<any>('getAllRecognition', fetchAllRecognition);
 };
 
-export const useRecognitionById = (recognitionId: string | string[]) => {
-  return useQuery<any>(['getRecognitionById', recognitionId], () =>
+export const useRecognitionById = (recognitionId: string) => {
+  return useQuery<any>(['incentiveFormula', recognitionId], () =>
     fetchRecognitionById(recognitionId),
   );
 };

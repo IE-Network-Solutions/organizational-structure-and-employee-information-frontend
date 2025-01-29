@@ -1,29 +1,21 @@
-import IncentivePagination from '@/app/(afterLogin)/(incentive)/_components/incentivePagination';
-import { useRecognitionById } from '@/store/server/features/incentive/other/queries';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
+import { useDeleteIncentiveFormula } from '@/store/server/features/incentive/other/mutation';
 import {
-  IncentiveRecognition,
+  useIncentiveFormulaByRecognitionId,
+  useRecognitionById,
+} from '@/store/server/features/incentive/other/queries';
+import {
   IncentiveRecognitionParams,
+  IncentiveSettingParams,
   RecognitionCriteria,
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
 import { Table, TableColumnsType } from 'antd';
 import { Pencil, Trash2 } from 'lucide-react';
+import { useParams } from 'next/navigation';
 import React from 'react';
 
-const data = [
-  {
-    id: '1',
-    name: 'Project Incentive',
-    recognition_criteria: 'Project Incentive',
-  },
-  {
-    id: '2',
-    name: 'Project Incentive',
-    recognition_criteria: 'Project Incentive',
-  },
-];
-
-const columns: TableColumnsType = [
+const columns: TableColumnsType<IncentiveSettingParams> = [
   {
     title: 'Name',
     dataIndex: 'name',
@@ -32,6 +24,7 @@ const columns: TableColumnsType = [
   {
     title: 'Recognition Criteria',
     dataIndex: 'recognition_criteria',
+    render: (value) => value,
     sorter: (a, b) => {
       const aValue =
         typeof a.recognition_criteria === 'string'
@@ -47,97 +40,102 @@ const columns: TableColumnsType = [
   {
     title: 'Action',
     dataIndex: 'action',
+    render: (value) => value,
   },
 ];
 
-interface IncentiveSettingsTableParams {
-  recognitionId: string | string[];
-}
-const IncentiveSettingsTable: React.FC<IncentiveSettingsTableParams> = ({
-  recognitionId,
-}) => {
+type Params = {
+  id: string;
+};
+
+const IncentiveSettingsTable: React.FC = () => {
+  const { id } = useParams<Params>();
+  const recognitionId = id;
+
   const {
-    setProjectIncentiveDrawer,
-    setDeleteIncentiveDrawer,
-    setProjectIncentiveId,
-    currentPage,
-    pageSize,
-    setCurrentPage,
-    setPageSize,
-    setProjectIncentive,
+    setOpenIncentiveDrawer,
+    setDeleteIncentive,
+    deleteIncentive,
+    setIncentiveId,
+    setIncentive,
   } = useIncentiveStore();
 
   const { data: recognitionData, isLoading: responseLoading } =
     useRecognitionById(recognitionId);
 
-  console.log(recognitionData, 'recognitionData');
+  const { data: formulaById } =
+    useIncentiveFormulaByRecognitionId(recognitionId);
 
-  const onPageChange = (page: number, pageSize?: number) => {
-    setCurrentPage(page);
-    if (pageSize) {
-      setPageSize(pageSize);
-    }
+  const { mutate: deleteIncentiveFormula } = useDeleteIncentiveFormula();
+
+  const handleProjectIncentiveEdit = (value: IncentiveRecognitionParams) => {
+    setIncentive(value);
+    setOpenIncentiveDrawer(true);
+    setIncentiveId(value?.id ?? '');
   };
 
-  const handleProjectIncentiveEdit = (value: IncentiveRecognition) => {
-    setProjectIncentive(value);
-    setProjectIncentiveDrawer(true);
+  const handleDeleteIncentiveFormulaModal = () => {
+    setDeleteIncentive(true);
   };
 
-  const handleDeleteProjectIncentive = (value: IncentiveRecognitionParams) => {
-    setDeleteIncentiveDrawer(false);
-    setProjectIncentiveId(value?.id ?? '');
+  const handleDeleteIncentiveFormula = () => {
+    deleteIncentiveFormula(
+      { id: formulaById?.id },
+      {
+        onSuccess: () => {
+          setDeleteIncentive(false);
+          setIncentiveId('');
+        },
+      },
+    );
   };
 
-  const projectIncentiveTableData = recognitionData?.items?.map((item: any) => {
-    return {
-      key: item?.id,
-      // name: {item?.recognitionType?.name},
-      name: 'Name',
-      recognition_criteria: (
-        <span className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1">
-          {item?.recognitionType?.recognitionCriteria?.map(
-            (criterion: RecognitionCriteria) => {
-              criterion?.criterionKey;
-            },
-          )}
-        </span>
+  const incentiveTableData = {
+    id: recognitionData?.id,
+    name: recognitionData?.recognitionType?.name,
+    recognition_criteria:
+      recognitionData?.recognitionType?.recognitionCriteria?.map(
+        (criterion: RecognitionCriteria) => (
+          <span className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1">
+            {criterion?.criterionKey}
+          </span>
+        ),
       ),
-      action: (
-        <div className="flex items-center justify-start gap-2">
-          <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
-            <Pencil
-              size={15}
-              className="text-white cursor-pointer"
-              onClick={() => handleProjectIncentiveEdit(item)}
-            />
-          </div>
-          <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
-            <Trash2
-              size={15}
-              className="text-white cursor-pointer"
-              onClick={() => handleDeleteProjectIncentive(item)}
-            />
-          </div>
+    action: (
+      <div className="flex items-center justify-start gap-2">
+        <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+          <Pencil
+            size={15}
+            className="text-white cursor-pointer"
+            onClick={() => handleProjectIncentiveEdit(recognitionData)}
+          />
         </div>
-      ),
-    };
-  });
+        <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
+          <Trash2
+            size={15}
+            className="text-white cursor-pointer"
+            onClick={handleDeleteIncentiveFormulaModal}
+          />
+        </div>
+      </div>
+    ),
+  };
+
   return (
     <div>
       <Table
         columns={columns}
-        dataSource={projectIncentiveTableData}
+        dataSource={[incentiveTableData]}
         pagination={false}
         loading={responseLoading}
       />
-      <IncentivePagination
-        current={currentPage}
-        total={10}
-        // total={jobList?.meta?.totalItems ?? 1}
-        pageSize={pageSize}
-        onChange={onPageChange}
-        onShowSizeChange={onPageChange}
+      <DeleteModal
+        deleteText="Confirm"
+        deleteMessage="Are you sure you want to proceed?"
+        customMessage="This action will remove the formula. You will no longer see the formula displayed."
+        open={deleteIncentive}
+        onConfirm={handleDeleteIncentiveFormula}
+        onCancel={() => setDeleteIncentive(false)}
       />
     </div>
   );

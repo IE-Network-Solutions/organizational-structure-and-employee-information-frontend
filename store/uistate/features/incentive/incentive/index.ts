@@ -20,6 +20,18 @@ export interface ProjectIncentiveData {
   spi: number;
 }
 
+export interface RecognitionData {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+  recognitionTypeId: string;
+  expression: string;
+  tenantId: string;
+}
+
 export interface ProjectIncentiveSettingParams {
   id?: string;
   name: string;
@@ -27,10 +39,10 @@ export interface ProjectIncentiveSettingParams {
   action?: JSX.Element;
 }
 export interface IncentiveSettingParams {
-  id?: string;
+  id: string;
   name: string;
-  recognition_criteria?: React.ReactNode;
-  action?: JSX.Element;
+  recognition_criteria: JSX.Element;
+  action: JSX.Element;
 }
 export interface OtherIncentiveSettingParams {
   id?: string;
@@ -115,7 +127,17 @@ export type IncentiveRecognitionParams = {
   recognitionType: RecognitionType;
 };
 
-export type IncentiveRecognition = IncentiveRecognitionParams[];
+export interface ProjectData {
+  createdAt: string;
+  deletedAt: string | null;
+  description: string;
+  id: string;
+  name: string;
+  recognitionTypeId: string;
+  sourceEndpoint: string | null;
+  sourceType: string;
+  updatedAt: string;
+}
 
 type IncentiveState = {
   searchParams: SearchParams;
@@ -126,16 +148,17 @@ type IncentiveState = {
   activeKey: string;
   isPayrollView: boolean;
   showGenerateModal: boolean;
-  projectIncentiveDrawer: boolean;
-  deleteIncentiveDrawer: boolean;
-  projectIncentiveId: string;
+  projectDrawer: boolean;
+  deleteIncentive: boolean;
+  incentiveId: string;
   rockStarDrawer: boolean;
   otherIncentive: any;
-  projectIncentive: any;
-  formula: string[];
+  incentive: any;
+  formula: any;
   value: string;
   menuItems: any[];
   currentItem: string;
+  isSwitchOn: boolean;
 };
 
 type IncentiveActions = {
@@ -147,16 +170,17 @@ type IncentiveActions = {
   setActiveKey: (key: string) => void;
   setIsPayrollView: (value: boolean) => void;
   setShowGenerateModal: (value: boolean) => void;
-  setProjectIncentiveDrawer: (value: boolean) => void;
-  setDeleteIncentiveDrawer: (value: boolean) => void;
-  setProjectIncentiveId: (value: string) => void;
+  setProjectDrawer: (value: boolean) => void;
+  setDeleteIncentive: (value: boolean) => void;
+  setIncentiveId: (value: string) => void;
   setRockStarDrawer: (value: boolean) => void;
   setOtherIncentive: (item: any) => void;
-  setProjectIncentive: (item: any) => void;
-  setFormula: (item: string[]) => void;
+  setIncentive: (item: any) => void;
+  setFormula: (item: any) => void;
   setValue: (item: string) => void;
   setCurrentItem: (item: string) => void;
   setMenuItems: (items: any[]) => void;
+  setIsSwitchOn: (value: boolean) => void;
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -196,16 +220,14 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   showGenerateModal: false,
   setShowGenerateModal: (showGenerateModal) => set({ showGenerateModal }),
 
-  projectIncentiveDrawer: false,
-  setProjectIncentiveDrawer: (projectIncentiveDrawer) =>
-    set({ projectIncentiveDrawer }),
+  projectDrawer: false,
+  setProjectDrawer: (projectDrawer) => set({ projectDrawer }),
 
-  deleteIncentiveDrawer: false,
-  setDeleteIncentiveDrawer: (deleteIncentiveDrawer) =>
-    set({ deleteIncentiveDrawer }),
+  deleteIncentive: false,
+  setDeleteIncentive: (deleteIncentive) => set({ deleteIncentive }),
 
-  projectIncentiveId: '',
-  setProjectIncentiveId: (projectIncentiveId) => set({ projectIncentiveId }),
+  incentiveId: '',
+  setIncentiveId: (incentiveId) => set({ incentiveId }),
 
   rockStarDrawer: false,
   setRockStarDrawer: (rockStarDrawer) => set({ rockStarDrawer }),
@@ -213,10 +235,10 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   otherIncentive: null,
   setOtherIncentive: (otherIncentive) => set({ otherIncentive }),
 
-  projectIncentive: null,
-  setProjectIncentive: (projectIncentive) => set({ projectIncentive }),
+  incentive: null,
+  setIncentive: (incentive) => set({ incentive }),
 
-  formula: [],
+  formula: '',
   setFormula: (formula) => set({ formula }),
 
   value: 'Fixed',
@@ -227,6 +249,9 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
 
   currentItem: '',
   setCurrentItem: (currentItem) => set({ currentItem }),
+
+  isSwitchOn: false,
+  setIsSwitchOn: (isSwitchOn) => set({ isSwitchOn }),
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(

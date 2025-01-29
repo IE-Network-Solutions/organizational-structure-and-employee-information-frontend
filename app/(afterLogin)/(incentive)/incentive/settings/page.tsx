@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 
 const Settings = () => {
-  redirect('/incentive/settings/project');
+  redirect('/incentive/settings');
   return null;
 };
 
