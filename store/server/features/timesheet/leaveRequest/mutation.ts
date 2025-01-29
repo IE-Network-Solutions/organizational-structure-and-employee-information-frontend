@@ -2,6 +2,8 @@ import { LeaveRequest } from '@/types/timesheet/settings';
 import { crudRequest } from '@/utils/crudRequest';
 import {
   APPROVER_URL,
+  TIME_AND_ATTENDANCE_URL,
+  TNA_URL,
   ORG_AND_EMP_URL,
   TIME_AND_ATTENDANCE_URL,
 } from '@/utils/constants';
@@ -87,6 +89,25 @@ const setAllRejectLeaveRequest = async (data: AllLeaveRequestApproveData) => {
     data: roleId,
   });
 };
+const setAllApproveTnaRequest = async (data: AllLeaveRequestApproveData) => {
+  const roleId = { roleId: data?.roleId };
+  return await crudRequest({
+    url: `${TNA_URL}/tna/tna-currentApproved/${data?.userId}?page=${data?.page}&limit=${data?.limit}`,
+    method: 'POST',
+    headers: requestHeader(),
+    data: roleId,
+  });
+};
+const setAllRejectTnaRequest = async (data: AllLeaveRequestApproveData) => {
+  const roleId = { roleId: data?.roleId };
+  return await crudRequest({
+    url: `${TNA_URL}/tna/tna-currentRejected/${data?.userId}?page=${data?.page}&limit=${data?.limit}`,
+    method: 'POST',
+    headers: requestHeader(),
+    data: roleId,
+  });
+};
+
 const setAllFinalApproveLeaveRequest = async (data: any) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/allEscalate`,
@@ -140,6 +161,11 @@ export const useSetApproveLeaveRequest = () => {
       queryClient.invalidateQueries(['transferApprovalRequest']);
       queryClient.invalidateQueries(['myTansferRequest']);
       queryClient.invalidateQueries(['transferRequest']);
+      queryClient.invalidateQueries([
+        'tna-current_approval',
+        data?.approvedUserId,
+      ]);
+      queryClient.invalidateQueries(['tna']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -191,6 +217,28 @@ export const useSetRejectLeaveRequest = () => {
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
+  });
+};
+
+export const useSetAllApproveTnaRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(setAllApproveTnaRequest, {
+    onSuccess: (data, variables: any) => {
+      queryClient.invalidateQueries(['tna-current_approval', data?.userId]);
+      queryClient.invalidateQueries(['tna']);
+
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+export const useSetRejectTnaRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(setAllRejectTnaRequest, {
+    onSuccess: (data, variables: any) => {
+      queryClient.invalidateQueries(['tna-current_approval', data?.userId]);
+      queryClient.invalidateQueries(['tna']);
+         },
   });
 };
 export const useSetAllFinalApproveLeaveRequest = () => {
