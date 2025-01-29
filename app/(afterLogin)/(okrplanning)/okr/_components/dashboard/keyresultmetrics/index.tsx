@@ -127,7 +127,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
                     )?.length || 0
                   : keyResult?.metricType?.name === 'Achieve'
                     ? keyResult?.progress
-                    : keyResult?.currentValue || 0}
+                    : Number(keyResult?.currentValue)?.toLocaleString() || 0}
               </div>
               <div className="flex items-center gap-1">
                 <div className="text-blue text-xl">&#x2022;</div>
@@ -143,7 +143,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
                   ? keyResult?.milestones?.length || 0
                   : keyResult?.metricType?.name === 'Achieve'
                     ? '100'
-                    : keyResult?.targetValue || 0}
+                    : Number(keyResult?.targetValue)?.toLocaleString() || 0}
               </div>
               <div className="flex items-center gap-1">
                 <div className="text-blue text-xl">&#x2022;</div>

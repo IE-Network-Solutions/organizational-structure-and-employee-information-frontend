@@ -23,6 +23,7 @@ import {
   AllPlanningPeriods,
   useGetPlanning,
   useGetPlanningPeriodsHierarchy,
+  useGetUserPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { IoCheckmarkSharp } from 'react-icons/io5';
@@ -53,6 +54,7 @@ function Planning() {
     setEditing,
     page,
     setPage,
+    activeTab,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
@@ -71,8 +73,11 @@ function Planning() {
     planPeriodId: planningPeriodId ?? '', // Provide a default string value
     page,
   });
+  const { data: allUserPlanning } = useGetUserPlanning(
+    planningPeriodId ?? '',
+    activeTab.toString(),
+  );
 
-  // console.log(allPlanning?.items,"allPlanning")
   const transformedData = groupPlanTasksByKeyResultAndMilestone(
     allPlanning?.items,
   );
@@ -93,7 +98,6 @@ function Planning() {
 
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
-
   const actionsMenu = (
     dataItem: any,
     handleApproveHandler: any,
@@ -183,9 +187,8 @@ function Planning() {
           <Title level={5}>Planning</Title>
           <Tooltip
             title={
-              transformedData?.[0]?.isReported == false ||
-              transformedData?.length !== 0
-                ? 'Report planned tasks before'
+              allUserPlanning?.length != 0
+                ? `Report planned tasks before you create ${activeTabName} plan`
                 : objective?.items?.length === 0
                   ? 'Create Objective before you Plan'
                   : planningPeriodHierarchy?.parentPlan?.plans?.length == 0
@@ -196,13 +199,10 @@ function Planning() {
             <div style={{ display: 'inline-block' }}>
               <CustomButton
                 disabled={
-                  !(
-                    selectedUser.includes(userId) &&
-                    ((transformedData?.[0]?.isReported ?? false) ||
-                      transformedData?.length === 0) &&
-                    planningPeriodHierarchy?.parentPlan?.plans?.length != 0 &&
-                    objective?.items?.length != 0
-                  )
+                  // selectedUser.includes(userId) &&
+                  allUserPlanning?.length > 0 ||
+                  planningPeriodHierarchy?.parentPlan?.plans?.length == 0 ||
+                  objective?.items?.length == 0
                 }
                 loading={isLoading}
                 title={`Create ${activeTabName} Plan`}
