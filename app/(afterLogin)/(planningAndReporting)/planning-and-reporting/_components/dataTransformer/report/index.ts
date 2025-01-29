@@ -1,6 +1,6 @@
 export const groupTasksByKeyResultAndMilestone = (reportTasks: any) => {
   const keyResultMap = reportTasks?.reduce((acc: any, task: any) => {
-    const keyResultId = task.planTask.keyResultId;
+    const keyResultId = task?.planTask?.keyResultId;
     // Initialize the keyResult entry if it doesn't exist
     if (!acc[keyResultId]) {
       acc[keyResultId] = {
@@ -17,11 +17,15 @@ export const groupTasksByKeyResultAndMilestone = (reportTasks: any) => {
       taskName: task.planTask.task,
       priority: task.planTask.priority,
       status: task.status,
-      actualValue: task.actualValue,
-      isAchived: task.isAchived,
+      actualValue: task.actualValue || 0,
+      targetValue: task?.planTask?.targetValue || 0,
+      keyResult: task?.planTask?.keyResult,
+      isAchieved: task.isAchieved,
       achieveMK: task?.planTask?.achieveMK,
       milestone: task.planTask?.milestone,
       customReason: task.customReason,
+      weight: task?.weight,
+      weightPlan: task?.planTask?.weight,
     };
 
     // If milestone is null or undefined, push task directly to the tasks array
@@ -76,6 +80,10 @@ export const groupUnReportedTasksByKeyResultAndMilestone = (
       targetValue: task?.targetValue || 0,
       achieveMK: task?.planTask?.achieveMK,
       milestone: task.planTask?.milestone,
+      keyResult: task?.planTask?.keyResult,
+      isAchieved: task.isAchieved,
+      weight: task?.weight,
+      weightPlan: task?.planTask?.weight,
     };
 
     // If milestone is null or undefined, push task directly to the tasks array

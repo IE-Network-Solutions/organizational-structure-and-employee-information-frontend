@@ -214,6 +214,9 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   className="w-full text-xs"
                   prefix={<CiDollar size={20} />}
                   value={keyItem.initialValue}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  }
                   onChange={(value) =>
                     updateKeyResult(index, 'initialValue', value)
                   }
@@ -242,6 +245,9 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   className="w-full text-xs"
                   prefix={<CiDollar size={20} />}
                   value={keyItem.targetValue}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  }
                   onChange={(value) =>
                     updateKeyResult(index, 'targetValue', value)
                   }

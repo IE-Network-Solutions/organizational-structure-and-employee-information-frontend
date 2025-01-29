@@ -1,6 +1,10 @@
 import { LeaveRequest } from '@/types/timesheet/settings';
 import { crudRequest } from '@/utils/crudRequest';
-import { APPROVER_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import {
+  APPROVER_URL,
+  ORG_AND_EMP_URL,
+  TIME_AND_ATTENDANCE_URL,
+} from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { requestHeader } from '@/helpers/requestHeader';
@@ -43,8 +47,24 @@ const setStatusToLeaveRequest = async (data: LeaveRequestStatusBody) => {
 };
 const setApproveLeaveRequest = async (data: any) => {
   return await crudRequest({
-    url: `${APPROVER_URL}/approval-logs`,
+    url: `${APPROVER_URL}/approver/approvalLog`,
     method: 'POST',
+    headers: requestHeader(),
+    data,
+  });
+};
+const setFinalApproveLeaveRequest = async (data: any) => {
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/escalate`,
+    method: 'POST',
+    headers: requestHeader(),
+    data,
+  });
+};
+const setFinalApproveBranchRequest = async (data: any) => {
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/branch-request/${data?.requestId}`,
+    method: 'PATCH',
     headers: requestHeader(),
     data,
   });
@@ -67,7 +87,14 @@ const setAllRejectLeaveRequest = async (data: AllLeaveRequestApproveData) => {
     data: roleId,
   });
 };
-
+const setAllFinalApproveLeaveRequest = async (data: any) => {
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/allEscalate`,
+    method: 'POST',
+    headers: requestHeader(),
+    data,
+  });
+};
 export const useSetLeaveRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setLeaveRequest, {
@@ -118,6 +145,26 @@ export const useSetApproveLeaveRequest = () => {
     },
   });
 };
+export const useSetFinalApproveLeaveRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(setFinalApproveLeaveRequest, {
+    onSuccess: (data, variables: any) => {
+      queryClient.invalidateQueries(['current_approval', data?.approvedUserId]);
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+export const useSetFinalApproveBranchRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(setFinalApproveBranchRequest, {
+    onSuccess: (data, variables: any) => {
+      queryClient.invalidateQueries(['current_approval', data?.approvedUserId]);
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
 export const useSetAllApproveLeaveRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllApproveLeaveRequest, {
@@ -141,6 +188,16 @@ export const useSetRejectLeaveRequest = () => {
       queryClient.invalidateQueries(['transferApprovalRequest']);
       queryClient.invalidateQueries(['myTansferRequest']);
       queryClient.invalidateQueries(['transferRequest']);
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+export const useSetAllFinalApproveLeaveRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(setAllFinalApproveLeaveRequest, {
+    onSuccess: (data, variables: any) => {
+      queryClient.invalidateQueries(['current_approval']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

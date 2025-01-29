@@ -4,6 +4,7 @@ import { IoCheckmarkSharp } from 'react-icons/io5';
 import { IoIosClose } from 'react-icons/io';
 import { FaStar } from 'react-icons/fa';
 import { MdKey } from 'react-icons/md';
+import { NAME } from '@/types/enumTypes';
 
 const { Text } = Typography;
 
@@ -17,6 +18,9 @@ type Task = {
   customReason: string;
   achieveMK: boolean;
   milestone: any;
+  keyResult: any;
+  weightPlan: number;
+  targetValue: number;
 };
 
 type Props = {
@@ -35,7 +39,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
           justify="space-between" // Only justifying the space between taskName and others
         >
           <Col className="flex gap-2">
-            {task?.status === 'Done' ? (
+            {task?.isAchieved ? (
               <div className="py-1 px-1 w-4 h-4 text-white flex items-center justify-center rounded-md bg-green-600">
                 <IoCheckmarkSharp size={14} />
               </div>
@@ -89,29 +93,46 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
             >
               {task?.priority || 'None'}
             </Tag>
+            {task?.keyResult?.metricType?.name !== NAME.MILESTONE &&
+              task?.keyResult?.metricType?.name !== NAME.ACHIEVE && (
+                <>
+                  <Text type="secondary" className="text-[10px] mr-2">
+                    <span className="text-xl" style={{ color: 'blue' }}>
+                      &bull;
+                    </span>{' '}
+                    Actual
+                  </Text>
+                  <Tag
+                    className="font-bold border-none w-16 text-center capitalize text-[10px]"
+                    color={'blue'}
+                  >
+                    {Number(task?.actualValue)?.toLocaleString() || 'None'}
+                  </Tag>
+                  <Text type="secondary" className="text-[10px] mr-2">
+                    <span className="text-xl" style={{ color: 'blue' }}>
+                      &bull;
+                    </span>
+                    Target
+                  </Text>
+                  <Tag
+                    className="font-bold border-none w-16 text-center capitalize text-[10px]"
+                    color={'blue'}
+                  >
+                    {Number(task?.targetValue)?.toLocaleString() || 'None'}
+                  </Tag>
+                </>
+              )}{' '}
             <Text type="secondary" className="text-[10px] mr-2">
               <span className="text-xl" style={{ color: 'blue' }}>
                 &bull;
-              </span>{' '}
-              Actual Value
-            </Text>
-            <Tag
-              className="font-bold border-none w-16 text-center capitalize text-[10px]"
-              color={'blue'}
-            >
-              {task?.actualValue || 'None'}
-            </Tag>
-            <Text type="secondary" className="text-[10px] mr-2">
-              <span className="text-xl" style={{ color: 'blue' }}>
-                &bull;
-              </span>{' '}
-              Target
+              </span>
+              Weight
             </Text>
             <Tag
               className="font-bold border-none w-10 text-center cap text-blue text-[10px]"
               color="#B2B2FF"
             >
-              {0}
+              {task?.weightPlan || 0}
             </Tag>
           </Col>
         </Row>
