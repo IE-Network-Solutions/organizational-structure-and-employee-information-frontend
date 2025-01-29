@@ -25,13 +25,8 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
 
 const TnaRequestSidebar = () => {
-  const {
-    isShowTnaReviewSidebar,
-    setIsShowTnaReviewSidebar,
-    tnaCategory,
-    tnaId,
-    setTnaId,
-  } = useTnaReviewStore();
+  const { isShowTnaReviewSidebar, setIsShowTnaReviewSidebar, tnaId, setTnaId } =
+    useTnaReviewStore();
   const { userId } = useAuthenticationStore();
 
   const { data: employeeData } = useGetEmployee(userId);

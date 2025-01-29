@@ -14,7 +14,6 @@ import ActionButton from '@/components/common/actionButton';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import TnaRequestSidebar from '@/app/(afterLogin)/(tna)/tna/review/_components/tnaRequestSidebar';
 import { useRouter } from 'next/navigation';
-import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
 import { useGetTna } from '@/store/server/features/tna/review/queries';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
