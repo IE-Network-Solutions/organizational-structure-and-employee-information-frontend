@@ -56,12 +56,10 @@ const BreakTypeSidebar = () => {
   const onFinish = (values: any) => {
     const { startAt, endAt, ...otherValues } = values;
     const formattedValues = {
-      item: {
-        ...otherValues,
-        ...(selectedBreakType ? { id: selectedBreakType.id } : {}),
-        startAt: startAt.format('HH:mm'),
-        endAt: endAt.format('HH:mm'),
-      },
+      ...otherValues,
+      ...(selectedBreakType ? { id: selectedBreakType.id } : {}),
+      startAt: startAt.format('HH:mm'),
+      endAt: endAt.format('HH:mm'),
     };
 
     if (selectedBreakType) {

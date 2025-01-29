@@ -13,10 +13,9 @@ const CriteriaContributionChart: React.FC<CriteriaContributionProps> = ({
   variablePay,
 }) => {
   const data = {
-    // labels: '',
     datasets: [
       {
-        data: variablePay?.map((item: any) => item?.actualScore),
+        data: variablePay?.map((item: any) => item?.actualScore.toFixed(2)),
         backgroundColor: [
           'rgba(47, 120, 238, 1)',
           'rgba(54, 54, 240, 1)',
