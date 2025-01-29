@@ -153,7 +153,7 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedFeedbackRecord: (selectedFeedbackRecord: FeedbackRecord | null) =>
     set({ selectedFeedbackRecord }),
 
-  activeTab: '',
+  activeTab: '1',
   setActiveTab: (activeTab: string) => set({ activeTab }),
 
   empId: '',

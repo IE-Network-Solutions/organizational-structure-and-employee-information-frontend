@@ -113,7 +113,6 @@ function CreateFeedback() {
           <Form.Item
             name="perspectiveId"
             label="Select Perspective"
-            rules={[{ required: true, message: 'Please select a department' }]}
           >
             <Select
               loading={getPerspectiveLoading}
