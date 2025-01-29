@@ -1,14 +1,18 @@
-'use client';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Button, Form, Popconfirm } from 'antd';
 import React from 'react';
 
 interface Props {
   isLoading?: boolean;
-  handleAllChange: (value: number) => void;
+  handleContinueClick: any;
+  handleBackClick: any;
 }
 
-const ButtonContinue: React.FC<Props> = ({ isLoading, handleAllChange }) => {
+const ButtonContinue: React.FC<Props> = ({
+  isLoading,
+  handleBackClick,
+  handleContinueClick,
+}) => {
   const { current } = useEmployeeManagementStore();
 
   return (
@@ -19,7 +23,7 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, handleAllChange }) => {
             name="cancelUserSidebarButton"
             id="cancelSidebarButtonId"
             className="px-6 py-3 text-xs font-bold"
-            onClick={() => handleAllChange(current - 1)}
+            onClick={handleBackClick}
           >
             Back
           </Button>
@@ -27,7 +31,7 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, handleAllChange }) => {
           <Popconfirm
             title="reset all you field"
             description="Are you sure to reset all fields value ?"
-            onConfirm={() => handleAllChange(current - 1)}
+            onConfirm={handleBackClick}
             okText="Yes"
             cancelText="No"
           >
@@ -39,7 +43,7 @@ const ButtonContinue: React.FC<Props> = ({ isLoading, handleAllChange }) => {
 
         <Button
           loading={isLoading}
-          onClick={() => handleAllChange(current + 1)}
+          onClick={handleContinueClick}
           id={
             current === 2
               ? `sidebarActionCreateSubmit${current}`

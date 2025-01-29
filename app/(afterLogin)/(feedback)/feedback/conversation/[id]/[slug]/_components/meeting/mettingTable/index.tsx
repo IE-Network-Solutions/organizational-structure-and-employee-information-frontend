@@ -14,11 +14,11 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import {
   useDeleteConversationInstancesById,
   useUpdateConversationInstancesById,
-} from '@/store/server/features/conversation/conversation-instance/mutations';
+} from '@/store/server/features/CFR/conversation/conversation-instance/mutations';
 import {
   useGetAllConversationInstancesById,
   useGetAllConversationInstancesByQuestionSetId,
-} from '@/store/server/features/conversation/conversation-instance/queries';
+} from '@/store/server/features/CFR/conversation/conversation-instance/queries';
 import { useRouter } from 'next/navigation';
 import EmployeeSearchComponent from '@/components/common/search/searchComponent';
 
@@ -45,14 +45,27 @@ const MettingDataTable = ({
     setDepartmentId,
     departmentId,
     searchField,
+    pageSize,
+    setPageSize,
+    page,
+    setPage,
     updateFieldOptions,
   } = ConversationStore();
   const [form] = Form.useForm();
   const router = useRouter();
 
   const { data: allUserData } = useGetAllUsers();
-  const { data: conversationInstances, refetch: refetchConversationInstances } =
-    useGetAllConversationInstancesByQuestionSetId(slug, userId, departmentId);
+  const {
+    data: conversationInstances,
+    isLoading: getInstanceLoading,
+    refetch: refetchConversationInstances,
+  } = useGetAllConversationInstancesByQuestionSetId(
+    slug,
+    userId,
+    departmentId,
+    page,
+    pageSize,
+  );
 
   // Fetch data for a single conversation instance
   const { data: singleConvestionInstance } =
@@ -146,7 +159,10 @@ const MettingDataTable = ({
           <Popconfirm
             title="Are you sure you want to delete this item?"
             description="This action cannot be undone."
-            onConfirm={() => handleDelete(record.id)}
+            onConfirm={(e: any) => {
+              e.stopPropagation();
+              handleDelete(record.id);
+            }}
             okText="Yes"
             cancelText="No"
           >
@@ -167,11 +183,11 @@ const MettingDataTable = ({
   const handleDelete = (key: string) => {
     deleteConversationInstance(key);
   };
-  const handleSearchChange = (value: any, key: string) => {
-    if (key === 'department') {
-      setDepartmentId(value);
-    } else if (key === 'employee') {
-      setUserId(value);
+  const handleSearchChange = (value: { key: string; value: any }) => {
+    if (value.key === 'department') {
+      setDepartmentId(value.value);
+    } else if (value.key === 'employee') {
+      setUserId(value.value);
     } else {
       return;
     }
@@ -240,12 +256,17 @@ const MettingDataTable = ({
       />
       <Table<any>
         columns={columns}
+        loading={getInstanceLoading}
         dataSource={conversationInstances?.items ?? []}
-        // onChange={onChange}
         pagination={{
           total: conversationInstances?.meta?.total ?? 0, // Total number of items
-          current: conversationInstances?.meta?.currentPage ?? 1, // Current page
-          pageSize: conversationInstances?.meta?.itemsPerPage ?? 10, // Items per page
+          current: page, // Current page
+          pageSize: pageSize, // Items per page
+          showSizeChanger: true, // Enable page size changer
+          onChange: (page, pageSize) => {
+            setPage(page); // Update current page
+            setPageSize(pageSize); // Update page size
+          },
         }}
         scroll={{ x: 800 }} // Enable horizontal scrolling
         className="cursor-pointer"

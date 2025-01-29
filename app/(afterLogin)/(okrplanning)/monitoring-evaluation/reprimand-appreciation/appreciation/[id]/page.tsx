@@ -9,6 +9,8 @@ import AppreciationEditDrawer from '../../_components/appreciation/appreciationE
 import { useAppreciationLogStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-log';
 import { useDeleteAppLog } from '@/store/server/features/okrplanning/monitoring-evaluation/appreciation-log/mutations';
 import { useRouter } from 'next/navigation';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface Params {
   id: string;
@@ -69,16 +71,22 @@ function DetailPage({ params: { id } }: AppreciationDetailProps) {
           ← Detail
         </Button>
         <div className="flex space-x-2">
-          <Button
-            className="bg-blue text-white border-none"
-            icon={<EditOutlined />}
-            onClick={() => handleEditModal()}
-          />
-          <Button
-            onClick={() => showDeleteModal(appDetail?.id || '')} // Pass key to delete handler
-            className="bg-red-500 text-white border-none"
-            icon={<DeleteOutlined />}
-          />
+          <AccessGuard permissions={[Permissions.EditAppreciationAndReprimand]}>
+            <Button
+              className="bg-blue text-white border-none"
+              icon={<EditOutlined />}
+              onClick={() => handleEditModal()}
+            />
+          </AccessGuard>
+          <AccessGuard
+            permissions={[Permissions.DeleteAppreciationAndReprimand]}
+          >
+            <Button
+              onClick={() => showDeleteModal(appDetail?.id || '')} // Pass key to delete handler
+              className="bg-red-500 text-white border-none"
+              icon={<DeleteOutlined />}
+            />
+          </AccessGuard>
         </div>
       </div>
 

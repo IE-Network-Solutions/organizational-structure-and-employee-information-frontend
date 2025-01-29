@@ -26,7 +26,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
-  const { setKeyResult } = useOKRStore();
+  const { setKeyResult, objectiveValue } = useOKRStore();
 
   const handleAddKeyResult = () => {
     form
@@ -111,7 +111,14 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
-                    return current && current < dayjs().startOf('day');
+                    const startOfToday = dayjs().startOf('day');
+                    const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
+
+                    // Disable dates before today and above the objective deadline
+                    return (
+                      current &&
+                      (current < startOfToday || current > objectiveDeadline)
+                    );
                   }}
                   onChange={(date) =>
                     updateKeyResult(
@@ -172,8 +179,8 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   },
                   {
                     validator: (form, value) =>
-                      value && value >= 0
-                        ? Promise.resolve()
+                      value >= 0
+                        ? Promise.resolve() // Accepts value 0 and any positive number
                         : Promise.reject(
                             new Error('Initial value must be non-negative'),
                           ),

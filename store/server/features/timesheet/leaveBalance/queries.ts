@@ -13,13 +13,28 @@ const getLeaveBalance = async (userId: string) => {
     params: { userId },
   });
 };
+const getAllLeaveBalance = async () => {
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-balance/all`,
+    method: 'GET',
+    headers: requestHeader(),
+    // params: { userId },
+  });
+};
 
-export const useGetLeaveBalance = (userId: string) => {
-  return useQuery<ApiResponse<LeaveBalance>>(
-    'leave-balance',
+export const useGetLeaveBalance = (userId: string) =>
+  useQuery<ApiResponse<LeaveBalance>>(
+    ['leave-balance', userId],
     () => getLeaveBalance(userId),
     {
-      keepPreviousData: true,
+      enabled: !!userId,
     },
   );
-};
+export const useGetAllLeaveBalance = () =>
+  useQuery<ApiResponse<LeaveBalance>>(
+    ['leave-balance'],
+    () => getAllLeaveBalance(),
+    {
+      // enabled: !!userId,
+    },
+  );

@@ -1,7 +1,16 @@
 'use client';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import React, { useEffect } from 'react';
-import { Button, DatePicker, Form, Input, Row, Col, Select } from 'antd';
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Row,
+  Col,
+  Select,
+  Checkbox,
+} from 'antd';
 import { GoPlus } from 'react-icons/go';
 import KeyResultForm from '../keyresultForm';
 import KeyResultView from '../keyresultView';
@@ -29,6 +38,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     updateKeyResult,
     removeKeyResult,
     addKeyResultValue,
+    setAlignment,
+    alignment,
   } = useOKRStore();
 
   const [form] = Form.useForm();
@@ -45,17 +56,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const reportsToId = userData?.reportingTo?.id;
 
   const { data: keyResultByUser } = useGetUserKeyResult(reportsToId);
-  const objectiveTitle = keyResultByUser?.items?.find(
-    (i: any) => i.id === objectiveValue?.allignedKeyResultId,
-  )?.title;
-  const handleObjectiveChange = (value: any, field: string) => {
-    const newObjectiveName = value;
-    setObjectiveValue({
-      ...objectiveValue,
-      userId: userId,
-      [field]: newObjectiveName,
-    });
-  };
+  const objectiveTitle = objectiveValue?.title
+    ? objectiveValue?.title
+    : keyResultByUser?.items?.find(
+        (i: any) => i.id === objectiveValue?.allignedKeyResultId,
+      )?.title;
+
   useEffect(() => {
     setObjectiveValue({
       ...objectiveValue,
@@ -67,7 +73,25 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     setObjectiveValue(defaultObjective); // Reset the objective state
     props?.onClose(); // Close the drawer
   };
+  const handleAlignment = () => {
+    const updatedAlignment = !alignment;
+    setAlignment(updatedAlignment);
 
+    if (!updatedAlignment) {
+      setObjectiveValue({
+        ...objectiveValue,
+        allignedKeyResultId: null,
+      });
+    }
+  };
+  const handleObjectiveChange = (value: any, field: string) => {
+    const newObjectiveName = value;
+    setObjectiveValue({
+      ...objectiveValue,
+      userId: userId,
+      [field]: newObjectiveName,
+    });
+  };
   const onSubmit = () => {
     form
       .validateFields()
@@ -128,9 +152,15 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               }
             }
           }
-
+          const modifiedObjectiveValue = { ...objectiveValue };
+          if (
+            modifiedObjectiveValue?.allignedKeyResultId === '' ||
+            modifiedObjectiveValue?.allignedKeyResultId === null
+          ) {
+            delete modifiedObjectiveValue.allignedKeyResultId;
+          }
           // If all checks pass, proceed with the objective creation
-          createObjective(objectiveValue, {
+          createObjective(modifiedObjectiveValue, {
             onSuccess: () => {
               handleDrawerClose();
             },
@@ -154,7 +184,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     }
   }, [objectiveValue, form]);
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div className="w-full flex justify-center items-center gap-4 pt-2">
       <CustomButton
         id="cancel-button"
         type="default"
@@ -178,6 +208,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       modalHeader={modalHeader}
       footer={footer}
       width={'50%'}
+      paddingBottom={10}
     >
       <Form
         id="okr-form"
@@ -185,70 +216,50 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         layout="vertical"
         initialValues={objectiveValue}
       >
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={16}>
-            {keyResultByUser?.items?.length ? (
-              <Form.Item
-                id="alignment-select"
-                className="font-bold text-xs w-full mb-2"
-                name="allignedKeyResultId"
-                label="Objective/Alignment"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter the Objective name',
-                  },
-                ]}
+        <Checkbox checked={alignment} onChange={() => handleAlignment()}>
+          Change Objective Name
+        </Checkbox>
+        <Row gutter={[16, 16]} className="w-full">
+          {/* Objective/Alignment */}
+          <Col xs={24} sm={12} md={16}>
+            <Form.Item
+              id="alignment-select"
+              className="font-bold text-xs w-full mb-2"
+              name="allignedKeyResultId"
+              label="Supervisor Key Result"
+              rules={[
+                {
+                  required: !reportsToId ? true : false,
+                  message: 'Please enter the Objective name',
+                },
+              ]}
+            >
+              <Select
+                id="alignment-select-dropdown"
+                showSearch
+                placeholder="Search and select a Key Result"
+                value={objectiveValue?.allignedKeyResultId}
+                onChange={
+                  (value) => handleObjectiveChange(value, 'allignedKeyResultId') // Pass the value (id) as alignment ID
+                }
+                filterOption={(input: string, option: any) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
+                }
               >
-                {/* Search and select a key result by user */}
-                <Select
-                  id="alignment-select-dropdown"
-                  showSearch
-                  placeholder="Search and select a Key Result"
-                  value={objectiveValue?.title || ''}
-                  onChange={
-                    (value, option) =>
-                      handleObjectiveChange(option?.key, 'allignedKeyResultId') // Update the alignment ID with the selected key
-                  }
-                  filterOption={(input: any, option: any) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                >
-                  {keyResultByUser?.items.map((keyResult) => (
-                    <Select.Option key={keyResult.id} value={keyResult.title}>
-                      {keyResult.title}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            ) : (
-              <Form.Item
-                id="title-input"
-                className="font-bold text-xs w-full mb-2"
-                name="title"
-                label="Objective/Alignment"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter the Objective name',
-                  },
-                ]}
-              >
-                <Input
-                  id="title-input-field"
-                  allowClear
-                  value={objectiveValue?.title || ''}
-                  onChange={(e) => {
-                    handleObjectiveChange(e.target.value, 'title');
-                  }}
-                />
-              </Form.Item>
-            )}
+                {keyResultByUser?.items.map((keyResult) => (
+                  <Select.Option key={keyResult.id} value={keyResult.id}>
+                    {keyResult.title}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
           </Col>
-          <Col xs={24} sm={8}>
+
+          {/* Objective Deadline */}
+          <Col xs={24} sm={12} md={8}>
             <Form.Item
               id="deadline-picker"
-              className="font-bold text-xs w-full"
+              className="font-bold text-xs w-full mb-2"
               name="ObjectiveDeadline"
               label="Objective Deadline"
               rules={[{ required: true, message: 'Please select a deadline' }]}
@@ -265,12 +276,39 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 }}
                 className="w-full"
                 format="YYYY-MM-DD"
-                disabledDate={(current) => {
-                  return current && current < dayjs().startOf('day');
-                }}
+                disabledDate={(current) =>
+                  current && current < dayjs().startOf('day')
+                }
               />
             </Form.Item>
           </Col>
+
+          {/* Supervisor Key Result (Visible Only When Alignment is True) */}
+          {!alignment && (
+            <Col xs={24} sm={24} md={16}>
+              <Form.Item
+                id="title-input"
+                className="font-bold text-xs w-full"
+                name="title"
+                label="Objective Title"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please enter the Objective name',
+                  },
+                ]}
+              >
+                <Input
+                  id="title-input-field"
+                  allowClear
+                  value={objectiveValue?.title || ''}
+                  onChange={(e) => {
+                    handleObjectiveChange(e.target.value, 'title');
+                  }}
+                />
+              </Form.Item>
+            </Col>
+          )}
         </Row>
 
         <div className="border border-gray-300 rounded-lg p-4 mt-5 ">

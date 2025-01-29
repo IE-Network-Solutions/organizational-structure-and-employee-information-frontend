@@ -9,6 +9,8 @@ import CardList from '../card-list';
 import { useGetBirthDay } from '@/store/server/features/dashboard/birthday/queries';
 import { useGetWorkAnniversary } from '@/store/server/features/dashboard/work-anniversary/queries';
 import { MdKey } from 'react-icons/md';
+import PermissionWraper from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
 
 const Header = () => {
@@ -18,8 +20,10 @@ const Header = () => {
   const { data: birthDays, isLoading: birthdayLoading } = useGetBirthDay();
   const { data: workAnniversary, isLoading: workLoading } =
     useGetWorkAnniversary();
-  const {data: allPlanningPeriods} = useGetAllPlanningPeriods();
-  const planningPeriod = allPlanningPeriods?.items?.find((planningPeriod) => (planningPeriod.name == 'Weekly'));
+  const { data: allPlanningPeriods } = useGetAllPlanningPeriods();
+  const planningPeriod = allPlanningPeriods?.items?.find(
+    (planningPeriod) => planningPeriod.name == 'Weekly',
+  );
 
   return (
     <>
@@ -41,7 +45,7 @@ const Header = () => {
           <div className="flex flex-col">
             <div className="">
               <div className="text-2xl font-bold ">
-                {objectiveDashboard?.userOkr || 0} %
+                {Number(objectiveDashboard?.userOkr).toLocaleString() || 0} %
               </div>
             </div>
 
@@ -75,7 +79,9 @@ const Header = () => {
           <div className="flex flex-col">
             <div className="">
               <div className="text-2xl font-bold ">
-                {objectiveDashboard?.supervisorOkr || 0} %
+                {Number(objectiveDashboard?.supervisorOkr).toLocaleString() ||
+                  0}{' '}
+                %
               </div>
             </div>
 
@@ -93,40 +99,34 @@ const Header = () => {
             </div>
           </div> */}
         </Card>
-        <Card
-          loading={isLoading}
-          className="rounded-lg min-w-[300px] bg-white  relative p-2"
-          bordered={false}
-          bodyStyle={{ padding: '10px' }}
-        >
-          <div className="flex items-center justify-between">
-            <div className="bg-gray-100 rounded-md">
-              <GoGoal size={12} className="text-[#7152F3] w-8 h-8 p-2" />
-            </div>
-            {/* <div className=" text-green-500 text-xs font-bold">12.7 ↑</div> */}
-          </div>
-
-          <div className="flex flex-col">
-            <div className="">
-              <div className="text-2xl font-bold ">
-                {objectiveDashboard?.companyOkr || 0} %
+        <PermissionWraper permissions={[Permissions.ViewCompanyOkr]}>
+          <Card
+            loading={isLoading}
+            className="rounded-lg min-w-[300px] bg-white  relative p-2"
+            bordered={false}
+            bodyStyle={{ padding: '10px' }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="bg-gray-100 rounded-md">
+                <GoGoal size={12} className="text-[#7152F3] w-8 h-8 p-2" />
               </div>
             </div>
 
-            <div className="text-gray-500  w-full text-start text-xs">
-              Company OKR score
-            </div>
-          </div>
+            <div className="flex flex-col">
+              <div className="">
+                <div className="text-2xl font-bold ">
+                  {Number(objectiveDashboard?.companyOkr)?.toLocaleString() ||
+                    0}{' '}
+                  %
+                </div>
+              </div>
 
-          {/* <div className="text-gray-500  w-full text-start text-xs">
-            Total Planned
-          </div>
-          <div className="flex justify-end">
-            <div className="bg-light_purple text-purple px-4 py-1  rounded-lg min-w-28">
-              {item.label}
+              <div className="text-gray-500  w-full text-start text-xs">
+                Company OKR score
+              </div>
             </div>
-          </div> */}
-        </Card>
+          </Card>
+        </PermissionWraper>
         <Card
           loading={isLoading}
           className="rounded-lg shadow-lg min-w-[300px] bg-light_purple text-center relative p-2"

@@ -48,7 +48,7 @@ const DocumentUploadForm = () => {
             name="documentName"
             id="documentNameId"
             rules={[
-              { required: true, message: 'Please choose the document type' },
+              { required: false, message: 'Please choose the document type' },
             ]}
           >
             <Dragger

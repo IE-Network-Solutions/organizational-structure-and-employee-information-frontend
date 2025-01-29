@@ -79,7 +79,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         </div>
         <Avatar size={24} icon={<UserOutlined />} />
         <div className="flex-1">
-          <div className="text-xs text-gray-900">
+          <div className="text-xs text-gray-900 flex gap-2">
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
           </div>
@@ -170,12 +170,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       render: (text: string) => <div>{text}</div>,
     },
     {
-      title: 'Approval Status',
-      dataIndex: 'approvalStatus',
-      key: 'approvalStatus',
-      render: () => <div>-</div>,
-    },
-    {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
@@ -213,7 +207,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           status: item,
           totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
           overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,
-          approvalStatus: item,
           action: item,
         };
       });

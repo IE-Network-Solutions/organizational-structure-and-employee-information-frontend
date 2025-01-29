@@ -11,9 +11,9 @@ import OffboardingTask from './_components/offboarding';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import OffboardingFormControl from './_components/offboarding/_components/offboardingFormControl';
 import { useFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
-import { useRouter } from 'next/navigation';
-import { PermissionWrapper } from '@/utils/permissionGuard';
+import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useRouter } from 'next/navigation';
 
 interface Params {
   id: string;
@@ -67,16 +67,20 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   return (
     <div className="bg-[#F5F5F5] px-2 h-auto min-h-screen">
       <div className="flex gap-2 items-center mb-4">
-        <MdKeyboardArrowLeft
-          className="text-lg sm:text-2xl"
+        <Button
+          value={'back'}
+          name="back"
           onClick={handleGoBack}
-        />
+          className="border-none bg-transparent p-0"
+        >
+          <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
+        </Button>
         <h4 className="text-base sm:text-lg md:text-xl">Detail Employee</h4>
       </div>
       <Row gutter={[16, 24]}>
         <Col lg={8} md={10} xs={24}>
           <BasicInfo id={id} />
-          <PermissionWrapper permissions={[Permissions.UpdateEmployeeDetails]}>
+          <AccessGuard permissions={[Permissions.EndEmployment]}>
             <div className="flex gap-3">
               <div>
                 <Button
@@ -91,7 +95,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
                 </Button>
               </div>
             </div>
-          </PermissionWrapper>
+          </AccessGuard>
         </Col>
         <Col lg={16} md={14} xs={24}>
           <Card>

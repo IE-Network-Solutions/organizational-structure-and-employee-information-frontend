@@ -2,10 +2,14 @@
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { useAuthenticationStore } from '../authentication';
+type MkAsATask = {
+  title: string | null;
+  mid: string | null;
+};
 
 export interface PlanningAndReporting {
-  mkAsATask: string | null;
-  setMKAsATask: (mkAsATask: string | null) => void;
+  mkAsATask: MkAsATask | null;
+  setMKAsATask: (mkAsATask: MkAsATask | null) => void;
 
   newComment: string;
   setNewComment: (newComment: string) => void;
@@ -17,8 +21,10 @@ export interface PlanningAndReporting {
   setOpen: (open: boolean) => void;
   openReportModal: boolean;
   setOpenReportModal: (open: boolean) => void;
+
   isEditing: boolean;
   setEditing: (open: boolean) => void;
+
   activeTab: number;
   setActiveTab: (activeTab: number) => void;
 
@@ -35,10 +41,16 @@ export interface PlanningAndReporting {
   resetWeights: () => void;
 
   selectedStatuses: Record<string, string | undefined>; // Map task IDs to their statuses
-  setStatus: (taskId: string, status: string) => void; // Function to update status
+  setStatus: (taskId: string, status: any) => void; // Function to update status
+
+  page: number; // Map task IDs to their statuses
+  setPage: (page: number) => void; // Function to update status
 
   selectedPlanId: string;
   setSelectedPlanId: (selectedPlanId: string) => void;
+
+  selectedReportId: string;
+  setSelectedReportId: (selectedReportId: string) => void;
 }
 const userId = useAuthenticationStore.getState().userId;
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
@@ -50,7 +62,7 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     setViewComment: (viewComment: boolean) => set({ viewComment }),
 
     mkAsATask: null,
-    setMKAsATask: (mkAsATask: string | null) => set({ mkAsATask }),
+    setMKAsATask: (mkAsATask: MkAsATask | null) => set({ mkAsATask }),
 
     open: false,
     setOpen: (open: boolean) => set({ open }),
@@ -73,6 +85,10 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     selectedPlanId: '',
     setSelectedPlanId: (selectedPlanId: string) => set({ selectedPlanId }),
 
+    selectedReportId: '',
+    setSelectedReportId: (selectedReportId: string) =>
+      set({ selectedReportId }),
+
     activePlanPeriod: 1,
     setActivePlanPeriod: (activePlanPeriod: number) =>
       set({ activePlanPeriod }),
@@ -81,6 +97,9 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     setSelectedUser: (selectedUser: string[]) => set({ selectedUser }),
     weights: {},
     totalWeight: 0,
+
+    page: 1, // Map task IDs to their statuses
+    setPage: (page: number) => set({ page }), // Function to update status
 
     setWeight: (key, weight) =>
       set((state) => {

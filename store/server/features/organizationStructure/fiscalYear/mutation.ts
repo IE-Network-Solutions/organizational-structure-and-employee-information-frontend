@@ -5,6 +5,7 @@ import { ClosedDates, FiscalYear } from './interface';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -13,7 +14,7 @@ const headers = {
   Authorization: `Bearer ${token}`,
 };
 
-const createFiscalYear = async (fiscalYear: FiscalYear) => {
+const createFiscalYear = async (fiscalYear: any) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars`,
     method: 'POST',
@@ -25,7 +26,7 @@ const createFiscalYear = async (fiscalYear: FiscalYear) => {
 const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
-    method: 'PATCH',
+    method: 'PUT',
     data: fiscalYear,
     headers,
   });
@@ -46,7 +47,10 @@ export const useCreateFiscalYear = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
       closeFiscalYearDrawer();
-      handleSuccessMessage('PUT');
+      NotificationMessage.success({
+        message: 'Fiscal year created successfully!',
+        description: 'Fiscal year has been successfully created',
+      });
     },
   });
 };
@@ -55,7 +59,7 @@ export const useUpdateFiscalYear = () => {
   const { closeFiscalYearDrawer } = useFiscalYearDrawerStore();
   const queryClient = useQueryClient();
   return useMutation(
-    (data: { id: string; fiscalYear: FiscalYear }) =>
+    (data: { id: string; fiscalYear: any }) =>
       updateFiscalYear(data.id, data.fiscalYear),
     {
       onSuccess: (variables: any) => {
@@ -86,7 +90,7 @@ const updateClosedDate = async (
 ) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${fiscalYearId}`,
-    method: 'PATCH',
+    method: 'PUT',
     data: { closedDates },
     headers,
   });

@@ -8,6 +8,8 @@ import { FaRegFile } from 'react-icons/fa6';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
 import { useDeleteCourseManagement } from '@/store/server/features/tna/management/mutation';
 import { useRouter } from 'next/navigation';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface CourseCardProps {
   item: Course;
@@ -71,16 +73,20 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
         />
       </Card>
       <div className="action-buttons mt-2 flex gap-2">
-        <ActionButton
-          id={item?.id ?? null}
-          onEdit={() => {
-            setCourseId(item?.id);
-            setIsShowCourseSidebar(true);
-          }}
-          onDelete={() => {
-            deleteCourse([item?.id]);
-          }}
-        />
+        <AccessGuard
+          permissions={[Permissions.UpdateCourse, Permissions.DeleteCourse]}
+        >
+          <ActionButton
+            id={item?.id ?? null}
+            onEdit={() => {
+              setCourseId(item?.id);
+              setIsShowCourseSidebar(true);
+            }}
+            onDelete={() => {
+              deleteCourse([item?.id]);
+            }}
+          />
+        </AccessGuard>
       </div>
     </Spin>
   );
