@@ -41,7 +41,7 @@ export interface PlanningAndReporting {
   resetWeights: () => void;
 
   selectedStatuses: Record<string, string | undefined>; // Map task IDs to their statuses
-  setStatus: (taskId: string, status: string) => void; // Function to update status
+  setStatus: (taskId: string, status: any) => void; // Function to update status
 
   page: number; // Map task IDs to their statuses
   setPage: (page: number) => void; // Function to update status

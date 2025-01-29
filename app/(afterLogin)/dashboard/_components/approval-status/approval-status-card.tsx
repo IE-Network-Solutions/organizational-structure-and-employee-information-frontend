@@ -2,7 +2,11 @@
 import { FC } from 'react';
 import { Button, Input, Popconfirm } from 'antd';
 import { useApprovalStore } from '@/store/uistate/features/approval';
-import { useSetApproveLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
+import {
+  useSetApproveLeaveRequest,
+  useSetFinalApproveBranchRequest,
+  useSetFinalApproveLeaveRequest,
+} from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import Image from 'next/image';
@@ -38,15 +42,28 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
 }) => {
   const { rejectComment, setRejectComment } = useApprovalStore();
   const { mutate: editApprover } = useSetApproveLeaveRequest();
+  const { mutate: finalLeaveApprover } = useSetFinalApproveLeaveRequest();
+  const { mutate: finalBranchApprover } = useSetFinalApproveBranchRequest();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
   const userRollId = useAuthenticationStore.getState().userData.roleId;
   const { data: employeeData } = useGetEmployee(approveRequesterId);
-
+  const finalLeaveApproval: any = (e: {
+    leaveRequestId: string;
+    status: string;
+  }) => {
+    finalLeaveApprover(e);
+  };
+  const finalBranchApproval: any = (e: {
+    requestId: string;
+    status: string;
+  }) => {
+    finalBranchApprover(e);
+  };
   const reject: any = (e: {
     approvalWorkflowId: any;
     stepOrder: any;
-    requestId: any;
+    requestId: string;
     approvedUserId: string;
     approverRoleId: any;
     action: string;
@@ -56,19 +73,46 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
     editApprover(e, {
       onSuccess: () => {
         setRejectComment('');
+        if (requestType == 'Leave') {
+          finalLeaveApproval({
+            leaveRequestId: e.requestId,
+            status: 'declined',
+          });
+        } else if (requestType == 'BranchTransfer') {
+          finalBranchApproval({
+            requestId: e.requestId,
+            status: 'declined',
+          });
+        }
       },
     });
   };
   const confirm: any = (e: {
     approvalWorkflowId: any;
     stepOrder: any;
-    requestId: any;
+    requestId: string;
     approvedUserId: string;
     approverRoleId: any;
     action: string;
     tenantId: string;
   }) => {
-    editApprover(e);
+    editApprover(e, {
+      onSuccess: (data) => {
+        if (data?.last == true) {
+          if (requestType == 'Leave') {
+            finalLeaveApproval({
+              leaveRequestId: e.requestId,
+              status: 'approved',
+            });
+          } else if (requestType == 'BranchTransfer') {
+            finalLeaveApproval({
+              leaveRequestId: e.requestId,
+              status: 'approved',
+            });
+          }
+        }
+      },
+    });
   };
 
   const cancel: any = () => {};

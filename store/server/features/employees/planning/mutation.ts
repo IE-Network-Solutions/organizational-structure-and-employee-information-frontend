@@ -31,6 +31,7 @@ export const useCreatePlanTasks = () => {
   return useMutation(createPlanTasks, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrReports');
       NotificationMessage.success({
         message: 'Successfully Created ',
         description: ' ',
