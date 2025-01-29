@@ -2,7 +2,6 @@ import React from 'react';
 import { Row, Col, Typography, Tag } from 'antd';
 import { MdKey } from 'react-icons/md';
 import { FaStar } from 'react-icons/fa';
-import { NAME } from '@/types/enumTypes';
 
 const { Text } = Typography;
 
@@ -29,55 +28,51 @@ const TaskRow = ({
   <Row
     align="middle"
     justify="space-between"
-    className={`w-full px-2 py-1 ${parent ? 'ml-8' : 'ml-4'}`}
+    className={`w-full ${parent ? 'ml-8 mb-1' : 'ml-8 mb-1'}`}
   >
-    {/* Task Name & Icon */}
-    <Col span={12} className="flex items-center space-x-2">
-      <Text className="text-xs flex items-center gap-1 font-medium">
+    <Col>
+      <Text className="text-xs flex items-center gap-1">
         {`${milestoneIndex !== undefined ? milestoneIndex + 1 + '.' : ''}${
           taskIndex + 1
         } ${task?.task}`}
-      </Text>
-      {task?.achieveMK &&
-        (keyResult?.metricType?.name === 'Milestone' ? (
-          <FaStar size={11} />
+        {task?.achieveMK ? (
+          keyResult?.metricType?.name === 'Milestone' ? (
+            <FaStar size={11} />
+          ) : (
+            <MdKey size={12} />
+          )
         ) : (
-          <MdKey size={12} />
-        ))}
+          ''
+        )}
+      </Text>
     </Col>
-
-    {/* Task Details */}
-    <Col span={12} className="flex justify-end items-center space-x-3">
+    <Col>
       {/* Priority Section */}
-      <div className="flex items-center space-x-1">
-        <Text type="secondary" className="text-[10px]">
-          <span className="text-xl text-blue">&bull;</span> Priority:
-        </Text>
-        <Tag
-          className="font-bold border-none w-16 text-center capitalize text-[10px]"
-          color={getPriorityColor(task?.priority)}
-        >
-          {task?.priority || 'None'}
-        </Tag>
-      </div>
+      <Text type="secondary" className="text-[10px] mr-2">
+        <span className="text-xl text-blue">&bull;</span> Priority
+      </Text>
+      <Tag
+        className="font-bold border-none w-16 text-center capitalize text-[10px]"
+        color={getPriorityColor(task?.priority)}
+      >
+        {task?.priority || 'None'}
+      </Tag>
 
       {/* Weight Section */}
-      <div className="flex items-center space-x-1">
-        <Text type="secondary" className="text-[10px]">
-          <span className="text-xl text-blue">&bull;</span> Weight:
-        </Text>
-        <Tag
-          className="font-bold border-none w-12 text-center text-blue text-[10px]"
-          color="#B2B2FF"
-        >
-          {task?.weight || 0}
-        </Tag>
-      </div>
+      <Text type="secondary" className="text-[10px] mr-2">
+        <span className="text-xl text-blue">&bull;</span> Weight:
+      </Text>
+      <Tag
+        className="font-bold border-none w-16 text-center text-blue text-[10px]"
+        color="#B2B2FF"
+      >
+        {task?.weight || 0}
+      </Tag>
 
-      {/* Target Section (if applicable) */}
+      {/* Target Section */}
       {keyResult?.metricType?.name !== 'Milestone' &&
         keyResult?.metricType?.name !== 'Achieve' && (
-          <div className="flex items-center space-x-1">
+          <>
             <Text type="secondary" className="text-[10px]">
               <span className="text-xl text-blue">&bull;</span> Target:
             </Text>
@@ -85,10 +80,9 @@ const TaskRow = ({
               className="font-bold border-none w-16 text-center text-blue text-[10px]"
               color="#B2B2FF"
             >
-              {Number(task?.targetValue)?.toLocaleString() || 'N/A'}
-              {keyResult?.metricType?.name === NAME.PERCENTAGE && '%'}
+              {task?.targetValue || 'N/A'}
             </Tag>
-          </div>
+          </>
         )}
     </Col>
   </Row>

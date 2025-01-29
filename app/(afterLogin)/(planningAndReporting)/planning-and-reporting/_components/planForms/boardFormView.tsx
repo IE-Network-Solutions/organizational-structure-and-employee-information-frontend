@@ -36,7 +36,6 @@ function BoardCardForm({
   targetValue,
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
-
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
