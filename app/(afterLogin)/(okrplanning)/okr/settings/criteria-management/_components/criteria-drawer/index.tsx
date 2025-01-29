@@ -147,7 +147,7 @@ const ScoringDrawer: React.FC = () => {
     } else {
       setFilteredUsers([]);
     }
-  }, [selectedDepartment, departmentData,userTypeFilter, form]);
+  }, [selectedDepartment, departmentData, userTypeFilter, form]);
 
   const handleDepartmentChange = (value: string[]) => {
     setSelectedDepartment(value);

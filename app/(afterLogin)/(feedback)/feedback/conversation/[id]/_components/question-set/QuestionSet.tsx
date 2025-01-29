@@ -52,18 +52,18 @@ const QuestionSet: React.FC<StatisticsCardProps> = ({ data }) => {
           <span>Total Attendees: </span>
           <span>{totalAttendees}</span>
         </p>
-          <p className="flex items-center justify-center text-xs hover:text-blue">
-            <GoDotFill className="text-blue mr-1" />
-            <span>Meetings Conducted: </span>
-            <span>{meetingsConducted}</span>
-          </p>
+        <p className="flex items-center justify-center text-xs hover:text-blue">
+          <GoDotFill className="text-blue mr-1" />
+          <span>Meetings Conducted: </span>
+          <span>{meetingsConducted}</span>
+        </p>
         <Link href={`${currentPath}/${id}/meetings`} passHref>
           <Button
             color="default"
             variant="outlined"
             icon={<FaLongArrowAltRight />}
             iconPosition="end"
-            className='my-3'
+            className="my-3"
           >
             Details
           </Button>

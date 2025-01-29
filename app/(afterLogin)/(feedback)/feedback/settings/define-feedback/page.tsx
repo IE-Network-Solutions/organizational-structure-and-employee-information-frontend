@@ -43,7 +43,7 @@ const Page = () => {
   };
 
   const getDepartment = (id: string) => {
-    return departments?.find((item: Department) => (item.id === id));
+    return departments?.find((item: Department) => item.id === id);
   };
   useEffect(() => {
     setActiveTab(getAllFeedbackTypes?.items?.[0]?.id);

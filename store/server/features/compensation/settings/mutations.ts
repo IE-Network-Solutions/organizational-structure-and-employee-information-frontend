@@ -84,7 +84,6 @@ export const useDeleteAllowanceType = () => {
   });
 };
 
-
 const updateCompensationStatus = async ({ id }: { id: string }) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -109,4 +108,3 @@ export const useUpdateCompensationStatus = () => {
     },
   });
 };
-
