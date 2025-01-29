@@ -105,7 +105,7 @@ export const useApprovalPlanningPeriods = () => {
   const queryClient = useQueryClient();
   return useMutation(approveOrRejectPlanningPeriods, {
     onSuccess: () => {
-      queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries(['okrPlans', 'okrPlannedData']);
       NotificationMessage.success({
         message: 'Successfully updated',
         description: 'okr plan status successfully updated',
