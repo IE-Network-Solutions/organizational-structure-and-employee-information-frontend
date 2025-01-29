@@ -49,7 +49,7 @@ function Reporting() {
     selectedUser,
     activePlanPeriod,
     setSelectedReportId,
-    activeTab
+    activeTab,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();

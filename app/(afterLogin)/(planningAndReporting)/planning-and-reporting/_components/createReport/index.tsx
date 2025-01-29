@@ -35,7 +35,7 @@ function CreateReport() {
     resetWeights,
     setStatus,
     selectedStatuses,
-    activeTab
+    activeTab,
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
 
@@ -53,8 +53,10 @@ function CreateReport() {
   const planningPeriodName =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
 
-  const { data: allUnReportedPlanningTask } =
-    useGetUnReportedPlanning(planningPeriodId,activeTab);
+  const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(
+    planningPeriodId,
+    activeTab,
+  );
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -66,7 +68,11 @@ function CreateReport() {
     Object.entries(values).length > 0 &&
       planningPeriodId &&
       createReport(
-        { values: values, planningPeriodId: planningPeriodId,planId: allUnReportedPlanningTask?.[0]?.plan?.id },
+        {
+          values: values,
+          planningPeriodId: planningPeriodId,
+          planId: allUnReportedPlanningTask?.[0]?.plan?.id,
+        },
 
         {
           onSuccess: () => {

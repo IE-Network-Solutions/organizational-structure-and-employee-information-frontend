@@ -208,7 +208,6 @@ const EmployeeAttendance = () => {
       <EmployeeAttendanceSideBar />
       <BreakImportSidebar />
       <AttendanceImportErrorModal />
-
     </>
   );
 };
