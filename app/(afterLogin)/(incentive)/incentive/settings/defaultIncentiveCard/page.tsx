@@ -1,25 +1,22 @@
 'use client';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { useRecognitionById } from '@/store/server/features/incentive/other/queries';
-import { useParams } from 'next/navigation';
 import React from 'react';
-import IncentiveSettingsTable from './_components/incentiveSettingsTable';
+import DefaultIncentiveSettingsTable from './_components/incentiveSettingsTable';
+import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button } from 'antd';
-import { FaPlus } from 'react-icons/fa';
+import { useParams } from 'next/navigation';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
-import IncentiveSettingsDrawer from './_components/incentiveSettingdrawer';
+import { useRecognitionById } from '@/store/server/features/incentive/other/queries';
+import { FaPlus } from 'react-icons/fa';
 
 type Params = {
   id: string;
 };
-const IncentiveSettings: React.FC = () => {
+const DefaultIncentiveSettingCard: React.FC = () => {
   const { id } = useParams<Params>();
 
   const { setOpenIncentiveDrawer } = useIncentiveStore();
 
-  const { data: recognitionData, isLoading: responseLoading } =
-    useRecognitionById(id);
-
+  const { data: recognitionData } = useRecognitionById(id);
   return (
     <div>
       <div className="mb-6">
@@ -41,10 +38,9 @@ const IncentiveSettings: React.FC = () => {
           </Button>
         </PageHeader>
       </div>
-      <IncentiveSettingsTable />
-      <IncentiveSettingsDrawer />
+      <DefaultIncentiveSettingsTable />
     </div>
   );
 };
 
-export default IncentiveSettings;
+export default DefaultIncentiveSettingCard;

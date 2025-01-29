@@ -60,7 +60,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         {open && !hideButton && (
           <Button
             id="closeSidebarButton"
-            className="bg-white text-lg text-grey-9 rounded-full mr-8 hidden md:flex"
+            className="bg-white text-lg text-grey-9 rounded-full border-none mr-8 hidden md:flex"
             icon={<FaAngleRight />}
             onClick={onClose}
             style={{
@@ -85,6 +85,10 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         open={open}
         style={{ paddingBottom: paddingBottom }}
         footer={footer}
+        styles={{
+          header: { borderBottom: 'none' },
+          footer: { borderTop: 'none' },
+        }}
       >
         {children}
       </Drawer>

@@ -9,6 +9,8 @@ import SidebarMenu from '@/components/sidebarMenu';
 import { usePathname } from 'next/navigation';
 import { useAllRecognition } from '@/store/server/features/incentive/other/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
+import { CiCalendarDate } from 'react-icons/ci';
+import { Skeleton } from 'antd';
 
 interface IncentiveSettingsLayoutProps {
   children: ReactNode;
@@ -20,10 +22,11 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
   const pathname = usePathname();
   const { menuItems, setMenuItems, currentItem, setCurrentItem } =
     useIncentiveStore();
-  const { data: recognitionData } = useAllRecognition();
+  const { data: recognitionData, isLoading: responseLoading } =
+    useAllRecognition();
 
   useEffect(() => {
-    if (recognitionData) {
+    if (recognitionData && recognitionData?.items?.length > 0) {
       const dynamicMenuItems =
         recognitionData?.items?.map((item: any) => ({
           item: {
@@ -32,7 +35,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
               <TbCalendar
                 size={16}
                 className={
-                  currentItem === 'project' ? 'text-[#4DAEF0]' : 'text-gray-500'
+                  currentItem === item.id ? 'text-[#4DAEF0]' : 'text-gray-500'
                 }
               />
             ),
@@ -43,7 +46,23 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
           },
           link: `/incentive/settings/${item?.id}`,
         })) || [];
-      setMenuItems(dynamicMenuItems);
+
+      const defaultIncentiveSettings = {
+        item: {
+          key: 'IncentiveSettings',
+          icon: <CiCalendarDate />,
+          label: (
+            <p className="menu-item-label">
+              {recognitionData?.items?.[0]?.recognitionData?.name} Incentive
+              Settings
+            </p>
+          ),
+          className: 'px-1',
+        },
+        link: '/incentive/settings/defaultIncentiveCard',
+      };
+
+      setMenuItems([defaultIncentiveSettings, ...dynamicMenuItems]);
     }
   }, [recognitionData]);
 
@@ -61,7 +80,13 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
       <PageHeader title="Settings" description="Incentive Settings" />
 
       <div className="flex gap-6 mt-8 ">
-        <SidebarMenu menuItems={incentiveSidebarMenuItems} />
+        {responseLoading ? (
+          <div className="w-64">
+            <Skeleton active paragraph={{ rows: 6 }} />
+          </div>
+        ) : (
+          <SidebarMenu menuItems={incentiveSidebarMenuItems} />
+        )}
         <BlockWrapper className="flex-1 h-full">{children}</BlockWrapper>
       </div>
     </div>
