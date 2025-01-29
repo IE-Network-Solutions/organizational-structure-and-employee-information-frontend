@@ -94,7 +94,7 @@ const VariablePayTable = () => {
   const monthOptions =
     months?.items?.map((month: any) => ({
       value: month.id,
-      label: month.name, // Assuming month has a 'name' field
+      label: month.name,
     })) || [];
 
   const filteredDataSource = searchQuery
@@ -108,7 +108,7 @@ const VariablePayTable = () => {
       <Space
         direction="horizontal"
         size="large"
-        style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
+        style={{ width: '100%', justifyContent: 'start', marginBottom: 16 }}
       >
         <Select
           showSearch
@@ -124,7 +124,7 @@ const VariablePayTable = () => {
             );
           }}
           options={options}
-          style={{ width: 300 }} // Set a width for better UX
+          style={{ width: 300 }}
         />{' '}
         <Select
           placeholder="Filter by"
