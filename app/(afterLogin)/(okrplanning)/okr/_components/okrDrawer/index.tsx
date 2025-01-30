@@ -284,7 +284,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           </Col>
 
           {/* Supervisor Key Result (Visible Only When Alignment is True) */}
-          {!alignment && (
+          {alignment && (
             <Col xs={24} sm={24} md={16}>
               <Form.Item
                 id="title-input"
