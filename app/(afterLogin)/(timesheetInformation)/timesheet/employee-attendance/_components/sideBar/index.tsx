@@ -76,7 +76,7 @@ const EmployeeAttendanceSideBar = () => {
     const workScheduleData = employeeData?.employeeJobInformation
       ?.find((item: any) => item.isPositionActive === true)
       ?.workSchedule?.detail?.find((item: any) =>
-        item.day ? item.day == 'Thursday' : item.dayOfWeek === dayOfTheWeek,
+        item.day ? item.day == dayOfTheWeek : item.dayOfWeek == dayOfTheWeek,
       );
     if (workScheduleData) {
       const lateByMinutes = value?.isAbsent
