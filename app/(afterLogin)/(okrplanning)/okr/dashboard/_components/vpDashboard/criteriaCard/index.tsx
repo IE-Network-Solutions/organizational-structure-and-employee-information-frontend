@@ -43,15 +43,35 @@ const CriteriaCard: React.FC = () => {
                 const change =
                   item?.score.toFixed(2) - item?.previousScore.toFixed(2);
                 const achievedPercentage = Number(
-                  ((item?.score / 100) * item?.weight).toFixed(1),
+                  ((item?.score / item?.weight) * 100).toFixed(1),
                 );
                 return (
                   <Col key={index} xs={24} sm={12} md={8}>
                     <Card className="mt-10 bg-[#FAFAFA]" bordered={false}>
-                      <div className="flex items-center mb-8">
-                        <div className="w-10 h-10 rounded-full bg-indigo-50 flex justify-center items-center">
-                          <BiAward size={25} fill="#0BA259" />
-                        </div>
+                      <div className="mb-8">
+                        {item?.isDeduction === true ? (
+                          <div className="flex flex-col ">
+                            <div className="font-sm text-sm text-[#d0342c] text-end">
+                              Deductible
+                            </div>
+                            <div className="flex items-end justify-start gap-2">
+                              <div className="w-10 h-10 rounded-full bg-[#FFEDEC] flex justify-center items-center">
+                                <div>
+                                  <BiAward size={25} fill="#d0342c" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="mb-8 flex flex-col">
+                            <div className="font-sm text-sm text-[#FAFAFA] text-end">
+                              t
+                            </div>
+                            <div className="w-10 h-10 rounded-full bg-[#7152F30D] flex justify-center items-center">
+                              <BiAward size={25} fill="#0BA259" />
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <h3 className="text-sm font-medium text-gray-500 mb-2">
                         {item?.name}
@@ -63,12 +83,10 @@ const CriteriaCard: React.FC = () => {
                           </p>
                           <div className="flex flex-wrap flex-col">
                             <p className="text-sm text-end text-gray-500">
-                              {`${achievedPercentage ? achievedPercentage.toFixed(1) : 0} % achieved out of ${item?.weight || 0}%`}
+                              {`${Number(item?.score) ? Number(item?.score).toFixed(1) : 0} % achieved out of ${item?.weight || 0}%`}
                             </p>
                             <Progress
-                              percent={Number(
-                                ((item?.score / 100) * item?.weight).toFixed(1),
-                              )}
+                              percent={achievedPercentage}
                               showInfo={false}
                             />
                           </div>
