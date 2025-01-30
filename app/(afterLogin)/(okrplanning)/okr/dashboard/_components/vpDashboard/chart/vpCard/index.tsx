@@ -19,7 +19,7 @@ const VPPayCard: React.FC = () => {
   } = useGetVpScoreCalculate(userId, false);
 
   const achievedPercentage =
-    (parseInt(vpScore?.score, 10) / 100) * vpScore?.maxScore;
+    (parseInt(vpScore?.score, 10) / vpScore?.maxScore) * 100;
 
   return (
     <Card size="default" bordered={false}>
@@ -72,14 +72,14 @@ const VPPayCard: React.FC = () => {
 
                   <div className="flex flex-wrap flex-col">
                     <p className="text-sm text-end text-gray-500">
-                      {`${achievedPercentage ? achievedPercentage.toFixed(1) : 0} % achieved out of ${vpScore?.maxScore || 0}%`}
+                      {`${Number(vpScore?.score) ? Number(vpScore?.score).toFixed(2) : 0} % achieved out of ${vpScore?.maxScore || 0}%`}
                     </p>
                     <Progress percent={achievedPercentage} showInfo={false} />
                   </div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center mt-2 text-sm text-gray-500 justify-end">
+            <div className="flex items-center mt-2 text-sm text-gray-500 justify-start">
               <span
                 className={`font-medium flex items-center ${
                   vpScore?.previousScore >= 0
