@@ -721,7 +721,7 @@ function EditReport() {
                                               [task.taskId]: {
                                                 actualValue: value
                                                   ? Number(value)
-                                                  : '',
+                                                  : 0,
                                               },
                                             })
                                           }
