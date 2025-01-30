@@ -63,14 +63,10 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
   weights,
 }) => {
   const formattedData = groupParentTasks(
-    planningPeriodHierarchy?.parentPlan?.plans?.find(
-      (i: any) => i.isReported === false,
-    )?.tasks || [],
+    planningPeriodHierarchy?.parentPlan?.plans[0]?.tasks,
   );
   // const parentName = planningPeriodHierarchy?.parentPlan?.name;
-  const parentParentId = planningPeriodHierarchy?.parentPlan?.plans?.find(
-    (i: any) => i.isReported === false,
-  )?.id;
+  const parentParentId = planningPeriodHierarchy?.parentPlan?.plans[0]?.id;
   return (
     <Collapse defaultActiveKey={0}>
       {formattedData.map((objective) => (

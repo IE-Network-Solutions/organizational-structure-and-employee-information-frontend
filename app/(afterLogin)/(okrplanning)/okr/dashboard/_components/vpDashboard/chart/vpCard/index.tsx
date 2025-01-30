@@ -3,7 +3,6 @@ import {
   useGetVPScore,
 } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useVPStore } from '@/store/uistate/features/okrplanning/VP';
 import { Button, Card, Progress, Skeleton, Typography } from 'antd';
 import { AiOutlineReload } from 'react-icons/ai';
 import { GoArrowDown, GoArrowUp } from 'react-icons/go';
@@ -12,26 +11,15 @@ const { Title } = Typography;
 const VPPayCard: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;
   const { data: vpScore, isLoading: isResponseLoading } = useGetVPScore(userId);
-  const { isUpdated, setIsUpdated } = useVPStore();
 
   const {
-    data: UpdatedVpScore,
     isLoading: isUpdatedLoading,
     refetch,
     isRefetching,
   } = useGetVpScoreCalculate(userId, false);
 
-  const handleRefetch = () => {
-    refetch();
-    setIsUpdated(true);
-  };
-
-  const displayScore = isUpdated
-    ? `${UpdatedVpScore ? Number(UpdatedVpScore.vpScore) : ''}%`
-    : `${vpScore?.score}%`;
-
   const achievedPercentage =
-    (parseInt(vpScore?.score, 10) / vpScore?.maxScore) * 100;
+    (parseInt(vpScore?.score, 10) / 100) * vpScore?.maxScore;
 
   return (
     <Card size="default" bordered={false}>
@@ -62,7 +50,6 @@ const VPPayCard: React.FC = () => {
                     />
                   }
                   onClick={() => {
-                    handleRefetch;
                     refetch();
                   }}
                 ></Button>
@@ -79,13 +66,13 @@ const VPPayCard: React.FC = () => {
                         title={{ width: 80 }}
                       />
                     ) : (
-                      `${displayScore}`
+                      `${vpScore?.score}`
                     )}
                   </Title>
 
                   <div className="flex flex-wrap flex-col">
                     <p className="text-sm text-end text-gray-500">
-                      {`${achievedPercentage ? achievedPercentage.toFixed(0) : 0} % achieved out of ${vpScore?.maxScore || 0}%`}
+                      {`${achievedPercentage ? achievedPercentage.toFixed(1) : 0} % achieved out of ${vpScore?.maxScore || 0}%`}
                     </p>
                     <Progress percent={achievedPercentage} showInfo={false} />
                   </div>

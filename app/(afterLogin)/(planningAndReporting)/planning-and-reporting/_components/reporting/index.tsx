@@ -178,7 +178,7 @@ function Reporting() {
             title={
               // selectedUser.length === 1 && selectedUser[0] === userId &&    // to check and make ensure only reports their report
               // selectedUser.includes(userId) &&
-              allUserPlanning && allUserPlanning.length < 1
+              allUserPlanning && allUserPlanning.length > 0
                 ? 'Please Create Plan First'
                 : ''
             }

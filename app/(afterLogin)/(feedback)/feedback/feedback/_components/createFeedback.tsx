@@ -87,9 +87,14 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
 
   // Ensure perspectiveIds is always an array to avoid errors
   const filteredFeedback = getAllFeedbackTypeById?.feedback?.filter(
-    (item: any) => perspectiveIds.includes(item.perspectiveId),
+    (item: any) => {
+      if (item.perspectiveId) {
+        return perspectiveIds.includes(item.perspectiveId);
+      } else {
+        return true;
+      }
+    },
   );
-
   // const filteredFeedback=getAllFeedbackTypeById?.feedback
   useEffect(() => {
     const getDepartmenId = (perspectiveId: string | undefined) => {
@@ -178,7 +183,6 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
       >
         <Select
           showSearch
-          disabled={filteredFeedback?.length < 1}
           placeholder="Select Feedback"
           options={
             filteredFeedback
