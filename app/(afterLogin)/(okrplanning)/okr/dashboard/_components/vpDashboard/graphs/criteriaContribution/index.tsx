@@ -9,25 +9,36 @@ const { Title } = Typography;
 interface CriteriaContributionProps {
   variablePay: any | null;
 }
+
+const generateColors = (count: number) => {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  return Array.from({ length: count }, (_, index) => {
+    const hue = 210 + ((index * 15) % 30);
+    const saturation = 80;
+    const lightness = 50 + ((index * 5) % 30);
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+  });
+};
+
 const CriteriaContributionChart: React.FC<CriteriaContributionProps> = ({
   variablePay,
 }) => {
+  if (!variablePay || variablePay.length === 0) return null;
+
+  const criteriaLabels = variablePay.map(
+    (item: any) => item?.criteriaName || 'Unknown',
+  );
+  const scores = variablePay.map(
+    (item: any) => item?.actualScore?.toFixed(2) || 0,
+  );
+  const colors = generateColors(variablePay.length);
+
   const data = {
     datasets: [
       {
-        data: variablePay?.map((item: any) => item?.actualScore.toFixed(2)),
-        backgroundColor: [
-          'rgba(47, 120, 238, 1)',
-          'rgba(54, 54, 240, 1)',
-          'rgba(29, 155, 240, 1)',
-          'rgba(160, 174, 192, 1)',
-        ],
-        hoverBackgroundColor: [
-          'rgba(47, 120, 238, 1)',
-          'rgba(54, 54, 240, 1)',
-          'rgba(29, 155, 240, 1)',
-          'rgba(160, 174, 192, 1)',
-        ],
+        data: scores,
+        backgroundColor: colors,
+        hoverBackgroundColor: colors,
         borderWidth: 0,
         cutout: '70%',
       },
@@ -95,60 +106,23 @@ const CriteriaContributionChart: React.FC<CriteriaContributionProps> = ({
             </div>
           </div>
         </div>
+
         <div className="flex justify-around mt-4">
-          <div className="flex">
-            <div className="flex flex-col justify-center items-start">
-              <div className="flex items-center gap-3 ">
-                <svg
-                  width="16"
-                  height="21"
-                  viewBox="0 0 10 11"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect y="0.5" width="10" height="10" rx="5" fill="#2F78EE" />
+          <div className="grid grid-cols-2 gap-4">
+            {criteriaLabels.map((label: string, index: number) => (
+              <div key={index} className="flex items-center gap-3">
+                <svg width="16" height="21" viewBox="0 0 10 11" fill="none">
+                  <rect
+                    y="0.5"
+                    width="10"
+                    height="10"
+                    rx="5"
+                    fill={colors[index]}
+                  />
                 </svg>
-                <span className="text-xs text-gray-600">OKR Score</span>
+                <span className="text-xs text-gray-600">{label}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <svg
-                  width="16"
-                  height="21"
-                  viewBox="0 0 10 11"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect y="0.5" width="10" height="10" rx="5" fill="#3636F0" />
-                </svg>
-                <span className="text-xs text-gray-600">Appreciation</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col items-start justify-center">
-            <div className="flex items-center gap-3">
-              <svg
-                width="16"
-                height="21"
-                viewBox="0 0 10 11"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect y="0.5" width="10" height="10" rx="5" fill="#687588" />
-              </svg>
-              <span className="text-xs text-gray-600">KPI</span>
-            </div>
-            <div className="flex items-center gap-3 ">
-              <svg
-                width="16"
-                height="21"
-                viewBox="0 0 10 11"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect y="0.5" width="10" height="10" rx="5" fill="#1D9BF0" />
-              </svg>
-              <span className="text-xs text-gray-600">Attendance</span>
-            </div>
+            ))}
           </div>
         </div>
       </Col>
