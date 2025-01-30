@@ -7,6 +7,7 @@ import {
   Col,
   Dropdown,
   Menu,
+  Pagination,
   Popconfirm,
   Row,
   Spin,
@@ -51,6 +52,10 @@ function Reporting() {
     setSelectedReportId,
     setSelectedPlanId,
     activeTab,
+    pageReporting,
+    setPageReporting,
+    pageSizeReporting,
+    setPageSizeReporting,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
@@ -68,6 +73,8 @@ function Reporting() {
   const { data: allReporting, isLoading: getReportLoading } = useGetReporting({
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '',
+    pageReporting,
+    pageSizeReporting,
   });
   // const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(
   //   planningPeriodId ?? '',
@@ -204,7 +211,7 @@ function Reporting() {
           optionArray2={ReportingType}
           optionArray3={departmentData}
         />
-        {allReporting?.map((dataItem: any, index: number) => (
+        {allReporting?.items?.map((dataItem: any, index: number) => (
           <>
             <Card
               key={index}
@@ -358,6 +365,7 @@ function Reporting() {
                 </span>
               </div>
             </Card>
+
             <CommentCard
               planId={dataItem?.id}
               data={dataItem?.comments}
@@ -366,7 +374,20 @@ function Reporting() {
             />
           </>
         ))}
-        {allReporting?.length <= 0 && (
+        <Pagination
+          disabled={!allReporting?.items?.length} // Ensures no crash if items is undefined
+          className="flex justify-end"
+          total={allReporting?.items?.meta?.totalItems} // Ensures total count instead of pages
+          current={pageReporting}
+          pageSize={pageSizeReporting} // Dynamically control page size
+          showSizeChanger // Allows user to change page size
+          onChange={(page, pageSize) => {
+            setPageReporting(page);
+            setPageSizeReporting(pageSize); // Ensure page size updates dynamically
+          }}
+          pageSizeOptions={['10', '20', '50', '100']}
+        />
+        {allReporting?.items?.length <= 0 && (
           <div className="flex justify-center">
             <div>
               <p className="flex justify-center items-center h-[200px]">

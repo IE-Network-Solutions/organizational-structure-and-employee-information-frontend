@@ -54,6 +54,8 @@ function Planning() {
     setEditing,
     page,
     setPage,
+    pageSize,
+    setPageSize,
     activeTab,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
@@ -72,6 +74,7 @@ function Planning() {
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '', // Provide a default string value
     page,
+    pageSize,
   });
   const { data: allUserPlanning } = useGetUserPlanning(
     planningPeriodId ?? '',
@@ -356,13 +359,21 @@ function Planning() {
             </Card>
           </>
         ))}
+
         <Pagination
-          disabled={allPlanning?.items?.length <= 0}
+          disabled={!allPlanning?.items?.length} // Ensures no crash if items is undefined
           className="flex justify-end"
-          total={allPlanning?.meta?.totalPages}
-          current={allPlanning?.meta?.page}
-          onChange={(page) => setPage(page)}
+          total={allPlanning?.meta?.totalItems} // Ensures total count instead of pages
+          current={page}
+          pageSize={pageSize} // Dynamically control page size
+          showSizeChanger // Allows user to change page size
+          onChange={(page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize); // Ensure page size updates dynamically
+          }}
+          pageSizeOptions={['10', '20', '50', '100']}
         />
+
         {transformedData?.length <= 0 && (
           <div className="flex justify-center">
             <div>

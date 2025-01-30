@@ -110,10 +110,7 @@ function CreateFeedback() {
               placeholder="Enter description"
             />
           </Form.Item>
-          <Form.Item
-            name="perspectiveId"
-            label="Select Perspective"
-          >
+          <Form.Item name="perspectiveId" label="Select Perspective">
             <Select
               loading={getPerspectiveLoading}
               placeholder="Select a perspective"
