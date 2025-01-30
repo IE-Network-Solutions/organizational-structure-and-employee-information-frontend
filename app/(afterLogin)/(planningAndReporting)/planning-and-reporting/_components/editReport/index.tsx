@@ -471,7 +471,7 @@ function EditReport() {
                                                 'customReason',
                                               ]}
                                               className="mb-2"
-                                              label="Reason:"
+                                              label="Reason:" // Optional label
                                               rules={[
                                                 {
                                                   required: true,
@@ -480,10 +480,45 @@ function EditReport() {
                                                 },
                                               ]}
                                             >
-                                              <TextArea
-                                                rows={4}
-                                                className="w-full"
-                                              />
+                                              <div
+                                                style={{
+                                                  position: 'relative',
+                                                  display: 'flex',
+                                                  alignItems: 'center',
+                                                }}
+                                              >
+                                                <TextArea
+                                                  rows={4}
+                                                  style={{
+                                                    paddingRight: '100px',
+                                                    flex: 1,
+                                                  }}
+                                                />
+                                                <div
+                                                  style={{
+                                                    position: 'absolute',
+                                                    right: '100px',
+                                                    top: '0',
+                                                    bottom: '0',
+                                                    width: '1px',
+                                                    backgroundColor: '#ccc',
+                                                  }}
+                                                />
+                                                <Text
+                                                  className="text-black"
+                                                  style={{
+                                                    position: 'absolute',
+                                                    right: '10px',
+                                                    top: '50%',
+                                                    padding: '8px 16px', // 2x (vertical) and 4x (horizontal) assuming x = 4px
+                                                    borderRadius: '8px', // Rounded corners, adjust as needed
+                                                    transform:
+                                                      'translateY(-50%)',
+                                                  }}
+                                                >
+                                                  Reason
+                                                </Text>
+                                              </div>
                                             </Form.Item>
                                           )}
                                         </>
@@ -516,12 +551,28 @@ function EditReport() {
 
                                           <Radio.Group
                                             className="text-xs"
-                                            onChange={(e) =>
+                                            onChange={(e) => {
                                               setStatus(
                                                 task.taskId,
                                                 e.target.value,
-                                              )
-                                            }
+                                              );
+                                              if (e.target.value === 'Done') {
+                                                form.setFieldsValue({
+                                                  [task.taskId]: {
+                                                    actualValue:
+                                                      task?.targetValue,
+                                                  },
+                                                });
+                                              } else if (
+                                                e.target.value === 'Not'
+                                              ) {
+                                                form.setFieldsValue({
+                                                  [task.taskId]: {
+                                                    actualValue: 0,
+                                                  },
+                                                });
+                                              }
+                                            }}
                                             value={
                                               form.getFieldValue([
                                                 task.taskId,
@@ -681,15 +732,30 @@ function EditReport() {
                                               ',',
                                             )
                                           }
-                                          onChange={(value) =>
-                                            form.setFieldsValue({
-                                              [task.taskId]: {
-                                                actualValue: value
-                                                  ? Number(value)
-                                                  : 0,
-                                              },
-                                            })
-                                          }
+                                          onChange={(value) => {
+                                            const statusValue =
+                                              form.getFieldValue([
+                                                task.taskId,
+                                                'status',
+                                              ]);
+                                            if (statusValue === 'Done') {
+                                              form.setFieldsValue({
+                                                [task.taskId]: {
+                                                  actualValue: value
+                                                    ? Number(value)
+                                                    : task?.targetValue,
+                                                },
+                                              });
+                                            } else if (statusValue === 'Not') {
+                                              form.setFieldsValue({
+                                                [task.taskId]: {
+                                                  actualValue: value
+                                                    ? Number(value)
+                                                    : 0,
+                                                },
+                                              });
+                                            }
+                                          }}
                                         />
                                       </Form.Item>
                                     )}
