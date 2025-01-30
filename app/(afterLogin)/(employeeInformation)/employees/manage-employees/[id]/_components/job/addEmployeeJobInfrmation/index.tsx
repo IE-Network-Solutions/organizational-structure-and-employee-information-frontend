@@ -25,51 +25,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
     setIsAddEmployeeJobInfoModalVisible(false);
   };
 
-  // const activeJob = basicSalary?.find((job: any) => job?.status === true);
-
-  // useEffect(() => {
-  //   if (employeeData && employeeData.employeeJobInformation.length > 0) {
-  //     const jobInfo = employeeData.employeeJobInformation[0];
-
-  //     form.setFieldsValue({
-  //       positionId: jobInfo?.position?.name || '',
-  //       employementTypeId: jobInfo?.employementType?.name || '',
-  //       departmentId: jobInfo?.department?.name || '',
-  //       branchId: jobInfo?.branch?.name || '',
-  //       departmentLeadOrNot: jobInfo?.departmentLeadOrNot,
-  //       basicSalary: activeJob?.basicSalary.toString() || '',
-  //       jobAction: jobInfo?.jobAction,
-  //       employmentContractType:
-  //         jobInfo?.employementType?.name === 'Permanent'
-  //           ? 'Permanent'
-  //           : 'Contractual',
-  //       workScheduleId: jobInfo?.workSchedule?.name || '',
-  //     });
-  //   }
-  // }, [employeeData, activeJob, form]);
-
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
-    // const positionId = employeeData?.employeeJobInformation?.find(
-    //   (job: any) => job?.position?.name === values.positionId,
-    // )?.position?.id;
-    // const employementTypeId = employeeData?.employeeJobInformation?.find(
-    //   (job: any) => job?.employementType?.name === values.employementTypeId,
-    // )?.employementType?.id;
-    // const departmentId = employeeData?.employeeJobInformation?.find(
-    //   (job: any) => job?.department?.name === values.departmentId,
-    // )?.department?.id;
-    // const branchId = employeeData?.employeeJobInformation?.find(
-    //   (job: any) => job?.branch?.name === values.branchId,
-    // )?.branch?.id;
-    // const workScheduleId = employeeData?.employeeJobInformation?.find(
-    //   (job: any) => job?.workSchedule?.name === values.workScheduleId,
-    // )?.workSchedule?.id;
-
-    // values.positionId = positionId || '';
-    // values.employementTypeId = employementTypeId || '';
-    // values.departmentId = departmentId || '';
-    // values.branchId = branchId || '';
-    // values.workScheduleId = workScheduleId || '';
     values.userId = id;
     values.basicSalary = parseInt(values.basicSalary.toString(), 10);
     values.departmentLeadOrNot
