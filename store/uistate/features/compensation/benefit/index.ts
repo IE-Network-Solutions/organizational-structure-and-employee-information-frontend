@@ -32,7 +32,7 @@ const benefitEntitlementInitialState = {
   benefitDefaultAmount: 0,
 
   currentPage: 1,
-  pageSize: 10,
+  pageSize: 6,
 };
 
 interface VariablePayTypes {
@@ -47,7 +47,7 @@ interface VariablePayTypes {
 
 const variablePayInitialState = {
   currentPage: 1,
-  pageSize: 10,
+  pageSize: 6,
 };
 
 export const useBenefitEntitlementStore = create<BenefitEntitlementTypes>(

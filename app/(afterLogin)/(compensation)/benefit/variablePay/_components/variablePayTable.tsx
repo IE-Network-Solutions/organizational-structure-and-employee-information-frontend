@@ -1,4 +1,4 @@
-import { Button, Select, Space, Spin, Table } from 'antd';
+import { Button, Col, Row, Select, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { useGetVariablePay } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
@@ -6,8 +6,12 @@ import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetAllMonth } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
+import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
+import { useGetSession } from '@/store/server/features/okrplanning/okr/target/queries';
+import { useFilterVpScoreInstance } from '@/store/server/features/compensation/benefit/mutations';
+const { Option } = Select;
 
 const VariablePayTable = () => {
   const { data: allUsersVariablePay, isLoading } = useGetVariablePay();
@@ -15,7 +19,14 @@ const VariablePayTable = () => {
     useVariablePayStore();
   const [searchQuery, setSearchQuery] = useState('');
   const { data: employeeData } = useGetAllUsers();
-  const { data: months } = useGetAllMonth();
+  const { data: payPeriodData } = useGetPayPeriod();
+  const { data: session } = useGetSession();
+  const { mutate: filterVpScoreInstance } = useFilterVpScoreInstance();
+
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [months, setMonths] = useState<any[]>([]);
+  const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
+  const [monthIds, setMonthIds] = useState<string[]>([]);
 
   const tableData: any[] =
     allUsersVariablePay?.items?.map((variablePay: any) => ({
@@ -40,6 +51,9 @@ const VariablePayTable = () => {
   const handleTableChange = (pagination: any) => {
     setCurrentPage(pagination.current);
     setPageSize(pagination.pageSize);
+  };
+  const handleSearchChange = (value: any) => {
+    setSearchQuery(value);
   };
 
   const columns: TableColumnsType<any> = [
@@ -80,21 +94,11 @@ const VariablePayTable = () => {
     },
   ];
 
-  const handleSearchChange = (value: any) => {
-    setSearchQuery(value);
-  };
-
   const options =
     employeeData?.items?.map((emp: any) => ({
       value: emp.id,
       label: `${emp.firstName || ''} ${emp.lastName}`, // Full name as label
       employeeData: emp,
-    })) || [];
-
-  const monthOptions =
-    months?.items?.map((month: any) => ({
-      value: month.id,
-      label: month.name, // Assuming month has a 'name' field
     })) || [];
 
   const filteredDataSource = searchQuery
@@ -103,49 +107,140 @@ const VariablePayTable = () => {
           employee.name?.toLowerCase() === searchQuery?.toLowerCase(),
       )
     : tableData;
+
+  const handleSelectChange = (key: string, value: string) => {
+    if (key === 'sessionId') {
+      setSearchValue({ ...searchValue, sessionId: value });
+
+      const selectedSession = sessions.find((session) => session.id === value);
+
+      if (selectedSession) {
+        setMonths(selectedSession.months);
+        setMonthIds(selectedSession.months.map((month: any) => month.id));
+        filterVpScoreInstance({
+          monthIds: selectedSession.months.map((month: any) => month.id),
+        });
+      } else {
+        setMonths([]);
+        setMonthIds([]);
+      }
+
+      setSearchValue((prevState: any) => ({
+        ...prevState,
+        monthId: undefined,
+      }));
+    } else if (key === 'monthId') {
+      setSearchValue({ ...searchValue, monthId: value });
+
+      if (!value) {
+        const selectedSession = sessions.find(
+          (session) => session.id === searchValue.sessionId,
+        );
+        if (selectedSession) {
+          setMonthIds(selectedSession.months.map((month: any) => month.id));
+          filterVpScoreInstance({
+            monthIds: selectedSession.months.map((month: any) => month.id),
+          });
+        }
+      } else {
+        setMonthIds([value]);
+        filterVpScoreInstance({ monthIds: [value] });
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (session?.items) {
+      setSessions(session.items);
+    }
+  }, [session]);
+
   return (
     <Spin spinning={isLoading || UpdatedIsLoading || isFetching}>
-      <Space
-        direction="horizontal"
-        size="large"
-        style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
+      <Row
+        gutter={[16, 16]}
+        align="middle"
+        justify="space-between"
+        style={{ flexWrap: 'wrap' }}
       >
-        <Select
-          showSearch
-          allowClear
-          className="min-h-12"
-          placeholder="Search by name"
-          onChange={handleSearchChange}
-          filterOption={(input, option) => {
-            const label = option?.label;
-            return (
-              typeof label === 'string' &&
-              label.toLowerCase().includes(input.toLowerCase())
-            );
-          }}
-          options={options}
-          style={{ width: 300 }} // Set a width for better UX
-        />{' '}
-        <Select
-          placeholder="Filter by"
-          style={{ width: 150 }}
-          className="min-h-12"
-          options={[
-            { value: 'active', label: 'Active' },
-            { value: 'inactive', label: 'Inactive' },
-          ]}
-        />
-        <Select
-          placeholder="Filter by month"
-          style={{ width: 150 }}
-          className="min-h-12"
-          options={monthOptions}
-          onChange={() => {}}
-        />
-        <Button type="primary" onClick={() => refetch()}>
-          Refresh VP
-        </Button>
-      </Space>
+        <Col xl={8} lg={10} md={12} sm={24} xs={24}>
+          <Select
+            showSearch
+            allowClear
+            className="min-h-12"
+            placeholder="Search by name"
+            onChange={handleSearchChange}
+            filterOption={(input, option) => {
+              const label = option?.label;
+              return (
+                typeof label === 'string' &&
+                label.toLowerCase().includes(input.toLowerCase())
+              );
+            }}
+            options={options}
+            style={{ width: '100%', height: '48px' }}
+          />
+        </Col>
+
+        <Col xl={4} lg={5} md={6} sm={12} xs={24}>
+          <Select
+            placeholder="Session"
+            onChange={(value) => handleSelectChange('sessionId', value)}
+            value={searchValue.sessionId}
+            allowClear
+            style={{ width: '100%', height: '48px' }}
+          >
+            {sessions.map((session) => (
+              <Option key={session.id} value={session.id}>
+                {session.name}
+              </Option>
+            ))}
+          </Select>
+        </Col>
+
+        <Col xl={4} lg={5} md={6} sm={12} xs={24}>
+          <Select
+            placeholder="Month"
+            onChange={(value) => handleSelectChange('monthId', value)}
+            value={searchValue.monthId}
+            allowClear
+            style={{ width: '100%', height: '48px' }}
+            disabled={!searchValue.sessionId}
+          >
+            {months.map((month) => (
+              <Option key={month.id} value={month.id}>
+                {month.name}
+              </Option>
+            ))}
+          </Select>
+        </Col>
+        <Col xl={4} lg={5} md={6} sm={12} xs={24}>
+          <Select
+            placeholder="Pay Period"
+            onChange={(value) => handleSelectChange('payPeriodId', value)}
+            value={searchValue.payPeriodId}
+            allowClear
+            style={{ width: '100%', height: '48px' }}
+          >
+            {payPeriodData?.map((period: any) => (
+              <Option key={period.id} value={period.id}>
+                {dayjs(period.startDate).format('MMM DD, YYYY')} --
+                {dayjs(period.endDate).format('MMM DD, YYYY')}
+              </Option>
+            ))}
+          </Select>
+        </Col>
+        <Col xl={4} lg={5} md={6} sm={12} xs={24}>
+          <Button
+            className="min-h-12"
+            style={{ width: '100%', height: '48px' }}
+            type="primary"
+            onClick={() => refetch()}
+          >
+            Refresh VP
+          </Button>
+        </Col>
+      </Row>
       <Table
         className="mt-6"
         columns={columns}
