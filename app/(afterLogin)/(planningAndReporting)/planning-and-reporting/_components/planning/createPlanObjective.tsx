@@ -96,6 +96,11 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         type="link"
                         icon={<BiPlus />}
                         className="text-[10px]"
+                        disabled={
+                          Number(kr?.progress) == 100 ||
+                          form?.getFieldValue(`names-${kr?.id}`)?.[resultIndex]
+                            ?.achieveMK
+                        }
                       >
                         Add Plan Task
                       </Button>
@@ -107,7 +112,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                             className="text-[10px] text-primary"
                             icon={<FaPlus />}
                             disabled={
-                              kr?.progress === '100' ||
+                              Number(kr?.progress) == 100 ||
                               form?.getFieldValue(`names-${kr?.id}`)?.[
                                 resultIndex
                               ]?.achieveMK
