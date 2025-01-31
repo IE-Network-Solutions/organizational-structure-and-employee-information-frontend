@@ -182,7 +182,6 @@ function Planning() {
       userId,
       planningPeriodId || '', // Provide a default string value if undefined
     );
-  console.log('planningPeriodHierarchy',  planningPeriodHierarchy?.parentPlan?.plans);
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">

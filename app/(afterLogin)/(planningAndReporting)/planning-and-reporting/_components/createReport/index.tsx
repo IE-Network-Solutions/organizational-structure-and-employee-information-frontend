@@ -88,7 +88,6 @@ function CreateReport() {
   const formattedData =
     allPlannedTaskForReport &&
     groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport);
-    console.log(allPlannedTaskForReport,'formattedData')
   const totalWeight = formattedData?.reduce((sum: number, objective: any) => {
     return (
       sum +
@@ -143,7 +142,7 @@ function CreateReport() {
             >
               {formattedData?.map((objective: any, resultIndex: number) => (
                 <Collapse defaultActiveKey={0} key={resultIndex}>
-                  <Collapse.Panel header={objective.title} key={1}>
+                  <Collapse.Panel header={objective?.title} key={1}>
                     {objective?.keyResults?.map(
                       (keyresult: any, index: number) => (
                         <>
@@ -520,12 +519,28 @@ function CreateReport() {
 
                                         <Radio.Group
                                           className="text-xs"
-                                          onChange={(e) =>
+                                          onChange={(e) => {
                                             setStatus(
                                               task.taskId,
                                               e.target.value,
-                                            )
-                                          }
+                                            );
+                                            if (e.target.value === 'Done') {
+                                              form.setFieldsValue({
+                                                [task.taskId]: {
+                                                  actualValue:
+                                                    task?.targetValue,
+                                                },
+                                              });
+                                            } else if (
+                                              e.target.value === 'Not'
+                                            ) {
+                                              form.setFieldsValue({
+                                                [task.taskId]: {
+                                                  actualValue: 0,
+                                                },
+                                              });
+                                            }
+                                          }}
                                           value={selectedStatuses[task.taskId]} // Bind value from Zustand
                                         >
                                           <Radio
@@ -671,7 +686,7 @@ function CreateReport() {
                                             } else {
                                               // Fallback check if targetValue does not exist
                                               if (
-                                                numericValue <=
+                                                numericValue <
                                                 task?.targetValue
                                               ) {
                                                 return Promise.resolve(); // Validation passed
@@ -699,15 +714,29 @@ function CreateReport() {
                                             ',',
                                           )
                                         }
-                                        onChange={(e) => {
-                                          const value = e;
-                                          form.setFieldsValue({
-                                            [task.taskId]: {
-                                              actualValue: value
-                                                ? Number(value)
-                                                : '',
-                                            },
-                                          });
+                                        onChange={(value) => {
+                                          const statusValue =
+                                            form.getFieldValue([
+                                              task.taskId,
+                                              'status',
+                                            ]);
+                                          if (statusValue === 'Done') {
+                                            form.setFieldsValue({
+                                              [task.taskId]: {
+                                                actualValue: value
+                                                  ? Number(value)
+                                                  : task?.targetValue,
+                                              },
+                                            });
+                                          } else if (statusValue === 'Not') {
+                                            form.setFieldsValue({
+                                              [task.taskId]: {
+                                                actualValue: value
+                                                  ? Number(value)
+                                                  : 0,
+                                              },
+                                            });
+                                          }
                                         }}
                                       />
                                     </Form.Item>

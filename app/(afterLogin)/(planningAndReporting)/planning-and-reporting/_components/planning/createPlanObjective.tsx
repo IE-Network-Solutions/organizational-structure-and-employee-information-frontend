@@ -56,7 +56,6 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
   handleRemoveBoard,
   weights,
 }) => {
-  console.log('objective',  form?.getFieldValue("names-3c60ac4f-9a13-42b5-9b62-585997292ee4"));
   return (
     <Collapse defaultActiveKey={0}>
       {objective?.items?.map((e, panelIndex) => (
@@ -97,6 +96,11 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         type="link"
                         icon={<BiPlus />}
                         className="text-[10px]"
+                        disabled={
+                          Number(kr?.progress) == 100 ||
+                          form?.getFieldValue(`names-${kr?.id}`)?.[resultIndex]
+                            ?.achieveMK
+                        }
                       >
                         Add Plan Task
                       </Button>
@@ -108,7 +112,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                             className="text-[10px] text-primary"
                             icon={<FaPlus />}
                             disabled={
-                              Number(kr?.progress) === 100 ||
+                              Number(kr?.progress) == 100 ||
                               form?.getFieldValue(`names-${kr?.id}`)?.[
                                 0
                               ]?.achieveMK
