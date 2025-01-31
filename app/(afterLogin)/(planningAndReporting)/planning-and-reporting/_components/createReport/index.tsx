@@ -87,7 +87,7 @@ function CreateReport() {
 
   const formattedData =
     allPlannedTaskForReport &&
-   Array(groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport)[0]);
+    groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport);
   const totalWeight = formattedData?.reduce((sum: number, objective: any) => {
     return (
       sum +
@@ -142,7 +142,7 @@ function CreateReport() {
             >
               {formattedData?.map((objective: any, resultIndex: number) => (
                 <Collapse defaultActiveKey={0} key={resultIndex}>
-                  <Collapse.Panel header={objective.title} key={1}>
+                  <Collapse.Panel header={objective?.title} key={1}>
                     {objective?.keyResults?.map(
                       (keyresult: any, index: number) => (
                         <>
@@ -686,8 +686,7 @@ function CreateReport() {
                                             } else {
                                               // Fallback check if targetValue does not exist
                                               if (
-                                                numericValue <
-                                                task?.targetValue
+                                                numericValue < task?.targetValue
                                               ) {
                                                 return Promise.resolve(); // Validation passed
                                               }
