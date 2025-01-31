@@ -158,22 +158,24 @@ function Reporting() {
       </Menu.Item>
 
       {/* Delete Plan */}
-      <Menu.Item
-        className="text-red-400"
-        icon={<AiOutlineDelete size={16} />}
-        key="delete"
-      >
-        <Popconfirm
+      {/* <Popconfirm
           title="Are you sure you want to delete this plan?"
           onConfirm={() => handleDeleteReport(dataItem?.id || '')}
           okText="Yes"
           cancelText="No"
         >
+      <Menu.Item
+        className="text-red-400"
+        icon={<AiOutlineDelete size={16} />}
+        key="delete"
+      >
+       
           <Tooltip title="Delete Plan">
             <span>Delete</span>
           </Tooltip>
-        </Popconfirm>
+       
       </Menu.Item>
+      </Popconfirm> */}
     </Menu>
   );
   return (

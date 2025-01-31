@@ -159,7 +159,7 @@ function Planning() {
       </Menu.Item>
 
       {/* Delete Plan */}
-      <Menu.Item
+      {/* <Menu.Item
         className="text-red-400"
         icon={<AiOutlineDelete size={16} />}
         key="delete"
@@ -174,7 +174,7 @@ function Planning() {
             <span>Delete</span>
           </Tooltip>
         </Popconfirm>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   );
   const { data: planningPeriodHierarchy, isLoading } =
@@ -182,7 +182,7 @@ function Planning() {
       userId,
       planningPeriodId || '', // Provide a default string value if undefined
     );
-
+  console.log('planningPeriodHierarchy',  planningPeriodHierarchy?.parentPlan?.plans);
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -194,7 +194,7 @@ function Planning() {
                 ? `Report planned tasks before you create ${activeTabName} plan`
                 : objective?.items?.length === 0
                   ? 'Create Objective before you Plan'
-                  : planningPeriodHierarchy?.parentPlan?.plans?.length == 0
+                  : planningPeriodHierarchy?.parentPlan?.plans?.length == 0 || planningPeriodHierarchy?.parentPlan?.plans?.filter((i:any)=>i.isReported===false)?.length==0
                     ? `Please create ${planningPeriodHierarchy?.parentPlan?.name} Plan before creating ${activeTabName} Plan`
                     : ''
             }
@@ -204,7 +204,7 @@ function Planning() {
                 disabled={
                   // selectedUser.includes(userId) &&
                   allUserPlanning?.length > 0 ||
-                  planningPeriodHierarchy?.parentPlan?.plans?.length == 0 ||
+                 planningPeriodHierarchy?.parentPlan?.plans?.length == 0 || planningPeriodHierarchy?.parentPlan?.plans?.filter((i:any)=>i.isReported===false)?.length==0 ||
                   objective?.items?.length == 0
                 }
                 loading={isLoading}
