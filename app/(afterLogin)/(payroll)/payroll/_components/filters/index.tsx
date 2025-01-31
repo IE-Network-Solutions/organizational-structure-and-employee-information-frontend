@@ -20,7 +20,6 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: payroll } = useGetActivePayroll();
 
-
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
   const [fiscalYears, setFiscalYears] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
