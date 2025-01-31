@@ -28,7 +28,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import {
   useApprovalPlanningPeriods,
-  useDeletePlanById,
+  // useDeletePlanById,
 } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
@@ -36,7 +36,7 @@ import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { PlanningType } from '@/types/enumTypes';
-import {  AiOutlineEdit } from 'react-icons/ai';
+import { AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
