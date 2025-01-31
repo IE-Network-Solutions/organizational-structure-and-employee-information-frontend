@@ -8,7 +8,6 @@ import {
   Dropdown,
   Menu,
   Pagination,
-  Popconfirm,
   Row,
   Spin,
   Tooltip,
@@ -36,10 +35,10 @@ import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
 import { IoIosOpen, IoMdMore } from 'react-icons/io';
 import { IoCheckmarkSharp } from 'react-icons/io5';
-import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
+import { AiOutlineEdit } from 'react-icons/ai';
 import {
   useApprovalReporting,
-  useDeleteReportById,
+  // useDeleteReportById,
 } from '@/store/server/features/okrPlanningAndReporting/mutations';
 
 const { Title } = Typography;
@@ -61,8 +60,8 @@ function Reporting() {
   const { userId } = useAuthenticationStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
-  const { mutate: handleDeleteReport, isLoading: loadingDeleteReport } =
-    useDeleteReportById();
+  // const { mutate: handleDeleteReport, isLoading: loadingDeleteReport } =
+  //   useDeleteReportById();
 
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
@@ -158,22 +157,24 @@ function Reporting() {
       </Menu.Item>
 
       {/* Delete Plan */}
-      <Menu.Item
-        className="text-red-400"
-        icon={<AiOutlineDelete size={16} />}
-        key="delete"
-      >
-        <Popconfirm
+      {/* <Popconfirm
           title="Are you sure you want to delete this plan?"
           onConfirm={() => handleDeleteReport(dataItem?.id || '')}
           okText="Yes"
           cancelText="No"
         >
+      <Menu.Item
+        className="text-red-400"
+        icon={<AiOutlineDelete size={16} />}
+        key="delete"
+      >
+       
           <Tooltip title="Delete Plan">
             <span>Delete</span>
           </Tooltip>
-        </Popconfirm>
+       
       </Menu.Item>
+      </Popconfirm> */}
     </Menu>
   );
   return (
@@ -306,7 +307,7 @@ function Reporting() {
                                   trigger={['click']}
                                 >
                                   <Button
-                                    loading={loadingDeleteReport}
+                                    // loading={loadingDeleteReport}
                                     type="text"
                                     icon={<IoMdMore className="text-2xl" />}
                                     className="cursor-pointer  text-black border-none  hover:text-primary"

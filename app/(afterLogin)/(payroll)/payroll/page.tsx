@@ -5,6 +5,7 @@ import Filters from './_components/filters';
 import {
   useGetActivePayroll,
   useGetAllActiveBasicSalary,
+  useGetEmployeeInfo,
 } from '@/store/server/features/payroll/payroll/queries';
 import {
   useCreatePayroll,
@@ -30,20 +31,22 @@ const Payroll = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
-  const [loading, setLoading] = useState(false);
   const [payPeriodId, setPayPeriodId] = useState('');
-
   const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
+  const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
-
   const {
     mutate: createPayroll,
     isLoading: isCreatingPayroll,
     isSuccess: isCreatePayrollSuccess,
   } = useCreatePayroll();
+
   const { mutate: deletePayroll } = useDeletePayroll();
+
   const { exportToExcel } = useExportData();
   const { generateBankLetter } = useGenerateBankLetter();
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isCreatePayrollSuccess) {
@@ -52,7 +55,7 @@ const Payroll = () => {
         description: 'Payroll has been successfully generated.',
       });
     }
-  }, [isCreatePayrollSuccess, payroll]);
+  }, [isCreatePayrollSuccess, payroll, employeeInfo]);
 
   const handleGeneratePayroll = async () => {
     if (!allActiveSalary || allActiveSalary.length === 0) {
@@ -81,6 +84,7 @@ const Payroll = () => {
       setLoading(false);
     }
   };
+
   const handleDeletePayroll = () => {
     if (!window.confirm('Are you sure you want to delete this payroll?')) {
       return;
@@ -135,6 +139,48 @@ const Payroll = () => {
     } catch (error) {
       notification.error({
         message: 'Error Exporting Data',
+        description: 'An error occurred while exporting data.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportBank = async () => {
+    if (!employeeInfo || employeeInfo.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const flatData = employeeInfo.map((employee: any) => ({
+        employeeName: `${employee.firstName || ''} ${employee.lastName || ''}`,
+        email: employee.email || '--',
+        accountNumber:
+          employee.employeeInformation?.bankInformation?.accountNumber || '--',
+        bankName:
+          employee.employeeInformation?.bankInformation?.bankName || '--',
+        basicsalary: employee.basicSalaries?.length
+          ? employee.basicSalaries.at(-1).basicSalary
+          : '--',
+      }));
+
+      const exportColumns = [
+        { header: 'Employee Name', key: 'employeeName', width: 50 },
+        { header: 'Employee Email', key: 'email', width: 50 },
+        { header: 'Account Number', key: 'accountNumber', width: 40 },
+        { header: 'Bank Name', key: 'bankName', width: 30 },
+        { header: 'Net Pay', key: 'basicsalary', width: 30 },
+      ];
+
+      await exportToExcel(flatData, exportColumns, 'Banks');
+    } catch (error) {
+      notification.error({
+        message: 'Error Exporting Bank Information',
         description: 'An error occurred while exporting data.',
       });
     } finally {
@@ -226,7 +272,6 @@ const Payroll = () => {
       minWidth: 150,
     },
   ];
-
   return (
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4">
@@ -235,7 +280,7 @@ const Payroll = () => {
           <Button
             type="default"
             className="text-white bg-violet-300 border-none p-6"
-            onClick={() => {}}
+            onClick={handleExportBank}
           >
             Export Bank
           </Button>

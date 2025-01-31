@@ -80,7 +80,7 @@ const TaskRow = ({
               className="font-bold border-none w-16 text-center text-blue text-[10px]"
               color="#B2B2FF"
             >
-              {task?.targetValue || 'N/A'}
+              {Number(task?.targetValue)?.toLocaleString() || 'N/A'}
             </Tag>
           </>
         )}
