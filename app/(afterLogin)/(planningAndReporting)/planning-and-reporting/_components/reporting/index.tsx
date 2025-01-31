@@ -8,7 +8,6 @@ import {
   Dropdown,
   Menu,
   Pagination,
-  Popconfirm,
   Row,
   Spin,
   Tooltip,
@@ -36,7 +35,7 @@ import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
 import { IoIosOpen, IoMdMore } from 'react-icons/io';
 import { IoCheckmarkSharp } from 'react-icons/io5';
-import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
+import { AiOutlineEdit } from 'react-icons/ai';
 import {
   useApprovalReporting,
   useDeleteReportById,
@@ -61,8 +60,8 @@ function Reporting() {
   const { userId } = useAuthenticationStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
-  const { mutate: handleDeleteReport, isLoading: loadingDeleteReport } =
-    useDeleteReportById();
+  // const { mutate: handleDeleteReport, isLoading: loadingDeleteReport } =
+  //   useDeleteReportById();
 
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
@@ -308,7 +307,7 @@ function Reporting() {
                                   trigger={['click']}
                                 >
                                   <Button
-                                    loading={loadingDeleteReport}
+                                    // loading={loadingDeleteReport}
                                     type="text"
                                     icon={<IoMdMore className="text-2xl" />}
                                     className="cursor-pointer  text-black border-none  hover:text-primary"
