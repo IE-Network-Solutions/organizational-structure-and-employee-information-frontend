@@ -155,16 +155,16 @@ export const useSetApproveLeaveRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setApproveLeaveRequest, {
     onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries(['current_approval', data?.approvedUserId]);
-      queryClient.invalidateQueries(['leave-request']);
-      queryClient.invalidateQueries(['transferApprovalRequest']);
-      queryClient.invalidateQueries(['myTansferRequest']);
-      queryClient.invalidateQueries(['transferRequest']);
+      queryClient.invalidateQueries('current_approval');
+      queryClient.invalidateQueries('leave-request');
+      queryClient.invalidateQueries('transferApprovalRequest');
+      queryClient.invalidateQueries('myTansferRequest');
+      queryClient.invalidateQueries('transferRequest');
       queryClient.invalidateQueries([
         'tna-current_approval',
         data?.approvedUserId,
       ]);
-      queryClient.invalidateQueries(['tna']);
+      queryClient.invalidateQueries('tna');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -173,8 +173,8 @@ export const useSetApproveLeaveRequest = () => {
 export const useSetFinalApproveLeaveRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setFinalApproveLeaveRequest, {
-    onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries(['current_approval', data?.approvedUserId]);
+    onSuccess: (variables: any) => {
+      queryClient.invalidateQueries('current_approval');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -183,8 +183,8 @@ export const useSetFinalApproveLeaveRequest = () => {
 export const useSetFinalApproveBranchRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setFinalApproveBranchRequest, {
-    onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries(['current_approval', data?.approvedUserId]);
+    onSuccess: (variables: any) => {
+      queryClient.invalidateQueries('current_approval');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -193,12 +193,12 @@ export const useSetFinalApproveBranchRequest = () => {
 export const useSetAllApproveLeaveRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllApproveLeaveRequest, {
-    onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries(['current_approval', data?.userId]);
-      queryClient.invalidateQueries(['leave-request']);
-      queryClient.invalidateQueries(['transferApprovalRequest']);
-      queryClient.invalidateQueries(['myTansferRequest']);
-      queryClient.invalidateQueries(['transferRequest']);
+    onSuccess: (variables: any) => {
+      queryClient.invalidateQueries('current_approval');
+      queryClient.invalidateQueries('leave-request');
+      queryClient.invalidateQueries('transferApprovalRequest');
+      queryClient.invalidateQueries('myTansferRequest');
+      queryClient.invalidateQueries('transferRequest');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -207,12 +207,12 @@ export const useSetAllApproveLeaveRequest = () => {
 export const useSetRejectLeaveRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllRejectLeaveRequest, {
-    onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries(['current_approval', data?.userId]);
-      queryClient.invalidateQueries(['leave-request']);
-      queryClient.invalidateQueries(['transferApprovalRequest']);
-      queryClient.invalidateQueries(['myTansferRequest']);
-      queryClient.invalidateQueries(['transferRequest']);
+    onSuccess: (variables: any) => {
+      queryClient.invalidateQueries('current_approval');
+      queryClient.invalidateQueries('leave-request');
+      queryClient.invalidateQueries('transferApprovalRequest');
+      queryClient.invalidateQueries('myTansferRequest');
+      queryClient.invalidateQueries('transferRequest');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -224,7 +224,7 @@ export const useSetAllApproveTnaRequest = () => {
   return useMutation(setAllApproveTnaRequest, {
     onSuccess: (data, variables: any) => {
       queryClient.invalidateQueries(['tna-current_approval', data?.userId]);
-      queryClient.invalidateQueries(['tna']);
+      queryClient.invalidateQueries('tna');
 
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
@@ -234,17 +234,17 @@ export const useSetAllApproveTnaRequest = () => {
 export const useSetRejectTnaRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllRejectTnaRequest, {
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(['tna-current_approval', data?.userId]);
-      queryClient.invalidateQueries(['tna']);
+    onSuccess: () => {
+      queryClient.invalidateQueries('tna-current_approval');
+      queryClient.invalidateQueries('tna');
     },
   });
 };
 export const useSetAllFinalApproveLeaveRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllFinalApproveLeaveRequest, {
-    onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries(['current_approval']);
+    onSuccess: (variables: any) => {
+      queryClient.invalidateQueries('current_approval');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

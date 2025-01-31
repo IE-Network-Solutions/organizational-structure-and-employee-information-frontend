@@ -87,7 +87,9 @@ function CreateReport() {
 
   const formattedData =
     allPlannedTaskForReport &&
-   Array(groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport)[0]);
+    Array(
+      groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport)[0],
+    );
   const totalWeight = formattedData?.reduce((sum: number, objective: any) => {
     return (
       sum +
@@ -686,8 +688,7 @@ function CreateReport() {
                                             } else {
                                               // Fallback check if targetValue does not exist
                                               if (
-                                                numericValue <
-                                                task?.targetValue
+                                                numericValue < task?.targetValue
                                               ) {
                                                 return Promise.resolve(); // Validation passed
                                               }
