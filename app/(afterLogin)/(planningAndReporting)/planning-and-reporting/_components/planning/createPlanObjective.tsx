@@ -104,9 +104,9 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                       >
                         Add Plan Task
                       </Button>
-
+                   
                       {kr?.metricType?.name === NAME.ACHIEVE && (
-                        <Tooltip title="Plan keyResult as a Task">
+                        <Tooltip title="Plan keyResult as a Task ">
                           <Button
                             size="small"
                             className="text-[10px] text-primary"
@@ -114,7 +114,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                             disabled={
                               Number(kr?.progress) == 100 ||
                               form?.getFieldValue(`names-${kr?.id}`)?.[
-                                resultIndex
+                                0
                               ]?.achieveMK
                             }
                             onClick={() => {
@@ -158,7 +158,8 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                     ml?.status === 'Completed' ||
                                     form?.getFieldValue(
                                       `names-${kr?.id + ml?.id}`,
-                                    )?.[resultIndex]?.achieveMK
+                                    )?.[0]?.achieveMK
+                                    
                                   }
                                   size="small"
                                   className="text-[10px] text-primary"
