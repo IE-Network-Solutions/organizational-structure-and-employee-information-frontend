@@ -142,7 +142,7 @@ function CreateReport() {
             >
               {formattedData?.map((objective: any, resultIndex: number) => (
                 <Collapse defaultActiveKey={0} key={resultIndex}>
-                  <Collapse.Panel header={objective.title} key={1}>
+                  <Collapse.Panel header={objective?.title} key={1}>
                     {objective?.keyResults?.map(
                       (keyresult: any, index: number) => (
                         <>
