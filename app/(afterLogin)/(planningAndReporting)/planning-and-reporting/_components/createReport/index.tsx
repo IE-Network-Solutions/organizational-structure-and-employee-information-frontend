@@ -686,8 +686,7 @@ function CreateReport() {
                                             } else {
                                               // Fallback check if targetValue does not exist
                                               if (
-                                                numericValue <
-                                                task?.targetValue
+                                                numericValue < task?.targetValue
                                               ) {
                                                 return Promise.resolve(); // Validation passed
                                               }
