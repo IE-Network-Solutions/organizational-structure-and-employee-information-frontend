@@ -1,6 +1,7 @@
 import React from 'react';
 import ExcelJS from 'exceljs';
 import { ProjectData } from '@/store/uistate/features/incentive/incentive'; // Import the interface
+import { Button, Popover } from 'antd';
 
 interface DownloadExcelButtonProps {
   headers: string[]; // Headers passed as props
@@ -60,21 +61,31 @@ const DownloadExcelButton: React.FC<DownloadExcelButtonProps> = ({
     document.body.removeChild(link); // Clean up
     URL.revokeObjectURL(url); // Free up memory
   };
+  const content = (
+    <div>
+      <p>Content</p>
+      <p>Content</p>
+    </div>
+  );
 
   return (
-    <button
-      onClick={handleDownload}
-      style={{
-        padding: '10px 20px',
-        backgroundColor: '#007BFF',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-      }}
-    >
-      Download Excel
-    </button>
+    // <button
+    //   onClick={handleDownload}
+    //   style={{
+    //     padding: '10px 20px',
+    //     backgroundColor: '#007BFF',
+    //     color: '#fff',
+    //     border: 'none',
+    //     borderRadius: '5px',
+    //     cursor: 'pointer',
+    //   }}
+    // >
+    //   Download Excel
+    // </button>
+
+    <Popover content={content} trigger="click">
+      <Button onClick={handleDownload}>Download Format</Button>
+    </Popover>
   );
 };
 

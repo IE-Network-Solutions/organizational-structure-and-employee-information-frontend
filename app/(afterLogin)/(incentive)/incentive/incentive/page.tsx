@@ -108,7 +108,7 @@ const IncentivePage: React.FC = () => {
               onClick={() => setProjectDrawer(true)}
               className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
             >
-              Import Project Data
+              Import Data
             </Button>
           </div>
         );
@@ -147,8 +147,6 @@ const IncentivePage: React.FC = () => {
       setIsPayrollView(false);
     }
   };
-
-  console.log(isPayrollView, 'isPayrollView');
 
   return (
     <div className="m-1">
