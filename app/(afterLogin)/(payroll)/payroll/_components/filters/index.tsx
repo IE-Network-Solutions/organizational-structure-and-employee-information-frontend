@@ -120,7 +120,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
           <Select
             showSearch
             allowClear
-            className="min-h-12"
+            className="min-h-12 w-[100%]"
             placeholder="Search by name"
             onChange={(value) => handleEmployeeSelect(value)}
             filterOption={(input, option) => {
@@ -131,7 +131,6 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
               );
             }}
             options={options}
-            style={{ width: 300 }} // Set a width for better UX
           />
         </Col>
 
@@ -188,7 +187,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
         <Col xl={4} lg={5} md={6} sm={12} xs={24}>
           <Select
             placeholder="Pay Period"
-            onChange={(value) => handleSelectChange('payPeriod', value)}
+            onChange={(value) => handleSelectChange('payPeriodId', value)}
             value={searchValue.payPeriodId}
             allowClear
             style={{ width: '100%', height: '48px' }}

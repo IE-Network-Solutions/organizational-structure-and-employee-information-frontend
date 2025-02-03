@@ -86,9 +86,6 @@ const Payroll = () => {
   };
 
   const handleDeletePayroll = () => {
-    if (!window.confirm('Are you sure you want to delete this payroll?')) {
-      return;
-    }
     setLoading(true);
     try {
       deletePayroll(payPeriodId);
