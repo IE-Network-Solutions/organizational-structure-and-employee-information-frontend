@@ -34,13 +34,13 @@ const PlanAssignment: React.FC = () => {
     setPageSize,
   } = useOKRSettingStore();
   const { mutate: deletePlanningAssign } = useDeletePlanningUser();
-  const { data: allUserWithPlanningPeriod } = useGetAllAssignedUser(
-    page,
-    pageSize,
-    userId || '',
-  );
+  const {
+    data: allUserWithPlanningPeriod,
+    isLoading: allUserPlanningPeriodLoading,
+  } = useGetAllAssignedUser(page, pageSize, userId || '');
   const { data: getAllPlanningPeriod } = useGetAllPlanningPeriods();
-  const { data: employeeData } = useGetAllUsers();
+  const { data: employeeData, isLoading: employeeDataLoading } =
+    useGetAllUsers();
   const userToPlanning = allUserWithPlanningPeriod?.items.reduce(
     (acc: GroupedUser[], item: PlanningPeriodUser) => {
       let group = acc.find((group) => group.userId === item.userId);
@@ -195,10 +195,12 @@ const PlanAssignment: React.FC = () => {
             value: list?.id,
             label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
           }))}
+          loading={employeeDataLoading}
         />
       </Form.Item>
 
       <Table
+        loading={allUserPlanningPeriodLoading}
         dataSource={dataSources}
         columns={columns}
         pagination={{
