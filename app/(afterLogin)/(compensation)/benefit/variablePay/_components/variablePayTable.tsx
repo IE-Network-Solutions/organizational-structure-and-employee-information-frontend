@@ -2,7 +2,6 @@ import { Button, Col, Row, Select, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { useGetVariablePay } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
-
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -17,16 +16,15 @@ const VariablePayTable = () => {
   const { data: allUsersVariablePay, isLoading } = useGetVariablePay();
   const { currentPage, pageSize, setCurrentPage, setPageSize } =
     useVariablePayStore();
-  const [searchQuery, setSearchQuery] = useState('');
   const { data: employeeData } = useGetAllUsers();
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: session } = useGetSession();
   const { mutate: filterVpScoreInstance } = useFilterVpScoreInstance();
 
+  const [searchQuery, setSearchQuery] = useState('');
   const [sessions, setSessions] = useState<any[]>([]);
   const [months, setMonths] = useState<any[]>([]);
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
-  const [monthIds, setMonthIds] = useState<string[]>([]);
 
   const tableData: any[] =
     allUsersVariablePay?.items?.map((variablePay: any) => ({
@@ -97,7 +95,7 @@ const VariablePayTable = () => {
   const options =
     employeeData?.items?.map((emp: any) => ({
       value: emp.id,
-      label: `${emp.firstName || ''} ${emp.lastName}`, // Full name as label
+      label: `${emp.firstName || ''} ${emp.lastName}`,
       employeeData: emp,
     })) || [];
 
@@ -116,13 +114,11 @@ const VariablePayTable = () => {
 
       if (selectedSession) {
         setMonths(selectedSession.months);
-        setMonthIds(selectedSession.months.map((month: any) => month.id));
         filterVpScoreInstance({
           monthIds: selectedSession.months.map((month: any) => month.id),
         });
       } else {
         setMonths([]);
-        setMonthIds([]);
       }
 
       setSearchValue((prevState: any) => ({
@@ -137,13 +133,11 @@ const VariablePayTable = () => {
           (session) => session.id === searchValue.sessionId,
         );
         if (selectedSession) {
-          setMonthIds(selectedSession.months.map((month: any) => month.id));
           filterVpScoreInstance({
             monthIds: selectedSession.months.map((month: any) => month.id),
           });
         }
       } else {
-        setMonthIds([value]);
         filterVpScoreInstance({ monthIds: [value] });
       }
     }
