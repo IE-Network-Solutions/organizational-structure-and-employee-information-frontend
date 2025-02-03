@@ -49,7 +49,6 @@ const getTargetAssignmentById = async (id: string) => {
 export const useGetTargetAssignmentById = (id: string) =>
   useQuery(['targetAssignment', id], () => getTargetAssignmentById(id));
 
-
 const getSession = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;

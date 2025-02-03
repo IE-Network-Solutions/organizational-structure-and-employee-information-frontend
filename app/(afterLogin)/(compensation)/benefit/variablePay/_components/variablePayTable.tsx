@@ -1,4 +1,4 @@
-import { Button, Col, Row, Select, Space, Spin, Table } from 'antd';
+import { Button, Col, Row, Select, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { useGetVariablePay } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
