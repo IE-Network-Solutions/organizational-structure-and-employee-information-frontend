@@ -126,7 +126,6 @@ function CreateReport() {
       }, 0)
     );
   }, 0);
-  console.log(allPlannedTaskForReport, 'allPlannedTaskForReport');
   return (
     openReportModal && (
       <CustomDrawerLayout
