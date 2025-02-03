@@ -110,8 +110,11 @@ const PayPeriodSideBar = () => {
       status: 'CLOSED',
       activeFiscalYearId: activeFiscalYear?.id,
     }));
-    createPayPeriods(transformedData);
-    onClose();
+    createPayPeriods(transformedData, {
+      onSuccess: () => {
+        onClose();
+      },
+    });
   };
 
   const handleDeleteDivision = (index: number) => {
@@ -296,41 +299,38 @@ const PayPeriodSideBar = () => {
                           onChange={(value) => handleMonthSelect(value, index)}
                         >
                           {(() => {
-                            const rangeStart = dayjs(range[0]);
-                            const rangeEnd = dayjs(range[1]);
+                            // const rangeStart = dayjs(range[0]);
+                            // const rangeEnd = dayjs(range[1]);
+                            // const rangeAverage = rangeStart.add(
+                            //   rangeEnd.diff(rangeStart) / 2,
+                            //   'ms',
+                            // );
 
-                            const rangeAverage = rangeStart.add(
-                              rangeEnd.diff(rangeStart) / 2,
-                              'ms',
-                            );
-
-                            const suitableMonths = (
-                              monthsWithStartEndDates ?? []
-                            )
-                              .filter((month) => {
-                                const startDate = dayjs(month.startDate);
-                                return startDate.isSameOrBefore(
-                                  rangeEnd,
-                                  'month',
-                                );
-                              })
-                              .map((month) => ({
-                                ...month,
-                                distance: Math.abs(
-                                  dayjs(month.startDate).diff(
-                                    rangeAverage,
-                                    'days',
-                                  ),
-                                ),
-                              }))
-                              .sort((a, b) => a.distance - b.distance)
-                              .slice(0, 3)
-                              .sort((a, b) => {
-                                const startDateA = dayjs(a.startDate);
-                                const startDateB = dayjs(b.startDate);
-                                return startDateA.isBefore(startDateB) ? -1 : 1;
-                              });
-
+                            const suitableMonths =
+                              monthsWithStartEndDates ?? [];
+                            // .filter((month) => {
+                            //   const startDate = dayjs(month.startDate);
+                            //   return startDate.isSameOrBefore(
+                            //     rangeEnd,
+                            //     'month',
+                            //   );
+                            // })
+                            // .map((month) => ({
+                            //   ...month,
+                            //   distance: Math.abs(
+                            //     dayjs(month.startDate).diff(
+                            //       rangeAverage,
+                            //       'days',
+                            //     ),
+                            //   ),
+                            // }))
+                            // .sort((a, b) => a.distance - b.distance)
+                            // .slice(0, 3)
+                            // .sort((a, b) => {
+                            //   const startDateA = dayjs(a.startDate);
+                            //   const startDateB = dayjs(b.startDate);
+                            //   return startDateA.isBefore(startDateB) ? -1 : 1;
+                            // });
                             return suitableMonths.map((month) => (
                               <Option key={month.id} value={month.id}>
                                 {`${month?.monthName}`}

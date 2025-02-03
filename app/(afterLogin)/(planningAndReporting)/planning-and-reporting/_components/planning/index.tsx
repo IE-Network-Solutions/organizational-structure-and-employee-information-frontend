@@ -8,10 +8,8 @@ import {
   Dropdown,
   Menu,
   Pagination,
-  Popconfirm,
   Row,
   Spin,
-  Tag,
   Tooltip,
   Typography,
 } from 'antd';
@@ -23,24 +21,28 @@ import KeyResultMetrics from '../keyResult';
 import {
   AllPlanningPeriods,
   useGetPlanning,
+  useGetPlanningPeriodsHierarchy,
+  useGetUserPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import {
   useApprovalPlanningPeriods,
-  useDeletePlanById,
+  // useDeletePlanById,
 } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
 import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { NAME, PlanningType } from '@/types/enumTypes';
-import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
+import { PlanningType } from '@/types/enumTypes';
+import { AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
-const { Text, Title } = Typography;
+import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
+import MilestoneTasks from './milestoneTasks';
+const { Title } = Typography;
 
 function Planning() {
   const {
@@ -51,6 +53,9 @@ function Planning() {
     setEditing,
     page,
     setPage,
+    pageSize,
+    setPageSize,
+    activeTab,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
@@ -58,8 +63,9 @@ function Planning() {
     useApprovalPlanningPeriods();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
-  const { mutate: handleDeletePlan } = useDeletePlanById();
-
+  // const { mutate: handleDeletePlan, isLoading: loadingDeletePlan } =
+  //   useDeletePlanById();
+  const { data: objective } = useFetchObjectives(userId);
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
@@ -67,7 +73,12 @@ function Planning() {
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '', // Provide a default string value
     page,
+    pageSize,
   });
+  const { data: allUserPlanning } = useGetUserPlanning(
+    planningPeriodId ?? '',
+    activeTab.toString(),
+  );
 
   const transformedData = groupPlanTasksByKeyResultAndMilestone(
     allPlanning?.items,
@@ -89,7 +100,6 @@ function Planning() {
 
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
-
   const actionsMenu = (
     dataItem: any,
     handleApproveHandler: any,
@@ -148,7 +158,7 @@ function Planning() {
       </Menu.Item>
 
       {/* Delete Plan */}
-      <Menu.Item
+      {/* <Menu.Item
         className="text-red-400"
         icon={<AiOutlineDelete size={16} />}
         key="delete"
@@ -163,10 +173,14 @@ function Planning() {
             <span>Delete</span>
           </Tooltip>
         </Popconfirm>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   );
-
+  const { data: planningPeriodHierarchy, isLoading } =
+    useGetPlanningPeriodsHierarchy(
+      userId,
+      planningPeriodId || '', // Provide a default string value if undefined
+    );
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -174,24 +188,30 @@ function Planning() {
           <Title level={5}>Planning</Title>
           <Tooltip
             title={
-              !(
-                selectedUser.includes(userId) &&
-                ((transformedData?.[0]?.isReported ?? false) ||
-                  transformedData?.length === 0)
-              )
-                ? 'Report planned tasks before'
-                : ''
+              allUserPlanning?.length != 0
+                ? `Report planned tasks before you create ${activeTabName} plan`
+                : objective?.items?.length === 0
+                  ? 'Create Objective before you Plan'
+                  : planningPeriodHierarchy?.parentPlan?.plans?.length == 0 ||
+                      planningPeriodHierarchy?.parentPlan?.plans?.filter(
+                        (i: any) => i.isReported === false,
+                      )?.length == 0
+                    ? `Please create ${planningPeriodHierarchy?.parentPlan?.name} Plan before creating ${activeTabName} Plan`
+                    : ''
             }
           >
             <div style={{ display: 'inline-block' }}>
               <CustomButton
                 disabled={
-                  !(
-                    selectedUser.includes(userId) &&
-                    ((transformedData?.[0]?.isReported ?? false) ||
-                      transformedData?.length === 0)
-                  )
+                  // selectedUser.includes(userId) &&
+                  allUserPlanning?.length > 0 ||
+                  planningPeriodHierarchy?.parentPlan?.plans?.length == 0 ||
+                  planningPeriodHierarchy?.parentPlan?.plans?.filter(
+                    (i: any) => i.isReported === false,
+                  )?.length == 0 ||
+                  objective?.items?.length == 0
                 }
+                loading={isLoading}
                 title={`Create ${activeTabName} Plan`}
                 id="createActiveTabName"
                 icon={<FaPlus className="mr-2" />}
@@ -281,10 +301,9 @@ function Planning() {
                                 trigger={['click']}
                               >
                                 <Button
+                                  loading={isApprovalLoading}
                                   type="text"
-                                  icon={
-                                    <IoMdMore className="text-2xl font-bold" />
-                                  }
+                                  icon={<IoMdMore className="text-2xl" />}
                                   className="cursor-pointer text-green border-none  hover:text-success"
                                 />
                               </Dropdown>
@@ -301,6 +320,7 @@ function Planning() {
                                   trigger={['click']}
                                 >
                                   <Button
+                                    // loading={loadingDeletePlan}
                                     type="text"
                                     icon={<IoMdMore className="text-2xl" />}
                                     className="cursor-pointer  text-black border-none  hover:text-primary"
@@ -327,165 +347,10 @@ function Planning() {
                         }
                       }
                     />
-                    {keyResult?.milestones?.map(
-                      (milestone: any, milestoneIndex: number) => (
-                        <Row
-                          className="rounded-lg py-1 pr-3"
-                          key={milestone?.id}
-                        >
-                          {keyResult?.metricType?.name === NAME.MILESTONE && (
-                            <Col className="ml-5 mb-1" span={24}>
-                              <strong>{`${milestoneIndex + 1}. ${milestone?.title ?? milestone?.description ?? 'No milestone Title'}`}</strong>
-                            </Col>
-                          )}
-                          {milestone?.tasks?.map(
-                            (task: any, taskIndex: number) => (
-                              <Row
-                                key={task.id}
-                                align={'middle'}
-                                justify={'space-between'}
-                                className="w-full"
-                              >
-                                <Col className="ml-8 mb-1">
-                                  <Text className="text-sm">
-                                    {keyResult?.metricType?.name ===
-                                    NAME.MILESTONE
-                                      ? `${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`
-                                      : `${taskIndex + 1}. ${task?.task}`}
-                                  </Text>
-                                </Col>
-                                <Col className="">
-                                  <Text
-                                    type="secondary"
-                                    className="text-[10px] mr-2"
-                                  >
-                                    <span
-                                      className="text-xl"
-                                      style={{ color: 'blue' }}
-                                    >
-                                      &bull;
-                                    </span>{' '}
-                                    Priority
-                                  </Text>
-                                  <Tag
-                                    className="font-bold border-none w-16 text-center capitalize text-[10px]"
-                                    color={
-                                      task?.priority === 'high'
-                                        ? 'red'
-                                        : task?.priority === 'medium'
-                                          ? 'orange'
-                                          : 'green'
-                                    }
-                                  >
-                                    {task?.priority || 'None'}
-                                  </Tag>
-
-                                  {/* Point Section */}
-
-                                  {/* Target Section */}
-                                  <Text
-                                    type="secondary"
-                                    className="text-[10px] mr-2"
-                                  >
-                                    <span
-                                      className="text-xl"
-                                      style={{ color: 'blue' }}
-                                    >
-                                      &bull;
-                                    </span>{' '}
-                                    Weight:
-                                  </Text>
-                                  <Tag
-                                    className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
-                                    color="#B2B2FF"
-                                  >
-                                    {task?.weight || 0}
-                                  </Tag>
-
-                                  {keyResult?.metricType?.name !==
-                                    'Milestone' && (
-                                    <>
-                                      <Text
-                                        type="secondary"
-                                        className="text-[10px]"
-                                      >
-                                        <span
-                                          className="text-xl"
-                                          style={{ color: 'blue' }}
-                                        >
-                                          &bull;
-                                        </span>{' '}
-                                        Target:
-                                      </Text>
-                                      <Tag
-                                        className="font-bold border-none w-16 text-center cap text-blue text-[10px]"
-                                        color="#B2B2FF"
-                                      >
-                                        {task?.targetValue || 'N/A'}
-                                      </Tag>
-                                    </>
-                                  )}
-                                </Col>
-                              </Row>
-                            ),
-                          )}
-                        </Row>
-                      ),
-                    )}
-                    {keyResult?.tasks?.map((task: any, taskIndex: number) => (
-                      <Row key={taskIndex}>
-                        <Col className="ml-5" span={24} key={taskIndex}>
-                          <Row>
-                            <Col>
-                              <Text className="text-xs">{`${keyResultIndex + 1}.${taskIndex + 1} ${task?.task}`}</Text>
-                            </Col>
-                            <Col>
-                              <Row justify="start" className="gap-1">
-                                <Col>
-                                  <Text type="secondary" className="text-xs">
-                                    <span style={{ color: 'blue' }}>
-                                      &bull;
-                                    </span>{' '}
-                                    Priority:{' '}
-                                  </Text>
-                                  <Tag
-                                    color={
-                                      task?.priority === 'high'
-                                        ? 'red'
-                                        : 'green'
-                                    }
-                                  >
-                                    {task?.priority || 'None'}
-                                  </Tag>
-                                </Col>
-                                <Col className="text-xs">
-                                  <Text type="secondary" className="text-xs">
-                                    <span style={{ color: 'blue' }}>
-                                      &bull;
-                                    </span>{' '}
-                                    point:{' '}
-                                  </Text>
-                                  <Tag color="blue">
-                                    {task?.weight || 'N/A'}
-                                  </Tag>
-                                </Col>
-                                <Col className="text-xs">
-                                  <Text type="secondary" className="text-xs">
-                                    <span style={{ color: 'blue' }}>
-                                      &bull;
-                                    </span>{' '}
-                                    Target:{' '}
-                                  </Text>
-                                  <Tag color="blue">
-                                    {task?.targetValue || 'N/A'}
-                                  </Tag>
-                                </Col>
-                              </Row>
-                            </Col>
-                          </Row>
-                        </Col>
-                      </Row>
-                    ))}
+                    <MilestoneTasks
+                      keyResultIndex={keyResultIndex}
+                      keyResult={keyResult}
+                    />
                   </div>
                 ),
               )}
@@ -498,13 +363,21 @@ function Planning() {
             </Card>
           </>
         ))}
+
         <Pagination
-          disabled={allPlanning?.items?.length <= 0}
+          disabled={!allPlanning?.items?.length} // Ensures no crash if items is undefined
           className="flex justify-end"
-          total={allPlanning?.meta?.totalPages}
-          current={allPlanning?.meta?.page}
-          onChange={(page) => setPage(page)}
+          total={allPlanning?.meta?.totalItems} // Ensures total count instead of pages
+          current={page}
+          pageSize={pageSize} // Dynamically control page size
+          showSizeChanger // Allows user to change page size
+          onChange={(page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize); // Ensure page size updates dynamically
+          }}
+          pageSizeOptions={['10', '20', '50', '100']}
         />
+
         {transformedData?.length <= 0 && (
           <div className="flex justify-center">
             <div>

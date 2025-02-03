@@ -1,6 +1,9 @@
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useGetBranchTransferApproveById } from '@/store/server/features/employees/approval/queries';
-import { useSetApproveLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
+import {
+  useSetApproveLeaveRequest,
+  useSetFinalApproveBranchRequest,
+} from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useBranchApprovalStore } from '@/store/uistate/features/employees/branchTransfer/approveRequest';
 import {
@@ -37,12 +40,16 @@ const ApprovalTable = () => {
     userCurrentPage,
   );
   const { mutate: editApprover } = useSetApproveLeaveRequest();
+  const { mutate: finalApprover } = useSetFinalApproveBranchRequest();
 
   const onPageChange = (page: number, pageSize?: number) => {
     setUserCurrentPage(page);
     if (pageSize) {
       setPageSize(pageSize);
     }
+  };
+  const finalApproval: any = (e: { requestId: string; status: string }) => {
+    finalApprover(e);
   };
   const reject: any = (e: {
     approvalWorkflowId: any;
@@ -57,6 +64,7 @@ const ApprovalTable = () => {
     editApprover(e, {
       onSuccess: () => {
         setRejectComment('');
+        finalApproval({ requestId: e.requestId, status: 'declined' });
       },
     });
   };
@@ -70,7 +78,16 @@ const ApprovalTable = () => {
     action: string;
     tenantId: string;
   }) => {
-    editApprover(e);
+    editApprover(e, {
+      onSuccess: (data) => {
+        if (data?.last == true) {
+          finalApproval({
+            requestId: e.requestId,
+            status: 'approved',
+          });
+        }
+      },
+    });
   };
 
   const cancel: any = () => {};

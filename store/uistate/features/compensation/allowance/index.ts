@@ -23,7 +23,7 @@ const initialState = {
   selectedDepartment: null,
   isAllowanceGlobal: false,
   currentPage: 1,
-  pageSize: 10,
+  pageSize: 6,
 };
 
 export const useAllowanceEntitlementStore = create<AllowanceEntitlementTypes>(
@@ -54,7 +54,7 @@ interface AllAllowanceTypes {
 
 const allAllowanceTypesInitialState = {
   currentPage: 1,
-  pageSize: 10,
+  pageSize: 6,
 };
 
 export const useAllAllowanceStore = create<AllAllowanceTypes>((set) => ({

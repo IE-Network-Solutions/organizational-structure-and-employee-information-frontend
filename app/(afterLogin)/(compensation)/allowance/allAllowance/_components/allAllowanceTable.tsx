@@ -5,14 +5,15 @@ import { useFetchAllowances } from '@/store/server/features/compensation/allowan
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allowance';
 
-const AllAllowanceTable = () => {
+const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
   const { data: allCompensationsData, isLoading } = useFetchAllowances();
   const { currentPage, pageSize, setCurrentPage, setPageSize } =
     useAllAllowanceStore();
 
   const allAllowanceEntitlementData = Array.isArray(allCompensationsData)
     ? allCompensationsData.filter(
-        (allowanceEntitlement: any) => allowanceEntitlement.type == 'ALLOWANCE',
+        (allowanceEntitlement: any) =>
+          allowanceEntitlement.type === 'ALLOWANCE',
       )
     : [];
 
@@ -24,20 +25,16 @@ const AllAllowanceTable = () => {
       )
     : [];
 
-  const groupByEmployeeId = allEntitlementData?.reduce(
-    (acc: any, item: any) => {
-      if (!acc[item.employeeId]) {
-        acc[item.employeeId] = { employeeId: item.employeeId, allowance: [] };
-      }
-      acc[item.employeeId].allowance.push({
-        compensationItemId: item?.compensationItemId,
-        totalAmount: item?.totalAmount,
-      });
-
-      return acc;
-    },
-    {},
-  );
+  const groupByEmployeeId = allEntitlementData.reduce((acc: any, item: any) => {
+    if (!acc[item.employeeId]) {
+      acc[item.employeeId] = { employeeId: item.employeeId, allowance: [] };
+    }
+    acc[item.employeeId].allowance.push({
+      compensationItemId: item?.compensationItemId,
+      totalAmount: item?.totalAmount,
+    });
+    return acc;
+  }, {});
 
   const result = Object.values(groupByEmployeeId ?? {});
 
@@ -51,6 +48,12 @@ const AllAllowanceTable = () => {
     });
     return dataRow;
   });
+
+  const filteredDataSource = searchQuery
+    ? dataSource.filter((employee: any) =>
+        employee.employeeId.toLowerCase().includes(searchQuery?.toLowerCase()),
+      )
+    : dataSource;
 
   const handleTableChange = (pagination: any) => {
     setCurrentPage(pagination.current);
@@ -67,14 +70,6 @@ const AllAllowanceTable = () => {
         <EmployeeDetails empId={record?.employeeId} />
       ),
     },
-    {
-      title: 'Role',
-      dataIndex: 'role',
-      key: 'role',
-      sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
-    },
-
     ...(Array.isArray(allAllowanceEntitlementData)
       ? allAllowanceEntitlementData.map((item: any) => ({
           title: item?.name,
@@ -90,7 +85,7 @@ const AllAllowanceTable = () => {
       <Table
         className="mt-6"
         columns={columns}
-        dataSource={dataSource}
+        dataSource={filteredDataSource}
         pagination={{
           current: currentPage,
           pageSize,

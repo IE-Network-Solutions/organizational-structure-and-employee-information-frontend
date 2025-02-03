@@ -4,8 +4,8 @@ import { useCreateJobInformation } from '@/store/server/features/employees/emplo
 import JobTimeLineForm from '../../../../_components/allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../../../../_components/allFormData/workScheduleForm';
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
+import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
-import { useEffect } from 'react';
 
 interface Ids {
   id: string;
@@ -17,31 +17,25 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
     setIsAddEmployeeJobInfoModalVisible,
   } = useEmployeeManagementStore();
 
-  const {
-    isLoading,
-    isSuccess,
-    mutate: createJobInformation,
-  } = useCreateJobInformation();
+  const { data: employeeData } = useGetEmployee(id);
+
+  const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
   };
 
-  useEffect(() => {
-    if (isSuccess) {
-      form.resetFields();
-      handleClose();
-    }
-  }, [isSuccess]);
-
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
     values.userId = id;
     values.basicSalary = parseInt(values.basicSalary.toString(), 10);
-
     values.departmentLeadOrNot
       ? values.departmentLeadOrNot
       : (values.departmentLeadOrNot = false);
-    createJobInformation(values);
+    createJobInformation(values, {
+      onSuccess: () => {
+        handleClose();
+      },
+    });
   };
 
   return (
@@ -57,7 +51,11 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
         <Form form={form} onFinish={createTsks} layout="vertical">
           <JobTimeLineForm />
           <BasicSalaryForm />
-          <WorkScheduleForm />
+          <WorkScheduleForm
+            selectedWorkScheduleDetails={
+              employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
+            }
+          />
           <Form.Item>
             <Row className="flex justify-end gap-3">
               <Button
@@ -75,7 +73,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
                 name="cancel"
                 onClick={handleClose}
               >
-                Cancel{' '}
+                Cancel
               </Button>
             </Row>
           </Form.Item>

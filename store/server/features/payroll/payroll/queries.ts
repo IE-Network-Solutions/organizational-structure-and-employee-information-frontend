@@ -61,4 +61,33 @@ const getPayPeroid = async () => {
     },
   });
 };
+const getPensionRule = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${PAYROLL_URL}/pension-rule`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
 export const useGetPayPeriod = () => useQuery('pay-peroid', getPayPeroid);
+export const useGetAllPensionRule = () =>
+  useQuery('pension-rule', getPensionRule);
+
+const getEmployeeInfo = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/simple-info/all-user-net-pay/with-tenant`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+export const useGetEmployeeInfo = () =>
+  useQuery('EmployeeInfo', getEmployeeInfo);

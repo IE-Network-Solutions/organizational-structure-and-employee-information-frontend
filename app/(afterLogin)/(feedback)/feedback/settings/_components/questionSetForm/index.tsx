@@ -142,6 +142,17 @@ const QuestionSetForm = () => {
     }
   }, [editableData, form]);
 
+  const checkQuestions = () => {
+    if (questions && questions.length > 0) {
+      const hasEmptyQuestion = questions.some((q: any) => !q.question.trim());
+      if (hasEmptyQuestion) {
+        return Promise.reject(new Error('Question text cannot be empty.'));
+      }
+      return Promise.resolve();
+    }
+    return Promise.reject(new Error('You must atleast add one question.'));
+  };
+
   return (
     <Form
       layout="vertical"
@@ -178,19 +189,28 @@ const QuestionSetForm = () => {
         label="Is Active"
         name="active"
         initialValue={true}
-        rules={[{ required: true, message: 'Please enter a m' }]}
+        rules={[
+          {
+            required: true,
+            message: 'Please check if you want to activate this question set.',
+          },
+        ]}
       >
         <Switch />
       </Form.Item>
 
-      <Form.Item label="Questions">
+      <Form.Item
+        label="Questions"
+        name="questions"
+        required
+        rules={[{ validator: checkQuestions }]}
+      >
         {questions?.map((q: any) => (
           <div key={q.id} style={{ marginBottom: '16px' }}>
             {/* First Row: Question Input */}
             <div style={{ display: 'flex', marginBottom: '8px' }}>
               <Input
                 placeholder="Enter question"
-                required
                 value={q.question}
                 onChange={(e) =>
                   handleChangeQuestion(q.id, 'question', e.target.value)
@@ -297,13 +317,14 @@ const QuestionSetForm = () => {
           )}
           <Popconfirm
             title="Are you sure you want to reset the form?"
-            onConfirm={() => form.resetFields()} // Reset form fields on confirmation
+            onConfirm={() => {
+              setQuestions([]);
+              form.resetFields();
+            }} // Reset form fields on confirmation
             okText="Yes"
             cancelText="No"
           >
-            <Button type="default" htmlType="reset">
-              Reset
-            </Button>
+            <Button type="default">Reset</Button>
           </Popconfirm>
         </div>
       </Form.Item>

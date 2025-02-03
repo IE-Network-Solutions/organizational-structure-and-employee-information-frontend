@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Col, Row, Select } from 'antd';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
+import {
+  useGetActivePayroll,
+  useGetPayPeriod,
+} from '@/store/server/features/payroll/payroll/queries';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -15,17 +18,14 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
   const { data: employeeData } = useGetAllUsers();
   const { data: payPeriodData } = useGetPayPeriod();
+  const { data: payroll } = useGetActivePayroll();
 
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
   const [fiscalYears, setFiscalYears] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [months, setMonths] = useState<any[]>([]);
-  const [filteredEmployees, setFilteredEmployees] = useState<any[]>([]);
 
   useEffect(() => {
-    if (employeeData) {
-      setFilteredEmployees(employeeData.items || []);
-    }
     if (getAllFiscalYears) {
       setFiscalYears(getAllFiscalYears.items || []);
 
@@ -52,6 +52,26 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
       }
     }
   }, [getAllFiscalYears, employeeData]);
+
+  useEffect(() => {
+    if (payroll?.payrolls.length > 0) {
+      const defaultPayPeriodId = payroll.payrolls[0]?.payPeriodId;
+      const defaultPayPeriod = payPeriodData?.find(
+        (period: any) => period.id === defaultPayPeriodId,
+      );
+
+      if (defaultPayPeriod) {
+        setSearchValue((prev) => ({
+          ...prev,
+          payPeriodId: defaultPayPeriodId,
+        }));
+        onSearch({
+          ...searchValue,
+          payPeriodId: defaultPayPeriodId,
+        });
+      }
+    }
+  }, [payroll?.payrolls, payPeriodData]);
 
   const handleEmployeeSelect = (value: string) => {
     setSearchValue((prev) => {
@@ -81,6 +101,13 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
     });
   };
 
+  const options =
+    employeeData?.items?.map((emp: any) => ({
+      value: emp.id,
+      label: `${emp.firstName || ''} ${emp.lastName}`, // Full name as label
+      employeeData: emp,
+    })) || [];
+
   return (
     <div className="mb-6">
       <Row
@@ -92,44 +119,20 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
         <Col xl={8} lg={10} md={12} sm={24} xs={24}>
           <Select
             showSearch
-            placeholder="Search by Name"
-            onChange={handleEmployeeSelect} // This is fine, assuming you pass employee ID to this function
-            value={
-              filteredEmployees.find(
-                (employee) => employee.id === searchValue.employeeId,
-              )
-                ? `${
-                    filteredEmployees.find(
-                      (employee) => employee.id === searchValue.employeeId,
-                    )?.firstName
-                  } ${
-                    filteredEmployees.find(
-                      (employee) => employee.id === searchValue.employeeId,
-                    )?.lastName
-                  }`
-                : ''
-            }
             allowClear
-            style={{ width: '100%', height: '48px' }}
-            onSearch={(value) => {
-              setSearchValue((prev) => ({
-                ...prev,
-                employeeId: value, // Update the search term directly here
-              }));
+            className="min-h-12"
+            placeholder="Search by name"
+            onChange={(value) => handleEmployeeSelect(value)}
+            filterOption={(input, option) => {
+              const label = option?.label;
+              return (
+                typeof label === 'string' &&
+                label.toLowerCase().includes(input.toLowerCase())
+              );
             }}
-          >
-            {filteredEmployees
-              .filter((employee) =>
-                employee.firstName
-                  .toLowerCase()
-                  .startsWith(searchValue.employeeId?.toLowerCase() || ''),
-              )
-              .map((employee) => (
-                <Option key={employee.id} value={employee.id}>
-                  {employee.firstName} &nbsp; {employee.lastName}
-                </Option>
-              ))}
-          </Select>
+            options={options}
+            style={{ width: 300 }} // Set a width for better UX
+          />
         </Col>
 
         <Col xl={4} lg={5} md={6} sm={12} xs={24}>
@@ -186,7 +189,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
           <Select
             placeholder="Pay Period"
             onChange={(value) => handleSelectChange('payPeriod', value)}
-            value={searchValue.payPeriod}
+            value={searchValue.payPeriodId}
             allowClear
             style={{ width: '100%', height: '48px' }}
           >

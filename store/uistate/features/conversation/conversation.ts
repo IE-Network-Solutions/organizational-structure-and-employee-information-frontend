@@ -16,6 +16,7 @@ interface SearchField {
   placeholder: string;
   options: SearchFieldOption[];
   widthRatio: number;
+  onChange: (value: string) => void; // Added the onChange handler
 }
 export interface CategoriesUseState {
   open: boolean;
@@ -61,8 +62,14 @@ export interface CategoriesUseState {
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
 
-  variantType: string;
-  setVariantType: (variantType: string) => void;
+  empId: string;
+  setEmpId: (empId: string) => void;
+
+  givenDate: any;
+  setGivenDate: (givenDate: any) => void;
+
+  variantType: 'appreciation' | 'reprimand';
+  setVariantType: (variantType: 'appreciation' | 'reprimand') => void;
 
   selectedFeedbackRecord: FeedbackRecord | null;
   setSelectedFeedbackRecord: (
@@ -92,12 +99,14 @@ const initialSearchField: SearchField[] = [
     placeholder: 'Select Employee',
     options: [], // Empty initially, will be updated dynamically
     widthRatio: 0.5,
+    onChange: () => {},
   },
   {
     key: 'department',
     placeholder: 'Select Department',
     options: [], // Empty initially, will be updated dynamically
     widthRatio: 0.5,
+    onChange: () => {},
   },
 ];
 
@@ -134,7 +143,8 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedRecognitionType: (selectedRecognitionType: string) =>
     set({ selectedRecognitionType }),
   variantType: 'appreciation',
-  setVariantType: (variantType: string) => set({ variantType }),
+  setVariantType: (variantType: 'appreciation' | 'reprimand') =>
+    set({ variantType }),
 
   selectedFeedback: null,
   setSelectedFeedback: (selectedFeedback: any) => set({ selectedFeedback }),
@@ -143,8 +153,14 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedFeedbackRecord: (selectedFeedbackRecord: FeedbackRecord | null) =>
     set({ selectedFeedbackRecord }),
 
-  activeTab: '',
+  activeTab: '1',
   setActiveTab: (activeTab: string) => set({ activeTab }),
+
+  empId: '',
+  setEmpId: (empId: string) => set({ empId }),
+
+  givenDate: [],
+  setGivenDate: (givenDate: any) => set({ givenDate }),
 
   editableData: null,
   setEditableData: (editableData: any) => set({ editableData }),

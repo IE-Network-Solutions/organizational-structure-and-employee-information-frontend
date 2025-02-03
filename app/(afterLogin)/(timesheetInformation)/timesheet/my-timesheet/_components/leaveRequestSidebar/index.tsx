@@ -53,8 +53,9 @@ const LeaveRequestSidebar = () => {
   );
 
   useEffect(() => {
-    if (userData?.employeeJobInformation[0]?.departmentId)
+    if (userData?.employeeJobInformation[0]?.departmentId) {
       getDepartmentApproval();
+    }
   }, [userData]);
   useEffect(() => {
     if (userData?.id) getUserApproval();

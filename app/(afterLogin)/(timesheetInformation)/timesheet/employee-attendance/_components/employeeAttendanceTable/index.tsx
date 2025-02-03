@@ -54,8 +54,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setOrderBy,
     setOrderDirection,
   } = usePagination(1, 10);
-  const { setIsShowEmployeeAttendanceSidebar, setEmployeeAttendanceId } =
-    useEmployeeAttendanceStore();
+  const {
+    setEmployeeId,
+    setIsShowEmployeeAttendanceSidebar,
+    setEmployeeAttendanceId,
+  } = useEmployeeAttendanceStore();
   const [filter, setFilter] =
     useState<Partial<AttendanceRequestBody['filter']>>();
   const { data, isFetching, refetch } = useGetAttendances(
@@ -79,7 +82,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         </div>
         <Avatar size={24} icon={<UserOutlined />} />
         <div className="flex-1">
-          <div className="text-xs text-gray-900">
+          <div className="text-xs text-gray-900 flex gap-2">
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
           </div>
@@ -91,10 +94,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     ) : (
       '-'
     );
-  };
-  const onEdit = ($id: string) => {
-    setIsShowEmployeeAttendanceSidebar(true);
-    setEmployeeAttendanceId($id);
   };
 
   const columns: TableColumnsType<any> = [
@@ -180,7 +179,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             icon={<FiEdit2 size={16} />}
             id={`${item?.id}buttonPopOverActionForOnEditActionId`}
             type="primary"
-            onClick={() => onEdit(item?.id)}
+            onClick={() => {
+              setEmployeeId(item?.userId), setEmployeeAttendanceId(item?.id);
+              setIsShowEmployeeAttendanceSidebar(true);
+            }}
           />
         );
       },
@@ -205,7 +207,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           clockIn: item.startAt,
           clockOut: item.endAt,
           status: item,
-          totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
+          totalTime:
+            item.startAt &&
+            item.endAt &&
+            `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
           overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,
           action: item,
         };
