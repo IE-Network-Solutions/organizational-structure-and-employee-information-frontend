@@ -58,7 +58,6 @@ export const groupTasksByKeyResultAndMilestone = (reportTasks: any) => {
 export const groupUnReportedTasksByKeyResultAndMilestone = (
   reportTasks: any,
 ) => {
-  if (reportTasks.length === 0 || Array.isArray(reportTasks)) return [];
   const keyResultMap = reportTasks?.reduce((acc: any, task: any) => {
     const keyResultId = task?.keyResultId;
 
