@@ -7,7 +7,7 @@ import {
   Col,
   Dropdown,
   Menu,
-  Popconfirm,
+  Pagination,
   Row,
   Spin,
   Tooltip,
@@ -35,10 +35,10 @@ import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
 import { IoIosOpen, IoMdMore } from 'react-icons/io';
 import { IoCheckmarkSharp } from 'react-icons/io5';
-import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
+import { AiOutlineEdit } from 'react-icons/ai';
 import {
   useApprovalReporting,
-  useDeleteReportById,
+  // useDeleteReportById,
 } from '@/store/server/features/okrPlanningAndReporting/mutations';
 
 const { Title } = Typography;
@@ -51,13 +51,17 @@ function Reporting() {
     setSelectedReportId,
     setSelectedPlanId,
     activeTab,
+    pageReporting,
+    setPageReporting,
+    pageSizeReporting,
+    setPageSizeReporting,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
-  const { mutate: handleDeleteReport, isLoading: loadingDeleteReport } =
-    useDeleteReportById();
+  // const { mutate: handleDeleteReport, isLoading: loadingDeleteReport } =
+  //   useDeleteReportById();
 
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
@@ -68,6 +72,8 @@ function Reporting() {
   const { data: allReporting, isLoading: getReportLoading } = useGetReporting({
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '',
+    pageReporting,
+    pageSizeReporting,
   });
   // const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(
   //   planningPeriodId ?? '',
@@ -151,22 +157,24 @@ function Reporting() {
       </Menu.Item>
 
       {/* Delete Plan */}
-      <Menu.Item
-        className="text-red-400"
-        icon={<AiOutlineDelete size={16} />}
-        key="delete"
-      >
-        <Popconfirm
+      {/* <Popconfirm
           title="Are you sure you want to delete this plan?"
           onConfirm={() => handleDeleteReport(dataItem?.id || '')}
           okText="Yes"
           cancelText="No"
         >
+      <Menu.Item
+        className="text-red-400"
+        icon={<AiOutlineDelete size={16} />}
+        key="delete"
+      >
+       
           <Tooltip title="Delete Plan">
             <span>Delete</span>
           </Tooltip>
-        </Popconfirm>
+       
       </Menu.Item>
+      </Popconfirm> */}
     </Menu>
   );
   return (
@@ -204,7 +212,7 @@ function Reporting() {
           optionArray2={ReportingType}
           optionArray3={departmentData}
         />
-        {allReporting?.map((dataItem: any, index: number) => (
+        {allReporting?.items?.map((dataItem: any, index: number) => (
           <>
             <Card
               key={index}
@@ -299,7 +307,7 @@ function Reporting() {
                                   trigger={['click']}
                                 >
                                   <Button
-                                    loading={loadingDeleteReport}
+                                    // loading={loadingDeleteReport}
                                     type="text"
                                     icon={<IoMdMore className="text-2xl" />}
                                     className="cursor-pointer  text-black border-none  hover:text-primary"
@@ -358,6 +366,7 @@ function Reporting() {
                 </span>
               </div>
             </Card>
+
             <CommentCard
               planId={dataItem?.id}
               data={dataItem?.comments}
@@ -366,7 +375,20 @@ function Reporting() {
             />
           </>
         ))}
-        {allReporting?.length <= 0 && (
+        <Pagination
+          disabled={!allReporting?.items?.length} // Ensures no crash if items is undefined
+          className="flex justify-end"
+          total={allReporting?.items?.meta?.totalItems} // Ensures total count instead of pages
+          current={pageReporting}
+          pageSize={pageSizeReporting} // Dynamically control page size
+          showSizeChanger // Allows user to change page size
+          onChange={(page, pageSize) => {
+            setPageReporting(page);
+            setPageSizeReporting(pageSize); // Ensure page size updates dynamically
+          }}
+          pageSizeOptions={['10', '20', '50', '100']}
+        />
+        {allReporting?.items?.length <= 0 && (
           <div className="flex justify-center">
             <div>
               <p className="flex justify-center items-center h-[200px]">

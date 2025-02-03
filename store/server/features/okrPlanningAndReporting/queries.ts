@@ -7,6 +7,9 @@ interface DataType {
   userId: string[] | [] | string;
   planPeriodId: string;
   page?: number;
+  pageSize?: number;
+  pageReporting?: number;
+  pageSizeReporting?: number;
 }
 
 const getPlanningData = async (params: DataType) => {
@@ -19,7 +22,7 @@ const getPlanningData = async (params: DataType) => {
 
   if (params?.page) {
     return await crudRequest({
-      url: `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}?page=${params?.page}`,
+      url: `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}?page=${params?.page}&limit=${params.pageSize}`,
       method: 'post',
       data: params?.userId.length === 0 ? [''] : params?.userId,
       headers,
@@ -140,7 +143,7 @@ const getReportingData = async (params: DataType) => {
   };
 
   return await crudRequest({
-    url: `${OKR_URL}/okr-report/by-planning-period/${params?.planPeriodId}`,
+    url: `${OKR_URL}/okr-report/by-planning-period/${params?.planPeriodId}?page=${params?.pageReporting}&limit=${params.pageSizeReporting}`,
     method: 'post',
     data: params?.userId.length === 0 ? [''] : params?.userId,
     headers,

@@ -121,12 +121,25 @@ export const useGetVpScoreCalculate = (
   userId: number | string,
   enabled = true,
 ) => {
+  const queryClient = useQueryClient();
   return useQuery<any>(
     ['VPScoresCalculate', userId],
     () => getVpScoreCalculate(userId),
     {
       enabled,
       keepPreviousData: true,
+      onSuccess: (data) => {
+        const vpScore = data?.vpScore;
+        const currentVp = queryClient.getQueryData(['VPScores', userId]) as any;
+        const updatedVariablePayScoreData = {
+          ...currentVp,
+          score: vpScore,
+        };
+        queryClient.setQueryData(
+          ['VPScores', userId],
+          updatedVariablePayScoreData,
+        );
+      },
     },
   );
 };

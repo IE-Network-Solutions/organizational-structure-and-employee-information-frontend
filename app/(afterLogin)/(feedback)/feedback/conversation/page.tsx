@@ -23,21 +23,21 @@ function Index() {
       <div className="p-4">
         <Row gutter={[16, 16]}>
           {isLoading ? (
-        Array.from({ length: 6 }).map((notused, index) => (
-          <Col key={index} xs={24} sm={12} md={8}>
-            <Card loading={true}  />
-          </Col>
-        ))
+            Array.from({ length: 6 }).map((notused, index) => (
+              <Col key={index} xs={24} sm={12} md={8}>
+                <Card loading={true} />
+              </Col>
+            ))
           ) : cardsData?.length > 0 ? (
-        cardsData.map((item: any, index: number) => (
-          <Col key={index} xs={24} sm={12} md={8}>
-            <ConversationTypeList data={item} />
-          </Col>
-        ))
+            cardsData.map((item: any, index: number) => (
+              <Col key={index} xs={24} sm={12} md={8}>
+                <ConversationTypeList data={item} />
+              </Col>
+            ))
           ) : (
-        <Col span={24}>
-          <Empty description="No conversations found" />
-        </Col>
+            <Col span={24}>
+              <Empty description="No conversations found" />
+            </Col>
           )}
         </Row>
       </div>

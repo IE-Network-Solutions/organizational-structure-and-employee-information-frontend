@@ -110,11 +110,7 @@ function CreateFeedback() {
               placeholder="Enter description"
             />
           </Form.Item>
-          <Form.Item
-            name="perspectiveId"
-            label="Select Perspective"
-            rules={[{ required: true, message: 'Please select a department' }]}
-          >
+          <Form.Item name="perspectiveId" label="Select Perspective">
             <Select
               loading={getPerspectiveLoading}
               placeholder="Select a perspective"
