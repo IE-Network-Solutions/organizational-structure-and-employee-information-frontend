@@ -88,7 +88,7 @@ function CreateReport() {
   const formattedData =
     allPlannedTaskForReport &&
     groupUnReportedTasksByKeyResultAndMilestone(
-      allPlannedTaskForReport?.length == 0 ? [] : allPlannedTaskForReport,
+      allPlannedTaskForReport,
     );
   const totalWeight = formattedData?.reduce((sum: number, objective: any) => {
     return (
