@@ -1,5 +1,9 @@
+import dayjs from 'dayjs';
+
 export const useGenerateBankLetter = () => {
-  const generateBankLetter = (amount: number, dynamicData: any) => {
+  const generateBankLetter = (amount: number) => {
+    const currentDate = dayjs().format('MMMM DD, YYYY');
+    const currentMonth = dayjs().format('MMMM');
     const bankLetterContent = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
           <head><title>Bank Letter</title></head>
@@ -8,22 +12,22 @@ export const useGenerateBankLetter = () => {
             <p style="text-align: right;">info@ienetworksolutions.com</p>
             <p style="text-align: right;">www.ienetworksolutions.com</p>
             <br/>
-            <p>Date: ${dynamicData.date}</p>
-            <p>Ref: ${dynamicData.reference}</p>
+            <p>Date: ${currentDate}</p>
+            <p>Ref: IE/FIN/250116/001</p>
             <br/>
-            <p>To: - ${dynamicData.bankName}</p>
-            <p>${dynamicData.branch}</p>
-            <p>Addis Ababa</p>
+            <p>To: - Enat Bank </p>
+            <p>Mexico Derartu Tulu branch<br/>
+              Addis Ababa</p>
             <br/>
-            <p><b>Subject:</b> ${dynamicData.month} Salary Transfer Request</p>
+            <p><b>Subject:</b> ${currentMonth} Salary Transfer Request</p>
             <br/>
             <p>
-              We hereby authorize your branch to transfer ETB ${amount} (${dynamicData.amountWords}) for the month of ${dynamicData.month} 
+              We hereby authorize your branch to transfer ETB ${amount.toFixed(2)} for the month of ${currentMonth}  
               for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch 
-              of ${dynamicData.bankName}.
+              of Enat Bank.
             </p>
             <p>
-              Please deduct the transfer service charges from IE Network Solutions PLC account ${dynamicData.accountNumber} maintained at ${dynamicData.branch}.
+              Please deduct the transfer service charges from IE Network Solutions PLC account 0061101660052002 maintained at Mexico Derartu Tulu branch.
             </p>
             <br/>
             <p>Sincerely</p>
