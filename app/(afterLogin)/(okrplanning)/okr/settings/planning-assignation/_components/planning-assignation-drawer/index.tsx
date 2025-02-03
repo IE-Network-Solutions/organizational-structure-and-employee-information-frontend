@@ -24,7 +24,8 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
   const { data: allUsers } = useGetAllUsers();
   const { data: allPlanningperiod } = useGetAllPlanningPeriods();
   const { mutate: planAssign, isLoading } = useAssignPlanningPeriodToUsers();
-  const { mutate: editAssign } = useUpdateAssignPlanningPeriodToUsers();
+  const { mutate: editAssign, isLoading: editLoading } =
+    useUpdateAssignPlanningPeriodToUsers();
 
   const { selectedPlanningUser } = useOKRSettingStore();
 
@@ -105,7 +106,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
         onClick={() => form.submit()}
         title={selectedPlanningUser ? 'Edit' : 'Add'}
         type="primary"
-        loading={isLoading}
+        loading={isLoading || editLoading}
       />
     </div>
   );

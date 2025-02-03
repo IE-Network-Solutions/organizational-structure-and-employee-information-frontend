@@ -1,4 +1,5 @@
 export const groupTasksByKeyResultAndMilestone = (reportTasks: any) => {
+  if (reportTasks.length === 0) return [];
   const keyResultMap = reportTasks?.reduce((acc: any, task: any) => {
     const keyResultId = task?.planTask?.keyResultId;
     // Initialize the keyResult entry if it doesn't exist
@@ -57,6 +58,7 @@ export const groupTasksByKeyResultAndMilestone = (reportTasks: any) => {
 export const groupUnReportedTasksByKeyResultAndMilestone = (
   reportTasks: any,
 ) => {
+  if (reportTasks.length === 0 || Array.isArray(reportTasks)) return [];
   const keyResultMap = reportTasks?.reduce((acc: any, task: any) => {
     const keyResultId = task?.keyResultId;
 
