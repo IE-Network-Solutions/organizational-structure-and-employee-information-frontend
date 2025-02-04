@@ -1,3 +1,4 @@
+import { Department } from '@/types/dashboard/organization';
 import { create } from 'zustand';
 
 export interface CompensationSettingTypes {
@@ -13,12 +14,21 @@ export interface CompensationSettingTypes {
   isAllEmployee: boolean;
   selectedBenefitRecord: any | null;
   selectedDepartment: string | null;
+
+  selectedDepartementArray:string[];
+  setSelectedDepartementArray:(selectedDepartementArray:string[])=>void;
   departmentUsers: any[];
   tableData: any[];
 
   setIsAllowanceOpen: (value: boolean) => void;
   setSelectedAllowanceRecord: (selectedAllowanceRecord: any | null) => void;
   setIsRateAllowance: (value: boolean) => void;
+
+  isDeductionOpen: boolean;
+  setIsDeductionOpen: (value: boolean) => void;
+
+  selectedDeductionRecord:any
+  setSelectedDeductionRecord: (selectedDeductionRecord: any) => void;
 
   setIsBenefitOpen: (value: boolean) => void;
   setAllEmployeeSelectedBenefit: (value: boolean) => void;
@@ -37,6 +47,8 @@ export interface CompensationSettingTypes {
 const compensationSettingInitialState = {
   isAllowanceOpen: false,
   isRateAllowance: false,
+  isDeductionOpen: false,
+
   selectedAllowanceRecord: null,
 
   isBenefitRecurring: false,
@@ -84,6 +96,15 @@ export const useCompensationSettingStore = create<CompensationSettingTypes>(
     setIsRateAllowance: (value) => set({ isRateAllowance: value }),
     setSelectedAllowanceRecord: (value) =>
       set({ selectedAllowanceRecord: value }),
+
+    isDeductionOpen: false,
+    setIsDeductionOpen: (isDeductionOpen: boolean) => set({isDeductionOpen}),
+
+    selectedDeductionRecord:null,
+    setSelectedDeductionRecord: (selectedDeductionRecord: any) => set({selectedDeductionRecord}),
+
+    selectedDepartementArray:[],
+    setSelectedDepartementArray:(selectedDepartementArray:string[])=>set({selectedDepartementArray}),
 
     setIsBenefitOpen: (value) => set({ isBenefitOpen: value }),
     setAllEmployeeSelectedBenefit: (value) =>
