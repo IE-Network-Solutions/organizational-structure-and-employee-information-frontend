@@ -23,7 +23,7 @@ const DeductionTypePage = () => {
             id="createNewClosedHolidayFieldId"
             icon={<LuPlus size={18} />}
             onClick={() => {
-                setIsDeductionOpen(true);
+              setIsDeductionOpen(true);
             }}
           >
             New Deduction Type

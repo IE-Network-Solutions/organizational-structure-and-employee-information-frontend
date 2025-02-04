@@ -38,8 +38,6 @@ const DeductiontypeSideBar = () => {
   const [form] = Form.useForm();
   const { data: departments } = useGetDepartmentsWithUsers();
 
-
-
   useEffect(() => {
     if (selectedDeductionRecord) {
       setIsAllEmployee(selectedDeductionRecord.applicableTo == 'GLOBAL');
@@ -56,9 +54,8 @@ const DeductiontypeSideBar = () => {
     }
   }, [selectedDeductionRecord, form]);
 
-
   useEffect(() => {
-    if (departmentUsers.length ===0) {
+    if (departmentUsers.length === 0) {
       form.setFieldsValue({
         employees: [], // Set default selected users
       });
@@ -69,7 +66,6 @@ const DeductiontypeSideBar = () => {
       });
     }
   }, [departmentUsers, form]);
-  
 
   const onClose = () => {
     setIsDeductionOpen(false);
@@ -82,32 +78,33 @@ const DeductiontypeSideBar = () => {
   };
 
   const onFormSubmit = (formValues: any) => {
-    createAllowanceType({
+    const value = {
       name: formValues.name,
       description: formValues.description,
       type: 'DEDUCTION',
       mode: 'DEBIT',
-      isRate: formValues.isRate,
-      defaultAmount:Number(formValues.defaultAmount),
-      applicableTo: formValues.isAllEmployee ? 'PER-EMPLOYEE':'GLOBAL',
-      employeeIds: formValues.employees ? formValues.employees : [],
-    },{
-      onSuccess:()=>{
+      isRate: false,
+      defaultAmount: 0,
+      applicableTo: 'PER-EMPLOYEE',
+    };
+    createAllowanceType(value, {
+      onSuccess: () => {
         onClose();
-      }
+      },
     });
   };
 
-
   const handleDepartmentChange = (value: string[]) => {
     if (value.length === 0) {
-        setDepartmentUsers([]);
+      setDepartmentUsers([]);
       return;
     }
     setSelectedDepartementArray(value);
-    const department = departments.filter((dept: any) => value.includes(dept.id));
-    if (department.length>0) {
-      let departmentUsers :any= []; // Initialize users as an empty array
+    const department = departments.filter((dept: any) =>
+      value.includes(dept.id),
+    );
+    if (department.length > 0) {
+      let departmentUsers: any = []; // Initialize users as an empty array
       department.forEach((dep: any) => {
         if (dep?.users) {
           departmentUsers = departmentUsers.concat(dep.users); // Concatenate users from each department
@@ -129,9 +126,14 @@ const DeductiontypeSideBar = () => {
       size: 'large',
       loading: false,
       onClick: () => onClose(),
+      disabled: isLoading,
     },
     {
-      label: selectedDeductionRecord ? <span>Update</span> : <span>Create</span>,
+      label: selectedDeductionRecord ? (
+        <span>Update</span>
+      ) : (
+        <span>Create</span>
+      ),
       key: 'create',
       className: 'h-14',
       type: 'primary',
@@ -191,9 +193,9 @@ const DeductiontypeSideBar = () => {
               />
             </Form.Item>
 
-              <>
-                <div style={{ display: 'flex', gap: '20px' }}>
-                  {/* <Form.Item
+            <>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                {/* <Form.Item
                     name="isRate"
                     label={'Is Rate'}
                     className="form-item"
@@ -205,7 +207,7 @@ const DeductiontypeSideBar = () => {
                       onChange={onRateToggle}
                     />
                   </Form.Item> */}
-                  {/* <Form.Item
+                {/* <Form.Item
                     name="isAllEmployee"
                     label="All Employees are entitled"
                     className="form-item"
@@ -231,9 +233,9 @@ const DeductiontypeSideBar = () => {
                       disabled={selectedDeductionRecord}
                     />
                   </Form.Item> */}
-                </div>
-                {/* <div style={{ display: 'flex', gap: '20px' }}> */}
-                  {/* <Form.Item
+              </div>
+              {/* <div style={{ display: 'flex', gap: '20px' }}> */}
+              {/* <Form.Item
                     name="defaultAmount"
                     label={isRateBenefit ? 'Rate Amount' : 'Fixed Amount'}
                     className="form-item"
@@ -246,7 +248,7 @@ const DeductiontypeSideBar = () => {
                       style={{ height: '32px', padding: '4px 8px' }}
                     />
                   </Form.Item> */}
-                  {/* {!selectedDeductionRecord && (
+              {/* {!selectedDeductionRecord && (
                     <Form.Item
                       name="NoOfPayPeriod"
                       label={'Number of Pay Period'}
@@ -266,10 +268,10 @@ const DeductiontypeSideBar = () => {
                       />
                     </Form.Item>
                   )} */}
-                {/* </div> */}
-                {/* {!isAllEmployee && !selectedDeductionRecord && (
+              {/* </div> */}
+              {/* {!isAllEmployee && !selectedDeductionRecord && (
                   <> */}
-                    {/* <Form.Item
+              {/* <Form.Item
                       className="form-item"
                       name="department"
                       label="Select Department"
@@ -292,7 +294,7 @@ const DeductiontypeSideBar = () => {
                       </Select>
                     </Form.Item> */}
 
-                    {/* <Form.Item
+              {/* <Form.Item
                       className="form-item"
                       name="employees"
                       label="Select Employees"
@@ -309,9 +311,9 @@ const DeductiontypeSideBar = () => {
                         ))}
                       </Select>
                     </Form.Item> */}
-                  {/* </>
+              {/* </>
                 )} */}
-              </>
+            </>
           </Form>
         </Spin>
       </CustomDrawerLayout>

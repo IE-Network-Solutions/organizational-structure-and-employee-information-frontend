@@ -15,8 +15,8 @@ export interface CompensationSettingTypes {
   selectedBenefitRecord: any | null;
   selectedDepartment: string | null;
 
-  selectedDepartementArray:string[];
-  setSelectedDepartementArray:(selectedDepartementArray:string[])=>void;
+  selectedDepartementArray: string[];
+  setSelectedDepartementArray: (selectedDepartementArray: string[]) => void;
   departmentUsers: any[];
   tableData: any[];
 
@@ -27,7 +27,7 @@ export interface CompensationSettingTypes {
   isDeductionOpen: boolean;
   setIsDeductionOpen: (value: boolean) => void;
 
-  selectedDeductionRecord:any
+  selectedDeductionRecord: any;
   setSelectedDeductionRecord: (selectedDeductionRecord: any) => void;
 
   setIsBenefitOpen: (value: boolean) => void;
@@ -98,13 +98,15 @@ export const useCompensationSettingStore = create<CompensationSettingTypes>(
       set({ selectedAllowanceRecord: value }),
 
     isDeductionOpen: false,
-    setIsDeductionOpen: (isDeductionOpen: boolean) => set({isDeductionOpen}),
+    setIsDeductionOpen: (isDeductionOpen: boolean) => set({ isDeductionOpen }),
 
-    selectedDeductionRecord:null,
-    setSelectedDeductionRecord: (selectedDeductionRecord: any) => set({selectedDeductionRecord}),
+    selectedDeductionRecord: null,
+    setSelectedDeductionRecord: (selectedDeductionRecord: any) =>
+      set({ selectedDeductionRecord }),
 
-    selectedDepartementArray:[],
-    setSelectedDepartementArray:(selectedDepartementArray:string[])=>set({selectedDepartementArray}),
+    selectedDepartementArray: [],
+    setSelectedDepartementArray: (selectedDepartementArray: string[]) =>
+      set({ selectedDepartementArray }),
 
     setIsBenefitOpen: (value) => set({ isBenefitOpen: value }),
     setAllEmployeeSelectedBenefit: (value) =>

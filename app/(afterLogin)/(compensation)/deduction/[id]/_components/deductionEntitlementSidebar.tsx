@@ -3,7 +3,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Select, Spin } from 'antd';
+import { Form, Input, Select, Spin } from 'antd';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useCreateAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
@@ -52,12 +52,20 @@ const AllowanceEntitlementSideBar = () => {
   };
 
   const onFormSubmit = (formValues: any) => {
-    createAllowanceEntitlement({
-      compensationItemId: id,
-      employeeIds: formValues.employees,
-      active: true,
-    });
-    onClose();
+    createAllowanceEntitlement(
+      {
+        compensationItemId: id,
+        employeeIds: formValues.employees,
+        totalAmount: formValues.totalAmount,
+        settlementPeriod: formValues.settlementPeriod,
+        active: true,
+      },
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      },
+    );
   };
 
   const handleDepartmentChange = (value: string) => {
@@ -127,6 +135,44 @@ const AllowanceEntitlementSideBar = () => {
                 ))}
               </Select>
             </Form.Item>
+            <div style={{ display: 'flex', gap: '20px' }}>
+              <Form.Item
+                name="totalAmount"
+                label={'Total Amount'}
+                rules={[
+                  {
+                    required: true,
+                    message: 'Total amount is required!',
+                  },
+                ]}
+                className="form-item"
+              >
+                <Input
+                  className="control"
+                  type="number"
+                  placeholder={'Total Amount'}
+                  style={{ height: '32px', padding: '4px 8px' }}
+                />
+              </Form.Item>
+              <Form.Item
+                name="settlementPeriod"
+                label={'Settlement Period'}
+                rules={[
+                  {
+                    required: true,
+                    message: 'settlement period is required!',
+                  },
+                ]}
+                className="form-item"
+              >
+                <Input
+                  className="control"
+                  type="number"
+                  placeholder={'settlement Period'}
+                  style={{ height: '32px', padding: '4px 8px' }}
+                />
+              </Form.Item>
+            </div>
           </Form>
         </Spin>
       </CustomDrawerLayout>

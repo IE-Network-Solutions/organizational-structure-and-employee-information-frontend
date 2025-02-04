@@ -35,7 +35,9 @@ const DeductionTypeTable = () => {
 
   useEffect(() => {
     if (data) {
-      const filteredData = data.filter((item: any) => item.type === 'DEDUCTION');
+      const filteredData = data.filter(
+        (item: any) => item.type === 'DEDUCTION',
+      );
       setTableData(filteredData);
     }
   }, [data]);
