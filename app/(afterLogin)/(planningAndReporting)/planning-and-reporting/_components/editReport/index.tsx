@@ -85,8 +85,9 @@ function EditReport() {
 
   const formattedData =
     allReportedPlanning &&
-    groupUnReportedTasksByKeyResultAndMilestone(allReportedPlanning);
-
+    groupUnReportedTasksByKeyResultAndMilestone(
+      allReportedPlanning?.length == 0 ? [] : allReportedPlanning,
+    );
   useEffect(() => {
     // Ensure there is reportedData and valid reportTask array
     if (reportedData?.reportTask?.length > 0) {
