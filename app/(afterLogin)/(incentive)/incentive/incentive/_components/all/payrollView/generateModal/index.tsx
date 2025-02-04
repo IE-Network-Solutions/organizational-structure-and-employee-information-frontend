@@ -1,8 +1,12 @@
-import { useFetchAllPayPeriod } from '@/store/server/features/incentive/project/queries';
+import { useGenerateIncentive } from '@/store/server/features/incentive/project/mutation';
+import {
+  useFetchAllPayPeriod,
+  useFetchIncentiveSessions,
+} from '@/store/server/features/incentive/project/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { Button, Form, Modal, Select, Switch } from 'antd';
 import dayjs from 'dayjs';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const GenerateModal: React.FC = () => {
   const { showGenerateModal, setShowGenerateModal, isSwitchOn, setIsSwitchOn } =
@@ -11,6 +15,13 @@ const GenerateModal: React.FC = () => {
 
   const { data: payPeriodData, isLoading: responseLoading } =
     useFetchAllPayPeriod();
+  const { data: allSessions, isLoading: sessionResponseLoading } =
+    useFetchIncentiveSessions();
+
+  const { mutate: generateIncentive, isLoading: submitLoading } =
+    useGenerateIncentive();
+
+  console.log(allSessions, 'allSessions');
 
   const handleModalClose = () => {
     setShowGenerateModal(false);
@@ -19,12 +30,22 @@ const GenerateModal: React.FC = () => {
 
   const handleSwitchChange = (checked: boolean) => {
     setIsSwitchOn(checked);
-
+    console.log(checked, 'checked');
     if (checked) {
       form.resetFields(['selectSession']);
     }
   };
-  const handleSubmit = () => {};
+  const handleSubmit = () => {
+    const formValues = form.getFieldsValue();
+    const formattedValues = {
+      sessionId: formValues?.session,
+      payPeriodId: formValues?.payPeriod,
+      generateAll: formValues?.generateAll,
+    };
+    console.log(formValues, formattedValues, 'formattedValues');
+    generateIncentive(formattedValues);
+  };
+
   return (
     <Modal
       title={<div className="font-semibold text-md">Generate Incentive</div>}
@@ -56,6 +77,7 @@ const GenerateModal: React.FC = () => {
         layout="vertical"
         onFinish={handleSubmit}
         className="my-4"
+        initialValues={{ generateAll: false }}
       >
         <Form.Item
           label={
@@ -64,12 +86,17 @@ const GenerateModal: React.FC = () => {
             </div>
           }
           valuePropName="checked"
+          name="generateAll"
         >
           <Switch onChange={handleSwitchChange} />
         </Form.Item>
 
         <Form.Item
-          rules={[{ required: true, message: 'Please select a session!' }]}
+          rules={
+            !isSwitchOn
+              ? [{ required: true, message: 'Please select a session!' }]
+              : []
+          }
           label={
             <span className="font-semibold">
               Select Session<span className="text-red-500">*</span>
@@ -85,13 +112,16 @@ const GenerateModal: React.FC = () => {
               placeholder="You are generating all unpaid incentives."
             />
           ) : (
-            <Select mode="multiple" size="large" placeholder="select session">
-              <Select.Option value="1">Branch A</Select.Option>
-              <Select.Option value="2">Branch B</Select.Option>
-              <Select.Option value="3">Branch C</Select.Option>
+            <Select mode="multiple" size="large" placeholder="Select session">
+              {allSessions?.items?.map((session: any) => (
+                <Select.Option value={session?.id} key={session?.id}>
+                  {session?.name}
+                </Select.Option>
+              ))}
             </Select>
           )}
         </Form.Item>
+
         <Form.Item
           rules={[{ required: true, message: 'Please select a pay period!' }]}
           label={
