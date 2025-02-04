@@ -1,4 +1,4 @@
-import { Department } from '@/types/dashboard/organization';
+// import { Department } from '@/types/dashboard/organization';
 import { create } from 'zustand';
 
 export interface CompensationSettingTypes {

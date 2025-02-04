@@ -7,7 +7,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import DeductionTypeTable from './_components/DeductionTypeTable';
-import BenefitypeSideBar from './_components/DeductiontypeSideBar';
+// import BenefitypeSideBar from './_components/DeductiontypeSideBar';
 import DeductiontypeSideBar from './_components/DeductiontypeSideBar';
 
 const DeductionTypePage = () => {

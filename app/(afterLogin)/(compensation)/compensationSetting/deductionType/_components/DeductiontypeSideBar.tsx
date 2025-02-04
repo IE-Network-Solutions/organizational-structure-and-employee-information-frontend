@@ -3,14 +3,14 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Input, Radio, Select, Spin, Switch } from 'antd';
+import { Form, Input, Spin } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useEffect } from 'react';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+// import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import { useCreateAllowanceType } from '@/store/server/features/compensation/settings/mutations';
-import { RadioChangeEvent } from 'antd/lib';
-import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
+// import { RadioChangeEvent } from 'antd/lib';
+// import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const { TextArea } = Input;
 
@@ -21,22 +21,22 @@ const DeductiontypeSideBar = () => {
   const {
     isDeductionOpen,
     setIsDeductionOpen,
-    isRateBenefit,
+    // isRateBenefit,
     setIsAllEmployee,
-    isAllEmployee,
-    setIsRateBenefit,
+    // isAllEmployee,
+    // setIsRateBenefit,
     resetStore,
     selectedDeductionRecord,
-    selectedDepartment,
-    selectedDepartementArray,
-    setSelectedDepartementArray,
-    setSelectedDepartment,
+    // selectedDepartment,
+    // selectedDepartementArray,
+    // setSelectedDepartementArray,
+    // setSelectedDepartment,
     departmentUsers,
-    setDepartmentUsers,
+    // setDepartmentUsers,
   } = useCompensationSettingStore();
   const { mutate: createAllowanceType, isLoading } = useCreateAllowanceType();
   const [form] = Form.useForm();
-  const { data: departments } = useGetDepartmentsWithUsers();
+  // const { data: departments } = useGetDepartmentsWithUsers();
 
   useEffect(() => {
     if (selectedDeductionRecord) {
@@ -73,9 +73,9 @@ const DeductiontypeSideBar = () => {
     resetStore();
   };
 
-  const onRateToggle = (checked: any) => {
-    setIsRateBenefit(checked);
-  };
+  // const onRateToggle = (checked: any) => {
+  //   setIsRateBenefit(checked);
+  // };
 
   const onFormSubmit = (formValues: any) => {
     const value = {
@@ -94,29 +94,29 @@ const DeductiontypeSideBar = () => {
     });
   };
 
-  const handleDepartmentChange = (value: string[]) => {
-    if (value.length === 0) {
-      setDepartmentUsers([]);
-      return;
-    }
-    setSelectedDepartementArray(value);
-    const department = departments.filter((dept: any) =>
-      value.includes(dept.id),
-    );
-    if (department.length > 0) {
-      let departmentUsers: any = []; // Initialize users as an empty array
-      department.forEach((dep: any) => {
-        if (dep?.users) {
-          departmentUsers = departmentUsers.concat(dep.users); // Concatenate users from each department
-        }
-      });
-      setDepartmentUsers(departmentUsers);
-    }
-  };
+  // const handleDepartmentChange = (value: string[]) => {
+  //   if (value.length === 0) {
+  //     setDepartmentUsers([]);
+  //     return;
+  //   }
+  //   setSelectedDepartementArray(value);
+  //   const department = departments.filter((dept: any) =>
+  //     value.includes(dept.id),
+  //   );
+  //   if (department.length > 0) {
+  //     let departmentUsers: any = []; // Initialize users as an empty array
+  //     department.forEach((dep: any) => {
+  //       if (dep?.users) {
+  //         departmentUsers = departmentUsers.concat(dep.users); // Concatenate users from each department
+  //       }
+  //     });
+  //     setDepartmentUsers(departmentUsers);
+  //   }
+  // };
 
-  const handleAllEmployeeChange = (checked: any) => {
-    setIsAllEmployee(checked);
-  };
+  // const handleAllEmployeeChange = (checked: any) => {
+  //   setIsAllEmployee(checked);
+  // };
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {

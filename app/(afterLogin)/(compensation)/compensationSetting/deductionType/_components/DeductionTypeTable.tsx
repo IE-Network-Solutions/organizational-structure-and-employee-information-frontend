@@ -24,10 +24,10 @@ const DeductionTypeTable = () => {
     setBenefitCurrentPage,
   } = useCompensationTypeTablesStore();
   const {
-    setSelectedBenefitRecord,
-    setIsBenefitOpen,
+    // setSelectedBenefitRecord,
+    // setIsBenefitOpen,
     tableData,
-    isDeductionOpen,
+    // isDeductionOpen,
     setIsDeductionOpen,
     setSelectedDeductionRecord,
     setTableData,
