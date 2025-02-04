@@ -32,6 +32,15 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
       },
       link: '/compensationSetting/benefitType',
     },
+    {
+      item: {
+        key: 'deductionType',
+        icon: <CiCalendarDate />,
+        label: <p className="menu-item-label">Deduction Type</p>,
+        className: 'px-1',
+      },
+      link: '/compensationSetting/deductionType',
+    },
   ]);
 
   return (
