@@ -22,7 +22,8 @@ const BenefitEntitlementSideBar = () => {
     resetStore,
     benefitDefaultAmount,
   } = useBenefitEntitlementStore();
-  const { mutate: createBenefitEntitlement } = useCreateBenefitEntitlement();
+  const { mutate: createBenefitEntitlement, isLoading: createBenefitLoading } =
+    useCreateBenefitEntitlement();
   const { data: departments, isLoading } = useGetDepartmentsWithUsers();
   const { id } = useParams();
   const [form] = Form.useForm();
@@ -33,16 +34,23 @@ const BenefitEntitlementSideBar = () => {
   };
 
   const onFormSubmit = (formValues: any) => {
-    createBenefitEntitlement({
-      compensationItemId: id,
-      employeeIds: formValues.employees,
-      totalAmount:
-        benefitMode == 'CREDIT'
-          ? benefitDefaultAmount
-          : Number(formValues.amount),
-      settlementPeriod: Number(formValues.settlementPeriod),
-    });
-    onClose();
+    createBenefitEntitlement(
+      {
+        compensationItemId: id,
+        employeeIds: formValues.employees,
+        totalAmount:
+          benefitMode == 'CREDIT'
+            ? benefitDefaultAmount
+            : Number(formValues.amount),
+        settlementPeriod: Number(formValues.settlementPeriod),
+      },
+      {
+        onSuccess: () => {
+          form.resetFields();
+          onClose();
+        },
+      },
+    );
   };
 
   const handleDepartmentChange = (value: string) => {
@@ -62,7 +70,7 @@ const BenefitEntitlementSideBar = () => {
       key: 'cancel',
       className: 'h-14',
       size: 'large',
-      loading: isLoading,
+      loading: createBenefitLoading,
       onClick: () => onClose(),
     },
     {
@@ -71,7 +79,7 @@ const BenefitEntitlementSideBar = () => {
       className: 'h-14',
       type: 'primary',
       size: 'large',
-      loading: isLoading,
+      loading: createBenefitLoading,
       onClick: () => form.submit(),
     },
   ];

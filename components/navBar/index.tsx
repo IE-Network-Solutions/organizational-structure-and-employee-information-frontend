@@ -240,8 +240,7 @@ const menuItems: MenuProps['items'] = [
         key: '/variable-pay',
         label: 'Variable Pay',
         className: 'font-bold',
-      }
-    
+      },
     ],
   },
 ];
@@ -314,7 +313,7 @@ const userItems: MenuProps['items'] = [
   //       label: 'Variable Pay',
   //       className: 'font-bold',
   //     }
-    
+
   //   ],
   // },
 ];
