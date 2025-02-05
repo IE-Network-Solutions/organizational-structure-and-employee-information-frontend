@@ -140,7 +140,7 @@ const Page = () => {
         const user = getAllUsers?.items?.find(
           (item: any) => item.id === record.recipientId,
         );
-        return user ? `${user.firstName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
+        return user ? `${user.firstName} ${user.middleName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
       },
     },
     {
@@ -151,7 +151,7 @@ const Page = () => {
         const user = getAllUsers?.items?.find(
           (item: any) => item.id === record.issuerId,
         );
-        return user ? `${user.firstName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
+        return user ? `${user.firstName} ${user.middleName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
       },
     },
     {
@@ -234,7 +234,7 @@ const Page = () => {
       options:
         getAllUsersData?.items?.map((item: any) => ({
           key: item?.id,
-          value: `${item?.firstName} ${item?.lastName}`,
+          value: `${item?.firstName} ${item?.middleName} ${item?.lastName}`,
         })) ?? [], // Empty initially, will be updated dynamically
       widthRatio: 0.5,
       onChange: (value: string) => setEmpId(value),
