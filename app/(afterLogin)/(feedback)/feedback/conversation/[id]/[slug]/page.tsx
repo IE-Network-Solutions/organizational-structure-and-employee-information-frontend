@@ -54,7 +54,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
       return {
         ...questionResponse,
         employeeDetail:
-          `${employeeData?.firstName || ''} ${employeeData?.lastName || ''}`.trim(),
+          `${employeeData?.firstName || ''} ${employeeData?.middleName || ''} ${employeeData?.lastName || ''}`.trim(),
       };
     }
 

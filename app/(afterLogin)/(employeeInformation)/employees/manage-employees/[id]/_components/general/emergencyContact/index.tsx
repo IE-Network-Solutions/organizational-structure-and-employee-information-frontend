@@ -55,6 +55,7 @@ function EmergencyContact({ handleSaveChanges, id }: any) {
               {Object.entries(
                 employeeData?.employeeInformation?.emergencyContact || {
                   firstName: '',
+                  middleName: '',
                   lastName: '',
                   phoneNumber: '',
                   gender: '',
