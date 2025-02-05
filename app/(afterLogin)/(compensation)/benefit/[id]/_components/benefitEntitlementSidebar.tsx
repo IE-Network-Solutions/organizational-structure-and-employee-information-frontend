@@ -11,6 +11,7 @@ import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useFetchBenefit } from '@/store/server/features/compensation/benefit/queries';
 
 const BenefitEntitlementSideBar = () => {
   const {
@@ -35,7 +36,7 @@ const BenefitEntitlementSideBar = () => {
     form.resetFields();
     resetStore();
   };
-
+  const { data: benefitData } = useFetchBenefit(id);
   const onFormSubmit = (formValues: any) => {
     createBenefitEntitlement(
       {
@@ -43,9 +44,10 @@ const BenefitEntitlementSideBar = () => {
         employeeIds: formValues.employees,
         totalAmount:
           benefitMode == 'CREDIT'
-            ? benefitDefaultAmount
+            ? Number(benefitDefaultAmount)
             : Number(formValues.amount),
         settlementPeriod: Number(formValues.settlementPeriod),
+        isRate: benefitData?.isRate,
       },
       {
         onSuccess: () => {
