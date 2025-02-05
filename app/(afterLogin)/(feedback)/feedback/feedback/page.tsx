@@ -183,6 +183,23 @@ const Page = () => {
       key: 'reason',
     },
     {
+      title: 'Action To be Taken',
+      dataIndex: 'action',
+      render: (notused: any, record: any) => {
+        return record.action ? (
+          <Tooltip title={record?.action}>
+            {record?.action?.length >= 40
+              ? record?.action?.slice(0, 40) + '....'
+              : record?.action}{' '}
+          </Tooltip>
+        ) : (
+          'N/A'
+        );
+      },
+
+      key: 'reason',
+    },
+    {
       title: 'Given Date',
       dataIndex: 'createdAt',
       key: 'createdAt',
