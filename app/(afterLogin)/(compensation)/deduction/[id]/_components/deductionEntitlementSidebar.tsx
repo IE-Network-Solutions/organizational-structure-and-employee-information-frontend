@@ -3,7 +3,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Input, Select, Spin } from 'antd';
+import { Form, Input, Select, Spin, Switch } from 'antd';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 // import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useCreateAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
@@ -19,6 +19,8 @@ const AllowanceEntitlementSideBar = () => {
     // setDepartmentUsers,
     // selectedDepartment,
     setSelectedDepartment,
+    setIsRate,
+    isRate,
   } = useAllowanceEntitlementStore();
   const {
     mutate: createAllowanceEntitlement,
@@ -61,9 +63,10 @@ const AllowanceEntitlementSideBar = () => {
       {
         compensationItemId: id,
         employeeIds: formValues.employees,
-        totalAmount: formValues.totalAmount,
-        settlementPeriod: formValues.settlementPeriod,
+        totalAmount: Number(formValues.totalAmount),
+        settlementPeriod: Number(formValues.settlementPeriod),
         active: true,
+        isRate: formValues?.isRate,
       },
       {
         onSuccess: () => {
@@ -147,25 +150,43 @@ const AllowanceEntitlementSideBar = () => {
                 loading={allUserLoading}
               />
             </Form.Item>
+            <Form.Item label="Per day" name="isRate">
+              <Switch onChange={(checked) => setIsRate(checked)} />
+            </Form.Item>
             <div style={{ display: 'flex', gap: '20px' }}>
               <Form.Item
                 name="totalAmount"
-                label={'Total Amount'}
+                label={isRate ? 'Per day' : 'Total Amount'}
                 rules={[
+                  { required: true, message: 'Total amount is required!' },
                   {
-                    required: true,
-                    message: 'Total amount is required!',
+                    validator: (notused, value) => {
+                      if (value < 0) {
+                        return Promise.reject(
+                          new Error('Total amount cannot be less than 0!'),
+                        );
+                      }
+                      if (isRate && value > 30) {
+                        return Promise.reject(
+                          new Error('Total amount cannot be greater than 30!'),
+                        );
+                      }
+                      return Promise.resolve();
+                    },
                   },
                 ]}
-                className="form-item"
+                className="form-item w-full"
               >
                 <Input
                   className="control"
                   type="number"
-                  placeholder={'Total Amount'}
+                  min={0}
+                  max={isRate ? 30 : undefined}
+                  placeholder={isRate ? 'Enter per day' : 'Total Amount'}
                   style={{ height: '32px', padding: '4px 8px' }}
                 />
               </Form.Item>
+
               <Form.Item
                 name="settlementPeriod"
                 label={'Settlement Period'}
@@ -175,7 +196,7 @@ const AllowanceEntitlementSideBar = () => {
                     message: 'settlement period is required!',
                   },
                 ]}
-                className="form-item"
+                className="form-item w-full"
               >
                 <Input
                   className="control"

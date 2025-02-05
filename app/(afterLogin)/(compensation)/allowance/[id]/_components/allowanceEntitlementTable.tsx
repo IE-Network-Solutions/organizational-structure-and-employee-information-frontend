@@ -13,6 +13,7 @@ import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 
 const AllowanceEntitlementTable = () => {
   const {
@@ -32,6 +33,25 @@ const AllowanceEntitlementTable = () => {
   } = useFetchAllowanceEntitlements(id);
   const [searchQuery, setSearchQuery] = useState('');
   const { data: employeeData } = useGetAllUsers();
+  const EmployeeBasicSalary = ({
+    id,
+    amount,
+  }: {
+    id: string;
+    amount: string;
+  }) => {
+    const { data, error } = useGetBasicSalaryById(id);
+    if (error || !data) {
+      return '--';
+    }
+    const employeeBasicSalary =
+      Number(data.find((item: any) => item.status)?.basicSalary) || '--';
+    const calculatedSalary =
+      typeof employeeBasicSalary === 'number'
+        ? (employeeBasicSalary * Number(amount)) / 100
+        : '--';
+    return calculatedSalary;
+  };
 
   const transformedData =
     allowanceEntitlementData?.map((item: any) => ({
@@ -39,6 +59,7 @@ const AllowanceEntitlementTable = () => {
       userId: item.employeeId,
       isRate: item.compensationItem.isRate,
       Amount: item.totalAmount,
+      defaultAmount: item.compensationItem?.defaultAmount,
       ApplicableTo: item.compensationItem.applicableTo,
     })) || [];
 
@@ -71,7 +92,15 @@ const AllowanceEntitlementTable = () => {
       dataIndex: 'Amount',
       key: 'Amount',
       sorter: true,
-      render: (text: string) => <div>{text ? `${text} ETB` : '-'}</div>,
+      render: (text: string, record: any) =>
+        !record.isRate ? (
+          <div>{text ? `${text} ETB` : '-'}</div>
+        ) : (
+          <EmployeeBasicSalary
+            id={record?.userId}
+            amount={record?.defaultAmount}
+          />
+        ),
     },
     {
       title: 'Action',
@@ -158,7 +187,7 @@ const AllowanceEntitlementTable = () => {
         pagination={{
           current: currentPage,
           pageSize,
-          total: transformedData.length,
+          total: transformedData?.length,
           showSizeChanger: true,
         }}
         onChange={handleTableChange}
