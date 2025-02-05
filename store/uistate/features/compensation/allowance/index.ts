@@ -7,6 +7,7 @@ export interface AllowanceEntitlementTypes {
   isAllowanceGlobal: boolean;
   currentPage: number;
   pageSize: number;
+  isRate: boolean;
 
   setIsAllowanceEntitlementSidebarOpen: (value: boolean) => void;
   resetStore: () => void;
@@ -15,6 +16,7 @@ export interface AllowanceEntitlementTypes {
   setIsAllowanceGlobal: (value: boolean) => void;
   setCurrentPage: (value: number) => void;
   setPageSize: (value: number) => void;
+  setIsRate: (value: boolean) => void;
 }
 
 const initialState = {
@@ -24,6 +26,7 @@ const initialState = {
   isAllowanceGlobal: false,
   currentPage: 1,
   pageSize: 6,
+  isRate: false,
 };
 
 export const useAllowanceEntitlementStore = create<AllowanceEntitlementTypes>(
@@ -37,6 +40,7 @@ export const useAllowanceEntitlementStore = create<AllowanceEntitlementTypes>(
     setIsAllowanceGlobal: (value) => set({ isAllowanceGlobal: value }),
     setCurrentPage: (value) => set({ currentPage: value }),
     setPageSize: (value) => set({ pageSize: value }),
+    setIsRate: (value) => set({ isRate: value }),
 
     resetStore: () => set(initialState),
   }),

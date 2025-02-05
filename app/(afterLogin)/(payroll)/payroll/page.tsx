@@ -24,7 +24,7 @@ const EmployeeBasicSalary = ({ id }: { id: string }) => {
   }
   const employeeBasicSalary =
     data.find((item: any) => item.status)?.basicSalary || '--';
-  return employeeBasicSalary;
+  return Number(employeeBasicSalary)?.toLocaleString();
 };
 
 const Payroll = () => {
@@ -41,7 +41,8 @@ const Payroll = () => {
     isSuccess: isCreatePayrollSuccess,
   } = useCreatePayroll();
 
-  const { mutate: deletePayroll } = useDeletePayroll();
+  const { mutate: deletePayroll, isLoading: deleteLoading } =
+    useDeletePayroll();
 
   const { exportToExcel } = useExportData();
   const { generateBankLetter } = useGenerateBankLetter();
@@ -233,43 +234,58 @@ const Payroll = () => {
       dataIndex: 'totalAllowance',
       key: 'totalAllowance',
       minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
       title: 'Total Benefits',
       dataIndex: 'totalMerit',
       key: 'totalMerit',
       minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
       title: 'Total Deduction',
       dataIndex: 'totalDeductions',
       key: 'totalDeductions',
       minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
       title: 'Gross Income',
       dataIndex: 'grossSalary',
       key: 'grossSalary',
       minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
     },
-    { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 150 },
+    {
+      title: 'Tax',
+      dataIndex: 'tax',
+      key: 'tax',
+      minWidth: 150,
+      render: (notused: any, record: any) =>
+        Number(record.breakdown?.tax?.amount)?.toLocaleString(),
+    },
     {
       title: 'Employee Pension',
       dataIndex: 'pension',
       key: 'pension',
       minWidth: 150,
+      render: (notused: any, record: any) =>
+        Number(record.breakdown?.pension[0]?.amount)?.toLocaleString(),
     },
     {
       title: 'Cost Sharing',
       dataIndex: 'costsharing',
       key: 'costsharing',
       minWidth: 150,
+      render: (key: string) => Number(key || 0)?.toLocaleString(),
     },
     {
       title: 'Net Income',
       dataIndex: 'netPay',
       key: 'netPay',
       minWidth: 150,
+      render: (key: string) => Number(key || 0)?.toLocaleString(),
     },
   ];
   return (
@@ -308,8 +324,8 @@ const Payroll = () => {
                 ? handleDeletePayroll
                 : handleGeneratePayroll
             }
-            loading={isCreatingPayroll || loading}
-            disabled={isCreatingPayroll || loading}
+            loading={isCreatingPayroll || loading || deleteLoading}
+            disabled={isCreatingPayroll || loading || deleteLoading}
           >
             {payroll?.payrolls.length > 0
               ? 'Delete Payroll'
