@@ -252,10 +252,11 @@ const AllowanceTypeSideBar = () => {
                     options={allUsers?.items?.map((item: any) => ({
                       ...item,
                       value: item?.id,
-                      label: item?.firstName + ' ' + item?.lastName,
+                      label: item?.firstName + ' ' + user?.middleName+ ' ' + item?.lastName,
                     }))}
                     loading={allUserLoading}
                   />
+
                 </Form.Item>
               </>
             )}
