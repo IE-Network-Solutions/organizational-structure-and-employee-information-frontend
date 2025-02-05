@@ -53,7 +53,7 @@ const CardList: FC<CardListProps> = ({ title, people, loading, type }) => {
         <div className="">
           <PersonCard
             name={
-              `${people[currentPersonIndex]?.user?.firstName}  ${people[currentPersonIndex]?.user?.lastName} ` ||
+              `${people[currentPersonIndex]?.user?.firstName} ${people[currentPersonIndex]?.user?.middleName} ${people[currentPersonIndex]?.user?.lastName} ` ||
               ''
             }
             imgSrc={people[currentPersonIndex]?.user?.profileImage || ''}
