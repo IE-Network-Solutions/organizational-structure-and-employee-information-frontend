@@ -61,9 +61,10 @@ const PlanAssignment: React.FC = () => {
 
     // Destructure firstName and lastName with fallback
     const firstName = employee?.firstName || '-';
+    const middleName = employee?.middleName || '';
     const lastName = employee?.lastName || '';
 
-    return `${firstName} ${lastName}`;
+    return `${firstName} ${middleName} ${lastName}`;
   };
 
   const getPlanningPeriod = (planningPeriodId: string) => {
