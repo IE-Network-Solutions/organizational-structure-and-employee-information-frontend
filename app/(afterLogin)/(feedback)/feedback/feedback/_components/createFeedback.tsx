@@ -236,13 +236,19 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           <Select
             mode="multiple"
             placeholder="Select CC employee(s)"
+            filterOption={(input: any, option: any) =>
+              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+            }
             options={
               getAllUsersData?.items?.map((item: any) => ({
                 key: item?.id,
-                value: `${item?.firstName} ${item?.lastName}`,
+                value: item?.email,
+                label:
+                  item?.firstName + ' ' + item?.middleName + '' + item?.lastName,
               })) ?? []
             }
           />
+         
         </Form.Item>
       )}
 
