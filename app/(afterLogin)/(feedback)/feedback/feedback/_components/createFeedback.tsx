@@ -143,7 +143,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
             getAllUsersData?.items
               ?.filter((i: any) => i.id !== userId)
               ?.map((item: any) => ({
-                label: `${item?.firstName} ${item?.lastName}`, // `label` for display
+                label: `${item?.firstName} ${item?.middleName} ${item?.lastName}`, // `label` for display
                 value: item?.id, // `value` for internal use
               })) ?? []
           }
@@ -245,6 +245,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
                 value: item?.email,
                 label:
                   item?.firstName + ' ' + item?.middleName + '' + item?.lastName,
+
               })) ?? []
             }
           />

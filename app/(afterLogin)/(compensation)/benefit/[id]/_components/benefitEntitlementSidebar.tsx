@@ -5,25 +5,29 @@ import CustomDrawerFooterButton, {
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { Form, Input, Select, Spin } from 'antd';
-import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
+// import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useCreateBenefitEntitlement } from '@/store/server/features/compensation/benefit/mutations';
 import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const BenefitEntitlementSideBar = () => {
   const {
-    departmentUsers,
-    setDepartmentUsers,
+    // departmentUsers,
+    // setDepartmentUsers,
     benefitMode,
     isBenefitEntitlementSidebarOpen,
-    selectedDepartment,
-    setSelectedDepartment,
+    // selectedDepartment,
+    // setSelectedDepartment,
     resetStore,
     benefitDefaultAmount,
   } = useBenefitEntitlementStore();
-  const { mutate: createBenefitEntitlement } = useCreateBenefitEntitlement();
-  const { data: departments, isLoading } = useGetDepartmentsWithUsers();
+  const { mutate: createBenefitEntitlement, isLoading: createBenefitLoading } =
+    useCreateBenefitEntitlement();
+  const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
+
+  // const { data: departments, isLoading } = useGetDepartmentsWithUsers();
   const { id } = useParams();
   const [form] = Form.useForm();
 
@@ -33,28 +37,35 @@ const BenefitEntitlementSideBar = () => {
   };
 
   const onFormSubmit = (formValues: any) => {
-    createBenefitEntitlement({
-      compensationItemId: id,
-      employeeIds: formValues.employees,
-      totalAmount:
-        benefitMode == 'CREDIT'
-          ? benefitDefaultAmount
-          : Number(formValues.amount),
-      settlementPeriod: Number(formValues.settlementPeriod),
-    });
-    onClose();
+    createBenefitEntitlement(
+      {
+        compensationItemId: id,
+        employeeIds: formValues.employees,
+        totalAmount:
+          benefitMode == 'CREDIT'
+            ? benefitDefaultAmount
+            : Number(formValues.amount),
+        settlementPeriod: Number(formValues.settlementPeriod),
+      },
+      {
+        onSuccess: () => {
+          form.resetFields();
+          onClose();
+        },
+      },
+    );
   };
 
-  const handleDepartmentChange = (value: string) => {
-    setSelectedDepartment(value);
-    const department = departments.find((dept: any) => dept.name === value);
-    if (department) {
-      setDepartmentUsers(department.users);
-      form.setFieldsValue({
-        employees: department.users.map((user: any) => user.id),
-      });
-    }
-  };
+  // const handleDepartmentChange = (value: string) => {
+  //   setSelectedDepartment(value);
+  //   const department = departments.find((dept: any) => dept.name === value);
+  //   if (department) {
+  //     setDepartmentUsers(department.users);
+  //     form.setFieldsValue({
+  //       employees: department.users.map((user: any) => user.id),
+  //     });
+  //   }
+  // };
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -62,7 +73,7 @@ const BenefitEntitlementSideBar = () => {
       key: 'cancel',
       className: 'h-14',
       size: 'large',
-      loading: isLoading,
+      loading: createBenefitLoading,
       onClick: () => onClose(),
     },
     {
@@ -71,7 +82,7 @@ const BenefitEntitlementSideBar = () => {
       className: 'h-14',
       type: 'primary',
       size: 'large',
-      loading: isLoading,
+      loading: createBenefitLoading,
       onClick: () => form.submit(),
     },
   ];
@@ -89,13 +100,37 @@ const BenefitEntitlementSideBar = () => {
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
         width="600px"
       >
-        <Spin spinning={isLoading}>
+        <Spin spinning={allUserLoading}>
           <Form
             layout="vertical"
             form={form}
             onFinish={(values) => onFormSubmit(values)}
             requiredMark={CustomLabel}
           >
+            <Form.Item
+              name="employees"
+              label="Select Employees"
+              rules={[{ required: true, message: 'Please select employees' }]}
+            >
+              <Select
+                showSearch
+                placeholder="Select a person"
+                mode="multiple"
+                className="w-full h-14"
+                allowClear
+                filterOption={(input: any, option: any) =>
+                  (option?.label ?? '')
+                    ?.toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={allUsers?.items?.map((item: any) => ({
+                  ...item,
+                  value: item?.id,
+                  label: item?.firstName + ' ' + item?.lastName,
+                }))}
+                loading={allUserLoading}
+              />
+            </Form.Item>
             <div style={{ display: 'flex', gap: '20px' }}>
               <Form.Item
                 name="amount"
@@ -150,7 +185,7 @@ const BenefitEntitlementSideBar = () => {
                 />
               </Form.Item>
             </div>
-            <Form.Item
+            {/* <Form.Item
               name="department"
               label="Select Department"
               rules={[{ required: true, message: 'Department is required!' }]}
@@ -166,26 +201,7 @@ const BenefitEntitlementSideBar = () => {
                   </Select.Option>
                 ))}
               </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="employees"
-              label="Select Employees"
-              rules={[{ required: true, message: 'Employee is required!' }]}
-              className="form-item"
-            >
-              <Select
-                mode="multiple"
-                placeholder="Select employees"
-                disabled={!selectedDepartment}
-              >
-                {departmentUsers?.map((user) => (
-                  <Select.Option key={user.id} value={user.id}>
-                    {user?.firstName} {user?.lastName}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
+            </Form.Item> */}
           </Form>
         </Spin>
       </CustomDrawerLayout>

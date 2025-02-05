@@ -12,6 +12,7 @@ export interface JobInformation {
 }
 export interface User {
   firstName: string;
+  middleName: string;
   lastName: string;
   email: string;
   profileImage: string;
