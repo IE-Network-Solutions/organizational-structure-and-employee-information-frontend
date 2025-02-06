@@ -186,7 +186,7 @@ const CreateMeeting = ({
     return {
       value: matchingUser?.id,
       label: matchingUser
-        ? `${matchingUser.firstName} ${matchingUser.middleName} ${matchingUser.lastName}`
+        ? `${matchingUser?.firstName} ${matchingUser?.middleName} ${matchingUser?.lastName}`
         : null,
     };
   });

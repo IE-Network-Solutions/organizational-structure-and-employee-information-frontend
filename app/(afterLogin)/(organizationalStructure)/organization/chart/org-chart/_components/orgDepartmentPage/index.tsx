@@ -27,7 +27,7 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
           title={
             data?.employeeJobInformation?.[0]?.user?.firstName ||
             data?.employeeJobInformation?.[0]?.user?.lastName
-              ? `${data.employeeJobInformation[0].user.firstName ?? ''} ${data.employeeJobInformation[0].user.middleName ?? ''} ${data.employeeJobInformation[0].user.lastName ?? ''}`.trim()
+              ? `${data.employeeJobInformation[0].user?.firstName ?? ''} ${data.employeeJobInformation[0].user?.middleName ?? ''} ${data.employeeJobInformation[0].user?.lastName ?? ''}`.trim()
               : 'Not assigned'
           }
           placement="top"
