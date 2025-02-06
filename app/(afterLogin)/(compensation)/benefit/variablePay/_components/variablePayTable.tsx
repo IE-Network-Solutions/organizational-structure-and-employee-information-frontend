@@ -39,8 +39,8 @@ const VariablePayTable = () => {
       VpInBirr: variablePay?.amount,
       VpScore: variablePay?.vpScore,
       Benefit: '',
-      actions: (
-        <Link href={`manage-employees/${variablePay?.id}`}>
+      Action: (
+        <Link href={`employees/manage-employees/${variablePay?.id}`}>
           <Button
             // id={`editUserButton${item?.id}`}
             className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
@@ -76,7 +76,6 @@ const VariablePayTable = () => {
       dataIndex: 'VpInBirr',
       key: 'VpInBirr',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
     },
     {
       title: 'VP Score',
@@ -97,15 +96,13 @@ const VariablePayTable = () => {
       dataIndex: 'Action',
       key: 'Action',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      // render: (text: string) => <div>{text || '-'}</div>,
     },
   ];
 
-  const filteredDataSource = searchParams
+  const filteredDataSource = searchParams?.employeeName
     ? tableData.filter(
-        (employee: any) =>
-          employee?.name?.toLowerCase() ===
-          searchParams?.employeeName.toLowerCase(),
+        (employee: any) => employee?.name === searchParams?.employeeName,
       )
     : tableData;
 

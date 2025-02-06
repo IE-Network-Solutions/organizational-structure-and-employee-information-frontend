@@ -225,7 +225,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
                 checked={selectedUsers.includes(user.id)}
                 onClick={(e) => e.stopPropagation()}
               >
-                {user.firstName}  ${user.middleName} {user.lastName}
+                {user.firstName} ${user.middleName} {user.lastName}
               </Checkbox>
             </Option>
           ))}

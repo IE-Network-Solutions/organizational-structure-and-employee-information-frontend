@@ -140,7 +140,9 @@ const Page = () => {
         const user = getAllUsers?.items?.find(
           (item: any) => item.id === record.recipientId,
         );
-        return user ? `${user.firstName} ${user.middleName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
+        return user
+          ? `${user.firstName} ${user.middleName} ${user.lastName}`
+          : 'Unknown'; // Return full name or fallback
       },
     },
     {
@@ -151,7 +153,9 @@ const Page = () => {
         const user = getAllUsers?.items?.find(
           (item: any) => item.id === record.issuerId,
         );
-        return user ? `${user.firstName} ${user.middleName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
+        return user
+          ? `${user.firstName} ${user.middleName} ${user.lastName}`
+          : 'Unknown'; // Return full name or fallback
       },
     },
     {

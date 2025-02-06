@@ -60,8 +60,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
     value: string,
     keyValue: keyof typeof searchParams,
   ) => {
-    const trimmedValue = value.trim();
-    onSearchChange(trimmedValue, keyValue);
+    onSearchChange(value, keyValue);
   };
 
   const options =
@@ -82,7 +81,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           allowClear
           className="w-full h-14"
           placeholder="Search by name"
-          onChange={(e) => handleSearchInput(e.target.value, 'employeeName')}
+          onChange={(value) => handleSearchInput(value, 'employeeName')}
           filterOption={(input, option) => {
             const label = option?.label;
             return (

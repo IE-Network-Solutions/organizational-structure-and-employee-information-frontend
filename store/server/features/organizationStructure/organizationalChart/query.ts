@@ -4,7 +4,6 @@ import { OrgChart } from './interface';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-
 /**
  * Fetch all organization charts from the API.
  * @returns Promise with the list of organization charts.
