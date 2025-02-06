@@ -67,7 +67,6 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     });
   }
 
-
   return (
     <div className="p-2 grid gap-0">
       <div className="flex justify-center">
@@ -125,7 +124,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   <div className="text-xs text-gray-600">Days left</div>
                 </div>
               </div>
-              
+
               {!myOkr && (
                 <div className="flex items-center gap-1 mt-4 sm:mt-0">
                   <div className="flex flex-col gap-0">

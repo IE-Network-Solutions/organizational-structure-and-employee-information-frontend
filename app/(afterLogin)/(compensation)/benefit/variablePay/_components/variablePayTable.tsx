@@ -1,4 +1,4 @@
-import { Button, Spin, Table, Tooltip } from 'antd';
+import { Button, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
@@ -55,7 +55,6 @@ const VariablePayTable = () => {
     setCurrentPage(pagination.current);
     setPageSize(pagination.pageSize);
   };
-  console.log(allUsersVariablePay, 'allUsersVariablePay');
 
   const columns: TableColumnsType<any> = [
     {
