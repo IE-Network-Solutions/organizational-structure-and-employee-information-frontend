@@ -39,7 +39,10 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
     if (selectedSession) {
       const allMonthIds = selectedSession?.months?.map((month) => month.id);
       setSearchParams('selectedSession', sessionId);
-      setSearchParams('selectedMonth', allMonthIds);
+      setSearchParams(
+        'selectedMonth',
+        allMonthIds ? allMonthIds.join(',') : '',
+      );
     }
   };
 
@@ -49,7 +52,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
       ?.find((month) => month?.id === monthId);
 
     if (selectedMonth) {
-      setSearchParams('selectedMonth', [monthId]);
+      setSearchParams('selectedMonth', [monthId].join(','));
     }
   };
 
