@@ -52,7 +52,7 @@ const VPPayCard: React.FC = () => {
                   onClick={() => {
                     refetch();
                   }}
-                ></Button>
+                />
               </div>
               <div className="relative ">
                 <div className="flex flex-wrap items-center justify-between">
@@ -66,7 +66,7 @@ const VPPayCard: React.FC = () => {
                         title={{ width: 80 }}
                       />
                     ) : (
-                      `${vpScore?.score}`
+                      `${Number(vpScore?.score).toFixed(2)}`
                     )}
                   </Title>
 

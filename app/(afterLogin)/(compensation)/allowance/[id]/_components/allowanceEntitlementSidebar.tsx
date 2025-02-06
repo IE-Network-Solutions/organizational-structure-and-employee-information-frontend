@@ -149,7 +149,7 @@ const AllowanceEntitlementSideBar = () => {
               >
                 {departmentUsers?.map((user) => (
                   <Select.Option key={user.id} value={user.id}>
-                    {user?.firstName} {user?.lastName}
+                    {user?.firstName} {user?.middleName} {user?.lastName}
                   </Select.Option>
                 ))}
               </Select>

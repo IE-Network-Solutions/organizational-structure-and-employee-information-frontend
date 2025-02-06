@@ -140,7 +140,7 @@ const Page = () => {
         const user = getAllUsers?.items?.find(
           (item: any) => item.id === record.recipientId,
         );
-        return user ? `${user.firstName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
+        return user ? `${user.firstName} ${user.middleName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
       },
     },
     {
@@ -151,7 +151,7 @@ const Page = () => {
         const user = getAllUsers?.items?.find(
           (item: any) => item.id === record.issuerId,
         );
-        return user ? `${user.firstName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
+        return user ? `${user.firstName} ${user.middleName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
       },
     },
     {
@@ -174,6 +174,23 @@ const Page = () => {
             {record?.reason?.length >= 40
               ? record?.reason?.slice(0, 40) + '....'
               : record?.reason}{' '}
+          </Tooltip>
+        ) : (
+          'N/A'
+        );
+      },
+
+      key: 'reason',
+    },
+    {
+      title: 'Action To be Taken',
+      dataIndex: 'action',
+      render: (notused: any, record: any) => {
+        return record.action ? (
+          <Tooltip title={record?.action}>
+            {record?.action?.length >= 40
+              ? record?.action?.slice(0, 40) + '....'
+              : record?.action}{' '}
           </Tooltip>
         ) : (
           'N/A'
@@ -234,7 +251,7 @@ const Page = () => {
       options:
         getAllUsersData?.items?.map((item: any) => ({
           key: item?.id,
-          value: `${item?.firstName} ${item?.lastName}`,
+          value: `${item?.firstName} ${item?.middleName} ${item?.lastName}`,
         })) ?? [], // Empty initially, will be updated dynamically
       widthRatio: 0.5,
       onChange: (value: string) => setEmpId(value),

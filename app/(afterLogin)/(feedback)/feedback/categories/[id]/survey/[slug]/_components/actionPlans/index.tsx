@@ -119,7 +119,7 @@ function ActionPlans({ id }: Params) {
                           }
                           title={
                             <span className="text-sm">
-                              {user?.firstName + ' ' + user?.lastName}
+                              {user?.firstName + ' ' + user?.middleName + ' ' + user?.lastName}
                             </span>
                           }
                           description={item.description}
