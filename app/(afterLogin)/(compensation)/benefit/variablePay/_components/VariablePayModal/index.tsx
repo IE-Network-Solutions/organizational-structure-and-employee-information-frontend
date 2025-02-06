@@ -28,7 +28,12 @@ const VariablePayModal: React.FC<ModalProps> = ({ data }) => {
 
   const { mutate: sendToPayroll } = useSendToPayroll();
 
-  const { data: monthById } = useGetMonthById(searchParams?.monthId || '');
+  const activeMonthId = Array.isArray(searchParams?.selectedMonth)
+    ? searchParams.selectedMonth.find((month) => month?.active)?.id ||
+      searchParams.selectedMonth[0]?.id
+    : searchParams?.selectedMonth;
+
+  const { data: monthById } = useGetMonthById(activeMonthId || '');
   const { data: sessionById } = useGetSessionById(
     searchParams?.selectedSession || '',
   );

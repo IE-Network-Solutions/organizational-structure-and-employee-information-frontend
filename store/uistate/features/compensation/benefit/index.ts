@@ -3,7 +3,7 @@ import { create } from 'zustand';
 interface SearchParams {
   employeeName: string;
   selectedSession: string[];
-  selectedMonth: string[];
+  selectedMonth: string[] | any;
 }
 
 interface BenefitEntitlementTypes {
