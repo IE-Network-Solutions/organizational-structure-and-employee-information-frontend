@@ -6,7 +6,7 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 const VariablePayPage = () => {
   return (
     <div className="h-auto w-auto px-6 py-6">
-     <PageHeader title="Variable Pay" description="Employee variable pay" />
+      <PageHeader title="Variable Pay" description="Employee variable pay" />
       <VariablePayTable />
     </div>
   );

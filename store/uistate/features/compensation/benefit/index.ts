@@ -1,5 +1,11 @@
 import { create } from 'zustand';
 
+interface SearchParams {
+  employeeName: string;
+  selectedSession: string[];
+  selectedMonth: string[];
+}
+
 interface BenefitEntitlementTypes {
   isBenefitEntitlementSidebarOpen: boolean;
   selectedDepartment: string | null;
@@ -43,6 +49,15 @@ interface VariablePayTypes {
   setPageSize: (value: number) => void;
 
   resetStore: () => void;
+
+  openModal: boolean;
+  setOpenModal: (value: boolean) => void;
+
+  searchValue: { [key: string]: string };
+  setSearchValue: (key: string, value: string) => void;
+
+  searchParams: SearchParams;
+  setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
 }
 
 const variablePayInitialState = {
@@ -85,4 +100,25 @@ export const useVariablePayStore = create<VariablePayTypes>((set) => ({
   setPageSize: (value) => set({ pageSize: value }),
 
   resetStore: () => set(variablePayInitialState),
+
+  openModal: false,
+  setOpenModal: (openModal) => set({ openModal }),
+
+  searchValue: {},
+  setSearchValue: (key, value) =>
+    set((state) => ({
+      searchValue: { ...state.searchValue, [key]: value },
+    })),
+
+  searchParams: {
+    employeeName: '',
+    selectedSession: [],
+    selectedMonth: [],
+  },
+  setSearchParams: (key, value) => {
+    const stringValue = typeof value === 'boolean' ? String(value) : value;
+    set((state) => ({
+      searchParams: { ...state.searchParams, [key]: stringValue },
+    }));
+  },
 }));
