@@ -175,7 +175,7 @@ export const useFetchActiveFiscalYearPayPeriods = (
   );
 };
 
-export const useGetVariablePay = (monthIds: string[]) => {
+export const useGetVariablePay = (monthIds: any) => {
   return useQuery(['variablePay', monthIds], () => getVariablePay(monthIds), {
     keepPreviousData: true,
   });
