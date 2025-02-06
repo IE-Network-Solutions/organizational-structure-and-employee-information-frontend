@@ -25,8 +25,11 @@ const VariablePayTable = () => {
         ? searchParams?.selectedMonth
         : [activeMonth?.id];
 
-  const { data: allUsersVariablePay, isLoading } =
-    useGetVariablePay(selectedMonthIds);
+  const selectedMonthIdsObject = { monthIds: selectedMonthIds };
+
+  const { data: allUsersVariablePay, isLoading } = useGetVariablePay(
+    selectedMonthIdsObject,
+  );
 
   const tableData: any[] =
     allUsersVariablePay?.items?.map((variablePay: any) => ({

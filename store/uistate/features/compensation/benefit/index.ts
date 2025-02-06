@@ -2,8 +2,8 @@ import { create } from 'zustand';
 
 interface SearchParams {
   employeeName: string;
-  selectedSession: string[];
-  selectedMonth: string[] | any;
+  selectedSession: any;
+  selectedMonth: any;
 }
 
 interface BenefitEntitlementTypes {
