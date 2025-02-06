@@ -161,36 +161,36 @@ const HistoryTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (item: LeaveRequest) => (
-        <AccessGuard
-          permissions={[
-            Permissions.UpdateLeaveRequest,
-            Permissions.DeleteLeaveRequest,
-          ]}
-        >
-          <ActionButtons
-            id={item?.id ?? null}
-            disableDelete={
-              item.status === LeaveRequestStatus.APPROVED ||
-              item.status === LeaveRequestStatus.DECLINED
-            }
-            disableEdit={
-              item.status === LeaveRequestStatus.APPROVED ||
-              item.status === LeaveRequestStatus.DECLINED
-            }
-            onEdit={() => {
-              setLeaveRequestSidebarData(item.id);
-              setIsLoading(true);
-            }}
-            onDelete={() => {
-              deleteLeaveRequest(item.id);
-            }}
-            onDetail={() => {
-              isShowDetail(true);
-              setLeaveRequestSidebarData(item.id);
-              setLeaveRequestSidebarWorkflowData(item.approvalWorkflowId);
-            }}
-          />
-        </AccessGuard>
+        // <AccessGuard
+        //   permissions={[
+        //     Permissions.UpdateLeaveRequest,
+        //     Permissions.DeleteLeaveRequest,
+        //   ]}
+        // >
+        <ActionButtons
+          id={item?.id ?? null}
+          disableDelete={
+            item.status === LeaveRequestStatus.APPROVED ||
+            item.status === LeaveRequestStatus.DECLINED
+          }
+          disableEdit={
+            item.status === LeaveRequestStatus.APPROVED ||
+            item.status === LeaveRequestStatus.DECLINED
+          }
+          onEdit={() => {
+            setLeaveRequestSidebarData(item.id);
+            setIsLoading(true);
+          }}
+          onDelete={() => {
+            deleteLeaveRequest(item.id);
+          }}
+          onDetail={() => {
+            isShowDetail(true);
+            setLeaveRequestSidebarData(item.id);
+            setLeaveRequestSidebarWorkflowData(item.approvalWorkflowId);
+          }}
+        />
+        // </AccessGuard>
       ),
     },
   ];

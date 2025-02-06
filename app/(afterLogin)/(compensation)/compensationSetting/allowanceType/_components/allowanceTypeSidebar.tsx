@@ -9,7 +9,8 @@ import { useEffect } from 'react';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import { useCreateAllowanceType } from '@/store/server/features/compensation/settings/mutations';
-import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
+// import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const { TextArea } = Input;
 
@@ -24,15 +25,16 @@ const AllowanceTypeSideBar = () => {
     setIsAllEmployee,
     setIsRateAllowance,
     resetStore,
-    selectedDepartment,
-    setSelectedDepartment,
-    departmentUsers,
-    setDepartmentUsers,
+    // selectedDepartment,
+    // setSelectedDepartment,
+    // departmentUsers,
+    // setDepartmentUsers,
     selectedAllowanceRecord,
   } = useCompensationSettingStore();
   const { mutate: createAllowanceType, isLoading } = useCreateAllowanceType();
-  const { data: departments } = useGetDepartmentsWithUsers();
+  // const { data: departments } = useGetDepartmentsWithUsers();
   const [form] = Form.useForm();
+  const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
 
   useEffect(() => {
     if (selectedAllowanceRecord) {
@@ -71,16 +73,16 @@ const AllowanceTypeSideBar = () => {
     onClose();
   };
 
-  const handleDepartmentChange = (value: string) => {
-    setSelectedDepartment(value);
-    const department = departments.find((dept: any) => dept.name === value);
-    if (department) {
-      setDepartmentUsers(department.users);
-      form.setFieldsValue({
-        employees: department.users.map((user: any) => user.id),
-      });
-    }
-  };
+  // const handleDepartmentChange = (value: string) => {
+  //   setSelectedDepartment(value);
+  //   const department = departments.find((dept: any) => dept.name === value);
+  //   if (department) {
+  //     setDepartmentUsers(department.users);
+  //     form.setFieldsValue({
+  //       employees: department.users.map((user: any) => user.id),
+  //     });
+  //   }
+  // };
 
   const handleAllEmployeeChange = (checked: any) => {
     setIsAllEmployee(checked);
@@ -204,7 +206,7 @@ const AllowanceTypeSideBar = () => {
             </Form.Item>
             {!isAllEmployee && !selectedAllowanceRecord && (
               <>
-                <Form.Item
+                {/* <Form.Item
                   className="form-item"
                   name="department"
                   label="Select Department"
@@ -214,6 +216,7 @@ const AllowanceTypeSideBar = () => {
                 >
                   <Select
                     placeholder="Select a department"
+                  
                     onChange={handleDepartmentChange}
                   >
                     {departments?.map((department: any) => (
@@ -225,7 +228,7 @@ const AllowanceTypeSideBar = () => {
                       </Select.Option>
                     ))}
                   </Select>
-                </Form.Item>
+                </Form.Item> */}
 
                 <Form.Item
                   className="form-item"
@@ -236,16 +239,24 @@ const AllowanceTypeSideBar = () => {
                   ]}
                 >
                   <Select
+                    showSearch
+                    placeholder="Select a person"
                     mode="multiple"
-                    placeholder="Select employees"
-                    disabled={!selectedDepartment}
-                  >
-                    {departmentUsers?.map((user) => (
-                      <Select.Option key={user.id} value={user.id}>
-                        {user?.firstName} {user?.lastName}
-                      </Select.Option>
-                    ))}
-                  </Select>
+                    className="w-full h-14"
+                    allowClear
+                    filterOption={(input: any, option: any) =>
+                      (option?.label ?? '')
+                        ?.toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={allUsers?.items?.map((item: any) => ({
+                      ...item,
+                      value: item?.id,
+                      label: item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
+                    }))}
+                    loading={allUserLoading}
+                  />
+
                 </Form.Item>
               </>
             )}
