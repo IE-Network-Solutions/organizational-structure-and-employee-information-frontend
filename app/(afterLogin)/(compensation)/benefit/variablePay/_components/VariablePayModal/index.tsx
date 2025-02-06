@@ -44,7 +44,7 @@ const VariablePayModal: React.FC<ModalProps> = ({ data }) => {
     const variablePayData = data?.map(
       ({ id, VpInBirr: vpInBirr }: { id: string; VpInBirr: string }) => ({
         userId: id,
-        amount: Number(vpInBirr),
+        amount: Number(vpInBirr).toFixed(2),
       }),
     );
 
