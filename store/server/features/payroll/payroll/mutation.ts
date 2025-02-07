@@ -1,4 +1,5 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
@@ -93,6 +94,28 @@ const deletePayroll = async (id: string) => {
   } catch (error) {
     throw error;
   }
+};
+
+const sendToPayroll = async (data: any) => {
+  await crudRequest({
+    url: `${PAYROLL_URL}/variable-pay`,
+    method: 'POST',
+    headers: requestHeader(),
+    data,
+  });
+};
+
+export const useSendToPayroll = () => {
+  const queryClient = useQueryClient();
+  return useMutation(sendToPayroll, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('sendToPayroll');
+      NotificationMessage.success({
+        message: 'Payroll sent successfully',
+        description: 'Payroll has been sent successfully.',
+      });
+    },
+  });
 };
 
 export const useDeletePayroll = () => {

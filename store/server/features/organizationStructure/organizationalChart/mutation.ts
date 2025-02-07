@@ -7,7 +7,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { OrgChart } from './interface';
 /* eslint-disable @typescript-eslint/naming-convention */
 
-
 /**
  * Create a new organization chart.
  * @param data - Organization chart data to be created.
@@ -15,12 +14,12 @@ import { OrgChart } from './interface';
  */
 
 const createOrgChart = async (data: OrgData) => {
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/departments`,
     method: 'POST',

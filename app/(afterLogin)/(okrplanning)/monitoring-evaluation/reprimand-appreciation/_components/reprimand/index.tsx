@@ -95,7 +95,8 @@ const Reprimand = () => {
           options={allUsers?.items?.map((item: any) => ({
             ...item,
             value: item?.id,
-            label: item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
+            label:
+              item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
           }))}
         />
         <Select
