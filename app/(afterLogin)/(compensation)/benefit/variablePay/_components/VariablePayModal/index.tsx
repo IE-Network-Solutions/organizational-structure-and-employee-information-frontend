@@ -52,7 +52,7 @@ const VariablePayModal: React.FC<ModalProps> = ({ data }) => {
         VpScore: string;
       }) => ({
         userId: id,
-        totalPercentage: (+vpInPercentile).toFixed(1),
+        totalPercentage: (+vpInPercentile).toFixed(2),
         vpScore: (+vpScore).toFixed(2),
       }),
     );
