@@ -36,7 +36,6 @@ const VariablePayTable = () => {
       id: variablePay?.id,
       name: variablePay?.userId,
       VpInPercentile: variablePay?.vpScoring?.totalPercentage,
-      VpInBirr: variablePay?.amount,
       VpScore: variablePay?.vpScore,
       Benefit: '',
       Action: (
@@ -72,12 +71,7 @@ const VariablePayTable = () => {
       sorter: true,
       render: (text: string) => <div>{text || '-'}</div>,
     },
-    {
-      title: 'Total VP in Birr',
-      dataIndex: 'VpInBirr',
-      key: 'VpInBirr',
-      sorter: true,
-    },
+
     {
       title: 'VP Score',
       dataIndex: 'VpScore',
@@ -97,7 +91,6 @@ const VariablePayTable = () => {
       dataIndex: 'Action',
       key: 'Action',
       sorter: true,
-      // render: (text: string) => <div>{text || '-'}</div>,
     },
   ];
 
