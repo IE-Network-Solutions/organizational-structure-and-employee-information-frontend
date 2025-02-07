@@ -286,14 +286,6 @@ const Payroll = () => {
       minWidth: 150,
       render: (key: string) => Number(key || 0)?.toLocaleString(),
     },
-    {
-      title: 'VP Score',
-      dataIndex: 'vpscore',
-      key: 'vpscore',
-      minWidth: 150,
-      render: (notused: any, record: any) =>
-        Number(record?.breakdown?.variablePay?.amount),
-    },
   ];
   return (
     <div style={{ padding: '20px' }}>
