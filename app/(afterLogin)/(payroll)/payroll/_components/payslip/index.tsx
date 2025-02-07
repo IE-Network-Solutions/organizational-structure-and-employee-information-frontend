@@ -17,7 +17,6 @@ const PaySlip = ({ data }: { data: any[] }) => {
       const input = document.getElementById('payslip');
 
       if (!input) {
-        console.error("Element with ID 'payslip' not found.");
         return;
       }
 
@@ -99,23 +98,11 @@ const PaySlip = ({ data }: { data: any[] }) => {
         sendEmail(
           { values: emailData },
           {
-            onSuccess: () =>
-              console.log(
-                `Email sent to ${employeeData?.firstName} successfully!`,
-              ),
-            onError: (error) =>
-              console.error(
-                `Failed to send email to ${employeeData?.firstName}:`,
-                error,
-              ),
+            onSuccess: () => {},
+            onError: () => {},
           },
         );
-      } catch (error) {
-        console.error(
-          `Error generating, uploading, or sending email for ${employeeData?.firstName}:`,
-          error,
-        );
-      }
+      } catch (error) {}
     }
     setLoading(false);
   };

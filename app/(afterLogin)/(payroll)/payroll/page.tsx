@@ -259,8 +259,6 @@ const Payroll = () => {
         return rowData;
       });
 
-      console.log('Export Data: ', flatPayrollData); // Debugging line
-
       if (!flatPayrollData || flatPayrollData.length === 0) {
         throw new Error('Formatted payroll data is empty');
       }
@@ -405,7 +403,7 @@ const Payroll = () => {
       dataIndex: 'basicSalary',
       key: 'basicSalary',
       minWidth: 150,
-      render: (_: any, record: any) => {
+      render: (nonused: any, record: any) => {
         const activeSalary = record.employeeInfo?.basicSalaries?.find(
           (salary: any) => salary.status === true,
         );
@@ -441,7 +439,7 @@ const Payroll = () => {
       dataIndex: ['breakdown', 'tax'],
       key: 'tax',
       minWidth: 150,
-      render: (_: any, record: any) =>
+      render: (nonused: any, record: any) =>
         record.breakdown?.tax?.amount
           ? record.breakdown.tax.amount.toFixed(2)
           : '0.00',
@@ -451,7 +449,7 @@ const Payroll = () => {
       dataIndex: 'pension',
       key: 'pension',
       minWidth: 150,
-      render: (_: any, record: any) => {
+      render: (nonused: any, record: any) => {
         const totalPension =
           record.breakdown?.pension?.reduce(
             (sum: any, p: any) => sum + parseFloat(p.amount),
@@ -465,7 +463,7 @@ const Payroll = () => {
       dataIndex: 'costsharing',
       key: 'costsharing',
       minWidth: 150,
-      render: (_: any, record: any) => {
+      render: (nonused: any, record: any) => {
         const costSharing = record.breakdown?.deductions?.find(
           (deduction: any) =>
             deduction.type.toLowerCase().startsWith('cost sharing '),
