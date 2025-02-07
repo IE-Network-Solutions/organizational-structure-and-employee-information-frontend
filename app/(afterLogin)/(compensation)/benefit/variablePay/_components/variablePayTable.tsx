@@ -36,11 +36,11 @@ const VariablePayTable = () => {
       id: variablePay?.id,
       name: variablePay?.userId,
       VpInPercentile: variablePay?.vpScoring?.totalPercentage,
-      VpInBirr: variablePay?.amount,
       VpScore: variablePay?.vpScore,
       Benefit: '',
       Action: (
-        <Link href={`employees/manage-employees/${variablePay?.id}`}>
+        // <Link href={`employees/manage-employees/${variablePay?.id}`}>
+        <Link href={'okr/dashboard'}>
           <Button
             // id={`editUserButton${item?.id}`}
             className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
@@ -71,12 +71,7 @@ const VariablePayTable = () => {
       sorter: true,
       render: (text: string) => <div>{text || '-'}</div>,
     },
-    {
-      title: 'Total VP in Birr',
-      dataIndex: 'VpInBirr',
-      key: 'VpInBirr',
-      sorter: true,
-    },
+
     {
       title: 'VP Score',
       dataIndex: 'VpScore',
@@ -95,8 +90,6 @@ const VariablePayTable = () => {
       title: 'Action',
       dataIndex: 'Action',
       key: 'Action',
-      sorter: true,
-      // render: (text: string) => <div>{text || '-'}</div>,
     },
   ];
 
