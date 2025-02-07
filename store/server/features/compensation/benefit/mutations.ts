@@ -4,7 +4,7 @@
  */
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { PAYROLL_URL } from '@/utils/constants';
+import { OKR_URL, PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
@@ -84,6 +84,33 @@ export const useCreateBenefitEntitlement = () => {
   return useMutation(createBenefitEntitlement, {
     onSuccess: (unused: any, variables: any) => {
       queryClient.invalidateQueries('benefitEntitlement');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method, 'Benefit entitlement successfully created.');
+    },
+  });
+};
+
+const filterVpScoreInstance = async (data: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/vp-score-instance`,
+    method: 'POST',
+    data,
+    headers,
+  });
+};
+
+export const useFilterVpScoreInstance = () => {
+  const queryClient = useQueryClient();
+  return useMutation(filterVpScoreInstance, {
+    onSuccess: (unused: any, variables: any) => {
+      queryClient.invalidateQueries('ObjectiveDashboard');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method, 'Benefit entitlement successfully created.');
     },

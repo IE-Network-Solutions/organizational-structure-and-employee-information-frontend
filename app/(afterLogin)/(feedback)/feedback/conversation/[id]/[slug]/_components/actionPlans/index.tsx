@@ -150,7 +150,8 @@ const ActionPlans: React.FC<PropsData> = ({ slug }: PropsData) => {
                           <span className="ml-2 font-semibold">
                             {getEmployeeData(actionPlan?.assigneeId)
                               ?.firstName ?? ''}{' '}
-                              {getEmployeeData(actionPlan?.assigneeId)?.middleName ?? ''}{' '}
+                            {getEmployeeData(actionPlan?.assigneeId)
+                              ?.middleName ?? ''}{' '}
                             {getEmployeeData(actionPlan?.assigneeId)
                               ?.lastName ?? ''}
                           </span>

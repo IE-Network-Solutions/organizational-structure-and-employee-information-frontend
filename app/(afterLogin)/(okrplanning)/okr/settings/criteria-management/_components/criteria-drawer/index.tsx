@@ -35,7 +35,9 @@ export const EmployeeDetails = ({
 
   if (error || !userDetails) return '-';
 
-  const userName = `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` || '-';
+  const userName =
+    `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
+    '-';
   const profileImage = fallbackProfileImage;
 
   return (
@@ -83,6 +85,9 @@ const ScoringDrawer: React.FC = () => {
   useEffect(() => {
     resetState();
     if (scoringData && criteriaData) {
+      setFilteredUsers(
+        scoringData.userVpScoring.map((item: any) => item.userId),
+      );
       form.setFieldsValue({
         name: scoringData.name,
         totalPercentage: scoringData.totalPercentage,
@@ -141,13 +146,23 @@ const ScoringDrawer: React.FC = () => {
         });
       setFilteredUsers(allSelectedDepartmentUsers);
 
-      form.setFieldsValue({
-        users: allSelectedDepartmentUsers.map((user: any) => user.id),
-      });
+      if (scoringData && criteriaData) {
+        const existingUsers = form.getFieldValue('users') || [];
+        form.setFieldsValue({
+          users: [
+            ...existingUsers,
+            ...allSelectedDepartmentUsers.map((user: any) => user.id),
+          ],
+        });
+      } else {
+        form.setFieldsValue({
+          users: allSelectedDepartmentUsers.map((user: any) => user.id),
+        });
+      }
     } else {
       setFilteredUsers([]);
     }
-  }, [selectedDepartment, departmentData, userTypeFilter, form]);
+  }, [selectedDepartment, departmentData, userTypeFilter]);
 
   const handleDepartmentChange = (value: string[]) => {
     setSelectedDepartment(value);

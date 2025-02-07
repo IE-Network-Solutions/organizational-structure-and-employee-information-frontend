@@ -301,7 +301,8 @@ const BenefitypeSideBar = () => {
                       >
                         {departmentUsers?.map((user) => (
                           <Select.Option key={user.id} value={user.id}>
-                            {user?.firstName} {user?.middleName} {user?.lastName}
+                            {user?.firstName} {user?.middleName}{' '}
+                            {user?.lastName}
                           </Select.Option>
                         ))}
                       </Select>
