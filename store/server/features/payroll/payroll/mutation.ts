@@ -68,7 +68,6 @@ export const useCreatePayroll = () => {
   });
 };
 
-
 export const useUpdatePensionRule = () => {
   const queryClient = useQueryClient();
 
@@ -80,6 +79,47 @@ export const useUpdatePensionRule = () => {
       const errorMessage = error?.response?.data?.message;
       NotificationMessage.error({
         message: 'PayRoll Creation Failed',
+        description: errorMessage,
+      });
+    },
+  });
+};
+
+const sendEmail = async (values: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  try {
+    await crudRequest({
+      url: `https://test-email-service.ienetworks.co/api/v1/email`,
+      method: 'POST',
+      data: values,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+
+    NotificationMessage.success({
+      message: 'Successfully sent an email',
+      description: 'successfully sent an email',
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const useSendEmail = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(({ values }: { values: any }) => sendEmail(values), {
+    onSuccess: () => {
+      queryClient.invalidateQueries('email');
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message;
+      NotificationMessage.error({
+        message: 'Email Failed',
         description: errorMessage,
       });
     },

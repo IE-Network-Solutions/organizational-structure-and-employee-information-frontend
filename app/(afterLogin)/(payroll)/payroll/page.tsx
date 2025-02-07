@@ -8,86 +8,11 @@ import {
   useGetEmployeeInfo,
 } from '@/store/server/features/payroll/payroll/queries';
 import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutation';
-import { EmployeeDetails } from '../../(okrplanning)/okr/settings/criteria-management/_components/criteria-drawer';
 import PayrollCard from './_components/cards';
-import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 import { useExportData } from './_components/excel';
 import { useGenerateBankLetter } from './_components/Latter';
 import PaySlip from './_components/payslip';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-
-const EmployeeBasicSalary = ({ id }: { id: string }) => {
-  const { data, error } = useGetBasicSalaryById(id);
-  if (error || !data) {
-    return '--';
-  }
-  const employeeBasicSalary =
-    data.find((item: any) => item.status)?.basicSalary || '--';
-  return employeeBasicSalary;
-};
-
-const dummyData = {
-  employeeName: 'John Doe',
-  companyName: 'IE Networks',
-  jobTitle: 'Software Engineer',
-  dateHired: '2022-12-15',
-  salaryPeriod: 30,
-  tin: '75894565',
-  location: 'Addis Ababa, Ethiopia',
-  payDate: '2022-12-15',
-  earnings: [
-    { description: 'Basic Salary', amount: 'ETB 50000' },
-    { description: 'Transport Allowance', amount: 'ETB 50000' },
-    { description: 'Total Earning', amount: 'ETB 100000' },
-  ],
-  bonuses: [
-    {
-      description: 'Variable Pay',
-      amount: 'ETB Yearly Bonus (Yearly Bonus/ Yearly Bonus)',
-    },
-    { description: 'Allowance', amount: 'ETB 2000' },
-    { description: 'Exam Bonus', amount: 'ETB 1500' },
-    { description: 'Implementation Effectiveness', amount: 'ETB 1500' },
-    { description: 'Effective Order and Delivery', amount: 'ETB 1500' },
-    { description: 'Closed Deal', amount: 'ETB 2500' },
-    { description: 'Staff Performance Evaluation', amount: 'ETB 4000' },
-    { description: 'Timely VAT Collection', amount: 'ETB 1500' },
-    { description: 'Timely Payment Collection', amount: 'ETB 1500' },
-    {
-      description: 'Best Employee’s Productivity and Engagement',
-      amount: 'ETB 1500',
-    },
-    {
-      description: 'Facilities High Availability Quarterly',
-      amount: 'ETB 1500',
-    },
-    { description: 'Management Performance Evaluation', amount: 'ETB 1500' },
-    { description: 'Other Bonus', amount: 'ETB 26000' },
-    { description: 'Total Earnings', amount: 'ETB 26000' },
-  ],
-  deduction: [
-    { description: 'tax', amount: 'ETB 2000' },
-
-    { description: 'Employee Pension', amount: 'ETB 2000' },
-    { description: 'Medical', amount: 'ETB 1500' },
-    { description: 'Absentisim', amount: 'ETB 1500' },
-    { description: 'PMA', amount: 'ETB 1500' },
-    { description: 'Car Maintenance', amount: 'ETB 2500' },
-    { description: 'Gym', amount: 'ETB 4000' },
-    { description: 'Late comer', amount: 'ETB 1500' },
-    {
-      description: 'Loan',
-      amount: 'ETB 1500',
-    },
-    {
-      description: 'Other Deduction',
-      amount: 'ETB 1500',
-    },
-  ],
-  paymentMethod: 'Bank',
-  bankName: 'XYZ Bank',
-  accountNumber: '1234567890',
-};
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -111,7 +36,7 @@ const Payroll = () => {
   const { generateBankLetter } = useGenerateBankLetter();
 
   const [loading, setLoading] = useState(false);
-  const [mergedPayroll, setMergedPayroll] = useState([]);
+  const [mergedPayroll, setMergedPayroll] = useState<any>([]);
 
   useEffect(() => {
     if (payroll?.payrolls && allEmployees?.items) {
@@ -126,12 +51,6 @@ const Payroll = () => {
       });
 
       setMergedPayroll(mergedData);
-      console.log(
-        '______________________mergedPayroll____________________--',
-        mergedData,
-        payroll,
-        allEmployees,
-      );
     }
   }, [payroll, allEmployees]);
 
@@ -148,7 +67,8 @@ const Payroll = () => {
     const exportTasks = [];
 
     if (exportBank) exportTasks.push(handleExportBank());
-    if (bankLetter) exportTasks.push(handleBankLetter(10000));
+    if (bankLetter)
+      exportTasks.push(handleBankLetter(payroll?.totalNetPayAmount));
 
     if (exportTasks.length === 0) {
       notification.error({
@@ -220,58 +140,187 @@ const Payroll = () => {
     }
   };
 
-  const employeeNameMap = employeeInfo?.reduce((acc: any, employee: any) => {
-    acc[employee.employeeId] =
-      `${employee.firstName || ''} ${employee.lastName || ''}`;
-    return acc;
-  }, {});
-
   const handleExportPayroll = async () => {
-    // if (!payroll?.payrolls || payroll.payrolls.length === 0) {
-    //   notification.error({
-    //     message: 'No Data Available',
-    //     description: 'There is no data available to export.',
-    //   });
-    //   return;
-    // }
+    if (!mergedPayroll || mergedPayroll?.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
+      return;
+    }
 
     setLoading(true);
     try {
-      const flatPayrollData = payroll.payrolls.map((item: any) => ({
-        fullName: employeeNameMap[item.employeeId] || '--',
-        basicSalary: item.basicSalary || '--',
-        totalAllowance: item.totalAllowance || '--',
-        totalBenefits: item.totalBenefits || '--',
-        totalDeduction: item.totalDeductions || '--',
-        grossIncome: item.grossIncome || '--',
-        tax: item.tax || '--',
-        employeePension: item.employeePension || '--',
-        costSharing: item.costSharing || '--',
-        netIncome: item.netPay || '--',
+      interface Allowance {
+        type: string;
+        amount: string | number;
+      }
+
+      interface Deduction {
+        type: string;
+        amount: string | number;
+      }
+
+      interface Pension {
+        type: string;
+        amount: string | number;
+      }
+      const uniqueAllowanceTypes = new Set<string>();
+      const uniqueDeductionTypes = new Set<string>();
+      const uniquePensionTypes = new Set<string>();
+
+      mergedPayroll?.forEach((item: any) => {
+        const allowances: Allowance[] = item.breakdown?.allowances || [];
+        allowances.forEach((allowance: Allowance) => {
+          uniqueAllowanceTypes.add(allowance.type);
+        });
+
+        const deductions: Deduction[] = item.breakdown?.deductions || [];
+        deductions.forEach((deduction: Deduction) => {
+          uniqueDeductionTypes.add(deduction.type);
+        });
+
+        const pension: Pension[] = item.breakdown?.pension || [];
+        pension.forEach((p: Pension) => {
+          uniquePensionTypes.add(p.type);
+        });
+      });
+
+      const getDynamicWidth = (header: string) =>
+        Math.max(20, header.length * 2);
+
+      const allowanceColumns = Array.from(uniqueAllowanceTypes).map((type) => ({
+        header: type,
+        key: type.replace(/\s+/g, '').toLowerCase(),
+        width: getDynamicWidth(type),
       }));
 
+      const deductionColumns = Array.from(uniqueDeductionTypes).map((type) => ({
+        header: type,
+        key: type.replace(/\s+/g, '').toLowerCase(),
+        width: getDynamicWidth(type),
+      }));
+
+      const pensionColumns = Array.from(uniquePensionTypes).map((type) => ({
+        header: type,
+        key: type.replace(/\s+/g, '').toLowerCase(),
+        width: getDynamicWidth(type),
+      }));
+
+      const flatPayrollData = mergedPayroll?.map((item: any) => {
+        const fullName =
+          `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
+          '--';
+
+        const basicSalary =
+          item.employeeInfo?.basicSalaries?.find((bs: any) => bs.status)
+            ?.basicSalary || 0;
+
+        const tax = item.breakdown?.tax?.amount
+          ? item.breakdown.tax.amount.toFixed(2)
+          : '0.0';
+
+        const allowances: Allowance[] = item.breakdown?.allowances || [];
+        const deductions: Deduction[] = item.breakdown?.deductions || [];
+        const pensions: Pension[] = item.breakdown?.pension || [];
+
+        const rowData: any = {
+          fullName,
+          basicSalary: Number(basicSalary).toFixed(2),
+          totalAllowance: Number(item.totalAllowance || 0).toFixed(2),
+          totalBenefits: Number(item.totalMerit || 0).toFixed(2),
+          totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
+          grossIncome: Number(item.grossSalary || 0).toFixed(2),
+          tax,
+          netIncome: Number(item.netPay || 0).toFixed(2),
+        };
+
+        Array.from(uniqueAllowanceTypes).forEach((type) => {
+          const allowance = allowances.find((a) => a.type === type);
+          rowData[type.replace(/\s+/g, '').toLowerCase()] = allowance
+            ? Number(allowance.amount || 0).toFixed(2)
+            : '0';
+        });
+
+        Array.from(uniqueDeductionTypes).forEach((type) => {
+          const deduction = deductions.find((d) => d.type === type);
+          rowData[type.replace(/\s+/g, '').toLowerCase()] = deduction
+            ? Number(deduction.amount || 0).toFixed(2)
+            : '0';
+        });
+
+        Array.from(uniquePensionTypes).forEach((type) => {
+          const pension = pensions.find((p) => p.type === type);
+          rowData[type.replace(/\s+/g, '').toLowerCase()] = pension
+            ? Number(pension.amount || 0).toFixed(2)
+            : '0';
+        });
+
+        return rowData;
+      });
+
+      console.log('Export Data: ', flatPayrollData); // Debugging line
+
+      if (!flatPayrollData || flatPayrollData.length === 0) {
+        throw new Error('Formatted payroll data is empty');
+      }
+
       const exportColumns = [
-        { header: 'Full Name', key: 'fullName', width: 50 },
-        { header: 'Basic Salary', key: 'basicSalary', width: 30 },
-        { header: 'Total Allowance', key: 'totalAllowance', width: 30 },
-        { header: 'Total Benefits', key: 'totalBenefits', width: 30 },
-        { header: 'Total Deduction', key: 'totalDeduction', width: 30 },
-        { header: 'Gross Income', key: 'grossIncome', width: 30 },
-        { header: 'Tax', key: 'tax', width: 30 },
-        { header: 'Employee Pension', key: 'employeePension', width: 30 },
-        { header: 'Cost Sharing', key: 'costSharing', width: 30 },
-        { header: 'Net Income', key: 'netIncome', width: 30 },
+        {
+          header: 'Full Name',
+          key: 'fullName',
+          width: getDynamicWidth('Full Name'),
+        },
+        {
+          header: 'Basic Salary',
+          key: 'basicSalary',
+          width: getDynamicWidth('Basic Salary'),
+        },
+        {
+          header: 'Total Allowance',
+          key: 'totalAllowance',
+          width: getDynamicWidth('Total Allowance'),
+        },
+        {
+          header: 'Total Benefits',
+          key: 'totalBenefits',
+          width: getDynamicWidth('Total Benefits'),
+        },
+        {
+          header: 'Total Deduction',
+          key: 'totalDeduction',
+          width: getDynamicWidth('Total Deduction'),
+        },
+        {
+          header: 'Gross Income',
+          key: 'grossIncome',
+          width: getDynamicWidth('Gross Income'),
+        },
+        { header: 'Tax', key: 'tax', width: getDynamicWidth('Tax') },
+        ...allowanceColumns, // Add dynamic allowance columns
+        ...deductionColumns, // Add dynamic deduction columns
+        ...pensionColumns, // Add dynamic pension columns
+        {
+          header: 'Net Income',
+          key: 'netIncome',
+          width: getDynamicWidth('Net Income'),
+        },
       ];
 
       await exportToExcel(flatPayrollData, exportColumns, 'Payroll Data');
     } catch (error) {
       notification.error({
         message: 'Error Exporting Data',
-        description: 'An error occurred while exporting data.',
+        description: `An error occurred while exporting data: ${error}`,
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  type Payroll = {
+    employeeId: string;
+    netPay: number;
   };
 
   const handleExportBank = async () => {
@@ -285,24 +334,29 @@ const Payroll = () => {
 
     setLoading(true);
     try {
-      const flatData = employeeInfo.map((employee: any) => ({
-        employeeName: `${employee.firstName || ''} ${employee.lastName || ''}`,
-        email: employee.email || '--',
-        accountNumber:
-          employee.employeeInformation?.bankInformation?.accountNumber || '--',
-        bankName:
-          employee.employeeInformation?.bankInformation?.bankName || '--',
-        basicsalary: employee.basicSalaries?.length
-          ? employee.basicSalaries.at(-1).basicSalary
-          : '--',
-      }));
+      const flatData = employeeInfo.map((employee: any) => {
+        const payroll = mergedPayroll.find(
+          (p: any) => p.employeeId === employee.id,
+        ) as Payroll | undefined;
+
+        return {
+          employeeName: `${employee.firstName || ''} ${employee.lastName || ''}`,
+          email: employee.email || '--',
+          accountNumber:
+            employee.employeeInformation?.bankInformation?.accountNumber ||
+            '--',
+          bankName:
+            employee.employeeInformation?.bankInformation?.bankName || '--',
+          netPay: payroll?.netPay ?? '--', // Ensure a fallback value
+        };
+      });
 
       const exportColumns = [
         { header: 'Employee Name', key: 'employeeName', width: 50 },
         { header: 'Employee Email', key: 'email', width: 50 },
         { header: 'Account Number', key: 'accountNumber', width: 40 },
         { header: 'Bank Name', key: 'bankName', width: 30 },
-        { header: 'Net Pay', key: 'basicsalary', width: 30 },
+        { header: 'Net Pay', key: 'netPay', width: 30 },
       ];
 
       await exportToExcel(flatData, exportColumns, 'Banks');
@@ -343,17 +397,19 @@ const Payroll = () => {
       dataIndex: 'employeeId',
       key: 'employeeId',
       minWidth: 200,
-      render: (notused: any, record: any) => {
-        return <EmployeeDetails empId={record?.employeeId} />;
-      },
+      render: (notused: any, record: any) =>
+        `${record.employeeInfo?.firstName || ''} ${record.employeeInfo?.lastName || ''}`,
     },
     {
       title: 'Basic Salary',
       dataIndex: 'basicSalary',
       key: 'basicSalary',
       minWidth: 150,
-      render: (notused: any, record: any) => {
-        return <EmployeeBasicSalary id={record?.employeeId} />;
+      render: (_: any, record: any) => {
+        const activeSalary = record.employeeInfo?.basicSalaries?.find(
+          (salary: any) => salary.status === true,
+        );
+        return activeSalary ? activeSalary.basicSalary : 0;
       },
     },
     {
@@ -380,18 +436,47 @@ const Payroll = () => {
       key: 'grossSalary',
       minWidth: 150,
     },
-    { title: 'Tax', dataIndex: 'tax', key: 'tax', minWidth: 150 },
+    {
+      title: 'Tax',
+      dataIndex: ['breakdown', 'tax'],
+      key: 'tax',
+      minWidth: 150,
+      render: (_: any, record: any) =>
+        record.breakdown?.tax?.amount
+          ? record.breakdown.tax.amount.toFixed(2)
+          : '0.00',
+    },
     {
       title: 'Employee Pension',
       dataIndex: 'pension',
       key: 'pension',
       minWidth: 150,
+      render: (_: any, record: any) => {
+        const totalPension =
+          record.breakdown?.pension?.reduce(
+            (sum: any, p: any) => sum + parseFloat(p.amount),
+            0,
+          ) || 0;
+        return totalPension.toFixed(2);
+      },
     },
     {
       title: 'Cost Sharing',
       dataIndex: 'costsharing',
       key: 'costsharing',
       minWidth: 150,
+      render: (_: any, record: any) => {
+        const costSharing = record.breakdown?.deductions?.find(
+          (deduction: any) =>
+            deduction.type.toLowerCase().startsWith('cost sharing '),
+        );
+        const amount =
+          costSharing && typeof costSharing.amount === 'number'
+            ? costSharing.amount.toFixed(2)
+            : '0.00';
+
+        return amount;
+      },
     },
     {
       title: 'Net Income',
@@ -400,9 +485,10 @@ const Payroll = () => {
       minWidth: 150,
     },
   ];
+
   return (
     <div style={{ padding: '20px' }}>
-      <div className="flex justify-between items-center gap-4">
+      <div className="flex justify-between items-center gap-4 scrollbar-none">
         <h2 style={{ marginBottom: '20px' }}>Payroll</h2>
         <div className="flex gap-4">
           <Button
@@ -465,7 +551,7 @@ const Payroll = () => {
       </Row>
       <div className="overflow-x-auto scrollbar-none">
         <Table
-          dataSource={payroll?.payrolls || []}
+          dataSource={mergedPayroll || []}
           columns={columns}
           pagination={{
             current: currentPage,
@@ -503,13 +589,15 @@ const Payroll = () => {
             <span>Export Bank</span>
             <Switch checked={exportBank} onChange={setExportBank} />
           </div>
-          <div className="flex flex-col justify-between items-start gap-2 ">
+          {/* <div className="flex flex-col justify-between items-start gap-2 ">
             <span>Send Email for employees</span>
             <Switch checked={true} onChange={() => {}} />
-          </div>
+          </div> */}
         </div>
       </Modal>
-      <PaySlip data={dummyData} />
+      <div className="h-12 overflow-hidden">
+        <PaySlip data={mergedPayroll} />
+      </div>
     </div>
   );
 };
