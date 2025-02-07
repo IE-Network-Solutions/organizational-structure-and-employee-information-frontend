@@ -66,6 +66,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
       },
     });
   }
+
   return (
     <div className="p-2 grid gap-0">
       <div className="flex justify-center">
@@ -127,7 +128,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
               {!myOkr && (
                 <div className="flex items-center gap-1 mt-4 sm:mt-0">
                   <div className="flex flex-col gap-0">
-                    <span className="text-xs text-normal">{`${objective?.user?.firstName} ${objective?.user?.lastName} `}</span>
+                    <span className="text-xs text-normal">{`${objective?.user?.firstName} ${objective?.user?.middleName}  ${objective?.user?.lastName} `}</span>
                     <span className="text-xs text-normal">
                       {objective?.user?.email}
                     </span>
@@ -137,6 +138,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   ) : (
                     <Avatar size={40}>
                       {objective?.user?.firstName[0]?.toUpperCase()}{' '}
+                      {objective?.user?.middleName[0]?.toUpperCase()}
                       {objective?.user?.lastName[0]?.toUpperCase()}
                     </Avatar>
                   )}

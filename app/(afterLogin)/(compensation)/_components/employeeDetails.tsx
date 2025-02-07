@@ -20,7 +20,9 @@ export const EmployeeDetails = ({
 
   if (error || !userDetails) return '-';
 
-  const userName = `${userDetails?.firstName} ${userDetails?.lastName} ` || '-';
+  const userName =
+    `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
+    '-';
   const profileImage = fallbackProfileImage;
 
   return (

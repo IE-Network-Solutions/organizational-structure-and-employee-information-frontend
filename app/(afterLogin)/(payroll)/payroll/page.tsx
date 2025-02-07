@@ -415,24 +415,36 @@ const Payroll = () => {
       dataIndex: 'totalAllowance',
       key: 'totalAllowance',
       minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
       title: 'Total Benefits',
       dataIndex: 'totalMerit',
       key: 'totalMerit',
       minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
       title: 'Total Deduction',
       dataIndex: 'totalDeductions',
       key: 'totalDeductions',
       minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
       title: 'Gross Income',
       dataIndex: 'grossSalary',
       key: 'grossSalary',
       minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
+    },
+    {
+      title: 'Tax',
+      dataIndex: 'tax',
+      key: 'tax',
+      minWidth: 150,
+      render: (notused: any, record: any) =>
+        Number(record.breakdown?.tax?.amount)?.toLocaleString(),
     },
     {
       title: 'Tax',
@@ -481,6 +493,7 @@ const Payroll = () => {
       dataIndex: 'netPay',
       key: 'netPay',
       minWidth: 150,
+      render: (key: string) => Number(key || 0)?.toLocaleString(),
     },
   ];
 

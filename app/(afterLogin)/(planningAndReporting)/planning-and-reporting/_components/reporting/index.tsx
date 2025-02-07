@@ -186,7 +186,7 @@ function Reporting() {
             title={
               // selectedUser.length === 1 && selectedUser[0] === userId &&    // to check and make ensure only reports their report
               // selectedUser.includes(userId) &&
-              allUserPlanning && allUserPlanning.length > 0
+              allUserPlanning && allUserPlanning.length < 1
                 ? 'Please Create Plan First'
                 : ''
             }
@@ -325,32 +325,32 @@ function Reporting() {
                 </div>
               }
             >
-              {groupTasksByKeyResultAndMilestone(dataItem?.reportTask)?.map(
-                (keyResult: any) => (
-                  <>
-                    <KeyResultMetrics
-                      keyResult={
-                        keyResult ?? {
-                          id: 'defaultKeyResult',
-                          name: 'No Key Result Available',
-                          tasks: [],
-                        }
+              {groupTasksByKeyResultAndMilestone(
+                dataItem?.reportTask ?? [],
+              )?.map((keyResult: any) => (
+                <>
+                  <KeyResultMetrics
+                    keyResult={
+                      keyResult ?? {
+                        id: 'defaultKeyResult',
+                        name: 'No Key Result Available',
+                        tasks: [],
                       }
-                    />
-                    {keyResult?.milestones?.map(
-                      (milestone: any, milestoneIndex: number) => (
-                        <>
-                          <Col span={24} className="ml-2">
-                            <strong>{`${milestoneIndex + 1}. ${milestone?.title}`}</strong>
-                          </Col>
-                          <TasksDisplayer tasks={milestone?.tasks} />
-                        </>
-                      ),
-                    )}
-                    <TasksDisplayer tasks={keyResult?.tasks} />
-                  </>
-                ),
-              )}
+                    }
+                  />
+                  {keyResult?.milestones?.map(
+                    (milestone: any, milestoneIndex: number) => (
+                      <>
+                        <Col span={24} className="ml-2">
+                          <strong>{`${milestoneIndex + 1}. ${milestone?.title}`}</strong>
+                        </Col>
+                        <TasksDisplayer tasks={milestone?.tasks} />
+                      </>
+                    ),
+                  )}
+                  <TasksDisplayer tasks={keyResult?.tasks} />
+                </>
+              ))}
               <div className="flex items-center justify-end mt-2 gap-2 text-sm">
                 <span className="text-black ">Total Point:</span>
                 <span

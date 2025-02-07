@@ -3,107 +3,120 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Input, Radio, Select, Spin, Switch } from 'antd';
+import { Form, Input, Spin } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useEffect } from 'react';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+// import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import { useCreateAllowanceType } from '@/store/server/features/compensation/settings/mutations';
-import { RadioChangeEvent } from 'antd/lib';
-import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
+// import { RadioChangeEvent } from 'antd/lib';
+// import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const { TextArea } = Input;
 
 export const COMPENSATION_MODE = ['CREDIT', 'DEBIT']; // CREDIT IS CONSIDERED AS TO BE PAID TO THE EMPLOYEE, LIKE A GIFT
 export const COMPENSATION_PERIOD = ['MONTHLY', 'WEEKLY'];
 
-const BenefitypeSideBar = () => {
+const DeductiontypeSideBar = () => {
   const {
-    isBenefitOpen,
-    setBenefitMode,
-    benefitMode,
-    isRateBenefit,
+    isDeductionOpen,
+    setIsDeductionOpen,
+    // isRateBenefit,
     setIsAllEmployee,
-    isAllEmployee,
-    setIsRateBenefit,
+    // isAllEmployee,
+    // setIsRateBenefit,
     resetStore,
-    selectedBenefitRecord,
-    selectedDepartment,
-    setSelectedDepartment,
+    selectedDeductionRecord,
+    // selectedDepartment,
+    // selectedDepartementArray,
+    // setSelectedDepartementArray,
+    // setSelectedDepartment,
     departmentUsers,
-    setDepartmentUsers,
+    // setDepartmentUsers,
   } = useCompensationSettingStore();
   const { mutate: createAllowanceType, isLoading } = useCreateAllowanceType();
   const [form] = Form.useForm();
-  const { data: departments } = useGetDepartmentsWithUsers();
+  // const { data: departments } = useGetDepartmentsWithUsers();
 
   useEffect(() => {
-    if (selectedBenefitRecord) {
-      setIsAllEmployee(selectedBenefitRecord.applicableTo == 'GLOBAL');
-      setBenefitMode(selectedBenefitRecord.mode);
+    if (selectedDeductionRecord) {
+      setIsAllEmployee(selectedDeductionRecord.applicableTo == 'GLOBAL');
+      // setBenefitMode(selectedDeductionRecord.mode);
       form.setFieldsValue({
-        name: selectedBenefitRecord.name,
-        description: selectedBenefitRecord.description,
-        isRate: selectedBenefitRecord.isRate,
-        defaultAmount: selectedBenefitRecord.defaultAmount,
+        name: selectedDeductionRecord.name,
+        description: selectedDeductionRecord.description,
+        isRate: selectedDeductionRecord.isRate,
+        defaultAmount: selectedDeductionRecord.defaultAmount,
         isAllEmployee:
-          selectedBenefitRecord.applicableTo == 'GLOBAL' ? true : false,
-        mode: selectedBenefitRecord.mode,
+          selectedDeductionRecord.applicableTo == 'GLOBAL' ? true : false,
+        mode: selectedDeductionRecord.mode,
       });
     }
-  }, [selectedBenefitRecord, form]);
+  }, [selectedDeductionRecord, form]);
+
+  useEffect(() => {
+    if (departmentUsers.length === 0) {
+      form.setFieldsValue({
+        employees: [], // Set default selected users
+      });
+    }
+    if (departmentUsers && departmentUsers.length > 0) {
+      form.setFieldsValue({
+        employees: departmentUsers.map((user) => user.id), // Set default selected users
+      });
+    }
+  }, [departmentUsers, form]);
 
   const onClose = () => {
+    setIsDeductionOpen(false);
     form.resetFields();
     resetStore();
   };
 
-  const onRateToggle = (checked: any) => {
-    setIsRateBenefit(checked);
-  };
+  // const onRateToggle = (checked: any) => {
+  //   setIsRateBenefit(checked);
+  // };
 
   const onFormSubmit = (formValues: any) => {
-    createAllowanceType({
+    const value = {
       name: formValues.name,
       description: formValues.description,
-      type: 'MERIT',
-      mode: formValues.mode,
-      isRate: formValues.mode == 'CREDIT' ? formValues.isRate : false,
-      defaultAmount:
-        formValues.mode == 'CREDIT' ? Number(formValues.defaultAmount) : null,
-      applicableTo:
-        formValues.mode == 'CREDIT'
-          ? formValues.isAllEmployee
-            ? 'GLOBAL'
-            : 'PER-EMPLOYEE'
-          : 'PER-EMPLOYEE',
-      employeeIds: formValues.employees ? formValues.employees : [],
-      settlementPeriod: formValues.NoOfPayPeriod
-        ? Number(formValues.NoOfPayPeriod)
-        : null,
+      type: 'DEDUCTION',
+      mode: 'DEBIT',
+      isRate: false,
+      defaultAmount: 0,
+      applicableTo: 'PER-EMPLOYEE',
+    };
+    createAllowanceType(value, {
+      onSuccess: () => {
+        onClose();
+      },
     });
-    onClose();
   };
 
-  const handleModeChange = (e: RadioChangeEvent) => {
-    setBenefitMode(e.target.value);
-    form.setFieldsValue({ isAllEmployee: isAllEmployee });
-  };
+  // const handleDepartmentChange = (value: string[]) => {
+  //   if (value.length === 0) {
+  //     setDepartmentUsers([]);
+  //     return;
+  //   }
+  //   setSelectedDepartementArray(value);
+  //   const department = departments.filter((dept: any) =>
+  //     value.includes(dept.id),
+  //   );
+  //   if (department.length > 0) {
+  //     let departmentUsers: any = []; // Initialize users as an empty array
+  //     department.forEach((dep: any) => {
+  //       if (dep?.users) {
+  //         departmentUsers = departmentUsers.concat(dep.users); // Concatenate users from each department
+  //       }
+  //     });
+  //     setDepartmentUsers(departmentUsers);
+  //   }
+  // };
 
-  const handleDepartmentChange = (value: string) => {
-    setSelectedDepartment(value);
-    const department = departments.find((dept: any) => dept.name === value);
-    if (department) {
-      setDepartmentUsers(department.users);
-      form.setFieldsValue({
-        employees: department.users.map((user: any) => user.id),
-      });
-    }
-  };
-
-  const handleAllEmployeeChange = (checked: any) => {
-    setIsAllEmployee(checked);
-  };
+  // const handleAllEmployeeChange = (checked: any) => {
+  //   setIsAllEmployee(checked);
+  // };
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -113,30 +126,34 @@ const BenefitypeSideBar = () => {
       size: 'large',
       loading: false,
       onClick: () => onClose(),
+      disabled: isLoading,
     },
     {
-      label: selectedBenefitRecord ? <span>Update</span> : <span>Create</span>,
+      label: selectedDeductionRecord ? (
+        <span>Update</span>
+      ) : (
+        <span>Create</span>
+      ),
       key: 'create',
       className: 'h-14',
       type: 'primary',
       size: 'large',
       loading: isLoading,
-      disabled: selectedBenefitRecord,
+      disabled: selectedDeductionRecord,
       onClick: () => form.submit(),
     },
   ];
-
   return (
-    isBenefitOpen && (
+    isDeductionOpen && (
       <CustomDrawerLayout
-        open={isBenefitOpen}
+        open={isDeductionOpen}
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            {selectedBenefitRecord ? (
-              <span>Edit Benefit Type</span>
+            {selectedDeductionRecord ? (
+              <span>Edit Deduction Type</span>
             ) : (
-              <span>Add Benefit Type</span>
+              <span>Add Deduction Type</span>
             )}
           </CustomDrawerHeader>
         }
@@ -158,7 +175,7 @@ const BenefitypeSideBar = () => {
             >
               <Input
                 className="control"
-                placeholder="Benefit Name"
+                placeholder="Deduction Name"
                 style={{ height: '32px', padding: '4px 8px' }}
               />
             </Form.Item>
@@ -175,44 +192,29 @@ const BenefitypeSideBar = () => {
                 style={{ height: '32px', padding: '4px 8px' }}
               />
             </Form.Item>
-            <Form.Item
-              name="mode"
-              label="Mode"
-              rules={[{ required: true, message: 'Mode is Required!' }]}
-              className="form-item"
-            >
-              <Radio.Group
-                onChange={handleModeChange}
-                value={benefitMode}
-                disabled={selectedBenefitRecord}
-              >
-                <Radio value="CREDIT">Credit</Radio>
-                <Radio value="DEBIT">Debit</Radio>
-              </Radio.Group>
-            </Form.Item>
-            {benefitMode == 'CREDIT' && (
-              <>
-                <div style={{ display: 'flex', gap: '20px' }}>
-                  <Form.Item
+
+            <>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                {/* <Form.Item
                     name="isRate"
                     label={'Is Rate'}
                     className="form-item"
-                    initialValue={!selectedBenefitRecord && false}
+                    initialValue={!selectedDeductionRecord && false}
                   >
                     <Switch
                       checkedChildren={<CheckOutlined />}
                       unCheckedChildren={<CloseOutlined />}
                       onChange={onRateToggle}
                     />
-                  </Form.Item>
-                  <Form.Item
+                  </Form.Item> */}
+                {/* <Form.Item
                     name="isAllEmployee"
                     label="All Employees are entitled"
                     className="form-item"
                     initialValue={
-                      !selectedBenefitRecord
+                      !selectedDeductionRecord
                         ? true
-                        : selectedBenefitRecord.applicableTo == 'GLOBAL'
+                        : selectedDeductionRecord.applicableTo == 'GLOBAL'
                           ? true
                           : false
                     }
@@ -228,12 +230,12 @@ const BenefitypeSideBar = () => {
                       unCheckedChildren={<CloseOutlined />}
                       checked={form.getFieldValue('isAllEmployee')}
                       onChange={handleAllEmployeeChange}
-                      disabled={selectedBenefitRecord}
+                      disabled={selectedDeductionRecord}
                     />
-                  </Form.Item>
-                </div>
-                <div style={{ display: 'flex', gap: '20px' }}>
-                  <Form.Item
+                  </Form.Item> */}
+              </div>
+              {/* <div style={{ display: 'flex', gap: '20px' }}> */}
+              {/* <Form.Item
                     name="defaultAmount"
                     label={isRateBenefit ? 'Rate Amount' : 'Fixed Amount'}
                     className="form-item"
@@ -245,8 +247,8 @@ const BenefitypeSideBar = () => {
                       placeholder="Benefit Amount"
                       style={{ height: '32px', padding: '4px 8px' }}
                     />
-                  </Form.Item>
-                  {!isAllEmployee && !selectedBenefitRecord && (
+                  </Form.Item> */}
+              {/* {!selectedDeductionRecord && (
                     <Form.Item
                       name="NoOfPayPeriod"
                       label={'Number of Pay Period'}
@@ -265,31 +267,34 @@ const BenefitypeSideBar = () => {
                         style={{ height: '32px', padding: '4px 8px' }}
                       />
                     </Form.Item>
-                  )}
-                </div>
-                {!isAllEmployee && !selectedBenefitRecord && (
-                  <>
-                    <Form.Item
+                  )} */}
+              {/* </div> */}
+              {/* {!isAllEmployee && !selectedDeductionRecord && (
+                  <> */}
+              {/* <Form.Item
                       className="form-item"
                       name="department"
                       label="Select Department"
+                      
                     >
                       <Select
+                        mode='multiple'
                         placeholder="Select a department"
                         onChange={handleDepartmentChange}
+                        allowClear
                       >
                         {departments?.map((department: any) => (
                           <Select.Option
                             key={department.id}
-                            value={department.name}
+                            value={department.id}
                           >
                             {department.name}
                           </Select.Option>
                         ))}
                       </Select>
-                    </Form.Item>
+                    </Form.Item> */}
 
-                    <Form.Item
+              {/* <Form.Item
                       className="form-item"
                       name="employees"
                       label="Select Employees"
@@ -297,20 +302,18 @@ const BenefitypeSideBar = () => {
                       <Select
                         mode="multiple"
                         placeholder="Select employees"
-                        disabled={!selectedDepartment}
+                        disabled={selectedDepartementArray?.length<1}
                       >
                         {departmentUsers?.map((user) => (
                           <Select.Option key={user.id} value={user.id}>
-                            {user?.firstName} {user?.middleName}{' '}
-                            {user?.lastName}
+                            {user?.firstName} {user?.lastName}
                           </Select.Option>
                         ))}
                       </Select>
-                    </Form.Item>
-                  </>
-                )}
-              </>
-            )}
+                    </Form.Item> */}
+              {/* </>
+                )} */}
+            </>
           </Form>
         </Spin>
       </CustomDrawerLayout>
@@ -318,4 +321,4 @@ const BenefitypeSideBar = () => {
   );
 };
 
-export default BenefitypeSideBar;
+export default DeductiontypeSideBar;

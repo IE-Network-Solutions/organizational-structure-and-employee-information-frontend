@@ -113,6 +113,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         action: selectedFeedbackRecord?.action,
       });
   }, [selectedFeedbackRecord]);
+
   return (
     <Form
       form={form}
@@ -143,7 +144,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
             getAllUsersData?.items
               ?.filter((i: any) => i.id !== userId)
               ?.map((item: any) => ({
-                label: `${item?.firstName} ${item?.lastName}`, // `label` for display
+                label: `${item?.firstName} ${item?.middleName} ${item?.lastName}`, // `label` for display
                 value: item?.id, // `value` for internal use
               })) ?? []
           }
@@ -236,10 +237,19 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           <Select
             mode="multiple"
             placeholder="Select CC employee(s)"
+            filterOption={(input: any, option: any) =>
+              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+            }
             options={
               getAllUsersData?.items?.map((item: any) => ({
                 key: item?.id,
-                value: `${item?.firstName} ${item?.lastName}`,
+                value: item?.email,
+                label:
+                  item?.firstName +
+                  ' ' +
+                  item?.middleName +
+                  '' +
+                  item?.lastName,
               })) ?? []
             }
           />

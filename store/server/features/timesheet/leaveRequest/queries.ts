@@ -153,7 +153,7 @@ export const useGetSingleApprovalLog = (
     ['single-leave-log', requestId, workflowId],
     () => getSingleApprovalLog(requestId, workflowId),
     {
-      enabled: !!requestId,
+      enabled: Boolean(requestId) && Boolean(workflowId), // Ensures both are non-empty, non-null, and non-undefined
     },
   );
 };

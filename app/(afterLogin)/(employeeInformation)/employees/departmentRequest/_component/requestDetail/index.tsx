@@ -24,10 +24,16 @@ const RequestDetail = () => {
   const { data: employeeData } = useGetAllUsers();
   const userData = (
     id: string,
-  ): { firstName?: string; lastName?: string } | undefined => {
+  ):
+    | { firstName?: string; middleName?: string; lastName?: string }
+    | undefined => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user
-      ? { firstName: user.firstName, lastName: user.lastName }
+      ? {
+          firstName: user.firstName,
+          middleName: user?.middleName,
+          lastName: user.lastName,
+        }
       : undefined;
   };
 
@@ -109,6 +115,7 @@ const RequestDetail = () => {
                       : 'Approve By : '}
                     <span className="text-xl">
                       {userData(String(step.approvedUserId))?.firstName}{' '}
+                      {userData(String(step.approvedUserId))?.middleName}{' '}
                       {userData(String(step.approvedUserId))?.lastName}
                     </span>
                   </div>

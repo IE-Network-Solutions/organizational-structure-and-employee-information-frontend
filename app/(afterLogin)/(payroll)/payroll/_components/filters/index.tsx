@@ -104,7 +104,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
   const options =
     employeeData?.items?.map((emp: any) => ({
       value: emp.id,
-      label: `${emp.firstName || ''} ${emp.lastName}`, // Full name as label
+      label: `${emp.firstName || ''} ${emp.middleName} ${emp.lastName}`, // Full name as label
       employeeData: emp,
     })) || [];
 

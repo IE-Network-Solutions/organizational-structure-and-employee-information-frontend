@@ -34,13 +34,13 @@ const PlanAssignment: React.FC = () => {
     setPageSize,
   } = useOKRSettingStore();
   const { mutate: deletePlanningAssign } = useDeletePlanningUser();
-  const { data: allUserWithPlanningPeriod } = useGetAllAssignedUser(
-    page,
-    pageSize,
-    userId || '',
-  );
+  const {
+    data: allUserWithPlanningPeriod,
+    isLoading: allUserPlanningPeriodLoading,
+  } = useGetAllAssignedUser(page, pageSize, userId || '');
   const { data: getAllPlanningPeriod } = useGetAllPlanningPeriods();
-  const { data: employeeData } = useGetAllUsers();
+  const { data: employeeData, isLoading: employeeDataLoading } =
+    useGetAllUsers();
   const userToPlanning = allUserWithPlanningPeriod?.items.reduce(
     (acc: GroupedUser[], item: PlanningPeriodUser) => {
       let group = acc.find((group) => group.userId === item.userId);
@@ -61,9 +61,10 @@ const PlanAssignment: React.FC = () => {
 
     // Destructure firstName and lastName with fallback
     const firstName = employee?.firstName || '-';
+    const middleName = employee?.middleName || '';
     const lastName = employee?.lastName || '';
 
-    return `${firstName} ${lastName}`;
+    return `${firstName} ${middleName} ${lastName}`;
   };
 
   const getPlanningPeriod = (planningPeriodId: string) => {
@@ -195,10 +196,12 @@ const PlanAssignment: React.FC = () => {
             value: list?.id,
             label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
           }))}
+          loading={employeeDataLoading}
         />
       </Form.Item>
 
       <Table
+        loading={allUserPlanningPeriodLoading}
         dataSource={dataSources}
         columns={columns}
         pagination={{
