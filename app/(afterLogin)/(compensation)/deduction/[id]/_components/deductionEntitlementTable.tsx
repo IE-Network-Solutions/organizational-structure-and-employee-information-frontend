@@ -69,7 +69,7 @@ const AllowanceEntitlementTable = () => {
       dataIndex: 'Amount',
       key: 'Amount',
       sorter: true,
-      render: (text: string) => <div>{text ? `${text} ETB` : '-'}</div>,
+      render: (text: string) => <div>{text ? `${text}` : '-'}</div>,
     },
     {
       title: 'Action',

@@ -129,68 +129,72 @@ function EditPlan() {
   )?.parentPlan?.id;
   useEffect(() => {
     const processTasks = (
-      tasks: any,
+      tasks: any[],
       planningUserId: string,
       userId: string,
       planningPeriodId: string,
       planId: string,
     ) => {
-      tasks?.forEach((e: any) => {
+      if (!tasks) return;
+
+      const uniqueTaskIds = new Set();
+
+      tasks.forEach((e: any) => {
         const hasMilestone = e?.milestone !== null;
 
         const name = hasMilestone
           ? `${e?.keyResult?.id + e?.milestone?.id + (e?.parentTaskId || '')}`
           : `${e?.keyResult?.id + (e?.parentTaskId || '')}`;
 
-        handleAddName(
-          {
-            id: e?.id,
-            milestoneId: e?.milestone?.id,
-            keyResultId: e?.keyResult?.id,
-            planningPeriodId: planningPeriodId,
-            planningUserId: planningUserId,
-            userId: userId || '',
-            task: e?.task || '',
-            priority: e?.priority || '',
-            weight: parseInt(e?.weight, 10) || 0,
-            targetValue: e?.targetValue || 0,
-            achieveMK: e?.achieveMK,
-            planId: planId,
-          },
-          name,
-        );
+        // Avoid duplicate tasks
+        if (!uniqueTaskIds.has(e?.id)) {
+          uniqueTaskIds.add(e?.id);
+
+          handleAddName(
+            {
+              id: e?.id,
+              milestoneId: e?.milestone?.id,
+              keyResultId: e?.keyResult?.id,
+              planningPeriodId,
+              planningUserId,
+              userId: userId || '',
+              task: e?.task || '',
+              priority: e?.priority || '',
+              weight: parseInt(e?.weight, 10) || 0,
+              targetValue: e?.targetValue || 0,
+              achieveMK: e?.achieveMK,
+              planId,
+            },
+            name,
+          );
+        }
       });
     };
 
+    if (!planGroupData) return;
+
+    const planningUserId = planGroupData?.planningUser?.id;
+    const userId = planGroupData?.planningUser?.userId;
+    const planningPeriodId = planGroupData?.planningUser?.planningPeriod?.id;
+
+    let tasks: any[] = [];
+
     if (planningPeriodHierarchy?.parentPlan) {
-      const planningUserId = planGroupData?.planningUser?.id;
-      const userId = planGroupData?.planningUser?.userId;
-      const planningPeriodId = planGroupData?.planningUser?.planningPeriod?.id;
-
-      const tasks = planningPeriodHierarchy?.planData?.find(
-        (i: any) => i.id === selectedPlanId,
-      )?.tasks;
-
-      processTasks(
-        tasks,
-        planningUserId,
-        userId,
-        planningPeriodId,
-        planGroupData?.id,
-      );
-    } else if (planGroupData) {
-      const planningUserId = planGroupData?.planningUser?.id;
-      const userId = planGroupData?.planningUser?.userId;
-      const planningPeriodId = planGroupData?.planningUser?.planningPeriod?.id;
-
-      processTasks(
-        planGroupData.tasks,
-        planningUserId,
-        userId,
-        planningPeriodId,
-        planGroupData?.id,
-      );
+      tasks =
+        planningPeriodHierarchy?.planData?.find(
+          (i: any) => i.id === selectedPlanId,
+        )?.tasks || [];
+    } else {
+      tasks = planGroupData.tasks || [];
     }
+
+    processTasks(
+      tasks,
+      planningUserId,
+      userId,
+      planningPeriodId,
+      planGroupData?.id,
+    );
   }, [
     planningPeriodHierarchy?.parentPlan,
     selectedPlanId,
@@ -200,11 +204,11 @@ function EditPlan() {
 
   const formattedData = groupParentTasks(
     planningPeriodHierarchy?.parentPlan?.plans?.find(
-      (i: any) => i.isReported === false,
+      (i: any) => i.id === selectParentId,
     )?.tasks || [],
   );
   const parentParentId = planningPeriodHierarchy?.parentPlan?.plans?.find(
-    (i: any) => i.isReported === false,
+    (i: any) => i.id === selectParentId,
   )?.id;
 
   return (

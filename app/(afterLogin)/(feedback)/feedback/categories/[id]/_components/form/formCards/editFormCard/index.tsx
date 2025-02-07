@@ -106,7 +106,7 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
           <Select mode="multiple" placeholder="Select users">
             {employees?.items.map((employee: any) => (
               <Option key={employee.id} value={employee.id}>
-                {`${employee.firstName} ${employee.middleName} ${employee.lastName}`}
+                {`${employee?.firstName} ${employee?.middleName} ${employee?.lastName}`}
               </Option>
             ))}
           </Select>
