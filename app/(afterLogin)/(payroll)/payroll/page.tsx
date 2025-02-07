@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Table, Row, Button, notification } from 'antd';
+import { Table, Row, Button, notification, Popconfirm } from 'antd';
 import Filters from './_components/filters';
 import {
   useGetActivePayroll,
@@ -87,9 +87,6 @@ const Payroll = () => {
   };
 
   const handleDeletePayroll = () => {
-    if (!window.confirm('Are you sure you want to delete this payroll?')) {
-      return;
-    }
     setLoading(true);
     try {
       deletePayroll(payPeriodId);
@@ -274,11 +271,13 @@ const Payroll = () => {
         Number(record.breakdown?.pension[0]?.amount)?.toLocaleString(),
     },
     {
-      title: 'Cost Sharing',
-      dataIndex: 'costsharing',
-      key: 'costsharing',
+      title: 'Variable Pay',
+      dataIndex: 'variablePay',
+      key: 'variablePay',
       minWidth: 150,
-      render: (key: string) => Number(key || 0)?.toLocaleString(),
+      render: (notused: any, record: any) =>
+        Number(record.breakdown?.variablePay?.amount)?.toLocaleString(),
+    
     },
     {
       title: 'Net Income',
@@ -316,21 +315,27 @@ const Payroll = () => {
           >
             Export Payroll
           </Button>
-          <Button
-            type="primary"
-            className="p-6"
-            onClick={
-              payroll?.payrolls.length > 0
-                ? handleDeletePayroll
-                : handleGeneratePayroll
-            }
-            loading={isCreatingPayroll || loading || deleteLoading}
-            disabled={isCreatingPayroll || loading || deleteLoading}
-          >
-            {payroll?.payrolls.length > 0
-              ? 'Delete Payroll'
-              : 'Generate Payroll'}
-          </Button>
+
+<Popconfirm
+  title="Are you sure you want to delete the payroll?"
+  onConfirm={handleDeletePayroll}
+  okText="Yes"
+  cancelText="No"
+  disabled={!(payroll?.payrolls.length > 0)}
+>
+  <Button
+    type="primary"
+    className="p-6"
+    onClick={
+      payroll?.payrolls.length > 0 ? undefined : handleGeneratePayroll
+    }
+    loading={isCreatingPayroll || loading || deleteLoading}
+    disabled={isCreatingPayroll || loading || deleteLoading}
+  >
+    {payroll?.payrolls.length > 0 ? 'Delete Payroll' : 'Generate Payroll'}
+  </Button>
+</Popconfirm>
+
         </div>
       </div>
 
