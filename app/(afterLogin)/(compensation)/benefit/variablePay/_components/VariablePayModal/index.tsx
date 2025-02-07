@@ -42,9 +42,18 @@ const VariablePayModal: React.FC<ModalProps> = ({ data }) => {
     const payPeriodId = activePayPeriod?.id;
 
     const variablePayData = data?.map(
-      ({ id, VpInBirr: vpInBirr }: { id: string; VpInBirr: string }) => ({
+      ({
+        id,
+        VpInPercentile: vpInPercentile,
+        VpScore: vpScore,
+      }: {
+        id: string;
+        VpInPercentile: number;
+        VpScore: string;
+      }) => ({
         userId: id,
-        amount: Number(vpInBirr).toFixed(2),
+        totalPercentage: (+vpInPercentile).toFixed(1),
+        vpScore: (+vpScore).toFixed(2),
       }),
     );
 

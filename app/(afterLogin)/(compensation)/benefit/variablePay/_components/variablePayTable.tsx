@@ -90,7 +90,6 @@ const VariablePayTable = () => {
       title: 'Action',
       dataIndex: 'Action',
       key: 'Action',
-      sorter: true,
     },
   ];
 
