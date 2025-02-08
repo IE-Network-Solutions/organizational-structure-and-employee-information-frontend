@@ -618,114 +618,113 @@ function CreateReport() {
                                     NAME.ACHIEVE &&
                                   keyresult?.metricType?.name !==
                                     NAME.MILESTONE && (
-                                   <Form.Item
-                                                                          key={`${task.taskId}-actualValue`}
-                                                                          name={[task.taskId, 'actualValue']}
-                                                                          className="mb-2"
-                                                                          label="Actual value:"
-                                                                          rules={[
-                                                                            {
-                                                                              validator(notused, value) {
-                                                                                if (
-                                                                                  !keyresult ||
-                                                                                  !keyresult.targetValue
-                                                                                ) {
-                                                                                  return Promise.reject(
-                                                                                    new Error(
-                                                                                      'Key result data is incomplete.',
-                                                                                    ),
-                                                                                  );
-                                                                                }
-                                  
-                                                                                if (
-                                                                                  value === null ||
-                                                                                  value === undefined
-                                                                                ) {
-                                                                                  return Promise.reject(
-                                                                                    new Error(
-                                                                                      'Please enter a target value.',
-                                                                                    ),
-                                                                                  );
-                                                                                }
-                                  
-                                                                                const numericValue =
-                                                                                  Number(value);
-                                                                                if (isNaN(numericValue)) {
-                                                                                  return Promise.reject(
-                                                                                    new Error(
-                                                                                      'Please enter a valid number.',
-                                                                                    ),
-                                                                                  );
-                                                                                }
-                                  
-                                                                                const statusValue =
-                                                                                  form.getFieldValue([
-                                                                                    task.taskId,
-                                                                                    'status',
-                                                                                  ]);
-                                                                                if (
-                                                                                  statusValue === 'Done' &&
-                                                                                  numericValue < task?.targetValue
-                                                                                ) {
-                                                                                  return Promise.reject(
-                                                                                    new Error(
-                                                                                      `Value should be at least ${Number(task?.targetValue)?.toLocaleString()}`,
-                                                                                    ),
-                                                                                  );
-                                                                                }
-                                  
-                                                                                if (
-                                                                                  statusValue === 'Not' &&
-                                                                                  numericValue > task?.targetValue
-                                                                                ) {
-                                                                                  return Promise.reject(
-                                                                                    new Error(
-                                                                                      `Actual value shouldn't exceed ${Number(task?.targetValue)?.toLocaleString()}`,
-                                                                                    ),
-                                                                                  );
-                                                                                }
-                                  
-                                                                                return Promise.resolve();
-                                                                              },
-                                                                            },
-                                                                          ]}
-                                                                        >
-                                                                          <InputNumber
-                                                                            min={0}
-                                                                            step={1}
-                                                                            className="w-full"
-                                                                            formatter={(value) =>
-                                                                              `${value}`.replace(
-                                                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                                                ',',
-                                                                              )
-                                                                            }
-                                                                            onChange={(value) => {
-                                                                              const statusValue =
-                                                                                form.getFieldValue([
-                                                                                  task.taskId,
-                                                                                  'status',
-                                                                                ]);
-                                                                              if (statusValue === 'Done') {
-                                                                                form.setFieldsValue({
-                                                                                  [task.taskId]: {
-                                                                                    actualValue: value
-                                                                                      ? Number(value)
-                                                                                      : task?.targetValue,
-                                                                                  },
-                                                                                });
-                                                                              } else if (statusValue === 'Not') {
-                                                                                form.setFieldsValue({
-                                                                                  [task.taskId]: {
-                                                                                    actualValue: value
-                                                                                      ? Number(value)
-                                                                                      : 0,
-                                                                                  },
-                                                                                });
-                                                                              }
-                                                                            }}
-                                                                          />
-                                                                        </Form.Item>
+                                    <Form.Item
+                                      key={`${task.taskId}-actualValue`}
+                                      name={[task.taskId, 'actualValue']}
+                                      className="mb-2"
+                                      label="Actual value:"
+                                      rules={[
+                                        {
+                                          validator(notused, value) {
+                                            if (
+                                              !keyresult ||
+                                              !keyresult.targetValue
+                                            ) {
+                                              return Promise.reject(
+                                                new Error(
+                                                  'Key result data is incomplete.',
+                                                ),
+                                              );
+                                            }
+
+                                            if (
+                                              value === null ||
+                                              value === undefined
+                                            ) {
+                                              return Promise.reject(
+                                                new Error(
+                                                  'Please enter a target value.',
+                                                ),
+                                              );
+                                            }
+
+                                            const numericValue = Number(value);
+                                            if (isNaN(numericValue)) {
+                                              return Promise.reject(
+                                                new Error(
+                                                  'Please enter a valid number.',
+                                                ),
+                                              );
+                                            }
+
+                                            const statusValue =
+                                              form.getFieldValue([
+                                                task.taskId,
+                                                'status',
+                                              ]);
+                                            if (
+                                              statusValue === 'Done' &&
+                                              numericValue < task?.targetValue
+                                            ) {
+                                              return Promise.reject(
+                                                new Error(
+                                                  `Value should be at least ${Number(task?.targetValue)?.toLocaleString()}`,
+                                                ),
+                                              );
+                                            }
+
+                                            if (
+                                              statusValue === 'Not' &&
+                                              numericValue > task?.targetValue
+                                            ) {
+                                              return Promise.reject(
+                                                new Error(
+                                                  `Actual value shouldn't exceed ${Number(task?.targetValue)?.toLocaleString()}`,
+                                                ),
+                                              );
+                                            }
+
+                                            return Promise.resolve();
+                                          },
+                                        },
+                                      ]}
+                                    >
+                                      <InputNumber
+                                        min={0}
+                                        step={1}
+                                        className="w-full"
+                                        formatter={(value) =>
+                                          `${value}`.replace(
+                                            /\B(?=(\d{3})+(?!\d))/g,
+                                            ',',
+                                          )
+                                        }
+                                        onChange={(value) => {
+                                          const statusValue =
+                                            form.getFieldValue([
+                                              task.taskId,
+                                              'status',
+                                            ]);
+                                          if (statusValue === 'Done') {
+                                            form.setFieldsValue({
+                                              [task.taskId]: {
+                                                actualValue: value
+                                                  ? Number(value)
+                                                  : task?.targetValue,
+                                              },
+                                            });
+                                          } else if (statusValue === 'Not') {
+                                            form.setFieldsValue({
+                                              [task.taskId]: {
+                                                actualValue: value
+                                                  ? Number(value)
+                                                  : 0,
+                                              },
+                                            });
+                                          }
+                                        }}
+                                      />
+                                    </Form.Item>
                                   )}
                                 {/* Comment Form Item, only with the 'Not' status condition */}
                                 {selectedStatuses[task.taskId] === 'Not' && (

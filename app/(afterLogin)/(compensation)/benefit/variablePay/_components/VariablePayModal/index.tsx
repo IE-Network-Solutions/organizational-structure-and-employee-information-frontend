@@ -43,15 +43,15 @@ const VariablePayModal: React.FC<ModalProps> = ({ data }) => {
 
     const variablePayData = data?.map(
       ({
-        id,
+        userId,
         VpInPercentile: vpInPercentile,
         VpScore: vpScore,
       }: {
-        id: string;
+        userId: string;
         VpInPercentile: number;
         VpScore: string;
       }) => ({
-        userId: id,
+        userId: userId,
         totalPercentage: vpInPercentile,
         vpScore: (+vpScore).toFixed(2),
       }),
@@ -65,7 +65,6 @@ const VariablePayModal: React.FC<ModalProps> = ({ data }) => {
     sendToPayroll(mergedData);
     setOpenModal(false);
   };
-
   return (
     <Modal
       title="Send to payroll"
