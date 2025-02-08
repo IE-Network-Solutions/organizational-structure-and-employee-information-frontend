@@ -1,7 +1,7 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { EMAIL_URL, PAYROLL_URL } from '@/utils/constants';
+import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -92,7 +92,7 @@ const sendEmail = async (values: any) => {
 
   try {
     await crudRequest({
-      url: `${EMAIL_URL}/email`,
+      url: `https://test-email-service.ienetworks.co/api/v1/email`,
       method: 'POST',
       data: values,
       headers: {
@@ -144,6 +144,44 @@ export const useSendToPayroll = () => {
       NotificationMessage.success({
         message: 'Payroll sent successfully',
         description: 'Payroll has been sent successfully.',
+      });
+    },
+  });
+};
+
+const deletePayroll = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  try {
+    await crudRequest({
+      url: `${PAYROLL_URL}/payroll/remove-payroll/by-pay-period-id/${id}`,
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+
+    NotificationMessage.success({
+      message: 'Successfully Deleted',
+      description: 'Payroll successfully deleted.',
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+export const useDeletePayroll = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(deletePayroll, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('payroll');
+    },
+    onError: (error) => {
+      NotificationMessage.error({
+        message: error + '',
+        description: 'Failed to delete Payroll.',
       });
     },
   });

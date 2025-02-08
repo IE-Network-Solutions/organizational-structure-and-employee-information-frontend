@@ -7,7 +7,7 @@ import {
   useGetAllActiveBasicSalary,
   useGetEmployeeInfo,
 } from '@/store/server/features/payroll/payroll/queries';
-import { useCreatePayroll } from '@/store/server/features/payroll/payroll/mutation';
+import { useCreatePayroll, useDeletePayroll } from '@/store/server/features/payroll/payroll/mutation';
 import PayrollCard from './_components/cards';
 import { useExportData } from './_components/excel';
 import { useGenerateBankLetter } from './_components/Latter';
@@ -18,9 +18,10 @@ const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportBank, setExportBank] = useState(true);
   const [bankLetter, setBankLetter] = useState(true);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [payPeriodQuery, setPayPeriodQuery] = useState('');
+  const [payPeriodId, setPayPeriodId] = useState('');
   const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
@@ -105,6 +106,12 @@ const Payroll = () => {
     if (searchValues?.monthId) {
       queryParams.append('monthId', searchValues.monthId);
     }
+    if (searchValues?.payPeriodId) {
+      queryParams.append('payPeriodId', searchValues.payPeriodId);
+      const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+      setPayPeriodQuery(query);
+      setPayPeriodId(searchValues.payPeriodId);
+    }
 
     const searchParams = queryParams.toString()
       ? `?${queryParams.toString()}`
@@ -131,6 +138,7 @@ const Payroll = () => {
         })),
       };
       createPayroll({ values: payRollData });
+
     } catch (error) {
       notification.error({
         message: 'Error Generating Payroll',
@@ -155,29 +163,7 @@ const Payroll = () => {
     }
   };
 
-  const handleSearch = (searchValues: any) => {
-    const queryParams = new URLSearchParams();
-
-    if (searchValues?.employeeId) {
-      queryParams.append('employeeId', searchValues.employeeId);
-    }
-    if (searchValues?.monthId) {
-      queryParams.append('monthId', searchValues.monthId);
-    }
-    if (searchValues?.payPeriodId) {
-      queryParams.append('payPeriodId', searchValues.payPeriodId);
-      const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-      setPayPeriodQuery(query);
-      setPayPeriodId(searchValues.payPeriodId);
-    }
-
-    const searchParams = queryParams.toString()
-      ? `?${queryParams.toString()}`
-      : '';
-    setSearchQuery(searchParams);
-    refetch();
-  };
-
+  
   const handleExportPayroll = async () => {
     if (!mergedPayroll || mergedPayroll?.length === 0) {
       notification.error({
@@ -268,8 +254,9 @@ const Payroll = () => {
           totalAllowance: Number(item.totalAllowance || 0).toFixed(2),
           totalBenefits: Number(item.totalMerit || 0).toFixed(2),
           totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
-          grossIncome: Number(item.grossSalary || 0).toFixed(2),
           tax,
+          grossIncome: Number(item.grossSalary || 0).toFixed(2),
+          variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(2),
           netIncome: Number(item.netPay || 0).toFixed(2),
         };
 
@@ -327,15 +314,21 @@ const Payroll = () => {
           key: 'totalDeduction',
           width: getDynamicWidth('Total Deduction'),
         },
+       
+        { header: 'Tax', key: 'tax', width: getDynamicWidth('Tax') },
+        ...allowanceColumns, // Add dynamic allowance columns
+        ...deductionColumns, // Add dynamic deduction columns
+        ...pensionColumns, // Add dynamic pension columns
+        {
+          header: 'Variable Pay',
+          key: 'variablePay',
+          width: getDynamicWidth('Variable Pay'),
+        },
         {
           header: 'Gross Income',
           key: 'grossIncome',
           width: getDynamicWidth('Gross Income'),
         },
-        { header: 'Tax', key: 'tax', width: getDynamicWidth('Tax') },
-        ...allowanceColumns, // Add dynamic allowance columns
-        ...deductionColumns, // Add dynamic deduction columns
-        ...pensionColumns, // Add dynamic pension columns
         {
           header: 'Net Income',
           key: 'netIncome',
@@ -533,7 +526,7 @@ const Payroll = () => {
       render: (key: string) => Number(key || 0)?.toLocaleString(),
     },
   ];
-
+console.log(searchQuery,"searchQuery")
   return (
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4 scrollbar-none">
