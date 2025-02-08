@@ -483,22 +483,16 @@ const Payroll = () => {
       dataIndex: 'pension',
       key: 'pension',
       minWidth: 150,
-      render: (nonused: any, record: any) => {
-        const totalPension =
-          record.breakdown?.pension?.reduce(
-            (sum: any, p: any) => sum + parseFloat(p.amount),
-            0,
-          ) || 0;
-        return totalPension.toFixed(2);
+      render: (notused: any, record: any) =>
+        Number(record.breakdown?.pension?.find((i:any)=>i.type=="Pension")?.amount)?.toLocaleString(),
       },
-    },
     {
       title: 'Company Pension',
       dataIndex: 'companyPension',
       key: 'companyPension',
       minWidth: 150,
       render: (notused: any, record: any) =>
-        Number(record.breakdown?.pension[1]?.amount)?.toLocaleString(),
+        Number(record.breakdown?.pension?.find((i:any)=>i.type=="CompanyContribution")?.amount)?.toLocaleString(),
     },
     {
       title: 'Total Deduction',
