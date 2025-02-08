@@ -360,7 +360,98 @@ const Payroll = () => {
       setLoading(false);
     }
   };
-
+  const handleDeductionExportPayroll = async () => {
+    if (!mergedPayroll || mergedPayroll.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
+      return;
+    }
+  
+    setLoading(true);
+  
+    try {
+      interface Deduction {
+        type: string;
+        amount: number | string; // Ensuring amount can be a number or string
+      }
+  
+      const uniqueDeductionTypes = new Set<string>();
+      const flatPayrollData: any[] = [];
+  
+      // Step 1: Collect unique deduction types from totalDeductionWithPension
+      mergedPayroll.forEach((item: any) => {
+        const deductions: Deduction[] = item.breakdown?.totalDeductionWithPension || [];
+        deductions.forEach((deduction) => uniqueDeductionTypes.add(deduction.type));
+      });
+  
+      // Step 2: Process each payroll entry
+      mergedPayroll.forEach((item: any) => {
+        const fullName = 
+          `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() || '--';
+  
+        const deductions: Deduction[] = item.breakdown?.totalDeductionWithPension || [];
+  
+        // Create row data object
+        const rowData: any = {
+          fullName,
+          totalDeductions: Number(item.totalDeductions || 0).toFixed(2),
+        };
+  
+        // Fill deduction amounts for each unique type
+        uniqueDeductionTypes.forEach((type) => {
+          const deduction = deductions.find((d) => d.type === type);
+          rowData[type.replace(/\s+/g, '').toLowerCase()] = deduction ? Number(deduction.amount).toFixed(2) : '0.00';
+        });
+  
+        flatPayrollData.push(rowData);
+      });
+  
+      if (flatPayrollData.length === 0) {
+        notification.error({
+          message: 'No Formatted Data',
+          description: 'Formatted payroll data is empty. No data to export.',
+        });
+        return;
+      }
+  
+      // Step 3: Define dynamic columns for Excel export
+      const getDynamicWidth = (header: string) => Math.max(20, header.length * 2);
+  
+      const exportColumns = [
+        {
+          header: 'Full Name',
+          key: 'fullName',
+          width: getDynamicWidth('Full Name'),
+        },
+        ...Array.from(uniqueDeductionTypes).map((type) => ({
+          header: type,
+          key: type.replace(/\s+/g, '').toLowerCase(),
+          width: getDynamicWidth(type),
+        })),
+        {
+          header: 'Total Deductions',
+          key: 'totalDeductions',
+          width: getDynamicWidth('Total Deductions'),
+        },
+      ];
+  
+      // Step 4: Export to Excel
+      await exportToExcel(flatPayrollData, exportColumns, 'Payroll Deductions');
+  
+    } catch (error) {
+      notification.error({
+        message: 'Error Exporting Data',
+        description: `An error occurred while exporting data: ${error || error}`,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+  
   type Payroll = {
     employeeId: string;
     netPay: number;
@@ -554,7 +645,13 @@ const Payroll = () => {
           >
             Export Payroll
           </Button>
-
+          <Button
+            type="default"
+            className="text-white bg-violet-500 border-none p-6"
+            onClick={handleDeductionExportPayroll}
+          >
+            Export Deductions
+          </Button>
           <Popconfirm
             title="Are you sure you want to delete the payroll?"
             onConfirm={handleDeletePayroll}
