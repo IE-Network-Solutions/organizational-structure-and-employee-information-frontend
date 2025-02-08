@@ -510,7 +510,7 @@ const Payroll = () => {
         Number(record.breakdown?.variablePay?.amount)?.toLocaleString(),
     },
     {
-      title: 'Gross Income',
+      title: 'Gross Income after VP',
       dataIndex: 'grossSalary',
       key: 'grossSalary',
       minWidth: 150,
