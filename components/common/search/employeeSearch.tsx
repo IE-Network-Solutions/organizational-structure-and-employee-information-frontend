@@ -73,8 +73,8 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
               }}
             >
               {optionArray1?.map((item: any) => {
-                let displayFirstName = item.firstName || ''; // Handle null firstName
-                let displayMiddleName = item.middleName || ''; // Handle null middleName
+                let displayFirstName = item?.firstName || ''; // Handle null firstName
+                let displayMiddleName = item?.middleName || ''; // Handle null middleName
 
                 // Truncate long names
                 const maxNameLength = 10;

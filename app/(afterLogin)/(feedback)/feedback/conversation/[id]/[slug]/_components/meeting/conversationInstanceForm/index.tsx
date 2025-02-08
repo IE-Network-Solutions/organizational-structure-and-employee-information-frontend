@@ -219,13 +219,13 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
             <Option
               key={user.id}
               value={user.id}
-              label={`${user.firstName} ${user.middleName} ${user.lastName}`}
+              label={`${user?.firstName} ${user?.middleName} ${user?.lastName}`}
             >
               <Checkbox
                 checked={selectedUsers.includes(user.id)}
                 onClick={(e) => e.stopPropagation()}
               >
-                {user.firstName} ${user.middleName} {user.lastName}
+                {user?.firstName} ${user?.middleName} {user?.lastName}
               </Checkbox>
             </Option>
           ))}
