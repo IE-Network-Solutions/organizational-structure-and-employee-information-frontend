@@ -247,13 +247,7 @@ const Payroll = () => {
       minWidth: 150,
       render: (key: string) => Number(key)?.toLocaleString(),
     },
-    {
-      title: 'Gross Income',
-      dataIndex: 'grossSalary',
-      key: 'grossSalary',
-      minWidth: 150,
-      render: (key: string) => Number(key)?.toLocaleString(),
-    },
+   
     {
       title: 'Tax',
       dataIndex: 'tax',
@@ -271,6 +265,14 @@ const Payroll = () => {
         Number(record.breakdown?.pension[0]?.amount)?.toLocaleString(),
     },
     {
+      title: 'Company Pension',
+      dataIndex: 'companyPension',
+      key: 'companyPension',
+      minWidth: 150,
+      render: (notused: any, record: any) =>
+        Number(record.breakdown?.pension[1]?.amount)?.toLocaleString(),
+    },
+    {
       title: 'Variable Pay',
       dataIndex: 'variablePay',
       key: 'variablePay',
@@ -278,6 +280,12 @@ const Payroll = () => {
       render: (notused: any, record: any) =>
         Number(record.breakdown?.variablePay?.amount)?.toLocaleString(),
     
+    }, {
+      title: 'Gross Income',
+      dataIndex: 'grossSalary',
+      key: 'grossSalary',
+      minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
       title: 'Net Income',
