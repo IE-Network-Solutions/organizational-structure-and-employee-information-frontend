@@ -299,6 +299,7 @@ const Payroll = () => {
           key: 'basicSalary',
           width: getDynamicWidth('Basic Salary'),
         },
+        ...allowanceColumns, // Add dynamic allowance columns
         {
           header: 'Total Allowance',
           key: 'totalAllowance',
@@ -309,16 +310,17 @@ const Payroll = () => {
           key: 'totalBenefits',
           width: getDynamicWidth('Total Benefits'),
         },
+       
+       
+        { header: 'Tax', key: 'tax', width: getDynamicWidth('Tax') },
+     
+        ...deductionColumns, // Add dynamic deduction columns
+        ...pensionColumns, // Add dynamic pension columns
         {
           header: 'Total Deduction',
           key: 'totalDeduction',
           width: getDynamicWidth('Total Deduction'),
         },
-       
-        { header: 'Tax', key: 'tax', width: getDynamicWidth('Tax') },
-        ...allowanceColumns, // Add dynamic allowance columns
-        ...deductionColumns, // Add dynamic deduction columns
-        ...pensionColumns, // Add dynamic pension columns
         {
           header: 'Variable Pay',
           key: 'variablePay',
@@ -454,13 +456,7 @@ const Payroll = () => {
       minWidth: 150,
       render: (key: string) => Number(key)?.toLocaleString(),
     },
-    {
-      title: 'Total Deduction',
-      dataIndex: 'totalDeductions',
-      key: 'totalDeductions',
-      minWidth: 150,
-      render: (key: string) => Number(key)?.toLocaleString(),
-    },
+    
    
     {
       title: 'Tax',
@@ -470,16 +466,7 @@ const Payroll = () => {
       render: (notused: any, record: any) =>
         Number(record.breakdown?.tax?.amount)?.toLocaleString(),
     },
-    {
-      title: 'Tax',
-      dataIndex: ['breakdown', 'tax'],
-      key: 'tax',
-      minWidth: 150,
-      render: (nonused: any, record: any) =>
-        record.breakdown?.tax?.amount
-          ? record.breakdown.tax.amount.toFixed(2)
-          : '0.00',
-    },
+    
     {
       title: 'Employee Pension',
       dataIndex: 'pension',
@@ -501,6 +488,13 @@ const Payroll = () => {
       minWidth: 150,
       render: (notused: any, record: any) =>
         Number(record.breakdown?.pension[1]?.amount)?.toLocaleString(),
+    },
+    {
+      title: 'Total Deduction',
+      dataIndex: 'totalDeductions',
+      key: 'totalDeductions',
+      minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
       title: 'Variable Pay',
@@ -525,7 +519,6 @@ const Payroll = () => {
       render: (key: string) => Number(key || 0)?.toLocaleString(),
     },
   ];
-console.log(searchQuery,"searchQuery")
   return (
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4 scrollbar-none">

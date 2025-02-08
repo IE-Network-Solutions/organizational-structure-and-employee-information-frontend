@@ -36,6 +36,7 @@ const VariablePayTable = () => {
     allUsersVariablePay?.items?.map((variablePay: any) => ({
       id: variablePay?.id,
       name: variablePay?.userId,
+      userId: variablePay?.userId,
       VpInPercentile: variablePay?.vpScoring?.totalPercentage,
       VpScore: variablePay?.vpScore,
       Benefit: '',

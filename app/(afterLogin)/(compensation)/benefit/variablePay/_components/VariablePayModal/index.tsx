@@ -65,7 +65,6 @@ const VariablePayModal: React.FC<ModalProps> = ({ data }) => {
     sendToPayroll(mergedData);
     setOpenModal(false);
   };
-
   return (
     <Modal
       title="Send to payroll"
