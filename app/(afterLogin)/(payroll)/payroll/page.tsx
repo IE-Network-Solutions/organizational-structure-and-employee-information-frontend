@@ -244,7 +244,7 @@ const Payroll = () => {
 
       const flatPayrollData = mergedPayroll?.map((item: any) => {
         const fullName =
-          `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
+          `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
           '--';
 
         const basicSalary =
