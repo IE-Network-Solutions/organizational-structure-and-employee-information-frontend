@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+
 import {
   Table,
   Row,
@@ -9,6 +10,7 @@ import {
   Modal,
   Switch,
 } from 'antd';
+
 import Filters from './_components/filters';
 import {
   useGetActivePayroll,
@@ -519,6 +521,7 @@ const Payroll = () => {
       key: 'grossSalary',
       minWidth: 150,
       render: (key: string) => Number(key)?.toLocaleString(),
+
     },
     {
       title: 'Net Income',
@@ -573,6 +576,7 @@ const Payroll = () => {
                 : 'Generate Payroll'}
             </Button>
           </Popconfirm>
+
         </div>
       </div>
 
