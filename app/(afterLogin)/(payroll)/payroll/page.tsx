@@ -360,7 +360,6 @@ const Payroll = () => {
       });
       return;
     }
-
     setLoading(true);
     try {
       const flatData = employeeInfo.map((employee: any) => {

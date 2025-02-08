@@ -59,7 +59,7 @@ const CommentList = ({
           middleName: user.middleName || '-',
           profileImage: user.profileImage,
           role: user.role?.name || '-',
-          fullName: `${user.firstName} ${user.middleName} ${user.lastName}`,
+          fullName: `${user?.firstName} ${user?.middleName} ${user?.lastName}`,
         }
       : {
           firstName: '-',
