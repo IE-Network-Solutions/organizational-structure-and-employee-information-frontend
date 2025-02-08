@@ -1,13 +1,24 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Table, Row, Button, notification, Popconfirm, Modal, Switch } from 'antd';
+import {
+  Table,
+  Row,
+  Button,
+  notification,
+  Popconfirm,
+  Modal,
+  Switch,
+} from 'antd';
 import Filters from './_components/filters';
 import {
   useGetActivePayroll,
   useGetAllActiveBasicSalary,
   useGetEmployeeInfo,
 } from '@/store/server/features/payroll/payroll/queries';
-import { useCreatePayroll, useDeletePayroll } from '@/store/server/features/payroll/payroll/mutation';
+import {
+  useCreatePayroll,
+  useDeletePayroll,
+} from '@/store/server/features/payroll/payroll/mutation';
 import PayrollCard from './_components/cards';
 import { useExportData } from './_components/excel';
 import { useGenerateBankLetter } from './_components/Latter';
@@ -39,7 +50,7 @@ const Payroll = () => {
   const [loading, setLoading] = useState(false);
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
-  useDeletePayroll();
+    useDeletePayroll();
   useEffect(() => {
     if (payroll?.payrolls && allEmployees?.items) {
       const mergedData = payroll.payrolls.map((pay: any) => {
@@ -138,7 +149,6 @@ const Payroll = () => {
         })),
       };
       createPayroll({ values: payRollData });
-
     } catch (error) {
       notification.error({
         message: 'Error Generating Payroll',
@@ -163,7 +173,6 @@ const Payroll = () => {
     }
   };
 
-  
   const handleExportPayroll = async () => {
     if (!mergedPayroll || mergedPayroll?.length === 0) {
       notification.error({
@@ -256,7 +265,9 @@ const Payroll = () => {
           totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
           tax,
           grossIncome: Number(item.grossSalary || 0).toFixed(2),
-          variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(2),
+          variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(
+            2,
+          ),
           netIncome: Number(item.netPay || 0).toFixed(2),
         };
 
@@ -310,10 +321,9 @@ const Payroll = () => {
           key: 'totalBenefits',
           width: getDynamicWidth('Total Benefits'),
         },
-       
-       
+
         { header: 'Tax', key: 'tax', width: getDynamicWidth('Tax') },
-     
+
         ...deductionColumns, // Add dynamic deduction columns
         ...pensionColumns, // Add dynamic pension columns
         {
@@ -456,8 +466,7 @@ const Payroll = () => {
       minWidth: 150,
       render: (key: string) => Number(key)?.toLocaleString(),
     },
-    
-   
+
     {
       title: 'Tax',
       dataIndex: 'tax',
@@ -466,7 +475,7 @@ const Payroll = () => {
       render: (notused: any, record: any) =>
         Number(record.breakdown?.tax?.amount)?.toLocaleString(),
     },
-    
+
     {
       title: 'Employee Pension',
       dataIndex: 'pension',
@@ -503,8 +512,8 @@ const Payroll = () => {
       minWidth: 150,
       render: (notused: any, record: any) =>
         Number(record.breakdown?.variablePay?.amount)?.toLocaleString(),
-    
-    }, {
+    },
+    {
       title: 'Gross Income',
       dataIndex: 'grossSalary',
       key: 'grossSalary',
@@ -523,6 +532,10 @@ const Payroll = () => {
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4 scrollbar-none">
         <h2 style={{ marginBottom: '20px' }}>Payroll</h2>
+        <h2 hidden style={{ marginBottom: '20px' }}>
+          {payPeriodQuery}
+        </h2>
+
         <div className="flex gap-4">
           <Button
             type="default"
@@ -539,26 +552,27 @@ const Payroll = () => {
             Export Payroll
           </Button>
 
-<Popconfirm
-  title="Are you sure you want to delete the payroll?"
-  onConfirm={handleDeletePayroll}
-  okText="Yes"
-  cancelText="No"
-  disabled={!(payroll?.payrolls.length > 0)}
->
-  <Button
-    type="primary"
-    className="p-6"
-    onClick={
-      payroll?.payrolls.length > 0 ? undefined : handleGeneratePayroll
-    }
-    loading={isCreatingPayroll || loading || deleteLoading}
-    disabled={isCreatingPayroll || loading || deleteLoading}
-  >
-    {payroll?.payrolls.length > 0 ? 'Delete Payroll' : 'Generate Payroll'}
-  </Button>
-</Popconfirm>
-
+          <Popconfirm
+            title="Are you sure you want to delete the payroll?"
+            onConfirm={handleDeletePayroll}
+            okText="Yes"
+            cancelText="No"
+            disabled={!(payroll?.payrolls.length > 0)}
+          >
+            <Button
+              type="primary"
+              className="p-6"
+              onClick={
+                payroll?.payrolls.length > 0 ? undefined : handleGeneratePayroll
+              }
+              loading={isCreatingPayroll || loading || deleteLoading}
+              disabled={isCreatingPayroll || loading || deleteLoading}
+            >
+              {payroll?.payrolls.length > 0
+                ? 'Delete Payroll'
+                : 'Generate Payroll'}
+            </Button>
+          </Popconfirm>
         </div>
       </div>
 

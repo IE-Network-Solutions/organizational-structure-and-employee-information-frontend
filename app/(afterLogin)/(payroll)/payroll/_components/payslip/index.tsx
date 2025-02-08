@@ -27,7 +27,7 @@ const PaySlip = ({ data }: { data: any[] }) => {
         let imgHeight = (canvas.height * imgWidth) / canvas.width;
         const pdf = new jsPDF('p', 'mm', 'a4');
 
-        let position = 10;
+        const position = 10;
         let yOffset = 0;
 
         while (imgHeight > 0) {
