@@ -484,15 +484,22 @@ const Payroll = () => {
       key: 'pension',
       minWidth: 150,
       render: (notused: any, record: any) =>
-        Number(record.breakdown?.pension?.find((i:any)=>i.type=="Pension")?.amount)?.toLocaleString(),
-      },
+        Number(
+          record.breakdown?.pension?.find((i: any) => i.type == 'Pension')
+            ?.amount,
+        )?.toLocaleString(),
+    },
     {
       title: 'Company Pension',
       dataIndex: 'companyPension',
       key: 'companyPension',
       minWidth: 150,
       render: (notused: any, record: any) =>
-        Number(record.breakdown?.pension?.find((i:any)=>i.type=="CompanyContribution")?.amount)?.toLocaleString(),
+        Number(
+          record.breakdown?.pension?.find(
+            (i: any) => i.type == 'CompanyContribution',
+          )?.amount,
+        )?.toLocaleString(),
     },
     {
       title: 'Total Deduction',
@@ -515,7 +522,6 @@ const Payroll = () => {
       key: 'grossSalary',
       minWidth: 150,
       render: (key: string) => Number(key)?.toLocaleString(),
-
     },
     {
       title: 'Net Income',
@@ -570,7 +576,6 @@ const Payroll = () => {
                 : 'Generate Payroll'}
             </Button>
           </Popconfirm>
-
         </div>
       </div>
 
