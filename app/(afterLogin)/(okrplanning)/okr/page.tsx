@@ -33,13 +33,13 @@ const OKR: React.FC<any> = () => {
               className="bg-white text-black hover:bg-black hover:text-white border-2 border-black"
             /> */}
           </AccessGuard>
-          <CustomButton
+          {/* <CustomButton
             title="Set Objective"
             id="createUserButton"
             icon={<FaPlus className="mr-2" />}
             onClick={showDrawer}
             className="bg-blue-600 hover:bg-blue-700"
-          />
+          /> */}
         </div>
       </div>
       <Dashboard />

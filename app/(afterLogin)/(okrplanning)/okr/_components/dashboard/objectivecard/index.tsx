@@ -79,7 +79,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   {objective?.title}
                 </h2>
               </div>
-              {myOkr && (
+              {/* {myOkr && (
                 <Dropdown
                   overlay={menu}
                   trigger={['click']}
@@ -87,7 +87,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 >
                   <MoreOutlined className="text-gray-500 text-lg cursor-pointer" />
                 </Dropdown>
-              )}
+              )} */}
             </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-center">

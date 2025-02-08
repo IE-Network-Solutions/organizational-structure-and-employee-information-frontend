@@ -77,7 +77,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
               size={20}
             />
             <span className="text-lg">{keyResult?.progress || 0}%</span>
-            {myOkr && (
+            {/* {myOkr && (
               <Dropdown
                 overlay={menu}
                 trigger={['click']}
@@ -85,7 +85,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
               >
                 <IoIosMore className="text-gray-500 text-lg cursor-pointer" />
               </Dropdown>
-            )}
+            )} */}
           </div>
         </div>
       </div>
