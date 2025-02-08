@@ -1,17 +1,17 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import CustomButton from '@/components/common/buttons/customButton';
+// import CustomButton from '@/components/common/buttons/customButton';
 import React, { useState } from 'react';
-import { FaPlus } from 'react-icons/fa';
+// import { FaPlus } from 'react-icons/fa';
 import OkrDrawer from './_components/okrDrawer';
 import Dashboard from './_components/dashboard';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 const OKR: React.FC<any> = () => {
   const [open, setOpen] = useState(false);
-  const showDrawer = () => {
-    setOpen(true);
-  };
+  // const showDrawer = () => {
+  //   setOpen(true);
+  // };
   const onClose = () => {
     setOpen(false);
   };

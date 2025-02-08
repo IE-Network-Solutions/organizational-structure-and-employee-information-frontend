@@ -1,6 +1,5 @@
-import { Progress, Dropdown, Menu } from 'antd';
+import { Progress } from 'antd';
 import { FC, useState } from 'react';
-import { IoIosMore } from 'react-icons/io';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
@@ -12,47 +11,47 @@ interface KPIMetricsProps {
   myOkr: boolean;
 }
 
-const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
+const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: deleteKeyResult } = useDeleteKeyResult();
   const { keyResultValue, setKeyResultValue } = useOKRStore();
 
-  const showDeleteModal = () => {
-    setOpenDeleteModal(true);
-    setKeyResultValue(keyResult);
-  };
+  // const showDeleteModal = () => {
+  //   setOpenDeleteModal(true);
+  //   setKeyResultValue(keyResult);
+  // };
 
   const onCloseDeleteModal = () => {
     setOpenDeleteModal(false);
     setKeyResultValue([]);
   };
 
-  const showDrawer = () => {
-    setOpen(true);
-    setKeyResultValue(keyResult);
-  };
+  // const showDrawer = () => {
+  //   setOpen(true);
+  //   setKeyResultValue(keyResult);
+  // };
 
   const onClose = () => {
     setOpen(false);
   };
 
-  const menu = (
-    <Menu
-      items={[
-        {
-          key: '1',
-          label: 'Edit',
-          onClick: showDrawer,
-        },
-        {
-          key: '2',
-          label: 'Delete',
-          onClick: showDeleteModal,
-        },
-      ]}
-    />
-  );
+  // const menu = (
+  //   <Menu
+  //     items={[
+  //       {
+  //         key: '1',
+  //         label: 'Edit',
+  //         onClick: showDrawer,
+  //       },
+  //       {
+  //         key: '2',
+  //         label: 'Delete',
+  //         onClick: showDeleteModal,
+  //       },
+  //     ]}
+  //   />
+  // );
   function handleKeyResultDelete(id: string) {
     deleteKeyResult(id, {
       onSuccess: () => {
