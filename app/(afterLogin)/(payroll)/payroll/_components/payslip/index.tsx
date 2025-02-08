@@ -82,7 +82,7 @@ const PaySlip = ({ data }: { data: any[] }) => {
         const emailData = {
           from: 'selamnew@ienetworksolutions.com',
           replyTo: 'selamnew@ienetworksolutions.com',
-          to: employeeData?.employeeInfo?.email,
+          to:"surafel@ienetworks.co",
           subject: 'Your Pay Slip',
           html: `<h1>Pay Slip</h1><p>Dear ${employeeData?.firstName},</p><p>Thank you for being with us.</p>`,
           cc: [],
@@ -106,7 +106,6 @@ const PaySlip = ({ data }: { data: any[] }) => {
     }
     setLoading(false);
   };
-
   return (
     <>
       <Button
