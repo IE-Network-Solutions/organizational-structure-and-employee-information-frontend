@@ -382,7 +382,7 @@ const Payroll = () => {
         ) as Payroll | undefined;
 
         return {
-          employeeName: `${employee.firstName || ''} ${employee.lastName || ''}`,
+          employeeName: `${employee.firstName || ''} ${employee.middleName || ''} ${employee.lastName || ''}`,
           email: employee.email || '--',
           accountNumber:
             employee.employeeInformation?.bankInformation?.accountNumber ||
