@@ -20,6 +20,7 @@ const nextConfig = {
     APPROVER_URL: process.env.NEXT_PUBLIC_APPROVERS_URL,
     OKR_URL: process.env.OKR_URL,
     ORG_DEV: process.env.ORG_DEV,
+    EMAIL_URL: process.env.EMAIL_URL,
   },
 };
 
