@@ -106,7 +106,6 @@ const PaySlip = ({ data }: { data: any[] }) => {
     }
     setLoading(false);
   };
-console.log(data,"datadatadata")
   return (
     <>
       <Button
