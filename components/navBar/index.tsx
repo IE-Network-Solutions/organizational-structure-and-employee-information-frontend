@@ -167,6 +167,7 @@ const menuItems: MenuProps['items'] = [
       //   className: 'font-bold',
       // },
       { key: '/payroll', label: 'Payroll', className: 'font-bold' },
+      { key: '/payslip', label: 'Payslip', className: 'font-bold' },
       {
         key: '/settings',
         label: 'Settings',
