@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 
-const page = () => {
+const Page = () => {
   const { userId } = useAuthenticationStore();
   const [employeeData, setEmployeeDataPayroll] = useState<any>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -523,4 +523,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

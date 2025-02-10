@@ -389,7 +389,9 @@ const Payroll = () => {
             '--',
           bankName:
             employee.employeeInformation?.bankInformation?.bankName || '--',
-          netPay: payroll?.netPay?Number(payroll?.netPay)?.toLocaleString() : '--', // Ensure a fallback value
+          netPay: payroll?.netPay
+            ? Number(payroll?.netPay)?.toLocaleString()
+            : '--', // Ensure a fallback value
         };
       });
 
