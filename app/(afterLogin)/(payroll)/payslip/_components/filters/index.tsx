@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Row, Select } from 'antd';
-import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
   useGetActivePayroll,
   useGetPayPeriod,
@@ -15,41 +13,10 @@ interface FiltersProps {
 }
 
 const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
-  const { data: getAllFiscalYears } = useGetAllFiscalYears();
-  const { data: employeeData } = useGetAllUsers();
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: payroll } = useGetActivePayroll();
 
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
-  const [fiscalYears, setFiscalYears] = useState<any[]>([]);
-  const [sessions, setSessions] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (getAllFiscalYears) {
-      setFiscalYears(getAllFiscalYears.items || []);
-
-      const activeFiscalYear = getAllFiscalYears.items.find(
-        (year: any) => year.active,
-      );
-      if (activeFiscalYear) {
-        const activeSession = activeFiscalYear.sessions?.find(
-          (session) => session.active,
-        );
-        const activeMonth = activeSession?.months?.find(
-          (month) => month.active,
-        );
-
-        setSearchValue((prev) => ({
-          ...prev,
-          yearId: activeFiscalYear.id || '',
-          sessionId: activeSession?.id || '',
-          monthId: activeMonth?.id || '',
-        }));
-
-        setSessions(activeFiscalYear.sessions || []);
-      }
-    }
-  }, [getAllFiscalYears, employeeData]);
 
   useEffect(() => {
     if (payroll?.payrolls.length > 0) {

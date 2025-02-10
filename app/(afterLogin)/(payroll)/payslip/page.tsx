@@ -2,19 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import Filters from './_components/filters';
 import { useGetActivePayroll } from '@/store/server/features/payroll/payroll/queries';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import dayjs from 'dayjs';
-import { auth } from '@/utils/firebaseConfig';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 
 const page = () => {
   const { userId } = useAuthenticationStore();
   const [employeeData, setEmployeeDataPayroll] = useState<any>([]);
-
   const [searchQuery, setSearchQuery] = useState('');
-  const [payPeriodQuery, setPayPeriodQuery] = useState('');
-  const [payPeriodId, setPayPeriodId] = useState('');
   const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
   const { data: currentUser } = useGetEmployee(userId);
 
@@ -39,11 +34,7 @@ const page = () => {
     const queryParams = new URLSearchParams();
     if (searchValues?.payPeriodId) {
       queryParams.append('payPeriodId', searchValues.payPeriodId);
-      const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-      setPayPeriodQuery(query);
-      setPayPeriodId(searchValues.payPeriodId);
     }
-
     const searchParams = queryParams.toString()
       ? `?${queryParams.toString()}`
       : '';
@@ -51,7 +42,6 @@ const page = () => {
     refetch();
   };
 
-  console.log('-------employeeData--------', employeeData);
   return (
     <div>
       {' '}
