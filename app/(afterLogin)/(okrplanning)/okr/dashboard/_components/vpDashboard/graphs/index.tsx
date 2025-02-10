@@ -28,7 +28,7 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
 
   const activeMonthIds = getActiveSessionMonthIds(activeCalender);
   const { data: variablePay } = useGetCriteriaByFilter(
-    { activeMonthIds, identifier },
+    { activeMonthIds, userId: identifier },
     searchParams?.selectedRange || '',
   );
 
