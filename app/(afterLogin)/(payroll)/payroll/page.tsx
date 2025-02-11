@@ -10,7 +10,7 @@ import {
   Modal,
   Switch,
 } from 'antd';
-
+import { Workbook } from 'exceljs';
 import Filters from './_components/filters';
 import {
   useGetActivePayroll,
@@ -26,7 +26,20 @@ import { useExportData } from './_components/excel';
 import { useGenerateBankLetter } from './_components/Latter';
 import PaySlip from './_components/payslip';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { saveAs } from 'file-saver';
+interface Deduction {
+  type: string;
+  amount: number | string;
+}
 
+interface Allowance {
+  type: string;
+  amount: number | string;
+}
+interface Merit {
+  type: string;
+  amount: number | string;
+}
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportBank, setExportBank] = useState(true);
@@ -252,7 +265,7 @@ const Payroll = () => {
             ?.basicSalary || 0;
 
         const tax = item.breakdown?.tax?.amount
-          ? item.breakdown.tax.amount?.toLocaleString()
+          ? item.breakdown.tax.amount.toFixed(2)
           : '0.0';
 
         const allowances: Allowance[] = item.breakdown?.allowances || [];
@@ -261,36 +274,36 @@ const Payroll = () => {
 
         const rowData: any = {
           fullName,
-          basicSalary: Number(basicSalary).toLocaleString(),
-          totalAllowance: Number(item.totalAllowance || 0)?.toLocaleString(),
-          totalBenefits: Number(item.totalMerit || 0)?.toLocaleString(),
-          totalDeduction: Number(item.totalDeductions || 0)?.toLocaleString(),
+          basicSalary: Number(basicSalary).toFixed(2),
+          totalAllowance: Number(item.totalAllowance || 0).toFixed(2),
+          totalBenefits: Number(item.totalMerit || 0).toFixed(2),
+          totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
           tax,
-          grossIncome: Number(item.grossSalary || 0)?.toLocaleString(),
+          grossIncome: Number(item.grossSalary || 0).toFixed(2),
           variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(
             2,
           ),
-          netIncome: Number(item.netPay || 0)?.toLocaleString(),
+          netIncome: Number(item.netPay || 0).toFixed(2),
         };
 
         Array.from(uniqueAllowanceTypes).forEach((type) => {
           const allowance = allowances.find((a) => a.type === type);
           rowData[type.replace(/\s+/g, '').toLowerCase()] = allowance
-            ? Number(allowance.amount || 0)?.toLocaleString()
+            ? Number(allowance.amount || 0).toFixed(2)
             : '0';
         });
 
         Array.from(uniqueDeductionTypes).forEach((type) => {
           const deduction = deductions.find((d) => d.type === type);
           rowData[type.replace(/\s+/g, '').toLowerCase()] = deduction
-            ? Number(deduction.amount || 0)?.toLocaleString()
+            ? Number(deduction.amount || 0).toFixed(2)
             : '0';
         });
 
         Array.from(uniquePensionTypes).forEach((type) => {
           const pension = pensions.find((p) => p.type === type);
           rowData[type.replace(/\s+/g, '').toLowerCase()] = pension
-            ? Number(pension.amount || 0)?.toLocaleString()
+            ? Number(pension.amount || 0).toFixed(2)
             : '0';
         });
 
@@ -361,6 +374,175 @@ const Payroll = () => {
     }
   };
 
+  
+
+  const handleDeductionExportPayroll = async () => {
+    if (!mergedPayroll || mergedPayroll.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
+      return;
+    }
+  
+    setLoading(true);
+  
+    try {
+      const uniqueDeductionTypes = new Set<string>();
+      const uniqueAllowanceTypes = new Set<string>();
+      const uniqueMeritTypes = new Set<string>();
+  
+      const deductionData: any[] = [];
+      const allowanceData: any[] = [];
+      const meritData: any[] = [];
+  
+      // Step 1: Collect unique deduction, allowance, and merit types
+      mergedPayroll.forEach((item: any) => {
+        const deductions: Deduction[] = item.breakdown?.totalDeductionWithPension || [];
+        deductions.forEach((deduction) => uniqueDeductionTypes.add(deduction.type));
+  
+        const allowances: Allowance[] = item.breakdown?.allowances || [];
+        allowances.forEach((allowance) => uniqueAllowanceTypes.add(allowance.type));
+  
+        const merits: Merit[] = item.breakdown?.merits || [];
+        merits.forEach((merit) => uniqueMeritTypes.add(merit.type));
+      });
+  
+      // Step 2: Process each payroll entry
+      mergedPayroll.forEach((item: any) => {
+        const fullName =
+          `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() || '--';
+  
+        const deductions: Deduction[] = item.breakdown?.totalDeductionWithPension || [];
+        const allowances: Allowance[] = item.breakdown?.allowances || [];
+        const merits: Merit[] = item.breakdown?.merits || [];
+  
+        // Create row data objects
+        const deductionRow: any = { fullName, totalDeductions: Number(item.totalDeductions || 0).toFixed(2) };
+        const allowanceRow: any = { fullName, totalAllowances: Number(item.totalAllowance || 0).toFixed(2) };
+        const meritRow: any = { fullName, totalMerits: Number(item.totalMerit || 0).toFixed(2) };
+  
+        // Fill deduction amounts
+        uniqueDeductionTypes.forEach((type) => {
+          const deduction = deductions.find((d) => d.type === type);
+          deductionRow[type.replace(/\s+/g, '').toLowerCase()] = deduction ? Number(deduction.amount).toFixed(2) : '0.00';
+        });
+  
+        // Fill allowance amounts
+        uniqueAllowanceTypes.forEach((type) => {
+          const allowance = allowances.find((a) => a.type === type);
+          allowanceRow[type.replace(/\s+/g, '').toLowerCase()] = allowance ? Number(allowance.amount).toFixed(2) : '0.00';
+        });
+  
+        // Fill merit amounts
+        uniqueMeritTypes.forEach((type) => {
+          const merit = merits.find((m) => m.type === type);
+          meritRow[type.replace(/\s+/g, '').toLowerCase()] = merit ? Number(merit.amount).toFixed(2) : '0.00';
+        });
+  
+        deductionData.push(deductionRow);
+        allowanceData.push(allowanceRow);
+        meritData.push(meritRow);
+      });
+  
+      if (deductionData.length === 0 && allowanceData.length === 0 && meritData.length === 0) {
+        notification.error({
+          message: 'No Formatted Data',
+          description: 'Formatted payroll data is empty. No data to export.',
+        });
+        return;
+      }
+  
+      // Step 3: Initialize Excel Workbook
+      const workbook = new Workbook();
+  
+      // Helper function to create sheets
+      const createSheet = (sheetName: string, data: any[], uniqueTypes: Set<string>, totalKey: string) => {
+        const sheet = workbook.addWorksheet(sheetName);
+      
+        // Define headers
+        const headers = [
+          { header: 'Full Name', key: 'fullName' },
+          ...Array.from(uniqueTypes).map((type) => ({
+            header: type,
+            key: type.replace(/\s+/g, '').toLowerCase(),
+          })),
+          { header: `Total ${sheetName}`, key: totalKey },
+        ];
+      
+        sheet.columns = headers.map((col) => ({
+          header: col.header,
+          key: col.key,
+          width: col.header ? col.header.length + 2 : 10, 
+        }));
+      
+        data.forEach((row) => {
+          sheet.addRow(row);
+        });
+      
+        const headerRow = sheet.getRow(1);
+        headerRow.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF3498DB' }, // Blue background color (#3498db)
+          };
+          cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; // White text
+          cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        });
+        
+        // Set the height of the header row
+        headerRow.height = 30; // You can adjust this value to your preference
+      
+        // Adjust column width based on content length
+        sheet.columns.forEach((column) => {
+          let maxLength = 10; // Start with a minimum width of 10
+          if (column.header && typeof column.header === 'string') {
+            maxLength = column.header.length + 2; // Start with header length if it's a string
+          }
+          column.eachCell?.({ includeEmpty: true }, (cell) => {
+            if (cell.value) {
+              const cellValueLength = cell.value.toString().length;
+              maxLength = Math.max(maxLength, cellValueLength);
+            }
+          });
+          column.width = maxLength + 2; // Add some padding
+        });
+      
+        return sheet;
+      };
+      
+  
+      // Step 4: Create and populate sheets
+      createSheet('Deductions', deductionData, uniqueDeductionTypes, 'totalDeductions');
+      createSheet('Allowances', allowanceData, uniqueAllowanceTypes, 'totalAllowances');
+      createSheet('Merits', meritData, uniqueMeritTypes, 'totalMerits');
+  
+      // Step 5: Export to Excel
+      const buffer = await workbook.xlsx.writeBuffer();
+      const fileName = `Payroll_Deduction_Allowance_Merit_Export.xlsx`;
+  
+      saveAs(new Blob([buffer], { type: 'application/octet-stream' }), fileName);
+  
+      notification.success({
+        message: 'Export Successful',
+        description: 'Payroll data exported successfully!',
+      });
+  
+    } catch (error) {
+      notification.error({
+        message: 'Error Exporting Data',
+        description: `An error occurred while exporting data: ${error}`,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+  
+  
+  
   type Payroll = {
     employeeId: string;
     netPay: number;
@@ -389,9 +571,7 @@ const Payroll = () => {
             '--',
           bankName:
             employee.employeeInformation?.bankInformation?.bankName || '--',
-          netPay: payroll?.netPay
-            ? Number(payroll?.netPay)?.toLocaleString()
-            : '--', // Ensure a fallback value
+          netPay: payroll?.netPay ?? '--', // Ensure a fallback value
         };
       });
 
@@ -556,7 +736,13 @@ const Payroll = () => {
           >
             Export Payroll
           </Button>
-
+          <Button
+            type="default"
+            className="text-white bg-violet-500 border-none p-6"
+            onClick={handleDeductionExportPayroll}
+          >
+            Export Deductions
+          </Button>
           <Popconfirm
             title="Are you sure you want to delete the payroll?"
             onConfirm={handleDeletePayroll}
