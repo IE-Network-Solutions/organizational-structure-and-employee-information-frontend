@@ -252,7 +252,7 @@ const Payroll = () => {
             ?.basicSalary || 0;
 
         const tax = item.breakdown?.tax?.amount
-          ? item.breakdown.tax.amount.toFixed(2)
+          ? item.breakdown.tax.amount?.toLocaleString()
           : '0.0';
 
         const allowances: Allowance[] = item.breakdown?.allowances || [];
@@ -261,36 +261,36 @@ const Payroll = () => {
 
         const rowData: any = {
           fullName,
-          basicSalary: Number(basicSalary).toFixed(2),
-          totalAllowance: Number(item.totalAllowance || 0).toFixed(2),
-          totalBenefits: Number(item.totalMerit || 0).toFixed(2),
-          totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
+          basicSalary: Number(basicSalary).toLocaleString(),
+          totalAllowance: Number(item.totalAllowance || 0)?.toLocaleString(),
+          totalBenefits: Number(item.totalMerit || 0)?.toLocaleString(),
+          totalDeduction: Number(item.totalDeductions || 0)?.toLocaleString(),
           tax,
-          grossIncome: Number(item.grossSalary || 0).toFixed(2),
+          grossIncome: Number(item.grossSalary || 0)?.toLocaleString(),
           variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(
             2,
           ),
-          netIncome: Number(item.netPay || 0).toFixed(2),
+          netIncome: Number(item.netPay || 0)?.toLocaleString(),
         };
 
         Array.from(uniqueAllowanceTypes).forEach((type) => {
           const allowance = allowances.find((a) => a.type === type);
           rowData[type.replace(/\s+/g, '').toLowerCase()] = allowance
-            ? Number(allowance.amount || 0).toFixed(2)
+            ? Number(allowance.amount || 0)?.toLocaleString()
             : '0';
         });
 
         Array.from(uniqueDeductionTypes).forEach((type) => {
           const deduction = deductions.find((d) => d.type === type);
           rowData[type.replace(/\s+/g, '').toLowerCase()] = deduction
-            ? Number(deduction.amount || 0).toFixed(2)
+            ? Number(deduction.amount || 0)?.toLocaleString()
             : '0';
         });
 
         Array.from(uniquePensionTypes).forEach((type) => {
           const pension = pensions.find((p) => p.type === type);
           rowData[type.replace(/\s+/g, '').toLowerCase()] = pension
-            ? Number(pension.amount || 0).toFixed(2)
+            ? Number(pension.amount || 0)?.toLocaleString()
             : '0';
         });
 
@@ -480,7 +480,9 @@ const Payroll = () => {
             '--',
           bankName:
             employee.employeeInformation?.bankInformation?.bankName || '--',
-          netPay: payroll?.netPay ?? '--', // Ensure a fallback value
+          netPay: payroll?.netPay
+            ? Number(payroll?.netPay)?.toLocaleString()
+            : '--', // Ensure a fallback value
         };
       });
 

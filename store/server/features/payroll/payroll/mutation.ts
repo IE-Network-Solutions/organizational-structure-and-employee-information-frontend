@@ -1,7 +1,7 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { PAYROLL_URL } from '@/utils/constants';
+import { EMAIL_URL, PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -92,7 +92,7 @@ const sendEmail = async (values: any) => {
 
   try {
     await crudRequest({
-      url: `https://test-email-service.ienetworks.co/api/v1/email`,
+      url: `${EMAIL_URL}/email`,
       method: 'POST',
       data: values,
       headers: {

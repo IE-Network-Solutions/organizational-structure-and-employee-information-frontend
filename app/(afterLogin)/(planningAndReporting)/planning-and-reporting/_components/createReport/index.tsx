@@ -17,6 +17,7 @@ import {
 import {
   AllPlanningPeriods,
   useGetPlannedTaskForReport,
+  useGetPlanningPeriodsHierarchy,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { useCreateReportForUnReportedtasks } from '@/store/server/features/okrPlanningAndReporting/mutations';
@@ -24,6 +25,7 @@ import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
 import { FaStar } from 'react-icons/fa';
 import { MdKey } from 'react-icons/md';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 const { Text } = Typography;
 
 const { TextArea } = Input;
@@ -124,6 +126,14 @@ function CreateReport() {
       }, 0)
     );
   }, 0);
+  const { userId } = useAuthenticationStore();
+  const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
+    userId,
+    planningPeriodId || '', // Provide a default string value if undefined
+  );
+  const parentParentId = planningPeriodHierarchy?.parentPlan?.plans?.find(
+    (i: any) => i.isReported === false,
+  )?.id;
   return (
     openReportModal && (
       <CustomDrawerLayout
@@ -316,7 +326,8 @@ function CreateReport() {
                                           keyresult?.metricType?.name !==
                                             NAME.ACHIEVE &&
                                           keyresult?.metricType?.name !==
-                                            NAME.MILESTONE && (
+                                            NAME.MILESTONE &&
+                                          !parentParentId && (
                                             <Form.Item
                                               key={`${task.taskId}-actualValue`}
                                               name={[
@@ -617,7 +628,8 @@ function CreateReport() {
                                   keyresult?.metricType?.name !==
                                     NAME.ACHIEVE &&
                                   keyresult?.metricType?.name !==
-                                    NAME.MILESTONE && (
+                                    NAME.MILESTONE &&
+                                  !parentParentId && (
                                     <Form.Item
                                       key={`${task.taskId}-actualValue`}
                                       name={[task.taskId, 'actualValue']}

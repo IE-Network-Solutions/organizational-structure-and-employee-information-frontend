@@ -11,12 +11,17 @@ import { useVariablePayStore } from '@/store/uistate/features/okrplanning/VP';
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-const CriteriaCard: React.FC = () => {
+interface CriteriaCardProps {
+  id?: string;
+}
+const CriteriaCard: React.FC<CriteriaCardProps> = ({ id }) => {
   const { cardsPerPage, visibleIndex, setVisibleIndex } = useVariablePayStore();
 
   const userId = useAuthenticationStore.getState().userId;
+  const identifier = id ?? userId;
+
   const { data: criteriaCardData, isLoading: isResponseLoading } =
-    useGetVPScore(userId);
+    useGetVPScore(identifier);
 
   const scrollNext = () => {
     if (visibleIndex + cardsPerPage < criteriaCardData?.criteria?.length) {
