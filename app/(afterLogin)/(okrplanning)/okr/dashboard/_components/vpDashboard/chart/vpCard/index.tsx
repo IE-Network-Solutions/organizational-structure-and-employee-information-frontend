@@ -8,9 +8,15 @@ import { AiOutlineReload } from 'react-icons/ai';
 import { GoArrowDown, GoArrowUp } from 'react-icons/go';
 
 const { Title } = Typography;
-const VPPayCard: React.FC = () => {
+interface PayCardInterface {
+  id?: string;
+}
+const VPPayCard: React.FC<PayCardInterface> = ({ id }) => {
   const userId = useAuthenticationStore.getState().userId;
-  const { data: vpScore, isLoading: isResponseLoading } = useGetVPScore(userId);
+  const identifier = id ?? userId;
+
+  const { data: vpScore, isLoading: isResponseLoading } =
+    useGetVPScore(identifier);
 
   const {
     isLoading: isUpdatedLoading,
