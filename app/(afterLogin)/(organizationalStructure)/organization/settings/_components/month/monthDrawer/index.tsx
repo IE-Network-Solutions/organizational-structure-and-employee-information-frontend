@@ -4,7 +4,7 @@ import { Button, Col, DatePicker, Form, Input, Row, Spin } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 interface DrawerProps {
   form: FormInstance<any> | undefined;
@@ -19,7 +19,7 @@ const classifyMonths = (
   calendarType: string,
 ) => {
   /* eslint-disable-next-line @typescript-eslint/naming-convention */
-  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const months = useMemo(() => Array.from({ length: 12 }, (_, i) => i + 1), []);
   /* eslint-enable @typescript-eslint/naming-convention */
 
   const sections: { [key: number]: number[] } = {};
@@ -58,6 +58,8 @@ const MonthDrawer: React.FC<DrawerProps> = ({
 
   const { data: departments } = useGetDepartments();
 
+  console.log(selectedFiscalYear, 'selectedFiscalYear');
+
   const fiscalStart = fiscalYearStart ? fiscalYearStart.toDate() : new Date();
   const fiscalEnd = fiscalYearEnd ? fiscalYearEnd.toDate() : new Date();
 
@@ -75,6 +77,8 @@ const MonthDrawer: React.FC<DrawerProps> = ({
       return `Month ${index + 1}`;
     }
   };
+
+  console.log(fiscalYearStart, fiscalYearEnd, 'gfshdfsdhfgshd');
 
   const getMonthStartEndDates = (month: number) => {
     const fiscalStarts = dayjs(fiscalStart);
@@ -101,6 +105,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
       setCalendarType(inferredCalendarType);
 
       let updatedMonthData: Array<any> = [];
+      console.log(updatedMonthData, 'endMonthstartMonth');
 
       if (inferredCalendarType === 'Year') {
         updatedMonthData = sessions.flatMap(
@@ -173,6 +178,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
               {months.map((month, index) => {
                 const { startDate, endDate } = getMonthStartEndDates(month);
                 const monthName = `Month-${month}`;
+                console.log('first', startDate, endDate);
                 return (
                   <React.Fragment key={month}>
                     <Form.Item

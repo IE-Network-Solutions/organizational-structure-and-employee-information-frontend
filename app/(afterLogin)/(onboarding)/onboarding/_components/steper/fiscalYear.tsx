@@ -21,6 +21,8 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
     setFiscalYearFormValues,
     selectedFiscalYear,
     isEditMode,
+    closeFiscalYearDrawer,
+    setEditMode,
   } = useFiscalYearDrawerStore();
 
   const { data: activeCalendar } = useGetActiveFiscalYears();
@@ -28,6 +30,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
 
   //  =========> START DATE AND END DATE VALIDATION AREA <============
   /* eslint-disable-next-line @typescript-eslint/naming-convention */
+
   const validateStartDate = (_: any, value: any) => {
     /* eslint-enable @typescript-eslint/naming-convention */
     if (!value) {
@@ -80,6 +83,9 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
   const handleClose = () => {
     setSelectedFiscalYear(null);
     setCalendarType('');
+    closeFiscalYearDrawer();
+    setEditMode(false);
+    form.resetFields();
   };
 
   const handleValuesChange = (val: string) => setCalendarType(val);
@@ -103,7 +109,6 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
       } else if (sessionCount === 1) {
         calendarType = 'Year';
       }
-
       setCalendarType(calendarType);
 
       form.setFieldsValue({
@@ -114,7 +119,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
         fiscalYearDescription: dayjs(selectedFiscalYear?.description),
       });
     }
-  }, [selectedFiscalYear, isEditMode, form]);
+  }, [selectedFiscalYear, form]);
 
   return (
     <Form form={form} layout="vertical">
@@ -188,6 +193,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
             placeholder="Select Calendar"
             className="h-12 w-full font-normal text-xl mt-2"
             onChange={(value) => handleValuesChange(value)}
+            disabled={isEditMode}
           >
             <Select.Option value="Quarter">Quarter</Select.Option>
             <Select.Option value="Semester">Semester</Select.Option>
