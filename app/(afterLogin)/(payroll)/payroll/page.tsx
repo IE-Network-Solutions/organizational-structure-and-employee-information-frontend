@@ -69,7 +69,6 @@ const Payroll = () => {
     }
   }, [payroll, allEmployees]);
 
-
   useEffect(() => {
     if (isCreatePayrollSuccess) {
       notification.success({

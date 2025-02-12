@@ -33,7 +33,6 @@ const EmployeeProfile = () => {
   const params = useParams();
   const empId = params?.id as string;
 
-  console.log(payPeriodData, 'payPeriodData');
   const { data: employee } = useGetEmployee(empId);
   const { data: payroll } = useGetActivePayroll();
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
@@ -142,8 +141,8 @@ const EmployeeProfile = () => {
 
               <TabPane tab="Payroll History" key="2">
                 <>
-                  {payPeriodData?.map((period: any) => (
-                    <Collapse size="large" className="m-4 p-4">
+                  {payPeriodData?.map((period: any, index: any) => (
+                    <Collapse size="large" className="m-4 p-4" key={index}>
                       <Collapse.Panel
                         key={period.id}
                         header={` ${dayjs(period.startDate).format('YYYY-MMM-DD')} to ${dayjs(period.endDate).format('YYYY-MMM-DD')}`}
