@@ -69,6 +69,8 @@ const Payroll = () => {
     }
   }, [payroll, allEmployees]);
 
+  console.log('--------------mergedData--------------', mergedPayroll);
+
   useEffect(() => {
     if (isCreatePayrollSuccess) {
       notification.success({
