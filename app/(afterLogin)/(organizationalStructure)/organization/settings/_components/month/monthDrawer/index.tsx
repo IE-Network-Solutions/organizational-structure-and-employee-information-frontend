@@ -4,7 +4,7 @@ import { Button, Col, DatePicker, Form, Input, Row, Spin } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 
 interface DrawerProps {
   form: FormInstance<any> | undefined;
@@ -19,7 +19,7 @@ const classifyMonths = (
   calendarType: string,
 ) => {
   /* eslint-disable-next-line @typescript-eslint/naming-convention */
-  const months = useMemo(() => Array.from({ length: 12 }, (_, i) => i + 1), []);
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
   /* eslint-enable @typescript-eslint/naming-convention */
 
   const sections: { [key: number]: number[] } = {};
@@ -29,7 +29,7 @@ const classifyMonths = (
   else if (calendarType === 'Semester') sectionSize = 6;
   else sectionSize = 12;
 
-  months.forEach((month, index) => {
+  months.forEach((month: any, index: any) => {
     const section = Math.floor(index / sectionSize) + 1;
     if (!sections[section]) sections[section] = [];
     sections[section].push(month);

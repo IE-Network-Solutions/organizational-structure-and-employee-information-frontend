@@ -30,7 +30,6 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
 
   //  =========> START DATE AND END DATE VALIDATION AREA <============
   /* eslint-disable-next-line @typescript-eslint/naming-convention */
-
   const validateStartDate = (_: any, value: any) => {
     /* eslint-enable @typescript-eslint/naming-convention */
     if (!value) {
