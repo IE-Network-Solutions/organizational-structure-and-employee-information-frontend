@@ -374,8 +374,6 @@ const Payroll = () => {
     }
   };
 
-  
-
   const handleDeductionExportPayroll = async () => {
     if (!mergedPayroll || mergedPayroll.length === 0) {
       notification.error({
@@ -384,82 +382,113 @@ const Payroll = () => {
       });
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
       const uniqueDeductionTypes = new Set<string>();
       const uniqueAllowanceTypes = new Set<string>();
       const uniqueMeritTypes = new Set<string>();
-  
+
       const deductionData: any[] = [];
       const allowanceData: any[] = [];
       const meritData: any[] = [];
-  
+
       // Step 1: Collect unique deduction, allowance, and merit types
       mergedPayroll.forEach((item: any) => {
-        const deductions: Deduction[] = item.breakdown?.totalDeductionWithPension || [];
-        deductions.forEach((deduction) => uniqueDeductionTypes.add(deduction.type));
-  
+        const deductions: Deduction[] =
+          item.breakdown?.totalDeductionWithPension || [];
+        deductions.forEach((deduction) =>
+          uniqueDeductionTypes.add(deduction.type),
+        );
+
         const allowances: Allowance[] = item.breakdown?.allowances || [];
-        allowances.forEach((allowance) => uniqueAllowanceTypes.add(allowance.type));
-  
+        allowances.forEach((allowance) =>
+          uniqueAllowanceTypes.add(allowance.type),
+        );
+
         const merits: Merit[] = item.breakdown?.merits || [];
         merits.forEach((merit) => uniqueMeritTypes.add(merit.type));
       });
-  
+
       // Step 2: Process each payroll entry
       mergedPayroll.forEach((item: any) => {
         const fullName =
-          `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() || '--';
-  
-        const deductions: Deduction[] = item.breakdown?.totalDeductionWithPension || [];
+          `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
+          '--';
+
+        const deductions: Deduction[] =
+          item.breakdown?.totalDeductionWithPension || [];
         const allowances: Allowance[] = item.breakdown?.allowances || [];
         const merits: Merit[] = item.breakdown?.merits || [];
-  
+
         // Create row data objects
-        const deductionRow: any = { fullName, totalDeductions: Number(item.totalDeductions || 0).toFixed(2) };
-        const allowanceRow: any = { fullName, totalAllowances: Number(item.totalAllowance || 0).toFixed(2) };
-        const meritRow: any = { fullName, totalMerits: Number(item.totalMerit || 0).toFixed(2) };
-  
+        const deductionRow: any = {
+          fullName,
+          totalDeductions: Number(item.totalDeductions || 0).toFixed(2),
+        };
+        const allowanceRow: any = {
+          fullName,
+          totalAllowances: Number(item.totalAllowance || 0).toFixed(2),
+        };
+        const meritRow: any = {
+          fullName,
+          totalMerits: Number(item.totalMerit || 0).toFixed(2),
+        };
+
         // Fill deduction amounts
         uniqueDeductionTypes.forEach((type) => {
           const deduction = deductions.find((d) => d.type === type);
-          deductionRow[type.replace(/\s+/g, '').toLowerCase()] = deduction ? Number(deduction.amount).toFixed(2) : '0.00';
+          deductionRow[type.replace(/\s+/g, '').toLowerCase()] = deduction
+            ? Number(deduction.amount).toFixed(2)
+            : '0.00';
         });
-  
+
         // Fill allowance amounts
         uniqueAllowanceTypes.forEach((type) => {
           const allowance = allowances.find((a) => a.type === type);
-          allowanceRow[type.replace(/\s+/g, '').toLowerCase()] = allowance ? Number(allowance.amount).toFixed(2) : '0.00';
+          allowanceRow[type.replace(/\s+/g, '').toLowerCase()] = allowance
+            ? Number(allowance.amount).toFixed(2)
+            : '0.00';
         });
-  
+
         // Fill merit amounts
         uniqueMeritTypes.forEach((type) => {
           const merit = merits.find((m) => m.type === type);
-          meritRow[type.replace(/\s+/g, '').toLowerCase()] = merit ? Number(merit.amount).toFixed(2) : '0.00';
+          meritRow[type.replace(/\s+/g, '').toLowerCase()] = merit
+            ? Number(merit.amount).toFixed(2)
+            : '0.00';
         });
-  
+
         deductionData.push(deductionRow);
         allowanceData.push(allowanceRow);
         meritData.push(meritRow);
       });
-  
-      if (deductionData.length === 0 && allowanceData.length === 0 && meritData.length === 0) {
+
+      if (
+        deductionData.length === 0 &&
+        allowanceData.length === 0 &&
+        meritData.length === 0
+      ) {
         notification.error({
           message: 'No Formatted Data',
           description: 'Formatted payroll data is empty. No data to export.',
         });
         return;
       }
-  
+
       // Step 3: Initialize Excel Workbook
       const workbook = new Workbook();
-  
+
       // Helper function to create sheets
-      const createSheet = (sheetName: string, data: any[], uniqueTypes: Set<string>, totalKey: string) => {
+      const createSheet = (
+        sheetName: string,
+        data: any[],
+        uniqueTypes: Set<string>,
+        totalKey: string,
+      ) => {
         const sheet = workbook.addWorksheet(sheetName);
-      
+
         // Define headers
         const headers = [
           { header: 'Full Name', key: 'fullName' },
@@ -469,17 +498,17 @@ const Payroll = () => {
           })),
           { header: `Total ${sheetName}`, key: totalKey },
         ];
-      
+
         sheet.columns = headers.map((col) => ({
           header: col.header,
           key: col.key,
-          width: col.header ? col.header.length + 2 : 10, 
+          width: col.header ? col.header.length + 2 : 10,
         }));
-      
+
         data.forEach((row) => {
           sheet.addRow(row);
         });
-      
+
         const headerRow = sheet.getRow(1);
         headerRow.eachCell((cell) => {
           cell.fill = {
@@ -490,10 +519,10 @@ const Payroll = () => {
           cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; // White text
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
-        
+
         // Set the height of the header row
         headerRow.height = 30; // You can adjust this value to your preference
-      
+
         // Adjust column width based on content length
         sheet.columns.forEach((column) => {
           let maxLength = 10; // Start with a minimum width of 10
@@ -508,27 +537,38 @@ const Payroll = () => {
           });
           column.width = maxLength + 2; // Add some padding
         });
-      
+
         return sheet;
       };
-      
-  
+
       // Step 4: Create and populate sheets
-      createSheet('Deductions', deductionData, uniqueDeductionTypes, 'totalDeductions');
-      createSheet('Allowances', allowanceData, uniqueAllowanceTypes, 'totalAllowances');
+      createSheet(
+        'Deductions',
+        deductionData,
+        uniqueDeductionTypes,
+        'totalDeductions',
+      );
+      createSheet(
+        'Allowances',
+        allowanceData,
+        uniqueAllowanceTypes,
+        'totalAllowances',
+      );
       createSheet('Merits', meritData, uniqueMeritTypes, 'totalMerits');
-  
+
       // Step 5: Export to Excel
       const buffer = await workbook.xlsx.writeBuffer();
       const fileName = `Payroll_Deduction_Allowance_Merit_Export.xlsx`;
-  
-      saveAs(new Blob([buffer], { type: 'application/octet-stream' }), fileName);
-  
+
+      saveAs(
+        new Blob([buffer], { type: 'application/octet-stream' }),
+        fileName,
+      );
+
       notification.success({
         message: 'Export Successful',
         description: 'Payroll data exported successfully!',
       });
-  
     } catch (error) {
       notification.error({
         message: 'Error Exporting Data',
@@ -538,11 +578,7 @@ const Payroll = () => {
       setLoading(false);
     }
   };
-  
-  
-  
-  
-  
+
   type Payroll = {
     employeeId: string;
     netPay: number;

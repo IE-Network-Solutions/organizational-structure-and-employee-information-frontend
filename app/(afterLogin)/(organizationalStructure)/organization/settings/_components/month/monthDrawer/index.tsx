@@ -58,8 +58,6 @@ const MonthDrawer: React.FC<DrawerProps> = ({
 
   const { data: departments } = useGetDepartments();
 
-  console.log(selectedFiscalYear, 'selectedFiscalYear');
-
   const fiscalStart = fiscalYearStart ? fiscalYearStart.toDate() : new Date();
   const fiscalEnd = fiscalYearEnd ? fiscalYearEnd.toDate() : new Date();
 
@@ -77,8 +75,6 @@ const MonthDrawer: React.FC<DrawerProps> = ({
       return `Month ${index + 1}`;
     }
   };
-
-  console.log(fiscalYearStart, fiscalYearEnd, 'gfshdfsdhfgshd');
 
   const getMonthStartEndDates = (month: number) => {
     const fiscalStarts = dayjs(fiscalStart);
@@ -105,7 +101,6 @@ const MonthDrawer: React.FC<DrawerProps> = ({
       setCalendarType(inferredCalendarType);
 
       let updatedMonthData: Array<any> = [];
-      console.log(updatedMonthData, 'endMonthstartMonth');
 
       if (inferredCalendarType === 'Year') {
         updatedMonthData = sessions.flatMap(
@@ -178,7 +173,6 @@ const MonthDrawer: React.FC<DrawerProps> = ({
               {months.map((month, index) => {
                 const { startDate, endDate } = getMonthStartEndDates(month);
                 const monthName = `Month-${month}`;
-                console.log('first', startDate, endDate);
                 return (
                   <React.Fragment key={month}>
                     <Form.Item
