@@ -40,11 +40,8 @@ const Payroll = () => {
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsers();
 
-  const {
-    mutate: createPayroll,
-    isLoading: isCreatingPayroll,
-    isSuccess: isCreatePayrollSuccess,
-  } = useCreatePayroll();
+  const { mutate: createPayroll, isLoading: isCreatingPayroll } =
+    useCreatePayroll();
 
   const { exportToExcel } = useExportData();
   const { generateBankLetter } = useGenerateBankLetter();
