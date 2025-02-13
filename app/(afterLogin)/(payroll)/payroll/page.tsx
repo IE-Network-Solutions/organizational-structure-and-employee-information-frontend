@@ -69,15 +69,6 @@ const Payroll = () => {
     }
   }, [payroll, allEmployees]);
 
-  useEffect(() => {
-    if (isCreatePayrollSuccess) {
-      notification.success({
-        message: 'Payroll Generated',
-        description: 'Payroll has been successfully generated.',
-      });
-    }
-  }, [isCreatePayrollSuccess, payroll, employeeInfo]);
-
   const handleExportAll = async () => {
     const exportTasks = [];
 

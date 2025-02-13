@@ -1,130 +1,164 @@
-import { Space, Typography, Divider, Button } from 'antd';
-import { PrinterOutlined } from '@ant-design/icons';
+import { Space, Typography, Divider } from 'antd';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
-const PayrollDetails = ({ mergedPayroll }: any) => {
-  const totalAmount = (items: any) =>
-    items
-      ?.reduce((total: any, item: any) => total + parseFloat(item.amount), 0)
-      .toFixed(2) || '0.00';
-
-  //   console.log('-------------mergedPayrolls-------------', mergedPayroll);
+const PayrollDetails = ({ activeMergedPayroll }: any) => {
+  
+  if (!activeMergedPayroll) {
+    return <Text type="secondary">No payroll available.</Text>;
+  }
+  const totalAmount = (items: any) => {
+    if (!items || items.length === 0) return '0.00';
+    return items
+      .reduce(
+        (total: number, item: any) => total + parseFloat(item.amount || 0),
+        0,
+      )
+      .toFixed(2);
+  };
 
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <div>
-        <Title level={4}>Payroll Information</Title>
-        <div className="flex gap-6 w-full">
-          <div className="flex flex-col gap-4 w-1/3">
-            <Text>Base Salary:</Text>
-            <Text>Bank Information:</Text>
-            <Text>Branch:</Text>
-            <Text>Account Number:</Text>
+        {/* Total Allowance */}
+        <div>
+          <div className="my-6 text-xl text-gray-600">
+            Total Allowance{' '}
+            {totalAmount(activeMergedPayroll?.breakdown?.allowances)}
           </div>
-          <div className="flex flex-col gap-4 font-bold">
-            <Text>
-              {mergedPayroll?.employeeInfo?.basicSalaries[0]?.basicSalary}
-            </Text>
-            <Text>
-              {
-                mergedPayroll?.employeeInfo?.employeeInformation
-                  ?.bankInformation?.bankName
-              }
-            </Text>
-            <Text>
-              {
-                mergedPayroll?.employeeInfo?.employeeJobInformation[0]?.branch
-                  ?.name
-              }
-            </Text>
-            <Text>
-              {
-                mergedPayroll?.employeeInfo?.employeeInformation
-                  ?.bankInformation?.accountNumber
-              }
-            </Text>
-          </div>
-        </div>
-      </div>
-
-      <Divider />
-      <div>
-        <div className="flex justify-between">
-          <Title level={4}>December Pay Slip</Title>
-          <Button
-            type="primary"
-            icon={<PrinterOutlined />}
-            style={{ marginTop: 12, backgroundColor: '#635BFF' }}
-          >
-            Print
-          </Button>
-        </div>
-        <Divider />
-
-        {['allowances', 'totalDeductionWithPension', 'merits', 'pension'].map(
-          (key) => (
-            <div key={key}>
-              <Title level={5}>
-                {key.replace(/([A-Z])/g, ' $1').trim()}{' '}
-                {totalAmount(mergedPayroll?.breakdown?.[key])}
-              </Title>
-              <div className="flex gap-6 w-full">
-                <div className="flex flex-col gap-4 w-1/3">
-                  {mergedPayroll?.breakdown?.[key]?.map(
-                    (item: any, index: any) => (
-                      <Text key={index}>{item.type}</Text>
-                    ),
-                  )}
-                </div>
-                <div className="flex flex-col gap-4 text-right">
-                  {mergedPayroll?.breakdown?.[key]?.map(
-                    (item: any, index: any) => (
-                      <Text key={index}>
-                        {parseFloat(item.amount).toFixed(2)} ETB
-                      </Text>
-                    ),
-                  )}
-                </div>
-              </div>
-              <Divider />
+          <div className="flex gap-6 w-full">
+            <div className="flex flex-col gap-6 w-1/3 justify-center items-start pl-4 text-gray-600">
+              {activeMergedPayroll?.breakdown?.allowances?.map(
+                (item: any, index: any) => (
+                  <Text className="text-gray-600" key={index}>
+                    {item.type}
+                  </Text>
+                ),
+              )}
             </div>
-          ),
-        )}
+            <div className="flex flex-col gap-6 text-right justify-end items-start ">
+              {activeMergedPayroll?.breakdown?.allowances?.map(
+                (item: any, index: any) => (
+                  <Text className="font-bold" key={index}>
+                    {parseFloat(item.amount).toFixed(2)} ETB
+                  </Text>
+                ),
+              )}
+            </div>
+          </div>
+          <Divider />
+        </div>
 
-        {['tax', 'variablePay'].map((key) => (
-          <div key={key}>
-            <Title level={5}>
-              {key.replace(/([A-Z])/g, ' $1').trim()}{' '}
-              {parseFloat(
-                mergedPayroll?.breakdown?.[key]?.amount || '0',
-              ).toFixed(2)}
-            </Title>
-            <div className="flex gap-6 w-full">
-              <div className="flex flex-col gap-4 w-1/3">
-                <Text>{mergedPayroll?.breakdown?.[key]?.type}</Text>
-              </div>
-              <div className="flex flex-col gap-4 text-right">
-                <Text>
+        {/* Total Benefits */}
+        <div>
+          <div className="my-6 text-xl text-gray-600">
+            Total Benefits{' '}
+            {totalAmount([
+              ...(activeMergedPayroll?.breakdown?.merits || []),
+              ...(activeMergedPayroll?.breakdown?.variablePay
+                ? [
+                    {
+                      amount:
+                        activeMergedPayroll?.breakdown?.variablePay.amount,
+                    },
+                  ]
+                : []),
+            ])}
+          </div>
+          <div className="flex gap-6 w-full">
+            <div className="flex flex-col gap-6 w-1/3 justify-center items-start pl-4">
+              {activeMergedPayroll?.breakdown?.merits?.map(
+                (item: any, index: any) => (
+                  <Text className="text-gray-600" key={index}>
+                    {item.type}
+                  </Text>
+                ),
+              )}
+              {activeMergedPayroll?.breakdown?.variablePay && (
+                <Text className="text-gray-600">
+                  {activeMergedPayroll?.breakdown?.variablePay?.type}
+                </Text>
+              )}
+            </div>
+            <div className="flex flex-col gap-6 text-right justify-end items-start">
+              {activeMergedPayroll?.breakdown?.merits?.map(
+                (item: any, index: any) => (
+                  <Text className="font-bold" key={index}>
+                    {parseFloat(item.amount).toFixed(2)} ETB
+                  </Text>
+                ),
+              )}
+              {activeMergedPayroll?.breakdown?.variablePay && (
+                <Text className="font-bold">
                   {parseFloat(
-                    mergedPayroll?.breakdown?.[key]?.amount || '0',
+                    activeMergedPayroll?.breakdown?.variablePay?.amount || '0',
                   ).toFixed(2)}{' '}
                   ETB
                 </Text>
-              </div>
+              )}
             </div>
-            <Divider />
           </div>
-        ))}
+          <Divider />
+        </div>
 
+        {/* Total Deduction */}
+        <div>
+          <div className="my-6 text-xl text-gray-600">
+            Total Deduction{' '}
+            {totalAmount([
+              ...(activeMergedPayroll?.breakdown?.pension || []),
+              ...(activeMergedPayroll?.breakdown?.totalDeductionWithPension ||
+                []),
+            ])}
+          </div>
+          <div className="flex gap-6 w-full">
+            <div className="flex flex-col gap-6 w-1/3 justify-center items-start pl-4">
+              {activeMergedPayroll?.breakdown?.pension?.map(
+                (item: any, index: any) => (
+                  <Text className="text-gray-600" key={index}>
+                    {item.type}
+                  </Text>
+                ),
+              )}
+              {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
+                (item: any, index: any) => (
+                  <Text className="text-gray-600" key={index}>
+                    {item.type}
+                  </Text>
+                ),
+              )}
+            </div>
+            <div className="flex flex-col gap-6 text-right justify-end items-start">
+              {activeMergedPayroll?.breakdown?.pension?.map(
+                (item: any, index: any) => (
+                  <Text className="font-bold" key={index}>
+                    {parseFloat(item.amount).toFixed(2)} ETB
+                  </Text>
+                ),
+              )}
+              {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
+                (item: any, index: any) => (
+                  <Text className="font-bold" key={index}>
+                    {parseFloat(item.amount).toFixed(2)} ETB
+                  </Text>
+                ),
+              )}
+            </div>
+          </div>
+          <Divider />
+        </div>
+
+        {/* Gross Earning & Net Pay */}
         <div className="flex gap-6 w-full">
           <div className="flex flex-col gap-4 w-1/3">
             <Text>Gross Earning</Text>
             <Text>Net Pay</Text>
           </div>
           <div className="flex flex-col gap-4">
-            <Text>{mergedPayroll?.grossSalary} ETB</Text>
-            <Text>{mergedPayroll?.netPay} ETB </Text>
+            <Text className="font-bold">
+              {activeMergedPayroll?.grossSalary} ETB
+            </Text>
+            <Text className="font-bold">{activeMergedPayroll?.netPay} ETB</Text>
           </div>
         </div>
       </div>
