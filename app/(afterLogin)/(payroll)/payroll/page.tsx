@@ -187,20 +187,6 @@ const Payroll = () => {
 
     setLoading(true);
     try {
-      interface Allowance {
-        type: string;
-        amount: string | number;
-      }
-
-      interface Deduction {
-        type: string;
-        amount: string | number;
-      }
-
-      interface Pension {
-        type: string;
-        amount: string | number;
-      }
       const uniqueAllowanceTypes = new Set<string>();
       const uniqueMeritTypes = new Set<string>();
       const uniqueDeductionTypes = new Set<string>();
@@ -277,7 +263,7 @@ const Payroll = () => {
         };
 
         // **Ensure every row has all expected unique columns**
-        uniqueDeductionTypes.forEach((type:any) => {
+        uniqueDeductionTypes.forEach((type: any) => {
           const deduction = deductions.find((d: any) => d.type === type);
           deductionRow[type] = deduction
             ? Number(deduction.amount).toFixed(2)
@@ -292,8 +278,10 @@ const Payroll = () => {
         });
 
         uniqueMeritTypes.forEach((type) => {
-          const merit = merits.find((m:any) => m.type === type);
-          meritRow[type.replace(/\s+/g, '').toLowerCase()] = merit ? Number(merit.amount).toFixed(2) : '0.00';
+          const merit = merits.find((m: any) => m.type === type);
+          meritRow[type.replace(/\s+/g, '').toLowerCase()] = merit
+            ? Number(merit.amount).toFixed(2)
+            : '0.00';
         });
 
         payrollData.push(payrollRowData);
@@ -311,7 +299,7 @@ const Payroll = () => {
         totalKey: string,
       ) => {
         const sheet = workbook.addWorksheet(sheetName);
-      
+
         // Define headers
         const headers = [
           { header: 'Full Name', key: 'fullName' },
@@ -327,7 +315,7 @@ const Payroll = () => {
         sheet.columns = headers.map((col) => ({
           header: col.header,
           key: col.key,
-          width: col.header ? col.header.length + 2 : 10, 
+          width: col.header ? col.header.length + 2 : 10,
         }));
 
         data.forEach((row) => sheet.addRow(row));
