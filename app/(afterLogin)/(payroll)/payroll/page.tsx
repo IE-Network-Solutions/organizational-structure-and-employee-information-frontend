@@ -296,30 +296,34 @@ const Payroll = () => {
         sheetName: string,
         data: any[],
         uniqueTypes: Set<string>,
-        totalKey: string,
+        totalKey: string
       ) => {
         const sheet = workbook.addWorksheet(sheetName);
-
-        // Define headers
+      
+        // **Define Headers**
         const headers = [
-          { header: 'Full Name', key: 'fullName' },
+          { header: 'Full Name', key: 'fullName', minWidth: 30 },
           ...Array.from(uniqueTypes).map((type) => ({
             header: type,
             key: type,
+            minWidth: 12, // Ensure readable width
           })),
           ...(sheetName !== 'Payrolls'
-            ? [{ header: `Total ${sheetName}`, key: totalKey }]
+            ? [{ header: `Total ${sheetName}`, key: totalKey, minWidth: 18 }]
             : []),
         ];
-
+      
+        // **Set Column Width Dynamically**
         sheet.columns = headers.map((col) => ({
           header: col.header,
           key: col.key,
-          width: col.header ? col.header.length + 2 : 10,
+          width: Math.max(col.header.length + 2, col.minWidth || 10), // Ensure a minimum width
         }));
-
+      
+        // **Add Data Rows**
         data.forEach((row) => sheet.addRow(row));
-
+      
+        // **Style Header Row**
         sheet.getRow(1).eachCell((cell) => {
           cell.fill = {
             type: 'pattern',
@@ -329,9 +333,10 @@ const Payroll = () => {
           cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
-
+      
         return sheet;
       };
+      
 
       createSheet('Payrolls', payrollData, uniquePayrollColumns, '');
       createSheet(
