@@ -15,7 +15,7 @@ import {
   PhoneOutlined,
   PrinterOutlined,
 } from '@ant-design/icons';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   useGetActivePayroll,
   useGetPayPeriod,
@@ -24,6 +24,8 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import { useParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import PayrollDetails from './_components/PayrollDetails';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -41,6 +43,22 @@ const EmployeeProfile = () => {
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
   const [activeMergedPayroll, setActiveMergedPayroll] = useState<any>([]);
   const [activePayPeriod, setActivePayPeriod] = useState<any>(null);
+  const payslipRef = useRef(null);
+
+  const downloadPayslip = () => {
+    if (!payslipRef.current) return;
+    const payslipElement = payslipRef.current;
+
+    html2canvas(payslipElement, { scale: 2 }).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save(`Payslip_${activeMergedPayroll.payPeriod}.pdf`);
+    });
+  };
 
   useEffect(() => {
     if (payPeriodData && activeMergedPayroll?.payPeriodId) {
@@ -68,6 +86,16 @@ const EmployeeProfile = () => {
       setActiveMergedPayroll(activeMergedData[0]);
     }
   }, [payroll, employee, empId, payPeriodData]);
+
+  const totalAmount = (items: any) => {
+    if (!items || items.length === 0) return '0.00';
+    return items
+      .reduce(
+        (total: number, item: any) => total + parseFloat(item.amount || 0),
+        0,
+      )
+      .toFixed(2);
+  };
 
   return (
     <div style={{ padding: '24px' }}>
@@ -214,6 +242,7 @@ const EmployeeProfile = () => {
                   </Title>
                   <Button
                     type="primary"
+                    onClick={downloadPayslip}
                     icon={<PrinterOutlined />}
                     style={{ marginTop: 12, backgroundColor: '#635BFF' }}
                   >
@@ -238,6 +267,298 @@ const EmployeeProfile = () => {
                   </div>
                 </div>
                 <PayrollDetails activeMergedPayroll={activeMergedPayroll} />
+                <div className="h-0 overflow-hidden">
+                  <div ref={payslipRef} className="p-4">
+                    <div className=" pl-4 flex flex-col justify-start items-start">
+                      <Text className="text-xl">SelamNew Workspace</Text>
+                      <Text className="font-light">
+                        ICT -park, 3rd Floor Addis Ababa Ethiopia
+                      </Text>
+                    </div>
+                    <Divider className="m-2" />
+                    <header className="text-center border-b pb-4 mb-4">
+                      <h2 className="text-xl font-semibold text-center">
+                        Payslip for the month of{' '}
+                        <span className="text-violet-500">
+                          {dayjs(openPayPeriods?.[0]?.startDate).format(
+                            'MMMM-YYYY',
+                          )}
+                        </span>
+                      </h2>
+                    </header>
+                    <div className="flex justify-between">
+                      <div className="mx-2 flex flex-col gap-2">
+                        <div className="font-bold text-xl">
+                          Employee Pay Summary
+                        </div>
+                        <div className="flex gap-6 w-full">
+                          <div className="flex flex-col gap-2">
+                            <Text>Employee name:</Text>
+                            <Text>Job title:</Text>
+                            <Text>Pay period:</Text>
+                            <Text>Pay Date:</Text>
+                          </div>
+                          <div className="flex flex-col gap-2 font-bold">
+                            <Text>
+                              {[
+                                activeMergedPayroll?.employeeInfo?.firstName,
+                                activeMergedPayroll?.employeeInfo?.middleName,
+                              ]
+                                .filter(Boolean)
+                                .join(' ')}
+                            </Text>
+                            <Text>
+                              {
+                                activeMergedPayroll?.employeeInfo?.employeeJobInformation?.find(
+                                  (job: any) => job.isPositionActive,
+                                )?.position?.name
+                              }
+                            </Text>
+                            <Text>
+                              {' '}
+                              {dayjs(openPayPeriods?.[0]?.startDate).format(
+                                'MMM-YYYY',
+                              )}
+                            </Text>
+                            <Text>
+                              {dayjs(openPayPeriods?.[0]?.updatedAt).format(
+                                'MMM-DD-YYYY',
+                              )}
+                            </Text>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex flex-col justify-center items-center m-2">
+                          <span className="font-bold text-xl">
+                            Employee Net Pay
+                          </span>
+                          <span className="text-violet-500 text-4xl font-bold mb-2">
+                            {activeMergedPayroll?.netPay} ETB
+                          </span>
+                          <span className="font-bold text-xl">
+                            Employee Basic Salary
+                          </span>
+                          <span className=" text-2xl font-bold">
+                            {
+                              activeMergedPayroll?.employeeInfo
+                                ?.basicSalaries[0]?.basicSalary
+                            }{' '}
+                            ETB
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <Divider className="my-2" />
+
+                    <header className=" border-b pb-2 mb-2">
+                      <h2 className="text-xl font-semibold">
+                        Employee Earnings
+                      </h2>
+                    </header>
+
+                    {/* Total Allowance */}
+                    <div>
+                      <div className="flex flex-col w-full gap-4">
+                        <div className=" pl-4 flex justify-between  items-center my-2">
+                          <Text className="text-xl">Employee Allowance</Text>
+                          <Text className="text-xl">Amount</Text>
+                        </div>
+                        <div className="flex justify-between">
+                          <div className="flex flex-col gap-2 justify-center items-start pl-4 text-gray-600">
+                            {activeMergedPayroll?.breakdown?.allowances?.map(
+                              (item: any, index: any) => (
+                                <Text className="text-gray-600" key={index}>
+                                  {item.type}
+                                </Text>
+                              ),
+                            )}
+                          </div>
+
+                          <div className="flex flex-col gap-2 text-right font-bold">
+                            {activeMergedPayroll?.breakdown?.allowances?.map(
+                              (item: any, index: any) => (
+                                <Text key={index}>
+                                  {parseFloat(item.amount).toFixed(2)} ETB
+                                </Text>
+                              ),
+                            )}
+                          </div>
+                        </div>
+
+                        <div className=" pl-4 flex justify-between  items-center my-2">
+                          <Text className="text-purple">Total Allowance:</Text>
+                          <Text className="text-purple">
+                            {totalAmount(
+                              activeMergedPayroll?.breakdown?.allowances,
+                            )}{' '}
+                            ETB
+                          </Text>
+                        </div>
+                      </div>
+                      <Divider />
+
+                      <div className="flex flex-col w-full gap-4">
+                        <div className=" pl-4 flex justify-between  items-center my-2">
+                          <Text className="text-xl">Employee Benefits</Text>
+                          <Text className="text-xl">Amount</Text>
+                        </div>
+                        <div className="flex justify-between gap-2 w-full">
+                          <div className="flex flex-col gap-2 justify-center items-start pl-4">
+                            {activeMergedPayroll?.breakdown?.merits?.map(
+                              (item: any, index: any) => (
+                                <Text className="text-gray-600" key={index}>
+                                  {item.type}
+                                </Text>
+                              ),
+                            )}
+                            {activeMergedPayroll?.breakdown?.variablePay && (
+                              <Text className="text-gray-600">
+                                {
+                                  activeMergedPayroll?.breakdown?.variablePay
+                                    ?.type
+                                }
+                              </Text>
+                            )}
+                          </div>
+                          <div className="flex flex-col gap-2 text-right justify-end items-start">
+                            {activeMergedPayroll?.breakdown?.merits?.map(
+                              (item: any, index: any) => (
+                                <Text className="font-bold" key={index}>
+                                  {parseFloat(item.amount).toFixed(2)} ETB
+                                </Text>
+                              ),
+                            )}
+                            {activeMergedPayroll?.breakdown?.variablePay && (
+                              <Text className="font-bold">
+                                {parseFloat(
+                                  activeMergedPayroll?.breakdown?.variablePay
+                                    ?.amount || '0',
+                                ).toFixed(2)}{' '}
+                                ETB
+                              </Text>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className=" pl-4 flex justify-between  items-center my-2">
+                          <Text className="text-purple">Total Benefit:</Text>
+                          <Text className="text-purple">
+                            {totalAmount([
+                              ...(activeMergedPayroll?.breakdown?.merits || []),
+                              ...(activeMergedPayroll?.breakdown?.variablePay
+                                ? [
+                                    {
+                                      amount:
+                                        activeMergedPayroll?.breakdown
+                                          ?.variablePay.amount,
+                                    },
+                                  ]
+                                : []),
+                            ])}{' '}
+                            ETB
+                          </Text>
+                        </div>
+                      </div>
+                    </div>
+                    <Divider className="my-2" />
+
+                    <header className=" border-b pb-2 mb-2">
+                      <h2 className="text-xl font-semibold">
+                        Employee Deductions
+                      </h2>
+                    </header>
+
+                    {/* Total Deduction */}
+                    <div className="flex flex-col">
+                      <div className=" p-4 flex justify-between  items-center my-2">
+                        <Text className="text-xl">Employee Deductions</Text>
+                        <Text className="text-xl">Amount</Text>
+                      </div>
+
+                      <div className="flex justify-between gap-2 w-full">
+                        <div className="flex flex-col gap-2 justify-center items-start pl-4">
+                          {activeMergedPayroll?.breakdown?.pension?.map(
+                            (item: any, index: any) => (
+                              <Text className="text-gray-600" key={index}>
+                                {item.type}
+                              </Text>
+                            ),
+                          )}
+                          {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
+                            (item: any, index: any) => (
+                              <Text className="text-gray-600" key={index}>
+                                {item.type}
+                              </Text>
+                            ),
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-2 text-right justify-end items-start">
+                          {activeMergedPayroll?.breakdown?.pension?.map(
+                            (item: any, index: any) => (
+                              <Text className="font-bold" key={index}>
+                                {parseFloat(item.amount).toFixed(2)} ETB
+                              </Text>
+                            ),
+                          )}
+                          {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
+                            (item: any, index: any) => (
+                              <Text className="font-bold" key={index}>
+                                {parseFloat(item.amount).toFixed(2)} ETB
+                              </Text>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                      <div className="pl-4 my-6 flex justify-between ">
+                        <Text className="text-purple"> Total Deduction</Text>
+                        <Text className="text-purple">
+                          {totalAmount([
+                            ...(activeMergedPayroll?.breakdown?.pension || []),
+                            ...(activeMergedPayroll?.breakdown
+                              ?.totalDeductionWithPension || []),
+                          ])}{' '}
+                          ETB
+                        </Text>
+                      </div>
+                    </div>
+
+                    <Divider className="my-2" />
+                    {/* Gross Earning & Net Pay */}
+                    <header className=" border-b pb-2 mb-2">
+                      <h2 className="text-xl font-semibold">
+                        Employee Bank Information
+                      </h2>
+                    </header>
+                    <div>
+                      <div className=" p-4 flex justify-between  items-center my-2">
+                        <Text className="text-xl">Employee Bank Details</Text>
+                        <Text className="text-xl">Details</Text>
+                      </div>
+                      <div className="flex justify-between  w-full">
+                        <div className="flex flex-col gap-2 pl-4">
+                          <Text>Bank Information:</Text>
+                          <Text>Account Number:</Text>
+                        </div>
+                        <div className="flex flex-col gap-3 font-bold">
+                          <Text>
+                            {
+                              activeMergedPayroll?.employeeInfo
+                                ?.employeeInformation?.bankInformation?.bankName
+                            }
+                          </Text>
+                          <Text>
+                            {
+                              activeMergedPayroll?.employeeInfo
+                                ?.employeeInformation?.bankInformation
+                                ?.accountNumber
+                            }
+                          </Text>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </TabPane>
 
               <TabPane tab="Payroll History" key="2">
