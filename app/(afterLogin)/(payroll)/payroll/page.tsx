@@ -296,10 +296,10 @@ const Payroll = () => {
         sheetName: string,
         data: any[],
         uniqueTypes: Set<string>,
-        totalKey: string
+        totalKey: string,
       ) => {
         const sheet = workbook.addWorksheet(sheetName);
-      
+
         // **Define Headers**
         const headers = [
           { header: 'Full Name', key: 'fullName', minWidth: 30 },
@@ -312,17 +312,17 @@ const Payroll = () => {
             ? [{ header: `Total ${sheetName}`, key: totalKey, minWidth: 18 }]
             : []),
         ];
-      
+
         // **Set Column Width Dynamically**
         sheet.columns = headers.map((col) => ({
           header: col.header,
           key: col.key,
           width: Math.max(col.header.length + 2, col.minWidth || 10), // Ensure a minimum width
         }));
-      
+
         // **Add Data Rows**
         data.forEach((row) => sheet.addRow(row));
-      
+
         // **Style Header Row**
         sheet.getRow(1).eachCell((cell) => {
           cell.fill = {
@@ -333,10 +333,9 @@ const Payroll = () => {
           cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
-      
+
         return sheet;
       };
-      
 
       createSheet('Payrolls', payrollData, uniquePayrollColumns, '');
       createSheet(
@@ -553,7 +552,7 @@ const Payroll = () => {
         <div className="flex gap-4">
           <Button
             type="default"
-            className="text-white bg-violet-500 border-none p-6"
+            className="text-white bg-primary border-none p-6"
             onClick={() => setIsModalOpen(true)}
           >
             Export
