@@ -43,7 +43,6 @@ const Payroll = () => {
   // const { data: allEmployees } = useGetAllUsers();
   const { data: allEmployees } = useGetAllUsersData();
 
-
   const {
     mutate: createPayroll,
     isLoading: isCreatingPayroll,
@@ -58,10 +57,8 @@ const Payroll = () => {
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
 
-
   useEffect(() => {
     if (payroll?.payrolls && allEmployees?.items) {
-
       const mergedData = payroll.payrolls.map((pay: any) => {
         const employee = allEmployees.items.find(
           (emp: any) => emp.id === pay.employeeId,
@@ -75,7 +72,6 @@ const Payroll = () => {
       setMergedPayroll(mergedData);
     }
   }, [payroll, allEmployees]);
-
 
   useEffect(() => {
     if (isCreatePayrollSuccess) {
@@ -185,23 +181,26 @@ const Payroll = () => {
 
   const handleDeductionExportPayroll = async () => {
     if (!mergedPayroll || mergedPayroll.length === 0) {
-      NotificationMessage.error({ message: 'No Data Available', description: 'There is no data available to export.' });
+      NotificationMessage.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
       const uniqueDeductionTypes = new Set<string>();
       const uniqueAllowanceTypes = new Set<string>();
       const uniqueMeritTypes = new Set<string>();
       const uniquePayrollColumns = new Set<string>();
-      
+
       const deductionData: any[] = [];
       const payrollData: any[] = [];
       const allowanceData: any[] = [];
       const meritData: any[] = [];
-      
+
       const exportColumns = [
         { type: 'Basic Salary', key: 'basicSalary' },
         { type: 'Total Allowance', key: 'totalAllowance' },
@@ -212,22 +211,34 @@ const Payroll = () => {
         { type: 'Gross Income', key: 'grossIncome' },
         { type: 'Net Income', key: 'netIncome' },
       ];
-      
+
       exportColumns.forEach((col) => uniquePayrollColumns.add(col.key));
       mergedPayroll.forEach((item: any) => {
-        item.breakdown?.allowances?.forEach((a: any) => uniqueAllowanceTypes.add(a.type));
-        item.breakdown?.totalDeductionWithPension?.forEach((d: any) => uniqueDeductionTypes.add(d.type));
-        item.breakdown?.merits?.forEach((m: any) => uniqueMeritTypes.add(m.type));
-      });      
+        item.breakdown?.allowances?.forEach((a: any) =>
+          uniqueAllowanceTypes.add(a.type),
+        );
+        item.breakdown?.totalDeductionWithPension?.forEach((d: any) =>
+          uniqueDeductionTypes.add(d.type),
+        );
+        item.breakdown?.merits?.forEach((m: any) =>
+          uniqueMeritTypes.add(m.type),
+        );
+      });
       mergedPayroll.forEach((item: any) => {
-        const fullName = `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() || '--';
-        const basicSalary = item.employeeInfo?.basicSalaries?.find((bs: any) => bs.status)?.basicSalary || 0;
-        const tax = item.breakdown?.tax?.amount ? item.breakdown.tax.amount.toFixed(2) : '0.0';
-      
+        const fullName =
+          `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
+          '--';
+        const basicSalary =
+          item.employeeInfo?.basicSalaries?.find((bs: any) => bs.status)
+            ?.basicSalary || 0;
+        const tax = item.breakdown?.tax?.amount
+          ? item.breakdown.tax.amount.toFixed(2)
+          : '0.0';
+
         const deductions = item.breakdown?.totalDeductionWithPension || [];
         const allowances = item.breakdown?.allowances || [];
         const merits = item.breakdown?.merits || [];
-      
+
         const payrollRowData: any = {
           fullName,
           basicSalary: Number(basicSalary).toFixed(2),
@@ -236,82 +247,126 @@ const Payroll = () => {
           totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
           tax,
           grossIncome: Number(item.grossSalary || 0).toFixed(2),
-          variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(2),
+          variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(
+            2,
+          ),
           netIncome: Number(item.netPay || 0).toFixed(2),
         };
-      
-        const deductionRow: any = { fullName, totalDeductions: payrollRowData.totalDeduction };
-        const allowanceRow: any = { fullName, totalAllowances: payrollRowData.totalAllowance };
-        const meritRow: any = { fullName, totalMerits: payrollRowData.totalBenefits };
-      
+
+        const deductionRow: any = {
+          fullName,
+          totalDeductions: payrollRowData.totalDeduction,
+        };
+        const allowanceRow: any = {
+          fullName,
+          totalAllowances: payrollRowData.totalAllowance,
+        };
+        const meritRow: any = {
+          fullName,
+          totalMerits: payrollRowData.totalBenefits,
+        };
+
         // **Ensure every row has all expected unique columns**
         uniqueDeductionTypes.forEach((type) => {
           const deduction = deductions.find((d: any) => d.type === type);
-          deductionRow[type] = deduction ? Number(deduction.amount).toFixed(2) : '0.00';
+          deductionRow[type] = deduction
+            ? Number(deduction.amount).toFixed(2)
+            : '0.00';
         });
-      
+
         uniqueAllowanceTypes.forEach((type) => {
           const allowance = allowances.find((a: any) => a.type === type);
-          allowanceRow[type] = allowance ? Number(allowance.amount).toFixed(2) : "0.00";
+          allowanceRow[type] = allowance
+            ? Number(allowance.amount).toFixed(2)
+            : '0.00';
         });
-      
+
         uniqueMeritTypes.forEach((type) => {
           const merit = merits.find((m: any) => m.type === type);
           meritRow[type] = merit ? Number(merit.amount).toFixed(2) : '0.00';
         });
-      
+
         payrollData.push(payrollRowData);
         deductionData.push(deductionRow);
         allowanceData.push(allowanceRow);
         meritData.push(meritRow);
       });
-      
-  
 
       const workbook = new Workbook();
-  
-      const createSheet = (sheetName: string, data: any[], uniqueTypes: Set<string>, totalKey: string) => {
+
+      const createSheet = (
+        sheetName: string,
+        data: any[],
+        uniqueTypes: Set<string>,
+        totalKey: string,
+      ) => {
         const sheet = workbook.addWorksheet(sheetName);
         const headers = [
           { header: 'Full Name', key: 'fullName' },
-          ...Array.from(uniqueTypes).map((type) => ({ header: type, key: type })),
-          ...(sheetName !== "Payrolls" ? [{ header: `Total ${sheetName}`, key: totalKey }] : []),
+          ...Array.from(uniqueTypes).map((type) => ({
+            header: type,
+            key: type,
+          })),
+          ...(sheetName !== 'Payrolls'
+            ? [{ header: `Total ${sheetName}`, key: totalKey }]
+            : []),
         ];
-        
-  
+
         sheet.columns = headers.map((col) => ({
           header: col.header,
           key: col.key,
           width: Math.max(12, col.header.length + 2),
         }));
-  
+
         data.forEach((row) => sheet.addRow(row));
-  
+
         sheet.getRow(1).eachCell((cell) => {
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3498DB' } };
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF3498DB' },
+          };
           cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
-        
+
         return sheet;
       };
-  
+
       createSheet('Payrolls', payrollData, uniquePayrollColumns, '');
-      createSheet('Deductions', deductionData, uniqueDeductionTypes, 'totalDeductions');
-      createSheet('Allowances', allowanceData, uniqueAllowanceTypes, 'totalAllowances');
+      createSheet(
+        'Deductions',
+        deductionData,
+        uniqueDeductionTypes,
+        'totalDeductions',
+      );
+      createSheet(
+        'Allowances',
+        allowanceData,
+        uniqueAllowanceTypes,
+        'totalAllowances',
+      );
       createSheet('Merits', meritData, uniqueMeritTypes, 'totalMerits');
-  
+
       const buffer = await workbook.xlsx.writeBuffer();
-      saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'Payroll_Details.xlsx');
-  
-      NotificationMessage.success({ message: 'Export Successful', description: 'Payroll data exported successfully!' });
+      saveAs(
+        new Blob([buffer], { type: 'application/octet-stream' }),
+        'Payroll_Details.xlsx',
+      );
+
+      NotificationMessage.success({
+        message: 'Export Successful',
+        description: 'Payroll data exported successfully!',
+      });
     } catch (error) {
-      NotificationMessage.error({ message: 'Export Error', description: 'An error occurred while exporting payroll data.' });
+      NotificationMessage.error({
+        message: 'Export Error',
+        description: 'An error occurred while exporting payroll data.',
+      });
     } finally {
       setLoading(false);
     }
   };
-  
 
   type Payroll = {
     employeeId: string;
@@ -504,7 +559,6 @@ const Payroll = () => {
             className="text-white  border-none p-6"
             // onClick={handleExportPayroll}
             onClick={handleDeductionExportPayroll}
-
           >
             Export Payroll
           </Button>
