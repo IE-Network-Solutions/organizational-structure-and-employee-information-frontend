@@ -25,8 +25,8 @@ import PayrollCard from './_components/cards';
 import { useExportData } from './_components/excel';
 import { useGenerateBankLetter } from './_components/Latter';
 import PaySlip from './_components/payslip';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { saveAs } from 'file-saver';
+import { useGetAllUsersData } from '@/store/server/features/okrplanning/okr/users/queries';
 interface Deduction {
   type: string;
   amount: number | string;
@@ -40,6 +40,10 @@ interface Merit {
   type: string;
   amount: number | string;
 }
+  interface Pension {
+    type: string;
+    amount: string | number;
+  }
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportBank, setExportBank] = useState(true);
@@ -51,7 +55,9 @@ const Payroll = () => {
   const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
-  const { data: allEmployees } = useGetAllUsers();
+  // const { data: allEmployees } = useGetAllUsers();
+  const { data: allEmployees } = useGetAllUsersData();
+
 
   const {
     mutate: createPayroll,
@@ -66,8 +72,11 @@ const Payroll = () => {
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
+
+
   useEffect(() => {
     if (payroll?.payrolls && allEmployees?.items) {
+
       const mergedData = payroll.payrolls.map((pay: any) => {
         const employee = allEmployees.items.find(
           (emp: any) => emp.id === pay.employeeId,
@@ -81,6 +90,7 @@ const Payroll = () => {
       setMergedPayroll(mergedData);
     }
   }, [payroll, allEmployees]);
+
 
   useEffect(() => {
     if (isCreatePayrollSuccess) {
@@ -374,175 +384,135 @@ const Payroll = () => {
     }
   };
 
-  
-
   const handleDeductionExportPayroll = async () => {
     if (!mergedPayroll || mergedPayroll.length === 0) {
-      notification.error({
-        message: 'No Data Available',
-        description: 'There is no data available to export.',
-      });
+      notification.error({ message: 'No Data Available', description: 'There is no data available to export.' });
       return;
     }
-  
+    
     setLoading(true);
-  
+    
     try {
       const uniqueDeductionTypes = new Set<string>();
       const uniqueAllowanceTypes = new Set<string>();
       const uniqueMeritTypes = new Set<string>();
-  
+      const uniquePayrollColumns = new Set<string>();
+      
       const deductionData: any[] = [];
+      const payrollData: any[] = [];
       const allowanceData: any[] = [];
       const meritData: any[] = [];
+      
+      const exportColumns = [
+        { type: 'Basic Salary', key: 'basicSalary' },
+        { type: 'Total Allowance', key: 'totalAllowance' },
+        { type: 'Total Benefits', key: 'totalBenefits' },
+        { type: 'Tax', key: 'tax' },
+        { type: 'Total Deduction', key: 'totalDeduction' },
+        { type: 'Variable Pay', key: 'variablePay' },
+        { type: 'Gross Income', key: 'grossIncome' },
+        { type: 'Net Income', key: 'netIncome' },
+      ];
   
-      // Step 1: Collect unique deduction, allowance, and merit types
-      mergedPayroll.forEach((item: any) => {
-        const deductions: Deduction[] = item.breakdown?.totalDeductionWithPension || [];
-        deductions.forEach((deduction) => uniqueDeductionTypes.add(deduction.type));
+      exportColumns.forEach((col) => uniquePayrollColumns.add(col.key));
+      
+      mergedPayroll.forEach((item:any) => {
+        const fullName = `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() || '--';
+        const basicSalary = item.employeeInfo?.basicSalaries?.find((bs:any) => bs.status)?.basicSalary || 0;
+        const tax = item.breakdown?.tax?.amount ? item.breakdown.tax.amount.toFixed(2) : '0.0';
+        
+        const deductions = item.breakdown?.totalDeductionWithPension || [];
+        const allowances = item.breakdown?.allowances || [];
+        const merits = item.breakdown?.merits || [];
   
-        const allowances: Allowance[] = item.breakdown?.allowances || [];
-        allowances.forEach((allowance) => uniqueAllowanceTypes.add(allowance.type));
+        deductions.forEach((d:any) => uniqueDeductionTypes.add(d.type));
+        allowances.forEach((a:any) => uniqueAllowanceTypes.add(a.type));
+        merits.forEach((m:any) => uniqueMeritTypes.add(m.type));
   
-        const merits: Merit[] = item.breakdown?.merits || [];
-        merits.forEach((merit) => uniqueMeritTypes.add(merit.type));
-      });
+        const payrollRowData: any = {
+          fullName,
+          basicSalary: Number(basicSalary).toFixed(2),
+          totalAllowance: Number(item.totalAllowance || 0).toFixed(2),
+          totalBenefits: Number(item.totalMerit || 0).toFixed(2),
+          totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
+          tax,
+          grossIncome: Number(item.grossSalary || 0).toFixed(2),
+          variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(2),
+          netIncome: Number(item.netPay || 0).toFixed(2),
+        };
   
-      // Step 2: Process each payroll entry
-      mergedPayroll.forEach((item: any) => {
-        const fullName =
-          `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() || '--';
+        const deductionRow: any = { fullName, totalDeductions: payrollRowData.totalDeduction };
+        const allowanceRow: any = { fullName, totalAllowances: payrollRowData.totalAllowance };
+        const meritRow: any = { fullName, totalMerits: payrollRowData.totalBenefits };
   
-        const deductions: Deduction[] = item.breakdown?.totalDeductionWithPension || [];
-        const allowances: Allowance[] = item.breakdown?.allowances || [];
-        const merits: Merit[] = item.breakdown?.merits || [];
-  
-        // Create row data objects
-        const deductionRow: any = { fullName, totalDeductions: Number(item.totalDeductions || 0).toFixed(2) };
-        const allowanceRow: any = { fullName, totalAllowances: Number(item.totalAllowance || 0).toFixed(2) };
-        const meritRow: any = { fullName, totalMerits: Number(item.totalMerit || 0).toFixed(2) };
-  
-        // Fill deduction amounts
         uniqueDeductionTypes.forEach((type) => {
-          const deduction = deductions.find((d) => d.type === type);
-          deductionRow[type.replace(/\s+/g, '').toLowerCase()] = deduction ? Number(deduction.amount).toFixed(2) : '0.00';
+          const deduction = deductions.find((d:any) => d.type === type);
+          deductionRow[type] = deduction ? Number(deduction.amount).toFixed(2) : '0.00';
         });
   
-        // Fill allowance amounts
         uniqueAllowanceTypes.forEach((type) => {
-          const allowance = allowances.find((a) => a.type === type);
-          allowanceRow[type.replace(/\s+/g, '').toLowerCase()] = allowance ? Number(allowance.amount).toFixed(2) : '0.00';
+          const allowance = allowances.find((a: any) => a.type === type);
+          allowanceRow[type] = allowance ? Number(allowance.amount).toFixed(2) : "0.00";
         });
+        
   
-        // Fill merit amounts
         uniqueMeritTypes.forEach((type) => {
-          const merit = merits.find((m) => m.type === type);
-          meritRow[type.replace(/\s+/g, '').toLowerCase()] = merit ? Number(merit.amount).toFixed(2) : '0.00';
+          const merit = merits.find((m:any) => m.type === type);
+          meritRow[type] = merit ? Number(merit.amount).toFixed(2) : '0.00';
         });
   
+        payrollData.push(payrollRowData);
         deductionData.push(deductionRow);
         allowanceData.push(allowanceRow);
         meritData.push(meritRow);
       });
   
-      if (deductionData.length === 0 && allowanceData.length === 0 && meritData.length === 0) {
-        notification.error({
-          message: 'No Formatted Data',
-          description: 'Formatted payroll data is empty. No data to export.',
-        });
-        return;
-      }
-  
-      // Step 3: Initialize Excel Workbook
       const workbook = new Workbook();
   
-      // Helper function to create sheets
       const createSheet = (sheetName: string, data: any[], uniqueTypes: Set<string>, totalKey: string) => {
         const sheet = workbook.addWorksheet(sheetName);
-      
-        // Define headers
         const headers = [
           { header: 'Full Name', key: 'fullName' },
-          ...Array.from(uniqueTypes).map((type) => ({
-            header: type,
-            key: type.replace(/\s+/g, '').toLowerCase(),
-          })),
-          { header: `Total ${sheetName}`, key: totalKey },
+          ...Array.from(uniqueTypes).map((type) => ({ header: type, key: type })),
+          ...(sheetName !== "Payrolls" ? [{ header: `Total ${sheetName}`, key: totalKey }] : []),
         ];
-      
+        
+  
         sheet.columns = headers.map((col) => ({
           header: col.header,
           key: col.key,
-          width: col.header ? col.header.length + 2 : 10, 
+          width: Math.max(12, col.header.length + 2),
         }));
-      
-        data.forEach((row) => {
-          sheet.addRow(row);
-        });
-      
-        const headerRow = sheet.getRow(1);
-        headerRow.eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FF3498DB' }, // Blue background color (#3498db)
-          };
-          cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; // White text
+  
+        data.forEach((row) => sheet.addRow(row));
+  
+        sheet.getRow(1).eachCell((cell) => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3498DB' } };
+          cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
         
-        // Set the height of the header row
-        headerRow.height = 30; // You can adjust this value to your preference
-      
-        // Adjust column width based on content length
-        sheet.columns.forEach((column) => {
-          let maxLength = 10; // Start with a minimum width of 10
-          if (column.header && typeof column.header === 'string') {
-            maxLength = column.header.length + 2; // Start with header length if it's a string
-          }
-          column.eachCell?.({ includeEmpty: true }, (cell) => {
-            if (cell.value) {
-              const cellValueLength = cell.value.toString().length;
-              maxLength = Math.max(maxLength, cellValueLength);
-            }
-          });
-          column.width = maxLength + 2; // Add some padding
-        });
-      
         return sheet;
       };
-      
   
-      // Step 4: Create and populate sheets
+      createSheet('Payrolls', payrollData, uniquePayrollColumns, '');
       createSheet('Deductions', deductionData, uniqueDeductionTypes, 'totalDeductions');
       createSheet('Allowances', allowanceData, uniqueAllowanceTypes, 'totalAllowances');
       createSheet('Merits', meritData, uniqueMeritTypes, 'totalMerits');
   
-      // Step 5: Export to Excel
       const buffer = await workbook.xlsx.writeBuffer();
-      const fileName = `Payroll_Deduction_Allowance_Merit_Export.xlsx`;
+      saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'Payroll_Details.xlsx');
   
-      saveAs(new Blob([buffer], { type: 'application/octet-stream' }), fileName);
-  
-      notification.success({
-        message: 'Export Successful',
-        description: 'Payroll data exported successfully!',
-      });
-  
+      notification.success({ message: 'Export Successful', description: 'Payroll data exported successfully!' });
     } catch (error) {
-      notification.error({
-        message: 'Error Exporting Data',
-        description: `An error occurred while exporting data: ${error}`,
-      });
+      console.error('Export failed:', error);
+      notification.error({ message: 'Export Error', description: 'An error occurred while exporting payroll data.' });
     } finally {
       setLoading(false);
     }
   };
   
-  
-  
-  
-  
+
   type Payroll = {
     employeeId: string;
     netPay: number;
@@ -723,26 +693,28 @@ const Payroll = () => {
 
         <div className="flex gap-4">
           <Button
-            type="default"
-            className="text-white bg-violet-500 border-none p-6"
+            type="primary"
+            className="text-white  border-none p-6"
             onClick={() => setIsModalOpen(true)}
           >
             Export
           </Button>
           <Button
-            type="default"
-            className="text-white bg-violet-500 border-none p-6"
-            onClick={handleExportPayroll}
+            type="primary"
+            className="text-white  border-none p-6"
+            // onClick={handleExportPayroll}
+            onClick={handleDeductionExportPayroll}
+
           >
             Export Payroll
           </Button>
-          <Button
-            type="default"
-            className="text-white bg-violet-500 border-none p-6"
+          {/* <Button
+            type="primary"
+            className="text-white  border-none p-6"
             onClick={handleDeductionExportPayroll}
           >
             Export Deductions
-          </Button>
+          </Button> */}
           <Popconfirm
             title="Are you sure you want to delete the payroll?"
             onConfirm={handleDeletePayroll}
