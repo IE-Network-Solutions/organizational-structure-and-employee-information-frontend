@@ -20,7 +20,7 @@ const Drawer: React.FC = () => {
     isEditMode,
   } = useDrawerStore();
   const { mutate: update } = useUpdateAllowance();
-  const { data: AllowanceData} = useGetAllowance();
+  const { data: AllowanceData } = useGetAllowance();
 
   const onFinish = async () => {
     const updatedFormValues = form.getFieldsValue();
