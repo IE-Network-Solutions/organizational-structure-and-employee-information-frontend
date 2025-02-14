@@ -218,28 +218,26 @@ const EmployeeInformation = () => {
     refetch();
   };
 
-
   return (
     <div className="p-5">
       <h2 className="py-4">Employees Payroll Information</h2>
       <Filters onSearch={handleSearch} />
       <Spin spinning={responseLoading || Loading}>
-
-      <Table
-        dataSource={dataSource.filter((item) =>
-          searchText ? item.key === searchText : true,
-        )}
-        columns={columns}
-        onRow={(record) => ({
-          onClick: () => handleDetail(record),
-          style: { cursor: 'pointer' },
-        })}
-        pagination={{
-          pageSize: 5,
-          showSizeChanger: true,
-          showQuickJumper: true,
-        }}
-      />
+        <Table
+          dataSource={dataSource.filter((item) =>
+            searchText ? item.key === searchText : true,
+          )}
+          columns={columns}
+          onRow={(record) => ({
+            onClick: () => handleDetail(record),
+            style: { cursor: 'pointer' },
+          })}
+          pagination={{
+            pageSize: 5,
+            showSizeChanger: true,
+            showQuickJumper: true,
+          }}
+        />
       </Spin>
       <Drawer />
     </div>

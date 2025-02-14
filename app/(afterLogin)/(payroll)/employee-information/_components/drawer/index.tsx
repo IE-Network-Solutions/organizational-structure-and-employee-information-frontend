@@ -17,11 +17,10 @@ const Drawer: React.FC = () => {
     selectedPayrollData,
     setSelectedPayrollData,
     selectedAllowance,
-    setSelectedAllowance,
     isEditMode,
   } = useDrawerStore();
   const { mutate: update } = useUpdateAllowance();
-  const { data: AllowanceData, isLoading: Loading } = useGetAllowance();
+  const { data: AllowanceData} = useGetAllowance();
 
   const onFinish = async () => {
     const updatedFormValues = form.getFieldsValue();

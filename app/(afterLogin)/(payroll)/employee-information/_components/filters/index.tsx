@@ -9,7 +9,10 @@ interface FiltersProps {
   onSearch: (filters: { [key: string]: string }) => void;
 }
 const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
+    /* eslint-disable @typescript-eslint/naming-convention */
   const [SearchValue, setSearchValue] = useState<{ [key: string]: string }>({});
+    /* eslint-enable @typescript-eslint/naming-convention */
+
   const { Option } = Select;
   const { data: employeeData } = useGetAllUsers();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
