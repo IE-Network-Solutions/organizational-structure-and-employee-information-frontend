@@ -26,9 +26,8 @@ import { useExportData } from './_components/excel';
 import { useGenerateBankLetter } from './_components/Latter';
 import PaySlip from './_components/payslip';
 import { saveAs } from 'file-saver';
-import { useGetAllUsersData } from '@/store/server/features/okrplanning/okr/users/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-
+import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportBank, setExportBank] = useState(true);
@@ -40,7 +39,6 @@ const Payroll = () => {
   const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
-  // const { data: allEmployees } = useGetAllUsers();
   const { data: allEmployees } = useGetAllUsersData();
 
   const {
@@ -56,7 +54,6 @@ const Payroll = () => {
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
-
   useEffect(() => {
     if (payroll?.payrolls && allEmployees?.items) {
       const mergedData = payroll.payrolls.map((pay: any) => {
@@ -156,7 +153,7 @@ const Payroll = () => {
       };
       createPayroll({ values: payRollData });
     } catch (error) {
-      NotificationMessage.error({
+      notification.error({
         message: 'Error Generating Payroll',
         description: 'An error occurred while generating payroll.',
       });
@@ -189,11 +186,24 @@ const Payroll = () => {
     }
 
     setLoading(true);
-
     try {
-      const uniqueDeductionTypes = new Set<string>();
+      interface Allowance {
+        type: string;
+        amount: string | number;
+      }
+
+      interface Deduction {
+        type: string;
+        amount: string | number;
+      }
+
+      interface Pension {
+        type: string;
+        amount: string | number;
+      }
       const uniqueAllowanceTypes = new Set<string>();
       const uniqueMeritTypes = new Set<string>();
+      const uniqueDeductionTypes = new Set<string>();
       const uniquePayrollColumns = new Set<string>();
 
       const deductionData: any[] = [];
@@ -267,7 +277,7 @@ const Payroll = () => {
         };
 
         // **Ensure every row has all expected unique columns**
-        uniqueDeductionTypes.forEach((type) => {
+        uniqueDeductionTypes.forEach((type:any) => {
           const deduction = deductions.find((d: any) => d.type === type);
           deductionRow[type] = deduction
             ? Number(deduction.amount).toFixed(2)
@@ -282,8 +292,8 @@ const Payroll = () => {
         });
 
         uniqueMeritTypes.forEach((type) => {
-          const merit = merits.find((m: any) => m.type === type);
-          meritRow[type] = merit ? Number(merit.amount).toFixed(2) : '0.00';
+          const merit = merits.find((m:any) => m.type === type);
+          meritRow[type.replace(/\s+/g, '').toLowerCase()] = merit ? Number(merit.amount).toFixed(2) : '0.00';
         });
 
         payrollData.push(payrollRowData);
@@ -301,6 +311,8 @@ const Payroll = () => {
         totalKey: string,
       ) => {
         const sheet = workbook.addWorksheet(sheetName);
+      
+        // Define headers
         const headers = [
           { header: 'Full Name', key: 'fullName' },
           ...Array.from(uniqueTypes).map((type) => ({
@@ -315,7 +327,7 @@ const Payroll = () => {
         sheet.columns = headers.map((col) => ({
           header: col.header,
           key: col.key,
-          width: Math.max(12, col.header.length + 2),
+          width: col.header ? col.header.length + 2 : 10, 
         }));
 
         data.forEach((row) => sheet.addRow(row));
@@ -367,7 +379,6 @@ const Payroll = () => {
       setLoading(false);
     }
   };
-
   type Payroll = {
     employeeId: string;
     netPay: number;
@@ -548,8 +559,8 @@ const Payroll = () => {
 
         <div className="flex gap-4">
           <Button
-            type="primary"
-            className="text-white  border-none p-6"
+            type="default"
+            className="text-white bg-violet-500 border-none p-6"
             onClick={() => setIsModalOpen(true)}
           >
             Export
@@ -562,13 +573,13 @@ const Payroll = () => {
           >
             Export Payroll
           </Button>
-          {/* <Button
-            type="primary"
-            className="text-white  border-none p-6"
+          <Button
+            type="default"
+            className="text-white bg-violet-500 border-none p-6"
             onClick={handleDeductionExportPayroll}
           >
             Export Deductions
-          </Button> */}
+          </Button>
           <Popconfirm
             title="Are you sure you want to delete the payroll?"
             onConfirm={handleDeletePayroll}
