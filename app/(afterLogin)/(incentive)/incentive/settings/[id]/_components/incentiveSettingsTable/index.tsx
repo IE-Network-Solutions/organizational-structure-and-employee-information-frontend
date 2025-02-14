@@ -95,8 +95,11 @@ const IncentiveSettingsTable: React.FC = () => {
     name: recognitionData?.recognitionType?.name,
     recognition_criteria:
       recognitionData?.recognitionType?.recognitionCriteria?.map(
-        (criterion: RecognitionCriteria) => (
-          <span className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1">
+        (criterion: RecognitionCriteria, index: string) => (
+          <span
+            key={index}
+            className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1"
+          >
             {criterion?.criterionKey}
           </span>
         ),

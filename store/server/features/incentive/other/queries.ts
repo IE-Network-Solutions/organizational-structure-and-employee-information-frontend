@@ -1,7 +1,6 @@
 import { requestHeader } from '@/helpers/requestHeader';
 import { INCENTIVE_URL, ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import { IdCard } from 'lucide-react';
 import { useQuery } from 'react-query';
 
 const fetchAllIncentiveData = async (
@@ -12,7 +11,6 @@ const fetchAllIncentiveData = async (
 ) => {
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive?employee_name=${employeeName}&&year=${year}&&sessions=${session}&&month=${month}  `,
-    // url: 'https://mocki.io/v1/5fe0076e-72f0-4e89-a30b-0d296b5bd123',
     method: 'GET',
     headers: requestHeader(),
   });

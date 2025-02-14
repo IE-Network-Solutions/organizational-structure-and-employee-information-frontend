@@ -17,8 +17,7 @@ const IncentiveSettings: React.FC = () => {
 
   const { setOpenIncentiveDrawer } = useIncentiveStore();
 
-  const { data: recognitionData, isLoading: responseLoading } =
-    useRecognitionById(id);
+  const { data: recognitionData } = useRecognitionById(id);
 
   return (
     <div>

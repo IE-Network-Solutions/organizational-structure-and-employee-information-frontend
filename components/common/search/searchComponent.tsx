@@ -45,7 +45,9 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({ fields }) => {
           ) : (
             <Select
               placeholder={field.placeholder}
-              onChange={(value: string) => field?.onChange && field.onChange(value)}
+              onChange={(value: string) =>
+                field?.onChange && field.onChange(value)
+              }
               allowClear
               showSearch
               className="w-full h-14"

@@ -1,6 +1,5 @@
 import React from 'react';
 import ExcelJS from 'exceljs';
-import { ProjectData } from '@/store/uistate/features/incentive/incentive'; // Import the interface
 import { Button, Popover } from 'antd';
 
 interface DownloadExcelButtonProps {

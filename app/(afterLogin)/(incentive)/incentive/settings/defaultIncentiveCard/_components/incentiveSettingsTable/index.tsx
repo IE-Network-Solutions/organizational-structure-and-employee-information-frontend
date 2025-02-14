@@ -1,7 +1,6 @@
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteIncentiveFormula } from '@/store/server/features/incentive/other/mutation';
 import {
-  useAllRecognition,
   useIncentiveFormulaByRecognitionId,
   useRecognitionById,
 } from '@/store/server/features/incentive/other/queries';
@@ -64,9 +63,6 @@ const DefaultIncentiveSettingsTable: React.FC = () => {
   const { data: recognitionData, isLoading: responseLoading } =
     useRecognitionById(recognitionId);
 
-  const { data: allRecognitionData, isLoading: recognitionResponseLoading } =
-    useAllRecognition();
-  console.log(allRecognitionData, 'allRecognitionData');
   const { data: formulaById } =
     useIncentiveFormulaByRecognitionId(recognitionId);
 
@@ -99,8 +95,11 @@ const DefaultIncentiveSettingsTable: React.FC = () => {
     name: recognitionData?.recognitionType?.name,
     recognition_criteria:
       recognitionData?.recognitionType?.recognitionCriteria?.map(
-        (criterion: RecognitionCriteria) => (
-          <span className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1">
+        (criterion: RecognitionCriteria, index: string) => (
+          <span
+            key={index}
+            className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1"
+          >
             {criterion?.criterionKey}
           </span>
         ),

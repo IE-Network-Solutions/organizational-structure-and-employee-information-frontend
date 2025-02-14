@@ -14,7 +14,6 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { MdOutlineUploadFile } from 'react-icons/md';
 import DownloadExcelButton from '../../dowloadTemplateExcel';
-import { useAllRecognition } from '@/store/server/features/incentive/other/queries';
 
 const ImportProjectData: React.FC = () => {
   const [form] = Form.useForm();
@@ -24,10 +23,6 @@ const ImportProjectData: React.FC = () => {
     useFetchAllPayPeriod();
   const { data: incentiveTemplate, isLoading: templateResponseLoading } =
     useFetchIncentiveTemplate();
-  const { data: recognitionData, isLoading: recognitionLOading } =
-    useAllRecognition();
-
-  console.log(recognitionData, 'recognitionData');
 
   const handleClose = () => {
     setProjectDrawer(false);
@@ -75,7 +70,6 @@ const ImportProjectData: React.FC = () => {
     },
   };
 
-  console.log(incentiveTemplate, 'this si incentiveTemplate');
   return (
     <CustomDrawerLayout
       open={projectDrawer}
@@ -359,7 +353,7 @@ const ImportProjectData: React.FC = () => {
               <Spin size="small" />
             ) : (
               payPeriodData?.map((payPeriod: any) => (
-                <Select.Option value={payPeriod?.id}>
+                <Select.Option key={payPeriod?.id} value={payPeriod?.id}>
                   {`${dayjs(payPeriod?.startDate).format('YYYY-MM-DD')} — ${dayjs(payPeriod?.endDate).format('YYYY-MM-DD')}`}
                 </Select.Option>
               ))

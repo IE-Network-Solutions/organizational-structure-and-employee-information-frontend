@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { DrawerState } from './interface';
 import { Dayjs } from 'dayjs';
+import { shallowEqual } from '@/utils/shallowEqual';
 
 export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   isFiscalYearOpen: false,
@@ -50,9 +51,16 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   setFiscalYearFormValues: (newData) => set({ fiscalYearFormValues: newData }),
 
   monthRangeValues: [],
+  // setMonthRangeFormValues: (newData) =>
+  //   set((state) =>
+  //     JSON.stringify(state.monthRangeValues) !== JSON.stringify(newData)
+  //       ? { monthRangeValues: newData }
+  //       : state,
+  //   ),
+
   setMonthRangeFormValues: (newData) =>
     set((state) =>
-      JSON.stringify(state.monthRangeValues) !== JSON.stringify(newData)
+      !shallowEqual(state.monthRangeValues, newData)
         ? { monthRangeValues: newData }
         : state,
     ),

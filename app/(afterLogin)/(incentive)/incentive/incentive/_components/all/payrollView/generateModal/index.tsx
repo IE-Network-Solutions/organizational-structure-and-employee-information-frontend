@@ -6,22 +6,17 @@ import {
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { Button, Form, Modal, Select, Switch } from 'antd';
 import dayjs from 'dayjs';
-import React, { useEffect } from 'react';
+import React from 'react';
 
 const GenerateModal: React.FC = () => {
   const { showGenerateModal, setShowGenerateModal, isSwitchOn, setIsSwitchOn } =
     useIncentiveStore();
   const [form] = Form.useForm();
 
-  const { data: payPeriodData, isLoading: responseLoading } =
-    useFetchAllPayPeriod();
-  const { data: allSessions, isLoading: sessionResponseLoading } =
-    useFetchIncentiveSessions();
+  const { data: payPeriodData } = useFetchAllPayPeriod();
+  const { data: allSessions } = useFetchIncentiveSessions();
 
-  const { mutate: generateIncentive, isLoading: submitLoading } =
-    useGenerateIncentive();
-
-  console.log(allSessions, 'allSessions');
+  const { mutate: generateIncentive } = useGenerateIncentive();
 
   const handleModalClose = () => {
     setShowGenerateModal(false);
@@ -30,7 +25,6 @@ const GenerateModal: React.FC = () => {
 
   const handleSwitchChange = (checked: boolean) => {
     setIsSwitchOn(checked);
-    console.log(checked, 'checked');
     if (checked) {
       form.resetFields(['selectSession']);
     }
@@ -42,7 +36,6 @@ const GenerateModal: React.FC = () => {
       payPeriodId: formValues?.payPeriod,
       generateAll: formValues?.generateAll,
     };
-    console.log(formValues, formattedValues, 'formattedValues');
     generateIncentive(formattedValues);
   };
 

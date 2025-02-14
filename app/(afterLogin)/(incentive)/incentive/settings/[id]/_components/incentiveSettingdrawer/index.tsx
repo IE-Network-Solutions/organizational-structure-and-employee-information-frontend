@@ -90,7 +90,6 @@ const IncentiveSettingsDrawer: React.FC = () => {
     };
 
     if (incentiveId && formulaById.length > 0) {
-      console.log(incentiveId, formulaById, 'incentiveId');
       updateIncentiveFormula(
         {
           id: formulaById?.map((item: RecognitionData) => item?.id),
