@@ -561,13 +561,13 @@ const Payroll = () => {
           >
             Export Payroll
           </Button>
-          <Button
+          {/* <Button
             type="default"
             className="text-white bg-violet-500 border-none p-6"
             onClick={handleDeductionExportPayroll}
           >
             Export Deductions
-          </Button>
+          </Button> */}
           <Popconfirm
             title="Are you sure you want to delete the payroll?"
             onConfirm={handleDeletePayroll}
