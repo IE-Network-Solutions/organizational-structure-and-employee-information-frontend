@@ -58,13 +58,7 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish }) => {
             name="issue"
             label="Action plan"
             id="actionPlanId"
-            rules={[
-              { required: true, message: 'action title is required' },
-              {
-                max: 40, // Set the maximum number of characters allowed
-                message: 'Action title cannot exceed 40 characters',
-              },
-            ]}
+            rules={[{ required: true, message: 'action title is required' }]}
           >
             <Input />
           </Form.Item>

@@ -62,14 +62,14 @@ export interface CategoriesUseState {
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
 
-  empId?: string | null | undefined;
-  setEmpId: (empId: string | null) => void;
+  empId: string;
+  setEmpId: (empId: string) => void;
 
   givenDate: any;
   setGivenDate: (givenDate: any) => void;
 
-  variantType: string;
-  setVariantType: (variantType: string) => void;
+  variantType: 'appreciation' | 'reprimand';
+  setVariantType: (variantType: 'appreciation' | 'reprimand') => void;
 
   selectedFeedbackRecord: FeedbackRecord | null;
   setSelectedFeedbackRecord: (
@@ -143,7 +143,8 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedRecognitionType: (selectedRecognitionType: string) =>
     set({ selectedRecognitionType }),
   variantType: 'appreciation',
-  setVariantType: (variantType: string) => set({ variantType }),
+  setVariantType: (variantType: 'appreciation' | 'reprimand') =>
+    set({ variantType }),
 
   selectedFeedback: null,
   setSelectedFeedback: (selectedFeedback: any) => set({ selectedFeedback }),
@@ -152,11 +153,11 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedFeedbackRecord: (selectedFeedbackRecord: FeedbackRecord | null) =>
     set({ selectedFeedbackRecord }),
 
-  activeTab: '',
+  activeTab: '1',
   setActiveTab: (activeTab: string) => set({ activeTab }),
 
-  empId: null as string | null,
-  setEmpId: (empId: string | null) => set({ empId }),
+  empId: '',
+  setEmpId: (empId: string) => set({ empId }),
 
   givenDate: [],
   setGivenDate: (givenDate: any) => set({ givenDate }),

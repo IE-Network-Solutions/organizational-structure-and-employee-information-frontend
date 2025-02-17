@@ -179,8 +179,8 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   },
                   {
                     validator: (form, value) =>
-                      value && value >= 0
-                        ? Promise.resolve()
+                      value >= 0
+                        ? Promise.resolve() // Accepts value 0 and any positive number
                         : Promise.reject(
                             new Error('Initial value must be non-negative'),
                           ),

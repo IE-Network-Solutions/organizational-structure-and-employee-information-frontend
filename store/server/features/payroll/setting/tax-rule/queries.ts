@@ -34,7 +34,7 @@ const fetchActiveFiscalYearPayPeriods = async (
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${PAYROLL_URL}/pay-period/${activeFiscalYearId}`,
+    url: `${PAYROLL_URL}/pay-period/get-pay-period/active-year-id/${activeFiscalYearId}`,
     method: 'GET',
     headers,
   });

@@ -6,7 +6,7 @@ import { classNames } from '@/utils/classNames';
 interface UserCardProps {
   avatar?: string;
   profileImage?: any;
-  name: string | undefined;
+  name: string | undefined | React.ReactNode;
   description?: string;
   size?: 'small' | 'medium';
 }
@@ -48,7 +48,7 @@ const UserCard: FC<UserCardProps> = ({
       ) : (
         <Avatar
           icon={<UserOutlined />}
-          src={avatar && <Image src={avatar} alt={name} />}
+          src={avatar && <Image src={avatar} alt={description} />}
           size={sizeWH}
         />
       )}

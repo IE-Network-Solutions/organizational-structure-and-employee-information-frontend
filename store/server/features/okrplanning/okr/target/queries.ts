@@ -48,3 +48,18 @@ const getTargetAssignmentById = async (id: string) => {
 };
 export const useGetTargetAssignmentById = (id: string) =>
   useQuery(['targetAssignment', id], () => getTargetAssignmentById(id));
+
+const getSession = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/session`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetSession = () => useQuery('active-session', getSession);

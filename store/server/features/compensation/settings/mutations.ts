@@ -73,12 +73,6 @@ export const useCreateAllowanceType = () => {
   });
 };
 
-/**
- * Custom hook to delete a compensation type using React Query's useMutation hook.
- * On success, the cache for `allowanceType` is invalidated and a success message is displayed.
- *
- * @returns {MutationObject} The mutation object for deleting a compensation type.
- */
 export const useDeleteAllowanceType = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteAllowanceType, {
@@ -86,6 +80,31 @@ export const useDeleteAllowanceType = () => {
       queryClient.invalidateQueries('allowanceType');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method, 'Compensation type successfully deleted.');
+    },
+  });
+};
+
+const updateCompensationStatus = async ({ id }: { id: string }) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${PAYROLL_URL}/compensation-items/update/compensation-status/${id}`,
+    method: 'PATCH',
+    headers,
+  });
+};
+
+export const useUpdateCompensationStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateCompensationStatus, {
+    onSuccess: (unused: any, variables: any) => {
+      queryClient.invalidateQueries('allowanceType');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method, 'Compensation status successfully updated.');
     },
   });
 };

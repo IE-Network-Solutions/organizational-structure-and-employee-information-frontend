@@ -1,6 +1,5 @@
-import { Progress, Dropdown, Menu } from 'antd';
+import { Progress } from 'antd';
 import { FC, useState } from 'react';
-import { IoIosMore } from 'react-icons/io';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
@@ -12,47 +11,47 @@ interface KPIMetricsProps {
   myOkr: boolean;
 }
 
-const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
+const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: deleteKeyResult } = useDeleteKeyResult();
   const { keyResultValue, setKeyResultValue } = useOKRStore();
 
-  const showDeleteModal = () => {
-    setOpenDeleteModal(true);
-    setKeyResultValue(keyResult);
-  };
+  // const showDeleteModal = () => {
+  //   setOpenDeleteModal(true);
+  //   setKeyResultValue(keyResult);
+  // };
 
   const onCloseDeleteModal = () => {
     setOpenDeleteModal(false);
     setKeyResultValue([]);
   };
 
-  const showDrawer = () => {
-    setOpen(true);
-    setKeyResultValue(keyResult);
-  };
+  // const showDrawer = () => {
+  //   setOpen(true);
+  //   setKeyResultValue(keyResult);
+  // };
 
   const onClose = () => {
     setOpen(false);
   };
 
-  const menu = (
-    <Menu
-      items={[
-        {
-          key: '1',
-          label: 'Edit',
-          onClick: showDrawer,
-        },
-        {
-          key: '2',
-          label: 'Delete',
-          onClick: showDeleteModal,
-        },
-      ]}
-    />
-  );
+  // const menu = (
+  //   <Menu
+  //     items={[
+  //       {
+  //         key: '1',
+  //         label: 'Edit',
+  //         onClick: showDrawer,
+  //       },
+  //       {
+  //         key: '2',
+  //         label: 'Delete',
+  //         onClick: showDeleteModal,
+  //       },
+  //     ]}
+  //   />
+  // );
   function handleKeyResultDelete(id: string) {
     deleteKeyResult(id, {
       onSuccess: () => {
@@ -77,7 +76,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
               size={20}
             />
             <span className="text-lg">{keyResult?.progress || 0}%</span>
-            {myOkr && (
+            {/* {myOkr && (
               <Dropdown
                 overlay={menu}
                 trigger={['click']}
@@ -85,7 +84,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
               >
                 <IoIosMore className="text-gray-500 text-lg cursor-pointer" />
               </Dropdown>
-            )}
+            )} */}
           </div>
         </div>
       </div>
@@ -127,7 +126,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
                     )?.length || 0
                   : keyResult?.metricType?.name === 'Achieve'
                     ? keyResult?.progress
-                    : keyResult?.currentValue || 0}
+                    : Number(keyResult?.currentValue)?.toLocaleString() || 0}
               </div>
               <div className="flex items-center gap-1">
                 <div className="text-blue text-xl">&#x2022;</div>
@@ -143,7 +142,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
                   ? keyResult?.milestones?.length || 0
                   : keyResult?.metricType?.name === 'Achieve'
                     ? '100'
-                    : keyResult?.targetValue || 0}
+                    : Number(keyResult?.targetValue)?.toLocaleString() || 0}
               </div>
               <div className="flex items-center gap-1">
                 <div className="text-blue text-xl">&#x2022;</div>

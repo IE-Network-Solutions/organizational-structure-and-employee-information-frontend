@@ -63,7 +63,9 @@ export interface TrainingNeedAssessment extends DateInfo {
   title: string;
   trainingPrice: number;
   assignedUserId: string;
+  approvalWorkflowId: string;
   trainingNeedCategoryId: string;
+  currencyId: string;
   trainingNeedCategory: TrainingNeedCategory;
   trainingProofs: TrainingProof[];
   reason: string | null;

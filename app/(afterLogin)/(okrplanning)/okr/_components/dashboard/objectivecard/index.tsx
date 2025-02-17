@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Progress, Card, Dropdown, Menu, Avatar } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { Progress, Card, Avatar } from 'antd';
 import { PiCalendarMinusBold } from 'react-icons/pi';
 import KeyResultMetrics from '../keyresultmetrics';
 import EditObjective from '../editObjective';
@@ -18,20 +17,20 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: deleteObjective } = useDeleteObjective();
 
-  const showDeleteModal = () => {
-    setOpenDeleteModal(true);
-    setObjectiveValue(objective);
-  };
+  // const showDeleteModal = () => {
+  //   setOpenDeleteModal(true);
+  //   setObjectiveValue(objective);
+  // };
 
   const onCloseDeleteModal = () => {
     setOpenDeleteModal(false);
     setObjectiveValue(defaultObjective);
   };
 
-  const showDrawer = () => {
-    setOpen(true);
-    setObjectiveValue(objective); // Update the objective value
-  };
+  // const showDrawer = () => {
+  //   setOpen(true);
+  //   setObjectiveValue(objective); // Update the objective value
+  // };
 
   // Monitor `objectiveValue` change
 
@@ -43,22 +42,22 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const completedKeyResults =
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
-  const menu = (
-    <Menu
-      items={[
-        {
-          key: '1',
-          label: 'Edit',
-          onClick: showDrawer,
-        },
-        {
-          key: '2',
-          label: 'Delete',
-          onClick: showDeleteModal,
-        },
-      ]}
-    />
-  );
+  // const menu = (
+  //   <Menu
+  //     items={[
+  //       {
+  //         key: '1',
+  //         label: 'Edit',
+  //         onClick: showDrawer,
+  //       },
+  //       {
+  //         key: '2',
+  //         label: 'Delete',
+  //         onClick: showDeleteModal,
+  //       },
+  //     ]}
+  //   />
+  // );
   function handleDeleteObjective(id: string) {
     deleteObjective(id, {
       onSuccess: () => {
@@ -66,6 +65,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
       },
     });
   }
+
   return (
     <div className="p-2 grid gap-0">
       <div className="flex justify-center">
@@ -78,7 +78,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   {objective?.title}
                 </h2>
               </div>
-              {myOkr && (
+              {/* {myOkr && (
                 <Dropdown
                   overlay={menu}
                   trigger={['click']}
@@ -86,7 +86,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 >
                   <MoreOutlined className="text-gray-500 text-lg cursor-pointer" />
                 </Dropdown>
-              )}
+              )} */}
             </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-center">
@@ -127,7 +127,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
               {!myOkr && (
                 <div className="flex items-center gap-1 mt-4 sm:mt-0">
                   <div className="flex flex-col gap-0">
-                    <span className="text-xs text-normal">{`${objective?.user?.firstName} ${objective?.user?.lastName} `}</span>
+                    <span className="text-xs text-normal">{`${objective?.user?.firstName} ${objective?.user?.middleName}  ${objective?.user?.lastName} `}</span>
                     <span className="text-xs text-normal">
                       {objective?.user?.email}
                     </span>
@@ -137,6 +137,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   ) : (
                     <Avatar size={40}>
                       {objective?.user?.firstName[0]?.toUpperCase()}{' '}
+                      {objective?.user?.middleName[0]?.toUpperCase()}
                       {objective?.user?.lastName[0]?.toUpperCase()}
                     </Avatar>
                   )}

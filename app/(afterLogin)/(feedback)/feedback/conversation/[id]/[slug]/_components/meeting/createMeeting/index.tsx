@@ -186,7 +186,7 @@ const CreateMeeting = ({
     return {
       value: matchingUser?.id,
       label: matchingUser
-        ? `${matchingUser.firstName} ${matchingUser.lastName}`
+        ? `${matchingUser?.firstName} ${matchingUser?.middleName} ${matchingUser?.lastName}`
         : null,
     };
   });
@@ -274,6 +274,7 @@ const CreateMeeting = ({
                 attendeesOptions={attendeesOptions}
                 questionSet={questionSet}
                 handleAttendeeChange={handleAttendeeChange}
+                form={form1}
               />
             ))}
 

@@ -1,13 +1,14 @@
 'use client';
 import { QueryCache, QueryClient, QueryClientProvider } from 'react-query';
-import { ReactNode, Suspense } from 'react';
+import { ReactNode, Suspense, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { handleNetworkError } from '@/utils/showErrorResponse';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { removeCookie } from '@/helpers/storageHelper';
+import { removeCookie, setCookie } from '@/helpers/storageHelper';
 import { Spin } from 'antd';
+import { auth } from '@/utils/firebaseConfig';
 
 /**
  * Interface for the props of the ReactQueryWrapper component
@@ -82,6 +83,42 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       </div>
     );
   };
+
+  const refreshToken = async () => {
+    const getCookieFromDocument = (key: string): string | null => {
+      const cookies = document.cookie.split('; ');
+      const cookie = cookies.find((c) => c.startsWith(`${key}=`));
+      return cookie ? cookie.split('=')[1] : null;
+    };
+
+    const token = getCookieFromDocument('token');
+    if (token) {
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          const refreshedToken = await user.getIdToken(true); // Force refresh token
+          if (refreshedToken !== token) {
+            setCookie('token', refreshedToken, 30);
+            useAuthenticationStore.getState().setToken(refreshedToken);
+          }
+        } catch (error) {
+          handleNetworkError(error);
+        }
+      }
+    }
+  };
+  useEffect(() => {
+    refreshToken();
+    const refreshInterval = setInterval(
+      () => {
+        refreshToken();
+      },
+      50 * 60 * 1000,
+    );
+    return () => {
+      clearInterval(refreshInterval);
+    };
+  }, []);
 
   return (
     <Suspense fallback={<FullPageSpinner />}>

@@ -4,10 +4,8 @@ import { useCreateJobInformation } from '@/store/server/features/employees/emplo
 import JobTimeLineForm from '../../../../_components/allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../../../../_components/allFormData/workScheduleForm';
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
-import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
-import { useEffect } from 'react';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
 
 interface Ids {
   id: string;
@@ -20,47 +18,12 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
   } = useEmployeeManagementStore();
 
   const { data: employeeData } = useGetEmployee(id);
-  const { data: basicSalary } = useGetBasicSalaryById(id);
 
-  const {
-    isLoading,
-    isSuccess,
-    mutate: createJobInformation,
-  } = useCreateJobInformation();
+  const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
   };
-
-  useEffect(() => {
-    if (isSuccess) {
-      form.resetFields();
-      handleClose();
-    }
-  }, [isSuccess]);
-
-  const activeJob = basicSalary?.find((job: any) => job?.status === true);
-
-  useEffect(() => {
-    if (employeeData && employeeData.employeeJobInformation.length > 0) {
-      const jobInfo = employeeData.employeeJobInformation[0];
-
-      form.setFieldsValue({
-        positionId: jobInfo?.position?.name || '',
-        employementTypeId: jobInfo?.employementType?.name || '',
-        departmentId: jobInfo?.department?.name || '',
-        branchId: jobInfo?.branch?.name || '',
-        departmentLeadOrNot: jobInfo?.departmentLeadOrNot,
-        basicSalary: activeJob?.basicSalary.toString() || '',
-        jobAction: jobInfo?.jobAction,
-        employmentContractType:
-          jobInfo?.employementType?.name === 'Permanent'
-            ? 'Permanent'
-            : 'Contractual',
-        workScheduleId: jobInfo?.workSchedule?.name || '',
-      });
-    }
-  }, [employeeData, activeJob, form]);
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
     const positionId = employeeData?.employeeJobInformation?.find(
@@ -86,11 +49,14 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
     values.workScheduleId = workScheduleId || '';
     values.userId = id;
     values.basicSalary = parseInt(values.basicSalary.toString(), 10);
-
     values.departmentLeadOrNot
       ? values.departmentLeadOrNot
       : (values.departmentLeadOrNot = false);
-    createJobInformation(values);
+    createJobInformation(values, {
+      onSuccess: () => {
+        handleClose();
+      },
+    });
   };
   return (
     <>
@@ -127,7 +93,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
                 name="cancel"
                 onClick={handleClose}
               >
-                Cancel{' '}
+                Cancel
               </Button>
             </Row>
           </Form.Item>

@@ -219,6 +219,11 @@ const menuItems: MenuProps['items'] = [
         className: 'font-bold',
       },
       {
+        key: '/deduction',
+        label: 'Deduction',
+        className: 'font-bold',
+      },
+      {
         key: '/compensationSetting',
         label: 'Settings',
         className: 'font-bold',
@@ -239,6 +244,19 @@ const menuItems: MenuProps['items'] = [
       {
         key: '/incentive/settings',
         label: 'Settings',
+        className: 'font-bold',
+      },
+    ],
+  },
+  {
+    key: '/incentive',
+    icon: <CiCalendar />,
+    className: 'font-bold',
+    label: 'Incentive',
+    children: [
+      {
+        key: '/variable-pay',
+        label: 'Variable Pay',
         className: 'font-bold',
       },
     ],
@@ -302,6 +320,20 @@ const userItems: MenuProps['items'] = [
       },
     ],
   },
+  // {
+  //   key: '/incentive',
+  //   icon: <CiCalendar />,
+  //   className: 'font-bold',
+  //   label: 'Incentive',
+  //   children: [
+  //     {
+  //       key: '/variable-pay',
+  //       label: 'Variable Pay',
+  //       className: 'font-bold',
+  //     }
+
+  //   ],
+  // },
 ];
 
 interface MyComponentProps {

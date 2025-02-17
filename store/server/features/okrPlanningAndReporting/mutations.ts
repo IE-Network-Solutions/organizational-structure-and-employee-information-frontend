@@ -18,6 +18,22 @@ const approveOrRejectPlanningPeriods = async (planningData: any) => {
     headers,
   });
 };
+
+const approveOrRejectReporting = async (reportingData: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/okr-report/validate/${reportingData?.id}?value=${String(reportingData?.value)}`,
+    method: 'post',
+    headers,
+  });
+};
+
 const deletePlanById = async (id: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -32,9 +48,24 @@ const deletePlanById = async (id: any) => {
     headers,
   });
 };
+const deleteReportById = async (id: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/okr-report/${id}`,
+    method: 'delete',
+    headers,
+  });
+};
 const createReportForUnReportedtasks = async (
   values: any,
   planningPeriodId: string,
+  planId?: string,
 ) => {
   const token = useAuthenticationStore.getState().token; // Assuming you have a way to get the token
   const tenantId = useAuthenticationStore.getState().tenantId; // Assuming you have a way to get the tenantId
@@ -44,9 +75,28 @@ const createReportForUnReportedtasks = async (
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
+  const url = planId
+    ? `${OKR_URL}/okr-report-task/create-report/${userId}/${planningPeriodId}?planningId=${planId}`
+    : `${OKR_URL}/okr-report-task/create-report/${userId}/${planningPeriodId}`;
+
   return await crudRequest({
-    url: `${OKR_URL}/okr-report-task/create-report/${userId}/${planningPeriodId}`,
-    method: 'post',
+    url,
+    method: 'POST',
+    data: values,
+    headers,
+  });
+};
+const editReport = async (values: any, selectedReportId: string) => {
+  const token = useAuthenticationStore.getState().token; // Assuming you have a way to get the token
+  const tenantId = useAuthenticationStore.getState().tenantId; // Assuming you have a way to get the tenantId
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${OKR_URL}/okr-report-task/update-report-tasks/${selectedReportId}`,
+    method: 'patch',
     data: values,
     headers,
   });
@@ -63,12 +113,40 @@ export const useApprovalPlanningPeriods = () => {
     },
   });
 };
+
 export const useCreateReportForUnReportedtasks = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ values, planningPeriodId }: { values: any; planningPeriodId: string }) =>
-      createReportForUnReportedtasks(values, planningPeriodId),
+    ({
+      values,
+      planningPeriodId,
+      planId,
+    }: {
+      values: any;
+      planningPeriodId: string;
+      planId?: string;
+    }) => createReportForUnReportedtasks(values, planningPeriodId, planId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('okrReports');
+        queryClient.invalidateQueries('okrPlans');
+        queryClient.invalidateQueries('okrPlannedData');
+        NotificationMessage.success({
+          message: 'Successfully updated',
+          description: 'OKR plan status successfully updated',
+        });
+      },
+    },
+  );
+};
+
+export const useEditReportByReportId = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ values, selectedReportId }: { values: any; selectedReportId: string }) =>
+      editReport(values, selectedReportId),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('okrReports');
@@ -90,6 +168,32 @@ export const useDeletePlanById = () => {
       NotificationMessage.success({
         message: 'Successfully Deleted',
         description: 'OKR plan Deleted successfully',
+      });
+    },
+  });
+};
+export const useDeleteReportById = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(deleteReportById, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('okrReports');
+      NotificationMessage.success({
+        message: 'Successfully Deleted',
+        description: 'OKR plan Deleted successfully',
+      });
+    },
+  });
+};
+
+export const useApprovalReporting = () => {
+  const queryClient = useQueryClient();
+  return useMutation(approveOrRejectReporting, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('okrReports');
+      NotificationMessage.success({
+        message: 'Successfully updated',
+        description: 'okr plan status successfully updated',
       });
     },
   });

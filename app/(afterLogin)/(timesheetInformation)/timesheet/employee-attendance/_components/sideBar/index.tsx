@@ -12,6 +12,7 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import CustomRadio from '@/components/form/customRadio';
 import { useGetSingleAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import { useSetEditAttendance } from '@/store/server/features/timesheet/attendance/mutation';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const EmployeeAttendanceSideBar = () => {
   const [form] = Form.useForm();
@@ -21,22 +22,24 @@ const EmployeeAttendanceSideBar = () => {
     isShowEmployeeAttendanceSidebar,
     employeeAttendanceId,
     isAbsent,
+    employeeId,
     setIsAbsent,
     setIsShowEmployeeAttendanceSidebar,
     setEmployeeAttendanceId,
+    setEmployeeId,
   } = useEmployeeAttendanceStore();
   const onClose = () => {
     setIsShowEmployeeAttendanceSidebar(false);
     form.resetFields();
     setEmployeeAttendanceId('');
+    setEmployeeId('');
   };
 
   const { data: currentAttendanceData, isLoading: isAttendanceLoading } =
     useGetSingleAttendances(employeeAttendanceId);
 
-  const { data: employeeData, isLoading: isUserLoading } = useGetEmployee(
-    String(currentAttendanceData?.userId),
-  );
+  const { data: employeeData, isLoading: isUserLoading } =
+    useGetEmployee(employeeId);
 
   const { mutate: updateLeaveRequest, isLoading: isLoadingRequest } =
     useSetEditAttendance();
@@ -72,56 +75,61 @@ const EmployeeAttendanceSideBar = () => {
 
     const workScheduleData = employeeData?.employeeJobInformation
       ?.find((item: any) => item.isPositionActive === true)
-      ?.workSchedule?.detail?.find(
-        (item: any) => item.dayOfWeek === dayOfTheWeek,
+      ?.workSchedule?.detail?.find((item: any) =>
+        item.day ? item.day == dayOfTheWeek : item.dayOfWeek == dayOfTheWeek,
       );
-
-    const lateByMinutes = value?.isAbsent
-      ? 0
-      : dayjs(`${checkIn}`, 'hh:mm').diff(
-          dayjs(`${workScheduleData.startTime}`, 'hh:mm'),
-          'minute',
-        );
-    const earlyByMinutes = value?.isAbsent
-      ? 0
-      : dayjs(
-          dayjs(`${workScheduleData.endTime}`, 'hh:mm A').format('HH:mm'),
-          'hh:mm',
-        ).diff(dayjs(`${checkOut}`, 'hh:mm'), 'minute');
-    updateLeaveRequest(
-      {
-        id: employeeAttendanceId,
-        data: {
-          startAt: value?.isAbsent
-            ? null
-            : dayjs(value?.startAt, 'YYYY-MM-DD HH:mm').format(
-                'YYYY-MM-DD HH:mm',
-              ),
-          endAt: value?.isAbsent
-            ? null
-            : dayjs(value?.endAt, 'YYYY-MM-DD HH:mm').format(
-                'YYYY-MM-DD HH:mm',
-              ),
-          lateByMinutes: value?.isAbsent
-            ? 0
-            : lateByMinutes > 0
-              ? lateByMinutes
-              : 0,
-          earlyByMinutes: value?.isAbsent
-            ? 0
-            : earlyByMinutes > 0
-              ? earlyByMinutes
-              : 0,
-          isAbsent: value?.isAbsent,
-          isOnGoing: false,
+    if (workScheduleData) {
+      const lateByMinutes = value?.isAbsent
+        ? 0
+        : dayjs(`${checkIn}`, 'hh:mm').diff(
+            dayjs(`${workScheduleData.startTime}`, 'hh:mm'),
+            'minute',
+          );
+      const earlyByMinutes = value?.isAbsent
+        ? 0
+        : dayjs(
+            dayjs(`${workScheduleData.endTime}`, 'hh:mm A').format('HH:mm'),
+            'hh:mm',
+          ).diff(dayjs(`${checkOut}`, 'hh:mm'), 'minute');
+      updateLeaveRequest(
+        {
+          id: employeeAttendanceId,
+          data: {
+            startAt: value?.isAbsent
+              ? null
+              : dayjs(value?.startAt, 'YYYY-MM-DD HH:mm').format(
+                  'YYYY-MM-DD HH:mm',
+                ),
+            endAt: value?.isAbsent
+              ? null
+              : dayjs(value?.endAt, 'YYYY-MM-DD HH:mm').format(
+                  'YYYY-MM-DD HH:mm',
+                ),
+            lateByMinutes: value?.isAbsent
+              ? 0
+              : lateByMinutes > 0
+                ? lateByMinutes
+                : 0,
+            earlyByMinutes: value?.isAbsent
+              ? 0
+              : earlyByMinutes > 0
+                ? earlyByMinutes
+                : 0,
+            isAbsent: value?.isAbsent,
+            isOnGoing: false,
+          },
         },
-      },
-      {
-        onSuccess: () => {
-          onClose();
+        {
+          onSuccess: () => {
+            onClose();
+          },
         },
-      },
-    );
+      );
+    } else {
+      NotificationMessage.warning({
+        message: `This Employee does not have any active work scheduled`,
+      });
+    }
   };
   React.useEffect(() => {
     if (currentAttendanceData) {
