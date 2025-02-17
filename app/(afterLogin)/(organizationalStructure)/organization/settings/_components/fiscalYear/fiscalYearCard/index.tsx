@@ -87,13 +87,13 @@ const FiscalYearListCard: React.FC = () => {
               <div className="flex flex-col w-full ">
                 <div
                   className={`flex items-center justify-between gap-x-4 cursor-pointer p-2 rounded-lg ${
-                    expandedYears[fYear?.id] ? 'bg-gray-100' : ''
+                    expandedYears[fYear?.id || ''] ? 'bg-gray-100' : ''
                   }`}
-                  onClick={() => toggleExpand(fYear?.id, 'year')}
+                  onClick={() => toggleExpand(fYear?.id || '', 'year')}
                 >
                   <div className="flex items-center justify-center">
                     <div className="font-light">
-                      {expandedYears[fYear?.id] ? (
+                      {expandedYears[fYear?.id || ''] ? (
                         <MdKeyboardArrowUp size={20} />
                       ) : (
                         <IoIosArrowDown />
@@ -116,7 +116,7 @@ const FiscalYearListCard: React.FC = () => {
                   )}
                 </div>
 
-                {expandedYears[fYear?.id] &&
+                {expandedYears[fYear?.id || ''] &&
                   fYear.sessions?.map((session: Session) => (
                     <div key={session.id} className="mt-2 ml-7">
                       <div
