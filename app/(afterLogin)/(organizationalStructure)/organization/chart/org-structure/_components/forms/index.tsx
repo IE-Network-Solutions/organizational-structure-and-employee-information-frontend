@@ -257,7 +257,6 @@ export const MergeForm = () => {
         teamLeader,
       };
 
-      console.log('Merged department:', mergeData);
       setMergeData(mergeData);
     }
   };
@@ -344,8 +343,6 @@ export const MergeForm = () => {
     </Form>
   );
 };
-
-
 
 export const DeleteForm: React.FC<DeleteFormProps> = ({ form }) => {
   const {
