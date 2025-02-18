@@ -184,7 +184,7 @@ export const TransferForm = () => {
   );
 };
 
-export const MergeForm = () => {
+export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
   const { data: departments } = useGetDepartments();
   const { data: orgStructureData } = useGetOrgCharts();
   const setMergeData = useMergeStore((state) => state.setMergeData);
@@ -273,7 +273,7 @@ export const MergeForm = () => {
   ]);
 
   return (
-    <Form layout="vertical" className="flex flex-col gap-2">
+    <Form layout="vertical" className="flex flex-col gap-2" form={form}>
       <Form.Item
         label="New Merged Department Name"
         name="mergedDeptName"
