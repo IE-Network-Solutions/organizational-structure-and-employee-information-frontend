@@ -109,12 +109,13 @@ const PlanAssignment: React.FC = () => {
   const dataSources = userToPlanning?.map((item: any, index: number) => {
     const latestUpdatedAt = item?.items
       ? item.items.reduce((latest: any, currentItem: any) => {
-          return !latest || new Date(currentItem.updatedAt) > new Date(latest.updatedAt)
+          return !latest ||
+            new Date(currentItem.updatedAt) > new Date(latest.updatedAt)
             ? currentItem
             : latest;
         }, null)?.updatedAt
       : null;
-  
+
     return {
       id: index + 1,
       name: getEmployeeData(item?.userId),
@@ -123,14 +124,14 @@ const PlanAssignment: React.FC = () => {
         .join(', '),
       key: item?.userId,
       createdAt: item?.items?.[0]?.createdAt,
-      updatedAt: latestUpdatedAt,  // Assign latest updatedAt
+      updatedAt: latestUpdatedAt, // Assign latest updatedAt
       actions: {
         edit: () => handleEdit(item),
         delete: () => handleDelete(item),
       },
     };
   });
-  
+
   const columns: ColumnsType<any> = [
     {
       title: 'Employee Name',
@@ -138,12 +139,7 @@ const PlanAssignment: React.FC = () => {
       key: 'name',
       render: (notused, record) => (
         <span>
-          {employeeDataLoading ?
-          (
-            <Spin size="small" />
-          ):(
-            record?.name
-          )}
+          {employeeDataLoading ? <Spin size="small" /> : record?.name}
         </span>
       ),
       sorter: (a, b) => (a.name || '').localeCompare(b.name || ''),
@@ -157,7 +153,8 @@ const PlanAssignment: React.FC = () => {
       title: 'last Update', // Displaying a static date for now
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      render: (notused,record) => dayjs(record?.updatedAt).format('DD MMM YYYY'),
+      render: (notused, record) =>
+        dayjs(record?.updatedAt).format('DD MMM YYYY'),
     },
     {
       title: 'Actions',
