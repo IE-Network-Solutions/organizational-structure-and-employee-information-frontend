@@ -65,6 +65,7 @@ const ApprovalWorkFlowSettingComponent = ({
   } = useApprovalStore();
   const onRadioChange = (e: RadioChangeEvent) => {
     setWorkflowApplies(e.target.value);
+    form.setFieldsValue({ workflowAppliesId: null });
   };
   const handleUserChange = (value: string, index: number) => {
     const updatedSelections = [...selections.SectionItemType];
