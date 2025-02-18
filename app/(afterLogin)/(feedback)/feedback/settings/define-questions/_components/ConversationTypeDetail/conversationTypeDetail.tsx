@@ -69,7 +69,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
       {getConversationLoading && <Skeleton />}
       {conversationType?.questionSets?.map(
         (set: QuestionSet, index: number) => (
-          <Collapse key={index}>
+          <Collapse key={index} >
             <Card
               key={set?.id}
               className="mb-4"
@@ -123,28 +123,37 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
                 </div>
               }
             >
-              {set.conversationsQuestions.map((question: Question) => (
-                <div key={question.id} className="mb-2">
-                  <p className="font-semibold text-xs">{question?.question}</p>
-                  {question?.field?.length > 0 && (
-                    <ul className="list-none text-gray-600 text-sm">
-                      {question?.field.map((option, index) => (
-                        <li key={option?.key} className="flex items-start">
-                          <span className="font-bold mr-2">
-                            {String.fromCharCode(65 + index)}.
-                          </span>
-                          <span>{option?.value}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
+              {set.conversationsQuestions.map(
+                (question: Question, index: number) => (
+                  <div key={question.id} className="mb-2">
+                    <p className="font-semibold text-sm">
+                      {index + 1}.{" "}{question?.question}
+                      {question.mandatory && <span className="text-red-500">*</span>}
+                    </p>
+                    {question?.field?.length > 0 && (
+                      <ul className="list-none text-gray-600 text-xs ml-2">
+                        {question?.field.map((option, index) => (
+                          <li key={option?.key} className="flex items-start">
+                            <span className="font-bold mr-2">
+                              {String.fromCharCode(65 + index)}.
+                            </span>
+                            <span>{option?.value}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ),
+              )}
             </Card>
           </Collapse>
         ),
       )}
-      {conversationType?.questionSets?.length < 1 && <EmptyImage />}
+      {conversationType?.questionSets?.length < 1 && (
+        <div className="flex justify-center items-center">
+          <EmptyImage />
+        </div>
+      )}
       <CustomDrawerLayout
         open={editableData !== null}
         onClose={() => setEditableData(null)}

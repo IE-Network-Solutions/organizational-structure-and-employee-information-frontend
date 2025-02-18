@@ -64,7 +64,7 @@ function Index({ params }: { params: Params }) {
         <CustomizeRenderEmpty />
         <p className="text-center text-warning">
        
-        Info: Go to settings and define question sets under define question tab.
+        Info: Go to settings and define question-set under define question tab.
         </p>
       </div>
       )}

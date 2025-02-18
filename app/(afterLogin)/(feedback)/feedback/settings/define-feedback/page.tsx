@@ -97,7 +97,7 @@ const Page = () => {
                     <strong>department</strong>
                   </p>
                   <p className="flex gap-2 ml-2 text-xs">
-                    {getDepartment(item?.departmentId).name}
+                    {getDepartment(item?.departmentId)?.name}
                   </p>
                 </div>
               </div>
