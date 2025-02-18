@@ -11,7 +11,7 @@ import {
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 const PlanningPeriod: FC = () => {
@@ -42,12 +42,12 @@ const PlanningPeriod: FC = () => {
     });
   };
 
-const handleModalCancel = () => {
+  const handleModalCancel = () => {
     setIsModalVisible(false);
     form.resetFields();
   };
 
-const handleModalOk = async () => {
+  const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
       const formattedValues = {
@@ -167,7 +167,7 @@ const handleModalOk = async () => {
 
           <Form.Item label="Interval Length (Days)">
             <Form.Item
-              name='intervalLength'
+              name="intervalLength"
               noStyle
               rules={[{ required: true, message: 'Please enter days' }]}
             >
@@ -187,16 +187,16 @@ const handleModalOk = async () => {
               <Option value="monthly">Monthly</Option>
             </Select>
           </Form.Item>
-            <Form.Item
-              label="Submission Deadline (Days)"
-              name='submissionDeadline'
-              noStyle
-              rules={[
-                { required: true, message: 'Please enter submission deadline' },
-              ]}
-            >
-              <Input disabled type="text" min={0} placeholder="Days" />
-            </Form.Item>
+          <Form.Item
+            label="Submission Deadline (Days)"
+            name="submissionDeadline"
+            noStyle
+            rules={[
+              { required: true, message: 'Please enter submission deadline' },
+            ]}
+          >
+            <Input disabled type="text" min={0} placeholder="Days" />
+          </Form.Item>
           <Form.Item name="actionOnFailure" label="Action on Failure">
             <Input />
           </Form.Item>
