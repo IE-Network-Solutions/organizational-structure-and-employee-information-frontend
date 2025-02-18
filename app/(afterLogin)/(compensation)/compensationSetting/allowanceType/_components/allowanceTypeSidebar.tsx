@@ -200,6 +200,11 @@ const AllowanceTypeSideBar = () => {
               <Input
                 className="control"
                 type="number"
+                min={0}
+                onInput={(e) => {
+                  const input = e.target as HTMLInputElement;
+                  input.value = input.value.replace(/[^0-9]/g, '');
+                }}
                 placeholder="Enter Allowance Ammount"
                 style={{ height: '32px', padding: '4px 8px' }}
               />

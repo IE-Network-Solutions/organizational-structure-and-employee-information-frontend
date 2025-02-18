@@ -244,6 +244,11 @@ const BenefitypeSideBar = () => {
                       type="number"
                       placeholder="Benefit Amount"
                       style={{ height: '32px', padding: '4px 8px' }}
+                      min={0}
+                      onInput={(e) => {
+                        const input = e.target as HTMLInputElement;
+                        input.value = input.value.replace(/[^0-9]/g, '');
+                      }}
                     />
                   </Form.Item>
                   {!isAllEmployee && !selectedBenefitRecord && (
