@@ -31,7 +31,6 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
   const { data: getAllFeedbackTypeById } = useFetchFeedbackTypeById(activeTab);
   const { data: departments, isLoading } = useGetDepartments();
   const { data: perspectiveData } = useGetPerspectiveById(selectedDepartment);
-
   const {
     mutate: createFeedbackRecord,
     isLoading: loadingCreateFeedbackRecord,
