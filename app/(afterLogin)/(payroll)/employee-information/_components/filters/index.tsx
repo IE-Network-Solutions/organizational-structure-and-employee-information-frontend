@@ -4,16 +4,16 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Col, Row, Select } from 'antd';
-import React, { useState } from 'react';
+
 interface FiltersProps {
   onSearch: (filters: { [key: string]: string }) => void;
 }
-const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
-
+const Filters: React.FC<FiltersProps> = () => {
   const { Option } = Select;
   const { data: employeeData } = useGetAllUsers();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
-  const { searchParams,setSearchValue, setSearchParams } = useEmployeeManagementStore();
+  const { searchParams, setSearchValue, setSearchParams } =
+    useEmployeeManagementStore();
 
   const handleSearchEmployee = async (
     value: string | boolean,
@@ -78,8 +78,6 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
             ))}
           </Select>
         </Col>
-
-        
       </Row>
     </div>
   );

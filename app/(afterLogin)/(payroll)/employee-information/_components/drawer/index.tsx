@@ -98,7 +98,11 @@ const Drawer: React.FC = () => {
         </Form.Item>
 
         <Form.Item label="Basic Salary" name="basic_salary">
-          <Input disabled placeholder="Your basic Salary" className="w-full h-12"></Input>
+          <Input
+            disabled
+            placeholder="Your basic Salary"
+            className="w-full h-12"
+          ></Input>
         </Form.Item>
         <Form.Item
           label="Entitled Allowance"

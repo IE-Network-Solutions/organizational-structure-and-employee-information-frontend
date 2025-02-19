@@ -65,7 +65,6 @@ const EmployeeInformation = () => {
     setSelectedPayrollData,
     setSelectedAllowance,
     setIsEditMode,
-    searchText,
     setSearchText,
   } = useDrawerStore();
   const {
