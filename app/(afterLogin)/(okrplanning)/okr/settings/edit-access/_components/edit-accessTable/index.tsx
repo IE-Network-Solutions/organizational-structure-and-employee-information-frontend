@@ -79,6 +79,7 @@ const EditAccessTable: React.FC = () => {
   const data = allUser?.items?.map((item: any) => {
     return {
       key: item?.id,
+      name: item?.firstName,
       employee_name: (
         <div className="flex items-center justify-start gap-2">
           <div>
@@ -109,6 +110,9 @@ const EditAccessTable: React.FC = () => {
         (employee: any) => employee?.name === searchParams?.employee_name,
       )
     : data;
+
+  console.log(allUser, searchParams?.employee_name, data, 'allUser');
+
   return (
     <div className="mt-5">
       <Table
