@@ -9,6 +9,8 @@ import {
   useUpdateFeedbackRecord,
 } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackItem } from '@/store/server/features/CFR/conversation/action-plan/interface';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetPerspectiveById } from '@/store/server/features/CFR/feedback/queries';
 
 const { TextArea } = Input;
 
@@ -27,6 +29,8 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
   );
   const { data: getAllUsersData } = useGetAllUsers();
   const { data: getAllFeedbackTypeById } = useFetchFeedbackTypeById(activeTab);
+  const { data: departments, isLoading } = useGetDepartments();
+  const { data: perspectiveData } = useGetPerspectiveById(selectedDepartment);
   const {
     mutate: createFeedbackRecord,
     isLoading: loadingCreateFeedbackRecord,
