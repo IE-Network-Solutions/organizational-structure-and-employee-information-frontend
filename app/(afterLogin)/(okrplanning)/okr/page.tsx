@@ -28,6 +28,8 @@ const OKR: React.FC<any> = () => {
     searchObjParams?.metricTypeId,
   );
 
+  console.log(userObjectives, 'userObjectives');
+
   return (
     <div className="h-auto w-full p-4">
       <div className="flex flex-wrap justify-between items-center">
@@ -45,9 +47,10 @@ const OKR: React.FC<any> = () => {
               className="bg-white text-black hover:bg-black hover:text-white border-2 border-black"
             /> */}
           </AccessGuard>
-          {userObjectives?.items?.some(
+          {userObjectives?.items?.length === 0 ||
+          userObjectives?.items?.some(
             (item: any) => item?.isClosed === false,
-          ) && (
+          ) ? (
             <CustomButton
               title="Set Objective"
               id="createUserButton"
@@ -55,6 +58,8 @@ const OKR: React.FC<any> = () => {
               onClick={showDrawer}
               className="bg-blue-600 hover:bg-blue-700"
             />
+          ) : (
+            ''
           )}
         </div>
       </div>
