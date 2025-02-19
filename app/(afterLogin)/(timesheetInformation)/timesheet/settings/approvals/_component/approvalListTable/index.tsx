@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { RiDeleteBin6Line } from 'react-icons/ri';
-import { Button, Form, Input, Modal, Select, Tooltip } from 'antd';
+import { Button, Form, Modal, Select, Tooltip } from 'antd';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { FaPencil } from 'react-icons/fa6';
 import {
@@ -30,7 +30,6 @@ import { IoMdSwap } from 'react-icons/io';
 const ApprovalListTable = () => {
   const { data: employeeData } = useGetAllUsers();
   const { data: department } = useGetDepartments();
-  const { mutate: deleteApproval } = useDeleteApprovalWorkFLow();
   const {
     userCurrentPage,
     pageSize,
@@ -71,9 +70,6 @@ const ApprovalListTable = () => {
   const { mutate: updateWorkflow, isLoading: updateLoading } =
     useUpdateLeaverequestApprovalWorkFlow();
 
-  console.log(approvalWorkflowData, 'approvalWorkflowDataapprovalWorkflowData');
-
-  console.log(leaveRequestData, 'leaveRequestData');
   const getEmployeeInformation = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user;
@@ -101,10 +97,6 @@ const ApprovalListTable = () => {
         );
       },
     });
-  };
-
-  const onFinishFailed = (errorInfo: any) => {
-    console.log('Form Submission Failed:', errorInfo);
   };
 
   const MAX_NAME_LENGTH = 10;
@@ -307,8 +299,6 @@ const ApprovalListTable = () => {
         },
       });
     }
-    // setDeleteModal(false);
-    // deleteApproval(id);
   };
 
   return (
@@ -343,7 +333,6 @@ const ApprovalListTable = () => {
           form={form}
           layout="vertical"
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           initialValues={{
             currentWorkFlow: deletedItem,
           }}
