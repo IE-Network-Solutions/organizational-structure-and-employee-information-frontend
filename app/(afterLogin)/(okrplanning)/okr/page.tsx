@@ -28,8 +28,6 @@ const OKR: React.FC<any> = () => {
     searchObjParams?.metricTypeId,
   );
 
-  console.log(userObjectives, 'userObjectives');
-
   return (
     <div className="h-auto w-full p-4">
       <div className="flex flex-wrap justify-between items-center">
