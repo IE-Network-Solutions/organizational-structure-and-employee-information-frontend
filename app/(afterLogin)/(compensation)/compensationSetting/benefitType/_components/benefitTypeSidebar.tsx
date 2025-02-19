@@ -237,7 +237,19 @@ const BenefitypeSideBar = () => {
                     name="defaultAmount"
                     label={isRateBenefit ? 'Rate Amount' : 'Fixed Amount'}
                     className="form-item"
-                    rules={[{ required: true, message: 'Amount is Required' }]}
+                    rules={[
+                      { required: true, message: 'Amount is Required' },
+                      {
+                        validator: (_, value) => {
+                          if (value < 0) {
+                            return Promise.reject(
+                              new Error('Amount cannot be negative'),
+                            );
+                          }
+                          return Promise.resolve();
+                        },
+                      },
+                    ]}
                   >
                     <Input
                       className="control"
@@ -245,10 +257,6 @@ const BenefitypeSideBar = () => {
                       placeholder="Benefit Amount"
                       style={{ height: '32px', padding: '4px 8px' }}
                       min={0}
-                      onInput={(e) => {
-                        const input = e.target as HTMLInputElement;
-                        input.value = input.value.replace(/[^0-9]/g, '');
-                      }}
                     />
                   </Form.Item>
                   {!isAllEmployee && !selectedBenefitRecord && (

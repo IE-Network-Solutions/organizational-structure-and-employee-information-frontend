@@ -194,17 +194,25 @@ const AllowanceTypeSideBar = () => {
             <Form.Item
               name="defaultAmount"
               label={isRateAllowance ? 'Rate' : 'Fixed Amount'}
-              rules={[{ required: true, message: 'Required' }]}
+              rules={[
+                { required: true, message: 'Amount is Required' },
+                {
+                  validator: (_, value) => {
+                    if (value < 0) {
+                      return Promise.reject(
+                        new Error('Amount cannot be negative'),
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
               className="form-item"
             >
               <Input
                 className="control"
                 type="number"
                 min={0}
-                onInput={(e) => {
-                  const input = e.target as HTMLInputElement;
-                  input.value = input.value.replace(/[^0-9]/g, '');
-                }}
                 placeholder="Enter Allowance Ammount"
                 style={{ height: '32px', padding: '4px 8px' }}
               />
