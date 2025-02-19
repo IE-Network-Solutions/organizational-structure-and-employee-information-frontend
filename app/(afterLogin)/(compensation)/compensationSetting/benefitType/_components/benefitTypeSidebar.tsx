@@ -240,7 +240,7 @@ const BenefitypeSideBar = () => {
                     rules={[
                       { required: true, message: 'Amount is Required' },
                       {
-                        validator: (_, value) => {
+                        validator: (notused, value) => {
                           if (value < 0) {
                             return Promise.reject(
                               new Error('Amount cannot be negative'),
