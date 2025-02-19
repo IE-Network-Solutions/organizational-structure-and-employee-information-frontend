@@ -1,6 +1,6 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { APPROVER_URL } from '@/utils/constants';
+import { APPROVER_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
@@ -105,6 +105,38 @@ const deleteParallelApprover = async (id: string) => {
   }
 };
 
+export const updateLeaverequestApprovalWorkFlow = async (
+  currentapprovalWorkflowId: string,
+  approvalWorkflowId: string,
+) => {
+  // Retrieve authentication data safely
+  const { token, tenantId } = useAuthenticationStore.getState();
+  if (!token || !tenantId) {
+    throw new Error('User not authenticated.');
+  }
+
+  try {
+    const response = await crudRequest({
+      url: `${TIME_AND_ATTENDANCE_URL}/leave-request/workflowId/${currentapprovalWorkflowId}/${approvalWorkflowId}`,
+      method: 'PATCH', // Assuming you're updating data, use PATCH or PUT
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+
+    return response;
+  } catch (error: any) {
+    const errorMessage =
+      error.response?.data?.message || 'Failed to update approval workflow.';
+    NotificationMessage.error({
+      message: 'Update Failed',
+      description: errorMessage,
+    });
+    throw new Error(errorMessage);
+  }
+};
+
 export const useCreateApproverMutation = () => {
   const queryClient = useQueryClient();
 
@@ -192,4 +224,37 @@ export const useDeleteParallelApprover = () => {
       });
     },
   });
+};
+
+export const useUpdateLeaverequestApprovalWorkFlow = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({
+      currentapprovalWorkflowId,
+      approvalWorkflowId,
+    }: {
+      currentapprovalWorkflowId: string;
+      approvalWorkflowId: string;
+    }) =>
+      updateLeaverequestApprovalWorkFlow(
+        currentapprovalWorkflowId,
+        approvalWorkflowId,
+      ),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('approvals'); // Refresh approval data
+        NotificationMessage.success({
+          message: 'Successfully Updated',
+          description: 'Approval workflow updated successfully.',
+        });
+      },
+      onError: (error: any) => {
+        NotificationMessage.error({
+          message: 'Update Failed',
+          description: error.message || 'An unexpected error occurred.',
+        });
+      },
+    },
+  );
 };

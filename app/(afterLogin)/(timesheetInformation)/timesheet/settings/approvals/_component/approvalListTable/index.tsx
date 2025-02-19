@@ -1,13 +1,20 @@
 'use client';
 import Image from 'next/image';
 import { RiDeleteBin6Line } from 'react-icons/ri';
-import { Button, Tooltip } from 'antd';
+import { Button, Form, Input, Modal, Select, Tooltip } from 'antd';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { FaPencil } from 'react-icons/fa6';
-import { useApprovalFilter } from '@/store/server/features/approver/queries';
+import {
+  useApprovalFilter,
+  useGetAllApprovalWorkflow,
+  useGetAllLeaveRequestByWorkFlowId,
+} from '@/store/server/features/approver/queries';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
-import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
+import {
+  useDeleteApprovalWorkFLow,
+  useUpdateLeaverequestApprovalWorkFlow,
+} from '@/store/server/features/approver/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { FaPlus } from 'react-icons/fa';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
@@ -17,7 +24,8 @@ import EditWorkFLow from '../editWorkFLow';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import ApproverListTable from '@/components/Approval/ApprovalListTable';
-import { APPROVALTYPES } from '@/types/enumTypes';
+import { APPROVALTYPES, commonClass } from '@/types/enumTypes';
+import { IoMdSwap } from 'react-icons/io';
 
 const ApprovalListTable = () => {
   const { data: employeeData } = useGetAllUsers();
@@ -28,6 +36,8 @@ const ApprovalListTable = () => {
     pageSize,
     deleteModal,
     editModal,
+    transferModal,
+    setTransferModal,
     addModal,
     deletedItem,
     setLevel,
@@ -51,6 +61,19 @@ const ApprovalListTable = () => {
       searchParams?.name || '',
       APPROVALTYPES.LEAVE,
     );
+
+  const { data: leaveRequestData } =
+    useGetAllLeaveRequestByWorkFlowId(deletedItem);
+
+  const { data: approvalWorkflowData } = useGetAllApprovalWorkflow();
+  const { mutate: deleteWorkflow, isLoading: deleteLoading } =
+    useDeleteApprovalWorkFLow();
+  const { mutate: updateWorkflow, isLoading: updateLoading } =
+    useUpdateLeaverequestApprovalWorkFlow();
+
+  console.log(approvalWorkflowData, 'approvalWorkflowDataapprovalWorkflowData');
+
+  console.log(leaveRequestData, 'leaveRequestData');
   const getEmployeeInformation = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user;
@@ -58,6 +81,30 @@ const ApprovalListTable = () => {
   const getDepartmentInformation = (id: string) => {
     const departments = department?.find((item: any) => item.id === id);
     return departments;
+  };
+
+  const [form] = Form.useForm(); // Form instance
+  const onFinish = (values: any) => {
+    deleteWorkflow(values.currentWorkFlow, {
+      onSuccess: () => {
+        // Fix: Pass the correct structure for updateWorkflow
+        updateWorkflow(
+          {
+            currentapprovalWorkflowId: values.currentWorkFlow,
+            approvalWorkflowId: values.workflow,
+          },
+          {
+            onSuccess: () => {
+              setTransferModal(false);
+            },
+          },
+        );
+      },
+    });
+  };
+
+  const onFinishFailed = (errorInfo: any) => {
+    console.log('Form Submission Failed:', errorInfo);
   };
 
   const MAX_NAME_LENGTH = 10;
@@ -250,13 +297,24 @@ const ApprovalListTable = () => {
     }
   };
   const handleDeleteConfirm = (id: string) => {
-    setDeleteModal(false);
-    deleteApproval(id);
+    if (leaveRequestData?.items?.length > 0) {
+      setDeleteModal(false);
+      setTransferModal(true);
+    } else {
+      deleteWorkflow(id, {
+        onSuccess: () => {
+          setDeleteModal(false);
+        },
+      });
+    }
+    // setDeleteModal(false);
+    // deleteApproval(id);
   };
 
   return (
     <div className="mt-2  pt-5">
       <DeleteModal
+        loading={deleteLoading}
         open={deleteModal}
         onConfirm={() => handleDeleteConfirm(deletedItem)}
         onCancel={() => setDeleteModal(false)}
@@ -270,6 +328,87 @@ const ApprovalListTable = () => {
         onPageChange={onPageChange}
         pageSize={pageSize}
       />
+
+      <Modal
+        title={
+          <p className={`${commonClass}`}>
+            Should be Transfer to Another WorkFlow
+          </p>
+        }
+        open={transferModal}
+        onCancel={() => setTransferModal(false)}
+        footer={null}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          initialValues={{
+            currentWorkFlow: deletedItem,
+          }}
+        >
+          <div className="flex items-center gap-4">
+            <Form.Item
+              label={<span className={`${commonClass}`}>Current Workflow</span>}
+              name="currentWorkFlow"
+              rules={[{ required: true, message: 'Please enter a value!' }]}
+            >
+              <Select
+                disabled
+                placeholder="Select Workflow"
+                style={{ width: '200px' }}
+                options={approvalWorkflowData?.items.map((item) => ({
+                  label: item.name,
+                  value: item.id, // ✅ Use `value` instead of `id`
+                }))}
+              />
+            </Form.Item>
+
+            <div className="flex justify-center items-center text-2xl">
+              <IoMdSwap />
+            </div>
+
+            <Form.Item
+              label={<span className={`${commonClass}`}>Select Workflow</span>}
+              name="workflow"
+              rules={[{ required: true, message: 'Please select a workflow!' }]}
+            >
+              <Select
+                placeholder="Select Workflow"
+                allowClear
+                style={{ width: '200px' }}
+                options={approvalWorkflowData?.items.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                }))}
+              />
+            </Form.Item>
+          </div>
+
+          {/* Action Buttons */}
+          <Form.Item>
+            <div className="flex justify-end space-x-8">
+              <Button
+                loading={updateLoading}
+                className="text-sm"
+                type="primary"
+                htmlType="submit"
+              >
+                Transfer
+              </Button>
+              <Button
+                className={`${commonClass}`}
+                type="dashed"
+                danger
+                htmlType="reset"
+              >
+                Reset
+              </Button>
+            </div>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
