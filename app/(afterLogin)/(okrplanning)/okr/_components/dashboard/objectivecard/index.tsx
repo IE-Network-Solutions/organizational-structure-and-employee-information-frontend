@@ -66,7 +66,6 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
       },
     });
   }
-
   return (
     <div className="p-2 grid gap-0">
       <div className="flex justify-center">

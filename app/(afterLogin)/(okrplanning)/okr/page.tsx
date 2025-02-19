@@ -10,7 +10,6 @@ import CustomButton from '@/components/common/buttons/customButton';
 import { useGetUserObjective } from '@/store/server/features/okrplanning/okr/objective/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
-import { Spin } from 'antd';
 const OKR: React.FC<any> = () => {
   const { userId } = useAuthenticationStore();
   const [open, setOpen] = useState(false);
@@ -22,7 +21,7 @@ const OKR: React.FC<any> = () => {
     setOpen(false);
   };
 
-  const { data: userObjectives, isLoading } = useGetUserObjective(
+  const { data: userObjectives } = useGetUserObjective(
     userId,
     pageSize,
     currentPage,
@@ -46,11 +45,9 @@ const OKR: React.FC<any> = () => {
               className="bg-white text-black hover:bg-black hover:text-white border-2 border-black"
             /> */}
           </AccessGuard>
-          {isLoading ? (
-            <Spin />
-          ) : userObjectives?.items?.some(
-              (item: any) => item?.isClosed === false,
-            ) ? (
+          {userObjectives?.items?.some(
+            (item: any) => item?.isClosed === false,
+          ) && (
             <CustomButton
               title="Set Objective"
               id="createUserButton"
@@ -58,7 +55,7 @@ const OKR: React.FC<any> = () => {
               onClick={showDrawer}
               className="bg-blue-600 hover:bg-blue-700"
             />
-          ) : null}
+          )}
         </div>
       </div>
       <Dashboard />
