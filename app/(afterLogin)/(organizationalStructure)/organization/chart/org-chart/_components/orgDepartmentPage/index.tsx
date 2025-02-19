@@ -1,7 +1,15 @@
 'use client';
 import React, { useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import { Card, Menu, Dropdown, Tooltip, Modal, Avatar, Spin, Skeleton } from 'antd';
+import {
+  Card,
+  Menu,
+  Dropdown,
+  Tooltip,
+  Modal,
+  Avatar,
+  Skeleton,
+} from 'antd';
 
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
@@ -26,7 +34,8 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
   const getUserData = (userId: string) => {
     if (!getUsersData?.items) return null;
 
-    const user = getUsersData.items.find((user: any) => user.id === userId) ?? null;
+    const user =
+      getUsersData.items.find((user: any) => user.id === userId) ?? null;
 
     return user;
   };
@@ -48,28 +57,40 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
           {isLoading ? (
             <Skeleton.Avatar active size={54} />
           ) : (
-            <Avatar icon={<BiUser />} size={54} src={user?.profileImage} className="mb-2" />
+            <Avatar
+              icon={<BiUser />}
+              size={54}
+              src={user?.profileImage}
+              className="mb-2"
+            />
           )}
         </Tooltip>
 
-        <div className='flex flex-col items-center'>
-
-        {isLoading ? (
-          <Skeleton.Input active size="small" className="mt-2 w-auto text-center" />
-        ) : (
-          <span className="font-bold text-center">
-            {user?.firstName || user?.middleName || user?.lastName
-              ? `${user?.firstName ?? ''} ${user?.middleName ?? ''} ${user?.lastName ?? ''}`.trim()
-              : 'Not assigned'}
-          </span>
-        )}
-        {isLoading ? (
-          <Skeleton.Input active size="small" className="w-auto text-center" />
-        ) : (
-          <span className="text-sm text-center">
-            {user?.role ? user?.role?.name?.trim() : 'Role not assigned'}
-          </span>
-        )}
+        <div className="flex flex-col items-center">
+          {isLoading ? (
+            <Skeleton.Input
+              active
+              size="small"
+              className="mt-2 w-auto text-center"
+            />
+          ) : (
+            <span className="font-bold text-center">
+              {user?.firstName || user?.middleName || user?.lastName
+                ? `${user?.firstName ?? ''} ${user?.middleName ?? ''} ${user?.lastName ?? ''}`.trim()
+                : 'Not assigned'}
+            </span>
+          )}
+          {isLoading ? (
+            <Skeleton.Input
+              active
+              size="small"
+              className="w-auto text-center"
+            />
+          ) : (
+            <span className="text-sm text-center">
+              {user?.role ? user?.role?.name?.trim() : 'Role not assigned'}
+            </span>
+          )}
         </div>
       </div>
     </Card>
@@ -199,7 +220,8 @@ const OrgChartComponent: React.FC = () => {
                     branchId: orgStructureData?.branchId,
                     description: '',
                     collapsed: false,
-                    employeeJobInformation:orgStructureData?.employeeJobInformation ?? []
+                    employeeJobInformation:
+                      orgStructureData?.employeeJobInformation ?? [],
                   }}
                 />
               }
