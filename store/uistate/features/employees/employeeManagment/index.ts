@@ -125,6 +125,10 @@ interface UserState {
   setEdit: (key: keyof EditState) => void;
   selectionType: 'checkbox' | 'radio';
   setSelectionType: (selectionType: 'checkbox' | 'radio') => void;
+
+  searchValue: string | null;
+  setSearchValue: (searchValue: string | null) => void;
+
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
   reHireModal: boolean;
@@ -144,6 +148,9 @@ export const useEmployeeManagementStore = create<UserState>()(
     setIsAddEmployeeJobInfoModalVisible: (
       isAddEmployeeJobInfoModalVisible: boolean,
     ) => set({ isAddEmployeeJobInfoModalVisible }),
+
+    searchValue: null,
+    setSearchValue: (searchValue: string | null) => set({ searchValue }),
 
     open: false,
     deleteModal: false,

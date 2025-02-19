@@ -9,14 +9,11 @@ interface FiltersProps {
   onSearch: (filters: { [key: string]: string }) => void;
 }
 const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [SearchValue, setSearchValue] = useState<{ [key: string]: string }>({});
-  /* eslint-enable @typescript-eslint/naming-convention */
 
   const { Option } = Select;
   const { data: employeeData } = useGetAllUsers();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
-  const { searchParams, setSearchParams } = useEmployeeManagementStore();
+  const { searchParams,setSearchValue, setSearchParams } = useEmployeeManagementStore();
 
   const handleSearchEmployee = async (
     value: string | boolean,
@@ -32,11 +29,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
   };
 
   const handleEmployeeSelect = (value: string) => {
-    setSearchValue((prev) => {
-      const updatedSearchValue = { ...prev, employeeId: value };
-      onSearch(updatedSearchValue);
-      return updatedSearchValue;
-    });
+    setSearchValue(value);
   };
   const options =
     employeeData?.items?.map((emp: any) => ({
@@ -86,18 +79,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
           </Select>
         </Col>
 
-        {/* <Col lg={4} md={5} sm={24} xs={24}>
-          <Select
-            placeholder="Filters"
-            onChange={handleTypeChange}
-            allowClear
-            className="w-full h-14"
-            style={{ height: '48px' }}
-          >
-            <Option value="product">Product</Option>
-            <Option value="engineering">Engineering</Option>
-          </Select>
-        </Col> */}
+        
       </Row>
     </div>
   );

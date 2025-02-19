@@ -14,6 +14,8 @@ interface DrawerState {
   setSelectedPayrollData: (selectedPayrollData: any) => void;
   isEditMode: boolean;
   setIsEditMode: (isEdit: boolean) => void;
+  searchText: string;
+  setSearchText: (text: string) => void;
 }
 
 const useDrawerStore = create<DrawerState>((set) => ({
@@ -32,6 +34,8 @@ const useDrawerStore = create<DrawerState>((set) => ({
   resetSelectedMonths: () => set({ selectedMonths: [] }),
   isEditMode: false,
   setIsEditMode: (isEdit: boolean) => set({ isEditMode: isEdit }),
+  searchText: '',
+  setSearchText: (text: string) => set({ searchText: text }),
 }));
 
 export default useDrawerStore;

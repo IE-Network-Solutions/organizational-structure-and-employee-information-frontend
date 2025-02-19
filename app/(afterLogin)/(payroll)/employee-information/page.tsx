@@ -1,5 +1,4 @@
 'use client';
-import React, { useState } from 'react';
 import { Table, Tag, Button, Space, Spin } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import Filters from './_components/filters';
@@ -8,6 +7,7 @@ import Drawer from './_components/drawer';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import { useGetEmployeeInfo } from '@/store/server/features/payroll/payroll/queries';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 interface Employee {
   id: string;
@@ -57,14 +57,16 @@ interface AllowanceMap {
 }
 
 const EmployeeInformation = () => {
-  const [searchText, setSearchText] = useState('');
-
   const router = useRouter();
+  const { searchValue } = useEmployeeManagementStore();
+
   const {
     openDrawer,
     setSelectedPayrollData,
     setSelectedAllowance,
     setIsEditMode,
+    searchText,
+    setSearchText,
   } = useDrawerStore();
   const {
     data: EmployeeData,
@@ -225,7 +227,7 @@ const EmployeeInformation = () => {
       <Spin spinning={responseLoading || Loading}>
         <Table
           dataSource={dataSource.filter((item) =>
-            searchText ? item.key === searchText : true,
+            searchValue ? item.key === searchValue : true,
           )}
           columns={columns}
           onRow={(record) => ({

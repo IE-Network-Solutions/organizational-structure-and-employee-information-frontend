@@ -90,15 +90,15 @@ const Drawer: React.FC = () => {
     >
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item label="Full Name" name="name">
-          <Input placeholder="Abraham Dulla" disabled className="h-12" />
+          <Input placeholder="Full Name" disabled className="h-12" />
         </Form.Item>
 
         <Form.Item label="Job Information" name="job_information">
-          <Input disabled placeholder="Product Design Lead" className="h-12" />
+          <Input disabled placeholder="Job Information" className="h-12" />
         </Form.Item>
 
         <Form.Item label="Basic Salary" name="basic_salary">
-          <Input disabled placeholder="10,000" className="w-full h-12"></Input>
+          <Input disabled placeholder="Your basic Salary" className="w-full h-12"></Input>
         </Form.Item>
         <Form.Item
           label="Entitled Allowance"
@@ -107,7 +107,7 @@ const Drawer: React.FC = () => {
         >
           <Select
             mode="multiple"
-            placeholder="Select allownace type"
+            placeholder="Select allowanace type"
             className="w-full h-12"
           >
             {AllowanceData?.filter(
@@ -138,7 +138,7 @@ const Drawer: React.FC = () => {
         <Form.Item label="Account Number" name="account_number">
           <Input
             disabled
-            placeholder="10000000000000000"
+            placeholder="account number"
             className="w-full h-12"
           ></Input>
         </Form.Item>
