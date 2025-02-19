@@ -193,7 +193,9 @@ const getEmployee = async (id: string) => {
 };
 
 export const useGetAllUsers = () =>
-  useQuery<any>('employeesWithOutPagination', getAllUsersWithOutPagination);
+  useQuery<any>('employeesWithOutPagination', getAllUsersWithOutPagination,{
+    keepPreviousData: true,
+  });
 
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.
