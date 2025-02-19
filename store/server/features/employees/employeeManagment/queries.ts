@@ -210,7 +210,6 @@ const getAllUsersDataWithOutPagination = async () => {
 export const useGetAllUsersData = () =>
   useQuery<any>('allEmployeesData', getAllUsersDataWithOutPagination);
 
-
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.
  *
