@@ -157,8 +157,13 @@ const MonthDrawer: React.FC<DrawerProps> = ({
         })),
     );
 
-    setMonthRangeFormValues(transformedData);
-  }, [groupedMonths]);
+    if (
+      JSON.stringify(transformedData) !==
+      JSON.stringify(useFiscalYearDrawerStore.getState().monthRangeValues)
+    ) {
+      setMonthRangeFormValues(transformedData);
+    }
+  }, []);
 
   return (
     <>

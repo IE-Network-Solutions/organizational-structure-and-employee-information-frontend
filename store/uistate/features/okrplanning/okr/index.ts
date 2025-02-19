@@ -20,6 +20,7 @@ export const useOKRStore = create<OKRState>()(
       title: '',
       userId: '',
       deadline: '',
+      isClosed: true,
       keyResults: [
         {
           key_type: 'Milestone',
@@ -37,6 +38,7 @@ export const useOKRStore = create<OKRState>()(
       title: '',
       userId: '',
       deadline: '',
+      isClosed: true,
     },
 
     // Initialize key result value state
