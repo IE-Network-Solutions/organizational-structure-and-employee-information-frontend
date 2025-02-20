@@ -15,7 +15,7 @@ import {
   PhoneOutlined,
   PrinterOutlined,
 } from '@ant-design/icons';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   useGetActivePayroll,
   useGetPayPeriod,
