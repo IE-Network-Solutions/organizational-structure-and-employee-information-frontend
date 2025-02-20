@@ -40,7 +40,7 @@ const PayrollDetails = ({ activeMergedPayroll }: any) => {
               {activeMergedPayroll?.breakdown?.allowances?.map(
                 (item: any, index: any) => (
                   <Text className="font-bold" key={index}>
-                    {parseFloat(item.amount).toFixed(2)} ETB
+                    {parseFloat(item.amount).toFixed(2)}
                   </Text>
                 ),
               )}
@@ -84,7 +84,7 @@ const PayrollDetails = ({ activeMergedPayroll }: any) => {
               {activeMergedPayroll?.breakdown?.merits?.map(
                 (item: any, index: any) => (
                   <Text className="font-bold" key={index}>
-                    {parseFloat(item.amount).toFixed(2)} ETB
+                    {parseFloat(item.amount).toFixed(2)}
                   </Text>
                 ),
               )}
@@ -93,7 +93,6 @@ const PayrollDetails = ({ activeMergedPayroll }: any) => {
                   {parseFloat(
                     activeMergedPayroll?.breakdown?.variablePay?.amount || '0',
                   ).toFixed(2)}{' '}
-                  ETB
                 </Text>
               )}
             </div>
@@ -132,14 +131,14 @@ const PayrollDetails = ({ activeMergedPayroll }: any) => {
               {activeMergedPayroll?.breakdown?.pension?.map(
                 (item: any, index: any) => (
                   <Text className="font-bold" key={index}>
-                    {parseFloat(item.amount).toFixed(2)} ETB
+                    {parseFloat(item.amount).toFixed(2)}
                   </Text>
                 ),
               )}
               {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
                 (item: any, index: any) => (
                   <Text className="font-bold" key={index}>
-                    {parseFloat(item.amount).toFixed(2)} ETB
+                    {parseFloat(item.amount).toFixed(2)}
                   </Text>
                 ),
               )}
@@ -156,9 +155,9 @@ const PayrollDetails = ({ activeMergedPayroll }: any) => {
           </div>
           <div className="flex flex-col gap-4">
             <Text className="font-bold">
-              {activeMergedPayroll?.grossSalary} ETB
+              {activeMergedPayroll?.grossSalary}
             </Text>
-            <Text className="font-bold">{activeMergedPayroll?.netPay} ETB</Text>
+            <Text className="font-bold">{activeMergedPayroll?.netPay} </Text>
           </div>
         </div>
       </div>

@@ -26,6 +26,7 @@ import dayjs from 'dayjs';
 import PayrollDetails from './_components/PayrollDetails';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -40,9 +41,15 @@ const EmployeeProfile = () => {
 
   const { data: employee } = useGetEmployee(empId);
   const { data: payroll } = useGetActivePayroll();
-  const [mergedPayroll, setMergedPayroll] = useState<any>([]);
-  const [activeMergedPayroll, setActiveMergedPayroll] = useState<any>([]);
-  const [activePayPeriod, setActivePayPeriod] = useState<any>(null);
+
+  const {
+    mergedPayroll,
+    activeMergedPayroll,
+    activePayPeriod,
+    setMergedPayroll,
+    setActiveMergedPayroll,
+    setActivePayPeriod,
+  } = useEmployeeStore();
   const payslipRef = useRef(null);
 
   const downloadPayslip = () => {
@@ -56,7 +63,7 @@ const EmployeeProfile = () => {
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save(`Payslip_${activeMergedPayroll.payPeriod}.pdf`);
+      pdf.save(`${activeMergedPayroll?.firstName}_Payslip_.pdf`);
     });
   };
 
@@ -87,7 +94,11 @@ const EmployeeProfile = () => {
     }
   }, [payroll, employee, empId, payPeriodData]);
 
-  const totalAmount = (items: any) => {
+  interface Allowances {
+    amount: string | number;
+  }
+
+  const totalAmount = (items: Allowances[]) => {
     if (!items || items.length === 0) return '0.00';
     return items
       .reduce(
@@ -334,7 +345,7 @@ const EmployeeProfile = () => {
                             Employee Net Pay
                           </span>
                           <span className="text-violet-500 text-4xl font-bold mb-2">
-                            {activeMergedPayroll?.netPay} ETB
+                            {activeMergedPayroll?.netPay}
                           </span>
                           <span className="font-bold text-xl">
                             Employee Basic Salary
@@ -344,7 +355,6 @@ const EmployeeProfile = () => {
                               activeMergedPayroll?.employeeInfo
                                 ?.basicSalaries[0]?.basicSalary
                             }{' '}
-                            ETB
                           </span>
                         </div>
                       </div>
@@ -379,7 +389,7 @@ const EmployeeProfile = () => {
                             {activeMergedPayroll?.breakdown?.allowances?.map(
                               (item: any, index: any) => (
                                 <Text key={index}>
-                                  {parseFloat(item.amount).toFixed(2)} ETB
+                                  {parseFloat(item.amount).toFixed(2)}
                                 </Text>
                               ),
                             )}
@@ -390,9 +400,8 @@ const EmployeeProfile = () => {
                           <Text className="text-purple">Total Allowance:</Text>
                           <Text className="text-purple">
                             {totalAmount(
-                              activeMergedPayroll?.breakdown?.allowances,
+                              activeMergedPayroll?.breakdown?.allowances || [],
                             )}{' '}
-                            ETB
                           </Text>
                         </div>
                       </div>
@@ -425,7 +434,7 @@ const EmployeeProfile = () => {
                             {activeMergedPayroll?.breakdown?.merits?.map(
                               (item: any, index: any) => (
                                 <Text className="font-bold" key={index}>
-                                  {parseFloat(item.amount).toFixed(2)} ETB
+                                  {parseFloat(item.amount).toFixed(2)}
                                 </Text>
                               ),
                             )}
@@ -433,9 +442,8 @@ const EmployeeProfile = () => {
                               <Text className="font-bold">
                                 {parseFloat(
                                   activeMergedPayroll?.breakdown?.variablePay
-                                    ?.amount || '0',
+                                    ?.amount,
                                 ).toFixed(2)}{' '}
-                                ETB
                               </Text>
                             )}
                           </div>
@@ -456,7 +464,6 @@ const EmployeeProfile = () => {
                                   ]
                                 : []),
                             ])}{' '}
-                            ETB
                           </Text>
                         </div>
                       </div>
@@ -497,14 +504,14 @@ const EmployeeProfile = () => {
                           {activeMergedPayroll?.breakdown?.pension?.map(
                             (item: any, index: any) => (
                               <Text className="font-bold" key={index}>
-                                {parseFloat(item.amount).toFixed(2)} ETB
+                                {parseFloat(item.amount).toFixed(2)}
                               </Text>
                             ),
                           )}
                           {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
                             (item: any, index: any) => (
                               <Text className="font-bold" key={index}>
-                                {parseFloat(item.amount).toFixed(2)} ETB
+                                {parseFloat(item.amount).toFixed(2)}
                               </Text>
                             ),
                           )}
@@ -518,7 +525,6 @@ const EmployeeProfile = () => {
                             ...(activeMergedPayroll?.breakdown
                               ?.totalDeductionWithPension || []),
                           ])}{' '}
-                          ETB
                         </Text>
                       </div>
                     </div>
