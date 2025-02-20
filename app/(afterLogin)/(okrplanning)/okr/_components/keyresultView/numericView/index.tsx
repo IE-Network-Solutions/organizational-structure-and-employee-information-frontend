@@ -110,6 +110,9 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               min={0}
               className="w-full text-xs"
               value={keyValue.initialValue}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }
               onChange={(value) => {
                 handleChange(value, 'initialValue');
               }}
@@ -132,6 +135,9 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             <InputNumber
               className="text-xs w-full"
               value={keyValue.targetValue}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }
               onChange={(value) => {
                 handleChange(value, 'targetValue');
               }}

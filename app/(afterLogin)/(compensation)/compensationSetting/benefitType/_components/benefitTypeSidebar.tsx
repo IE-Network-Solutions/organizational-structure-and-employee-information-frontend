@@ -273,6 +273,9 @@ const BenefitypeSideBar = () => {
                       className="form-item"
                       name="department"
                       label="Select Department"
+                      rules={[
+                        { required: true, message: 'Department is Required!' },
+                      ]}
                     >
                       <Select
                         placeholder="Select a department"
@@ -293,6 +296,12 @@ const BenefitypeSideBar = () => {
                       className="form-item"
                       name="employees"
                       label="Select Employees"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'At Least one Employee is Required!',
+                        },
+                      ]}
                     >
                       <Select
                         mode="multiple"
@@ -301,7 +310,8 @@ const BenefitypeSideBar = () => {
                       >
                         {departmentUsers?.map((user) => (
                           <Select.Option key={user.id} value={user.id}>
-                            {user?.firstName} {user?.lastName}
+                            {user?.firstName} {user?.middleName}{' '}
+                            {user?.lastName}
                           </Select.Option>
                         ))}
                       </Select>

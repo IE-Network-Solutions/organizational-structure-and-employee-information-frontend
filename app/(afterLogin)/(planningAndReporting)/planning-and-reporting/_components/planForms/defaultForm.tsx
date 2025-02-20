@@ -38,7 +38,14 @@ function DefaultCardForm({
   planId,
 }: DefaultCardInterface) {
   const { setWeight } = PlanningAndReportingStore();
-
+  const sumTargetValue = (name: string) => {
+    const formValues = form.getFieldsValue(); // Get all form values
+    const total = formValues[name].reduce(
+      (sum: number, task: any) => sum + task.targetValue,
+      0,
+    );
+    return total;
+  };
   return (
     <Form.List name={name}>
       {(fields, { remove }, { errors }) => (
@@ -227,7 +234,8 @@ function DefaultCardForm({
                 </Col>
               </Row>
               {keyResult?.metricType?.name !== NAME.ACHIEVE &&
-                keyResult?.metricType?.name !== NAME.MILESTONE && (
+                keyResult?.metricType?.name !== NAME.MILESTONE &&
+                !parentPlanId && (
                   <Form.Item
                     className="mb-4"
                     label={<div className="text-xs">Target</div>}
@@ -265,7 +273,7 @@ function DefaultCardForm({
                           } else {
                             // Fallback check if targetValue does not exist
                             if (
-                              value <=
+                              sumTargetValue(name) <=
                               keyResult.targetValue - keyResult.currentValue
                             ) {
                               return Promise.resolve(); // Validation passed
@@ -275,7 +283,7 @@ function DefaultCardForm({
                           // If neither condition is satisfied, reject the promise
                           return Promise.reject(
                             new Error(
-                              "Your target value shouldn't exceed the allowed limits.",
+                              `Your target value shouldn't exceed the allowed limits. you have only ${Number(keyResult.targetValue - keyResult.currentValue).toLocaleString()}`,
                             ),
                           );
                         },

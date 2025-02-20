@@ -8,7 +8,6 @@ import {
   Dropdown,
   Menu,
   Pagination,
-  Popconfirm,
   Row,
   Spin,
   Tooltip,
@@ -23,12 +22,13 @@ import {
   AllPlanningPeriods,
   useGetPlanning,
   useGetPlanningPeriodsHierarchy,
+  useGetUserPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import {
   useApprovalPlanningPeriods,
-  useDeletePlanById,
+  // useDeletePlanById,
 } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
@@ -36,7 +36,7 @@ import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { PlanningType } from '@/types/enumTypes';
-import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
+import { AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
@@ -53,6 +53,9 @@ function Planning() {
     setEditing,
     page,
     setPage,
+    pageSize,
+    setPageSize,
+    activeTab,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
@@ -60,8 +63,8 @@ function Planning() {
     useApprovalPlanningPeriods();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = AllPlanningPeriods();
-  const { mutate: handleDeletePlan, isLoading: loadingDeletePlan } =
-    useDeletePlanById();
+  // const { mutate: handleDeletePlan, isLoading: loadingDeletePlan } =
+  //   useDeletePlanById();
   const { data: objective } = useFetchObjectives(userId);
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
@@ -70,9 +73,13 @@ function Planning() {
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '', // Provide a default string value
     page,
+    pageSize,
   });
+  const { data: allUserPlanning } = useGetUserPlanning(
+    planningPeriodId ?? '',
+    activeTab.toString(),
+  );
 
-  // console.log(allPlanning?.items,"allPlanning")
   const transformedData = groupPlanTasksByKeyResultAndMilestone(
     allPlanning?.items,
   );
@@ -93,7 +100,6 @@ function Planning() {
 
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
-
   const actionsMenu = (
     dataItem: any,
     handleApproveHandler: any,
@@ -152,7 +158,7 @@ function Planning() {
       </Menu.Item>
 
       {/* Delete Plan */}
-      <Menu.Item
+      {/* <Menu.Item
         className="text-red-400"
         icon={<AiOutlineDelete size={16} />}
         key="delete"
@@ -167,7 +173,7 @@ function Planning() {
             <span>Delete</span>
           </Tooltip>
         </Popconfirm>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   );
   const { data: planningPeriodHierarchy, isLoading } =
@@ -175,7 +181,6 @@ function Planning() {
       userId,
       planningPeriodId || '', // Provide a default string value if undefined
     );
-
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -183,12 +188,14 @@ function Planning() {
           <Title level={5}>Planning</Title>
           <Tooltip
             title={
-              transformedData?.[0]?.isReported == false ||
-              transformedData?.length !== 0
-                ? 'Report planned tasks before'
+              allUserPlanning?.length != 0
+                ? `Report planned tasks before you create ${activeTabName} plan`
                 : objective?.items?.length === 0
                   ? 'Create Objective before you Plan'
-                  : planningPeriodHierarchy?.parentPlan?.plans?.length == 0
+                  : planningPeriodHierarchy?.parentPlan?.plans?.length == 0 ||
+                      planningPeriodHierarchy?.parentPlan?.plans?.filter(
+                        (i: any) => i.isReported === false,
+                      )?.length == 0
                     ? `Please create ${planningPeriodHierarchy?.parentPlan?.name} Plan before creating ${activeTabName} Plan`
                     : ''
             }
@@ -196,13 +203,13 @@ function Planning() {
             <div style={{ display: 'inline-block' }}>
               <CustomButton
                 disabled={
-                  !(
-                    selectedUser.includes(userId) &&
-                    ((transformedData?.[0]?.isReported ?? false) ||
-                      transformedData?.length === 0) &&
-                    planningPeriodHierarchy?.parentPlan?.plans?.length != 0 &&
-                    objective?.items?.length != 0
-                  )
+                  // selectedUser.includes(userId) &&
+                  allUserPlanning?.length > 0 ||
+                  planningPeriodHierarchy?.parentPlan?.plans?.length == 0 ||
+                  planningPeriodHierarchy?.parentPlan?.plans?.filter(
+                    (i: any) => i.isReported === false,
+                  )?.length == 0 ||
+                  objective?.items?.length == 0
                 }
                 loading={isLoading}
                 title={`Create ${activeTabName} Plan`}
@@ -302,7 +309,8 @@ function Planning() {
                               </Dropdown>
                             )}
                             {userId === dataItem?.createdBy &&
-                              dataItem?.isValidated == false && (
+                              dataItem?.isValidated == false &&
+                              dataItem?.isReported == false && (
                                 <Dropdown
                                   overlay={actionsMenuEditandDelte(
                                     dataItem,
@@ -313,7 +321,7 @@ function Planning() {
                                   trigger={['click']}
                                 >
                                   <Button
-                                    loading={loadingDeletePlan}
+                                    // loading={loadingDeletePlan}
                                     type="text"
                                     icon={<IoMdMore className="text-2xl" />}
                                     className="cursor-pointer  text-black border-none  hover:text-primary"
@@ -356,13 +364,21 @@ function Planning() {
             </Card>
           </>
         ))}
+
         <Pagination
-          disabled={allPlanning?.items?.length <= 0}
+          disabled={!allPlanning?.items?.length} // Ensures no crash if items is undefined
           className="flex justify-end"
-          total={allPlanning?.meta?.totalPages}
-          current={allPlanning?.meta?.page}
-          onChange={(page) => setPage(page)}
+          total={allPlanning?.meta?.totalItems} // Ensures total count instead of pages
+          current={page}
+          pageSize={pageSize} // Dynamically control page size
+          showSizeChanger // Allows user to change page size
+          onChange={(page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize); // Ensure page size updates dynamically
+          }}
+          pageSizeOptions={['10', '20', '50', '100']}
         />
+
         {transformedData?.length <= 0 && (
           <div className="flex justify-center">
             <div>

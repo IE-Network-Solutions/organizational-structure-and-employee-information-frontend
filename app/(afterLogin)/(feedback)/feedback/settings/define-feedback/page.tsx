@@ -43,7 +43,7 @@ const Page = () => {
   };
 
   const getDepartment = (id: string) => {
-    return departments?.find((item: Department) => (item.id = id));
+    return departments?.find((item: Department) => item.id === id);
   };
   useEffect(() => {
     setActiveTab(getAllFeedbackTypes?.items?.[0]?.id);
@@ -86,7 +86,7 @@ const Page = () => {
             </Button>
           </div>
           {perspectiveData?.map((item: any) => (
-            <Card className="mx-2" key={item.id}>
+            <Card className="mx-2 my-2" key={item.id}>
               <div className="flex justify-between">
                 <div>
                   <p className="font-bold">{item?.name}</p>

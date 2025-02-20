@@ -72,7 +72,7 @@ function Page({ params: { id } }: RecognitionDetailsProps) {
                     Employee
                   </Col>
                   <Col span={12}>
-                    {`${getEmployeeData(getRecognitionById?.issuerId)?.firstName || 'N/A'} ${
+                    {`${getEmployeeData(getRecognitionById?.issuerId)?.firstName || 'N/A'} ${getEmployeeData(getRecognitionById?.issuerId)?.middleName || 'N/A'} ${
                       getEmployeeData(getRecognitionById?.issuerId)?.lastName ||
                       'N/A'
                     }`}
@@ -99,7 +99,7 @@ function Page({ params: { id } }: RecognitionDetailsProps) {
                     Recognized By
                   </Col>
                   <Col span={12}>
-                    {`${getEmployeeData(getRecognitionById?.issuerId)?.firstName || 'N/A'} ${
+                    {`${getEmployeeData(getRecognitionById?.issuerId)?.firstName || 'N/A'} ${getEmployeeData(getRecognitionById?.issuerId)?.middleName || 'N/A'} ${
                       getEmployeeData(getRecognitionById?.issuerId)?.lastName ||
                       'N/A'
                     }`}

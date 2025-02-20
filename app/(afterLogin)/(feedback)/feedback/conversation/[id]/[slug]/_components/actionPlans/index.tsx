@@ -14,6 +14,7 @@ import { useDeleteActionPlanByid } from '@/store/server/features/CFR/conversatio
 interface Employee {
   id: string;
   firstName: string;
+  middleName: string;
   lastName: string;
   profileImage: string;
   description: string;
@@ -24,6 +25,7 @@ const dummyData: Employee[] = [
   {
     id: '1',
     firstName: 'John',
+    middleName: 'J',
     lastName: 'Doe',
     profileImage: 'https://via.placeholder.com/40',
     description: 'Software Engineer at XYZ Corp',
@@ -32,6 +34,7 @@ const dummyData: Employee[] = [
   {
     id: '2',
     firstName: 'Jane',
+    middleName: 'J',
     lastName: 'Smith',
     profileImage: 'https://via.placeholder.com/40',
     description: 'Marketing Manager at ABC Ltd.',
@@ -40,6 +43,7 @@ const dummyData: Employee[] = [
   {
     id: '3',
     firstName: 'Emily',
+    middleName: 'J',
     lastName: 'Johnson',
     profileImage: 'https://via.placeholder.com/40',
     description: 'Product Designer at Tech Solutions',
@@ -146,6 +150,8 @@ const ActionPlans: React.FC<PropsData> = ({ slug }: PropsData) => {
                           <span className="ml-2 font-semibold">
                             {getEmployeeData(actionPlan?.assigneeId)
                               ?.firstName ?? ''}{' '}
+                            {getEmployeeData(actionPlan?.assigneeId)
+                              ?.middleName ?? ''}{' '}
                             {getEmployeeData(actionPlan?.assigneeId)
                               ?.lastName ?? ''}
                           </span>

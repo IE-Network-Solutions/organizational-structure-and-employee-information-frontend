@@ -38,7 +38,7 @@ const Page = ({ params }: { params: Params }) => {
         placeholder: 'Select Employee',
         options: allUserData.items?.map((user: any) => ({
           key: user.id, // Ensure you use `key` instead of `id` for consistency
-          value: `${user.firstName} ${user.lastName}`,
+          value: `${user?.firstName} ${user?.middleName} ${user?.lastName}`,
         })),
         widthRatio: 0.5,
       },

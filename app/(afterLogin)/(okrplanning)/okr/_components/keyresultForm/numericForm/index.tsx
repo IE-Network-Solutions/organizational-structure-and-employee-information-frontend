@@ -191,6 +191,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
                   onChange={(value) =>
                     updateKeyResult(index, 'initialValue', value)
                   }
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  }
                   id={`initial-value-input-${index}`}
                 />
               </Form.Item>
@@ -222,6 +225,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
                   value={keyItem.targetValue}
                   onChange={(value) =>
                     updateKeyResult(index, 'targetValue', value)
+                  }
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   }
                   id={`target-value-input-${index}`}
                 />

@@ -96,21 +96,25 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         type="link"
                         icon={<BiPlus />}
                         className="text-[10px]"
+                        disabled={
+                          Number(kr?.progress) == 100 ||
+                          form?.getFieldValue(`names-${kr?.id}`)?.[resultIndex]
+                            ?.achieveMK
+                        }
                       >
                         Add Plan Task
                       </Button>
 
                       {kr?.metricType?.name === NAME.ACHIEVE && (
-                        <Tooltip title="Plan keyResult as a Task">
+                        <Tooltip title="Plan keyResult as a Task ">
                           <Button
                             size="small"
                             className="text-[10px] text-primary"
                             icon={<FaPlus />}
                             disabled={
-                              kr?.progress === '100' ||
-                              form?.getFieldValue(`names-${kr?.id}`)?.[
-                                resultIndex
-                              ]?.achieveMK
+                              Number(kr?.progress) == 100 ||
+                              form?.getFieldValue(`names-${kr?.id}`)?.[0]
+                                ?.achieveMK
                             }
                             onClick={() => {
                               setMKAsATask({ title: kr?.title, mid: kr?.id });
@@ -153,7 +157,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                     ml?.status === 'Completed' ||
                                     form?.getFieldValue(
                                       `names-${kr?.id + ml?.id}`,
-                                    )?.[resultIndex]?.achieveMK
+                                    )?.[0]?.achieveMK
                                   }
                                   size="small"
                                   className="text-[10px] text-primary"

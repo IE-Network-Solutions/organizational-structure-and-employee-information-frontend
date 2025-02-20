@@ -27,7 +27,7 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
           title={
             data?.employeeJobInformation?.[0]?.user?.firstName ||
             data?.employeeJobInformation?.[0]?.user?.lastName
-              ? `${data.employeeJobInformation[0].user.firstName ?? ''} ${data.employeeJobInformation[0].user.lastName ?? ''}`.trim()
+              ? `${data.employeeJobInformation[0].user?.firstName ?? ''} ${data.employeeJobInformation[0].user?.middleName ?? ''} ${data.employeeJobInformation[0].user?.lastName ?? ''}`.trim()
               : 'Not assigned'
           }
           placement="top"
@@ -41,8 +41,9 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
         </Tooltip>
         <span className="font-bold text-center">
           {data?.employeeJobInformation?.[0]?.user?.firstName ||
+          data?.employeeJobInformation?.[0]?.user?.middleName ||
           data?.employeeJobInformation?.[0]?.user?.lastName
-            ? `${data.employeeJobInformation[0].user.firstName ?? ''} ${data.employeeJobInformation[0].user.lastName ?? ''}`.trim()
+            ? `${data.employeeJobInformation[0].user.firstName ?? ''} ${data.employeeJobInformation[0].user.middleName ?? ''} ${data.employeeJobInformation[0].user.lastName ?? ''}`.trim()
             : 'Not assigned'}
         </span>
         <span className="text-sm text-center">
