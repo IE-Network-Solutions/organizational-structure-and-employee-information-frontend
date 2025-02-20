@@ -7,6 +7,7 @@ import {
   useGetPayPeriod,
 } from '@/store/server/features/payroll/payroll/queries';
 import dayjs from 'dayjs';
+import { useFilterStore } from '@/store/uistate/features/payroll/paySlip';
 
 const { Option } = Select;
 
@@ -20,10 +21,16 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: payroll } = useGetActivePayroll();
 
-  const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
-  const [fiscalYears, setFiscalYears] = useState<any[]>([]);
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [months, setMonths] = useState<any[]>([]);
+  const {
+    searchValue,
+    fiscalYears,
+    sessions,
+    months,
+    setSearchValue,
+    setFiscalYears,
+    setSessions,
+    setMonths,
+  } = useFilterStore();
 
   useEffect(() => {
     if (getAllFiscalYears) {
@@ -40,12 +47,12 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
           (month) => month.active,
         );
 
-        setSearchValue((prev) => ({
-          ...prev,
+        setSearchValue({
+          ...searchValue,
           yearId: activeFiscalYear.id || '',
           sessionId: activeSession?.id || '',
           monthId: activeMonth?.id || '',
-        }));
+        });
 
         setSessions(activeFiscalYear.sessions || []);
         setMonths(activeSession?.months || []);
@@ -61,10 +68,10 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
       );
 
       if (defaultPayPeriod) {
-        setSearchValue((prev) => ({
-          ...prev,
+        setSearchValue({
+          ...searchValue,
           payPeriodId: defaultPayPeriodId,
-        }));
+        });
         onSearch({
           ...searchValue,
           payPeriodId: defaultPayPeriodId,
@@ -74,31 +81,25 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
   }, [payroll?.payrolls, payPeriodData]);
 
   const handleEmployeeSelect = (value: string) => {
-    setSearchValue((prev) => {
-      const updatedSearchValue = { ...prev, employeeId: value };
-      onSearch(updatedSearchValue);
-      return updatedSearchValue;
-    });
+    const updatedSearchValue = { ...searchValue, employeeId: value };
+    setSearchValue(updatedSearchValue);
+    onSearch(updatedSearchValue);
   };
 
   const handleSelectChange = (key: string, value: string) => {
-    setSearchValue((prev) => {
-      const updatedSearchValue = { ...prev, [key]: value };
+    const updatedSearchValue = { ...searchValue, [key]: value };
+    setSearchValue(updatedSearchValue);
 
-      if (key === 'yearId') {
-        const selectedYear = fiscalYears.find((year) => year.id === value);
-        setSessions(selectedYear?.sessions || []);
-        setMonths([]);
-      } else if (key === 'sessionId') {
-        const selectedSession = sessions.find(
-          (session) => session.id === value,
-        );
-        setMonths(selectedSession?.months || []);
-      }
+    if (key === 'yearId') {
+      const selectedYear = fiscalYears.find((year) => year.id === value);
+      setSessions(selectedYear?.sessions || []);
+      setMonths([]);
+    } else if (key === 'sessionId') {
+      const selectedSession = sessions.find((session) => session.id === value);
+      setMonths(selectedSession?.months || []);
+    }
 
-      onSearch(updatedSearchValue);
-      return updatedSearchValue;
-    });
+    onSearch(updatedSearchValue);
   };
 
   const options =

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Col, Row, Select } from 'antd';
 import {
-  useGetActivePayroll,
   useGetPayPeriod,
+  useGetActivePayroll,
 } from '@/store/server/features/payroll/payroll/queries';
 import dayjs from 'dayjs';
+import { useFiltersStore } from '@/store/uistate/features/payroll/paySlip';
 
 const { Option } = Select;
 
@@ -16,7 +17,8 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: payroll } = useGetActivePayroll();
 
-  const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
+  const searchValue = useFiltersStore((state) => state.searchValue);
+  const setSearchValue = useFiltersStore((state) => state.setSearchValue);
 
   useEffect(() => {
     if (payroll?.payrolls.length > 0) {
@@ -26,24 +28,18 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
       );
 
       if (defaultPayPeriod) {
-        setSearchValue((prev) => ({
-          ...prev,
-          payPeriodId: defaultPayPeriodId,
-        }));
+        setSearchValue('payPeriodId', defaultPayPeriodId);
         onSearch({
           ...searchValue,
           payPeriodId: defaultPayPeriodId,
         });
       }
     }
-  }, [payroll?.payrolls, payPeriodData]);
+  }, [payroll?.payrolls, payPeriodData, onSearch, setSearchValue, searchValue]);
 
   const handleSelectChange = (key: string, value: string) => {
-    setSearchValue((prev) => {
-      const updatedSearchValue = { ...prev, [key]: value };
-      onSearch(updatedSearchValue);
-      return updatedSearchValue;
-    });
+    setSearchValue(key, value);
+    onSearch({ ...searchValue, [key]: value });
   };
 
   return (
@@ -59,7 +55,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
           >
             {payPeriodData?.map((period: any) => (
               <Option key={period.id} value={period.id}>
-                {dayjs(period.startDate).format('MMM DD, YYYY')} --
+                {dayjs(period.startDate).format('MMM DD, YYYY')} --{' '}
                 {dayjs(period.endDate).format('MMM DD, YYYY')}
               </Option>
             ))}
