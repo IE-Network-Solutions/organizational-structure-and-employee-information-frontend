@@ -60,12 +60,12 @@ const Page = () => {
     data: getAllFeedbackCardData,
     isLoading: getFeedbackCardDataLoading,
   } = useFetchAllFeedbackRecord({ variantType, activeTab, empId, userId });
-  
+
   const [form] = Form.useForm();
 
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
-  
+ 
 
   const { data: getAllUsers } = useGetAllUsers();
   const feedbackAnaliytics = FeedbackService?.getFeedbackStats(
@@ -191,9 +191,6 @@ const Page = () => {
       key: 'reason',
     },
 
-
-
-
     {
       title: 'Objective',
       dataIndex: 'objective',
@@ -216,6 +213,7 @@ const Page = () => {
       title: 'Name',
       dataIndex: 'name',
       render: (notused: any, record: any) => {
+
         const data= EmployeeDepartment.find((item: any) => item.id === record.feedbackVariant?.perspective?.departmentId); 
         return data?.name ? (
           <Tooltip title={data?.name }>

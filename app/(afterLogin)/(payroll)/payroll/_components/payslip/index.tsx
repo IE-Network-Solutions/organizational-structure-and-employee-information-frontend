@@ -112,7 +112,7 @@ const PaySlip = ({ data }: { data: any[] }) => {
         type="default"
         loading={loading}
         onClick={sendPayrollWithPDF}
-        className="text-white bg-violet-500 border-none p-6"
+        className="text-white bg-primary border-none p-6"
       >
         Send Email for employees
       </Button>
