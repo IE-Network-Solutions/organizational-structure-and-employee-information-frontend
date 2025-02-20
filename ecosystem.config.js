@@ -1,19 +1,12 @@
+
 module.exports = {
   apps: [
     {
-      name: 'pep_front_stage',
+      name: 'osei-front-app',
       script: 'npm',
       args: 'run start',
       env: {
-        PORT: 9412,
-      },
-    },
-    {
-      name: 'pep_front_dev',
-      script: 'npm',
-      args: 'run start',
-      env: {
-        PORT: 9411,
+        PORT: 3001,
       },
     },
   ],
