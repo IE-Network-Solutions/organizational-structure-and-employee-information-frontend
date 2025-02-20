@@ -93,7 +93,7 @@ stage('Fetch Environment Variables') {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run format'
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 delete test-osei-front-app || true'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run build && sudo pm2 start npm --name "test-osei-front-app" -- start'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run build && sudo npm run start'
                     """
                 }
             }
