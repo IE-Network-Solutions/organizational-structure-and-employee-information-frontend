@@ -92,7 +92,7 @@ stage('Fetch Environment Variables') {
                                sshagent([env.SSH_CREDENTIALS_ID]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run format'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 delete test-osei-front-app || true'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 delete osei-front-app || true'
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run build && sudo npm run start'
                     """
                 }
