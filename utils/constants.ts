@@ -1,6 +1,7 @@
 export const ORG_AND_EMP_URL = process.env.ORG_AND_EMP_URL;
 export const OKR_URL = process.env.OKR_URL;
 export const PAYROLL_URL = process.env.PAYROLL_URL;
+export const INCENTIVE_URL = process.env.INCENTIVE_URL;
 
 export const OKR_AND_PLANNING_URL =
   process.env.NEXT_PUBLIC_OKR_AND_PLANNING_URL;
