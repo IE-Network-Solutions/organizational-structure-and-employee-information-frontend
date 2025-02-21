@@ -71,7 +71,7 @@ export const useIncentiveFormulaByRecognitionId = (
 };
 
 export const useAllRecognition = () => {
-  return useQuery<any>('getAllRecognition', fetchAllRecognition);
+  return useQuery('getAllRecognition', fetchAllRecognition);
 };
 
 export const useRecognitionById = (recognitionId: string) => {

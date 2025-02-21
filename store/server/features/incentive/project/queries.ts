@@ -1,5 +1,10 @@
 import { requestHeader } from '@/helpers/requestHeader';
-import { INCENTIVE_URL, ORG_AND_EMP_URL, PAYROLL_URL } from '@/utils/constants';
+import {
+  INCENTIVE_URL,
+  ORG_AND_EMP_URL,
+  ORG_DEV_URL,
+  PAYROLL_URL,
+} from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { FiscalYearResponseData } from './interface';
@@ -15,6 +20,14 @@ const fetchPayPeriod = async () => {
 const fetchIncentiveTemplate = async () => {
   return await crudRequest({
     url: `${PAYROLL_URL}/incentive-criteria/import/template`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
+
+const fetchRecognitionType = () => {
+  return crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -50,6 +63,10 @@ const fetchIncentiveSessions = async () => {
     method: 'GET',
     headers: requestHeader(),
   });
+};
+
+export const useFetchRecognitionType = () => {
+  return useQuery<any>('getRecognitionType', fetchRecognitionType);
 };
 
 export const useFetchIncentiveSessions = () => {

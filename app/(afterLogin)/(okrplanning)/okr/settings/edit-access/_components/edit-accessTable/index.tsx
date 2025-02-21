@@ -30,6 +30,7 @@ const EditAccessTable: React.FC = () => {
     setPageSize,
     setCurrentPage,
   } = useObjectiveEditAccessStore();
+
   const [switchStates, setSwitchStates] = React.useState<
     Record<string, boolean>
   >({});

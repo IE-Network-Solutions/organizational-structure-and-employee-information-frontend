@@ -6,6 +6,7 @@ import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHea
 import {
   useFetchAllPayPeriod,
   useFetchIncentiveTemplate,
+  useFetchRecognitionType,
 } from '@/store/server/features/incentive/project/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { Button, Form, Select, Spin, Upload } from 'antd';
@@ -13,7 +14,7 @@ import TextArea from 'antd/es/input/TextArea';
 import dayjs from 'dayjs';
 import React from 'react';
 import { MdOutlineUploadFile } from 'react-icons/md';
-import DownloadExcelButton from '../../dowloadTemplateExcel';
+import DownloadExcelButton from '../../downloadTemplateExcel';
 
 const ImportProjectData: React.FC = () => {
   const [form] = Form.useForm();
@@ -24,10 +25,12 @@ const ImportProjectData: React.FC = () => {
   const { data: incentiveTemplate, isLoading: templateResponseLoading } =
     useFetchIncentiveTemplate();
 
+  const { data: recognitionType, isLoading } = useFetchRecognitionType();
   const handleClose = () => {
     setProjectDrawer(false);
   };
 
+  console.log(recognitionType, 'recognitionType');
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -320,9 +323,9 @@ const ImportProjectData: React.FC = () => {
             {responseLoading ? (
               <Spin size="small" />
             ) : (
-              payPeriodData?.map((payPeriod: any) => (
-                <Select.Option key={payPeriod.id} value={payPeriod.id}>
-                  {`${dayjs(payPeriod.startDate).format('YYYY-MM-DD')} — ${dayjs(payPeriod.endDate).format('YYYY-MM-DD')}`}
+              recognitionType?.items?.map((item: any) => (
+                <Select.Option key={item.id} value={item.id}>
+                  {item?.name}
                 </Select.Option>
               ))
             )}

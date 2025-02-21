@@ -1,9 +1,3 @@
-import DeleteModal from '@/components/common/deleteConfirmationModal';
-import { useDeleteIncentiveFormula } from '@/store/server/features/incentive/other/mutation';
-import {
-  useIncentiveFormulaByRecognitionId,
-  useRecognitionById,
-} from '@/store/server/features/incentive/other/queries';
 import {
   IncentiveRecognitionParams,
   IncentiveSettingParams,
@@ -11,9 +5,7 @@ import {
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
 import { Skeleton, Table, TableColumnsType } from 'antd';
-import { Pencil, Trash2 } from 'lucide-react';
-import { useParams } from 'next/navigation';
-import React from 'react';
+import { Pencil } from 'lucide-react';
 
 const columns: TableColumnsType<IncentiveSettingParams> = [
   {
@@ -44,50 +36,22 @@ const columns: TableColumnsType<IncentiveSettingParams> = [
   },
 ];
 
-type Params = {
-  id: string;
-};
+interface tableParams {
+  recognitionData: any;
+  responseLoading: boolean;
+}
 
-const DefaultIncentiveSettingsTable: React.FC = () => {
-  const { id } = useParams<Params>();
-  const recognitionId = id;
-
-  const {
-    setOpenIncentiveDrawer,
-    setDeleteIncentive,
-    deleteIncentive,
-    setIncentiveId,
-    setIncentive,
-  } = useIncentiveStore();
-
-  const { data: recognitionData, isLoading: responseLoading } =
-    useRecognitionById(recognitionId);
-
-  const { data: formulaById } =
-    useIncentiveFormulaByRecognitionId(recognitionId);
-
-  const { mutate: deleteIncentiveFormula } = useDeleteIncentiveFormula();
+const DefaultIncentiveSettingsTable: React.FC<tableParams> = ({
+  recognitionData,
+  responseLoading,
+}) => {
+  const { setOpenIncentiveDrawer, setIncentiveId, setIncentive } =
+    useIncentiveStore();
 
   const handleProjectIncentiveEdit = (value: IncentiveRecognitionParams) => {
     setIncentive(value);
     setOpenIncentiveDrawer(true);
     setIncentiveId(value?.id ?? '');
-  };
-
-  const handleDeleteIncentiveFormulaModal = () => {
-    setDeleteIncentive(true);
-  };
-
-  const handleDeleteIncentiveFormula = () => {
-    deleteIncentiveFormula(
-      { id: formulaById?.id },
-      {
-        onSuccess: () => {
-          setDeleteIncentive(false);
-          setIncentiveId('');
-        },
-      },
-    );
   };
 
   const incentiveTableData = {
@@ -113,13 +77,6 @@ const DefaultIncentiveSettingsTable: React.FC = () => {
             onClick={() => handleProjectIncentiveEdit(recognitionData)}
           />
         </div>
-        <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
-          <Trash2
-            size={15}
-            className="text-white cursor-pointer"
-            onClick={handleDeleteIncentiveFormulaModal}
-          />
-        </div>
       </div>
     ),
   };
@@ -135,14 +92,6 @@ const DefaultIncentiveSettingsTable: React.FC = () => {
           pagination={false}
         />
       )}
-      <DeleteModal
-        deleteText="Confirm"
-        deleteMessage="Are you sure you want to proceed?"
-        customMessage="This action will remove the formula. You will no longer see the formula displayed."
-        open={deleteIncentive}
-        onConfirm={handleDeleteIncentiveFormula}
-        onCancel={() => setDeleteIncentive(false)}
-      />
     </div>
   );
 };

@@ -45,6 +45,8 @@ const IncentiveSettingsDrawer: React.FC = () => {
     setOpenIncentiveDrawer,
   } = useIncentiveStore();
 
+  console.log(openIncentiveDrawer, 'this is openIncentiveDrawer');
+
   //   ===========> HTTP Requests <============
 
   const { data: incentiveData } = useIncentiveCriteria();
@@ -149,6 +151,7 @@ const IncentiveSettingsDrawer: React.FC = () => {
     }
   }, [formulaById, form]);
 
+  console.log(incentiveData, 'incentiveData');
   return (
     <CustomDrawerLayout
       open={openIncentiveDrawer}

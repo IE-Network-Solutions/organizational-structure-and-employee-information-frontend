@@ -1,5 +1,5 @@
-import DeleteModal from '@/components/common/deleteConfirmationModal';
-import { useDeleteIncentiveFormula } from '@/store/server/features/incentive/other/mutation';
+// import DeleteModal from '@/components/common/deleteConfirmationModal';
+// import { useDeleteIncentiveFormula } from '@/store/server/features/incentive/other/mutation';
 import {
   useIncentiveFormulaByRecognitionId,
   useRecognitionById,
@@ -54,19 +54,22 @@ const IncentiveSettingsTable: React.FC = () => {
 
   const {
     setOpenIncentiveDrawer,
-    setDeleteIncentive,
-    deleteIncentive,
+    openIncentiveDrawer,
+    // setDeleteIncentive,
+    // deleteIncentive,
     setIncentiveId,
     setIncentive,
   } = useIncentiveStore();
 
+  console.log(openIncentiveDrawer, 'this returns true');
+
   const { data: recognitionData, isLoading: responseLoading } =
     useRecognitionById(recognitionId);
 
-  const { data: formulaById } =
-    useIncentiveFormulaByRecognitionId(recognitionId);
+  // const { data: formulaById } =
+  //   useIncentiveFormulaByRecognitionId(recognitionId);
 
-  const { mutate: deleteIncentiveFormula } = useDeleteIncentiveFormula();
+  // const { mutate: deleteIncentiveFormula } = useDeleteIncentiveFormula();
 
   const handleProjectIncentiveEdit = (value: IncentiveRecognitionParams) => {
     setIncentive(value);
@@ -74,21 +77,21 @@ const IncentiveSettingsTable: React.FC = () => {
     setIncentiveId(value?.id ?? '');
   };
 
-  const handleDeleteIncentiveFormulaModal = () => {
-    setDeleteIncentive(true);
-  };
+  // const handleDeleteIncentiveFormulaModal = () => {
+  //   setDeleteIncentive(true);
+  // };
 
-  const handleDeleteIncentiveFormula = () => {
-    deleteIncentiveFormula(
-      { id: formulaById?.id },
-      {
-        onSuccess: () => {
-          setDeleteIncentive(false);
-          setIncentiveId('');
-        },
-      },
-    );
-  };
+  // const handleDeleteIncentiveFormula = () => {
+  //   deleteIncentiveFormula(
+  //     { id: formulaById?.id },
+  //     {
+  //       onSuccess: () => {
+  //         setDeleteIncentive(false);
+  //         setIncentiveId('');
+  //       },
+  //     },
+  //   );
+  // };
 
   const incentiveTableData = {
     id: recognitionData?.id,
@@ -113,13 +116,13 @@ const IncentiveSettingsTable: React.FC = () => {
             onClick={() => handleProjectIncentiveEdit(recognitionData)}
           />
         </div>
-        <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
+        {/* <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
           <Trash2
             size={15}
             className="text-white cursor-pointer"
             onClick={handleDeleteIncentiveFormulaModal}
           />
-        </div>
+        </div> */}
       </div>
     ),
   };
@@ -132,14 +135,14 @@ const IncentiveSettingsTable: React.FC = () => {
         pagination={false}
         loading={responseLoading}
       />
-      <DeleteModal
+      {/* <DeleteModal
         deleteText="Confirm"
         deleteMessage="Are you sure you want to proceed?"
         customMessage="This action will remove the formula. You will no longer see the formula displayed."
         open={deleteIncentive}
         onConfirm={handleDeleteIncentiveFormula}
         onCancel={() => setDeleteIncentive(false)}
-      />
+      /> */}
     </div>
   );
 };

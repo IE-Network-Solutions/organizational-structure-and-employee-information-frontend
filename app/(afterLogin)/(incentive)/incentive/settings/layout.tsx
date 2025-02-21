@@ -25,12 +25,41 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
   const { data: recognitionData, isLoading: responseLoading } =
     useAllRecognition();
 
+  console.log(recognitionData, 'recognitionData on the sidebar');
+
   useEffect(() => {
     if (recognitionData && recognitionData?.items?.length > 0) {
+      // Extract the first item separately
+      const firstItem = recognitionData.items[0];
+
+      const defaultIncentiveSettings = {
+        item: {
+          key: 'IncentiveSettings',
+          icon: (
+            <CiCalendarDate
+              size={16}
+              className={
+                currentItem === firstItem.id
+                  ? 'text-[#4DAEF0]'
+                  : 'text-gray-500'
+              }
+            />
+          ),
+          label: (
+            <p className="menu-item-label">
+              {firstItem?.recognitionType?.name ?? 'Incentive Settings'}
+            </p>
+          ),
+          className: currentItem === firstItem.id ? 'px-6' : 'px-1',
+        },
+        link: `/incentive/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
+      };
+
+      // Map remaining items (excluding the first item)
       const dynamicMenuItems =
-        recognitionData?.items?.map((item: any) => ({
+        recognitionData.items.slice(1).map((item: any) => ({
           item: {
-            key: item?.id,
+            key: item.id,
             icon: (
               <TbCalendar
                 size={16}
@@ -47,24 +76,9 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
           link: `/incentive/settings/${item?.id}`,
         })) || [];
 
-      const defaultIncentiveSettings = {
-        item: {
-          key: 'IncentiveSettings',
-          icon: <CiCalendarDate />,
-          label: (
-            <p className="menu-item-label">
-              {recognitionData?.items?.[0]?.recognitionData?.name} Incentive
-              Settings
-            </p>
-          ),
-          className: 'px-1',
-        },
-        link: '/incentive/settings/defaultIncentiveCard',
-      };
-
       setMenuItems([defaultIncentiveSettings, ...dynamicMenuItems]);
     }
-  }, [recognitionData]);
+  }, [recognitionData, currentItem]);
 
   useEffect(() => {
     const pathSegments = pathname.split('/').filter(Boolean);

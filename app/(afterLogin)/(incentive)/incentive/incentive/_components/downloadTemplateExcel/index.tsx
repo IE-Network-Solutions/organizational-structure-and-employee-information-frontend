@@ -11,6 +11,7 @@ const DownloadExcelButton: React.FC<DownloadExcelButtonProps> = ({
   headers,
   //   data,
 }) => {
+  console.log(headers, 'headersheaders');
   const handleDownload = async () => {
     if (headers.length === 0) {
       alert('Headers are not loaded yet!');

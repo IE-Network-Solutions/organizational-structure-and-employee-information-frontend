@@ -4,21 +4,18 @@ import { useRecognitionById } from '@/store/server/features/incentive/other/quer
 import { useParams } from 'next/navigation';
 import React from 'react';
 import IncentiveSettingsTable from './_components/incentiveSettingsTable';
-import { Button } from 'antd';
-import { FaPlus } from 'react-icons/fa';
-import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import IncentiveSettingsDrawer from './_components/incentiveSettingdrawer';
 
 type Params = {
   id: string;
 };
+
 const IncentiveSettings: React.FC = () => {
   const { id } = useParams<Params>();
 
-  const { setOpenIncentiveDrawer } = useIncentiveStore();
-
   const { data: recognitionData } = useRecognitionById(id);
 
+  console.log(recognitionData, 'recognitionData');
   return (
     <div>
       <div className="mb-6">
@@ -29,16 +26,7 @@ const IncentiveSettings: React.FC = () => {
               : ''
           }
           size="small"
-        >
-          <Button
-            onClick={() => setOpenIncentiveDrawer(true)}
-            type="primary"
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <FaPlus size={13} className="mr-2" />
-            Create Formula
-          </Button>
-        </PageHeader>
+        />
       </div>
       <IncentiveSettingsTable />
       <IncentiveSettingsDrawer />
