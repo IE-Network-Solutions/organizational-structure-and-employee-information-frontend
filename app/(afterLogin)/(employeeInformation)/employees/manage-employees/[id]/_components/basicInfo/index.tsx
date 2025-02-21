@@ -24,7 +24,6 @@ import { useUpdateProfileImage } from '@/store/server/features/employees/employe
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
-
 const { Dragger } = Upload;
 
 function BasicInfo({ id }: { id: string }) {

@@ -69,7 +69,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
       {getConversationLoading && <Skeleton />}
       {conversationType?.questionSets?.map(
         (set: QuestionSet, index: number) => (
-          <Collapse key={index} >
+          <Collapse key={index}>
             <Card
               key={set?.id}
               className="mb-4"
@@ -127,8 +127,10 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
                 (question: Question, index: number) => (
                   <div key={question.id} className="mb-2">
                     <p className="font-semibold text-sm">
-                      {index + 1}.{" "}{question?.question}
-                      {question.mandatory && <span className="text-red-500">*</span>}
+                      {index + 1}. {question?.question}
+                      {question.mandatory && (
+                        <span className="text-red-500">*</span>
+                      )}
                     </p>
                     {question?.field?.length > 0 && (
                       <ul className="list-none text-gray-600 text-xs ml-2">
