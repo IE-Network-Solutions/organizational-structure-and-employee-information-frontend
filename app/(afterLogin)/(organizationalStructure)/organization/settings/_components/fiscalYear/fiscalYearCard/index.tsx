@@ -212,16 +212,6 @@ const FiscalYearListCard: React.FC = () => {
       ) : (
         <div className="mx-auto p-4 text-center">
           <p>No Fiscal Year found.</p>
-          <AccessGuard permissions={[Permissions.CreateCalendar]}>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={openDrawer}
-              className="mt-4"
-            >
-              Create Fiscal Year
-            </Button>
-          </AccessGuard>
         </div>
       )}
       <Pagination

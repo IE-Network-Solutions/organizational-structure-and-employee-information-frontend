@@ -64,7 +64,6 @@ export const useUpdateFiscalYear = () => {
     {
       onSuccess: (variables: any) => {
         queryClient.invalidateQueries('fiscalYears');
-
         closeFiscalYearDrawer();
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method);
@@ -78,7 +77,7 @@ export const useDeleteFiscalYear = () => {
   return useMutation((id: string) => deleteFiscalYear(id), {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
-
+      queryClient.invalidateQueries('fiscalActiveYear');
       handleSuccessMessage('DELETE');
     },
   });
