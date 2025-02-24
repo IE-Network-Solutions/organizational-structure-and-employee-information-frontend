@@ -232,7 +232,7 @@ const QuestionSetForm = () => {
                 <Option value={FieldType.MULTIPLE_CHOICE}>
                   Multiple Choice
                 </Option>
-                <Option value={FieldType.CHECKBOX}>Checkbox</Option>
+                {/* <Option value={FieldType.CHECKBOX}>Checkbox</Option> */}
                 <Option value={FieldType.SHORT_TEXT}>Short Text</Option>
                 <Option value={FieldType.PARAGRAPH}>Paragraph</Option>
                 <Option value={FieldType.TIME}>Time</Option>
