@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Table, Button, Space, Typography, Switch, Spin } from 'antd';
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import PayPeriodSideBar from './_components/payPeriodSideBar';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
 import { useFetchActiveFiscalYearPayPeriods } from '@/store/server/features/payroll/setting/tax-rule/queries';
@@ -13,7 +13,6 @@ import {
 import dayjs from 'dayjs';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import PayPeriodEditSidebar from './_components/payPeroidEditSideBar';
 const { Title } = Typography;
 interface DataSource {
   key: string;
@@ -33,7 +32,7 @@ const PayPeriod = () => {
     setPageSize,
   } = usePayPeriodStore();
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
-  // const { mutate: deletePayPeriod } = useDeletePayPeriod();
+  const { mutate: deletePayPeriod } = useDeletePayPeriod();
   const { mutate: changePayPeriodStatus } = useChangePayPeriodStatus();
   const { data: payPeriods, isLoading } = useFetchActiveFiscalYearPayPeriods(
     activeFiscalYear?.id,
@@ -42,8 +41,8 @@ const PayPeriod = () => {
   const handleAddPayPeriod = () => {
     setIsPayPeriodSidebarVisible(true);
   };
-  const handleEditPayPeriod = (payPeriodId: string) => {
-    // deletePayPeriod(payPeriodId);
+  const handleDeletePayPeriod = (payPeriodId: string) => {
+    deletePayPeriod(payPeriodId);
   };
 
   const handleTableChange = (pagination: any) => {
@@ -104,8 +103,9 @@ const PayPeriod = () => {
             />
             <Button
               type="primary"
-              icon={<EditOutlined />}
-              onClick={() => handleEditPayPeriod(record)}
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => handleDeletePayPeriod(record.id)}
             />
           </Space>
         </AccessGuard>
@@ -142,7 +142,6 @@ const PayPeriod = () => {
         />
       </Spin>
       <PayPeriodSideBar />
-      <PayPeriodEditSidebar />
     </div>
   );
 };
