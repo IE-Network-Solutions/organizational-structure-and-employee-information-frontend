@@ -322,7 +322,7 @@ const LeaveRequestSidebar = () => {
                 />
               </Form.Item>
               <div className="text-xs font-medium text-gray-600 text-center">
-                Max file size : 5MB. File format : pdf, docx, png, and jpeg
+                Max file size : 5MB. File format : pdf, docx, png, epub, and jpeg
               </div>
               <Form.Item
                 name="person"
