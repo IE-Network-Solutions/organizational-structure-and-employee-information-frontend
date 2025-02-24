@@ -14,7 +14,7 @@ import dayjs from 'dayjs';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 
 const { Option } = Select;
-const PlanningPeriod= () => {
+const PlanningPeriod = () => {
   const { data: allPlanningperiod } = useGetAllPlanningPeriods();
   const { mutate: updateStatus, isLoading } = useUpdatePlanningStatus();
   const { mutate: deletePlanningPeriod, isLoading: deletePlannniggPeriod } =
@@ -22,8 +22,14 @@ const PlanningPeriod= () => {
   const { mutate: editPlanningPeriod, isLoading: editPlannningPeriod } =
     useUpdatePlanningPeriod();
 
-
-  const {isModalVisible,setIsModalVisible,planningPeriodName,setPlanningPeriodName,editingPeriod,setEditingPeriod}=useOKRSettingStore()
+  const {
+    isModalVisible,
+    setIsModalVisible,
+    planningPeriodName,
+    setPlanningPeriodName,
+    editingPeriod,
+    setEditingPeriod,
+  } = useOKRSettingStore();
   const [form] = Form.useForm();
 
   const handleEdit = (period: any) => {
@@ -67,13 +73,17 @@ const PlanningPeriod= () => {
     }
   };
 
-  const filteredPlanningPeriod = allPlanningperiod?.items?.filter((item) =>
-    item?.name?.toLowerCase().includes(planningPeriodName.toLowerCase()) ||
-    item?.actionOnFailure?.toLowerCase().includes(planningPeriodName.toLowerCase()) ||
-    item?.intervalType?.toLowerCase().includes(planningPeriodName.toLowerCase())
+  const filteredPlanningPeriod = allPlanningperiod?.items?.filter(
+    (item) =>
+      item?.name?.toLowerCase().includes(planningPeriodName.toLowerCase()) ||
+      item?.actionOnFailure
+        ?.toLowerCase()
+        .includes(planningPeriodName.toLowerCase()) ||
+      item?.intervalType
+        ?.toLowerCase()
+        .includes(planningPeriodName.toLowerCase()),
   );
-  
-  
+
   const handleDelete = (id: string) => {
     Modal.confirm({
       title: 'Confirm Delete',
@@ -112,7 +122,7 @@ const PlanningPeriod= () => {
         <Input.Search
           placeholder="Search period by name"
           className="rounded-lg"
-          onChange={(e)=>setPlanningPeriodName(e.target.value)}
+          onChange={(e) => setPlanningPeriodName(e.target.value)}
         />
       </div>
       <div className="max-h-[400px] overflow-y-auto">

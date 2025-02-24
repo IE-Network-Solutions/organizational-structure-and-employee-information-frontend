@@ -89,19 +89,22 @@ export const useCreatePayroll = () => {
 export const useSendingPayrollPayslip = () => {
   const queryClient = useQueryClient();
 
-  return useMutation(({ values }: { values: PaySlipData[] }) => sendingPayrollPaySlip({ values }), {
-    
-    onSuccess: () => {
-      queryClient.invalidateQueries('payroll');
+  return useMutation(
+    ({ values }: { values: PaySlipData[] }) =>
+      sendingPayrollPaySlip({ values }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('payroll');
+      },
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message;
+        NotificationMessage.error({
+          message: 'PayRoll Creation Failed',
+          description: errorMessage,
+        });
+      },
     },
-    onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message;
-      NotificationMessage.error({
-        message: 'PayRoll Creation Failed',
-        description: errorMessage,
-      });
-    },
-  });
+  );
 };
 export const useUpdatePensionRule = () => {
   const queryClient = useQueryClient();

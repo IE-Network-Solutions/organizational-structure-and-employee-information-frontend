@@ -25,7 +25,6 @@ import {
 import PayrollCard from './_components/cards';
 import { useExportData } from './_components/excel';
 import { useGenerateBankLetter } from './_components/Latter';
-import PaySlip from './_components/payslip';
 import { saveAs } from 'file-saver';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
@@ -49,10 +48,8 @@ const Payroll = () => {
     isSuccess: isCreatePayrollSuccess,
   } = useCreatePayroll();
 
-  const {
-    mutate: sendPaySlip,
-    isLoading: sendingPaySlipLoading,
-  } = useSendingPayrollPayslip();
+  const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
+    useSendingPayrollPayslip();
 
   const { exportToExcel } = useExportData();
   const { generateBankLetter } = useGenerateBankLetter();
@@ -62,8 +59,6 @@ const Payroll = () => {
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
 
-
-    console.log(allEmployees,"allEmployees")
   useEffect(() => {
     if (payroll?.payrolls && allEmployees?.items) {
       const mergedData = payroll.payrolls.map((pay: any) => {
@@ -186,19 +181,15 @@ const Payroll = () => {
     }
   };
 
-
-  console.log(allActiveSalary,"allActiveSalary")
-  const sendingPaySlipHandler=(payrollData:any)=>{
-     console.log(payrollData,"**********************")
-
-     const values: PaySlipData[] = payrollData.map((item:any) => ({
+  const sendingPaySlipHandler = (payrollData: any) => {
+    const values: PaySlipData[] = payrollData.map((item: any) => ({
       payrollId: item.id,
       payPeriodId: item.payPeriodId,
       employeeId: item.employeeInfo.id,
     }));
-  
-    sendPaySlip({values});
-  }
+
+    sendPaySlip({ values });
+  };
   const handleDeductionExportPayroll = async () => {
     if (!mergedPayroll || mergedPayroll.length === 0) {
       NotificationMessage.error({
@@ -700,7 +691,7 @@ const Payroll = () => {
         <Button
           type="default"
           loading={sendingPaySlipLoading}
-          onClick={()=>sendingPaySlipHandler(mergedPayroll)}
+          onClick={() => sendingPaySlipHandler(mergedPayroll)}
           className="text-white bg-primary border-none p-6"
         >
           Send Email for employees
