@@ -681,10 +681,6 @@ const Payroll = () => {
             <span>Export Bank</span>
             <Switch checked={exportBank} onChange={setExportBank} />
           </div>
-          {/* <div className="flex flex-col justify-between items-start gap-2 ">
-            <span>Send Email for employees</span>
-            <Switch checked={true} onChange={() => {}} />
-          </div> */}
         </div>
       </Modal>
       <div className="h-12 overflow-hidden">
