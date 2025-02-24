@@ -157,8 +157,6 @@ const LeaveRequestSidebar = () => {
 
   const onFinish = () => {
     const value = form.getFieldsValue();
-    console.log("Submitting Delegated Employee:", value.person);
-
 
     updateLeaveRequest({
       item: {
@@ -327,25 +325,27 @@ const LeaveRequestSidebar = () => {
                 Max file size : 5MB. File format : pdf, docx, png, and jpeg
               </div>
               <Form.Item
-          name="person"
-          label="Delegated Employee"
-          className={itemClass}
-        >
-          <Select
-            showSearch
-            placeholder="Select a person"
-            className={controlClass}
-            allowClear
-            filterOption={(input: any, option: any) =>
-              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-            }
-            options={employeeData?.items?.map((item: any) => ({
-              ...item,
-              value: item?.id,
-              label: item?.firstName + ' ' + item?.lastName,
-            }))}
-          />
-        </Form.Item>
+                name="person"
+                label="Delegated Employee"
+                className={itemClass}
+              >
+                <Select
+                  showSearch
+                  placeholder="Select a person"
+                  className={controlClass}
+                  allowClear
+                  filterOption={(input: any, option: any) =>
+                    (option?.label ?? '')
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={employeeData?.items?.map((item: any) => ({
+                    ...item,
+                    value: item?.id,
+                    label: item?.firstName + ' ' + item?.lastName,
+                  }))}
+                />
+              </Form.Item>
             </Space>
           </Form>
         </Spin>
