@@ -8,6 +8,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import CreateMeeting from '../_components/meeting/createMeeting';
 import MettingDataTable from '../_components/meeting/mettingTable';
+import { useGetConversationById } from '@/store/server/features/conversation/queries';
 interface Params {
   id: string;
   slug: string;
@@ -19,10 +20,11 @@ const Page = ({ params }: { params: Params }) => {
   const { open, setOpen, setSearchField } = ConversationStore();
   const { data: allUserData } = useGetAllUsers();
   const { data: departmentData } = useGetDepartments();
+  const { data: conversationType } = useGetConversationById(id);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      Add New Bi-Weekly Meeting
+      Add New {conversationType?.name} Meeting
     </div>
   );
 
@@ -66,8 +68,8 @@ const Page = ({ params }: { params: Params }) => {
         buttonTitle="New Meeting"
         id="conversationLayoutId"
         onClickHandler={() => setOpen(true)}
-        title="Bi-Weekly"
-        subtitle="Conversations / bi-weekly "
+        title={conversationType?.name}
+        subtitle={`Conversations / ${conversationType?.name}`}
       >
         <MettingDataTable conversationTypeId={id} slug={slug} />
       </TabLandingLayout>

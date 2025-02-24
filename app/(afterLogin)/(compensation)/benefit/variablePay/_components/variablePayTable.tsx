@@ -41,12 +41,8 @@ const VariablePayTable = () => {
       VpScore: variablePay?.vpScore,
       Benefit: '',
       Action: (
-        // <Link href={`employees/manage-employees/${variablePay?.id}`}>
-        <Link href={'okr/dashboard'}>
-          <Button
-            // id={`editUserButton${item?.id}`}
-            className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
-          >
+        <Link href={`okr/dashboard/${variablePay?.userId}`}>
+          <Button className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 border-none ">
             <FaEye />
           </Button>
         </Link>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Progress, Card, Avatar } from 'antd';
+import { Progress, Card, Avatar, Menu, Dropdown } from 'antd';
 import { PiCalendarMinusBold } from 'react-icons/pi';
 import KeyResultMetrics from '../keyresultmetrics';
 import EditObjective from '../editObjective';
@@ -10,6 +10,7 @@ import {
   defaultObjective,
   ObjectiveProps,
 } from '@/store/uistate/features/okrplanning/okr/interface';
+import { MoreOutlined } from '@ant-design/icons';
 
 const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const { setObjectiveValue, objectiveValue } = useOKRStore();
@@ -17,20 +18,20 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: deleteObjective } = useDeleteObjective();
 
-  // const showDeleteModal = () => {
-  //   setOpenDeleteModal(true);
-  //   setObjectiveValue(objective);
-  // };
+  const showDeleteModal = () => {
+    setOpenDeleteModal(true);
+    setObjectiveValue(objective);
+  };
 
   const onCloseDeleteModal = () => {
     setOpenDeleteModal(false);
     setObjectiveValue(defaultObjective);
   };
 
-  // const showDrawer = () => {
-  //   setOpen(true);
-  //   setObjectiveValue(objective); // Update the objective value
-  // };
+  const showDrawer = () => {
+    setOpen(true);
+    setObjectiveValue(objective);
+  };
 
   // Monitor `objectiveValue` change
 
@@ -42,22 +43,22 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const completedKeyResults =
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
-  // const menu = (
-  //   <Menu
-  //     items={[
-  //       {
-  //         key: '1',
-  //         label: 'Edit',
-  //         onClick: showDrawer,
-  //       },
-  //       {
-  //         key: '2',
-  //         label: 'Delete',
-  //         onClick: showDeleteModal,
-  //       },
-  //     ]}
-  //   />
-  // );
+  const menu = (
+    <Menu
+      items={[
+        {
+          key: '1',
+          label: 'Edit',
+          onClick: showDrawer,
+        },
+        {
+          key: '2',
+          label: 'Delete',
+          onClick: showDeleteModal,
+        },
+      ]}
+    />
+  );
   function handleDeleteObjective(id: string) {
     deleteObjective(id, {
       onSuccess: () => {
@@ -65,7 +66,6 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
       },
     });
   }
-
   return (
     <div className="p-2 grid gap-0">
       <div className="flex justify-center">
@@ -78,7 +78,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   {objective?.title}
                 </h2>
               </div>
-              {/* {myOkr && (
+              {objective?.isClosed === false ? (
                 <Dropdown
                   overlay={menu}
                   trigger={['click']}
@@ -86,7 +86,9 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 >
                   <MoreOutlined className="text-gray-500 text-lg cursor-pointer" />
                 </Dropdown>
-              )} */}
+              ) : (
+                ''
+              )}
             </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-center">
@@ -147,8 +149,12 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           </div>
         </Card>
       </div>
-
-      <EditObjective objective={objectiveValue} open={open} onClose={onClose} />
+      <EditObjective
+        objective={objectiveValue}
+        open={open}
+        onClose={onClose}
+        isClosed={objective?.isClosed}
+      />
       <DeleteModal
         open={openDeleteModal}
         onConfirm={() => handleDeleteObjective(objectiveValue.id as string)}
