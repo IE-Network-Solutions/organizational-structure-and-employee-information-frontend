@@ -11,7 +11,9 @@ const PaySlip = ({ data }: { data: any[] }) => {
   const { mutate: sendEmail } = useSendEmail();
 
   const sendPayrollWithPDF = async () => {
-    setLoading(true);
+    setLoading(true)
+    
+    console.log(data,"********************");
     for (let i = 0; i < data.length; i++) {
       const employeeData = data[i];
       const input = document.getElementById('payslip');
@@ -110,7 +112,7 @@ const PaySlip = ({ data }: { data: any[] }) => {
     <>
       <Button
         type="default"
-        loading={loading}
+        // loading={loading}
         onClick={sendPayrollWithPDF}
         className="text-white bg-primary border-none p-6"
       >

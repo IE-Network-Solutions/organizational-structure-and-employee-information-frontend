@@ -20,6 +20,7 @@ import {
 import {
   useCreatePayroll,
   useDeletePayroll,
+  useSendingPayrollPayslip,
 } from '@/store/server/features/payroll/payroll/mutation';
 import PayrollCard from './_components/cards';
 import { useExportData } from './_components/excel';
@@ -28,6 +29,7 @@ import PaySlip from './_components/payslip';
 import { saveAs } from 'file-saver';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
+import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportBank, setExportBank] = useState(true);
@@ -47,6 +49,11 @@ const Payroll = () => {
     isSuccess: isCreatePayrollSuccess,
   } = useCreatePayroll();
 
+  const {
+    mutate: sendPaySlip,
+    isLoading: sendingPaySlipLoading,
+  } = useSendingPayrollPayslip();
+
   const { exportToExcel } = useExportData();
   const { generateBankLetter } = useGenerateBankLetter();
 
@@ -54,6 +61,9 @@ const Payroll = () => {
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
+
+
+    console.log(allEmployees,"allEmployees")
   useEffect(() => {
     if (payroll?.payrolls && allEmployees?.items) {
       const mergedData = payroll.payrolls.map((pay: any) => {
@@ -176,6 +186,19 @@ const Payroll = () => {
     }
   };
 
+
+  console.log(allActiveSalary,"allActiveSalary")
+  const sendingPaySlipHandler=(payrollData:any)=>{
+     console.log(payrollData,"**********************")
+
+     const values: PaySlipData[] = payrollData.map((item:any) => ({
+      payrollId: item.id,
+      payPeriodId: item.payPeriodId,
+      employeeId: item.employeeInfo.id,
+    }));
+  
+    sendPaySlip({values});
+  }
   const handleDeductionExportPayroll = async () => {
     if (!mergedPayroll || mergedPayroll.length === 0) {
       NotificationMessage.error({
@@ -674,7 +697,15 @@ const Payroll = () => {
         </div>
       </Modal>
       <div className="h-12 overflow-hidden">
-        <PaySlip data={mergedPayroll} />
+        <Button
+          type="default"
+          loading={sendingPaySlipLoading}
+          onClick={()=>sendingPaySlipHandler(mergedPayroll)}
+          className="text-white bg-primary border-none p-6"
+        >
+          Send Email for employees
+        </Button>
+        {/* <PaySlip data={mergedPayroll} /> */}
       </div>
     </div>
   );
