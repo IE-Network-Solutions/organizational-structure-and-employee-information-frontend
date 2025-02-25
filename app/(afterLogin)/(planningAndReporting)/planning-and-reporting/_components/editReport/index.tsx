@@ -16,6 +16,7 @@ import {
 
 import {
   AllPlanningPeriods,
+  useGetPlanningPeriodsHierarchy,
   useGetReportedPlanning,
   useGetReportingById,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
@@ -25,6 +26,7 @@ import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
 import { useEffect } from 'react';
 import { MdKey } from 'react-icons/md';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 const { Text } = Typography;
 
 const { TextArea } = Input;
@@ -58,8 +60,8 @@ function EditReport() {
   const { mutate: editReport, isLoading: editReportLoading } =
     useEditReportByReportId();
 
-  // const planningPeriodId =
-  //   planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
+  const planningPeriodId =
+    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
   const planningPeriodName =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
 
@@ -154,6 +156,14 @@ function EditReport() {
       }, 0)
     );
   }, 0);
+  const { userId } = useAuthenticationStore();
+  const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
+    userId,
+    planningPeriodId || '', // Provide a default string value if undefined
+  );
+  const parentParentId = planningPeriodHierarchy?.parentPlan?.plans?.find(
+    (i: any) => i.isReported === false,
+  )?.id;
   return (
     selectedReportId !== '' && (
       <CustomDrawerLayout
@@ -338,7 +348,8 @@ function EditReport() {
                                           {keyresult?.metricType?.name !==
                                             NAME.ACHIEVE &&
                                             keyresult?.metricType?.name !==
-                                              NAME.MILESTONE && (
+                                              NAME.MILESTONE &&
+                                            !parentParentId && (
                                               <Form.Item
                                                 key={`${task.taskId}-actualValue`}
                                                 name={[
@@ -650,7 +661,8 @@ function EditReport() {
                                     keyresult?.metricType?.name !==
                                       NAME.ACHIEVE &&
                                     keyresult?.metricType?.name !==
-                                      NAME.MILESTONE && (
+                                      NAME.MILESTONE &&
+                                    !parentParentId && (
                                       <Form.Item
                                         key={`${task.taskId}-actualValue`}
                                         name={[task.taskId, 'actualValue']}
