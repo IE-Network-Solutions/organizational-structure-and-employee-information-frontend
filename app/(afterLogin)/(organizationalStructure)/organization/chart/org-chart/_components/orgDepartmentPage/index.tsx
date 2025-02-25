@@ -12,6 +12,8 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { BiUser } from 'react-icons/bi';
 import CustomDrawer from '../customDrawer';
 import OrgChartSkeleton from '../../../org-structure/_components/loading/orgStructureLoading';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface DepartmentNodeProps {
   data: any;
@@ -25,7 +27,7 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
           title={
             data?.employeeJobInformation?.[0]?.user?.firstName ||
             data?.employeeJobInformation?.[0]?.user?.lastName
-              ? `${data.employeeJobInformation[0].user.firstName ?? ''} ${data.employeeJobInformation[0].user.lastName ?? ''}`.trim()
+              ? `${data.employeeJobInformation[0].user?.firstName ?? ''} ${data.employeeJobInformation[0].user?.middleName ?? ''} ${data.employeeJobInformation[0].user?.lastName ?? ''}`.trim()
               : 'Not assigned'
           }
           placement="top"
@@ -39,8 +41,9 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
         </Tooltip>
         <span className="font-bold text-center">
           {data?.employeeJobInformation?.[0]?.user?.firstName ||
+          data?.employeeJobInformation?.[0]?.user?.middleName ||
           data?.employeeJobInformation?.[0]?.user?.lastName
-            ? `${data.employeeJobInformation[0].user.firstName ?? ''} ${data.employeeJobInformation[0].user.lastName ?? ''}`.trim()
+            ? `${data.employeeJobInformation[0].user.firstName ?? ''} ${data.employeeJobInformation[0].user.middleName ?? ''} ${data.employeeJobInformation[0].user.lastName ?? ''}`.trim()
             : 'Not assigned'}
         </span>
         <span className="text-sm text-center">
@@ -116,30 +119,38 @@ const OrgChartComponent: React.FC = () => {
 
   const menu = (
     <Menu>
-      <Menu.Item
-        key="1"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('archive', 'Archive', 'Archive Level')}
-      >
-        Archive
-      </Menu.Item>
-      <Menu.Item
-        key="2"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('merge', 'Merge', 'Merge Department')}
-      >
-        Merge
-      </Menu.Item>
-      <Menu.Item
-        key="3"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('dissolve', 'Dissove', 'Dessolve Department')}
-      >
-        Dissolve
-      </Menu.Item>
+      <AccessGuard permissions={[Permissions.DeleteDepartment]}>
+        <Menu.Item
+          key="1"
+          className="py-2"
+          style={{ paddingRight: '64px' }}
+          onClick={() => showDrawer('archive', 'Archive', 'Archive Level')}
+        >
+          Archive
+        </Menu.Item>
+      </AccessGuard>
+      <AccessGuard permissions={[Permissions.MergeDepartment]}>
+        <Menu.Item
+          key="2"
+          className="py-2"
+          style={{ paddingRight: '64px' }}
+          onClick={() => showDrawer('merge', 'Merge', 'Merge Department')}
+        >
+          Merge
+        </Menu.Item>
+      </AccessGuard>
+      <AccessGuard permissions={[Permissions.DissolveDepartment]}>
+        <Menu.Item
+          key="3"
+          className="py-2"
+          style={{ paddingRight: '64px' }}
+          onClick={() =>
+            showDrawer('dissolve', 'Dissove', 'Dessolve Department')
+          }
+        >
+          Dissolve
+        </Menu.Item>
+      </AccessGuard>
     </Menu>
   );
   return (

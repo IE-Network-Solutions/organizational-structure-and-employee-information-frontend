@@ -32,11 +32,16 @@ export enum CarryOverPeriod {
 }
 
 export enum AccrualRulePeriod {
+  DAILY = 'daily',
   MONTHLY = 'monthly',
   YEAR = 'year',
   QUARTER = 'quarter',
 }
 
+type AllowedUserAccess = {
+  allowedAreaId: string;
+  userId: string;
+};
 export interface AllowedArea extends DateInfo {
   id: string;
   title: string;
@@ -44,6 +49,8 @@ export interface AllowedArea extends DateInfo {
   distance: number;
   latitude: number;
   longitude: number;
+  isGlobal: boolean;
+  allowedUserAccesses?: AllowedUserAccess[];
 }
 
 export interface CarryOverRule extends DateInfo {
@@ -59,7 +66,7 @@ export interface CarryOverRule extends DateInfo {
 export interface LeaveRequest extends DateInfo {
   id: string;
   tenantId: string;
-  user: string;
+  userId: string;
   leaveType: LeaveType | string;
   startAt: string;
   endAt: string;
@@ -78,6 +85,7 @@ export interface SingleLeaveRequest extends DateInfo {
   id: string;
   tenantId: string;
   user: string;
+  userId?: string;
   leaveType: LeaveType;
   startAt: string;
   endAt: string;

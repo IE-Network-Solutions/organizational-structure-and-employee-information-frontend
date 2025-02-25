@@ -7,6 +7,8 @@ import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import CarryOverCard from './_components/carryOverCard';
 import CarryOverSidebar from './_components/carryOverSidebar';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const Page = () => {
   const { setIsShowCarryOverRuleSidebar } = useTimesheetSettingsStore();
@@ -14,15 +16,17 @@ const Page = () => {
   return (
     <>
       <PageHeader title="Carry-over Rule" size="small">
-        <Button
-          size="large"
-          type="primary"
-          id="carryOver"
-          icon={<LuPlus size={18} />}
-          onClick={() => setIsShowCarryOverRuleSidebar(true)}
-        >
-          New Rule
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateCarryOverRule]}>
+          <Button
+            size="large"
+            type="primary"
+            id="carryOver"
+            icon={<LuPlus size={18} />}
+            onClick={() => setIsShowCarryOverRuleSidebar(true)}
+          >
+            New Rule
+          </Button>
+        </AccessGuard>
       </PageHeader>
 
       {data &&

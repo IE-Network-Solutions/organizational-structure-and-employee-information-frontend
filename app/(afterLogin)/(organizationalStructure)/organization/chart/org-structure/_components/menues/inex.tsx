@@ -1,4 +1,6 @@
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 import { Menu } from 'antd';
 import { FaFileImage, FaFilePdf } from 'react-icons/fa';
 
@@ -44,7 +46,8 @@ const {
   setFooterButtonText,
   setDrawTitle,
 } = useOrganizationStore.getState();
-const showDrawer = (
+
+export const showDrawer = (
   drawerContent: string,
   footerBtnText: string,
   title: string,
@@ -57,29 +60,33 @@ const showDrawer = (
 
 export const orgComposeAndMergeMenues = (
   <Menu>
-    <Menu.Item
-      key="1"
-      className="py-2"
-      style={{ paddingRight: '64px' }}
-      onClick={() => showDrawer('archive', 'Archive', 'Archive Level')}
-    >
-      Archive
-    </Menu.Item>
-    <Menu.Item
-      key="2"
-      className="py-2"
-      style={{ paddingRight: '64px' }}
-      onClick={() => showDrawer('merge', 'Merge', 'Merge Department')}
-    >
-      Merge
-    </Menu.Item>
-    <Menu.Item
+    <AccessGuard permissions={[Permissions.DeleteDepartment]}>
+      <Menu.Item
+        key="1"
+        className="py-2 bg-white hover:bg-gray-200"
+        style={{ paddingRight: '64px', backgroundColor: '#fff' }}
+        onClick={() =>
+          showDrawer('transfer', 'Transfer', 'Transfer Department')
+        }
+      >
+        Transfer
+      </Menu.Item>
+      <Menu.Item
+        key="2"
+        className="py-2 bg-white hover:bg-gray-200"
+        style={{ paddingRight: '64px' }}
+        onClick={() => showDrawer('merge', 'Merge', 'Merge Department')}
+      >
+        Merge
+      </Menu.Item>
+      {/* <Menu.Item
       key="3"
       className="py-2"
       style={{ paddingRight: '64px' }}
       onClick={() => showDrawer('dissolve', 'Dissove', 'Dessolve Department')}
     >
       Dissolve
-    </Menu.Item>
+    </Menu.Item> */}
+    </AccessGuard>
   </Menu>
 );

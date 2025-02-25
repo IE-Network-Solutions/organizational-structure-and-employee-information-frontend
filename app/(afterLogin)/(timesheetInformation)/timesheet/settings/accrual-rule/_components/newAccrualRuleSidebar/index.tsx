@@ -69,6 +69,11 @@ const AddTypesSidebar = () => {
 
   const periodOption = [
     {
+      id: 'AccrualRulePeriodDaily',
+      value: AccrualRulePeriod.DAILY,
+      label: 'Daily',
+    },
+    {
       id: 'AccrualRulePeriodMonthly',
       value: AccrualRulePeriod.MONTHLY,
       label: 'Monthly',

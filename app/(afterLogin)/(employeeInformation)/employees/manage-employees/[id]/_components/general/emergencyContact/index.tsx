@@ -1,5 +1,6 @@
 import React from 'react';
-import { Card, Col, Input, Form, Row, Button } from 'antd';
+import { Card, Col, Input, Form, Row, Button, Select } from 'antd';
+
 import {
   EditState,
   useEmployeeManagementStore,
@@ -7,25 +8,35 @@ import {
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../../common/infoLine';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
+const { Option } = Select;
 
 function EmergencyContact({ handleSaveChanges, id }: any) {
   const { setEdit, edit } = useEmployeeManagementStore();
   const { isLoading, data: employeeData } = useGetEmployee(id);
+  const { data: nationalities } = useGetNationalities();
 
   const [form] = Form.useForm();
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
   };
-
   return (
     <Card
       loading={isLoading}
       title="Emergency Contact"
       extra={
-        <LuPencil
-          className="cursor-pointer"
-          onClick={() => handleEditChange('emergencyContact')}
-        />
+        <AccessGuard
+          permissions={[Permissions.UpdateEmployeeDetails]}
+          selfShouldAccess
+          id={id}
+        >
+          <LuPencil
+            className="cursor-pointer"
+            onClick={() => handleEditChange('emergencyContact')}
+          />
+        </AccessGuard>
       }
       className="my-6"
     >
@@ -34,7 +45,7 @@ function EmergencyContact({ handleSaveChanges, id }: any) {
           form={form}
           onFinish={(values) => handleSaveChanges('emergencyContact', values)}
           layout="vertical"
-          style={{ display: edit ? 'block' : 'none' }} // Hide form when not in edit mode
+          style={{ display: edit ? 'block' : 'none' }}
           initialValues={
             employeeData?.employeeInformation?.emergencyContact || {}
           }
@@ -42,7 +53,14 @@ function EmergencyContact({ handleSaveChanges, id }: any) {
           <Row gutter={[16, 24]}>
             <Col lg={16}>
               {Object.entries(
-                employeeData?.employeeInformation?.emergencyContact || {},
+                employeeData?.employeeInformation?.emergencyContact || {
+                  firstName: '',
+                  middleName: '',
+                  lastName: '',
+                  phoneNumber: '',
+                  gender: '',
+                  nationality: '',
+                },
               ).map(([key, val]) => (
                 <Form.Item
                   key={key}
@@ -52,7 +70,32 @@ function EmergencyContact({ handleSaveChanges, id }: any) {
                     { required: true, message: `Please enter the ${key}` },
                   ]} // Example validation
                 >
-                  <Input placeholder={key} defaultValue={val?.toString()} />
+                  {key === 'gender' ? (
+                    <Select
+                      placeholder={`Select ${key}`}
+                      allowClear
+                      defaultValue={val}
+                    >
+                      <Option value="male">Male</Option>
+                      <Option value="female">Female</Option>
+                    </Select>
+                  ) : key === 'nationality' ? (
+                    <Select
+                      placeholder={`Select ${key}`}
+                      allowClear
+                      defaultValue={val}
+                    >
+                      {nationalities?.items?.map(
+                        (nationality: any, index: number) => (
+                          <Option key={index} value={nationality?.id}>
+                            {nationality?.name}
+                          </Option>
+                        ),
+                      )}
+                    </Select>
+                  ) : (
+                    <Input placeholder={key} defaultValue={val?.toString()} />
+                  )}
                 </Form.Item>
               ))}
             </Col>
@@ -70,9 +113,14 @@ function EmergencyContact({ handleSaveChanges, id }: any) {
           <Col lg={16}>
             {Object.entries(
               employeeData?.employeeInformation?.emergencyContact || {},
-            ).map(([key, val]) => (
-              <InfoLine key={key} title={key} value={val?.toString() || '-'} />
-            ))}
+            ).map(([key, val]) => {
+              const displayValue =
+                key === 'nationality'
+                  ? nationalities?.items?.find((item) => item.id === val)
+                      ?.name || '-'
+                  : val?.toString() || '-';
+              return <InfoLine key={key} title={key} value={displayValue} />;
+            })}
           </Col>
         </Row>
       )}

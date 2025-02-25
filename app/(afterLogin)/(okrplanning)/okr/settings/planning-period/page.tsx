@@ -9,6 +9,9 @@ import {
   useUpdatePlanningStatus,
 } from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 const PlanningPeriod: FC = () => {
@@ -25,18 +28,16 @@ const PlanningPeriod: FC = () => {
 
   const handleEdit = (period: any) => {
     setEditingPeriod(period);
+
     setIsModalVisible(true);
     form.setFieldsValue({
       name: period.name,
       isActive: period.isActive,
-      intervalLength: {
-        days: period.intervalLength?.days || 0,
-        seconds: period.intervalLength?.seconds || 0,
-      },
+      intervalLength: period.intervalLength, // Fixed syntax
       intervalType: period.intervalType,
-      submissionDeadline: {
-        days: period.submissionDeadline?.days || 0,
-      },
+      submissionDeadline: period.submissionDeadline
+        ? dayjs(period.submissionDeadline) // Directly pass the date string
+        : null,
       actionOnFailure: period.actionOnFailure,
     });
   };
@@ -51,7 +52,7 @@ const PlanningPeriod: FC = () => {
       const values = await form.validateFields();
       const formattedValues = {
         ...values,
-        intervalLength: `${values.intervalLength?.days || 0} days`,
+        intervalLength: `${values.intervalLength}`,
         submissionDeadline: `${values.submissionDeadline?.days || 0} days `,
       };
       await editPlanningPeriod({ id: editingPeriod.id, data: formattedValues });
@@ -69,7 +70,7 @@ const PlanningPeriod: FC = () => {
   const handleDelete = (id: string) => {
     Modal.confirm({
       title: 'Confirm Delete',
-      content: 'Are you sure you want to delete this planning period?',
+      content: 'Are you sure you want to delete this planning period ?',
       onOk() {
         deletePlanningPeriod(id);
       },
@@ -77,20 +78,24 @@ const PlanningPeriod: FC = () => {
   };
   const menu = (planningPeriod: any) => (
     <Menu>
-      <Menu.Item
-        key="1"
-        disabled={editPlannningPeriod}
-        onClick={() => handleEdit(planningPeriod)}
-      >
-        Edit
-      </Menu.Item>
-      <Menu.Item
-        key="2"
-        disabled={deletePlannniggPeriod}
-        onClick={() => handleDelete(planningPeriod.id)}
-      >
-        Delete
-      </Menu.Item>
+      <AccessGuard permissions={[Permissions.UpdatePlanningPeriod]}>
+        <Menu.Item
+          key="1"
+          disabled={editPlannningPeriod}
+          onClick={() => handleEdit(planningPeriod)}
+        >
+          Edit
+        </Menu.Item>
+      </AccessGuard>
+      <AccessGuard permissions={[Permissions.DeletePlanningPeriod]}>
+        <Menu.Item
+          key="2"
+          disabled={deletePlannniggPeriod}
+          onClick={() => handleDelete(planningPeriod.id)}
+        >
+          Delete
+        </Menu.Item>
+      </AccessGuard>
     </Menu>
   );
 
@@ -109,13 +114,15 @@ const PlanningPeriod: FC = () => {
             title={planningPeriod?.name}
             extra={
               <div className="flex">
-                <Switch
-                  checked={planningPeriod?.isActive}
-                  disabled={isLoading}
-                  onChange={() => updateStatus(planningPeriod.id)}
-                  className="mr-4"
-                  checkedChildren={<CheckOutlined />}
-                />
+                <AccessGuard permissions={[Permissions.UpdatePlanningPeriod]}>
+                  <Switch
+                    checked={planningPeriod?.isActive}
+                    disabled={isLoading}
+                    onChange={() => updateStatus(planningPeriod.id)}
+                    className="mr-4"
+                    checkedChildren={<CheckOutlined />}
+                  />
+                </AccessGuard>
                 <Dropdown overlay={menu(planningPeriod)} trigger={['click']}>
                   <MoreOutlined className="cursor-pointer" />
                 </Dropdown>
@@ -160,11 +167,11 @@ const PlanningPeriod: FC = () => {
 
           <Form.Item label="Interval Length (Days)">
             <Form.Item
-              name={['intervalLength', 'days']}
+              name="intervalLength"
               noStyle
               rules={[{ required: true, message: 'Please enter days' }]}
             >
-              <Input type="number" min={0} placeholder="Days" />
+              <Input disabled type="text" min={0} placeholder="Days" />
             </Form.Item>
           </Form.Item>
           <Form.Item
@@ -180,16 +187,15 @@ const PlanningPeriod: FC = () => {
               <Option value="monthly">Monthly</Option>
             </Select>
           </Form.Item>
-          <Form.Item label="Submission Deadline (Days)">
-            <Form.Item
-              name={['submissionDeadline', 'days']}
-              noStyle
-              rules={[
-                { required: true, message: 'Please enter submission deadline' },
-              ]}
-            >
-              <Input type="number" min={0} placeholder="Days" />
-            </Form.Item>
+          <Form.Item
+            label="Submission Deadline (Days)"
+            name="submissionDeadline"
+            noStyle
+            rules={[
+              { required: true, message: 'Please enter submission deadline' },
+            ]}
+          >
+            <Input disabled type="text" min={0} placeholder="Days" />
           </Form.Item>
           <Form.Item name="actionOnFailure" label="Action on Failure">
             <Input />

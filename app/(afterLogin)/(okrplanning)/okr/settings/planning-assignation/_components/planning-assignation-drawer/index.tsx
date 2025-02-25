@@ -23,8 +23,9 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
 }) => {
   const { data: allUsers } = useGetAllUsers();
   const { data: allPlanningperiod } = useGetAllPlanningPeriods();
-  const { mutate: planAssign } = useAssignPlanningPeriodToUsers();
-  const { mutate: editAssign } = useUpdateAssignPlanningPeriodToUsers();
+  const { mutate: planAssign, isLoading } = useAssignPlanningPeriodToUsers();
+  const { mutate: editAssign, isLoading: editLoading } =
+    useUpdateAssignPlanningPeriodToUsers();
 
   const { selectedPlanningUser } = useOKRSettingStore();
 
@@ -45,7 +46,6 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
         )}
       </div>
       {option?.firstName + ' ' + option?.middleName}
-    </div>
   );
 
   const customTagRender = (props: any) => {
@@ -115,6 +115,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
         onClick={() => form.submit()}
         title={selectedPlanningUser ? 'Edit' : 'Add'}
         type="primary"
+        loading={isLoading || editLoading}
       />
     </div>
   );
@@ -157,7 +158,13 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
               <Select.Option
                 key={option.id}
                 value={option.id}
-                label={option.firstName}
+                label={
+                  option.firstName +
+                  ' ' +
+                  option.middleName +
+                  ' ' +
+                  option.lastName
+                }
               >
                 {renderEmployeeOption(option)}
               </Select.Option>
@@ -176,11 +183,13 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
             className="h-12"
             dropdownClassName="bg-white shadow-lg rounded-md"
           >
-            {allPlanningperiod?.items?.map((planning, index) => (
-              <Option key={index} value={planning?.id}>
-                {planning.name}
-              </Option>
-            ))}
+            {allPlanningperiod?.items
+              ?.filter((all) => all.isActive === true)
+              .map((planning, index) => (
+                <Option key={index} value={planning?.id}>
+                  {planning.name}
+                </Option>
+              ))}
           </Select>
         </Form.Item>
       </Form>

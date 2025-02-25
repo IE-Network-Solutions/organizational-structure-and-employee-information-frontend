@@ -5,6 +5,52 @@ import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
+// Mutation function for updating profile image
+const updateProfileImageMutation = async (formData: FormData) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/update-profile-image`, // Endpoint expects a POST request
+    method: 'POST',
+    data: formData,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+      'Content-Type': 'multipart/form-data', // Required for file uploads
+    },
+  });
+};
+
+// useUpdateProfileImage hook
+export const useUpdateProfileImage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ id, formData }: { id: string; formData: FormData }) => {
+      // Append user ID to formData
+      formData.append('userId', id);
+
+      return updateProfileImageMutation(formData);
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('employee'); // Invalidate queries related to employee data
+        NotificationMessage.success({
+          message: 'Successfully Updated',
+          description: 'Profile image successfully updated.',
+        });
+      },
+      onError: () => {
+        NotificationMessage.error({
+          message: 'Update Failed',
+          description: 'Failed to update profile image. Please try again.',
+        });
+      },
+    },
+  );
+};
+
 // Mutation function
 const updateEmployeeMutation = async (id: string, values: any) => {
   const token = useAuthenticationStore.getState().token;
@@ -25,7 +71,7 @@ const updateEmployeeInformation = async (id: string, values: any) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/users/update/user-info/by-user-id/${id}`,
+    url: `${ORG_AND_EMP_URL}/users/${id}`,
     method: 'patch',
     headers: {
       Authorization: `Bearer ${token}`,

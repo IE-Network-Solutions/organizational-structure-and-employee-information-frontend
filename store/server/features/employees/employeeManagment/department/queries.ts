@@ -4,8 +4,6 @@ import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
@@ -25,15 +23,15 @@ const getDepartments = async () => {
 };
 
 const getDepartmentsWithUsers = async () => {
-  const tenantIds = '179055e7-a27c-4d9d-9538-2b2a115661bd';
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/all/departments`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      // tenantId: tenantId, // Pass tenantId in the headers
-      tenantId: tenantIds,
+      tenantId: tenantId, // Pass tenantId in the headers
     },
   });
 };
@@ -45,6 +43,8 @@ const getDepartmentsWithUsers = async () => {
  */
 
 const getDepartment = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

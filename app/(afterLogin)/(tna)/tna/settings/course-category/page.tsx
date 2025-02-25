@@ -8,6 +8,8 @@ import { Spin } from 'antd';
 import CourseCategorySidebar from './_components/categorySidebar';
 import { useGetCourseCategory } from '@/store/server/features/tna/courseCategory/queries';
 import CourseCategoryCard from './_components/categoryCard';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const TnaCourseCategoryPage = () => {
   const { isShowCourseCategorySidebar, setIsShowCourseCategorySidebar } =
@@ -23,15 +25,17 @@ const TnaCourseCategoryPage = () => {
   return (
     <>
       <PageHeader title="Course Category" size="small">
-        <CustomButton
-          title="New Category"
-          icon={<LuPlus size={18} />}
-          type="primary"
-          size="large"
-          onClick={() => {
-            setIsShowCourseCategorySidebar(true);
-          }}
-        />
+        <AccessGuard permissions={[Permissions.CreateCourseCategory]}>
+          <CustomButton
+            title="New Category"
+            icon={<LuPlus size={18} />}
+            type="primary"
+            size="large"
+            onClick={() => {
+              setIsShowCourseCategorySidebar(true);
+            }}
+          />
+        </AccessGuard>
       </PageHeader>
 
       <Spin spinning={isFetching}>
