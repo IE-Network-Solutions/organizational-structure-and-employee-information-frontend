@@ -23,7 +23,8 @@ function PersonalDataComponent({
   id: string;
   handleSaveChanges: any;
 }) {
-  const { setEdit, edit,setBirthDate,birthDate } = useEmployeeManagementStore();
+  const { setEdit, edit, setBirthDate, birthDate } =
+    useEmployeeManagementStore();
   const { openModal } = useModalStore();
   const [form] = Form.useForm();
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -93,7 +94,7 @@ function PersonalDataComponent({
                     >
                       <DatePicker
                         className="w-full"
-                        onChange={(date)=>setBirthDate(date)}
+                        onChange={(date) => setBirthDate(date)}
                         defaultPickerValue={dayjs('2000-01-01')} // Opens the calendar with the year 2000
                         disabledDate={(current) => {
                           const minDate = dayjs().subtract(100, 'years'); // Minimum date is 100 years ago
@@ -165,27 +166,28 @@ function PersonalDataComponent({
                     </Form.Item>
 
                     <Form.Item
-  name="joinedDate"
-  label="Joined Date"
-  className="text-gray-950 text-xs w-full"
-  rules={[
-    {
-      required: true,
-      message: 'Please enter the joined date',
-    },
-  ]}
->
-  <DatePicker 
-    disabledDate={(current) => {
-      if (!birthDate) return false; // Ensure birthDate exists
+                      name="joinedDate"
+                      label="Joined Date"
+                      className="text-gray-950 text-xs w-full"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Please enter the joined date',
+                        },
+                      ]}
+                    >
+                      <DatePicker
+                        disabledDate={(current) => {
+                          if (!birthDate) return false; // Ensure birthDate exists
 
-      const minJoinedDate = dayjs(birthDate).add(15, 'years').startOf('day'); 
-      return current && current.isBefore(minJoinedDate);
-    }}
-    className="w-full" 
-  />
-</Form.Item>
-
+                          const minJoinedDate = dayjs(birthDate)
+                            .add(15, 'years')
+                            .startOf('day');
+                          return current && current.isBefore(minJoinedDate);
+                        }}
+                        className="w-full"
+                      />
+                    </Form.Item>
                   </Col>
                   <Col span={24} style={{ textAlign: 'right' }}>
                     <Button type="primary" htmlType="submit">

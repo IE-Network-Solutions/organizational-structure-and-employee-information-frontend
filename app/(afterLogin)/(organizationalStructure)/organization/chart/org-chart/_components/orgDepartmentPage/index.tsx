@@ -1,15 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import {
-  Card,
-  Menu,
-  Dropdown,
-  Tooltip,
-  Modal,
-  Avatar,
-  Skeleton,
-} from 'antd';
+import { Card, Menu, Dropdown, Tooltip, Modal, Avatar, Skeleton } from 'antd';
 
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';

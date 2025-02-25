@@ -122,8 +122,8 @@ interface UserState {
   setDocumentFileList: (fileList: any[]) => void;
   removeDocument: (uid: string) => void;
 
-  birthDate:Dayjs|null,
-  setBirthDate:(birthDate:Dayjs|null)=>void,
+  birthDate: Dayjs | null;
+  setBirthDate: (birthDate: Dayjs | null) => void;
 
   edit: EditState;
   setEdit: (key: keyof EditState) => void;
@@ -153,8 +153,8 @@ export const useEmployeeManagementStore = create<UserState>()(
       isAddEmployeeJobInfoModalVisible: boolean,
     ) => set({ isAddEmployeeJobInfoModalVisible }),
 
-    birthDate:null,
-    setBirthDate:(birthDate:Dayjs|null)=>set({birthDate}),
+    birthDate: null,
+    setBirthDate: (birthDate: Dayjs | null) => set({ birthDate }),
     searchValue: null,
     setSearchValue: (searchValue: string | null) => set({ searchValue }),
 

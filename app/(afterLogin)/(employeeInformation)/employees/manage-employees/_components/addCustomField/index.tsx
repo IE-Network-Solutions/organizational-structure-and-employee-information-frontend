@@ -23,7 +23,7 @@ interface FormField {
   fieldType: 'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox';
   isActive: boolean;
   options: string[];
-  fieldValidation:string;
+  fieldValidation: string;
 }
 
 const AddCustomField: React.FC<any> = ({
@@ -66,7 +66,6 @@ const AddCustomField: React.FC<any> = ({
   const formatFieldName = (name: string) => name.replace(/\s+/g, '_');
 
   const onFinish = (values: any) => {
-
     const formattedFieldName = formatFieldName(values.fieldName);
     const newField: FormField = {
       id: uuidv4(),

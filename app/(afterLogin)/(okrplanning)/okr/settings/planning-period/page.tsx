@@ -13,7 +13,6 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import dayjs from 'dayjs';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 
-
 const { Option } = Select;
 const PlanningPeriod = () => {
   const { data: allPlanningperiod } = useGetAllPlanningPeriods();

@@ -18,7 +18,7 @@ interface FormField {
   fieldType: 'input' | 'select' | 'datePicker' | 'checkbox' | 'toggle';
   isActive: boolean;
   fieldName: string;
-  fieldValidation:string;
+  fieldValidation: string;
   options?: string[]; // Options for 'select', 'checkbox'
 }
 
@@ -34,7 +34,6 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
   const renderField = (field: FormField) => {
     if (!field.isActive) return null; // Skip inactive fields
 
-
     const commonProps = {
       className: 'font-semibold text-xs',
       label: field.fieldName,
@@ -42,9 +41,16 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
       id: `${formTitle}${field.fieldName}`,
       rules: [
         {
+          /*  eslint-disable-next-line @typescript-eslint/naming-convention */
           validator: (_rule: any, value: any) => {
-            const validationError = validateField(field.fieldType, value,field.fieldValidation,);
-            if (validationError) return Promise.reject(new Error(validationError));
+            /*  eslint-enable-next-line @typescript-eslint/naming-convention */
+            const validationError = validateField(
+              field.fieldType,
+              value,
+              field.fieldValidation,
+            );
+            if (validationError)
+              return Promise.reject(new Error(validationError));
             // if (field.fieldType === 'input') {
             //   const nameError = validateName(field.fieldName, value);
             //   if (nameError) return Promise.reject(new Error(nameError));
@@ -54,7 +60,6 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
         },
       ],
     };
-    
 
     switch (field.fieldType) {
       case 'input':

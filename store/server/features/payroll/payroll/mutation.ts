@@ -97,7 +97,7 @@ export const useSendingPayrollPayslip = () => {
         queryClient.invalidateQueries('payroll');
         NotificationMessage.success({
           message: 'Payslip sent successfully',
-          description: "",
+          description: '',
         });
       },
       onError: (error: any) => {
