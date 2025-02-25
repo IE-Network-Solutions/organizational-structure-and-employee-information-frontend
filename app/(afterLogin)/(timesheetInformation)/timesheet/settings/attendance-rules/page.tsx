@@ -27,7 +27,7 @@ const Page = () => {
 
   return (
     <>
-      <PageHeader size="small" title="Attendace Rules">
+      <PageHeader size="small" title="Attendance Rules">
         <Space size={20}>
           <AccessGuard permissions={[Permissions.CreateAttendanceRuleType]}>
             <Button
