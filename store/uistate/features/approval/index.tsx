@@ -70,6 +70,9 @@ interface UserState {
   deleteModal: boolean;
   setDeleteModal: (deleteModal: boolean) => void;
 
+  transferModal: boolean;
+  setTransferModal: (transferModal: boolean) => void;
+
   departmentApproval: boolean;
   setDepartmentApproval: (departmentApproval: boolean) => void;
 
@@ -90,6 +93,9 @@ export const useApprovalStore = create<UserState>()(
             },
           });
         },
+
+        transferModal: false,
+        setTransferModal: (transferModal: boolean) => set({ transferModal }),
 
         userCurrentPage: 1,
         setUserCurrentPage: (userCurrentPage: number) =>

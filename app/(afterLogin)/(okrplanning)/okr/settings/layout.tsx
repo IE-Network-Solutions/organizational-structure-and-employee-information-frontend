@@ -5,6 +5,7 @@ import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
 import { HiOutlineBriefcase } from 'react-icons/hi2';
 import { usePathname, useRouter } from 'next/navigation';
 import { RiAwardFill } from 'react-icons/ri';
+import { FaUserEdit } from 'react-icons/fa';
 
 interface OkrSettingsLayoutProps {
   children: ReactNode;
@@ -172,6 +173,21 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'target-assignment' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/target-assignment',
+    },
+    {
+      item: {
+        key: 'edit-access',
+        icon: (
+          <FaUserEdit
+            className={
+              currentItem === 'edit-access' ? 'text-[#4DAEF0]' : 'text-gray-500'
+            }
+          />
+        ),
+        label: <p className="font-bold text-sm text-gray-900">Edit access</p>,
+        className: currentItem === 'edit-access' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/edit-access',
     },
   ]);
 

@@ -1,10 +1,11 @@
-import { Progress } from 'antd';
+import { Dropdown, Menu, Progress } from 'antd';
 import { FC, useState } from 'react';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
+import { IoIosMore } from 'react-icons/io';
 
 interface KPIMetricsProps {
   keyResult: any;
@@ -17,41 +18,41 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
   const { mutate: deleteKeyResult } = useDeleteKeyResult();
   const { keyResultValue, setKeyResultValue } = useOKRStore();
 
-  // const showDeleteModal = () => {
-  //   setOpenDeleteModal(true);
-  //   setKeyResultValue(keyResult);
-  // };
+  const showDeleteModal = () => {
+    setOpenDeleteModal(true);
+    setKeyResultValue(keyResult);
+  };
 
   const onCloseDeleteModal = () => {
     setOpenDeleteModal(false);
     setKeyResultValue([]);
   };
 
-  // const showDrawer = () => {
-  //   setOpen(true);
-  //   setKeyResultValue(keyResult);
-  // };
+  const showDrawer = () => {
+    setOpen(true);
+    setKeyResultValue(keyResult);
+  };
 
   const onClose = () => {
     setOpen(false);
   };
 
-  // const menu = (
-  //   <Menu
-  //     items={[
-  //       {
-  //         key: '1',
-  //         label: 'Edit',
-  //         onClick: showDrawer,
-  //       },
-  //       {
-  //         key: '2',
-  //         label: 'Delete',
-  //         onClick: showDeleteModal,
-  //       },
-  //     ]}
-  //   />
-  // );
+  const menu = (
+    <Menu
+      items={[
+        {
+          key: '1',
+          label: 'Edit',
+          onClick: showDrawer,
+        },
+        {
+          key: '2',
+          label: 'Delete',
+          onClick: showDeleteModal,
+        },
+      ]}
+    />
+  );
   function handleKeyResultDelete(id: string) {
     deleteKeyResult(id, {
       onSuccess: () => {
@@ -76,7 +77,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
               size={20}
             />
             <span className="text-lg">{keyResult?.progress || 0}%</span>
-            {/* {myOkr && (
+            {keyResult?.isClosed === false && (
               <Dropdown
                 overlay={menu}
                 trigger={['click']}
@@ -84,7 +85,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
               >
                 <IoIosMore className="text-gray-500 text-lg cursor-pointer" />
               </Dropdown>
-            )} */}
+            )}
           </div>
         </div>
       </div>

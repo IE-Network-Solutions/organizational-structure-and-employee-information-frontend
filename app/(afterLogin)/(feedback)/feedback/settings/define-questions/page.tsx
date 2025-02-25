@@ -53,7 +53,7 @@ const Page = () => {
               type="primary"
               className="h-10 text-xs"
             >
-              Add new {activeTabName}
+              Add new {activeTabName} question-set
             </Button>
           )}
         </AccessGuard>
