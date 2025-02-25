@@ -1,17 +1,24 @@
+import {
+  ActiveMergedPayroll,
+  Allowances,
+} from '@/store/uistate/features/payroll/employeeInfoStore';
 import { Space, Typography, Divider } from 'antd';
 
 const { Text } = Typography;
+type PayrollDetailsProps = {
+  activeMergedPayroll?: ActiveMergedPayroll;
+};
 
-const PayrollDetails = ({ activeMergedPayroll }: any) => {
-  
+const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
   if (!activeMergedPayroll) {
     return <Text type="secondary">No payroll available.</Text>;
   }
-  const totalAmount = (items: any) => {
+  const totalAmount = (items: Allowances[]) => {
     if (!items || items.length === 0) return '0.00';
     return items
       .reduce(
-        (total: number, item: any) => total + parseFloat(item.amount || 0),
+        (total: number, item: Allowances) =>
+          total + parseFloat(item.amount || '0'),
         0,
       )
       .toFixed(2);
@@ -58,6 +65,7 @@ const PayrollDetails = ({ activeMergedPayroll }: any) => {
               ...(activeMergedPayroll?.breakdown?.variablePay
                 ? [
                     {
+                      type: 'VP', // Adding a type to match Allowances structure
                       amount:
                         activeMergedPayroll?.breakdown?.variablePay.amount,
                     },

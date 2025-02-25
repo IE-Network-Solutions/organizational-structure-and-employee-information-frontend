@@ -10,9 +10,9 @@ interface VariablePay {
   type: "VP"; 
 }
 
-interface Allowances {
-  amount:  string; 
-  type: string; 
+export interface Allowances {
+  amount: string;
+  type: string;
 }
 interface TotalDeductionWithPension {
   amount:  string; 
@@ -181,8 +181,8 @@ interface EmployeeInfo {
 }
 
 
-interface ActiveMergedPayroll {
-  breakdown:Breakdown;
+export interface ActiveMergedPayroll {
+  breakdown: Breakdown;
   createdAt: string;
   createdBy: string | null;
   deletedAt: string | null;
@@ -207,7 +207,7 @@ interface ActiveMergedPayroll {
   tenantId: string;
   updatedAt: string;
   updatedBy: string | null;
-  userPermissions: any[]; 
+  userPermissions: any[];
 }
 interface PayPeriod {
   id: string;

@@ -277,7 +277,9 @@ const EmployeeProfile = () => {
                     </Text>
                   </div>
                 </div>
-                <PayrollDetails activeMergedPayroll={activeMergedPayroll} />
+                <PayrollDetails
+                  activeMergedPayroll={activeMergedPayroll || undefined}
+                />
                 <div className="h-0 overflow-hidden">
                   <div ref={payslipRef} className="p-4">
                     <div className=" pl-4 flex flex-col justify-start items-start">
