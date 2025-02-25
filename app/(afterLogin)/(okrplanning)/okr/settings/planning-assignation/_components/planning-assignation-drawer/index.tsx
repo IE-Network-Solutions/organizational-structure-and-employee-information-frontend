@@ -33,16 +33,25 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
   const [form] = Form.useForm();
 
   const renderEmployeeOption = (option: any) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-      <Avatar size={20} icon={<UserOutlined />} />
-      {option.firstName} {option.middleName} {option.lastName}
-    </div>
+    <div className="flex items-center justify-start gap-2 ">
+      <div>
+        {option?.profileImage ? (
+          <Avatar size={20} src={option?.profileImage} />
+        ) : (
+          <Avatar size={20}>
+            {option?.firstName[0]?.toUpperCase()}
+            {option?.middleName[0]?.toUpperCase()}
+            {option?.lastName[0]?.toUpperCase()}
+          </Avatar>
+        )}
+      </div>
+      {option?.firstName + ' ' + option?.middleName}
   );
 
   const customTagRender = (props: any) => {
     const { label, closable, onClose } = props;
     return (
-      <div className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1">
+      <div className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1 ">
         <Avatar size={20} icon={<UserOutlined />} />
         <span>{label}</span>
         {closable && (
@@ -125,6 +134,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
         autoComplete="off"
       >
         {/* Select Employee */}
+
         <Form.Item
           name="userIds"
           label="Select Assignee"
@@ -135,9 +145,14 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
             allowClear
             placeholder="Select Employees"
             optionLabelProp="label"
-            tagRender={customTagRender}
-            // className="h-12"
             optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label as string)
+                ?.toLowerCase()
+                .includes(input.toLowerCase())
+            }
+            className="h-12"
+            tagRender={customTagRender}
           >
             {allUsers?.items.map((option: any) => (
               <Select.Option
