@@ -63,7 +63,11 @@ const EmployeeProfile = () => {
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save(`${activeMergedPayroll?.firstName}_Payslip_.pdf`);
+      pdf.save(
+        `${activeMergedPayroll?.employeeInfo?.firstName}_${
+          activeMergedPayroll?.employeeInfo?.lastName
+        }_Payslip_.pdf`,
+      );
     });
   };
 
@@ -282,12 +286,6 @@ const EmployeeProfile = () => {
                 />
                 <div className="h-0 overflow-hidden">
                   <div ref={payslipRef} className="p-4">
-                    <div className=" pl-4 flex flex-col justify-start items-start">
-                      <Text className="text-xl">SelamNew Workspace</Text>
-                      <Text className="font-light">
-                        ICT -park, 3rd Floor Addis Ababa Ethiopia
-                      </Text>
-                    </div>
                     <Divider className="m-2" />
                     <header className="text-center border-b pb-4 mb-4">
                       <h2 className="text-xl font-semibold text-center">
@@ -374,7 +372,7 @@ const EmployeeProfile = () => {
                       <div className="flex flex-col w-full gap-4">
                         <div className=" pl-4 flex justify-between  items-center my-2">
                           <Text className="text-xl">Employee Allowance</Text>
-                          <Text className="text-xl">Amount</Text>
+                          <Text className="text-xl pr-10">Amount</Text>
                         </div>
                         <div className="flex justify-between">
                           <div className="flex flex-col gap-2 justify-center items-start pl-4 text-gray-600">
@@ -387,7 +385,7 @@ const EmployeeProfile = () => {
                             )}
                           </div>
 
-                          <div className="flex flex-col gap-2 text-right font-bold">
+                          <div className="flex flex-col gap-2 text-right font-bold pr-10">
                             {activeMergedPayroll?.breakdown?.allowances?.map(
                               (item: any, index: any) => (
                                 <Text key={index}>
@@ -398,7 +396,7 @@ const EmployeeProfile = () => {
                           </div>
                         </div>
 
-                        <div className=" pl-4 flex justify-between  items-center my-2">
+                        <div className=" pl-4 flex justify-between  items-center my-2 pr-10">
                           <Text className="text-purple">Total Allowance:</Text>
                           <Text className="text-purple">
                             {totalAmount(
@@ -412,7 +410,7 @@ const EmployeeProfile = () => {
                       <div className="flex flex-col w-full gap-4">
                         <div className=" pl-4 flex justify-between  items-center my-2">
                           <Text className="text-xl">Employee Benefits</Text>
-                          <Text className="text-xl">Amount</Text>
+                          <Text className="text-xl pr-10">Amount</Text>
                         </div>
                         <div className="flex justify-between gap-2 w-full">
                           <div className="flex flex-col gap-2 justify-center items-start pl-4">
@@ -432,7 +430,7 @@ const EmployeeProfile = () => {
                               </Text>
                             )}
                           </div>
-                          <div className="flex flex-col gap-2 text-right justify-end items-start">
+                          <div className="flex flex-col gap-2 text-right justify-end items-start pr-10">
                             {activeMergedPayroll?.breakdown?.merits?.map(
                               (item: any, index: any) => (
                                 <Text className="font-bold" key={index}>
@@ -452,8 +450,8 @@ const EmployeeProfile = () => {
                         </div>
 
                         <div className=" pl-4 flex justify-between  items-center my-2">
-                          <Text className="text-purple">Total Benefit:</Text>
-                          <Text className="text-purple">
+                          <Text className="text-purple ">Total Benefit:</Text>
+                          <Text className="text-purple pr-10">
                             {totalAmount([
                               ...(activeMergedPayroll?.breakdown?.merits || []),
                               ...(activeMergedPayroll?.breakdown?.variablePay
@@ -482,7 +480,7 @@ const EmployeeProfile = () => {
                     <div className="flex flex-col">
                       <div className=" p-4 flex justify-between  items-center my-2">
                         <Text className="text-xl">Employee Deductions</Text>
-                        <Text className="text-xl">Amount</Text>
+                        <Text className="text-xl pr-10">Amount</Text>
                       </div>
 
                       <div className="flex justify-between gap-2 w-full">
@@ -502,7 +500,7 @@ const EmployeeProfile = () => {
                             ),
                           )}
                         </div>
-                        <div className="flex flex-col gap-2 text-right justify-end items-start">
+                        <div className="flex flex-col gap-2 text-right justify-end items-start pr-10">
                           {activeMergedPayroll?.breakdown?.pension?.map(
                             (item: any, index: any) => (
                               <Text className="font-bold" key={index}>
@@ -521,7 +519,7 @@ const EmployeeProfile = () => {
                       </div>
                       <div className="pl-4 my-6 flex justify-between ">
                         <Text className="text-purple"> Total Deduction</Text>
-                        <Text className="text-purple">
+                        <Text className="text-purple pr-10">
                           {totalAmount([
                             ...(activeMergedPayroll?.breakdown?.pension || []),
                             ...(activeMergedPayroll?.breakdown
@@ -541,7 +539,7 @@ const EmployeeProfile = () => {
                     <div>
                       <div className=" p-4 flex justify-between  items-center my-2">
                         <Text className="text-xl">Employee Bank Details</Text>
-                        <Text className="text-xl">Details</Text>
+                        <Text className="text-xl pr-10">Details</Text>
                       </div>
                       <div className="flex justify-between  w-full">
                         <div className="flex flex-col gap-2 pl-4">
