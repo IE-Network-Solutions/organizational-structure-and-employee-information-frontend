@@ -129,6 +129,10 @@ interface UserState {
   setEdit: (key: keyof EditState) => void;
   selectionType: 'checkbox' | 'radio';
   setSelectionType: (selectionType: 'checkbox' | 'radio') => void;
+
+  searchValue: string | null;
+  setSearchValue: (searchValue: string | null) => void;
+
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
   reHireModal: boolean;
@@ -149,10 +153,11 @@ export const useEmployeeManagementStore = create<UserState>()(
       isAddEmployeeJobInfoModalVisible: boolean,
     ) => set({ isAddEmployeeJobInfoModalVisible }),
 
-
     birthDate:null,
     setBirthDate:(birthDate:Dayjs|null)=>set({birthDate}),
-  
+    searchValue: null,
+    setSearchValue: (searchValue: string | null) => set({ searchValue }),
+
     open: false,
     deleteModal: false,
     current: 0,

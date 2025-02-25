@@ -301,4 +301,9 @@ export enum Permissions {
   // CreateRecognitionType = 'create-recognition-type',
   // DeleteRecognitionType = 'delete-recognition-type',
   // EditRecognitionType = 'edit-recognition-type',
+
+  //profile
+  ChangePassword = 'change-password',
+  ChangeProfileImage = 'change-profile-image',
+  ChangeManagerProfile = 'change-manager-profile',
 }
