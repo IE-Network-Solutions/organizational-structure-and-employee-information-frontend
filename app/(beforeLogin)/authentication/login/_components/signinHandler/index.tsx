@@ -43,11 +43,15 @@ export const useHandleSignIn = () => {
         setUserData(fetchedData?.data);
         message.success('Welcome!');
         message.loading({ content: 'Redirecting...', key: 'redirect' });
+        const redirectPath =
+          sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
+        sessionStorage.removeItem('redirectAfterLogin');
 
-        if (fetchedData?.data?.hasChangedPassword === false) {
+        if (redirectPath) {
+          router.push(redirectPath); // Redirect back to the original page
+        } else if (fetchedData?.data?.hasChangedPassword === false) {
           router.push('/authentication/new-password');
-        }
-        if (fetchedData?.data?.hasCompany === false) {
+        } else if (fetchedData?.data?.hasCompany === false) {
           router.push('/onboarding');
         } else if (
           fetchedData?.data?.hasCompany === true &&
