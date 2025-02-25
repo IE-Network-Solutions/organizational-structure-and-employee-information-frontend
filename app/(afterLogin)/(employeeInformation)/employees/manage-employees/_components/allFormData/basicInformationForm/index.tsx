@@ -24,7 +24,7 @@ const { Option } = Select;
 const { Dragger } = Upload;
 
 const BasicInformationForm = ({ form }: any) => {
-  const { profileFileList, setProfileFileList } = useEmployeeManagementStore();
+  const { profileFileList,setBirthDate, setProfileFileList } = useEmployeeManagementStore();
   const { data: nationalities, isLoading: isLoadingNationality } =
     useGetNationalities();
 
@@ -231,7 +231,9 @@ const BasicInformationForm = ({ form }: any) => {
             id="userDateOfBirthId"
             rules={[{ required: true }]}
           >
-            <DatePicker className="w-full" disabledDate={disableFutureDates} />
+            <DatePicker
+              onChange={(date)=>setBirthDate(date)}
+             className="w-full" disabledDate={disableFutureDates} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
