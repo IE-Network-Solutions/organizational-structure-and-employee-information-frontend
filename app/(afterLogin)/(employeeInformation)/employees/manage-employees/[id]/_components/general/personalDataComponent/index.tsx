@@ -14,6 +14,7 @@ import PermissionWrapper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import ChangePasswordModal from './_components/changePasswordModal';
 import { useModalStore } from '@/store/uistate/features/authentication/changePasswordModal';
+import AccessGuard from '@/utils/permissionGuard';
 
 function PersonalDataComponent({
   id,
@@ -205,9 +206,11 @@ function PersonalDataComponent({
                     employeeData?.employeeInformation?.nationality?.name || '-'
                   }
                 />
-                <Button type="primary" htmlType="submit" onClick={openModal}>
-                  Change Password?
-                </Button>
+                <AccessGuard permissions={[Permissions.ChangePassword]}>
+                  <Button type="primary" htmlType="submit" onClick={openModal}>
+                    Change Password?
+                  </Button>
+                </AccessGuard>
               </Col>
               <Col lg={10}>
                 <InfoLine

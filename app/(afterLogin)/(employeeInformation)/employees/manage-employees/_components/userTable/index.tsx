@@ -105,6 +105,7 @@ const UserTable = () => {
   const { mutate: employeeDeleteMuation } = useDeleteEmployee();
   const { mutate: rehireEmployee, isLoading: rehireLoading } =
     useRehireTerminatedEmployee();
+
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
   const data = allFilterData?.items?.map((item: any) => {

@@ -20,14 +20,15 @@ import {
 import {
   useCreatePayroll,
   useDeletePayroll,
+  useSendingPayrollPayslip,
 } from '@/store/server/features/payroll/payroll/mutation';
 import PayrollCard from './_components/cards';
 import { useExportData } from './_components/excel';
 import { useGenerateBankLetter } from './_components/Latter';
-import PaySlip from './_components/payslip';
 import { saveAs } from 'file-saver';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
+import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportBank, setExportBank] = useState(true);
@@ -47,6 +48,9 @@ const Payroll = () => {
     isSuccess: isCreatePayrollSuccess,
   } = useCreatePayroll();
 
+  const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
+    useSendingPayrollPayslip();
+
   const { exportToExcel } = useExportData();
   const { generateBankLetter } = useGenerateBankLetter();
 
@@ -54,6 +58,7 @@ const Payroll = () => {
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
+
   useEffect(() => {
     if (payroll?.payrolls && allEmployees?.items) {
       const mergedData = payroll.payrolls.map((pay: any) => {
@@ -176,6 +181,15 @@ const Payroll = () => {
     }
   };
 
+  const sendingPaySlipHandler = (payrollData: any) => {
+    const values: PaySlipData[] = payrollData.map((item: any) => ({
+      payrollId: item.id,
+      payPeriodId: item.payPeriodId,
+      employeeId: item.employeeInfo.id,
+    }));
+
+    sendPaySlip({ values });
+  };
   const handleDeductionExportPayroll = async () => {
     if (!mergedPayroll || mergedPayroll.length === 0) {
       NotificationMessage.error({
@@ -667,14 +681,25 @@ const Payroll = () => {
             <span>Export Bank</span>
             <Switch checked={exportBank} onChange={setExportBank} />
           </div>
-          {/* <div className="flex flex-col justify-between items-start gap-2 ">
-            <span>Send Email for employees</span>
-            <Switch checked={true} onChange={() => {}} />
-          </div> */}
         </div>
       </Modal>
       <div className="h-12 overflow-hidden">
-        <PaySlip data={mergedPayroll} />
+      <Popconfirm
+        title="Are you sure?"
+        description="This will send the payslip to every employee via email."
+        okText="Yes, Send"
+        cancelText="No"
+        onConfirm={() => sendingPaySlipHandler(mergedPayroll)}
+      >
+        <Button
+          type="default"
+          loading={sendingPaySlipLoading}
+          className="text-white bg-primary border-none p-6"
+        >
+          Send Email for employees
+        </Button>
+      </Popconfirm>
+        {/* <PaySlip data={mergedPayroll} /> */}
       </div>
     </div>
   );
