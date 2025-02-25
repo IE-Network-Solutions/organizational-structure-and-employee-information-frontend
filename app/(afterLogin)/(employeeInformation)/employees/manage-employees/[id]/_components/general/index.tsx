@@ -14,22 +14,17 @@ import { useGetEmployeInformationForms } from '@/store/server/features/employees
 
 function General({ id }: { id: string }) {
   const { data: employeeData } = useGetEmployee(id);
-  
+
   const { setEdit } = useEmployeeManagementStore();
   const [form] = Form.useForm();
   const { data: employeeInformationForm } = useGetEmployeInformationForms();
 
-  const mergedFields = employeeInformationForm?.items.flatMap(form =>
-    form.form.map(field => ({
+  const mergedFields = employeeInformationForm?.items.flatMap((form) =>
+    form.form.map((field) => ({
       ...field,
       formTitle: form.formTitle, // Add formTitle to each field
-    }))
+    })),
   );
-
-  const getFieldValidation=(fieldName:string)=>{
-    return mergedFields?.find((field:any)=>field?.name===fieldName) ?? null
-  }
-
 
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   useGetNationalities();
@@ -70,10 +65,22 @@ function General({ id }: { id: string }) {
 
   return (
     <>
-      <PersonalDataComponent  id={id} handleSaveChanges={handleSaveChanges} />
-      <EmergencyContact mergedFields={mergedFields} id={id} handleSaveChanges={handleSaveChanges} />
-      <AddressComponent mergedFields={mergedFields} id={id} handleSaveChanges={handleSaveChanges} />
-      <BankInformationComponent mergedFields={mergedFields} id={id} handleSaveChanges={handleSaveChanges} />
+      <PersonalDataComponent id={id} handleSaveChanges={handleSaveChanges} />
+      <EmergencyContact
+        mergedFields={mergedFields}
+        id={id}
+        handleSaveChanges={handleSaveChanges}
+      />
+      <AddressComponent
+        mergedFields={mergedFields}
+        id={id}
+        handleSaveChanges={handleSaveChanges}
+      />
+      <BankInformationComponent
+        mergedFields={mergedFields}
+        id={id}
+        handleSaveChanges={handleSaveChanges}
+      />
     </>
   );
 }

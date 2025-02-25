@@ -1,12 +1,4 @@
-import {
-  Col,
-  Form,
-  Input,
-  InputNumber,
-  Row,
-  Select,
-  Space,
-} from 'antd';
+import { Col, Form, Input, InputNumber, Row, Select, Space } from 'antd';
 import { MdCancel } from 'react-icons/md';
 
 interface SubTaskInterface {

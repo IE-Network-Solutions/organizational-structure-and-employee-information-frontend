@@ -11,15 +11,21 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { validateField } from '../../../../_components/formValidator';
 
-const BankInformationComponent = ({ mergedFields,handleSaveChanges, id }: any) => {
+const BankInformationComponent = ({
+  mergedFields,
+  handleSaveChanges,
+  id,
+}: any) => {
   const { setEdit, edit } = useEmployeeManagementStore();
   const { isLoading, data: employeeData } = useGetEmployee(id);
 
   const [form] = Form.useForm();
 
-  const getFieldValidation=(fieldName:string)=>{
-    return mergedFields?.find((field:any)=>field?.name===fieldName) ?? null
-  }
+  const getFieldValidation = (fieldName: string) => {
+    return (
+      mergedFields?.find((field: any) => field?.name === fieldName) ?? null
+    );
+  };
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
   };
@@ -66,30 +72,37 @@ const BankInformationComponent = ({ mergedFields,handleSaveChanges, id }: any) =
                   name={key}
                   label={key}
                   rules={[
-                                      {
-                                        validator: (_rule: any, value: any) => {
-                                          let fieldValidation = getFieldValidation(key);
-                                    
-                                          switch (key) {
-                                            case 'accountNumber':
-                                              fieldValidation = 'any';
-                                              break;
-                                            // case 'accountNumber':
-                                            case 'accountName':
-                                            case 'branch':
-                                            case 'bankName':
-                                              fieldValidation = 'text';
-                                              break;
-                                            default:
-                                              fieldValidation = getFieldValidation(key);
-                                          }
-                                    
-                                          const validationError = validateField(key, value, fieldValidation);
-                                          if (validationError) return Promise.reject(new Error(validationError));
-                                          return Promise.resolve();
-                                        },
-                                      },
-                         ]}
+                    {
+                      /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+                      validator: (_rule: any, value: any) => {
+                        /*  eslint-enable-next-line @typescript-eslint/naming-convention */
+                        let fieldValidation = getFieldValidation(key);
+
+                        switch (key) {
+                          case 'accountNumber':
+                            fieldValidation = 'any';
+                            break;
+                          // case 'accountNumber':
+                          case 'accountName':
+                          case 'branch':
+                          case 'bankName':
+                            fieldValidation = 'text';
+                            break;
+                          default:
+                            fieldValidation = getFieldValidation(key);
+                        }
+
+                        const validationError = validateField(
+                          key,
+                          value,
+                          fieldValidation,
+                        );
+                        if (validationError)
+                          return Promise.reject(new Error(validationError));
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
                   // rules={
                   //   ['bankName', 'accountNumber'].includes(key)
                   //     ? [{ required: true, message: `Please enter the ${key}` }]

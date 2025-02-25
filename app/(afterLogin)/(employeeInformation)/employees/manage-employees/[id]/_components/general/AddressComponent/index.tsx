@@ -16,7 +16,7 @@ const AddressComponent = ({
   id,
   handleSaveChanges,
 }: {
-  mergedFields:any,
+  mergedFields: any;
   id: string;
   handleSaveChanges: any;
 }) => {
@@ -27,9 +27,11 @@ const AddressComponent = ({
     setEdit(editKey);
   };
 
-  const getFieldValidation=(fieldName:string)=>{
-    return mergedFields?.find((field:any)=>field?.name===fieldName) ?? null
-  }
+  const getFieldValidation = (fieldName: string) => {
+    return (
+      mergedFields?.find((field: any) => field?.name === fieldName) ?? null
+    );
+  };
 
   return (
     <Card
@@ -70,25 +72,32 @@ const AddressComponent = ({
                   name={key}
                   label={key}
                   rules={[
-                                      {
-                                        validator: (_rule: any, value: any) => {
-                                          let fieldValidation = getFieldValidation(key);
-                                    
-                                          switch (key) {
-                                            case 'country':
-                                            case 'city':
-                                              fieldValidation = 'text';
-                                              break;
-                                            default:
-                                              fieldValidation = getFieldValidation(key);
-                                          }
-                                    
-                                          const validationError = validateField(key, value, fieldValidation);
-                                          if (validationError) return Promise.reject(new Error(validationError));
-                                          return Promise.resolve();
-                                        },
-                                      },
-                         ]}
+                    {
+                      /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+                      validator: (_rule: any, value: any) => {
+                        /*  eslint-enable-next-line @typescript-eslint/naming-convention */
+                        let fieldValidation = getFieldValidation(key);
+
+                        switch (key) {
+                          case 'country':
+                          case 'city':
+                            fieldValidation = 'text';
+                            break;
+                          default:
+                            fieldValidation = getFieldValidation(key);
+                        }
+
+                        const validationError = validateField(
+                          key,
+                          value,
+                          fieldValidation,
+                        );
+                        if (validationError)
+                          return Promise.reject(new Error(validationError));
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
                 >
                   <Input placeholder={key} defaultValue={val?.toString()} />
                 </Form.Item>

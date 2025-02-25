@@ -684,21 +684,21 @@ const Payroll = () => {
         </div>
       </Modal>
       <div className="h-12 overflow-hidden">
-      <Popconfirm
-        title="Are you sure?"
-        description="This will send the payslip to every employee via email."
-        okText="Yes, Send"
-        cancelText="No"
-        onConfirm={() => sendingPaySlipHandler(mergedPayroll)}
-      >
-        <Button
-          type="default"
-          loading={sendingPaySlipLoading}
-          className="text-white bg-primary border-none p-6"
+        <Popconfirm
+          title="Are you sure?"
+          description="This will send the payslip to every employee via email."
+          okText="Yes, Send"
+          cancelText="No"
+          onConfirm={() => sendingPaySlipHandler(mergedPayroll)}
         >
-          Send Email for employees
-        </Button>
-      </Popconfirm>
+          <Button
+            type="default"
+            loading={sendingPaySlipLoading}
+            className="text-white bg-primary border-none p-6"
+          >
+            Send Email for employees
+          </Button>
+        </Popconfirm>
         {/* <PaySlip data={mergedPayroll} /> */}
       </div>
     </div>

@@ -20,7 +20,7 @@ import React, { useState } from 'react';
 import { AiOutlineReload } from 'react-icons/ai';
 
 const JobTimeLineForm = () => {
-  const {birthDate}=useEmployeeManagementStore()
+  const { birthDate } = useEmployeeManagementStore();
   const { data: departmentData, refetch: departmentsRefetch } =
     useGetDepartments();
   const { data: employementType, refetch: employmentTypeRefetch } =
@@ -51,14 +51,16 @@ const JobTimeLineForm = () => {
               { required: true, message: 'Please select the joined date' },
             ]}
           >
-            <DatePicker 
-            disabledDate={(current) => {
-              if (!birthDate) return false; // Ensure birthDate exists
-        
-              const minJoinedDate = dayjs(birthDate).add(15, 'years').startOf('day'); 
-              return current && current.isBefore(minJoinedDate);
-            }}
-              className="w-full" 
+            <DatePicker
+              disabledDate={(current) => {
+                if (!birthDate) return false; // Ensure birthDate exists
+
+                const minJoinedDate = dayjs(birthDate)
+                  .add(15, 'years')
+                  .startOf('day');
+                return current && current.isBefore(minJoinedDate);
+              }}
+              className="w-full"
             />
           </Form.Item>
         </Col>

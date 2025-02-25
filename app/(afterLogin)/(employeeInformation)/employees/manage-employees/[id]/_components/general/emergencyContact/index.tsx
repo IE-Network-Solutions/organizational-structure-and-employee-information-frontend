@@ -14,7 +14,7 @@ import { useGetNationalities } from '@/store/server/features/employees/employeeM
 import { validateField } from '../../../../_components/formValidator';
 const { Option } = Select;
 
-function EmergencyContact({mergedFields, handleSaveChanges, id }: any) {
+function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
   const { setEdit, edit } = useEmployeeManagementStore();
   const { isLoading, data: employeeData } = useGetEmployee(id);
   const { data: nationalities } = useGetNationalities();
@@ -24,12 +24,12 @@ function EmergencyContact({mergedFields, handleSaveChanges, id }: any) {
     setEdit(editKey);
   };
 
-  const getFieldValidation=(fieldName:string)=>{
-    return mergedFields?.find((field:any)=>field?.fieldName===fieldName)?.fieldValidation ?? null
-  }
-
-  // console.log(getFieldValidation('test_field_name'),"getFieldValidation")
-
+  const getFieldValidation = (fieldName: string) => {
+    return (
+      mergedFields?.find((field: any) => field?.fieldName === fieldName)
+        ?.fieldValidation ?? null
+    );
+  };
   return (
     <Card
       loading={isLoading}
@@ -76,9 +76,11 @@ function EmergencyContact({mergedFields, handleSaveChanges, id }: any) {
                   label={key}
                   rules={[
                     {
+                      /*  eslint-disable-next-line @typescript-eslint/naming-convention */
                       validator: (_rule: any, value: any) => {
+                        /*  eslint-enable-next-line @typescript-eslint/naming-convention */
                         let fieldValidation = getFieldValidation(key);
-                  
+
                         switch (key) {
                           case 'phoneNumber':
                             fieldValidation = 'number';
@@ -95,14 +97,19 @@ function EmergencyContact({mergedFields, handleSaveChanges, id }: any) {
                           default:
                             fieldValidation = getFieldValidation(key);
                         }
-                  
-                        const validationError = validateField(key, value, fieldValidation);
-                        if (validationError) return Promise.reject(new Error(validationError));
+
+                        const validationError = validateField(
+                          key,
+                          value,
+                          fieldValidation,
+                        );
+                        if (validationError)
+                          return Promise.reject(new Error(validationError));
                         return Promise.resolve();
                       },
                     },
-                  ]}  
-                  >
+                  ]}
+                >
                   {key === 'gender' ? (
                     <Select
                       placeholder={`Select ${key}`}
