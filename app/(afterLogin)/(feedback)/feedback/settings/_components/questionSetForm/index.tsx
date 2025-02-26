@@ -35,21 +35,21 @@ const QuestionSetForm = () => {
     useUpdateQuestionSetWithQuestionsOnConversationType();
 
   const handleAddQuestion = () => {
-    const currentQuestions = questions; // Step 1: Get the current state
+    const currentQuestions = questions; 
 
     const updatedQuestions = [
       ...currentQuestions,
       {
-        id: uuidv4(), // Unique question ID
-        conversationTypeId: activeTab, // Link question to the active conversation
-        question: '', // Default question text
-        fieldType: FieldType.SHORT_TEXT, // Default to SHORT_TEXT
-        field: [], // Default empty options for fields requiring options
-        required: false, // Default not mandatory
-        action: null, // Default action property
+        id: uuidv4(), 
+        conversationTypeId: activeTab, 
+        question: '', 
+        fieldType: FieldType.SHORT_TEXT, 
+        field: [], 
+        required: false, 
+        action: null, 
       },
-    ]; // Step 2: Update the state with the new question
-    setQuestions(updatedQuestions); // Step 3: Set the new state
+    ]; 
+    setQuestions(updatedQuestions); 
   };
 
   const handleRemoveQuestion = (id: any) => {
@@ -128,18 +128,21 @@ const QuestionSetForm = () => {
   };
 
   useEffect(() => {
-    if (editableData !== null) {
-      setQuestions(editableData.conversationsQuestions || []); // Set questions state
-      // Populate form fields with editableData
-      form.setFieldsValue({
-        name: editableData.name || '',
-        id: editableData.id || '',
-        // meetingAgenda: editableData.meetingAgenda || '',
-        active: editableData.active ?? true, // Default to true if undefined
-        conversationTypeId: editableData.conversationTypeId || '',
-        conversationsQuestions: editableData.conversationsQuestions || [],
-      });
+    if (!editableData) {
+      form.resetFields();
+      setQuestions([]);
+      return;
     }
+
+    setQuestions(editableData.conversationsQuestions || []); 
+
+    form.setFieldsValue({
+      name: editableData.name || '',
+      id: editableData.id || '',
+      active: editableData.active ?? true, 
+      conversationTypeId: editableData.conversationTypeId || '',
+      conversationsQuestions: editableData.conversationsQuestions || [],
+    });
   }, [editableData, form]);
 
   const checkQuestions = () => {
@@ -156,7 +159,7 @@ const QuestionSetForm = () => {
   return (
     <Form
       layout="vertical"
-      form={form} // Bind the form instance
+      form={form} 
       onFinish={handleSubmit}
     >
       <Form.Item
@@ -207,7 +210,6 @@ const QuestionSetForm = () => {
       >
         {questions?.map((q: any) => (
           <div key={q.id} style={{ marginBottom: '16px' }}>
-            {/* First Row: Question Input */}
             <div style={{ display: 'flex', marginBottom: '8px' }}>
               <Input
                 placeholder="Enter question"
@@ -219,7 +221,6 @@ const QuestionSetForm = () => {
               />
             </div>
 
-            {/* Second Row: Field Type, Required, Remove */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Select
                 placeholder="Select Field Type"
@@ -232,7 +233,6 @@ const QuestionSetForm = () => {
                 <Option value={FieldType.MULTIPLE_CHOICE}>
                   Multiple Choice
                 </Option>
-                {/* <Option value={FieldType.CHECKBOX}>Checkbox</Option> */}
                 <Option value={FieldType.SHORT_TEXT}>Short Text</Option>
                 <Option value={FieldType.PARAGRAPH}>Paragraph</Option>
                 <Option value={FieldType.TIME}>Time</Option>
@@ -255,7 +255,6 @@ const QuestionSetForm = () => {
               />
             </div>
 
-            {/* Options (Visible Only for Certain Field Types) */}
             {(q.fieldType === FieldType.DROPDOWN ||
               q.fieldType === FieldType.MULTIPLE_CHOICE ||
               q.fieldType === FieldType.RADIO) && (
@@ -319,8 +318,9 @@ const QuestionSetForm = () => {
             title="Are you sure you want to reset the form?"
             onConfirm={() => {
               setQuestions([]);
+              setEditableData(null);
               form.resetFields();
-            }} // Reset form fields on confirmation
+            }} 
             okText="Yes"
             cancelText="No"
           >
