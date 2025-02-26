@@ -29,6 +29,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
   );
   const { data: getAllUsersData } = useGetAllUsers();
   const { data: getAllFeedbackTypeById } = useFetchFeedbackTypeById(activeTab);
+
   const { data: departments, isLoading } = useGetDepartments();
   const { data: perspectiveData } = useGetPerspectiveById(selectedDepartment);
   const {
@@ -47,7 +48,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         points:
           getAllFeedbackTypeById?.feedback?.find(
             (feedback: FeedbackItem) => feedback.id === values.feedbackId,
-          )?.points || 0, // Default to 0 if feedback is not found or points are undefined
+          )?.points || 0,
         issuerId: userId,
         feedbackTypeId: activeTab,
       };
