@@ -23,4 +23,6 @@ export interface CreateEmployeeJobInformationInterface {
   joinedDate: string;
   effectiveEndDate: string | null;
   basicSalary: number;
+  positionId: string;
+  employementTypeId: string;
 }

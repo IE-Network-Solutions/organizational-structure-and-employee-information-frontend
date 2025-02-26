@@ -23,4 +23,6 @@ export const TIME_FORMAT = 'hh:mm A';
 export const TIME_AND_ATTENDANCE_URL =
   process.env.NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL;
 export const TNA_URL = process.env.NEXT_PUBLIC_TRAIN_AND_LEARNING_URL;
+
+export const INCENTIVE_URL = process.env.INCENTIVE_URL;
 export const EMAIL_URL = process.env.EMAIL_URL;
