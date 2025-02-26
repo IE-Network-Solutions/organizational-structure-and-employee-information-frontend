@@ -25,7 +25,10 @@ interface DynamicSearchProps {
   onChange?: (value: any) => void;
 }
 
-const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({ fields }) => {
+const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
+  fields,
+  onChange,
+}) => {
   return (
     <div className="flex justify-start w-full">
       {fields.map((field) => (
@@ -36,6 +39,7 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({ fields }) => {
           {field?.type === 'start-end-date' ? (
             <RangePicker
               onChange={(dates, dateStrings) => {
+                onChange && onChange({ key: field?.key, value: dateStrings });
                 if (field?.onChange) {
                   field.onChange(dateStrings); // Pass formatted date strings to the handler
                 }
@@ -45,9 +49,10 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({ fields }) => {
           ) : (
             <Select
               placeholder={field.placeholder}
-              onChange={(value: string) =>
-                field?.onChange && field.onChange(value)
-              }
+              onChange={(value: string) => {
+                onChange && onChange({ key: field?.key, value });
+                field?.onChange && field.onChange(value);
+              }}
               allowClear
               showSearch
               className="w-full h-14"
