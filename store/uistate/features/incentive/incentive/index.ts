@@ -238,8 +238,8 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   incentive: null,
   setIncentive: (incentive) => set({ incentive }),
 
-  formula: '',
-  setFormula: (formula) => set({ formula }),
+  formula: [],
+  setFormula: (newFormula) => set({ formula: newFormula }),
 
   value: 'Fixed',
   setValue: (value) => set({ value }),

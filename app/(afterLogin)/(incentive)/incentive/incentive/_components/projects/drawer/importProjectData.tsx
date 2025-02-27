@@ -314,7 +314,7 @@ const ImportProjectData: React.FC = () => {
           <Select
             size="large"
             className="my-1 h-12 text-sm font-normal"
-            placeholder="Project Milestone closure"
+            placeholder="Select recognition type"
             allowClear
           >
             {responseLoading ? (

@@ -242,21 +242,13 @@ const menuItems: MenuProps['items'] = [
         className: 'font-bold',
       },
       {
-        key: '/incentive/settings',
-        label: 'Settings',
-        className: 'font-bold',
-      },
-    ],
-  },
-  {
-    key: '/incentive',
-    icon: <CiCalendar />,
-    className: 'font-bold',
-    label: 'Incentive',
-    children: [
-      {
         key: '/variable-pay',
         label: 'Variable Pay',
+        className: 'font-bold',
+      },
+      {
+        key: '/incentive/settings',
+        label: 'Settings',
         className: 'font-bold',
       },
     ],

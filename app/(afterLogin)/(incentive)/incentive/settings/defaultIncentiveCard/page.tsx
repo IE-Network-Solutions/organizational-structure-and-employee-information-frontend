@@ -2,43 +2,27 @@
 import React from 'react';
 import DefaultIncentiveSettingsTable from './_components/incentiveSettingsTable';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { Button } from 'antd';
-import { useParams } from 'next/navigation';
-import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
-import { useRecognitionById } from '@/store/server/features/incentive/other/queries';
-import { FaPlus } from 'react-icons/fa';
+import { useAllRecognition } from '@/store/server/features/incentive/other/queries';
 
-type Params = {
-  id: string;
-};
 const DefaultIncentiveSettingCard: React.FC = () => {
-  const { id } = useParams<Params>();
-
-  const { setOpenIncentiveDrawer } = useIncentiveStore();
-
-  const { data: recognitionData } = useRecognitionById(id);
+  const { data: recognitionData, isLoading: responseLoading } =
+    useAllRecognition();
   return (
     <div>
       <div className="mb-6">
         <PageHeader
           title={
-            recognitionData?.recognitionType?.name
-              ? recognitionData?.recognitionType?.name
+            recognitionData?.items[0]?.recognitionType?.name
+              ? recognitionData?.items[0]?.recognitionType?.name
               : ''
           }
           size="small"
-        >
-          <Button
-            onClick={() => setOpenIncentiveDrawer(true)}
-            type="primary"
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <FaPlus size={13} className="mr-2" />
-            Create Formula
-          </Button>
-        </PageHeader>
+        ></PageHeader>
       </div>
-      <DefaultIncentiveSettingsTable />
+      <DefaultIncentiveSettingsTable
+        recognitionData={recognitionData}
+        responseLoading={responseLoading}
+      />
     </div>
   );
 };

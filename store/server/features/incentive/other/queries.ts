@@ -48,7 +48,7 @@ const fetchRecognitionById = async (recognitionId: string) => {
 
 const fetchIncentiveCriteria = async () => {
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentive-criteria`,
+    url: `${ORG_DEV_URL}/recognition-criterias/all-criteria`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -75,7 +75,7 @@ export const useAllRecognition = () => {
 };
 
 export const useRecognitionById = (recognitionId: string) => {
-  return useQuery<any>(['incentiveFormula', recognitionId], () =>
+  return useQuery<any>(['recognitionById', recognitionId], () =>
     fetchRecognitionById(recognitionId),
   );
 };

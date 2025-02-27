@@ -13,12 +13,12 @@ const setIncentiveFormula = async (data: any) => {
   });
 };
 
-const updateIncentiveFormula = async (id: string, items: any) => {
+const updateIncentiveFormula = async (id: string, data: any) => {
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive-formulas/${id}`,
     method: 'PUT',
+    data,
     headers: requestHeader(),
-    data: { items },
   });
 };
 
@@ -46,8 +46,8 @@ export const useSetIncentiveFormula = () => {
 export const useUpdateIncentiveFormula = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    ({ id, items }: { id: string; items: any }) =>
-      updateIncentiveFormula(id, items),
+    ({ id, data }: { id: string; data: any }) =>
+      updateIncentiveFormula(id, data),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('incentiveFormula');

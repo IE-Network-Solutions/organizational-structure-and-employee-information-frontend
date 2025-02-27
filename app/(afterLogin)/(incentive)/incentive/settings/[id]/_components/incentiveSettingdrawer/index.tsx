@@ -26,7 +26,13 @@ type Params = {
   id: string;
 };
 
-const IncentiveSettingsDrawer: React.FC = () => {
+interface IncentiveSettingsDrawerProps {
+  recognitionData: any;
+}
+
+const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
+  recognitionData,
+}) => {
   const [form] = Form.useForm();
   const { id } = useParams<Params>();
 
@@ -68,6 +74,12 @@ const IncentiveSettingsDrawer: React.FC = () => {
     setValue(value);
   };
 
+  useEffect(() => {
+    if (formulaById) {
+      setFormula(formulaById?.expression);
+    }
+  }, [formulaById, form]);
+
   const handleOptionClick = (id: string, name: string, type: string) => {
     if (name === 'Clear') {
       setFormula([]);
@@ -79,21 +91,31 @@ const IncentiveSettingsDrawer: React.FC = () => {
   };
 
   const handleSubmit = () => {
+    const formValues = form.getFieldsValue();
+
     const cleanedExpression = formula
       .map((item: any) =>
         item.type === 'criteria' ? `"${item.id}"` : item.name,
       )
       .join(' ');
+
     const formdata = {
       recognitionTypeId: recognitionId,
-      expression: JSON.stringify(cleanedExpression),
+      expression: value === 'Fixed' ? null : JSON.stringify(cleanedExpression),
+      isComputed: value === 'Fixed' ? false : true,
+      monetizedValue: value === 'Fixed' ? formValues?.fixedAmount : 0,
     };
 
-    if (incentiveId && formulaById.length > 0) {
+    if (
+      incentiveId &&
+      formulaById !== null &&
+      (formulaById?.expression || formulaById?.monetizedValue) &&
+      (formulaById?.expression?.length || formulaById?.monetizedValue) > 0
+    ) {
       updateIncentiveFormula(
         {
-          id: formulaById?.map((item: RecognitionData) => item?.id),
-          items: formdata,
+          id: formulaById?.id,
+          data: formdata,
         },
         {
           onSuccess: () => {
@@ -143,22 +165,17 @@ const IncentiveSettingsDrawer: React.FC = () => {
     },
   ];
 
-  useEffect(() => {
-    if (formulaById) {
-      setFormula(formulaById?.expression);
-    }
-  }, [formulaById, form]);
-
   return (
     <CustomDrawerLayout
       open={openIncentiveDrawer}
       onClose={handleClose}
       modalHeader={
         <CustomDrawerHeader className="flex justify-center ">
-          Rockstar of the week
+          {recognitionData?.recognitionType?.name}
         </CustomDrawerHeader>
       }
-      footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+      // footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+      footer={null}
       width="600px"
     >
       <Form
@@ -194,6 +211,7 @@ const IncentiveSettingsDrawer: React.FC = () => {
               </span>
             }
             name="fixedAmount"
+            initialValue={formulaById?.monetizedValue}
           >
             <Input
               placeholder="Enter Fixed amount"
@@ -217,7 +235,7 @@ const IncentiveSettingsDrawer: React.FC = () => {
                   ? typeof formula === 'string'
                     ? JSON.parse(formula)
                     : Array.isArray(formula)
-                      ? formula.map((item: any) => item?.name).join(' ')
+                      ? formula?.map((item: any) => item?.name).join(' ')
                       : ''
                   : ''
               }
@@ -234,26 +252,35 @@ const IncentiveSettingsDrawer: React.FC = () => {
                     <span className="font-bold">
                       Criteria<span className="text-red-500">*</span>
                     </span>
-                    <span className="my-1">
-                      {incentiveData?.map((option: any) => (
-                        <Button
-                          key={option?.id}
-                          onClick={() =>
-                            handleOptionClick(
-                              option?.id,
-                              option?.name,
-                              'criteria',
-                            )
-                          }
-                          className="bg-[#F8F8F8] text-[#111827] border-none text-sm font-normal m-1 rounded-2xl"
-                        >
-                          <div className="flex flex-wrap items-center justify-center">
-                            <span className="text-md font-md ">
-                              {option?.name}
-                            </span>
+                    <span className="flex flex-wrap my-1">
+                      {incentiveData?.items ? (
+                        incentiveData?.items?.map((option: any) => (
+                          <div key={option?.id}>
+                            {option?.criterionKey && (
+                              <Button
+                                onClick={() =>
+                                  handleOptionClick(
+                                    option?.id,
+                                    option?.criterionKey,
+                                    'criteria',
+                                  )
+                                }
+                                className="bg-[#F8F8F8] text-[#111827] border-none text-sm font-normal m-1 rounded-2xl"
+                              >
+                                <div className="flex flex-wrap items-center justify-center">
+                                  <span className="text-md font-md">
+                                    {option?.criterionKey}
+                                  </span>
+                                </div>
+                              </Button>
+                            )}
                           </div>
-                        </Button>
-                      ))}
+                        ))
+                      ) : (
+                        <span className="text-sm text-gray-500 m-1">
+                          No Criterion
+                        </span>
+                      )}
                     </span>
                   </div>
                 </Col>
@@ -285,6 +312,28 @@ const IncentiveSettingsDrawer: React.FC = () => {
             </div>
           </Form.Item>
         )}
+
+        <Form.Item className="">
+          <div className="flex justify-center  w-full px-6 py-6 gap-6 my-3">
+            <Button
+              onClick={handleClose}
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+            >
+              Cancel
+            </Button>
+
+            <Button
+              htmlType="submit"
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12  border-none"
+            >
+              {incentiveId && formulaById === null ? (
+                <span>Edit</span>
+              ) : (
+                <span>Create</span>
+              )}
+            </Button>
+          </div>
+        </Form.Item>
       </Form>
     </CustomDrawerLayout>
   );

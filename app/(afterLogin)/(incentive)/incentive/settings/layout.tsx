@@ -27,15 +27,20 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
 
   useEffect(() => {
     if (recognitionData && recognitionData?.items?.length > 0) {
+      const firstItemId =
+        recognitionData.items[0]?.id ?? 'defaultIncentiveCard';
+      if (!currentItem) {
+        setCurrentItem(firstItemId);
+      }
       const dynamicMenuItems =
-        recognitionData?.items?.map((item: any) => ({
+        recognitionData.items.slice(1).map((item: any) => ({
           item: {
             key: item?.id,
             icon: (
               <TbCalendar
                 size={16}
                 className={
-                  currentItem === item.id ? 'text-[#4DAEF0]' : 'text-gray-500'
+                  currentItem === item?.id ? 'text-[#4DAEF0]' : 'text-gray-500'
                 }
               />
             ),
@@ -49,22 +54,36 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
 
       const defaultIncentiveSettings = {
         item: {
-          key: 'IncentiveSettings',
-          icon: <CiCalendarDate />,
+          key: recognitionData?.items[0]?.id ?? 'defaultIncentiveCard',
+          icon: (
+            <CiCalendarDate
+              size={16}
+              className={
+                currentItem ===
+                (recognitionData?.items[0]?.id ?? 'defaultIncentiveCard')
+                  ? 'text-[#4DAEF0]'
+                  : 'text-gray-500'
+              }
+            />
+          ),
           label: (
             <p className="menu-item-label">
-              {recognitionData?.items?.[0]?.recognitionData?.name} Incentive
-              Settings
+              {recognitionData?.items[0]?.recognitionType?.name ??
+                'Default Incentive'}
             </p>
           ),
-          className: 'px-1',
+          className:
+            currentItem ===
+            (recognitionData?.items[0]?.id ?? 'defaultIncentiveCard')
+              ? 'px-6'
+              : 'px-1',
         },
-        link: '/incentive/settings/defaultIncentiveCard',
+        link: `/incentive/settings/${recognitionData?.items[0]?.id ?? 'defaultIncentiveCard'}`,
       };
 
       setMenuItems([defaultIncentiveSettings, ...dynamicMenuItems]);
     }
-  }, [recognitionData]);
+  }, [recognitionData, currentItem]);
 
   useEffect(() => {
     const pathSegments = pathname.split('/').filter(Boolean);
