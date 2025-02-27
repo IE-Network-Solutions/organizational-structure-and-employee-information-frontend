@@ -155,7 +155,7 @@ type IncentiveState = {
   otherIncentive: any;
   incentive: any;
   formula: any;
-  value: string;
+  value: any;
   menuItems: any[];
   currentItem: string;
   isSwitchOn: boolean;
@@ -177,7 +177,7 @@ type IncentiveActions = {
   setOtherIncentive: (item: any) => void;
   setIncentive: (item: any) => void;
   setFormula: (item: any) => void;
-  setValue: (item: string) => void;
+  setValue: (value: any) => void;
   setCurrentItem: (item: string) => void;
   setMenuItems: (items: any[]) => void;
   setIsSwitchOn: (value: boolean) => void;
@@ -241,8 +241,8 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   formula: [],
   setFormula: (newFormula) => set({ formula: newFormula }),
 
-  value: 'Fixed',
-  setValue: (value) => set({ value }),
+  value: null,
+  setValue: (newValue) => set({ value: newValue }),
 
   menuItems: [],
   setMenuItems: (menuItems) => set({ menuItems }),

@@ -27,20 +27,42 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
 
   useEffect(() => {
     if (recognitionData && recognitionData?.items?.length > 0) {
-      const firstItemId =
-        recognitionData.items[0]?.id ?? 'defaultIncentiveCard';
-      if (!currentItem) {
-        setCurrentItem(firstItemId);
-      }
+      // Extract the first item separately
+      const firstItem = recognitionData.items[0];
+
+      const defaultIncentiveSettings = {
+        item: {
+          key: 'IncentiveSettings',
+          icon: (
+            <CiCalendarDate
+              size={16}
+              className={
+                currentItem === firstItem.id
+                  ? 'text-[#4DAEF0]'
+                  : 'text-gray-500'
+              }
+            />
+          ),
+          label: (
+            <p className="menu-item-label">
+              {firstItem?.recognitionType?.name ?? 'Default Incentive '}
+            </p>
+          ),
+          className: currentItem === firstItem.id ? 'px-6' : 'px-1',
+        },
+        link: `/incentive/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
+      };
+
+      // Map remaining items (excluding the first item)
       const dynamicMenuItems =
         recognitionData.items.slice(1).map((item: any) => ({
           item: {
-            key: item?.id,
+            key: item.id,
             icon: (
               <TbCalendar
                 size={16}
                 className={
-                  currentItem === item?.id ? 'text-[#4DAEF0]' : 'text-gray-500'
+                  currentItem === item.id ? 'text-[#4DAEF0]' : 'text-gray-500'
                 }
               />
             ),
@@ -51,35 +73,6 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
           },
           link: `/incentive/settings/${item?.id}`,
         })) || [];
-
-      const defaultIncentiveSettings = {
-        item: {
-          key: recognitionData?.items[0]?.id ?? 'defaultIncentiveCard',
-          icon: (
-            <CiCalendarDate
-              size={16}
-              className={
-                currentItem ===
-                (recognitionData?.items[0]?.id ?? 'defaultIncentiveCard')
-                  ? 'text-[#4DAEF0]'
-                  : 'text-gray-500'
-              }
-            />
-          ),
-          label: (
-            <p className="menu-item-label">
-              {recognitionData?.items[0]?.recognitionType?.name ??
-                'Default Incentive'}
-            </p>
-          ),
-          className:
-            currentItem ===
-            (recognitionData?.items[0]?.id ?? 'defaultIncentiveCard')
-              ? 'px-6'
-              : 'px-1',
-        },
-        link: `/incentive/settings/${recognitionData?.items[0]?.id ?? 'defaultIncentiveCard'}`,
-      };
 
       setMenuItems([defaultIncentiveSettings, ...dynamicMenuItems]);
     }

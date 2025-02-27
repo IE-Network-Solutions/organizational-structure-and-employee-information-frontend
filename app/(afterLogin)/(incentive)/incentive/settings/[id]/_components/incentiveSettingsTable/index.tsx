@@ -6,7 +6,7 @@ import {
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
 import { Table, TableColumnsType } from 'antd';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React from 'react';
 

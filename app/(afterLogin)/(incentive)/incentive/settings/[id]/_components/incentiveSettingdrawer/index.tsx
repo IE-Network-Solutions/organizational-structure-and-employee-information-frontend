@@ -1,7 +1,4 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import {
   useSetIncentiveFormula,
@@ -11,10 +8,7 @@ import {
   useIncentiveCriteria,
   useIncentiveFormulaByRecognitionId,
 } from '@/store/server/features/incentive/other/queries';
-import {
-  RecognitionData,
-  useIncentiveStore,
-} from '@/store/uistate/features/incentive/incentive';
+import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { Button, Col, Form, Input, Radio, Row } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { RadioChangeEvent } from 'antd/lib';
@@ -147,24 +141,14 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     ],
   };
 
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-14',
-      size: 'small',
-      onClick: handleClose,
-    },
-    {
-      label: incentiveId ? <span>Edit</span> : <span>Create</span>,
-      key: 'create',
-      className: 'h-14',
-      type: 'primary',
-      size: 'small',
-      onClick: () => form.submit(),
-    },
-  ];
-
+  useEffect(() => {
+    if (openIncentiveDrawer) {
+      form.setFieldsValue({ fixedAmount: formulaById?.monetizedValue || '' });
+    }
+  }, [openIncentiveDrawer, formulaById]);
+  useEffect(() => {
+    setValue(value);
+  }, [value]);
   return (
     <CustomDrawerLayout
       open={openIncentiveDrawer}
@@ -174,7 +158,6 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
           {recognitionData?.recognitionType?.name}
         </CustomDrawerHeader>
       }
-      // footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
       footer={null}
       width="600px"
     >
@@ -202,7 +185,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             className="text-md font-md my-2"
           />
         </Form.Item>
-        {(value === null || value === 'Fixed') && (
+        {(value === null || value === '' || value === 'Fixed') && (
           <Form.Item
             rules={[{ required: true, message: 'Please enter amount' }]}
             label={
@@ -326,10 +309,10 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
               htmlType="submit"
               className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12  border-none"
             >
-              {incentiveId && formulaById === null ? (
-                <span>Edit</span>
-              ) : (
+              {formulaById?.expression === null ? (
                 <span>Create</span>
+              ) : (
+                <span>Edit</span>
               )}
             </Button>
           </div>
