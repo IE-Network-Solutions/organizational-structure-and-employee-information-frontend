@@ -1,9 +1,9 @@
 import { FC } from 'react';
-import { Avatar, Image } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Avatar } from 'antd';
 import { classNames } from '@/utils/classNames';
 
 interface UserCardProps {
+  data: any;
   avatar?: string;
   profileImage?: any;
   name: string | undefined | React.ReactNode;
@@ -12,45 +12,21 @@ interface UserCardProps {
 }
 
 const UserCard: FC<UserCardProps> = ({
-  avatar,
+  data,
   name,
   description = '',
   size = 'medium',
-  profileImage,
 }) => {
-  const sizeWH = size === 'medium' ? 40 : 24;
+  // const sizeWH = size === 'medium' ? 40 : 24;
   return (
     <div className="flex items-center gap-3">
-      {profileImage ? (
-        <div className="relative w-6 h-6 rounded-full overflow-hidden">
-          <Image
-            src={
-              profileImage && typeof profileImage === 'string'
-                ? (() => {
-                    try {
-                      const parsed = JSON.parse(profileImage);
-                      return parsed.url && parsed.url.startsWith('http')
-                        ? parsed.url
-                        : Avatar;
-                    } catch {
-                      return profileImage.startsWith('http')
-                        ? profileImage
-                        : Avatar;
-                    }
-                  })()
-                : Avatar
-            }
-            alt="Description of image"
-            // layout="fill"
-            className="object-cover"
-          />
-        </div>
+      {data ? (
+        <Avatar size={40} src={data?.profileImage} />
       ) : (
-        <Avatar
-          icon={<UserOutlined />}
-          src={avatar && <Image src={avatar} alt={description} />}
-          size={sizeWH}
-        />
+        <Avatar size={40}>
+          {data?.firstName[0]?.toUpperCase()}
+          {data?.middleName[0]?.toUpperCase()}
+        </Avatar>
       )}
       <div>
         <div
