@@ -34,7 +34,7 @@ const Page = () => {
   const { mutate: addPerspective } = useCreatePerspective();
   const { data: perspectiveData } = useGetAllPerspectives();
   const [form1] = Form.useForm();
-  
+
   getAllFeedbackTypes;
   const onChange = (key: string) => {
     setActiveTab(key);
@@ -59,7 +59,11 @@ const Page = () => {
 
   const modalHeader = (
     <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-      <p>{selectedFeedback===null ? `Add New ${activeTabName}`:`Edit New ${activeTabName}`}</p>
+      <p>
+        {selectedFeedback === null
+          ? `Add New ${activeTabName}`
+          : `Edit New ${activeTabName}`}
+      </p>
       <p>{variantType} type</p>
     </div>
   );
