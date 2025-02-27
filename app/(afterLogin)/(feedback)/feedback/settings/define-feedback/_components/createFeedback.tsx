@@ -8,7 +8,11 @@ import {
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
 
-function CreateFeedback() {
+interface DataProps {
+  form: any;
+}
+
+const CreateFeedback: React.FC<DataProps> = ({ form }) => {
   const {
     variantType,
     activeTab,
@@ -16,13 +20,14 @@ function CreateFeedback() {
     setOpen,
     setSelectedFeedback,
   } = ConversationStore();
-  const [form] = Form.useForm();
   const { mutate: createFeedback, isLoading: createFeedbackLoading } =
     useCreateFeedback();
   const { mutate: updateFeedback, isLoading: feedbackUpdateLoading } =
     useUpdateFeedback();
   const { data: perspectiveData, isLoading: getPerspectiveLoading } =
     useGetAllPerspectives();
+
+
 
   const onFinish = (values: {
     name: string;
@@ -58,13 +63,16 @@ function CreateFeedback() {
         description: selectedFeedback?.description,
         points: selectedFeedback?.points,
       });
+    } else {
+      form?.resetFields();
     }
   }, [selectedFeedback]);
+  
 
   return (
     <div className="mt-5 flex justify-center">
       <Card
-        title={`Create ${variantType} type`}
+        title={selectedFeedback?.id ? `Edit ${variantType} type` : `Create ${variantType} type`}
         bordered={true}
         style={{ width: 500 }}
       >
