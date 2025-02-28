@@ -27,8 +27,6 @@ const CreateFeedback: React.FC<DataProps> = ({ form }) => {
   const { data: perspectiveData, isLoading: getPerspectiveLoading } =
     useGetAllPerspectives();
 
-
-
   const onFinish = (values: {
     name: string;
     description: string;
@@ -67,12 +65,15 @@ const CreateFeedback: React.FC<DataProps> = ({ form }) => {
       form?.resetFields();
     }
   }, [selectedFeedback]);
-  
 
   return (
     <div className="mt-5 flex justify-center">
       <Card
-        title={selectedFeedback?.id ? `Edit ${variantType} type` : `Create ${variantType} type`}
+        title={
+          selectedFeedback?.id
+            ? `Edit ${variantType} type`
+            : `Create ${variantType} type`
+        }
         bordered={true}
         style={{ width: 500 }}
       >
@@ -178,6 +179,6 @@ const CreateFeedback: React.FC<DataProps> = ({ form }) => {
       </Card>
     </div>
   );
-}
+};
 
 export default CreateFeedback;

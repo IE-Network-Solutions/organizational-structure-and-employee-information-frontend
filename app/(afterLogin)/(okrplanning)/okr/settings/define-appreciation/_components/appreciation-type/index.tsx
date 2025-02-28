@@ -48,7 +48,6 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
           onSuccess: () => {
             handleDrawerClose();
             form.resetFields();
-
           },
         });
   };

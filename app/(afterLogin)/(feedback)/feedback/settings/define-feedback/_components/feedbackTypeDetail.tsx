@@ -14,7 +14,14 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
   const { mutate: deleteFeedback, isLoading: deleteLoading } =
     useDeleteFeedback();
 
-  const { setVariantType, setOpen, setSelectedFeedback,page,setPage,pageSize } = ConversationStore();
+  const {
+    setVariantType,
+    setOpen,
+    setSelectedFeedback,
+    page,
+    setPage,
+    pageSize,
+  } = ConversationStore();
 
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -32,21 +39,20 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
   };
 
   const renderFeedbackItems = (variant: 'appreciation' | 'reprimand') => {
-
-    const filteredItems = feedbackTypeDetail?.feedback?.filter(
-      (item: any) => {
+    const filteredItems =
+      feedbackTypeDetail?.feedback?.filter((item: any) => {
         const matchesVariant = item?.variant === variant;
         const matchesSearch = searchQuery
           ? item?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item?.description?.toLowerCase().includes(searchQuery.toLowerCase())
           : true;
         return matchesVariant && matchesSearch;
-      }
-    ) || [];
+      }) || [];
 
     // Sort by createdAt in descending order (latest first)
-    const sortedItems = [...filteredItems].sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    const sortedItems = [...filteredItems].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
     const startIndex = (page - 1) * pageSize;

@@ -9,8 +9,6 @@ const createPerspective = async (values: {
   departmentId: string;
   description: string;
 }) => {
-
-  console.log(values,"values");
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -26,7 +24,7 @@ const createPerspective = async (values: {
   });
 };
 
-const deletePerspective = async (id:string) => {
+const deletePerspective = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -42,7 +40,7 @@ const deletePerspective = async (id:string) => {
 };
 
 const updatePerspective = async (values: {
-  id?:string;
+  id?: string;
   name: string;
   departmentId: string;
   description: string;
