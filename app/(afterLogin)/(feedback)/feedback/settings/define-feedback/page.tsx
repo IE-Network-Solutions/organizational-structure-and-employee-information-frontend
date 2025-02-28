@@ -30,6 +30,12 @@ const Page = () => {
     open,
     setOpen,
     setSelectedFeedback,
+    editingItem,
+    setEditingItem,
+    pageSize,
+    setPageSize,
+    page,
+    setPage
   } = ConversationStore();
   const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
   const [addPerspectiveModal, setAddPerspectiveModal] = useState(false);
@@ -39,9 +45,6 @@ const Page = () => {
   const { mutate: updatePerspective,isLoading:updateLoading } = useUpdatePerspective();
 
   const { data: perspectiveData } = useGetAllPerspectives();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5); // Default page size
-  const [editingItem, setEditingItem] = useState<any>(null);
   
   getAllFeedbackTypes;
   const onChange = (key: string) => {
@@ -83,7 +86,7 @@ const Page = () => {
       form.resetFields();
     }
   }, [editingItem]);
-  
+
   const activeTabName =
     getAllFeedbackTypes?.items?.find(
       (item: FeedbackTypeItems) => item.id === activeTab,
@@ -96,8 +99,8 @@ const Page = () => {
     </div>
   );
   const paginatedData = perspectiveData?.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    (page - 1) * pageSize,
+    page * pageSize
   );
   const items: TabsProps['items'] = [
     ...(getAllFeedbackTypes?.items || []).map((item: FeedbackTypeItems) => ({
@@ -174,16 +177,16 @@ const Page = () => {
           ))}
           <div className="flex justify-end mt-4 mb-4">
             <Pagination
-              current={currentPage}
+              current={page}
               total={perspectiveData?.length || 0}
               pageSize={pageSize}
               onChange={(page, size) => {
-                setCurrentPage(page);
+                setPage(page);
                 setPageSize(size);
               }}
               onShowSizeChange={(current, size) => {
                 setPageSize(size);
-                setCurrentPage(1);
+                setPage(1);
               }}
               showSizeChanger={true}
               showTotal={(total) => `Total ${total} items`}
@@ -304,7 +307,7 @@ const Page = () => {
 
         <Form.Item className="flex justify-center mx-10">
           <Space size="middle">
-            <Button type="primary" htmlType="submit" loading={createLoading}>
+            <Button type="primary" htmlType="submit" loading={!editingItem ? createLoading: updateLoading}>
               {editingItem ? 'Update' : 'Create'}
             </Button>
             <Button onClick={() => { form.resetFields(); handleCancel(); }} danger>

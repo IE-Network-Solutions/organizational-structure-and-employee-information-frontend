@@ -92,6 +92,9 @@ export interface CategoriesUseState {
   setSearchField: (fields: SearchField[]) => void;
 
   updateFieldOptions: (key: string, name: any) => void;
+
+  editingItem:any;
+  setEditingItem:(editingItem:any)=>void;
 }
 const initialSearchField: SearchField[] = [
   {
@@ -192,6 +195,10 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   openRecognitionType: false,
   setOpenRecognitionType: (openRecognitionType: boolean) =>
     set({ openRecognitionType }),
+
+
+  editingItem:null,
+  setEditingItem:(editingItem:any)=>set({editingItem}),
 
   setCurrent: (value) => set({ current: value }),
   setOpen: (open) => set({ open }),
