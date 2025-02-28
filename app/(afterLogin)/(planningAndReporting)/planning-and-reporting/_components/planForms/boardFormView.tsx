@@ -220,6 +220,7 @@ function BoardCardForm({
                 <Col>
                   <Space>
                     <Button
+                      id="add-task-button-for-planning-and-reporting"
                       type="primary"
                       onClick={() => {
                         form
@@ -236,7 +237,12 @@ function BoardCardForm({
                     >
                       Add Task
                     </Button>
-                    <Button onClick={() => removeSub(subName)}>Cancel</Button>
+                    <Button
+                      id="cancel-task-button-for-planning-and-reporting"
+                      onClick={() => removeSub(subName)}
+                    >
+                      Cancel
+                    </Button>
                   </Space>
                 </Col>
               </Row>
