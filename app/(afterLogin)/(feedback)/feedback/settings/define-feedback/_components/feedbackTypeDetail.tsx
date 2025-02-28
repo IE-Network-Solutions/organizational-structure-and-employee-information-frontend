@@ -1,8 +1,8 @@
 import { useDeleteFeedback } from '@/store/server/features/feedback/feedback/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { Button, Card, Popconfirm, Tabs, Pagination } from 'antd';
+import { Button, Card, Popconfirm, Tabs, Pagination, Input } from 'antd';
 import { Edit2Icon } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { BiPlus } from 'react-icons/bi';
 import { MdDeleteOutline } from 'react-icons/md';
 
@@ -16,6 +16,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
 
   const { setVariantType, setOpen, setSelectedFeedback,page,setPage,pageSize } = ConversationStore();
 
+  const [searchQuery, setSearchQuery] = useState('');
 
   const onChange = (key: string) => {
     const variantType = key === 'appreciation' ? 'appreciation' : 'reprimand';
@@ -31,8 +32,16 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
   };
 
   const renderFeedbackItems = (variant: 'appreciation' | 'reprimand') => {
+
     const filteredItems = feedbackTypeDetail?.feedback?.filter(
-      (item: any) => item?.variant === variant
+      (item: any) => {
+        const matchesVariant = item?.variant === variant;
+        const matchesSearch = searchQuery
+          ? item?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item?.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          : true;
+        return matchesVariant && matchesSearch;
+      }
     ) || [];
 
     // Sort by createdAt in descending order (latest first)
@@ -46,6 +55,14 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
 
     return (
       <>
+        <div style={{ marginBottom: 16 }}>
+          <Input.Search
+            placeholder="Search feedbacks..."
+            allowClear
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ width: 300 }}
+          />
+        </div>
         <div className="flex justify-end text-xs mx-2">
           <Button
             type="primary"
@@ -60,7 +77,10 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
         {paginatedItems.map((item: any) => (
           <Card className="mx-2 mb-2" key={item.id}>
             <div className="flex justify-between">
-              <p>{item?.name}</p>
+              <div>
+                <p>{item?.name}</p>
+                <p className="text-xs text-gray-500">{item?.description}</p>
+              </div>
               <p className="flex gap-2">
                 <Button
                   size="small"
