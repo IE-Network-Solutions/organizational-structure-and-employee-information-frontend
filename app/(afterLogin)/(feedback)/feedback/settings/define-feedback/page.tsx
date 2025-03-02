@@ -13,6 +13,7 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 import { Department } from '@/types/dashboard/organization';
 import { useCreatePerspective } from '@/store/server/features/CFR/feedback/mutations';
 import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
+
 const { TextArea } = Input;
 
 const Page = () => {
@@ -32,12 +33,14 @@ const Page = () => {
   const { data: departments } = useGetDepartments();
   const { mutate: addPerspective } = useCreatePerspective();
   const { data: perspectiveData } = useGetAllPerspectives();
+  const [form1] = Form.useForm();
 
   getAllFeedbackTypes;
   const onChange = (key: string) => {
     setActiveTab(key);
   };
   const onCloseHandler = () => {
+    form?.resetFields();
     setOpen(false);
     setSelectedFeedback(null);
   };
@@ -56,7 +59,11 @@ const Page = () => {
 
   const modalHeader = (
     <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-      <p>Add New {activeTabName}</p>
+      <p>
+        {selectedFeedback === null
+          ? `Add New ${activeTabName}`
+          : `Edit New ${activeTabName}`}
+      </p>
       <p>{variantType} type</p>
     </div>
   );
@@ -141,7 +148,7 @@ const Page = () => {
         modalHeader={modalHeader}
         width="30%"
       >
-        <CreateFeedback />
+        <CreateFeedback form={form1} />
       </CustomDrawerLayout>
       <Modal
         title="Basic Modal"
