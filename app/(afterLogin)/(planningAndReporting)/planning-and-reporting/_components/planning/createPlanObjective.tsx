@@ -91,7 +91,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
 
                   {!hasMilestone && (
                     <div className="flex gap-3 items-center">
-                      <Button                                        
+                      <Button
                         id={`plan-as-task_${kr?.id ?? ''}`}
                         onClick={() => handleAddBoard(kr?.id)}
                         type="link"

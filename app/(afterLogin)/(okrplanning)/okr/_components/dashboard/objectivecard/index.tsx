@@ -13,7 +13,8 @@ import {
 import { MoreOutlined } from '@ant-design/icons';
 
 const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
-  const { setObjectiveValue, objectiveValue } = useOKRStore();
+  const { setObjectiveValue, objectiveValue, keyResultId, objectiveId } =
+    useOKRStore();
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: deleteObjective } = useDeleteObjective();
@@ -66,6 +67,33 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
       },
     });
   }
+
+  // ==========> Deleting Key result and distributing weight Section <===============
+  const selectedObjective = objective?.id === objectiveId ? objective : null;
+
+  // Filter key results that belong to the selected objective
+  const relatedKeyResults =
+    (selectedObjective &&
+      selectedObjective?.keyResults?.filter(
+        (kr: any) => kr.objectiveId === objectiveId,
+      )) ||
+    [];
+  const remainingKeyResults = relatedKeyResults?.filter(
+    (kr: any) => kr?.id !== keyResultId,
+  );
+
+  const keyResultToDelete = relatedKeyResults.find(
+    (kr: any) => kr.id === keyResultId,
+  );
+
+  const redistributedWeight =
+    parseFloat(keyResultToDelete?.weight) / remainingKeyResults.length;
+
+  const updatedKeyResults = remainingKeyResults.map((kr: any) => ({
+    id: kr.id,
+    weight: parseFloat(kr.weight) + redistributedWeight,
+  }));
+
   return (
     <div className="p-2 grid gap-0">
       <div className="flex justify-center">
@@ -165,6 +193,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           myOkr={myOkr}
           keyResult={keyResult}
           key={keyResult.id}
+          updatedKeyResults={updatedKeyResults}
         />
       ))}
     </div>

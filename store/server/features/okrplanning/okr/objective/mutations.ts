@@ -132,6 +132,61 @@ const deleteMilestone = async (deletedId: string) => {
   }
 };
 
+// Function to update the remaining key results
+const updateKeyResults = async (updatedKeyResults: any[]) => {
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    };
+
+    await axios.put(
+      `${OKR_AND_PLANNING_URL}/key-results/bulk-update`,
+      updatedKeyResults,
+      {
+        headers,
+      },
+    );
+
+    NotificationMessage.success({
+      message: 'Successfully Updated',
+      description: 'Key results successfully updated after deletion.',
+    });
+  } catch (error) {
+    NotificationMessage.error({
+      message: 'Update Failed',
+      description: 'Failed to update key result weights.',
+    });
+  }
+};
+
+export const useDeleteKeyResultAndUpdateWeight = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    async ({
+      deletedId,
+      updatedKeyResults,
+    }: {
+      deletedId: string;
+      updatedKeyResults: any[];
+    }) => {
+      // Step 1: Delete the key result
+      await deleteKeyResult(deletedId);
+
+      // Step 2: If there are remaining key results, update them
+      if (updatedKeyResults.length > 0) {
+        await updateKeyResults(updatedKeyResults);
+      }
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('ObjectiveInformation');
+      },
+    },
+  );
+};
+
 export const useDeleteObjective = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteObjective, {

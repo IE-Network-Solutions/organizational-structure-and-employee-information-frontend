@@ -3,24 +3,31 @@ import { FC, useState } from 'react';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
-import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import { useDeleteKeyResultAndUpdateWeight } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { IoIosMore } from 'react-icons/io';
 
 interface KPIMetricsProps {
   keyResult: any;
   myOkr: boolean;
+  updatedKeyResults: any;
 }
 
-const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
+const KeyResultMetrics: FC<KPIMetricsProps> = ({
+  keyResult,
+  updatedKeyResults,
+}) => {
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const { mutate: deleteKeyResult } = useDeleteKeyResult();
-  const { keyResultValue, setKeyResultValue } = useOKRStore();
+  const { mutate: deleteKeyResult } = useDeleteKeyResultAndUpdateWeight();
+  const { keyResultValue, setKeyResultValue, setKeyResultId, setObjectiveId } =
+    useOKRStore();
 
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
     setKeyResultValue(keyResult);
+    setKeyResultId(keyResult?.id);
+    setObjectiveId(keyResult?.objectiveId);
   };
 
   const onCloseDeleteModal = () => {
@@ -53,13 +60,17 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
       ]}
     />
   );
+
   function handleKeyResultDelete(id: string) {
-    deleteKeyResult(id, {
-      onSuccess: () => {
-        setOpenDeleteModal(false);
-        setKeyResultValue([]);
+    deleteKeyResult(
+      { deletedId: id, updatedKeyResults },
+      {
+        onSuccess: () => {
+          setOpenDeleteModal(false);
+          setKeyResultValue([]);
+        },
       },
-    });
+    );
   }
   return (
     <div className="py-3 px-4 sm:px-8 bg-white shadow-sm rounded-lg border">
