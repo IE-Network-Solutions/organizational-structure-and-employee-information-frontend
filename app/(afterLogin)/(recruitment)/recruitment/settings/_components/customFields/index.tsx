@@ -1,5 +1,5 @@
 import CustomButton from '@/components/common/buttons/customButton';
-import { Card, Typography } from 'antd';
+import { Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import CustomFieldsDrawer from './customFieldsDrawer';
@@ -21,22 +21,19 @@ const CustomAddJobFields: React.FC = () => {
   };
   return (
     <div className="p-6">
-    
-
-        <div className="flex items-center justify-between">
-          <Title level={5}>Custom Fields</Title>
-          <AccessGuard permissions={[Permissions.CreateCustomFields]}>
-            <CustomButton
-              title="New Field"
-              id="createUserButton"
-              icon={<FaPlus size={13} className="mr-2" />}
-              onClick={showDrawer}
-              className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
-            />
-          </AccessGuard>
-        </div>
-        <CustomFieldsCard />
-
+      <div className="flex items-center justify-between">
+        <Title level={5}>Custom Fields</Title>
+        <AccessGuard permissions={[Permissions.CreateCustomFields]}>
+          <CustomButton
+            title="New Field"
+            id="createUserButton"
+            icon={<FaPlus size={13} className="mr-2" />}
+            onClick={showDrawer}
+            className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
+          />
+        </AccessGuard>
+      </div>
+      <CustomFieldsCard />
       <CustomFieldsDrawer onClose={onClose} />
     </div>
   );

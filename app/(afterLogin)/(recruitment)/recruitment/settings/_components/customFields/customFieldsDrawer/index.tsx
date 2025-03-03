@@ -147,7 +147,6 @@ const CustomFieldsDrawer: React.FC<{
                 Field Type
               </span>
             }
-            rules={[{ required: true, message: 'Please Choose field type' }]}
             name="fieldType"
             rules={[{ required: true, message: 'Field type is required' }]}
           >
