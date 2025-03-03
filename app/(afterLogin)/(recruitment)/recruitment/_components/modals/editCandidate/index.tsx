@@ -40,7 +40,7 @@ const EditCandidate: React.FC = () => {
     currentPage,
     pageSize,
   } = useCandidateState();
-  
+
   const { data: jobList } = useGetJobs(
     searchParams?.whatYouNeed || '',
     currentPage,
@@ -282,7 +282,7 @@ const EditCandidate: React.FC = () => {
               onRemove={handleDocumentRemove}
               customRequest={customRequest}
               listType="picture"
-              accept="*/*"
+              accept="application/pdf"
             >
               <p className="flex items-center justify-center">
                 <Image
