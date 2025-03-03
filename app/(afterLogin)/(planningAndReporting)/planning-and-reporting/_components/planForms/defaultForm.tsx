@@ -300,7 +300,7 @@ function DefaultCardForm({
                   </Form.Item>
                 )}
 
-              {planningPeriodId && planningUserId && (
+              {/* {planningPeriodId && planningUserId && (
                 <Form.Item
                   label={<div className="text-xs">Sub Tasks</div>}
                   className="border px-4 py-1 rounded-md"
@@ -315,7 +315,7 @@ function DefaultCardForm({
                     userId={userId}
                   />
                 </Form.Item>
-              )}
+              )} */}
             </Form.Item>
           ))}
 
