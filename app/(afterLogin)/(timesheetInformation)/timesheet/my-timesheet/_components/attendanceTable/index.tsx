@@ -63,7 +63,7 @@ const AttendanceTable = () => {
       dataIndex: 'clockIn',
       key: 'clockIn',
       render: (date: string) => (
-        <div>{dayjs(date).format(DATETIME_FORMAT)}</div>
+        <div>{date ? dayjs(date).format(DATETIME_FORMAT) : '-'}</div>
       ),
     },
     {
@@ -81,7 +81,7 @@ const AttendanceTable = () => {
       dataIndex: 'clockOut',
       key: 'clockOut',
       render: (date: string) => (
-        <div>{dayjs(date).format(DATETIME_FORMAT)}</div>
+        <div>{date ? dayjs(date).format(DATETIME_FORMAT) : '-'}</div>
       ),
     },
     {
@@ -163,7 +163,7 @@ const AttendanceTable = () => {
             item?.geolocations[item?.geolocations.length - 1]?.allowedArea
               ?.title ?? '',
           status: item,
-          totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
+          totalTime: `${item.startAt && item.endAt ? `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs` : '-'} `,
           overTime: item.overTimeMinutes + ' min',
           action: item,
         };
@@ -195,7 +195,7 @@ const AttendanceTable = () => {
   return (
     <>
       <div className="flex items-center gap-0.5 mb-6">
-        <div className="text-2xl font-bold text-gray-900">Attendance</div>
+        <div className="text-2xl font-bold text-gray-900">My Attendance</div>
         <Button
           type="text"
           size="small"
@@ -218,6 +218,7 @@ const AttendanceTable = () => {
           setOrderDirection(sorter['order']);
           setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
         }}
+        scroll={{ x: 'min-content' }}
       />
     </>
   );

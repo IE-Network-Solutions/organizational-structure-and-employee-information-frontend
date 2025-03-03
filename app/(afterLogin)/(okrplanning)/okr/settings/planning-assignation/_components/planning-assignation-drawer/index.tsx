@@ -23,8 +23,9 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
 }) => {
   const { data: allUsers } = useGetAllUsers();
   const { data: allPlanningperiod } = useGetAllPlanningPeriods();
-  const { mutate: planAssign } = useAssignPlanningPeriodToUsers();
-  const { mutate: editAssign } = useUpdateAssignPlanningPeriodToUsers();
+  const { mutate: planAssign, isLoading } = useAssignPlanningPeriodToUsers();
+  const { mutate: editAssign, isLoading: editLoading } =
+    useUpdateAssignPlanningPeriodToUsers();
 
   const { selectedPlanningUser } = useOKRSettingStore();
 
@@ -32,14 +33,9 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
   const [form] = Form.useForm();
 
   const renderEmployeeOption = (option: any) => (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <Avatar
-        size={20}
-        src={
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3'
-        }
-      />
-      {option.firstName}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <Avatar size={20} icon={<UserOutlined />} />
+      {option.firstName} {option.middleName} {option.lastName}
     </div>
   );
 
@@ -50,7 +46,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
         <Avatar size={20} icon={<UserOutlined />} />
         <span>{label}</span>
         {closable && (
-          <span onClick={onClose} className="text-black text-xs">
+          <span onClick={onClose} className="text-black text-xs cursor-pointer">
             ✖
           </span>
         )}
@@ -110,6 +106,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
         onClick={() => form.submit()}
         title={selectedPlanningUser ? 'Edit' : 'Add'}
         type="primary"
+        loading={isLoading || editLoading}
       />
     </div>
   );
@@ -139,13 +136,20 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
             placeholder="Select Employees"
             optionLabelProp="label"
             tagRender={customTagRender}
-            className="h-12"
+            // className="h-12"
+            optionFilterProp="label"
           >
             {allUsers?.items.map((option: any) => (
               <Select.Option
                 key={option.id}
                 value={option.id}
-                label={option.firstName}
+                label={
+                  option.firstName +
+                  ' ' +
+                  option.middleName +
+                  ' ' +
+                  option.lastName
+                }
               >
                 {renderEmployeeOption(option)}
               </Select.Option>
@@ -164,11 +168,13 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
             className="h-12"
             dropdownClassName="bg-white shadow-lg rounded-md"
           >
-            {allPlanningperiod?.items?.map((planning, index) => (
-              <Option key={index} value={planning?.id}>
-                {planning.name}
-              </Option>
-            ))}
+            {allPlanningperiod?.items
+              ?.filter((all) => all.isActive === true)
+              .map((planning, index) => (
+                <Option key={index} value={planning?.id}>
+                  {planning.name}
+                </Option>
+              ))}
           </Select>
         </Form.Item>
       </Form>

@@ -1,5 +1,6 @@
 // useStore.ts
 import { MetaData } from '@/types/dashboard/tenant/clientAdministration';
+import { Dayjs } from 'dayjs';
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
 export interface CustomFieldsProps {
@@ -121,10 +122,17 @@ interface UserState {
   setDocumentFileList: (fileList: any[]) => void;
   removeDocument: (uid: string) => void;
 
+  birthDate: Dayjs | null;
+  setBirthDate: (birthDate: Dayjs | null) => void;
+
   edit: EditState;
   setEdit: (key: keyof EditState) => void;
   selectionType: 'checkbox' | 'radio';
   setSelectionType: (selectionType: 'checkbox' | 'radio') => void;
+
+  searchValue: string | null;
+  setSearchValue: (searchValue: string | null) => void;
+
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
   reHireModal: boolean;
@@ -144,6 +152,11 @@ export const useEmployeeManagementStore = create<UserState>()(
     setIsAddEmployeeJobInfoModalVisible: (
       isAddEmployeeJobInfoModalVisible: boolean,
     ) => set({ isAddEmployeeJobInfoModalVisible }),
+
+    birthDate: null,
+    setBirthDate: (birthDate: Dayjs | null) => set({ birthDate }),
+    searchValue: null,
+    setSearchValue: (searchValue: string | null) => set({ searchValue }),
 
     open: false,
     deleteModal: false,

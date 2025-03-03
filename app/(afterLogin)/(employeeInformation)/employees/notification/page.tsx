@@ -10,9 +10,11 @@ import { AiFillNotification } from 'react-icons/ai';
 import { NotificationDetailVisible } from './_component/notificationDetail';
 import { useUpdateNotificationStatus } from '@/store/server/features/notification/mutation';
 import { CgCloseO } from 'react-icons/cg';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const Notifications = () => {
   const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
+  const userId = useAuthenticationStore.getState().userId;
 
   const {
     selectedNotificationId,
@@ -27,7 +29,7 @@ const Notifications = () => {
   const updateNotification = (id: string) => {
     updateNotificationStatus(id);
   };
-  const { data, isLoading } = useGetNotifications();
+  const { data, isLoading } = useGetNotifications(userId);
   const unReadNotification = data?.filter(
     (item: NotificationType) => item.status == 'ACTIVE',
   );

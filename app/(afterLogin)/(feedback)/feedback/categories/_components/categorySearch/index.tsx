@@ -10,7 +10,7 @@ const { Option } = Select;
 
 const CategorySearch = () => {
   const { searchParams, setSearchParams } = CategoriesManagementStore();
-  const { data: users } = useFetchUsers();
+  const { data: users } = useFetchUsers(searchParams?.category_name);
   const handleSearchCategory = async (
     value: string | boolean,
     keyValue: keyof typeof searchParams,

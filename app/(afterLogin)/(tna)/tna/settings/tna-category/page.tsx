@@ -8,6 +8,8 @@ import TnaCategorySidebar from './_components/categorySidebar';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
 import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
 import { Spin } from 'antd';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const TnaCategoryPage = () => {
   const { isShowTnaCategorySidebar, setIsShowTnaCategorySidebar } =
@@ -23,16 +25,18 @@ const TnaCategoryPage = () => {
   return (
     <>
       <PageHeader title="TNA Category" size="small">
-        <CustomButton
-          id="tnaNewCategoryButtonId"
-          title="New Category"
-          icon={<LuPlus size={18} />}
-          type="primary"
-          size="large"
-          onClick={() => {
-            setIsShowTnaCategorySidebar(true);
-          }}
-        />
+        <AccessGuard permissions={[Permissions.CreateTnaCategory]}>
+          <CustomButton
+            id="tnaNewCategoryButtonId"
+            title="New Category"
+            icon={<LuPlus size={18} />}
+            type="primary"
+            size="large"
+            onClick={() => {
+              setIsShowTnaCategorySidebar(true);
+            }}
+          />
+        </AccessGuard>
       </PageHeader>
 
       <Spin spinning={isFetching}>

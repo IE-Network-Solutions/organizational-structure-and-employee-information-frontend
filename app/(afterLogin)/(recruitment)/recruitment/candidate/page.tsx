@@ -8,6 +8,8 @@ import { useCandidateState } from '@/store/uistate/features/recruitment/candidat
 import CreateCandidate from '../jobs/[id]/_components/createCandidate';
 import SearchOptions from '../jobs/[id]/_components/candidateSearch/candidateSearchOptions';
 import AllCandidateTable from './_components/allCandidateTable';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const AllCandidates: React.FC = () => {
   const { setCreateJobDrawer } = useCandidateState();
@@ -28,14 +30,16 @@ const AllCandidates: React.FC = () => {
         />
         <div className="flex items-center my-4 gap-4 md:gap-8">
           <WhatYouNeed />
-          <CustomButton
-            title="Add candidates"
-            id="createUserButton"
-            icon={<FaPlus className="mr-2" />}
-            onClick={showDrawer}
-            className="bg-blue-600 hover:bg-blue-700"
-          />
-          <CreateCandidate onClose={onClose} />
+          <AccessGuard permissions={[Permissions.CreateCandidate]}>
+            <CustomButton
+              title="Add candidates"
+              id="createUserButton"
+              icon={<FaPlus className="mr-2" />}
+              onClick={showDrawer}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
+            <CreateCandidate onClose={onClose} />
+          </AccessGuard>
         </div>
       </div>
       <div className="w-full h-auto">

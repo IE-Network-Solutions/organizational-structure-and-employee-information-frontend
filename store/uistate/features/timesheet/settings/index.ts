@@ -9,6 +9,7 @@ type TimesheetSettingsState = {
   isShowCarryOverRuleSidebar: boolean;
   isShowTypeAndPoliciesSidebar: boolean;
   isShowClosedDateSidebar: boolean;
+  isShowBreakTypeSidebar: boolean;
   isShowLeaveRequestSidebar: boolean;
 
   attendanceNotificationType: AttendanceNotificationType[];
@@ -17,6 +18,7 @@ type TimesheetSettingsState = {
   allowedAreaId: string | null;
   leaveRequestId: string | null;
   selectedClosedDate: any | null;
+  selectedBreakType: any | null;
   isTo: boolean;
   isLoading: boolean;
 };
@@ -33,6 +35,7 @@ type TimesheetSettingsStateAction = {
     isShowTypeAndPoliciesSidebar: boolean,
   ) => void;
   setIsShowClosedDateSidebar: (isShowClosedDateSidebar: boolean) => void;
+  setIsShowBreakTypeSidebar: (isShowBreakTypeSidebar: boolean) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
 
   setAttendanceNotificationType: (
@@ -43,6 +46,7 @@ type TimesheetSettingsStateAction = {
   setAllowedAreaId: (allowedAreaId: string | null) => void;
   setLeaveRequestId: (leaveRequestId: string | null) => void;
   setSelectedClosedDate: (closedDate: any | null) => void;
+  setSelectedBreakType: (breakType: any | null) => void;
   setIsTo: (isTo: boolean) => void;
   setIsLoading: (isLoading: boolean) => void;
 };
@@ -53,6 +57,11 @@ const timesheetSettingsSlice: StateCreator<
   selectedClosedDate: null,
   setSelectedClosedDate: (closedDate) => {
     set({ selectedClosedDate: closedDate });
+  },
+
+  selectedBreakType: null,
+  setSelectedBreakType: (breakType) => {
+    set({ selectedBreakType: breakType });
   },
 
   isShowLocationSidebar: false,
@@ -88,6 +97,11 @@ const timesheetSettingsSlice: StateCreator<
   isShowClosedDateSidebar: false,
   setIsShowClosedDateSidebar: (isShowClosedDateSidebar: boolean) => {
     set({ isShowClosedDateSidebar });
+  },
+
+  isShowBreakTypeSidebar: false,
+  setIsShowBreakTypeSidebar: (isShowBreakTypeSidebar: boolean) => {
+    set({ isShowBreakTypeSidebar });
   },
 
   isShowLeaveRequestSidebar: false,

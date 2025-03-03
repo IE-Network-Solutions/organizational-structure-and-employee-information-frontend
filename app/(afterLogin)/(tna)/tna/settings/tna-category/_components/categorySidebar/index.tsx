@@ -54,7 +54,7 @@ const TnaCategorySidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: 'Create',
+      label: tnaCategoryId ? <span>Edit</span> : <span> Create</span>,
       key: 'create',
       className: 'h-14',
       type: 'primary',
@@ -89,7 +89,11 @@ const TnaCategorySidebar = () => {
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            Add TNA Category
+            {tnaCategoryId ? (
+              <span>Edit TNA Category</span>
+            ) : (
+              <span>Add TNA Category</span>
+            )}
           </CustomDrawerHeader>
         }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
