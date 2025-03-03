@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Button, Col, DatePicker, Form, Row, Select } from 'antd';
+import { Col, DatePicker, Form, Row, Select } from 'antd';
 import { attendanceRecordTypeOption } from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
 import { CommonObject } from '@/types/commons/commonObject';
@@ -24,6 +24,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             />
           </Form.Item>
         </Col>
+        <Col span={5}></Col>
         <Col span={5}>
           <Form.Item name="type">
             <Select
@@ -37,18 +38,6 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
               options={attendanceRecordTypeOption}
             />
           </Form.Item>
-        </Col>
-        <Col span={5}>
-          <Button
-            className="w-full"
-            disabled={true}
-            size="large"
-            id="approveButtonId"
-            type="primary"
-            htmlType="button"
-          >
-            Approve
-          </Button>
         </Col>
       </Row>
     </Form>

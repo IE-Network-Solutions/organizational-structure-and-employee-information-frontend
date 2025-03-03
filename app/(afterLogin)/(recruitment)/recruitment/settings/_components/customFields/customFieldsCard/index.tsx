@@ -7,6 +7,8 @@ import { Pencil, Trash2 } from 'lucide-react';
 import React from 'react';
 import CustomFieldsDrawer from '../customFieldsDrawer';
 import RecruitmentPagination from '../../../../_components';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const CustomFieldsCard: React.FC = () => {
   const {
@@ -64,20 +66,24 @@ const CustomFieldsCard: React.FC = () => {
           >
             <div className="text-medium font-medium">{questions?.title}</div>
             <div className="flex items-center justify-center gap-2">
-              <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
-                <Pencil
-                  size={15}
-                  className="text-white cursor-pointer"
-                  onClick={() => handleCustomFieldsModalOpen(questions)}
-                />
-              </div>
-              <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
-                <Trash2
-                  size={15}
-                  className="text-white cursor-pointer"
-                  onClick={() => handleDeleteModalOpen(questions)}
-                />
-              </div>
+              <AccessGuard permissions={[Permissions.UpdateCustomFields]}>
+                <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+                  <Pencil
+                    size={15}
+                    className="text-white cursor-pointer"
+                    onClick={() => handleCustomFieldsModalOpen(questions)}
+                  />
+                </div>
+              </AccessGuard>
+              <AccessGuard permissions={[Permissions.DeleteCustomFields]}>
+                <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
+                  <Trash2
+                    size={15}
+                    className="text-white cursor-pointer"
+                    onClick={() => handleDeleteModalOpen(questions)}
+                  />
+                </div>
+              </AccessGuard>
             </div>
           </div>
         ))

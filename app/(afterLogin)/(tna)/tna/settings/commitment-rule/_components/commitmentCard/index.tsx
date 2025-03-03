@@ -5,6 +5,8 @@ import { CommitmentRule } from '@/types/tna/tna';
 import { FC, useEffect, useState } from 'react';
 import { useDeleteTnaCommitment } from '@/store/server/features/tna/commitment/mutation';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface CommitmentCardProps {
   item: CommitmentRule;
@@ -27,18 +29,25 @@ const CommitmentCard: FC<CommitmentCardProps> = ({ item }) => {
             </div>
           ),
           extra: (
-            <ActionButtons
-              id={item?.id ?? null}
-              onEdit={(e: MouseEvent) => {
-                e.stopPropagation();
-                setTnaCommitmentId(item.id);
-                setIsShowCommitmentSidebar(true);
-              }}
-              onDelete={(e: MouseEvent) => {
-                e.stopPropagation();
-                deleteCommitment([item.id]);
-              }}
-            />
+            <AccessGuard
+              permissions={[
+                Permissions.UpdateCommitmentRule,
+                Permissions.DeleteCommitmentRule,
+              ]}
+            >
+              <ActionButtons
+                id={item?.id ?? null}
+                onEdit={(e: MouseEvent) => {
+                  e.stopPropagation();
+                  setTnaCommitmentId(item.id);
+                  setIsShowCommitmentSidebar(true);
+                }}
+                onDelete={(e: MouseEvent) => {
+                  e.stopPropagation();
+                  deleteCommitment([item.id]);
+                }}
+              />
+            </AccessGuard>
           ),
           children: (
             <div>

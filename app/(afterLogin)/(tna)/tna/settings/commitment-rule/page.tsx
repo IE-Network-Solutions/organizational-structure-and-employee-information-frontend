@@ -8,6 +8,8 @@ import TnaCommitmentSidebar from '@/app/(afterLogin)/(tna)/tna/settings/commitme
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
 import { useGetTnaCommitment } from '@/store/server/features/tna/commitment/queries';
 import { Spin } from 'antd';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const TnaCommitmentRulePage = () => {
   const { isShowCommitmentSidebar, setIsShowCommitmentSidebar } =
@@ -23,15 +25,17 @@ const TnaCommitmentRulePage = () => {
   return (
     <>
       <PageHeader title="Commitment Rules" size="small">
-        <CustomButton
-          title="New Rule"
-          icon={<LuPlus size={18} />}
-          type="primary"
-          size="large"
-          onClick={() => {
-            setIsShowCommitmentSidebar(true);
-          }}
-        />
+        <AccessGuard permissions={[Permissions.CreateCommitmentRule]}>
+          <CustomButton
+            title="New Rule"
+            icon={<LuPlus size={18} />}
+            type="primary"
+            size="large"
+            onClick={() => {
+              setIsShowCommitmentSidebar(true);
+            }}
+          />
+        </AccessGuard>
       </PageHeader>
 
       <Spin spinning={isLoading}>

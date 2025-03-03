@@ -14,7 +14,6 @@ import ActionButton from '@/components/common/actionButton';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import TnaRequestSidebar from '@/app/(afterLogin)/(tna)/tna/review/_components/tnaRequestSidebar';
 import { useRouter } from 'next/navigation';
-import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
 import { useGetTna } from '@/store/server/features/tna/review/queries';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
@@ -29,17 +28,45 @@ import {
 } from '@/types/tna/tna';
 import FileButton from '@/components/common/fileButton';
 import { useDeleteTna } from '@/store/server/features/tna/review/mutation';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import UserCard from '@/components/common/userCard/userCard';
+import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import TnaApprovalTable from './_components/approvalTabel';
 
 const TnaReviewPage = () => {
+  const EmpRender = ({ userId }: any) => {
+    const {
+      isLoading,
+      data: employeeData,
+      isError,
+    } = useGetSimpleEmployee(userId);
+
+    if (isLoading) return <div>...</div>;
+    if (isError) return <>-</>;
+    const fullName = `${employeeData?.firstName || '-'} ${employeeData?.middleName || '-'} ${employeeData?.lastName || '-'}`;
+
+    return employeeData ? (
+      <div className="flex items-center gap-1.5">
+        <div className="flex-1">
+          <UserCard
+            name={fullName}
+            profileImage={employeeData?.profileImage}
+            size="small"
+          />
+          <div className="text-[10px] leading-4 text-gray-600">
+            {employeeData?.email}
+          </div>
+        </div>
+      </div>
+    ) : (
+      '-'
+    );
+  };
   const router = useRouter();
   const [tableData, setTableData] = useState<any[]>([]);
-  const {
-    isShowTnaReviewSidebar,
-    setIsShowTnaReviewSidebar,
-    setTnaCategory,
-    setTnaId,
-  } = useTnaReviewStore();
-  const { data: tnaCategoryData } = useGetTnaCategory({});
+  const { isShowTnaReviewSidebar, setIsShowTnaReviewSidebar, setTnaId } =
+    useTnaReviewStore();
   const {
     page,
     limit,
@@ -55,6 +82,7 @@ const TnaReviewPage = () => {
     { page, limit, orderBy, orderDirection },
     { filter },
   );
+
   const {
     mutate: deleteTna,
     isLoading: isLoadingDelete,
@@ -68,12 +96,6 @@ const TnaReviewPage = () => {
   }, [isSuccess]);
 
   useEffect(() => {
-    if (tnaCategoryData?.items?.length) {
-      setTnaCategory(tnaCategoryData.items);
-    }
-  }, [tnaCategoryData]);
-
-  useEffect(() => {
     if (!isShowTnaReviewSidebar) {
       refetch();
     }
@@ -85,7 +107,7 @@ const TnaReviewPage = () => {
         data.items.map((item) => ({
           key: item.id,
           title: item.title,
-          createdBy: item.createdBy,
+          createdBy: item.assignedUserId,
           completedAt: item.completedAt,
           attachment: item.trainingProofs,
           status: item.status,
@@ -109,7 +131,7 @@ const TnaReviewPage = () => {
       dataIndex: 'createdBy',
       key: 'createdBy',
       sorter: true,
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => <EmpRender userId={text} />,
     },
     {
       title: 'Completed Date',
@@ -124,7 +146,15 @@ const TnaReviewPage = () => {
       title: 'Attachment',
       dataIndex: 'attachment',
       key: 'attachment',
-      sorter: true,
+      sorter: (a, b) => {
+        const nameA = a.attachment?.[0]?.attachmentFile
+          ? formatLinkToUploadFile(a.attachment[0].attachmentFile).name
+          : '';
+        const nameB = b.attachment?.[0]?.attachmentFile
+          ? formatLinkToUploadFile(b.attachment[0].attachmentFile).name
+          : '';
+        return nameA.localeCompare(nameB);
+      },
       render: (trainingProofs: TrainingProof[]) => {
         return (
           <div>
@@ -172,32 +202,38 @@ const TnaReviewPage = () => {
       key: 'action',
       render: (item: TrainingNeedAssessment) => (
         <Space>
-          <Button
-            id={`${item.id}tnaShowTnaReviewSidebarButtonId`}
-            className="w-[30px] h-[30px]"
-            icon={<FiEdit2 size={16} />}
-            type="primary"
-            disabled={
-              item.certStatus === TrainingNeedAssessmentCertStatus.COMPLETED
-            }
-            onClick={() => {
-              setTnaId(item.id);
-              setIsShowTnaReviewSidebar(true);
-            }}
-          />
-          <ActionButton
-            onOpen={() => {
-              router.push('/tna/review/' + item.id);
-            }}
-            onDelete={
-              item.certStatus !== TrainingNeedAssessmentCertStatus.COMPLETED
-                ? () => {
-                    deleteTna([item.id]);
-                  }
-                : undefined
-            }
-            id={item.id ?? null}
-          />
+          <AccessGuard permissions={[Permissions.UpdateTna]}>
+            <Button
+              id={`${item.id}tnaShowTnaReviewSidebarButtonId`}
+              className="w-[30px] h-[30px]"
+              icon={<FiEdit2 size={16} />}
+              type="primary"
+              disabled={
+                item.certStatus === TrainingNeedAssessmentCertStatus.COMPLETED
+              }
+              onClick={() => {
+                setTnaId(item.id);
+                setIsShowTnaReviewSidebar(true);
+              }}
+            />
+          </AccessGuard>
+          <AccessGuard
+            permissions={[Permissions.UpdateTna, Permissions.DeleteTna]}
+          >
+            <ActionButton
+              onOpen={() => {
+                router.push('/tna/review/' + item.id);
+              }}
+              onDelete={
+                item.certStatus !== TrainingNeedAssessmentCertStatus.COMPLETED
+                  ? () => {
+                      deleteTna([item.id]);
+                    }
+                  : undefined
+              }
+              id={item.id ?? null}
+            />
+          </AccessGuard>
         </Space>
       ),
     },
@@ -205,6 +241,7 @@ const TnaReviewPage = () => {
 
   return (
     <div className="page-wrap">
+      <TnaApprovalTable />
       <BlockWrapper>
         <PageHeader title="TNA">
           <Space size={20}>
@@ -225,15 +262,17 @@ const TnaReviewPage = () => {
                 );
               }}
             />
-            <Button
-              icon={<LuPlus size={16} />}
-              className="h-[54px]"
-              type="primary"
-              size="large"
-              onClick={() => setIsShowTnaReviewSidebar(true)}
-            >
-              New TNA
-            </Button>
+            <AccessGuard permissions={[Permissions.CreateTna]}>
+              <Button
+                icon={<LuPlus size={16} />}
+                className="h-[54px]"
+                type="primary"
+                size="large"
+                onClick={() => setIsShowTnaReviewSidebar(true)}
+              >
+                New TNA
+              </Button>
+            </AccessGuard>
           </Space>
         </PageHeader>
 

@@ -7,11 +7,16 @@ import {
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../../common/infoLine';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { validateField } from '../../../../_components/formValidator';
 
 const AddressComponent = ({
+  mergedFields,
   id,
   handleSaveChanges,
 }: {
+  mergedFields: any;
   id: string;
   handleSaveChanges: any;
 }) => {
@@ -21,15 +26,28 @@ const AddressComponent = ({
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
   };
+
+  const getFieldValidation = (fieldName: string) => {
+    return (
+      mergedFields?.find((field: any) => field?.name === fieldName) ?? null
+    );
+  };
+
   return (
     <Card
       loading={isLoading}
       title="Address"
       extra={
-        <LuPencil
-          className="cursor-pointer"
-          onClick={() => handleEditChange('addresses')}
-        />
+        <AccessGuard
+          permissions={[Permissions.UpdateEmployeeDetails]}
+          selfShouldAccess
+          id={id}
+        >
+          <LuPencil
+            className="cursor-pointer"
+            onClick={() => handleEditChange('addresses')}
+          />
+        </AccessGuard>
       }
       className="my-6"
     >
@@ -44,15 +62,42 @@ const AddressComponent = ({
           <Row gutter={[16, 24]}>
             <Col lg={16}>
               {Object.entries(
-                employeeData?.employeeInformation?.addresses || {},
+                employeeData?.employeeInformation?.addresses || {
+                  country: '',
+                  city: '',
+                },
               ).map(([key, val]) => (
                 <Form.Item
                   key={key}
                   name={key}
                   label={key}
                   rules={[
-                    { required: true, message: `Please enter your ${key}` },
-                  ]} // Example validation
+                    {
+                      /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+                      validator: (_rule: any, value: any) => {
+                        /*  eslint-enable-next-line @typescript-eslint/naming-convention */
+                        let fieldValidation = getFieldValidation(key);
+
+                        switch (key) {
+                          case 'country':
+                          case 'city':
+                            fieldValidation = 'text';
+                            break;
+                          default:
+                            fieldValidation = getFieldValidation(key);
+                        }
+
+                        const validationError = validateField(
+                          key,
+                          value,
+                          fieldValidation,
+                        );
+                        if (validationError)
+                          return Promise.reject(new Error(validationError));
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
                 >
                   <Input placeholder={key} defaultValue={val?.toString()} />
                 </Form.Item>

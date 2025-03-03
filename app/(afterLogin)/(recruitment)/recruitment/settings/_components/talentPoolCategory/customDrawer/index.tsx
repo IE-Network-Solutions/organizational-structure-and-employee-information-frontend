@@ -62,7 +62,7 @@ const TalentPoolDrawer: React.FC = () => {
   useEffect(() => {
     if (isEditMode && selectedTalentPool) {
       form.setFieldsValue({
-        name: selectedTalentPool.title,
+        title: selectedTalentPool.title,
         description: selectedTalentPool.description,
       });
     } else {
@@ -97,7 +97,7 @@ const TalentPoolDrawer: React.FC = () => {
       <Form form={form} layout="vertical">
         <Form.Item
           label="Name"
-          name="name"
+          name="title"
           rules={[{ required: true, message: 'Please enter a title' }]}
         >
           <Input className="h-12" placeholder="Enter the category title" />

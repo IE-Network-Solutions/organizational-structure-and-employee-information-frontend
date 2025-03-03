@@ -3,12 +3,10 @@ import React, { useEffect } from 'react';
 import { Button, Spin } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import useStepStore from '@/store/uistate/features/organizationStructure/steper/useStore';
-import FiscalYear from './fiscalYear';
 import WorkSchedule from './workSchedule';
 import Branches from './branches';
 import OrgChartComponent from './orgChartComponent';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
-import useFiscalYearStore from '@/store/uistate/features/organizationStructure/fiscalYear/fiscalYearStore';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
 import {
   useCreateFiscalYear,
@@ -36,6 +34,8 @@ import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/su
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useRouter } from 'next/navigation';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
+import CustomWorFiscalYearDrawer from '@/app/(afterLogin)/(organizationalStructure)/organization/settings/_components/fiscalYear/customDrawer';
+import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 
 // const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -47,39 +47,13 @@ const OnboaringSteper: React.FC = () => {
   const forms = [form1, form2, form3, form4];
 
   const { data: departments } = useGetDepartments();
+  const { calendarType } = useFiscalYearDrawerStore();
   const router = useRouter();
   useEffect(() => {
     if (departments?.length > 0) {
       router.push('/dashboard');
     }
   }, [departments?.length]);
-
-  const steps = [
-    {
-      title: 'Step 1',
-      content: <CompanyProfile form={form1} />,
-    },
-    {
-      title: 'Step 2',
-      content: <IndustrySelect form={form2} />,
-    },
-    {
-      title: 'Step 3',
-      content: <FiscalYear form={form3} />,
-    },
-    {
-      title: 'Step 4',
-      content: <WorkSchedule form={form4} />,
-    },
-    {
-      title: 'Step 5',
-      content: <Branches />,
-    },
-    {
-      title: 'Step 6',
-      content: <OrgChartComponent />,
-    },
-  ];
 
   const {
     currentStep,
@@ -93,8 +67,13 @@ const OnboaringSteper: React.FC = () => {
 
   const { createWorkSchedule, getSchedule } = useScheduleStore();
   const { orgData } = useOrganizationStore();
-  const { getFiscalYear } = useFiscalYearStore();
+  // const { getFiscalYear } = useFiscalYearStore();
+
+  const { fiscalYearFormValues, sessionFormValues, monthRangeValues } =
+    useFiscalYearDrawerStore();
+
   const createFiscalYear = useCreateFiscalYear();
+
   const deleteFiscalYear = useDeleteFiscalYear();
   const createSchedule = useCreateSchedule();
   const deleteSchedule = useDeleteSchedule();
@@ -142,7 +121,87 @@ const OnboaringSteper: React.FC = () => {
   const onSubmitOnboarding = async () => {
     toggleLoading();
     createWorkSchedule();
-    const fiscalYear = getFiscalYear();
+
+    const getTransformedFiscalYear = (
+      monthFormValues: any,
+      sessionFormValues: any,
+    ) => {
+      const months = Object.keys(monthFormValues)
+        .filter((key) => key.startsWith('monthName_'))
+        /* eslint-disable-next-line @typescript-eslint/naming-convention */
+        .map((_, index) => ({
+          /* eslint-enable @typescript-eslint/naming-convention */
+
+          name: monthFormValues[`monthName_${index + 1}`],
+          description: monthFormValues[`monthDescription_${index + 1}`],
+          startDate: monthFormValues[`monthStartDate_${index + 1}`],
+          endDate: monthFormValues[`monthEndDate_${index + 1}`],
+        }));
+
+      const sessions = [];
+      if (calendarType === 'Quarter') {
+        sessions.push(
+          ...sessionFormValues?.sessionData.map((session: any, index: any) => ({
+            name: session.sessionName || `Session ${index + 1}`,
+            description:
+              session.sessionDescription ||
+              `Description for Session ${index + 1}`,
+            startDate: session.sessionStartDate || '',
+            endDate: session.sessionEndDate || '',
+            months: months.slice(index * 3, (index + 1) * 3),
+          })),
+        );
+      } else if (calendarType === 'Semester') {
+        sessions.push(
+          ...sessionFormValues?.sessionData.map((session: any, index: any) => ({
+            name: session.sessionName || `Session ${index + 1}`,
+            description:
+              session.sessionDescription ||
+              `Description for Session ${index + 1}`,
+            startDate: session.sessionStartDate || '',
+            endDate: session.sessionEndDate || '',
+            months: months.slice(index * 6, (index + 1) * 6),
+          })),
+        );
+      } else if (calendarType === 'Year') {
+        sessions.push(
+          ...sessionFormValues?.sessionData.map((session: any) => ({
+            name: session?.sessionName || 'Session 1',
+            description:
+              session?.sessionDescription || 'Description for Session 1',
+            startDate: session?.sessionStartDate || '',
+            endDate: session?.sessionEndDate || '',
+            months,
+          })),
+        );
+      }
+
+      return sessions;
+    };
+
+    const fiscalYearData = getTransformedFiscalYear(
+      monthRangeValues,
+      sessionFormValues,
+    );
+
+    const fiscalYear = {
+      name: fiscalYearFormValues?.fiscalYearName,
+      startDate: fiscalYearFormValues?.fiscalYearStartDate,
+      endDate: fiscalYearFormValues?.fiscalYearEndDate,
+      description: fiscalYearFormValues?.fiscalYearDescription,
+      sessions: fiscalYearData?.map((session: any) => ({
+        name: session?.name,
+        description: session?.description,
+        startDate: session?.startDate,
+        endDate: session?.endDate,
+        months: session?.months.map((month: any) => ({
+          name: month?.name,
+          description: month?.description,
+          startDate: month?.startDate,
+          endDate: month?.endDate,
+        })),
+      })),
+    };
     const schedule = getSchedule();
 
     const successfulRequests: {
@@ -200,6 +259,38 @@ const OnboaringSteper: React.FC = () => {
         });
     }
   };
+
+  const steps = [
+    {
+      title: 'Step 1',
+      content: <CompanyProfile form={form1} />,
+    },
+    {
+      title: 'Step 2',
+      content: <IndustrySelect form={form2} />,
+    },
+    {
+      title: 'Step 3',
+      content: (
+        <CustomWorFiscalYearDrawer
+          form={form3}
+          handleNextStep={handleNextStep}
+        />
+      ),
+    },
+    {
+      title: 'Step 4',
+      content: <WorkSchedule form={form4} />,
+    },
+    {
+      title: 'Step 5',
+      content: <Branches />,
+    },
+    {
+      title: 'Step 6',
+      content: <OrgChartComponent />,
+    },
+  ];
 
   const handleClose = () => {
     togleIsModalVisible();
