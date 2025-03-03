@@ -1,4 +1,5 @@
 import { StatusBadgeTheme } from '@/components/common/statusBadge';
+import { EmployeeData } from '@/store/server/features/employees/employeeDetail/interface';
 import { DateInfo } from '@/types/commons/dateInfo';
 
 export enum LeaveRequestStatus {
@@ -80,6 +81,7 @@ export interface LeaveRequest extends DateInfo {
   approvalType: string | null;
   approvalWorkflowId: string | null;
   commentAttachments: string[];
+  delegatee?:EmployeeData | string;
 }
 export interface SingleLeaveRequest extends DateInfo {
   id: string;
@@ -99,6 +101,7 @@ export interface SingleLeaveRequest extends DateInfo {
   approvalType: string | null;
   approvalWorkflowId: string | null;
   commentAttachments: string[];
+  delegatee?:EmployeeData | string;
 }
 export interface ApprovalLog extends DateInfo {
   approvalLogId: string;
