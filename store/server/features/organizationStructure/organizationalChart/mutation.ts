@@ -7,12 +7,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { OrgChart } from './interface';
 /* eslint-disable @typescript-eslint/naming-convention */
 
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
 /**
  * Create a new organization chart.
  * @param data - Organization chart data to be created.
@@ -20,6 +14,12 @@ const headers = {
  */
 
 const createOrgChart = async (data: OrgData) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/departments`,
     method: 'POST',
@@ -35,6 +35,12 @@ const createOrgChart = async (data: OrgData) => {
  * @returns Promise with the updated organization chart data.
  */
 const updateOrgChart = async (id: string, data: OrgChart) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/${id}`,
     method: 'PATCH',
@@ -48,10 +54,20 @@ const updateOrgChart = async (id: string, data: OrgChart) => {
  * @param id - ID of the organization chart to delete.
  * @returns Promise confirming the deletion.
  */
-const deleteOrgChart = async (id: string) => {
+const deleteOrgChart = async (
+  departmentTobeDeletedId: string,
+  departmentTobeShiftedId: string,
+) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/departments/${id}`,
+    url: `${ORG_AND_EMP_URL}/departments/${departmentTobeDeletedId}`,
     method: 'DELETE',
+    data: { departmentTobeShiftedId },
     headers,
   });
 };
@@ -99,13 +115,22 @@ export const useUpdateOrgChart = () => {
  */
 export const useDeleteOrgChart = () => {
   const queryClient = useQueryClient();
-  return useMutation(deleteOrgChart, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('orgcharts');
-      // const method = variables?.method?.toUpperCase();
-      // handleSuccessMessage(method);
+  return useMutation(
+    ({
+      departmentTobeDeletedId,
+      departmentTobeShiftedId,
+    }: {
+      departmentTobeDeletedId: string;
+      departmentTobeShiftedId: string;
+    }) => deleteOrgChart(departmentTobeDeletedId, departmentTobeShiftedId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('orgcharts');
+        // const method = variables?.method?.toUpperCase();
+        // handleSuccessMessage(method);
+      },
     },
-  });
+  );
 };
 
 /* eslint-disable @typescript-eslint/naming-convention */

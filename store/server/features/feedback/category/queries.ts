@@ -43,7 +43,7 @@ const fetchCategories = async (
  * Fetch all users from the API.
  * @returns {Promise<any>} Promise with the list of users.
  */
-const fetchUsers = async () => {
+const fetchUsers = async (searchString: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -53,7 +53,7 @@ const fetchUsers = async () => {
   };
 
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/users?deletedAt=null`,
+    url: `${ORG_AND_EMP_URL}/users?searchString=${searchString}&&deletedAt=null`,
     method: 'GET',
     headers,
   });
@@ -146,8 +146,8 @@ export const useFetchCategories = (
  * Custom hook to fetch users.
  * @returns {UseQueryResult<any>} The Query object for fetching users.
  */
-export const useFetchUsers = () => {
-  return useQuery<any>('users', fetchUsers);
+export const useFetchUsers = (searchString: string) => {
+  return useQuery<any>(['users', searchString], () => fetchUsers(searchString));
 };
 
 /**

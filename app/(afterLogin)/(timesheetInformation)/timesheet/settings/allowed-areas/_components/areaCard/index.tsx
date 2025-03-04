@@ -6,6 +6,8 @@ import { FC } from 'react';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import { useDeleteAllowedArea } from '@/store/server/features/timesheet/allowedArea/mutation';
 import { Spin } from 'antd';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface AreaCardProps {
   item: AllowedArea;
@@ -28,21 +30,27 @@ const AreaCard: FC<AreaCardProps> = ({ item }) => {
               <div className="flex items-center gap-2 text-gray-500">
                 <GoLocation size={16} />
                 <span className="text-xs">
-                  {item.longitude} - {item.latitude}
+                  {item.latitude} - {item.longitude}
                 </span>
               </div>
             </div>
-
-            <ActionButton
-              id={item.id ?? null}
-              onEdit={() => {
-                setAllowedAreaId(item.id);
-                setIsShowLocationSidebar(true);
-              }}
-              onDelete={() => {
-                deleteArea(item.id);
-              }}
-            />
+            <AccessGuard
+              permissions={[
+                Permissions.UpdateAllowedArea,
+                Permissions.DeleteAllowedArea,
+              ]}
+            >
+              <ActionButton
+                id={item.id ?? null}
+                onEdit={() => {
+                  setAllowedAreaId(item.id);
+                  setIsShowLocationSidebar(true);
+                }}
+                onDelete={() => {
+                  deleteArea(item.id);
+                }}
+              />
+            </AccessGuard>
           </div>
         </div>
       </Spin>

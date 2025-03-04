@@ -18,12 +18,14 @@ import { validateEmail, validateName } from '@/utils/validation';
 import { UploadFile } from 'antd/lib';
 import { RcFile } from 'antd/es/upload';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 const { Dragger } = Upload;
 
 const BasicInformationForm = ({ form }: any) => {
-  const { profileFileList, setProfileFileList } = useEmployeeManagementStore();
+  const { profileFileList, setBirthDate, setProfileFileList } =
+    useEmployeeManagementStore();
   const { data: nationalities, isLoading: isLoadingNationality } =
     useGetNationalities();
 
@@ -70,6 +72,10 @@ const BasicInformationForm = ({ form }: any) => {
     }
     return '';
   };
+
+  const disableFutureDates = (current: any) => {
+    return current && current > dayjs().endOf('day');
+  };
   return (
     <div className="">
       <Row justify="center" style={{ width: '100%' }}>
@@ -80,9 +86,6 @@ const BasicInformationForm = ({ form }: any) => {
             style={{ textAlign: 'center' }}
             name="profileImage"
             id="profileImageId"
-            rules={[
-              { required: true, message: 'Please upload your profile image!' },
-            ]}
           >
             <Dragger
               name="files"
@@ -129,6 +132,7 @@ const BasicInformationForm = ({ form }: any) => {
             id="userFirstNameId"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('name', value)
                     ? Promise.resolve()
@@ -149,6 +153,7 @@ const BasicInformationForm = ({ form }: any) => {
             id="userMiddleNameId"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('Middle Name', value)
                     ? Promise.resolve()
@@ -169,6 +174,7 @@ const BasicInformationForm = ({ form }: any) => {
             id="userLastNameId"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('Last Name', value)
                     ? Promise.resolve()
@@ -191,6 +197,7 @@ const BasicInformationForm = ({ form }: any) => {
             id="userEmailId"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateEmail(value)
                     ? Promise.resolve()
@@ -225,7 +232,11 @@ const BasicInformationForm = ({ form }: any) => {
             id="userDateOfBirthId"
             rules={[{ required: true }]}
           >
-            <DatePicker className="w-full" />
+            <DatePicker
+              onChange={(date) => setBirthDate(date)}
+              className="w-full"
+              disabledDate={disableFutureDates}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>

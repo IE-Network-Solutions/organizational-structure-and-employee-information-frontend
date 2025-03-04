@@ -24,6 +24,10 @@ interface SearchFormParams {
   form_description: string;
   createdBy: string;
 }
+
+interface SearchUserParams {
+  user_name: string;
+}
 export interface CategoriesUseState {
   expanded: boolean;
   open: boolean;
@@ -80,6 +84,11 @@ export interface CategoriesUseState {
   clearSelections: () => void;
   selectedDepartmentIds: string[];
   toggleDepartmentSelection: (departmentId: string) => void;
+
+  searchUserParams: SearchUserParams;
+  setSearchUserParams: (key: keyof SearchUserParams, value: string) => void;
+  activeKey: string[];
+  setActiveKey: (key: string[]) => void;
 }
 
 export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
@@ -181,9 +190,25 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
     form_description: '',
     createdBy: '',
   },
+
   setSearchFormParams: (key, value) =>
     set((state) => ({
       searchFormParams: { ...state.searchFormParams, [key]: value },
     })),
   rows: 2,
+
+  searchUserParams: {
+    user_name: '',
+  },
+  setSearchUserParams: (key: keyof SearchUserParams, value: string) => {
+    set((state) => {
+      if (state.activeKey.length === 0) {
+        return { searchUserParams: { [key]: value }, activeKey: ['0'] };
+      }
+      return { searchUserParams: { [key]: value } };
+    });
+  },
+
+  activeKey: [],
+  setActiveKey: (key) => set({ activeKey: key }),
 }));

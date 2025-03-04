@@ -6,6 +6,8 @@ import ApprovalListTable from './_component/approvalListTable';
 import { FaPlus } from 'react-icons/fa';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { useRouter } from 'next/navigation';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const Workflow = () => {
   const router = useRouter();
@@ -19,14 +21,15 @@ const Workflow = () => {
     <div>
       <div className="mb-10 flex justify-between">
         <div className="text-2xl font-bold ">List Of Approval</div>
-
-        <CustomButton
-          title="Set Approval"
-          id="createUserButton"
-          icon={<FaPlus className="mr-2" />}
-          className="bg-blue-600 hover:bg-blue-700"
-          onClick={handleNavigation}
-        />
+        <AccessGuard permissions={[Permissions.CreateApprovalWorkFlow]}>
+          <CustomButton
+            title="Set Approval"
+            id="createUserButton"
+            icon={<FaPlus className="mr-2" />}
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={handleNavigation}
+          />
+        </AccessGuard>
       </div>
       <div className="px-5">
         <ApprovalFilter />

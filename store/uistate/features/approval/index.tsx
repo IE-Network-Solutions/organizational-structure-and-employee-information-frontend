@@ -69,6 +69,15 @@ interface UserState {
 
   deleteModal: boolean;
   setDeleteModal: (deleteModal: boolean) => void;
+
+  transferModal: boolean;
+  setTransferModal: (transferModal: boolean) => void;
+
+  departmentApproval: boolean;
+  setDepartmentApproval: (departmentApproval: boolean) => void;
+
+  addDepartmentApproval: boolean;
+  setAddDepartmentApproval: (addDepartmentApproval: boolean) => void;
 }
 
 export const useApprovalStore = create<UserState>()(
@@ -84,6 +93,9 @@ export const useApprovalStore = create<UserState>()(
             },
           });
         },
+
+        transferModal: false,
+        setTransferModal: (transferModal: boolean) => set({ transferModal }),
 
         userCurrentPage: 1,
         setUserCurrentPage: (userCurrentPage: number) =>
@@ -149,6 +161,14 @@ export const useApprovalStore = create<UserState>()(
 
         deleteModal: false,
         setDeleteModal: (deleteModal: boolean) => set({ deleteModal }),
+
+        departmentApproval: false,
+        setDepartmentApproval: (departmentApproval: boolean) =>
+          set({ departmentApproval }),
+
+        addDepartmentApproval: false,
+        setAddDepartmentApproval: (addDepartmentApproval: boolean) =>
+          set({ addDepartmentApproval }),
       }),
       {
         name: 'approval-storage',
