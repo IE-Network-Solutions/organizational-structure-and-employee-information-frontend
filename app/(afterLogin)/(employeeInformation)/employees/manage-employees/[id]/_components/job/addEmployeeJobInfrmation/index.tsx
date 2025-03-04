@@ -4,6 +4,8 @@ import { useCreateJobInformation } from '@/store/server/features/employees/emplo
 import JobTimeLineForm from '../../../../_components/allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../../../../_components/allFormData/workScheduleForm';
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
+import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
 
 interface Ids {
   id: string;
@@ -15,7 +17,9 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
     setIsAddEmployeeJobInfoModalVisible,
   } = useEmployeeManagementStore();
 
-  const { mutate: createJobInformation } = useCreateJobInformation();
+  const { data: employeeData } = useGetEmployee(id);
+
+  const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
@@ -23,12 +27,15 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
     values.userId = id;
+    values.basicSalary = parseInt(values.basicSalary.toString(), 10);
     values.departmentLeadOrNot
       ? values.departmentLeadOrNot
       : (values.departmentLeadOrNot = false);
-    createJobInformation(values);
-    form.resetFields();
-    setIsAddEmployeeJobInfoModalVisible(false);
+    createJobInformation(values, {
+      onSuccess: () => {
+        handleClose();
+      },
+    });
   };
 
   return (
@@ -43,11 +50,20 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
       >
         <Form form={form} onFinish={createTsks} layout="vertical">
           <JobTimeLineForm />
-          <WorkScheduleForm />
-
+          <BasicSalaryForm />
+          <WorkScheduleForm
+            selectedWorkScheduleDetails={
+              employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
+            }
+          />
           <Form.Item>
             <Row className="flex justify-end gap-3">
-              <Button type="primary" htmlType="submit" name="submit">
+              <Button
+                type="primary"
+                htmlType="submit"
+                name="submit"
+                loading={isLoading}
+              >
                 Submit
               </Button>
               <Button
@@ -57,7 +73,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
                 name="cancel"
                 onClick={handleClose}
               >
-                Cancel{' '}
+                Cancel
               </Button>
             </Row>
           </Form.Item>

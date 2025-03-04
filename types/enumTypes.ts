@@ -7,6 +7,7 @@ export enum FieldType {
   DROPDOWN = 'dropdown',
   RADIO = 'radio',
 }
+
 export const PlanningType = [
   { key: 'myPlan', value: 'my plan' },
   { key: 'allPlan', value: 'all Plan' },
@@ -58,8 +59,49 @@ export enum NAME {
   KPI = 'KPI',
 }
 
+export enum ConversationType {
+  'Bi-weekly' = 'BiWeekly',
+  'One-to-One' = 'OneToOne',
+  'Feedback' = 'Feedback',
+  'Recognition' = 'Recognition',
+  '' = '',
+}
+
 export const SelectData = [
   { key: '1', value: 'weekly', label: 'Weekly' },
   { key: '2', value: 'monthly', label: 'Monthly' },
   { key: '3', value: 'quarterly', label: 'Quarterly' },
 ];
+
+export enum APPROVALTYPES {
+  LEAVE = 'Leave',
+  BRANCHREQUEST = 'BranchRequest',
+  TNA = 'TNA',
+}
+
+// Enum for aggregate operators
+export enum AggregateOperator {
+  ADDITION = 'ADDITION',
+  SUBTRACTION = 'SUBTRACTION',
+}
+
+// Enum for condition operators
+export enum ConditionOperator {
+  EQUALS = 'EQUALS',
+  GREATER_THAN = 'GREATER_THAN',
+  LESS_THAN = 'LESS_THAN',
+  RANGE = 'RANGE',
+}
+export const JobActionStatus = [
+  { id: 'New', name: 'New' },
+  { id: 'Promotion', name: 'Promotion' },
+  { id: 'Transfer', name: 'Transfer' },
+];
+export const FilterOptions = [
+  { key: '1', value: 'monthly', label: 'Monthly' },
+  { key: '2', value: 'session', label: 'Session' },
+  { key: '3', value: 'yearly', label: 'Yearly' },
+  { key: '4', value: 'all-time', label: 'All-Time' },
+];
+
+export const commonClass = 'text-sm text-gray-950';

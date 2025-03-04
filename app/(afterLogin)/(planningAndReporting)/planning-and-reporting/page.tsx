@@ -11,6 +11,7 @@ import CreatePlan from './_components/createPlan';
 import EditPlan from './_components/editPlan';
 import Reporting from './_components/reporting';
 import CreateReport from './_components/createReport';
+import EditReport from './_components/editReport';
 
 function Page() {
   const { setActiveTab, activeTab, setActivePlanPeriod } =
@@ -41,7 +42,7 @@ function Page() {
 
   return (
     <div>
-      <div className="h-full w-auto p-4">
+      <div className="h-full min-h-screen w-auto p-4">
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb
             className="text-sm"
@@ -67,6 +68,8 @@ function Page() {
           <CreatePlan />
           <EditPlan />
           <CreateReport />
+          <EditReport />
+
           {planningPeriodForUserId?.length === 0 ? (
             <div className="w-full h-auto space-y-4 flex justify-center font-semibold">
               There is no Assigned Plan, please assign a Plan for a User first

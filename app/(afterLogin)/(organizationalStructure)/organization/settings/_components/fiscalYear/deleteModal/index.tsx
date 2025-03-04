@@ -14,6 +14,7 @@ function CustomDeleteFiscalYear() {
   const { mutate: deleteFiscalYear } = useDeleteFiscalYear();
   const handleDeleteScheudle = (id: string) => {
     deleteFiscalYear(id);
+    setDeleteMode(false);
   };
   return (
     <DeleteModal

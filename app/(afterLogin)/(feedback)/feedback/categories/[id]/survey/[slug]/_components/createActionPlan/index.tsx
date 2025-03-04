@@ -37,7 +37,6 @@ const CreateActionPlan = (props: any) => {
       Add New Action Plan
     </div>
   );
-
   const plusOnClickHandler = () => {
     setNumberOfActionPlan(numberOfActionPlan + 1);
   };
@@ -127,10 +126,6 @@ const CreateActionPlan = (props: any) => {
                     id={`actionPlanId${index + 1}`}
                     rules={[
                       { required: true, message: 'action title is required' },
-                      {
-                        max: 40, // Set the maximum number of characters allowed
-                        message: 'Action title cannot exceed 40 characters',
-                      },
                     ]}
                   >
                     <Input />
@@ -220,7 +215,7 @@ const CreateActionPlan = (props: any) => {
                       <Option key="active" value={'pending'}>
                         Pending
                       </Option>
-                      <Option key="active" value={'solved'}>
+                      <Option key="completed" value={'solved'}>
                         Solved
                       </Option>
                     </Select>

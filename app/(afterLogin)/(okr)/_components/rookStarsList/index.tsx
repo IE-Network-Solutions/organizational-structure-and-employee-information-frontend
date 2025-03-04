@@ -1,7 +1,15 @@
+import { useGetRockStars } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { RookStarsListProps } from '@/types/dashboard/okr';
 import { Avatar, Card, List } from 'antd';
 
-const RookStarsList: React.FC<RookStarsListProps> = ({ dataSource, title }) => {
+const RookStarsList: React.FC<RookStarsListProps> = ({
+  title,
+  planningPeriodId,
+}) => {
+  const { data: rockStars = [] } = useGetRockStars(planningPeriodId, {
+    enabled: !!planningPeriodId,
+  });
+
   return (
     <Card
       title={
@@ -12,20 +20,28 @@ const RookStarsList: React.FC<RookStarsListProps> = ({ dataSource, title }) => {
       bodyStyle={{ padding: 0 }}
     >
       <List
-        className=" overflow-y-auto scrollbar-none "
-        dataSource={dataSource}
+        className=" overflow-y-auto max-h-72 scrollbar-none "
+        dataSource={rockStars}
         size="small"
-        renderItem={(item) => (
+        renderItem={(item: any) => (
           <List.Item className=" ">
-            <div className="text-sm font-medium">{item.completion} %</div>
+            <div className="text-sm font-medium">
+              {item?.report_reportScore || '0%'}
+            </div>
             <div className="bg-gradient-to-b from-[#7152F3] to-transparent h-10 w-[2px] rounded inline-block mx-4"></div>
             <List.Item.Meta
-              avatar={<Avatar src={item.avatar} size={24} />}
+              avatar={<Avatar src={item?.user?.profileImage} size={24} />}
               title={
-                <div className="-m-1 text-sm font-normal">{item.name}</div>
+                <div className="-m-1 text-sm font-normal">
+                  {(item?.user?.firstName || 'Unknown') +
+                    ' ' +
+                    (item?.user?.middleName || 'Unknown')}
+                </div>
               }
               description={
-                <div className="-m-1 text-sm font-normal">{item.title}</div>
+                <div className="-m-1 text-sm font-normal">
+                  {item?.user?.role?.name || 'Unknown'}
+                </div>
               }
             />
           </List.Item>

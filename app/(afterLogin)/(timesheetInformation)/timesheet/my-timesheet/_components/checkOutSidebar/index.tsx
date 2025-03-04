@@ -41,7 +41,7 @@ const CheckOutSidebar = () => {
     const nOptions: CustomSelectOption[] = breakTypes.map((item) => {
       return {
         label: item.title,
-        value: item.id,
+        value: item.id ?? '',
         ...formatBreakTypeToStatus(item, currentAttendance),
       };
     });
