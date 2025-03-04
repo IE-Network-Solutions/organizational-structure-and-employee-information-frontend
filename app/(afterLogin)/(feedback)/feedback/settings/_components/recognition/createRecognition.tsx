@@ -109,7 +109,7 @@ const RecognitionForm: React.FC<PropsData> = ({
         },
       });
     } else {
-      const { criteria, ...updatedValues } = finalValues;
+      const { ...updatedValues } = finalValues;
       updateRecognitionType(
         { ...updatedValues, id: selectedRecognitionType },
         {
