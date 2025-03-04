@@ -1,7 +1,6 @@
 'use client';
 import { Input, Card, Switch, Dropdown, Menu, Modal, Form, Select } from 'antd';
 import { MoreOutlined, CheckOutlined } from '@ant-design/icons';
-import { FC, useState } from 'react';
 import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import {
   useDeletePlanningPeriod,
@@ -12,9 +11,10 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import dayjs from 'dayjs';
+import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 
 const { Option } = Select;
-const PlanningPeriod: FC = () => {
+const PlanningPeriod = () => {
   const { data: allPlanningperiod } = useGetAllPlanningPeriods();
   const { mutate: updateStatus, isLoading } = useUpdatePlanningStatus();
   const { mutate: deletePlanningPeriod, isLoading: deletePlannniggPeriod } =
@@ -22,8 +22,14 @@ const PlanningPeriod: FC = () => {
   const { mutate: editPlanningPeriod, isLoading: editPlannningPeriod } =
     useUpdatePlanningPeriod();
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingPeriod, setEditingPeriod] = useState<any>(null);
+  const {
+    isModalVisible,
+    setIsModalVisible,
+    planningPeriodName,
+    setPlanningPeriodName,
+    editingPeriod,
+    setEditingPeriod,
+  } = useOKRSettingStore();
   const [form] = Form.useForm();
 
   const handleEdit = (period: any) => {
@@ -67,6 +73,17 @@ const PlanningPeriod: FC = () => {
     }
   };
 
+  const filteredPlanningPeriod = allPlanningperiod?.items?.filter(
+    (item) =>
+      item?.name?.toLowerCase().includes(planningPeriodName.toLowerCase()) ||
+      item?.actionOnFailure
+        ?.toLowerCase()
+        .includes(planningPeriodName.toLowerCase()) ||
+      item?.intervalType
+        ?.toLowerCase()
+        .includes(planningPeriodName.toLowerCase()),
+  );
+
   const handleDelete = (id: string) => {
     Modal.confirm({
       title: 'Confirm Delete',
@@ -105,10 +122,11 @@ const PlanningPeriod: FC = () => {
         <Input.Search
           placeholder="Search period by name"
           className="rounded-lg"
+          onChange={(e) => setPlanningPeriodName(e.target.value)}
         />
       </div>
       <div className="max-h-[400px] overflow-y-auto">
-        {allPlanningperiod?.items?.map((planningPeriod) => (
+        {filteredPlanningPeriod?.map((planningPeriod) => (
           <Card
             key={planningPeriod.id} // Add a unique key for each card
             title={planningPeriod?.name}

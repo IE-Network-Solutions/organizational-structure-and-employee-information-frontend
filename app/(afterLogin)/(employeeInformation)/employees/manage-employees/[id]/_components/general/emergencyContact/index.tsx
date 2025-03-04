@@ -11,9 +11,10 @@ import { InfoLine } from '../../common/infoLine';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
+import { validateField } from '../../../../_components/formValidator';
 const { Option } = Select;
 
-function EmergencyContact({ handleSaveChanges, id }: any) {
+function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
   const { setEdit, edit } = useEmployeeManagementStore();
   const { isLoading, data: employeeData } = useGetEmployee(id);
   const { data: nationalities } = useGetNationalities();
@@ -21,6 +22,13 @@ function EmergencyContact({ handleSaveChanges, id }: any) {
   const [form] = Form.useForm();
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
+  };
+
+  const getFieldValidation = (fieldName: string) => {
+    return (
+      mergedFields?.find((field: any) => field?.fieldName === fieldName)
+        ?.fieldValidation ?? null
+    );
   };
   return (
     <Card
@@ -67,8 +75,40 @@ function EmergencyContact({ handleSaveChanges, id }: any) {
                   name={key}
                   label={key}
                   rules={[
-                    { required: true, message: `Please enter the ${key}` },
-                  ]} // Example validation
+                    {
+                      /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+                      validator: (_rule: any, value: any) => {
+                        /*  eslint-enable-next-line @typescript-eslint/naming-convention */
+                        let fieldValidation = getFieldValidation(key);
+
+                        switch (key) {
+                          case 'phoneNumber':
+                            fieldValidation = 'number';
+                            break;
+                          case 'firstName':
+                          case 'middleName':
+                          case 'lastName':
+                          case 'gender':
+                            fieldValidation = 'text';
+                            break;
+                          case 'nationality':
+                            fieldValidation = 'any'; // Assuming nationality should be text-based
+                            break;
+                          default:
+                            fieldValidation = getFieldValidation(key);
+                        }
+
+                        const validationError = validateField(
+                          key,
+                          value,
+                          fieldValidation,
+                        );
+                        if (validationError)
+                          return Promise.reject(new Error(validationError));
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
                 >
                   {key === 'gender' ? (
                     <Select

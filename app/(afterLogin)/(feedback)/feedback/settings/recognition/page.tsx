@@ -29,13 +29,22 @@ const Page = () => {
     {
       key: '1',
       label: 'All Recognitions',
-      children: <AllRecognition data={recognitionType?.items} all={true} />,
+      children: (
+        <AllRecognition
+          data={recognitionType?.items?.filter(
+            (item: any) => item.parentTypeId === null,
+          )}
+          all={true}
+        />
+      ),
     },
-    ...(recognitionType?.items?.map((recognitionType: any) => ({
-      key: `${recognitionType?.id}`, // Ensure unique keys
-      label: recognitionType?.name,
-      children: <AllRecognition data={[recognitionType]} />,
-    })) || []),
+    ...(recognitionType?.items
+      ?.filter((item: any) => item.parentTypeId === null)
+      ?.map((recognitionType: any) => ({
+        key: `${recognitionType?.id}`, // Ensure unique keys
+        label: recognitionType?.name,
+        children: <AllRecognition data={[recognitionType]} />,
+      })) || []),
   ];
 
   return (

@@ -1,5 +1,4 @@
 import { Col, Form, Input, InputNumber, Row, Select, Space } from 'antd';
-import SubTaskComponent from './createSubtaskForm';
 import { MdCancel } from 'react-icons/md';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { NAME } from '@/types/enumTypes';
@@ -300,7 +299,7 @@ function DefaultCardForm({
                   </Form.Item>
                 )}
 
-              {planningPeriodId && planningUserId && (
+              {/* {planningPeriodId && planningUserId && (
                 <Form.Item
                   label={<div className="text-xs">Sub Tasks</div>}
                   className="border px-4 py-1 rounded-md"
@@ -315,7 +314,7 @@ function DefaultCardForm({
                     userId={userId}
                   />
                 </Form.Item>
-              )}
+              )} */}
             </Form.Item>
           ))}
 
