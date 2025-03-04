@@ -1,13 +1,12 @@
 import create from 'zustand';
 
-
 interface BankInformation {
   bankName: string;
   accountNumber: string;
 }
 interface VariablePay {
-  amount:  string; 
-  type: "VP"; 
+  amount: string;
+  type: 'VP';
 }
 
 export interface Allowances {
@@ -15,42 +14,41 @@ export interface Allowances {
   type: string;
 }
 interface TotalDeductionWithPension {
-  amount:  string; 
-  type: string; 
+  amount: string;
+  type: string;
 }
 interface Merits {
-  amount:  string; 
-  type: string; 
+  amount: string;
+  type: string;
 }
 interface Pension {
-  amount:  string; 
-  type: string; 
+  amount: string;
+  type: string;
 }
-
 
 interface Breakdown {
-  allowances: Allowances[]; 
-  totalDeductionWithPension: TotalDeductionWithPension[]; 
-  merits: Merits[]; 
-  pension: Pension[]; 
-  variablePay:VariablePay
-  tax: any; 
-  employeeId: string; 
+  allowances: Allowances[];
+  totalDeductionWithPension: TotalDeductionWithPension[];
+  merits: Merits[];
+  pension: Pension[];
+  variablePay: VariablePay;
+  tax: any;
+  employeeId: string;
   employeeInfo: EmployeeInfo;
-  grossSalary: string; 
-  id: string; 
-  netPay: string; 
-  payPeriodId: string; 
-  status: "PENDING" | "COMPLETED" | "FAILED"; 
-  totalAllowance: string; 
-  totalDeductions: string; 
-  totalMerit: string; 
-  updatedAt: string; 
-  updatedBy: string | null; 
+  grossSalary: string;
+  id: string;
+  netPay: string;
+  payPeriodId: string;
+  status: 'PENDING' | 'COMPLETED' | 'FAILED';
+  totalAllowance: string;
+  totalDeductions: string;
+  totalMerit: string;
+  updatedAt: string;
+  updatedBy: string | null;
 }
 interface Address {
-  phoneNumber: string; 
-  subCity: string; 
+  phoneNumber: string;
+  subCity: string;
 }
 
 interface EmployeeJobInformation {
@@ -58,7 +56,7 @@ interface EmployeeJobInformation {
   positionId: string;
   userId: string;
   branchId: string;
-  addresses:Address;
+  addresses: Address;
   isPositionActive: boolean;
   effectiveStartDate: string;
   effectiveEndDate: string | null;
@@ -68,7 +66,7 @@ interface EmployeeJobInformation {
   jobAction: string;
   workScheduleId: string;
   tenantId: string;
-  bankInformation:BankInformation;
+  bankInformation: BankInformation;
   employementType: {
     id: string;
     createdAt: string;
@@ -130,20 +128,18 @@ interface BasicSalary {
   id: string;
   createdAt: string;
   updatedAt: string;
-  basicSalary: string; 
+  basicSalary: string;
   jobInfoId: string;
   status: boolean;
   userId: string;
   tenantId: string;
 }
 
-
-
 interface EmployeeInfo {
   email: string;
   phoneNumber: string;
   subCity: string;
-  address?: string; 
+  address?: string;
   emergencyContact: {
     firstName: string;
     lastName: string;
@@ -154,13 +150,13 @@ interface EmployeeInfo {
     accountNumber: string;
     bankName: string;
   };
-  basicSalaries:BasicSalary[];
+  basicSalaries: BasicSalary[];
   dateOfBirth: string;
   maritalStatus: string | null;
   nationalityId: string;
   joinedDate: string;
-  employeeDocument: any[]; 
-  additionalInformation?: any; 
+  employeeDocument: any[];
+  additionalInformation?: any;
   employeeAttendanceId: string;
   employeeInformation: EmployeeJobInformation;
   employeeJobInformation: EmployeeJobInformation[];
@@ -179,7 +175,6 @@ interface EmployeeInfo {
   profileImage: string | null;
   profileImageDownload: string | null;
 }
-
 
 export interface ActiveMergedPayroll {
   breakdown: Breakdown;
@@ -211,13 +206,12 @@ export interface ActiveMergedPayroll {
 }
 interface PayPeriod {
   id: string;
-  startDate: string; 
-  endDate: string; 
-  status: "OPEN" | "CLOSED"; 
-  activeFiscalYearId: string; 
-  tenantId: string; 
+  startDate: string;
+  endDate: string;
+  status: 'OPEN' | 'CLOSED';
+  activeFiscalYearId: string;
+  tenantId: string;
 }
-
 
 interface PayrollState {
   activeMergedPayroll: ActiveMergedPayroll | null;
