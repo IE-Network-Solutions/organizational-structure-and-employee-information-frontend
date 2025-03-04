@@ -43,7 +43,6 @@ function Page() {
   const { data: allUserData } = useGetAllUsers();
   const { data: recognitionType } = useGetAllRecognitionData();
   const { data: totalRecogniion } = useGetTotalRecognition();
-
   const { data: getAllRecognition } = useGetAllRecognition({
     searchValue,
     current,

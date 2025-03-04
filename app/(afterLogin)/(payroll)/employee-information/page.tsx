@@ -122,15 +122,15 @@ const EmployeeInformation = () => {
 
       return {
         key: employee.id,
-        name: `${employee.firstName} ${employee.middleName || ''} ${employee.lastName}`.trim(),
+        name: `${employee?.firstName} ${employee?.middleName || ''} ${employee?.lastName}`.trim(),
         job: `${position}`,
         salary: `${activeSalary} ETB`,
-        allowances: allowanceMap?.[employee.id] || ['Not Specified'],
+        allowances: allowanceMap?.[employee?.id] || ['Not Specified'],
         bank:
-          employee.employeeInformation.bankInformation?.bankName ||
+          employee.employeeInformation?.bankInformation?.bankName ||
           'Not Available',
         account:
-          employee.employeeInformation.bankInformation?.accountNumber ||
+          employee.employeeInformation?.bankInformation?.accountNumber ||
           'Not Available',
       };
     }) || [];
