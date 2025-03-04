@@ -33,6 +33,11 @@ export const useHandleSignIn = () => {
 
       const fetchedData = await fetchTenantId();
 
+      console.log(
+        '---------------------redirect-------------------',
+        fetchedData,
+      );
+
       if (fetchedData.isError) {
         message.error('Failed to fetch user data. Please try again.');
         setToken('');
@@ -47,12 +52,12 @@ export const useHandleSignIn = () => {
           sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
         sessionStorage.removeItem('redirectAfterLogin');
 
-        if (redirectPath) {
+        if (fetchedData?.data?.hasCompany === false) {
+          router.push('/onboarding');
+        } else if (redirectPath) {
           router.push(redirectPath); // Redirect back to the original page
         } else if (fetchedData?.data?.hasChangedPassword === false) {
           router.push('/authentication/new-password');
-        } else if (fetchedData?.data?.hasCompany === false) {
-          router.push('/onboarding');
         } else if (
           fetchedData?.data?.hasCompany === true &&
           fetchedData?.data?.hasChangedPassword === true
