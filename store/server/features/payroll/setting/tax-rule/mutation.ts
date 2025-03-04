@@ -119,7 +119,7 @@ export const useEditPayPeriod = () => {
     ({ data, payPeriodId }: { data: any; payPeriodId: string }) =>
       editPayPeriod({ data, payPeriodId }),
     {
-      onSuccess: (_response, variables) => {
+      onSuccess: () => {
         queryClient.invalidateQueries('payPeriods');
         NotificationMessage.success({
           message: 'Successfully Updated',
