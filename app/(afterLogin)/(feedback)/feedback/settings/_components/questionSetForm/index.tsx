@@ -159,15 +159,10 @@ const QuestionSetForm = () => {
   };
 
   useEffect(() => {
-    if (editableData !== null) {
-      setQuestions(editableData.conversationsQuestions || []);
-      form.setFieldsValue({
-        name: editableData.name || '',
-        id: editableData.id || '',
-        active: editableData.active ?? true,
-        conversationTypeId: editableData.conversationTypeId || '',
-        conversationsQuestions: editableData.conversationsQuestions || [],
-      });
+    if (!editableData) {
+      form.resetFields();
+      setQuestions([]);
+      return;
     }
 
     setQuestions(editableData.conversationsQuestions || []);

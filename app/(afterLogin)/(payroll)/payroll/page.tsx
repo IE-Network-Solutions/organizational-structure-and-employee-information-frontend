@@ -48,9 +48,6 @@ const Payroll = () => {
   const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
     useSendingPayrollPayslip();
 
-  const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
-    useSendingPayrollPayslip();
-
   const { exportToExcel } = useExportData();
   const { generateBankLetter } = useGenerateBankLetter();
 
