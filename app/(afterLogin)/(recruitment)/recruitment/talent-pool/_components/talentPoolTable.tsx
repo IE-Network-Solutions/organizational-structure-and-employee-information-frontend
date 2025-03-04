@@ -7,10 +7,20 @@ import dayjs from 'dayjs';
 import { useMoveTalentPoolToCandidates } from '@/store/server/features/recruitment/tallentPool/mutation';
 import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
 import TransferTalentPoolToCandidateModal from './transferModal';
+import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const TalentPoolTable: React.FC<any> = () => {
-  const { data: candidates, isLoading } = useGetTalentPool();
+  const { page, currentPage, setCurrentPage, setPage, searchParams } =
+    useTalentPoolStore();
+  const { data: candidates, isLoading: responseLoading } = useGetTalentPool(
+    searchParams?.date_range ?? '',
+    searchParams?.department ?? '',
+    searchParams?.job ?? '',
+    searchParams?.stages ?? '',
+    page,
+    currentPage,
+  );
 
   const { mutate: moveTalentPoolMutation } = useMoveTalentPoolToCandidates();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -106,9 +116,16 @@ const TalentPoolTable: React.FC<any> = () => {
     },
   ];
 
+  const onPageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPage(pageSize);
+    }
+  };
+
   return (
     <>
-      {isLoading ? (
+      {responseLoading ? (
         <>
           <SkeletonLoading
             alignment="vertical"
@@ -122,7 +139,16 @@ const TalentPoolTable: React.FC<any> = () => {
         <Table
           dataSource={candidates?.items}
           columns={columns}
-          pagination={false}
+          pagination={{
+            total: candidates?.meta?.totalItems,
+            current: currentPage,
+            pageSize: page,
+            onChange: onPageChange,
+            showSizeChanger: true,
+            onShowSizeChange: onPageChange,
+          }}
+          loading={responseLoading}
+          scroll={{ x: 1000 }}
         />
       )}
 
