@@ -33,11 +33,6 @@ export const useHandleSignIn = () => {
 
       const fetchedData = await fetchTenantId();
 
-      console.log(
-        '---------------------redirect-------------------',
-        fetchedData,
-      );
-
       if (fetchedData.isError) {
         message.error('Failed to fetch user data. Please try again.');
         setToken('');
