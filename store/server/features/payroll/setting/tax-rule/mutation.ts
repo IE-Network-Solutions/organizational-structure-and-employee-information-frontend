@@ -121,12 +121,10 @@ export const useEditPayPeriod = () => {
     {
       onSuccess: (_response, variables) => {
         queryClient.invalidateQueries('payPeriods');
-
-        // Ensure `method` exists before using it
-        const method = variables?.data?.method?.toUpperCase();
-        if (method) {
-          handleSuccessMessage(method);
-        }
+        NotificationMessage.success({
+          message: 'Successfully Updated',
+          description: 'pay period successfully updated.',
+        });
       },
     },
   );
