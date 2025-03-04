@@ -110,9 +110,14 @@ const LeaveRequestSidebar = () => {
           formatLinkToUploadFile(leaveRequest.justificationDocument),
         ]);
       }
+      if(leaveRequest.delegatee){
+       
+        form.setFieldValue('delegatee', typeof leaveRequest?.delegatee !== 'string' && leaveRequest?.delegatee?.id)
+
+      }
     }
   }, [leaveRequest]);
-
+  
   useEffect(() => {
     if (isSuccessUpdate) {
       onClose();
@@ -162,6 +167,7 @@ const LeaveRequestSidebar = () => {
       item: {
         ...(leaveRequest && leaveRequest),
         leaveType: value.type,
+        delegatee:value.delegatee,
         isHalfday: !!value.isHalfday,
         startAt: dayjs(value.startDate).format('YYYY-MM-DD'),
         endAt: dayjs(value.endDate).format('YYYY-MM-DD'),
@@ -322,8 +328,30 @@ const LeaveRequestSidebar = () => {
                 />
               </Form.Item>
               <div className="text-xs font-medium text-gray-600 text-center">
-                Max file size : 5MB. File format : pdf, docx, png, and jpeg
+                Max file size : 5MB. File format : pdf, docx, png, epub, and jpeg
               </div>
+              <Form.Item
+                name="delegatee"
+                label="Delegated Employee"
+                className={itemClass}
+              >
+                <Select
+                  showSearch
+                  placeholder="Select a person"
+                  className={controlClass}
+                  allowClear
+                  filterOption={(input: any, option: any) =>
+                    (option?.label ?? '')
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={employeeData?.items?.map((item: any) => ({
+                  //  ...item,
+                    value: item?.id,
+                    label: item?.firstName + " " + item?.middleName + " " + item?.lastName,
+                  }))}
+                />
+              </Form.Item>
             </Space>
           </Form>
         </Spin>

@@ -91,7 +91,8 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
 
                   {!hasMilestone && (
                     <div className="flex gap-3 items-center">
-                      <Button
+                      <Button                                        
+                        id={`plan-as-task_${kr?.id ?? ''}`}
                         onClick={() => handleAddBoard(kr?.id)}
                         type="link"
                         icon={<BiPlus />}
@@ -108,6 +109,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                       {kr?.metricType?.name === NAME.ACHIEVE && (
                         <Tooltip title="Plan keyResult as a Task ">
                           <Button
+                            id="plan-key-result-as-task"
                             size="small"
                             className="text-[10px] text-primary"
                             icon={<FaPlus />}
@@ -138,6 +140,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                           <span className="text-xs">{ml?.title}</span>
                           <div className="flex gap-2 items-center">
                             <Button
+                              id={`plan-as-task_${kr?.id ?? ''}${ml?.id ?? ''}`}
                               onClick={() => {
                                 setMKAsATask(null);
                                 handleAddBoard(kr?.id + ml?.id);
@@ -153,6 +156,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                             {kr?.metricType?.name === NAME.MILESTONE && (
                               <Tooltip title="Plan Milestone as a Task">
                                 <Button
+                                  id="plan-milestone-as-task"
                                   disabled={
                                     ml?.status === 'Completed' ||
                                     form?.getFieldValue(

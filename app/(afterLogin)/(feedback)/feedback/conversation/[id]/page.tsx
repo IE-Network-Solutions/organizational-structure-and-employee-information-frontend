@@ -61,7 +61,7 @@ function Index({ params }: { params: Params }) {
         <div className="flex flex-col align-middle h-full w-full">
           <CustomizeRenderEmpty />
           <p className="text-center text-warning">
-            Info: Go to settings and define question sets under define question
+            Info: Go to settings and define question-set under define question
             tab.
           </p>
         </div>

@@ -6,7 +6,10 @@ import TabLandingLayout from '@/components/tabLanding';
 import { PiPlus } from 'react-icons/pi';
 import EmployeeSearchComponent from '@/components/common/search/searchComponent';
 import { useEffect } from 'react';
-import { useEmployeeDepartments, useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useEmployeeDepartments,
+  useGetAllUsers,
+} from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
@@ -60,12 +63,11 @@ const Page = () => {
     data: getAllFeedbackCardData,
     isLoading: getFeedbackCardDataLoading,
   } = useFetchAllFeedbackRecord({ variantType, activeTab, empId, userId });
-  
+
   const [form] = Form.useForm();
 
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
-  
 
   const { data: getAllUsers } = useGetAllUsers();
   const feedbackAnaliytics = FeedbackService?.getFeedbackStats(
@@ -191,9 +193,6 @@ const Page = () => {
       key: 'reason',
     },
 
-
-
-
     {
       title: 'Objective',
       dataIndex: 'objective',
@@ -216,13 +215,15 @@ const Page = () => {
       title: 'Name',
       dataIndex: 'name',
       render: (notused: any, record: any) => {
-        const data= EmployeeDepartment.find((item: any) => item.id === record.feedbackVariant?.perspective?.departmentId); 
+        const data = EmployeeDepartment.find(
+          (item: any) =>
+            item.id === record.feedbackVariant?.perspective?.departmentId,
+        );
         return data?.name ? (
-          <Tooltip title={data?.name }>
+          <Tooltip title={data?.name}>
             {data?.name?.length >= 40
               ? data?.name?.slice(0, 40) + '....'
-              : data?.name
-            }
+              : data?.name}
           </Tooltip>
         ) : (
           '-'
