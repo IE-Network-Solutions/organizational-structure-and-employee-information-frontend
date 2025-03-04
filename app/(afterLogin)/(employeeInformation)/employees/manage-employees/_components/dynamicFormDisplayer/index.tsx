@@ -9,7 +9,7 @@ import {
   Row,
   Col,
 } from 'antd';
-import { validateName } from '@/utils/validation';
+import { validateField } from '../formValidator';
 
 const { Option } = Select;
 
@@ -18,6 +18,7 @@ interface FormField {
   fieldType: 'input' | 'select' | 'datePicker' | 'checkbox' | 'toggle';
   isActive: boolean;
   fieldName: string;
+  fieldValidation: string;
   options?: string[]; // Options for 'select', 'checkbox'
 }
 
@@ -39,16 +40,24 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
       name: [formTitle, field.fieldName],
       id: `${formTitle}${field.fieldName}`,
       rules: [
-        field.fieldType === 'input'
-          ? {
-              validator: (rule: any, value: any) =>
-                validateName(field.fieldName, value)
-                  ? Promise.reject(
-                      new Error(validateName(field.fieldName, value) || ''),
-                    )
-                  : Promise.resolve(),
-            }
-          : { required: true, message: `${field.fieldName} is required` },
+        {
+          /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+          validator: (_rule: any, value: any) => {
+            /*  eslint-enable-next-line @typescript-eslint/naming-convention */
+            const validationError = validateField(
+              field.fieldType,
+              value,
+              field.fieldValidation,
+            );
+            if (validationError)
+              return Promise.reject(new Error(validationError));
+            // if (field.fieldType === 'input') {
+            //   const nameError = validateName(field.fieldName, value);
+            //   if (nameError) return Promise.reject(new Error(nameError));
+            // }
+            return Promise.resolve();
+          },
+        },
       ],
     };
 

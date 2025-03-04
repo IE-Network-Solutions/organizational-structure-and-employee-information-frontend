@@ -11,7 +11,6 @@ import {
   Row,
   Select,
 } from 'antd';
-import { useForm } from 'antd/es/form/Form';
 import Image from 'next/image';
 import React from 'react';
 const { Option } = Select;
@@ -19,13 +18,13 @@ const { Option } = Select;
 interface PropsData {
   slug: string;
   onFinish: (data: any) => void;
+  form2: any;
 }
 
-const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish }) => {
+const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish, form2 }) => {
   const { data: allUserData, isLoading: userDataLoading } = useGetAllUsers();
   const { setOpen } = useOrganizationalDevelopment();
 
-  const [form2] = useForm();
   const { setSelectedEditActionPlan } = useOrganizationalDevelopment();
 
   const handleCancel = () => {
