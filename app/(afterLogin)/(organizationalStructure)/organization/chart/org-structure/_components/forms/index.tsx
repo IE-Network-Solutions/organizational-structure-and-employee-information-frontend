@@ -311,14 +311,18 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
           className="h-12"
           placeholder="Select the team to merge from"
           style={{ width: '100%' }}
-          options={OPTIONS}
+          options={OPTIONS?.filter(
+            (option: any) => option.value !== rootDeptId,
+          )}
           showSearch
           filterOption={(input, option) =>
             (option?.label as string)
               ?.toLowerCase()
               .includes(input.toLowerCase()) || false
           }
-          onChange={(value) => setChildDeptId(value)}
+          onChange={(value) => {
+            setChildDeptId(value);
+          }}
         />
       </Form.Item>
 
@@ -334,7 +338,12 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
           className="h-12"
           placeholder="Select the team to merge into"
           style={{ width: '100%' }}
-          options={filteredOptions}
+          options={OPTIONS?.filter(
+            (option: any) =>
+              option.value !== childDeptId &&
+              departments?.find((dept: any) => dept.id === option.value)
+                ?.level === selectedLevel,
+          )}
           showSearch
           filterOption={(input, option) =>
             (option?.label as string)
@@ -344,6 +353,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
           onChange={(value) => setRootDeptId(value)}
         />
       </Form.Item>
+
       <Form.Item
         label="Select Team Leader for Merged Department"
         name="teamLeader"
