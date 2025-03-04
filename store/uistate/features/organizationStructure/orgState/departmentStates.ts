@@ -9,6 +9,7 @@ interface DepartmentState {
   setChildDeptId: (id: string | null) => void;
   setMergedDeptName: (name: string) => void;
   setTeamLeader: (leader: string | null) => void;
+  reset: () => void; // Reset function
 }
 
 const useDepartmentStore = create<DepartmentState>((set) => ({
@@ -20,6 +21,13 @@ const useDepartmentStore = create<DepartmentState>((set) => ({
   setChildDeptId: (id) => set({ childDeptId: id }),
   setMergedDeptName: (name) => set({ mergedDeptName: name }),
   setTeamLeader: (leader) => set({ teamLeader: leader }),
+  reset: () =>
+    set({
+      rootDeptId: null,
+      childDeptId: null,
+      mergedDeptName: '',
+      teamLeader: null,
+    }),
 }));
 
 export default useDepartmentStore;
