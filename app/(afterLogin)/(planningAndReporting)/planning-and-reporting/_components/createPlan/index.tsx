@@ -168,6 +168,7 @@ function CreatePlan() {
                 }
               >
                 <Button
+                  id="submit-plan-button-for-planning-and-reporting"
                   className="mr-5 py-6 px-10"
                   type="primary"
                   htmlType="submit"
@@ -179,6 +180,7 @@ function CreatePlan() {
               </Tooltip>
 
               <Button
+                id="cancel-plan-button-for-planning-and-reporting"
                 className="py-6 px-10"
                 onClick={onClose}
                 disabled={isLoading}
