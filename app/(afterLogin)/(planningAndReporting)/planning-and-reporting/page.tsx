@@ -20,10 +20,6 @@ function Page() {
   const { data: planningPeriodForUserId } =
     useGetAssignedPlanningPeriodForUserId();
 
-  const onChange = (e: RadioChangeEvent) => {
-    setActiveTab(e.target.value);
-  };
-
   const TabsContent = () => {
     const safePlanningPeriods = Array.isArray(planningPeriods)
       ? planningPeriods
@@ -49,16 +45,30 @@ function Page() {
             title="Planning & Reporting"
             subtitle="OKR setting"
           />
+          <div className="flex items-center bg-gray-50 shadow-md rounded-lg w-fit h-12 p-1 gap-3">
+            <button
+              onClick={() => setActiveTab(1)}
+              className={
+                activeTab === 1
+                  ? ' px-4  h-full bg-white text-black text-sm rounded-md transition-all duration-300 shadow-sm'
+                  : ' px-4 h-full bg-transparent text-black text-sm transition-all duration-300'
+              }
+            >
+              Planning
+            </button>
+            <button
+              onClick={() => setActiveTab(2)}
+              className={
+                activeTab === 2
+                  ? ' px-4 h-full bg-white text-black text-sm rounded-md transition-all duration-300 shadow-sm'
+                  : ' px-4  h-full bg-transparent text-black text-sm transition-all duration-300'
+              }
+            >
+              Reporting
+            </button>
+          </div>
         </div>
         <div className="w-full h-auto space-y-4">
-          <Radio.Group
-            className="flex justify-center  font-semibold"
-            onChange={onChange}
-            value={activeTab}
-          >
-            <Radio value={1}>Planning</Radio>
-            <Radio value={2}>Reporting</Radio>
-          </Radio.Group>
           <Tabs
             defaultActiveKey="1"
             onChange={(e: any) => setActivePlanPeriod(e)}

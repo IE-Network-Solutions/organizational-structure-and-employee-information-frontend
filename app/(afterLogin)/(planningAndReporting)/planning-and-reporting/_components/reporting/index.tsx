@@ -40,6 +40,8 @@ import {
   useApprovalReporting,
   // useDeleteReportById,
 } from '@/store/server/features/okrPlanningAndReporting/mutations';
+import KeyResultTasks from '../planning/KeyResultTasks';
+import { FiCheckCircle } from 'react-icons/fi';
 
 const { Title } = Typography;
 
@@ -177,6 +179,7 @@ function Reporting() {
       </Popconfirm> */}
     </Menu>
   );
+  console.log(allReporting,"allReporting")
   return (
     <Spin spinning={getReportLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -215,66 +218,75 @@ function Reporting() {
         {allReporting?.items?.map((dataItem: any, index: number) => (
           <>
             <Card
+             className="mb-2"
               key={index}
-              title={
-                <div>
-                  <Row gutter={16} className="items-center">
-                    <Col xs={4} sm={2} md={1}>
-                      {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
-                        <Avatar
-                          src={
-                            getEmployeeData(dataItem?.createdBy)?.profileImage
-                          }
-                          style={{ verticalAlign: 'middle' }}
-                          size="default"
-                        />
-                      ) : (
-                        <Avatar
-                          icon={<UserOutlined />}
-                          style={{ verticalAlign: 'middle' }}
-                          size="default"
-                        />
-                      )}
-                    </Col>
-                    <Col xs={20} sm={22} md={23}>
-                      <Row className="font-bold text-lg">
-                        <Row className="font-bold text-xs">
-                          {getEmployeeData(dataItem?.userId)?.firstName +
-                            ' ' +
-                            (getEmployeeData(dataItem?.createdBy)?.middleName
-                              ? getEmployeeData(dataItem?.createdBy)
-                                  .middleName.charAt(0)
-                                  .toUpperCase()
-                              : '')}
-                        </Row>
-                      </Row>
-                      <Row className="flex justify-between items-center space-x-3">
-                        <Row gutter={16} justify={'start'} align={'middle'}>
-                          <Col className="text-gray-500 text-xs">Status</Col>
-                          <Col>
-                            <div
-                              className={` py-1 px-1 text-white rounded-md ${dataItem?.plan?.isReportValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
-                            >
-                              <MdOutlinePending size={14} />
-                            </div>
-                          </Col>
-                          <Col className="text-xs -ml-3">
-                            {dataItem?.plan?.isReportValidated
-                              ? 'Closed'
-                              : 'Open'}
-                          </Col>
-                        </Row>
-                        <Col
-                          span={10}
-                          className="flex justify-end items-center"
-                        >
-                          <>
-                            <span className="mr-4 text-gray-500">
-                              {dayjs(dataItem?.createdAt).format(
-                                'MMMM D YYYY, h:mm:ss A',
-                              )}
-                            </span>
-                            {userId ===
+             title={
+                             <div>
+                               <Row gutter={16} className="items-center">
+                                 <Col xs={4} sm={2} md={1}>
+                                   {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
+                                     <Avatar
+                                       src={
+                                         getEmployeeData(dataItem?.createdBy)?.profileImage
+                                       }
+                                       style={{ verticalAlign: 'middle' }}
+                                       size="default"
+                                     />
+                                   ) : (
+                                     <Avatar
+                                       icon={<UserOutlined />}
+                                       style={{ verticalAlign: 'middle' }}
+                                       size="default"
+                                     />
+                                   )}
+                                 </Col>
+                                 <Col xs={20} sm={22} md={23}>
+                                   <Row className="flex justify-between items-center">
+                                     <Row gutter={16} justify={'start'} align={'middle'}>
+                                       <div className="flex flex-col text-xs ml-2">
+                                         {getEmployeeData(dataItem?.createdBy)?.firstName +
+                                           ' ' +
+                                           (getEmployeeData(dataItem?.createdBy)?.middleName
+                                             ? getEmployeeData(dataItem?.createdBy)
+                                                 .middleName.charAt(0)
+                                                 .toUpperCase()
+                                             : '')}
+                                         .
+                                         <span className="text-gray-500 text-xs">
+                                           {dataItem?.createdBy
+                                             ? getEmployeeData(dataItem?.createdBy)
+                                                 ?.employeeJobInformation?.[0]?.department
+                                                 ?.name || ''
+                                             : ''}
+                                         </span>
+                                       </div>
+                                     </Row>
+                                     <Col
+                                       span={10}
+                                       className="flex justify-end items-center"
+                                     >
+                                       <Col>
+                                         <div
+                                           className={` py-1 px-1 text-white rounded-full ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
+                                         >
+                                          {dataItem?.isValidated?<FiCheckCircle  />
+              :<MdOutlinePending size={16} />}
+                                         </div>
+                                       </Col>
+                                       <div className="flex flex-col text-xs ml-2">
+                                         <span className="mr-4">
+                                           {dataItem?.isValidated ? 'Closed' : 'Open'}
+                                         </span>
+                                         <span className="mr-4 text-gray-500">
+                                           {dayjs(dataItem?.createdAt).format(
+                                             'MMMM DD YYYY, h:mm:ss A',
+                                           )}
+                                         </span>
+                                       </div>
+             
+                                       {/* {!dataItem?.isValidated && ( */}
+                                       <>
+                                       {userId ===
                               getEmployeeData(
                                 dataItem?.userId ?? dataItem?.createdBy,
                               )?.reportingTo?.id && (
@@ -296,7 +308,7 @@ function Reporting() {
                                 />
                               </Dropdown>
                             )}
-                            {userId ===
+                                        {userId ===
                               (dataItem?.userId ?? dataItem?.createdBy) &&
                               dataItem?.plan?.isReportValidated == false && (
                                 <Dropdown
@@ -314,22 +326,19 @@ function Reporting() {
                                   />
                                 </Dropdown>
                               )}
-                          </>
-
-                          <Col className="mr-2"></Col>
-                          <Col></Col>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                </div>
-              }
+                                       </>
+                                     </Col>
+                                   </Row>
+                                 </Col>
+                               </Row>
+                             </div>
+                           }
             >
               {groupTasksByKeyResultAndMilestone(
                 dataItem?.reportTask ?? [],
-              )?.map((keyResult: any) => (
+              )?.map((keyResult: any,keyResultIndex:number) => (
                 <>
-                  <KeyResultMetrics
+                  <KeyResultTasks
                     keyResult={
                       keyResult ?? {
                         id: 'defaultKeyResult',
@@ -337,18 +346,11 @@ function Reporting() {
                         tasks: [],
                       }
                     }
+                    activeTab={activeTab}
+                    keyResultIndex={keyResultIndex}
+
                   />
-                  {keyResult?.milestones?.map(
-                    (milestone: any, milestoneIndex: number) => (
-                      <>
-                        <Col span={24} className="ml-2">
-                          <strong>{`${milestoneIndex + 1}. ${milestone?.title}`}</strong>
-                        </Col>
-                        <TasksDisplayer tasks={milestone?.tasks} />
-                      </>
-                    ),
-                  )}
-                  <TasksDisplayer tasks={keyResult?.tasks} />
+                 
                 </>
               ))}
               <div className="flex items-center justify-end mt-2 gap-2 text-sm">
@@ -365,14 +367,15 @@ function Reporting() {
                   {getTotalWeightCalculation(dataItem?.reportTask)}%
                 </span>
               </div>
-            </Card>
-
-            <CommentCard
+              <CommentCard
               planId={dataItem?.id}
               data={dataItem?.comments}
               loading={getReportLoading}
               isPlanCard={false}
             />
+            </Card>
+
+            
           </>
         ))}
         <Pagination

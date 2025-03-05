@@ -33,27 +33,37 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
       {tasks?.map((task: Task, taskIndex: number) => (
         <Row
           key={task.taskId}
-          className="flex task-row space-y-1"
+          className="flex task-row space-y-1 my-2"
           gutter={4}
           align="middle"
           justify="space-between" // Only justifying the space between taskName and others
         >
           <Col className="flex gap-2">
-            {task?.isAchieved ? (
-              <div className="py-1 px-1 w-4 h-4 text-white flex items-center justify-center rounded-md bg-green-600">
-                <IoCheckmarkSharp size={14} />
-              </div>
+           
+            <Text className="text-xs flex flex-col">
+              
+              <div className="flex items-center gap-1">
+              {task?.isAchieved ? (
+                 <Tooltip title="Achieved">
+
+                   <div className="py-1 px-1 w-3 h-3 text-white flex items-center justify-center rounded-full bg-green-600">
+               
+              </div> 
+                 </Tooltip>
+            
             ) : (
               <Tooltip title="Not Achieved">
-                <div className="py-1 text-xl px-1 w-4 h-4 text-white flex items-center justify-center rounded-md bg-red-600">
-                  <IoIosClose />
+                <div className="py-1 text-xl px-1 w-3 h-3 text-white flex items-center justify-center rounded-full bg-red-600">
+                
                 </div>
               </Tooltip>
             )}
-            <Text className="text-xs flex flex-col">
-              <span className="flex items-center gap-1">
-                {`${taskIndex + 1}. ${task.taskName}`}{' '}
-                {task?.achieveMK ? (
+          <div className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#cfaaff]">
+            <span className="rounded-full bg-blue w-1 h-1"></span>
+          </div>
+
+          <span>{task?.taskName} </span>
+          {task?.achieveMK ? (
                   task?.milestone ? (
                     <FaStar size={11} />
                   ) : (
@@ -62,7 +72,8 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                 ) : (
                   ''
                 )}
-              </span>
+        </div>
+                
               {task?.customReason && (
                 <Tooltip title={task.customReason}>
                   <Text className="text-[10px] mb-2">

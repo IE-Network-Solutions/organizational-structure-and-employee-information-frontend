@@ -26,32 +26,34 @@ const CommentCard: React.FC<Props> = ({
   const { viewComment, setViewComment } = PlanningAndReportingStore();
   return (
     <Card
-      title={
-        <div className="flex flex-col gap-1 text-sm">
-          {CommentAuthorsAvatars(data)} Comments
-        </div>
-      }
-      extra={
-        !viewComment ? (
-          <Button
-            className="text-xs"
-            type="primary"
-            onClick={() => setViewComment(!viewComment)}
-          >
-            Comment {data?.length}
-          </Button>
-        ) : (
-          <Button
-            className="text-xs border "
-            onClick={() => setViewComment(!viewComment)}
-            iconPosition="end"
-            icon={<MdClose />}
-          >
-            Cancel
-          </Button>
-        )
-      }
+     bodyStyle={{padding:10}}
+     className="border-none"
+      // extra={
+      //   !viewComment ? (
+      //     <Button
+      //       className="text-xs"
+      //       type="primary"
+      //       onClick={() => setViewComment(!viewComment)}
+      //     >
+      //       Comment {data?.length}
+      //     </Button>
+      //   ) : (
+      //     <Button
+      //       className="text-xs border "
+      //       onClick={() => setViewComment(!viewComment)}
+      //       iconPosition="end"
+      //       icon={<MdClose />}
+      //     >
+      //       Cancel
+      //     </Button>
+      //   )
+      // }
     >
+      <div className="flex items-center  gap-1 text-sm cursor-pointer mb-2">
+          {CommentAuthorsAvatars(data)}
+          <span  onClick={() => setViewComment(!viewComment)}
+          > Comments {data?.length}</span>
+        </div>
       {loading ? (
         <>
           <Skeleton
