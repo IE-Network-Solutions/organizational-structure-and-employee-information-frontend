@@ -46,6 +46,7 @@ const MilestoneView: React.FC<OKRProps> = ({
       status: 'In Progress', // Optional default status
     };
 
+    console.log(objectiveValue, 'objectiveValue');
     const updatedObjectiveValue = {
       ...objectiveValue,
       keyResults: objectiveValue?.keyResults.map((item: any, i: number) => {

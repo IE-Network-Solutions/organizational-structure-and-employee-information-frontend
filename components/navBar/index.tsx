@@ -237,7 +237,7 @@ const menuItems: MenuProps['items'] = [
     label: 'Incentive',
     children: [
       {
-        key: '/incentive/incentive',
+        key: '/incentive/incentivePage',
         label: 'Incentive',
         className: 'font-bold',
       },

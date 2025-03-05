@@ -9,6 +9,7 @@ import Management from './_components/management/page';
 import Others from './_components/others/page';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import PayRoleView from './_components/all/payrollView';
+import { useAllRecognition } from '@/store/server/features/incentive/other/queries';
 
 const IncentivePage: React.FC = () => {
   const {
@@ -20,6 +21,11 @@ const IncentivePage: React.FC = () => {
     setShowGenerateModal,
     showGenerateModal,
   } = useIncentiveStore();
+
+  const { data: recognitionData, isLoading: responseLoading } =
+    useAllRecognition();
+
+  console.log(recognitionData, 'recognitionDatahsvfhsfd');
 
   const items: TabsProps['items'] = [
     {
