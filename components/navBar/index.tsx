@@ -20,7 +20,7 @@ import NavBar from './topNavBar';
 import { FiSettings } from 'react-icons/fi';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
-import { LuUsers2 } from 'react-icons/lu';
+import { LuCircleDollarSign, LuUsers2 } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
@@ -232,13 +232,23 @@ const menuItems: MenuProps['items'] = [
   },
   {
     key: '/incentive',
-    icon: <CiCalendar />,
+    icon: <LuCircleDollarSign />,
     className: 'font-bold',
     label: 'Incentive',
     children: [
       {
+        key: '/incentive/incentive',
+        label: 'Incentive',
+        className: 'font-bold',
+      },
+      {
         key: '/variable-pay',
         label: 'Variable Pay',
+        className: 'font-bold',
+      },
+      {
+        key: '/incentive/settings',
+        label: 'Settings',
         className: 'font-bold',
       },
     ],
