@@ -100,6 +100,10 @@ function BasicInfo({ id }: { id: string }) {
     return '';
   };
 
+  const hasAccess = AccessGuard.checkAccess({
+    permissions: [Permissions.ChangeManagerProfile],
+  });
+
   return (
     <Card loading={isLoading} className="mb-3">
       <div className="flex flex-col gap-3 items-center">
@@ -239,14 +243,14 @@ function BasicInfo({ id }: { id: string }) {
           />
         </List.Item>
         {employeeData?.reportingTo?.id ? (
-          <Link
-            href={`/employees/manage-employees/${employeeData.reportingTo.id}`}
-          >
-            <List.Item
-              key="Manager"
-              actions={[<MdKeyboardArrowRight key="arrow" />]}
+          hasAccess ? (
+            <Link
+              href={`/employees/manage-employees/${employeeData.reportingTo.id}`}
             >
-              <AccessGuard permissions={[Permissions.ChangeManagerProfile]}>
+              <List.Item
+                key="Manager"
+                actions={[<MdKeyboardArrowRight key="arrow" />]}
+              >
                 <List.Item.Meta
                   title={<p className="text-xs font-light">Manager</p>}
                   description={
@@ -260,9 +264,25 @@ function BasicInfo({ id }: { id: string }) {
                     </p>
                   }
                 />
-              </AccessGuard>
+              </List.Item>
+            </Link>
+          ) : (
+            <List.Item key="Manager">
+              <List.Item.Meta
+                title={<p className="text-xs font-light">Manager</p>}
+                description={
+                  <p className="font-bold text-black text-sm">
+                    <span className="mr-2">
+                      <Avatar src={employeeData?.reportingTo?.profileImage} />
+                    </span>
+                    {employeeData?.reportingTo?.firstName}{' '}
+                    {employeeData?.reportingTo?.middleName}{' '}
+                    {employeeData?.reportingTo?.lastName}
+                  </p>
+                }
+              />
             </List.Item>
-          </Link>
+          )
         ) : (
           <List.Item key="Manager" className="text-gray-500 cursor-not-allowed">
             <List.Item.Meta
