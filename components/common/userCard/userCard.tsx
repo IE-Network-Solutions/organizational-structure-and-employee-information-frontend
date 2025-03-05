@@ -26,6 +26,7 @@ const UserCard: FC<UserCardProps> = ({
         <Avatar size={40}>
           {data?.firstName[0]?.toUpperCase()}
           {data?.middleName[0]?.toUpperCase()}
+          {data?.lastName[0]?.toUpperCase()}
         </Avatar>
       )}
       <div>
