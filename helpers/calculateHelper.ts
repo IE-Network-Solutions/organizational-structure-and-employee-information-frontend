@@ -25,18 +25,22 @@ export const calculateAttendanceRecordToTotalWorkTime = (
   const startAt = new Date(item.startAt);
   const endAt = new Date(item.endAt ?? Date.now());
 
-  const fullTime = endAt.getTime() - startAt.getTime();
+  if (item.startAt && endAt) {
+    const fullTime = endAt.getTime() - startAt.getTime();
 
-  const breakTime = item.attendanceBreaks.reduce((acc, itemBreak) => {
-    const startAt = new Date(itemBreak.startAt);
-    const endAt = new Date(itemBreak.endAt ?? Date.now());
+    const breakTime = item.attendanceBreaks.reduce((acc, itemBreak) => {
+      const startAt = new Date(itemBreak.startAt);
+      const endAt = new Date(itemBreak.endAt ?? Date.now());
 
-    acc = acc + (endAt.getTime() - startAt.getTime());
+      acc = acc + (endAt.getTime() - startAt.getTime());
 
-    return acc;
-  }, 0);
+      return acc;
+    }, 0);
 
-  const calcTime = fullTime - breakTime;
+    const calcTime = fullTime - breakTime;
 
-  return calcTime < 0 ? 0 : calcTime;
+    return calcTime < 0 ? 0 : calcTime;
+  } else {
+    return 0;
+  }
 };
