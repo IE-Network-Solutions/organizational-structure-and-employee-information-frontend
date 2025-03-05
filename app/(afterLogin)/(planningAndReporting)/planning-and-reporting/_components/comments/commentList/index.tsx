@@ -17,6 +17,7 @@ import dayjs from 'dayjs';
 import CommentActionMenu from '../commentActionMenu';
 import { FaUser } from 'react-icons/fa';
 import { useState, useMemo } from 'react';
+import { MutateOptions } from 'react-query';
 
 dayjs.extend(relativeTime);
 
@@ -78,14 +79,16 @@ const CommentList = ({
 
       const payload = editingCommentId
         ? { id: editingCommentId, updatedComment: values }
-        : values;
+        : { ...values, planId };
 
-      mutation(payload, {
+      const mutateOptions: MutateOptions<any, unknown, any, unknown> = {
         onSuccess: () => {
           form.resetFields();
           setEditingCommentId('');
         },
-      });
+      };
+
+      mutation(payload, mutateOptions);
     });
   };
 
