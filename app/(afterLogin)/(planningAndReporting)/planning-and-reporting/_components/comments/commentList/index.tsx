@@ -20,15 +20,29 @@ import { useState, useMemo } from 'react';
 
 dayjs.extend(relativeTime);
 
-const CommentList = ({ data, planId, isPlanCard }: { data: CommentsData[]; planId: string; isPlanCard: boolean }) => {
+const CommentList = ({
+  data,
+  planId,
+  isPlanCard,
+}: {
+  data: CommentsData[];
+  planId: string;
+  isPlanCard: boolean;
+}) => {
   const { data: allUsers } = useGetAllUsers();
-  const { mutate: onAddPlanComment, isLoading: addPlanLoading } = useAddPlanComment();
-  const { mutate: onAddReportComment, isLoading: addReportLoading } = useAddReportComment();
-  const { mutate: deletePlanComment, isLoading: deletePlanLoading } = useDeletePlanComment();
-  const { mutate: deleteReportComment, isLoading: deleteReportLoading } = useDeleteReportComment();
-  const { mutate: onUpdatePlanComment, isLoading: editPlanLoading } = useUpdatePlanComment();
-  const { mutate: onUpdateReportComment, isLoading: editReportLoading } = useUpdateReportComment();
-  
+  const { mutate: onAddPlanComment, isLoading: addPlanLoading } =
+    useAddPlanComment();
+  const { mutate: onAddReportComment, isLoading: addReportLoading } =
+    useAddReportComment();
+  const { mutate: deletePlanComment, isLoading: deletePlanLoading } =
+    useDeletePlanComment();
+  const { mutate: deleteReportComment, isLoading: deleteReportLoading } =
+    useDeleteReportComment();
+  const { mutate: onUpdatePlanComment, isLoading: editPlanLoading } =
+    useUpdatePlanComment();
+  const { mutate: onUpdateReportComment, isLoading: editReportLoading } =
+    useUpdateReportComment();
+
   const [editingCommentId, setEditingCommentId] = useState<string>('');
   const { userId } = useAuthenticationStore();
   const [form] = Form.useForm();
@@ -49,7 +63,7 @@ const CommentList = ({ data, planId, isPlanCard }: { data: CommentsData[]; planI
             role: '-',
           };
     },
-    [allUsers]
+    [allUsers],
   );
 
   const handleSubmit = () => {
@@ -59,10 +73,12 @@ const CommentList = ({ data, planId, isPlanCard }: { data: CommentsData[]; planI
           ? onUpdatePlanComment
           : onUpdateReportComment
         : isPlanCard
-        ? onAddPlanComment
-        : onAddReportComment;
+          ? onAddPlanComment
+          : onAddReportComment;
 
-      const payload = editingCommentId ? { id: editingCommentId, updatedComment: values } : values;
+      const payload = editingCommentId
+        ? { id: editingCommentId, updatedComment: values }
+        : values;
 
       mutation(payload, {
         onSuccess: () => {
@@ -83,33 +99,66 @@ const CommentList = ({ data, planId, isPlanCard }: { data: CommentsData[]; planI
     mutation(id);
   };
 
-  const isLoading = addPlanLoading || addReportLoading || deletePlanLoading || deleteReportLoading || editPlanLoading || editReportLoading;
+  const isLoading =
+    addPlanLoading ||
+    addReportLoading ||
+    deletePlanLoading ||
+    deleteReportLoading ||
+    editPlanLoading ||
+    editReportLoading;
 
   return (
     <div className="w-full">
       {data.map((commentData) => {
-        const { fullName, profileImage } = getUserDetail(commentData.commentedBy);
+        const { fullName, profileImage } = getUserDetail(
+          commentData.commentedBy,
+        );
 
         return (
-          <Row key={commentData.id} justify="space-between" align="middle" className="w-full">
+          <Row
+            key={commentData.id}
+            justify="space-between"
+            align="middle"
+            className="w-full"
+          >
             <Col>
               <div className="text-xs font-semibold flex items-center">
-                <Avatar src={profileImage || undefined} icon={!profileImage ? <FaUser /> : undefined} alt={fullName} className="mr-1" />
-                <span className='font-normal'> {fullName}
-                    </span>
-                <div className="text-gray-400 text-xs ml-2">{dayjs(commentData.createdAt).fromNow()}</div>
+                <Avatar
+                  src={profileImage || undefined}
+                  icon={!profileImage ? <FaUser /> : undefined}
+                  alt={fullName}
+                  className="mr-1"
+                />
+                <span className="font-normal"> {fullName}</span>
+                <div className="text-gray-400 text-xs ml-2">
+                  {dayjs(commentData.createdAt).fromNow()}
+                </div>
               </div>
-              <div className="text-gray-700  ml-9 font-semibold">{commentData.comment}</div>
+              <div className="text-gray-700  ml-9 font-semibold">
+                {commentData.comment}
+              </div>
             </Col>
             <Col hidden={commentData?.commentedBy !== userId}>
-              <CommentActionMenu onEdit={() => handleEdit(commentData)} onDelete={() => handleDelete(commentData.id)} />
+              <CommentActionMenu
+                onEdit={() => handleEdit(commentData)}
+                onDelete={() => handleDelete(commentData.id)}
+              />
             </Col>
           </Row>
         );
       })}
 
-      <Form form={form} layout="inline" className="w-full mt-4" onFinish={handleSubmit}>
-        <Form.Item name={isPlanCard ? 'planId' : 'reportId'} initialValue={planId} hidden>
+      <Form
+        form={form}
+        layout="inline"
+        className="w-full mt-4"
+        onFinish={handleSubmit}
+      >
+        <Form.Item
+          name={isPlanCard ? 'planId' : 'reportId'}
+          initialValue={planId}
+          hidden
+        >
           <Input type="hidden" />
         </Form.Item>
         <Form.Item name="commentedBy" initialValue={userId} hidden>
@@ -117,13 +166,22 @@ const CommentList = ({ data, planId, isPlanCard }: { data: CommentsData[]; planI
         </Form.Item>
         <Row gutter={8} align="middle" className="w-full">
           <Col span={20}>
-            <Form.Item name="comment" rules={[{ required: true, message: 'Please enter a comment' }]} className="w-full">
+            <Form.Item
+              name="comment"
+              rules={[{ required: true, message: 'Please enter a comment' }]}
+              className="w-full"
+            >
               <Input placeholder="Add a comment..." />
             </Form.Item>
           </Col>
           <Col span={4}>
             <Form.Item>
-              <Button loading={isLoading} type="primary" htmlType="submit" className="w-full">
+              <Button
+                loading={isLoading}
+                type="primary"
+                htmlType="submit"
+                className="w-full"
+              >
                 Send
               </Button>
             </Form.Item>

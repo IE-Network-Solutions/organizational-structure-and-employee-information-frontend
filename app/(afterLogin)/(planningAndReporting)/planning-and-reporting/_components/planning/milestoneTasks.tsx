@@ -2,7 +2,6 @@ import React from 'react';
 import { Row, Col, Typography, Tag } from 'antd';
 import { MdKey } from 'react-icons/md';
 import { FaStar } from 'react-icons/fa';
-import { BiRadioCircleMarked } from 'react-icons/bi';
 import ParentTask from './parentTask';
 
 const { Text } = Typography;
@@ -20,13 +19,7 @@ const getPriorityColor = (priority: string) => {
 };
 
 // Reusable Task Row Component
-const TaskRow = ({
-  task,
-  taskIndex,
-  milestoneIndex,
-  keyResult,
-  parent = false,
-}: any) => (
+const TaskRow = ({ task, keyResult, parent = false }: any) => (
   <Row
     align="middle"
     justify="space-between"
@@ -120,16 +113,14 @@ const Milestone = ({ milestone, milestoneIndex, keyResult }: any) => (
           />
         ))
       : // Parent Tasks
-        milestone?.parentTask?.map((task: any, taskIndex: number) => (
+        milestone?.parentTask?.map((task: any) => (
           <Row key={task.id} className="w-full">
-           
-              <ParentTask
+            <ParentTask
               keyResult={keyResult}
               parent={true}
               tasks={task?.tasks}
               parentTaskName={task?.task}
             />
-           
           </Row>
         ))}
   </Row>
@@ -151,7 +142,7 @@ const MilestoneTasks = ({ keyResult, keyResultIndex }: any) => {
             />
           ))
         : // Render Parent Tasks
-          keyResult?.parentTask?.map((task: any, taskIndex: number) => (
+          keyResult?.parentTask?.map((task: any) => (
             <Row key={task.id} className="w-full">
               <ParentTask
                 keyResult={keyResult}

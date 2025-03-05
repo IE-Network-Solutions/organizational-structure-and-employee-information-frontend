@@ -1,6 +1,6 @@
-import { Progress, Tag } from 'antd';
+import { Tag } from 'antd';
 import { FC } from 'react';
-import { MdKey, MdOutlineKey } from 'react-icons/md';
+import { MdOutlineKey } from 'react-icons/md';
 import MilestoneTasks from './milestoneTasks';
 import TasksDisplayer from '../reporting/milestone';
 interface KeyResultTasksProps {
@@ -85,21 +85,18 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
           <h2 className="text-xs font-semibold">{keyResult?.title}</h2>
         </div>
       </div>
-{activeTab === 1 ? (
-      <MilestoneTasks keyResultIndex={keyResultIndex} keyResult={keyResult} />
-    ) : (
-     <>
-       {keyResult?.milestones?.map(
-         (milestone: any, milestoneIndex: number) => (
-           
-             <TasksDisplayer tasks={milestone?.tasks} />
-           
-         ),
-       )}
-       <TasksDisplayer tasks={keyResult?.tasks} />
-     </>
-    )}
-
+      {activeTab === 1 ? (
+        <MilestoneTasks keyResultIndex={keyResultIndex} keyResult={keyResult} />
+      ) : (
+        <>
+          {keyResult?.milestones?.map(
+            (milestone: any, milestoneIndex: number) => (
+              <TasksDisplayer key={milestoneIndex} tasks={milestone?.tasks} />
+            ),
+          )}
+          <TasksDisplayer tasks={keyResult?.tasks} />
+        </>
+      )}
     </div>
   );
 };

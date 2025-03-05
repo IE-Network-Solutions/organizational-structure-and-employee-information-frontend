@@ -2,8 +2,7 @@
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import React from 'react';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { Radio, Tabs } from 'antd';
-import { RadioChangeEvent } from 'antd/lib';
+import { Tabs } from 'antd';
 import Planning from './_components/planning';
 import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';

@@ -2,7 +2,6 @@ import React from 'react';
 import { Tree, Tag, Typography } from 'antd';
 import { MdKey } from 'react-icons/md';
 import { FaStar } from 'react-icons/fa';
-import { BiRadioCircleMarked } from 'react-icons/bi';
 
 const { Text } = Typography;
 
@@ -25,13 +24,12 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
           {/* Task Title & Icon */}
           <div className="col-span-7">
             <span className="text-xs">{task?.task}</span>
-            {task?.achieveMK && (
-              keyResult?.metricType?.name === 'Milestone' ? (
+            {task?.achieveMK &&
+              (keyResult?.metricType?.name === 'Milestone' ? (
                 <FaStar size={12} className="text-yellow-500" />
               ) : (
                 <MdKey size={12} className="text-gray-500" />
-              )
-            )}
+              ))}
           </div>
 
           {/* Task Details (Priority, Weight, Target) */}
@@ -46,7 +44,10 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
             <Text type="secondary" className="text-[10px] mr-2">
               <span className="text-xs text-blue">&bull;</span> Weight:
             </Text>
-            <Tag className="font-bold border-none w-16 text-center text-blue text-[10px]" color="#B2B2FF">
+            <Tag
+              className="font-bold border-none w-16 text-center text-blue text-[10px]"
+              color="#B2B2FF"
+            >
               {task?.weight || 0}
             </Tag>
 
@@ -57,7 +58,10 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
                   <Text type="secondary" className="text-[10px]">
                     <span className="text-xs text-blue">&bull;</span> Target:
                   </Text>
-                  <Tag className="font-bold border-none w-16 text-center text-blue text-[10px]" color="#B2B2FF">
+                  <Tag
+                    className="font-bold border-none w-16 text-center text-blue text-[10px]"
+                    color="#B2B2FF"
+                  >
                     {Number(task?.targetValue)?.toLocaleString() || 'N/A'}
                   </Tag>
                 </>
@@ -92,10 +96,15 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
     },
   ];
 
-  return <Tree treeData={treeData} showIcon 
-  showLine={{ showLeafIcon: false }} 
-  switcherIcon={null} 
-  defaultExpandAll />;
+  return (
+    <Tree
+      treeData={treeData}
+      showIcon
+      showLine={{ showLeafIcon: false }}
+      switcherIcon={null}
+      defaultExpandAll
+    />
+  );
 };
 
 export default ParentTaskTree;

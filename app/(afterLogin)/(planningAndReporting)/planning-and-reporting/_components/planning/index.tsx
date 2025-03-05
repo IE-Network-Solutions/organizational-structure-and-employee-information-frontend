@@ -15,9 +15,8 @@ import {
 } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
-import { IoIosOpen, IoMdCheckmarkCircleOutline, IoMdMore } from 'react-icons/io';
+import { IoIosOpen, IoMdMore } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
-import KeyResultMetrics from '../keyResult';
 import {
   AllPlanningPeriods,
   useGetPlanning,
@@ -41,7 +40,6 @@ import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
-import MilestoneTasks from './milestoneTasks';
 import { FiCheckCircle } from 'react-icons/fi';
 import KeyResultTasks from './KeyResultTasks';
 const { Title } = Typography;
@@ -183,11 +181,7 @@ function Planning() {
       userId,
       planningPeriodId || '', // Provide a default string value if undefined
     );
-  console.log(
-    getEmployeeData('1939e6ff-ffa6-4c2e-aa7d-b7f9f0189508')
-      ?.employeeJobInformation,
-    '$$$$',
-  );
+
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -235,122 +229,115 @@ function Planning() {
         />
         {transformedData?.map((dataItem: any, index: number) => (
           <>
-            <Card
-              key={index}
-              className="mb-2"
-              loading={getPlanningLoading}
-             
-            >
-               <div>
-                  <Row gutter={16} className="items-center">
-                    <Col xs={4} sm={2} md={1}>
-                      {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
-                        <Avatar
-                          src={
-                            getEmployeeData(dataItem?.createdBy)?.profileImage
-                          }
-                          style={{ verticalAlign: 'middle' }}
-                          size="default"
-                        />
-                      ) : (
-                        <Avatar
-                          icon={<UserOutlined />}
-                          style={{ verticalAlign: 'middle' }}
-                          size="default"
-                        />
-                      )}
-                    </Col>
-                    <Col xs={20} sm={22} md={23}>
-                      <Row className="flex justify-between items-center">
-                        <Row gutter={16} justify={'start'} align={'middle'}>
-                          <div className="flex flex-col text-xs ml-2">
-                            {getEmployeeData(dataItem?.createdBy)?.firstName +
-                              ' ' +
-                              (getEmployeeData(dataItem?.createdBy)?.middleName
-                                ? getEmployeeData(dataItem?.createdBy)
-                                    .middleName.charAt(0)
-                                    .toUpperCase()
-                                : '')}
-                            .
-                            <span className="text-gray-500 text-xs">
-                              {dataItem?.createdBy
-                                ? getEmployeeData(dataItem?.createdBy)
-                                    ?.employeeJobInformation?.[0]?.department
-                                    ?.name || ''
-                                : ''}
-                            </span>
+            <Card key={index} className="mb-2" loading={getPlanningLoading}>
+              <div>
+                <Row gutter={16} className="items-center">
+                  <Col xs={4} sm={2} md={1}>
+                    {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
+                      <Avatar
+                        src={getEmployeeData(dataItem?.createdBy)?.profileImage}
+                        style={{ verticalAlign: 'middle' }}
+                        size="default"
+                      />
+                    ) : (
+                      <Avatar
+                        icon={<UserOutlined />}
+                        style={{ verticalAlign: 'middle' }}
+                        size="default"
+                      />
+                    )}
+                  </Col>
+                  <Col xs={20} sm={22} md={23}>
+                    <Row className="flex justify-between items-center">
+                      <Row gutter={16} justify={'start'} align={'middle'}>
+                        <div className="flex flex-col text-xs ml-2">
+                          {getEmployeeData(dataItem?.createdBy)?.firstName +
+                            ' ' +
+                            (getEmployeeData(dataItem?.createdBy)?.middleName
+                              ? getEmployeeData(dataItem?.createdBy)
+                                  .middleName.charAt(0)
+                                  .toUpperCase()
+                              : '')}
+                          .
+                          <span className="text-gray-500 text-xs">
+                            {dataItem?.createdBy
+                              ? getEmployeeData(dataItem?.createdBy)
+                                  ?.employeeJobInformation?.[0]?.department
+                                  ?.name || ''
+                              : ''}
+                          </span>
+                        </div>
+                      </Row>
+                      <Col span={10} className="flex justify-end items-center">
+                        <Col>
+                          <div
+                            className={` py-1 px-1 text-white rounded-full ${dataItem?.isValidated ? 'bg-green-600' : 'bg-yellow-300'}`}
+                          >
+                            {dataItem?.isValidated ? (
+                              <FiCheckCircle />
+                            ) : (
+                              <MdOutlinePending size={16} />
+                            )}
                           </div>
-                        </Row>
-                        <Col
-                          span={10}
-                          className="flex justify-end items-center"
-                        >
-                          <Col>
-                            <div
-                              className={` py-1 px-1 text-white rounded-full ${dataItem?.isValidated ? 'bg-green-600' : 'bg-yellow-300'}`}
-                            >
-                             {dataItem?.isValidated?<FiCheckCircle  />
- :<MdOutlinePending size={16} />}
-                            </div>
-                          </Col>
-                          <div className="flex flex-col text-xs ml-2">
-                            <span className="mr-4">
-                              {dataItem?.isValidated ? 'Closed' : 'Open'}
-                            </span>
-                            <span className="mr-4 text-gray-500">
-                              {dayjs(dataItem?.createdAt).format(
-                                'MMMM DD YYYY, h:mm:ss A',
-                              )}
-                            </span>
-                          </div>
+                        </Col>
+                        <div className="flex flex-col text-xs ml-2">
+                          <span className="mr-4">
+                            {dataItem?.isValidated ? 'Closed' : 'Open'}
+                          </span>
+                          <span className="mr-4 text-gray-500">
+                            {dayjs(dataItem?.createdAt).format(
+                              'MMMM DD YYYY, h:mm:ss A',
+                            )}
+                          </span>
+                        </div>
 
-                          {/* {!dataItem?.isValidated && ( */}
-                          <>
-                            {userId ===
-                              getEmployeeData(dataItem?.createdBy)?.reportingTo
-                                ?.id && (
+                        {/* {!dataItem?.isValidated && ( */}
+                        <>
+                          {userId ===
+                            getEmployeeData(dataItem?.createdBy)?.reportingTo
+                              ?.id && (
+                            <Dropdown
+                              overlay={actionsMenu(
+                                dataItem,
+                                handleApproveHandler,
+                                isApprovalLoading,
+                              )}
+                              trigger={['click']}
+                            >
+                              <Button
+                                loading={isApprovalLoading}
+                                type="text"
+                                icon={<IoMdMore className="text-2xl" />}
+                                className="cursor-pointer text-green border-none  hover:text-success"
+                              />
+                            </Dropdown>
+                          )}
+                          {userId === dataItem?.createdBy &&
+                            dataItem?.isValidated == false &&
+                            dataItem?.isReported == false && (
                               <Dropdown
-                                overlay={actionsMenu(
+                                overlay={actionsMenuEditandDelte(
                                   dataItem,
-                                  handleApproveHandler,
-                                  isApprovalLoading,
+                                  setEditing,
+                                  setSelectedPlanId,
+                                  setOpen,
                                 )}
                                 trigger={['click']}
                               >
                                 <Button
-                                  loading={isApprovalLoading}
+                                  // loading={loadingDeletePlan}
                                   type="text"
                                   icon={<IoMdMore className="text-2xl" />}
-                                  className="cursor-pointer text-green border-none  hover:text-success"
+                                  className="cursor-pointer  text-black border-none  hover:text-primary"
                                 />
                               </Dropdown>
-                            )} 
-                            {userId === dataItem?.createdBy &&
-                              dataItem?.isValidated == false &&
-                              dataItem?.isReported == false && (
-                                <Dropdown
-                                  overlay={actionsMenuEditandDelte(
-                                    dataItem,
-                                    setEditing,
-                                    setSelectedPlanId,
-                                    setOpen,
-                                  )}
-                                  trigger={['click']}
-                                >
-                                  <Button
-                                    // loading={loadingDeletePlan}
-                                    type="text"
-                                    icon={<IoMdMore className="text-2xl" />}
-                                    className="cursor-pointer  text-black border-none  hover:text-primary"
-                                  />
-                                </Dropdown>
-                              )}
-                          </>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                </div>
+                            )}
+                        </>
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
+              </div>
               {dataItem?.keyResults?.map(
                 (keyResult: any, keyResultIndex: number) => (
                   <div key={keyResult?.id} className="">
