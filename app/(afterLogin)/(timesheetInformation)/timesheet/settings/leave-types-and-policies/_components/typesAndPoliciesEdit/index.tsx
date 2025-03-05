@@ -242,6 +242,7 @@ const TypesAndPoliciesEdit = () => {
               >
                 <Select
                   className={controlClass}
+                  disabled
                   suffixIcon={
                     <MdKeyboardArrowDown size={16} className="text-gray-900" />
                   }
@@ -256,6 +257,7 @@ const TypesAndPoliciesEdit = () => {
               >
                 <Select
                   className={controlClass}
+                  disabled
                   options={carryOverRuleOptions()}
                   suffixIcon={
                     <MdKeyboardArrowDown size={16} className="text-gray-900" />
