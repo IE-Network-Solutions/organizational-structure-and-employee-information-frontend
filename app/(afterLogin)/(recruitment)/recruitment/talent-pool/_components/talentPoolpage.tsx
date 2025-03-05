@@ -30,19 +30,16 @@ const TalentPoolPage = () => {
           subtitle="This is the talent pool data of the candidates"
         />
         <div className="flex items-center my-4 gap-4 md:gap-8">
-                  <AccessGuard permissions={[Permissions.TransferCandidate]}>
-
-          <CustomButton
-            title="Add Candidate to Talent Pool"
-            id="createUserButton"
-            icon={<FaPlus className="mr-2" />}
-            onClick={handleAdd}
-            className="bg-blue-600 hover:bg-blue-700"
-          />
-                            </AccessGuard>
-
+          <AccessGuard permissions={[Permissions.TransferCandidate]}>
+            <CustomButton
+              title="Add Candidate to Talent Pool"
+              id="createUserButton"
+              icon={<FaPlus className="mr-2" />}
+              onClick={handleAdd}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
+          </AccessGuard>
         </div>
-
       </div>
 
       <Filters />
