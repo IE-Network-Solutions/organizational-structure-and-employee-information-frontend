@@ -172,7 +172,7 @@ export const useGetApprovalTNARequest = (
   limit: number,
 ) => {
   return useQuery<any>(
-    ['tna-current_approval', userId, limit, page],
+    'tnaCurrentApproval',
     () => getApprovalTNARequest(userId, page, limit),
     {
       keepPreviousData: true,
