@@ -129,6 +129,7 @@ const TnaDetailPage = () => {
               <div className="border-b border-gray-200 text-lg font-semibold text-gray-900 pb-4 mb-8">
                 {data.items[0].assignedUserId ? (
                   <UserCard
+                    data={data}
                     name={
                       data.items[0].assignedUserId &&
                       userData(String(data.items[0].assignedUserId))
@@ -149,6 +150,7 @@ const TnaDetailPage = () => {
                   <div className="w-[200px] text-gray-600">Requester</div>
                   <div className="flex-1">
                     <UserCard
+                      data={data}
                       name={
                         data.items[0].assignedUserId &&
                         userData(String(data.items[0].assignedUserId))
@@ -238,6 +240,7 @@ const TnaDetailPage = () => {
               <div className="border-b border-gray-200 text-lg font-semibold text-gray-900 pb-4 mb-8">
                 {data.items[0].assignedUserId ? (
                   <UserCard
+                    data={data}
                     name={
                       data.items[0].assignedUserId &&
                       userData(String(data.items[0].assignedUserId))
