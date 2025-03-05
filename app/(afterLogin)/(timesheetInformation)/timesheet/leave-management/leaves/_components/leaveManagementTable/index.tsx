@@ -80,6 +80,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
         </div>{' '}
         <div className="flex-1">
           <UserCard
+            data={employeeData}
             name={fullName}
             profileImage={employeeData?.profileImage}
             size="small"
