@@ -132,7 +132,6 @@ const EmployeeProfile = () => {
     return '';
   };
 
-  console.log('--------------employee-----------', employee);
 
   return (
     <div style={{ padding: '24px' }}>
