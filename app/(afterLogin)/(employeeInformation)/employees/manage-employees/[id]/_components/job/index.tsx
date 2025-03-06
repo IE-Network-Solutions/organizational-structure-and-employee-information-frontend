@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { Button, Card, Col, DatePicker, Form, Input, Row, Table } from 'antd';
+import { Button, Card, Col, DatePicker, Form, Row, Table } from 'antd';
 import { InfoLine } from '../common/infoLine';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import WorkScheduleComponent from './workSchedule';
@@ -20,7 +20,7 @@ function Job({ id }: { id: string }) {
   const handleAddEmployeeJobInformation = () => {
     setIsAddEmployeeJobInfoModalVisible(true);
   };
-  const { mutate: updateEmployeeInformation } =useUpdateEmployee();
+  const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
   const columns = [
@@ -74,77 +74,80 @@ function Job({ id }: { id: string }) {
     });
     setIsEditing((isEditing) => !isEditing);
   };
-  const editJoinedDate = (values:any) => {
-    updateEmployeeInformation({
-      id: employeeData?.employeeInformation?.id,
-      values,
-    },{
-      onSuccess:()=>setIsEditing(false)
-    });
+  const editJoinedDate = (values: any) => {
+    updateEmployeeInformation(
+      {
+        id: employeeData?.employeeInformation?.id,
+        values,
+      },
+      {
+        onSuccess: () => setIsEditing(false),
+      },
+    );
   };
   return (
     <>
       {' '}
       <Card
-      loading={isLoading}
-      title="Employment Information"
-      extra={<Button icon={<LuPencil />} onClick={handleEditClick} />}
-      className="my-6 mt-0"
-    >
-      <Row gutter={[16, 24]}>
-        <Col lg={16}>
-          <InfoLine
-            title="Service Year"
-            value={
-              employeeData?.employeeInformation?.joinedDate ? (
-                <>
-                  {Math.floor(
-                    dayjs().diff(
+        loading={isLoading}
+        title="Employment Information"
+        extra={<Button icon={<LuPencil />} onClick={handleEditClick} />}
+        className="my-6 mt-0"
+      >
+        <Row gutter={[16, 24]}>
+          <Col lg={16}>
+            <InfoLine
+              title="Service Year"
+              value={
+                employeeData?.employeeInformation?.joinedDate ? (
+                  <>
+                    {Math.floor(
+                      dayjs().diff(
+                        dayjs(employeeData?.employeeInformation?.joinedDate),
+                        'months',
+                      ) / 12,
+                    )}
+                    {' Years, '}
+                    {dayjs().diff(
                       dayjs(employeeData?.employeeInformation?.joinedDate),
                       'months',
-                    ) / 12,
-                  )}
-                  {' Years, '}
-                  {dayjs().diff(
-                    dayjs(employeeData?.employeeInformation?.joinedDate),
-                    'months',
-                  ) % 12}{' '}
-                  Months
-                </>
-              ) : (
-                '-'
-              )
-            }
-          />
-          <InfoLine
-            title="Joined Date"
-            value={
-              isEditing ? (
-                <Form onFinish={editJoinedDate} form={form} layout="inline">
-                  <Form.Item
-                    name="joinedDate"
-                    rules={[{ required: true, message: 'Please select a date!' }]}
-                  >
-                    <DatePicker format="YYYY-MM-DD" />
-                  </Form.Item>
-                  <Form.Item>
-                    <Button type="primary" htmlType='submit' >
-                      Save
-                    </Button>
-                  </Form.Item>
-                </Form>
-              ) : (
-                dayjs(employeeData?.employeeInformation?.joinedDate)?.format(
-                  'DD MMMM, YYYY',
-                ) || '-'
-              )
-            }
-          />
-
-        </Col>
-      </Row>
-    </Card>
-
+                    ) % 12}{' '}
+                    Months
+                  </>
+                ) : (
+                  '-'
+                )
+              }
+            />
+            <InfoLine
+              title="Joined Date"
+              value={
+                isEditing ? (
+                  <Form onFinish={editJoinedDate} form={form} layout="inline">
+                    <Form.Item
+                      name="joinedDate"
+                      rules={[
+                        { required: true, message: 'Please select a date!' },
+                      ]}
+                    >
+                      <DatePicker format="YYYY-MM-DD" />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button type="primary" htmlType="submit">
+                        Save
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                ) : (
+                  dayjs(employeeData?.employeeInformation?.joinedDate)?.format(
+                    'DD MMMM, YYYY',
+                  ) || '-'
+                )
+              }
+            />
+          </Col>
+        </Row>
+      </Card>
       <Card
         title={'Job Information'}
         extra={
