@@ -215,8 +215,6 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
   );
   const selectedLevel = selectedChildDept?.level;
 
-
-
   const findDepartmentById = (id: string, orgStructure: any): any => {
     if (!orgStructure) return null;
     if (orgStructure.id === id) return orgStructure;

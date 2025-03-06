@@ -1,14 +1,12 @@
 'use client';
 import React from 'react';
 import { Table, Button, Space, Typography, Switch, Spin, Tooltip } from 'antd';
-import {  EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import PayPeriodSideBar from './_components/payPeriodSideBar';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
 import { useFetchActiveFiscalYearPayPeriods } from '@/store/server/features/payroll/setting/tax-rule/queries';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import {
-  useChangePayPeriodStatus,
-} from '@/store/server/features/payroll/setting/tax-rule/mutation';
+import { useChangePayPeriodStatus } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import dayjs from 'dayjs';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';

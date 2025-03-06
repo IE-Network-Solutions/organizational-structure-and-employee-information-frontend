@@ -130,7 +130,6 @@ export const useEditPayPeriod = () => {
   );
 };
 
-
 /**
  * Deletes a pay period by sending a DELETE request to the API.
  *
