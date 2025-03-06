@@ -13,7 +13,7 @@ import {
   List,
   Popover,
 } from 'antd';
-import { PrinterOutlined } from '@ant-design/icons';
+import { PhoneOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useEffect, useRef } from 'react';
 import {
   useGetActivePayroll,
@@ -132,6 +132,8 @@ const EmployeeProfile = () => {
     return '';
   };
 
+  console.log('--------------employee-----------', employee);
+
   return (
     <div style={{ padding: '24px' }}>
       <Card>
@@ -170,6 +172,13 @@ const EmployeeProfile = () => {
               <div className="flex gap-5 my-2 items-center">
                 <HiOutlineMail color="#BFBFBF" />
                 <p className="font-semibold">{employee?.email}</p>
+              </div>
+              <div className="flex gap-5 my-2 items-center">
+                <PhoneOutlined className="text-[#BFBFBF]" />
+                <p className="font-semibold">
+                  {employee?.employeeInformation?.addresses?.phoneNumber ||
+                    '--'}
+                </p>
               </div>
 
               <Divider className="my-2" key="arrows" />
