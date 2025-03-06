@@ -1,13 +1,42 @@
-import { Col, Input, Row, Select } from 'antd';
-import React from 'react';
+import {
+  useEmployeeDepartments,
+  useGetAllUsers,
+} from '@/store/server/features/employees/employeeManagment/queries';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { Col, Row, Select } from 'antd';
 
-
-const Filters = () => {
+interface FiltersProps {
+  onSearch: (filters: { [key: string]: string }) => void;
+}
+const Filters: React.FC<FiltersProps> = () => {
   const { Option } = Select;
+  const { data: employeeData } = useGetAllUsers();
+  const { data: EmployeeDepartment } = useEmployeeDepartments();
+  const { searchParams, setSearchValue, setSearchParams } =
+    useEmployeeManagementStore();
 
-  const handleSearch = () => {};
+  const handleSearchEmployee = async (
+    value: string | boolean,
+    keyValue: keyof typeof searchParams,
+  ) => {
+    setSearchParams(keyValue, value);
+  };
 
-  const handleTypeChange = () => {};
+  const onSelectChange = handleSearchEmployee;
+
+  const handleDepartmentChange = (value: string) => {
+    onSelectChange(value, 'allJobs');
+  };
+
+  const handleEmployeeSelect = (value: string) => {
+    setSearchValue(value);
+  };
+  const options =
+    employeeData?.items?.map((emp: any) => ({
+      value: emp.id,
+      label: `${emp?.firstName || ''} ${emp?.middleName} ${emp?.lastName}`,
+      employeeData: emp,
+    })) || [];
 
   return (
     <div className="mb-6">
@@ -18,38 +47,35 @@ const Filters = () => {
         style={{ flexWrap: 'nowrap' }}
       >
         <Col lg={16} md={14} sm={24} xs={24}>
-          <Input
-            placeholder="Search Department"
-            onChange={handleSearch}
+          <Select
+            showSearch
             allowClear
-            className="w-full h-14"
-            style={{ height: '48px' }}
+            className="min-h-12 w-[100%]"
+            placeholder="Search by name"
+            onChange={(value) => handleEmployeeSelect(value)}
+            filterOption={(input, option) => {
+              const label = option?.label;
+              return (
+                typeof label === 'string' &&
+                label.toLowerCase().includes(input.toLowerCase())
+              );
+            }}
+            options={options}
           />
         </Col>
-
-        <Col lg={4} md={5} sm={24} xs={24}>
+        <Col lg={8} sm={12} xs={24}>
           <Select
+            id={`selectDepartment${searchParams.allJobs}`}
             placeholder="All Departments"
-            onChange={handleTypeChange}
+            onChange={handleDepartmentChange}
             allowClear
             className="w-full h-14"
-            style={{ height: '48px' }}
           >
-            <Option value="product">Product</Option>
-            <Option value="engineering">Engineering</Option>
-          </Select>
-        </Col>
-
-        <Col lg={4} md={5} sm={24} xs={24}>
-          <Select
-            placeholder="Filters"
-            onChange={handleTypeChange}
-            allowClear
-            className="w-full h-14"
-            style={{ height: '48px' }}
-          >
-            <Option value="product">Product</Option>
-            <Option value="engineering">Engineering</Option>
+            {EmployeeDepartment?.map((item: any) => (
+              <Option key={item?.id} value={item?.id}>
+                {item?.name}
+              </Option>
+            ))}
           </Select>
         </Col>
       </Row>

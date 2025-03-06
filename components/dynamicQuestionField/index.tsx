@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Radio, Space, TimePicker, Select, Checkbox } from 'antd';
+import { Form, Radio, Space, TimePicker, Select, Checkbox, Input } from 'antd';
 import { FieldType } from '@/types/enumTypes';
 
 const DynamicQuestionField = ({
@@ -46,6 +46,11 @@ const DynamicQuestionField = ({
             ))}
           </Select>
         );
+      case FieldType.SHORT_TEXT:
+        return <Input />;
+      case FieldType.PARAGRAPH:
+        return <Input.TextArea rows={4} />;
+
       default:
         return <span>Custom Field</span>; // Replace with your TextEditor or another component
     }

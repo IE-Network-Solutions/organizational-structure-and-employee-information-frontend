@@ -1,5 +1,9 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { APPROVER_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import {
+  APPROVER_URL,
+  TIME_AND_ATTENDANCE_URL,
+  TNA_URL,
+} from '@/utils/constants';
 import { useQuery } from 'react-query';
 import {
   ApiResponse,
@@ -14,7 +18,6 @@ import {
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { requestHeader } from '@/helpers/requestHeader';
 import { RequestCommonQueryData } from '@/types/commons/requesTypes';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const getLeaveRequest = async (
   queryData: RequestCommonQueryData,
@@ -46,44 +49,46 @@ const getApprovalLeaveRequest = async (
   page: number,
   limit: number,
 ) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-
   const response = await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/currentApprover/${requesterId}?page=${page}&limit=${limit}`,
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/approval/current-approver/${requesterId}?page=${page}&limit=${limit}`,
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
+    headers: requestHeader(),
   });
   return response;
 };
 const getSingleLeaveRequest = async (requestId: string) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-
   const response = await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/${requestId}`,
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
+    headers: requestHeader(),
   });
   return response;
 };
-const getSingleApprovalLog = async (requestId: string) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-
+const getSingleApprovalLog = async (requestId: string, workflowId: string) => {
+  const response = await crudRequest({
+    url: `${APPROVER_URL}/approver/status/${requestId}/${workflowId}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+  return response;
+};
+const getSingleApproval = async (requestId: string) => {
   const response = await crudRequest({
     url: `${APPROVER_URL}/approval-logs/${requestId}`,
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
+    headers: requestHeader(),
+  });
+  return response;
+};
+const getApprovalTNARequest = async (
+  userId: string,
+  page: number,
+  limit: number,
+) => {
+  const response = await crudRequest({
+    url: `${TNA_URL}/tna/tna-currentApprover/${userId}?page=${page}&limit=${limit}`,
+    method: 'GET',
+    headers: requestHeader(),
   });
   return response;
 };
@@ -130,6 +135,7 @@ export const useGetApprovalLeaveRequest = (
     },
   );
 };
+
 export const useGetSingleLeaveRequest = (requestId: string) => {
   return useQuery<SingleApiResponse<SingleLeaveRequest>>(
     ['single-leave-request', requestId],
@@ -139,12 +145,37 @@ export const useGetSingleLeaveRequest = (requestId: string) => {
     },
   );
 };
-export const useGetSingleApprovalLog = (requestId: string) => {
+export const useGetSingleApprovalLog = (
+  requestId: string,
+  workflowId: string,
+) => {
   return useQuery<SingleLogResponse<SingleLogRequest>>(
-    ['single-leave-log', requestId],
-    () => getSingleApprovalLog(requestId),
+    ['single-leave-log', requestId, workflowId],
+    () => getSingleApprovalLog(requestId, workflowId),
+    {
+      enabled: Boolean(requestId) && Boolean(workflowId), // Ensures both are non-empty, non-null, and non-undefined
+    },
+  );
+};
+export const useGetSingleApproval = (requestId: string) => {
+  return useQuery<SingleLogResponse<SingleLogRequest>>(
+    ['single-leave', requestId],
+    () => getSingleApproval(requestId),
     {
       enabled: !!requestId,
+    },
+  );
+};
+export const useGetApprovalTNARequest = (
+  userId: string,
+  page: number,
+  limit: number,
+) => {
+  return useQuery<any>(
+    ['tna-current_approval', userId, limit, page],
+    () => getApprovalTNARequest(userId, page, limit),
+    {
+      keepPreviousData: true,
     },
   );
 };

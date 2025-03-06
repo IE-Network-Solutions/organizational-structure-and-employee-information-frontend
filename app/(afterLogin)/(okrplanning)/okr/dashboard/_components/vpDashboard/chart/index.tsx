@@ -3,14 +3,17 @@ import VPPayCard from './vpCard';
 import { Col, Row } from 'antd';
 import LineGraph from './lineGraph';
 
-const VPChart: React.FC = () => {
+interface VPChartProps {
+  id?: string;
+}
+const VPChart: React.FC<VPChartProps> = ({ id }) => {
   return (
     <Row gutter={[16, 18]}>
       <Col xs={24} sm={24} md={8} lg={8} xl={8}>
-        <VPPayCard />
+        <VPPayCard id={id} />
       </Col>
       <Col xs={24} sm={24} md={16} lg={16} xl={16}>
-        <LineGraph />
+        <LineGraph id={id} />
       </Col>
     </Row>
   );

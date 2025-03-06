@@ -4,14 +4,13 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import AllowanceEntitlementTable from './_components/allowanceEntitlementTable';
 import { useParams } from 'next/navigation';
 import { useFetchAllowance } from '@/store/server/features/compensation/allowance/queries';
-import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation';
+import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 
 const SingleAllowancePage = () => {
-
   const { id } = useParams();
   const { data: allowanceData } = useFetchAllowance(id);
   const { setIsAllowanceGlobal } = useAllowanceEntitlementStore();
-  
+
   useEffect(() => {
     if (allowanceData?.applicableTo === 'GLOBAL') {
       setIsAllowanceGlobal(true);
@@ -22,8 +21,10 @@ const SingleAllowancePage = () => {
 
   return (
     <>
-      <PageHeader title={allowanceData?.name ? allowanceData?.name : ''} size="small">
-      </PageHeader>
+      <PageHeader
+        title={allowanceData?.name ? allowanceData?.name : ''}
+        size="small"
+      ></PageHeader>
       <AllowanceEntitlementTable />
     </>
   );

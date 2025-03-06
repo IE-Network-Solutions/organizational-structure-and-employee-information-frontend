@@ -27,7 +27,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
-  const { setKeyResult } = useOKRStore();
+  const { setKeyResult, objectiveValue } = useOKRStore();
 
   const handleAddKeyResult = () => {
     form
@@ -54,8 +54,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
     if (!name) {
       return `${key} is required.`;
     }
-    if (name.length < 3 || name.length > 80) {
-      return `${key} must be between 3 and 80 characters long.`;
+    if (name.length < 3) {
+      return `${key} must be between 3 greater than characters long.`;
     }
     return null;
   };
@@ -145,7 +145,14 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
-                    return current && current < dayjs().startOf('day');
+                    const startOfToday = dayjs().startOf('day');
+                    const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
+
+                    // Disable dates before today and above the objective deadline
+                    return (
+                      current &&
+                      (current < startOfToday || current > objectiveDeadline)
+                    );
                   }}
                   onChange={(date) =>
                     updateKeyResult(
@@ -207,6 +214,9 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   className="w-full text-xs"
                   prefix={<CiDollar size={20} />}
                   value={keyItem.initialValue}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  }
                   onChange={(value) =>
                     updateKeyResult(index, 'initialValue', value)
                   }
@@ -235,6 +245,9 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   className="w-full text-xs"
                   prefix={<CiDollar size={20} />}
                   value={keyItem.targetValue}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  }
                   onChange={(value) =>
                     updateKeyResult(index, 'targetValue', value)
                   }

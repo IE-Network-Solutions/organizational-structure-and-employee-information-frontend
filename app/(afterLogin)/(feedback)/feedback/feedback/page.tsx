@@ -1,12 +1,15 @@
 'use client';
-import { Button, Card, Popconfirm, Table, Tabs } from 'antd';
-import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
+import { Button, Form, Popconfirm, Spin, Table, Tabs, Tooltip } from 'antd';
+import { TabsProps } from 'antd';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import TabLandingLayout from '@/components/tabLanding';
 import { PiPlus } from 'react-icons/pi';
 import EmployeeSearchComponent from '@/components/common/search/searchComponent';
 import { useEffect } from 'react';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useEmployeeDepartments,
+  useGetAllUsers,
+} from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
@@ -16,6 +19,9 @@ import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { FeedbackService } from './_components/feedbackAnalytics';
+import { FeedbackCard, FeedbackCardSkeleton } from './_components/feedbackCard';
 
 const Page = () => {
   const {
@@ -25,15 +31,49 @@ const Page = () => {
     setSelectedFeedbackRecord,
     selectedFeedbackRecord,
     variantType,
+    setUserId,
+    userId,
     setActiveTab,
     activeTab,
+    empId,
+    setEmpId,
+    givenDate,
+    setGivenDate,
+    pageSize,
+    setPageSize,
+    page,
+    setPage,
   } = ConversationStore();
+  const userIdData = useAuthenticationStore.getState().userId;
+
   const { data: getAllUsersData } = useGetAllUsers();
-  const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
-  const { data: getAllFeedbackRecord } = useFetchAllFeedbackRecord();
+  const { data: getAllFeedbackTypes, isLoading: getFeedbackTypeLoading } =
+    useFetchAllFeedbackTypes();
+  const { data: getAllFeedbackRecord, isLoading: getFeedbackRecordLoading } =
+    useFetchAllFeedbackRecord({
+      variantType,
+      activeTab,
+      userId,
+      pageSize,
+      empId,
+      page,
+      givenDate,
+    });
+  const {
+    data: getAllFeedbackCardData,
+    isLoading: getFeedbackCardDataLoading,
+  } = useFetchAllFeedbackRecord({ variantType, activeTab, empId, userId });
+
+  const [form] = Form.useForm();
+
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
+  const { data: EmployeeDepartment } = useEmployeeDepartments();
 
   const { data: getAllUsers } = useGetAllUsers();
+  const feedbackAnaliytics = FeedbackService?.getFeedbackStats(
+    getAllFeedbackCardData?.items,
+    userId,
+  );
 
   const editHandler = (record: any) => {
     setSelectedFeedbackRecord(record);
@@ -45,13 +85,20 @@ const Page = () => {
   };
 
   const onChange = (key: string) => {
-    setVariantType(key);
+    setVariantType(key === 'appreciation' ? 'appreciation' : 'reprimand');
   };
+
+  const onChangeUserType = (key: string) => {
+    const data = key === 'personal' ? userIdData : 'all';
+    setUserId(data);
+  };
+
   useEffect(() => {
-    if (getAllFeedbackTypes?.items?.length) {
+    setUserId(userIdData);
+    if (getAllFeedbackTypes?.items?.length > 0) {
       setActiveTab(getAllFeedbackTypes.items[0].id);
     }
-  }, [getAllFeedbackTypes]);
+  }, [getAllFeedbackTypes, userIdData]);
 
   const onChangeFeedbackType = (key: string) => {
     setActiveTab(key);
@@ -61,7 +108,6 @@ const Page = () => {
     getAllFeedbackTypes?.items?.find(
       (item: FeedbackTypeItems) => item.id === activeTab,
     )?.category ?? '';
-  const handleSearchChange = () => {};
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -92,6 +138,19 @@ const Page = () => {
 
   const columns = [
     {
+      title: 'Issued To',
+      dataIndex: 'recipientId',
+      key: 'recipientId',
+      render: (notused: any, record: any) => {
+        const user = getAllUsers?.items?.find(
+          (item: any) => item.id === record.recipientId,
+        );
+        return user
+          ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
+          : 'Unknown'; // Return full name or fallback
+      },
+    },
+    {
       title: 'Given By',
       dataIndex: 'issuerId',
       key: 'issuerId',
@@ -99,7 +158,10 @@ const Page = () => {
         const user = getAllUsers?.items?.find(
           (item: any) => item.id === record.issuerId,
         );
-        return user ? `${user.firstName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
+
+        return user
+          ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
+          : 'Unknown'; // Return full name or fallback
       },
     },
     {
@@ -116,18 +178,76 @@ const Page = () => {
     {
       title: 'Reason',
       dataIndex: 'reason',
+      render: (notused: any, record: any) => {
+        return record.reason ? (
+          <Tooltip title={record?.reason}>
+            {record?.reason?.length >= 40
+              ? record?.reason?.slice(0, 40) + '....'
+              : record?.reason}{' '}
+          </Tooltip>
+        ) : (
+          'N/A'
+        );
+      },
+
       key: 'reason',
     },
+
     {
-      title: 'Reciepent',
-      dataIndex: 'recipientId',
-      key: 'recipientId',
+      title: 'Objective',
+      dataIndex: 'objective',
       render: (notused: any, record: any) => {
-        const user = getAllUsers?.items?.find(
-          (item: any) => item.id === record.recipientId,
+        return record.feedbackVariant.name ? (
+          <Tooltip title={record?.feedbackVariant.name}>
+            {record?.feedbackVariant.name?.length >= 40
+              ? record?.feedbackVariant.name?.slice(0, 40) + '....'
+              : record?.feedbackVariant.name}{' '}
+          </Tooltip>
+        ) : (
+          'N/A'
         );
-        return user ? `${user.firstName} ${user.lastName}` : 'Unknown'; // Return full name or fallback
       },
+
+      key: 'objective',
+    },
+
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      render: (notused: any, record: any) => {
+        const data = EmployeeDepartment.find(
+          (item: any) =>
+            item.id === record.feedbackVariant?.perspective?.departmentId,
+        );
+        return data?.name ? (
+          <Tooltip title={data?.name}>
+            {data?.name?.length >= 40
+              ? data?.name?.slice(0, 40) + '....'
+              : data?.name}
+          </Tooltip>
+        ) : (
+          '-'
+        );
+      },
+
+      key: 'name',
+    },
+    {
+      title: 'Action To be Taken',
+      dataIndex: 'action',
+      render: (notused: any, record: any) => {
+        return record.action ? (
+          <Tooltip title={record?.action}>
+            {record?.action?.length >= 40
+              ? record?.action?.slice(0, 40) + '....'
+              : record?.action}{' '}
+          </Tooltip>
+        ) : (
+          'N/A'
+        );
+      },
+
+      key: 'reason',
     },
     {
       title: 'Given Date',
@@ -145,8 +265,9 @@ const Page = () => {
       key: 'action',
       render: (notused: any, record: any) => {
         return (
-          <p className="flex gap-2">
+          <div className="flex gap-2">
             <Button
+              disabled={record.issuerId !== userIdData}
               size="small"
               onClick={() => editHandler(record)}
               icon={<Edit2Icon className="w-4 h-4 text-xs" />}
@@ -159,13 +280,14 @@ const Page = () => {
               cancelText="No"
             >
               <Button
+                disabled={record.issuerId !== userIdData}
                 size="small"
                 icon={<MdDeleteOutline />}
                 danger
                 type="primary"
               />
             </Popconfirm>
-          </p>
+          </div>
         );
       },
     },
@@ -174,16 +296,19 @@ const Page = () => {
   const searchField = [
     {
       key: 'employee',
+      type: 'select',
       placeholder: 'Select Employee',
       options:
         getAllUsersData?.items?.map((item: any) => ({
           key: item?.id,
-          value: `${item?.firstName} ${item?.lastName}`,
+          value: `${item?.firstName} ${item?.middleName} ${item?.lastName}`,
         })) ?? [], // Empty initially, will be updated dynamically
       widthRatio: 0.5,
+      onChange: (value: string) => setEmpId(value),
     },
     {
       key: 'allTypes',
+      type: 'start-end-date',
       placeholder: 'Select Type',
       options:
         getAllFeedbackTypes?.items?.map((feedbackType: FeedbackTypeItems) => ({
@@ -191,11 +316,12 @@ const Page = () => {
           value: feedbackType?.category,
         })) ?? [], // Empty initially, will be updated dynamically
       widthRatio: 0.5,
+      onChange: (value: string) => setGivenDate(value),
     },
   ];
   return (
     <TabLandingLayout
-      buttonTitle="Generate report"
+      // buttonTitle="Generate report"
       id="conversationLayoutId"
       onClickHandler={() => {}}
       title="Feedback"
@@ -206,24 +332,68 @@ const Page = () => {
         <Tabs
           defaultActiveKey="personal"
           items={items}
-          // onChange={onChange}
+          onChange={onChangeUserType}
         />
       </div>
-      <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((notused, index) => (
-          <Card key={index}>{index}</Card>
-        ))}
-      </div>
-
-      <Tabs
-        className="max-w-[850px]"
-        defaultActiveKey={activeTab}
-        items={getAllFeedbackTypes?.items?.map((item: FeedbackTypeItems) => ({
-          key: item?.id,
-          label: item?.category,
-        }))}
-        onChange={onChangeFeedbackType}
-      />
+      {getFeedbackCardDataLoading ? (
+        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((notused, index) => (
+            <FeedbackCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <FeedbackCard
+            appreciationPercentage={
+              feedbackAnaliytics?.appreciationStats?.issued
+            }
+            total={feedbackAnaliytics?.appreciationStats?.totalIssued}
+            contributorCount={
+              feedbackAnaliytics?.appreciationStats?.totalIssued
+            }
+            type="appreciation"
+            textType="appreciationIssued"
+          />
+          <FeedbackCard
+            appreciationPercentage={
+              feedbackAnaliytics?.appreciationStats?.received
+            }
+            total={feedbackAnaliytics?.appreciationStats?.totalReceived}
+            contributorCount={
+              feedbackAnaliytics?.appreciationStats?.totalReceived
+            }
+            type="appreciation"
+            textType="appreciationReceived"
+          />
+          <FeedbackCard
+            appreciationPercentage={feedbackAnaliytics?.reprimandStats?.issued}
+            total={feedbackAnaliytics?.reprimandStats?.totalIssued}
+            contributorCount={feedbackAnaliytics?.reprimandStats?.totalIssued}
+            type="reprimand"
+            textType="reprimandIssued"
+          />
+          <FeedbackCard
+            appreciationPercentage={
+              feedbackAnaliytics?.reprimandStats?.received
+            }
+            total={feedbackAnaliytics?.reprimandStats?.totalReceived}
+            contributorCount={feedbackAnaliytics?.reprimandStats?.totalReceived}
+            type="reprimand"
+            textType="reprimandReceived"
+          />
+        </div>
+      )}
+      <Spin spinning={getFeedbackTypeLoading} tip="Loading...">
+        <Tabs
+          className="max-w-[850px]"
+          defaultActiveKey={activeTab}
+          items={getAllFeedbackTypes?.items?.map((item: FeedbackTypeItems) => ({
+            key: item?.id,
+            label: item?.category,
+          }))}
+          onChange={onChangeFeedbackType}
+        />
+      </Spin>
       <Tabs
         defaultActiveKey="appreciation"
         items={variantTypeItems}
@@ -235,15 +405,35 @@ const Page = () => {
           buttonIcon={<PiPlus />}
           id="conversationLayoutId"
           onClickHandler={() => setOpen(true)}
-          title={<div className="text-lg">{variantType}</div>}
-          subtitle={`Given up on  ${variantType}`}
+          disabledMessage="Please select a feedback type"
+          buttonDisabled={activeTab === ''}
+          title={<div className="text-lg capitalize">{variantType}</div>}
+          subtitle={
+            <div className="capitalize">{`Given up on  ${variantType}`}</div>
+          }
           allowSearch={false}
         >
-          <EmployeeSearchComponent
-            fields={searchField}
-            onChange={handleSearchChange}
+          <EmployeeSearchComponent fields={searchField} />
+          <Table
+            loading={getFeedbackRecordLoading}
+            dataSource={getAllFeedbackRecord?.items}
+            columns={columns}
+            pagination={{
+              current: page,
+              pageSize: pageSize,
+              showSizeChanger: true, // Enables "page size" dropdown
+              showQuickJumper: true, // Enables jumping to a specific page
+              pageSizeOptions: ['10', '20', '50', '100'], // Page size options
+              defaultPageSize: 10, // Default page size
+              total: getAllFeedbackRecord?.meta?.totalItems, // Total number of items
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} of ${total} items`, // Display pagination info
+              onChange: (page, pageSize) => {
+                setPage(page);
+                setPageSize(pageSize);
+              },
+            }}
           />
-          <Table dataSource={getAllFeedbackRecord ?? []} columns={columns} />
         </TabLandingLayout>
       </div>
       <div>
@@ -254,11 +444,12 @@ const Page = () => {
           onClose={() => {
             setOpen(false);
             setSelectedFeedbackRecord(null);
+            form.resetFields();
           }}
           modalHeader={modalHeader}
-          width="30%"
+          width="40%"
         >
-          <CreateFeedbackForm />
+          <CreateFeedbackForm form={form} />
         </CustomDrawerLayout>
       </div>
     </TabLandingLayout>

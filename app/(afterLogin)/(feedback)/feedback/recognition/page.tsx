@@ -4,7 +4,8 @@ import TabLandingLayout from '@/components/tabLanding';
 import { useCreateRecognition } from '@/store/server/features/CFR/recognition/mutation';
 import {
   useGetAllRecognition,
-  useGetAllRecognitionType,
+  useGetAllRecognitionData,
+  useGetTotalRecognition,
 } from '@/store/server/features/CFR/recognition/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
@@ -21,20 +22,27 @@ import { Card, Table, TableColumnsType, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import dayjs from 'dayjs';
 import { PlusIcon } from 'lucide-react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CiMedal } from 'react-icons/ci';
 import { useRouter } from 'next/navigation';
 function Page() {
   const {
     updateSearchValue,
     searchValue,
-    selectedRecognitionType,    
+    selectedRecognitionType,
     setSelectedRecognitionType,
+    activeSessionId,
+    setActiveSession,
+    activeMonthId,
+    setActiveMonthId,
+    fiscalActiveYearId,
+    setFiscalActiveYearId,
     current,
     pageSize,
   } = useRecongnitionStore();
   const { data: allUserData } = useGetAllUsers();
-  const { data: recognitionType } = useGetAllRecognitionType();
+  const { data: recognitionType } = useGetAllRecognitionData();
+  const { data: totalRecogniion } = useGetTotalRecognition();
   const { data: getAllRecognition } = useGetAllRecognition({
     searchValue,
     current,
@@ -45,6 +53,27 @@ function Page() {
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
   const { data: getAllFisicalYear } = useGetAllFiscalYears();
   const navigate = useRouter();
+  useEffect(() => {
+    if (getActiveFisicalYear) {
+      const fiscalActiveYearId = getActiveFisicalYear?.id;
+      const activeSession = getActiveFisicalYear?.sessions?.find(
+        (item: Session) => item.active,
+      );
+
+      let activeMonthId = ''; // Default value in case no active month is found
+      if (activeSession) {
+        const activeMonth = activeSession.months?.find(
+          (item: Month) => item.active,
+        );
+        activeMonthId = activeMonth?.id ?? '';
+      }
+
+      // Update state values
+      setFiscalActiveYearId(fiscalActiveYearId ?? '');
+      setActiveMonthId(activeMonthId);
+      setActiveSession(activeSession?.id ?? '');
+    }
+  }, [getActiveFisicalYear]);
 
   const getEmployeeData = (employeeId: string) => {
     const employeeDataDetail = allUserData?.items?.find(
@@ -63,7 +92,7 @@ function Page() {
       dataIndex: 'employee',
       render: (notused, record) =>
         record.recipientId
-          ? `${getEmployeeData(record.recipientId)?.firstName ?? '-'} ${getEmployeeData(record.recipientId)?.lastName ?? '-'}`
+          ? `${getEmployeeData(record.recipientId)?.firstName ?? '-'} ${getEmployeeData(record.recipientId)?.middleName ?? '-'} ${getEmployeeData(record.recipientId)?.lastName ?? '-'}`
           : '-',
     },
     {
@@ -102,7 +131,7 @@ function Page() {
       dataIndex: 'createdBy',
       render: (notused, record) =>
         record.issuerId
-          ? `${getEmployeeData(record.issuerId)?.firstName ?? '-'} ${getEmployeeData(record.issuerId)?.lastName ?? '-'}`
+          ? `${getEmployeeData(record.issuerId)?.firstName ?? '-'} ${getEmployeeData(record.recipientId)?.middleName ?? '-'} ${getEmployeeData(record.issuerId)?.lastName ?? '-'}`
           : 'system',
     },
     {
@@ -119,19 +148,32 @@ function Page() {
       label: 'All',
       children: (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((notused, index) => (
-            <Card
-              className="bg-gray-200 font-bold"
-              key={`all-card-${index}`}
-              style={{ width: '100%' }} // Full width in grid cells
-            >
-              <p className="flex justify-start items-center text-green-600 font-extrabold text-xl">
-                <CiMedal />
-              </p>
-              <p>Total number of recognized employees</p>
-              <p>010</p>
-            </Card>
-          ))}
+          <Card
+            className="bg-gray-100 font-bold"
+            key={`all-card-${1}`}
+            style={{ width: '100%' }} // Full width in grid cells
+          >
+            <p className="flex justify-start items-center text-green-600 font-extrabold text-xl">
+              <CiMedal />
+            </p>
+            <p className="text-gray-400 text-xs mt-4">
+              Total number of recognized employees
+            </p>
+            <p>{`0${totalRecogniion?.totalRecognitions ?? 0}`}</p>
+          </Card>
+          <Card
+            className="bg-gray-100 font-bold"
+            key={`all-card-${2}`}
+            style={{ width: '100%' }} // Full width in grid cells
+          >
+            <p className="flex justify-start items-center text-green-600 font-extrabold text-xl">
+              <CiMedal />
+            </p>
+            <p className="text-gray-400 text-xs mt-4">
+              Total number of Criteria
+            </p>
+            <p>{`0${totalRecogniion?.totalCriteria ?? 0}`}</p>
+          </Card>
         </div>
       ),
     },
@@ -147,7 +189,7 @@ function Page() {
       options:
         allUserData?.items?.map((item: any) => ({
           key: item?.id,
-          value: `${item?.firstName} ${item?.lastName}`, // Correctly concatenating firstName and lastName
+          value: `${item?.firstName} ${item?.middleName} ${item?.lastName}`, // Correctly concatenating firstName and lastName
         })) ?? [],
       widthRatio: 0.4,
     },
@@ -193,6 +235,7 @@ function Page() {
   const handleRowClick = (record: any) => {
     navigate.push(`/feedback/recognition/${record.id}`);
   };
+
   return (
     <div>
       <Tabs
@@ -205,31 +248,23 @@ function Page() {
         <TabLandingLayout
           id="conversationLayoutId"
           onClickHandler={() => {
-            const fiscalActiveYearId = getActiveFisicalYear?.id;
-            const activeSession = getActiveFisicalYear?.sessions?.find(
-              (item: Session) => item.active,
-            );
-
-            if (activeSession) {
-              const activeMonth = activeSession.months?.find(
-                (item: Month) => item.active,
-              );
-              const recognitionTypeId = selectedRecognitionType;
-
-              // Correcting how the object is passed
-              fiscalActiveYearId &&
-                activeMonth &&
-                createRecognition({
-                  recognitionTypeId,
-                  calendarId: fiscalActiveYearId,
-                  sessionId: activeSession?.id, // Assigning directly
-                  monthId: activeMonth?.id, // Assigning directly
-                });
-            } else {
-            }
+            const recognitionTypeId = selectedRecognitionType;
+            // Correcting how the object is passed
+            fiscalActiveYearId &&
+              activeMonthId &&
+              createRecognition({
+                recognitionTypeId,
+                calendarId: fiscalActiveYearId,
+                sessionId: activeSessionId, // Assigning directly
+                monthId: activeMonthId, // Assigning directly
+              });
           }}
           title="Recognition"
           subtitle="Manage Recognition"
+          buttonDisabled={
+            !fiscalActiveYearId || !activeMonthId || !activeSessionId
+          }
+          disabledMessage={'make sure you have active session'}
           buttonTitle={
             selectedRecognitionType !== '1' ? 'Generate Recognition' : false
           }
@@ -237,7 +272,7 @@ function Page() {
         >
           <EmployeeSearchComponent
             fields={searcFields}
-            onChange={handleSearchChange}
+            onChange={(value) => handleSearchChange(value.key, value.value)}
           />
           <Table<any>
             columns={columns}

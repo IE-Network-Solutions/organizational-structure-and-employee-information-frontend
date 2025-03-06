@@ -11,7 +11,10 @@ import MonthDrawer from '../../month/monthDrawer';
 import { FormInstance } from 'antd/lib';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Form } from 'antd';
-import { Month, Session } from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import {
+  Month,
+  Session,
+} from '@/store/server/features/organizationStructure/fiscalYear/interface';
 
 interface FiscalYearDrawerProps {
   form: FormInstance;
@@ -35,8 +38,11 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     setSelectedFiscalYear,
     fiscalYearFormValues,
     sessionFormValues,
+    monthRangeValues,
     setCurrent,
     setMonthRangeFormValues,
+    setFiscalYearFormValues,
+    setSessionFormValues,
   } = useFiscalYearDrawerStore();
   const { data: departments } = useGetDepartments();
 
@@ -65,6 +71,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     if (isEditMode && selectedFiscalYear) {
       form1.setFieldsValue(fiscalYearFormValues);
       form2.setFieldsValue(sessionFormValues);
+      form3.setFieldsValue(monthRangeValues);
     } else {
       form1.resetFields();
       form2.resetFields();
@@ -159,10 +166,17 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
         fiscalYear: fiscalYearPayload,
       });
     } else {
-      createFiscalYear(fiscalYearPayload);
-      form1.resetFields();
-      form2.resetFields();
-      form3.resetFields();
+      createFiscalYear(fiscalYearPayload, {
+        onSuccess: () => {
+          form1.resetFields();
+          form2.resetFields();
+          form3.resetFields();
+          setMonthRangeFormValues(null);
+          setFiscalYearFormValues({});
+          setSessionFormValues({});
+          setCurrent(0);
+        },
+      });
     }
   };
 

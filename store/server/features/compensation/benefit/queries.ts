@@ -106,9 +106,7 @@ export const useFetchBenefitEntitlement = (benefitId: string | string[]) => {
  * @returns {QueryObject} The query object for fetching the benefit.
  */
 export const useFetchBenefit = (benefitId: string | string[]) => {
-  return useQuery(['benefit'], () =>
-    fetchBenefit(benefitId),
-  );
+  return useQuery(['benefit'], () => fetchBenefit(benefitId));
 };
 
 /**
@@ -117,7 +115,5 @@ export const useFetchBenefit = (benefitId: string | string[]) => {
  * @returns {QueryObject} The query object for fetching all benefits.
  */
 export const useFetchBenefits = () => {
-  return useQuery(['benefits'], () =>
-    fetchBenefits(),
-  );
+  return useQuery(['benefits'], () => fetchBenefits());
 };

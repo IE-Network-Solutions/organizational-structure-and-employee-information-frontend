@@ -35,7 +35,9 @@ export const EmployeeDetails = ({
 
   if (error || !userDetails) return '-';
 
-  const userName = userDetails?.firstName || '-';
+  const userName =
+    `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
+    '-';
   const profileImage = fallbackProfileImage;
 
   return (
@@ -67,10 +69,12 @@ const ScoringDrawer: React.FC = () => {
     selectedCriteria,
     selectedDepartment,
     filteredUsers,
+    userTypeFilter,
     setWeights,
     setSelectedCriteria,
     setSelectedDepartment,
     setFilteredUsers,
+    setUserTypeFilter,
   } = useCriteriaManagementStore();
   const { userId } = useAuthenticationStore();
 
@@ -81,6 +85,9 @@ const ScoringDrawer: React.FC = () => {
   useEffect(() => {
     resetState();
     if (scoringData && criteriaData) {
+      setFilteredUsers(
+        scoringData.userVpScoring.map((item: any) => item.userId),
+      );
       form.setFieldsValue({
         name: scoringData.name,
         totalPercentage: scoringData.totalPercentage,
@@ -118,22 +125,53 @@ const ScoringDrawer: React.FC = () => {
 
   useEffect(() => {
     if (selectedDepartment) {
-      const department = departmentData?.find(
-        (dept: any) => dept.id === selectedDepartment,
-      );
-      const departmentUsers = department?.users || [];
-      setFilteredUsers(departmentUsers);
+      const allSelectedDepartmentUsers = selectedDepartment
+        .flatMap((deptId: string) => {
+          const department = departmentData?.find(
+            (dept: any) => dept.id === deptId,
+          );
 
-      form.setFieldsValue({
-        users: departmentUsers.map((user: any) => user.id),
-      });
+          return department?.users || [];
+        })
+        .filter((user: any) => {
+          if (userTypeFilter === 'all') return true;
+          if (userTypeFilter === 'team leads')
+            return user?.employeeJobInformation?.find(
+              (job: any) => job.isPositionActive,
+            )?.departmentLeadOrNot;
+
+          return !user?.employeeJobInformation?.find(
+            (job: any) => job.isPositionActive,
+          )?.departmentLeadOrNot;
+        });
+      setFilteredUsers(allSelectedDepartmentUsers);
+
+      if (scoringData && criteriaData) {
+        const existingUsers = form.getFieldValue('users') || [];
+        form.setFieldsValue({
+          users: [
+            ...existingUsers,
+            ...allSelectedDepartmentUsers.map((user: any) => user.id),
+          ],
+        });
+      } else {
+        form.setFieldsValue({
+          users: allSelectedDepartmentUsers.map((user: any) => user.id),
+        });
+      }
     } else {
       setFilteredUsers([]);
     }
-  }, [selectedDepartment, departmentData, form]);
+  }, [selectedDepartment, departmentData, userTypeFilter]);
 
-  const handleDepartmentChange = (value: string) => {
+  const handleDepartmentChange = (value: string[]) => {
     setSelectedDepartment(value);
+  };
+
+  const handleUserTypeFilter = (
+    value: 'all' | 'team leads' | 'team members',
+  ) => {
+    setUserTypeFilter(value);
   };
 
   const handleCriteriaChange = (values: string[]) => {
@@ -179,7 +217,7 @@ const ScoringDrawer: React.FC = () => {
   const resetState = () => {
     setWeights({});
     setSelectedCriteria([]);
-    setSelectedDepartment(null);
+    setSelectedDepartment([]);
     setFilteredUsers([]);
     form.resetFields();
   };
@@ -225,10 +263,10 @@ const ScoringDrawer: React.FC = () => {
       if (currentId) {
         payload.id = currentId;
         payload.updatedBy = userId; // Add `updatedBy` if `currentId` exists
-        await updateScoring({ id: currentId, values: payload });
+        updateScoring({ id: currentId, values: payload });
       } else {
         payload.createdBy = userId; // Add `createdBy` if `currentId` does not exist
-        await vpScoringMutate(payload);
+        vpScoringMutate(payload);
       }
     } catch (error) {
       notification.error({
@@ -275,7 +313,7 @@ const ScoringDrawer: React.FC = () => {
           name="name"
           rules={[{ required: true, message: 'Please enter the name' }]}
         >
-          <Input placeholder="Enter the name here" className="h-12" />
+          <Input placeholder="Enter the name here" />
         </Form.Item>
 
         <Form.Item
@@ -290,21 +328,32 @@ const ScoringDrawer: React.FC = () => {
             min={0}
             max={100}
             placeholder="Enter the total percentage"
-            className="h-12"
           />
         </Form.Item>
 
         <Form.Item label="Department" name="department">
           <Select
+            mode="multiple"
             placeholder="Select Department"
             onChange={handleDepartmentChange}
-            className="w-full h-12"
           >
             {departmentData?.map((dept: any) => (
               <Option key={dept.id} value={dept.id}>
                 {dept.name}
               </Option>
             ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="User Type Filter">
+          <Select
+            placeholder="Select User Type"
+            onChange={handleUserTypeFilter}
+            defaultActiveFirstOption
+          >
+            <Option value="all">All</Option>
+            <Option value="team leads">Team Leads</Option>
+            <Option value="team members">Team Members</Option>
           </Select>
         </Form.Item>
 
@@ -317,7 +366,7 @@ const ScoringDrawer: React.FC = () => {
           <Select
             mode="multiple"
             placeholder="Add Users"
-            className="w-full h-12"
+            className="w-full min-h-12"
           >
             {filteredUsers.length > 0
               ? filteredUsers.map((user: any) => (
@@ -344,7 +393,7 @@ const ScoringDrawer: React.FC = () => {
             mode="multiple"
             placeholder="Select criteria"
             onChange={handleCriteriaChange}
-            className="flex-1 h-12"
+            className="flex-1 min-h-12"
           >
             {criteriaData?.items?.map((criteria: any) => (
               <Option key={criteria.id} value={criteria.name}>

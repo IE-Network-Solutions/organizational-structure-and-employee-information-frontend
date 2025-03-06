@@ -114,7 +114,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
         fiscalYearDescription: dayjs(selectedFiscalYear?.description),
       });
     }
-  }, [selectedFiscalYear, isEditMode]);
+  }, [selectedFiscalYear, isEditMode, form]);
 
   return (
     <Form form={form} layout="vertical">
@@ -152,14 +152,18 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
                 className="h-12 w-full font-normal text-xl mt-2"
               />
             </Form.Item>
-            <span className="text-xs font-normal mt-0 flex items-start mb-4 ml-1">
-              Active Calendar End date:
-              <span className="font-semibold">
-                {activeCalendar?.endDate
-                  ? dayjs(activeCalendar.endDate).format('YYYY-MM-DD')
-                  : 'N/A'}{' '}
+            {!isEditMode ? (
+              <span className="text-xs font-normal mt-0 flex items-start mb-4 ml-1">
+                Active Calendar End date:
+                <span className="font-semibold">
+                  {activeCalendar?.endDate
+                    ? dayjs(activeCalendar.endDate).format('YYYY-MM-DD')
+                    : 'N/A'}
+                </span>
               </span>
-            </span>
+            ) : (
+              ''
+            )}
           </Col>
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Form.Item

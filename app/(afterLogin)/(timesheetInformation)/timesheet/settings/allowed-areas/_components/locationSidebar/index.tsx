@@ -166,10 +166,6 @@ const LocationSidebar = () => {
               >
                 <InputNumber
                   min={0.1}
-<<<<<<< develop
-=======
-                  
->>>>>>> production
                   className="w-full py-[11px] mt-2.5"
                   placeholder="Enter radius in km"
                 />

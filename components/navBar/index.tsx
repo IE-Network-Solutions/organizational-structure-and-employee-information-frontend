@@ -89,11 +89,11 @@ const menuItems: MenuProps['items'] = [
         label: 'Planning and Reporting',
         className: 'font-bold',
       },
-      {
-        key: '/monitoring-evaluation',
-        label: 'Monitoring & Evaluation',
-        className: 'font-bold',
-      },
+      // {
+      //   key: '/monitoring-evaluation',
+      //   label: 'Monitoring & Evaluation',
+      //   className: 'font-bold',
+      // },
       { key: '/okr/settings', label: 'Settings', className: 'font-bold' },
     ],
   },
@@ -161,12 +161,13 @@ const menuItems: MenuProps['items'] = [
     className: 'font-bold',
     label: 'Payroll',
     children: [
-      // {
-      //   key: '/employee-information',
-      //   label: 'Employee Information',
-      //   className: 'font-bold',
-      // },
+      {
+        key: '/employee-information',
+        label: 'Employee Information',
+        className: 'font-bold',
+      },
       { key: '/payroll', label: 'Payroll', className: 'font-bold' },
+      { key: '/myPayroll', label: 'My Payroll', className: 'font-bold' },
       {
         key: '/settings',
         label: 'Settings',
@@ -219,8 +220,26 @@ const menuItems: MenuProps['items'] = [
         className: 'font-bold',
       },
       {
-        key: '/settings',
+        key: '/deduction',
+        label: 'Deduction',
+        className: 'font-bold',
+      },
+      {
+        key: '/compensationSetting',
         label: 'Settings',
+        className: 'font-bold',
+      },
+    ],
+  },
+  {
+    key: '/incentive',
+    icon: <CiCalendar />,
+    className: 'font-bold',
+    label: 'Incentive',
+    children: [
+      {
+        key: '/variable-pay',
+        label: 'Variable Pay',
         className: 'font-bold',
       },
     ],
@@ -228,26 +247,21 @@ const menuItems: MenuProps['items'] = [
 ];
 
 const userItems: MenuProps['items'] = [
-  //   {
-  //     key: '/okr-planning',
-  //     label: 'OKR',
-  //     icon: <CiStar size={20} />,
-  //     className: 'font-bold',
-  //     children: [
-  //       { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold' },
-  //       { key: '/okr', label: 'OKR', className: 'font-bold' },
-  //       {
-  //         key: '/planning-and-reporting',
-  //         label: 'Planning and Reporting',
-  //         className: 'font-bold',
-  //       },
-  //       {
-  //         key: '/monitoring-evaluation',
-  //         label: 'Monitoring & Evaluation',
-  //         className: 'font-bold',
-  //       },
-  //     ],
-  //   },
+  {
+    key: '/okr-planning',
+    label: 'OKR',
+    icon: <CiStar size={20} />,
+    className: 'font-bold',
+    children: [
+      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold' },
+      { key: '/okr', label: 'OKR', className: 'font-bold' },
+      {
+        key: '/planning-and-reporting',
+        label: 'Planning and Reporting',
+        className: 'font-bold',
+      },
+    ],
+  },
   //   {
   //     key: '/feedback',
   //     label: 'CFR',
@@ -289,6 +303,20 @@ const userItems: MenuProps['items'] = [
       },
     ],
   },
+  // {
+  //   key: '/incentive',
+  //   icon: <CiCalendar />,
+  //   className: 'font-bold',
+  //   label: 'Incentive',
+  //   children: [
+  //     {
+  //       key: '/variable-pay',
+  //       label: 'Variable Pay',
+  //       className: 'font-bold',
+  //     }
+
+  //   ],
+  // },
 ];
 
 interface MyComponentProps {

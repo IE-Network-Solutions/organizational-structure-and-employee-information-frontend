@@ -28,7 +28,7 @@ const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
     <div className="flex items-center gap-1.5">
       <Avatar size={24} icon={<UserOutlined />} />
       <div className="flex-1">
-        <div className="text-xs text-gray-900">
+        <div className="text-xs text-gray-900 flex gap-2">
           {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
           {employeeData?.lastName || '-'}
         </div>

@@ -11,27 +11,27 @@ interface TimesheetSettingsLayoutProps {
   children: ReactNode;
 }
 
-const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({
-  children,
-}) => {
-  
+const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const { data } = useFetchBenefits();
   const [menuItems, setMenuItems] = useState<any>([]);
 
   useEffect(() => {
     if (data) {
       const filteredData = data.filter((item: any) => item.type === 'MERIT');
-      const dynamicMenuItems = filteredData?.map((allowance: any) => ({
-        item: {
-          key: allowance.id,
-          icon: <CiCalendarDate />,
-          label: (
-            <p className="menu-item-label">{allowance.name || 'Unnamed Allowance'}</p>
-          ),
-          className: 'px-1',
-        },
-        link: `/benefit/${allowance.id}`,
-      })) || [];
+      const dynamicMenuItems =
+        filteredData?.map((allowance: any) => ({
+          item: {
+            key: allowance.id,
+            icon: <CiCalendarDate />,
+            label: (
+              <p className="menu-item-label">
+                {allowance.name || 'Unnamed Allowance'}
+              </p>
+            ),
+            className: 'px-1',
+          },
+          link: `/benefit/${allowance.id}`,
+        })) || [];
 
       const allAllowanceItem = {
         item: {
@@ -43,10 +43,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({
         link: '/benefit/variablePay',
       };
 
-      setMenuItems([
-        allAllowanceItem,
-        ...dynamicMenuItems,
-      ]);
+      setMenuItems([allAllowanceItem, ...dynamicMenuItems]);
     }
   }, [data]);
 

@@ -13,7 +13,7 @@ const headers = {
 
 const getAllFiscalYears = async (pageSize?: number, currentPage?: number) => {
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars?limit=${pageSize}&&page=${currentPage}`,
+    url: `${ORG_AND_EMP_URL}/calendars?limit=${pageSize ?? 10}&&page=${currentPage ?? 1}`,
     method: 'GET',
     headers,
   });

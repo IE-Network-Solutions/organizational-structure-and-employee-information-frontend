@@ -37,15 +37,20 @@ export const options = {
   },
 };
 
-const LineGraph: React.FC = () => {
-  const userId = useAuthenticationStore.getState().userId;
+interface PayCardInterface {
+  id?: string;
+}
+
+const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
+  const userId = useAuthenticationStore?.getState().userId;
   const { data: getAllMonth } = useGetAllMonth();
+  const identifier = id ?? userId;
 
   const { data: lineGraph, isLoading: isGraphLoading } =
-    useGetVPLineGraphData(userId);
+    useGetVPLineGraphData(identifier);
   const getMonthName = (id: string) => {
     return (
-      getAllMonth.items?.find((monthItem: any) => monthItem.id === id) ?? {}
+      getAllMonth?.items?.find((monthItem: any) => monthItem?.id === id) ?? {}
     );
   };
 
@@ -60,8 +65,8 @@ const LineGraph: React.FC = () => {
       };
     }
 
-    const startDate = dayjs(monthData.startDate);
-    const endDate = dayjs(monthData.endDate);
+    const startDate = dayjs(monthData?.startDate);
+    const endDate = dayjs(monthData?.endDate);
 
     const formattedStartDate = startDate.format('MMM D');
     const formattedEndDate = endDate.format('MMM D');

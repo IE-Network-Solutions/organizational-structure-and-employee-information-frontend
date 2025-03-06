@@ -31,14 +31,20 @@ const CommentList = ({
   isPlanCard: boolean;
 }) => {
   const { data: allUsers } = useGetAllUsers();
-  const { mutate: onAddPlanComment } = useAddPlanComment();
-  const { mutate: onAddReportComment } = useAddReportComment();
+  const { mutate: onAddPlanComment, isLoading: addPlanLoading } =
+    useAddPlanComment();
+  const { mutate: onAddReportComment, isLoading: addReportLoading } =
+    useAddReportComment();
 
-  const { mutate: deletePlanComment } = useDeletePlanComment();
-  const { mutate: deleteReportComment } = useDeleteReportComment();
+  const { mutate: deletePlanComment, isLoading: deletePlanLoading } =
+    useDeletePlanComment();
+  const { mutate: deleteReportComment, isLoading: deleteReportLoading } =
+    useDeleteReportComment();
 
-  const { mutate: onUpdatePlanComment } = useUpdatePlanComment();
-  const { mutate: onUpdateReportComment } = useUpdateReportComment();
+  const { mutate: onUpdatePlanComment, isLoading: editPlanLoading } =
+    useUpdatePlanComment();
+  const { mutate: onUpdateReportComment, isLoading: editReportLoading } =
+    useUpdateReportComment();
 
   const [editingCommentId, setEditingCommentId] = useState<string>('');
 
@@ -53,7 +59,7 @@ const CommentList = ({
           middleName: user.middleName || '-',
           profileImage: user.profileImage,
           role: user.role?.name || '-',
-          fullName: `${user.firstName} ${user.middleName} ${user.lastName}`,
+          fullName: `${user?.firstName} ${user?.middleName} ${user?.lastName}`,
         }
       : {
           firstName: '-',
@@ -117,45 +123,43 @@ const CommentList = ({
   return (
     <div className="w-full">
       {data.map((commentData) => (
-        <div
+        <Row
           key={commentData.id}
-          className="flex mb-4 p-3 border-b last:border-b-0"
+          justify="space-between"
+          align="middle"
+          className="w-full p-3 border-b last:border-b-0"
         >
-          <Avatar
-            src={
-              getUserDetail(commentData.commentedBy)?.profileImage || undefined
-            }
-            icon={
-              !getUserDetail(commentData.commentedBy)?.profileImage ? (
-                <FaUser />
-              ) : undefined
-            }
-            alt={getUserDetail(commentData.commentedBy)?.fullName || 'User'}
-            className="mr-3"
-          />
-          <Row
-            justify="space-between"
-            align="middle"
-            className="w-full mb-4 p-3 border-b last:border-b-0"
-          >
-            <Col>
-              <div className="text-xs font-semibold">
-                {getUserDetail(commentData.commentedBy)?.fullName}
-              </div>
-              <div className="text-gray-700">{commentData.comment}</div>
-              <div className="text-gray-500 text-xs">
-                {dayjs(commentData.createdAt).fromNow()}
-              </div>
-            </Col>
-            <Col hidden={commentData.commentedBy !== userId}>
-              <CommentActionMenu
-                onEdit={() => handleEdit(commentData)}
-                onDelete={() => handleDelete(commentData?.id)}
+          <Col>
+            <div className="text-xs font-semibold flex items-center">
+              <Avatar
+                src={
+                  getUserDetail(commentData.commentedBy)?.profileImage ||
+                  undefined
+                }
+                icon={
+                  !getUserDetail(commentData.commentedBy)?.profileImage ? (
+                    <FaUser />
+                  ) : undefined
+                }
+                alt={getUserDetail(commentData.commentedBy)?.fullName || 'User'}
+                className="mr-1"
               />
-            </Col>
-          </Row>
-        </div>
+              {getUserDetail(commentData.commentedBy)?.fullName}
+            </div>
+            <div className="text-gray-700">{commentData.comment}</div>
+            <div className="text-gray-500 text-xs">
+              {dayjs(commentData.createdAt).fromNow()}
+            </div>
+          </Col>
+          <Col hidden={commentData?.commentedBy !== userId}>
+            <CommentActionMenu
+              onEdit={() => handleEdit(commentData)}
+              onDelete={() => handleDelete(commentData?.id)}
+            />
+          </Col>
+        </Row>
       ))}
+
       <Form
         form={form}
         layout="inline"
@@ -184,7 +188,19 @@ const CommentList = ({
           </Col>
           <Col span={4}>
             <Form.Item>
-              <Button type="primary" htmlType="submit" className="w-full">
+              <Button
+                loading={
+                  addPlanLoading ||
+                  addReportLoading ||
+                  deletePlanLoading ||
+                  deleteReportLoading ||
+                  editPlanLoading ||
+                  editReportLoading
+                }
+                type="primary"
+                htmlType="submit"
+                className="w-full"
+              >
                 Send
               </Button>
             </Form.Item>

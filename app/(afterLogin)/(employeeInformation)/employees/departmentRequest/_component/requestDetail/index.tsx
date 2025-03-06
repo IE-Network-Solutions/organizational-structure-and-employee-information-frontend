@@ -17,20 +17,29 @@ const RequestDetail = () => {
     setIsShowBranchRequestDetail,
     branchRequestSidebarData,
     setBranchRequestSidebarData,
+    branchRequestSidebarWorkflowData,
+    setBranchRequestSidebarWorkflowData,
   } = useMyBranchApprovalStore();
 
   const { data: employeeData } = useGetAllUsers();
   const userData = (
     id: string,
-  ): { firstName?: string; lastName?: string } | undefined => {
+  ):
+    | { firstName?: string; middleName?: string; lastName?: string }
+    | undefined => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user
-      ? { firstName: user.firstName, lastName: user.lastName }
+      ? {
+          firstName: user.firstName,
+          middleName: user?.middleName,
+          lastName: user.lastName,
+        }
       : undefined;
   };
 
   const onClose = () => {
     setBranchRequestSidebarData('');
+    setBranchRequestSidebarWorkflowData('');
     setIsShowBranchRequestDetail(false);
   };
 
@@ -39,6 +48,7 @@ const RequestDetail = () => {
   );
   const { data: logData } = useGetSingleApprovalLog(
     branchRequestSidebarData ?? '',
+    branchRequestSidebarWorkflowData ?? '',
   );
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -49,6 +59,7 @@ const RequestDetail = () => {
       onClick: () => {
         onClose();
         setBranchRequestSidebarData('');
+        setBranchRequestSidebarWorkflowData('');
       },
     },
   ];
@@ -104,6 +115,7 @@ const RequestDetail = () => {
                       : 'Approve By : '}
                     <span className="text-xl">
                       {userData(String(step.approvedUserId))?.firstName}{' '}
+                      {userData(String(step.approvedUserId))?.middleName}{' '}
                       {userData(String(step.approvedUserId))?.lastName}
                     </span>
                   </div>

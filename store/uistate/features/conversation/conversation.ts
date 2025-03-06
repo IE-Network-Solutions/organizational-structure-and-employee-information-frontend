@@ -16,17 +16,21 @@ interface SearchField {
   placeholder: string;
   options: SearchFieldOption[];
   widthRatio: number;
+  onChange: (value: string) => void; // Added the onChange handler
 }
 export interface CategoriesUseState {
   open: boolean;
   current: number;
-  pageSize: number;
   totalPages: number;
+  pageSize: number;
+  setPageSize: (pageSize: number) => void;
+
+  page: number;
+  setPage: (page: number) => void;
 
   openRecognitionType: boolean;
   setOpenRecognitionType: (vlaue: boolean) => void;
 
-  setPageSize: (pageSize: number) => void;
   setCurrent: (value: number) => void;
 
   setOpen: (value: boolean) => void;
@@ -58,8 +62,14 @@ export interface CategoriesUseState {
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
 
-  variantType: string;
-  setVariantType: (variantType: string) => void;
+  empId: string;
+  setEmpId: (empId: string) => void;
+
+  givenDate: any;
+  setGivenDate: (givenDate: any) => void;
+
+  variantType: 'appreciation' | 'reprimand';
+  setVariantType: (variantType: 'appreciation' | 'reprimand') => void;
 
   selectedFeedbackRecord: FeedbackRecord | null;
   setSelectedFeedbackRecord: (
@@ -70,7 +80,7 @@ export interface CategoriesUseState {
   setSelectedFeedback: (selectedFeedback: any) => void;
 
   editableData: any;
-  setEditableData: (activeTab: any) => void;
+  setEditableData: (editableData: any) => void;
 
   departmentId: string;
   setDepartmentId: (departmentid: string) => void;
@@ -89,20 +99,30 @@ const initialSearchField: SearchField[] = [
     placeholder: 'Select Employee',
     options: [], // Empty initially, will be updated dynamically
     widthRatio: 0.5,
+    onChange: () => {},
   },
   {
     key: 'department',
     placeholder: 'Select Department',
     options: [], // Empty initially, will be updated dynamically
     widthRatio: 0.5,
+    onChange: () => {},
   },
 ];
 
 export const ConversationStore = create<CategoriesUseState>((set) => ({
   open: false,
   current: 0,
-  pageSize: 4,
-  totalPages: 1,
+  totalPages: 10,
+
+  pageSize: 10,
+  setPageSize: (pageSize: number) => set({ pageSize }),
+
+  setTotalPages: (totalPages: number) => set({ totalPages }),
+
+  page: 1,
+  setPage: (page: number) => set({ page }),
+
   selectedDepartment: [],
   setSelectedDepartment: (selectedDepartment: string[]) =>
     set({ selectedDepartment }),
@@ -123,7 +143,8 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedRecognitionType: (selectedRecognitionType: string) =>
     set({ selectedRecognitionType }),
   variantType: 'appreciation',
-  setVariantType: (variantType: string) => set({ variantType }),
+  setVariantType: (variantType: 'appreciation' | 'reprimand') =>
+    set({ variantType }),
 
   selectedFeedback: null,
   setSelectedFeedback: (selectedFeedback: any) => set({ selectedFeedback }),
@@ -134,6 +155,12 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   activeTab: '1',
   setActiveTab: (activeTab: string) => set({ activeTab }),
+
+  empId: '',
+  setEmpId: (empId: string) => set({ empId }),
+
+  givenDate: [],
+  setGivenDate: (givenDate: any) => set({ givenDate }),
 
   editableData: null,
   setEditableData: (editableData: any) => set({ editableData }),
@@ -161,9 +188,6 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
         field.key === key ? { ...field, options: newOptions } : field,
       ),
     })),
-
-  setTotalPages: (totalPages: number) => set({ totalPages }),
-  setPageSize: (pageSize) => set({ pageSize }),
 
   openRecognitionType: false,
   setOpenRecognitionType: (openRecognitionType: boolean) =>

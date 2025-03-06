@@ -139,6 +139,7 @@ export const useCreateJobInformation = () => {
     onSuccess: (data: CreateEmployeeJobInformationInterface) => {
       queryClient.invalidateQueries(['employee', data.userId]);
       queryClient.invalidateQueries('employees');
+      queryClient.invalidateQueries('basicSalary');
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Employee successfully Created',

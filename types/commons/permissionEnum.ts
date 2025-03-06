@@ -1,4 +1,14 @@
 export enum Permissions {
+  // Allowance type permissions
+  CreateAllowanceType = 'create-allowance-type',
+  UpdateAllowanceType = 'update-allowance-type',
+  DeleteAllowanceType = 'delete-allowance-type',
+
+  // Benefit type permissions
+  CreateBenefitType = 'create-benefit-type',
+  UpdateBenefitType = 'update-benefit-type',
+  DeleteBenefitType = 'delete-benefit-type',
+
   // Compensation and Benefit Permissions
   CreateAllowanceEntitlement = 'create-allowance-entitlement',
   UpdateAllowanceEntitlement = 'update-allowance-entitlement',
@@ -8,7 +18,16 @@ export enum Permissions {
   UpdateBenefitEntitlement = 'update-benefit-entitlement',
   DeleteBenefitEntitlement = 'delete-benefit-entitlement',
 
+  // PayPeriod permissions
+  CreatePayPeriod = 'create-pay-period',
+  UpdatePayPeriod = 'update-pay-period',
+  DeletePayPeriod = 'delete-pay-period',
+
   // Could not be found Permissions that needs to be changed
+
+  approveAndRejectPlan = 'approve-and-reject-plan',
+  editAndDeletePlan = 'edit-and-delete-plan',
+
   ViewAllEmployeePlan = 'view-all-employee-plan',
   ViewAllPlan = 'view-all-plan',
   ViewAllStatusPlan = 'view-all-status-plan',
@@ -282,4 +301,9 @@ export enum Permissions {
   // CreateRecognitionType = 'create-recognition-type',
   // DeleteRecognitionType = 'delete-recognition-type',
   // EditRecognitionType = 'edit-recognition-type',
+
+  //profile
+  ChangePassword = 'change-password',
+  ChangeProfileImage = 'change-profile-image',
+  ChangeManagerProfile = 'change-manager-profile',
 }

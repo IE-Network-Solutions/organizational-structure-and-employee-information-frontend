@@ -20,6 +20,7 @@ export const useOKRStore = create<OKRState>()(
       title: '',
       userId: '',
       deadline: '',
+      isClosed: true,
       keyResults: [
         {
           key_type: 'Milestone',
@@ -37,6 +38,7 @@ export const useOKRStore = create<OKRState>()(
       title: '',
       userId: '',
       deadline: '',
+      isClosed: true,
     },
 
     // Initialize key result value state
@@ -122,15 +124,13 @@ export const useOKRStore = create<OKRState>()(
             i === index ? { ...item, [field]: value } : item,
           ),
         },
-       
       })),
-      updateKeyResultValue: (index: number, field: keyof KeyResult, value: any) =>
-        set((state) => ({
-         
-          keyResultValue: state.keyResultValue.map((item: any, i: number) =>
-            i === index ? { ...item, [field]: value } : item,
-          ),
-        })),
+    updateKeyResultValue: (index: number, field: keyof KeyResult, value: any) =>
+      set((state) => ({
+        keyResultValue: state.keyResultValue.map((item: any, i: number) =>
+          i === index ? { ...item, [field]: value } : item,
+        ),
+      })),
     handleKeyResultChange: (value: any, index: number, field: string) =>
       set((state) => {
         const newKeyResult = [...state.objectiveValue.keyResults];
@@ -263,5 +263,7 @@ export const useOKRStore = create<OKRState>()(
       set({ companyCurrentPage }),
     okrTab: 1,
     setOkrTab: (okrTab: number | string) => set({ okrTab }),
+    alignment: false,
+    setAlignment: (alignment: boolean) => set({ alignment }),
   })),
 );
