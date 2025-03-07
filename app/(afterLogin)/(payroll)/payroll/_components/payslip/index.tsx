@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { fileUpload } from '@/utils/fileUpload';
@@ -7,11 +7,9 @@ import dayjs from 'dayjs';
 import { Button } from 'antd';
 
 const PaySlip = ({ data }: { data: any[] }) => {
-  const [loading, setLoading] = useState(false);
   const { mutate: sendEmail } = useSendEmail();
 
   const sendPayrollWithPDF = async () => {
-    setLoading(true);
     for (let i = 0; i < data.length; i++) {
       const employeeData = data[i];
       const input = document.getElementById('payslip');
@@ -104,15 +102,14 @@ const PaySlip = ({ data }: { data: any[] }) => {
         );
       } catch (error) {}
     }
-    setLoading(false);
   };
   return (
     <>
       <Button
         type="default"
-        loading={loading}
+        // loading={loading}
         onClick={sendPayrollWithPDF}
-        className="text-white bg-violet-500 border-none p-6"
+        className="text-white bg-primary border-none p-6"
       >
         Send Email for employees
       </Button>

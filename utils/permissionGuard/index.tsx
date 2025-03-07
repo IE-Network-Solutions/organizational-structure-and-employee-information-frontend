@@ -16,7 +16,7 @@ const AccessGuard: React.FC<AccessGuardProps> & {
 
   useEffect(() => {
     setIsClient(true);
-  });
+  }, []);
 
   if (!isClient) {
     return <></>;

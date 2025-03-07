@@ -4,6 +4,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { EMAIL_URL, PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
+import { PaySlipData } from './interface';
 
 const createPayroll = async (values: any) => {
   const token = useAuthenticationStore.getState().token;
@@ -23,6 +24,23 @@ const createPayroll = async (values: any) => {
     NotificationMessage.success({
       message: 'Successfully Created',
       description: 'PayRoll successfully Created.',
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+const sendingPayrollPaySlip = async ({ values }: { values: any }) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  try {
+    await crudRequest({
+      url: `${PAYROLL_URL}/payroll/send-pay-slip`,
+      method: 'POST',
+      data: values,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
     });
   } catch (error) {
     throw error;
@@ -68,7 +86,30 @@ export const useCreatePayroll = () => {
     },
   });
 };
+export const useSendingPayrollPayslip = () => {
+  const queryClient = useQueryClient();
 
+  return useMutation(
+    ({ values }: { values: PaySlipData[] }) =>
+      sendingPayrollPaySlip({ values }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('payroll');
+        NotificationMessage.success({
+          message: 'Payslip sent successfully',
+          description: '',
+        });
+      },
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message;
+        NotificationMessage.error({
+          message: 'PayRoll Creation Failed',
+          description: errorMessage,
+        });
+      },
+    },
+  );
+};
 export const useUpdatePensionRule = () => {
   const queryClient = useQueryClient();
 
