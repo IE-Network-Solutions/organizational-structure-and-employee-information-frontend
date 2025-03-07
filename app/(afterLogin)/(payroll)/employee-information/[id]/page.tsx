@@ -30,7 +30,6 @@ import { UploadFile } from 'antd/lib';
 import { RcFile } from 'antd/es/upload';
 import { HiOutlineMail } from 'react-icons/hi';
 import { MdKeyboardArrowRight } from 'react-icons/md';
-import BranchTransferRequest from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/branchTransferRequest';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
