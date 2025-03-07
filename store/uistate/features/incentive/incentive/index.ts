@@ -159,6 +159,8 @@ type IncentiveState = {
   menuItems: any[];
   currentItem: string;
   isSwitchOn: boolean;
+  selectedRecognitionTypeId: string;
+  selectedRecognition: any;
 };
 
 type IncentiveActions = {
@@ -181,6 +183,8 @@ type IncentiveActions = {
   setCurrentItem: (item: string) => void;
   setMenuItems: (items: any[]) => void;
   setIsSwitchOn: (value: boolean) => void;
+  setSelectedRecognitionTypeId: (value: string) => void;
+  setSelectedRecognition: (recognition: any) => void;
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -252,6 +256,14 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
 
   isSwitchOn: false,
   setIsSwitchOn: (isSwitchOn) => set({ isSwitchOn }),
+
+  selectedRecognitionTypeId: '',
+  setSelectedRecognitionTypeId: (selectedRecognitionTypeId) =>
+    set({ selectedRecognitionTypeId }),
+
+  selectedRecognition: null,
+  setSelectedRecognition: (recognition) =>
+    set({ selectedRecognition: recognition }),
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(

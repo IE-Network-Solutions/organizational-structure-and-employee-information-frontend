@@ -1,4 +1,5 @@
 import { requestHeader } from '@/helpers/requestHeader';
+import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
@@ -11,6 +12,26 @@ const fetchIncentiveCards = async () => {
   });
 };
 
+const fetchExcelHeaders = async (recognitionsTypeId: string) => {
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition-criterias/import/template/${recognitionsTypeId}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
+const fetchIncentiveTabs = async (recognitionsTypeId: string) => {
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition-criterias/import/template/${recognitionsTypeId}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
+
+export const useExcelHeaders = (recognitionsTypeId: string) => {
+  return useQuery<any>(['allIncentiveCards', recognitionsTypeId], () =>
+    fetchExcelHeaders(recognitionsTypeId),
+  );
+};
 export const useAllIncentiveCards = () => {
   return useQuery<any>('allIncentiveCards', fetchIncentiveCards);
 };

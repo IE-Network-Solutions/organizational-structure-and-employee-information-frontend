@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 
 const IncentivePage = () => {
-  redirect(`/incentive/incentivePage`);
+  redirect(`/incentive/incentivePage/_components/all`);
   return null;
 };
 

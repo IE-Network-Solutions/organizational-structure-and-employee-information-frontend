@@ -1,12 +1,6 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import {
-  useFetchAllPayPeriod,
-  useFetchIncentiveTemplate,
-} from '@/store/server/features/incentive/project/queries';
+import { useFetchAllPayPeriod } from '@/store/server/features/incentive/project/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { Button, Form, Select, Spin, Upload } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
@@ -14,48 +8,43 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { MdOutlineUploadFile } from 'react-icons/md';
 import DownloadExcelButton from '../../dowloadTemplateExcel';
+import { useImportData } from '@/store/server/features/incentive/all/mutation';
+import { useAllRecognition } from '@/store/server/features/incentive/other/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { IoInformationCircleOutline } from 'react-icons/io5';
 
 const ImportProjectData: React.FC = () => {
   const [form] = Form.useForm();
-  const { projectDrawer, setProjectDrawer, file } = useIncentiveStore();
+  const { projectDrawer, setProjectDrawer, selectedRecognition } =
+    useIncentiveStore();
+  const { mutate: importData, isLoading: submitPending } = useImportData();
+  const { data: recognitionData } = useAllRecognition();
 
   const { data: payPeriodData, isLoading: responseLoading } =
     useFetchAllPayPeriod();
-  const { data: incentiveTemplate, isLoading: templateResponseLoading } =
-    useFetchIncentiveTemplate();
 
   const handleClose = () => {
     setProjectDrawer(false);
   };
 
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-14',
-      size: 'small',
-      onClick: handleClose,
-    },
-    {
-      label: <span>Create</span>,
-      key: 'create',
-      className: 'h-14',
-      type: 'primary',
-      size: 'small',
-      onClick: () => form.submit(),
-    },
-  ];
-
   const handleSubmit = async (values: any) => {
-    // if (!file) {
-    //   NotificationMessage.error('Please upload a file before submitting.');
-    //   return;
-    // }
+    const formValues = form.getFieldsValue();
+    const userId = useAuthenticationStore.getState().userId;
 
     const formData = new FormData();
-    formData.append('file', file); // Add file to FormData
-    formData.append('payPeriod', values.payPeriod); // Add other form values
-    formData.append('otherInfo', values.otherInfo);
+    formData.append('file', values?.fileName?.file?.originFileObj);
+    // formData.append('fileName', file.fileName);
+    // formData.append('fileType', values?.file?.type);
+    formData.append('importDate', JSON.stringify(values?.importDate));
+
+    formData.append(
+      'recognitionTypeId',
+      JSON.stringify(values?.recognitionTypeId) || '',
+    ),
+      formData.append('userId', JSON.stringify(userId) || '');
+    // formData.append('source', values?.source || '');
+
+    importData(formData);
   };
 
   const uploadProps = {
@@ -76,25 +65,39 @@ const ImportProjectData: React.FC = () => {
       onClose={handleClose}
       modalHeader={
         <CustomDrawerHeader className="flex justify-between">
-          <span>Import Project Data</span>
+          <span>Import {selectedRecognition?.name} Data</span>
           <div>
-            {templateResponseLoading ? (
-              <button>Loading headers...</button>
-            ) : (
-              <DownloadExcelButton headers={incentiveTemplate} />
-            )}
+            <DownloadExcelButton />
           </div>
         </CustomDrawerHeader>
       }
-      footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+      // footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+      footer={null}
       width="600px"
     >
-      <Form layout="vertical" form={form} onFinish={handleSubmit}>
-        <Form.Item>
+      <div className="flex items-start justify-center space-x-2">
+        <div>
+          <IoInformationCircleOutline size={14} />
+        </div>
+        <div className="flex flex-wrap text-xs text-gray-500">
+          Download the appropriate template for the selected recognition type by
+          clicking the <strong>"Download Format" </strong> button above.
+        </div>
+      </div>
+
+      <Form
+        requiredMark={false}
+        layout="vertical"
+        form={form}
+        onFinish={handleSubmit}
+      >
+        <Form.Item name="fileName">
           <Upload.Dragger
-            {...uploadProps}
+            name="file"
             className="w-full p-6"
             showUploadList
+            accept=".xlsx"
+            maxCount={1}
           >
             <span className="flex flex-col gap-3 py-8">
               <p className="ant-upload-drag-icon flex items-center justify-center">
@@ -310,6 +313,7 @@ const ImportProjectData: React.FC = () => {
             },
           ]}
           className="py-1"
+          name="recognitionTypeId"
         >
           <Select
             size="large"
@@ -320,9 +324,9 @@ const ImportProjectData: React.FC = () => {
             {responseLoading ? (
               <Spin size="small" />
             ) : (
-              payPeriodData?.map((payPeriod: any) => (
-                <Select.Option key={payPeriod.id} value={payPeriod.id}>
-                  {`${dayjs(payPeriod.startDate).format('YYYY-MM-DD')} — ${dayjs(payPeriod.endDate).format('YYYY-MM-DD')}`}
+              recognitionData?.items?.map((recognition: any) => (
+                <Select.Option key={recognition.id} value={recognition.id}>
+                  {recognition?.recognitionType?.name}
                 </Select.Option>
               ))
             )}
@@ -342,6 +346,7 @@ const ImportProjectData: React.FC = () => {
             },
           ]}
           className="py-1"
+          name="importDate"
         >
           <Select
             size="large"
@@ -365,15 +370,9 @@ const ImportProjectData: React.FC = () => {
           label={
             <span className="text-normal font-medium">
               Other Necessary Information
-              <span style={{ color: 'red' }}>*</span>
             </span>
           }
-          rules={[
-            {
-              required: true,
-              message: 'Please insert other necessary information!',
-            },
-          ]}
+          name="source"
         >
           <TextArea
             rows={2}
@@ -381,6 +380,15 @@ const ImportProjectData: React.FC = () => {
             placeholder="Insert other necessary information"
             allowClear
           />
+        </Form.Item>
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="w-full gap-3 rounded-lg bg-primary text-white h-14"
+          >
+            Create
+          </Button>
         </Form.Item>
       </Form>
     </CustomDrawerLayout>

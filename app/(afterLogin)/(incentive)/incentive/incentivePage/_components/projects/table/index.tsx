@@ -4,9 +4,9 @@ import {
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
 import { Table, TableColumnsType } from 'antd';
-import React from 'react';
+import React, { useMemo } from 'react';
 
-const columns: TableColumnsType<ProjectIncentiveData> = [
+const staticColumns: TableColumnsType<ProjectIncentiveData> = [
   {
     title: 'Recognition',
     dataIndex: 'recognition',
@@ -27,30 +27,31 @@ const columns: TableColumnsType<ProjectIncentiveData> = [
     dataIndex: 'milestone_amount',
     sorter: (a, b) => a.milestone_amount - b.milestone_amount,
   },
-  {
-    title: 'Project',
-    dataIndex: 'project',
-    sorter: (a, b) => a.project.localeCompare(b.project),
-  },
-  {
-    title: 'Earned Schedule',
-    dataIndex: 'earned_scheduled',
-    sorter: (a, b) => a.earned_scheduled - b.earned_scheduled,
-  },
-  {
-    title: 'AT',
-    dataIndex: 'at',
-    sorter: (a, b) => a.at - b.at,
-  },
-  {
-    title: 'SPI',
-    dataIndex: 'spi',
-    sorter: (a, b) => a.spi - b.spi,
-  },
+  // {
+  //   title: 'Project',
+  //   dataIndex: 'project',
+  //   sorter: (a, b) => a.project.localeCompare(b.project),
+  // },
+  // {
+  //   title: 'Earned Schedule',
+  //   dataIndex: 'earned_scheduled',
+  //   sorter: (a, b) => a.earned_scheduled - b.earned_scheduled,
+  // },
+  // {
+  //   title: 'AT',
+  //   dataIndex: 'at',
+  //   sorter: (a, b) => a.at - b.at,
+  // },
+  // {
+  //   title: 'SPI',
+  //   dataIndex: 'spi',
+  //   sorter: (a, b) => a.spi - b.spi,
+  // },
 ];
 const ProjectIncentiveTable: React.FC = () => {
   const { searchParams, currentPage, pageSize, setCurrentPage, setPageSize } =
     useIncentiveStore();
+
   const { data: ProjectIncentiveData, isLoading: responseLoading } =
     useGetProjectIncentiveData(
       searchParams?.employee_name || '',
@@ -81,6 +82,31 @@ const ProjectIncentiveTable: React.FC = () => {
       };
     },
   );
+
+  const dynamicColumns = useMemo(() => {
+    if (!incentiveData || !incentiveData.length) return [];
+
+    const sampleItem = incentiveData[0];
+    const excludedKeys = [
+      'recognition',
+      'employee_name',
+      'criteria',
+      'milestone_amount',
+    ];
+
+    return Object.keys(sampleItem)
+      .filter((key) => !excludedKeys.includes(key))
+      .map((key) => ({
+        title: key.replace(/_/g, ' ').toUpperCase(),
+        dataIndex: key,
+        sorter: (a: any, b: any) =>
+          typeof a[key] === 'number'
+            ? a[key] - b[key]
+            : String(a[key]).localeCompare(String(b[key])),
+      }));
+  }, [incentiveData]);
+
+  const columns = [...staticColumns, ...dynamicColumns];
 
   return (
     <div>

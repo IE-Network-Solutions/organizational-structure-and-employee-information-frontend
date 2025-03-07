@@ -28,7 +28,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
   useEffect(() => {
     if (recognitionData && recognitionData?.items?.length > 0) {
       // Extract the first item separately
-      const firstItem = recognitionData.items[0];
+      const firstItem = recognitionData?.items[0];
 
       const defaultIncentiveSettings = {
         item: {
@@ -37,7 +37,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
             <CiCalendarDate
               size={16}
               className={
-                currentItem === firstItem.id
+                currentItem === firstItem?.id
                   ? 'text-[#4DAEF0]'
                   : 'text-gray-500'
               }
@@ -48,28 +48,28 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
               {firstItem?.recognitionType?.name ?? 'Default Incentive '}
             </p>
           ),
-          className: currentItem === firstItem.id ? 'px-6' : 'px-1',
+          className: currentItem === firstItem?.id ? 'px-6' : 'px-1',
         },
         link: `/incentive/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
       };
 
       // Map remaining items (excluding the first item)
       const dynamicMenuItems =
-        recognitionData.items.slice(1).map((item: any) => ({
+        recognitionData?.items?.slice(1).map((item: any) => ({
           item: {
-            key: item.id,
+            key: item?.id,
             icon: (
               <TbCalendar
                 size={16}
                 className={
-                  currentItem === item.id ? 'text-[#4DAEF0]' : 'text-gray-500'
+                  currentItem === item?.id ? 'text-[#4DAEF0]' : 'text-gray-500'
                 }
               />
             ),
             label: (
               <p className="menu-item-label">{item?.recognitionType?.name}</p>
             ),
-            className: currentItem === item.id ? 'px-6' : 'px-1',
+            className: currentItem === item?.id ? 'px-6' : 'px-1',
           },
           link: `/incentive/settings/${item?.id}`,
         })) || [];
