@@ -1,6 +1,7 @@
 pipeline {
     agent any
 
+
     stages {
         stage('Select Environment') {
             steps {
@@ -23,7 +24,9 @@ pipeline {
             }
         }
 
-        stage('Fetch Environment Variables') {
+
+stage('Fetch Environment Variables') {
+
             steps {
                 script {
                     sshagent([env.SSH_CREDENTIALS_ID]) {
@@ -45,6 +48,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Prepare Repository') {
             steps {
@@ -75,7 +79,8 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+              stage('Install Dependencies') {
+
             steps {
                 sshagent([env.SSH_CREDENTIALS_ID]) {
                     sh """
@@ -86,27 +91,20 @@ pipeline {
             }
         }
 
-        stage('Format Repo') {
-            steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run format'
-                    """
-                }
-            }
+stage('Run Next.js App') {
+    steps {
+        sshagent([env.SSH_CREDENTIALS_ID]) {
+            sh """
+                ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run format'
+                ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 delete osei-front-app || true'
+                ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm install'
+                ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run build'
+                ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 start ecosystem.config.js --env production'
+            """
         }
+    }
+}
 
-        stage('Run Next.js App') {
-            steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run build'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 delete osei-front-app || true'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 start ecosystem.config.js --env production'
-                    """
-                }
-            }
-        }
     }
 
     post {
@@ -114,7 +112,8 @@ pipeline {
             echo 'Next.js application deployed successfully!'
         }
 
-        failure {
+    failure {
+
             echo 'Deployment failed.'
             emailext(
                 subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
