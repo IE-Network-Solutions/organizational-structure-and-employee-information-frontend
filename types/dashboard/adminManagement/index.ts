@@ -17,6 +17,7 @@ export interface GroupPermissionkey {
   name: string;
   description: string;
   permissions: Permission[];
+  permission?: Permission[];
   permissionIds?: string[];
   items: any[];
   tenantId?: string;
@@ -135,6 +136,7 @@ export interface UserData {
 export interface EmployeeData {
   id: string;
   employee_name: string;
+  employee_attendance_id: number;
   job_title: string;
   department: string;
   office: string;

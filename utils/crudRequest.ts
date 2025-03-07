@@ -1,3 +1,4 @@
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import axios, { AxiosRequestConfig, Method } from 'axios';
 
 interface RequestParams {
@@ -5,6 +6,7 @@ interface RequestParams {
   method: Method;
   data?: any;
   headers?: Record<string, string>;
+  params?: Record<string, any>;
 }
 
 /**
@@ -18,12 +20,16 @@ export const crudRequest = async ({
   method,
   data,
   headers,
+  params,
 }: RequestParams) => {
+  const userId = useAuthenticationStore.getState().userId;
+  headers = { ...headers, requestedBy: userId, createdBy: userId };
   try {
     const config: AxiosRequestConfig = {
       url,
       method,
       headers,
+      params,
     };
 
     if (data) {

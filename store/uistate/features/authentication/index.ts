@@ -11,13 +11,14 @@ interface StoreState {
   userId: string;
   setUserId: (userId: string) => void;
   localId: string;
+  setUserData: (userId: Record<string, any>) => void;
+  userData: Record<string, any>;
   setLocalId: (localId: string) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
   error: string | null;
   setError: (error: string | null) => void;
 }
-
 export const useAuthenticationStore = create<StoreState>()(
   devtools(
     persist(
@@ -38,6 +39,10 @@ export const useAuthenticationStore = create<StoreState>()(
         localId: '',
         setLocalId: (localId: string) => {
           set({ localId });
+        },
+        userData: {},
+        setUserData: (userData: Record<string, any>) => {
+          set({ userData });
         },
         loading: false, // Non-persistent state
         setLoading: (loading: boolean) => set({ loading }),

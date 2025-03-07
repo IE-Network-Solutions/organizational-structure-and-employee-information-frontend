@@ -10,6 +10,8 @@ import Permission from '../permission';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 interface OnChange {
   onChange: (key: string) => void;
 }
@@ -57,12 +59,14 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
             ]}
           />
           {tabButton !== 'Permission' && (
-            <CustomButton
-              onClick={handleClickNewButton}
-              title={`New ${tabButton}`}
-              icon={<FaPlus />}
-              className="mt-4 md:mt-0"
-            />
+            <AccessGuard permissions={[Permissions.CreateGroupPermission]}>
+              <CustomButton
+                onClick={handleClickNewButton}
+                title={`New ${tabButton}`}
+                icon={<FaPlus />}
+                className=" text-xs mt-4 md:mt-0"
+              />
+            </AccessGuard>
           )}
         </div>
         <footer>

@@ -22,8 +22,10 @@ const GroupPermission = () => {
     setCurrentModal,
     currentModal,
   } = useSettingStore();
-  const createPermissionGroupMutation = useAddPermissionGroup();
-  const updatePermissionGroupMutation = useUpdatePermissionGroup();
+  const { mutate: createPermissionGroupMutation, isLoading: createLoading } =
+    useAddPermissionGroup();
+  const { mutate: updatePermissionGroupMutation, isLoading: updateLoaing } =
+    useUpdatePermissionGroup();
   const { data: permissionData } = useGetPermissions(
     permissionCurrentPage,
     pageSize,
@@ -35,8 +37,8 @@ const GroupPermission = () => {
         id: selectedPermissionGroup?.id,
         name: selectedPermissionGroup?.name,
         description: selectedPermissionGroup?.description,
-        permission: selectedPermissionGroup?.permissions?.map(
-          (item: Permission) => ({ label: item.name, value: item.id }),
+        permissions: selectedPermissionGroup?.permissions?.map(
+          (item: Permission) => ({ label: item.name ?? 'N/A', value: item.id }),
         ),
       });
     }
@@ -46,18 +48,26 @@ const GroupPermission = () => {
   permissionData?.items?.forEach((item: Permission) => {
     children.push(
       <Select.Option key={item.id} className="p-2 text-xs">
-        {item.name}
+        {item.name ?? 'N/A'}
       </Select.Option>,
     );
   });
   const onFinish = async (values: GroupPermissionkey) => {
-    createPermissionGroupMutation.mutate(values);
-    setCurrentModal(null);
+    createPermissionGroupMutation(values, {
+      onSuccess: () => {
+        setCurrentModal(null);
+        form.resetFields();
+      },
+    });
   };
 
   const onUpdatePermissionGroupData = (values: GroupPermissionkey) => {
-    updatePermissionGroupMutation.mutate(values);
-    setCurrentModal(null);
+    updatePermissionGroupMutation(values, {
+      onSuccess: () => {
+        setCurrentModal(null);
+        form.resetFields();
+      },
+    });
   };
   const modalTitle = (
     <div className="flex w-full justify-center items-center text-md font-extrabold">
@@ -82,7 +92,6 @@ const GroupPermission = () => {
         form={form}
         name="basic"
         layout="vertical"
-        initialValues={{ tenantId: 'tenantId_1' }}
         onFinish={
           currentModal === 'editModal' ? onUpdatePermissionGroupData : onFinish
         }
@@ -94,9 +103,6 @@ const GroupPermission = () => {
             </Form.Item>
           )}
           <div>
-            <Form.Item name="tenantId" hidden>
-              <Input />
-            </Form.Item>
             <Form.Item
               name="name"
               label={
@@ -130,7 +136,7 @@ const GroupPermission = () => {
           </div>
           <div id="groupPermissionId">
             <Form.Item
-              name="permission"
+              name="permissions"
               label={
                 <p className="text-xs font-bold text-gray-600">Permission</p>
               }
@@ -168,6 +174,9 @@ const GroupPermission = () => {
               className="px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-xs sm:text-sm font-bold"
               htmlType="submit"
               type="primary"
+              loading={
+                currentModal === 'editModal' ? updateLoaing : createLoading
+              }
             >
               {currentModal !== 'editModal' ? 'Create' : 'Update'}
             </Button>

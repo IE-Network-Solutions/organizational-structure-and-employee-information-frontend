@@ -71,7 +71,7 @@ const ListOfRoles = () => {
           val.includes(group.id.toString()),
         )
         .flatMap((group: GroupPermissionItem) =>
-          group.permission.map((item: Permission) => ({
+          group.permissions.map((item: Permission) => ({
             value: item.id,
             label: item.name,
           })),
@@ -152,7 +152,6 @@ const ListOfRoles = () => {
         form={form}
         name="basic"
         layout="vertical"
-        initialValues={{ tenantId: 'tenantId_1' }}
         onFinish={
           currentModal === 'editRoleModal' ? handleRoleUpdate : handleCreateRole
         }
@@ -164,9 +163,6 @@ const ListOfRoles = () => {
               <Input type="hidden" />
             </Form.Item>
           )}
-          <Form.Item name="tenantId" hidden>
-            <Input />
-          </Form.Item>
           <div className="mb-1">
             <Form.Item
               name="name"

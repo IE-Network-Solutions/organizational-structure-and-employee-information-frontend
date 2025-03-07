@@ -1,11 +1,15 @@
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useDeleteActionPlanById } from '@/store/server/features/organization-development/categories/mutation';
+import {
+  useDeleteActionPlanById,
+  useResolveActionPlanById,
+} from '@/store/server/features/organization-development/categories/mutation';
 import { useGetAllActionPlan } from '@/store/server/features/organization-development/categories/queries';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
-import { Avatar, Button, Card, List } from 'antd';
+import { Avatar, Button, Card, List, Tooltip } from 'antd';
 import React from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { IoCheckmarkSharp } from 'react-icons/io5';
 import { MdOutlineModeEditOutline } from 'react-icons/md';
 import { RiDeleteBin5Line } from 'react-icons/ri';
 
@@ -24,7 +28,11 @@ function ActionPlans({ id }: Params) {
     setSelectedEditActionPlan,
     setOpen,
   } = useOrganizationalDevelopment();
-  const { mutate: deleteEmployeeData } = useDeleteActionPlanById();
+  const { mutate: deleteEmployeeData, isLoading: actionPlanDeletingLoading } =
+    useDeleteActionPlanById();
+  const { mutate: resolveActionPlan, isLoading: actionPlanResolvingLoading } =
+    useResolveActionPlanById();
+
   const confirmDeleteActionPlanHandler = () => {
     if (selectedActionPlan) {
       deleteEmployeeData(selectedActionPlan, {
@@ -41,6 +49,9 @@ function ActionPlans({ id }: Params) {
     setNumberOfActionPlan(1);
     setSelectedEditActionPlan(null);
     setSelectedEditActionPlan(item);
+  };
+  const handleResolveHandler = (id: string) => {
+    resolveActionPlan({ status: 'solved', id: id });
   };
   return (
     <div>
@@ -71,38 +82,66 @@ function ActionPlans({ id }: Params) {
                 </Button>
                 <Button
                   type="primary"
+                  loading={actionPlanDeletingLoading}
                   onClick={() => setSelectedActionPlan(item?.id)}
                   danger
                 >
                   <RiDeleteBin5Line />
                 </Button>
+                {item?.status !== 'solved' && (
+                  <Tooltip title="Resolve Action Plan">
+                    <Button
+                      hidden={item?.status === 'solved'}
+                      className="cursor-pointer"
+                      type="primary"
+                      loading={actionPlanResolvingLoading}
+                      onClick={() => handleResolveHandler(item?.id)}
+                      icon={<IoCheckmarkSharp />}
+                    />
+                  </Tooltip>
+                )}
               </div>
             </List.Item>
             {visibleItems[item.id] && (
-              <List.Item className="flex justify-start gap-2">
-                <div className="flex flex-col text-gray-400 text-sm">
-                  <p>Responsible Person</p>
-                  <p>Description</p>
-                </div>
-                {employeeData?.items?.map((user: any) => {
-                  return (
-                    user?.id === item.responsiblePerson && (
-                      <List.Item.Meta
-                        key={user.id}
-                        avatar={
-                          <Avatar className="mt-2" src={user?.profileImage} />
-                        }
-                        title={
-                          <span className="text-sm">
-                            {user?.firstName + ' ' + user?.lastName}
-                          </span>
-                        }
-                        description={item.description}
-                      />
-                    )
-                  );
-                })}
-              </List.Item>
+              <>
+                <List.Item className="flex justify-start gap-2">
+                  <div className="flex flex-col text-gray-400 text-sm">
+                    <p>Responsible Person</p>
+                    <p>Description</p>
+                  </div>
+                  {employeeData?.items?.map((user: any) => {
+                    return (
+                      user?.id === item.responsiblePerson && (
+                        <List.Item.Meta
+                          key={user.id}
+                          avatar={
+                            <Avatar className="mt-2" src={user?.profileImage} />
+                          }
+                          title={
+                            <span className="text-sm">
+                              {user?.firstName +
+                                ' ' +
+                                user?.middleName +
+                                ' ' +
+                                user?.lastName}
+                            </span>
+                          }
+                          description={item.description}
+                        />
+                      )
+                    );
+                  })}
+                </List.Item>
+                <List.Item className="flex justify-end">
+                  <Button
+                    disabled={item?.status === 'solved'}
+                    onClick={() => handleResolveHandler(item?.id)}
+                    className="flex justify-end bg-blue disabled:bg-gray-500 disabled:text-black text-white"
+                  >
+                    {item?.status === 'solved' ? 'Resolved' : 'Resolve'}
+                  </Button>
+                </List.Item>
+              </>
             )}
           </Card>
         )}

@@ -33,7 +33,7 @@ const fetchCategories = async (
     createdById: userId,
   };
   return await crudRequest({
-    url: `${ORG_DEV_URL}/form-categories?name=${name}&description=${description}&createdBy=${createdBy}&limit=${pageSize}&page=${currentPage}`,
+    url: `${ORG_DEV_URL}/form-categories?name=${name}&description=${description}&createdBy=${createdBy || ''}&limit=${pageSize}&page=${currentPage}`,
     method: 'GET',
     headers,
   });
@@ -43,7 +43,7 @@ const fetchCategories = async (
  * Fetch all users from the API.
  * @returns {Promise<any>} Promise with the list of users.
  */
-const fetchUsers = async () => {
+const fetchUsers = async (searchString: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -53,7 +53,7 @@ const fetchUsers = async () => {
   };
 
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/users?deletedAt=null`,
+    url: `${ORG_AND_EMP_URL}/users?searchString=${searchString}&&deletedAt=null`,
     method: 'GET',
     headers,
   });
@@ -103,6 +103,20 @@ const fetchCatUsersById = async () => {
   });
 };
 
+const getEmployeeDepartments = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/all/departments`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 /**
  * Custom hook to fetch categories.
  * @param {number} pageSize - The number of categories to fetch per page.
@@ -132,8 +146,8 @@ export const useFetchCategories = (
  * Custom hook to fetch users.
  * @returns {UseQueryResult<any>} The Query object for fetching users.
  */
-export const useFetchUsers = () => {
-  return useQuery<any>('users', fetchUsers);
+export const useFetchUsers = (searchString: string) => {
+  return useQuery<any>(['users', searchString], () => fetchUsers(searchString));
 };
 
 /**
@@ -160,4 +174,8 @@ export const useGetUsersById = () => {
   return useQuery<any>('categories', fetchCatUsersById, {
     keepPreviousData: true,
   });
+};
+
+export const useEmployeeDepartments = () => {
+  return useQuery<any>('department', getEmployeeDepartments);
 };

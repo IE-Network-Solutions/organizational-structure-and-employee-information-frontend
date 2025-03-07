@@ -1,10 +1,14 @@
 'use client';
-
 import { QueryCache, QueryClient, QueryClientProvider } from 'react-query';
-import { ReactNode, Suspense } from 'react';
+import { ReactNode, Suspense, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { handleNetworkError } from '@/utils/showErrorResponse';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
+import { ReactQueryDevtools } from 'react-query/devtools';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { removeCookie, setCookie } from '@/helpers/storageHelper';
+import { Spin } from 'antd';
+import { auth } from '@/utils/firebaseConfig';
 
 /**
  * Interface for the props of the ReactQueryWrapper component
@@ -23,17 +27,33 @@ interface ReactQueryWrapperProps {
 
 const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   const router = useRouter();
+  const { setLocalId, setTenantId, setToken, setUserId, setError } =
+    useAuthenticationStore();
+
+  const handleLogout = () => {
+    setToken('');
+    setTenantId('');
+    setLocalId('');
+    removeCookie('token');
+    router.push(`/authentication/login`);
+    setUserId('');
+    setLocalId('');
+    setError('');
+    removeCookie('token');
+    removeCookie('tenantId');
+    window.location.reload();
+  };
 
   const queryClient = new QueryClient({
     defaultOptions: {
       mutations: {
         onError(error: any) {
           if (error?.response?.status === 401) {
-            router.replace('/authentication/login');
+            handleLogout();
           }
           handleNetworkError(error);
         },
-        onSuccess: (data: any, variables: any, context: any) => {
+        onSuccess: (variables: any, context: any) => {
           const method =
             context?.method?.toUpperCase() || variables?.method?.toUpperCase();
           const customMessage = context?.customMessage || undefined;
@@ -44,16 +64,68 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
     },
     queryCache: new QueryCache({
       onError(error: any) {
-        if (error?.response?.status === 401) {
-          router.replace('/authentication/login');
+        if (error.response) {
+          if (error.response.status === 401) {
+            handleLogout();
+          }
         }
-        handleNetworkError(error);
+        if (process.env.NODE_ENV !== 'production') {
+          handleNetworkError(error);
+        }
       },
     }),
   });
+
+  const FullPageSpinner = () => {
+    return (
+      <div className="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50 flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
+  };
+
+  const refreshToken = async () => {
+    const getCookieFromDocument = (key: string): string | null => {
+      const cookies = document.cookie.split('; ');
+      const cookie = cookies.find((c) => c.startsWith(`${key}=`));
+      return cookie ? cookie.split('=')[1] : null;
+    };
+
+    const token = getCookieFromDocument('token');
+    if (token) {
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          const refreshedToken = await user.getIdToken(true); // Force refresh token
+          if (refreshedToken !== token) {
+            setCookie('token', refreshedToken, 30);
+            useAuthenticationStore.getState().setToken(refreshedToken);
+          }
+        } catch (error) {
+          handleNetworkError(error);
+        }
+      }
+    }
+  };
+  useEffect(() => {
+    refreshToken();
+    const refreshInterval = setInterval(
+      () => {
+        refreshToken();
+      },
+      50 * 60 * 1000,
+    );
+    return () => {
+      clearInterval(refreshInterval);
+    };
+  }, []);
+
   return (
-    <Suspense fallback={<>Loading...</>}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <Suspense fallback={<FullPageSpinner />}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        <ReactQueryDevtools />
+      </QueryClientProvider>
     </Suspense>
   );
 };

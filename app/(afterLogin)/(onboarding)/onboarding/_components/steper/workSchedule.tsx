@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC, useEffect } from 'react';
 import { Form, Input, TimePicker, Switch, Table } from 'antd';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
@@ -6,23 +6,57 @@ import { ScheduleDetail } from '@/store/uistate/features/organizationStructure/w
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import { FormInstance } from 'antd/lib';
 
-const { Item: FormItem } = Form;
-
 interface WorkScheduleProps {
   form: FormInstance;
 }
 
-const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
-  const { name, detail, setName, setDetail } = useScheduleStore();
-  /* eslint-disable @typescript-eslint/naming-convention */
+const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
+  const { setDetail, setScheduleName, setStandardHours } = useScheduleStore();
+  const { scheduleName, detail } = useScheduleStore((state) => ({
+    scheduleName: state.scheduleName,
+    detail: state.detail,
+  }));
+
+  useEffect(() => {
+    const fieldValues: Record<string, any> = {
+      scheduleName,
+      ...detail.reduce(
+        (acc, item) => {
+          acc[`${item.dayOfWeek}-working`] = item.status;
+          acc[`${item.dayOfWeek}-start`] = item.startTime
+            ? dayjs(item.startTime, 'h:mm A')
+            : null;
+          acc[`${item.dayOfWeek}-end`] = item.endTime
+            ? dayjs(item.endTime, 'h:mm A')
+            : null;
+          return acc;
+        },
+        {} as Record<string, any>,
+      ),
+    };
+    form.setFieldsValue(fieldValues);
+  }, [form, scheduleName, detail]);
+
+  const handleValuesChange = (s: any, allValues: any) => {
+    let totalHours = 0;
+    detail.forEach((item) => {
+      const start = allValues[`${item.dayOfWeek}-start`];
+      const end = allValues[`${item.dayOfWeek}-end`];
+      if (start && end && item.status) {
+        const duration = dayjs(end).diff(dayjs(start), 'hour', true);
+        totalHours += duration;
+      }
+    });
+    setStandardHours(totalHours);
+  };
 
   const columns: ColumnsType<ScheduleDetail> = [
     {
       title: 'Working Day',
       dataIndex: 'dayOfWeek',
       key: 'dayOfWeek',
-      render: (_, record) => (
-        <FormItem
+      render: (s, record) => (
+        <Form.Item
           name={`${record.dayOfWeek}-working`}
           valuePropName="checked"
           noStyle
@@ -37,15 +71,15 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
             />
             <p>{record.dayOfWeek}</p>
           </div>
-        </FormItem>
+        </Form.Item>
       ),
     },
     {
       title: 'Starting Time',
       dataIndex: 'startTime',
       key: 'startTime',
-      render: (_, record) => (
-        <FormItem
+      render: (s, record) => (
+        <Form.Item
           name={`${record.dayOfWeek}-start`}
           noStyle
           rules={[
@@ -59,9 +93,6 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
             format="h:mm A"
             disabled={!record.status}
             use12Hours
-            defaultValue={
-              record.startTime ? dayjs(record.startTime, 'h:mm A') : null
-            }
             className="min-w-[100px]"
             onChange={(time) => {
               setDetail(record.dayOfWeek, {
@@ -69,15 +100,15 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
               });
             }}
           />
-        </FormItem>
+        </Form.Item>
       ),
     },
     {
       title: 'End Time',
       dataIndex: 'endTime',
       key: 'endTime',
-      render: (_, record) => (
-        <FormItem
+      render: (s, record) => (
+        <Form.Item
           name={`${record.dayOfWeek}-end`}
           noStyle
           rules={[
@@ -85,40 +116,50 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
               required: record.status,
               message: 'End time is required when the status is checked.',
             },
+            ({ getFieldValue }) => ({
+              validator(s, value) {
+                const startTime = getFieldValue(`${record.dayOfWeek}-start`);
+                if (
+                  !value ||
+                  (startTime && dayjs(value).isAfter(dayjs(startTime)))
+                ) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(
+                  new Error('End time must be greater than start time.'),
+                );
+              },
+            }),
           ]}
         >
           <TimePicker
             format="h:mm A"
             disabled={!record.status}
-            className="min-w-[100px]"
             use12Hours
-            defaultValue={
-              record.endTime ? dayjs(record.endTime, 'h:mm A') : null
-            }
+            className="min-w-[100px]"
             onChange={(time) => {
               setDetail(record.dayOfWeek, {
                 endTime: time ? dayjs(time).format('h:mm A') : '',
               });
             }}
           />
-        </FormItem>
+        </Form.Item>
       ),
     },
     {
       title: 'Duration',
       dataIndex: 'hours',
       key: 'hours',
-      render: (_, record) => (
-        <FormItem
-          shouldUpdate={(
-            prevValues: { [x: string]: any },
-            currentValues: { [x: string]: any },
-          ) =>
-            prevValues[`${record.dayOfWeek}-start`] !==
-              currentValues[`${record.dayOfWeek}-start`] ||
-            prevValues[`${record.dayOfWeek}-end`] !==
-              currentValues[`${record.dayOfWeek}-end`]
-          }
+      render: (s, record) => (
+        <Form.Item
+          shouldUpdate={(prevValues, currentValues) => {
+            return (
+              prevValues[`${record.dayOfWeek}-start`] !=
+                currentValues[`${record.dayOfWeek}-start`] ||
+              prevValues[`${record.dayOfWeek}-end`] !=
+                currentValues[`${record.dayOfWeek}-end`]
+            );
+          }}
           noStyle
         >
           {({ getFieldValue }) => {
@@ -126,13 +167,21 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
             const end = getFieldValue(`${record.dayOfWeek}-end`);
             const duration =
               start && end ? dayjs(end).diff(dayjs(start), 'hour', true) : 0;
-            return <span>{duration.toFixed(2)}h</span>;
+            return (
+              <span>
+                {record.status
+                  ? duration !== 0
+                    ? duration.toFixed(1)
+                    : record.hours.toFixed(1)
+                  : ''}
+                h
+              </span>
+            );
           }}
-        </FormItem>
+        </Form.Item>
       ),
     },
   ];
-  /* eslint-enable @typescript-eslint/naming-convention */
 
   return (
     <div className="flex flex-col bg-gray-50 p-4 md:p-6 lg:p-8 rounded-lg my-4 md:my-6 lg:my-8 w-full h-full">
@@ -140,23 +189,28 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({ form }) => {
         <div className="flex flex-col md:flex-row justify-start items-center gap-2 md:gap-4 font-bold text-xl md:text-2xl text-black mt-4 md:mt-8">
           Set up your Work Schedule
         </div>
-        <Form form={form} layout="vertical" className="w-full">
-          <FormItem
-            name="name"
+        <Form
+          form={form}
+          layout="vertical"
+          onValuesChange={handleValuesChange}
+          className="w-full"
+        >
+          <Form.Item
+            name="scheduleName"
             label="Schedule Name"
             className="w-full font-normal text-lg md:text-xl mt-4 md:mt-8"
             rules={[{ required: true, message: 'Please input schedule name!' }]}
-            initialValue={name}
           >
             <Input
               size="large"
               className="mt-2 w-full font-normal text-sm md:text-base"
               placeholder="Enter your schedule name"
+              value={scheduleName}
               onChange={(e) => {
-                setName(e.target.value);
+                setScheduleName(e.target.value);
               }}
             />
-          </FormItem>
+          </Form.Item>
           <div className="overflow-x-auto">
             <Table
               columns={columns}

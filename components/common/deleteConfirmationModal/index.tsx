@@ -9,6 +9,10 @@ interface DeleteModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   customMessage?: React.ReactNode;
+  deleteMessage?: React.ReactNode;
+  deleteText?: React.ReactNode;
+  cancelText?: React.ReactNode;
+  loading?: boolean;
 }
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
@@ -16,22 +20,28 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   onConfirm,
   onCancel,
   customMessage,
+  deleteMessage,
+  deleteText,
+  cancelText,
+  loading,
 }) => {
   const deleteModalFooter = (
     <div className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6">
       <Button
         className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
+        id="deleteModalCancelButtonId"
         onClick={onCancel}
       >
-        Cancel
+        {cancelText ?? 'Cancel'}
       </Button>
       <Button
         id="confirmDeleteId"
         className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
         type="primary"
+        loading={loading ?? false}
         onClick={onConfirm}
       >
-        Delete
+        {deleteText ?? 'Delete'}
       </Button>
     </div>
   );
@@ -54,7 +64,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       </p>
 
       <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
-        Are you sure to Delete?
+        {deleteMessage ?? 'you sure to Delete ? '}
       </p>
       {customMessage && <div className="mt-4 text-center">{customMessage}</div>}
     </Modal>

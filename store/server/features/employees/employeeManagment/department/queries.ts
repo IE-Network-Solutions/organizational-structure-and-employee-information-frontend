@@ -4,15 +4,30 @@ import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
 const getDepartments = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/tenant/departments`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    },
+  });
+};
+
+const getDepartmentsWithUsers = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/all/departments`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -28,6 +43,8 @@ const getDepartments = async () => {
  */
 
 const getDepartment = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -74,3 +91,6 @@ export const useGetDepartment = (departmentID: string) =>
       keepPreviousData: true,
     },
   );
+
+export const useGetDepartmentsWithUsers = () =>
+  useQuery<any>('departmentsWithUsers', getDepartmentsWithUsers);

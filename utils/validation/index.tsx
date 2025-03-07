@@ -1,23 +1,10 @@
 import dayjs, { Dayjs } from 'dayjs';
 
-export const validatePhoneNumber = (rule: any, value: any) => {
+export const validatePhoneNumber = (value: string): string | null => {
   if (!value) {
-    return Promise.reject(new Error('Please enter a phone number'));
+    return 'Phone Number is required.';
   }
-
-  if (!/^\d+$/.test(value)) {
-    return Promise.reject(new Error('Phone number should only contain digits'));
-  }
-
-  if (value.length !== 9) {
-    return Promise.reject(new Error('Phone number should be 9 digits long'));
-  }
-
-  if (value[0] === '0') {
-    return Promise.reject(new Error('Phone number should not start with 0'));
-  }
-
-  return Promise.resolve();
+  return null;
 };
 
 export const validateEmailURL = (rule: any, value: any) => {
@@ -63,7 +50,14 @@ export const validateEmailURL = (rule: any, value: any) => {
 // validation.ts
 
 // Function to validate name
-export const validateName = (key: string, name: string): string | null => {
+export const validateName = (
+  key: string,
+  name: string,
+  isRequire?: boolean,
+): string | null => {
+  if (isRequire === false) {
+    return '';
+  }
   if (!name) {
     return `${key} is required.`;
   }
@@ -95,10 +89,6 @@ export const validateEmail = (email: string): string | null => {
   return null;
 };
 
-// export const disabledDate = (current: Moment) => {
-//   // Can not select days before today
-//   return current && current < moment().startOf('day');
-// };
 export const disabledDate = (current: Dayjs) => {
   // Can not select days before today
   return current && current.isBefore(dayjs().startOf('day'));

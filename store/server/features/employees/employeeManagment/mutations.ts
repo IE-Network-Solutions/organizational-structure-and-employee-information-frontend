@@ -100,12 +100,6 @@ export const useAddEmployee = () => {
         description: 'Employee successfully Created',
       });
     },
-    onError: () => {
-      NotificationMessage.error({
-        message: 'Creating Failed',
-        description: 'Employee Created Failed',
-      });
-    },
   });
 };
 export const useUpdateEmployee = () => {
@@ -145,15 +139,10 @@ export const useCreateJobInformation = () => {
     onSuccess: (data: CreateEmployeeJobInformationInterface) => {
       queryClient.invalidateQueries(['employee', data.userId]);
       queryClient.invalidateQueries('employees');
+      queryClient.invalidateQueries('basicSalary');
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Employee successfully Created',
-      });
-    },
-    onError: () => {
-      NotificationMessage.error({
-        message: 'Creating Failed',
-        description: 'Employee Created Failed',
       });
     },
   });

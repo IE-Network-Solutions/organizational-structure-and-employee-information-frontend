@@ -8,7 +8,6 @@ interface CustomField {
 interface User {
   userId: string;
 }
-
 interface Category {
   id: string;
   name: string;
@@ -24,6 +23,10 @@ interface SearchFormParams {
   form_name: string;
   form_description: string;
   createdBy: string;
+}
+
+interface SearchUserParams {
+  user_name: string;
 }
 export interface CategoriesUseState {
   expanded: boolean;
@@ -51,10 +54,8 @@ export interface CategoriesUseState {
   setOpen: (value: boolean) => void;
   setExpanded: (value: boolean) => void;
 
-  selectedUsers: User[];
   setSelectedUsers: (users: User[]) => void;
-  addUser: (userId: string) => void;
-  removeUser: (userId: string) => void;
+
   clearSelectedUsers: () => void;
   deleteModal: boolean;
   deletedItem: string | null;
@@ -75,9 +76,59 @@ export interface CategoriesUseState {
   ) => void;
 
   rows: number;
+  isAllSelected: boolean;
+  selectedUsers: User[];
+  selectAllUsers: (userIds: User[]) => void;
+  toggleUserSelection: (userId: string) => void;
+  deselectAllUsers: () => void;
+  clearSelections: () => void;
+  selectedDepartmentIds: string[];
+  toggleDepartmentSelection: (departmentId: string) => void;
+
+  searchUserParams: SearchUserParams;
+  setSearchUserParams: (key: keyof SearchUserParams, value: string) => void;
+  activeKey: string[];
+  setActiveKey: (key: string[]) => void;
 }
 
 export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
+  isAllSelected: false,
+  selectedUsers: [],
+  selectedDepartmentIds: [],
+
+  selectAllUsers: (userIds: User[]) =>
+    set((state) => ({
+      ...state,
+      selectedUsers: userIds,
+      isAllSelected: true,
+    })),
+  toggleUserSelection: (userId) =>
+    set((state) => ({
+      selectedUsers: state.selectedUsers.some((user) => user.userId === userId)
+        ? state.selectedUsers.filter((user) => user.userId !== userId)
+        : [...state.selectedUsers, { userId }],
+      isAllSelected: false,
+    })),
+  toggleDepartmentSelection: (departmentId: string) =>
+    set((state) => ({
+      selectedDepartmentIds: state.selectedDepartmentIds?.includes(departmentId)
+        ? state.selectedDepartmentIds.filter((id) => id !== departmentId)
+        : [...state?.selectedDepartmentIds, departmentId], // Directly push departmentId
+      isAllSelected: false,
+    })),
+
+  deselectAllUsers: () =>
+    set(() => ({
+      selectedUsers: [],
+      isAllSelected: false,
+    })),
+  clearSelections: () =>
+    set({
+      selectedDepartmentIds: [],
+      selectedUsers: [],
+      isAllSelected: false,
+    }),
+
   expanded: false,
   open: false,
   isAddOpen: false,
@@ -100,6 +151,7 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
   editingCategory: null,
   selectedCategory: null,
   isEditModalVisible: false,
+
   setIsEditModalVisible: (value) => set({ isEditModalVisible: value }),
   setIsAddOpen: (isAddOpen) => set({ isAddOpen }),
   setSelectedGroups: (value) => set({ selectedGroups: value }),
@@ -115,18 +167,7 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
     })),
   setCustomFields: (fields) => set({ customFields: fields }),
 
-  selectedUsers: [],
   setSelectedUsers: (users) => set({ selectedUsers: users }),
-  addUser: (userId) =>
-    set((state) => ({
-      selectedUsers: [...state.selectedUsers, { userId }],
-    })),
-  removeUser: (userId) =>
-    set((state) => ({
-      selectedUsers: state.selectedUsers.filter(
-        (user) => user.userId !== userId,
-      ),
-    })),
   clearSelectedUsers: () => set({ selectedUsers: [] }),
   setDeleteModal: (isOpen) => set({ deleteModal: isOpen }),
   setDeletedFormItem: (itemId) => set({ deletedItem: itemId }),
@@ -149,9 +190,25 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
     form_description: '',
     createdBy: '',
   },
+
   setSearchFormParams: (key, value) =>
     set((state) => ({
       searchFormParams: { ...state.searchFormParams, [key]: value },
     })),
   rows: 2,
+
+  searchUserParams: {
+    user_name: '',
+  },
+  setSearchUserParams: (key: keyof SearchUserParams, value: string) => {
+    set((state) => {
+      if (state.activeKey.length === 0) {
+        return { searchUserParams: { [key]: value }, activeKey: ['0'] };
+      }
+      return { searchUserParams: { [key]: value } };
+    });
+  },
+
+  activeKey: [],
+  setActiveKey: (key) => set({ activeKey: key }),
 }));

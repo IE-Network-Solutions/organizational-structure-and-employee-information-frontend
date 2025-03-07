@@ -1,5 +1,6 @@
+import useDrawerStore from '@/store/uistate/features/drawer';
 import { Button, Drawer } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaAngleRight } from 'react-icons/fa';
 
 interface CustomDrawerLayoutProps {
@@ -8,7 +9,9 @@ interface CustomDrawerLayoutProps {
   modalHeader: any;
   children: React.ReactNode;
   width?: string;
-  footer?: React.ReactNode;
+  paddingBottom?: number;
+  footer?: React.ReactNode | null;
+  hideButton?: boolean;
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -17,13 +20,44 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   modalHeader,
   children,
   width,
-  footer,
+  hideButton = false,
+  footer = null,
+  paddingBottom = 50,
 }) => {
+  // Default width
+  const { isClient, setIsClient, currentWidth, setCurrentWidth } =
+    useDrawerStore();
+
+  useEffect(() => {
+    setIsClient(true);
+
+    const updateWidth = () => {
+      if (window.innerWidth <= 768) {
+        setCurrentWidth('90%');
+      } else {
+        setCurrentWidth(width || '70%');
+      }
+    };
+
+    // Run the width update once on mount
+    updateWidth();
+
+    // Add the resize event listener
+    window.addEventListener('resize', updateWidth);
+
+    // Cleanup the event listener on unmount
+    return () => {
+      window.removeEventListener('resize', updateWidth);
+    };
+  }, [width, currentWidth, setCurrentWidth]);
+
+  // Render the component only on the client side
+  if (!isClient) return null;
   return (
     <div>
       <>
         {' '}
-        {open && (
+        {open && !hideButton && (
           <Button
             id="closeSidebarButton"
             className="bg-white text-lg text-grey-9 rounded-full mr-8 hidden md:flex"
@@ -42,13 +76,14 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
           />
         )}
       </>
+      {/* removed the padding because it is not needed for Drawer */}
       <Drawer
         title={modalHeader}
-        width={window.innerWidth <= 768 ? '90%' : width ? width : '30%'}
+        width={width || currentWidth}
         closable={false}
         onClose={onClose}
         open={open}
-        style={{ paddingBottom: 100 }}
+        style={{ paddingBottom: paddingBottom }}
         footer={footer}
       >
         {children}
