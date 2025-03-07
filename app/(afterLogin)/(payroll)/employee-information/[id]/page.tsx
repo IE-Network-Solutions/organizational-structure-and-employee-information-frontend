@@ -9,12 +9,10 @@ import {
   Divider,
   Avatar,
   Collapse,
+  Tag,
+  List,
 } from 'antd';
-import {
-  MailOutlined,
-  PhoneOutlined,
-  PrinterOutlined,
-} from '@ant-design/icons';
+import { PhoneOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useEffect, useRef } from 'react';
 import {
   useGetActivePayroll,
@@ -27,19 +25,26 @@ import PayrollDetails from './_components/PayrollDetails';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { UploadFile } from 'antd/lib';
+import { RcFile } from 'antd/es/upload';
+import { HiOutlineMail } from 'react-icons/hi';
+import { MdKeyboardArrowRight } from 'react-icons/md';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
 const EmployeeProfile = () => {
   const { data: payPeriodData } = useGetPayPeriod();
+  const { profileFileList } = useEmployeeManagementStore();
+
   const openPayPeriods = payPeriodData?.filter(
     (period: any) => period.status === 'OPEN',
   );
   const params = useParams();
   const empId = params?.id as string;
 
-  const { data: employee } = useGetEmployee(empId);
+  const { data: employee, isLoading } = useGetEmployee(empId);
   const { data: payroll } = useGetActivePayroll();
 
   const {
@@ -112,97 +117,100 @@ const EmployeeProfile = () => {
       .toFixed(2);
   };
 
+  const getImageUrl = (fileList: UploadFile[]): string => {
+    if (fileList.length > 0) {
+      const imageFile = fileList[0];
+      return (
+        imageFile?.url ||
+        imageFile?.thumbUrl ||
+        URL.createObjectURL(imageFile.originFileObj as RcFile) ||
+        ''
+      );
+    }
+    return '';
+  };
+
+
   return (
     <div style={{ padding: '24px' }}>
       <Card>
         <Row gutter={[32, 32]}>
-          <Col xs={24} md={8}>
-            <Card>
-              <div>
-                <div className="flex flex-col justify-center items-center text-center gap-4">
-                  <div>
-                    <Avatar
-                      size={144}
-                      src={activeMergedPayroll?.employeeInfo?.profileImage}
-                      className="relative z-0"
-                    />
-                  </div>
-
-                  <Title level={3} style={{ margin: 0 }}>
-                    {[
-                      activeMergedPayroll?.employeeInfo?.firstName,
-                      activeMergedPayroll?.employeeInfo?.middleName,
-                      activeMergedPayroll?.employeeInfo?.lastName,
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                  </Title>
-
-                  {activeMergedPayroll?.employeeInfo
-                    ?.employeeJobInformation?.[0]?.position?.name && (
-                    <Text type="secondary">
-                      {
-                        activeMergedPayroll?.employeeInfo
-                          ?.employeeJobInformation?.[0]?.position?.name
-                      }
-                    </Text>
-                  )}
-
-                  <div className="mt-2">
-                    {activeMergedPayroll?.employeeInfo
-                      ?.employeeJobInformation?.[0]?.employementType?.name && (
-                      <Button
-                        size="small"
-                        type="primary"
-                        style={{ backgroundColor: '#635BFF' }}
-                      >
-                        {
-                          activeMergedPayroll?.employeeInfo
-                            ?.employeeJobInformation?.[0]?.employementType?.name
-                        }
-                      </Button>
-                    )}
-                  </div>
-
-                  <Divider className="w-full" />
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <Text className="font-bold">
-                    <MailOutlined /> {activeMergedPayroll?.employeeInfo?.email}
-                  </Text>
-                  <Text className="font-bold">
-                    <PhoneOutlined />{' '}
-                    {
-                      activeMergedPayroll?.employeeInfo?.employeeInformation
-                        ?.addresses?.phoneNumber
+          <Col lg={8} md={10} xs={24}>
+            <Card loading={isLoading} className="mb-3">
+              <div className="flex flex-col gap-3 items-center">
+                <div className="relative group">
+                  <Avatar
+                    size={144}
+                    src={
+                      profileFileList.length > 0
+                        ? getImageUrl(profileFileList)
+                        : employee?.profileImage
                     }
-                  </Text>
+                    className="relative z-0"
+                  />
                 </div>
-
-                <Divider />
-
-                <div className="flex flex-col gap-2">
-                  <Text>
-                    <strong>Department:</strong>
-                    <p>
-                      {
-                        activeMergedPayroll?.employeeInfo
-                          ?.employeeJobInformation[0]?.department?.name
-                      }
-                    </p>
-                  </Text>
-                  <Text>
-                    <strong>Office:</strong>
-                    <p>
-                      {
-                        activeMergedPayroll?.employeeInfo
-                          ?.employeeJobInformation[0]?.branch?.name
-                      }
-                    </p>
-                  </Text>
-                </div>
+                <h5>
+                  {employee?.firstName} {employee?.middleName}{' '}
+                  {employee?.lastName}
+                </h5>
+                <p>
+                  {employee?.employeeJobInformation?.find(
+                    (e: any) => e.isPositionActive === true,
+                  )?.position?.name || '-'}
+                </p>
+                <Tag color="purple-inverse">
+                  {employee?.employeeJobInformation?.find(
+                    (e: any) => e.isPositionActive === true,
+                  )?.employementType?.name || '-'}
+                </Tag>
+                <Divider className="my-2" />
               </div>
+
+              <div className="flex gap-5 my-2 items-center">
+                <HiOutlineMail color="#BFBFBF" />
+                <p className="font-semibold">{employee?.email}</p>
+              </div>
+              <div className="flex gap-5 my-2 items-center">
+                <PhoneOutlined className="text-[#BFBFBF]" />
+                <p className="font-semibold">
+                  {employee?.employeeInformation?.addresses?.phoneNumber ||
+                    '--'}
+                </p>
+              </div>
+
+              <Divider className="my-2" key="arrows" />
+              <List split={false} size="small">
+                <List.Item
+                  key={'department'}
+                  actions={[<MdKeyboardArrowRight key="arrow" />]}
+                >
+                  <List.Item.Meta
+                    title={<p className="text-xs font-light">Department</p>}
+                    description={
+                      <p className="font-bold text-black text-sm">
+                        {employee?.employeeJobInformation?.find(
+                          (e: any) => e.isPositionActive === true,
+                        )?.department?.name || '-'}
+                      </p>
+                    }
+                  />
+                </List.Item>
+                <List.Item
+                  key={'office'}
+                  actions={[<MdKeyboardArrowRight key="arrow" />]}
+                >
+                  <List.Item.Meta
+                    title={<p className="text-xs font-light">Office</p>}
+                    description={
+                      <p className="font-bold text-black text-sm">
+                        {employee?.employeeJobInformation?.find(
+                          (e: any) => e.isPositionActive === true,
+                        )?.branch?.name || '-'}
+                      </p>
+                    }
+                  />
+                </List.Item>
+              </List>
             </Card>
           </Col>
 
