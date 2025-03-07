@@ -199,19 +199,7 @@ const EmployeeProfile = () => {
                 </List.Item>
                 <List.Item
                   key={'office'}
-                  actions={[
-                    <Popover
-                      content={
-                        <BranchTransferRequest employeeData={employee} />
-                      }
-                      title="Branch Transfer Request"
-                      placement="bottomRight"
-                      trigger="click"
-                      key="popover"
-                    >
-                      <MdKeyboardArrowRight key="arrow" />
-                    </Popover>,
-                  ]}
+                  actions={[<MdKeyboardArrowRight key="arrow" />]}
                 >
                   <List.Item.Meta
                     title={<p className="text-xs font-light">Office</p>}
