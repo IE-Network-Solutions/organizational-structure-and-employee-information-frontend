@@ -11,6 +11,7 @@ import PersonalDataComponent from './personalDataComponent';
 import EmergencyContact from './emergencyContact';
 import AddressComponent from './AddressComponent';
 import { useGetEmployeInformationForms } from '@/store/server/features/employees/employeeManagment/employeInformationForm/queries';
+import AdditionalInformation from './additionalInformation';
 
 function General({ id }: { id: string }) {
   const { data: employeeData } = useGetEmployee(id);
@@ -25,6 +26,8 @@ function General({ id }: { id: string }) {
       formTitle: form.formTitle, // Add formTitle to each field
     })),
   );
+
+  console.log(employeeData, 'employeeData');
 
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   useGetNationalities();
@@ -51,12 +54,18 @@ function General({ id }: { id: string }) {
               values: { emergencyContact: values },
             });
             break;
-          case 'bankInformation':
-            updateEmployeeInformation({
-              id: employeeData?.employeeInformation?.id,
-              values: { bankInformation: values },
-            });
-            break;
+            case 'bankInformation':
+              updateEmployeeInformation({
+                id: employeeData?.employeeInformation?.id,
+                values: { bankInformation: values },
+              });
+              break;
+            case 'additionalInformation':
+              updateEmployeeInformation({
+                id: employeeData?.employeeInformation?.id,
+                values: { additionalInformation: values },
+              });
+              break;
         }
         setEdit(editKey);
       })
@@ -77,6 +86,11 @@ function General({ id }: { id: string }) {
         handleSaveChanges={handleSaveChanges}
       />
       <BankInformationComponent
+        mergedFields={mergedFields}
+        id={id}
+        handleSaveChanges={handleSaveChanges}
+      />
+      <AdditionalInformation
         mergedFields={mergedFields}
         id={id}
         handleSaveChanges={handleSaveChanges}
