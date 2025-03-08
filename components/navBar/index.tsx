@@ -161,12 +161,13 @@ const menuItems: MenuProps['items'] = [
     className: 'font-bold',
     label: 'Payroll',
     children: [
-      // {
-      //   key: '/employee-information',
-      //   label: 'Employee Information',
-      //   className: 'font-bold',
-      // },
+      {
+        key: '/employee-information',
+        label: 'Employee Information',
+        className: 'font-bold',
+      },
       { key: '/payroll', label: 'Payroll', className: 'font-bold' },
+      { key: '/myPayroll', label: 'My Payroll', className: 'font-bold' },
       {
         key: '/settings',
         label: 'Settings',

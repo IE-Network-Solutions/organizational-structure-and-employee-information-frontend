@@ -283,6 +283,7 @@ function EditPlan() {
                                       <>
                                         <div className="flex gap-3 items-center">
                                           <Button
+                                            id={`plan-as-task_${kr?.id}`}
                                             onClick={() =>
                                               handleAddBoard(kr?.id)
                                             }
@@ -300,6 +301,7 @@ function EditPlan() {
                                               title="Plan keyResult as a Task"
                                             >
                                               <Button
+                                                id={`plan-key-result-as-task_${kr?.id ?? ''}`}
                                                 disabled={
                                                   kr?.progress == '100' ||
                                                   (form?.getFieldValue(
@@ -346,6 +348,7 @@ function EditPlan() {
                                               </span>
                                               <div className="flex gap-2 items-center">
                                                 <Button
+                                                  id={`plan-milestone-as-task_${kr?.id ?? '' + ml?.id ?? ''}`}
                                                   onClick={() => {
                                                     setMKAsATask(null);
                                                     handleAddBoard(
@@ -367,6 +370,7 @@ function EditPlan() {
                                                   NAME.MILESTONE && (
                                                   <Tooltip title="Plan Milestone as a Task">
                                                     <Button
+                                                      id={`plan-milestone-as-task_${kr?.id ?? '' + ml?.id ?? ''}`}
                                                       disabled={
                                                         ml?.status ===
                                                           'Completed' ||
@@ -536,6 +540,7 @@ function EditPlan() {
                                     </div>
                                     <div className="flex items-center">
                                       <Button
+                                        id={`plan-as-task_${keyResult?.id ?? ''}${milestone?.id ?? ''}${task?.id ?? ''}`}
                                         onClick={() => {
                                           setMKAsATask(null);
                                           handleAddBoard(

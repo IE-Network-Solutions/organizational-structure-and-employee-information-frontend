@@ -2,7 +2,6 @@ pipeline {
     agent any
 
 
-
     stages {
         stage('Select Environment') {
             steps {
@@ -25,7 +24,9 @@ pipeline {
             }
         }
 
+
 stage('Fetch Environment Variables') {
+
             steps {
                 script {
                     sshagent([env.SSH_CREDENTIALS_ID]) {
@@ -77,7 +78,9 @@ stage('Fetch Environment Variables') {
                 }
             }
         }
+
               stage('Install Dependencies') {
+
             steps {
                 sshagent([env.SSH_CREDENTIALS_ID]) {
                     sh """
@@ -87,6 +90,7 @@ stage('Fetch Environment Variables') {
                 }
             }
         }
+
 stage('Run Next.js App') {
     steps {
         sshagent([env.SSH_CREDENTIALS_ID]) {
@@ -102,11 +106,14 @@ stage('Run Next.js App') {
 }
 
     }
+
     post {
         success {
             echo 'Next.js application deployed successfully!'
         }
+
     failure {
+
             echo 'Deployment failed.'
             emailext(
                 subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",

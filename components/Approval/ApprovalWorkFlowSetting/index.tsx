@@ -65,6 +65,7 @@ const ApprovalWorkFlowSettingComponent = ({
   } = useApprovalStore();
   const onRadioChange = (e: RadioChangeEvent) => {
     setWorkflowApplies(e.target.value);
+    form.setFieldsValue({ workflowAppliesId: null });
   };
   const handleUserChange = (value: string, index: number) => {
     const updatedSelections = [...selections.SectionItemType];
@@ -91,11 +92,11 @@ const ApprovalWorkFlowSettingComponent = ({
           {title
             ? title
             : approverType === 'Sequential'
-              ? 'Leave '
+              ? 'Sequential '
               : approverType === 'Parallel'
-                ? 'TNA '
+                ? 'Parallel '
                 : approverType === 'Conditional'
-                  ? 'Purchasing Approval '
+                  ? 'Conditional '
                   : ' '}
           Approval Setting
         </div>

@@ -10,6 +10,15 @@ interface OKRSettingStore {
   pageSize: number;
   setPageSize: (pageSize: number) => void;
 
+  isModalVisible: boolean;
+  setIsModalVisible: (isModalVisible: boolean) => void;
+
+  planningPeriodName: string;
+  setPlanningPeriodName: (planningPeriodName: string) => void;
+
+  editingPeriod: any;
+  setEditingPeriod: (editingPeriod: any) => void;
+
   page: number;
   setPage: (page: number) => void;
   userId: string | null;
@@ -26,6 +35,16 @@ export const useOKRSettingStore = create<OKRSettingStore>()(
       set({ pagePlanningPeriod }), // Setting correct naming
     pageSize: 10,
     setPageSize: (pageSize: number) => set({ pageSize }),
+
+    isModalVisible: false,
+    setIsModalVisible: (isModalVisible: boolean) => set({ isModalVisible }),
+
+    planningPeriodName: '',
+    setPlanningPeriodName: (planningPeriodName: string) =>
+      set({ planningPeriodName }),
+
+    editingPeriod: null,
+    setEditingPeriod: (editingPeriod: any) => set({ editingPeriod }),
 
     page: 1,
     setPage: (page: number) => set({ page }),
