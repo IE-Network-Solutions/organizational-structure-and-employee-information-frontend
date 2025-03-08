@@ -27,8 +27,6 @@ function General({ id }: { id: string }) {
     })),
   );
 
-  console.log(employeeData, 'employeeData');
-
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   useGetNationalities();
   const handleSaveChanges = (editKey: keyof EditState, values: any) => {
@@ -54,18 +52,18 @@ function General({ id }: { id: string }) {
               values: { emergencyContact: values },
             });
             break;
-            case 'bankInformation':
-              updateEmployeeInformation({
-                id: employeeData?.employeeInformation?.id,
-                values: { bankInformation: values },
-              });
-              break;
-            case 'additionalInformation':
-              updateEmployeeInformation({
-                id: employeeData?.employeeInformation?.id,
-                values: { additionalInformation: values },
-              });
-              break;
+          case 'bankInformation':
+            updateEmployeeInformation({
+              id: employeeData?.employeeInformation?.id,
+              values: { bankInformation: values },
+            });
+            break;
+          case 'additionalInformation':
+            updateEmployeeInformation({
+              id: employeeData?.employeeInformation?.id,
+              values: { additionalInformation: values },
+            });
+            break;
         }
         setEdit(editKey);
       })

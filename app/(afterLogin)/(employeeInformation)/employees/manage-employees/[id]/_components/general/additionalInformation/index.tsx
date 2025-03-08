@@ -36,16 +36,23 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
       <Form
         form={form}
         layout="vertical"
-        initialValues={employeeData?.employeeInformation?.additionalInformation || {}}
-        onFinish={(values) => handleSaveChanges('additionalInformation', values)}
+        initialValues={
+          employeeData?.employeeInformation?.additionalInformation || {}
+        }
+        onFinish={(values) =>
+          handleSaveChanges('additionalInformation', values)
+        }
       >
-        {Object.entries(employeeData?.employeeInformation?.additionalInformation || {}).map(([key, val]) => (
+        {Object.entries(
+          employeeData?.employeeInformation?.additionalInformation || {},
+        ).map(([key, val]) => (
           <Form.Item
             key={key}
             name={key}
-            label={key.split('_').map(word => 
-              word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(' ')}
+            label={key
+              .split('_')
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ')}
             rules={[
               {
                 validator: (notUsed: any, value: any) => {
@@ -94,7 +101,7 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                       <Option value="female">Female</Option>
                     </Select>
                   );
-                
+
                 case 'nationality':
                   return (
                     <Select
@@ -111,10 +118,10 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                       )}
                     </Select>
                   );
-                
+
                 default:
                   return (
-                    <Input 
+                    <Input
                       placeholder={`Enter ${key.replace(/_/g, ' ')}`}
                       defaultValue={val?.toString()}
                     />
@@ -125,12 +132,7 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
         ))}
 
         <Form.Item className="mt-6">
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={isLoading}
-            block
-          >
+          <Button type="primary" htmlType="submit" loading={isLoading} block>
             Save Changes
           </Button>
         </Form.Item>

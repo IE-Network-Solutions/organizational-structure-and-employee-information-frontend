@@ -130,7 +130,6 @@ const EmployeeProfile = () => {
     return '';
   };
 
-
   return (
     <div style={{ padding: '24px' }}>
       <Card>
