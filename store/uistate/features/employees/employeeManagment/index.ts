@@ -127,7 +127,7 @@ interface UserState {
     selectedGroupPermissions: string[] | [],
   ) => void;
 
-  selectedBasicPermissions: string[] | [] ;
+  selectedBasicPermissions: string[] | [];
   setSelectedBasicPermissions: (
     selectedBasicPermissions: string[] | [],
   ) => void;

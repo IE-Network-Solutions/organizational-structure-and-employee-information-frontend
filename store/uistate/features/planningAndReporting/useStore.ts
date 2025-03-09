@@ -79,7 +79,7 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
           [taskId]: status, // Update the specific task status
         },
       })),
-   resetStatuses: () => set({ selectedStatuses: {} }), // Reset to initial state
+    resetStatuses: () => set({ selectedStatuses: {} }), // Reset to initial state
 
     openReportModal: false,
     setOpenReportModal: (openReportModal: boolean) => set({ openReportModal }),
