@@ -138,6 +138,8 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
   );
 
   const recognitionShow = (item: any) => {
+
+    console.log(item?.name,"item")
     return (
       <>
         <Card
@@ -197,6 +199,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
     );
   };
 
+  console.log(all,data,"data")
   return (
     <div>
       <div className="flex justify-end mb-4">
@@ -215,7 +218,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
       </div>
       {data?.map((item: any) => (
         <React.Fragment key={item.id}>
-          {!all
+          {all
             ? recognitionShow(item)
             : item?.children?.map((child: any) => (
                 <React.Fragment key={child.id}>
