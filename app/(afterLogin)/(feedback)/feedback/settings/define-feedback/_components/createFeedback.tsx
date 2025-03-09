@@ -10,9 +10,10 @@ import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/quer
 
 interface DataProps {
   form: any;
+  activeTabName?: string;
 }
 
-const CreateFeedback: React.FC<DataProps> = ({ form }) => {
+const CreateFeedback: React.FC<DataProps> = ({ form,activeTabName }) => {
   const {
     variantType,
     activeTab,
@@ -65,6 +66,7 @@ const CreateFeedback: React.FC<DataProps> = ({ form }) => {
       form?.resetFields();
     }
   }, [selectedFeedback]);
+
 
   return (
     <div className="mt-5 flex justify-center">
@@ -119,7 +121,11 @@ const CreateFeedback: React.FC<DataProps> = ({ form }) => {
               placeholder="Enter description"
             />
           </Form.Item>
-          <Form.Item name="perspectiveId" label="Select Perspective">
+          <Form.Item
+           name="perspectiveId" 
+           label="Select Perspective"
+            rules={[{ required: activeTabName==='KPI', message: 'Please select a perspective!' }]}
+           >
             <Select
               loading={getPerspectiveLoading}
               placeholder="Select a perspective"
