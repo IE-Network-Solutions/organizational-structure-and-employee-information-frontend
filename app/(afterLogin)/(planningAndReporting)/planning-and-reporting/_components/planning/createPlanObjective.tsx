@@ -5,6 +5,7 @@ import { FaPlus } from 'react-icons/fa';
 import DefaultCardForm from '../planForms/defaultForm';
 import BoardCardForm from '../planForms/boardFormView';
 import { NAME } from '@/types/enumTypes';
+import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 
 interface Milestone {
   id: number;
@@ -56,6 +57,8 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
   handleRemoveBoard,
   weights,
 }) => {
+  const { statuses, setClickStatus } = useClickStatus();
+
   return (
     <Collapse defaultActiveKey={0}>
       {objective?.items?.map((e, panelIndex) => (
@@ -158,6 +161,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                 <Button
                                   id="plan-milestone-as-task"
                                   disabled={
+                                    statuses[ml?.id] || // Check from Zustand store
                                     ml?.status === 'Completed' ||
                                     form?.getFieldValue(
                                       `names-${kr?.id + ml?.id}`,
@@ -167,11 +171,14 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                   className="text-[10px] text-primary"
                                   icon={<FaPlus />}
                                   onClick={() => {
-                                    setMKAsATask({
-                                      title: ml?.title,
-                                      mid: ml?.id,
-                                    });
-                                    handleAddBoard(kr?.id + ml?.id);
+                                    if (!statuses[ml?.id]) {
+                                      setMKAsATask({
+                                        title: ml?.title,
+                                        mid: ml?.id,
+                                      });
+                                      handleAddBoard(kr?.id + ml?.id);
+                                      setClickStatus(ml?.id + '', true); // Store click status in Zustand
+                                    }
                                   }}
                                 />
                               </Tooltip>

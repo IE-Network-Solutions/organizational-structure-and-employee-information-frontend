@@ -117,9 +117,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
     };
     formData.append('newFormData', JSON.stringify(formattedValues));
 
-    createCandidate(formData);
-    setCreateJobDrawer(false);
-    form.resetFields();
+    createCandidate(formData, {
+      onSuccess: () => {
+        setCreateJobDrawer(false);
+        form.resetFields();
+      },
+    });
   };
 
   return (

@@ -158,12 +158,9 @@ export const useSetApproveLeaveRequest = () => {
       queryClient.invalidateQueries('current_approval');
       queryClient.invalidateQueries('leave-request');
       queryClient.invalidateQueries('transferApprovalRequest');
-      queryClient.invalidateQueries('myTansferRequest');
+      queryClient.invalidateQueries('myTransferRequest');
       queryClient.invalidateQueries('transferRequest');
-      queryClient.invalidateQueries([
-        'tna-current_approval',
-        data?.approvedUserId,
-      ]);
+      queryClient.invalidateQueries('tnaCurrentApproval');
       queryClient.invalidateQueries('tna');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
@@ -197,7 +194,7 @@ export const useSetAllApproveLeaveRequest = () => {
       queryClient.invalidateQueries('current_approval');
       queryClient.invalidateQueries('leave-request');
       queryClient.invalidateQueries('transferApprovalRequest');
-      queryClient.invalidateQueries('myTansferRequest');
+      queryClient.invalidateQueries('myTransferRequest');
       queryClient.invalidateQueries('transferRequest');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
@@ -211,7 +208,7 @@ export const useSetRejectLeaveRequest = () => {
       queryClient.invalidateQueries('current_approval');
       queryClient.invalidateQueries('leave-request');
       queryClient.invalidateQueries('transferApprovalRequest');
-      queryClient.invalidateQueries('myTansferRequest');
+      queryClient.invalidateQueries('myTransferRequest');
       queryClient.invalidateQueries('transferRequest');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
@@ -223,7 +220,7 @@ export const useSetAllApproveTnaRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllApproveTnaRequest, {
     onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries(['tna-current_approval', data?.userId]);
+      queryClient.invalidateQueries('tnaCurrentApproval');
       queryClient.invalidateQueries('tna');
 
       const method = variables?.method?.toUpperCase();
@@ -235,7 +232,7 @@ export const useSetRejectTnaRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllRejectTnaRequest, {
     onSuccess: () => {
-      queryClient.invalidateQueries('tna-current_approval');
+      queryClient.invalidateQueries('tnaCurrentApproval');
       queryClient.invalidateQueries('tna');
     },
   });

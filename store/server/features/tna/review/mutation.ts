@@ -62,7 +62,7 @@ export const useSetFinalApproveTnaRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setFinalApproveTnaRequest, {
     onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries(['tna-current_approval']);
+      queryClient.invalidateQueries('tnaCurrentApproval');
       queryClient.invalidateQueries(['tna']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
@@ -73,7 +73,7 @@ export const useSetAllFinalApproveTnaRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllFinalApproveTnaRequest, {
     onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries(['tna-current_approval']);
+      queryClient.invalidateQueries('tnaCurrentApproval');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

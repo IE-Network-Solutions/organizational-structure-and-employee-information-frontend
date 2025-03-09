@@ -30,7 +30,7 @@ const TalentPoolDrawer: React.FC = () => {
             id: selectedTalentPool?.id || '',
             category: {
               ...values,
-              name: values.name,
+              name: values?.title,
             },
           },
           {
@@ -42,8 +42,8 @@ const TalentPoolDrawer: React.FC = () => {
       } else {
         createTalentPoolCategory(
           {
-            title: values.name,
-            description: values.description,
+            title: values?.title,
+            description: values?.description,
             createdBy: userId,
           },
           {
@@ -62,7 +62,7 @@ const TalentPoolDrawer: React.FC = () => {
   useEffect(() => {
     if (isEditMode && selectedTalentPool) {
       form.setFieldsValue({
-        title: selectedTalentPool.title,
+        title: selectedTalentPool?.title,
         description: selectedTalentPool.description,
       });
     } else {
