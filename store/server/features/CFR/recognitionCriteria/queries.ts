@@ -34,7 +34,9 @@ export const useGetAllRecognitionType = () => {
   return useQuery<any>('recognitionTypes', getAllRecognitionTypes);
 };
 
-
 export const useGetAllRecognitionWithRelations = () => {
-  return useQuery<any>('recognitionTypesWithRelations', getAllRecognitionWithRelations);
+  return useQuery<any>(
+    'recognitionTypesWithRelations',
+    getAllRecognitionWithRelations,
+  );
 };

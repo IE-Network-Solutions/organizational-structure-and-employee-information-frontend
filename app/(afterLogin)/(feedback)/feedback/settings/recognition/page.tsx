@@ -9,7 +9,7 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import RecognitionForm from '../_components/recognition/createRecognition';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import {  useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
+import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
 
 const Page = () => {
   const { open, setOpen, setOpenRecognitionType, openRecognitionType } =

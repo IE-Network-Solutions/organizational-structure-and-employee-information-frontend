@@ -138,8 +138,6 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
   );
 
   const recognitionShow = (item: any) => {
-
-    console.log(item?.name,"item")
     return (
       <>
         <Card
@@ -199,7 +197,6 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
     );
   };
 
-  console.log(all,data,"data")
   return (
     <div>
       <div className="flex justify-end mb-4">
