@@ -52,27 +52,31 @@ const RecognitionForm: React.FC<PropsData> = ({
     selectedRecognitionType,
   );
 
-  const { mutate: createRecognitionType ,isLoading:createLoading} = useAddRecognitionType();
-  const { mutate: updateRecognitionType ,isLoading:updateLoading} = useUpdateRecognitionType();
+  const { mutate: createRecognitionType, isLoading: createLoading } =
+    useAddRecognitionType();
+  const { mutate: updateRecognitionType, isLoading: updateLoading } =
+    useUpdateRecognitionType();
 
   const [selectedCriteria, setSelectedCriteria] = useState<any>([]);
 
   // This function will calculate the total weight of all criteria
   const calculateTotalWeight = (criteria: any[]) => {
-    return criteria.reduce((acc, criterion) => acc + (criterion.weight || 0), 0);
+    return criteria.reduce(
+      (acc, criterion) => acc + (criterion.weight || 0),
+      0,
+    );
   };
-  
-  
+
   const handleCriteriaChange = (value: string[]) => {
     const noCriterion = value.length;
-  
+
     const updatedCriteria = value.map((criterion) => {
       const existingCriterion = selectedCriteria.find(
-        (item: any) => item.criterionKey === criterion
+        (item: any) => item.criterionKey === criterion,
       );
-  
+
       const weight = parseFloat((1 / noCriterion).toFixed(2));
-  
+
       return existingCriterion
         ? { ...existingCriterion, weight }
         : {
@@ -83,20 +87,18 @@ const RecognitionForm: React.FC<PropsData> = ({
             value: 0,
           };
     });
-  
-    setSelectedCriteria(updatedCriteria);
 
+    setSelectedCriteria(updatedCriteria);
 
     const updatedTotalWeight = updatedCriteria.reduce(
       (sum, criteria) => sum + criteria.weight,
-      0
+      0,
     );
     setTotalWeight(updatedTotalWeight);
-  
-  
+
     // Update form fields
     form.setFieldsValue({
-      recognitionCriteria: updatedCriteria.map((criteria, index) => ({
+      recognitionCriteria: updatedCriteria.map((criteria) => ({
         criterionKey: criteria.criterionKey,
         weight: criteria.weight,
         operator: criteria.operator,
@@ -105,20 +107,17 @@ const RecognitionForm: React.FC<PropsData> = ({
       })),
     });
   };
-  
-  
 
   const handleWeightChange = (index: number, newWeight: number) => {
     const clampedWeight = Math.min(Math.max(newWeight, 0), 1); // Clamp the value between 0 and 1
     const updatedCriteria = [...selectedCriteria];
     updatedCriteria[index].weight = clampedWeight;
-  
+
     // Update selected criteria and recalculate total weight
     setSelectedCriteria(updatedCriteria);
     setTotalWeight(calculateTotalWeight(updatedCriteria));
   };
-  
-  
+
   const validateTotalWeight = () => {
     const totalWeight = selectedCriteria.reduce(
       (sum: any, criterion: any) => sum + parseFloat(criterion.weight || 0),
@@ -246,149 +245,182 @@ const RecognitionForm: React.FC<PropsData> = ({
           className="text-xs text-gray-950"
         />
       </Form.Item>
-      <>{!createCategory && !selectedRecognitionType && (
-      <Form.Item
-        className="text-xs text-gray-950"
-        label={<span className="text-black text-xs font-semibold">Recognition Criteria</span>}
-        name="criteria"
-        rules={[{ required: true, message: 'Please select at least one criterion' }]}
-      >
-        <Select
-          mode="multiple"
-          placeholder="Select criteria"
-          className="text-xs text-gray-950"
-          onChange={handleCriteriaChange}
-        >
-          <Select.Option value="KPI">KPI</Select.Option>
-          <Select.Option value="OKR">OKR Score</Select.Option>
-          <Select.Option value="ATTENDANCE">Attendance</Select.Option>
-          <Select.Option value="CERTIFICATE">Certificate</Select.Option>
-          <Select.Option value="ENGAGEMENT_SCORE">Engagement score</Select.Option>
-        </Select>
-      </Form.Item>
-    )}
-
-    {selectedCriteria.map((criteria: any, index: number) => (
-      <div className="flex gap-1" key={criteria.criterionKey}>
-        {selectedRecognitionType !== '' && (
+      <>
+        {!createCategory && !selectedRecognitionType && (
           <Form.Item
-            labelAlign="left"
-            className="w-1/2 text-xs text-gray-950"
-            label={getLabel('Criteria')}
-            name={['recognitionCriteria', index, 'id']}
-            initialValue={criteria.id ?? ''}
-            hidden
+            className="text-xs text-gray-950"
+            label={
+              <span className="text-black text-xs font-semibold">
+                Recognition Criteria
+              </span>
+            }
+            name="criteria"
             rules={[
               {
                 required: true,
-                message: 'Please enter weight',
-              },
-              {
-                validator: (notused, value) => {
-                  const weight = parseFloat(value || 0);
-                  const total = totalWeight - criteria.weight + weight;
-                  if (total > 1) {
-                    return Promise.reject('The total weight of all criteria must not exceed 1.');
-                  }
-                  return Promise.resolve();
-                },
+                message: 'Please select at least one criterion',
               },
             ]}
           >
-            <Input hidden className={commonClass} disabled />
+            <Select
+              mode="multiple"
+              placeholder="Select criteria"
+              className="text-xs text-gray-950"
+              onChange={handleCriteriaChange}
+            >
+              <Select.Option value="KPI">KPI</Select.Option>
+              <Select.Option value="OKR">OKR Score</Select.Option>
+              <Select.Option value="ATTENDANCE">Attendance</Select.Option>
+              <Select.Option value="CERTIFICATE">Certificate</Select.Option>
+              <Select.Option value="ENGAGEMENT_SCORE">
+                Engagement score
+              </Select.Option>
+            </Select>
           </Form.Item>
         )}
-        {/* Criteria Name */}
-        <Form.Item
-          labelAlign="left"
-          className="w-1/2 text-xs text-gray-950"
-          label={getLabel('Criteria')}
-          name={['recognitionCriteria', index, 'criterionKey']}
-          initialValue={criteria.criterionKey}
-          rules={[{ required: true, message: 'Please select at least one criterion' }]}
-        >
-          <Input className={commonClass} disabled />
-        </Form.Item>
 
-        {/* Weight */}
-        <Form.Item
-          className="w-1/2 text-xs text-gray-950"
-          label={getLabel('Weight')}
-          name={['recognitionCriteria', index, 'weight']}
-          initialValue={criteria.weight}
-          rules={[
-            { required: true, message: 'Please enter weight' },
-            {
-              validator: () => validateTotalWeight(),
-            },
-          ]}
-        >
-          <Input
-            type="number"
-            min={0}
-            max={1}
-            step={0.1}
-            placeholder="Enter weight (0-1)"
-            onChange={(e) => {
-              const value = parseFloat(e.target.value ?? 0);
-              handleWeightChange(index, value);
-            }}
-          />
-        </Form.Item>
+        {selectedCriteria.map((criteria: any, index: number) => (
+          <div className="flex gap-1" key={criteria.criterionKey}>
+            {selectedRecognitionType !== '' && (
+              <Form.Item
+                labelAlign="left"
+                className="w-1/2 text-xs text-gray-950"
+                label={getLabel('Criteria')}
+                name={['recognitionCriteria', index, 'id']}
+                initialValue={criteria.id ?? ''}
+                hidden
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please enter weight',
+                  },
+                  {
+                    validator: (notused, value) => {
+                      const weight = parseFloat(value || 0);
+                      const total = totalWeight - criteria.weight + weight;
+                      if (total > 1) {
+                        return Promise.reject(
+                          'The total weight of all criteria must not exceed 1.',
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+              >
+                <Input hidden className={commonClass} disabled />
+              </Form.Item>
+            )}
+            {/* Criteria Name */}
+            <Form.Item
+              labelAlign="left"
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel('Criteria')}
+              name={['recognitionCriteria', index, 'criterionKey']}
+              initialValue={criteria.criterionKey}
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select at least one criterion',
+                },
+              ]}
+            >
+              <Input className={commonClass} disabled />
+            </Form.Item>
 
-        {/* Operator */}
-        <Form.Item
-          className="w-1/2 text-xs text-gray-950"
-          label={getLabel('Operator')}
-          name={['recognitionCriteria', index, 'operator']}
-          initialValue={criteria.operator}
-          rules={[{ required: true, message: 'Please enter operator' }]}
-        >
-          <Select placeholder="Select operator" className={commonClass}>
-            {Object.values(AggregateOperator).map((operator) => (
-              <Select.Option key={operator} value={operator} className={commonClass}>
-                {operator}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
+            {/* Weight */}
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel('Weight')}
+              name={['recognitionCriteria', index, 'weight']}
+              initialValue={criteria.weight}
+              rules={[
+                { required: true, message: 'Please enter weight' },
+                {
+                  validator: () => validateTotalWeight(),
+                },
+              ]}
+            >
+              <Input
+                type="number"
+                min={0}
+                max={1}
+                step={0.1}
+                placeholder="Enter weight (0-1)"
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value ?? 0);
+                  handleWeightChange(index, value);
+                }}
+              />
+            </Form.Item>
 
-        {/* Condition */}
-        <Form.Item
-          className="w-1/2 text-xs text-gray-950"
-          label={getLabel('Condition')}
-          name={['recognitionCriteria', index, 'condition']}
-          initialValue={criteria.condition}
-          rules={[{ required: true, message: 'Please enter condition' }]}
-        >
-          <Select placeholder="Select condition" className={commonClass}>
-            {Object.values(ConditionOperator).map((operator) => (
-              <Select.Option key={operator} value={operator} className={commonClass}>
-                {operator}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
+            {/* Operator */}
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel('Operator')}
+              name={['recognitionCriteria', index, 'operator']}
+              initialValue={criteria.operator}
+              rules={[{ required: true, message: 'Please enter operator' }]}
+            >
+              <Select placeholder="Select operator" className={commonClass}>
+                {Object.values(AggregateOperator).map((operator) => (
+                  <Select.Option
+                    key={operator}
+                    value={operator}
+                    className={commonClass}
+                  >
+                    {operator}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-        {/* Value */}
-        <Form.Item
-          className="w-1/2 text-xs text-gray-950"
-          label={getLabel('Value')}
-          name={['recognitionCriteria', index, 'value']}
-          initialValue={criteria.value}
-          rules={[{ required: true, message: 'Please enter value' }]}
-        >
-          <Input type="number" placeholder="Enter value" className={commonClass} />
-        </Form.Item>
-      </div>
-    ))}
+            {/* Condition */}
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel('Condition')}
+              name={['recognitionCriteria', index, 'condition']}
+              initialValue={criteria.condition}
+              rules={[{ required: true, message: 'Please enter condition' }]}
+            >
+              <Select placeholder="Select condition" className={commonClass}>
+                {Object.values(ConditionOperator).map((operator) => (
+                  <Select.Option
+                    key={operator}
+                    value={operator}
+                    className={commonClass}
+                  >
+                    {operator}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-    {!createCategory && !selectedRecognitionType && (
-      <div className={`mt-2 text-xs ${totalWeight !== 1 ? 'text-red-500' : 'text-gray-600'}`}>
-        Total Weight: {totalWeight} {totalWeight !== 1 && '(Must equal 1)'}
-      </div>
-    )}
-  </>
+            {/* Value */}
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel('Value')}
+              name={['recognitionCriteria', index, 'value']}
+              initialValue={criteria.value}
+              rules={[{ required: true, message: 'Please enter value' }]}
+            >
+              <Input
+                type="number"
+                placeholder="Enter value"
+                className={commonClass}
+              />
+            </Form.Item>
+          </div>
+        ))}
+
+        {!createCategory && !selectedRecognitionType && (
+          <div
+            className={`mt-2 text-xs ${totalWeight !== 1 ? 'text-red-500' : 'text-gray-600'}`}
+          >
+            Total Weight: {totalWeight} {totalWeight !== 1 && '(Must equal 1)'}
+          </div>
+        )}
+      </>
 
       <div className="flex">
         <Form.Item
@@ -530,7 +562,9 @@ const RecognitionForm: React.FC<PropsData> = ({
       <Form.Item>
         <div className="flex justify-center gap-4">
           <Button
-            loading={selectedRecognitionType !== '' ? updateLoading : createLoading}
+            loading={
+              selectedRecognitionType !== '' ? updateLoading : createLoading
+            }
             disabled={
               !createCategory && !selectedRecognitionType
                 ? totalWeight !== 1

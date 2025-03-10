@@ -53,7 +53,6 @@ export interface CategoriesUseState {
   totalWeight: number;
   setTotalWeight: (totalWeight: number) => void;
 
-
   recognitionTypeId: string;
   setRecognitionTypeId: (value: string) => void;
 
@@ -139,8 +138,6 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   userId: '',
   setUserId: (userId: string) => set({ userId }),
-
-
 
   totalWeight: 0,
   setTotalWeight: (totalWeight: number) => set({ totalWeight }),
