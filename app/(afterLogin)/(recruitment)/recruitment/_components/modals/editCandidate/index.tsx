@@ -299,6 +299,31 @@ const EditCandidate: React.FC = () => {
           <div className="text-sm font-md mb-5 ">
             Max file size : 5MB. File format : .pdf
           </div>
+          <Form.Item
+            id="resumeUrlId"
+            name="resumeUrl"
+            label={
+              <span className="text-md font-semibold text-gray-700">
+                Resume
+              </span>
+            }
+          >
+            {editCandidate?.resumeUrl ? (
+              <a
+                href={editCandidate.resumeUrl.replace(
+                  'open?id=',
+                  'uc?export=download&id=',
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                Download Resume
+              </a>
+            ) : (
+              <span className="text-gray-500">No resume uploaded</span>
+            )}
+          </Form.Item>
 
           <Form.Item>
             <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
