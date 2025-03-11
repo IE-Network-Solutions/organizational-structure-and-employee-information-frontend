@@ -139,13 +139,8 @@ const RecognitionForm: React.FC<PropsData> = ({
       0,
     );
     setTotalWeight(totalWeight);
-    if (totalWeight !== 1) {
-      return Promise.reject(
-        new Error('The total weight of all criteria must equal 1.'),
-      );
-    } else {
       return Promise.resolve();
-    }
+    
   };
 
   const commonClass = 'text-xs text-gray-950';
@@ -339,29 +334,40 @@ const RecognitionForm: React.FC<PropsData> = ({
           </Form.Item>
 
           <Form.Item
-            className="w-1/2 text-xs text-gray-950"
-            label={getLabel('Weight')}
-            name={['recognitionCriteria', index, 'weight']}
-            initialValue={criteria.weight}
-            rules={[
-              { required: true, message: 'Please enter weight' },
-              {
-                validator: () => validateTotalWeight(),
-              },
-            ]}
-          >
-            <Input
-              type="number"
-              min={0}
-              max={1}
-              step={0.01}
-              placeholder="Enter weight (0-1)"
-              onChange={(e) => {
-                const value = parseFloat(e.target.value ?? 0);
-                handleWeightChange(index, value);
-              }}
-            />
-          </Form.Item>
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel('Weight')}
+              name={['recognitionCriteria', index, 'weight']}
+              initialValue={criteria.weight}
+              rules={[
+                { required: true, message: 'Please enter weight' },
+                {
+                  validator: (_, value) => {
+                    const weight = parseFloat(value || 0); // Default to 0 if value is invalid
+                    if (weight < 0.1 || weight > 1) {
+                      return Promise.reject('The weight should be between 0.1-1');
+                    }
+                    const totalWeight = selectedCriteria.reduce((sum:number, crit:any, i:number) => 
+                      sum + (i === index ? weight : crit.weight || 0), 0);
+                    if (totalWeight > 1) {
+                      return Promise.reject('Total weight of all criteria must not exceed 1');
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <Input
+                type="number"
+                min={0.1} // Browser-level constraint
+                max={1}   // Browser-level constraint
+                step={0.01}
+                placeholder="Enter weight (0.1-1)"
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value || '0');
+                  handleWeightChange(index, value);
+                }}
+              />
+            </Form.Item>
 
           <Form.Item
             className="w-1/2 text-xs text-gray-950"
@@ -572,11 +578,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                 ? updateWithCriteriaLoading
                 : createLoading
             }
-            disabled={
-              !createCategory && !selectedRecognitionType
-                ? totalWeight !== 1
-                : false
-            }
+            disabled={totalWeight !== 1}
             type="primary"
             htmlType="submit"
             className="text-xs"

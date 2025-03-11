@@ -10,7 +10,6 @@ import {
 } from '@/store/server/features/CFR/recognitionCriteria/mutation';
 import RecognitionForm from './createRecognition';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import RecognitionCriteriaModal from './updateRecognitionCriteria';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
@@ -164,14 +163,14 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
                   </Button>
                 </Popconfirm>
               </AccessGuard>
-              <AccessGuard permissions={[Permissions.AddRecognitionCriteria]}>
+              {/* <AccessGuard permissions={[Permissions.AddRecognitionCriteria]}>
                 <Button
                   type="primary"
                   onClick={() => setRecognitionTypeId(item?.id)}
                 >
                   Add criteria
                 </Button>
-              </AccessGuard>
+              </AccessGuard> */}
             </div>
           }
         >
@@ -235,7 +234,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
           <RecognitionForm />
         </CustomDrawerLayout>
 
-        <RecognitionCriteriaModal
+        {/* <RecognitionCriteriaModal
           isOpen={editingRowKeys?.id}
           onClose={() => setEditingRowKeys({})}
           text="Update"
@@ -247,7 +246,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
           onClose={() => setRecognitionTypeId('')}
           text="Create"
           onSubmit={handleAddCriterion}
-        />
+        /> */}
       </div>
     </div>
   );
