@@ -535,7 +535,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       </Form.Item>
 
       <Form.Item>
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center space-x-4">
           <Button
             loading={
               selectedRecognitionType !== ''
@@ -549,10 +549,7 @@ const RecognitionForm: React.FC<PropsData> = ({
           >
             {selectedRecognitionType !== '' ? 'Update' : 'Create'}
           </Button>
-        </div>
-      </Form.Item>
-      <Form.Item>
-        <div className="flex justify-center gap-4">
+
           <Popconfirm
             title="Are you sure you want to cancel?"
             onConfirm={() => {
@@ -570,6 +567,7 @@ const RecognitionForm: React.FC<PropsData> = ({
           </Popconfirm>
         </div>
       </Form.Item>
+
     </Form>
   );
 };
