@@ -74,7 +74,7 @@ const Page = () => {
         modalHeader={modalHeader}
         width="50%"
       >
-        <RecognitionForm />
+        <RecognitionForm onClose={() => setOpen(false)} />
       </CustomDrawerLayout>
       <Drawer
         width={600} // Adjust the width as needed
