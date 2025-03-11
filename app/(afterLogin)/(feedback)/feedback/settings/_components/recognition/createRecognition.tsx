@@ -97,7 +97,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     const finalValues = {
       ...rest,
       parentTypeId:
-        parentTypeId && parentTypeId.length === 0 ? parentTypeId : undefined,
+        parentTypeId && parentTypeId.length !== 0 ? parentTypeId : undefined,
     };
 
     if (selectedRecognitionType === '') {
