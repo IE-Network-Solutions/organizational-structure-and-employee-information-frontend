@@ -133,7 +133,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
   };
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      Add New Recognition
+      {selectedRecognitionType ? 'Update Recognition' : 'Add New Recognition'}
     </div>
   );
 
