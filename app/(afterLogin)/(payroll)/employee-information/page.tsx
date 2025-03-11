@@ -8,6 +8,8 @@ import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assi
 import { useGetEmployeeInfo } from '@/store/server/features/payroll/payroll/queries';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 
 interface Employee {
   id: string;
@@ -190,6 +192,11 @@ const EmployeeInformation = () => {
       key: 'action',
       render: (record: any) => (
         <Space size="middle">
+ 
+ <AccessGuard
+                    permissions={[
+                      Permissions.UpdateAllowanceEntitlement
+                    ]}>
           <Button
             type="primary"
             icon={
@@ -201,6 +208,8 @@ const EmployeeInformation = () => {
               />
             }
           />
+                        </AccessGuard>
+
         </Space>
       ),
     },
