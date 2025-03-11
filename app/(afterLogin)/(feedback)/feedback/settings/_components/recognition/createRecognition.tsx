@@ -133,27 +133,18 @@ const RecognitionForm: React.FC<PropsData> = ({
     setTotalWeight(calculateTotalWeight(updatedCriteria));
   };
 
-  const validateTotalWeight = () => {
-    const totalWeight = selectedCriteria.reduce(
-      (sum: any, criterion: any) => sum + parseFloat(criterion.weight || 0),
-      0,
-    );
-    setTotalWeight(totalWeight);
-      return Promise.resolve();
-    
-  };
-
   const commonClass = 'text-xs text-gray-950';
   const getLabel = (text: string) => (
     <span className="text-black text-xs font-semibold">{text}</span>
   );
   const onFinish = (values: RecognitionFormValues) => {
     const { parentTypeId, ...rest } = values;
-
     // Check if parentTypeId is defined and not an empty string
-
+    const filteredObj = Object.fromEntries(
+      Object.entries(rest).filter(([key]) => key !== 'criteria'),
+    );
     const finalValues = {
-      ...rest,
+      ...filteredObj,
       parentTypeId:
         parentTypeId && parentTypeId.length !== 0 ? parentTypeId : undefined,
     };
@@ -275,28 +266,6 @@ const RecognitionForm: React.FC<PropsData> = ({
             placeholder="Select criteria"
             className="text-xs text-gray-950"
             onChange={handleCriteriaChange}
-            tagRender={(props) => {
-              const { label, value, closable, onClose } = props;
-              const option = CRITERIA_OPTIONS.find(
-                (opt) => opt.value === value,
-              );
-              return (
-                <div
-                  key={option?.id || value}
-                  className="ant-select-selection-item"
-                >
-                  <span>{label}</span>
-                  {closable && (
-                    <span
-                      className="ant-select-selection-item-remove"
-                      onClick={onClose}
-                    >
-                      ×
-                    </span>
-                  )}
-                </div>
-              );
-            }}
           >
             {CRITERIA_OPTIONS.map((option) => (
               <Select.Option key={option.id} value={option.value}>
@@ -334,40 +303,35 @@ const RecognitionForm: React.FC<PropsData> = ({
           </Form.Item>
 
           <Form.Item
-              className="w-1/2 text-xs text-gray-950"
-              label={getLabel('Weight')}
-              name={['recognitionCriteria', index, 'weight']}
-              initialValue={criteria.weight}
-              rules={[
-                { required: true, message: 'Please enter weight' },
-                {
-                  validator: (_, value) => {
-                    const weight = parseFloat(value || 0); // Default to 0 if value is invalid
-                    if (weight < 0.1 || weight > 1) {
-                      return Promise.reject('The weight should be between 0.1-1');
-                    }
-                    const totalWeight = selectedCriteria.reduce((sum:number, crit:any, i:number) => 
-                      sum + (i === index ? weight : crit.weight || 0), 0);
-                    if (totalWeight > 1) {
-                      return Promise.reject('Total weight of all criteria must not exceed 1');
-                    }
-                    return Promise.resolve();
-                  },
+            className="w-1/2 text-xs text-gray-950"
+            label={getLabel('Weight')}
+            name={['recognitionCriteria', index, 'weight']}
+            initialValue={criteria.weight}
+            rules={[
+              { required: true, message: 'Please enter weight' },
+              {
+                validator: (notused, value) => {
+                  const weight = parseFloat(value || 0); // Default to 0 if value is invalid
+                  if (weight < 0.1 || weight > 1) {
+                    return Promise.reject('The weight should be between 0.1-1');
+                  }
+                  return Promise.resolve();
                 },
-              ]}
-            >
-              <Input
-                type="number"
-                min={0.1} // Browser-level constraint
-                max={1}   // Browser-level constraint
-                step={0.01}
-                placeholder="Enter weight (0.1-1)"
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value || '0');
-                  handleWeightChange(index, value);
-                }}
-              />
-            </Form.Item>
+              },
+            ]}
+          >
+            <Input
+              type="number"
+              min={0.1} // Browser-level constraint
+              max={1} // Browser-level constraint
+              step={0.01}
+              placeholder="Enter weight (0.1-1)"
+              onChange={(e) => {
+                const value = parseFloat(e.target.value || '0');
+                handleWeightChange(index, value);
+              }}
+            />
+          </Form.Item>
 
           <Form.Item
             className="w-1/2 text-xs text-gray-950"
