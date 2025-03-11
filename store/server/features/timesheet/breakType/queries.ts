@@ -23,13 +23,9 @@ const getBreakType = async (id: string) => {
 };
 
 export const useGetBreakTypes = () => {
-  return useQuery<ApiResponse<BreakType>>(
-    'break-types',
-    () => getBreakTypes(),
-    {
-      // keepPreviousData: true,
-    },
-  );
+  return useQuery<ApiResponse<BreakType>>('breakTypes', () => getBreakTypes(), {
+    // keepPreviousData: true,
+  });
 };
 
 export const useGetBreakType = (id: string) => {
