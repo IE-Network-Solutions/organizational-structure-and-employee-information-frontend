@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import {
   Button,
   DatePicker,
@@ -27,6 +27,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   const [form] = Form.useForm();
   const { setKeyResult } = useOKRStore();
   const { data: metrics } = useGetMetrics();
+
   const handleAddKeyResult = () => {
     form
       .validateFields()
@@ -42,6 +43,13 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
         setKeyResult([]);
       })
       .catch(() => {});
+  };
+
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const titleValue = e.target.value;
+    updateKeyResult(index, 'title', titleValue);
+
+    form.validateFields(['title']);
   };
 
   return (
@@ -101,7 +109,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
 
           <Form.Item
             className="font-semibold text-xs w-full mb-2"
-            name="title"
+            name={`title-${index}`}
             rules={[
               { required: true, message: 'Please enter the Key Result name' },
             ]}
@@ -110,7 +118,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
             <Input
               placeholder="Key Result Name"
               aria-label="Key Result Name"
+              // onChange={handleTitleChange}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
+              // onBlur={() => form.validateFields(['title'])}
             />
           </Form.Item>
 

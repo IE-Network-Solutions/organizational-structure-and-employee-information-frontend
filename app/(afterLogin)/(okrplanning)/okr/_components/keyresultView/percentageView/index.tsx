@@ -43,6 +43,19 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           <Form.Item
             label={keyValue.key_type == 'Percentage' && 'Percentage'}
             className="w-full font-bold"
+            rules={[
+              {
+                validator: (_, value) => {
+                  if (!value) {
+                    return Promise.reject(
+                      new Error('Milestone title is required'),
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            validateTrigger="onBlur"
           >
             <Input
               id={`key-result-title-${index}`}

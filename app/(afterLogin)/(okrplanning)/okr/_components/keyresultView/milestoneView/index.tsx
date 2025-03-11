@@ -268,16 +268,6 @@ const MilestoneView: React.FC<OKRProps> = ({
                   {index + 1}.{mindex + 1}
                 </div>
 
-                {/* <Input
-                    id={`milestone-title-${index}-${mindex}`}
-                    placeholder="Milestone Name"
-                    value={milestone.title || ''}
-                    className="flex-1"
-                    onChange={(e) =>
-                      milestoneChange(e.target.value, index, mindex, 'title')
-                    }
-                    required
-                  /> */}
                 <Form.Item
                   name={['milestones', index, mindex, 'title']}
                   rules={[
@@ -288,7 +278,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                   <Input
                     id={`milestone-title-${index}-${mindex}`}
                     placeholder="Milestone Name"
-                    value={milestone.title || ''}
+                    // value={milestone.title || ''}
                     onChange={(e) =>
                       milestoneChange(e.target.value, index, mindex, 'title')
                     }

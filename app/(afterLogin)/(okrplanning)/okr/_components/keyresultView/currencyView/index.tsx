@@ -50,6 +50,19 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             }
             className="w-full font-bold"
             id={`key-result-title-${index}`}
+            rules={[
+              {
+                validator: (_, value) => {
+                  if (!value) {
+                    return Promise.reject(
+                      new Error('Milestone title is required'),
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            validateTrigger="onBlur"
           >
             <Input
               value={keyValue.title}
