@@ -1,6 +1,7 @@
 'use client';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGrantObjectiveEditAccess } from '@/store/server/features/okrplanning/okr/editAccess/mutation';
+import { useGetAllObjective } from '@/store/server/features/okrplanning/okr/editAccess/queries';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import useObjectiveEditAccessStore from '@/store/uistate/features/okrplanning/okrSetting/editAccess';
 import { EditAccessTableProps } from '@/store/uistate/features/okrplanning/okrSetting/editAccess';
@@ -37,6 +38,8 @@ const EditAccessTable: React.FC = () => {
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
   const { data: allUser, isLoading: responseLoading } = useGetAllUsersData();
   const { mutate: grantEditAccess } = useGrantObjectiveEditAccess();
+
+  const { data: allUserObjective } = useGetAllObjective();
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
