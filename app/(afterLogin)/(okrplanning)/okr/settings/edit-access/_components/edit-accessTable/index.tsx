@@ -44,6 +44,22 @@ const EditAccessTable: React.FC = () => {
       setPageSize(pageSize);
     }
   };
+  // =============> This area <============
+  React.useEffect(() => {
+    if (allUser?.items && allUserObjective?.items) {
+      const newSwitchStates = allUser?.items?.reduce(
+        (acc: Record<string, boolean>, user: any) => {
+          const userObjective = allUserObjective?.items?.find(
+            (obj: any) => obj?.userId === user?.id,
+          );
+          acc[user?.id] = userObjective ? !userObjective?.isClosed : false;
+          return acc;
+        },
+        {},
+      );
+      setSwitchStates(newSwitchStates);
+    }
+  }, [allUser, allUserObjective]);
 
   const activeSessionId =
     activeFiscalYear?.sessions?.find((item: any) => item?.active)?.id || '';
