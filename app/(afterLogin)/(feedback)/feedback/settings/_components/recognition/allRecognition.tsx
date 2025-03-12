@@ -215,7 +215,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
       </div>
       {data?.map((item: any) => (
         <React.Fragment key={item.id}>
-          {!all
+          {all
             ? recognitionShow(item)
             : item?.children?.map((child: any) => (
                 <React.Fragment key={child.id}>
