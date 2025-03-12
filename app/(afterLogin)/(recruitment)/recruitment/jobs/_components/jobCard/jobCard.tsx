@@ -78,6 +78,14 @@ const JobCard: React.FC = () => {
     <>
       {jobList?.items && jobList?.items?.length >= 1 ? (
         jobList?.items.map((job: any, index: string) => {
+          const jobDeadline = job?.jobDeadline
+            ? new Date(job?.jobDeadline)
+            : null;
+          const today = new Date();
+
+          const isDeadlinePassed = jobDeadline && jobDeadline < today;
+          const jobStatus = isDeadlinePassed ? 'Closed' : job?.jobStatus;
+
           const items = [
             {
               label: 'Change Status',
@@ -114,9 +122,9 @@ const JobCard: React.FC = () => {
                           {job?.jobTitle}
                         </span>
                       </div>
-                      {job?.jobStatus == 'Closed' ? (
+                      {jobStatus == 'Closed' ? (
                         <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border">
-                          {job?.jobStatus}
+                          Closed
                         </div>
                       ) : (
                         <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#B2B2FF] text-[#3636F0]">

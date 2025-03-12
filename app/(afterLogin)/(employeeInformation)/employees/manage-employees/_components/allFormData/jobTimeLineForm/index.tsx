@@ -57,7 +57,7 @@ const JobTimeLineForm = () => {
                 if (!birthDate) return false; // Ensure birthDate exists
 
                 const minJoinedDate = dayjs(birthDate)
-                  .add(15, 'years')
+                  .add(18, 'years')
                   .startOf('day');
                 return current && current.isBefore(minJoinedDate);
               }}
@@ -69,8 +69,8 @@ const JobTimeLineForm = () => {
               <IoInformationCircleOutline size={14} />
             </div>
             <div className="text-xs text-gray-500">
-              The effective start date should be set 15 years after your date of
-              birth.
+              The effective start date must be at least 18 years after the
+              selected birthdate.
             </div>
           </div>
         </Col>
