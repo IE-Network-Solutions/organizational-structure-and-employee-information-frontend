@@ -1,10 +1,5 @@
 import { Department } from '@/types/dashboard/organization';
-import {
-  EditOutlined,
-  DeleteOutlined,
-  MoreOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Card, Dropdown, Menu, Tooltip } from 'antd';
 import { Pencil } from 'lucide-react';
 

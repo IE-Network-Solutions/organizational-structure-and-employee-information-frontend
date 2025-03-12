@@ -1,10 +1,6 @@
 'use client';
 
 import React from 'react';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { BarChartOutlined, UserOutlined } from '@ant-design/icons';
-import { Menu } from 'antd';
-import { useRouter } from 'next/navigation';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 
 // Layout component definition
