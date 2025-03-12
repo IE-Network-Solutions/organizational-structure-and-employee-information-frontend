@@ -125,10 +125,10 @@ const EditAccessTable: React.FC = () => {
   });
 
   const filteredDataSource = searchParams?.employee_name
-    ? data.filter(
-        (employee: any) =>
-          employee?.name?.toLowerCase() ===
-          (searchParams?.employee_name as string)?.toLowerCase(),
+    ? data.filter((employee: any) =>
+        employee?.name
+          ?.toLowerCase()
+          .includes((searchParams?.employee_name as string)?.toLowerCase()),
       )
     : data;
 
