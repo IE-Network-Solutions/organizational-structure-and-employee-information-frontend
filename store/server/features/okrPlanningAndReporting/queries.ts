@@ -209,7 +209,6 @@ export const useDefaultPlanningPeriods = () => {
   return useQuery('defaultPlanningPeriods', getDefaultPlanningPeriods);
 };
 
-
 export const useGetPlanning = (params: DataType) => {
   return useQuery<any>(['okrPlans', params], () => getPlanningData(params), {
     enabled:

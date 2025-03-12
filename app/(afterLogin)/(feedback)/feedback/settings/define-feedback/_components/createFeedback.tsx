@@ -13,7 +13,7 @@ interface DataProps {
   activeTabName?: string;
 }
 
-const CreateFeedback: React.FC<DataProps> = ({ form,activeTabName }) => {
+const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
   const {
     variantType,
     activeTab,
@@ -66,7 +66,6 @@ const CreateFeedback: React.FC<DataProps> = ({ form,activeTabName }) => {
       form?.resetFields();
     }
   }, [selectedFeedback]);
-
 
   return (
     <div className="mt-5 flex justify-center">
@@ -122,10 +121,15 @@ const CreateFeedback: React.FC<DataProps> = ({ form,activeTabName }) => {
             />
           </Form.Item>
           <Form.Item
-           name="perspectiveId" 
-           label="Select Perspective"
-            rules={[{ required: activeTabName==='KPI', message: 'Please select a perspective!' }]}
-           >
+            name="perspectiveId"
+            label="Select Perspective"
+            rules={[
+              {
+                required: activeTabName === 'KPI',
+                message: 'Please select a perspective!',
+              },
+            ]}
+          >
             <Select
               loading={getPerspectiveLoading}
               placeholder="Select a perspective"

@@ -1,4 +1,3 @@
-import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
@@ -46,12 +45,18 @@ export const useCreateSettlementTracking = () => {
           description: errorMessage || 'Failed to create settlement tracking.',
         });
       },
-    }
+    },
   );
 };
 
 // Update settlement tracking
-const updateSettlementTracking = async ({ id, values }: { id: string; values: any }) => {
+const updateSettlementTracking = async ({
+  id,
+  values,
+}: {
+  id: string;
+  values: any;
+}) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -79,7 +84,8 @@ export const useUpdateSettlementTracking = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ id, values }: { id: string; values: any }) => updateSettlementTracking({ id, values }),
+    ({ id, values }: { id: string; values: any }) =>
+      updateSettlementTracking({ id, values }),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('settlement-tracking');
@@ -91,7 +97,7 @@ export const useUpdateSettlementTracking = () => {
           description: errorMessage || 'Failed to update settlement tracking.',
         });
       },
-    }
+    },
   );
 };
 
@@ -100,7 +106,7 @@ const deleteSettlementTrackingByEmployeeId = async (employeeId: string) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
-    await crudRequest({ 
+    await crudRequest({
       url: `${PAYROLL_URL}/settlement-tracking/delete-settlement-tracking/by-employee-id/${employeeId}`,
       method: 'DELETE',
       headers: {
@@ -109,11 +115,11 @@ const deleteSettlementTrackingByEmployeeId = async (employeeId: string) => {
       },
     });
   } catch (error) {
-    throw error;  
+    throw error;
   }
-}
+};
 // Delete settlement tracking
-  const deleteSettlementTracking = async (id: string) => {
+const deleteSettlementTracking = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -143,14 +149,14 @@ export const useDeleteSettlementTracking = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('settlement-tracking');
     },
-    onError: (error: any) => {
+    onError: (notused: any) => {
       NotificationMessage.error({
-        message: 'Delete Failed',
+        message: notused && 'Delete Failed',
         description: 'Failed to delete settlement tracking.',
       });
     },
   });
-}; 
+};
 export const useDeleteSettlementTrackingByEmployeeId = () => {
   const queryClient = useQueryClient();
 
@@ -158,11 +164,11 @@ export const useDeleteSettlementTrackingByEmployeeId = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('settlement-tracking');
     },
-    onError: (error: any) => {
+    onError: (notused: any) => {
       NotificationMessage.error({
-        message: 'Delete Failed',
+        message: notused && 'Delete Failed',
         description: 'Failed to delete settlement tracking.',
       });
     },
   });
-}; 
+};

@@ -50,7 +50,7 @@ export const useHandleSignIn = () => {
         if (fetchedData?.data?.hasCompany === false) {
           router.push('/onboarding');
         } else if (redirectPath) {
-          router.push(redirectPath); 
+          router.push(redirectPath);
         } else if (fetchedData?.data?.hasChangedPassword === false) {
           router.push('/authentication/new-password');
         } else if (

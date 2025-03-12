@@ -31,7 +31,8 @@ interface SettlementTrackingResponse {
   limit: number;
 }
 
-interface SettlementTrackingDetail extends Omit<SettlementTrackingResponse['data'][0], 'compensation'> {
+interface SettlementTrackingDetail
+  extends Omit<SettlementTrackingResponse['data'][0], 'compensation'> {
   compensation: {
     type: string;
     amount: number;
@@ -55,18 +56,22 @@ interface SettlementTrackingDetail extends Omit<SettlementTrackingResponse['data
   };
 }
 
-
-const getAllSettlementTracking = async (searchParams: SettlementTrackingParams) => {
+const getAllSettlementTracking = async (
+  searchParams: SettlementTrackingParams,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
+ /* eslint-disable */
   const filteredParams = Object.fromEntries(
-    Object.entries(searchParams).filter(([_, value]) => value !== undefined)
+    Object.entries(searchParams).filter(
+      ([notused, value]) => value !== undefined,
+    ),
   );
+          /* eslint-enable */
+
   const searchParamsString = new URLSearchParams(filteredParams).toString();
 
-
-  console.log(searchParamsString,"*********************searchParamsString")
   return await crudRequest({
     url: `${PAYROLL_URL}/settlement-tracking/all-settlement-tracking?${searchParamsString}`,
     method: 'GET',
@@ -78,18 +83,17 @@ const getAllSettlementTracking = async (searchParams: SettlementTrackingParams) 
   });
 };
 
-
-
-
 export const useGetSettlementTracking = (
-  searchParams: SettlementTrackingParams
+  searchParams: SettlementTrackingParams,
 ) => {
-  return useQuery<any>('settlement-tracking', ()=>getAllSettlementTracking(searchParams));
+  return useQuery<any>('settlement-tracking', () =>
+    getAllSettlementTracking(searchParams),
+  );
 };
 
 export const useGetSettlementTrackingById = (
   id: string,
-  options?: UseQueryOptions<SettlementTrackingDetail>
+  options?: UseQueryOptions<SettlementTrackingDetail>,
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -97,20 +101,19 @@ export const useGetSettlementTrackingById = (
   return useQuery<SettlementTrackingDetail>(
     ['settlement-tracking', id],
     async () => {
-      const response = await fetch(
-        `${PAYROLL_URL}/settlement-tracking/${id}`,
-        {
-          headers: {
-            ...requestHeader,
-            Authorization: `Bearer ${token}`,
-            tenantId: tenantId,
-          },
-        }
-      );
+      const response = await fetch(`${PAYROLL_URL}/settlement-tracking/${id}`, {
+        headers: {
+          ...requestHeader,
+          Authorization: `Bearer ${token}`,
+          tenantId: tenantId,
+        },
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to fetch settlement tracking details');
+        throw new Error(
+          errorData.message || 'Failed to fetch settlement tracking details',
+        );
       }
 
       return response.json();
@@ -118,12 +121,15 @@ export const useGetSettlementTrackingById = (
     {
       staleTime: 30000, // Consider data fresh for 30 seconds
       ...options,
-    }
+    },
   );
 };
 
 // Helper function to check if settlement tracking exists
-export const useCheckSettlementTrackingExists = (employeeId: string, payPeriod: string) => {
+export const useCheckSettlementTrackingExists = (
+  employeeId: string,
+  payPeriod: string,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -138,7 +144,7 @@ export const useCheckSettlementTrackingExists = (employeeId: string, payPeriod: 
             Authorization: `Bearer ${token}`,
             tenantId: tenantId,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -150,6 +156,6 @@ export const useCheckSettlementTrackingExists = (employeeId: string, payPeriod: 
     {
       enabled: !!employeeId && !!payPeriod, // Only run query if both params are provided
       staleTime: 0, // Always fetch fresh data for this query
-    }
+    },
   );
 };

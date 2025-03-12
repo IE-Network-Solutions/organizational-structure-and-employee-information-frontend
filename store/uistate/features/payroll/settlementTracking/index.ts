@@ -1,11 +1,11 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 export class SettlementTrackingFilter {
-    compensationId?: string;
-    employeeId?: string;
-    startDate?: string;
-    endDate?: string;
-  }
+  compensationId?: string;
+  employeeId?: string;
+  startDate?: string;
+  endDate?: string;
+}
 
 interface SettlementTrackingType {
   isPayPeriodSidebarVisible: boolean;
@@ -17,7 +17,7 @@ interface SettlementTrackingType {
   searchParams: SettlementTrackingFilter;
   setCurrentPage: (page: number) => void;
   setPageSize: (pageSize: number) => void;
-  setSearchParams: ({key,value}:{key:string,value:string}) => void;
+  setSearchParams: ({ key, value }: { key: string; value: string }) => void;
   resetStore: () => void;
 }
 
@@ -31,14 +31,15 @@ const settlementTrackingInitialValues = {
   searchParams: {} as SettlementTrackingFilter,
 };
 
-const useSettlementTrackingStore = create<SettlementTrackingType>((set, get) => ({
+const useSettlementTrackingStore = create<SettlementTrackingType>((set) => ({
   ...settlementTrackingInitialValues,
-  
+
   setCurrentPage: (page: number) => set({ currentPage: page }),
   setPageSize: (pageSize: number) => set({ pageSize }),
-  setSearchParams: ({key,value}:{key:string,value:string}) => set(state => ({
-    searchParams: { ...state.searchParams, [key]: value },
-  })),
+  setSearchParams: ({ key, value }: { key: string; value: string }) =>
+    set((state) => ({
+      searchParams: { ...state.searchParams, [key]: value },
+    })),
   resetStore: () => set(settlementTrackingInitialValues),
 }));
 
