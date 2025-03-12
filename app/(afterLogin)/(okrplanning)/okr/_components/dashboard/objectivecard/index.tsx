@@ -23,7 +23,6 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     setOpenDeleteModal(true);
     setObjectiveValue(objective);
   };
-
   const onCloseDeleteModal = () => {
     setOpenDeleteModal(false);
     setObjectiveValue(defaultObjective);

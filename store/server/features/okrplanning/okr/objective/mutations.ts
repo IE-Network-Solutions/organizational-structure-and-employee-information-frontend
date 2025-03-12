@@ -1,4 +1,5 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
@@ -133,58 +134,22 @@ const deleteMilestone = async (deletedId: string) => {
 };
 
 // Function to update the remaining key results
-const updateKeyResults = async (updatedKeyResults: any[]) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    };
-
-    await axios.put(
-      `${OKR_AND_PLANNING_URL}/key-results/bulk-update`,
-      updatedKeyResults,
-      {
-        headers,
-      },
-    );
-
-    NotificationMessage.success({
-      message: 'Successfully Updated',
-      description: 'Key results successfully updated after deletion.',
-    });
-  } catch (error) {
-    NotificationMessage.error({
-      message: 'Update Failed',
-      description: 'Failed to update key result weights.',
-    });
-  }
+const updateKeyResults = async (data: any) => {
+  return await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/key-results/bulk-update/objectives`,
+    method: 'PUT',
+    data,
+    headers: requestHeader(),
+  });
 };
 
-export const useDeleteKeyResultAndUpdateWeight = () => {
+export const useUpdateObjectiveNestedDelete = () => {
   const queryClient = useQueryClient();
-
-  return useMutation(
-    async ({
-      deletedId,
-      updatedKeyResults,
-    }: {
-      deletedId: string;
-      updatedKeyResults: any[];
-    }) => {
-      // Step 1: Delete the key result
-      await deleteKeyResult(deletedId);
-
-      // Step 2: If there are remaining key results, update them
-      if (updatedKeyResults.length > 0) {
-        await updateKeyResults(updatedKeyResults);
-      }
+  return useMutation(updateKeyResults, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('ObjectiveInformation');
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('ObjectiveInformation');
-      },
-    },
-  );
+  });
 };
 
 export const useDeleteObjective = () => {
@@ -211,6 +176,7 @@ export const useUpdateObjective = () => {
     },
   });
 };
+
 export const useUpdateKeyResult = () => {
   const queryClient = useQueryClient();
   return useMutation(updateKeyResult, {
