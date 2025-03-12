@@ -189,6 +189,27 @@ export const AllPlanningPeriods = () => {
   );
 };
 
+const getDefaultPlanningPeriods = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/planning-periods`,
+    method: 'GET',
+    headers,
+  });
+};
+
+export const useDefaultPlanningPeriods = () => {
+  return useQuery('defaultPlanningPeriods', getDefaultPlanningPeriods);
+};
+
+
 export const useGetPlanning = (params: DataType) => {
   return useQuery<any>(['okrPlans', params], () => getPlanningData(params), {
     enabled:
