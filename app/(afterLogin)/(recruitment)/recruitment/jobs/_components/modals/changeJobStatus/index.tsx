@@ -40,12 +40,12 @@ const ChangeStatusModal: React.FC = () => {
   };
 
   React.useEffect(() => {
-    if (isChangeStatusModalVisible && selectedJob) {
+    if (selectedJob) {
       form.setFieldsValue({
         status: selectedJob?.jobStatus,
       });
     }
-  }, [isChangeStatusModalVisible, selectedJob]);
+  }, [selectedJob]);
 
   return (
     isChangeStatusModalVisible && (
