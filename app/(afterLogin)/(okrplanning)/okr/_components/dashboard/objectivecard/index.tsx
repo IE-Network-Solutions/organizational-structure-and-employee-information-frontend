@@ -70,7 +70,6 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   // ==========> Deleting Key result and distributing weight Section <===============
   const selectedObjective = objective?.id === objectiveId ? objective : null;
 
-  // Filter key results that belong to the selected objective
   const relatedKeyResults =
     (selectedObjective &&
       selectedObjective?.keyResults?.filter(
