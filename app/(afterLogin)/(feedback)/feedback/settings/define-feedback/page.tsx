@@ -148,7 +148,7 @@ const Page = () => {
         modalHeader={modalHeader}
         width="30%"
       >
-        <CreateFeedback form={form1} />
+        <CreateFeedback form={form1} activeTabName={activeTabName} />
       </CustomDrawerLayout>
       <Modal
         title="Basic Modal"

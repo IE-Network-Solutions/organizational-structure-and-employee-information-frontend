@@ -7,15 +7,15 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 
 import RecognitionForm from '../_components/recognition/createRecognition';
-import { useGetAllRecognitionData } from '@/store/server/features/CFR/recognition/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
 
 const Page = () => {
   const { open, setOpen, setOpenRecognitionType, openRecognitionType } =
     ConversationStore();
   // const { data: recognitionType } = useGetAllRecognitionType();
-  const { data: recognitionType } = useGetAllRecognitionData();
+  const { data: recognitionType } = useGetAllRecognitionWithRelations();
 
   const onChange = () => {};
 
@@ -74,7 +74,7 @@ const Page = () => {
         modalHeader={modalHeader}
         width="50%"
       >
-        <RecognitionForm />
+        <RecognitionForm onClose={() => setOpen(false)} />
       </CustomDrawerLayout>
       <Drawer
         width={600} // Adjust the width as needed
