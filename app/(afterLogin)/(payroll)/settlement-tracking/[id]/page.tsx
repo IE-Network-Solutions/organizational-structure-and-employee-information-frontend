@@ -12,7 +12,11 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 
 const { Title, Text } = Typography;
 
-function SettlementDetail({ isDetail }: { isDetail: boolean }) {
+type SettlementDetailProps = {
+  isDetail: boolean;
+};
+
+ function SettlementDetail({ isDetail }: SettlementDetailProps) {
   const params = useParams();
   const employeeId = params?.id as string;
 
