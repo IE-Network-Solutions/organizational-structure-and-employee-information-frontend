@@ -4,7 +4,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   AppstoreOutlined,
   BarChartOutlined,
-  UserOutlined,
   MenuOutlined,
 } from '@ant-design/icons';
 import {
@@ -17,8 +16,13 @@ import { Layout, Menu, Button, theme } from 'antd';
 const { Header, Content, Sider } = Layout;
 import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
-import { FiSettings } from 'react-icons/fi';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
+import { TbMessage2 } from 'react-icons/tb';
+import { AiOutlineDollarCircle } from 'react-icons/ai';
+import { CiBookmark } from 'react-icons/ci';
+import { TbCreditCardPay } from 'react-icons/tb';
+import { PiMoneyLight } from 'react-icons/pi';
+
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuUsers2 } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
@@ -62,18 +66,16 @@ const menuItems: MenuProps['items'] = [
     className: 'font-bold',
     label: 'Talent Acquisition',
     children: [
-      { key: '/recruitment/jobs', label: 'Jobs', icon: <UserOutlined /> },
+      { key: '/recruitment/jobs', label: 'Jobs' },
       {
         key: '/recruitment/candidate',
         label: 'Candidates',
-        icon: <UserOutlined />,
       },
       {
         key: '/recruitment/talent-pool',
         label: 'Talent Pool',
-        icon: <UserOutlined />,
       },
-      { key: '/recruitment/settings', label: 'Settings', icon: <FiSettings /> },
+      { key: '/recruitment/settings', label: 'Settings' },
     ],
   },
   {
@@ -100,44 +102,39 @@ const menuItems: MenuProps['items'] = [
   {
     key: '/feedback',
     label: 'CFR',
-    icon: <UserOutlined />,
+    icon: <TbMessage2 />,
     className: 'font-bold',
     children: [
       {
         key: '/feedback/conversation',
         label: 'Conversation',
         className: 'font-bold',
-        icon: <FiSettings />,
       },
       {
         key: '/feedback/feedback',
         label: 'Feedback',
         className: 'font-bold',
-        icon: <FiSettings />,
       },
       {
         key: '/feedback/recognition',
         label: 'Recognition',
         className: 'font-bold',
-        icon: <FiSettings />,
       },
       {
         key: '/feedback/categories',
         label: 'Form',
-        icon: <UserOutlined />,
         className: 'font-bold',
       },
       {
         key: '/feedback/settings',
         label: 'Settings',
         className: 'font-bold',
-        icon: <FiSettings />,
       },
     ],
   },
   {
     key: '/tna',
-    icon: <BarChartOutlined />,
+    icon: <CiBookmark />,
     className: 'font-bold',
     label: 'Learning & Growth',
     children: [
@@ -157,7 +154,7 @@ const menuItems: MenuProps['items'] = [
   // payroll
   {
     key: '/payroll',
-    icon: <PiSuitcaseSimpleThin />,
+    icon: <AiOutlineDollarCircle />,
     className: 'font-bold',
     label: 'Payroll',
     children: [
@@ -205,7 +202,7 @@ const menuItems: MenuProps['items'] = [
   },
   {
     key: '/compensation',
-    icon: <CiCalendar />,
+    icon: <PiMoneyLight />,
     className: 'font-bold',
     label: 'Compensation & Benefit',
     children: [
@@ -233,7 +230,7 @@ const menuItems: MenuProps['items'] = [
   },
   {
     key: '/incentive',
-    icon: <CiCalendar />,
+    icon: <TbCreditCardPay />,
     className: 'font-bold',
     label: 'Incentive',
     children: [
