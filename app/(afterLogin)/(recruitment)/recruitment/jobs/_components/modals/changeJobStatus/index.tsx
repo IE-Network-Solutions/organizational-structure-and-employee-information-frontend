@@ -28,17 +28,24 @@ const ChangeStatusModal: React.FC = () => {
       jobStatus: values?.status,
     };
 
-    updateJobStatus({ data: updatedStatus, id: selectedJobId });
-    setChangeStatusModalVisible(false);
+    updateJobStatus(
+      { data: updatedStatus, id: selectedJobId },
+      {
+        onSuccess: () => {
+          setChangeStatusModalVisible(false);
+          form.resetFields();
+        },
+      },
+    );
   };
 
   React.useEffect(() => {
-    if (selectedJob) {
+    if (isChangeStatusModalVisible && selectedJob) {
       form.setFieldsValue({
-        jobStatus: selectedJob.jobStatus,
+        status: selectedJob?.jobStatus,
       });
     }
-  }, [form, selectedJob]);
+  }, [isChangeStatusModalVisible, selectedJob]);
 
   return (
     isChangeStatusModalVisible && (
@@ -53,7 +60,6 @@ const ChangeStatusModal: React.FC = () => {
           requiredMark={false}
           form={form}
           layout="vertical"
-          initialValues={selectedJob}
           onFinish={handleStatusUpdate}
         >
           <Form.Item
@@ -62,7 +68,7 @@ const ChangeStatusModal: React.FC = () => {
             rules={[
               { required: true, message: 'Please select the job status!' },
             ]}
-            className="px-5"
+            className="px-5 mb-6 mt-2"
           >
             <Select placeholder="Select new status" style={{ width: '100%' }}>
               {JobStatus &&
@@ -75,12 +81,14 @@ const ChangeStatusModal: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button key="cancel" onClick={handleChangeStatusModalClose}>
-              Cancel
-            </Button>
-            <Button htmlType="submit" type="primary">
-              Change Status
-            </Button>
+            <div className="flex space-x-3 justify-end">
+              <Button key="cancel" onClick={handleChangeStatusModalClose}>
+                Cancel
+              </Button>
+              <Button htmlType="submit" type="primary">
+                Change Status
+              </Button>
+            </div>
           </Form.Item>
         </Form>
       </Modal>
