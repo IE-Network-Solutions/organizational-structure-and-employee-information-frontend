@@ -192,24 +192,19 @@ const EmployeeInformation = () => {
       key: 'action',
       render: (record: any) => (
         <Space size="middle">
- 
- <AccessGuard
-                    permissions={[
-                      Permissions.UpdateAllowanceEntitlement
-                    ]}>
-          <Button
-            type="primary"
-            icon={
-              <EditOutlined
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEdit(record);
-                }}
-              />
-            }
-          />
-                        </AccessGuard>
-
+          <AccessGuard permissions={[Permissions.UpdateAllowanceEntitlement]}>
+            <Button
+              type="primary"
+              icon={
+                <EditOutlined
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(record);
+                  }}
+                />
+              }
+            />
+          </AccessGuard>
         </Space>
       ),
     },

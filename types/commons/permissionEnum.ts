@@ -55,6 +55,28 @@ export enum Permissions {
   DeleteAppreciationType = 'delete-appreciation-type',
   CreateOkrRule = 'create-okr-rule',
 
+  // OKR Criteria Management
+  CreateScoringConfigurations = 'create-okr-scoring-configurations',
+  UpdateScoringConfigurations = 'update-okr-scoring-configurations',
+  DeleteScoringConfigurations = 'delete-okr-scoring-configurations',
+
+  // OKR Target Assignment
+  AssignTargets = 'assign-okr-targets',
+  UpdateTargets = 'update-okr-targets',
+  DeleteTargets = 'delete-okr-targets',
+
+  // OKR Edit Access
+  GrantAllAccess = 'grant-all-okr-access',
+  RevokeAllAccess = 'revoke-all-okr-access',
+
+  // Time and Attendance break type settings
+  CreateBreakType = 'create-vp-break-type',
+  UpdateBreakType = 'update-vp-break-type',
+  DeleteBreakType = 'delete-vp-break-type',
+
+  // Time and Attendance time zone settings
+  UpdateTimeZone = 'update-time-zone',
+
   UpdateLeaveRequest = 'update-leave-request',
   DeleteLeaveRequest = 'delete-leave-request',
   ViewAttendanceDetails = 'view-attendance-details',
