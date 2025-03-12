@@ -6,6 +6,7 @@ import {
   PlusOutlined,
 } from '@ant-design/icons';
 import { Button, Card, Dropdown, Menu, Tooltip } from 'antd';
+import { Pencil } from 'lucide-react';
 
 interface DepartmentNodeProps {
   data: Department;
@@ -42,7 +43,7 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
   );
 
   return (
-    <Card className="p-1.5 rounded-md inline-block border border-[#e8e8e8] sm:w-auto">
+    <Card className="p-1.5 rounded-3xl inline-block  border-[#CBD5E0] border-2 sm:w-auto ">
       {isRoot && (
         <Button
           id="ceoButton"
@@ -57,12 +58,13 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
         <Dropdown
           overlay={menu}
           trigger={['click']}
-          className="absolute top-[5px] right-[5px]  hide-on-download"
+          className="absolute top-[5px] right-[5px]  hide-on-download "
         >
           <Button
-            icon={<MoreOutlined />}
+            icon={<Pencil size={8} />}
             id={`${data.name}ThreeDotButton`}
             size="small"
+            className="absolute bg-black text-white hover:bg-gray-800 border-none rounded-full top-[-3px] right-[-3px] w-[18px] h-[18px]"
           />
         </Dropdown>
       )}
@@ -79,15 +81,17 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
         </Tooltip>
       </div>
       {!isRoot && (
-        <Button
-          id={`${data.name}Button`}
-          icon={<PlusOutlined />}
-          size="small"
-          type="primary"
-          className={`rounded-full absolute bottom-[-10px] hide-on-download`}
-          style={{ marginTop: '5px' }}
-          onClick={onAdd}
-        />
+        <div className="flex justify-center items-center z-50">
+          <Button
+            id={`${data.name}Button`}
+            icon={<PlusOutlined />}
+            size="small"
+            type="primary"
+            className={`rounded-full absolute bottom-[-10px] hide-on-download z-50`}
+            style={{ marginTop: '5px' }}
+            onClick={onAdd}
+          />
+        </div>
       )}
     </Card>
   );
