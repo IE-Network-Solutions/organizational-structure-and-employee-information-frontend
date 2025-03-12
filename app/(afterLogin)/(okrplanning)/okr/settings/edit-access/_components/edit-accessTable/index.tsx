@@ -39,8 +39,7 @@ const EditAccessTable: React.FC = () => {
   const { data: allUser, isLoading: responseLoading } = useGetAllUsersData();
   const { mutate: grantEditAccess } = useGrantObjectiveEditAccess();
 
-  const { data: allUserObjective, isLoading: objectiveResponseLoading } =
-    useGetAllObjective();
+  const { data: allUserObjective } = useGetAllObjective();
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);

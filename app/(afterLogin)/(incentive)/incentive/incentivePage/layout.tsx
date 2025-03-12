@@ -4,16 +4,9 @@ import { Button, Skeleton, Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import All from './_components/all/page';
 import Projects from './_components/projects/page';
-import Sales from './_components/sales/page';
-import Management from './_components/management/page';
-import Others from './_components/others/page';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import PayRoleView from './_components/all/payrollView';
-import {
-  useAllRecognition,
-  useParentRecognition,
-  useRecognitionByParentId,
-} from '@/store/server/features/incentive/other/queries';
+import { useParentRecognition } from '@/store/server/features/incentive/other/queries';
 
 const IncentivePage: React.FC = () => {
   const {
@@ -29,8 +22,6 @@ const IncentivePage: React.FC = () => {
 
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
-  const { data: childRecognitionData, isLoading: responseLoading } =
-    useRecognitionByParentId(activeKey !== '1' ? activeKey : '');
 
   const items: TabsProps['items'] = parentResponseLoading
     ? [{ key: 'loading', label: <Skeleton active />, children: null }]

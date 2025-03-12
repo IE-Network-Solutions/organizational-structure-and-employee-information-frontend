@@ -17,7 +17,7 @@ const ImportProjectData: React.FC = () => {
   const [form] = Form.useForm();
   const { projectDrawer, setProjectDrawer, selectedRecognition } =
     useIncentiveStore();
-  const { mutate: importData, isLoading: submitPending } = useImportData();
+  const { mutate: importData } = useImportData();
   const { data: recognitionData } = useAllRecognition();
 
   const { data: payPeriodData, isLoading: responseLoading } =
@@ -28,7 +28,6 @@ const ImportProjectData: React.FC = () => {
   };
 
   const handleSubmit = async (values: any) => {
-    const formValues = form.getFieldsValue();
     const userId = useAuthenticationStore.getState().userId;
 
     const formData = new FormData();
@@ -45,18 +44,6 @@ const ImportProjectData: React.FC = () => {
     // formData.append('source', values?.source || '');
 
     importData(formData);
-  };
-
-  const uploadProps = {
-    name: 'file',
-    multiple: false,
-    beforeUpload: () => {
-      // setFile(file);
-      return false;
-    },
-    onRemove: () => {
-      // setFile(null);
-    },
   };
 
   return (
@@ -81,7 +68,8 @@ const ImportProjectData: React.FC = () => {
         </div>
         <div className="flex flex-wrap text-xs text-gray-500">
           Download the appropriate template for the selected recognition type by
-          clicking the <strong>"Download Format" </strong> button above.
+          clicking the <strong>&ldquo;Download Format&rdquo;</strong> button
+          above.
         </div>
       </div>
 
