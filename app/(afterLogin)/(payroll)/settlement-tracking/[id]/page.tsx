@@ -12,7 +12,7 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 
 const { Title, Text } = Typography;
 
-function SettlementDetail({ bool }: { bool: boolean }) {
+function SettlementDetail({ isDetail }: { isDetail: boolean }) {
   const params = useParams();
   const employeeId = params?.id as string;
 
@@ -146,7 +146,7 @@ function SettlementDetail({ bool }: { bool: boolean }) {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="flex gap-8">
-        {!bool && (
+        {!isDetail && (
           <Card className="w-1/4 shadow-sm">
             <div className="flex flex-col items-center text-center">
               <Avatar
