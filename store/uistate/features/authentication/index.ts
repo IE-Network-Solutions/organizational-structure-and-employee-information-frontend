@@ -76,7 +76,6 @@ export const useAuthenticationStore = create<StoreState>()(
         //   userId: state.userId,
         // }),
       },
-      
     ),
   ),
 );
