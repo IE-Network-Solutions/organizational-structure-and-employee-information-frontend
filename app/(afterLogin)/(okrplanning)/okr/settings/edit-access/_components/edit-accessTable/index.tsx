@@ -48,9 +48,9 @@ const EditAccessTable: React.FC = () => {
       setPageSize(pageSize);
     }
   };
-
+  // =============> This area <============
   React.useEffect(() => {
-    if (allUser?.items && allUserObjective) {
+    if (allUser?.items && allUserObjective?.items) {
       const newSwitchStates = allUser?.items?.reduce(
         (acc: Record<string, boolean>, user: any) => {
           const userObjective = allUserObjective?.items?.find(
@@ -81,7 +81,6 @@ const EditAccessTable: React.FC = () => {
       setSwitchStates(newSwitchStates);
     }
   }, [checked, allUser]);
-  // =============> This area <============
 
   const handleToggleAccess = (userId: string, isChecked: boolean) => {
     const formattedValue = {
