@@ -428,7 +428,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </Button>
         )}
 
-        <Menu
+        <div className="menu-with-lines">
+          <div className="menu-with-lines">
+            {/* <Menu
           mode="inline"
           defaultSelectedKeys={['/dashboard']}
           items={userRole === 'user' ? userItems : menuItems}
@@ -436,7 +438,18 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           onClick={handleMenuClick}
           selectedKeys={[pathname]}
           className={`my-5 [&_.ant-menu-item-selected]:!bg-[#3636F0] [&_.ant-menu-item-selected]:!text-white h-96`}
-        />
+        /> */}
+            <Menu
+              mode="inline"
+              defaultSelectedKeys={['/dashboard']}
+              items={userRole === 'user' ? userItems : menuItems}
+              onClick={handleMenuClick}
+              inlineCollapsed={collapsed}
+              selectedKeys={[pathname]}
+              className="[&_.ant-menu-item-selected]:!bg-[#3636F0] [&_.ant-menu-item-selected]:!text-white h-96 [&_.ant-menu-item]:relative [&_.ant-menu-item]:[&::before]:content-[''] [&_.ant-menu-item]:[&::before]:absolute [&_.ant-menu-item]:[&::before]:top-0 [&_.ant-menu-item]:[&::before]:left-[18px] [&_.ant-menu-item]:[&::before]:h-full [&_.ant-menu-item]:[&::before]:w-[1px] [&_.ant-menu-item]:[&::before]:bg-[#d9d9d9] [&_.ant-menu-item]:[&::after]:content-[''] [&_.ant-menu-item]:[&::after]:absolute [&_.ant-menu-item]:[&::after]:top-1/2 [&_.ant-menu-item]:[&::after]:left-[18px] [&_.ant-menu-item]:[&::after]:w-[10px] [&_.ant-menu-item]:[&::after]:h-[1px] [&_.ant-menu-item]:[&::after]:bg-[#d9d9d9]"
+            />
+          </div>
+        </div>
       </Sider>
       <Layout
         style={{
