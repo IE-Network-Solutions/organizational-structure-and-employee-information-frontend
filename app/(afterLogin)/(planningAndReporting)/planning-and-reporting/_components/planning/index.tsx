@@ -19,6 +19,7 @@ import { IoIosOpen, IoMdMore } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
 import {
   AllPlanningPeriods,
+  useDefaultPlanningPeriods,
   useGetPlanning,
   useGetPlanningPeriodsHierarchy,
   useGetUserPlanning,
@@ -42,6 +43,9 @@ import { UserOutlined } from '@ant-design/icons';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { FiCheckCircle } from 'react-icons/fi';
 import KeyResultTasks from './KeyResultTasks';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+
 const { Title } = Typography;
 
 function Planning() {
@@ -62,12 +66,25 @@ function Planning() {
   const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
     useApprovalPlanningPeriods();
   const { data: departmentData } = useGetDepartmentsWithUsers();
-  const { data: planningPeriods } = AllPlanningPeriods();
+  const { data: planningPeriods } = useDefaultPlanningPeriods();
+  const { data: userPlanningPeriods } = AllPlanningPeriods();
+
+  const hasPermission = AccessGuard.checkAccess({
+    permissions: [
+      Permissions.ViewDailyPlan,
+      Permissions.ViewWeeklyPlan,
+      Permissions.ViewMonthlyPlan,
+    ],
+  });
+
+  const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
+
   // const { mutate: handleDeletePlan, isLoading: loadingDeletePlan } =
   //   useDeletePlanById();
   const { data: objective } = useFetchObjectives(userId);
-  const planningPeriodId =
-    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
+  const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
+  const userPlanningPeriodId =
+    userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
 
   const { data: allPlanning, isLoading: getPlanningLoading } = useGetPlanning({
     userId: selectedUser,
@@ -91,8 +108,7 @@ function Planning() {
     };
     approvalPlanningPeriod(data);
   };
-  const activeTabName =
-    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
+  const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
   const getEmployeeData = (id: string) => {
     const employeeDataDetail = employeeData?.items?.find(
       (emp: any) => emp?.id === id,
@@ -202,31 +218,36 @@ function Planning() {
             }
           >
             <div style={{ display: 'inline-block' }}>
-              <CustomButton
-                disabled={
-                  // selectedUser.includes(userId) &&
-                  allUserPlanning?.length > 0 ||
-                  planningPeriodHierarchy?.parentPlan?.plans?.length == 0 ||
-                  planningPeriodHierarchy?.parentPlan?.plans?.filter(
-                    (i: any) => i.isReported === false,
-                  )?.length == 0 ||
-                  objective?.items?.length == 0
-                }
-                loading={isLoading}
-                title={`Create ${activeTabName} Plan`}
-                id="createActiveTabName"
-                icon={<FaPlus className="mr-2" />}
-                onClick={() => setOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700"
-              />
+              {userPlanningPeriodId && (
+                <CustomButton
+                  disabled={
+                    allUserPlanning?.length > 0 ||
+                    (planningPeriodHierarchy?.parentPlan?.plans?.length ??
+                      0) === 0 ||
+                    (planningPeriodHierarchy?.parentPlan?.plans?.filter(
+                      (i: any) => !i.isReported,
+                    ).length ?? 0) === 0 ||
+                    (objective?.items?.length ?? 0) === 0
+                  }
+                  loading={isLoading}
+                  title={`Create ${activeTabName} Plan`}
+                  id="createActiveTabName"
+                  icon={<FaPlus className="mr-2" />}
+                  onClick={() => setOpen(true)}
+                  className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
+                />
+              )}
             </div>
           </Tooltip>
         </div>
-        <EmployeeSearch
-          optionArray1={employeeData?.items}
-          optionArray2={PlanningType}
-          optionArray3={departmentData}
-        />
+        {hasPermission && (
+          <EmployeeSearch
+            optionArray1={employeeData?.items}
+            optionArray2={PlanningType}
+            optionArray3={departmentData}
+          />
+        )}
+
         {transformedData?.map((dataItem: any, index: number) => (
           <>
             <Card key={index} className="mb-2" loading={getPlanningLoading}>
