@@ -82,6 +82,7 @@ const ProjectIncentiveTable: React.FC = () => {
       };
     },
   );
+  const incentiveData: any = [];
 
   const dynamicColumns = useMemo(() => {
     if (!incentiveData || !incentiveData.length) return [];
