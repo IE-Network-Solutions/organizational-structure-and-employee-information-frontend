@@ -21,7 +21,10 @@ import {
   useDeleteOrgChart,
 } from '@/store/server/features/organizationStructure/organizationalChart/mutation';
 import { useStep2Store } from '@/store/uistate/features/organizationStructure/comanyInfo/useStore';
-import { useCreateCompanyInfo, useDeleteCompanyInfo } from '@/store/server/features/organizationStructure/companyInfo/mutation';
+import {
+  useCreateCompanyInfo,
+  useDeleteCompanyInfo,
+} from '@/store/server/features/organizationStructure/companyInfo/mutation';
 // import { useUpdateCompanyProfile } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 // import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 import { Form } from 'antd';
@@ -36,7 +39,10 @@ import { useGetBranches } from '@/store/server/features/organizationStructure/br
 import CustomWorFiscalYearDrawer from '@/app/(afterLogin)/(organizationalStructure)/organization/settings/_components/fiscalYear/customDrawer';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
-import { useUpdateCompanyProfile, useUpdateCompanyProfileWithStamp } from '@/store/server/features/organizationStructure/companyProfile/mutation';
+import {
+  // useUpdateCompanyProfile,
+  useUpdateCompanyProfileWithStamp,
+} from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -74,11 +80,8 @@ const OnboaringSteper: React.FC = () => {
 
   const { fiscalYearFormValues, sessionFormValues, monthRangeValues } =
     useFiscalYearDrawerStore();
-      const {
-        companyName,
-        companyProfileImage,
-        companyStamp,
-      } = useCompanyProfile();
+  const { companyName, companyProfileImage, companyStamp } =
+    useCompanyProfile();
 
   const createFiscalYear = useCreateFiscalYear();
 
@@ -91,7 +94,7 @@ const OnboaringSteper: React.FC = () => {
   const deleteCompanyInfo = useDeleteCompanyInfo();
   const { companyInfo } = useStep2Store();
   // const updateCompanyProfile = useUpdateCompanyProfile();
-  const updateComapnyImageWithStamp=useUpdateCompanyProfileWithStamp();
+  const updateComapnyImageWithStamp = useUpdateCompanyProfileWithStamp();
 
   function* createResourcesGenerator(
     fiscalYear: any,
@@ -100,8 +103,6 @@ const OnboaringSteper: React.FC = () => {
     companyInfo: any,
     companyProfileImage: any,
   ) {
-
-
     yield {
       createFn: createFiscalYear.mutateAsync,
       deleteFn: deleteFiscalYear.mutateAsync,
@@ -128,7 +129,12 @@ const OnboaringSteper: React.FC = () => {
     // };
     yield {
       createFn: updateComapnyImageWithStamp.mutateAsync,
-      data: { id: tenantId,updateClientDto:{companyName}, companyProfileImage: companyProfileImage?.companyProfileImage, companyStamp: companyProfileImage?.companyStamp },
+      data: {
+        id: tenantId,
+        updateClientDto: { companyName },
+        companyProfileImage: companyProfileImage?.companyProfileImage,
+        companyStamp: companyProfileImage?.companyStamp,
+      },
     };
   }
 
@@ -227,8 +233,7 @@ const OnboaringSteper: React.FC = () => {
       schedule,
       orgData,
       companyInfo,
-      {companyProfileImage,
-      companyStamp},
+      { companyProfileImage, companyStamp },
     );
 
     try {

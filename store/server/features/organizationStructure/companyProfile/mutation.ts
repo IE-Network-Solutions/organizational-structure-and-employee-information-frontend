@@ -90,7 +90,7 @@ export const useUpdateCompanyProfile = () => {
 
 const updateCompanyProfileWithStamp = async ({
   id,
-  updateClientDto,  // Include the DTO data
+  updateClientDto, // Include the DTO data
   companyProfileImage,
   companyStamp,
 }: {
@@ -100,7 +100,6 @@ const updateCompanyProfileWithStamp = async ({
   companyStamp?: CompanyProfileImage;
 }): Promise<any> => {
   const formData = new FormData();
-
   // Append DTO as JSON string
   if (updateClientDto) {
     formData.append('updateClientDto', JSON.stringify({}));
@@ -110,7 +109,7 @@ const updateCompanyProfileWithStamp = async ({
   if (companyProfileImage?.originFileObj) {
     formData.append('companyProfileImage', companyProfileImage.originFileObj);
   }
-  
+
   if (companyStamp?.originFileObj) {
     formData.append('companyStamp', companyStamp.originFileObj);
   }
@@ -122,17 +121,12 @@ const updateCompanyProfileWithStamp = async ({
     // Let Axios or Fetch handle it automatically
   };
 
-  try {
-    return await crudRequest({
-      url: `${TENANT_MGMT_URL}/clients/${id}`,
-      method: 'PUT',
-      headers: headers,
-      data: formData,
-    });
-  } catch (error) {
-    console.error('Error updating company profile:', error);
-    throw error;
-  }
+  return await crudRequest({
+    url: `${TENANT_MGMT_URL}/clients/${id}`,
+    method: 'PUT',
+    headers: headers,
+    data: formData,
+  });
 };
 
 export const useUpdateCompanyProfileWithStamp = () => {

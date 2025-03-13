@@ -34,8 +34,6 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
   };
 
   const handleFileChange = (info: any) => {
-    console.log(info,"*******************1111")
-
     const fileList = info.fileList as UploadFile<any>[];
     if (fileList.length > 0) {
       setCompanyProfile(fileList[0]);
@@ -44,7 +42,6 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
     }
   };
   const handleStampChange = (info: any) => {
-    console.log(info,"*******************")
     const fileList = info.fileList as UploadFile<any>[];
     if (fileList.length > 0) {
       setCompanyStamp(fileList[0]);
@@ -52,7 +49,6 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
       setCompanyStamp(undefined);
     }
   };
-
 
   const getImageUrl = (file: UploadFile<any> | undefined) => {
     if (file) {

@@ -7,7 +7,7 @@ export interface CompanyInformation {
 
   companyName: string;
   companyDomainName: string;
-  
+
   setCompanyProfile: (fileList: UploadFile<any> | undefined) => void;
   setCompanyName: (name: string) => void;
   setCompanyDomainName: (domainName: string) => void;
