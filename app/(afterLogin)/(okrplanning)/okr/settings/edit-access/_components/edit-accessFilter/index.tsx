@@ -64,7 +64,7 @@ const SearchEmployee: React.FC = () => {
         </Col>
         <Col xl={6} md={6} lg={6} sm={24} xs={24}>
           {checked === false ? (
-            <AccessGuard permissions={[Permissions.RevokeAllAccess]}>
+            <AccessGuard permissions={[Permissions.GrantAllOKRAccess]}>
               <Button
                 type="primary"
                 className="w-full h-14"
@@ -78,7 +78,7 @@ const SearchEmployee: React.FC = () => {
               </Button>
             </AccessGuard>
           ) : (
-            <AccessGuard permissions={[Permissions.GrantAllAccess]}>
+            <AccessGuard permissions={[Permissions.GrantAllOKRAccess]}>
               <Button
                 type="primary"
                 className="w-full h-14"

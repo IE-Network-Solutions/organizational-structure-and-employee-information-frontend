@@ -81,7 +81,7 @@ function Page() {
       key: 'action',
       render: (record: any) => (
         <div className="flex space-x-2">
-          <AccessGuard permissions={[Permissions.UpdateTargets]}>
+          <AccessGuard permissions={[Permissions.UpdateVpTargetsAssignation]}>
             <Button
               type="default"
               className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-600 border-none"
@@ -90,7 +90,7 @@ function Page() {
             />
           </AccessGuard>
           <DeletePopover onDelete={() => handleDelete(record.key)}>
-            <AccessGuard permissions={[Permissions.DeleteTargets]}>
+            <AccessGuard permissions={[Permissions.DeleteVpTargetsAssignation]}>
               <Button
                 type="default"
                 className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
@@ -115,7 +115,7 @@ function Page() {
     <div className="p-10">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Target Assignment</h1>
-        <AccessGuard permissions={[Permissions.AssignTargets]}>
+        <AccessGuard permissions={[Permissions.AssignVpTargets]}>
           <Button
             type="primary"
             className="flex items-center space-x-2 py-8 px-8"

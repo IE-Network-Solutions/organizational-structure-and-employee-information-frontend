@@ -56,26 +56,34 @@ export enum Permissions {
   CreateOkrRule = 'create-okr-rule',
 
   // OKR Criteria Management
-  CreateScoringConfigurations = 'create-okr-scoring-configurations',
-  UpdateScoringConfigurations = 'update-okr-scoring-configurations',
-  DeleteScoringConfigurations = 'delete-okr-scoring-configurations',
+  CreateVpScoringConfigurations = 'create-vp-scoring-configurations',
+  UpdateVpScoringConfigurations = 'update-vp-scoring-configurations',
+  DeleteVpScoringConfigurations = 'delete-vp-scoring-configurations',
 
   // OKR Target Assignment
-  AssignTargets = 'assign-okr-targets',
-  UpdateTargets = 'update-okr-targets',
-  DeleteTargets = 'delete-okr-targets',
+  AssignVpTargets = 'assign-vp-targets',
+  UpdateVpTargetsAssignation = 'update-vp-target-assignation',
+  DeleteVpTargetsAssignation = 'delete-vp-target-assignation',
 
   // OKR Edit Access
-  GrantAllAccess = 'grant-all-okr-access',
-  RevokeAllAccess = 'revoke-all-okr-access',
+  GrantAllOKRAccess = 'grant-all-okr-access',
 
   // Time and Attendance break type settings
-  CreateBreakType = 'create-vp-break-type',
-  UpdateBreakType = 'update-vp-break-type',
-  DeleteBreakType = 'delete-vp-break-type',
+  CreateBreakType = 'create-break-type', 
+  UpdateBreakType = 'update-break-type',
+  DeleteBreakType = 'delete-break-type',
 
   // Time and Attendance time zone settings
   UpdateTimeZone = 'update-time-zone',
+
+  // Basic Permissions
+  
+  DownloadOrganizationStructure = 'download-organization-structure',
+  ViewOrganizationStructureUsertree = 'view-organization-structure-user-tree',
+  ViewOrganizationStructureDepartmentTree = 'view-organization-structure-user-tree',
+  ViewOrganizationStructureSetting = 'view-organization-structure-setting',
+  ViewManageEmployees = 'view-manage-employees',
+  ViewChangeBranchRequestSideBar = 'view-change-branch-request-side-bar',
 
   UpdateLeaveRequest = 'update-leave-request',
   DeleteLeaveRequest = 'delete-leave-request',
@@ -151,6 +159,7 @@ export enum Permissions {
   AssignWorkingScheduleToOrg = 'assign-working-schedule-organization',
   AssignCalendarToOrg = 'assign-calendar-organization',
   ViewOrgStructureSidebar = 'view-organization-structure-sidebar',
+
 
   // Employee Document Permissions
   DownloadEmployeeDocument = 'download-employee-document',
