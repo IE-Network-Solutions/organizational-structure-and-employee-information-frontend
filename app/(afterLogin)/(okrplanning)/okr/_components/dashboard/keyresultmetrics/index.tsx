@@ -11,11 +11,13 @@ interface KPIMetricsProps {
   keyResult: any;
   myOkr: boolean;
   updatedKeyResults: any;
+  objectiveId: string;
 }
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({
   keyResult,
   updatedKeyResults,
+  objectiveId,
 }) => {
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -66,6 +68,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
     updateAndDelete({
       toBeUpdated: updatedKeyResults,
       toBeDeleted: id,
+      objectiveId,
     });
   }
   return (

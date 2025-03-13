@@ -192,6 +192,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           keyResult={keyResult}
           key={keyResult.id}
           updatedKeyResults={updatedKeyResults}
+          objectiveId={objectiveId}
         />
       ))}
     </div>

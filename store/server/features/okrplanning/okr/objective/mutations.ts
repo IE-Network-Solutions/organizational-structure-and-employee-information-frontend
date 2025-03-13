@@ -136,7 +136,7 @@ const deleteMilestone = async (deletedId: string) => {
 // Function to update the remaining key results
 const updateKeyResults = async (data: any) => {
   return await crudRequest({
-    url: `${OKR_AND_PLANNING_URL}/key-results/bulk-update/objectives`,
+    url: `${OKR_AND_PLANNING_URL}/key-results/bulk-update/objectives/${data?.objectiveId}`,
     method: 'PUT',
     data,
     headers: requestHeader(),
