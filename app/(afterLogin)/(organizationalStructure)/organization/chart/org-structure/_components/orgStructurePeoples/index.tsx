@@ -173,7 +173,8 @@ const OrgChartComponent: React.FC = () => {
     reset();
   };
 
-  const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
+  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
+    useEmployeeManagementStore();
   const { userId } = useAuthenticationStore.getState();
   const { data: departments } = useGetDepartments();
 
@@ -189,6 +190,7 @@ const OrgChartComponent: React.FC = () => {
       employeeData?.employeeJobInformation?.length < 1
     ) {
       setIsAddEmployeeJobInfoModalVisible(true);
+      setEmployeeJobInfoModalWidth('100%');
     }
     if (isSuccess) {
       closeDrawer();

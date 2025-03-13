@@ -145,6 +145,10 @@ interface UserState {
   setIsAddEmployeeJobInfoModalVisible: (
     isAddEmployeeJobInfoModalVisible: boolean,
   ) => void;
+  employeeJobInfoModalWidth: string | null;
+  setEmployeeJobInfoModalWidth: (
+    employeeJobInfoModalWidth: string | null,
+  ) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -256,5 +260,8 @@ export const useEmployeeManagementStore = create<UserState>()(
       set((state) => ({
         searchParams: { ...state.searchParams, [key]: value },
       })),
+    employeeJobInfoModalWidth: null,
+    setEmployeeJobInfoModalWidth: (employeeJobInfoModalWidth: string | null) =>
+      set({ employeeJobInfoModalWidth }),
   })),
 );
