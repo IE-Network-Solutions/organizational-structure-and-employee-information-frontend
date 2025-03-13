@@ -297,6 +297,11 @@ const TnaApprovalTable = () => {
       };
     },
   );
+  const totalTnaPrice = currentApproverData?.items?.reduce(
+    (acc: any, item: any) => acc + (item.trainingPrice || 0),
+    0,
+  );
+
   return (
     <>
       {currentApproverData?.items?.length > 0 ? (
@@ -307,13 +312,20 @@ const TnaApprovalTable = () => {
             </div>
           </div>
           <div className="flex items-center justify-end mb-6">
-            <div className="flex items-center gap-10 mb-6">
+            <div className="flex justify-between p-2 items-center bg-gray-100 rounded-lg mb-6 mx-3">
+              <span className="text-xs font-normal text-gray-700">
+                Total TNA Price:
+              </span>{' '}
+              <span className="text-xs font-bold text-blue-600">
+                {' ' + totalTnaPrice.toLocaleString()}
+              </span>
+            </div>
+
+            <div className="flex items-center space-x-2 mb-6">
               <Popconfirm
                 title="All Approve Request"
                 description="Are you sure to approve all leave request?"
-                onConfirm={() => {
-                  onAllApproveRequest();
-                }}
+                onConfirm={onAllApproveRequest}
                 onCancel={cancel}
                 okText="Approve All"
                 cancelText="Cancel"
@@ -321,14 +333,12 @@ const TnaApprovalTable = () => {
                 <Button disabled={allApproveIsLoading} type="primary">
                   <Spin spinning={allApproveIsLoading} />
                   Approve All
-                </Button>{' '}
+                </Button>
               </Popconfirm>
               <Popconfirm
                 title="All Reject Request"
                 description="Are you sure to reject all leave request?"
-                onConfirm={() => {
-                  onAllRejectRequest();
-                }}
+                onConfirm={onAllRejectRequest}
                 onCancel={cancel}
                 okText="Reject All"
                 cancelText="Cancel"
