@@ -14,6 +14,7 @@ const QuestionResponseForm = ({
       [`userId_${attendeeIndex}`]: attendeesOptions[attendeeIndex]?.value,
     });
   }, [attendeeIndex, attendeesOptions, form]);
+
   return (
     <React.Fragment>
       <Form.Item
@@ -41,6 +42,11 @@ const QuestionResponseForm = ({
             label={q.question}
             fieldType={q.fieldType}
             fieldOptions={q.field}
+            rules={
+              q.mandatory
+                ? [{ required: true, message: 'This question is required' }]
+                : []
+            }
           />
         ),
       )}
