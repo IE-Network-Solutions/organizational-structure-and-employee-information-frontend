@@ -1,5 +1,6 @@
 import { DateInfo } from '@/types/commons/dateInfo';
 import { StatusBadgeTheme } from '@/components/common/statusBadge';
+import { Meta } from '@/store/server/features/okrPlanningAndReporting/interface';
 
 export enum TrainingNeedAssessmentStatus {
   PENDING = 'pending',
@@ -74,8 +75,12 @@ export interface TrainingNeedAssessment extends DateInfo {
   certStatus: TrainingNeedAssessmentCertStatus;
   tenantId: string;
   completedAt: string;
+  commitmentPeriod: string;
 }
-
+export interface TrainingNeedAssessmentRecord extends DateInfo {
+  items: TrainingNeedAssessment[];
+  meta: Meta;
+}
 export interface TrainingProof extends DateInfo {
   id: string;
   trainingNeedAssessmentId: string;

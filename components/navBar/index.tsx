@@ -141,6 +141,8 @@ const menuItems: MenuProps['items'] = [
     className: 'font-bold',
     label: 'Learning & Growth',
     children: [
+      { key: '/tna/my-training', label: 'My-TNA', className: 'font-bold' },
+
       {
         key: '/tna/management',
         label: 'Training Management',
