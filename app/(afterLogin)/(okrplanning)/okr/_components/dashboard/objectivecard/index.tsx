@@ -84,8 +84,11 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     (kr: any) => kr.id === keyResultId,
   );
 
-  const redistributedWeight =
-    parseFloat(keyResultToDelete?.weight) / remainingKeyResults.length;
+  const redistributedWeight = parseFloat(
+    (
+      parseFloat(keyResultToDelete?.weight) / remainingKeyResults.length
+    ).toFixed(2),
+  );
 
   const updatedKeyResults = remainingKeyResults.map((kr: any) => ({
     id: kr.id,
