@@ -55,6 +55,7 @@ export const useTalentPoolStore = create<TalentPoolState>((set) => ({
     department: '',
     job: '',
     stages: '',
+    talentPoolCategory: '',
   },
   setSearchParams: (key, value) =>
     set((state) => ({
