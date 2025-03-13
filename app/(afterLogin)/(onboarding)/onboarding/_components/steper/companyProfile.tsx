@@ -19,6 +19,8 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
     companyProfileImage,
     companyName,
     companyDomainName,
+    companyStamp,
+    setCompanyStamp,
     setCompanyProfile,
     setCompanyName,
     setCompanyDomainName,
@@ -32,6 +34,8 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
   };
 
   const handleFileChange = (info: any) => {
+    console.log(info,"*******************1111")
+
     const fileList = info.fileList as UploadFile<any>[];
     if (fileList.length > 0) {
       setCompanyProfile(fileList[0]);
@@ -39,6 +43,16 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
       setCompanyProfile(undefined);
     }
   };
+  const handleStampChange = (info: any) => {
+    console.log(info,"*******************")
+    const fileList = info.fileList as UploadFile<any>[];
+    if (fileList.length > 0) {
+      setCompanyStamp(fileList[0]);
+    } else {
+      setCompanyStamp(undefined);
+    }
+  };
+
 
   const getImageUrl = (file: UploadFile<any> | undefined) => {
     if (file) {
@@ -173,7 +187,58 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
               onChange={(e) => setCompanyDomainName(e.target.value)}
             />
           </Form.Item>
-
+          <Form.Item
+            id="companyStamp"
+            name="companyStamp"
+            label="Company Stamp"
+            className={'w-full font-bold text-4xl mt-4'}
+          >
+            <Form.Item
+              label="Upload Company Stamp Image (Optional)"
+              className="w-full font-normal text-xl mt-4"
+            >
+              <Form.Item
+                name="dragger"
+                valuePropName="fileList"
+                getValueFromEvent={normFile}
+                noStyle
+                className="mt-2 w-full font-normal text-xl"
+              >
+                <Upload.Dragger
+                  name="files"
+                  className="mt-2"
+                  onChange={handleStampChange}
+                  fileList={companyStamp ? [companyStamp] : []}
+                  showUploadList={false}
+                  accept="image/*"
+                  maxCount={1}
+                >
+                  {companyStamp ? (
+                    <div className="mt-4">
+                      <Image
+                        width={300}
+                        height={300}
+                        src={getImageUrl(companyStamp)}
+                        alt="Uploaded Preview"
+                        className="w-full h-auto max-h-64 object-cover rounded-xl"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-5xl flex justify-center text-primary">
+                        <AiOutlineCloudUpload />
+                      </p>
+                      <p className="ant-upload-text">Upload Company stamp</p>
+                      <p className="ant-upload-hint">
+                        or drag and drop it here
+                      </p>
+                      <p className="ant-upload-hint">Square 300 x 300 px</p>
+                    </>
+                  )}
+                </Upload.Dragger>
+              </Form.Item>
+            </Form.Item>
+          </Form.Item>
           <div className="flex justify-start items-center gap-2 text-gray-400 mt-8">
             We will create a unique URL for you to log into Selamnew Workspace
           </div>
