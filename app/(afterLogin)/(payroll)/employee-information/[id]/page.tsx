@@ -623,7 +623,7 @@ const EmployeeProfile = () => {
                 </>
               </TabPane>
               <TabPane tab="Settlement Tracking" key="3">
-                <SettlementDetail isDetail={true} />
+                <SettlementDetail isDetail />
               </TabPane>
             </Tabs>
           </Col>

@@ -12,13 +12,7 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 
 const { Title, Text } = Typography;
 
-type SettlementDetailProps = {
-  isDetail?: boolean; // Make it optional
-};
-
-const SettlementDetail: React.FC<SettlementDetailProps> = ({
-  isDetail = false,
-}) => {
+const SettlementDetail = () => {
   const params = useParams();
   const employeeId = params?.id as string;
 
@@ -152,41 +146,39 @@ const SettlementDetail: React.FC<SettlementDetailProps> = ({
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="flex gap-8">
-        {!isDetail && (
-          <Card className="w-1/4 shadow-sm">
-            <div className="flex flex-col items-center text-center">
-              <Avatar
-                size={100}
-                src={
-                  getEmployeeName(settlementTrackingData?.[0]?.createdBy)
-                    ?.profilePicture
-                }
-              />
-              <Text className="text-gray-900">
-                {employeeId
-                  ? getEmployeeName(employeeId)?.name
-                  : 'Not mentioned'}
-              </Text>
-              <Text className="text-gray-500 mb-2 text-sm">
-                {`${getDepartmentName(jobPostion?.departmentId)}${jobPostion?.departmentLeadOrNot ? ' Lead' : ''}`}
-              </Text>
+        (
+        <Card className="w-1/4 shadow-sm">
+          <div className="flex flex-col items-center text-center">
+            <Avatar
+              size={100}
+              src={
+                getEmployeeName(settlementTrackingData?.[0]?.createdBy)
+                  ?.profilePicture
+              }
+            />
+            <Text className="text-gray-900">
+              {employeeId ? getEmployeeName(employeeId)?.name : 'Not mentioned'}
+            </Text>
+            <Text className="text-gray-500 mb-2 text-sm">
+              {`${getDepartmentName(jobPostion?.departmentId)}${jobPostion?.departmentLeadOrNot ? ' Lead' : ''}`}
+            </Text>
 
-              <div className="w-full space-y-4">
-                <div className="flex items-center gap-3 text-sm">
-                  <MailOutlined className="text-gray-400 text-base" />
-                  <Text className="text-gray-700">
-                    {employeeId
-                      ? getEmployeeName(employeeId)?.email
-                      : 'Not mentioned'}
-                  </Text>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <EnvironmentOutlined className="text-gray-400 text-base" />
-                </div>
+            <div className="w-full space-y-4">
+              <div className="flex items-center gap-3 text-sm">
+                <MailOutlined className="text-gray-400 text-base" />
+                <Text className="text-gray-700">
+                  {employeeId
+                    ? getEmployeeName(employeeId)?.email
+                    : 'Not mentioned'}
+                </Text>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <EnvironmentOutlined className="text-gray-400 text-base" />
               </div>
             </div>
-          </Card>
-        )}
+          </div>
+        </Card>
+        )
         <Card className="flex-1 shadow-sm">
           <div className="mb-8">
             <Space className="w-full justify-end mb-4">
