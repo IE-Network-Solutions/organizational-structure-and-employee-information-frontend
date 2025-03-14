@@ -256,19 +256,30 @@ const MilestoneView: React.FC<OKRProps> = ({
       id={`key-result-${index}`}
     >
       <Form form={form} layout="vertical" className="space-y-1">
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-3 items-center mb-4">
           {!keyValue.id && (
             <div className="rounded-lg border-gray-200 border bg-gray-300 w-10 h-8 flex justify-center items-center mt-2">
               {index + 1}
             </div>
           )}
+        <div>
+          
+        </div>
           <Form.Item
             label={
               (keyValue.key_type === 'Milestone' && 'Milestone') ||
               keyValue.metricType?.name
             }
             className="w-full font-bold"
-            rules={[{ required: true, message: 'Milestone title is required' }]}
+            rules={[
+              {
+                required: true,
+                message: 'Milestone title is required',
+                validator: (_, value) =>
+                  value && value.trim() !== '' ? Promise.resolve() : Promise.reject(new Error('Milestone title is required')),
+              },
+            ]}
+           
           >
             <Input
               id={`key-result-title-${index}`}
@@ -277,8 +288,8 @@ const MilestoneView: React.FC<OKRProps> = ({
                 handleChange(e.target.value, 'title');
               }}
             />
+{!keyValue.title && <div className="text-red-500 font-semibold absolute top-[30px]">Milestone title is required</div>}
           </Form.Item>
-
           <Form.Item
             className="w-24 font-bold"
             label="Weight"
@@ -335,10 +346,10 @@ const MilestoneView: React.FC<OKRProps> = ({
             </Popconfirm>
           </div>
         </div>
-        <div className="flex gap-10 items-center">
+        <div className="flex gap-10 items-center mb-10">
           <Form.Item
             layout="horizontal"
-            className="w-full h-5 font-bold"
+            className="w-full h-5 font-bold "
             label="Deadline"
           >
             <DatePicker
@@ -359,6 +370,8 @@ const MilestoneView: React.FC<OKRProps> = ({
                 );
               }}
             />
+            {!keyValue.deadline && <div className="text-red-500 font-semibold absolute top-[30px]">Deadline is required</div>}
+
           </Form.Item>
 
           <div className="text-end w-full">
@@ -369,11 +382,11 @@ const MilestoneView: React.FC<OKRProps> = ({
         </div>
 
         {keyValue?.milestones?.length != 0 && keyValue?.milestones && (
-          <Form.Item className="px-5" label="Milestones" required>
+          <Form.Item className="px-5" label={<span className='mt-3'> Milestones</span>} required>
             {keyValue?.milestones.map((milestone, mindex) => (
               <div
                 key={mindex}
-                className="flex items-center space-x-2 mb-2"
+                className="flex items-start space-x-2 mb-2"
                 id={`milestone-${index}-${mindex}`}
               >
                 <div className="rounded-lg border-gray-200 border bg-gray-300 w-8 h-8 flex justify-center items-center">
