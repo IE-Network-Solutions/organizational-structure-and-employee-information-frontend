@@ -17,7 +17,6 @@ import dayjs from 'dayjs';
 import CommentActionMenu from '../commentActionMenu';
 import { FaUser } from 'react-icons/fa';
 import { useState, useMemo } from 'react';
-import { MutateOptions } from 'react-query';
 
 dayjs.extend(relativeTime);
 
