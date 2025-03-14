@@ -200,7 +200,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       )}
     </Form>
   );
-  return departments?.length ? (
+  return !departments?.length ? (
     <CustomDrawerLayout
       modalHeader={
         <h1 className="text-2xl font-semibold">

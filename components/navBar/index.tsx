@@ -17,7 +17,6 @@ import { Layout, Menu, Button, theme } from 'antd';
 const { Header, Content, Sider } = Layout;
 import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
-import { FiSettings } from 'react-icons/fi';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuUsers2 } from 'react-icons/lu';
@@ -33,8 +32,8 @@ const menuItems: MenuProps['items'] = [
     label: 'Organization',
     className: 'font-bold',
     children: [
-      { key: '/organization/chart', label: 'Org Structure' },
-      { key: '/organization/settings', label: 'Settings' },
+      { key: '/organization/chart', label: 'Org Structure', className: 'h-8' },
+      { key: '/organization/settings', label: 'Settings', className: 'h-8' },
     ],
   },
   {
@@ -46,14 +45,18 @@ const menuItems: MenuProps['items'] = [
       {
         key: '/employees/manage-employees',
         label: 'Manage Employees',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
       {
         key: '/employees/departmentRequest',
         label: 'Department Request',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
-      { key: '/employees/settings', label: 'Settings', className: 'font-bold' },
+      {
+        key: '/employees/settings',
+        label: 'Settings',
+        className: 'font-bold h-8',
+      },
     ],
   },
   {
@@ -62,18 +65,18 @@ const menuItems: MenuProps['items'] = [
     className: 'font-bold',
     label: 'Talent Acquisition',
     children: [
-      { key: '/recruitment/jobs', label: 'Jobs', icon: <UserOutlined /> },
+      { key: '/recruitment/jobs', label: 'Jobs' },
       {
         key: '/recruitment/candidate',
         label: 'Candidates',
-        icon: <UserOutlined />,
+        className: 'h-8',
       },
       {
         key: '/recruitment/talent-pool',
         label: 'Talent Pool',
-        icon: <UserOutlined />,
+        className: 'h-8',
       },
-      { key: '/recruitment/settings', label: 'Settings', icon: <FiSettings /> },
+      { key: '/recruitment/settings', label: 'Settings', className: 'h-8' },
     ],
   },
   {
@@ -82,19 +85,19 @@ const menuItems: MenuProps['items'] = [
     icon: <CiStar size={20} />,
     className: 'font-bold',
     children: [
-      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold' },
-      { key: '/okr', label: 'OKR', className: 'font-bold' },
+      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold h-8' },
+      { key: '/okr', label: 'OKR', className: 'font-bold h-8' },
       {
         key: '/planning-and-reporting',
         label: 'Planning and Reporting',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
       // {
       //   key: '/monitoring-evaluation',
       //   label: 'Monitoring & Evaluation',
       //   className: 'font-bold',
       // },
-      { key: '/okr/settings', label: 'Settings', className: 'font-bold' },
+      { key: '/okr/settings', label: 'Settings', className: 'font-bold h-8' },
     ],
   },
   {
@@ -106,32 +109,27 @@ const menuItems: MenuProps['items'] = [
       {
         key: '/feedback/conversation',
         label: 'Conversation',
-        className: 'font-bold',
-        icon: <FiSettings />,
+        className: 'font-bold h-8',
       },
       {
         key: '/feedback/feedback',
         label: 'Feedback',
-        className: 'font-bold',
-        icon: <FiSettings />,
+        className: 'font-bold h-8',
       },
       {
         key: '/feedback/recognition',
         label: 'Recognition',
-        className: 'font-bold',
-        icon: <FiSettings />,
+        className: 'font-bold h-8',
       },
       {
         key: '/feedback/categories',
         label: 'Form',
-        icon: <UserOutlined />,
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
       {
         key: '/feedback/settings',
         label: 'Settings',
-        className: 'font-bold',
-        icon: <FiSettings />,
+        className: 'font-bold h-8',
       },
     ],
   },
@@ -144,13 +142,13 @@ const menuItems: MenuProps['items'] = [
       {
         key: '/tna/management',
         label: 'Training Management',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
-      { key: '/tna/review', label: 'TNA', className: 'font-bold' },
+      { key: '/tna/review', label: 'TNA', className: 'font-bold h-8' },
       {
         key: '/tna/settings/course-category',
         label: 'Settings',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
     ],
   },
@@ -164,13 +162,14 @@ const menuItems: MenuProps['items'] = [
       {
         key: '/employee-information',
         label: 'Employee Information',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
-      { key: '/payroll', label: 'Payroll', className: 'font-bold' },
+      { key: '/payroll', label: 'Payroll', className: 'font-bold h-8' },
+      { key: '/myPayroll', label: 'My Payroll', className: 'font-bold h-8' },
       {
         key: '/settings',
         label: 'Settings',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
     ],
   },
@@ -183,22 +182,22 @@ const menuItems: MenuProps['items'] = [
       {
         key: '/timesheet/my-timesheet',
         label: 'My timesheet',
-        className: 'font-bold',
+        className: 'font-bold h08',
       },
       {
         key: '/timesheet/employee-attendance',
         label: 'Employee Attendance',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
       {
         key: '/timesheet/leave-management/leaves',
         label: 'Leave Management',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
       {
         key: '/timesheet/settings/closed-date',
         label: 'Settings',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
     ],
   },
@@ -211,22 +210,22 @@ const menuItems: MenuProps['items'] = [
       {
         key: '/allowance',
         label: 'Allowance',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
       {
         key: '/benefit',
         label: 'Benefit',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
       {
         key: '/deduction',
         label: 'Deduction',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
       {
         key: '/compensationSetting',
         label: 'Settings',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
     ],
   },
@@ -239,7 +238,7 @@ const menuItems: MenuProps['items'] = [
       {
         key: '/variable-pay',
         label: 'Variable Pay',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
     ],
   },
@@ -252,12 +251,12 @@ const userItems: MenuProps['items'] = [
     icon: <CiStar size={20} />,
     className: 'font-bold',
     children: [
-      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold' },
-      { key: '/okr', label: 'OKR', className: 'font-bold' },
+      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold h-8' },
+      { key: '/okr', label: 'OKR', className: 'font-bold h-8' },
       {
         key: '/planning-and-reporting',
         label: 'Planning and Reporting',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
     ],
   },
@@ -284,7 +283,7 @@ const userItems: MenuProps['items'] = [
       {
         key: '/tna/management',
         label: 'Training Management',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
       // { key: '/tna/review', label: 'TNA', className: 'font-bold' },
     ],
@@ -298,7 +297,7 @@ const userItems: MenuProps['items'] = [
       {
         key: '/timesheet/my-timesheet',
         label: 'My timesheet',
-        className: 'font-bold',
+        className: 'font-bold h-8',
       },
     ],
   },
@@ -429,16 +428,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </Button>
         )}
 
-        <Menu
-          mode="inline"
-          defaultSelectedKeys={['/dashboard']}
-          items={userRole === 'user' ? userItems : menuItems}
-          inlineCollapsed={collapsed}
-          // className="my-5"
-          onClick={handleMenuClick}
-          selectedKeys={[pathname]}
-          className={`my-5 [&_.ant-menu-item-selected]:!bg-[#3636F0] [&_.ant-menu-item-selected]:!text-white`}
-        />
+        <div className="menu-with-lines">
+          <Menu
+            mode="inline"
+            defaultSelectedKeys={['/dashboard']}
+            items={userRole === 'user' ? userItems : menuItems}
+            inlineCollapsed={collapsed}
+            onClick={handleMenuClick}
+            selectedKeys={[pathname]}
+            className={`my-5 [&_.ant-menu-item-selected]:!bg-[#3636F0] [&_.ant-menu-item-selected]:!text-white h-96`}
+          />
+        </div>
       </Sider>
       <Layout
         style={{

@@ -306,4 +306,9 @@ export enum Permissions {
   ChangePassword = 'change-password',
   ChangeProfileImage = 'change-profile-image',
   ChangeManagerProfile = 'change-manager-profile',
+
+  //planning
+  ViewDailyPlan = 'view-daily-plan',
+  ViewWeeklyPlan = 'view-weekly-plan',
+  ViewMonthlyPlan = 'view-monthly-plan',
 }

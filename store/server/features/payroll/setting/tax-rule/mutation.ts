@@ -91,6 +91,45 @@ const createPayPeriods = async (data: any[]) => {
   });
 };
 
+const editPayPeriod = async ({
+  data,
+  payPeriodId,
+}: {
+  data: any;
+  payPeriodId: string;
+}) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${PAYROLL_URL}/pay-period/${payPeriodId}`,
+    method: 'PUT',
+    data,
+    headers,
+  });
+};
+
+export const useEditPayPeriod = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({ data, payPeriodId }: { data: any; payPeriodId: string }) =>
+      editPayPeriod({ data, payPeriodId }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('payPeriods');
+        NotificationMessage.success({
+          message: 'Successfully Updated',
+          description: 'pay period successfully updated.',
+        });
+      },
+    },
+  );
+};
+
 /**
  * Deletes a pay period by sending a DELETE request to the API.
  *

@@ -18,4 +18,3 @@ export const useGetTimeZone = () => {
     enabled: true,
   });
 };
-

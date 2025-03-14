@@ -14,7 +14,7 @@ import PermissionWrapper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import ChangePasswordModal from './_components/changePasswordModal';
 import { useModalStore } from '@/store/uistate/features/authentication/changePasswordModal';
-import AccessGuard from '@/utils/permissionGuard';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 function PersonalDataComponent({
   id,
@@ -30,6 +30,7 @@ function PersonalDataComponent({
   const { isLoading, data: employeeData } = useGetEmployee(id);
   const { data: nationalities, isLoading: isLoadingNationality } =
     useGetNationalities();
+  const { userId } = useAuthenticationStore();
 
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
@@ -218,11 +219,13 @@ function PersonalDataComponent({
                     employeeData?.employeeInformation?.nationality?.name || '-'
                   }
                 />
-                <AccessGuard permissions={[Permissions.ChangePassword]}>
+                {userId === id ? (
                   <Button type="primary" htmlType="submit" onClick={openModal}>
                     Change Password?
                   </Button>
-                </AccessGuard>
+                ) : (
+                  ''
+                )}
               </Col>
               <Col lg={10}>
                 <InfoLine
