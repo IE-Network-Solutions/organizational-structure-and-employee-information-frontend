@@ -25,11 +25,12 @@ const getAllTalentPool = async (
   department: string,
   job: string,
   stages: string,
+  talentPoolCategory: string,
   pageSize: number,
   currentPage: number,
 ) => {
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/talent-pool?department=${department}&jobDeadline=${dateRange ?? null}&&jobTitle=${job}&&status=${stages}&limit=${pageSize}&page=${currentPage}`,
+    url: `${RECRUITMENT_URL}/talent-pool?department=${department}&jobDeadline=${dateRange ?? null}&&talentPoolCategoryId=${talentPoolCategory}&&jobTitle=${job}&&status=${stages}&limit=${pageSize}&page=${currentPage}`,
     method: 'GET',
     headers,
   });
@@ -74,17 +75,28 @@ export const useGetTalentPool = (
   department: string,
   job: string,
   stages: string,
+  talentPoolCategory: string,
   pageSize: number,
   currentPage: number,
 ) =>
   useQuery<TalentPoolResponse>(
-    ['talentPool', dateRange, department, job, stages, pageSize, currentPage],
+    [
+      'talentPool',
+      dateRange,
+      department,
+      job,
+      stages,
+      talentPoolCategory,
+      pageSize,
+      currentPage,
+    ],
     () =>
       getAllTalentPool(
         dateRange,
         department,
         job,
         stages,
+        talentPoolCategory,
         pageSize,
         currentPage,
       ),
