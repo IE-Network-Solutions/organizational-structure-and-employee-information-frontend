@@ -251,10 +251,6 @@ const MilestoneView: React.FC<OKRProps> = ({
     });
   }
 
-  console.log(
-    '----------------------------milestone---------------------',
-    keyValue,
-  );
   return (
     <div
       className="py-4  border-b-[1px] border-gray-300"
