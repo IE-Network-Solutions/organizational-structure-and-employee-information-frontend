@@ -51,7 +51,6 @@ export interface TalentPoolState {
   filters: Filters;
   visibleOnboard: boolean;
   page: number;
-  currentPage: number;
   setCurrentPage(currentPage: number): void;
   setPage: (page: number) => void;
   setVisibleOnboardState: (visible: boolean) => void;
