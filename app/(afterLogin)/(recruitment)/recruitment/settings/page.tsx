@@ -13,7 +13,6 @@
 
 'use client';
 
-import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
 
 function Settings() {

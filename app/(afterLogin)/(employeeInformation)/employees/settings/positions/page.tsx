@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
 import { Card, Typography } from 'antd';

@@ -1,12 +1,10 @@
 'use client';
 
-import { FC, useState, ReactNode } from 'react';
+import { FC, ReactNode } from 'react';
 import { IoMdSettings } from 'react-icons/io';
 import { FaUser } from 'react-icons/fa';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import { Menu } from 'antd';
-import type { MenuProps } from 'antd';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 import SidebarMenu from '@/components/sidebarMenu';
 
@@ -15,8 +13,6 @@ interface SettingsLayoutProps {
 }
 
 const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
-  const [selectedKey, setSelectedKey] = useState<string>('employment-type');
-
   // Sidebar Menu Items
   const menuItems = new SidebarMenuItem([
     {

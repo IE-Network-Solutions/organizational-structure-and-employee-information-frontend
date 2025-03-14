@@ -1,6 +1,6 @@
 'use client';
 import { FC, ReactNode, useEffect, useState } from 'react';
-import { Card, ConfigProvider, Menu, MenuProps } from 'antd';
+import { ConfigProvider, Menu, MenuProps } from 'antd';
 import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
 import { HiOutlineBriefcase } from 'react-icons/hi2';
 import { usePathname, useRouter } from 'next/navigation';
