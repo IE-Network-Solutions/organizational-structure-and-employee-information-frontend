@@ -250,6 +250,9 @@ const MilestoneView: React.FC<OKRProps> = ({
       },
     });
   }
+
+  const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
+
   return (
     <div
       className="py-4  border-b-[1px] border-gray-300"
@@ -330,6 +333,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                   className="rounded-full w-5 h-5"
                   icon={<VscClose size={20} />}
                   type="primary"
+                  disabled={isEditDisabled}
                 />
               </Tooltip>
             </Popconfirm>

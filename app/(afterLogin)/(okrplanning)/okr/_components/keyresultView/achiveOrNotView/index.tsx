@@ -41,6 +41,8 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     });
   }
 
+  const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
+
   return (
     <div
       className="py-4 border-b-[1px] border-gray-300"
@@ -97,6 +99,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                 }
                 id={`remove-key-result-${index}`}
                 aria-label="Remove Key Result"
+                disabled={isEditDisabled}
               />
             </Tooltip>
           </div>
