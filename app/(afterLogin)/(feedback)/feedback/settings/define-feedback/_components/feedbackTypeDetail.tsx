@@ -2,7 +2,7 @@ import { useDeleteFeedback } from '@/store/server/features/feedback/feedback/mut
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { Button, Card, Popconfirm, Tabs, Pagination, Input } from 'antd';
 import { Edit2Icon } from 'lucide-react';
-import React, { useState } from 'react';
+import React from 'react';
 import { BiPlus } from 'react-icons/bi';
 import { MdDeleteOutline } from 'react-icons/md';
 
@@ -21,9 +21,10 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
     page,
     setPage,
     pageSize,
+    searchQuery,
+     setSearchQuery
   } = ConversationStore();
 
-  const [searchQuery, setSearchQuery] = useState('');
 
   const onChange = (key: string) => {
     const variantType = key === 'appreciation' ? 'appreciation' : 'reprimand';
