@@ -16,7 +16,7 @@ type SettlementDetailProps = {
   isDetail: boolean;
 };
 
-const SettlementDetail: React.FC<SettlementDetailProps> = ({ isDetail }) => { 
+const SettlementDetail: React.FC<SettlementDetailProps> = ({ isDetail }) => {
   const params = useParams();
   const employeeId = params?.id as string;
 
@@ -260,6 +260,6 @@ const SettlementDetail: React.FC<SettlementDetailProps> = ({ isDetail }) => {
       </div>
     </div>
   );
-}
+};
 
 export default SettlementDetail;

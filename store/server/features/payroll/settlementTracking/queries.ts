@@ -62,13 +62,13 @@ const getAllSettlementTracking = async (
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
- /* eslint-disable */
+  /* eslint-disable */
   const filteredParams = Object.fromEntries(
     Object.entries(searchParams).filter(
       ([notused, value]) => value !== undefined,
     ),
   );
-          /* eslint-enable */
+  /* eslint-enable */
 
   const searchParamsString = new URLSearchParams(filteredParams).toString();
 

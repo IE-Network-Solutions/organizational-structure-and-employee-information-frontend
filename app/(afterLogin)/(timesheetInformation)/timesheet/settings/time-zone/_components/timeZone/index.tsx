@@ -41,9 +41,7 @@ const TimezoneComponent = () => {
   };
   return (
     <>
-
       <div className="mt-4">
-
         <Form onFinish={handleFinish}>
           <Form.Item
             name="timezone"
