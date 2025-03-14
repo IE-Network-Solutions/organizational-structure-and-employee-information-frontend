@@ -7,15 +7,12 @@ import { DATE_FORMAT } from '@/utils/constants';
 import { LuPlus } from 'react-icons/lu';
 import { TableColumnsType } from '@/types/table/table';
 import dayjs from 'dayjs';
-import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { FiEdit2 } from 'react-icons/fi';
 import ActionButton from '@/components/common/actionButton';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import TnaRequestSidebar from '@/app/(afterLogin)/(tna)/tna/review/_components/tnaRequestSidebar';
 import { useRouter } from 'next/navigation';
-import { useGetTna } from '@/store/server/features/tna/review/queries';
-import { usegetTnaByUser } from '@/store/server/features/tna/review/queries';
 
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
@@ -26,15 +23,14 @@ import {
   TrainingNeedAssessmentCertStatusBadgeTheme,
   TrainingNeedAssessmentStatus,
   TrainingNeedAssessmentStatusBadgeTheme,
-  TrainingProof,
 } from '@/types/tna/tna';
-import FileButton from '@/components/common/fileButton';
 import { useDeleteTna } from '@/store/server/features/tna/review/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import UserCard from '@/components/common/userCard/userCard';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import TnaApprovalTable from './_components/approvalTabel';
+import { useGetTnaByUser } from '@/store/server/features/tna/review/queries';
 
 const TnaReviewPage = () => {
   const EmpRender = ({ userId }: any) => {
@@ -81,7 +77,7 @@ const TnaReviewPage = () => {
     setOrderDirection,
   } = usePagination();
   const [filter, setFilter] = useState<Partial<TnaRequestBody['filter']>>({});
-  const { data, isLoading, refetch } = usegetTnaByUser(
+  const { data, isLoading, refetch } = useGetTnaByUser(
     { page, limit, orderBy, orderDirection },
     { filter },
   );

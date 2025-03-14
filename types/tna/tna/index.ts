@@ -76,6 +76,9 @@ export interface TrainingNeedAssessment extends DateInfo {
   tenantId: string;
   completedAt: string;
   commitmentPeriod: string;
+  sessionId?: string;
+  yearId?: string;
+  monthId?: string;
 }
 export interface TrainingNeedAssessmentRecord extends DateInfo {
   items: TrainingNeedAssessment[];

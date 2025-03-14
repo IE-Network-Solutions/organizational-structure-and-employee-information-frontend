@@ -64,7 +64,7 @@ export const useGetTna = (
     },
   );
 };
-export const usegetTnaByUser = (
+export const useGetTnaByUser = (
   query: Partial<RequestCommonQueryData>,
   data: Partial<TnaRequestBody>,
   isKeepData: boolean = true,

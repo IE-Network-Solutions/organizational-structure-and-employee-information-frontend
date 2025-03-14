@@ -6,15 +6,8 @@ import {
 } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-import { AllApprovalWorkFlow } from './interface';
-import {
-  AttendanceRecord,
-  PaginateAttendanceRecord,
-} from '@/types/timesheet/attendance';
-import {
-  TrainingNeedAssessment,
-  TrainingNeedAssessmentRecord,
-} from '@/types/tna/tna';
+import {} from '@/types/timesheet/attendance';
+import { TrainingNeedAssessmentRecord } from '@/types/tna/tna';
 
 export const approvalFilter = async (
   pageSize: number,
