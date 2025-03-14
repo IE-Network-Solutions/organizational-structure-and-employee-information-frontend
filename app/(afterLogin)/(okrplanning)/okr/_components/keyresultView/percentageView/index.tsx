@@ -46,7 +46,9 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             className="w-full font-bold"
             rules={[
               {
+                /* eslint-disable-next-line @typescript-eslint/naming-convention */
                 validator: (_, value) => {
+                  /* eslint-enable @typescript-eslint/naming-convention */
                   if (!value) {
                     return Promise.reject(
                       new Error('Milestone title is required'),

@@ -108,14 +108,18 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           });
           return; // Stop submission if the sum is not 100
         }
-       
+
         if (keyResults && keyResults.length !== 0) {
           // Iterate over each keyResult to validate all milestone key types
           for (const [index, keyResult] of keyResults.entries()) {
             const keyType = keyResult?.metricType?.name || keyResult?.key_type;
-            if (keyResult?.title == '' || keyResult?.title == null || keyResult?.title == undefined) {
+            if (
+              keyResult?.title == '' ||
+              keyResult?.title == null ||
+              keyResult?.title == undefined
+            ) {
               NotificationMessage.warning({
-                message: `Please Enter Number ${index+1} Key Result Name`,
+                message: `Please Enter Number ${index + 1} Key Result Name`,
               });
               return; // Stop submission if the sum is not 100
             }

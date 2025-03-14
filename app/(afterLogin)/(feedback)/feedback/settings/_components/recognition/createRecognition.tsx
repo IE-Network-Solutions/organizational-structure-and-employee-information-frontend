@@ -567,7 +567,6 @@ const RecognitionForm: React.FC<PropsData> = ({
           </Popconfirm>
         </div>
       </Form.Item>
-
     </Form>
   );
 };

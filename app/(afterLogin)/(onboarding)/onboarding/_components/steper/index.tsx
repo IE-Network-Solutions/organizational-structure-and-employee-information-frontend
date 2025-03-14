@@ -267,8 +267,7 @@ const OnboaringSteper: React.FC = () => {
     },
     {
       title: 'Step 2',
-      content:   <TimeZone />,
-     
+      content: <TimeZone />,
     },
     {
       title: 'Step 3',

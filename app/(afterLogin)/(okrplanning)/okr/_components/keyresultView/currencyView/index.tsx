@@ -53,7 +53,9 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             id={`key-result-title-${index}`}
             rules={[
               {
+                /* eslint-disable-next-line @typescript-eslint/naming-convention */
                 validator: (_, value) => {
+                  /* eslint-enable @typescript-eslint/naming-convention */
                   if (!value) {
                     return Promise.reject(
                       new Error('Milestone title is required'),

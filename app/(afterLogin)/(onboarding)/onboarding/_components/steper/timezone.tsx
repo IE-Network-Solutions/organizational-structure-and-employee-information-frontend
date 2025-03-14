@@ -13,8 +13,8 @@ function TimeZone() {
           Set up your Timezone
         </div>
         <TimezoneComponent />
-        <br/>
-        
+        <br />
+
         <div className="text-center">
           <Button
             onClick={() => nextStep()}
