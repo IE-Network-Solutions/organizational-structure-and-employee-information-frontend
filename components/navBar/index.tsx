@@ -441,7 +441,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             inlineCollapsed={collapsed}
             onClick={handleMenuClick}
             selectedKeys={[pathname]}
-            className={`my-5 [&_.ant-menu-item-selected]:!bg-[#3636F0] [&_.ant-menu-item-selected]:!text-white h-96`}
+            className={`my-5 [&_.ant-menu-item-selected]:!bg-[#CBD5E0] [&_.ant-menu-item-selected]:!text-black h-96`}
           />
         </div>
       </Sider>
