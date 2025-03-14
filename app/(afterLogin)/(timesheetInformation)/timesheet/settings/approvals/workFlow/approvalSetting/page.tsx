@@ -57,6 +57,7 @@ const ApprovalSetting: React.FC<any> = () => {
         handleSubmit={handleSubmit}
         isSuccess={isSuccess}
         form={form}
+        title={'Leave '}
       />
     </div>
   );

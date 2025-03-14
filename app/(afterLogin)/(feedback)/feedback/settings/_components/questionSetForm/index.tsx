@@ -64,6 +64,8 @@ const QuestionSetForm = () => {
         const requiresOptions = [
           FieldType.DROPDOWN,
           FieldType.MULTIPLE_CHOICE,
+          FieldType.CHECKBOX,
+
           FieldType.RADIO,
         ].includes(value);
 
@@ -183,6 +185,7 @@ const QuestionSetForm = () => {
         const requiresOptions = [
           FieldType.DROPDOWN,
           FieldType.MULTIPLE_CHOICE,
+          FieldType.CHECKBOX,
           FieldType.RADIO,
         ].includes(q.fieldType);
 
@@ -206,6 +209,7 @@ const QuestionSetForm = () => {
   const renderOptionsSection = (q: any) => {
     const requiresOptions = [
       FieldType.DROPDOWN,
+      FieldType.CHECKBOX,
       FieldType.MULTIPLE_CHOICE,
       FieldType.RADIO,
     ].includes(q.fieldType);
@@ -335,6 +339,7 @@ const QuestionSetForm = () => {
                 <Option value={FieldType.MULTIPLE_CHOICE}>
                   Multiple Choice
                 </Option>
+                <Option value={FieldType.CHECKBOX}>Check Box</Option>
                 <Option value={FieldType.SHORT_TEXT}>Short Text</Option>
                 <Option value={FieldType.PARAGRAPH}>Paragraph</Option>
                 <Option value={FieldType.TIME}>Time</Option>

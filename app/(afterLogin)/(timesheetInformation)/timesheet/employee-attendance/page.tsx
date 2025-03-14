@@ -16,6 +16,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import EmployeeAttendanceSideBar from './_components/sideBar';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 import BreakImportSidebar from './_components/breakImportSidebar';
+import { HiOutlineTemplate } from 'react-icons/hi';
 
 import AttendanceImportErrorModal from './_components/attendanceImportErrorModal';
 const EmployeeAttendance = () => {
@@ -88,6 +89,16 @@ const EmployeeAttendance = () => {
             <PermissionWrapper
               permissions={[Permissions.ImportEmployeeAttendanceInformation]}
             >
+              {' '}
+              <a href="/Attendance_Template.xlsx" download>
+                <Button icon={<HiOutlineTemplate size={18} />} size="large">
+                  Attendance Template
+                </Button>
+              </a>
+            </PermissionWrapper>
+            <PermissionWrapper
+              permissions={[Permissions.ImportEmployeeAttendanceInformation]}
+            >
               <Button
                 icon={<TbFileUpload size={18} />}
                 size="large"
@@ -126,6 +137,7 @@ const EmployeeAttendance = () => {
             >
               Break Import
             </Button> */}
+
             <PermissionWrapper
               permissions={[Permissions.ImportEmployeeAttendanceInformation]}
             >

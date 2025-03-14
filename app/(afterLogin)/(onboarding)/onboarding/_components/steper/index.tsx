@@ -28,7 +28,6 @@ import {
 // import { useUpdateCompanyProfile } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 // import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 import { Form } from 'antd';
-import IndustrySelect from './industrySelect';
 import CompanyProfile from './companyProfile';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { showValidationErrors } from '@/utils/showValidationErrors';
@@ -44,6 +43,7 @@ import {
   useUpdateCompanyProfileWithStamp,
 } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import TimeZone from './timezone';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -287,7 +287,8 @@ const OnboaringSteper: React.FC = () => {
     },
     {
       title: 'Step 2',
-      content: <IndustrySelect form={form2} />,
+      content:   <TimeZone />,
+     
     },
     {
       title: 'Step 3',
