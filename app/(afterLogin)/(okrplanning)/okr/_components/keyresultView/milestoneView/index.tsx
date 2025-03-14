@@ -253,6 +253,7 @@ const MilestoneView: React.FC<OKRProps> = ({
 
   const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
 
+
   return (
     <div
       className="py-4  border-b-[1px] border-gray-300"
@@ -402,6 +403,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                   className="flex-1 "
                 >
                   <Input
+                    disabled={milestone?.status == 'Completed'}
                     id={`milestone-title-${index}-${mindex}`}
                     placeholder="Milestone Name"
                     value={milestone.title || ''}
@@ -411,46 +413,49 @@ const MilestoneView: React.FC<OKRProps> = ({
                   />
                 </Form.Item>
 
-                <InputNumber
-                  disabled={milestone?.status == 'Completed'}
-                  id={`milestone-weight-${index}-${mindex}`}
-                  min={0}
-                  max={100}
-                  suffix="%"
-                  value={milestone.weight}
-                  onChange={(value) =>
-                    milestoneChange(value, index, mindex, 'weight')
-                  }
-                />
-
-                <Popconfirm
-                  title="Are you sure you want to remove this milestone?"
-                  onConfirm={() =>
-                    milestone?.id
-                      ? handleMilestoneDelete(milestone?.id, mindex)
-                      : milestoneRemove(index, mindex)
-                  }
-                  okText="Yes"
-                  cancelText="No"
-                  placement="top"
-                  disabled={milestone?.status === 'Completed'} // Disable Popconfirm if the milestone is completed
-                >
-                  <Tooltip
-                    title={
-                      milestone?.status === 'Completed'
-                        ? 'This milestone is completed and cannot be removed.'
-                        : 'Remove Milestone'
+                <Form.Item>
+                  <InputNumber
+                    disabled={milestone?.status == 'Completed'}
+                    id={`milestone-weight-${index}-${mindex}`}
+                    min={0}
+                    max={100}
+                    suffix="%"
+                    value={milestone.weight}
+                    onChange={(value) =>
+                      milestoneChange(value, index, mindex, 'weight')
                     }
+                  />
+                </Form.Item>
+                <Form.Item>
+                  <Popconfirm
+                    title="Are you sure you want to remove this milestone?"
+                    onConfirm={() =>
+                      milestone?.id
+                        ? handleMilestoneDelete(milestone?.id, mindex)
+                        : milestoneRemove(index, mindex)
+                    }
+                    okText="Yes"
+                    cancelText="No"
+                    placement="top"
+                    disabled={milestone?.status === 'Completed'} // Disable Popconfirm if the milestone is completed
                   >
-                    <Button
-                      disabled={milestone?.status === 'Completed'}
-                      id={`remove-milestone-${index}-${mindex}`}
-                      icon={<VscClose size={20} />}
-                      className="rounded-full w-5 h-5"
-                      type="primary"
-                    />
-                  </Tooltip>
-                </Popconfirm>
+                    <Tooltip
+                      title={
+                        milestone?.status === 'Completed'
+                          ? 'This milestone is completed and cannot be removed.'
+                          : 'Remove Milestone'
+                      }
+                    >
+                      <Button
+                        disabled={milestone?.status === 'Completed'}
+                        id={`remove-milestone-${index}-${mindex}`}
+                        icon={<VscClose size={20} />}
+                        className="rounded-full w-5 h-5"
+                        type="primary"
+                      />
+                    </Tooltip>
+                  </Popconfirm>
+                </Form.Item>
               </div>
             ))}
           </Form.Item>
