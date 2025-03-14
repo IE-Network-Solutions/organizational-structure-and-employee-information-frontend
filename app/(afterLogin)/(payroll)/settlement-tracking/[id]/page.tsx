@@ -16,7 +16,7 @@ type SettlementDetailProps = {
   isDetail: boolean;
 };
 
-const SettlementDetail: React.FC<SettlementDetailProps> = (props) => { 
+const SettlementDetail: React.FC<SettlementDetailProps> = ({ isDetail }) => { 
   const params = useParams();
   const employeeId = params?.id as string;
 
@@ -150,7 +150,7 @@ const SettlementDetail: React.FC<SettlementDetailProps> = (props) => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="flex gap-8">
-        {!props?.isDetail && (
+        {!isDetail && (
           <Card className="w-1/4 shadow-sm">
             <div className="flex flex-col items-center text-center">
               <Avatar

@@ -42,8 +42,8 @@ const EmployeeProfile = () => {
   const openPayPeriods = payPeriodData?.filter(
     (period: any) => period.status === 'OPEN',
   );
-  const params = useParams();
-  const empId = params?.id as string;
+  const {id} = useParams();
+  const empId = id as string;
 
   const { data: employee, isLoading } = useGetEmployee(empId);
   const { data: payroll } = useGetActivePayroll();
