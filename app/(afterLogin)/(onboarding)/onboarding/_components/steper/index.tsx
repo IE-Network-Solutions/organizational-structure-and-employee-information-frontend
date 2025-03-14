@@ -21,23 +21,31 @@ import {
   useDeleteOrgChart,
 } from '@/store/server/features/organizationStructure/organizationalChart/mutation';
 import { useStep2Store } from '@/store/uistate/features/organizationStructure/comanyInfo/useStore';
-import { useCreateCompanyInfo } from '@/store/server/features/organizationStructure/companyInfo/mutation';
+import {
+  useCreateCompanyInfo,
+  useDeleteCompanyInfo,
+} from '@/store/server/features/organizationStructure/companyInfo/mutation';
 // import { useUpdateCompanyProfile } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 // import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 import { Form } from 'antd';
 import CompanyProfile from './companyProfile';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { showValidationErrors } from '@/utils/showValidationErrors';
-// import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useRouter } from 'next/navigation';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 import CustomWorFiscalYearDrawer from '@/app/(afterLogin)/(organizationalStructure)/organization/settings/_components/fiscalYear/customDrawer';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
+import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
+import {
+  // useUpdateCompanyProfile,
+  useUpdateCompanyProfileWithStamp,
+} from '@/store/server/features/organizationStructure/companyProfile/mutation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import TimeZone from './timezone';
 
-// const tenantId = useAuthenticationStore.getState().tenantId;
+const tenantId = useAuthenticationStore.getState().tenantId;
 
 const OnboaringSteper: React.FC = () => {
   const [form1] = Form.useForm();
@@ -66,11 +74,14 @@ const OnboaringSteper: React.FC = () => {
   } = useStepStore((state) => state);
 
   const { createWorkSchedule, getSchedule } = useScheduleStore();
+
   const { orgData } = useOrganizationStore();
   // const { getFiscalYear } = useFiscalYearStore();
 
   const { fiscalYearFormValues, sessionFormValues, monthRangeValues } =
     useFiscalYearDrawerStore();
+  const { companyName, companyProfileImage, companyStamp } =
+    useCompanyProfile();
 
   const createFiscalYear = useCreateFiscalYear();
 
@@ -80,17 +91,17 @@ const OnboaringSteper: React.FC = () => {
   const createOrgChart = useCreateOrgChart();
   const deleteOrgChart = useDeleteOrgChart();
   const createCompanyInfo = useCreateCompanyInfo();
-  // const deleteCompanyInfo = useDeleteCompanyInfo();
+  const deleteCompanyInfo = useDeleteCompanyInfo();
   const { companyInfo } = useStep2Store();
   // const updateCompanyProfile = useUpdateCompanyProfile();
-  // const { companyProfileImage } = useCompanyProfile();
+  const updateComapnyImageWithStamp = useUpdateCompanyProfileWithStamp();
 
   function* createResourcesGenerator(
     fiscalYear: any,
     schedule: any,
     orgData: any,
     companyInfo: any,
-    // companyProfileImage: any,
+    companyProfileImage: any,
   ) {
     yield {
       createFn: createFiscalYear.mutateAsync,
@@ -109,13 +120,22 @@ const OnboaringSteper: React.FC = () => {
     };
     yield {
       createFn: createCompanyInfo.mutateAsync,
-      // deleteFn: deleteCompanyInfo.mutateAsync,
+      deleteFn: deleteCompanyInfo.mutateAsync,
       data: companyInfo,
     };
     // yield {
     //   createFn: updateCompanyProfile.mutateAsync,
-    //   data: { id: tenantId, companyProfileImage: companyProfileImage },
+    //   data: { id: tenantId, companyProfileImage: companyProfileImage},
     // };
+    yield {
+      createFn: updateComapnyImageWithStamp.mutateAsync,
+      data: {
+        id: tenantId,
+        updateClientDto: { companyName },
+        companyProfileImage: companyProfileImage?.companyProfileImage,
+        companyStamp: companyProfileImage?.companyStamp,
+      },
+    };
   }
 
   const onSubmitOnboarding = async () => {
@@ -213,7 +233,7 @@ const OnboaringSteper: React.FC = () => {
       schedule,
       orgData,
       companyInfo,
-      // companyProfileImage,
+      { companyProfileImage, companyStamp },
     );
 
     try {
