@@ -3,14 +3,12 @@ import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
-import {
-  useDeleteRecognitionCriteria,
-} from '@/store/server/features/CFR/recognitionCriteria/mutation';
+import { useDeleteRecognitionCriteria } from '@/store/server/features/CFR/recognitionCriteria/mutation';
 import RecognitionForm from './createRecognition';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import {  Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Trash2 } from 'lucide-react';
 
 interface PropsData {
   data: any;
@@ -114,24 +112,26 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
           extra={
             <div className="flex justify-end gap-2">
               <AccessGuard permissions={[Permissions.EditRecognitionCriteria]}>
-                <Button 
-                  type="primary" 
-                  onClick={() => handleEditItem(item?.id)} 
+                <Button
+                  type="primary"
+                  onClick={() => handleEditItem(item?.id)}
                   icon={<Edit2 size={14} className="text-xs" />} // Smaller edit icon
                 />
               </AccessGuard>
-              
-              <AccessGuard permissions={[Permissions.DeleteRecognitionCriteria]}>
+
+              <AccessGuard
+                permissions={[Permissions.DeleteRecognitionCriteria]}
+              >
                 <Popconfirm
                   title="Are you sure you want to delete this?"
                   onConfirm={() => handleDeleteRecognitionType(item?.id)}
                   okText="Yes"
                   cancelText="No"
                 >
-                  <Button 
-                    type="primary" 
-                    className="text-sm" 
-                    danger 
+                  <Button
+                    type="primary"
+                    className="text-sm"
+                    danger
                     icon={<Trash2 size={14} className="text-xs" />} // Use Trash2 for delete
                   />
                 </Popconfirm>
