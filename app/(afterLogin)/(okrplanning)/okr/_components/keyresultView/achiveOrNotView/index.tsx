@@ -60,6 +60,21 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             }
             className="w-full font-bold"
             id={`key-result-title-${index}`}
+            rules={[
+              {
+                /* eslint-disable-next-line @typescript-eslint/naming-convention */
+                validator: (_, value) => {
+                  /* eslint-enable @typescript-eslint/naming-convention */
+                  if (!value) {
+                    return Promise.reject(
+                      new Error('Milestone title is required'),
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            validateTrigger="onBlur"
           >
             <Input
               value={keyValue.title}
@@ -68,6 +83,11 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               }}
               aria-label="Key Result Title"
             />
+            {!keyValue.title && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Milestone title is required
+              </div>
+            )}
           </Form.Item>
           <Form.Item
             className="w-24 font-bold"
@@ -127,6 +147,11 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               }}
               aria-label="Key Result Deadline"
             />
+            {!keyValue.deadline && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Deadline is required
+              </div>
+            )}
           </Form.Item>
           <Form.Item
             layout="horizontal"
