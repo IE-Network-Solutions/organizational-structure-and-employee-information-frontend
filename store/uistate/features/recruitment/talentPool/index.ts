@@ -43,8 +43,6 @@ export const useTalentPoolStore = create<TalentPoolState>((set) => ({
   setVisibleOnboardState: (visible) => set({ visibleOnboard: visible }),
 
   page: 8,
-  currentPage: 1,
-  setCurrentPage: (currentPage: number) => set({ currentPage }),
   setPage: (page: number) => set({ page }),
 
   searchParams: {
