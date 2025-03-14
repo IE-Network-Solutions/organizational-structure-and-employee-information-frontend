@@ -1,4 +1,5 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
@@ -132,6 +133,25 @@ const deleteMilestone = async (deletedId: string) => {
   }
 };
 
+// Function to update the remaining key results
+const updateKeyResults = async (data: any) => {
+  return await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/key-results/bulk-update/objectives/${data?.objectiveId}`,
+    method: 'PUT',
+    data,
+    headers: requestHeader(),
+  });
+};
+
+export const useUpdateObjectiveNestedDelete = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateKeyResults, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('ObjectiveInformation');
+    },
+  });
+};
+
 export const useDeleteObjective = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteObjective, {
@@ -156,6 +176,7 @@ export const useUpdateObjective = () => {
     },
   });
 };
+
 export const useUpdateKeyResult = () => {
   const queryClient = useQueryClient();
   return useMutation(updateKeyResult, {
