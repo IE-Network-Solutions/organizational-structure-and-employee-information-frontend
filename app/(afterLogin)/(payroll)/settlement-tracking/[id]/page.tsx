@@ -13,10 +13,11 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 const { Title, Text } = Typography;
 
 type SettlementDetailProps = {
-  isDetail: boolean;
+  isDetail?: boolean; // Make it optional
 };
 
-const SettlementDetail: React.FC<SettlementDetailProps> = (props) => { 
+const SettlementDetail: React.FC<SettlementDetailProps> = ({ isDetail = false }) => {
+
   const params = useParams();
   const employeeId = params?.id as string;
 
@@ -150,7 +151,7 @@ const SettlementDetail: React.FC<SettlementDetailProps> = (props) => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="flex gap-8">
-        {!props?.isDetail && (
+        {!isDetail && (
           <Card className="w-1/4 shadow-sm">
             <div className="flex flex-col items-center text-center">
               <Avatar
@@ -260,6 +261,6 @@ const SettlementDetail: React.FC<SettlementDetailProps> = (props) => {
       </div>
     </div>
   );
-}
+};
 
 export default SettlementDetail;
