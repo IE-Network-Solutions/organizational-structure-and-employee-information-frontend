@@ -30,6 +30,8 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     });
   }
 
+  const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
+
   return (
     <div
       className="py-4 border-b-[1px] border-gray-300"
@@ -97,6 +99,7 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                     ? handleKeyResultDelete(keyValue?.id)
                     : removeKeyResultValue(index)
                 }
+                disabled={isEditDisabled}
               />
             </Tooltip>
           </div>

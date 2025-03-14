@@ -33,6 +33,8 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     });
   }
 
+  const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
+
   return (
     <div
       className="py-4 border-b-[1px] border-gray-300"
@@ -105,6 +107,7 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                     : removeKeyResultValue(index)
                 }
                 id={`remove-key-result-${index}`}
+                disabled={isEditDisabled}
               />
             </Tooltip>
           </div>
