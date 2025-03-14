@@ -1,83 +1,80 @@
+import { Form } from 'antd';
+import { FC } from 'react';
 import WorkSchedule from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/workSchedule';
 import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { DayOfWeek } from '@/store/server/features/organizationStructure/workSchedule/interface';
 import { useUpdateSchedule } from '@/store/server/features/organizationStructure/workSchedule/mutation';
 import { useCreateSchedule } from '@/store/server/features/organizationStructure/workSchedule/mutation';
-import { useWorkScheduleDrawerStore } from '@/store/uistate/features/organizations/settings/workSchedule/useStore';
 import { ScheduleDetail } from '@/store/uistate/features/organizationStructure/workSchedule/interface';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import { showValidationErrors } from '@/utils/showValidationErrors';
-import { Form } from 'antd';
-import React, { useEffect } from 'react';
 
-const CustomWorkingScheduleDrawer: React.FC = () => {
-  // prettier-ignore
-
+const CustomWorkingScheduleDrawer: FC = () => {
   const {
+    clearState,
+    createWorkSchedule,
+    id,
+    scheduleName,
+    standardHours,
     isOpen,
-    workingHour,
     closeDrawer,
-    selectedSchedule,
     isEditMode,
-  } = useWorkScheduleDrawerStore();
-  // prettier-ignore
-
-  const { name, detail } = useScheduleStore();
+  } = useScheduleStore();
+  const { mutate: updateSchedule } = useUpdateSchedule();
+  const { mutate: createSchedule } = useCreateSchedule();
+  const [form] = Form.useForm();
 
   const handleCancel = () => {
+    clearState();
+    form.resetFields();
     closeDrawer();
   };
 
-  const { mutate: updateSchedule } = useUpdateSchedule();
-  const { mutate: createSchedule } = useCreateSchedule();
-
   const handleSubmit = () => {
-    const transformedDetails: DayOfWeek[] = detail.map(
-      (item: ScheduleDetail) => ({
+    createWorkSchedule();
+    const transformedDetails: DayOfWeek[] = useScheduleStore
+      .getState()
+      .detail.map((item: ScheduleDetail) => ({
         id: item.id,
         startTime: item.startTime,
         endTime: item.endTime,
         duration: item.hours,
         workDay: item.status,
         day: item.dayOfWeek,
-      }),
-    );
+      }));
+
     if (isEditMode) {
-      updateSchedule({
-        id: selectedSchedule?.id || '',
-        schedule: {
-          name: name,
-          detail: transformedDetails,
-        },
-      });
+      form
+        .validateFields()
+        .then(() => {
+          updateSchedule({
+            id: id,
+            schedule: {
+              name: scheduleName,
+              detail: transformedDetails,
+            },
+          });
+          handleCancel();
+        })
+        .catch((errorInfo: any) => {
+          showValidationErrors(errorInfo?.errorFields);
+        });
     } else {
       form
         .validateFields()
         .then(() => {
           createSchedule({
-            name: name,
+            name: scheduleName,
             detail: transformedDetails,
           });
+          handleCancel();
         })
         .catch((errorInfo: any) => {
           showValidationErrors(errorInfo?.errorFields);
         });
     }
-    // closeDrawer();
   };
-
-  const [form] = Form.useForm();
-
-  useEffect(() => {
-    if (isEditMode && selectedSchedule) {
-      form.setFieldsValue({
-        ...selectedSchedule,
-      });
-    } else {
-      form.resetFields();
-    }
-  }, [isEditMode, selectedSchedule, form]);
 
   return (
     <CustomDrawerLayout
@@ -91,7 +88,7 @@ const CustomWorkingScheduleDrawer: React.FC = () => {
         <div className="flex justify-between items-center w-full">
           <div className="flex justify items-center gap-2">
             <span>Total Working hours:</span>
-            <span>{workingHour ?? '-'}</span>
+            <span>{standardHours.toFixed(1) ?? '-'}</span>
           </div>
           <div className="flex justify-between items-center gap-4">
             <CustomButton

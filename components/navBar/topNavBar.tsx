@@ -1,7 +1,10 @@
 'use client';
 import React from 'react';
 import { Avatar, Menu, Dropdown, Layout } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import NotificationBar from './notificationBar';
+import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 
 const { Header } = Layout;
 
@@ -11,17 +14,19 @@ interface NavBarProps {
 }
 
 const NavBar = ({ page, handleLogout }: NavBarProps) => {
+  const router = useRouter();
+
+  const { userId } = useAuthenticationStore();
+  const { data: employeeData } = useGetEmployee(userId);
+
+  const handleProfileRoute = () => {
+    router.push(`/employees/manage-employees/${userId}`);
+  };
+
   const menu = (
     <Menu>
       <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/profile`}>
-          Profile
-        </a>
-      </Menu.Item>
-      <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/settings`}>
-          Settings
-        </a>
+        <a onClick={handleProfileRoute}>Profile</a>
       </Menu.Item>
       <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
     </Menu>
@@ -29,18 +34,18 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
 
   return (
     <Header
-      className="flex justify-between items-center bg-white shadow-md w-full"
+      className="flex justify-between items-center bg-white shadow-md w-[90%] md:w-full"
       style={{
         padding: '0 20px',
       }}
     >
       <p>{page}</p>
-      <div className="flex items-center">
+      <div className="flex items-center gap-5">
+        <NotificationBar />
         <Dropdown overlay={menu} placement="bottomRight">
           <Avatar
-            icon={<UserOutlined />}
-            // src={`${URL}/user/${userid}`}
-            className="cursor-pointer"
+            src={employeeData?.profileImage}
+            className="cursor-pointer border-gray-300 rounded-full"
           />
         </Dropdown>
       </div>

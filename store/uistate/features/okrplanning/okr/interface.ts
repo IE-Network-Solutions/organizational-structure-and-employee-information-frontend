@@ -12,6 +12,7 @@ export interface JobInformation {
 }
 export interface User {
   firstName: string;
+  middleName: string;
   lastName: string;
   email: string;
   profileImage: string;
@@ -22,6 +23,7 @@ export interface Milestone {
   id?: string;
   title: string;
   weight: number;
+  status?: string;
 }
 
 export interface MetricType {
@@ -46,7 +48,7 @@ export interface KeyResult {
 
 export interface Objective {
   id?: string;
-  allignedKeyResultId?: string;
+  allignedKeyResultId?: string | null;
   title: string;
   deadline: string;
   userId: string;
@@ -55,6 +57,8 @@ export interface Objective {
   objectiveProgress?: number;
   keyResults?: KeyResult[] | any;
   user?: User;
+  keyResultValue?: KeyResult[] | any;
+  isClosed: boolean;
 }
 export const defaultObjective: Objective = {
   allignedKeyResultId: '',
@@ -65,6 +69,8 @@ export const defaultObjective: Objective = {
   completedKeyResults: 0,
   objectiveProgress: 0,
   keyResults: [],
+  keyResultValue: [],
+  isClosed: false,
 };
 interface SearchObjParams {
   userId: string;
@@ -92,6 +98,9 @@ export interface ObjectiveProps {
   myOkr: boolean;
 }
 export interface OKRState {
+  isVP: boolean;
+  toggleDashboard: () => void;
+
   revenue: number;
   financialSales: number;
   progressRevenue: number;
@@ -105,9 +114,13 @@ export interface OKRState {
   keyResults?: KeyResult[];
   objective: Objective;
   objectiveValue: Objective;
+  keyResultId: string;
+  objectiveId: string;
   setObjective: (objective: Objective) => void;
   setObjectiveValue: (objectiveValue: Objective) => void;
   setKeyResult: (keyResult: KeyResult[]) => void;
+  setKeyResultId: (keyResultId: string) => void;
+  setObjectiveId: (objectiveId: string) => void;
   addKeyResult: () => void;
   addKeyResultValue: (value: any) => void;
   handleKeyResultChange: (value: any, index: number, field: string) => void;
@@ -145,4 +158,6 @@ export interface OKRState {
   setCompanyCurrentPage: (companyCurrentPage: number) => void;
   okrTab: number | string;
   setOkrTab: (okrTab: number | string) => void;
+  alignment: boolean;
+  setAlignment: (alignment: boolean) => void;
 }

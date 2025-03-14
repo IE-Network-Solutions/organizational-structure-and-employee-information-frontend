@@ -10,6 +10,9 @@ import {
   useDeleteLeaveType,
   useUpdateLeaveTypeActive,
 } from '@/store/server/features/timesheet/leaveType/mutation';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 
 export interface LeaveTypeCardProps {
   item: LeaveType;
@@ -18,9 +21,17 @@ export interface LeaveTypeCardProps {
 const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
   const { mutate: deleteLeaveType, isLoading: isDeleteLoading } =
     useDeleteLeaveType();
+  const { setLeaveTypeId, setIsShowTypeAndPoliciesSidebarEdit } =
+    useTimesheetSettingsStore();
+
   const { mutate: setActive, isLoading } = useUpdateLeaveTypeActive();
+
   const onDelete = () => {
     deleteLeaveType(item.id);
+  };
+  const onEdit = () => {
+    setIsShowTypeAndPoliciesSidebarEdit(true);
+    setLeaveTypeId(item.id);
   };
 
   return (
@@ -41,19 +52,23 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
             </StatusBadge>
           </div>
           <Space size={12}>
-            <Switch
-              id={`${item.title}LeaveTypeCardSwitchButtonFieldId`}
-              checkedChildren={<CheckOutlined />}
-              unCheckedChildren={<CloseOutlined />}
-              value={item.isActive}
-              onChange={(isActive) => {
-                setActive({
-                  isActive,
-                  id: item.id,
-                });
-              }}
-            />
-            <ActionButton id={item?.id} onDelete={onDelete} />
+            <AccessGuard permissions={[Permissions.UpdateLeaveType]}>
+              <Switch
+                id={`${item.title}LeaveTypeCardSwitchButtonFieldId`}
+                checkedChildren={<CheckOutlined />}
+                unCheckedChildren={<CloseOutlined />}
+                value={item.isActive}
+                onChange={(isActive) => {
+                  setActive({
+                    isActive,
+                    id: item.id,
+                  });
+                }}
+              />
+            </AccessGuard>
+            <AccessGuard permissions={[Permissions.DeleteLeaveType]}>
+              <ActionButton id={item?.id} onDelete={onDelete} onEdit={onEdit} />
+            </AccessGuard>
           </Space>
         </div>
 

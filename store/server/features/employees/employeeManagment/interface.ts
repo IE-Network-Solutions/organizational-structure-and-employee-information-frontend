@@ -13,6 +13,8 @@ export interface CreateEmployeeJobInformationInterface {
   userId: string;
   branchId: string;
   departmentId: string;
+  positionId: string;
+  employementTypeId: string;
   departmentLeadOrNot: boolean;
   employmentContractType: string;
   employmentTypeId: string;
@@ -20,4 +22,5 @@ export interface CreateEmployeeJobInformationInterface {
   workScheduleId: string;
   joinedDate: string;
   effectiveEndDate: string | null;
+  basicSalary: number;
 }

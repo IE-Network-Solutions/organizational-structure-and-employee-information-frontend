@@ -115,11 +115,10 @@ const CreateJobs: React.FC = () => {
           const newJobId = response?.id;
           setSelectedJobId(newJobId);
           setAddNewDrawer(false);
+          form.resetFields();
+          setCurrentStep(0);
         },
       });
-      // setAddJobModalResult(true);
-      // createJob(formattedValue);
-      // setAddNewDrawer(false);
     } catch {
       NotificationMessage.error({
         message: 'Publish Failed',

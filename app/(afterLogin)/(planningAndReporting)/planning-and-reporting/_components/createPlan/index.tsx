@@ -1,14 +1,15 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { Button, Collapse, Divider, Form, Tooltip } from 'antd';
-import { BiPlus } from 'react-icons/bi';
-import BoardCardForm from '../planForms/boardFormView';
+import { Button, Form, Spin, Tooltip } from 'antd';
 import { useCreatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
-import DefaultCardForm from '../planForms/defaultForm';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
-import { FaPlus } from 'react-icons/fa';
+import {
+  AllPlanningPeriods,
+  useGetPlanningPeriodsHierarchy,
+} from '@/store/server/features/okrPlanningAndReporting/queries';
+import PlanningHierarchyComponent from '../planning/createPlanHierarchy';
+import PlanningObjectiveComponent from '../planning/createPlanObjective';
 
 function CreatePlan() {
   const {
@@ -36,6 +37,14 @@ function CreatePlan() {
   const { data: planningPeriods } = AllPlanningPeriods();
   const planningPeriodId =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
+  const {
+    data: planningPeriodHierarchy,
+    isLoading: loadingPlanningPeriodHierarchy,
+  } = useGetPlanningPeriodsHierarchy(
+    userId,
+    planningPeriodId || '', // Provide a default string value if undefined
+  );
+
   // Ensure planningPeriods is always an array before using find
   const safePlanningPeriods = Array.isArray(planningPeriods)
     ? planningPeriods
@@ -48,7 +57,8 @@ function CreatePlan() {
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      Create New plan
+      Create {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'New'}{' '}
+      Plan
     </div>
   );
   const handleAddName = (
@@ -86,7 +96,6 @@ function CreatePlan() {
         .filter((value) => Array.isArray(value))
         .flat();
     };
-
     const finalValues = mergeValues(values);
     createTask(
       { tasks: finalValues },
@@ -104,214 +113,83 @@ function CreatePlan() {
         open={open === true && isEditing === false ? true : false}
         onClose={onClose}
         modalHeader={modalHeader}
-        width="40%"
-        paddingBottom={5}
+        width={'60%'}
+        paddingBottom={10}
       >
-        <Form
-          layout="vertical"
-          form={form}
-          name="dynamic_form_item"
-          onFinish={handleOnFinish}
-        >
-          <Collapse defaultActiveKey={0}>
-            {objective?.items?.map(
-              (e: Record<string, any>, panelIndex: number) => {
-                return (
-                  <Collapse.Panel header={e.title} key={panelIndex}>
-                    {e?.keyResults?.map(
-                      (kr: Record<string, any>, resultIndex: number) => {
-                        const hasMilestone =
-                          kr?.milestones && kr?.milestones?.length > 0
-                            ? true
-                            : false;
-                        const hasTargetValue =
-                          kr?.metricType?.name === 'Achieve' ||
-                          kr?.metricType?.name === 'Milestone'
-                            ? true
-                            : false;
-                        return (
-                          <>
-                            {' '}
-                            <div
-                              className="flex justify-between"
-                              key={resultIndex}
-                            >
-                              <h4 className="flex justify-between">
-                                {kr?.title}
-                                {kr?.metricType?.name === 'Achieve' && (
-                                  <Tooltip
-                                    className="mt-2 ml-5"
-                                    title="Plan keyResult as a Task"
-                                  >
-                                    <Button
-                                      size="small"
-                                      className="text-[10px] text-primary"
-                                      icon={<FaPlus />}
-                                      onClick={() => {
-                                        setMKAsATask(kr?.title);
-                                        handleAddBoard(kr?.id);
-                                      }}
-                                    />
-                                  </Tooltip>
-                                )}
-                              </h4>
-                            </div>
-                            {hasMilestone ? (
-                              <>
-                                {kr?.milestones?.map(
-                                  (ml: Record<string, any>) => {
-                                    return (
-                                      <>
-                                        <div className="flex gap-3">
-                                          <span>{ml?.title}</span>{' '}
-                                          <Button
-                                            onClick={() => {
-                                              setMKAsATask(null);
-                                              handleAddBoard(kr?.id + ml?.id);
-                                            }}
-                                            type="link"
-                                            icon={<BiPlus />}
-                                            iconPosition="start"
-                                          >
-                                            Add Plan Task
-                                          </Button>{' '}
-                                          <div>
-                                            Total Weight:
-                                            {weights[
-                                              `names-${kr?.id + ml?.id}`
-                                            ] || 0}
-                                          </div>
-                                          <Tooltip title="Plan Milestone as a Task">
-                                            <Button
-                                              size="small"
-                                              className="text-[10px] text-primary"
-                                              icon={<FaPlus />}
-                                              onClick={() => {
-                                                setMKAsATask(ml?.title);
-                                                handleAddBoard(kr?.id + ml?.id);
-                                              }}
-                                            />
-                                          </Tooltip>
-                                        </div>
-                                        <>
-                                          <Divider className="my-2" />
-                                          {planningPeriodId &&
-                                            planningUserId && (
-                                              <DefaultCardForm
-                                                kId={kr?.id}
-                                                hasTargetValue={hasTargetValue}
-                                                hasMilestone={hasMilestone}
-                                                milestoneId={ml?.id}
-                                                name={`names-${kr?.id + ml?.id}`}
-                                                form={form}
-                                                planningPeriodId={
-                                                  planningPeriodId
-                                                }
-                                                userId={userId}
-                                                planningUserId={planningUserId}
-                                              />
-                                            )}
-                                          <BoardCardForm
-                                            form={form}
-                                            handleAddName={handleAddName}
-                                            handleRemoveBoard={
-                                              handleRemoveBoard
-                                            }
-                                            kId={kr?.id}
-                                            hideTargetValue={hasTargetValue}
-                                            name={kr?.id + ml?.id}
-                                            isMKAsTask={
-                                              mkAsATask ? true : false
-                                            }
-                                          />
-                                        </>
-                                      </>
-                                    );
-                                  },
-                                )}
-                              </>
-                            ) : (
-                              <>
-                                {' '}
-                                <div className="flex gap-3">
-                                  <Button
-                                    onClick={() => handleAddBoard(kr?.id)}
-                                    type="link"
-                                    icon={<BiPlus />}
-                                    iconPosition="start"
-                                  >
-                                    Add Plan Task
-                                  </Button>
-                                  <div>
-                                    Total Weight:
-                                    {weights[`names-${kr?.id}`] || 0}
-                                  </div>
-                                </div>
-                                <Divider className="my-2" />
-                                {planningPeriodId && planningUserId && (
-                                  <DefaultCardForm
-                                    kId={kr?.id}
-                                    hasTargetValue={hasTargetValue}
-                                    hasMilestone={hasMilestone}
-                                    milestoneId={null}
-                                    name={`names-${kr?.id}`}
-                                    form={form}
-                                    planningPeriodId={planningPeriodId}
-                                    userId={userId}
-                                    planningUserId={planningUserId}
-                                  />
-                                )}
-                                <BoardCardForm
-                                  form={form}
-                                  handleAddName={handleAddName}
-                                  handleRemoveBoard={handleRemoveBoard}
-                                  kId={kr?.id}
-                                  hideTargetValue={hasTargetValue}
-                                  name={kr?.id}
-                                  isMKAsTask={mkAsATask ? true : false}
-                                />
-                              </>
-                            )}
-                          </>
-                        );
-                      },
-                    )}
-                  </Collapse.Panel>
-                );
-              },
+        {loadingPlanningPeriodHierarchy ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <Spin size="large" tip="Loading...." />
+          </div>
+        ) : (
+          <Form
+            layout="vertical"
+            form={form}
+            name="dynamic_form_item"
+            onFinish={handleOnFinish}
+          >
+            {planningPeriodHierarchy?.parentPlan == null ? (
+              <PlanningObjectiveComponent
+                objective={objective}
+                form={form}
+                planningPeriodId={planningPeriodId || ''}
+                userId={userId}
+                planningUserId={planningUserId || ''}
+                mkAsATask={!!mkAsATask}
+                setMKAsATask={setMKAsATask}
+                handleAddBoard={handleAddBoard}
+                handleAddName={handleAddName}
+                handleRemoveBoard={handleRemoveBoard}
+                weights={weights}
+              />
+            ) : (
+              <PlanningHierarchyComponent
+                planningPeriodHierarchy={planningPeriodHierarchy}
+                form={form}
+                planningPeriodId={planningPeriodId || ''}
+                userId={userId}
+                planningUserId={planningUserId || ''}
+                mkAsATask={!!mkAsATask}
+                setMKAsATask={setMKAsATask}
+                handleAddBoard={handleAddBoard}
+                handleAddName={handleAddName}
+                handleRemoveBoard={handleRemoveBoard}
+                weights={weights}
+              />
             )}
-          </Collapse>
 
-          <Form.Item className="mt-10">
-            <div className="my-2">Total Weights:{totalWeight} / 100</div>
+            <Form.Item className="mt-10">
+              <div className="my-2">Total Weights:{totalWeight} / 100</div>
 
-            <Tooltip
-              title={
-                totalWeight !== 100
-                  ? "Summation of all task's weights must be equal to 100!"
-                  : 'Submit'
-              }
-            >
-              <Button
-                className="mr-5 py-6 px-10"
-                type="primary"
-                htmlType="submit"
-                loading={isLoading}
-                disabled={totalWeight !== 100}
+              <Tooltip
+                title={
+                  totalWeight !== 100
+                    ? "Summation of all task's weights must be equal to 100!"
+                    : 'Submit'
+                }
               >
-                Submit
-              </Button>
-            </Tooltip>
+                <Button
+                  id="submit-plan-button-for-planning-and-reporting"
+                  className="mr-5 py-6 px-10"
+                  type="primary"
+                  htmlType="submit"
+                  loading={isLoading}
+                  disabled={totalWeight !== 100}
+                >
+                  Submit
+                </Button>
+              </Tooltip>
 
-            <Button
-              className="py-6 px-10"
-              onClick={onClose}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-          </Form.Item>
-        </Form>
+              <Button
+                id="cancel-plan-button-for-planning-and-reporting"
+                className="py-6 px-10"
+                onClick={onClose}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+            </Form.Item>
+          </Form>
+        )}
       </CustomDrawerLayout>
     )
   );

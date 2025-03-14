@@ -5,21 +5,36 @@ import { ApiResponse } from '@/types/commons/responseTypes';
 import { requestHeader } from '@/helpers/requestHeader';
 import { LeaveBalance } from '@/types/timesheet/myTimesheet';
 
-const getLeaveBalance = async (userId: string) => {
+const getLeaveBalance = async (userId: string, leaveTypeId: string) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-balance`,
     method: 'GET',
     headers: requestHeader(),
-    params: { userId },
+    params: { userId, leaveTypeId },
+  });
+};
+const getAllLeaveBalance = async () => {
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-balance/all`,
+    method: 'GET',
+    headers: requestHeader(),
+    // params: { userId },
   });
 };
 
-export const useGetLeaveBalance = (userId: string) => {
-  return useQuery<ApiResponse<LeaveBalance>>(
-    'leave-balance',
-    () => getLeaveBalance(userId),
+export const useGetLeaveBalance = (userId: string, leaveTypeId: string) =>
+  useQuery<ApiResponse<LeaveBalance>>(
+    ['leave-balance', userId, leaveTypeId],
+    () => getLeaveBalance(userId, leaveTypeId),
     {
-      keepPreviousData: true,
+      enabled: !!userId,
     },
   );
-};
+export const useGetAllLeaveBalance = () =>
+  useQuery<ApiResponse<LeaveBalance>>(
+    ['leave-balance'],
+    () => getAllLeaveBalance(),
+    {
+      // enabled: !!userId,
+    },
+  );

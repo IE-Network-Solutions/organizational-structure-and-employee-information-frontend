@@ -8,13 +8,22 @@ import { useMoveTalentPoolToCandidates } from '@/store/server/features/recruitme
 import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
 import TransferTalentPoolToCandidateModal from './transferModal';
 import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const TalentPoolTable: React.FC<any> = () => {
-  const { data: candidates, isLoading } = useGetTalentPool();
-
-  const { currentPage, pageSize, setCurrentPage, setPageSize } =
+  const { page, currentPage, setCurrentPage, setPage, searchParams } =
     useTalentPoolStore();
+  const { data: candidates, isLoading: responseLoading } = useGetTalentPool(
+    searchParams?.date_range ?? '',
+    searchParams?.department ?? '',
+    searchParams?.job ?? '',
+    searchParams?.stages ?? '',
+    searchParams?.talentPoolCategory ?? '',
+    page,
+    currentPage,
+  );
 
   const { mutate: moveTalentPoolMutation } = useMoveTalentPoolToCandidates();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -103,9 +112,11 @@ const TalentPoolTable: React.FC<any> = () => {
       title: 'Actions',
       key: 'actions',
       render: (_: any, record: any) => (
-        <Button type="primary" onClick={() => showModal(record)}>
-          Transfer
-        </Button>
+        <AccessGuard permissions={[Permissions.TransferCandidate]}>
+          <Button type="primary" onClick={() => showModal(record)}>
+            Transfer
+          </Button>
+        </AccessGuard>
       ),
     },
   ];
@@ -113,12 +124,13 @@ const TalentPoolTable: React.FC<any> = () => {
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     if (pageSize) {
-      setPageSize(pageSize);
+      setPage(pageSize);
     }
   };
+
   return (
     <>
-      {isLoading ? (
+      {responseLoading ? (
         <>
           <SkeletonLoading
             alignment="vertical"
@@ -135,11 +147,13 @@ const TalentPoolTable: React.FC<any> = () => {
           pagination={{
             total: candidates?.meta?.totalItems,
             current: currentPage,
-            pageSize: pageSize,
+            pageSize: page,
             onChange: onPageChange,
             showSizeChanger: true,
             onShowSizeChange: onPageChange,
           }}
+          loading={responseLoading}
+          scroll={{ x: 1000 }}
         />
       )}
 

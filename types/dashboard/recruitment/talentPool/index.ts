@@ -37,11 +37,23 @@ export interface AddCandidateValue {
   reason: string;
 }
 
+interface SearchParams {
+  date_range: string;
+  department: string;
+  job: string;
+  stages: string | null;
+  talentPoolCategory: string;
+}
+
 export interface TalentPoolState {
   candidates: Candidate[];
   addedCandidate: AddCandidateValue;
   filters: Filters;
   visibleOnboard: boolean;
+  page: number;
+  currentPage: number;
+  setCurrentPage(currentPage: number): void;
+  setPage: (page: number) => void;
   setVisibleOnboardState: (visible: boolean) => void;
   setCandidates: (candidates: Candidate[]) => void;
   setFilters: (filters: Partial<Filters>) => void;
@@ -51,6 +63,8 @@ export interface TalentPoolState {
   setPageSize: (value: number) => void;
   setStage: (id: string, stage: string) => void;
   setAddCandidate: (value: AddCandidateValue) => void;
+  searchParams: SearchParams;
+  setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
 }
 
 export interface TalentPoolCategory {

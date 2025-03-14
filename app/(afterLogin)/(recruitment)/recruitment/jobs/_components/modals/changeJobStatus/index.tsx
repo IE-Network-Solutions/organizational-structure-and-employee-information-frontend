@@ -20,23 +20,33 @@ const ChangeStatusModal: React.FC = () => {
   const handleChangeStatusModalClose = () => {
     setChangeStatusModalVisible(false);
   };
+
   const handleStatusUpdate = (values: any) => {
     const updatedStatus = {
       updatedBy,
-      id: selectedJob.id,
+      id: selectedJob?.id,
       jobStatus: values?.status,
     };
-    setChangeStatusModalVisible(false);
-    updateJobStatus({ data: updatedStatus, id: selectedJobId });
+
+    updateJobStatus(
+      { data: updatedStatus, id: selectedJobId },
+      {
+        onSuccess: () => {
+          setChangeStatusModalVisible(false);
+          form.resetFields();
+        },
+      },
+    );
   };
 
   React.useEffect(() => {
     if (selectedJob) {
       form.setFieldsValue({
-        jobStatus: selectedJob.jobStatus,
+        status: selectedJob?.jobStatus,
       });
     }
-  }, [form, selectedJob]);
+  }, [selectedJob]);
+
   return (
     isChangeStatusModalVisible && (
       <Modal
@@ -44,22 +54,12 @@ const ChangeStatusModal: React.FC = () => {
         open={isChangeStatusModalVisible}
         onCancel={handleChangeStatusModalClose}
         centered
-        footer={[
-          <>
-            <Button key="cancel" onClick={handleChangeStatusModalClose}>
-              Cancel
-            </Button>
-            <Button key="submit" type="primary" onClick={() => form.submit()}>
-              Change Status
-            </Button>
-          </>,
-        ]}
+        footer={null}
       >
         <Form
           requiredMark={false}
           form={form}
           layout="vertical"
-          initialValues={selectedJob}
           onFinish={handleStatusUpdate}
         >
           <Form.Item
@@ -68,7 +68,7 @@ const ChangeStatusModal: React.FC = () => {
             rules={[
               { required: true, message: 'Please select the job status!' },
             ]}
-            className="px-5"
+            className="px-5 mb-6 mt-2"
           >
             <Select placeholder="Select new status" style={{ width: '100%' }}>
               {JobStatus &&
@@ -78,6 +78,17 @@ const ChangeStatusModal: React.FC = () => {
                   </Select.Option>
                 ))}
             </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <div className="flex space-x-3 justify-end">
+              <Button key="cancel" onClick={handleChangeStatusModalClose}>
+                Cancel
+              </Button>
+              <Button htmlType="submit" type="primary">
+                Change Status
+              </Button>
+            </div>
           </Form.Item>
         </Form>
       </Modal>

@@ -18,3 +18,10 @@ export interface LeaveRequestStatusBody {
   leaveRequestId: string;
   status: 'approved' | 'declined';
 }
+
+export interface AllLeaveRequestApproveData {
+  userId: string;
+  roleId: string;
+  page: number;
+  limit: number;
+}
