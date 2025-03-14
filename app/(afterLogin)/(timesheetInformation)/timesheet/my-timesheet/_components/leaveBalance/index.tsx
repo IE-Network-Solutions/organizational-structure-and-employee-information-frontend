@@ -14,7 +14,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 const LeaveBalance = () => {
   const { userId } = useAuthenticationStore();
   const [swiper, setSwiper] = useState<SwiperType>();
-  const { data } = useGetLeaveBalance(userId);
+  const { data } = useGetLeaveBalance(userId, '');
 
   if (!data) {
     return '';

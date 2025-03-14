@@ -1,7 +1,10 @@
 import React from 'react';
 import { Col, DatePicker, Row, Select } from 'antd';
 import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
-import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
+import {
+  useGetStages,
+  useGetTalentPoolCategory,
+} from '@/store/server/features/recruitment/candidate/queries';
 import { useDebounce } from '@/utils/useDebounce';
 import dayjs from 'dayjs';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
@@ -19,6 +22,7 @@ const Filters = () => {
     currentPage,
     page,
   );
+  const { data: talentPoolCategory } = useGetTalentPoolCategory();
   const { data: stageList } = useGetStages();
 
   const handleSearchCandidate = async (
@@ -42,6 +46,9 @@ const Filters = () => {
     }
   };
 
+  const handleTalentPoolCategoryChange = (value: string) => {
+    onSelectChange(value, 'talentPoolCategory');
+  };
   const handleJobChange = (value: string) => {
     onSelectChange(value, 'job');
   };
@@ -53,6 +60,7 @@ const Filters = () => {
   const handleStageChange = (value: string) => {
     onSelectChange(value, 'stages');
   };
+
   return (
     <div className="my-3">
       <Row gutter={[16, 16]} justify="space-between">
@@ -69,7 +77,23 @@ const Filters = () => {
 
         <Col lg={16} sm={24} xs={24}>
           <Row gutter={[8, 16]}>
-            <Col lg={8} sm={12} xs={24}>
+            <Col lg={6} sm={12} xs={24}>
+              <Select
+                id={`selectTalentPoolCategory${searchParams?.talentPoolCategory}`}
+                placeholder="Select talent pool category"
+                onChange={handleTalentPoolCategoryChange}
+                allowClear
+                className="w-full h-14"
+              >
+                {talentPoolCategory &&
+                  talentPoolCategory?.items?.map((pool: any) => (
+                    <Option key={pool?.id} value={pool?.id}>
+                      {pool?.title}
+                    </Option>
+                  ))}
+              </Select>
+            </Col>
+            <Col lg={6} sm={12} xs={24}>
               <Select
                 id={`selectJobs${searchParams?.job}`}
                 placeholder="Select Job"
@@ -85,7 +109,8 @@ const Filters = () => {
                   ))}
               </Select>
             </Col>
-            <Col lg={8} sm={12} xs={24}>
+
+            <Col lg={6} sm={12} xs={24}>
               <Select
                 id={`selectDepartment${searchParams?.department}`}
                 placeholder="Select Department"
@@ -101,7 +126,7 @@ const Filters = () => {
                   ))}
               </Select>
             </Col>
-            <Col lg={8} sm={12} xs={24}>
+            <Col lg={6} sm={12} xs={24}>
               <Select
                 id={`selectStage${searchParams?.stages}`}
                 placeholder="Select Stage"

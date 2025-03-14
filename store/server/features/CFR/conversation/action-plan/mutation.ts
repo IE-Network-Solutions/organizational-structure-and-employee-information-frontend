@@ -38,6 +38,22 @@ const addActionPlan = async (data: any) => {
     headers,
   });
 };
+const editActionPlan = async (data: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const createdBy = useAuthenticationStore.getState().userId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+    createdByUserId: createdBy || '',
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/conversation-action-plans/${data?.id}`,
+    method: 'PUT',
+    data,
+    headers,
+  });
+};
 
 /**
  * Sends a request to delete a category from the system.
@@ -73,6 +89,18 @@ export const useAddActionPlan = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('conversationActionPlan');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+export const useEditActionPlan = () => {
+  const queryClient = useQueryClient();
+  return useMutation(editActionPlan, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('conversationActionPlan');
+      queryClient.invalidateQueries('conversationActionPlanId');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

@@ -42,6 +42,7 @@ interface SearchParams {
   department: string;
   job: string;
   stages: string | null;
+  talentPoolCategory: string;
 }
 
 export interface TalentPoolState {
