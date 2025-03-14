@@ -101,7 +101,6 @@ const TnaUpdateSidebar = () => {
 
     const {
       trainingNeedCategory, // Ignored but no need to disable ESLint
-      trainingProofs: oldProof, // Ignored but no need to disable ESLint
       ...otherValue
     } = data?.items?.[0] || {}; // Ensure `items` exists before accessing index 0
 
@@ -113,6 +112,7 @@ const TnaUpdateSidebar = () => {
 
     updateTna([
       {
+        trainingNeedCategory,
         ...otherValue, // Keep existing values
         ...value, // Spread form values to avoid redundancy
         trainingProofs, // Ensure `trainingProofs` is included
