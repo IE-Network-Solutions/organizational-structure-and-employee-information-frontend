@@ -68,30 +68,41 @@ const CommentList = ({
   );
 
   const handleSubmit = () => {
-    form.validateFields().then((values) => {
-      const mutation = editingCommentId
-        ? isPlanCard
-          ? onUpdatePlanComment
-          : onUpdateReportComment
-        : isPlanCard
-          ? onAddPlanComment
-          : onAddReportComment;
+    form
+      .validateFields()
+      .then((values) => {
+        if (editingCommentId !== '') {
+          // Update existing comment
+          const updateMutation = isPlanCard
+            ? onUpdatePlanComment
+            : onUpdateReportComment;
 
-      const payload = editingCommentId
-        ? { id: editingCommentId, updatedComment: values }
-        : { ...values, planId };
+          updateMutation(
+            { id: editingCommentId, updatedComment: values },
+            {
+              onSuccess: () => {
+                form.resetFields(); // Reset the form after submission
+                setEditingCommentId(''); // Clear edit mode
+              },
+            },
+          );
+        } else {
+          // Add new comment logic (similar to previous response)
+          const addMutation = isPlanCard
+            ? onAddPlanComment
+            : onAddReportComment;
 
-      const mutateOptions: MutateOptions<any, unknown, any, unknown> = {
-        onSuccess: () => {
-          form.resetFields();
-          setEditingCommentId('');
-        },
-      };
-
-      mutation(payload, mutateOptions);
-    });
+          addMutation(values, {
+            onSuccess: () => {
+              form.resetFields(); // Reset the form after submission
+            },
+          });
+        }
+      })
+      .catch(() => {
+        // Handle validation error if needed
+      });
   };
-
   const handleEdit = (commentData: CommentsData) => {
     form.setFieldsValue({ comment: commentData.comment });
     setEditingCommentId(commentData.id);
