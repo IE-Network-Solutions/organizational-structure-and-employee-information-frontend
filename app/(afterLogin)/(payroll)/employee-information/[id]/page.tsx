@@ -30,6 +30,7 @@ import { UploadFile } from 'antd/lib';
 import { RcFile } from 'antd/es/upload';
 import { HiOutlineMail } from 'react-icons/hi';
 import { MdKeyboardArrowRight } from 'react-icons/md';
+import SettlementDetail from '../../settlement-tracking/[id]/page';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -620,6 +621,9 @@ const EmployeeProfile = () => {
                       );
                     })}
                 </>
+              </TabPane>
+              <TabPane tab="Settlement Tracking" key="3">
+                <SettlementDetail isDetail={true} />
               </TabPane>
             </Tabs>
           </Col>
