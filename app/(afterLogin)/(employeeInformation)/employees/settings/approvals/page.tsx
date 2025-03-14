@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import { useCreateApproverMutation } from '@/store/server/features/approver/mutation';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { APPROVALTYPES } from '@/types/enumTypes';

@@ -1,3 +1,4 @@
+'use client';
 import { Button, Card } from 'antd';
 import React from 'react';
 import { PlusOutlined } from '@ant-design/icons';

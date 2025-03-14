@@ -124,7 +124,7 @@ const PayPeriod = () => {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-10 rounded-2xl bg-white">
       <div className="flex justify-between items-center">
         <Title level={3}>Pay Period</Title>
         <AccessGuard permissions={[Permissions.CreatePayPeriod]}>

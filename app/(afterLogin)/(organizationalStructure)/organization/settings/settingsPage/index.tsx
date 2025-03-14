@@ -68,27 +68,27 @@ function SettingsPage() {
   ];
   return (
     <>
-      <div className="flex justify-start  -mt-2 -ml-2">
-        <Card className="shadow-none" bordered={false}>
-          <p className="font-bold text-xl">Branches</p>
-          <p className="text-gray-400">Branch</p>
-        </Card>
-      </div>
-      <hr className="py-2 "></hr>
-      <Tabs
-        defaultActiveKey="1"
-        moreIcon={false}
-        className="bg-white min-w-full"
-        items={items}
-        tabPosition={tabPosition}
-      />
-      <CustomWorkingScheduleDrawer />
-      <CustomWorFiscalYearDrawer
-        form={form}
-        handleNextStep={handleStepChange}
-      />
-      <CustomDeleteWorkingSchduel />
-      <CustomDeleteFiscalYear />
+        <div className="flex justify-start  -mt-2 -ml-2">
+          <Card className="shadow-none" bordered={false}>
+            <p className="font-bold text-xl">Branches</p>
+            <p className="text-gray-400">Branch</p>
+          </Card>
+        </div>
+        <hr className="py-2 "></hr>
+        <Tabs
+          defaultActiveKey="1"
+          moreIcon={false}
+          className="bg-white min-w-full"
+          items={items}
+          tabPosition={tabPosition}
+        />
+        <CustomWorkingScheduleDrawer />
+        <CustomWorFiscalYearDrawer
+          form={form}
+          handleNextStep={handleStepChange}
+        />
+        <CustomDeleteWorkingSchduel />
+        <CustomDeleteFiscalYear />
     </>
   );
 }

@@ -1,3 +1,4 @@
+'use client';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteCustomFieldsTemplate } from '@/store/server/features/recruitment/settings/mutation';
 import { useGetCustomFieldsTemplate } from '@/store/server/features/recruitment/settings/queries';
@@ -6,9 +7,9 @@ import { Spin } from 'antd';
 import { Pencil, Trash2 } from 'lucide-react';
 import React from 'react';
 import CustomFieldsDrawer from '../customFieldsDrawer';
-import RecruitmentPagination from '../../../../_components';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import RecruitmentPagination from '../../../_components';
 
 const CustomFieldsCard: React.FC = () => {
   const {

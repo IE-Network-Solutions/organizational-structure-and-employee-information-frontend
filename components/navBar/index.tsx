@@ -498,7 +498,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           <div
-            className="p-2 bg-white overflow-auto"
+            className=" bg-white overflow-auto"
             style={{
               borderRadius: borderRadiusLG,
               marginTop: '3rem',

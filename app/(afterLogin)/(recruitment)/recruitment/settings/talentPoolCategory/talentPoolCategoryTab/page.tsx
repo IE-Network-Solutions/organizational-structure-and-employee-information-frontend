@@ -1,3 +1,4 @@
+'use client';
 import { Button, Card } from 'antd';
 import React from 'react';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
@@ -8,6 +9,7 @@ import CustomDeleteTalentPool from '../deleteModal';
 import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import TalentPoolDrawer from '../customDrawer';
 
 function TalentPoolCategoryTab() {
   const { data: talentPoolCateories, isLoading: fetchLoading } =
@@ -90,7 +92,7 @@ function TalentPoolCategoryTab() {
           ))
         )}
       </div>
-
+      <TalentPoolDrawer />
       <CustomDeleteTalentPool />
     </div>
   );

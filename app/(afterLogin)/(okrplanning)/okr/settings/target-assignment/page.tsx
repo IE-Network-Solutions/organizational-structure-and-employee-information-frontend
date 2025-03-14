@@ -106,7 +106,7 @@ function Page() {
   const handleTypeChange = (value: string) => setSelectedType(value);
 
   return (
-    <div className="p-10">
+    <div className="p-10 rounded-2xl bg-white">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Target Assignment</h1>
         <Button
