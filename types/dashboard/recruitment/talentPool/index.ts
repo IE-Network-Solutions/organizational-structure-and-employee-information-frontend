@@ -41,12 +41,14 @@ export interface TalentPoolState {
   candidates: Candidate[];
   addedCandidate: AddCandidateValue;
   filters: Filters;
-  pagination: Pagination;
   visibleOnboard: boolean;
   setVisibleOnboardState: (visible: boolean) => void;
   setCandidates: (candidates: Candidate[]) => void;
   setFilters: (filters: Partial<Filters>) => void;
-  setPagination: (pagination: Partial<Pagination>) => void;
+  currentPage: number;
+  pageSize: number;
+  setCurrentPage: (value: number) => void;
+  setPageSize: (value: number) => void;
   setStage: (id: string, stage: string) => void;
   setAddCandidate: (value: AddCandidateValue) => void;
 }

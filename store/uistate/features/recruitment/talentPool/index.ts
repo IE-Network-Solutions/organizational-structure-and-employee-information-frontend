@@ -21,10 +21,9 @@ export const useTalentPoolStore = create<TalentPoolState>((set) => ({
     stage: '',
     dateRange: ['', ''],
   },
-  pagination: {
-    currentPage: 1,
-    pageSize: 10,
-  },
+
+  currentPage: 1,
+  pageSize: 10,
   visibleOnboard: false,
   addedCandidate: { candidateId: '', reason: '', talentPoolId: '' },
   setCandidates: (candidates) => set({ candidates }),
@@ -32,10 +31,8 @@ export const useTalentPoolStore = create<TalentPoolState>((set) => ({
     set((state) => ({
       filters: { ...state.filters, ...filters },
     })),
-  setPagination: (pagination) =>
-    set((state) => ({
-      pagination: { ...state.pagination, ...pagination },
-    })),
+  setCurrentPage: (value) => set({ currentPage: value }),
+  setPageSize: (value) => set({ pageSize: value }),
   setStage: (id: string, stage: string) =>
     set((state) => ({
       candidates: state.candidates.map((candidate) =>

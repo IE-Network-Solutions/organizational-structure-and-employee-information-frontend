@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import Filters from './filters';
 import CandidateTable from './talentPoolTable';
-import Pagination from './pagination';
 import { Button } from 'antd';
 import AddCandidate from './addDrawer';
 // import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
@@ -35,7 +34,6 @@ const TalentPoolPage = () => {
 
       <Filters />
       <CandidateTable />
-      <Pagination />
       <AddCandidate open={isAddCandidateVisible} onClose={handleClose} />
     </div>
   );

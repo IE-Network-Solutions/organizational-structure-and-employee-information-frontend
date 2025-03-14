@@ -7,10 +7,14 @@ import dayjs from 'dayjs';
 import { useMoveTalentPoolToCandidates } from '@/store/server/features/recruitment/tallentPool/mutation';
 import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
 import TransferTalentPoolToCandidateModal from './transferModal';
+import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const TalentPoolTable: React.FC<any> = () => {
   const { data: candidates, isLoading } = useGetTalentPool();
+
+  const { currentPage, pageSize, setCurrentPage, setPageSize } =
+    useTalentPoolStore();
 
   const { mutate: moveTalentPoolMutation } = useMoveTalentPoolToCandidates();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -106,6 +110,12 @@ const TalentPoolTable: React.FC<any> = () => {
     },
   ];
 
+  const onPageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
   return (
     <>
       {isLoading ? (
@@ -122,7 +132,14 @@ const TalentPoolTable: React.FC<any> = () => {
         <Table
           dataSource={candidates?.items}
           columns={columns}
-          pagination={false}
+          pagination={{
+            total: candidates?.meta?.totalItems,
+            current: currentPage,
+            pageSize: pageSize,
+            onChange: onPageChange,
+            showSizeChanger: true,
+            onShowSizeChange: onPageChange,
+          }}
         />
       )}
 
