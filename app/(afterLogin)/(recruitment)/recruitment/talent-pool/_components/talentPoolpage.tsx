@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import Filters from './filters';
 import CandidateTable from './talentPoolTable';
-import { Button } from 'antd';
 import AddCandidate from './addDrawer';
 import CustomButton from '@/components/common/buttons/customButton';
 import { FaPlus } from 'react-icons/fa';
