@@ -214,6 +214,8 @@ interface PayPeriod {
 }
 
 interface PayrollState {
+  isDetail:boolean;
+  setIsDetail:(isDetail:boolean)=>void;
   activeMergedPayroll: ActiveMergedPayroll | null;
   mergedPayroll: ActiveMergedPayroll[];
   activePayPeriod: PayPeriod | null;
@@ -226,6 +228,8 @@ const useEmployeeStore = create<PayrollState>((set) => ({
   activeMergedPayroll: null,
   mergedPayroll: [],
   activePayPeriod: null,
+  isDetail:false,
+  setIsDetail:(isDetail:boolean)=>set({isDetail}),
 
   setActiveMergedPayroll: (data: ActiveMergedPayroll) =>
     set({ activeMergedPayroll: data }),

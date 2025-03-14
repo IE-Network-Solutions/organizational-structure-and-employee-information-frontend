@@ -9,10 +9,11 @@ import { useGetAllowance } from '@/store/server/features/payroll/employeeInforma
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useParams } from 'next/navigation';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 
 const { Title, Text } = Typography;
 
-const SettlementDetail = () => {
+export default function SettlementDetail() {
   const params = useParams();
   const employeeId = params?.id as string;
 
@@ -23,7 +24,9 @@ const SettlementDetail = () => {
   const { data: compensationDatas } = useGetAllowance();
   const { data: employeeData } = useGetAllUsers();
   const { data: departmentData } = useGetDepartments();
-
+  const {
+    isDetail,
+  } = useEmployeeStore();
   const getDepartmentName = (departmentId: any) => {
     const deparment = departmentData?.find(
       (item: any) => item.id === departmentId,
@@ -146,7 +149,7 @@ const SettlementDetail = () => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="flex gap-8">
-        (
+        {isDetail && (
         <Card className="w-1/4 shadow-sm">
           <div className="flex flex-col items-center text-center">
             <Avatar
@@ -177,8 +180,7 @@ const SettlementDetail = () => {
               </div>
             </div>
           </div>
-        </Card>
-        )
+        </Card>)}
         <Card className="flex-1 shadow-sm">
           <div className="mb-8">
             <Space className="w-full justify-end mb-4">
@@ -254,6 +256,4 @@ const SettlementDetail = () => {
       </div>
     </div>
   );
-};
-
-export default SettlementDetail;
+}

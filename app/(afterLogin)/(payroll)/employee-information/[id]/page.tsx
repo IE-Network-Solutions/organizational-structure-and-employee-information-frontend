@@ -55,6 +55,7 @@ const EmployeeProfile = () => {
     setMergedPayroll,
     setActiveMergedPayroll,
     setActivePayPeriod,
+    setIsDetail,
   } = useEmployeeStore();
   const payslipRef = useRef(null);
 
@@ -108,6 +109,10 @@ const EmployeeProfile = () => {
     amount: string | number;
   }
 
+
+  useEffect(() => {
+    setIsDetail(true)
+  },[]);
   const totalAmount = (items: Allowances[]) => {
     if (!items || items.length === 0) return '0.00';
     return items
@@ -623,7 +628,7 @@ const EmployeeProfile = () => {
                 </>
               </TabPane>
               <TabPane tab="Settlement Tracking" key="3">
-                <SettlementDetail isDetail />
+                <SettlementDetail />
               </TabPane>
             </Tabs>
           </Col>
