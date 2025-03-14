@@ -1,18 +1,9 @@
-import {
-  Button,
-  Col,
-  Form,
-  Input,
-  InputNumber,
-  Row,
-  Select,
-  Space,
-} from 'antd';
+import { Col, Form, Input, InputNumber, Row, Select, Space } from 'antd';
 import { MdCancel } from 'react-icons/md';
 
 interface SubTaskInterface {
   kId: string;
-  hasTargetValue: boolean;
+  hasTargetValue?: boolean;
   milestoneId: string | null;
   field: any;
   planningPeriodId: string;
@@ -35,7 +26,6 @@ function SubTaskComponent({
           style={{
             display: 'flex',
             flexDirection: 'column',
-            rowGap: 16,
           }}
         >
           {subFields.map((subField) => (
@@ -95,24 +85,27 @@ function SubTaskComponent({
                       },
                     ]}
                     key={`task-${subField.key}`}
-                    label="Task"
+                    label={<div className="text-xs">Task</div>}
                   >
-                    <Input placeholder="Task name" />
+                    <Input className="text-xs" placeholder="Task name" />
                   </Form.Item>
                 </Col>
                 <Col>
                   <Form.Item
-                    className="my-4"
-                    label={'Target'}
+                    label={<div className="text-xs">Target</div>}
                     {...subField}
                     name={[subField.name, 'targetValue']}
                     key={`target-${subField.key}`}
                     hidden={hasTargetValue}
                   >
-                    <InputNumber placeholder="20" min={0} />
+                    <InputNumber
+                      className="w-32 text-xs"
+                      placeholder="20"
+                      min={0}
+                    />
                   </Form.Item>
                 </Col>
-                <Col lg={12} sm={24}>
+                <Col>
                   <Space>
                     <Form.Item
                       {...subField}
@@ -125,25 +118,25 @@ function SubTaskComponent({
                         },
                       ]}
                       key={`priority-${subField.key}`}
-                      label="Priority"
+                      label={<div className="text-xs">Priority</div>}
                     >
                       <Select
-                        className="w-24"
+                        className="w-32 h-7 text-xs"
                         options={[
                           {
                             label: 'High',
                             value: 'high',
-                            className: 'text-error',
+                            className: 'text-error text-xs',
                           },
                           {
                             label: 'Medium',
                             value: 'medium',
-                            className: 'text-warning',
+                            className: 'text-warning text-xs',
                           },
                           {
                             label: 'Low',
                             value: 'low',
-                            className: 'text-success',
+                            className: 'text-success text-xs',
                           },
                         ]}
                       />
@@ -177,9 +170,14 @@ function SubTaskComponent({
               </Row>
             </>
           ))}
-          <Button type="dashed" onClick={() => subOpt.add()} block>
+          {/* <Button
+            className="w-16 h-2 text-[10px] "
+            type="link"
+            onClick={() => subOpt.add()}
+            block
+          >
             + Add Sub Task
-          </Button>
+          </Button> */}
         </div>
       )}
     </Form.List>

@@ -25,16 +25,15 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
-  const { setKeyResult } = useOKRStore();
+  const { setKeyResult, objectiveValue } = useOKRStore();
   const { data: metrics } = useGetMetrics();
-
+  const metricTypeId = metrics?.items?.find(
+    (i: any) => i.name == 'Milestone',
+  )?.id;
   const handleAddKeyResult = () => {
     form
       .validateFields()
       .then((keyItem) => {
-        const metricTypeId = metrics?.items?.find(
-          (i: any) => i.name === keyItem.key_type,
-        )?.id;
         const NewValue = {
           ...keyItem,
           metricTypeId: metricTypeId,
@@ -44,14 +43,6 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
       })
       .catch(() => {});
   };
-
-  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const titleValue = e.target.value;
-    updateKeyResult(index, 'title', titleValue);
-
-    form.validateFields(['title']);
-  };
-
   return (
     <div className="p-4 sm:p-6 lg:p-2">
       <Form form={form} layout="vertical" initialValues={keyItem}>
@@ -69,7 +60,6 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
 
           <Form.Item
             className="w-full"
-            name="key_type"
             rules={[
               {
                 required: true,
@@ -140,9 +130,16 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   className="w-full text-xs"
                   value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
-                  disabledDate={(current) =>
-                    current && current < dayjs().startOf('day')
-                  }
+                  disabledDate={(current) => {
+                    const startOfToday = dayjs().startOf('day');
+                    const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
+
+                    // Disable dates before today and above the objective deadline
+                    return (
+                      current &&
+                      (current < startOfToday || current > objectiveDeadline)
+                    );
+                  }}
                   onChange={(date) =>
                     updateKeyResult(
                       index,

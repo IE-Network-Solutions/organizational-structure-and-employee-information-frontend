@@ -7,7 +7,7 @@ import { BreakType } from '@/types/timesheet/breakType';
 
 const getBreakTypes = async () => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/attendance/break-type`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/break-type/all`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -15,7 +15,7 @@ const getBreakTypes = async () => {
 
 const getBreakType = async (id: string) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/attendance/break-type`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/break-type/all`,
     method: 'GET',
     headers: requestHeader(),
     params: { id },
@@ -23,13 +23,9 @@ const getBreakType = async (id: string) => {
 };
 
 export const useGetBreakTypes = () => {
-  return useQuery<ApiResponse<BreakType>>(
-    'break-types',
-    () => getBreakTypes(),
-    {
-      keepPreviousData: true,
-    },
-  );
+  return useQuery<ApiResponse<BreakType>>('breakTypes', () => getBreakTypes(), {
+    // keepPreviousData: true,
+  });
 };
 
 export const useGetBreakType = (id: string) => {

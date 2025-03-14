@@ -19,6 +19,7 @@ import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useAllApproval } from '@/store/server/features/approver/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { APPROVALTYPES } from '@/types/enumTypes';
 
 const LeaveRequestSidebar = () => {
   const {
@@ -41,15 +42,20 @@ const LeaveRequestSidebar = () => {
   const userData = employeeData?.items?.find((item: any) => item.id === userId);
 
   const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
-    useAllApproval(userData?.employeeJobInformation[0]?.departmentId || '');
+    useAllApproval(
+      userData?.employeeJobInformation[0]?.departmentId || '',
+      APPROVALTYPES?.LEAVE,
+    );
 
   const { data: approvalUserData, refetch: getUserApproval } = useAllApproval(
     userData?.id || '',
+    APPROVALTYPES?.LEAVE,
   );
 
   useEffect(() => {
-    if (userData?.employeeJobInformation[0]?.departmentId)
+    if (userData?.employeeJobInformation[0]?.departmentId) {
       getDepartmentApproval();
+    }
   }, [userData]);
   useEffect(() => {
     if (userData?.id) getUserApproval();
@@ -104,6 +110,13 @@ const LeaveRequestSidebar = () => {
           formatLinkToUploadFile(leaveRequest.justificationDocument),
         ]);
       }
+      if (leaveRequest.delegatee) {
+        form.setFieldValue(
+          'delegatee',
+          typeof leaveRequest?.delegatee !== 'string' &&
+            leaveRequest?.delegatee?.id,
+        );
+      }
     }
   }, [leaveRequest]);
 
@@ -132,13 +145,20 @@ const LeaveRequestSidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: leaveRequest ? 'Update' : 'Create',
+      label:
+        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
+          ? 'You lack an assigned approver.'
+          : leaveRequest
+            ? 'Update'
+            : 'Create',
       key: 'create',
       className: 'h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoadingRequest || isLoading,
       onClick: () => form.submit(),
+      disabled:
+        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
     },
   ];
 
@@ -149,6 +169,7 @@ const LeaveRequestSidebar = () => {
       item: {
         ...(leaveRequest && leaveRequest),
         leaveType: value.type,
+        delegatee: value.delegatee,
         isHalfday: !!value.isHalfday,
         startAt: dayjs(value.startDate).format('YYYY-MM-DD'),
         endAt: dayjs(value.endDate).format('YYYY-MM-DD'),
@@ -157,9 +178,10 @@ const LeaveRequestSidebar = () => {
           : null,
         justificationNote: value.note,
         status: LeaveRequestStatus.PENDING,
-        approvalWorkflowId: approvalUserData
-          ? approvalUserData[0]?.id
-          : approvalDepartmentData[0]?.id,
+        approvalWorkflowId:
+          approvalUserData?.length > 0
+            ? approvalUserData[0]?.id
+            : approvalDepartmentData[0]?.id,
         approvalType: 'Leave',
       },
       userId,
@@ -253,7 +275,6 @@ const LeaveRequestSidebar = () => {
                     <DatePicker
                       className={controlClass}
                       onChange={handleChange}
-                      minDate={dayjs()}
                       disabled={
                         leaveRequest?.status === LeaveRequestStatus.APPROVED
                       }
@@ -274,7 +295,6 @@ const LeaveRequestSidebar = () => {
                     <DatePicker
                       className={controlClass}
                       onChange={handleChange}
-                      minDate={dayjs()}
                       disabled={
                         leaveRequest?.status === LeaveRequestStatus.APPROVED
                       }
@@ -310,8 +330,36 @@ const LeaveRequestSidebar = () => {
                 />
               </Form.Item>
               <div className="text-xs font-medium text-gray-600 text-center">
-                Max file size : 5MB. File format : pdf, docx, png, and jpeg
+                Max file size : 5MB. File format : pdf, docx, png, epub, and
+                jpeg
               </div>
+              <Form.Item
+                name="delegatee"
+                label="Delegated Employee"
+                className={itemClass}
+              >
+                <Select
+                  showSearch
+                  placeholder="Select a person"
+                  className={controlClass}
+                  allowClear
+                  filterOption={(input: any, option: any) =>
+                    (option?.label ?? '')
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={employeeData?.items?.map((item: any) => ({
+                    //  ...item,
+                    value: item?.id,
+                    label:
+                      item?.firstName +
+                      ' ' +
+                      item?.middleName +
+                      ' ' +
+                      item?.lastName,
+                  }))}
+                />
+              </Form.Item>
             </Space>
           </Form>
         </Spin>

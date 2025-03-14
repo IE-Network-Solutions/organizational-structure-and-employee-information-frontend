@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import { Card, Dropdown } from 'antd';
+import { Card, Dropdown, Menu } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
@@ -21,7 +21,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useRouter } from 'next/navigation';
 import OrgChartSkeleton from '../loading/orgStructureLoading';
 import { FaDownload } from 'react-icons/fa';
 import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
@@ -29,7 +28,18 @@ import { DepartmentNode } from '../departmentNode';
 import {
   exportOrgStrucutreMenu,
   orgComposeAndMergeMenues,
+  showDrawer,
 } from '../menues/inex';
+import {
+  useMergingDepartment,
+  useTransferDepartment,
+} from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
+import { useTransferStore } from '@/store/uistate/features/organizationStructure/orgState/transferDepartmentsStore';
+import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
+import { Form } from 'antd';
+import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
+import { BarChartOutlined, UserOutlined } from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
 
 const renderTreeNodes = (
   data: Department[],
@@ -37,6 +47,7 @@ const renderTreeNodes = (
   onAdd: (parent: any) => void,
   onDelete: (departmentId: string) => void,
   isRoot = false,
+  setDepartmentTobeDeletedId: (departmentTobeDeletedId: string) => void,
 ) =>
   data.map((item) => {
     return (
@@ -47,18 +58,30 @@ const renderTreeNodes = (
             data={item}
             onEdit={() => onEdit(item)}
             onAdd={() => onAdd(item)}
-            onDelete={() => onDelete(item.id)}
+            onDelete={() => {
+              showDrawer('delete', 'Delete', 'Delete Department');
+              setDepartmentTobeDeletedId(item?.id);
+            }}
             isRoot={isRoot}
           />
         }
       >
         {item.department &&
-          renderTreeNodes(item.department, onEdit, onAdd, onDelete)}
+          renderTreeNodes(
+            item.department,
+            onEdit,
+            onAdd,
+            onDelete,
+            (isRoot = false),
+            setDepartmentTobeDeletedId,
+          )}
       </TreeNode>
     );
   });
 
 const OrgChartComponent: React.FC = () => {
+  const [form] = Form.useForm();
+
   const {
     isFormVisible,
     setIsFormVisible,
@@ -70,6 +93,8 @@ const OrgChartComponent: React.FC = () => {
     setIsDeleteConfirmVisible,
     chartDownlaodLoading,
   } = useOrganizationStore();
+  const { transferDepartment, resetStore } = useTransferStore();
+  const { mergeData } = useMergeStore();
 
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -78,6 +103,15 @@ const OrgChartComponent: React.FC = () => {
   const { mutate: updateDepartment } = useUpdateOrgChart();
   const { mutate: deleteDepartment, isLoading: deleteLoading } =
     useDeleteOrgChart();
+  const { mutate: transferDepartments, isLoading: isTransferLoading } =
+    useTransferDepartment();
+
+  const {
+    mutate: mergeDepartments,
+    isLoading,
+    isSuccess,
+  } = useMergingDepartment();
+
   const [parent, setParrent] = useState<Department>();
 
   const handleEdit = (department: Department) => {
@@ -92,9 +126,8 @@ const OrgChartComponent: React.FC = () => {
     setIsFormVisible(true);
   };
 
-  const handleDelete = (departmentId: string) => {
+  const handleDelete = () => {
     setIsDeleteConfirmVisible(true);
-    setSelectedDepartment({ id: departmentId } as Department);
   };
 
   const handleFormSubmit = (values: OrgChart) => {
@@ -120,9 +153,7 @@ const OrgChartComponent: React.FC = () => {
   };
 
   const handleDeleteConfirm = () => {
-    if (selectedDepartment) {
-      deleteDepartment(selectedDepartment.id);
-    }
+    deleteDepartment({ departmentTobeDeletedId, departmentTobeShiftedId });
     setIsDeleteConfirmVisible(false);
   };
 
@@ -132,10 +163,15 @@ const OrgChartComponent: React.FC = () => {
     footerButtonText,
     drawTitle,
     setDrawerVisible,
+    setDepartmentTobeDeletedId,
+    departmentTobeDeletedId,
+    departmentTobeShiftedId,
   } = useOrganizationStore.getState();
 
   const closeDrawer = () => {
     setDrawerVisible(false);
+    form.resetFields();
+    reset();
   };
 
   const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
@@ -143,8 +179,8 @@ const OrgChartComponent: React.FC = () => {
   const { data: departments } = useGetDepartments();
 
   const { data: employeeData } = useGetEmployee(userId);
+  const { reset } = useDepartmentStore();
 
-  const router = useRouter();
   useEffect(() => {
     if (departments?.length < 1) {
       router.push('/onboarding');
@@ -154,8 +190,46 @@ const OrgChartComponent: React.FC = () => {
     ) {
       setIsAddEmployeeJobInfoModalVisible(true);
     }
-  }, [employeeData, departments, setIsAddEmployeeJobInfoModalVisible]);
+    if (isSuccess) {
+      closeDrawer();
+      resetStore();
+    }
+  }, [
+    employeeData,
+    departments,
+    setIsAddEmployeeJobInfoModalVisible,
+    isSuccess,
+  ]);
 
+  const router = useRouter();
+
+  const items = [
+    {
+      key: 'structure',
+      icon: <BarChartOutlined />,
+      label: 'Structure',
+    },
+    {
+      key: 'user',
+      icon: <UserOutlined />,
+      label: 'User',
+    },
+  ];
+
+  // Handling menu click and navigation
+  const onMenuClick = (e: any) => {
+    const key = e['key'] as string;
+    switch (key) {
+      case 'structure':
+        router.push('/organization/chart/org-structure');
+        break;
+      case 'user':
+        router.push('/organization/chart/org-chart');
+        break;
+      default:
+        break;
+    }
+  };
   return (
     <div className="w-full overflow-x-auto">
       <Card
@@ -171,6 +245,7 @@ const OrgChartComponent: React.FC = () => {
                 title="Download"
                 icon={<FaDownload size={16} />}
                 loading={chartDownlaodLoading}
+                type="default"
               />
             </Dropdown>
             <Dropdown
@@ -178,11 +253,21 @@ const OrgChartComponent: React.FC = () => {
               trigger={['click']}
               placement="bottomRight"
             >
-              <CustomButton title="" icon={<BsThreeDotsVertical size={24} />} />
+              <CustomButton title="" icon={<BsThreeDotsVertical size={18} />} />
             </Dropdown>
           </div>
         }
       >
+        {/* this is where we add the structure and chart */}
+        <div className="flex justify-end">
+          <Menu
+            className="w-[250px] rounded-2xl py-2 px-6 h-max"
+            items={items}
+            mode="horizontal"
+            defaultActiveFirst
+            onClick={onMenuClick}
+          />
+        </div>
         <div className="w-full py-7 overflow-x-auto ">
           {orgStructureLoading ? (
             <OrgChartSkeleton loading={orgStructureLoading} />
@@ -206,7 +291,7 @@ const OrgChartComponent: React.FC = () => {
                   />
                 }
                 lineWidth={'2px'}
-                lineColor={'#722ed1'}
+                lineColor={'#CBD5E0'}
                 lineBorderRadius={'10px'}
               >
                 {renderTreeNodes(
@@ -215,6 +300,7 @@ const OrgChartComponent: React.FC = () => {
                   handleAdd,
                   handleDelete,
                   false,
+                  setDepartmentTobeDeletedId,
                 )}
               </Tree>
             </div>
@@ -236,14 +322,32 @@ const OrgChartComponent: React.FC = () => {
           />
         </div>
         <CustomDrawer
+          loading={transferDepartment ? isTransferLoading : isLoading}
           visible={drawerVisible}
-          onClose={closeDrawer}
+          onClose={() => {
+            closeDrawer();
+            resetStore();
+            setDepartmentTobeDeletedId('');
+          }}
           drawerContent={drawerContent}
           footerButtonText={footerButtonText}
-          onSubmit={() => {}}
+          onSubmit={() => {
+            if (footerButtonText == 'Transfer') {
+              if (transferDepartment) {
+                transferDepartments(transferDepartment);
+              }
+            } else if (footerButtonText == 'Merge') {
+              mergeDepartments(mergeData);
+            } else {
+              setIsDeleteConfirmVisible(true);
+              closeDrawer();
+            }
+          }}
           title={drawTitle}
+          form={form}
         />
       </Card>
+
       <CreateEmployeeJobInformation id={userId} />
     </div>
   );

@@ -13,6 +13,8 @@ import EditJob from '../modals/editJob/editModal';
 import Link from 'next/link';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 
 const JobCard: React.FC = () => {
   const { searchParams } = useCandidateState();
@@ -42,9 +44,6 @@ const JobCard: React.FC = () => {
       departments.find((dept: any) => dept.id === jobDepartmentId);
     return department ? department.name : '';
   };
-  jobList?.items?.forEach((job: any) => {
-    getDepartmentName(job.departmentId);
-  });
 
   const handleEditModalVisible = (job: any) => {
     setEditModalVisible(true);
@@ -64,113 +63,143 @@ const JobCard: React.FC = () => {
       </div>
     );
 
-  const NoData = () => {
-    return (
-      <div className="w-full h-full flex justify-center items-center my-5">
-        No Job available.
-      </div>
-    );
+  const NoData = () => (
+    <div className="w-full h-full flex justify-center items-center my-5">
+      No Job available.
+    </div>
+  );
+
+  const handleStatusChange = (job: any) => {
+    setChangeStatusModalVisible(true);
+    setSelectedJobId(job?.id);
   };
+
   return (
     <>
       {jobList?.items && jobList?.items?.length >= 1 ? (
-        jobList?.items.map((job: any, index: string) => (
-          <Card key={index} className="mb-4 rounded-lg shadow-sm">
-            <div className="flex justify-between items-start">
-              <Link href={`/recruitment/jobs/${job?.id}`}>
-                <>
-                  <div className="font-medium text-sm flex justify-center items-center gap-4 mb-3">
-                    <div className="w-full text-left">
-                      <span className="font-bold text-xl text-gray-700">
-                        {job?.jobTitle}
-                      </span>
-                    </div>
-                    {job?.jobStatus == 'Closed' ? (
-                      <div
-                        className={`mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border`}
-                      >
-                        {job?.jobStatus}
-                      </div>
-                    ) : (
-                      <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#B2B2FF] text-[#3636F0] ">
-                        Active
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-start gap-2">
-                    <p className="text-sm text-gray-500">
-                      {getDepartmentName(job?.departmentId)} .
-                    </p>
-                    <p className="text-sm text-gray-500">{job?.jobLocation}</p>
-                  </div>
-                  <div className="flex items-center justify-start mt-2 gap-2">
-                    {job?.jobCandidate?.length > 0 ? (
-                      job?.jobCandidate?.slice(0, 3).map((member: any) => (
-                        <Tooltip
-                          title={
-                            <div className="flex justify-start items-center gap-4">
-                              <>{member?.name ?? '-'}</>
-                            </div>
-                          }
-                          key={member?.id}
-                        >
-                          <Image
-                            src={AvatarImage}
-                            alt="Profile pic"
-                            width={15}
-                            height={15}
-                            className=""
-                          />
-                        </Tooltip>
-                      ))
-                    ) : (
-                      <Image
-                        src={AvatarImage}
-                        alt="Profile pic"
-                        width={15}
-                        height={15}
-                        className=""
-                      />
-                    )}
-                    <p className="text-sm text-gray-500">
-                      {job?.jobCandidate.length > 0
-                        ? job?.jobCandidate?.length + ' '
-                        : '0 '}
-                      Candidates Applied
-                    </p>
-                  </div>
-                </>
-              </Link>
+        jobList?.items.map((job: any, index: string) => {
+          const jobDeadline = job?.jobDeadline
+            ? new Date(job?.jobDeadline)
+            : null;
+          const today = new Date();
 
-              <div className="">
-                <Dropdown
-                  menu={{
-                    items: [
-                      {
-                        label: 'Change Status',
-                        key: '1',
-                        onClick: () => setChangeStatusModalVisible(true),
-                      },
-                      {
-                        label: 'Share',
-                        key: '2',
-                        onClick: () => handleShareModalVisible(job?.id),
-                      },
-                      {
-                        label: 'Edit',
-                        key: '3',
-                        onClick: () => handleEditModalVisible(job),
-                      },
-                    ],
-                  }}
-                  trigger={['click']}
-                >
-                  <Button icon={<BsThreeDotsVertical />} className="border-0" />
-                </Dropdown>
+          const isDeadlinePassed = jobDeadline && jobDeadline < today;
+          const jobStatus = isDeadlinePassed ? 'Closed' : job?.jobStatus;
+
+          const items = [
+            {
+              label: 'Change Status',
+              key: '1',
+              onClick: () => handleStatusChange(job),
+              permissions: [Permissions.UpdateJobDescription],
+            },
+            {
+              label: 'Share',
+              key: '2',
+              onClick: () => handleShareModalVisible(job?.id),
+            },
+            {
+              label: 'Edit',
+              key: '3',
+              onClick: () => handleEditModalVisible(job),
+              permissions: [Permissions.UpdateJobDescription],
+            },
+          ];
+
+          const filteredItems = items.filter((item) => {
+            const { permissions } = item;
+            return AccessGuard.checkAccess({ permissions });
+          });
+
+          return (
+            <Card key={index} className="mb-4 rounded-lg shadow-sm">
+              <div className="flex justify-between items-start">
+                <Link href={`/recruitment/jobs/${job?.id}`}>
+                  <>
+                    <div className="font-medium text-sm flex justify-center items-center gap-4 mb-3">
+                      <div className="w-full text-left">
+                        <span className="font-bold text-xl text-gray-700">
+                          {job?.jobTitle}
+                        </span>
+                      </div>
+                      {jobStatus == 'Closed' ? (
+                        <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border">
+                          Closed
+                        </div>
+                      ) : (
+                        <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#B2B2FF] text-[#3636F0]">
+                          Active
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-start gap-2">
+                      <p className="text-sm text-gray-500">
+                        {getDepartmentName(job?.departmentId)} .
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {job?.jobLocation}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-start mt-2 gap-2">
+                      {job?.jobCandidate?.length > 0 ? (
+                        job?.jobCandidate?.slice(0, 3).map((member: any) => (
+                          <Tooltip
+                            title={
+                              <div className="flex justify-start items-center gap-4">
+                                <>{member?.name ?? '-'}</>
+                              </div>
+                            }
+                            key={member?.id}
+                          >
+                            <Image
+                              src={AvatarImage}
+                              alt="Profile pic"
+                              width={15}
+                              height={15}
+                              className=""
+                            />
+                          </Tooltip>
+                        ))
+                      ) : (
+                        <Image
+                          src={AvatarImage}
+                          alt="Profile pic"
+                          width={15}
+                          height={15}
+                          className=""
+                        />
+                      )}
+                      <p className="text-sm text-gray-500">
+                        {job?.jobCandidate.length > 0
+                          ? job?.jobCandidate?.length + ' '
+                          : '0 '}
+                        Candidates Applied
+                      </p>
+                    </div>
+                  </>
+                </Link>
+
+                <div className="">
+                  <Dropdown
+                    menu={{
+                      items: filteredItems.map(({ label, key, onClick }) => ({
+                        label,
+                        key,
+                        onClick,
+                      })),
+                    }}
+                    trigger={['click']}
+                  >
+                    <Button
+                      icon={<BsThreeDotsVertical />}
+                      className="border-0"
+                    />
+                  </Dropdown>
+                </div>
               </div>
-            </div>
-          </Card>
-        ))
+            </Card>
+          );
+        })
       ) : (
         <div className="bg-white w-full min-h-40 rounded-lg">
           <div className="flex items-center justify-center">

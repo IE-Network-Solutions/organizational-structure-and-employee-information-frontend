@@ -1,5 +1,13 @@
 import React from 'react';
-import { Button, Input, DatePicker, Form, InputNumber, Tooltip } from 'antd';
+import {
+  Button,
+  Input,
+  DatePicker,
+  Form,
+  InputNumber,
+  Tooltip,
+  Popconfirm,
+} from 'antd';
 import dayjs from 'dayjs';
 import { VscClose } from 'react-icons/vsc';
 import { GoPlus } from 'react-icons/go';
@@ -12,7 +20,6 @@ import {
   useDeleteKeyResult,
   useDeleteMilestone,
 } from '@/store/server/features/okrplanning/okr/objective/mutations';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const MilestoneView: React.FC<OKRProps> = ({
   keyValue,
@@ -31,62 +38,158 @@ const MilestoneView: React.FC<OKRProps> = ({
     handleMilestoneSingleChange,
     removeKeyResultValue,
   } = useOKRStore();
-  const milestoneWeightSum = keyValue?.milestones.reduce(
-    (acc, milestone) => acc + milestone.weight,
-    0,
-  );
+
   const handleAddMilestone = (index: number) => {
     const newMilestone: Milestone = {
       title: '',
-      weight: 0,
+      weight: 0, // Will be calculated dynamically
+      status: 'In Progress', // Optional default status
     };
+
     const updatedObjectiveValue = {
       ...objectiveValue,
-      keyResults: objectiveValue?.keyResults.map((item: any, i: number) =>
-        i === index
-          ? {
-              ...item,
-              milestones: [...item.milestones, newMilestone],
-            }
-          : item,
-      ),
+      keyResults: objectiveValue?.keyResults.map((item: any, i: number) => {
+        if (i === index) {
+          const currentMilestones = item.milestones || [];
+
+          // Separate completed and non-completed milestones
+          const completedMilestones = currentMilestones.filter(
+            (milestone: Milestone) => milestone.status === 'Completed',
+          );
+          const nonCompletedMilestones = currentMilestones.filter(
+            (milestone: Milestone) => milestone.status !== 'Completed',
+          );
+
+          const totalMilestones = nonCompletedMilestones.length + 1; // Include the new milestone
+          const remainingWeight =
+            100 -
+            completedMilestones.reduce(
+              (sum: number, milestone: Milestone) => sum + milestone.weight,
+              0,
+            );
+
+          // Recalculate weights for non-completed milestones and the new milestone
+          const updatedMilestones = [
+            ...completedMilestones, // Keep completed milestones unchanged
+            ...nonCompletedMilestones.map((milestone: Milestone) => ({
+              ...milestone,
+              weight: remainingWeight / totalMilestones,
+            })),
+            {
+              ...newMilestone,
+              weight: remainingWeight / totalMilestones,
+            },
+          ];
+
+          return {
+            ...item,
+            milestones: updatedMilestones,
+          };
+        }
+        return item;
+      }),
     };
+
     setObjectiveValue(updatedObjectiveValue);
   };
+
   const handleAddMilestoneSingleMilestone = () => {
+    const currentMilestones = keyResultValue.milestones || [];
+
+    // Separate completed and non-completed milestones
+    const completedMilestones = currentMilestones.filter(
+      (milestone: any) => milestone.status === 'Completed',
+    );
+    const nonCompletedMilestones = currentMilestones.filter(
+      (milestone: any) => milestone.status !== 'Completed',
+    );
+
+    // Calculate remaining weight after accounting for completed milestones
+    const remainingWeight =
+      100 -
+      completedMilestones.reduce(
+        (sum: number, milestone: any) => sum + milestone.weight,
+        0,
+      );
+
+    const totalNonCompletedMilestones = nonCompletedMilestones.length + 1; // Include the new milestone
+
     const newMilestone = {
       title: '',
-      weight: 0,
+      weight: remainingWeight / totalNonCompletedMilestones,
+      status: 'In Progress', // Optional default status
     };
+
+    // Recalculate weights for non-completed milestones
+    const updatedMilestones = [
+      ...completedMilestones, // Keep completed milestones unchanged
+      ...nonCompletedMilestones.map((milestone: any) => ({
+        ...milestone,
+        weight: remainingWeight / totalNonCompletedMilestones,
+      })),
+      newMilestone, // Add the new milestone
+    ];
+
+    // Update the key result value
     const updatedKeyResultValue = {
       ...keyResultValue,
-      milestones: [...keyResultValue.milestones, newMilestone],
+      milestones: updatedMilestones,
     };
+
     setKeyResultValue(updatedKeyResultValue);
   };
 
   const handleRemoveMilestone = (index: number, mId: any) => {
     const newKeyResult = [...objectiveValue?.keyResults];
-    const updatedMilestones = newKeyResult[index].milestones.filter(
-      (form: any, mi: number) => mi !== mId,
+    const currentMilestones = newKeyResult[index]?.milestones || [];
+
+    // Separate completed and non-completed milestones
+    const completedMilestones = currentMilestones.filter(
+      (milestone: any) => milestone.status === 'Completed',
     );
+    const nonCompletedMilestones = currentMilestones.filter(
+      (milestone: any) => milestone.status !== 'Completed',
+    );
+
+    // Remove the milestone with the specified ID
+    /* eslint-enable @typescript-eslint/naming-convention */
+    const updatedNonCompletedMilestones = nonCompletedMilestones.filter(
+      (notused: any, mi: number) => mi !== mId,
+    );
+    /* eslint-disable @typescript-eslint/naming-convention */
+    // Calculate the remaining weight for non-completed milestones
+    const remainingWeight =
+      100 -
+      completedMilestones.reduce(
+        (sum: number, milestone: any) => sum + milestone.weight,
+        0,
+      );
+
+    const totalNonCompletedMilestones = updatedNonCompletedMilestones.length;
+
+    // Recalculate weights for non-completed milestones
+    const recalculatedMilestones = [
+      ...completedMilestones, // Keep completed milestones unchanged
+      ...updatedNonCompletedMilestones.map((milestone: any) => ({
+        ...milestone,
+        weight: remainingWeight / totalNonCompletedMilestones,
+      })),
+    ];
+
+    // Update the key result
     newKeyResult[index] = {
       ...newKeyResult[index],
-      milestones: updatedMilestones,
+      milestones: recalculatedMilestones,
     };
+
     const updatedObjectiveValue = {
       ...objectiveValue,
-      keyResults: objectiveValue.keyResults.map((item: any, i: number) =>
-        i === index
-          ? {
-              ...item,
-              milestones: updatedMilestones,
-            }
-          : item,
-      ),
+      keyResults: newKeyResult,
     };
+
     setObjectiveValue(updatedObjectiveValue);
   };
+
   const handleRemoveSingleMilestone = (mId: any) => {
     const updatedMilestones = keyResultValue.milestones.filter(
       (form: any, mi: any) => mi !== mId,
@@ -105,16 +208,10 @@ const MilestoneView: React.FC<OKRProps> = ({
     }
   };
   const addMilestone = (index: number) => {
-    if (milestoneWeightSum >= 100) {
-      NotificationMessage?.warning({
-        message: 'Please Milestone weight should be not greater than 100 ',
-      });
+    if (isEdit) {
+      handleAddMilestoneSingleMilestone();
     } else {
-      if (isEdit) {
-        handleAddMilestoneSingleMilestone();
-      } else {
-        handleAddMilestone(index);
-      }
+      handleAddMilestone(index);
     }
   };
   const milestoneChange = (
@@ -159,19 +256,29 @@ const MilestoneView: React.FC<OKRProps> = ({
       id={`key-result-${index}`}
     >
       <Form form={form} layout="vertical" className="space-y-1">
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-3 items-center mb-4">
           {!keyValue.id && (
             <div className="rounded-lg border-gray-200 border bg-gray-300 w-10 h-8 flex justify-center items-center mt-2">
               {index + 1}
             </div>
           )}
+          <div></div>
           <Form.Item
             label={
               (keyValue.key_type === 'Milestone' && 'Milestone') ||
               keyValue.metricType?.name
             }
             className="w-full font-bold"
-            rules={[{ required: true, message: 'Milestone title is required' }]}
+            rules={[
+              {
+                required: true,
+                message: 'Milestone title is required',
+                validator: (_, value) =>
+                  value && value.trim() !== ''
+                    ? Promise.resolve()
+                    : Promise.reject(new Error('Milestone title is required')),
+              },
+            ]}
           >
             <Input
               id={`key-result-title-${index}`}
@@ -180,8 +287,12 @@ const MilestoneView: React.FC<OKRProps> = ({
                 handleChange(e.target.value, 'title');
               }}
             />
+            {!keyValue.title && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Milestone title is required
+              </div>
+            )}
           </Form.Item>
-
           <Form.Item
             className="w-24 font-bold"
             label="Weight"
@@ -216,25 +327,32 @@ const MilestoneView: React.FC<OKRProps> = ({
                 onClick={() => addMilestone(index)}
               />
             </Tooltip>
-            <Tooltip color="gray" title="Remove Key Result">
-              <Button
-                id={`remove-key-result-${index}`}
-                className="rounded-full w-5 h-5"
-                icon={<VscClose size={20} />}
-                type="primary"
-                onClick={() =>
-                  keyValue?.id
-                    ? handleKeyResultDelete(keyValue?.id)
-                    : removeKeyResultValue(index)
-                }
-              />
-            </Tooltip>
+            <Popconfirm
+              title="Are you sure you want to remove this key result?"
+              onConfirm={() =>
+                keyValue?.id
+                  ? handleKeyResultDelete(keyValue?.id)
+                  : removeKeyResultValue(index)
+              }
+              okText={'Yes'}
+              cancelText="No"
+              placement="top"
+            >
+              <Tooltip color="gray" title="Remove Key Result">
+                <Button
+                  id={`remove-key-result-${index}`}
+                  className="rounded-full w-5 h-5"
+                  icon={<VscClose size={20} />}
+                  type="primary"
+                />
+              </Tooltip>
+            </Popconfirm>
           </div>
         </div>
-        <div className="flex gap-10 items-center">
+        <div className="flex gap-10 items-center mb-10">
           <Form.Item
             layout="horizontal"
-            className="w-full h-5  font-bold"
+            className="w-full h-5 font-bold "
             label="Deadline"
           >
             <DatePicker
@@ -245,10 +363,23 @@ const MilestoneView: React.FC<OKRProps> = ({
               }}
               format="YYYY-MM-DD"
               disabledDate={(current) => {
-                return current && current < dayjs().startOf('day');
+                const startOfToday = dayjs().startOf('day');
+                const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
+
+                // Disable dates before today and above the objective deadline
+                return (
+                  current &&
+                  (current < startOfToday || current > objectiveDeadline)
+                );
               }}
             />
+            {!keyValue.deadline && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Deadline is required
+              </div>
+            )}
           </Form.Item>
+
           <div className="text-end w-full">
             {keyValue.milestones?.length != 0 &&
               keyValue.milestones &&
@@ -257,11 +388,15 @@ const MilestoneView: React.FC<OKRProps> = ({
         </div>
 
         {keyValue?.milestones?.length != 0 && keyValue?.milestones && (
-          <Form.Item className="px-5" label="Milestones" required>
+          <Form.Item
+            className="px-5"
+            label={<span className="mt-3"> Milestones</span>}
+            required
+          >
             {keyValue?.milestones.map((milestone, mindex) => (
               <div
                 key={mindex}
-                className="flex items-center space-x-2 mb-2"
+                className="flex items-start space-x-2 mb-2"
                 id={`milestone-${index}-${mindex}`}
               >
                 <div className="rounded-lg border-gray-200 border bg-gray-300 w-8 h-8 flex justify-center items-center">
@@ -284,7 +419,9 @@ const MilestoneView: React.FC<OKRProps> = ({
                     }
                   />
                 </Form.Item>
+
                 <InputNumber
+                  disabled={milestone?.status == 'Completed'}
                   id={`milestone-weight-${index}-${mindex}`}
                   min={0}
                   max={100}
@@ -295,17 +432,34 @@ const MilestoneView: React.FC<OKRProps> = ({
                   }
                 />
 
-                <Button
-                  id={`remove-milestone-${index}-${mindex}`}
-                  icon={<VscClose size={20} />}
-                  onClick={() =>
+                <Popconfirm
+                  title="Are you sure you want to remove this milestone?"
+                  onConfirm={() =>
                     milestone?.id
                       ? handleMilestoneDelete(milestone?.id, mindex)
                       : milestoneRemove(index, mindex)
                   }
-                  className="rounded-full w-5 h-5"
-                  type="primary"
-                />
+                  okText="Yes"
+                  cancelText="No"
+                  placement="top"
+                  disabled={milestone?.status === 'Completed'} // Disable Popconfirm if the milestone is completed
+                >
+                  <Tooltip
+                    title={
+                      milestone?.status === 'Completed'
+                        ? 'This milestone is completed and cannot be removed.'
+                        : 'Remove Milestone'
+                    }
+                  >
+                    <Button
+                      disabled={milestone?.status === 'Completed'}
+                      id={`remove-milestone-${index}-${mindex}`}
+                      icon={<VscClose size={20} />}
+                      className="rounded-full w-5 h-5"
+                      type="primary"
+                    />
+                  </Tooltip>
+                </Popconfirm>
               </div>
             ))}
           </Form.Item>

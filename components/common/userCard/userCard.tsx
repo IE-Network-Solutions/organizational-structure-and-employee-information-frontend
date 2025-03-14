@@ -1,30 +1,34 @@
 import { FC } from 'react';
-import { Avatar, Image } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Avatar } from 'antd';
 import { classNames } from '@/utils/classNames';
 
 interface UserCardProps {
+  data: any;
   avatar?: string;
-  name: string;
+  profileImage?: any;
+  name: string | undefined | React.ReactNode;
   description?: string;
   size?: 'small' | 'medium';
 }
 
 const UserCard: FC<UserCardProps> = ({
-  avatar,
+  data,
   name,
   description = '',
   size = 'medium',
 }) => {
-  const sizeWH = size === 'medium' ? 40 : 24;
+  // const sizeWH = size === 'medium' ? 40 : 24;
   return (
     <div className="flex items-center gap-3">
-      <Avatar
-        icon={<UserOutlined />}
-        src={avatar && <Image src={avatar} alt={name} />}
-        size={sizeWH}
-      />
-
+      {data ? (
+        <Avatar size={40} src={data?.profileImage} />
+      ) : (
+        <Avatar size={40}>
+          {data?.firstName[0]?.toUpperCase()}
+          {data?.middleName[0]?.toUpperCase()}
+          {data?.lastName[0]?.toUpperCase()}
+        </Avatar>
+      )}
       <div>
         <div
           className={classNames('text-gray-900 font-semibold', {

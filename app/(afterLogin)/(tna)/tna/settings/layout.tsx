@@ -5,6 +5,7 @@ import { FC, ReactNode } from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import SidebarMenu from '@/components/sidebarMenu';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
+import { TbLayoutList } from 'react-icons/tb';
 
 interface TnaSettingsLayoutProps {
   children: ReactNode;
@@ -38,6 +39,15 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
         className: 'px-1',
       },
       link: '/tna/settings/commitment-rule',
+    },
+    {
+      item: {
+        key: 'approval-workflow',
+        icon: <TbLayoutList />,
+        label: <p className="menu-item-label">Approval Workflow</p>,
+        className: 'px-1',
+      },
+      link: '/tna/settings/approvals',
     },
   ]);
   return (

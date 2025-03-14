@@ -7,6 +7,7 @@ import { IoMdSettings } from 'react-icons/io';
 import { FaUser } from 'react-icons/fa';
 import EmploymentType from './_components/employementType';
 import Positions from './_components/positions';
+import Approvals from './_components/approvals';
 
 function Settings() {
   const [tabPosition, setTabPosition] = useState<'left' | 'top'>('left');
@@ -63,6 +64,16 @@ function Settings() {
         </span>
       ),
       children: <Positions />,
+    },
+    {
+      key: '4',
+      label: (
+        <span className="flex gap-2 mt-4">
+          <IoMdSettings className="mt-1" />
+          <p className="font-semibold">Approval</p>
+        </span>
+      ),
+      children: <Approvals />,
     },
   ];
 

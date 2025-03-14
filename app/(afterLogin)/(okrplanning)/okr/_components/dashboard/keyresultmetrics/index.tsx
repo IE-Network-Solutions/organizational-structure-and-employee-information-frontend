@@ -1,26 +1,36 @@
-import { Progress, Dropdown, Menu } from 'antd';
+import { Dropdown, Menu, Progress } from 'antd';
 import { FC, useState } from 'react';
-import { IoIosMore } from 'react-icons/io';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
-import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
+import { IoIosMore } from 'react-icons/io';
+import { useUpdateObjectiveNestedDelete } from '@/store/server/features/okrplanning/okr/objective/mutations';
 
 interface KPIMetricsProps {
   keyResult: any;
   myOkr: boolean;
+  updatedKeyResults: any;
+  objectiveId: string;
 }
 
-const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
+const KeyResultMetrics: FC<KPIMetricsProps> = ({
+  keyResult,
+  updatedKeyResults,
+  objectiveId,
+}) => {
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const { mutate: deleteKeyResult } = useDeleteKeyResult();
-  const { keyResultValue, setKeyResultValue } = useOKRStore();
+  const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
+
+  const { keyResultValue, setKeyResultValue, setKeyResultId, setObjectiveId } =
+    useOKRStore();
 
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
     setKeyResultValue(keyResult);
+    setKeyResultId(keyResult?.id);
+    setObjectiveId(keyResult?.objectiveId);
   };
 
   const onCloseDeleteModal = () => {
@@ -53,12 +63,12 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
       ]}
     />
   );
+
   function handleKeyResultDelete(id: string) {
-    deleteKeyResult(id, {
-      onSuccess: () => {
-        setOpenDeleteModal(false);
-        setKeyResultValue([]);
-      },
+    updateAndDelete({
+      toBeUpdated: updatedKeyResults,
+      toBeDeleted: id,
+      objectiveId,
     });
   }
   return (
@@ -77,7 +87,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
               size={20}
             />
             <span className="text-lg">{keyResult?.progress || 0}%</span>
-            {myOkr && (
+            {keyResult?.isClosed === false && (
               <Dropdown
                 overlay={menu}
                 trigger={['click']}
@@ -121,7 +131,13 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
           <div className="flex gap-4">
             <div className="flex items-center gap-2">
               <div className="bg-light_purple text-blue font-semibold text-sm p-1 w-16 sm:w-20 text-center rounded-lg">
-                {keyResult?.currentValue || 0}
+                {keyResult?.metricType?.name === 'Milestone'
+                  ? keyResult?.milestones?.filter(
+                      (e: any) => e.status === 'Completed',
+                    )?.length || 0
+                  : keyResult?.metricType?.name === 'Achieve'
+                    ? keyResult?.progress
+                    : Number(keyResult?.currentValue)?.toLocaleString() || 0}
               </div>
               <div className="flex items-center gap-1">
                 <div className="text-blue text-xl">&#x2022;</div>
@@ -130,12 +146,14 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
                 </div>
               </div>
             </div>
-
+            <div className="text-xl">|</div>
             <div className="flex items-center gap-2">
-              <div className="bg-light_purple text-blue font-semibold text-sm p-1 w-16 sm:w-20 text-center rounded-lg">
+              <div className="bg-light_purple text-blue font-semibold text-sm p-1 min-w-16 sm:min-w-20 text-center rounded-lg">
                 {keyResult?.metricType?.name === 'Milestone'
-                  ? keyResult?.milestones?.length
-                  : keyResult?.targetValue || 0}
+                  ? keyResult?.milestones?.length || 0
+                  : keyResult?.metricType?.name === 'Achieve'
+                    ? '100'
+                    : Number(keyResult?.targetValue)?.toLocaleString() || 0}
               </div>
               <div className="flex items-center gap-1">
                 <div className="text-blue text-xl">&#x2022;</div>

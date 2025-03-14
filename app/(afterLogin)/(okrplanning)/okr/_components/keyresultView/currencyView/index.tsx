@@ -12,6 +12,7 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     handleKeyResultChange,
     handleSingleKeyResultChange,
     removeKeyResultValue,
+    objectiveValue,
   } = useOKRStore();
 
   const handleChange = (value: any, field: string) => {
@@ -70,6 +71,11 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                 handleChange(e.target.value, 'title');
               }}
             />
+            {!keyValue.title && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Milestone title is required
+              </div>
+            )}
           </Form.Item>
           <Form.Item
             className="w-24 font-bold"
@@ -121,6 +127,9 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               className="w-full text-xs"
               value={keyValue.initialValue}
               suffix={<CiDollar size={20} />}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }
               onChange={(value) => {
                 handleChange(value, 'initialValue');
               }}
@@ -144,6 +153,9 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               className="text-xs w-full"
               suffix={<CiDollar size={20} />}
               value={keyValue.targetValue}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }
               onChange={(value) => {
                 handleChange(value, 'targetValue');
               }}
@@ -164,9 +176,21 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               }}
               format="YYYY-MM-DD"
               disabledDate={(current) => {
-                return current && current < dayjs().startOf('day');
+                const startOfToday = dayjs().startOf('day');
+                const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
+
+                // Disable dates before today and above the objective deadline
+                return (
+                  current &&
+                  (current < startOfToday || current > objectiveDeadline)
+                );
               }}
             />
+            {!keyValue.deadline && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Deadline is required
+              </div>
+            )}
           </Form.Item>
         </div>
       </Form>

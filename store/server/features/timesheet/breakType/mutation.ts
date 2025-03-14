@@ -3,9 +3,9 @@ import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
-import { BreakType } from '@/types/timesheet/breakType';
+import { BreakTypeList } from '@/types/timesheet/breakType';
 
-const setBreakType = async (data: Partial<BreakType>) => {
+const setBreakType = async (data: Partial<BreakTypeList>) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/break-type`,
     method: 'POST',
@@ -28,7 +28,7 @@ export const useSetBreakType = () => {
   return useMutation(setBreakType, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('break-types');
+      queryClient.invalidateQueries('breakTypes');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -40,7 +40,7 @@ export const useDeleteBreakType = () => {
   return useMutation(deleteBreakType, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('break-types');
+      queryClient.invalidateQueries('breakTypes');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

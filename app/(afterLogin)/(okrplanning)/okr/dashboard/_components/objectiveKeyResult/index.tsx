@@ -2,7 +2,6 @@ import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplannin
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { Card, Col, Progress, Row } from 'antd';
 import React from 'react';
-import { FaArrowUp } from 'react-icons/fa';
 
 const ObjectiveKeyResult: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;
@@ -36,13 +35,13 @@ const ObjectiveKeyResult: React.FC = () => {
                     />
                   </svg>
                 </div>
-                <div className="flex items-center justify-center gap-[2px]">
+                {/* <div className="flex items-center justify-center gap-[2px]">
                   <span className="text-green-500 font-light">12.7</span>
                   <FaArrowUp className="text-green-500 font-light" />
-                </div>
+                </div> */}
               </div>
               <div className="flex gap-1 items-center">
-                <h2>{OKRData?.userOkr ?? 0}</h2>
+                <h2>{Number(OKRData?.userOkr).toLocaleString() ?? 0}</h2>
                 <h5>%</h5>
               </div>
               <div className="text-gray-700 mb-3">
@@ -74,10 +73,10 @@ const ObjectiveKeyResult: React.FC = () => {
                     />
                   </svg>
                 </div>
-                <div className="flex items-center justify-center gap-[2px]">
+                {/* <div className="flex items-center justify-center gap-[2px]">
                   <span className="text-green-500 font-light">12.7</span>
                   <FaArrowUp className="text-green-500 font-light" />
-                </div>
+                </div> */}
               </div>
               <div className="flex gap-1 items-center justify-between">
                 <h2>{OKRData?.okrCompleted ?? 0}</h2>
@@ -137,10 +136,10 @@ const ObjectiveKeyResult: React.FC = () => {
                     />
                   </svg>
                 </div>
-                <div className="flex items-center justify-center gap-[2px]">
+                {/* <div className="flex items-center justify-center gap-[2px]">
                   <span className="text-green-500 font-light">12.7</span>
                   <FaArrowUp className="text-green-500 font-light" />
-                </div>
+                </div> */}
               </div>
               <div className="flex gap-1 items-center">
                 <h2>{OKRData?.supervisorOkr ?? 0}</h2>

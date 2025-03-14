@@ -4,6 +4,9 @@ import { devtools } from 'zustand/middleware';
 
 export const useOKRStore = create<OKRState>()(
   devtools((set) => ({
+    isVP: true,
+    toggleDashboard: () => set((state) => ({ isVP: !state.isVP })),
+
     revenue: 123050,
     financialSales: 10050,
     progressRevenue: 56.02,
@@ -17,6 +20,7 @@ export const useOKRStore = create<OKRState>()(
       title: '',
       userId: '',
       deadline: '',
+      isClosed: false,
       keyResults: [
         {
           key_type: 'Milestone',
@@ -34,10 +38,13 @@ export const useOKRStore = create<OKRState>()(
       title: '',
       userId: '',
       deadline: '',
+      isClosed: false,
     },
 
     // Initialize key result value state
     keyResultValue: [],
+    keyResultId: '',
+    objectiveId: '',
 
     // Setters
     setObjective: (objective: Objective) => set({ objective }),
@@ -50,6 +57,8 @@ export const useOKRStore = create<OKRState>()(
         },
       })),
     setKeyResultValue: (keyResultValue: KeyResult[]) => set({ keyResultValue }),
+    setKeyResultId: (keyResultId: string) => set({ keyResultId }),
+    setObjectiveId: (objectiveId: string) => set({ objectiveId }),
 
     // Add key result to objective
     addKeyResult: () =>
@@ -119,11 +128,13 @@ export const useOKRStore = create<OKRState>()(
             i === index ? { ...item, [field]: value } : item,
           ),
         },
+      })),
+    updateKeyResultValue: (index: number, field: keyof KeyResult, value: any) =>
+      set((state) => ({
         keyResultValue: state.keyResultValue.map((item: any, i: number) =>
           i === index ? { ...item, [field]: value } : item,
         ),
       })),
-
     handleKeyResultChange: (value: any, index: number, field: string) =>
       set((state) => {
         const newKeyResult = [...state.objectiveValue.keyResults];
@@ -256,5 +267,7 @@ export const useOKRStore = create<OKRState>()(
       set({ companyCurrentPage }),
     okrTab: 1,
     setOkrTab: (okrTab: number | string) => set({ okrTab }),
+    alignment: false,
+    setAlignment: (alignment: boolean) => set({ alignment }),
   })),
 );

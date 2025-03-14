@@ -41,7 +41,7 @@ const EditKeyResult: React.FC<OkrDrawerProps> = (props) => {
           // Calculate the sum of milestone values
           const milestoneSum = keyResult.milestones.reduce(
             (sum: number, milestone: Record<string, number>) =>
-              sum + milestone.weight,
+              sum + Number(milestone.weight),
             0,
           );
 
