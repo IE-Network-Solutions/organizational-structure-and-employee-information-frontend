@@ -94,7 +94,7 @@ export const useGetBranchTransferRequestById = (
   currentPage: number,
 ) => {
   return useQuery<any>(
-    ['myTansferRequest', userId, pageSize, currentPage],
+    ['myTransferRequest', userId, pageSize, currentPage],
     () => getBranchTransferRequestById(userId, pageSize, currentPage),
     {
       enabled: !!userId,

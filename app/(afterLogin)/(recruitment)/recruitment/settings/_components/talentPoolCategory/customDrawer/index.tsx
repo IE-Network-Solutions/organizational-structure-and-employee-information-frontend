@@ -25,23 +25,35 @@ const TalentPoolDrawer: React.FC = () => {
   const handleSubmit = () => {
     form.validateFields().then((values) => {
       if (isEditMode) {
-        updateTalentPoolCategory({
-          id: selectedTalentPool?.id || '',
-          category: {
-            ...values,
-            title: values.title,
-            updatedBy: userId,
+        updateTalentPoolCategory(
+          {
+            id: selectedTalentPool?.id || '',
+            category: {
+              ...values,
+              name: values?.title,
+            },
           },
-        });
+          {
+            onSuccess: () => {
+              closeDrawer();
+            },
+          },
+        );
       } else {
-        createTalentPoolCategory({
-          title: values.title,
-          description: values.description,
-          createdBy: userId,
-        });
-        form.resetFields();
+        createTalentPoolCategory(
+          {
+            title: values?.title,
+            description: values?.description,
+            createdBy: userId,
+          },
+          {
+            onSuccess: () => {
+              closeDrawer();
+              form.resetFields();
+            },
+          },
+        );
       }
-      closeDrawer();
     });
   };
 
@@ -50,7 +62,7 @@ const TalentPoolDrawer: React.FC = () => {
   useEffect(() => {
     if (isEditMode && selectedTalentPool) {
       form.setFieldsValue({
-        title: selectedTalentPool.title,
+        title: selectedTalentPool?.title,
         description: selectedTalentPool.description,
       });
     } else {
@@ -69,7 +81,7 @@ const TalentPoolDrawer: React.FC = () => {
       }
       onClose={handleCancel}
       open={isOpen}
-      width="30%"
+      width="40%"
       footer={
         <div className="flex justify-center items-center w-full">
           <div className="flex justify-between items-center gap-4">
