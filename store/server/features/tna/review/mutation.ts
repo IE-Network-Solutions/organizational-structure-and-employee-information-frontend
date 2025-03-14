@@ -3,8 +3,9 @@ import { TNA_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
+import { TrainingNeedAssessment } from '@/types/tna/tna';
 
-const setTna = async (items: any) => {
+const setTna = async (items: TrainingNeedAssessment[]) => {
   return await crudRequest({
     url: `${TNA_URL}/tna`,
     method: 'PUT',

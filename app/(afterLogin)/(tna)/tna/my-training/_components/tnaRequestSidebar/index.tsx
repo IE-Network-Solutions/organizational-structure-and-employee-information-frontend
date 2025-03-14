@@ -163,7 +163,7 @@ const TnaRequestSidebar = () => {
         >
           <Form.Item
             name="title"
-            label="TNA Reques*************************t Title"
+            label="TNA Request Title"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
           >
