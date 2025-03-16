@@ -6,8 +6,6 @@ import {
 } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import React, { useEffect } from 'react';
-import SessionDrawer from '../../session/sessionDrawer';
-import MonthDrawer from '../../month/monthDrawer';
 import { FormInstance } from 'antd/lib';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Form } from 'antd';
@@ -15,9 +13,11 @@ import {
   Month,
   Session,
 } from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import SessionDrawer from '../../_components/session/sessionDrawer';
+import MonthDrawer from '../../_components/month/monthDrawer';
 
 interface FiscalYearDrawerProps {
-  form?: FormInstance;
+  form: FormInstance;
   handleNextStep?: () => void;
 }
 const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({

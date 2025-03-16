@@ -30,7 +30,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     },
     {
       item: {
-        key: 'customFieldsCard',
+        key: 'customFields',
         icon: <TbNotes />,
         label: <p className="menu-item-label">Template Question</p>,
       },

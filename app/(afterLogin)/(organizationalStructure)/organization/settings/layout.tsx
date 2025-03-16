@@ -22,11 +22,11 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     },
     {
       item: {
-        key: 'fiscal-year',
+        key: 'fiscalYearCard',
         icon: <TbNotes />,
         label: <p className="menu-item-label">Fiscal Year</p>,
       },
-      link: '/organization/settings/fiscal-year',
+      link: '/organization/settings/fiscalYear/fiscalYearCard',
     },
     {
       item: {

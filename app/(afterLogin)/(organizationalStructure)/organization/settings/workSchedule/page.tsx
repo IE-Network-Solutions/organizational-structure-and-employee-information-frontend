@@ -8,9 +8,7 @@ import useScheduleStore from '@/store/uistate/features/organizationStructure/wor
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import CustomWorkingScheduleDrawer from '../_components/workSchedule/customDrawer';
-import CustomWorFiscalYearDrawer from '../_components/fiscalYear/customDrawer';
 import CustomDeleteWorkingSchduel from '../_components/workSchedule/deleteModal';
-import CustomDeleteFiscalYear from '../_components/fiscalYear/deleteModal';
 
 function WorkScheduleTab() {
   const handleMenuClick = () => {};
@@ -176,12 +174,7 @@ function WorkScheduleTab() {
         </Collapse>
       </div>
       <CustomWorkingScheduleDrawer />
-      <CustomWorFiscalYearDrawer
-        form={form}
-        handleNextStep={handleStepChange}
-      />
       <CustomDeleteWorkingSchduel />
-      <CustomDeleteFiscalYear />
     </>
   );
 }

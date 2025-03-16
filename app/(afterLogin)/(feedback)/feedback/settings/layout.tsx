@@ -41,7 +41,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     // },
     {
       item: {
-        key: 'recognition-setting',
+        key: 'recognition',
         icon: <CiCalendarDate />,
         label: <p className="menu-item-label">Recognition</p>,
         className: 'px-1',
