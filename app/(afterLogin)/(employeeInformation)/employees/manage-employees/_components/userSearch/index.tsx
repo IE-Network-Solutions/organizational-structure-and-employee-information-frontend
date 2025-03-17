@@ -6,7 +6,7 @@ import {
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useDebounce } from '@/utils/useDebounce';
 import { Col, Input, Row, Select } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 
 const { Option } = Select;
 
@@ -104,7 +104,7 @@ const EmployeeSearch: React.FC = () => {
                 placeholder="All Departments"
                 onChange={handleDepartmentChange}
                 allowClear
-                className="w-full h-14"
+                className=" w-full h-14"
               >
                 {EmployeeDepartment?.map((item: any) => (
                   <Option key={item?.id} value={item?.id}>
@@ -121,10 +121,30 @@ const EmployeeSearch: React.FC = () => {
                 allowClear
                 className="w-full h-14"
               >
-                <Option key="active" value={activeStatusValue}>
+                <Option
+                  key="active"
+                  value={activeStatusValue}
+                  style={{
+                    backgroundColor:
+                      searchParams.allStatus === activeStatusValue
+                        ? '#f5f5f5'
+                        : 'transparent',
+                  }}
+                  className="hover:bg-gray-100"
+                >
                   Active
                 </Option>
-                <Option key="inactive" value={inactiveStatusValue}>
+                <Option
+                  key="inactive"
+                  value={inactiveStatusValue}
+                  style={{
+                    backgroundColor:
+                      searchParams.allStatus === inactiveStatusValue
+                        ? '#f5f5f5'
+                        : 'transparent',
+                  }}
+                  className="hover:bg-gray-100"
+                >
                   Inactive
                 </Option>
               </Select>

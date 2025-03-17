@@ -26,6 +26,7 @@ import dayjs from 'dayjs';
 import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useRouter } from 'next/navigation';
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Id',
@@ -71,10 +72,10 @@ const columns: TableColumnsType<EmployeeData> = [
     dataIndex: 'role',
     sorter: (a, b) => a.role.localeCompare(b.role),
   },
-  {
-    title: 'Action',
-    dataIndex: 'action',
-  },
+  // {
+  //   title: 'Action',
+  //   dataIndex: 'action',
+  // },
 ];
 const UserTable = () => {
   const {
@@ -105,6 +106,7 @@ const UserTable = () => {
   const { mutate: employeeDeleteMuation } = useDeleteEmployee();
   const { mutate: rehireEmployee, isLoading: rehireLoading } =
     useRehireTerminatedEmployee();
+  const router = useRouter();
 
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
@@ -272,6 +274,7 @@ const UserTable = () => {
     setUserToRehire(user);
     setReHireModalVisible(true);
   };
+
   return (
     <div className="mt-2">
       <Table
@@ -283,6 +286,8 @@ const UserTable = () => {
           current: userCurrentPage,
           pageSize: pageSize,
           onChange: onPageChange,
+          showTotal: (total, range) =>
+            `${range[0]}-${range[1]} of ${total} items`, // Add showTotal here
           showSizeChanger: true,
           onShowSizeChange: onPageChange,
         }}
@@ -292,6 +297,11 @@ const UserTable = () => {
           ...rowSelection,
         }}
         scroll={{ x: 1000 }}
+        onRow={(record) => ({
+          onClick: () => {
+            router.push(`manage-employees/${record?.key}`);
+          },
+        })}
       />
       <DeleteModal
         deleteText="Confirm"

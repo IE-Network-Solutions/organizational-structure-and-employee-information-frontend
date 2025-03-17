@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Col,
+  Divider,
   Form,
   Row,
   Select,
@@ -184,6 +185,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
                 >
                   <Select
                     placeholder="Select an option"
+                    className="mt-2"
                     onChange={workscheduleChangeHandler}
                     allowClear
                     value={workSchedule}
@@ -206,7 +208,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
                 />
               </Col>
             </Row>
-            <Row>
+            <Row className="mt-6">
               <Col span={24} style={{ textAlign: 'right' }}>
                 <Button type="primary" htmlType="submit">
                   Save Changes
