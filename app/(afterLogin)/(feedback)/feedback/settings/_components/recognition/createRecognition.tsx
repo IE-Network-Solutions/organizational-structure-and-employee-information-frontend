@@ -84,16 +84,19 @@ const RecognitionForm: React.FC<PropsData> = ({
 
   const handleCriteriaChange = (value: string[]) => {
     const noCriterion = value.length;
-
+  
     const updatedCriteria = value.map((criterion) => {
       const existingCriterion = selectedCriteria.find(
-        (item: any) => item.criterionKey === criterion,
+        (item: any) => item.criterionKey === criterion
       );
-
+  
       const weight = parseFloat((1 / noCriterion).toFixed(2));
-
+  
       return existingCriterion
-        ? { ...existingCriterion, weight }
+        ? {
+            ...existingCriterion,
+            weight, // Update weight but preserve other values
+          }
         : {
             criterionKey: criterion,
             weight,
@@ -102,27 +105,30 @@ const RecognitionForm: React.FC<PropsData> = ({
             value: 0,
           };
     });
-
+  
     setSelectedCriteria(updatedCriteria);
-
+  
     const updatedTotalWeight = updatedCriteria.reduce(
       (sum, criteria) => sum + criteria.weight,
-      0,
+      0
     );
     setTotalWeight(updatedTotalWeight);
-
-    // Update form fields
+  
+    // Update form fields while preserving existing values
     form.setFieldsValue({
       recognitionCriteria: updatedCriteria.map((criteria) => ({
+        id: criteria.id || null, // Ensure ID is preserved if present
         criterionKey: criteria.criterionKey,
         weight: criteria.weight,
-        operator: criteria.operator,
-        condition: criteria.condition,
-        value: criteria.value,
+        operator: criteria.operator, // Preserve operator
+        condition: criteria.condition, // Preserve condition
+        value: criteria.value, // Preserve value
       })),
     });
   };
+  
 
+  // console.log(selectedCriteria,"selected criteria")
   const handleWeightChange = (index: number, newWeight: number) => {
     const clampedWeight = Math.min(Math.max(newWeight, 0), 1); // Clamp the value between 0 and 1
     const updatedCriteria = [...selectedCriteria];
@@ -149,7 +155,11 @@ const RecognitionForm: React.FC<PropsData> = ({
         parentTypeId && parentTypeId.length !== 0 ? parentTypeId : undefined,
     };
 
+
     if (selectedRecognitionType === '') {
+
+
+      console.log(finalValues,"finalValues")
       createRecognitionType(finalValues, {
         onSuccess: () => {
           form.resetFields();
@@ -280,12 +290,14 @@ const RecognitionForm: React.FC<PropsData> = ({
           className="flex gap-1"
           key={`recognition-criteria-${criteria.criterionKey}-${index}`}
         >
+          {selectedRecognitionType !== '' &&
           <Form.Item
             className="w-1/2 text-xs text-gray-950"
             name={['recognitionCriteria', index, 'id']}
-            initialValue={criteria.id ?? ''}
+            initialValue={criteria.id}
             hidden
           ></Form.Item>
+          }
           <Form.Item
             labelAlign="left"
             className="w-1/2 text-xs text-gray-950"
