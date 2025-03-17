@@ -309,7 +309,8 @@ function Planning() {
                               </Dropdown>
                             )}
                             {userId === dataItem?.createdBy &&
-                              dataItem?.isValidated == false && dataItem?.isReported == false &&  (
+                              dataItem?.isValidated == false &&
+                              dataItem?.isReported == false && (
                                 <Dropdown
                                   overlay={actionsMenuEditandDelte(
                                     dataItem,

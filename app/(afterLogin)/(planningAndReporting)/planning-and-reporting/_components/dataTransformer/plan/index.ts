@@ -19,7 +19,7 @@ const groupTasksByKeyResultId = (plans: any) => {
         weight: task?.weight,
         parentTask: task?.parentTask,
         achieveMK: task?.achieveMK,
-        
+
         milestone: { ...task?.milestone },
       });
     });
