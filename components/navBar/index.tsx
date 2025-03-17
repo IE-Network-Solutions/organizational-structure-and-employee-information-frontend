@@ -160,6 +160,11 @@ const menuItems: MenuProps['items'] = [
     label: 'Payroll',
     children: [
       {
+        key: '/settlement-tracking',
+        label: 'Settlement Tracking',
+        className: 'font-bold',
+      },
+      {
         key: '/employee-information',
         label: 'Employee Information',
         className: 'font-bold h-8',

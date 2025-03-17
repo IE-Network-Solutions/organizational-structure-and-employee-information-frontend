@@ -22,9 +22,8 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
     setPage,
     pageSize,
     searchQuery,
-     setSearchQuery
+    setSearchQuery,
   } = ConversationStore();
-
 
   const onChange = (key: string) => {
     const variantType = key === 'appreciation' ? 'appreciation' : 'reprimand';
