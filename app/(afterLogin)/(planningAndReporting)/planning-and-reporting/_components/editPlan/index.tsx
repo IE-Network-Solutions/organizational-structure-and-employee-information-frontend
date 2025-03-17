@@ -114,6 +114,7 @@ function EditPlan() {
         .flat();
     };
     const finalValues = mergeValues(values);
+    console.log(finalValues,"8888")
     updateTask(
       { tasks: finalValues },
       {

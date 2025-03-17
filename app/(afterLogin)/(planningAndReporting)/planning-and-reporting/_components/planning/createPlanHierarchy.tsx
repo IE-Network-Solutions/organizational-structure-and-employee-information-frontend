@@ -73,7 +73,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
     (i: any) => i.isReported === false,
   )?.id;
   return (
-    <Collapse defaultActiveKey={0}>
+    <Collapse>
       {formattedData.map((objective) => (
         <Collapse.Panel
           forceRender={true}
