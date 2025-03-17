@@ -76,6 +76,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
     <Collapse defaultActiveKey={0}>
       {formattedData.map((objective) => (
         <Collapse.Panel
+          forceRender={true}
           header={
             <div>
               <strong>Objective:</strong> {objective.title}
