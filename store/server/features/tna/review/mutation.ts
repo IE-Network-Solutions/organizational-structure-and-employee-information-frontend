@@ -3,7 +3,6 @@ import { TNA_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
-import { TrainingNeedAssessment } from '@/types/tna/tna';
 
 const setTna = async (items: any) => {
   return await crudRequest({
