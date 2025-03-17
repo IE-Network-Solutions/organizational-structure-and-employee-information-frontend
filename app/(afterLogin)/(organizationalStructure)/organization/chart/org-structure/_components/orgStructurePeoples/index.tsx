@@ -1,41 +1,28 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import { Card, Dropdown, Menu } from 'antd';
+import { Card } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
 import DepartmentForm from '@/app/(afterLogin)/(onboarding)/onboarding/_components/departmentForm.tsx';
 import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
-import CustomButton from '@/components/common/buttons/customButton';
-import { BsThreeDotsVertical } from 'react-icons/bs';
 import {
   useDeleteOrgChart,
   useUpdateOrgChart,
 } from '@/store/server/features/organizationStructure/organizationalChart/mutation';
 import { OrgChart } from '@/store/server/features/organizationStructure/organizationalChart/interface';
 import DeleteModal from '@/components/common/deleteModal';
-import CustomDrawer from '../customDrawer';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import OrgChartSkeleton from '../loading/orgStructureLoading';
-import { FaDownload } from 'react-icons/fa';
-import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
 import { DepartmentNode } from '../departmentNode';
-import {
-  exportOrgStrucutreMenu,
-  orgComposeAndMergeMenues,
-  showDrawer,
-} from '../menues/inex';
-import {
-  useMergingDepartment,
-  useTransferDepartment,
-} from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
+import { showDrawer } from '../menues/inex';
+import { useMergingDepartment } from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
 import { useTransferStore } from '@/store/uistate/features/organizationStructure/orgState/transferDepartmentsStore';
-import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { Form } from 'antd';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
 import { useRouter } from 'next/navigation';
@@ -90,10 +77,8 @@ const OrgChartComponent: React.FC = () => {
     setParentId,
     isDeleteConfirmVisible,
     setIsDeleteConfirmVisible,
-    chartDownlaodLoading,
   } = useOrganizationStore();
-  const { transferDepartment, resetStore } = useTransferStore();
-  const { mergeData } = useMergeStore();
+  const { resetStore } = useTransferStore();
 
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -102,14 +87,8 @@ const OrgChartComponent: React.FC = () => {
   const { mutate: updateDepartment } = useUpdateOrgChart();
   const { mutate: deleteDepartment, isLoading: deleteLoading } =
     useDeleteOrgChart();
-  const { mutate: transferDepartments, isLoading: isTransferLoading } =
-    useTransferDepartment();
 
-  const {
-    mutate: mergeDepartments,
-    isLoading,
-    isSuccess,
-  } = useMergingDepartment();
+  const { isSuccess } = useMergingDepartment();
 
   const [parent, setParrent] = useState<Department>();
 
@@ -157,10 +136,6 @@ const OrgChartComponent: React.FC = () => {
   };
 
   const {
-    drawerVisible,
-    drawerContent,
-    footerButtonText,
-    drawTitle,
     setDrawerVisible,
     setDepartmentTobeDeletedId,
     departmentTobeDeletedId,
@@ -202,83 +177,74 @@ const OrgChartComponent: React.FC = () => {
 
   const router = useRouter();
 
-  const items = [
-    {
-      key: 'structure',
-      label: 'Structure',
-    },
-    {
-      key: 'chart',
-      label: 'Chart',
-    },
-  ];
+  // const items = [
+  //   {
+  //     key: 'structure',
+  //     label: 'Structure',
+  //   },
+  //   {
+  //     key: 'chart',
+  //     label: 'Chart',
+  //   },
+  // ];
 
   // Handling menu click and navigation
-  const onMenuClick = (e: any) => {
-    const key = e['key'] as string;
-    switch (key) {
-      case 'structure':
-        router.push('/organization/chart/org-structure');
-        break;
-      case 'chart':
-        router.push('/organization/chart/org-chart');
-        break;
-      default:
-        break;
-    }
-  };
+  // const onMenuClick = (e: any) => {
+  //   const key = e['key'] as string;
+  //   switch (key) {
+  //     case 'structure':
+  //       router.push('/organization/chart/org-structure');
+  //       break;
+  //     case 'chart':
+  //       router.push('/organization/chart/org-chart');
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // };
+
   return (
     <div className="w-full overflow-x-auto">
       <Card
         className="w-full"
         title={<div className="text-2xl font-bold">ORG Structure</div>}
-        extra={
-          <div className="py-4 flex justify-center items-center gap-4">
-            <Dropdown
-              overlay={exportOrgStrucutreMenu(chartRef, exportToPDFOrJPEG)}
-              trigger={['click']}
-            >
-              <CustomButton
-                title="Download"
-                icon={<FaDownload size={16} />}
-                loading={chartDownlaodLoading}
-                type="default"
-              />
-            </Dropdown>
-            <Dropdown
-              overlay={orgComposeAndMergeMenues}
-              trigger={['click']}
-              placement="bottomRight"
-            >
-              <CustomButton
-                title=""
-                icon={
-                  <BsThreeDotsVertical
-                    size={20}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '100%',
-                      height: '100%',
-                    }}
-                  />
-                }
-              />
-            </Dropdown>
-          </div>
-        }
+        // extra={
+        //   <div className="py-4 flex justify-center items-center gap-4">
+        //     <Dropdown
+        //       overlay={exportOrgStrucutreMenu(chartRef, exportToPDFOrJPEG)}
+        //       trigger={['click']}
+        //     >
+        //       <CustomButton
+        //         title="Download"
+        //         icon={<FaDownload size={16} />}
+        //         loading={chartDownlaodLoading}
+        //         type="default"
+        //       />
+        //     </Dropdown>
+        //     <Dropdown
+        //       overlay={orgComposeAndMergeMenues}
+        //       trigger={['click']}
+        //       placement="bottomRight"
+        //     >
+        //       <Button
+        //         type="primary"
+        //         className={`w-16 h-14 px-6 py-6 rounded-lg flex items-center justify-center gap-2`}
+        //         icon={<BsThreeDotsVertical size={16} />}
+        //       />
+        //     </Dropdown>
+        //   </div>
+        // }
       >
         {/* this is where we add the structure and chart */}
-        <div className="flex justify-end">
+        {/* <div className="flex justify-end">
           <Menu
-            className="w-[250px] rounded-2xl py-2 px-6 h-max"
+            className="w-[250px] rounded-2xl py-2 pl-10 h-max border-none"
             items={items}
             mode="horizontal"
             defaultActiveFirst
             onClick={onMenuClick}
           />
-        </div>
+        </div> */}
         <div className="w-full py-7 overflow-x-auto ">
           {orgStructureLoading ? (
             <OrgChartSkeleton loading={orgStructureLoading} />
@@ -332,7 +298,7 @@ const OrgChartComponent: React.FC = () => {
             loading={deleteLoading}
           />
         </div>
-        <CustomDrawer
+        {/* <CustomDrawer
           loading={transferDepartment ? isTransferLoading : isLoading}
           visible={drawerVisible}
           onClose={() => {
@@ -356,7 +322,7 @@ const OrgChartComponent: React.FC = () => {
           }}
           title={drawTitle}
           form={form}
-        />
+        /> */}
       </Card>
 
       <CreateEmployeeJobInformation id={userId} />
