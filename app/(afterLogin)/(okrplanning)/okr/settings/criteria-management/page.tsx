@@ -100,7 +100,9 @@ function Page() {
       key: 'action',
       render: (record: any) => (
         <div className="flex space-x-2">
-          <AccessGuard permissions={[Permissions.UpdateVpScoringConfigurations]}>
+          <AccessGuard
+            permissions={[Permissions.UpdateVpScoringConfigurations]}
+          >
             <Button
               type="default"
               className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-500 border-none"

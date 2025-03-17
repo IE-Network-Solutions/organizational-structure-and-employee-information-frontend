@@ -253,7 +253,6 @@ const MilestoneView: React.FC<OKRProps> = ({
 
   const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
 
-
   return (
     <div
       className="py-4  border-b-[1px] border-gray-300"

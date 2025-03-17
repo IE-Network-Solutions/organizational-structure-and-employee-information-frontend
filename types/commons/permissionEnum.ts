@@ -69,7 +69,7 @@ export enum Permissions {
   GrantAllOKRAccess = 'grant-all-okr-access',
 
   // Time and Attendance break type settings
-  CreateBreakType = 'create-break-type', 
+  CreateBreakType = 'create-break-type',
   UpdateBreakType = 'update-break-type',
   DeleteBreakType = 'delete-break-type',
 
@@ -77,10 +77,10 @@ export enum Permissions {
   UpdateTimeZone = 'update-time-zone',
 
   // sidebar Permissions
-  
+
   DownloadOrganizationStructure = 'download-organization-structure',
   ViewOrganizationStructureUsertree = 'view-organization-structure-user-tree',
-  ViewOrganizationStructureDepartmentTree = 'view-organization-structure-user-tree',
+  ViewOrganizationStructureDepartmentTree = 'view-organization-structure-department-tree',
   ViewOrganizationStructureSetting = 'view-organization-structure-setting',
   ViewManageEmployees = 'view-manage-employees',
   ViewChangeBranchRequestSideBar = 'view-change-branch-request-side-bar',
@@ -159,7 +159,6 @@ export enum Permissions {
   AssignWorkingScheduleToOrg = 'assign-working-schedule-organization',
   AssignCalendarToOrg = 'assign-calendar-organization',
   ViewOrgStructureSidebar = 'view-organization-structure-sidebar',
-
 
   // Employee Document Permissions
   DownloadEmployeeDocument = 'download-employee-document',
