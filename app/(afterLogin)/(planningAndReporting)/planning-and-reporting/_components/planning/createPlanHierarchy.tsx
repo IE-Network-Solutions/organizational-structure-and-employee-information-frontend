@@ -76,6 +76,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
     <Collapse defaultActiveKey={0}>
       {formattedData.map((objective) => (
         <Collapse.Panel
+          forceRender={true}
           header={
             <div>
               <strong>Objective:</strong> {objective.title}
@@ -116,6 +117,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                           </div>
                           <div className="flex items-center">
                             <Button
+                              id={`plan-as-task_${keyResult?.id ?? ''}${milestone?.id ?? ''}${task?.id ?? ''}`}
                               onClick={() => {
                                 setMKAsATask(null);
                                 handleAddBoard(
@@ -190,6 +192,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                       </div>
                       <div className="flex items-center">
                         <Button
+                          id={`plan-as-task_${keyResult?.id ?? ''}${task?.id ?? ''}`}
                           onClick={() => {
                             setMKAsATask(null);
                             handleAddBoard(`${keyResult.id}${task.id}`);
