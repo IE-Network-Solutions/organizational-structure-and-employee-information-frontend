@@ -114,9 +114,13 @@ export interface OKRState {
   keyResults?: KeyResult[];
   objective: Objective;
   objectiveValue: Objective;
+  keyResultId: string;
+  objectiveId: string;
   setObjective: (objective: Objective) => void;
   setObjectiveValue: (objectiveValue: Objective) => void;
   setKeyResult: (keyResult: KeyResult[]) => void;
+  setKeyResultId: (keyResultId: string) => void;
+  setObjectiveId: (objectiveId: string) => void;
   addKeyResult: () => void;
   addKeyResultValue: (value: any) => void;
   handleKeyResultChange: (value: any, index: number, field: string) => void;

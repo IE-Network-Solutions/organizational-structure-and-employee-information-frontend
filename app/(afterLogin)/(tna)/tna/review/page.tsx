@@ -50,6 +50,7 @@ const TnaReviewPage = () => {
       <div className="flex items-center gap-1.5">
         <div className="flex-1">
           <UserCard
+            data={employeeData}
             name={fullName}
             profileImage={employeeData?.profileImage}
             size="small"

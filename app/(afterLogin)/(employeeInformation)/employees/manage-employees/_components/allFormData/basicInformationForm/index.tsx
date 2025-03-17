@@ -73,9 +73,6 @@ const BasicInformationForm = ({ form }: any) => {
     return '';
   };
 
-  const disableFutureDates = (current: any) => {
-    return current && current > dayjs().endOf('day');
-  };
   return (
     <div className="">
       <Row justify="center" style={{ width: '100%' }}>
@@ -233,9 +230,17 @@ const BasicInformationForm = ({ form }: any) => {
             rules={[{ required: true }]}
           >
             <DatePicker
-              onChange={(date) => setBirthDate(date)}
               className="w-full"
-              disabledDate={disableFutureDates}
+              onChange={(date) => setBirthDate(date)}
+              defaultPickerValue={dayjs().subtract(18, 'years')}
+              disabledDate={(current) => {
+                const minDate = dayjs().subtract(100, 'years');
+                const maxDate = dayjs().subtract(18, 'years');
+                return (
+                  current &&
+                  (current.isBefore(minDate) || current.isAfter(maxDate))
+                );
+              }}
             />
           </Form.Item>
         </Col>
