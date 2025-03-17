@@ -38,7 +38,6 @@ import { useTransferStore } from '@/store/uistate/features/organizationStructure
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { Form } from 'antd';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
-import { BarChartOutlined, UserOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 
 const renderTreeNodes = (
@@ -206,13 +205,11 @@ const OrgChartComponent: React.FC = () => {
   const items = [
     {
       key: 'structure',
-      icon: <BarChartOutlined />,
       label: 'Structure',
     },
     {
-      key: 'user',
-      icon: <UserOutlined />,
-      label: 'User',
+      key: 'chart',
+      label: 'Chart',
     },
   ];
 
@@ -223,7 +220,7 @@ const OrgChartComponent: React.FC = () => {
       case 'structure':
         router.push('/organization/chart/org-structure');
         break;
-      case 'user':
+      case 'chart':
         router.push('/organization/chart/org-chart');
         break;
       default:
@@ -253,7 +250,21 @@ const OrgChartComponent: React.FC = () => {
               trigger={['click']}
               placement="bottomRight"
             >
-              <CustomButton title="" icon={<BsThreeDotsVertical size={18} />} />
+              <CustomButton
+                title=""
+                icon={
+                  <BsThreeDotsVertical
+                    size={20}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '100%',
+                      height: '100%',
+                    }}
+                  />
+                }
+              />
             </Dropdown>
           </div>
         }
@@ -290,7 +301,7 @@ const OrgChartComponent: React.FC = () => {
                     isRoot={true}
                   />
                 }
-                lineWidth={'2px'}
+                lineWidth={'1px'}
                 lineColor={'#CBD5E0'}
                 lineBorderRadius={'10px'}
               >
