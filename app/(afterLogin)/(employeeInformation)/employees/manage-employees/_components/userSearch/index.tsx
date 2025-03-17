@@ -6,7 +6,7 @@ import {
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useDebounce } from '@/utils/useDebounce';
 import { Col, Input, Row, Select } from 'antd';
-import React, { useState } from 'react';
+import React from 'react';
 
 const { Option } = Select;
 
