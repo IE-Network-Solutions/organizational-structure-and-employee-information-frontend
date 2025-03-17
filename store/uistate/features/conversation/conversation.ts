@@ -35,8 +35,8 @@ export interface CategoriesUseState {
 
   setOpen: (value: boolean) => void;
 
-  searchQuery:string,
-   setSearchQuery:(searchQuery:string)=>void;
+  searchQuery: string;
+  setSearchQuery: (searchQuery: string) => void;
 
   questions: any;
   setQuestions: (questions: any) => void;
@@ -127,9 +127,8 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   pageSize: 10,
   setPageSize: (pageSize: number) => set({ pageSize }),
 
-  searchQuery:'',
+  searchQuery: '',
   setSearchQuery: (searchQuery: string) => set({ searchQuery }),
-
 
   setTotalPages: (totalPages: number) => set({ totalPages }),
 

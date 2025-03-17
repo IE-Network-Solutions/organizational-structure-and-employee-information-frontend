@@ -1,9 +1,10 @@
 'use client';
 import { FC, ReactNode, useEffect, useState } from 'react';
 import { Card, ConfigProvider, Menu, MenuProps } from 'antd';
-import { TbLayoutList } from 'react-icons/tb';
+import { MdOutlinePayments } from 'react-icons/md';
 import { usePathname, useRouter } from 'next/navigation';
-import { FaBomb } from 'react-icons/fa';
+import { HiOutlineReceiptTax } from 'react-icons/hi';
+import { GiSuspensionBridge } from 'react-icons/gi';
 
 interface OkrSettingsLayoutProps {
   children: ReactNode;
@@ -41,7 +42,7 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'tax-rule',
         icon: (
-          <TbLayoutList
+          <HiOutlineReceiptTax
             className={
               currentItem === 'tax-rule' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
@@ -56,7 +57,7 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'pension',
         icon: (
-          <TbLayoutList
+          <GiSuspensionBridge
             className={
               currentItem === 'pension' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
@@ -72,7 +73,7 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'pay-period',
         icon: (
-          <FaBomb
+          <MdOutlinePayments
             className={
               currentItem === 'pey-period' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }

@@ -4,7 +4,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   AppstoreOutlined,
   BarChartOutlined,
-  UserOutlined,
   MenuOutlined,
 } from '@ant-design/icons';
 import {
@@ -18,6 +17,12 @@ const { Header, Content, Sider } = Layout;
 import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
+import { TbMessage2 } from 'react-icons/tb';
+import { AiOutlineDollarCircle } from 'react-icons/ai';
+import { CiBookmark } from 'react-icons/ci';
+import { TbCreditCardPay } from 'react-icons/tb';
+import { PiMoneyLight } from 'react-icons/pi';
+
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuUsers2 } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
@@ -103,7 +108,7 @@ const menuItems: MenuProps['items'] = [
   {
     key: '/feedback',
     label: 'CFR',
-    icon: <UserOutlined />,
+    icon: <TbMessage2 />,
     className: 'font-bold',
     children: [
       {
@@ -135,10 +140,12 @@ const menuItems: MenuProps['items'] = [
   },
   {
     key: '/tna',
-    icon: <BarChartOutlined />,
+    icon: <CiBookmark />,
     className: 'font-bold',
     label: 'Learning & Growth',
     children: [
+      { key: '/tna/my-training', label: 'My-TNA', className: 'font-bold' },
+
       {
         key: '/tna/management',
         label: 'Training Management',
@@ -155,7 +162,7 @@ const menuItems: MenuProps['items'] = [
   // payroll
   {
     key: '/payroll',
-    icon: <PiSuitcaseSimpleThin />,
+    icon: <AiOutlineDollarCircle />,
     className: 'font-bold',
     label: 'Payroll',
     children: [
@@ -203,7 +210,7 @@ const menuItems: MenuProps['items'] = [
   },
   {
     key: '/compensation',
-    icon: <CiCalendar />,
+    icon: <PiMoneyLight />,
     className: 'font-bold',
     label: 'Compensation & Benefit',
     children: [
@@ -231,7 +238,7 @@ const menuItems: MenuProps['items'] = [
   },
   {
     key: '/incentive',
-    icon: <CiCalendar />,
+    icon: <TbCreditCardPay />,
     className: 'font-bold',
     label: 'Incentive',
     children: [
@@ -436,7 +443,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             inlineCollapsed={collapsed}
             onClick={handleMenuClick}
             selectedKeys={[pathname]}
-            className={`my-5 [&_.ant-menu-item-selected]:!bg-[#3636F0] [&_.ant-menu-item-selected]:!text-white h-96`}
+            className={`my-5 [&_.ant-menu-item-selected]:!bg-gray-200 [&_.ant-menu-item-selected]:!text-black h-96`}
           />
         </div>
       </Sider>
