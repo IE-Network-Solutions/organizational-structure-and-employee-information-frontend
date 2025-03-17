@@ -49,6 +49,10 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       mutations: {
         onError(error: any) {
           if (error?.response?.status === 401) {
+            sessionStorage.setItem(
+              'redirectAfterLogin',
+              window.location.pathname,
+            );
             handleLogout();
           }
           handleNetworkError(error);
@@ -66,6 +70,10 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       onError(error: any) {
         if (error.response) {
           if (error.response.status === 401) {
+            sessionStorage.setItem(
+              'redirectAfterLogin',
+              window.location.pathname,
+            );
             handleLogout();
           }
         }

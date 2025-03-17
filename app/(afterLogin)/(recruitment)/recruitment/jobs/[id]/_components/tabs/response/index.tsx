@@ -115,30 +115,31 @@ const JobResponse: React.FC<JobResponseParams> = ({ selectedCandidate }) => {
                 </List.Item>
                 <List.Item>
                   <div className="flex flex-col gap-4">
-                    {jobInfo?.additionalInformation?.map(
-                      (addInfo: any, index: number) => (
-                        <div key={index} className="flex flex-col mt-2 ">
-                          <div className="flex justify-between gap-5">
-                            <span className="text-md font-normal text-gray-500">
-                              Question No {index + 1}:
-                            </span>
-                            <span className="text-md font-normal">
-                              {getJobQuestionNames(addInfo?.question)
-                                ?.question || ''}
-                            </span>
-                          </div>
+                    {Array.isArray(jobInfo?.additionalInformation) &&
+                      jobInfo.additionalInformation.map(
+                        (addInfo: any, index: number) => (
+                          <div key={index} className="flex flex-col mt-2 ">
+                            <div className="flex justify-between gap-5">
+                              <span className="text-md font-normal text-gray-500">
+                                Question No {index + 1}:
+                              </span>
+                              <span className="text-md font-normal">
+                                {getJobQuestionNames(addInfo?.question)
+                                  ?.question || ''}
+                              </span>
+                            </div>
 
-                          <div className="flex justify-between gap-5">
-                            <span className="text-md font-normal text-gray-500">
-                              Response:
-                            </span>
-                            <span className="text-md font-normal">
-                              {addInfo?.answer}
-                            </span>
+                            <div className="flex justify-between gap-5">
+                              <span className="text-md font-normal text-gray-500">
+                                Response:
+                              </span>
+                              <span className="text-md font-normal">
+                                {addInfo?.answer}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      ),
-                    )}
+                        ),
+                      )}
                   </div>
                 </List.Item>
               </>

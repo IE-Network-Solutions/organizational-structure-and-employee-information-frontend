@@ -158,6 +158,10 @@ const EditCandidate: React.FC = () => {
                     required: true,
                     message: 'Please input the email address!',
                   },
+                  {
+                    type: 'email',
+                    message: 'Please enter a valid email address!',
+                  },
                 ]}
               >
                 <Input
@@ -177,9 +181,10 @@ const EditCandidate: React.FC = () => {
                   </span>
                 }
                 rules={[
+                  { required: true, message: 'Please input the phone number!' },
                   {
-                    required: true,
-                    message: 'Please input the phone number!',
+                    pattern: /^\+?[1-9]\d{1,14}$/,
+                    message: 'Please enter a valid phone number!',
                   },
                 ]}
               >

@@ -20,6 +20,21 @@ const addRecognitionType = async (data: any) => {
     headers,
   });
 };
+const updateRecognitionTypeWithCriteria = async (data: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/update-recognition/with-criteria/${data?.id}`,
+    method: 'patch',
+    data,
+    headers,
+  });
+};
+
 const updateRecognitionType = async (data: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -80,6 +95,17 @@ const deleteRecognitionType = async (id: any) => {
     url: `${ORG_DEV_URL}/recognition-type/${id}`,
     method: 'delete',
     headers,
+  });
+};
+export const useUpdateRecognitionWithCriteria = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateRecognitionTypeWithCriteria, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('recognitionTypes');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
   });
 };
 export const useUpdateRecognitionType = () => {
