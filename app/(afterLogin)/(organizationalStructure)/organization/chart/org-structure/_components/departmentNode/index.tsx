@@ -38,22 +38,24 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
   );
 
   return (
-    <Card className="p-1.5 rounded-3xl inline-block  border-[#CBD5E0] border-2 sm:w-auto ">
+    <Card className="p-1.5 rounded-3xl inline-block  border-[#CBD5E0] border-2 sm:w-auto">
       {isRoot && (
-        <Button
-          id="ceoButton"
-          icon={<PlusOutlined />}
-          size="small"
-          type="primary"
-          className={`p-2 rounded-full absolute bottom-[-10px] center-[-40px] hide-on-download`}
-          onClick={onAdd}
-        />
+        <div className="flex justify-center items-center z-50">
+          <Button
+            id="ceoButton"
+            icon={<PlusOutlined />}
+            size="small"
+            type="primary"
+            className={`rounded-full absolute bottom-[-10px] hide-on-download z-50`}
+            onClick={onAdd}
+          />
+        </div>
       )}
       {!isRoot && (
         <Dropdown
           overlay={menu}
           trigger={['click']}
-          className="absolute top-[5px] right-[5px]  hide-on-download "
+          className="absolute top-[1px]  hide-on-download "
         >
           <Button
             icon={<Pencil size={8} />}
