@@ -2,21 +2,15 @@
 
 import React from 'react';
 import { Avatar, Typography, Tag, Card, Table, Space } from 'antd';
-import { MailOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { useGetSettlementTracking } from '@/store/server/features/payroll/settlementTracking/queries';
 import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useParams } from 'next/navigation';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const { Title, Text } = Typography;
 
-type SettlementDetailProps = {
-  isDetail: boolean;
-};
-
-const SettlementDetail: React.FC<SettlementDetailProps> = ({ isDetail }) => {
+const SettlementDetail = () => {
   const params = useParams();
   const employeeId = params?.id as string;
 
@@ -26,14 +20,7 @@ const SettlementDetail: React.FC<SettlementDetailProps> = ({ isDetail }) => {
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: compensationDatas } = useGetAllowance();
   const { data: employeeData } = useGetAllUsers();
-  const { data: departmentData } = useGetDepartments();
 
-  const getDepartmentName = (departmentId: any) => {
-    const deparment = departmentData?.find(
-      (item: any) => item.id === departmentId,
-    );
-    return deparment?.name ?? '';
-  };
   const getCompensationName = (compensationId: any) => {
     const compensation = compensationDatas?.find(
       (item: any) => item.id === compensationId,
@@ -45,7 +32,11 @@ const SettlementDetail: React.FC<SettlementDetailProps> = ({ isDetail }) => {
     const payPeriod = payPeriodData?.find(
       (item: any) => item.id === payPeriodId,
     );
-    return payPeriod?.startDate + ' - ' + payPeriod?.endDate;
+    return (
+      payPeriod?.startDate ??
+      'not set' + ' - ' + payPeriod?.endDate ??
+      'not set'
+    );
   };
 
   // Group by compensation ID
@@ -143,48 +134,10 @@ const SettlementDetail: React.FC<SettlementDetailProps> = ({ isDetail }) => {
   const latestEnd = endDates.length
     ? new Date(Math.max(...endDates)).toLocaleDateString()
     : '';
-  const jobPostion = employeeData?.items?.employeeJobInformation?.filter(
-    (item: any) => item?.isPositionActive,
-  );
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="flex gap-8">
-        {!isDetail && (
-          <Card className="w-1/4 shadow-sm">
-            <div className="flex flex-col items-center text-center">
-              <Avatar
-                size={100}
-                src={
-                  getEmployeeName(settlementTrackingData?.[0]?.createdBy)
-                    ?.profilePicture
-                }
-              />
-              <Text className="text-gray-900">
-                {employeeId
-                  ? getEmployeeName(employeeId)?.name
-                  : 'Not mentioned'}
-              </Text>
-              <Text className="text-gray-500 mb-2 text-sm">
-                {`${getDepartmentName(jobPostion?.departmentId)}${jobPostion?.departmentLeadOrNot ? ' Lead' : ''}`}
-              </Text>
-
-              <div className="w-full space-y-4">
-                <div className="flex items-center gap-3 text-sm">
-                  <MailOutlined className="text-gray-400 text-base" />
-                  <Text className="text-gray-700">
-                    {employeeId
-                      ? getEmployeeName(employeeId)?.email
-                      : 'Not mentioned'}
-                  </Text>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <EnvironmentOutlined className="text-gray-400 text-base" />
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
         <Card className="flex-1 shadow-sm">
           <div className="mb-8">
             <Space className="w-full justify-end mb-4">
