@@ -242,4 +242,3 @@ h6 {
 .menu-with-lines .ant-menu-submenu .ant-menu-item:last-child::before {
   content: '└── ';
 }
-
