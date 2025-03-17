@@ -76,7 +76,7 @@ export enum Permissions {
   // Time and Attendance time zone settings
   UpdateTimeZone = 'update-time-zone',
 
-  // Basic Permissions
+  // sidebar Permissions
   
   DownloadOrganizationStructure = 'download-organization-structure',
   ViewOrganizationStructureUsertree = 'view-organization-structure-user-tree',
