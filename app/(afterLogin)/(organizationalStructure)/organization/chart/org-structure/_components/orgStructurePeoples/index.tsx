@@ -38,6 +38,7 @@ import {
 import { useTransferStore } from '@/store/uistate/features/organizationStructure/orgState/transferDepartmentsStore';
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { Form } from 'antd';
+import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
 
 const renderTreeNodes = (
   data: Department[],
@@ -169,6 +170,7 @@ const OrgChartComponent: React.FC = () => {
   const closeDrawer = () => {
     setDrawerVisible(false);
     form.resetFields();
+    reset();
   };
 
   const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
@@ -176,6 +178,7 @@ const OrgChartComponent: React.FC = () => {
   const { data: departments } = useGetDepartments();
 
   const { data: employeeData } = useGetEmployee(userId);
+  const { reset } = useDepartmentStore();
 
   const router = useRouter();
   useEffect(() => {

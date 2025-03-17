@@ -169,6 +169,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                           isMKAsTask={!!mkAsATask}
                           keyResult={task?.keyResult}
                           targetValue={task?.targetValue}
+                          parentPlanId={parentParentId}
                         />
                       </div>
                     ))}
@@ -237,6 +238,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                       isMKAsTask={!!mkAsATask}
                       keyResult={task?.keyResult}
                       targetValue={task?.targetValue}
+                      parentPlanId={parentParentId}
                     />
                   </div>
                 ))}

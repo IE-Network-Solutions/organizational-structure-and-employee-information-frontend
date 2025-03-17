@@ -24,7 +24,7 @@ interface RecognitionFormValues {
     details: string;
   };
   frequency: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
-  parentTypeId?: string;
+  parentTypeId?: string | undefined;
   departmentId: string;
 }
 const { Option } = Select;
@@ -91,8 +91,17 @@ const RecognitionForm: React.FC<PropsData> = ({
     <span className="text-black text-xs font-semibold">{text}</span>
   );
   const onFinish = (values: RecognitionFormValues) => {
+    const { parentTypeId, ...rest } = values;
+
+    // Check if parentTypeId is defined and not an empty string
+    const finalValues = {
+      ...rest,
+      parentTypeId:
+        parentTypeId && parentTypeId.length === 0 ? parentTypeId : undefined,
+    };
+
     if (selectedRecognitionType === '') {
-      createRecognitionType(values, {
+      createRecognitionType(finalValues, {
         onSuccess: () => {
           form.resetFields();
           onClose();
@@ -100,7 +109,7 @@ const RecognitionForm: React.FC<PropsData> = ({
         },
       });
     } else {
-      const { criteria, ...updatedValues } = values; // eslint-disable-line @typescript-eslint/no-unused-vars
+      const { ...updatedValues } = finalValues;
       updateRecognitionType(
         { ...updatedValues, id: selectedRecognitionType },
         {
@@ -113,8 +122,8 @@ const RecognitionForm: React.FC<PropsData> = ({
       );
     }
   };
+
   useEffect(() => {
-    // Update the `parentTypeId` field first
     form.setFieldsValue({
       parentTypeId: parentRecognitionTypeId,
     });
@@ -126,13 +135,13 @@ const RecognitionForm: React.FC<PropsData> = ({
         description: recognitionTypeById.description || '',
         // Uncomment and map criteria keys if needed
         // criteria: recognitionTypeById.recognitionCriteria?.map((item: any) => item?.criterionKey) || [],
-        isMonetized: recognitionTypeById.isMonetized ?? false, // Default to false
+        isMonetized: recognitionTypeById.isMonetized ?? false,
         requiresCertification:
           recognitionTypeById.requiresCertification ?? false,
-        frequency: recognitionTypeById.frequency || '', // Fallback to empty string
-        departmentId: recognitionTypeById.departmentId || null, // Default to null
+        frequency: recognitionTypeById.frequency || '',
+        departmentId: recognitionTypeById.departmentId || null,
         parentTypeId:
-          recognitionTypeById.parentTypeId || parentRecognitionTypeId, // Fallback to parentTypeId
+          recognitionTypeById.parentTypeId || parentRecognitionTypeId,
       });
     }
   }, [

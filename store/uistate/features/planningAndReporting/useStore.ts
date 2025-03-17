@@ -42,7 +42,7 @@ export interface PlanningAndReporting {
 
   selectedStatuses: Record<string, string | undefined>; // Map task IDs to their statuses
   setStatus: (taskId: string, status: any) => void; // Function to update status
-
+  resetStatuses: () => void;
   page: number; // Map task IDs to their statuses
   setPage: (page: number) => void; // Function to update status
   pageSize: number;
@@ -79,6 +79,7 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
           [taskId]: status, // Update the specific task status
         },
       })),
+    resetStatuses: () => set({ selectedStatuses: {} }), // Reset to initial state
 
     openReportModal: false,
     setOpenReportModal: (openReportModal: boolean) => set({ openReportModal }),

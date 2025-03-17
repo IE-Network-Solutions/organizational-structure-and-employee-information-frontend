@@ -35,21 +35,21 @@ const QuestionSetForm = () => {
     useUpdateQuestionSetWithQuestionsOnConversationType();
 
   const handleAddQuestion = () => {
-    const currentQuestions = questions; // Step 1: Get the current state
+    const currentQuestions = questions;
 
     const updatedQuestions = [
       ...currentQuestions,
       {
-        id: uuidv4(), // Unique question ID
-        conversationTypeId: activeTab, // Link question to the active conversation
-        question: '', // Default question text
-        fieldType: FieldType.SHORT_TEXT, // Default to SHORT_TEXT
-        field: [], // Default empty options for fields requiring options
-        required: false, // Default not mandatory
-        action: null, // Default action property
+        id: uuidv4(),
+        conversationTypeId: activeTab,
+        question: '',
+        fieldType: FieldType.SHORT_TEXT,
+        field: [],
+        required: false,
+        action: null,
       },
-    ]; // Step 2: Update the state with the new question
-    setQuestions(updatedQuestions); // Step 3: Set the new state
+    ];
+    setQuestions(updatedQuestions);
   };
 
   const handleRemoveQuestion = (id: any) => {
@@ -59,9 +59,33 @@ const QuestionSetForm = () => {
 
   const handleChangeQuestion = (id: any, key: any, value: any) => {
     const currentQuestions = questions;
-    const updatedQuestions = currentQuestions.map((q: any) =>
-      q.id === id ? { ...q, [key]: value } : q,
-    );
+    const updatedQuestions = currentQuestions.map((q: any) => {
+      if (q.id === id) {
+        const requiresOptions = [
+          FieldType.DROPDOWN,
+          FieldType.MULTIPLE_CHOICE,
+          FieldType.RADIO,
+        ].includes(value);
+
+        // If switching to a field type that requires options, add two empty options
+        if (
+          key === 'fieldType' &&
+          requiresOptions &&
+          (!q.field || q.field.length === 0)
+        ) {
+          return {
+            ...q,
+            [key]: value,
+            field: [
+              { id: uuidv4(), value: '' },
+              { id: uuidv4(), value: '' },
+            ],
+          };
+        }
+        return { ...q, [key]: value };
+      }
+      return q;
+    });
     setQuestions(updatedQuestions);
   };
 
@@ -95,6 +119,13 @@ const QuestionSetForm = () => {
 
   const handleRemoveOption = (questionId: any, optionId: any) => {
     const currentQuestions = questions;
+    const question = currentQuestions.find((q: any) => q.id === questionId);
+
+    // Prevent removing if only 2 options remain
+    if (question?.field?.length <= 2) {
+      return;
+    }
+
     const updatedQuestions = currentQuestions.map((q: any) =>
       q.id === questionId
         ? {
@@ -129,13 +160,11 @@ const QuestionSetForm = () => {
 
   useEffect(() => {
     if (editableData !== null) {
-      setQuestions(editableData.conversationsQuestions || []); // Set questions state
-      // Populate form fields with editableData
+      setQuestions(editableData.conversationsQuestions || []);
       form.setFieldsValue({
         name: editableData.name || '',
         id: editableData.id || '',
-        // meetingAgenda: editableData.meetingAgenda || '',
-        active: editableData.active ?? true, // Default to true if undefined
+        active: editableData.active ?? true,
         conversationTypeId: editableData.conversationTypeId || '',
         conversationsQuestions: editableData.conversationsQuestions || [],
       });
@@ -148,9 +177,85 @@ const QuestionSetForm = () => {
       if (hasEmptyQuestion) {
         return Promise.reject(new Error('Question text cannot be empty.'));
       }
+
+      // Check if options are required and present (at least 2)
+      const hasInvalidOptions = questions.some((q: any) => {
+        const requiresOptions = [
+          FieldType.DROPDOWN,
+          FieldType.MULTIPLE_CHOICE,
+          FieldType.RADIO,
+        ].includes(q.fieldType);
+
+        return requiresOptions && (!q.field || q.field.length < 2);
+      });
+
+      if (hasInvalidOptions) {
+        return Promise.reject(
+          new Error(
+            'Questions with Dropdown, Multiple Choice, or Radio types must have at least two options.',
+          ),
+        );
+      }
+
       return Promise.resolve();
     }
-    return Promise.reject(new Error('You must atleast add one question.'));
+    return Promise.reject(new Error('You must add at least one question.'));
+  };
+
+  // Add this section where the options are rendered
+  const renderOptionsSection = (q: any) => {
+    const requiresOptions = [
+      FieldType.DROPDOWN,
+      FieldType.MULTIPLE_CHOICE,
+      FieldType.RADIO,
+    ].includes(q.fieldType);
+
+    if (!requiresOptions) return null;
+
+    return (
+      <div style={{ marginTop: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <p>Options:</p>
+          {q.field?.length < 2 && (
+            <p style={{ color: 'red', fontSize: '12px', margin: 0 }}>
+              At least 2 options are required
+            </p>
+          )}
+        </div>
+        {q?.field?.map((opt: any) => (
+          <Space key={opt.id} align="baseline" style={{ marginBottom: '8px' }}>
+            <Input
+              placeholder="Enter option value"
+              required
+              value={opt.value}
+              onChange={(e) => handleChangeOption(q.id, opt.id, e.target.value)}
+            />
+            <MinusCircleOutlined
+              onClick={() => handleRemoveOption(q.id, opt.id)}
+              style={{
+                color: 'red',
+                cursor: q.field.length <= 2 ? 'not-allowed' : 'pointer',
+              }}
+              disabled={q.field.length <= 2}
+            />
+          </Space>
+        ))}
+        <Button
+          type="dashed"
+          onClick={() => handleAddOption(q.id)}
+          icon={<PlusOutlined />}
+          style={{ marginTop: '8px', display: 'inline-block' }}
+        >
+          Add Option
+        </Button>
+      </div>
+    );
   };
 
   return (
@@ -207,7 +312,6 @@ const QuestionSetForm = () => {
       >
         {questions?.map((q: any) => (
           <div key={q.id} style={{ marginBottom: '16px' }}>
-            {/* First Row: Question Input */}
             <div style={{ display: 'flex', marginBottom: '8px' }}>
               <Input
                 placeholder="Enter question"
@@ -219,7 +323,6 @@ const QuestionSetForm = () => {
               />
             </div>
 
-            {/* Second Row: Field Type, Required, Remove */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Select
                 placeholder="Select Field Type"
@@ -232,7 +335,6 @@ const QuestionSetForm = () => {
                 <Option value={FieldType.MULTIPLE_CHOICE}>
                   Multiple Choice
                 </Option>
-                <Option value={FieldType.CHECKBOX}>Checkbox</Option>
                 <Option value={FieldType.SHORT_TEXT}>Short Text</Option>
                 <Option value={FieldType.PARAGRAPH}>Paragraph</Option>
                 <Option value={FieldType.TIME}>Time</Option>
@@ -256,41 +358,7 @@ const QuestionSetForm = () => {
             </div>
 
             {/* Options (Visible Only for Certain Field Types) */}
-            {(q.fieldType === FieldType.DROPDOWN ||
-              q.fieldType === FieldType.MULTIPLE_CHOICE ||
-              q.fieldType === FieldType.RADIO) && (
-              <div style={{ marginTop: '8px' }}>
-                <p>Options:</p>
-                {q?.field?.map((opt: any) => (
-                  <Space
-                    key={opt.id}
-                    align="baseline"
-                    style={{ marginBottom: '8px' }}
-                  >
-                    <Input
-                      placeholder="Enter option value"
-                      required
-                      value={opt.value}
-                      onChange={(e) =>
-                        handleChangeOption(q.id, opt.id, e.target.value)
-                      }
-                    />
-                    <MinusCircleOutlined
-                      onClick={() => handleRemoveOption(q.id, opt.id)}
-                      style={{ color: 'red' }}
-                    />
-                  </Space>
-                ))}
-                <Button
-                  type="dashed"
-                  onClick={() => handleAddOption(q.id)}
-                  icon={<PlusOutlined />}
-                  style={{ marginTop: '8px', display: 'inline-block' }}
-                >
-                  Add Option
-                </Button>
-              </div>
-            )}
+            {renderOptionsSection(q)}
           </div>
         ))}
 

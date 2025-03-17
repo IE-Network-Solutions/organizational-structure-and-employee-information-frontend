@@ -91,6 +91,14 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       },
       link: '/timesheet/settings/approvals',
     },
+    {
+      item: {
+        key: 'time-zone',
+        icon: <TbLayoutList />,
+        label: <p className="menu-item-label">Time Zone</p>,
+      },
+      link: '/timesheet/settings/time-zone',
+    },
   ]);
 
   return (

@@ -14,6 +14,7 @@ import PermissionWrapper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import ChangePasswordModal from './_components/changePasswordModal';
 import { useModalStore } from '@/store/uistate/features/authentication/changePasswordModal';
+import AccessGuard from '@/utils/permissionGuard';
 
 function PersonalDataComponent({
   id,
@@ -22,7 +23,8 @@ function PersonalDataComponent({
   id: string;
   handleSaveChanges: any;
 }) {
-  const { setEdit, edit } = useEmployeeManagementStore();
+  const { setEdit, edit, setBirthDate, birthDate } =
+    useEmployeeManagementStore();
   const { openModal } = useModalStore();
   const [form] = Form.useForm();
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -92,6 +94,7 @@ function PersonalDataComponent({
                     >
                       <DatePicker
                         className="w-full"
+                        onChange={(date) => setBirthDate(date)}
                         defaultPickerValue={dayjs('2000-01-01')} // Opens the calendar with the year 2000
                         disabledDate={(current) => {
                           const minDate = dayjs().subtract(100, 'years'); // Minimum date is 100 years ago
@@ -173,7 +176,17 @@ function PersonalDataComponent({
                         },
                       ]}
                     >
-                      <DatePicker className="w-full" />
+                      <DatePicker
+                        disabledDate={(current) => {
+                          if (!birthDate) return false; // Ensure birthDate exists
+
+                          const minJoinedDate = dayjs(birthDate)
+                            .add(15, 'years')
+                            .startOf('day');
+                          return current && current.isBefore(minJoinedDate);
+                        }}
+                        className="w-full"
+                      />
                     </Form.Item>
                   </Col>
                   <Col span={24} style={{ textAlign: 'right' }}>
@@ -205,9 +218,11 @@ function PersonalDataComponent({
                     employeeData?.employeeInformation?.nationality?.name || '-'
                   }
                 />
-                <Button type="primary" htmlType="submit" onClick={openModal}>
-                  Change Password?
-                </Button>
+                <AccessGuard permissions={[Permissions.ChangePassword]}>
+                  <Button type="primary" htmlType="submit" onClick={openModal}>
+                    Change Password?
+                  </Button>
+                </AccessGuard>
               </Col>
               <Col lg={10}>
                 <InfoLine

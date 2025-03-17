@@ -23,6 +23,7 @@ interface FormField {
   fieldType: 'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox';
   isActive: boolean;
   options: string[];
+  fieldValidation: string;
 }
 
 const AddCustomField: React.FC<any> = ({
@@ -71,6 +72,7 @@ const AddCustomField: React.FC<any> = ({
       fieldName: formattedFieldName,
       fieldType: values.fieldType,
       isActive: values.isActive,
+      fieldValidation: values.fieldValidation,
       options: values.options || [],
     };
 
@@ -114,6 +116,22 @@ const AddCustomField: React.FC<any> = ({
           <Option value="input">Input</Option>
         </Select>
       </Form.Item>
+
+      <Form.Item
+        label="Field Validation"
+        name="fieldValidation"
+        rules={[{ required: true, message: 'Field Validation is required' }]}
+      >
+        <Select>
+          <Option value="text">Text</Option>
+          <Option value="number">Number</Option>
+          <Option value="email">Email</Option>
+          <Option value="date">Date</Option>
+          <Option value="url">URL</Option>
+          <Option value="any">any</Option>
+        </Select>
+      </Form.Item>
+
       <Form.Item label="Is Active" name="isActive" valuePropName="checked">
         <Switch
           checked={isActive}
@@ -139,7 +157,7 @@ const AddCustomField: React.FC<any> = ({
       <Row gutter={16}>
         <Col xs={24} sm={24} className="flex justify-center items-center">
           <Form.Item className="font-semibold text-xs">
-            <Popover content={popoverContent} title={formTitle} trigger="hover">
+            <Popover content={popoverContent} title={formTitle} trigger="click">
               <Button
                 id={`addCustomField${formTitle}`}
                 type="primary"

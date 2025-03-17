@@ -147,8 +147,8 @@ const CustomFieldsDrawer: React.FC<{
                 Field Type
               </span>
             }
-            rules={[{ required: true, message: 'Please Choose field type' }]}
             name="fieldType"
+            rules={[{ required: true, message: 'Field type is required' }]}
           >
             <Select allowClear placeholder="Select type">
               <Option value="multiple_choice">Multiple Choice</Option>

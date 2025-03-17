@@ -1,18 +1,18 @@
-import { Progress, Dropdown, Menu } from 'antd';
+import { Dropdown, Menu, Progress } from 'antd';
 import { FC, useState } from 'react';
-import { IoIosMore } from 'react-icons/io';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
+import { IoIosMore } from 'react-icons/io';
 
 interface KPIMetricsProps {
   keyResult: any;
   myOkr: boolean;
 }
 
-const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
+const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: deleteKeyResult } = useDeleteKeyResult();
@@ -77,7 +77,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult, myOkr }) => {
               size={20}
             />
             <span className="text-lg">{keyResult?.progress || 0}%</span>
-            {myOkr && (
+            {keyResult?.isClosed === false && (
               <Dropdown
                 overlay={menu}
                 trigger={['click']}

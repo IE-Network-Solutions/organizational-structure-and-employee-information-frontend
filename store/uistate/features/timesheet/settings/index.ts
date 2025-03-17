@@ -8,12 +8,15 @@ type TimesheetSettingsState = {
   isShowNewAccrualRuleSidebar: boolean;
   isShowCarryOverRuleSidebar: boolean;
   isShowTypeAndPoliciesSidebar: boolean;
+  isShowTypeAndPoliciesSidebarEdit: boolean;
+  isErrorPlan: boolean;
   isShowClosedDateSidebar: boolean;
   isShowBreakTypeSidebar: boolean;
   isShowLeaveRequestSidebar: boolean;
 
   attendanceNotificationType: AttendanceNotificationType[];
   attendanceTypeId: string | null;
+  leaveTypeId: string | null;
   attendanceRuleId: string | null;
   allowedAreaId: string | null;
   leaveRequestId: string | null;
@@ -34,6 +37,10 @@ type TimesheetSettingsStateAction = {
   setIsShowTypeAndPoliciesSidebar: (
     isShowTypeAndPoliciesSidebar: boolean,
   ) => void;
+  setIsShowTypeAndPoliciesSidebarEdit: (
+    isShowTypeAndPoliciesSidebarEdit: boolean,
+  ) => void;
+  setIsErrorPlan: (isErrorPlan: boolean) => void;
   setIsShowClosedDateSidebar: (isShowClosedDateSidebar: boolean) => void;
   setIsShowBreakTypeSidebar: (isShowBreakTypeSidebar: boolean) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
@@ -42,6 +49,7 @@ type TimesheetSettingsStateAction = {
     attendanceNotificationType: AttendanceNotificationType[],
   ) => void;
   setAttendanceTypeId: (attendanceId: string | null) => void;
+  setLeaveTypeId: (leaveTypeId: string | null) => void;
   setAttendanceRuleId: (attendanceRuleId: string | null) => void;
   setAllowedAreaId: (allowedAreaId: string | null) => void;
   setLeaveRequestId: (leaveRequestId: string | null) => void;
@@ -94,6 +102,18 @@ const timesheetSettingsSlice: StateCreator<
     set({ isShowTypeAndPoliciesSidebar });
   },
 
+  isShowTypeAndPoliciesSidebarEdit: false,
+  setIsShowTypeAndPoliciesSidebarEdit: (
+    isShowTypeAndPoliciesSidebarEdit: boolean,
+  ) => {
+    set({ isShowTypeAndPoliciesSidebarEdit });
+  },
+
+  isErrorPlan: false,
+  setIsErrorPlan: (isErrorPlan: boolean) => {
+    set({ isErrorPlan });
+  },
+
   isShowClosedDateSidebar: false,
   setIsShowClosedDateSidebar: (isShowClosedDateSidebar: boolean) => {
     set({ isShowClosedDateSidebar });
@@ -117,6 +137,11 @@ const timesheetSettingsSlice: StateCreator<
   attendanceTypeId: null,
   setAttendanceTypeId: (attendanceTypeId) => {
     set({ attendanceTypeId });
+  },
+
+  leaveTypeId: null,
+  setLeaveTypeId: (leaveTypeId) => {
+    set({ leaveTypeId });
   },
 
   attendanceRuleId: null,

@@ -167,7 +167,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                 <Button
                                   id="plan-milestone-as-task"
                                   disabled={
-                                    statuses[ml?.id] ||
+                                    statuses[ml?.id] || // Check from Zustand store
                                     ml?.status === 'Completed' ||
                                     form?.getFieldValue(
                                       `names-${kr?.id + ml?.id}`,

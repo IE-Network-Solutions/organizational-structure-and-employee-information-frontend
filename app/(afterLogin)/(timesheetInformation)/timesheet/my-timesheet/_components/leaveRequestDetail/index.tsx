@@ -110,6 +110,7 @@ const LeaveRequestDetail = () => {
             <div className="flex items-center gap-[15px] mb-8">
               <div className="text-xs text-gray-900">Requester:</div>
               <UserCard
+                data={leaveData}
                 name={
                   leaveData?.items?.userId &&
                   userData(String(leaveData?.items?.userId))
