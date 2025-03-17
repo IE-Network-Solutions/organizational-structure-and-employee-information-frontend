@@ -60,7 +60,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
   const { statuses, setClickStatus } = useClickStatus();
 
   return (
-    <Collapse>
+    <Collapse defaultActiveKey={0}>
       {objective?.items?.map((e, panelIndex) => (
         <Collapse.Panel
           forceRender={true}
