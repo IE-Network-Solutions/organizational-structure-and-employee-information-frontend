@@ -96,26 +96,31 @@ const TnaUpdateSidebar = () => {
       onClick: () => form.submit(),
     },
   ];
+
   const onFinish = () => {
     const value = form.getFieldsValue();
-
     const {
-      trainingNeedCategory, // Ignored but no need to disable ESLint
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      trainingNeedCategory,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      trainingProofs: oldProof,
       ...otherValue
-    } = data?.items?.[0] || {}; // Ensure `items` exists before accessing index 0
+    } = data?.items[0] || {};
 
-    const trainingProofs =
-      value.trainingProofs?.map((item: any) => ({
-        attachmentFile: item.attachmentFile?.[0]?.response || null, // Simplified access check
-        link: item.link || null,
-      })) || []; // Ensure `trainingProofs` is always an array
+    const trainingProofs = value.trainingProofs?.map((item: any) => ({
+      attachmentFile: item.attachmentFile?.length
+        ? item.attachmentFile[0]['response']
+        : null,
+      link: item.link || null,
+    }));
 
     updateTna([
       {
-        trainingNeedCategory,
-        ...otherValue, // Keep existing values
-        ...value, // Spread form values to avoid redundancy
-        trainingProofs, // Ensure `trainingProofs` is included
+        ...otherValue,
+        title: value.title,
+        certStatus: value.certStatus,
+        completedAt: value.completedAt,
+        trainingProofs,
       },
     ]);
   };

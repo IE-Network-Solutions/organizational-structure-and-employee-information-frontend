@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { TrainingNeedAssessment } from '@/types/tna/tna';
 
-const setTna = async (items: TrainingNeedAssessment[]) => {
+const setTna = async (items: any) => {
   return await crudRequest({
     url: `${TNA_URL}/tna`,
     method: 'PUT',
