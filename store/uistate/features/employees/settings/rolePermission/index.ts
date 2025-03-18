@@ -52,25 +52,25 @@ interface StoreState {
   selectedPermissions: any;
   setSelectedPermissions: (value: any) => void;
 
+  selectedGroupPermission: string[];
+  setSelectedGroupPermission: (selectedGroupPermission: string[]) => void;
 
-    selectedGroupPermission:string[];
-    setSelectedGroupPermission:(selectedGroupPermission:string[])=>void;
+  selectedPermissionsUnderGroup: string[];
+  setSelectedPermissionsUnderGroup: (
+    selectedPermissionsUnderGroup: string[],
+  ) => void;
 
-    selectedPermissionsUnderGroup:string[],
-    setSelectedPermissionsUnderGroup:(selectedPermissionsUnderGroup:string[])=>void,
+  selectedGroupForModal: any | null;
+  setSelectedGroupForModal: (selectedGroupForModal: any | null) => void;
 
-    selectedGroupForModal:any|null, 
-    setSelectedGroupForModal:(selectedGroupForModal:any|null)=>void,
+  modalVisible: boolean;
+  setModalVisible: (modalVisible: boolean) => void;
 
-    modalVisible:boolean, 
-    setModalVisible:(modalVisible:boolean) =>void,
-    
-    tempSelectedPermissions:string[], 
-    setTempSelectedPermissions:(tempSelectedPermissions:string[])=>void,
-    
-    selectAll:boolean, 
-    setSelectAll:(selectAll:boolean)=> void
-  
+  tempSelectedPermissions: string[];
+  setTempSelectedPermissions: (tempSelectedPermissions: string[]) => void;
+
+  selectAll: boolean;
+  setSelectAll: (selectAll: boolean) => void;
 }
 
 export const useSettingStore = create<StoreState>()(
@@ -118,23 +118,27 @@ export const useSettingStore = create<StoreState>()(
     setSelectedPermissions: (selectedPermissions: any) =>
       set({ selectedPermissions }),
 
+    selectedGroupPermission: [],
+    setSelectedGroupPermission: (selectedGroupPermission: string[]) =>
+      set({ selectedGroupPermission }),
 
-    selectedGroupPermission:[],
-    setSelectedGroupPermission:(selectedGroupPermission:string[])=>set({selectedGroupPermission}),
+    selectedPermissionsUnderGroup: [],
+    setSelectedPermissionsUnderGroup: (
+      selectedPermissionsUnderGroup: string[],
+    ) => set({ selectedPermissionsUnderGroup }),
 
-    selectedPermissionsUnderGroup:[],
-    setSelectedPermissionsUnderGroup:(selectedPermissionsUnderGroup:string[])=>set({selectedPermissionsUnderGroup}),
+    selectedGroupForModal: null,
+    setSelectedGroupForModal: (selectedGroupForModal: any | null) =>
+      set({ selectedGroupForModal }),
 
-    selectedGroupForModal:null, 
-    setSelectedGroupForModal:(selectedGroupForModal:any|null)=>set({selectedGroupForModal}),
+    modalVisible: false,
+    setModalVisible: (modalVisible: boolean) => set({ modalVisible }),
 
-    modalVisible:false, 
-    setModalVisible:(modalVisible:boolean) =>set({modalVisible}),
-    
-    tempSelectedPermissions:[], 
-    setTempSelectedPermissions:(tempSelectedPermissions:string[])=>set({tempSelectedPermissions}),
-    
-    selectAll:false, 
-    setSelectAll:(selectAll:boolean)=> set({selectAll})
+    tempSelectedPermissions: [],
+    setTempSelectedPermissions: (tempSelectedPermissions: string[]) =>
+      set({ tempSelectedPermissions }),
+
+    selectAll: false,
+    setSelectAll: (selectAll: boolean) => set({ selectAll }),
   })),
 );

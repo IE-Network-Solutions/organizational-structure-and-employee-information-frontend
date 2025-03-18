@@ -12,7 +12,7 @@ import { useSettingStore } from '@/store/uistate/features/employees/settings/rol
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
 import { Button, Card, Checkbox, Col, Form, Modal, Row, Select } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { LuPencil } from 'react-icons/lu';
 
 const { Option } = Select;
@@ -27,7 +27,6 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
   const { data: groupPermissionData } =
     useGetPermissionGroupsWithOutPagination();
   const { data: permissionListData } = useGetPermissionsWithOutPagination();
-
 
   const {
     setSelectedRoleOnOption,
@@ -44,8 +43,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
     setSelectAll,
     modalVisible,
     selectAll,
-    tempSelectedPermissions
-
+    tempSelectedPermissions,
   } = useSettingStore();
   const {
     mutate: employeeRolePermissionUpdate,
