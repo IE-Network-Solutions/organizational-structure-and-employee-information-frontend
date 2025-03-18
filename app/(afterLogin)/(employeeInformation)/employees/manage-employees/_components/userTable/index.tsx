@@ -72,10 +72,10 @@ const columns: TableColumnsType<EmployeeData> = [
     dataIndex: 'role',
     sorter: (a, b) => a.role.localeCompare(b.role),
   },
-  // {
-  //   title: 'Action',
-  //   dataIndex: 'action',
-  // },
+  {
+    title: 'Action',
+    dataIndex: 'action',
+  },
 ];
 const UserTable = () => {
   const {
@@ -107,6 +107,10 @@ const UserTable = () => {
   const { mutate: rehireEmployee, isLoading: rehireLoading } =
     useRehireTerminatedEmployee();
   const router = useRouter();
+
+  const hasAccess = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewEmployeeDetail],
+  });
 
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
@@ -190,16 +194,6 @@ const UserTable = () => {
       role: item?.role?.name ? item?.role?.name : ' - ',
       action: (
         <div className="flex gap-4 text-white">
-          <AccessGuard permissions={[Permissions.ViewEmployeeDetail]}>
-            <Link href={`manage-employees/${item?.id}`}>
-              <Button
-                id={`editUserButton${item?.id}`}
-                className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
-              >
-                <FaEye />
-              </Button>
-            </Link>
-          </AccessGuard>
           <AccessGuard permissions={[Permissions.DeleteEmployee]}>
             {item.deletedAt === null ? (
               <Tooltip title={'Deactive Employee'}>
@@ -297,11 +291,15 @@ const UserTable = () => {
           ...rowSelection,
         }}
         scroll={{ x: 1000 }}
-        onRow={(record) => ({
-          onClick: () => {
-            router.push(`manage-employees/${record?.key}`);
-          },
-        })}
+        onRow={
+          hasAccess
+            ? (record) => ({
+                onClick: () => {
+                  router.push(`manage-employees/${record?.key}`);
+                },
+              })
+            : undefined
+        }
       />
       <DeleteModal
         deleteText="Confirm"
