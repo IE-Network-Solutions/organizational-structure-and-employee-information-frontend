@@ -13,14 +13,16 @@ function Index({ params }: { params: Params }) {
   const { id } = params;
 
   const { data: conversationType, isLoading } = useGetConversationById(id);
-  const questionSetListData = conversationType?.questionSets?.map(
+
+  const questionSetListData = conversationType?.questionSets?.filter((item: any) => item.active === true)
+  ?.map(
     (item: any) => {
       const userIds = item?.conversationInstances
-        .flatMap((instance: any) => instance.userId || []) // Collect and flatten userId arrays
+        .flatMap((instance: any) => instance.userId || []) 
         .filter(
           (id: string, index: number, array: any) =>
             array?.indexOf(id) === index,
-        ); // Deduplicate
+        ); 
       return {
         id: item?.id,
         title: item?.name,
@@ -30,6 +32,7 @@ function Index({ params }: { params: Params }) {
       };
     },
   );
+
 
   return (
     <TabLandingLayout

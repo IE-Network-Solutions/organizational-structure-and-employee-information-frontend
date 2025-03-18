@@ -30,6 +30,7 @@ import { UploadFile } from 'antd/lib';
 import { RcFile } from 'antd/es/upload';
 import { HiOutlineMail } from 'react-icons/hi';
 import { MdKeyboardArrowRight } from 'react-icons/md';
+import SettlementDetail from './_components/settlementDetail';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -41,8 +42,8 @@ const EmployeeProfile = () => {
   const openPayPeriods = payPeriodData?.filter(
     (period: any) => period.status === 'OPEN',
   );
-  const params = useParams();
-  const empId = params?.id as string;
+  const { id } = useParams();
+  const empId = id as string;
 
   const { data: employee, isLoading } = useGetEmployee(empId);
   const { data: payroll } = useGetActivePayroll();
@@ -620,6 +621,9 @@ const EmployeeProfile = () => {
                       );
                     })}
                 </>
+              </TabPane>
+              <TabPane tab="Settlement Tracking" key="3">
+                <SettlementDetail />
               </TabPane>
             </Tabs>
           </Col>

@@ -6,6 +6,7 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import { TrainingNeedAssessment } from '@/types/tna/tna';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const getTna = async (
   query: Partial<RequestCommonQueryData>,
@@ -13,6 +14,19 @@ const getTna = async (
 ) => {
   return await crudRequest({
     url: `${TNA_URL}/tna`,
+    method: 'POST',
+    headers: requestHeader(),
+    data,
+    params: query,
+  });
+};
+const getTnaByUser = async (
+  query: Partial<RequestCommonQueryData>,
+  data: Partial<TnaRequestBody>,
+) => {
+  const userId = useAuthenticationStore.getState().userId;
+  return await crudRequest({
+    url: `${TNA_URL}/tna/by-user/${userId}`,
     method: 'POST',
     headers: requestHeader(),
     data,
@@ -44,6 +58,21 @@ export const useGetTna = (
   return useQuery<ApiResponse<TrainingNeedAssessment>>(
     ['tna', query, data],
     () => getTna(query, data),
+    {
+      keepPreviousData: isKeepData,
+      enabled: isEnabled,
+    },
+  );
+};
+export const useGetTnaByUser = (
+  query: Partial<RequestCommonQueryData>,
+  data: Partial<TnaRequestBody>,
+  isKeepData: boolean = true,
+  isEnabled: boolean = true,
+) => {
+  return useQuery<ApiResponse<TrainingNeedAssessment>>(
+    ['tna', query, data],
+    () => getTnaByUser(query, data),
     {
       keepPreviousData: isKeepData,
       enabled: isEnabled,
