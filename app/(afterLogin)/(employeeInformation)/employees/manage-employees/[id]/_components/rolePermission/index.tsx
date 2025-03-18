@@ -28,24 +28,24 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
     useGetPermissionGroupsWithOutPagination();
   const { data: permissionListData } = useGetPermissionsWithOutPagination();
 
-  const [selectedGroupPermission, setSelectedGroupPermission] = useState<
-    string[]
-  >([]);
-  const [selectedPermissionsUnderGroup, setSelectedPermissionsUnderGroup] =
-    useState<string[]>([]);
-  const [selectedGroupForModal, setSelectedGroupForModal] = useState<
-    any | null
-  >(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [tempSelectedPermissions, setTempSelectedPermissions] = useState<
-    string[]
-  >([]);
-  const [selectAll, setSelectAll] = useState(false);
 
   const {
     setSelectedRoleOnOption,
     setSelectedRoleOnList,
+    selectedGroupPermission,
+    setSelectedGroupForModal,
     selectedRoleOnOption,
+    setTempSelectedPermissions,
+    setSelectedPermissionsUnderGroup,
+    setModalVisible,
+    selectedPermissionsUnderGroup,
+    setSelectedGroupPermission,
+    selectedGroupForModal,
+    setSelectAll,
+    modalVisible,
+    selectAll,
+    tempSelectedPermissions
+
   } = useSettingStore();
   const {
     mutate: employeeRolePermissionUpdate,
