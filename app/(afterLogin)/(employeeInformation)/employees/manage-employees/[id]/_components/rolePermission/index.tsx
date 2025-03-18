@@ -32,6 +32,7 @@ const [selectedPermissionsUnderGroup, setSelectedPermissionsUnderGroup] = useSta
 const [selectedGroupForModal, setSelectedGroupForModal] = useState<any | null>(null);
 const [modalVisible, setModalVisible] = useState(false);
 const [tempSelectedPermissions, setTempSelectedPermissions] = useState<string[]>([]);
+const [selectAll, setSelectAll] = useState(false);
 
 const { setSelectedRoleOnOption, setSelectedRoleOnList, selectedRoleOnOption } = useSettingStore();
 const { mutate: employeeRolePermissionUpdate, isLoading: rolePermissionUpdateLoading } = useUpdateEmployeeRolePermission();
@@ -145,6 +146,7 @@ const handleConfirmPermissions = () => {
 
   setModalVisible(false);
   setSelectedGroupForModal(null);
+  setSelectAll(false)
 };
 
 const handleUpdateUserRolePermission = (values: any) => {
@@ -154,6 +156,15 @@ const handleUpdateUserRolePermission = (values: any) => {
 
 const handleEditChange = (editKey: keyof EditState) => {
   setEdit(editKey);
+};
+const handleSelectAll = () => {
+  if (selectAll) {
+    setTempSelectedPermissions([]);
+  } else {
+    const allPermissionIds = selectedGroupForModal?.permissions?.map((perm: any) => perm.id) || [];
+    setTempSelectedPermissions(allPermissionIds);
+  }
+  setSelectAll(!selectAll); 
 };
 
   return (
@@ -211,7 +222,7 @@ const handleEditChange = (editKey: keyof EditState) => {
                 name="groupPermissionId"
                 id="groupPermissionId"
                 label="Group Permission"
-                rules={[{ required: true, message: 'Please select a role!' }]}
+                rules={[]}
               >
                 <Select
                   placeholder="Select a Group Permission"
@@ -221,7 +232,7 @@ const handleEditChange = (editKey: keyof EditState) => {
                   value={selectedGroupPermission}
                 >
                   {groupPermissionData?.items?.map((groupPermission) => (
-                    <Option key={groupPermission.id} value={groupPermission.id}>
+                    <Option key={groupPermission.id} disabled={groupPermission?.isBasic} value={groupPermission.id}>
                       {groupPermission.name}
                     </Option>
                   ))}
@@ -247,19 +258,6 @@ const handleEditChange = (editKey: keyof EditState) => {
                   mode="multiple"
                   style={{ width: '100%', overflowY: 'auto' }}
                   onChange={handlePermissionChange}
-                  // options={
-                  //   selectedRoleOnOption
-                  //     ? rolesWithPermission
-                  //         ?.find((role) => role.id === selectedRoleOnOption)
-                  //         ?.permissions.map((perm) => ({
-                  //           label: perm.name,
-                  //           value: perm.id,
-                  //         }))
-                  //     : employeeData?.userPermissions?.map((perm: any) => ({
-                  //         label: perm.permission?.name,
-                  //         value: perm.permissionId,
-                  //       }))
-                  // }
                   value={selectedPermissions}
                   allowClear
                   showSearch
@@ -291,27 +289,35 @@ const handleEditChange = (editKey: keyof EditState) => {
         </Form>
       </Card>
       <Modal
-        title={`Select Permissions for ${selectedGroupForModal?.name}`}
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setModalVisible(false)}>
-            Cancel
-          </Button>,
-          <Button key="confirm" type="primary" onClick={handleConfirmPermissions}>
-            Confirm
-          </Button>,
-        ]}
-      >
-        <Checkbox.Group
-          options={selectedGroupForModal?.permissions.map((perm:any) => ({
-            label: perm.name,
-            value: perm.id,
-          }))}
-          value={tempSelectedPermissions}
-          onChange={handleModalPermissionChange}
-        />
-      </Modal>
+      title={`Select Permissions for ${selectedGroupForModal?.name}`}
+      open={modalVisible}
+      onCancel={() => setModalVisible(false)}
+      footer={[
+        <Button key="cancel" onClick={() => setModalVisible(false)}>
+          Cancel
+        </Button>,
+        <Button key="confirm" type="primary" onClick={handleConfirmPermissions}>
+          Confirm
+        </Button>,
+      ]}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <Checkbox
+          checked={selectAll}
+          onChange={handleSelectAll}
+        >
+          Select All
+        </Checkbox>
+      </div>
+      <Checkbox.Group
+        options={selectedGroupForModal?.permissions.map((perm: any) => ({
+          label: perm.name,
+          value: perm.id,
+        }))}
+        value={tempSelectedPermissions}
+        onChange={handleModalPermissionChange}
+      />
+    </Modal>
 
     </div>
   );
