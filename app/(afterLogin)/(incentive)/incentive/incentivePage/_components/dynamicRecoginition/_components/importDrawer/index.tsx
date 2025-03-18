@@ -8,17 +8,21 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { MdOutlineUploadFile } from 'react-icons/md';
 import { useImportData } from '@/store/server/features/incentive/all/mutation';
-import { useAllRecognition } from '@/store/server/features/incentive/other/queries';
+import { useRecognitionByParentId } from '@/store/server/features/incentive/other/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { IoInformationCircleOutline } from 'react-icons/io5';
 import DownloadExcelButton from '../dowloadTemplateExcel';
 
-const ImportData: React.FC = () => {
+interface ImportDataProps {
+  parentRecognitionId: string;
+}
+const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
   const [form] = Form.useForm();
   const { projectDrawer, setProjectDrawer, selectedRecognition } =
     useIncentiveStore();
-  const { mutate: importData, isLoading: submitPending } = useImportData();
-  const { data: recognitionData } = useAllRecognition();
+  const { mutate: importData } = useImportData();
+  const { data: recognitionData } =
+    useRecognitionByParentId(parentRecognitionId);
 
   const { data: payPeriodData, isLoading: responseLoading } =
     useFetchAllPayPeriod();
@@ -28,38 +32,21 @@ const ImportData: React.FC = () => {
   };
 
   const handleSubmit = async (values: any) => {
-    const formValues = form.getFieldsValue();
     const userId = useAuthenticationStore.getState().userId;
-
     const formData = new FormData();
     formData.append('file', values?.fileName?.file?.originFileObj);
-    // formData.append('fileName', file.fileName);
-    // formData.append('fileType', values?.file?.type);
-    formData.append('importDate', JSON.stringify(values?.importDate));
+    formData.append('payPeriodId', values?.importDate);
+    formData.append('recognitionTypeId', values?.recognitionTypeId || ''),
+      formData.append('userId', userId || '');
 
-    formData.append(
-      'recognitionTypeId',
-      JSON.stringify(values?.recognitionTypeId) || '',
-    ),
-      formData.append('userId', JSON.stringify(userId) || '');
-    // formData.append('source', values?.source || '');
-
-    importData(formData);
+    importData(formData, {
+      onSuccess: () => {
+        form.resetFields();
+        setProjectDrawer(false);
+      },
+    });
   };
 
-  const uploadProps = {
-    name: 'file',
-    multiple: false,
-    beforeUpload: () => {
-      // setFile(file);
-      return false;
-    },
-    onRemove: () => {
-      // setFile(null);
-    },
-  };
-
-  console.log(recognitionData, 'recognitionData*****');
   return (
     <CustomDrawerLayout
       open={projectDrawer}
@@ -72,7 +59,6 @@ const ImportData: React.FC = () => {
           </div>
         </CustomDrawerHeader>
       }
-      // footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
       footer={null}
       width="600px"
     >
@@ -82,7 +68,8 @@ const ImportData: React.FC = () => {
         </div>
         <div className="flex flex-wrap text-xs text-gray-500">
           Download the appropriate template for the selected recognition type by
-          clicking the <strong>"Download Format" </strong> button above.
+          clicking the <strong>&quot;Download Format&quot;</strong> button
+          above.
         </div>
       </div>
 
@@ -325,12 +312,9 @@ const ImportData: React.FC = () => {
             {responseLoading ? (
               <Spin size="small" />
             ) : (
-              recognitionData?.items?.map((recognition: any) => (
-                <Select.Option
-                  key={recognition?.id}
-                  value={recognition?.recognitionType?.id}
-                >
-                  {recognition?.recognitionType?.name}
+              recognitionData?.map((recognition: any) => (
+                <Select.Option key={recognition?.id} value={recognition?.id}>
+                  {recognition?.name}
                 </Select.Option>
               ))
             )}

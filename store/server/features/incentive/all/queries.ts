@@ -19,13 +19,6 @@ const fetchExcelHeaders = async (recognitionsTypeId: string) => {
     headers: requestHeader(),
   });
 };
-const fetchIncentiveTabs = async (recognitionsTypeId: string) => {
-  return await crudRequest({
-    url: `${ORG_DEV_URL}/recognition-criterias/import/template/${recognitionsTypeId}`,
-    method: 'GET',
-    headers: requestHeader(),
-  });
-};
 
 export const useExcelHeaders = (recognitionsTypeId: string) => {
   return useQuery<any>(['allIncentiveCards', recognitionsTypeId], () =>

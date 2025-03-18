@@ -1,12 +1,9 @@
 import React from 'react';
 import ExcelJS from 'exceljs';
-import { Button, message, Popover, Skeleton } from 'antd';
+import { Button, Popover, Skeleton } from 'antd';
 import { useExcelHeaders } from '@/store/server/features/incentive/all/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
-import {
-  useAllRecognition,
-  useRecognitionByParentId,
-} from '@/store/server/features/incentive/other/queries';
+import { useRecognitionByParentId } from '@/store/server/features/incentive/other/queries';
 import { capitalizeInitials } from '@/helpers/capitalizeInitals';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
@@ -15,7 +12,6 @@ const DownloadExcelButton: React.FC = () => {
     useIncentiveStore();
   const { data: excelHeaders, isLoading: templateResponseLoading } =
     useExcelHeaders(selectedRecognitionTypeId);
-  const { data: recognitionData } = useAllRecognition();
 
   const { data: childRecognitionData, isLoading: responseLoading } =
     useRecognitionByParentId(activeKey !== '1' ? activeKey : '');
@@ -38,8 +34,6 @@ const DownloadExcelButton: React.FC = () => {
         width: 20,
       };
     });
-
-    console.log(columns, 'columns');
 
     if (columns) {
       worksheet.columns = columns;
