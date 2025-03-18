@@ -164,7 +164,7 @@ const QuestionSetForm = () => {
       form.resetFields();
       setQuestions([]);
       return;
-}
+    }
     if (editableData !== null) {
       setQuestions(editableData.conversationsQuestions || []);
       form.setFieldsValue({
@@ -174,7 +174,6 @@ const QuestionSetForm = () => {
         conversationTypeId: editableData.conversationTypeId || '',
         conversationsQuestions: editableData.conversationsQuestions || [],
       });
-
     }
 
     setQuestions(editableData.conversationsQuestions || []);

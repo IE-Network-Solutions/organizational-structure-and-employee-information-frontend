@@ -14,15 +14,15 @@ function Index({ params }: { params: Params }) {
 
   const { data: conversationType, isLoading } = useGetConversationById(id);
 
-  const questionSetListData = conversationType?.questionSets?.filter((item: any) => item.active === true)
-  ?.map(
-    (item: any) => {
+  const questionSetListData = conversationType?.questionSets
+    ?.filter((item: any) => item.active === true)
+    ?.map((item: any) => {
       const userIds = item?.conversationInstances
-        .flatMap((instance: any) => instance.userId || []) 
+        .flatMap((instance: any) => instance.userId || [])
         .filter(
           (id: string, index: number, array: any) =>
             array?.indexOf(id) === index,
-        ); 
+        );
       return {
         id: item?.id,
         title: item?.name,
@@ -30,9 +30,7 @@ function Index({ params }: { params: Params }) {
         totalAttendees: userIds.length,
         meetingsConducted: item?.conversationInstances?.length ?? 0,
       };
-    },
-  );
-
+    });
 
   return (
     <TabLandingLayout
