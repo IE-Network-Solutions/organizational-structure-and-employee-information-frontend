@@ -57,6 +57,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
 
   //   ===========> Functions <============
 
+  console.log(formulaById, 'formulaById');
   const handleClose = () => {
     setOpenIncentiveDrawer(false);
     setValue('');

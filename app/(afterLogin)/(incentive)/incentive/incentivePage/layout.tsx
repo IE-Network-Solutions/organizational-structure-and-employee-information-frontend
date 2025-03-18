@@ -14,6 +14,7 @@ import {
   useParentRecognition,
   useRecognitionByParentId,
 } from '@/store/server/features/incentive/other/queries';
+import DynamicIncentive from './_components/dynamicRecoginition/page';
 
 const IncentivePage: React.FC = () => {
   const {
@@ -32,6 +33,7 @@ const IncentivePage: React.FC = () => {
   const { data: childRecognitionData, isLoading: responseLoading } =
     useRecognitionByParentId(activeKey !== '1' ? activeKey : '');
 
+  console.log(parentRecognition, 'parentRecognition');
   const items: TabsProps['items'] = parentResponseLoading
     ? [{ key: 'loading', label: <Skeleton active />, children: null }]
     : [
@@ -52,7 +54,8 @@ const IncentivePage: React.FC = () => {
               ),
               children: (
                 <div className="mx-3">
-                  <Projects />
+                  {/* <Projects /> */}
+                  <DynamicIncentive />
                 </div>
               ),
             }))

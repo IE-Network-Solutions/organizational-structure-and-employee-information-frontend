@@ -20,7 +20,7 @@ export const useOKRStore = create<OKRState>()(
       title: '',
       userId: '',
       deadline: '',
-      isClosed: true,
+      isClosed: false,
       keyResults: [
         {
           key_type: 'Milestone',
@@ -38,11 +38,13 @@ export const useOKRStore = create<OKRState>()(
       title: '',
       userId: '',
       deadline: '',
-      isClosed: true,
+      isClosed: false,
     },
 
     // Initialize key result value state
     keyResultValue: [],
+    keyResultId: '',
+    objectiveId: '',
 
     // Setters
     setObjective: (objective: Objective) => set({ objective }),
@@ -55,6 +57,8 @@ export const useOKRStore = create<OKRState>()(
         },
       })),
     setKeyResultValue: (keyResultValue: KeyResult[]) => set({ keyResultValue }),
+    setKeyResultId: (keyResultId: string) => set({ keyResultId }),
+    setObjectiveId: (objectiveId: string) => set({ objectiveId }),
 
     // Add key result to objective
     addKeyResult: () =>

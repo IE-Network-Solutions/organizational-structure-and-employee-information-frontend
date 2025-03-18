@@ -6,6 +6,59 @@ import {
 import { Table, TableColumnsType } from 'antd';
 import React, { useMemo } from 'react';
 
+const incentiveData = [
+  {
+    recognition: 'Outstanding Performance',
+    employee_name: 'John Doe',
+    criteria: 'Exceeding project goals',
+    milestone_amount: 5000,
+    project: 'Project Alpha',
+    earned_scheduled: '2025-03-15',
+    at: 'Q1 2025',
+    spi: 1.2,
+  },
+  {
+    recognition: 'Team Excellence',
+    employee_name: 'Jane Smith',
+    criteria: 'Exceptional teamwork',
+    milestone_amount: 3000,
+    project: 'Project Beta',
+    earned_scheduled: '2025-04-10',
+    at: 'Q2 2025',
+    spi: 1.1,
+  },
+  {
+    recognition: 'Innovation Award',
+    employee_name: 'Michael Johnson',
+    criteria: 'Creative problem-solving',
+    milestone_amount: 4500,
+    project: 'Project Gamma',
+    earned_scheduled: '2025-05-20',
+    at: 'Q3 2025',
+    spi: 1.3,
+  },
+  {
+    recognition: 'Customer Impact',
+    employee_name: 'Emily Brown',
+    criteria: 'High client satisfaction',
+    milestone_amount: 2500,
+    project: 'Project Delta',
+    earned_scheduled: '2025-06-05',
+    at: 'Q4 2025',
+    spi: 1.0,
+  },
+  {
+    recognition: 'Efficiency Master',
+    employee_name: 'David Wilson',
+    criteria: 'Process optimization',
+    milestone_amount: 4000,
+    project: 'Project Epsilon',
+    earned_scheduled: '2025-07-12',
+    at: 'Q1 2026',
+    spi: 1.5,
+  },
+];
+
 const staticColumns: TableColumnsType<ProjectIncentiveData> = [
   {
     title: 'Recognition',

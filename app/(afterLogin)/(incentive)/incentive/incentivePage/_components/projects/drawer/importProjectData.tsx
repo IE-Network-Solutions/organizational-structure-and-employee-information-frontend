@@ -7,11 +7,11 @@ import TextArea from 'antd/es/input/TextArea';
 import dayjs from 'dayjs';
 import React from 'react';
 import { MdOutlineUploadFile } from 'react-icons/md';
-import DownloadExcelButton from '../../dowloadTemplateExcel';
 import { useImportData } from '@/store/server/features/incentive/all/mutation';
 import { useAllRecognition } from '@/store/server/features/incentive/other/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { IoInformationCircleOutline } from 'react-icons/io5';
+import DownloadExcelButton from '../../dynamicRcoginition/_components/dowloadTemplateExcel';
 
 const ImportProjectData: React.FC = () => {
   const [form] = Form.useForm();

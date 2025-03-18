@@ -35,20 +35,20 @@ const QuestionSetForm = () => {
     useUpdateQuestionSetWithQuestionsOnConversationType();
 
   const handleAddQuestion = () => {
-    const currentQuestions = questions; 
+    const currentQuestions = questions;
 
     const updatedQuestions = [
       ...currentQuestions,
       {
-        id: uuidv4(), 
-        conversationTypeId: activeTab, 
-        question: '', 
-        fieldType: FieldType.SHORT_TEXT, 
+        id: uuidv4(),
+        conversationTypeId: activeTab,
+        question: '',
+        fieldType: FieldType.SHORT_TEXT,
         field: [],
-        required: false, 
-        action: null, 
+        required: false,
+        action: null,
       },
-    ]; 
+    ];
     setQuestions(updatedQuestions);
   };
 
@@ -64,18 +64,24 @@ const QuestionSetForm = () => {
         const requiresOptions = [
           FieldType.DROPDOWN,
           FieldType.MULTIPLE_CHOICE,
-          FieldType.RADIO
+          FieldType.CHECKBOX,
+
+          FieldType.RADIO,
         ].includes(value);
 
         // If switching to a field type that requires options, add two empty options
-        if (key === 'fieldType' && requiresOptions && (!q.field || q.field.length === 0)) {
+        if (
+          key === 'fieldType' &&
+          requiresOptions &&
+          (!q.field || q.field.length === 0)
+        ) {
           return {
             ...q,
             [key]: value,
             field: [
               { id: uuidv4(), value: '' },
-              { id: uuidv4(), value: '' }
-            ]
+              { id: uuidv4(), value: '' },
+            ],
           };
         }
         return { ...q, [key]: value };
@@ -116,7 +122,7 @@ const QuestionSetForm = () => {
   const handleRemoveOption = (questionId: any, optionId: any) => {
     const currentQuestions = questions;
     const question = currentQuestions.find((q: any) => q.id === questionId);
-    
+
     // Prevent removing if only 2 options remain
     if (question?.field?.length <= 2) {
       return;
@@ -156,11 +162,11 @@ const QuestionSetForm = () => {
 
   useEffect(() => {
     if (editableData !== null) {
-      setQuestions(editableData.conversationsQuestions || []); 
+      setQuestions(editableData.conversationsQuestions || []);
       form.setFieldsValue({
         name: editableData.name || '',
         id: editableData.id || '',
-        active: editableData.active ?? true, 
+        active: editableData.active ?? true,
         conversationTypeId: editableData.conversationTypeId || '',
         conversationsQuestions: editableData.conversationsQuestions || [],
       });
@@ -179,14 +185,19 @@ const QuestionSetForm = () => {
         const requiresOptions = [
           FieldType.DROPDOWN,
           FieldType.MULTIPLE_CHOICE,
-          FieldType.RADIO
+          FieldType.CHECKBOX,
+          FieldType.RADIO,
         ].includes(q.fieldType);
-        
+
         return requiresOptions && (!q.field || q.field.length < 2);
       });
 
       if (hasInvalidOptions) {
-        return Promise.reject(new Error('Questions with Dropdown, Multiple Choice, or Radio types must have at least two options.'));
+        return Promise.reject(
+          new Error(
+            'Questions with Dropdown, Multiple Choice, or Radio types must have at least two options.',
+          ),
+        );
       }
 
       return Promise.resolve();
@@ -198,15 +209,22 @@ const QuestionSetForm = () => {
   const renderOptionsSection = (q: any) => {
     const requiresOptions = [
       FieldType.DROPDOWN,
+      FieldType.CHECKBOX,
       FieldType.MULTIPLE_CHOICE,
-      FieldType.RADIO
+      FieldType.RADIO,
     ].includes(q.fieldType);
 
     if (!requiresOptions) return null;
 
     return (
       <div style={{ marginTop: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <p>Options:</p>
           {q.field?.length < 2 && (
             <p style={{ color: 'red', fontSize: '12px', margin: 0 }}>
@@ -215,22 +233,19 @@ const QuestionSetForm = () => {
           )}
         </div>
         {q?.field?.map((opt: any) => (
-          <Space
-            key={opt.id}
-            align="baseline"
-            style={{ marginBottom: '8px' }}
-          >
+          <Space key={opt.id} align="baseline" style={{ marginBottom: '8px' }}>
             <Input
               placeholder="Enter option value"
               required
               value={opt.value}
-              onChange={(e) =>
-                handleChangeOption(q.id, opt.id, e.target.value)
-              }
+              onChange={(e) => handleChangeOption(q.id, opt.id, e.target.value)}
             />
             <MinusCircleOutlined
               onClick={() => handleRemoveOption(q.id, opt.id)}
-              style={{ color: 'red', cursor: q.field.length <= 2 ? 'not-allowed' : 'pointer' }}
+              style={{
+                color: 'red',
+                cursor: q.field.length <= 2 ? 'not-allowed' : 'pointer',
+              }}
               disabled={q.field.length <= 2}
             />
           </Space>
@@ -324,6 +339,7 @@ const QuestionSetForm = () => {
                 <Option value={FieldType.MULTIPLE_CHOICE}>
                   Multiple Choice
                 </Option>
+                <Option value={FieldType.CHECKBOX}>Check Box</Option>
                 <Option value={FieldType.SHORT_TEXT}>Short Text</Option>
                 <Option value={FieldType.PARAGRAPH}>Paragraph</Option>
                 <Option value={FieldType.TIME}>Time</Option>

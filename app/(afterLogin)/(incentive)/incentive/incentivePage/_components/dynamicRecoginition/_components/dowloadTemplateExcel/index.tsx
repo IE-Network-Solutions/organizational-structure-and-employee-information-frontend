@@ -39,7 +39,13 @@ const DownloadExcelButton: React.FC = () => {
       };
     });
 
-    worksheet.columns = columns;
+    console.log(columns, 'columns');
+
+    if (columns) {
+      worksheet.columns = columns;
+    } else {
+      worksheet.columns = [];
+    }
     const buffer = await workbook.xlsx.writeBuffer();
 
     //  Create a Blob and download using native APIs

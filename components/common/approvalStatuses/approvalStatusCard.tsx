@@ -30,6 +30,7 @@ const ApprovalStatusCard = ({
           alt={data?.status}
         />
         <UserCard
+          data={data}
           name={userName(String(data?.userId))}
           profileImage={data?.userId && userImage(String(data?.userId))}
           size="small"
