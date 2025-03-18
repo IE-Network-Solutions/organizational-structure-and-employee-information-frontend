@@ -16,8 +16,6 @@ import userTypeButton from '../userTypeButton';
 import { useDeleteEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
 import Image from 'next/image';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
-import { FaEye } from 'react-icons/fa';
-import Link from 'next/link';
 import { useRehireTerminatedEmployee } from '@/store/server/features/employees/offboarding/mutation';
 import JobTimeLineForm from '../allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../allFormData/workScheduleForm';
