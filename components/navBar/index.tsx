@@ -20,7 +20,6 @@ import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
 import { TbMessage2 } from 'react-icons/tb';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { CiBookmark } from 'react-icons/ci';
-import { TbCreditCardPay } from 'react-icons/tb';
 import { PiMoneyLight } from 'react-icons/pi';
 
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
