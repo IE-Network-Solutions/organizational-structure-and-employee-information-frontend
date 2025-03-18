@@ -149,15 +149,18 @@ function Job({ id }: { id: string }) {
         </Row>
       </Card>
       <Card
+        className="my-6 mt-0"
         title={'Job Information'}
         extra={
-          <div className=" flex items-center justify-center gap-3">
+          <div className=" flex justify-center items-center gap-3">
             <AccessGuard
               permissions={[Permissions.UpdateEmployeeJobInformation]}
             >
               <FaPlus onClick={handleAddEmployeeJobInformation} />
             </AccessGuard>
-            <DownloadJobInformation id={id} />
+            <div className="pt-2">
+              <DownloadJobInformation id={id} />
+            </div>
           </div>
         }
       >

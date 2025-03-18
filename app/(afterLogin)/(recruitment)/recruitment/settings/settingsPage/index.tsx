@@ -2,11 +2,13 @@
 import { Card, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import React, { useEffect, useState } from 'react';
-import { TbNotes } from 'react-icons/tb';
 import TalentPoolCategoryTab from '../_components/talentPoolCategory/talentPoolCategoryTab';
 import TalentPoolDrawer from '../_components/talentPoolCategory/customDrawer';
 import CustomAddJobFields from '../_components/customFields';
 import Status from '../_components/status';
+import { LuListChecks } from 'react-icons/lu';
+import { FiUserPlus } from 'react-icons/fi';
+import { FiList } from 'react-icons/fi';
 
 function SettingsPage() {
   const [tabPosition, setTabPosition] = useState<'left' | 'top'>('left');
@@ -34,7 +36,7 @@ function SettingsPage() {
       key: '1',
       label: (
         <span className="flex gap-2 mt-4">
-          <TbNotes className="mt-1" />
+          <LuListChecks className="mt-1" />
           <p className="font-semibold">Define Status </p>
         </span>
       ),
@@ -48,7 +50,7 @@ function SettingsPage() {
       key: '2',
       label: (
         <span className="flex gap-2 mt-4">
-          <TbNotes className="mt-1" />{' '}
+          <FiUserPlus className="mt-1" />{' '}
           <p className="font-semibold">Talent Pool Category </p>{' '}
         </span>
       ),
@@ -59,7 +61,7 @@ function SettingsPage() {
       key: '3',
       label: (
         <span className="flex gap-2 mt-4">
-          <TbNotes className="mt-1" />{' '}
+          <FiList className="mt-1" />{' '}
           <p className="font-semibold">Template Question</p>{' '}
         </span>
       ),

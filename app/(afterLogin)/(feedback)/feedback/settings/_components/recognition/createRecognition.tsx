@@ -93,7 +93,10 @@ const RecognitionForm: React.FC<PropsData> = ({
       const weight = parseFloat((1 / noCriterion).toFixed(2));
 
       return existingCriterion
-        ? { ...existingCriterion, weight }
+        ? {
+            ...existingCriterion,
+            weight, // Update weight but preserve other values
+          }
         : {
             criterionKey: criterion,
             weight,
@@ -111,14 +114,15 @@ const RecognitionForm: React.FC<PropsData> = ({
     );
     setTotalWeight(updatedTotalWeight);
 
-    // Update form fields
+    // Update form fields while preserving existing values
     form.setFieldsValue({
       recognitionCriteria: updatedCriteria.map((criteria) => ({
+        id: criteria.id || null, // Ensure ID is preserved if present
         criterionKey: criteria.criterionKey,
         weight: criteria.weight,
-        operator: criteria.operator,
-        condition: criteria.condition,
-        value: criteria.value,
+        operator: criteria.operator, // Preserve operator
+        condition: criteria.condition, // Preserve condition
+        value: criteria.value, // Preserve value
       })),
     });
   };
@@ -280,12 +284,14 @@ const RecognitionForm: React.FC<PropsData> = ({
           className="flex gap-1"
           key={`recognition-criteria-${criteria.criterionKey}-${index}`}
         >
-          <Form.Item
-            className="w-1/2 text-xs text-gray-950"
-            name={['recognitionCriteria', index, 'id']}
-            initialValue={criteria.id ?? ''}
-            hidden
-          ></Form.Item>
+          {selectedRecognitionType !== '' && (
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              name={['recognitionCriteria', index, 'id']}
+              initialValue={criteria.id}
+              hidden
+            ></Form.Item>
+          )}
           <Form.Item
             labelAlign="left"
             className="w-1/2 text-xs text-gray-950"
