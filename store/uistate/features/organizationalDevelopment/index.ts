@@ -6,14 +6,18 @@ export type GraphType = 'pieChart' | 'barGraph';
 interface StoreState {
   open: boolean;
   setOpen: (error: boolean) => void;
+  openEdit: boolean;
+  setOpenEdit: (error: boolean) => void;
   selectedAnswer: string[];
 
   currentStep: number;
   setCurrentStep: (value: number) => void;
 
   setSelectedAnswer: (selectedAnswer: string) => void;
+
   activeTab: string;
   setActiveTab: (error: string) => void;
+
   numberOfActionPlan: number;
   setNumberOfActionPlan: (numberOfActionPlan: number) => void;
   current: number;
@@ -42,8 +46,12 @@ interface StoreState {
 
   isEditModalOpen: boolean;
   setIsEditModalOpen: (value: boolean) => void;
+
   editItemId: string;
   setEditItemId: (itemId: string) => void;
+
+  actionPlanId: string;
+  setActionPlanId: (itemId: string) => void;
 
   isDeleteModalOpen: boolean;
   setIsDeleteModalOpen: (value: boolean) => void;
@@ -122,6 +130,8 @@ export const useOrganizationalDevelopment = create<StoreState>()(
       set({ selectedDepartments }),
     open: false,
     setOpen: (open: boolean) => set({ open }),
+    openEdit: false,
+    setOpenEdit: (openEdit: boolean) => set({ openEdit }),
     activeTab: '1',
     setActiveTab: (activeTab: string) => set({ activeTab }),
     selectedAnswer: [],
@@ -155,6 +165,9 @@ export const useOrganizationalDevelopment = create<StoreState>()(
 
     editItemId: '',
     setEditItemId: (itemId: string) => set({ editItemId: itemId }),
+
+    actionPlanId: '',
+    setActionPlanId: (itemId: string) => set({ actionPlanId: itemId }),
 
     isDeleteModalOpen: false,
     setIsDeleteModalOpen: (value) => set({ isDeleteModalOpen: value }),

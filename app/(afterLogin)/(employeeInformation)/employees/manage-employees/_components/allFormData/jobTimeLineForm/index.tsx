@@ -18,6 +18,7 @@ import {
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { AiOutlineReload } from 'react-icons/ai';
+import { IoInformationCircleOutline } from 'react-icons/io5';
 
 const JobTimeLineForm = () => {
   const { birthDate } = useEmployeeManagementStore();
@@ -56,13 +57,22 @@ const JobTimeLineForm = () => {
                 if (!birthDate) return false; // Ensure birthDate exists
 
                 const minJoinedDate = dayjs(birthDate)
-                  .add(15, 'years')
+                  .add(18, 'years')
                   .startOf('day');
                 return current && current.isBefore(minJoinedDate);
               }}
               className="w-full"
             />
           </Form.Item>
+          <div className="flex items-center justify-start space-x-1 mb-5 mt-0">
+            <div>
+              <IoInformationCircleOutline size={14} />
+            </div>
+            <div className="text-xs text-gray-500">
+              The effective start date must be at least 18 years after the
+              selected birthdate.
+            </div>
+          </div>
         </Col>
       </Row>
 
@@ -167,7 +177,7 @@ const JobTimeLineForm = () => {
                 label: `${department?.name ? department?.name : ''} `,
               }))}
             />
-          </Form.Item>{' '}
+          </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
           <Form.Item

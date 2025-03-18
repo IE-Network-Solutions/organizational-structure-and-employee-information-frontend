@@ -16,9 +16,9 @@ import {
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { MdOutlinePending } from 'react-icons/md';
-import KeyResultMetrics from '../keyResult';
 import {
   AllPlanningPeriods,
+  useDefaultPlanningPeriods,
   useGetReporting,
   useGetUserPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
@@ -29,7 +29,6 @@ import { groupTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { ReportingType } from '@/types/enumTypes';
-import TasksDisplayer from './milestone';
 import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
@@ -40,6 +39,10 @@ import {
   useApprovalReporting,
   // useDeleteReportById,
 } from '@/store/server/features/okrPlanningAndReporting/mutations';
+import KeyResultTasks from '../planning/KeyResultTasks';
+import { FiCheckCircle } from 'react-icons/fi';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Title } = Typography;
 
@@ -59,14 +62,28 @@ function Reporting() {
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
-  const { data: planningPeriods } = AllPlanningPeriods();
+  const { data: planningPeriods } = useDefaultPlanningPeriods();
+  const { data: userPlanningPeriods } = AllPlanningPeriods();
+
+  const hasPermission = AccessGuard.checkAccess({
+    permissions: [
+      Permissions.ViewDailyPlan,
+      Permissions.ViewWeeklyPlan,
+      Permissions.ViewMonthlyPlan,
+    ],
+  });
+
+  const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
+
   // const { mutate: handleDeleteReport, isLoading: loadingDeleteReport } =
   //   useDeleteReportById();
 
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
-  const planningPeriodId =
-    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
+  const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
+  const userPlanningPeriodId =
+    userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
+
   const { data: allUserPlanning, isLoading: getUserPlanningLoading } =
     useGetUserPlanning(planningPeriodId ?? '', activeTab.toString());
   const { data: allReporting, isLoading: getReportLoading } = useGetReporting({
@@ -80,8 +97,7 @@ function Reporting() {
   //   activeTab,
   // );
 
-  const activeTabName =
-    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
+  const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
   const getEmployeeData = (id: string) => {
     const employeeDataDetail = employeeData?.items?.find(
       (emp: any) => emp?.id === id,
@@ -201,20 +217,24 @@ function Reporting() {
                 id="createActiveTabName"
                 icon={<FaPlus className="mr-2" />}
                 onClick={() => setOpenReportModal(true)}
-                className="bg-blue-600 hover:bg-blue-700"
+                className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
                 loading={getUserPlanningLoading}
               />
             </div>
           </Tooltip>
         </div>
-        <EmployeeSearch
-          optionArray1={employeeData?.items}
-          optionArray2={ReportingType}
-          optionArray3={departmentData}
-        />
+        {hasPermission && (
+          <EmployeeSearch
+            optionArray1={employeeData?.items}
+            optionArray2={ReportingType}
+            optionArray3={departmentData}
+          />
+        )}
+
         {allReporting?.items?.map((dataItem: any, index: number) => (
           <>
             <Card
+              className="mb-2"
               key={index}
               title={
                 <div>
@@ -237,43 +257,54 @@ function Reporting() {
                       )}
                     </Col>
                     <Col xs={20} sm={22} md={23}>
-                      <Row className="font-bold text-lg">
-                        <Row className="font-bold text-xs">
-                          {getEmployeeData(dataItem?.userId)?.firstName +
-                            ' ' +
-                            (getEmployeeData(dataItem?.createdBy)?.middleName
-                              ? getEmployeeData(dataItem?.createdBy)
-                                  .middleName.charAt(0)
-                                  .toUpperCase()
-                              : '')}
-                        </Row>
-                      </Row>
-                      <Row className="flex justify-between items-center space-x-3">
+                      <Row className="flex justify-between items-center">
                         <Row gutter={16} justify={'start'} align={'middle'}>
-                          <Col className="text-gray-500 text-xs">Status</Col>
-                          <Col>
-                            <div
-                              className={` py-1 px-1 text-white rounded-md ${dataItem?.plan?.isReportValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
-                            >
-                              <MdOutlinePending size={14} />
-                            </div>
-                          </Col>
-                          <Col className="text-xs -ml-3">
-                            {dataItem?.plan?.isReportValidated
-                              ? 'Closed'
-                              : 'Open'}
-                          </Col>
+                          <div className="flex flex-col text-xs ml-2">
+                            {getEmployeeData(dataItem?.createdBy)?.firstName +
+                              ' ' +
+                              (getEmployeeData(dataItem?.createdBy)?.middleName
+                                ? getEmployeeData(dataItem?.createdBy)
+                                    .middleName.charAt(0)
+                                    .toUpperCase()
+                                : '')}
+                            .
+                            <span className="text-gray-500 text-xs">
+                              {dataItem?.createdBy
+                                ? getEmployeeData(dataItem?.createdBy)
+                                    ?.employeeJobInformation?.[0]?.department
+                                    ?.name || ''
+                                : ''}
+                            </span>
+                          </div>
                         </Row>
                         <Col
                           span={10}
                           className="flex justify-end items-center"
                         >
-                          <>
+                          <Col>
+                            <div
+                              className={` py-1 px-1 text-white rounded-full ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
+                            >
+                              {dataItem?.isValidated ? (
+                                <FiCheckCircle />
+                              ) : (
+                                <MdOutlinePending size={16} />
+                              )}
+                            </div>
+                          </Col>
+                          <div className="flex flex-col text-xs ml-2">
+                            <span className="mr-4">
+                              {dataItem?.isValidated ? 'Closed' : 'Open'}
+                            </span>
                             <span className="mr-4 text-gray-500">
                               {dayjs(dataItem?.createdAt).format(
-                                'MMMM D YYYY, h:mm:ss A',
+                                'MMMM DD YYYY, h:mm:ss A',
                               )}
                             </span>
+                          </div>
+
+                          {/* {!dataItem?.isValidated && ( */}
+                          <>
                             {userId ===
                               getEmployeeData(
                                 dataItem?.userId ?? dataItem?.createdBy,
@@ -315,9 +346,6 @@ function Reporting() {
                                 </Dropdown>
                               )}
                           </>
-
-                          <Col className="mr-2"></Col>
-                          <Col></Col>
                         </Col>
                       </Row>
                     </Col>
@@ -327,9 +355,9 @@ function Reporting() {
             >
               {groupTasksByKeyResultAndMilestone(
                 dataItem?.reportTask ?? [],
-              )?.map((keyResult: any) => (
+              )?.map((keyResult: any, keyResultIndex: number) => (
                 <>
-                  <KeyResultMetrics
+                  <KeyResultTasks
                     keyResult={
                       keyResult ?? {
                         id: 'defaultKeyResult',
@@ -337,18 +365,9 @@ function Reporting() {
                         tasks: [],
                       }
                     }
+                    activeTab={activeTab}
+                    keyResultIndex={keyResultIndex}
                   />
-                  {keyResult?.milestones?.map(
-                    (milestone: any, milestoneIndex: number) => (
-                      <>
-                        <Col span={24} className="ml-2">
-                          <strong>{`${milestoneIndex + 1}. ${milestone?.title}`}</strong>
-                        </Col>
-                        <TasksDisplayer tasks={milestone?.tasks} />
-                      </>
-                    ),
-                  )}
-                  <TasksDisplayer tasks={keyResult?.tasks} />
                 </>
               ))}
               <div className="flex items-center justify-end mt-2 gap-2 text-sm">
@@ -365,14 +384,13 @@ function Reporting() {
                   {getTotalWeightCalculation(dataItem?.reportTask)}%
                 </span>
               </div>
+              <CommentCard
+                planId={dataItem?.id}
+                data={dataItem?.comments}
+                loading={getReportLoading}
+                isPlanCard={false}
+              />
             </Card>
-
-            <CommentCard
-              planId={dataItem?.id}
-              data={dataItem?.comments}
-              loading={getReportLoading}
-              isPlanCard={false}
-            />
           </>
         ))}
         <Pagination
