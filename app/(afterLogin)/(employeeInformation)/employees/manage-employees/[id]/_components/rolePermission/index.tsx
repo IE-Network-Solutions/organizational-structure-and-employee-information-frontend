@@ -12,7 +12,7 @@ import { useSettingStore } from '@/store/uistate/features/employees/settings/rol
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
 import { Button, Card, Checkbox, Col, Form, Modal, Row, Select } from 'antd';
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LuPencil } from 'react-icons/lu';
 
 const { Option } = Select;
@@ -21,151 +21,192 @@ interface Ids {
   id: string;
 }
 const RolePermission: React.FC<Ids> = ({ id }) => {
-const [form] = Form.useForm();
-const { data: employeeData, isLoading } = useGetEmployee(id);
-const { data: rolesWithPermission } = useGetRolesWithPermission();
-const { data: groupPermissionData } = useGetPermissionGroupsWithOutPagination();
-const { data: permissionListData } = useGetPermissionsWithOutPagination();
+  const [form] = Form.useForm();
+  const { data: employeeData, isLoading } = useGetEmployee(id);
+  const { data: rolesWithPermission } = useGetRolesWithPermission();
+  const { data: groupPermissionData } =
+    useGetPermissionGroupsWithOutPagination();
+  const { data: permissionListData } = useGetPermissionsWithOutPagination();
 
-const [selectedGroupPermission, setSelectedGroupPermission] = useState<string[]>([]);
-const [selectedPermissionsUnderGroup, setSelectedPermissionsUnderGroup] = useState<string[]>([]);
-const [selectedGroupForModal, setSelectedGroupForModal] = useState<any | null>(null);
-const [modalVisible, setModalVisible] = useState(false);
-const [tempSelectedPermissions, setTempSelectedPermissions] = useState<string[]>([]);
-const [selectAll, setSelectAll] = useState(false);
+  const [selectedGroupPermission, setSelectedGroupPermission] = useState<
+    string[]
+  >([]);
+  const [selectedPermissionsUnderGroup, setSelectedPermissionsUnderGroup] =
+    useState<string[]>([]);
+  const [selectedGroupForModal, setSelectedGroupForModal] = useState<
+    any | null
+  >(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [tempSelectedPermissions, setTempSelectedPermissions] = useState<
+    string[]
+  >([]);
+  const [selectAll, setSelectAll] = useState(false);
 
-const { setSelectedRoleOnOption, setSelectedRoleOnList, selectedRoleOnOption } = useSettingStore();
-const { mutate: employeeRolePermissionUpdate, isLoading: rolePermissionUpdateLoading } = useUpdateEmployeeRolePermission();
-const { setEdit, edit, selectedPermissions, setSelectedPermissions } = useEmployeeManagementStore();
+  const {
+    setSelectedRoleOnOption,
+    setSelectedRoleOnList,
+    selectedRoleOnOption,
+  } = useSettingStore();
+  const {
+    mutate: employeeRolePermissionUpdate,
+    isLoading: rolePermissionUpdateLoading,
+  } = useUpdateEmployeeRolePermission();
+  const { setEdit, edit, selectedPermissions, setSelectedPermissions } =
+    useEmployeeManagementStore();
 
+  const handlePermissionChange = (value: string[]) => {
+    setSelectedPermissions(value);
+  };
+  const basicGroupPermissionId =
+    groupPermissionData?.items?.filter((item) => item.isBasic) ?? [];
+  const basicGroupPermissions = basicGroupPermissionId.flatMap(
+    (item) => item.permissions ?? [],
+  );
 
-const handlePermissionChange = (value: string[]) => {
-  setSelectedPermissions(value);
-};
-const basicGroupPermissionId = groupPermissionData?.items?.filter((item) => item.isBasic) ?? [];
-const basicGroupPermissions = basicGroupPermissionId.flatMap((item) => item.permissions ?? []);
+  useEffect(() => {
+    if (employeeData) {
+      const userRoleId = employeeData?.roleId;
+      const allPermissionIds =
+        employeeData?.userPermissions?.map((perm: any) => perm.permissionId) ||
+        [];
 
-useEffect(() => {
-  if (employeeData) {
-    const userRoleId = employeeData?.roleId;
-    const allPermissionIds = employeeData?.userPermissions?.map((perm: any) => perm.permissionId) || [];
+      const allPermissions = Array.from(
+        new Set([
+          ...allPermissionIds,
+          ...(basicGroupPermissions?.map((perm) => perm.id) ?? []),
+        ]),
+      );
 
-    const allPermissions = Array.from(
-      new Set([
-        ...allPermissionIds,
-        ...(basicGroupPermissions?.map((perm) => perm.id) ?? []), 
-      ])
+      const groupPermissionIds = Array.from(
+        new Set([
+          ...selectedGroupPermission,
+          ...(basicGroupPermissionId?.map((item) => item.id) ?? []),
+        ]),
+      );
+
+      form.setFieldsValue({
+        roleId: userRoleId,
+        permission: allPermissions,
+        groupPermissionId: groupPermissionIds,
+      });
+
+      setSelectedRoleOnOption(userRoleId);
+      setSelectedPermissions(allPermissions);
+    }
+  }, [employeeData, form]);
+
+  const onRoleChangeHandler = (value: string) => {
+    const selectedRole = rolesWithPermission?.find((role) => role.id === value);
+
+    if (selectedRole) {
+      const rolePermissions =
+        selectedRole?.permissions?.map((perm) => perm.id) || [];
+
+      const updatedPermissions = Array.from(
+        new Set([
+          ...rolePermissions,
+          ...(basicGroupPermissions?.map((perm) => perm.id) ?? []),
+        ]),
+      );
+
+      form.setFieldsValue({
+        roleId: value,
+        permission: updatedPermissions,
+      });
+
+      setSelectedRoleOnList(selectedRole);
+      setSelectedRoleOnOption(value);
+      setSelectedPermissions(updatedPermissions);
+    }
+  };
+
+  const onGroupPermissionChange = (value: string[]) => {
+    const newGroupId = value.find(
+      (id) => !selectedGroupPermission.includes(id),
+    );
+    const removedGroupIds = selectedGroupPermission.filter(
+      (id) => !value.includes(id),
     );
 
-    const groupPermissionIds = Array.from(
-      new Set([
-        ...selectedGroupPermission,
-        ...(basicGroupPermissionId?.map((item) => item.id) ?? []),
-      ])
-    );
+    if (newGroupId) {
+      const selectedGroup = groupPermissionData?.items?.find(
+        (gp) => gp.id === newGroupId,
+      );
+      if (selectedGroup) {
+        setSelectedGroupForModal(selectedGroup);
+        setTempSelectedPermissions([]);
+        setModalVisible(true);
+      }
+    }
 
-    form.setFieldsValue({
-      roleId: userRoleId,
-      permission: allPermissions,
-      groupPermissionId: groupPermissionIds,
+    let updatedPermissionsUnderGroup = [...selectedPermissionsUnderGroup];
+
+    removedGroupIds.forEach((groupId) => {
+      const removedGroup = groupPermissionData?.items?.find(
+        (gp) => gp.id === groupId,
+      );
+      if (removedGroup) {
+        const groupPermissions = removedGroup.permissions.map(
+          (perm) => perm.id,
+        );
+        updatedPermissionsUnderGroup = updatedPermissionsUnderGroup.filter(
+          (permId) => !groupPermissions.includes(permId),
+        );
+      }
     });
 
-    setSelectedRoleOnOption(userRoleId);
-    setSelectedPermissions(allPermissions);
-  }
-}, [employeeData, form]); 
-
-const onRoleChangeHandler = (value: string) => {
-  const selectedRole = rolesWithPermission?.find((role) => role.id === value);
-
-  if (selectedRole) {
-    const rolePermissions = selectedRole?.permissions?.map((perm) => perm.id) || [];
-
-    const updatedPermissions = Array.from(
-      new Set([...rolePermissions, ...(basicGroupPermissions?.map((perm) => perm.id) ?? [])])
-    );
+    setSelectedGroupPermission(value);
+    setSelectedPermissionsUnderGroup(updatedPermissionsUnderGroup);
 
     form.setFieldsValue({
-      roleId: value,
-      permission: updatedPermissions,
+      permission: Array.from(
+        new Set([...selectedPermissions, ...updatedPermissionsUnderGroup]),
+      ),
+      groupPermissionId: value,
     });
+  };
 
-    setSelectedRoleOnList(selectedRole);
-    setSelectedRoleOnOption(value);
-    setSelectedPermissions(updatedPermissions);
-  }
-};
+  const handleModalPermissionChange = (checkedValues: string[]) => {
+    setTempSelectedPermissions(checkedValues);
+  };
 
-const onGroupPermissionChange = (value: string[]) => {
-  const newGroupId = value.find((id) => !selectedGroupPermission.includes(id));
-  const removedGroupIds = selectedGroupPermission.filter((id) => !value.includes(id));
+  const handleConfirmPermissions = () => {
+    if (selectedGroupForModal) {
+      const updatedPermissions = Array.from(
+        new Set([...selectedPermissionsUnderGroup, ...tempSelectedPermissions]),
+      );
+      setSelectedPermissionsUnderGroup(updatedPermissions);
 
-  if (newGroupId) {
-    const selectedGroup = groupPermissionData?.items?.find((gp) => gp.id === newGroupId);
-    if (selectedGroup) {
-      setSelectedGroupForModal(selectedGroup);
+      form.setFieldsValue({
+        permission: Array.from(
+          new Set([...selectedPermissions, ...updatedPermissions]),
+        ),
+      });
+    }
+
+    setModalVisible(false);
+    setSelectedGroupForModal(null);
+    setSelectAll(false);
+  };
+
+  const handleUpdateUserRolePermission = (values: any) => {
+    employeeRolePermissionUpdate({ id, values });
+    setEdit('rolePermission');
+  };
+
+  const handleEditChange = (editKey: keyof EditState) => {
+    setEdit(editKey);
+  };
+  const handleSelectAll = () => {
+    if (selectAll) {
       setTempSelectedPermissions([]);
-      setModalVisible(true);
+    } else {
+      const allPermissionIds =
+        selectedGroupForModal?.permissions?.map((perm: any) => perm.id) || [];
+      setTempSelectedPermissions(allPermissionIds);
     }
-  }
-
-  let updatedPermissionsUnderGroup = [...selectedPermissionsUnderGroup];
-
-  removedGroupIds.forEach((groupId) => {
-    const removedGroup = groupPermissionData?.items?.find((gp) => gp.id === groupId);
-    if (removedGroup) {
-      const groupPermissions = removedGroup.permissions.map((perm) => perm.id);
-      updatedPermissionsUnderGroup = updatedPermissionsUnderGroup.filter(
-        (permId) => !groupPermissions.includes(permId));
-    }
-  });
-
-  setSelectedGroupPermission(value);
-  setSelectedPermissionsUnderGroup(updatedPermissionsUnderGroup);
-
-  form.setFieldsValue({
-    permission: Array.from(new Set([...selectedPermissions, ...updatedPermissionsUnderGroup])),
-    groupPermissionId: value,
-  });
-};
-
-
-const handleModalPermissionChange = (checkedValues: string[]) => {
-  setTempSelectedPermissions(checkedValues);
-};
-
-const handleConfirmPermissions = () => {
-  if (selectedGroupForModal) {
-    const updatedPermissions = Array.from(new Set([...selectedPermissionsUnderGroup, ...tempSelectedPermissions]));
-    setSelectedPermissionsUnderGroup(updatedPermissions);
-
-    form.setFieldsValue({
-      permission: Array.from(new Set([...selectedPermissions, ...updatedPermissions])),
-    });
-  }
-
-  setModalVisible(false);
-  setSelectedGroupForModal(null);
-  setSelectAll(false)
-};
-
-const handleUpdateUserRolePermission = (values: any) => {
-  employeeRolePermissionUpdate({ id, values });
-  setEdit('rolePermission');
-};
-
-const handleEditChange = (editKey: keyof EditState) => {
-  setEdit(editKey);
-};
-const handleSelectAll = () => {
-  if (selectAll) {
-    setTempSelectedPermissions([]);
-  } else {
-    const allPermissionIds = selectedGroupForModal?.permissions?.map((perm: any) => perm.id) || [];
-    setTempSelectedPermissions(allPermissionIds);
-  }
-  setSelectAll(!selectAll); 
-};
+    setSelectAll(!selectAll);
+  };
 
   return (
     <div>
@@ -228,11 +269,15 @@ const handleSelectAll = () => {
                   placeholder="Select a Group Permission"
                   onChange={onGroupPermissionChange}
                   allowClear
-                  mode='multiple'
+                  mode="multiple"
                   value={selectedGroupPermission}
                 >
                   {groupPermissionData?.items?.map((groupPermission) => (
-                    <Option key={groupPermission.id} disabled={groupPermission?.isBasic} value={groupPermission.id}>
+                    <Option
+                      key={groupPermission.id}
+                      disabled={groupPermission?.isBasic}
+                      value={groupPermission.id}
+                    >
                       {groupPermission.name}
                     </Option>
                   ))}
@@ -269,12 +314,12 @@ const handleSelectAll = () => {
                   dropdownStyle={{ maxHeight: '200px', overflowY: 'auto' }}
                 >
                   {permissionListData?.items?.map((permission) => (
-                        <Option key={permission.id} value={permission.id}>
-                          {permission.name}
-                        </Option>
+                    <Option key={permission.id} value={permission.id}>
+                      {permission.name}
+                    </Option>
                   ))}
                 </Select>
-              </Form.Item>  
+              </Form.Item>
             </Col>
           </Row>
           <Row className="flex justify-end">
@@ -289,36 +334,42 @@ const handleSelectAll = () => {
         </Form>
       </Card>
       <Modal
-      title={`Select Permissions for ${selectedGroupForModal?.name}`}
-      open={modalVisible}
-      onCancel={() => setModalVisible(false)}
-      footer={[
-        <Button key="cancel" onClick={() => setModalVisible(false)}>
-          Cancel
-        </Button>,
-        <Button key="confirm" type="primary" onClick={handleConfirmPermissions}>
-          Confirm
-        </Button>,
-      ]}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-        <Checkbox
-          checked={selectAll}
-          onChange={handleSelectAll}
+        title={`Select Permissions for ${selectedGroupForModal?.name}`}
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setModalVisible(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="confirm"
+            type="primary"
+            onClick={handleConfirmPermissions}
+          >
+            Confirm
+          </Button>,
+        ]}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: '10px',
+          }}
         >
-          Select All
-        </Checkbox>
-      </div>
-      <Checkbox.Group
-        options={selectedGroupForModal?.permissions.map((perm: any) => ({
-          label: perm.name,
-          value: perm.id,
-        }))}
-        value={tempSelectedPermissions}
-        onChange={handleModalPermissionChange}
-      />
-    </Modal>
-
+          <Checkbox checked={selectAll} onChange={handleSelectAll}>
+            Select All
+          </Checkbox>
+        </div>
+        <Checkbox.Group
+          options={selectedGroupForModal?.permissions.map((perm: any) => ({
+            label: perm.name,
+            value: perm.id,
+          }))}
+          value={tempSelectedPermissions}
+          onChange={handleModalPermissionChange}
+        />
+      </Modal>
     </div>
   );
 };
