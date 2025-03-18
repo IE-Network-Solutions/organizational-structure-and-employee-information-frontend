@@ -20,13 +20,16 @@ const Dashboard: React.FC<any> = () => {
 
   return (
     <>
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between px-4">
+        <CustomBreadcrumb
+            title={`${isVP ? 'VP' : 'Dashboard'}`}
+            subtitle={` ${isVP ? 'view your variable pay progress' : 'Employee’s OKR Dashboard View'} `} 
+
+        />
         <Space direction="vertical">
-          <span className="text-sm font-light">
-            Switch to {isVP ? 'OKR' : 'VP'} Dashboard
-          </span>
           <Switch
             checked={isVP}
+            title={`Switch to ${isVP ? 'OKR' : 'VP'} Dashboard`}
             checkedChildren="VP"
             unCheckedChildren="OKR"
             onChange={toggleDashboard}
@@ -35,10 +38,6 @@ const Dashboard: React.FC<any> = () => {
       </div>
       {!isVP ? (
         <div className="h-auto w-full p-4 bg-white rounded-md">
-          <CustomBreadcrumb
-            title="Dashboard"
-            subtitle="Employee’s OKR dashboards view"
-          />
           <ObjectiveKeyResult />
           <Performance />
           {/* <div className="flex justify-between">

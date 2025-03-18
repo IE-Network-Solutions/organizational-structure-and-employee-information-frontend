@@ -32,7 +32,7 @@ const Performance: React.FC = () => {
           <Select
             placeholder="Select period"
             allowClear
-            className="min-w-10 px-7 my-3 text-xl font-normal"
+            className="w-28 h-12 rounded-md text-xl font-normal"
             value={selectedPeriodId}
             onChange={handlePeriodChange}
           >
