@@ -24,42 +24,41 @@ const AllAllowancePage: React.FC = () => {
 
   return (
     <>
-      <PageHeader title="All Allowance Entitlement" size="small" />
-      <Space
-        direction="horizontal"
-        size="large"
-        style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
-      >
-        <Select
-          showSearch
-          allowClear
-          className="min-h-12"
-          placeholder="Search by name"
-          onChange={handleSearchChange}
-          filterOption={(input, option) => {
-            const label = option?.label;
-            return (
-              typeof label === 'string' &&
-              label.toLowerCase().includes(input.toLowerCase())
-            );
-          }}
-          options={options}
-          style={{ width: 300 }} // Set a width for better UX
-        />
-        <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
-          <Button
-            size="large"
-            type="primary"
+      <div className="flex justify-between items-center">
+        <PageHeader title="All Allowance Entitlement" size="small" />
+        <Space direction="horizontal" size="large">
+          <Select
+            showSearch
+            allowClear
             className="min-h-12"
-            id="createNewClosedHolidayFieldId"
-            icon={<LuPlus size={18} />}
-            onClick={() => {}}
-            disabled
-          >
-            Employees
-          </Button>
-        </AccessGuard>
-      </Space>
+            placeholder="Search by name"
+            onChange={handleSearchChange}
+            filterOption={(input, option) => {
+              const label = option?.label;
+              return (
+                typeof label === 'string' &&
+                label.toLowerCase().includes(input.toLowerCase())
+              );
+            }}
+            options={options}
+            style={{ width: 300 }} // Set a width for better UX
+          />
+          <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
+            <Button
+              size="large"
+              type="primary"
+              className="min-h-12"
+              id="createNewClosedHolidayFieldId"
+              icon={<LuPlus size={18} />}
+              onClick={() => {}}
+              disabled
+            >
+              Employees
+            </Button>
+          </AccessGuard>
+        </Space>
+      </div>
+
       <AllAllowanceTable searchQuery={searchQuery} />
     </>
   );

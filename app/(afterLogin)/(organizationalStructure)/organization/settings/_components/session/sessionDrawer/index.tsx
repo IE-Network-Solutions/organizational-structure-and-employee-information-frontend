@@ -85,7 +85,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   };
 
   useEffect(() => {
-    const updatedSessionData = sessionData.map((session: any) => ({
+    const updatedSessionData = sessionData?.map((session: any) => ({
       ...session,
       sessionStartDate: session.sessionStartDate
         ? dayjs(session.sessionStartDate)
@@ -175,7 +175,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         Set up Session
       </div>
       <Form form={form} layout="vertical">
-        {sessionData.map((item, index) => {
+        {sessionData?.map((item, index) => {
           return (
             <div className="my-3" key={index}>
               <Form.Item

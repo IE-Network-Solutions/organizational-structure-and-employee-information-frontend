@@ -2,7 +2,9 @@
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { useUpdateTimeZone } from '@/store/server/features/timesheet/timeZone/mutation';
 import { useGetTimeZone } from '@/store/server/features/timesheet/timeZone/queries';
+import AccessGuard from '@/utils/permissionGuard';
 import { Button, Form, Select } from 'antd';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 // Define the type for GMT offset options
 interface GmtOffsetOption {
@@ -62,9 +64,11 @@ const TimezoneSelect = () => {
             />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={isLoading}>
-              Update Timezone
-            </Button>
+            <AccessGuard permissions={[Permissions.UpdateTimeZone]}>
+              <Button type="primary" htmlType="submit" loading={isLoading}>
+                Update Timezone
+              </Button>
+            </AccessGuard>
           </Form.Item>
         </Form>
         <hr />
