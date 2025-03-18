@@ -60,7 +60,7 @@ pipeline {
             }
         }
 
-             stage('Pull Latest Changes') {
+        stage('Pull Latest Changes') {
             steps {
                 sshagent([env.SSH_CREDENTIALS_ID]) {
                     sh """
@@ -74,6 +74,7 @@ pipeline {
                 }
             }
         }
+
         stage('Install Dependencies') {
             steps {
                 sshagent([env.SSH_CREDENTIALS_ID]) {
