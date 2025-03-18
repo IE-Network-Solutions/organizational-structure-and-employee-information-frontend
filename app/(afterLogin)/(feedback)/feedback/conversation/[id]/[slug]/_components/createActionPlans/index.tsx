@@ -11,7 +11,6 @@ import {
   Row,
   Select,
 } from 'antd';
-import { useForm } from 'antd/es/form/Form';
 import Image from 'next/image';
 import React from 'react';
 const { Option } = Select;
@@ -19,13 +18,13 @@ const { Option } = Select;
 interface PropsData {
   slug: string;
   onFinish: (data: any) => void;
+  form2: any;
 }
 
-const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish }) => {
+const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish, form2 }) => {
   const { data: allUserData, isLoading: userDataLoading } = useGetAllUsers();
   const { setOpen } = useOrganizationalDevelopment();
 
-  const [form2] = useForm();
   const { setSelectedEditActionPlan } = useOrganizationalDevelopment();
 
   const handleCancel = () => {
@@ -58,13 +57,7 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish }) => {
             name="issue"
             label="Action plan"
             id="actionPlanId"
-            rules={[
-              { required: true, message: 'action title is required' },
-              {
-                max: 40, // Set the maximum number of characters allowed
-                message: 'Action title cannot exceed 40 characters',
-              },
-            ]}
+            rules={[{ required: true, message: 'action title is required' }]}
           >
             <Input />
           </Form.Item>
@@ -77,13 +70,7 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish }) => {
             name="comment"
             label={`Comment`}
             id={`actionPlanDescription`}
-            rules={[
-              { required: true, message: 'Comment is required' },
-              {
-                max: 40, // Set the maximum number of characters allowed
-                message: 'Comment cannot exceed 40 characters',
-              },
-            ]}
+            rules={[{ required: true, message: 'Comment is required' }]}
           >
             <Input.TextArea rows={6} />
           </Form.Item>

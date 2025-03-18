@@ -95,10 +95,6 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
                     id={`actionPlanId${index + 1}`}
                     rules={[
                       { required: true, message: 'Action title is required' },
-                      {
-                        max: 40,
-                        message: 'Action title cannot exceed 40 characters',
-                      },
                     ]}
                   >
                     <Input />
@@ -112,13 +108,7 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
                     name={[`${index}`, 'comment']}
                     label="Comment"
                     id={`actionPlanDescription${index + 1}`}
-                    rules={[
-                      { required: true, message: 'Comment is required' },
-                      {
-                        max: 40,
-                        message: 'Comment cannot exceed 40 characters',
-                      },
-                    ]}
+                    rules={[{ required: true, message: 'Comment is required' }]}
                   >
                     <Input.TextArea rows={6} />
                   </Form.Item>

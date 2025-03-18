@@ -237,13 +237,26 @@ const BenefitypeSideBar = () => {
                     name="defaultAmount"
                     label={isRateBenefit ? 'Rate Amount' : 'Fixed Amount'}
                     className="form-item"
-                    rules={[{ required: true, message: 'Amount is Required' }]}
+                    rules={[
+                      { required: true, message: 'Amount is Required' },
+                      {
+                        validator: (notused, value) => {
+                          if (value < 0) {
+                            return Promise.reject(
+                              new Error('Amount cannot be negative'),
+                            );
+                          }
+                          return Promise.resolve();
+                        },
+                      },
+                    ]}
                   >
                     <Input
                       className="control"
                       type="number"
                       placeholder="Benefit Amount"
                       style={{ height: '32px', padding: '4px 8px' }}
+                      min={0}
                     />
                   </Form.Item>
                   {!isAllEmployee && !selectedBenefitRecord && (
@@ -273,6 +286,9 @@ const BenefitypeSideBar = () => {
                       className="form-item"
                       name="department"
                       label="Select Department"
+                      rules={[
+                        { required: true, message: 'Department is Required!' },
+                      ]}
                     >
                       <Select
                         placeholder="Select a department"
@@ -293,6 +309,12 @@ const BenefitypeSideBar = () => {
                       className="form-item"
                       name="employees"
                       label="Select Employees"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'At Least one Employee is Required!',
+                        },
+                      ]}
                     >
                       <Select
                         mode="multiple"
@@ -301,7 +323,8 @@ const BenefitypeSideBar = () => {
                       >
                         {departmentUsers?.map((user) => (
                           <Select.Option key={user.id} value={user.id}>
-                            {user?.firstName} {user?.lastName}
+                            {user?.firstName} {user?.middleName}{' '}
+                            {user?.lastName}
                           </Select.Option>
                         ))}
                       </Select>

@@ -1,10 +1,9 @@
-import React from 'react';
-import { Input, Space, Spin, Table } from 'antd';
+import React, { useState } from 'react';
+import { Select, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { SearchOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
@@ -13,6 +12,8 @@ import { useFetchAllowanceEntitlements } from '@/store/server/features/compensat
 import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 
 const AllowanceEntitlementTable = () => {
   const {
@@ -30,6 +31,27 @@ const AllowanceEntitlementTable = () => {
     data: allowanceEntitlementData,
     isLoading: fiscalActiveYearFetchLoading,
   } = useFetchAllowanceEntitlements(id);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { data: employeeData } = useGetAllUsers();
+  const EmployeeBasicSalary = ({
+    id,
+    amount,
+  }: {
+    id: string;
+    amount: string;
+  }) => {
+    const { data, error } = useGetBasicSalaryById(id);
+    if (error || !data) {
+      return '--';
+    }
+    const employeeBasicSalary =
+      Number(data.find((item: any) => item.status)?.basicSalary) || '--';
+    const calculatedSalary =
+      typeof employeeBasicSalary === 'number'
+        ? (employeeBasicSalary * Number(amount)) / 100
+        : '--';
+    return calculatedSalary;
+  };
 
   const transformedData =
     allowanceEntitlementData?.map((item: any) => ({
@@ -37,6 +59,7 @@ const AllowanceEntitlementTable = () => {
       userId: item.employeeId,
       isRate: item.compensationItem.isRate,
       Amount: item.totalAmount,
+      defaultAmount: item.compensationItem?.defaultAmount,
       ApplicableTo: item.compensationItem.applicableTo,
     })) || [];
 
@@ -69,7 +92,15 @@ const AllowanceEntitlementTable = () => {
       dataIndex: 'Amount',
       key: 'Amount',
       sorter: true,
-      render: (text: string) => <div>{text ? `${text} ETB` : '-'}</div>,
+      render: (text: string, record: any) =>
+        !record.isRate ? (
+          <div>{text ? `${text} ETB` : '-'}</div>
+        ) : (
+          <EmployeeBasicSalary
+            id={record?.userId}
+            amount={record?.defaultAmount}
+          />
+        ),
     },
     {
       title: 'Action',
@@ -93,6 +124,23 @@ const AllowanceEntitlementTable = () => {
     },
   ];
 
+  const handleSearchChange = (value: any) => {
+    setSearchQuery(value);
+  };
+  const options =
+    employeeData?.items?.map((emp: any) => ({
+      value: emp.id,
+      label: `${emp.firstName || ''}  ${emp?.middleName} ${emp.lastName}`, // Full name as label
+      employeeData: emp,
+    })) || [];
+
+  const filteredDataSource = searchQuery
+    ? transformedData.filter(
+        (employee: any) =>
+          employee.userId?.toLowerCase() === searchQuery?.toLowerCase(),
+      )
+    : transformedData;
+
   return (
     <Spin spinning={fiscalActiveYearFetchLoading}>
       <Space
@@ -100,11 +148,27 @@ const AllowanceEntitlementTable = () => {
         size="large"
         style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
       >
-        <Input addonBefore={<SearchOutlined />} placeholder="Search by name" />
+        <Select
+          showSearch
+          allowClear
+          className="min-h-12"
+          placeholder="Search by name"
+          onChange={handleSearchChange}
+          filterOption={(input, option) => {
+            const label = option?.label;
+            return (
+              typeof label === 'string' &&
+              label.toLowerCase().includes(input.toLowerCase())
+            );
+          }}
+          options={options}
+          style={{ width: 300 }} // Set a width for better UX
+        />{' '}
         <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
           <Button
             size="large"
             type="primary"
+            className="min-h-12"
             id="createNewClosedHolidayFieldId"
             icon={<LuPlus size={18} />}
             onClick={() => {
@@ -119,11 +183,11 @@ const AllowanceEntitlementTable = () => {
       <Table
         className="mt-6"
         columns={columns}
-        dataSource={transformedData}
+        dataSource={filteredDataSource}
         pagination={{
           current: currentPage,
           pageSize,
-          total: transformedData.length,
+          total: transformedData?.length,
           showSizeChanger: true,
         }}
         onChange={handleTableChange}

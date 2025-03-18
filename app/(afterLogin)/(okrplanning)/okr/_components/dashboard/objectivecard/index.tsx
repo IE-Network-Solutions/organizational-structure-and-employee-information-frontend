@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Progress, Card, Dropdown, Menu, Avatar } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { Progress, Card, Avatar, Menu, Dropdown } from 'antd';
 import { PiCalendarMinusBold } from 'react-icons/pi';
 import KeyResultMetrics from '../keyresultmetrics';
 import EditObjective from '../editObjective';
@@ -11,9 +10,11 @@ import {
   defaultObjective,
   ObjectiveProps,
 } from '@/store/uistate/features/okrplanning/okr/interface';
+import { MoreOutlined } from '@ant-design/icons';
 
 const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
-  const { setObjectiveValue, objectiveValue } = useOKRStore();
+  const { setObjectiveValue, objectiveValue, keyResultId, objectiveId } =
+    useOKRStore();
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: deleteObjective } = useDeleteObjective();
@@ -22,7 +23,6 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     setOpenDeleteModal(true);
     setObjectiveValue(objective);
   };
-
   const onCloseDeleteModal = () => {
     setOpenDeleteModal(false);
     setObjectiveValue(defaultObjective);
@@ -30,7 +30,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
 
   const showDrawer = () => {
     setOpen(true);
-    setObjectiveValue(objective); // Update the objective value
+    setObjectiveValue(objective);
   };
 
   // Monitor `objectiveValue` change
@@ -66,6 +66,32 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
       },
     });
   }
+
+  // ==========> Deleting Key result and distributing weight Section <===============
+  const selectedObjective = objective?.id === objectiveId ? objective : null;
+
+  const relatedKeyResults =
+    (selectedObjective &&
+      selectedObjective?.keyResults?.filter(
+        (kr: any) => kr.objectiveId === objectiveId,
+      )) ||
+    [];
+  const remainingKeyResults = relatedKeyResults?.filter(
+    (kr: any) => kr?.id !== keyResultId,
+  );
+
+  const keyResultToDelete = relatedKeyResults.find(
+    (kr: any) => kr.id === keyResultId,
+  );
+
+  const redistributedWeight =
+    parseFloat(keyResultToDelete?.weight) / remainingKeyResults.length;
+
+  const updatedKeyResults = remainingKeyResults.map((kr: any) => ({
+    id: kr.id,
+    weight: parseFloat(kr.weight) + redistributedWeight,
+  }));
+
   return (
     <div className="p-2 grid gap-0">
       <div className="flex justify-center">
@@ -78,7 +104,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   {objective?.title}
                 </h2>
               </div>
-              {myOkr && (
+              {objective?.isClosed === false ? (
                 <Dropdown
                   overlay={menu}
                   trigger={['click']}
@@ -86,6 +112,8 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 >
                   <MoreOutlined className="text-gray-500 text-lg cursor-pointer" />
                 </Dropdown>
+              ) : (
+                ''
               )}
             </div>
 
@@ -127,7 +155,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
               {!myOkr && (
                 <div className="flex items-center gap-1 mt-4 sm:mt-0">
                   <div className="flex flex-col gap-0">
-                    <span className="text-xs text-normal">{`${objective?.user?.firstName} ${objective?.user?.lastName} `}</span>
+                    <span className="text-xs text-normal">{`${objective?.user?.firstName} ${objective?.user?.middleName}  ${objective?.user?.lastName} `}</span>
                     <span className="text-xs text-normal">
                       {objective?.user?.email}
                     </span>
@@ -137,6 +165,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   ) : (
                     <Avatar size={40}>
                       {objective?.user?.firstName[0]?.toUpperCase()}{' '}
+                      {objective?.user?.middleName[0]?.toUpperCase()}
                       {objective?.user?.lastName[0]?.toUpperCase()}
                     </Avatar>
                   )}
@@ -146,8 +175,12 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           </div>
         </Card>
       </div>
-
-      <EditObjective objective={objectiveValue} open={open} onClose={onClose} />
+      <EditObjective
+        objective={objectiveValue}
+        open={open}
+        onClose={onClose}
+        isClosed={objective?.isClosed}
+      />
       <DeleteModal
         open={openDeleteModal}
         onConfirm={() => handleDeleteObjective(objectiveValue.id as string)}
@@ -158,6 +191,8 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           myOkr={myOkr}
           keyResult={keyResult}
           key={keyResult.id}
+          updatedKeyResults={updatedKeyResults}
+          objectiveId={objectiveId}
         />
       ))}
     </div>

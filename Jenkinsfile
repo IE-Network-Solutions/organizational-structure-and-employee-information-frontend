@@ -1,40 +1,56 @@
 pipeline {
     agent any
 
-    environment {
-        REMOTE_SERVER = 'ubuntu@139.185.53.18'
-        REPO_URL = 'https://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@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git'
-        BRANCH_NAME = 'develop'
-        REPO_DIR = 'osei-front'
-        SSH_CREDENTIALS_ID = "peptest"
-
-
- ORG_AND_EMP_URL="https://test-org-emp.ienetworks.co/api/v1"
- PAYROLL_URL="https://payroll.ienetworks.co/api/v1"
-NEXT_PUBLIC_OKR_AND_PLANNING_URL="https://test-okr-backend.ienetworks.co/api/v1"
-OKR_URL="https://test-okr-backend.ienetworks.co/api/v1"
-TENANT_MGMT_URL="https://test-tenant-backend.ienetworks.co/api/v1"
-ORG_DEV_URL = "https://test-od.ienetworks.co/api/v1"
-NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL="https://test-time-attendance-backend.ienetworks.co/api/v1"
-NEXT_PUBLIC_TRAIN_AND_LEARNING_URL="https://test-training-backend.ienetworks.co/api/v1"
-RECRUITMENT_URL="https://test-recruitment-backend.ienetworks.co/api/v1"
-NEXT_PUBLIC_APPROVERS_URL="https://test-approval-backend.ienetworks.co/api/v1"
-PUBLIC_DOMAIN="https://selamnew.com"
-NOTIFICATION_URL='https://test-email-service.ienetworks.co/api/v1'
-NEXT_PUBLIC_API_KEY="AIzaSyDDOSSGJy2izlW9CzhzhjHUTEVur0J16zs"
-NEXT_PUBLIC_AUTH_DOMIAN="pep-authentication.firebaseapp.com"
-NEXT_PUBLIC_PROJECT_ID="pep-authentication"
-NEXT_PUBLIC_STORAGE_BUCKET="pep-authentication.appspot.com"
-NEXT_PUBLIC_MESSAGE_SENDER_ID="871958776875"
-NEXT_PUBLIC_APP_ID="1:871958776875:web:426ec9b0b49fc35df1ae6e"
-    }
-
     stages {
+        stage('Select Environment') {
+            steps {
+                script {
+                    withCredentials([
+                        string(credentialsId: 'REMOTE_SERVER_TEST', variable: 'REMOTE_SERVER_TEST'),
+                        string(credentialsId: 'REMOTE_SERVER_PROD', variable: 'REMOTE_SERVER_PROD')
+                    ]) {
+                        def branchName = env.GIT_BRANCH ?: sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+
+                        if (branchName.contains('develop')) {
+                            env.SSH_CREDENTIALS_ID = 'peptest'
+                            env.REMOTE_SERVER = REMOTE_SERVER_TEST
+                        } else if (branchName.contains('production')) {
+                            env.SSH_CREDENTIALS_ID = 'pepproduction'
+                            env.REMOTE_SERVER = REMOTE_SERVER_PROD
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Fetch Environment Variables') {
+            steps {
+                script {
+                    sshagent([env.SSH_CREDENTIALS_ID]) {
+                        env.REPO_URL = sh(
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_URL /home/ubuntu/secrets/.osei-front-env | cut -d= -f2 | tr -d \"\\r\"'",
+                            returnStdout: true
+                        ).trim()
+
+                        env.BRANCH_NAME = sh(
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep BRANCH_NAME /home/ubuntu/secrets/.osei-front-env | cut -d= -f2 | tr -d \"\\r\"'",
+                            returnStdout: true
+                        ).trim()
+
+                        env.REPO_DIR = sh(
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_DIR /home/ubuntu/secrets/.osei-front-env | cut -d= -f2 | tr -d \"\\r\"'",
+                            returnStdout: true
+                        ).trim()
+                    }
+                }
+            }
+        }
+
         stage('Prepare Repository') {
             steps {
-                sshagent (credentials: [SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER '
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
                         if [ -d "$REPO_DIR" ]; then
                             sudo chown -R \$USER:\$USER $REPO_DIR
                             sudo chmod -R 755 $REPO_DIR
@@ -43,77 +59,61 @@ NEXT_PUBLIC_APP_ID="1:871958776875:web:426ec9b0b49fc35df1ae6e"
                 }
             }
         }
+
         stage('Pull Latest Changes') {
             steps {
-                sshagent (credentials: [SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER '
-                        if [ -d "$REPO_DIR" ]; then
-                            cd $REPO_DIR && git reset --hard HEAD && git pull origin $BRANCH_NAME
-                        else
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        if [ ! -d "$REPO_DIR/.git" ]; then
                             git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR
+                        else
+                            cd $REPO_DIR && git reset --hard HEAD && git pull origin $BRANCH_NAME
                         fi'
                     """
                 }
             }
         }
-        stage('Create .env File') {
-            steps {
-                sshagent (credentials: [SSH_CREDENTIALS_ID]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cat > ~/$REPO_DIR/.env <<EOF
 
-                        NODE_ENV=production
-
-                        ORG_AND_EMP_URL=${ORG_AND_EMP_URL}
-                        PAYROLL_URL=${PAYROLL_URL}
-                        TENANT_MGMT_URL=${TENANT_MGMT_URL}
-                        ORG_DEV_URL=${ORG_DEV_URL}
-                        NEXT_PUBLIC_TRAIN_AND_LEARNING_URL=${NEXT_PUBLIC_TRAIN_AND_LEARNING_URL}
-                        NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL=${NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL}
-                        NEXT_PUBLIC_OKR_AND_PLANNING_URL=${OKR_URL}
-                        OKR_URL=${OKR_URL}
-                        NOTIFICATION_URL=${NOTIFICATION_URL}
-                        RECRUITMENT_URL=${RECRUITMENT_URL}
-                        PUBLIC_DOMAIN=${PUBLIC_DOMAIN}
-                        NEXT_PUBLIC_API_KEY=${NEXT_PUBLIC_API_KEY}
-                        NEXT_PUBLIC_AUTH_DOMIAN=${NEXT_PUBLIC_AUTH_DOMIAN}
-                        NEXT_PUBLIC_PROJECT_ID=${NEXT_PUBLIC_PROJECT_ID}
-                        NEXT_PUBLIC_STORAGE_BUCKET=${NEXT_PUBLIC_STORAGE_BUCKET}
-                        NEXT_PUBLIC_MESSAGE_SENDER_ID=${NEXT_PUBLIC_MESSAGE_SENDER_ID}
-                        NEXT_PUBLIC_APP_ID=${NEXT_PUBLIC_APP_ID}
-                        NEXT_PUBLIC_APPROVERS_URL=${NEXT_PUBLIC_APPROVERS_URL}
-                        EOF'
-                    """
-                }
-            }
-        }
         stage('Install Dependencies') {
             steps {
-                sshagent (credentials: [SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm install'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cp ~/frontend-env/.osei-front-env ~/$REPO_DIR/.env'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm install'
                     """
                 }
             }
         }
+
+        stage('Format Repo') {
+            steps {
+                sshagent([env.SSH_CREDENTIALS_ID]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run format'
+                    """
+                }
+            }
+        }
+
         stage('Run Next.js App') {
             steps {
-                sshagent (credentials: [SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run format'
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && sudo pm2 delete test-osei-front-app || true'
-                        ssh -o StrictHostKeyChecking=no $REMOTE_SERVER 'cd ~/$REPO_DIR && npm run build && PORT=3001 sudo pm2 start npm --name "test-osei-front-app" -- start'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run build'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 delete osei-front-app || true'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 start ecosystem.config.js --env production'
                     """
                 }
             }
         }
     }
-        post {
 
+    post {
         success {
-            echo 'Nest js application deployed successfully!'
+            echo 'Next.js application deployed successfully!'
         }
+
         failure {
             echo 'Deployment failed.'
             emailext(

@@ -39,6 +39,26 @@ const EmergencyContactForm = () => {
             <Input />
           </Form.Item>
         </Col>
+        <Col xs={24} sm={8}>
+          <Form.Item
+            className="font-semibold text-xs"
+            name={['emergencyContact', 'middleName']}
+            label="Middle Name"
+            id="emergencyContactMiddleName"
+            rules={[
+              {
+                validator: (rule, value) =>
+                  !value || !validateName('Middle Name', value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(validateName('Middle Name', value) || ''),
+                      ),
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+        </Col>
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"

@@ -1,20 +1,27 @@
 'use client';
 import React from 'react';
-import { Table, Button, Space, Typography, Switch, Spin } from 'antd';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Table, Button, Space, Typography, Switch, Spin, Tooltip } from 'antd';
+import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import PayPeriodSideBar from './_components/payPeriodSideBar';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
 import { useFetchActiveFiscalYearPayPeriods } from '@/store/server/features/payroll/setting/tax-rule/queries';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import {
-  useDeletePayPeriod,
-  useChangePayPeriodStatus,
-} from '@/store/server/features/payroll/setting/tax-rule/mutation';
+import { useChangePayPeriodStatus } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import dayjs from 'dayjs';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import CustomDrawer from './_components/customDrawer';
+import useEditDrawerStore from '@/store/uistate/features/payroll/settings/drawer';
 const { Title } = Typography;
-
+interface DataSource {
+  key: string;
+  id: string;
+  startDate: string;
+  endDate: string;
+  range: string;
+  month: string;
+  status: string;
+}
 const PayPeriod = () => {
   const {
     setIsPayPeriodSidebarVisible,
@@ -23,8 +30,10 @@ const PayPeriod = () => {
     setCurrentPage,
     setPageSize,
   } = usePayPeriodStore();
+  const { setId, setStartDate, setEndDate, setVisible, visible, reset } =
+    useEditDrawerStore();
+
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
-  const { mutate: deletePayPeriod } = useDeletePayPeriod();
   const { mutate: changePayPeriodStatus } = useChangePayPeriodStatus();
   const { data: payPeriods, isLoading } = useFetchActiveFiscalYearPayPeriods(
     activeFiscalYear?.id,
@@ -33,8 +42,15 @@ const PayPeriod = () => {
   const handleAddPayPeriod = () => {
     setIsPayPeriodSidebarVisible(true);
   };
-  const handleDeletePayPeriod = (payPeriodId: string) => {
-    deletePayPeriod(payPeriodId);
+  // const handleDeletePayPeriod = (payPeriodId: string) => {
+  //   deletePayPeriod(payPeriodId);
+  // };
+
+  const handleEdit = (record: any) => {
+    setId(record.id);
+    setStartDate(record.startDate);
+    setEndDate(record.endDate);
+    setVisible(true);
   };
 
   const handleTableChange = (pagination: any) => {
@@ -42,17 +58,14 @@ const PayPeriod = () => {
     setPageSize(pagination.pageSize);
   };
 
-  const onStatusChange = (record: any, checked: boolean) => {
-    const newStatus = checked ? 'OPEN' : 'CLOSED';
+  const onStatusChange = (record: any) => {
     changePayPeriodStatus({
       payPeriodId: record.id,
-      status: newStatus,
-      activeFiscalYearId: activeFiscalYear?.id,
     });
   };
 
-  const dataSource = Array.isArray(payPeriods)
-    ? payPeriods.map((payPeriod: any) => ({
+  const dataSource: DataSource[] = Array.isArray(payPeriods)
+    ? payPeriods.reverse().map((payPeriod: DataSource) => ({
         key: payPeriod.id,
         id: payPeriod.id,
         startDate: payPeriod.startDate,
@@ -83,27 +96,29 @@ const PayPeriod = () => {
       title: 'Action',
       key: 'action',
       render: (record: any) => (
-        <Space size="middle">
-          <AccessGuard
-            permissions={[
-              Permissions.UpdatePayPeriod,
-              Permissions.DeletePayPeriod,
-            ]}
-          >
+        <AccessGuard
+          permissions={[
+            Permissions.UpdatePayPeriod,
+            Permissions.DeletePayPeriod,
+          ]}
+        >
+          <Space size="middle">
             <Switch
               checked={record.status === 'OPEN'}
-              onChange={(checked) => onStatusChange(record, checked)}
+              onChange={() => onStatusChange(record)}
               checkedChildren="Opened"
               unCheckedChildren="Closed"
             />
-            <Button
-              type="primary"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => handleDeletePayPeriod(record.id)}
-            />
-          </AccessGuard>
-        </Space>
+            <Tooltip title="Edit">
+              <Button
+                type="primary"
+                shape="default"
+                icon={<EditOutlined />}
+                onClick={() => handleEdit(record)}
+              />
+            </Tooltip>
+          </Space>
+        </AccessGuard>
       ),
     },
   ];
@@ -137,6 +152,12 @@ const PayPeriod = () => {
         />
       </Spin>
       <PayPeriodSideBar />
+      <CustomDrawer
+        visible={visible}
+        onClose={() => {
+          setVisible(false), reset();
+        }}
+      />
     </div>
   );
 };

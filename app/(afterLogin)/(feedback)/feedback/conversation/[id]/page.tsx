@@ -13,14 +13,16 @@ function Index({ params }: { params: Params }) {
   const { id } = params;
 
   const { data: conversationType, isLoading } = useGetConversationById(id);
-  const questionSetListData = conversationType?.questionSets?.map(
+
+  const questionSetListData = conversationType?.questionSets?.filter((item: any) => item.active === true)
+  ?.map(
     (item: any) => {
       const userIds = item?.conversationInstances
-        .flatMap((instance: any) => instance.userId || []) // Collect and flatten userId arrays
+        .flatMap((instance: any) => instance.userId || []) 
         .filter(
           (id: string, index: number, array: any) =>
             array?.indexOf(id) === index,
-        ); // Deduplicate
+        ); 
       return {
         id: item?.id,
         title: item?.name,
@@ -31,12 +33,11 @@ function Index({ params }: { params: Params }) {
     },
   );
 
-  const generateReportHandler = () => {};
+
   return (
     <TabLandingLayout
-      buttonTitle="Generate report"
+      buttonDisabled={true}
       id="conversationLayoutId"
-      onClickHandler={() => generateReportHandler}
       title={conversationType?.name}
       subtitle={
         isLoading ? (
@@ -57,9 +58,17 @@ function Index({ params }: { params: Params }) {
             questionSetListData?.map((item: any, index: any) => (
               <QuestionSet key={index} data={item} conversationTypeId={id} />
             ))}
-
-        {questionSetListData?.length <= 0 && <CustomizeRenderEmpty />}
       </div>
+      <br />
+      {questionSetListData?.length <= 0 && (
+        <div className="flex flex-col align-middle h-full w-full">
+          <CustomizeRenderEmpty />
+          <p className="text-center text-warning">
+            Info: Go to settings and define question-set under define question
+            tab.
+          </p>
+        </div>
+      )}
     </TabLandingLayout>
   );
 }

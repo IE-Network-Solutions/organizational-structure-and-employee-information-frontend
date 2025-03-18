@@ -3,6 +3,7 @@ import { useGetBranches } from '@/store/server/features/employees/employeeManagm
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { JobActionStatus } from '@/types/enumTypes';
 import {
   Button,
@@ -14,10 +15,13 @@ import {
   Select,
   Switch,
 } from 'antd';
+import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { AiOutlineReload } from 'react-icons/ai';
+import { IoInformationCircleOutline } from 'react-icons/io5';
 
 const JobTimeLineForm = () => {
+  const { birthDate } = useEmployeeManagementStore();
   const { data: departmentData, refetch: departmentsRefetch } =
     useGetDepartments();
   const { data: employementType, refetch: employmentTypeRefetch } =
@@ -48,8 +52,27 @@ const JobTimeLineForm = () => {
               { required: true, message: 'Please select the joined date' },
             ]}
           >
-            <DatePicker className="w-full" />
+            <DatePicker
+              disabledDate={(current) => {
+                if (!birthDate) return false; // Ensure birthDate exists
+
+                const minJoinedDate = dayjs(birthDate)
+                  .add(18, 'years')
+                  .startOf('day');
+                return current && current.isBefore(minJoinedDate);
+              }}
+              className="w-full"
+            />
           </Form.Item>
+          <div className="flex items-center justify-start space-x-1 mb-5 mt-0">
+            <div>
+              <IoInformationCircleOutline size={14} />
+            </div>
+            <div className="text-xs text-gray-500">
+              The effective start date must be at least 18 years after the
+              selected birthdate.
+            </div>
+          </div>
         </Col>
       </Row>
 
@@ -154,7 +177,7 @@ const JobTimeLineForm = () => {
                 label: `${department?.name ? department?.name : ''} `,
               }))}
             />
-          </Form.Item>{' '}
+          </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
           <Form.Item

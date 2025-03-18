@@ -11,16 +11,21 @@ import {
   Space,
 } from 'antd';
 import { NAME } from '@/types/enumTypes';
+import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 
 interface BoardCardInterface {
   form: any;
   handleAddName: (arg1: Record<string, string>, arg2: string) => void;
   handleRemoveBoard: (arg1: number, arg2: string) => void;
   kId: string;
-  hideTargetValue: boolean;
+  hideTargetValue?: boolean;
   name: string;
   isMKAsTask?: boolean;
   keyResult: any;
+  targetValue?: number;
+  milestoneId?: number;
+  parentPlanId?: string;
+  onCancle?: () => void;
 }
 
 function BoardCardForm({
@@ -31,8 +36,13 @@ function BoardCardForm({
   name,
   isMKAsTask = false,
   keyResult,
+  targetValue,
+  parentPlanId,
+  milestoneId,
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
+  const { setClickStatus } = useClickStatus();
+
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
@@ -50,7 +60,7 @@ function BoardCardForm({
                 key={`${subName}-task`} // Unique key for task
                 rules={[{ required: true, message: 'Task is required' }]}
                 noStyle // Use noStyle to avoid nested Form.Item issues
-                initialValue={isMKAsTask ? mkAsATask : ''}
+                initialValue={isMKAsTask ? mkAsATask?.title : ''}
               >
                 <Input
                   disabled={isMKAsTask}
@@ -68,80 +78,92 @@ function BoardCardForm({
                 <Input type="hidden" />
               </Form.Item>
               <Divider className="mt-2 mb-2" />
-              {(keyResult?.metricType?.name != NAME.ACHIEVE ||
-                keyResult?.metricType?.name != NAME.MILESTONE) && (
-                <Form.Item
-                  hidden={hideTargetValue}
-                  label={<div className="text-xs">Target</div>}
-                  {...restSubField}
-                  name={[subName, 'targetValue']}
-                  key={`${subName}-targetValue`}
-                  rules={[
-                    {
-                      /* eslint-disable @typescript-eslint/naming-convention */
-                      validator(_, value: any) {
-                        /* eslint-enable @typescript-eslint/naming-convention */
-                        // Check if keyResult is available
-                        if (
-                          !keyResult ||
-                          !keyResult.targetValue ||
-                          !keyResult.currentValue
-                        ) {
+              {keyResult?.metricType?.name !== NAME.ACHIEVE &&
+                keyResult?.metricType?.name !== NAME.MILESTONE &&
+                !parentPlanId && (
+                  <Form.Item
+                    hidden={hideTargetValue}
+                    label={<div className="text-xs">Target</div>}
+                    {...restSubField}
+                    name={[subName, 'targetValue']}
+                    key={`${subName}-targetValue`}
+                    rules={[
+                      {
+                        /* eslint-disable @typescript-eslint/naming-convention */
+                        validator(_, value: any) {
+                          /* eslint-enable @typescript-eslint/naming-convention */
+                          // Check if keyResult is available
+                          if (
+                            !keyResult ||
+                            !keyResult.targetValue ||
+                            !keyResult.currentValue
+                          ) {
+                            return Promise.reject(
+                              new Error('Key result data is incomplete.'),
+                            );
+                          }
+
+                          // Skip validation for specific metric types
+                          if (
+                            keyResult?.metricType?.name === NAME.ACHIEVE ||
+                            keyResult?.metricType?.name === NAME.MILESTONE
+                          ) {
+                            return Promise.resolve(); // Skip validation
+                          }
+
+                          // Handle null or undefined value
+                          if (value === null || value === undefined) {
+                            return Promise.reject(
+                              new Error('Please enter a target value.'),
+                            );
+                          }
+
+                          // Ensure value is a valid number
+                          const numericValue = Number(value);
+                          if (isNaN(numericValue)) {
+                            return Promise.reject(
+                              new Error('Please enter a valid number.'),
+                            );
+                          }
+
+                          // Validate against the key result limits
+                          if (
+                            targetValue !== null &&
+                            targetValue !== undefined
+                          ) {
+                            // Check if numericValue is within the targetValue
+                            if (numericValue <= targetValue) {
+                              return Promise.resolve(); // Validation passed
+                            }
+                          } else {
+                            // Fallback check if targetValue does not exist
+                            if (
+                              numericValue <=
+                              keyResult.targetValue - keyResult.currentValue
+                            ) {
+                              return Promise.resolve(); // Validation passed
+                            }
+                          }
+
+                          // If neither condition is satisfied, reject the promise
                           return Promise.reject(
-                            new Error('Key result data is incomplete.'),
+                            new Error(
+                              "Your target value shouldn't exceed the allowed limits.",
+                            ),
                           );
-                        }
-
-                        // Skip validation for specific metric types
-                        if (
-                          keyResult?.metricType?.name === NAME.ACHIEVE ||
-                          keyResult?.metricType?.name === NAME.MILESTONE
-                        ) {
-                          return Promise.resolve(); // Skip validation
-                        }
-
-                        // Handle null or undefined value
-                        if (value === null || value === undefined) {
-                          return Promise.reject(
-                            new Error('Please enter a target value.'),
-                          );
-                        }
-
-                        // Ensure value is a valid number
-                        const numericValue = Number(value);
-                        if (isNaN(numericValue)) {
-                          return Promise.reject(
-                            new Error('Please enter a valid number.'),
-                          );
-                        }
-
-                        // Validate against the key result limits
-                        if (
-                          numericValue <=
-                          keyResult.targetValue - keyResult.currentValue
-                        ) {
-                          return Promise.resolve(); // Validation passed
-                        }
-
-                        // Reject with custom error message
-                        return Promise.reject(
-                          new Error(
-                            "Your target value shouldn't be greater than your key result target value.",
-                          ),
-                        );
+                        },
                       },
-                    },
-                  ]}
-                >
-                  <InputNumber
-                    className="w-28 text-xs"
-                    defaultValue={0} // Set a default value to avoid null issues
-                    formatter={(value) =>
-                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                    }
-                  />
-                </Form.Item>
-              )}
+                    ]}
+                  >
+                    <InputNumber
+                      className="w-28 text-xs"
+                      defaultValue={0} // Set a default value to avoid null issues
+                      formatter={(value) =>
+                        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                      }
+                    />
+                  </Form.Item>
+                )}
 
               <Row justify="space-between" align={'middle'}>
                 <Col>
@@ -203,6 +225,7 @@ function BoardCardForm({
                 <Col>
                   <Space>
                     <Button
+                      id="add-task-button-for-planning-and-reporting"
                       type="primary"
                       onClick={() => {
                         form
@@ -219,7 +242,15 @@ function BoardCardForm({
                     >
                       Add Task
                     </Button>
-                    <Button onClick={() => removeSub(subName)}>Cancel</Button>
+                    <Button
+                      id="cancel-task-button-for-planning-and-reporting"
+                      onClick={() => {
+                        removeSub(subName);
+                        setClickStatus(milestoneId + '', false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
                   </Space>
                 </Col>
               </Row>

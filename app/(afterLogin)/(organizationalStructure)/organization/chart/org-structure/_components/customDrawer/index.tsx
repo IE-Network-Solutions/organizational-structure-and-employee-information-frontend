@@ -32,7 +32,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       case 'transfer':
         return <TransferForm />;
       case 'merge':
-        return <MergeForm />;
+        return <MergeForm form={form} />;
       case 'delete':
         return <DeleteForm form={form} />;
       default:

@@ -101,8 +101,8 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
               value={workSchedule}
             >
               {workSchedules?.items.map((schedule) => (
-                <Option key={schedule.id} value={schedule?.id}>
-                  {schedule?.name}
+                <Option key={schedule.id} value={schedule.id}>
+                  {schedule.name}
                 </Option>
               ))}
             </Select>

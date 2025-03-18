@@ -43,7 +43,6 @@ function Page() {
   const { data: allUserData } = useGetAllUsers();
   const { data: recognitionType } = useGetAllRecognitionData();
   const { data: totalRecogniion } = useGetTotalRecognition();
-
   const { data: getAllRecognition } = useGetAllRecognition({
     searchValue,
     current,
@@ -93,7 +92,7 @@ function Page() {
       dataIndex: 'employee',
       render: (notused, record) =>
         record.recipientId
-          ? `${getEmployeeData(record.recipientId)?.firstName ?? '-'} ${getEmployeeData(record.recipientId)?.lastName ?? '-'}`
+          ? `${getEmployeeData(record.recipientId)?.firstName ?? '-'} ${getEmployeeData(record.recipientId)?.middleName ?? '-'} ${getEmployeeData(record.recipientId)?.lastName ?? '-'}`
           : '-',
     },
     {
@@ -132,7 +131,7 @@ function Page() {
       dataIndex: 'createdBy',
       render: (notused, record) =>
         record.issuerId
-          ? `${getEmployeeData(record.issuerId)?.firstName ?? '-'} ${getEmployeeData(record.issuerId)?.lastName ?? '-'}`
+          ? `${getEmployeeData(record.issuerId)?.firstName ?? '-'} ${getEmployeeData(record.recipientId)?.middleName ?? '-'} ${getEmployeeData(record.issuerId)?.lastName ?? '-'}`
           : 'system',
     },
     {
@@ -190,7 +189,7 @@ function Page() {
       options:
         allUserData?.items?.map((item: any) => ({
           key: item?.id,
-          value: `${item?.firstName} ${item?.lastName}`, // Correctly concatenating firstName and lastName
+          value: `${item?.firstName} ${item?.middleName} ${item?.lastName}`, // Correctly concatenating firstName and lastName
         })) ?? [],
       widthRatio: 0.4,
     },
@@ -236,6 +235,7 @@ function Page() {
   const handleRowClick = (record: any) => {
     navigate.push(`/feedback/recognition/${record.id}`);
   };
+
   return (
     <div>
       <Tabs

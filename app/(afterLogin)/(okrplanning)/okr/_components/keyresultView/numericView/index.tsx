@@ -32,6 +32,8 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     });
   }
 
+  const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
+
   return (
     <div
       className="py-4  border-b-[1px] border-gray-300"
@@ -53,6 +55,21 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             }
             className="w-full font-bold"
             id={`key-result-title-${index}`}
+            rules={[
+              {
+                /* eslint-disable-next-line @typescript-eslint/naming-convention */
+                validator: (_, value) => {
+                  /* eslint-enable @typescript-eslint/naming-convention */
+                  if (!value) {
+                    return Promise.reject(
+                      new Error('Milestone title is required'),
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            validateTrigger="onBlur"
           >
             <Input
               value={keyValue.title}
@@ -60,6 +77,11 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                 handleChange(e.target.value, 'title');
               }}
             />
+            {!keyValue.title && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Milestone title is required
+              </div>
+            )}
           </Form.Item>
           <Form.Item
             className="w-24 font-bold"
@@ -88,6 +110,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                     ? handleKeyResultDelete(keyValue?.id)
                     : removeKeyResultValue(index)
                 }
+                disabled={isEditDisabled}
               />
             </Tooltip>
           </div>
@@ -110,6 +133,9 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               min={0}
               className="w-full text-xs"
               value={keyValue.initialValue}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }
               onChange={(value) => {
                 handleChange(value, 'initialValue');
               }}
@@ -132,6 +158,9 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             <InputNumber
               className="text-xs w-full"
               value={keyValue.targetValue}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }
               onChange={(value) => {
                 handleChange(value, 'targetValue');
               }}
@@ -162,6 +191,11 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                 );
               }}
             />
+            {!keyValue.deadline && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Deadline is required
+              </div>
+            )}
           </Form.Item>
         </div>
       </Form>

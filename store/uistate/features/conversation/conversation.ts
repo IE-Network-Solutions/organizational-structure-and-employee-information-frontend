@@ -35,6 +35,9 @@ export interface CategoriesUseState {
 
   setOpen: (value: boolean) => void;
 
+  searchQuery: string;
+  setSearchQuery: (searchQuery: string) => void;
+
   questions: any;
   setQuestions: (questions: any) => void;
 
@@ -50,6 +53,9 @@ export interface CategoriesUseState {
   selectedRecognitionType: string;
   setSelectedRecognitionType: (selectedRecognitionType: string) => void;
 
+  totalWeight: number;
+  setTotalWeight: (totalWeight: number) => void;
+
   recognitionTypeId: string;
   setRecognitionTypeId: (value: string) => void;
 
@@ -62,14 +68,14 @@ export interface CategoriesUseState {
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
 
-  empId?: string | null | undefined;
-  setEmpId: (empId: string | null) => void;
+  empId: string;
+  setEmpId: (empId: string) => void;
 
   givenDate: any;
   setGivenDate: (givenDate: any) => void;
 
-  variantType: string;
-  setVariantType: (variantType: string) => void;
+  variantType: 'appreciation' | 'reprimand';
+  setVariantType: (variantType: 'appreciation' | 'reprimand') => void;
 
   selectedFeedbackRecord: FeedbackRecord | null;
   setSelectedFeedbackRecord: (
@@ -92,6 +98,9 @@ export interface CategoriesUseState {
   setSearchField: (fields: SearchField[]) => void;
 
   updateFieldOptions: (key: string, name: any) => void;
+
+  editingItem: any;
+  setEditingItem: (editingItem: any) => void;
 }
 const initialSearchField: SearchField[] = [
   {
@@ -118,6 +127,9 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   pageSize: 10,
   setPageSize: (pageSize: number) => set({ pageSize }),
 
+  searchQuery: '',
+  setSearchQuery: (searchQuery: string) => set({ searchQuery }),
+
   setTotalPages: (totalPages: number) => set({ totalPages }),
 
   page: 1,
@@ -136,6 +148,9 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   userId: '',
   setUserId: (userId: string) => set({ userId }),
 
+  totalWeight: 0,
+  setTotalWeight: (totalWeight: number) => set({ totalWeight }),
+
   selectedUserId: '',
   setSelectedUserId: (selectedUserId: string) => set({ selectedUserId }),
 
@@ -143,7 +158,8 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedRecognitionType: (selectedRecognitionType: string) =>
     set({ selectedRecognitionType }),
   variantType: 'appreciation',
-  setVariantType: (variantType: string) => set({ variantType }),
+  setVariantType: (variantType: 'appreciation' | 'reprimand') =>
+    set({ variantType }),
 
   selectedFeedback: null,
   setSelectedFeedback: (selectedFeedback: any) => set({ selectedFeedback }),
@@ -152,11 +168,11 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setSelectedFeedbackRecord: (selectedFeedbackRecord: FeedbackRecord | null) =>
     set({ selectedFeedbackRecord }),
 
-  activeTab: '',
+  activeTab: '1',
   setActiveTab: (activeTab: string) => set({ activeTab }),
 
-  empId: null as string | null,
-  setEmpId: (empId: string | null) => set({ empId }),
+  empId: '',
+  setEmpId: (empId: string) => set({ empId }),
 
   givenDate: [],
   setGivenDate: (givenDate: any) => set({ givenDate }),
@@ -191,6 +207,9 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   openRecognitionType: false,
   setOpenRecognitionType: (openRecognitionType: boolean) =>
     set({ openRecognitionType }),
+
+  editingItem: null,
+  setEditingItem: (editingItem: any) => set({ editingItem }),
 
   setCurrent: (value) => set({ current: value }),
   setOpen: (open) => set({ open }),

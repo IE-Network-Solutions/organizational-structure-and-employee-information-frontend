@@ -21,6 +21,9 @@ import { RcFile } from 'antd/es/upload';
 import { UploadFile } from 'antd/lib';
 import { useState } from 'react';
 import { useUpdateProfileImage } from '@/store/server/features/employees/employeeDetail/mutations';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const { Dragger } = Upload;
 
@@ -28,6 +31,7 @@ function BasicInfo({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
   const { profileFileList, setProfileFileList } = useEmployeeManagementStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { userId } = useAuthenticationStore();
 
   const { mutate: updateProfileImage, isLoading: isUploading } =
     useUpdateProfileImage();
@@ -98,6 +102,10 @@ function BasicInfo({ id }: { id: string }) {
     return '';
   };
 
+  const hasAccess = AccessGuard.checkAccess({
+    permissions: [Permissions.ChangeManagerProfile],
+  });
+
   return (
     <Card loading={isLoading} className="mb-3">
       <div className="flex flex-col gap-3 items-center">
@@ -112,12 +120,16 @@ function BasicInfo({ id }: { id: string }) {
             }
             className="relative z-0"
           />
-          <div
-            className="absolute bottom-0 left-0 w-full h-1/2 z-10 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-b-full cursor-pointer"
-            onClick={showModal}
-          >
-            <p className="text-white text-sm font-semibold">Change Image</p>
-          </div>
+          {userId === id ? (
+            <div
+              className="absolute bottom-0 left-0 w-full h-1/2 z-10 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-b-full cursor-pointer"
+              onClick={showModal}
+            >
+              <p className="text-white text-sm font-semibold">Change Image</p>
+            </div>
+          ) : (
+            ''
+          )}
         </div>
         <h5>
           {employeeData?.firstName} {employeeData?.middleName}{' '}
@@ -234,13 +246,31 @@ function BasicInfo({ id }: { id: string }) {
           />
         </List.Item>
         {employeeData?.reportingTo?.id ? (
-          <Link
-            href={`/employees/manage-employees/${employeeData.reportingTo.id}`}
-          >
-            <List.Item
-              key="Manager"
-              actions={[<MdKeyboardArrowRight key="arrow" />]}
+          hasAccess ? (
+            <Link
+              href={`/employees/manage-employees/${employeeData.reportingTo.id}`}
             >
+              <List.Item
+                key="Manager"
+                actions={[<MdKeyboardArrowRight key="arrow" />]}
+              >
+                <List.Item.Meta
+                  title={<p className="text-xs font-light">Manager</p>}
+                  description={
+                    <p className="font-bold text-black text-sm">
+                      <span className="mr-2">
+                        <Avatar src={employeeData?.reportingTo?.profileImage} />
+                      </span>
+                      {employeeData?.reportingTo?.firstName}{' '}
+                      {employeeData?.reportingTo?.middleName}{' '}
+                      {employeeData?.reportingTo?.lastName}
+                    </p>
+                  }
+                />
+              </List.Item>
+            </Link>
+          ) : (
+            <List.Item key="Manager">
               <List.Item.Meta
                 title={<p className="text-xs font-light">Manager</p>}
                 description={
@@ -255,7 +285,7 @@ function BasicInfo({ id }: { id: string }) {
                 }
               />
             </List.Item>
-          </Link>
+          )
         ) : (
           <List.Item key="Manager" className="text-gray-500 cursor-not-allowed">
             <List.Item.Meta

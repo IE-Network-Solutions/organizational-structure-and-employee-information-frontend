@@ -3,7 +3,7 @@ import TabLandingLayout from '@/components/tabLanding';
 import React from 'react';
 import { useConversationTypes } from '@/store/server/features/CFR/conversation/queries';
 import ConversationTypeList from './_component/conversation';
-import { Empty, Skeleton } from 'antd';
+import { Card, Col, Empty, Row } from 'antd';
 
 function Index() {
   const { data: conversationData, isLoading } = useConversationTypes();
@@ -13,31 +13,33 @@ function Index() {
     description: item.description,
   }));
 
-  const generateReportHandler = () => {};
   return (
     <TabLandingLayout
-      buttonTitle="Generate report"
+      buttonDisabled={true}
       id="conversationLayoutId"
-      onClickHandler={() => generateReportHandler}
       title="Conversation types"
-      subtitle="Conversations / bi-weekly"
+      subtitle="Conversations"
     >
-      <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {isLoading ? (
-          Array.from({ length: 4 }).map((notused, index) => (
-            <div key={index} className="p-4 border rounded shadow-sm">
-              <Skeleton active />
-            </div>
-          ))
-        ) : cardsData?.length > 0 ? (
-          cardsData.map((item: any, index: number) => (
-            <ConversationTypeList key={index} data={item} />
-          ))
-        ) : (
-          <div className="col-span-full">
-            <Empty description="No conversations found" />
-          </div>
-        )}
+      <div className="p-4">
+        <Row gutter={[16, 16]}>
+          {isLoading ? (
+            Array.from({ length: 6 }).map((notused, index) => (
+              <Col key={index} xs={24} sm={12} md={8}>
+                <Card loading={true} />
+              </Col>
+            ))
+          ) : cardsData?.length > 0 ? (
+            cardsData.map((item: any, index: number) => (
+              <Col key={index} xs={24} sm={12} md={8}>
+                <ConversationTypeList data={item} />
+              </Col>
+            ))
+          ) : (
+            <Col span={24}>
+              <Empty description="No conversations found" />
+            </Col>
+          )}
+        </Row>
       </div>
     </TabLandingLayout>
   );

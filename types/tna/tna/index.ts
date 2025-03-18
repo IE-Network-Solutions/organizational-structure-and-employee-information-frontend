@@ -1,5 +1,6 @@
 import { DateInfo } from '@/types/commons/dateInfo';
 import { StatusBadgeTheme } from '@/components/common/statusBadge';
+import { Meta } from '@/store/server/features/okrPlanningAndReporting/interface';
 
 export enum TrainingNeedAssessmentStatus {
   PENDING = 'pending',
@@ -63,7 +64,9 @@ export interface TrainingNeedAssessment extends DateInfo {
   title: string;
   trainingPrice: number;
   assignedUserId: string;
+  approvalWorkflowId: string;
   trainingNeedCategoryId: string;
+  currencyId: string;
   trainingNeedCategory: TrainingNeedCategory;
   trainingProofs: TrainingProof[];
   reason: string | null;
@@ -72,8 +75,15 @@ export interface TrainingNeedAssessment extends DateInfo {
   certStatus: TrainingNeedAssessmentCertStatus;
   tenantId: string;
   completedAt: string;
+  commitmentPeriod: string;
+  sessionId?: string;
+  yearId?: string;
+  monthId?: string;
 }
-
+export interface TrainingNeedAssessmentRecord extends DateInfo {
+  items: TrainingNeedAssessment[];
+  meta: Meta;
+}
 export interface TrainingProof extends DateInfo {
   id: string;
   trainingNeedAssessmentId: string;

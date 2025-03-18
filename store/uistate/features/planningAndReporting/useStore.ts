@@ -2,10 +2,14 @@
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { useAuthenticationStore } from '../authentication';
+type MkAsATask = {
+  title: string | null;
+  mid: string | null;
+};
 
 export interface PlanningAndReporting {
-  mkAsATask: string | null;
-  setMKAsATask: (mkAsATask: string | null) => void;
+  mkAsATask: MkAsATask | null;
+  setMKAsATask: (mkAsATask: MkAsATask | null) => void;
 
   newComment: string;
   setNewComment: (newComment: string) => void;
@@ -17,8 +21,10 @@ export interface PlanningAndReporting {
   setOpen: (open: boolean) => void;
   openReportModal: boolean;
   setOpenReportModal: (open: boolean) => void;
+
   isEditing: boolean;
   setEditing: (open: boolean) => void;
+
   activeTab: number;
   setActiveTab: (activeTab: number) => void;
 
@@ -35,13 +41,21 @@ export interface PlanningAndReporting {
   resetWeights: () => void;
 
   selectedStatuses: Record<string, string | undefined>; // Map task IDs to their statuses
-  setStatus: (taskId: string, status: string) => void; // Function to update status
-
+  setStatus: (taskId: string, status: any) => void; // Function to update status
+  resetStatuses: () => void;
   page: number; // Map task IDs to their statuses
   setPage: (page: number) => void; // Function to update status
-
+  pageSize: number;
+  setPageSize: (value: number) => void;
+  pageReporting: number; // Map task IDs to their statuses
+  setPageReporting: (pageReporting: number) => void; // Function to update status
+  pageSizeReporting: number;
+  setPageSizeReporting: (value: number) => void;
   selectedPlanId: string;
   setSelectedPlanId: (selectedPlanId: string) => void;
+
+  selectedReportId: string;
+  setSelectedReportId: (selectedReportId: string) => void;
 }
 const userId = useAuthenticationStore.getState().userId;
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
@@ -53,7 +67,7 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     setViewComment: (viewComment: boolean) => set({ viewComment }),
 
     mkAsATask: null,
-    setMKAsATask: (mkAsATask: string | null) => set({ mkAsATask }),
+    setMKAsATask: (mkAsATask: MkAsATask | null) => set({ mkAsATask }),
 
     open: false,
     setOpen: (open: boolean) => set({ open }),
@@ -65,6 +79,7 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
           [taskId]: status, // Update the specific task status
         },
       })),
+    resetStatuses: () => set({ selectedStatuses: {} }), // Reset to initial state
 
     openReportModal: false,
     setOpenReportModal: (openReportModal: boolean) => set({ openReportModal }),
@@ -75,6 +90,10 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
 
     selectedPlanId: '',
     setSelectedPlanId: (selectedPlanId: string) => set({ selectedPlanId }),
+
+    selectedReportId: '',
+    setSelectedReportId: (selectedReportId: string) =>
+      set({ selectedReportId }),
 
     activePlanPeriod: 1,
     setActivePlanPeriod: (activePlanPeriod: number) =>
@@ -87,6 +106,13 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
 
     page: 1, // Map task IDs to their statuses
     setPage: (page: number) => set({ page }), // Function to update status
+    pageSize: 10,
+    setPageSize: (value: number) => set({ pageSize: value }),
+
+    pageReporting: 1, // Map task IDs to their statuses
+    setPageReporting: (pageReporting: number) => set({ pageReporting }), // Function to update status
+    pageSizeReporting: 10,
+    setPageSizeReporting: (value: number) => set({ pageSizeReporting: value }),
 
     setWeight: (key, weight) =>
       set((state) => {
