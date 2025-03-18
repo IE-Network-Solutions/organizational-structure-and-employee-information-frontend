@@ -103,11 +103,11 @@ const UserSidebar = (props: any) => {
           current={current}
           size="small"
           // onChange={onChange}
-          className="my-6 sm:my-10"
+          className="px-32 sm:my-10"
         >
-          <Step icon={customDot(0)} />
           <Step icon={customDot(1)} />
           <Step icon={customDot(2)} />
+          <Step icon={customDot(3)} />
         </Steps>
         <Form
           form={form}
