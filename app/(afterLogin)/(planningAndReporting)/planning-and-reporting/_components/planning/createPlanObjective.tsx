@@ -5,6 +5,7 @@ import { FaPlus } from 'react-icons/fa';
 import DefaultCardForm from '../planForms/defaultForm';
 import BoardCardForm from '../planForms/boardFormView';
 import { NAME } from '@/types/enumTypes';
+import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 
 interface Milestone {
   id: number;
@@ -56,10 +57,13 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
   handleRemoveBoard,
   weights,
 }) => {
+  const { statuses, setClickStatus } = useClickStatus();
+
   return (
     <Collapse defaultActiveKey={0}>
       {objective?.items?.map((e, panelIndex) => (
         <Collapse.Panel
+          forceRender={true}
           header={
             <div>
               <strong>Objective:</strong> {e.title}
@@ -75,6 +79,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
 
             return (
               <div className="flex flex-col justify-between" key={resultIndex}>
+                {/* Key Result and Weight display */}
                 <div className="flex justify-between">
                   <span className="font-bold">Key Result: {kr?.title} </span>
                   <span className="font-bold">Weight</span>
@@ -89,9 +94,10 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                     </span>
                   </div>
 
+                  {/* Plan Task and Weight Handling */}
                   {!hasMilestone && (
                     <div className="flex gap-3 items-center">
-                      <Button                                        
+                      <Button
                         id={`plan-as-task_${kr?.id ?? ''}`}
                         onClick={() => handleAddBoard(kr?.id)}
                         type="link"
@@ -106,6 +112,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         Add Plan Task
                       </Button>
 
+                      {/* Add Achieve MK as a Task */}
                       {kr?.metricType?.name === NAME.ACHIEVE && (
                         <Tooltip title="Plan keyResult as a Task ">
                           <Button
@@ -132,6 +139,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                   )}
                 </div>
 
+                {/* Milestone handling */}
                 {hasMilestone && (
                   <>
                     {kr?.milestones?.map((ml) => (
@@ -153,11 +161,13 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                               Add Plan Task
                             </Button>
 
+                            {/* Plan Milestone as Task */}
                             {kr?.metricType?.name === NAME.MILESTONE && (
                               <Tooltip title="Plan Milestone as a Task">
                                 <Button
                                   id="plan-milestone-as-task"
                                   disabled={
+                                    statuses[ml?.id] ||
                                     ml?.status === 'Completed' ||
                                     form?.getFieldValue(
                                       `names-${kr?.id + ml?.id}`,
@@ -167,11 +177,14 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                   className="text-[10px] text-primary"
                                   icon={<FaPlus />}
                                   onClick={() => {
-                                    setMKAsATask({
-                                      title: ml?.title,
-                                      mid: ml?.id,
-                                    });
-                                    handleAddBoard(kr?.id + ml?.id);
+                                    if (!statuses[ml?.id]) {
+                                      setMKAsATask({
+                                        title: ml?.title,
+                                        mid: ml?.id,
+                                      });
+                                      handleAddBoard(kr?.id + ml?.id);
+                                      setClickStatus(ml?.id + '', true); // Store click status in Zustand
+                                    }
                                   }}
                                 />
                               </Tooltip>
@@ -184,37 +197,42 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         </div>
 
                         <Divider className="my-2" />
+
+                        {/* Forms for Key Result and Milestone */}
                         {planningPeriodId && planningUserId && (
-                          <DefaultCardForm
-                            kId={kr?.id}
-                            hasTargetValue={hasTargetValue}
-                            hasMilestone={hasMilestone}
-                            milestoneId={ml?.id?.toString() || null}
-                            name={`names-${kr?.id + ml?.id}`}
-                            form={form}
-                            planningPeriodId={planningPeriodId}
-                            userId={userId}
-                            planningUserId={planningUserId}
-                            isMKAsTask={!!mkAsATask}
-                            keyResult={kr}
-                          />
+                          <>
+                            <DefaultCardForm
+                              kId={kr?.id}
+                              hasTargetValue={hasTargetValue}
+                              hasMilestone={hasMilestone}
+                              milestoneId={ml?.id?.toString() || null}
+                              name={`names-${kr?.id + ml?.id}`}
+                              form={form}
+                              planningPeriodId={planningPeriodId}
+                              userId={userId}
+                              planningUserId={planningUserId}
+                              isMKAsTask={!!mkAsATask}
+                              keyResult={kr}
+                            />
+                            <BoardCardForm
+                              form={form}
+                              handleAddName={handleAddName}
+                              milestoneId={ml?.id}
+                              handleRemoveBoard={handleRemoveBoard}
+                              kId={kr?.id}
+                              hideTargetValue={hasTargetValue}
+                              name={kr?.id + ml?.id}
+                              isMKAsTask={!!mkAsATask}
+                              keyResult={kr}
+                            />
+                          </>
                         )}
-                        <BoardCardForm
-                          form={form}
-                          handleAddName={handleAddName}
-                          milestoneId={ml?.id}
-                          handleRemoveBoard={handleRemoveBoard}
-                          kId={kr?.id}
-                          hideTargetValue={hasTargetValue}
-                          name={kr?.id + ml?.id}
-                          isMKAsTask={!!mkAsATask}
-                          keyResult={kr}
-                        />
                       </div>
                     ))}
                   </>
                 )}
 
+                {/* Form for Key Result without Milestones */}
                 {!hasMilestone && (
                   <>
                     <Divider className="my-2" />

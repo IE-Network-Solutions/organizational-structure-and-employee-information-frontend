@@ -6,6 +6,7 @@ import {
 } from '@/types/dashboard/adminManagement';
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
+
 interface StoreState {
   deletedId: DeletedId | null;
   pageSize: number;
@@ -43,6 +44,13 @@ interface StoreState {
 
   selectedRoleOnOption: any;
   setSelectedRoleOnOption: (selectedRoleOnOption: any) => void;
+
+  isModalVisible: boolean;
+  setIsModalVisible: (value: any) => void;
+  selectedGroup: any;
+  setSelectedGroup: (value: any) => void;
+  selectedPermissions: any;
+  setSelectedPermissions: (value: any) => void;
 }
 
 export const useSettingStore = create<StoreState>()(
@@ -81,5 +89,13 @@ export const useSettingStore = create<StoreState>()(
     setRoleCurrentPage: (roleCurrentPage) => set({ roleCurrentPage }),
     setPermissionCurrentPage: (permissionCurrentPage) =>
       set({ permissionCurrentPage }),
+
+    isModalVisible: false,
+    setIsModalVisible: (isModalVisible: boolean) => set({ isModalVisible }),
+    selectedGroup: null,
+    setSelectedGroup: (value) => set({ selectedGroup: value }),
+    selectedPermissions: [],
+    setSelectedPermissions: (selectedPermissions: any) =>
+      set({ selectedPermissions }),
   })),
 );

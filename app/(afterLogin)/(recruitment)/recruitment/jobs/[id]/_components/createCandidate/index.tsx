@@ -117,9 +117,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
     };
     formData.append('newFormData', JSON.stringify(formattedValues));
 
-    createCandidate(formData);
-    setCreateJobDrawer(false);
-    form.resetFields();
+    createCandidate(formData, {
+      onSuccess: () => {
+        setCreateJobDrawer(false);
+        form.resetFields();
+      },
+    });
   };
 
   return (
@@ -160,9 +163,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                 </span>
               }
               rules={[
+                { required: true, message: 'Please input the email address!' },
                 {
-                  required: true,
-                  message: 'Please input the email address!',
+                  type: 'email',
+                  message: 'Please enter a valid email address!',
                 },
               ]}
             >
@@ -184,6 +188,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               }
               rules={[
                 { required: true, message: 'Please input the phone number!' },
+                {
+                  pattern: /^\+?[1-9]\d{1,14}$/,
+                  message: 'Please enter a valid phone number!',
+                },
               ]}
             >
               <Input

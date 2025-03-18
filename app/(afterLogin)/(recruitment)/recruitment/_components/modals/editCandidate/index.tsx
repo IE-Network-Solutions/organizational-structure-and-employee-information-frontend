@@ -158,6 +158,10 @@ const EditCandidate: React.FC = () => {
                     required: true,
                     message: 'Please input the email address!',
                   },
+                  {
+                    type: 'email',
+                    message: 'Please enter a valid email address!',
+                  },
                 ]}
               >
                 <Input
@@ -177,9 +181,10 @@ const EditCandidate: React.FC = () => {
                   </span>
                 }
                 rules={[
+                  { required: true, message: 'Please input the phone number!' },
                   {
-                    required: true,
-                    message: 'Please input the phone number!',
+                    pattern: /^\+?[1-9]\d{1,14}$/,
+                    message: 'Please enter a valid phone number!',
                   },
                 ]}
               >
@@ -299,6 +304,31 @@ const EditCandidate: React.FC = () => {
           <div className="text-sm font-md mb-5 ">
             Max file size : 5MB. File format : .pdf
           </div>
+          <Form.Item
+            id="resumeUrlId"
+            name="resumeUrl"
+            label={
+              <span className="text-md font-semibold text-gray-700">
+                Resume
+              </span>
+            }
+          >
+            {editCandidate?.resumeUrl ? (
+              <a
+                href={editCandidate.resumeUrl.replace(
+                  'open?id=',
+                  'uc?export=download&id=',
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                Download Resume
+              </a>
+            ) : (
+              <span className="text-gray-500">No resume uploaded</span>
+            )}
+          </Form.Item>
 
           <Form.Item>
             <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">

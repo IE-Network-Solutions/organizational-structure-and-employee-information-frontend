@@ -13,6 +13,14 @@ const createLeaveType = async (item: Partial<LeaveType>) => {
     data: { item },
   });
 };
+const updateLeaveType = async (id: string, values: Partial<LeaveType>) => {
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-type/${id}`,
+    method: 'PATCH',
+    headers: requestHeader(),
+    data: values,
+  });
+};
 
 const deleteLeaveType = async (id: string) => {
   return await crudRequest({
@@ -41,11 +49,26 @@ export const useCreateLeaveType = () => {
   return useMutation(createLeaveType, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('leave-type');
+      queryClient.invalidateQueries('leave-types');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
   });
+};
+export const useUpdateLeaveType = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({ id, values }: { id: string; values: Partial<LeaveType> }) =>
+      updateLeaveType(id, values),
+    {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      onSuccess: (_, variables: any) => {
+        queryClient.invalidateQueries('leave-types');
+        const method = variables?.method?.toUpperCase();
+        handleSuccessMessage(method);
+      },
+    },
+  );
 };
 
 export const useDeleteLeaveType = () => {
@@ -53,7 +76,7 @@ export const useDeleteLeaveType = () => {
   return useMutation(deleteLeaveType, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('leave-type');
+      queryClient.invalidateQueries('leave-types');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -65,7 +88,7 @@ export const useUpdateLeaveTypeActive = () => {
   return useMutation(updateLeaveTypeActive, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('leave-type');
+      queryClient.invalidateQueries('leave-types');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

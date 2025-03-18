@@ -2,6 +2,7 @@ import React from 'react';
 import { Row, Col, Typography, Tag } from 'antd';
 import { MdKey } from 'react-icons/md';
 import { FaStar } from 'react-icons/fa';
+import ParentTask from './parentTask';
 
 const { Text } = Typography;
 
@@ -18,23 +19,22 @@ const getPriorityColor = (priority: string) => {
 };
 
 // Reusable Task Row Component
-const TaskRow = ({
-  task,
-  taskIndex,
-  milestoneIndex,
-  keyResult,
-  parent = false,
-}: any) => (
+const TaskRow = ({ task, keyResult, parent = false }: any) => (
   <Row
     align="middle"
     justify="space-between"
-    className={`w-full ${parent ? 'ml-8 mb-1' : 'ml-8 mb-1'}`}
+    className={`w-full ${parent ? 'ml-5 mb-1' : 'ml-5 mb-1'}`}
   >
     <Col>
       <Text className="text-xs flex items-center gap-1">
-        {`${milestoneIndex !== undefined ? milestoneIndex + 1 + '.' : ''}${
-          taskIndex + 1
-        } ${task?.task}`}
+        <div className="flex items-center gap-1">
+          <div className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#cfaaff]">
+            <span className="rounded-full bg-blue w-1 h-1"></span>
+          </div>
+
+          <span>{task?.task} </span>
+        </div>
+
         {task?.achieveMK ? (
           keyResult?.metricType?.name === 'Milestone' ? (
             <FaStar size={11} />
@@ -92,7 +92,7 @@ const TaskRow = ({
 const Milestone = ({ milestone, milestoneIndex, keyResult }: any) => (
   <Row className="rounded-lg py-1 pr-3" key={milestone?.id}>
     {/* Milestone Title */}
-    {keyResult?.metricType?.name === 'Milestone' && (
+    {/* {keyResult?.metricType?.name === 'Milestone' && (
       <Col className="ml-5 mb-1" span={24}>
         <strong>
           {`${milestoneIndex + 1}. ${
@@ -100,7 +100,7 @@ const Milestone = ({ milestone, milestoneIndex, keyResult }: any) => (
           }`}
         </strong>
       </Col>
-    )}
+    )} */}
     {/* Tasks */}
     {milestone?.tasks?.length > 0
       ? milestone.tasks.map((task: any, taskIndex: number) => (
@@ -113,22 +113,14 @@ const Milestone = ({ milestone, milestoneIndex, keyResult }: any) => (
           />
         ))
       : // Parent Tasks
-        milestone?.parentTask?.map((task: any, taskIndex: number) => (
+        milestone?.parentTask?.map((task: any) => (
           <Row key={task.id} className="w-full">
-            <Col
-              className="ml-6 mb-1 font-semibold"
-              span={24}
-            >{`${milestoneIndex + 1}.${taskIndex + 1} ${task?.task}`}</Col>
-            {task?.tasks?.map((ptask: any, pIndex: number) => (
-              <TaskRow
-                key={ptask.id}
-                task={ptask}
-                taskIndex={pIndex}
-                milestoneIndex={milestoneIndex}
-                keyResult={keyResult}
-                parent={true}
-              />
-            ))}
+            <ParentTask
+              keyResult={keyResult}
+              parent={true}
+              tasks={task?.tasks}
+              parentTaskName={task?.task}
+            />
           </Row>
         ))}
   </Row>
@@ -150,22 +142,15 @@ const MilestoneTasks = ({ keyResult, keyResultIndex }: any) => {
             />
           ))
         : // Render Parent Tasks
-          keyResult?.parentTask?.map((task: any, taskIndex: number) => (
+          keyResult?.parentTask?.map((task: any) => (
             <Row key={task.id} className="w-full">
-              <Col
-                className="ml-5 mb-1 font-semibold"
-                span={24}
-              >{`${taskIndex + 1}. ${task?.task}`}</Col>
-              {task?.tasks?.map((ptask: any, pIndex: number) => (
-                <TaskRow
-                  key={ptask.id}
-                  task={ptask}
-                  taskIndex={pIndex}
-                  keyResult={keyResult}
-                  parent={true}
-                  keyResultIndex={keyResultIndex}
-                />
-              ))}
+              <ParentTask
+                keyResult={keyResult}
+                parent={true}
+                keyResultIndex={keyResultIndex}
+                tasks={task?.tasks}
+                parentTaskName={task?.task}
+              />
             </Row>
           ))}
       {/* Render Milestones */}

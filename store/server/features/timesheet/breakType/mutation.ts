@@ -28,7 +28,7 @@ export const useSetBreakType = () => {
   return useMutation(setBreakType, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('break-types');
+      queryClient.invalidateQueries('breakTypes');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -40,7 +40,7 @@ export const useDeleteBreakType = () => {
   return useMutation(deleteBreakType, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('break-types');
+      queryClient.invalidateQueries('breakTypes');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

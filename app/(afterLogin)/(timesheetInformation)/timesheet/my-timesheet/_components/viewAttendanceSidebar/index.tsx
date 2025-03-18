@@ -26,6 +26,7 @@ import {
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const ViewAttendanceSidebar = () => {
   const {
@@ -40,6 +41,12 @@ const ViewAttendanceSidebar = () => {
   >({});
   const [attendance, setAttendance] = useState<AttendanceRecord>();
   const [totalTime, setTotalTime] = useState(0);
+
+  const { data: allUsers } = useGetAllUsers();
+
+  const getUserName = (id: string) => {
+    return allUsers?.items?.find((user: any) => user?.id === id) ?? {};
+  };
 
   const { data, isFetching, refetch } = useGetAttendances(
     { page: '1', limit: '1' },
@@ -86,14 +93,16 @@ const ViewAttendanceSidebar = () => {
   const lateInfo = (record: AttendanceRecord | AttendanceBreak) => {
     return (
       <InfoItem
-        value={record.startAt ? dayjs(record.startAt).format(TIME_FORMAT) : '-'}
-        info={record.geolocations[0]?.allowedArea?.title ?? ''}
+        value={
+          record?.startAt ? dayjs(record?.startAt).format(TIME_FORMAT) : '-'
+        }
+        info={record?.geolocations[0]?.allowedArea?.title ?? ''}
       >
         {record.lateByMinutes > 0 && (
           <div className="text-error text-[10px]">
             <span className="font-bold">late by </span> &nbsp;
-            {minuteToHour(record.lateByMinutes)} hr &nbsp;
-            {minuteToLastMinute(record.lateByMinutes)} min
+            {minuteToHour(record?.lateByMinutes)} hr &nbsp;
+            {minuteToLastMinute(record?.lateByMinutes)} min
           </div>
         )}
       </InfoItem>
@@ -103,23 +112,24 @@ const ViewAttendanceSidebar = () => {
   const earlyInfo = (record: AttendanceRecord | AttendanceBreak) => {
     return (
       <InfoItem
-        value={record.endAt ? dayjs(record.endAt).format(TIME_FORMAT) : '-'}
+        value={record?.endAt ? dayjs(record?.endAt).format(TIME_FORMAT) : '-'}
         info={
-          record.geolocations[record?.geolocations.length - 1]?.allowedArea
+          record?.geolocations[record?.geolocations?.length - 1]?.allowedArea
             ?.title ?? ''
         }
       >
         {record.earlyByMinutes > 0 && (
           <div className="text-error text-[10px]">
             <span className="font-bold">early by </span> &nbsp;
-            {minuteToHour(record.earlyByMinutes)} hr &nbsp;
-            {minuteToLastMinute(record.earlyByMinutes)} min
+            {minuteToHour(record?.earlyByMinutes)} hr &nbsp;
+            {minuteToLastMinute(record?.earlyByMinutes)} min
           </div>
         )}
       </InfoItem>
     );
   };
 
+  const userData = getUserName(attendance?.userId ?? '');
   return (
     isShowViewSidebar && (
       <CustomDrawerLayout
@@ -127,7 +137,6 @@ const ViewAttendanceSidebar = () => {
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            {' '}
             View Attendance
           </CustomDrawerHeader>
         }
@@ -137,7 +146,7 @@ const ViewAttendanceSidebar = () => {
             buttons={footerModalItems}
           />
         }
-        width="50%"
+        width="40%"
       >
         {!(data && attendance) || isFetching ? (
           <div className="flex items-center justify-center py-10">
@@ -154,8 +163,18 @@ const ViewAttendanceSidebar = () => {
                   </div>
                   <div className="pl-20">
                     <UserCard
-                      name="Prita Candra"
-                      description="lincoln@ienetwork.com"
+                      data={userData}
+                      name={
+                        userData?.firstName +
+                        ' ' +
+                        userData?.middleName +
+                        ' ' +
+                        userData?.middleName
+                      }
+                      description={userData?.email}
+                      avatar={userData?.profileImage}
+                      profileImage={userData?.profileImage}
+                      size="small"
                     />
                   </div>
                 </Col>
@@ -165,7 +184,7 @@ const ViewAttendanceSidebar = () => {
                   Date
                 </div>
                 <InfoItem
-                  value={dayjs(attendance.createdAt).format(DATE_FORMAT)}
+                  value={dayjs(attendance?.createdAt).format(DATE_FORMAT)}
                 />
               </Col>
               <Col span={12}>
@@ -185,20 +204,19 @@ const ViewAttendanceSidebar = () => {
                 <React.Fragment key={item.id}>
                   <Col span={12}>
                     <div className="text-sm text-gray-900 font-medium mb-2.5">
-                      {item.breakType.title} Checkin
+                      {item?.breakType?.title} CheckIn
                     </div>
                     {lateInfo(item)}
                   </Col>
                   <Col span={12}>
                     <div className="text-sm text-gray-900 font-medium mb-2.5">
-                      {item.breakType.title} Checkout
+                      {item?.breakType?.title} Checkout
                     </div>
                     {earlyInfo(item)}
                   </Col>
                 </React.Fragment>
               ))}
             </Row>
-
             <div className="mt-12 mb-6">
               <div className="text-sm text-gray-900 font-medium mb-2.5">
                 Status
@@ -207,13 +225,13 @@ const ViewAttendanceSidebar = () => {
                 {formatToAttendanceStatuses(attendance).map((status) => (
                   <StatusBadge
                     className="w-[155px]"
-                    theme={AttendanceRecordTypeBadgeTheme[status.status]}
+                    theme={AttendanceRecordTypeBadgeTheme[status?.status]}
                     key={status.status}
                   >
                     <div className="text-center">
-                      <div>{status.status}</div>
-                      {status.text && (
-                        <div className="font-normal">{status.text}</div>
+                      <div>{status?.status}</div>
+                      {status?.text && (
+                        <div className="font-normal">{status?.text}</div>
                       )}
                     </div>
                   </StatusBadge>
@@ -227,8 +245,8 @@ const ViewAttendanceSidebar = () => {
                   Over time
                 </div>
                 <div className="text-gray-900 text-sm font-semibold">
-                  {minuteToHour(attendance.overTimeMinutes)} hr &nbsp;
-                  {minuteToLastMinute(attendance.overTimeMinutes)} min
+                  {minuteToHour(attendance?.overTimeMinutes)} hr &nbsp;
+                  {minuteToLastMinute(attendance?.overTimeMinutes)} min
                 </div>
               </Col>
               <Col span={12}>
@@ -240,7 +258,6 @@ const ViewAttendanceSidebar = () => {
                 </div>
               </Col>
             </Row>
-
             {attendance.import && (
               <div>
                 <div className="text-center text-base font-semibold text-gray-900 mb-6">
@@ -252,7 +269,17 @@ const ViewAttendanceSidebar = () => {
                     Imported by <span className="text-error">*</span>
                   </div>
 
-                  <UserCard name="Prita Candra" description="designer" />
+                  <UserCard
+                    data={userData}
+                    name={
+                      userData?.firstName +
+                      ' ' +
+                      userData?.middleName +
+                      ' ' +
+                      userData?.middleName
+                    }
+                    description={userData?.email}
+                  />
                 </div>
 
                 <div>

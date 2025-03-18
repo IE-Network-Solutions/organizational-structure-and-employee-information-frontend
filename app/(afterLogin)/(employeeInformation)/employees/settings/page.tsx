@@ -3,8 +3,11 @@ import { Card, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import React, { useState, useEffect } from 'react';
 import SettingsPage from './_components/rolePermission';
-import { IoMdSettings } from 'react-icons/io';
-import { FaUser } from 'react-icons/fa';
+import { FiUser } from 'react-icons/fi';
+import { CiLock } from 'react-icons/ci';
+import { PiRankingThin } from 'react-icons/pi';
+import { IoMdCheckmarkCircleOutline } from 'react-icons/io';
+
 import EmploymentType from './_components/employementType';
 import Positions from './_components/positions';
 import Approvals from './_components/approvals';
@@ -39,7 +42,7 @@ function Settings() {
       key: '1',
       label: (
         <span className="flex gap-2 mt-4">
-          <FaUser className="mt-1" />{' '}
+          <FiUser className="mt-1" />{' '}
           <p className="font-semibold">Employment Type</p>
         </span>
       ),
@@ -49,7 +52,7 @@ function Settings() {
       key: '2',
       label: (
         <span className="flex gap-2 mt-4">
-          <IoMdSettings className="mt-1" />{' '}
+          <CiLock className="mt-1" />{' '}
           <p className="font-semibold">Role Permission</p>
         </span>
       ),
@@ -59,7 +62,7 @@ function Settings() {
       key: '3',
       label: (
         <span className="flex gap-2 mt-4">
-          <IoMdSettings className="mt-1" />{' '}
+          <PiRankingThin className="mt-1" />{' '}
           <p className="font-semibold">Position</p>
         </span>
       ),
@@ -69,7 +72,7 @@ function Settings() {
       key: '4',
       label: (
         <span className="flex gap-2 mt-4">
-          <IoMdSettings className="mt-1" />
+          <IoMdCheckmarkCircleOutline className="mt-1" />
           <p className="font-semibold">Approval</p>
         </span>
       ),
