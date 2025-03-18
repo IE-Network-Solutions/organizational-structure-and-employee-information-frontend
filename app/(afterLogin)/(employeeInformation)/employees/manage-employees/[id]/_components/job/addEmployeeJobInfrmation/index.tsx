@@ -17,11 +17,9 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
     setIsAddEmployeeJobInfoModalVisible,
   } = useEmployeeManagementStore();
 
-  const {
-    isLoading,
-    isSuccess,
-    mutate: createJobInformation,
-  } = useCreateJobInformation();
+  const { data: employeeData } = useGetEmployee(id);
+
+  const { isLoading, mutate: createJobInformation } = useCreateJobInformation();
 
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
