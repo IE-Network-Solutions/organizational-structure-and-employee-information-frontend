@@ -4,27 +4,27 @@ import { INCENTIVE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
-const setIncentiveFormula = async (items: any) => {
+const setIncentiveFormula = async (data: any) => {
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentive/formula`,
+    url: `${INCENTIVE_URL}/incentive-formulas`,
     method: 'POST',
     headers: requestHeader(),
-    data: { items },
+    data,
   });
 };
 
-const updateIncentiveFormula = async (id: string, items: any) => {
+const updateIncentiveFormula = async (id: string, data: any) => {
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentive/formula/${id}`,
+    url: `${INCENTIVE_URL}/incentive-formulas/${id}`,
     method: 'PUT',
+    data,
     headers: requestHeader(),
-    data: { items },
   });
 };
 
 const deleteIncentiveFormula = async (id: string) => {
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentive/formula/${id}`,
+    url: `${INCENTIVE_URL}/incentive-formulas/${id}`,
     method: 'DELETE',
     headers: requestHeader(),
   });
@@ -46,8 +46,8 @@ export const useSetIncentiveFormula = () => {
 export const useUpdateIncentiveFormula = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    ({ id, items }: { id: string; items: any }) =>
-      updateIncentiveFormula(id, items),
+    ({ id, data }: { id: string; data: any }) =>
+      updateIncentiveFormula(id, data),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('incentiveFormula');

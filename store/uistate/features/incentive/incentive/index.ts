@@ -20,23 +20,35 @@ export interface ProjectIncentiveData {
   spi: number;
 }
 
+export interface RecognitionData {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+  recognitionTypeId: string;
+  expression: string;
+  tenantId: string;
+}
+
 export interface ProjectIncentiveSettingParams {
   id?: string;
   name: string;
-  recognition_criteria: string;
+  recognition_criteria?: React.ReactNode;
   action?: JSX.Element;
+}
+export interface IncentiveSettingParams {
+  id: string;
+  name: string;
+  recognition_criteria: JSX.Element;
+  action: JSX.Element;
 }
 export interface OtherIncentiveSettingParams {
   id?: string;
   name: string;
-  recognition_criteria: string;
+  recognition_criteria: React.ReactNode;
   action?: JSX.Element;
-}
-
-export interface RockStarOfTheWeekProps {
-  title?: string;
-  criteriaOptions?: string[];
-  onSubmit?: (values: any) => void;
 }
 
 export interface RecordType {
@@ -50,9 +62,6 @@ export interface RecordType {
 export interface Records {
   Records: RecordType[];
 }
-
-// export type Records = RecordType[];
-
 interface SearchParams {
   employee_name: string;
   byProject: string;
@@ -62,44 +71,120 @@ interface SearchParams {
   byMonth: string;
 }
 
+export type CertificateDetails = {
+  details: string;
+  title: string;
+};
+
+export type RecognitionCriteria = {
+  active: boolean;
+  condition: string;
+  createdAt: string;
+  createdBy?: string | null;
+  criterionKey: string;
+  deletedAt?: string | null;
+  id: string;
+  operator: string;
+  recognitionTypeId: string;
+  tenantId: string;
+  updatedAt: string;
+  updatedBy?: string | null;
+  value: number;
+  weight: number;
+};
+
+export type RecognitionType = {
+  details: string;
+  title: string;
+  createdAt: string;
+  createdBy?: string | null;
+  deletedAt?: string | null;
+  departmentId: string;
+  description: string;
+  frequency: string;
+  id: string;
+  isMonetized: boolean;
+  name: string;
+  parentTypeId?: string | null;
+  recognitionCriteria: RecognitionCriteria[];
+};
+
+export type IncentiveRecognitionParams = {
+  calendarId: string;
+  certificateDetails: CertificateDetails;
+  createdAt: string;
+  createdBy?: string | null;
+  criteriaVerified: boolean;
+  dataImportId?: string | null;
+  dateIssued: string;
+  deletedAt?: string | null;
+  id: string;
+  isAutomated: boolean;
+  issuerId: string;
+  monetizedValue?: number | null;
+  monthId: string;
+  recipientId: string;
+  recognitionType: RecognitionType;
+};
+
+export interface ProjectData {
+  createdAt: string;
+  deletedAt: string | null;
+  description: string;
+  id: string;
+  name: string;
+  recognitionTypeId: string;
+  sourceEndpoint: string | null;
+  sourceType: string;
+  updatedAt: string;
+}
+
 type IncentiveState = {
   searchParams: SearchParams;
   currentPage: number;
   pageSize: number;
-  openProjectDrawer: boolean;
+  openIncentiveDrawer: boolean;
   file: any;
   activeKey: string;
   isPayrollView: boolean;
   showGenerateModal: boolean;
-  projectIncentiveDrawer: boolean;
-  deleteIncentiveDrawer: boolean;
-  projectIncentiveId: string;
+  projectDrawer: boolean;
+  deleteIncentive: boolean;
+  incentiveId: string;
   rockStarDrawer: boolean;
-  criteria: string[];
-  operands: string[];
   otherIncentive: any;
-  projectIncentive: any;
+  incentive: any;
+  formula: any;
+  value: any;
+  menuItems: any[];
+  currentItem: string;
+  isSwitchOn: boolean;
+  selectedRecognitionTypeId: string;
+  selectedRecognition: any;
 };
 
 type IncentiveActions = {
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
   setCurrentPage: (currentPage: number) => void;
   setPageSize: (pageSize: number) => void;
-  setOpenProjectDrawer: (open: boolean) => void;
+  setOpenIncentiveDrawer: (open: boolean) => void;
   setFile: (file: string) => void;
   setActiveKey: (key: string) => void;
   setIsPayrollView: (value: boolean) => void;
   setShowGenerateModal: (value: boolean) => void;
-  setProjectIncentiveDrawer: (value: boolean) => void;
-  setDeleteIncentiveDrawer: (value: boolean) => void;
-  setProjectIncentiveId: (value: string) => void;
+  setProjectDrawer: (value: boolean) => void;
+  setDeleteIncentive: (value: boolean) => void;
+  setIncentiveId: (value: string) => void;
   setRockStarDrawer: (value: boolean) => void;
-  addCriteria: (item: string) => void;
-  addOperand: (item: string) => void;
-  clearFormula: () => void;
-  removeItem: (index: number) => void;
   setOtherIncentive: (item: any) => void;
-  setProjectIncentive: (item: any) => void;
+  setIncentive: (item: any) => void;
+  setFormula: (item: any) => void;
+  setValue: (value: any) => void;
+  setCurrentItem: (item: string) => void;
+  setMenuItems: (items: any[]) => void;
+  setIsSwitchOn: (value: boolean) => void;
+  setSelectedRecognitionTypeId: (value: string) => void;
+  setSelectedRecognition: (recognition: any) => void;
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -124,8 +209,8 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   pageSize: 10,
   setPageSize: (pageSize) => set({ pageSize }),
 
-  openProjectDrawer: false,
-  setOpenProjectDrawer: (openProjectDrawer) => set({ openProjectDrawer }),
+  openIncentiveDrawer: false,
+  setOpenIncentiveDrawer: (openIncentiveDrawer) => set({ openIncentiveDrawer }),
 
   file: null,
   setFile: (file) => set({ file }),
@@ -139,50 +224,46 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   showGenerateModal: false,
   setShowGenerateModal: (showGenerateModal) => set({ showGenerateModal }),
 
-  projectIncentiveDrawer: false,
-  setProjectIncentiveDrawer: (projectIncentiveDrawer) =>
-    set({ projectIncentiveDrawer }),
+  projectDrawer: false,
+  setProjectDrawer: (projectDrawer) => set({ projectDrawer }),
 
-  deleteIncentiveDrawer: false,
-  setDeleteIncentiveDrawer: (deleteIncentiveDrawer) =>
-    set({ deleteIncentiveDrawer }),
+  deleteIncentive: false,
+  setDeleteIncentive: (deleteIncentive) => set({ deleteIncentive }),
 
-  projectIncentiveId: '',
-  setProjectIncentiveId: (projectIncentiveId) => set({ projectIncentiveId }),
+  incentiveId: '',
+  setIncentiveId: (incentiveId) => set({ incentiveId }),
 
   rockStarDrawer: false,
   setRockStarDrawer: (rockStarDrawer) => set({ rockStarDrawer }),
 
-  criteria: [],
-  operands: [],
-  addCriteria: (item) =>
-    set((state) => ({
-      criteria: [...state.criteria, item],
-    })),
-  addOperand: (item) =>
-    set((state) => ({
-      operands: [...state.operands, item],
-    })),
-  clearFormula: () =>
-    set(() => ({
-      criteria: [],
-      operands: [],
-    })),
-  removeItem: (index) =>
-    set((state) => {
-      const updatedItems = [...state.criteria, ...state.operands];
-      updatedItems.splice(index, 1);
-      return {
-        criteria: updatedItems.filter((item) => state.criteria.includes(item)),
-        operands: updatedItems.filter((item) => state.operands.includes(item)),
-      };
-    }),
-
   otherIncentive: null,
   setOtherIncentive: (otherIncentive) => set({ otherIncentive }),
 
-  projectIncentive: null,
-  setProjectIncentive: (projectIncentive) => set({ projectIncentive }),
+  incentive: null,
+  setIncentive: (incentive) => set({ incentive }),
+
+  formula: [],
+  setFormula: (newFormula) => set({ formula: newFormula }),
+
+  value: null,
+  setValue: (newValue) => set({ value: newValue }),
+
+  menuItems: [],
+  setMenuItems: (menuItems) => set({ menuItems }),
+
+  currentItem: '',
+  setCurrentItem: (currentItem) => set({ currentItem }),
+
+  isSwitchOn: false,
+  setIsSwitchOn: (isSwitchOn) => set({ isSwitchOn }),
+
+  selectedRecognitionTypeId: '',
+  setSelectedRecognitionTypeId: (selectedRecognitionTypeId) =>
+    set({ selectedRecognitionTypeId }),
+
+  selectedRecognition: null,
+  setSelectedRecognition: (recognition) =>
+    set({ selectedRecognition: recognition }),
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(

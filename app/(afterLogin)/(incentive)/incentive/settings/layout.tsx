@@ -1,15 +1,16 @@
 'use client';
 
-import React, { FC, ReactNode, useEffect, useState } from 'react';
+import React, { FC, ReactNode, useEffect } from 'react';
 import { TbCalendar } from 'react-icons/tb';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 import SidebarMenu from '@/components/sidebarMenu';
-import { HiOutlineReceiptTax } from 'react-icons/hi';
-import { GoShare } from 'react-icons/go';
-import { PiShareFat } from 'react-icons/pi';
 import { usePathname } from 'next/navigation';
+import { useAllRecognition } from '@/store/server/features/incentive/other/queries';
+import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
+import { CiCalendarDate } from 'react-icons/ci';
+import { Skeleton } from 'antd';
 
 interface IncentiveSettingsLayoutProps {
   children: ReactNode;
@@ -19,74 +20,63 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
   children,
 }) => {
   const pathname = usePathname();
-  const [currentItem, setCurrentItem] = useState<string>('');
+  const { menuItems, setMenuItems, currentItem, setCurrentItem } =
+    useIncentiveStore();
+  const { data: recognitionData, isLoading: responseLoading } =
+    useAllRecognition();
 
-  const menuItems = new SidebarMenuItem([
-    {
-      item: {
-        key: 'project',
-        icon: (
-          <HiOutlineReceiptTax
-            size={16}
-            className={
-              currentItem === 'project' ? 'text-[#4DAEF0]' : 'text-gray-500'
-            }
-          />
-        ),
-        label: <p className="menu-item-label">Project</p>,
-        className: currentItem === 'tax-rule' ? 'px-6' : 'px-1',
-      },
-      link: '/incentive/settings/project',
-    },
-    {
-      item: {
-        key: 'sales',
-        icon: (
-          <GoShare
-            size={16}
-            className={
-              currentItem === 'sales' ? 'text-[#4DAEF0]' : 'text-gray-500'
-            }
-          />
-        ),
-        label: <p className="menu-item-label">Sales</p>,
-        className: 'px-1',
-      },
-      link: '/incentive/settings/sales',
-    },
-    {
-      item: {
-        key: 'management',
-        icon: (
-          <PiShareFat
-            size={16}
-            className={
-              currentItem === 'management' ? 'text-[#4DAEF0]' : 'text-gray-500'
-            }
-          />
-        ),
-        label: <p className="menu-item-label">Management</p>,
-        className: 'px-1',
-      },
-      link: '/incentive/settings/management',
-    },
-    {
-      item: {
-        key: 'other',
-        icon: (
-          <TbCalendar
-            size={16}
-            className={
-              currentItem === 'other' ? 'text-[#4DAEF0]' : 'text-gray-500'
-            }
-          />
-        ),
-        label: <p className="menu-item-label">Other</p>,
-        className: 'px-1',
-      },
-      link: '/incentive/settings/other',
-    },
-  ]);
+  useEffect(() => {
+    if (recognitionData && recognitionData?.items?.length > 0) {
+      // Extract the first item separately
+      const firstItem = recognitionData?.items[0];
+
+      const defaultIncentiveSettings = {
+        item: {
+          key: 'IncentiveSettings',
+          icon: (
+            <CiCalendarDate
+              size={16}
+              className={
+                currentItem === firstItem?.id
+                  ? 'text-[#4DAEF0]'
+                  : 'text-gray-500'
+              }
+            />
+          ),
+          label: (
+            <p className="menu-item-label">
+              {firstItem?.recognitionType?.name ?? 'Default Incentive '}
+            </p>
+          ),
+          className: currentItem === firstItem?.id ? 'px-6' : 'px-1',
+        },
+        link: `/incentive/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
+      };
+
+      // Map remaining items (excluding the first item)
+      const dynamicMenuItems =
+        recognitionData?.items?.slice(1).map((item: any) => ({
+          item: {
+            key: item?.id,
+            icon: (
+              <TbCalendar
+                size={16}
+                className={
+                  currentItem === item?.id ? 'text-[#4DAEF0]' : 'text-gray-500'
+                }
+              />
+            ),
+            label: (
+              <p className="menu-item-label">{item?.recognitionType?.name}</p>
+            ),
+            className: currentItem === item?.id ? 'px-6' : 'px-1',
+          },
+          link: `/incentive/settings/${item?.id}`,
+        })) || [];
+
+      setMenuItems([defaultIncentiveSettings, ...dynamicMenuItems]);
+    }
+  }, [recognitionData, currentItem]);
 
   useEffect(() => {
     const pathSegments = pathname.split('/').filter(Boolean);
@@ -95,13 +85,21 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
     setCurrentItem(lastKey);
   }, [pathname]);
 
+  const incentiveSidebarMenuItems = new SidebarMenuItem(menuItems);
+
   return (
-    <div className="h-auto w-auto pr-6 pb-6 pl-3 bg-none">
+    <div className="h-auto w-auto pr-6 pb-6 pl-3 bg-[#f5f5f5] rounded-lg ">
       <PageHeader title="Settings" description="Incentive Settings" />
 
       <div className="flex gap-6 mt-8 ">
-        <SidebarMenu menuItems={menuItems} />
-        <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+        {responseLoading ? (
+          <div className="w-64">
+            <Skeleton active paragraph={{ rows: 6 }} />
+          </div>
+        ) : (
+          <SidebarMenu menuItems={incentiveSidebarMenuItems} />
+        )}
+        <BlockWrapper className="flex-1 h-full">{children}</BlockWrapper>
       </div>
     </div>
   );

@@ -20,7 +20,6 @@ import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
 import { TbMessage2 } from 'react-icons/tb';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { CiBookmark } from 'react-icons/ci';
-import { TbCreditCardPay } from 'react-icons/tb';
 import { PiMoneyLight } from 'react-icons/pi';
 
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
@@ -238,27 +237,19 @@ const menuItems: MenuProps['items'] = [
   },
   {
     key: '/incentive',
-    icon: <TbCreditCardPay />,
-    className: 'font-bold',
-    label: 'Incentive',
-    children: [
-      {
-        key: '/variable-pay',
-        label: 'Variable Pay',
-        className: 'font-bold h-8',
-      },
-    ],
-  },
-  {
-    key: '/incentive',
     icon: <LuCircleDollarSign />,
     className: 'font-bold',
     label: 'Incentive',
     children: [
       {
-        key: '/incentive/incentive',
+        key: '/incentive/incentivePage',
         label: 'Incentive',
         className: 'font-bold',
+      },
+      {
+        key: '/variable-pay',
+        label: 'Variable Pay',
+        className: 'font-bold h-8',
       },
       {
         key: '/incentive/settings',

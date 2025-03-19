@@ -22,6 +22,7 @@ const nextConfig = {
     ORG_DEV: process.env.ORG_DEV,
     EMAIL_URL: process.env.EMAIL_URL,
     INCENTIVE_URL: process.env.INCENTIVE_URL,
+    PAYROLL_URL: process.env.PAYROLL_URL,
   },
 };
 
