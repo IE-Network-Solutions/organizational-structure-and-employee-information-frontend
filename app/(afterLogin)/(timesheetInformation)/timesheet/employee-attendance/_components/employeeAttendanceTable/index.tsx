@@ -197,10 +197,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
   useEffect(() => {
     if (data && data.items) {
-      const sortedItems = [...data.items].sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      const sortedItems = [...data.items].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
-  
+
       const nData = sortedItems.map((item) => {
         const calcTotal = calculateAttendanceRecordToTotalWorkTime(item);
         return {
@@ -219,11 +220,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           action: item,
         };
       });
-  
+
       setTableData(nData);
     }
   }, [data]);
-  
 
   const onFilterChange = (val: CommonObject) => {
     const nFilter: Partial<AttendanceRequestBody['filter']> = {};
