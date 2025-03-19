@@ -113,7 +113,7 @@ const TnaRequestSidebar = () => {
 
   const onFinish = () => {
     const value = form.getFieldsValue();
-    const { trainingNeedCategory, ...otherData } = data?.items[0] || {};
+    const { ...otherData } = data?.items[0] || {};
     setTna([
       {
         ...otherData,
