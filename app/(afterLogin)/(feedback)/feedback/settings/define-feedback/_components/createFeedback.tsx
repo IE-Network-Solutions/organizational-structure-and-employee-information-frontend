@@ -8,7 +8,12 @@ import {
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
 
-function CreateFeedback() {
+interface DataProps {
+  form: any;
+  activeTabName?: string;
+}
+
+const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
   const {
     variantType,
     activeTab,
@@ -16,7 +21,6 @@ function CreateFeedback() {
     setOpen,
     setSelectedFeedback,
   } = ConversationStore();
-  const [form] = Form.useForm();
   const { mutate: createFeedback, isLoading: createFeedbackLoading } =
     useCreateFeedback();
   const { mutate: updateFeedback, isLoading: feedbackUpdateLoading } =
@@ -58,13 +62,19 @@ function CreateFeedback() {
         description: selectedFeedback?.description,
         points: selectedFeedback?.points,
       });
+    } else {
+      form?.resetFields();
     }
   }, [selectedFeedback]);
 
   return (
     <div className="mt-5 flex justify-center">
       <Card
-        title={`Create ${variantType} type`}
+        title={
+          selectedFeedback?.id
+            ? `Edit ${variantType} type`
+            : `Create ${variantType} type`
+        }
         bordered={true}
         style={{ width: 500 }}
       >
@@ -110,7 +120,16 @@ function CreateFeedback() {
               placeholder="Enter description"
             />
           </Form.Item>
-          <Form.Item name="perspectiveId" label="Select Perspective">
+          <Form.Item
+            name="perspectiveId"
+            label="Select Perspective"
+            rules={[
+              {
+                required: activeTabName === 'KPI',
+                message: 'Please select a perspective!',
+              },
+            ]}
+          >
             <Select
               loading={getPerspectiveLoading}
               placeholder="Select a perspective"
@@ -170,6 +189,6 @@ function CreateFeedback() {
       </Card>
     </div>
   );
-}
+};
 
 export default CreateFeedback;

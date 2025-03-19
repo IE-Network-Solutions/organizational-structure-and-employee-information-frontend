@@ -8,6 +8,8 @@ import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assi
 import { useGetEmployeeInfo } from '@/store/server/features/payroll/payroll/queries';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 
 interface Employee {
   id: string;
@@ -122,15 +124,15 @@ const EmployeeInformation = () => {
 
       return {
         key: employee.id,
-        name: `${employee.firstName} ${employee.middleName || ''} ${employee.lastName}`.trim(),
+        name: `${employee?.firstName} ${employee?.middleName || ''} ${employee?.lastName}`.trim(),
         job: `${position}`,
         salary: `${activeSalary} ETB`,
-        allowances: allowanceMap?.[employee.id] || ['Not Specified'],
+        allowances: allowanceMap?.[employee?.id] || ['Not Specified'],
         bank:
-          employee.employeeInformation.bankInformation?.bankName ||
+          employee.employeeInformation?.bankInformation?.bankName ||
           'Not Available',
         account:
-          employee.employeeInformation.bankInformation?.accountNumber ||
+          employee.employeeInformation?.bankInformation?.accountNumber ||
           'Not Available',
       };
     }) || [];
@@ -190,17 +192,19 @@ const EmployeeInformation = () => {
       key: 'action',
       render: (record: any) => (
         <Space size="middle">
-          <Button
-            type="primary"
-            icon={
-              <EditOutlined
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEdit(record);
-                }}
-              />
-            }
-          />
+          <AccessGuard permissions={[Permissions.UpdateAllowanceEntitlement]}>
+            <Button
+              type="primary"
+              icon={
+                <EditOutlined
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(record);
+                  }}
+                />
+              }
+            />
+          </AccessGuard>
         </Space>
       ),
     },

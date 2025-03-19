@@ -2890,6 +2890,7 @@ common-tags@^1.8.0:
     exceljs "^4.4.0"
     firebase "^10.12.5"
     html2canvas "^1.4.1"
+    idb-keyval "^6.2.1"
     jspdf "^2.5.2"
     lucide-react "^0.436.0"
     next "14.2.5"
@@ -4527,6 +4528,11 @@ iconv-lite@0.6.3:
   integrity sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==
   dependencies:
     safer-buffer ">= 2.1.2 < 3.0.0"
+
+idb-keyval@^6.2.1:
+  version "6.2.1"
+  resolved "https://registry.npmjs.org/idb-keyval/-/idb-keyval-6.2.1.tgz"
+  integrity sha512-8Sb3veuYCyrZL+VBt9LJfZjLUPWVvqn8tG28VqYNFCo43KHcKuq+b4EiXGeuaLAQWL2YmyDgMp2aSpH9JHsEQg==
 
 idb@7.1.1:
   version "7.1.1"

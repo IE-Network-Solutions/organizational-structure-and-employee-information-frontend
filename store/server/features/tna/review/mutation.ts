@@ -1,11 +1,10 @@
-import { TrainingNeedAssessment } from '@/types/tna/tna';
 import { crudRequest } from '@/utils/crudRequest';
 import { TNA_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
-const setTna = async (items: Partial<TrainingNeedAssessment>[]) => {
+const setTna = async (items: any[]) => {
   return await crudRequest({
     url: `${TNA_URL}/tna`,
     method: 'PUT',
@@ -62,7 +61,7 @@ export const useSetFinalApproveTnaRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setFinalApproveTnaRequest, {
     onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries(['tna-current_approval']);
+      queryClient.invalidateQueries('tnaCurrentApproval');
       queryClient.invalidateQueries(['tna']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
@@ -73,7 +72,7 @@ export const useSetAllFinalApproveTnaRequest = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllFinalApproveTnaRequest, {
     onSuccess: (data, variables: any) => {
-      queryClient.invalidateQueries(['tna-current_approval']);
+      queryClient.invalidateQueries('tnaCurrentApproval');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

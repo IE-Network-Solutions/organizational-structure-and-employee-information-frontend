@@ -11,6 +11,7 @@ import {
   Space,
 } from 'antd';
 import { NAME } from '@/types/enumTypes';
+import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 
 interface BoardCardInterface {
   form: any;
@@ -24,6 +25,7 @@ interface BoardCardInterface {
   targetValue?: number;
   milestoneId?: number;
   parentPlanId?: string;
+  onCancle?: () => void;
 }
 
 function BoardCardForm({
@@ -36,8 +38,11 @@ function BoardCardForm({
   keyResult,
   targetValue,
   parentPlanId,
+  milestoneId,
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
+  const { setClickStatus } = useClickStatus();
+
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
@@ -220,6 +225,7 @@ function BoardCardForm({
                 <Col>
                   <Space>
                     <Button
+                      id="add-task-button-for-planning-and-reporting"
                       type="primary"
                       onClick={() => {
                         form
@@ -236,7 +242,15 @@ function BoardCardForm({
                     >
                       Add Task
                     </Button>
-                    <Button onClick={() => removeSub(subName)}>Cancel</Button>
+                    <Button
+                      id="cancel-task-button-for-planning-and-reporting"
+                      onClick={() => {
+                        removeSub(subName);
+                        setClickStatus(milestoneId + '', false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
                   </Space>
                 </Col>
               </Row>

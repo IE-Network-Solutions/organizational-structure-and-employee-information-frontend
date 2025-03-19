@@ -50,7 +50,7 @@ const userTypeButton = (val: string) => {
     return (
       <Button
         id="roleTypeOther"
-        className="bg-indigo-400 text-xs font-medium w-[90px] px-[30px]  text-white"
+        className="bg-indigo-400 text-xs font-medium px-[30px]  text-white"
         title={val}
       >
         {val?.slice(0, 20)}

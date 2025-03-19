@@ -37,6 +37,7 @@ function CreateReport() {
     isEditing,
     resetWeights,
     setStatus,
+    resetStatuses,
     selectedStatuses,
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
@@ -44,6 +45,7 @@ function CreateReport() {
   const onClose = () => {
     setOpenReportModal(false);
     form.resetFields();
+    resetStatuses();
     resetWeights();
   };
   const { data: planningPeriods } = AllPlanningPeriods();
