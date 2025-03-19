@@ -66,6 +66,7 @@ const QuestionSetForm = () => {
           FieldType.MULTIPLE_CHOICE,
           FieldType.CHECKBOX,
           FieldType.RADIO,
+          ,
         ].includes(value);
 
         // If switching to a field type that requires options, add two empty options
@@ -199,7 +200,6 @@ const QuestionSetForm = () => {
         const requiresOptions = [
           FieldType.DROPDOWN,
           FieldType.MULTIPLE_CHOICE,
-          FieldType.CHECKBOX,
           FieldType.RADIO,
         ].includes(q.fieldType);
 
