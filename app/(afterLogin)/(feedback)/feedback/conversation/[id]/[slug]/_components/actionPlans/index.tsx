@@ -3,13 +3,20 @@ import { Card, Avatar, List, Tag, Button, Space, Popconfirm } from 'antd';
 import {
   MdKeyboardArrowDown,
   MdKeyboardArrowUp,
-  MdAdd,
   MdEdit,
   MdDelete,
 } from 'react-icons/md';
 import { useGetAllActionPlansByConversationInstanceId } from '@/store/server/features/CFR/conversation/action-plan/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useDeleteActionPlanByid } from '@/store/server/features/CFR/conversation/action-plan/mutation';
+import {
+  useDeleteActionPlanByid,
+  useEditActionPlan,
+} from '@/store/server/features/CFR/conversation/action-plan/mutation';
+import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
+import dayjs from 'dayjs';
+import CustomDrawerLayout from '@/components/common/customDrawer';
+import { useForm } from 'antd/es/form/Form';
+import EditActionPlans from '../editActionPlane';
 
 interface Employee {
   id: string;
@@ -55,11 +62,16 @@ interface PropsData {
   slug: string;
 }
 const ActionPlans: React.FC<PropsData> = ({ slug }: PropsData) => {
+  const { setOpenEdit, openEdit, actionPlanId, setActionPlanId } =
+    useOrganizationalDevelopment();
+  const [form2] = useForm();
+
   const { data: conversationInstanceActionPlan } =
     useGetAllActionPlansByConversationInstanceId(slug);
   const { mutate: deleteActionPlan } = useDeleteActionPlanByid();
 
   const { data: allUserData } = useGetAllUsers();
+  const { mutate: updateActionPlan } = useEditActionPlan();
 
   const [collapseStates, setCollapseStates] = useState<boolean[]>(
     Array(dummyData.length).fill(true),
@@ -77,9 +89,39 @@ const ActionPlans: React.FC<PropsData> = ({ slug }: PropsData) => {
       prevStates.map((state, i) => (i === index ? !state : state)),
     );
   };
+
   const handleDeleteActionPlan = (id: string) => {
     deleteActionPlan(id);
   };
+  const editActionPlan = (id: string) => {
+    if (!id) return;
+
+    setActionPlanId(id);
+    setOpenEdit(true);
+  };
+
+  const handleEditActionPlan = (values: any) => {
+    const updatedData = {
+      ...values,
+      id: actionPlanId,
+      deadline: values.deadline
+        ? dayjs(values.deadline).format('YYYY-MM-DD')
+        : null,
+    };
+    updateActionPlan(updatedData, {
+      onSuccess: () => {
+        setOpenEdit(false);
+        form2.resetFields();
+      },
+    });
+  };
+
+  const modalHeader = (
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+      Edit Action Plan
+    </div>
+  );
+
   return (
     <div>
       {conversationInstanceActionPlan?.items?.map(
@@ -103,10 +145,12 @@ const ActionPlans: React.FC<PropsData> = ({ slug }: PropsData) => {
             }
             extra={
               <Space>
-                <Button icon={<MdAdd />} size="small" />
                 <Button
                   htmlType="button"
                   type="primary"
+                  onClick={() => {
+                    editActionPlan(actionPlan?.id);
+                  }}
                   icon={<MdEdit />}
                   size="small"
                 />
@@ -187,6 +231,18 @@ const ActionPlans: React.FC<PropsData> = ({ slug }: PropsData) => {
           </Card>
         ),
       )}
+      <CustomDrawerLayout
+        open={openEdit}
+        onClose={() => setOpenEdit(false)}
+        modalHeader={modalHeader}
+        width="40%"
+      >
+        <EditActionPlans
+          slug={slug}
+          onFinish={(values) => handleEditActionPlan(values)}
+          form2={form2}
+        />
+      </CustomDrawerLayout>
     </div>
   );
 };

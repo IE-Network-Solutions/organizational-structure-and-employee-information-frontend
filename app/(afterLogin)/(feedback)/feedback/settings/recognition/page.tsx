@@ -21,7 +21,7 @@ const Page = () => {
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      Add New Recognition
+      {openRecognitionType ? 'Update Recognition' : 'Add New Recognition'}
     </div>
   );
 

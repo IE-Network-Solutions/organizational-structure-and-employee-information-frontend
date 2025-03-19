@@ -250,25 +250,38 @@ const MilestoneView: React.FC<OKRProps> = ({
       },
     });
   }
+
+  const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
+
   return (
     <div
       className="py-4  border-b-[1px] border-gray-300"
       id={`key-result-${index}`}
     >
       <Form form={form} layout="vertical" className="space-y-1">
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-3 items-center mb-4">
           {!keyValue.id && (
             <div className="rounded-lg border-gray-200 border bg-gray-300 w-10 h-8 flex justify-center items-center mt-2">
               {index + 1}
             </div>
           )}
+          <div></div>
           <Form.Item
             label={
               (keyValue.key_type === 'Milestone' && 'Milestone') ||
               keyValue.metricType?.name
             }
             className="w-full font-bold"
-            rules={[{ required: true, message: 'Milestone title is required' }]}
+            rules={[
+              {
+                required: true,
+                message: 'Milestone title is required',
+                validator: (_, value) =>
+                  value && value.trim() !== ''
+                    ? Promise.resolve()
+                    : Promise.reject(new Error('Milestone title is required')),
+              },
+            ]}
           >
             <Input
               id={`key-result-title-${index}`}
@@ -277,8 +290,12 @@ const MilestoneView: React.FC<OKRProps> = ({
                 handleChange(e.target.value, 'title');
               }}
             />
+            {!keyValue.title && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Milestone title is required
+              </div>
+            )}
           </Form.Item>
-
           <Form.Item
             className="w-24 font-bold"
             label="Weight"
@@ -330,15 +347,16 @@ const MilestoneView: React.FC<OKRProps> = ({
                   className="rounded-full w-5 h-5"
                   icon={<VscClose size={20} />}
                   type="primary"
+                  disabled={isEditDisabled}
                 />
               </Tooltip>
             </Popconfirm>
           </div>
         </div>
-        <div className="flex gap-10 items-center">
+        <div className="flex gap-10 items-center mb-10">
           <Form.Item
             layout="horizontal"
-            className="w-full h-5 font-bold"
+            className="w-full h-5 font-bold "
             label="Deadline"
           >
             <DatePicker
@@ -359,6 +377,11 @@ const MilestoneView: React.FC<OKRProps> = ({
                 );
               }}
             />
+            {!keyValue.deadline && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Deadline is required
+              </div>
+            )}
           </Form.Item>
 
           <div className="text-end w-full">
@@ -369,27 +392,21 @@ const MilestoneView: React.FC<OKRProps> = ({
         </div>
 
         {keyValue?.milestones?.length != 0 && keyValue?.milestones && (
-          <Form.Item className="px-5" label="Milestones" required>
+          <Form.Item
+            className="px-5"
+            label={<span className="mt-3"> Milestones</span>}
+            required
+          >
             {keyValue?.milestones.map((milestone, mindex) => (
               <div
                 key={mindex}
-                className="flex items-center space-x-2 mb-2"
+                className="flex items-start space-x-2 mb-2"
                 id={`milestone-${index}-${mindex}`}
               >
                 <div className="rounded-lg border-gray-200 border bg-gray-300 w-8 h-8 flex justify-center items-center">
                   {index + 1}.{mindex + 1}
                 </div>
 
-                {/* <Input
-                    id={`milestone-title-${index}-${mindex}`}
-                    placeholder="Milestone Name"
-                    value={milestone.title || ''}
-                    className="flex-1"
-                    onChange={(e) =>
-                      milestoneChange(e.target.value, index, mindex, 'title')
-                    }
-                    required
-                  /> */}
                 <Form.Item
                   name={['milestones', index, mindex, 'title']}
                   rules={[
@@ -398,55 +415,59 @@ const MilestoneView: React.FC<OKRProps> = ({
                   className="flex-1 "
                 >
                   <Input
+                    disabled={milestone?.status == 'Completed'}
                     id={`milestone-title-${index}-${mindex}`}
                     placeholder="Milestone Name"
-                    value={milestone.title || ''}
+                    // value={milestone.title || ''}
                     onChange={(e) =>
                       milestoneChange(e.target.value, index, mindex, 'title')
                     }
                   />
                 </Form.Item>
 
-                <InputNumber
-                  disabled={milestone?.status == 'Completed'}
-                  id={`milestone-weight-${index}-${mindex}`}
-                  min={0}
-                  max={100}
-                  suffix="%"
-                  value={milestone.weight}
-                  onChange={(value) =>
-                    milestoneChange(value, index, mindex, 'weight')
-                  }
-                />
-
-                <Popconfirm
-                  title="Are you sure you want to remove this milestone?"
-                  onConfirm={() =>
-                    milestone?.id
-                      ? handleMilestoneDelete(milestone?.id, mindex)
-                      : milestoneRemove(index, mindex)
-                  }
-                  okText="Yes"
-                  cancelText="No"
-                  placement="top"
-                  disabled={milestone?.status === 'Completed'} // Disable Popconfirm if the milestone is completed
-                >
-                  <Tooltip
-                    title={
-                      milestone?.status === 'Completed'
-                        ? 'This milestone is completed and cannot be removed.'
-                        : 'Remove Milestone'
+                <Form.Item>
+                  <InputNumber
+                    disabled={milestone?.status == 'Completed'}
+                    id={`milestone-weight-${index}-${mindex}`}
+                    min={0}
+                    max={100}
+                    suffix="%"
+                    value={milestone.weight}
+                    onChange={(value) =>
+                      milestoneChange(value, index, mindex, 'weight')
                     }
+                  />
+                </Form.Item>
+                <Form.Item>
+                  <Popconfirm
+                    title="Are you sure you want to remove this milestone?"
+                    onConfirm={() =>
+                      milestone?.id
+                        ? handleMilestoneDelete(milestone?.id, mindex)
+                        : milestoneRemove(index, mindex)
+                    }
+                    okText="Yes"
+                    cancelText="No"
+                    placement="top"
+                    disabled={milestone?.status === 'Completed'} // Disable Popconfirm if the milestone is completed
                   >
-                    <Button
-                      disabled={milestone?.status === 'Completed'}
-                      id={`remove-milestone-${index}-${mindex}`}
-                      icon={<VscClose size={20} />}
-                      className="rounded-full w-5 h-5"
-                      type="primary"
-                    />
-                  </Tooltip>
-                </Popconfirm>
+                    <Tooltip
+                      title={
+                        milestone?.status === 'Completed'
+                          ? 'This milestone is completed and cannot be removed.'
+                          : 'Remove Milestone'
+                      }
+                    >
+                      <Button
+                        disabled={milestone?.status === 'Completed'}
+                        id={`remove-milestone-${index}-${mindex}`}
+                        icon={<VscClose size={20} />}
+                        className="rounded-full w-5 h-5"
+                        type="primary"
+                      />
+                    </Tooltip>
+                  </Popconfirm>
+                </Form.Item>
               </div>
             ))}
           </Form.Item>

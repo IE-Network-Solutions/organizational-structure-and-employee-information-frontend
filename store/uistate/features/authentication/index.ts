@@ -1,7 +1,6 @@
 import { setCookie } from '@/helpers/storageHelper';
 import create from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { set, get, del } from 'idb-keyval'; // Import idb-keyval methods
 
 interface StoreState {
   token: string;
@@ -51,24 +50,31 @@ export const useAuthenticationStore = create<StoreState>()(
       }),
       {
         name: 'authentications-storage', // Unique name for the storage
-        getStorage: () => ({
-          getItem: async (key: string) => {
-            const storedValue = await get(key); // Get item from IndexedDB
-            return storedValue ?? null;
-          },
-          setItem: async (key: string, value: any) => {
-            await set(key, value); // Set item in IndexedDB
-          },
-          removeItem: async (key: string) => {
-            await del(key); // Remove item from IndexedDB
-          },
-        }),
+        getStorage: () => localStorage, // Use localStorage for persistence
         partialize: (state) => ({
           token: state.token,
           tenantId: state.tenantId,
           localId: state.localId,
           userId: state.userId,
         }),
+        // getStorage: () => ({
+        //   getItem: async (key: string) => {
+        //     const storedValue = await get(key); // Get item from IndexedDB
+        //     return storedValue ?? null;
+        //   },
+        //   setItem: async (key: string, value: any) => {
+        //     await set(key, value); // Set item in IndexedDB
+        //   },
+        //   removeItem: async (key: string) => {
+        //     await del(key); // Remove item from IndexedDB
+        //   },
+        // }),
+        // partialize: (state) => ({
+        //   token: state.token,
+        //   tenantId: state.tenantId,
+        //   localId: state.localId,
+        //   userId: state.userId,
+        // }),
       },
     ),
   ),
