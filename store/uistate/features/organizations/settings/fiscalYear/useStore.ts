@@ -44,6 +44,10 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   setFiscalYearStart: (value: Dayjs) => set({ fiscalYearStart: value }),
   clearFormData: () => set({ formData: {} }),
 
+  isOpenfiscalYearDrawer: false,
+  setIsOpenFiscalYearDrawer: (isOpenfiscalYearDrawer: boolean) =>
+    set({ isOpenfiscalYearDrawer }),
+
   sessionData: [],
   setSessionData: (value: any[]) => set({ sessionData: value }),
 
@@ -64,4 +68,7 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
         ? { monthRangeValues: newData }
         : state,
     ),
+
+  openfiscalYearDrawer: false,
+  setOpenFiscalYearDrawer: (value) => set({ openfiscalYearDrawer: value }),
 }));

@@ -1,12 +1,9 @@
 'use client';
-
-import dynamic from 'next/dynamic';
-
-const SettingsComponent = dynamic(() => import('./settingsPage'), {
-  ssr: false,
-});
+import { redirect } from 'next/navigation';
 
 function Settings() {
-  return <SettingsComponent />;
+  // return <SettingsComponent />;
+  redirect('/organization/settings/branches');
+  return null;
 }
 export default Settings;
