@@ -43,14 +43,14 @@ export default function Home() {
 
             {/* Course Permitted and Applicants */}
             <div className="col-span-12 xl:col-span-4">
-              <div className="">
+              <div className="flex-col sm:flex-row gap-3 mb-3">
                 <AccessGuard roles={['user']}>
                   <CoursePermitted />
                 </AccessGuard>
-                <AccessGuard roles={['admin', 'owner']}>
-                  <Applicants />
-                </AccessGuard>
               </div>
+              <AccessGuard roles={['admin', 'owner']}>
+                <Applicants />
+              </AccessGuard>
             </div>
           </div>
         </div>

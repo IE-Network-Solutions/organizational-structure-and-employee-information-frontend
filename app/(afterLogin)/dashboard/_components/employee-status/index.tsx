@@ -35,7 +35,7 @@ const EmploymentStats: React.FC = () => {
       {
         data: dataValues || [], // Sample data for full-time, part-time, and others
         backgroundColor: ['#2f78ee', '#3636ee', '#1d9bf0'],
-        borderWidth: 1,
+        borderWidth: 2,
       },
     ],
   };
@@ -83,7 +83,7 @@ const EmploymentStats: React.FC = () => {
   return (
     <Card loading={isLoading} className="w-full mx-auto ">
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-gray-700 font-semibold text-sm">Employee Stat</h3>
+        <h3 className="text-gray-700 font-semibold text-lg">Employee Stat</h3>
         <Select
           bordered={false}
           defaultValue="All Time"
