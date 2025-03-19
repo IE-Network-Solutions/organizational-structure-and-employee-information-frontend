@@ -108,7 +108,7 @@ const TalentPoolTable: React.FC<any> = () => {
       ),
     },
     {
-      title: 'Actions',
+      title: 'Action',
       key: 'actions',
       render: (_: any, record: any) => (
         <AccessGuard permissions={[Permissions.TransferCandidate]}>
