@@ -208,7 +208,6 @@ h6 {
 .lesson-material-article h3 {
   @apply text-gray-900 text-[24px];
 }
-
 /* this is the css for the tree */
 
 .menu-with-lines .ant-menu-submenu > .ant-menu-submenu-title {
@@ -243,3 +242,22 @@ h6 {
   content: '└── ';
 }
 
+.custom-tabs .ant-tabs-nav::before {
+  border: none;
+}
+
+.custom-tabs .ant-tabs-tab {
+  color: #888;
+  font-size: 14px;
+  padding: 4px 16px;
+}
+
+.custom-tabs .ant-tabs-tab-active {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.custom-tabs .ant-tabs-ink-bar {
+  background-color: #1890ff;
+  height: 2px;
+}
