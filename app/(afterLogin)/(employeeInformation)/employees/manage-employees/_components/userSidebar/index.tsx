@@ -79,15 +79,17 @@ const UserSidebar = (props: any) => {
 
   const customDot = (step: number) => (
     <div
-      className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${current >= step ? 'bg-indigo-700 text-white' : 'bg-white border-gray-300 text-gray-500'}`}
+      className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${
+        current >= step
+          ? 'bg-indigo-700 text-white'
+          : 'bg-white border-gray-300 text-gray-500'
+      }`}
     >
-      <div style={{ fontSize: '24px', lineHeight: '24px' }}>
-        {current >= step ? (
-          <IoCheckmarkSharp className="text-xs font-bold" />
-        ) : (
-          '•'
-        )}
-      </div>
+      {current >= step ? (
+        <IoCheckmarkSharp className="text-xs font-bold" />
+      ) : (
+        <span className="text-2xl leading-none pb-1">•</span>
+      )}
     </div>
   );
 
