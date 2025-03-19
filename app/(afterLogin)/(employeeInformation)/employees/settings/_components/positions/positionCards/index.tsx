@@ -43,7 +43,6 @@ const PositionCards: React.FC = () => {
     setDeleteModal(false);
   };
 
-
   useEffect(() => {
     refetch();
   }, [currentPage, pageSize]);

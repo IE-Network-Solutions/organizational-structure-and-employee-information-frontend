@@ -87,7 +87,6 @@ const updateEmployeeRolePermissionMutation = async (
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const {groupPermissionId,...updatedValues}=values;
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/${id}`,
@@ -96,7 +95,7 @@ const updateEmployeeRolePermissionMutation = async (
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     },
-    data: updatedValues,
+    data: { ...values, groupPermissionId: undefined }, // Ensuring it doesn't get sent
   });
 };
 const updateEmployeeJobInformationMutation = async (

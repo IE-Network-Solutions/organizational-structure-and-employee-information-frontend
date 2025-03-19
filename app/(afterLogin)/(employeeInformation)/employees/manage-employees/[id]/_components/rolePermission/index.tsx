@@ -23,10 +23,12 @@ interface Ids {
 const RolePermission: React.FC<Ids> = ({ id }) => {
   const [form] = Form.useForm();
   const { data: employeeData, isLoading } = useGetEmployee(id);
-  const { data: rolesWithPermission,isLoading:roleLoading } = useGetRolesWithPermission();
-  const { data: groupPermissionData,isLoading:groupPermissionLoading } =
+  const { data: rolesWithPermission, isLoading: roleLoading } =
+    useGetRolesWithPermission();
+  const { data: groupPermissionData, isLoading: groupPermissionLoading } =
     useGetPermissionGroupsWithOutPagination();
-  const { data: permissionListData,isLoading:permissionLoading } = useGetPermissionsWithOutPagination();
+  const { data: permissionListData, isLoading: permissionLoading } =
+    useGetPermissionsWithOutPagination();
 
   const {
     setSelectedRoleOnOption,
