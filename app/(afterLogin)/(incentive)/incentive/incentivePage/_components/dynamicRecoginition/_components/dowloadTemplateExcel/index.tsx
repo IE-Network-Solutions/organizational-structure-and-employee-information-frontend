@@ -51,7 +51,7 @@ const DownloadExcelButton: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'IncentiveImportTemplate.xlsx'; // Desired filename
+    link.download = 'IncentiveImportTemplate.xlsx';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link); // Clean up
