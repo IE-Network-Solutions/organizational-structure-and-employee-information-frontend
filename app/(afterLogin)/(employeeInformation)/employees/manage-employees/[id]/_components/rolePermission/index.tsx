@@ -23,10 +23,12 @@ interface Ids {
 const RolePermission: React.FC<Ids> = ({ id }) => {
   const [form] = Form.useForm();
   const { data: employeeData, isLoading } = useGetEmployee(id);
-  const { data: rolesWithPermission } = useGetRolesWithPermission();
-  const { data: groupPermissionData } =
+  const { data: rolesWithPermission, isLoading: roleLoading } =
+    useGetRolesWithPermission();
+  const { data: groupPermissionData, isLoading: groupPermissionLoading } =
     useGetPermissionGroupsWithOutPagination();
-  const { data: permissionListData } = useGetPermissionsWithOutPagination();
+  const { data: permissionListData, isLoading: permissionLoading } =
+    useGetPermissionsWithOutPagination();
 
   const {
     setSelectedRoleOnOption,
@@ -240,6 +242,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                 rules={[{ required: true, message: 'Please select a role!' }]}
               >
                 <Select
+                  loading={roleLoading}
                   placeholder="Select a role"
                   onChange={onRoleChangeHandler}
                   allowClear
@@ -264,6 +267,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                 rules={[]}
               >
                 <Select
+                  loading={groupPermissionLoading}
                   placeholder="Select a Group Permission"
                   onChange={onGroupPermissionChange}
                   allowClear
@@ -298,6 +302,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                 ]}
               >
                 <Select
+                  loading={permissionLoading}
                   mode="multiple"
                   style={{ width: '100%', overflowY: 'auto' }}
                   onChange={handlePermissionChange}
