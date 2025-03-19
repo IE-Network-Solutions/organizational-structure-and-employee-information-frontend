@@ -90,7 +90,7 @@ export default function ChartLayout({
       {/* ORG Structure Section */}
       <div className="w-full overflow-x-auto">
         <Card
-          className="w-full"
+          className="w-full border-none"
           title={<div className="text-2xl font-bold">ORG Structure</div>}
           extra={
             <div className="py-4 flex justify-center items-center gap-4">

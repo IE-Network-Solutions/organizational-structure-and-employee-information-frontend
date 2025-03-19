@@ -205,47 +205,8 @@ const OrgChartComponent: React.FC = () => {
 
   return (
     <div className="w-full overflow-x-auto">
-      <Card
-        className="w-full"
-        title={<div className="text-2xl font-bold">ORG Structure</div>}
-        // extra={
-        //   <div className="py-4 flex justify-center items-center gap-4">
-        //     <Dropdown
-        //       overlay={exportOrgStrucutreMenu(chartRef, exportToPDFOrJPEG)}
-        //       trigger={['click']}
-        //     >
-        //       <CustomButton
-        //         title="Download"
-        //         icon={<FaDownload size={16} />}
-        //         loading={chartDownlaodLoading}
-        //         type="default"
-        //       />
-        //     </Dropdown>
-        //     <Dropdown
-        //       overlay={orgComposeAndMergeMenues}
-        //       trigger={['click']}
-        //       placement="bottomRight"
-        //     >
-        //       <Button
-        //         type="primary"
-        //         className={`w-16 h-14 px-6 py-6 rounded-lg flex items-center justify-center gap-2`}
-        //         icon={<BsThreeDotsVertical size={16} />}
-        //       />
-        //     </Dropdown>
-        //   </div>
-        // }
-      >
-        {/* this is where we add the structure and chart */}
-        {/* <div className="flex justify-end">
-          <Menu
-            className="w-[250px] rounded-2xl py-2 pl-10 h-max border-none"
-            items={items}
-            mode="horizontal"
-            defaultActiveFirst
-            onClick={onMenuClick}
-          />
-        </div> */}
-        <div className="w-full py-7 overflow-x-auto ">
+     
+      <div className="w-full py-7 overflow-x-auto ">
           {orgStructureLoading ? (
             <OrgChartSkeleton loading={orgStructureLoading} />
           ) : (
@@ -298,32 +259,6 @@ const OrgChartComponent: React.FC = () => {
             loading={deleteLoading}
           />
         </div>
-        {/* <CustomDrawer
-          loading={transferDepartment ? isTransferLoading : isLoading}
-          visible={drawerVisible}
-          onClose={() => {
-            closeDrawer();
-            resetStore();
-            setDepartmentTobeDeletedId('');
-          }}
-          drawerContent={drawerContent}
-          footerButtonText={footerButtonText}
-          onSubmit={() => {
-            if (footerButtonText == 'Transfer') {
-              if (transferDepartment) {
-                transferDepartments(transferDepartment);
-              }
-            } else if (footerButtonText == 'Merge') {
-              mergeDepartments(mergeData);
-            } else {
-              setIsDeleteConfirmVisible(true);
-              closeDrawer();
-            }
-          }}
-          title={drawTitle}
-          form={form}
-        /> */}
-      </Card>
 
       <CreateEmployeeJobInformation id={userId} />
     </div>
