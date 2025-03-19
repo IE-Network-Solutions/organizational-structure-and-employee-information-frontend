@@ -6,8 +6,6 @@ import {
 } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import React, { useEffect } from 'react';
-import SessionDrawer from '../../session/sessionDrawer';
-import MonthDrawer from '../../month/monthDrawer';
 import { FormInstance } from 'antd/lib';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Form } from 'antd';
@@ -15,9 +13,11 @@ import {
   Month,
   Session,
 } from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import SessionDrawer from '../../_components/session/sessionDrawer';
+import MonthDrawer from '../../_components/month/monthDrawer';
 
 interface FiscalYearDrawerProps {
-  form?: FormInstance;
+  form: FormInstance;
   handleNextStep?: () => void;
 }
 const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
@@ -59,6 +59,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
 
   const handleCancel = () => {
     setOpenFiscalYearDrawer(false);
+    // closeFiscalYearDrawer();
     setEditMode(false);
     setSelectedFiscalYear(null);
     setCurrent(0);
@@ -175,7 +176,6 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           setFiscalYearFormValues({});
           setSessionFormValues({});
           setCurrent(0);
-          setOpenFiscalYearDrawer(false);
         },
       });
     }
@@ -201,27 +201,25 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       )}
     </Form>
   );
-
-  return (
-    <>
-      {(!departments?.length || openfiscalYearDrawer) && (
-        <CustomDrawerLayout
-          modalHeader={
-            <h1 className="text-2xl font-semibold">
-              {isEditMode ? 'Edit New Fiscal Year' : 'Add New Fiscal Year'}
-            </h1>
-          }
-          onClose={handleCancel}
-          open={openfiscalYearDrawer}
-          width="50%"
-          footer={null}
-        >
-          {formContent}
-        </CustomDrawerLayout>
-      )}
-      {!departments?.length && !openfiscalYearDrawer && formContent}
-    </>
-  );
+  return !departments?.length ? (
+    openfiscalYearDrawer ? (
+      <CustomDrawerLayout
+        modalHeader={
+          <h1 className="text-2xl font-semibold">
+            {isEditMode ? 'Edit New Fiscal Year' : 'Add New Fiscal Year'}
+          </h1>
+        }
+        onClose={handleCancel}
+        open={openfiscalYearDrawer}
+        width="50%"
+        footer={null}
+      >
+        {formContent}
+      </CustomDrawerLayout>
+    ) : (
+      formContent
+    )
+  ) : null;
 };
 
 export default CustomWorFiscalYearDrawer;

@@ -1,5 +1,6 @@
+'use client';
 import React, { useState } from 'react';
-import { Button, Card, Dropdown } from 'antd';
+import { Button, Card, Dropdown, Pagination } from 'antd';
 import { PlusOutlined, MoreOutlined } from '@ant-design/icons';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import {
@@ -8,14 +9,13 @@ import {
   Month,
 } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
-import Pagination from '../../pagination';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import dayjs from 'dayjs';
 
 import { IoIosArrowDown } from 'react-icons/io';
 import { MdKeyboardArrowUp } from 'react-icons/md';
-import CustomWorFiscalYearDrawer from '../customDrawer';
+import CustomWorFiscalYearDrawer from '../../_components/fiscalYear/customDrawer';
 
 const FiscalYearListCard: React.FC = () => {
   const {
@@ -26,6 +26,7 @@ const FiscalYearListCard: React.FC = () => {
     setCurrentPage,
     setPageSize,
     setEditMode,
+    setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
 
   const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>(
@@ -53,7 +54,7 @@ const FiscalYearListCard: React.FC = () => {
   const { data: fiscalYears, isLoading: fiscalYearsFetchLoading } =
     useGetAllFiscalYears(pageSize, currentPage);
 
-  const { openDrawer, setIsOpenFiscalYearDrawer } = useFiscalYearDrawerStore();
+  const { openDrawer } = useFiscalYearDrawerStore();
 
   const handleMenuClick = (key: string, fYear: FiscalYear) => {
     if (key === 'edit') {
@@ -69,6 +70,11 @@ const FiscalYearListCard: React.FC = () => {
   if (fiscalYearsFetchLoading) {
     return <p>Loading...</p>;
   }
+
+  const handelDrawerOpen = () => {
+    setOpenFiscalYearDrawer(true);
+  };
+
   return (
     <div className="mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
@@ -77,10 +83,7 @@ const FiscalYearListCard: React.FC = () => {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => {
-              setIsOpenFiscalYearDrawer(true);
-              openDrawer;
-            }}
+            onClick={handelDrawerOpen}
           >
             Create Fiscal Year
           </Button>

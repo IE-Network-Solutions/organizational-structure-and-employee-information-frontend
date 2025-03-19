@@ -146,7 +146,7 @@ function Page() {
   ];
 
   return (
-    <div className="p-10 justify-center items-center">
+    <div className="p-10 justify-center items-center rounded-2xl bg-white">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Criteria Management</h1>
         <AccessGuard permissions={[Permissions.CreateVpScoringConfigurations]}>
