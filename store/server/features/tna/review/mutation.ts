@@ -4,7 +4,7 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
-const setTna = async (items: any) => {
+const setTna = async (items: any[]) => {
   return await crudRequest({
     url: `${TNA_URL}/tna`,
     method: 'PUT',

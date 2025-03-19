@@ -24,7 +24,7 @@ const CoursePermitted: React.FC = () => {
       {
         data: coursePermitted?.map((i) => i.courseCount) || [], // Sample data for full-time, part-time, and others
         backgroundColor: ['#2f78ee', '#3636ee', '#1d9bf0'],
-        borderWidth: 1,
+        borderWidth: 2,
       },
     ],
   };
@@ -38,7 +38,7 @@ const CoursePermitted: React.FC = () => {
         labels: {
           color: '#333',
           font: {
-            size: 14,
+            size: 12,
             weight: 'bold',
           },
           padding: 20,
@@ -73,27 +73,30 @@ const CoursePermitted: React.FC = () => {
     0,
   );
   return (
-    <Card loading={isLoading} className="w-full mx-auto shadow-md">
+    <Card loading={isLoading} className="w-full mx-auto">
       <div className="flex justify-between items-center mb-2">
-        <h3 className=" font-semibold text-lg">Course Permitted</h3>
+        <h3 className=" text-gray-700 font-semibold text-lg">
+          Course Permitted
+        </h3>
       </div>
 
       <div className="grid items-center">
         <div
           style={{
             position: 'relative',
-            maxWidth: '150px',
-            maxHeight: '150px',
+            maxWidth: '130px',
+            maxHeight: '130px',
             margin: '0 auto',
           }}
         >
           <Doughnut data={data} options={options} />
           <div
-            className="absolute text-center  bg-white shadow-lg shadow-slate-400 w-20 h-20 rounded-full flex flex-col items-center justify-center   px-3 z-0 "
+            className="absolute text-center bg-white shadow-lg w-16 h-16 rounded-full flex flex-col items-center justify-center px-3 z-0"
             style={{
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
+              zIndex: '-1',
             }}
           >
             <div className="font-bold text-2xl">{totalCourseCount}</div>
