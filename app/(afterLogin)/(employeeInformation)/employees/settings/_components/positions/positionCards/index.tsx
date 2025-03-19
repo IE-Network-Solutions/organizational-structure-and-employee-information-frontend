@@ -8,11 +8,9 @@ import PositionsEdit from '../positionEdit';
 import RecruitmentPagination from '@/app/(afterLogin)/(recruitment)/recruitment/_components';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { Pagination } from 'antd';
 
 const PositionCards: React.FC = () => {
   const { mutate: deletePosition } = useDeletePosition();
-
 
   const {
     currentPage,
@@ -28,7 +26,7 @@ const PositionCards: React.FC = () => {
     setDeletePositionId,
     setEditModal,
   } = usePositionState();
-  const { data: positions ,refetch } = useGetPositions(currentPage,pageSize);
+  const { data: positions, refetch } = useGetPositions(currentPage, pageSize);
 
   const handlePositionEditModalOpen = (position: any) => {
     setSelectedPosition(position);
@@ -46,11 +44,9 @@ const PositionCards: React.FC = () => {
   };
 
 
-  console.log(currentPage,pageSize,"*******************")
-
-  useEffect(()=>{
-      refetch();
-  },[currentPage,pageSize])
+  useEffect(() => {
+    refetch();
+  }, [currentPage, pageSize]);
   return (
     <>
       {positions?.items && positions?.items?.length > 0 ? (

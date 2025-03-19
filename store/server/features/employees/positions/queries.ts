@@ -4,7 +4,7 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
-const getPositions = async (currentPage:number,pageSize:number) => {
+const getPositions = async (currentPage: number, pageSize: number) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -51,8 +51,8 @@ const getPositionsByID = async (id: string) => {
   });
 };
 
-export const useGetPositions = (currentPage:number,pageSize:number) => {
-  return useQuery('positions', ()=>getPositions(currentPage,pageSize));
+export const useGetPositions = (currentPage: number, pageSize: number) => {
+  return useQuery('positions', () => getPositions(currentPage, pageSize));
 };
 export const useGetAllPositions = () => {
   return useQuery('allPositions', getAllPositions);
