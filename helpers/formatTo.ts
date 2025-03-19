@@ -16,7 +16,7 @@ export const formatToOptions = <T extends CommonObject>(
   labelKey: keyof T,
   valueKey: keyof T,
 ): Options => {
-  return items.map((item) => ({
+  return items?.map((item) => ({
     value: item[valueKey],
     label: item[labelKey],
   }));
