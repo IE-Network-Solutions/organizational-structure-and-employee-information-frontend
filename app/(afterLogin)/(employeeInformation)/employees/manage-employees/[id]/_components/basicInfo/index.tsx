@@ -198,7 +198,7 @@ function BasicInfo({ id }: { id: string }) {
           )}
         </Dragger>
       </Modal>
-      <div className="flex gap-5 my-2 items-center">
+      <div className="px-4 flex gap-5 my-2 items-center">
         <HiOutlineMail color="#BFBFBF" />
         <p className="font-semibold">{employeeData?.email}</p>
       </div>
