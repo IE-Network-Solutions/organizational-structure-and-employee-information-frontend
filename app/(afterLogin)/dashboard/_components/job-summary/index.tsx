@@ -97,7 +97,9 @@ const JobSummary = () => {
               margin: '0 auto',
             }}
           >
-            <Doughnut data={data} options={options} />
+            <div style={{ position: 'relative', zIndex: '1' }}>
+              <Doughnut data={data} options={options} />
+            </div>{' '}
             <div
               className="absolute text-center bg-white shadow-lg w-16 h-16 rounded-full flex flex-col items-center justify-center px-3 z-0"
               style={{
