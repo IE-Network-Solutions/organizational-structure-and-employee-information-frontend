@@ -21,7 +21,6 @@ import { TbMessage2 } from 'react-icons/tb';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { CiBookmark } from 'react-icons/ci';
 import { PiMoneyLight } from 'react-icons/pi';
-
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuCircleDollarSign, LuUsers2 } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
@@ -249,7 +248,7 @@ const menuItems: MenuProps['items'] = [
       {
         key: '/variable-pay',
         label: 'Variable Pay',
-        className: 'font-bold h-8',
+        className: 'font-bold',
       },
       {
         key: '/incentive/settings',
