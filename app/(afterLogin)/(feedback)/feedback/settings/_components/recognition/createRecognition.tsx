@@ -548,7 +548,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                 ? updateWithCriteriaLoading
                 : createLoading
             }
-            disabled={totalWeight !== 1}
+            disabled={selectedCriteria?.length>0 && totalWeight !== 1}
             type="primary"
             htmlType="submit"
             className="text-xs"

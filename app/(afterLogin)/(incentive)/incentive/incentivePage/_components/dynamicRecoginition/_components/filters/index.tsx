@@ -4,7 +4,7 @@ import { SearchOutlined } from '@ant-design/icons';
 import { Col, Input, Row, Select } from 'antd';
 import React from 'react';
 
-const IncentiveProjectsFilter: React.FC = () => {
+const DynamicIncentiveFilter: React.FC = () => {
   const { searchParams, setSearchParams } = useIncentiveStore();
   const handleSearchCategory = async (
     value: string | boolean,
@@ -106,4 +106,4 @@ const IncentiveProjectsFilter: React.FC = () => {
   );
 };
 
-export default IncentiveProjectsFilter;
+export default DynamicIncentiveFilter;

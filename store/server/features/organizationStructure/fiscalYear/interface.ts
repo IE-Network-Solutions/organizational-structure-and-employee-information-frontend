@@ -50,7 +50,6 @@ export interface FiscalYear {
   endDate: Dayjs | null;
   sessions?: Session[]; // Use the Session type here
   closedDates?: ClosedDates[];
-  isActive?: boolean;
 }
 
 export interface FiscalYearResponse {

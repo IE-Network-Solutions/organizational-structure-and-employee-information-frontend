@@ -55,6 +55,7 @@ export const useUpdateRecognitionCriteria = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -66,6 +67,7 @@ export const useDeleteRecognitionCriteria = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -77,6 +79,7 @@ export const useAddRecognitionCriteria = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
