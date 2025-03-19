@@ -7,6 +7,7 @@ const DynamicQuestionField = ({
   fieldOptions,
   name,
   label,
+  rules,
 }: any) => {
   const renderField = () => {
     switch (fieldType) {
@@ -63,6 +64,7 @@ const DynamicQuestionField = ({
       labelCol={{ span: 24 }}
       wrapperCol={{ span: 24 }}
       className="mx-3 mb-8"
+      rules={rules}
     >
       {renderField()}
     </Form.Item>

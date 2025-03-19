@@ -12,6 +12,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const { Dragger } = Upload;
 
@@ -166,8 +167,19 @@ const Documents = ({ id }: { id: string }) => {
                   listType="picture"
                   accept="*/*"
                 >
-                  <div className="flex justify-start items-center text-xl font-semibold text-gray-950">
+                  <div className="flex justify-between items-center text-xl font-semibold text-gray-950">
                     <p>Documents Upload</p>
+                    <div className="flex py-3 px-6 my-4 items-center">
+                      <FaPlus className="mx-2 p-1 text-gray-400" />
+
+                      <Button
+                        className="ant-upload-text font-semibold text-white  text-sm  bg-blue-500 hover:bg-blue-600"
+                        type="primary"
+                      >
+                        <MdOutlineUploadFile className="text-white text-xl mr-2" />
+                        Request Documents
+                      </Button>
+                    </div>
                   </div>
                   <p className="ant-upload-drag-icon">
                     <Image
@@ -192,16 +204,16 @@ const Documents = ({ id }: { id: string }) => {
                   </Button>
                 </Dragger>
               </Form.Item>
-              <div className="flex justify-end">
+              <div className="flex justify-between px-2 items-center">
+                <p className="font-bold">Uploaded Documents</p>
                 <Button
                   disabled={documentFileList?.length === 0}
                   loading={addEmployee}
                   id={`sidebarActionCreateSubmit`}
-                  className="px-6 py-3 text-xs font-bold flex justify-end"
+                  className="px-6 py-3 mb-3 flex justify-end border-none bg-white "
                   htmlType="submit"
-                  type="primary"
                 >
-                  Submit
+                  <FaPlus />
                 </Button>
               </div>
             </Form>

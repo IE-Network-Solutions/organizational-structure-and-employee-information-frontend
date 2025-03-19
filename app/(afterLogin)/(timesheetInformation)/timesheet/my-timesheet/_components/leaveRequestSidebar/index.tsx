@@ -110,6 +110,13 @@ const LeaveRequestSidebar = () => {
           formatLinkToUploadFile(leaveRequest.justificationDocument),
         ]);
       }
+      if (leaveRequest.delegatee) {
+        form.setFieldValue(
+          'delegatee',
+          typeof leaveRequest?.delegatee !== 'string' &&
+            leaveRequest?.delegatee?.id,
+        );
+      }
     }
   }, [leaveRequest]);
 
@@ -162,6 +169,7 @@ const LeaveRequestSidebar = () => {
       item: {
         ...(leaveRequest && leaveRequest),
         leaveType: value.type,
+        delegatee: value.delegatee,
         isHalfday: !!value.isHalfday,
         startAt: dayjs(value.startDate).format('YYYY-MM-DD'),
         endAt: dayjs(value.endDate).format('YYYY-MM-DD'),
@@ -326,7 +334,7 @@ const LeaveRequestSidebar = () => {
                 jpeg
               </div>
               <Form.Item
-                name="person"
+                name="delegatee"
                 label="Delegated Employee"
                 className={itemClass}
               >
@@ -341,9 +349,14 @@ const LeaveRequestSidebar = () => {
                       .includes(input.toLowerCase())
                   }
                   options={employeeData?.items?.map((item: any) => ({
-                    ...item,
+                    //  ...item,
                     value: item?.id,
-                    label: item?.firstName + ' ' + item?.lastName,
+                    label:
+                      item?.firstName +
+                      ' ' +
+                      item?.middleName +
+                      ' ' +
+                      item?.lastName,
                   }))}
                 />
               </Form.Item>

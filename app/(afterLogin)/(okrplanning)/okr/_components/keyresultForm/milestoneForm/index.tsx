@@ -99,7 +99,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
 
           <Form.Item
             className="font-semibold text-xs w-full mb-2"
-            name="title"
+            name={`title-${index}`}
             rules={[
               { required: true, message: 'Please enter the Key Result name' },
             ]}
@@ -108,7 +108,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
             <Input
               placeholder="Key Result Name"
               aria-label="Key Result Name"
+              // onChange={handleTitleChange}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
+              // onBlur={() => form.validateFields(['title'])}
             />
           </Form.Item>
 

@@ -20,6 +20,7 @@ const TalentPoolTable: React.FC<any> = () => {
     searchParams?.department ?? '',
     searchParams?.job ?? '',
     searchParams?.stages ?? '',
+    searchParams?.talentPoolCategory ?? '',
     page,
     currentPage,
   );

@@ -16,8 +16,6 @@ import userTypeButton from '../userTypeButton';
 import { useDeleteEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
 import Image from 'next/image';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
-import { FaEye } from 'react-icons/fa';
-import Link from 'next/link';
 import { useRehireTerminatedEmployee } from '@/store/server/features/employees/offboarding/mutation';
 import JobTimeLineForm from '../allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../allFormData/workScheduleForm';
@@ -26,6 +24,7 @@ import dayjs from 'dayjs';
 import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useRouter } from 'next/navigation';
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Id',
@@ -105,6 +104,11 @@ const UserTable = () => {
   const { mutate: employeeDeleteMuation } = useDeleteEmployee();
   const { mutate: rehireEmployee, isLoading: rehireLoading } =
     useRehireTerminatedEmployee();
+  const router = useRouter();
+
+  const hasAccess = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewEmployeeDetail],
+  });
 
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
@@ -188,16 +192,6 @@ const UserTable = () => {
       role: item?.role?.name ? item?.role?.name : ' - ',
       action: (
         <div className="flex gap-4 text-white">
-          <AccessGuard permissions={[Permissions.ViewEmployeeDetail]}>
-            <Link href={`manage-employees/${item?.id}`}>
-              <Button
-                id={`editUserButton${item?.id}`}
-                className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
-              >
-                <FaEye />
-              </Button>
-            </Link>
-          </AccessGuard>
           <AccessGuard permissions={[Permissions.DeleteEmployee]}>
             {item.deletedAt === null ? (
               <Tooltip title={'Deactive Employee'}>
@@ -272,6 +266,7 @@ const UserTable = () => {
     setUserToRehire(user);
     setReHireModalVisible(true);
   };
+
   return (
     <div className="mt-2">
       <Table
@@ -283,6 +278,8 @@ const UserTable = () => {
           current: userCurrentPage,
           pageSize: pageSize,
           onChange: onPageChange,
+          showTotal: (total, range) =>
+            `${range[0]}-${range[1]} of ${total} items`, // Add showTotal here
           showSizeChanger: true,
           onShowSizeChange: onPageChange,
         }}
@@ -292,6 +289,15 @@ const UserTable = () => {
           ...rowSelection,
         }}
         scroll={{ x: 1000 }}
+        onRow={
+          hasAccess
+            ? (record) => ({
+                onClick: () => {
+                  router.push(`manage-employees/${record?.key}`);
+                },
+              })
+            : undefined
+        }
       />
       <DeleteModal
         deleteText="Confirm"

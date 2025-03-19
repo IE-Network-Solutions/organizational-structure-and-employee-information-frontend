@@ -64,7 +64,9 @@ const QuestionSetForm = () => {
         const requiresOptions = [
           FieldType.DROPDOWN,
           FieldType.MULTIPLE_CHOICE,
+          FieldType.CHECKBOX,
           FieldType.RADIO,
+          ,
         ].includes(value);
 
         // If switching to a field type that requires options, add two empty options
@@ -159,6 +161,11 @@ const QuestionSetForm = () => {
   };
 
   useEffect(() => {
+    if (!editableData) {
+      form.resetFields();
+      setQuestions([]);
+      return;
+    }
     if (editableData !== null) {
       setQuestions(editableData.conversationsQuestions || []);
       form.setFieldsValue({
@@ -169,6 +176,16 @@ const QuestionSetForm = () => {
         conversationsQuestions: editableData.conversationsQuestions || [],
       });
     }
+
+    setQuestions(editableData.conversationsQuestions || []);
+
+    form.setFieldsValue({
+      name: editableData.name || '',
+      id: editableData.id || '',
+      active: editableData.active ?? true,
+      conversationTypeId: editableData.conversationTypeId || '',
+      conversationsQuestions: editableData.conversationsQuestions || [],
+    });
   }, [editableData, form]);
 
   const checkQuestions = () => {
@@ -206,6 +223,7 @@ const QuestionSetForm = () => {
   const renderOptionsSection = (q: any) => {
     const requiresOptions = [
       FieldType.DROPDOWN,
+      FieldType.CHECKBOX,
       FieldType.MULTIPLE_CHOICE,
       FieldType.RADIO,
     ].includes(q.fieldType);
@@ -259,11 +277,7 @@ const QuestionSetForm = () => {
   };
 
   return (
-    <Form
-      layout="vertical"
-      form={form} // Bind the form instance
-      onFinish={handleSubmit}
-    >
+    <Form layout="vertical" form={form} onFinish={handleSubmit}>
       <Form.Item
         label="Name"
         name="name"
@@ -335,6 +349,7 @@ const QuestionSetForm = () => {
                 <Option value={FieldType.MULTIPLE_CHOICE}>
                   Multiple Choice
                 </Option>
+                <Option value={FieldType.CHECKBOX}>Check Box</Option>
                 <Option value={FieldType.SHORT_TEXT}>Short Text</Option>
                 <Option value={FieldType.PARAGRAPH}>Paragraph</Option>
                 <Option value={FieldType.TIME}>Time</Option>
@@ -387,8 +402,9 @@ const QuestionSetForm = () => {
             title="Are you sure you want to reset the form?"
             onConfirm={() => {
               setQuestions([]);
+              setEditableData(null);
               form.resetFields();
-            }} // Reset form fields on confirmation
+            }}
             okText="Yes"
             cancelText="No"
           >

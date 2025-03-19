@@ -70,13 +70,7 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish, form2 }) => {
             name="comment"
             label={`Comment`}
             id={`actionPlanDescription`}
-            rules={[
-              { required: true, message: 'Comment is required' },
-              {
-                max: 40, // Set the maximum number of characters allowed
-                message: 'Comment cannot exceed 40 characters',
-              },
-            ]}
+            rules={[{ required: true, message: 'Comment is required' }]}
           >
             <Input.TextArea rows={6} />
           </Form.Item>

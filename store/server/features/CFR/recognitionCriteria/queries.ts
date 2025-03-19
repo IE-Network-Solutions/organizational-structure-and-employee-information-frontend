@@ -17,6 +17,26 @@ const getAllRecognitionTypes = async () => {
   });
 };
 
+const getAllRecognitionWithRelations = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/with-relations`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
 export const useGetAllRecognitionType = () => {
   return useQuery<any>('recognitionTypes', getAllRecognitionTypes);
+};
+
+export const useGetAllRecognitionWithRelations = () => {
+  return useQuery<any>(
+    'recognitionTypesWithRelations',
+    getAllRecognitionWithRelations,
+  );
 };

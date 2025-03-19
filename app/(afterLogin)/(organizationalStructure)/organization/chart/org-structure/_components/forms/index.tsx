@@ -202,21 +202,18 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
     setTeamLeader,
   } = useDepartmentStore();
 
-  const OPTIONS = departments?.map((item: any) => ({
-    value: item.id,
-    label: item.name,
-    level: item.level, // Include level for filtering
-  }));
+  const OPTIONS = departments
+    ?.map((item: any) => ({
+      value: item.id,
+      label: item.name,
+      level: item.level, // Include level for filtering
+    }))
+    .filter((item: any) => item.level !== 0);
 
   const selectedChildDept = departments?.find(
     (dept: any) => dept.id === childDeptId,
   );
   const selectedLevel = selectedChildDept?.level;
-
-  const filteredOptions = OPTIONS?.filter(
-    (option: any) =>
-      option.value !== childDeptId && option.level === selectedLevel,
-  );
 
   const findDepartmentById = (id: string, orgStructure: any): any => {
     if (!orgStructure) return null;
@@ -309,10 +306,21 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
           className="h-12"
           placeholder="Select the team to merge from"
           style={{ width: '100%' }}
-          options={OPTIONS}
-          onChange={(value) => setChildDeptId(value)}
+          options={OPTIONS?.filter(
+            (option: any) => option.value !== rootDeptId,
+          )}
+          showSearch
+          filterOption={(input, option) =>
+            (option?.label as string)
+              ?.toLowerCase()
+              .includes(input.toLowerCase()) || false
+          }
+          onChange={(value) => {
+            setChildDeptId(value);
+          }}
         />
       </Form.Item>
+
       <Form.Item
         label="Select the team to merge into"
         name="Merge to team"
@@ -321,13 +329,26 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
         ]}
       >
         <Select
+          disabled={!childDeptId}
           className="h-12"
           placeholder="Select the team to merge into"
           style={{ width: '100%' }}
-          options={filteredOptions}
+          options={OPTIONS?.filter(
+            (option: any) =>
+              option.value !== childDeptId &&
+              departments?.find((dept: any) => dept.id === option.value)
+                ?.level === selectedLevel,
+          )}
+          showSearch
+          filterOption={(input, option) =>
+            (option?.label as string)
+              ?.toLowerCase()
+              .includes(input.toLowerCase()) || false
+          }
           onChange={(value) => setRootDeptId(value)}
         />
       </Form.Item>
+
       <Form.Item
         label="Select Team Leader for Merged Department"
         name="teamLeader"

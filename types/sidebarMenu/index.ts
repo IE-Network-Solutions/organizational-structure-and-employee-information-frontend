@@ -49,7 +49,7 @@ export class SidebarMenuItem {
     return iComponent ? iComponent : this.items[0];
   }
 
-  private cloneIcon(item: any, className: string) {
+  private cloneIcon(item?: any, className?: string) {
     return React.cloneElement(item, {
       className,
     });
