@@ -4,7 +4,6 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 import SidebarMenu from '@/components/sidebarMenu';
-import { TfiMedallAlt } from 'react-icons/tfi';
 import { GoQuestion } from 'react-icons/go';
 import { RiFeedbackLine } from 'react-icons/ri';
 import { CiCalendarDate } from 'react-icons/ci';
