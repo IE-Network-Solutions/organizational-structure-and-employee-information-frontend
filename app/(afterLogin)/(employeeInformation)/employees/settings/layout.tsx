@@ -19,7 +19,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'employementType',
         icon: <FaUser />,
-        label: <p className="menu-item-label">Employment Type</p>,
+        label: <p>Employment Type</p>,
       },
       link: '/employees/settings/employementType',
     },

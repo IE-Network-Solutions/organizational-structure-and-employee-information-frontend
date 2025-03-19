@@ -32,8 +32,6 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     isEditMode,
     selectedFiscalYear,
     calendarType,
-    isFiscalYearOpen,
-    closeFiscalYearDrawer,
     setEditMode,
     setSelectedFiscalYear,
     fiscalYearFormValues,
@@ -43,6 +41,8 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     setMonthRangeFormValues,
     setFiscalYearFormValues,
     setSessionFormValues,
+    openfiscalYearDrawer,
+    setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
   const { data: departments } = useGetDepartments();
 
@@ -58,7 +58,8 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     useCreateFiscalYear();
 
   const handleCancel = () => {
-    closeFiscalYearDrawer();
+    setOpenFiscalYearDrawer(false);
+    // closeFiscalYearDrawer();
     setEditMode(false);
     setSelectedFiscalYear(null);
     setCurrent(0);
@@ -201,22 +202,24 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     </Form>
   );
   return !departments?.length ? (
-    <CustomDrawerLayout
-      modalHeader={
-        <h1 className="text-2xl font-semibold">
-          {isEditMode ? 'Edit New Fiscal Year' : 'Add New Fiscal Year'}
-        </h1>
-      }
-      onClose={handleCancel}
-      open={isFiscalYearOpen}
-      width="50%"
-      footer={null}
-    >
-      {formContent}
-    </CustomDrawerLayout>
-  ) : (
-    formContent
-  );
+    openfiscalYearDrawer ? (
+      <CustomDrawerLayout
+        modalHeader={
+          <h1 className="text-2xl font-semibold">
+            {isEditMode ? 'Edit New Fiscal Year' : 'Add New Fiscal Year'}
+          </h1>
+        }
+        onClose={handleCancel}
+        open={openfiscalYearDrawer}
+        width="50%"
+        footer={null}
+      >
+        {formContent}
+      </CustomDrawerLayout>
+    ) : (
+      formContent
+    )
+  ) : null;
 };
 
 export default CustomWorFiscalYearDrawer;

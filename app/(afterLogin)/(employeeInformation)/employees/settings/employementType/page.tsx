@@ -49,7 +49,7 @@ const EmploymentType = () => {
 
   return (
     <>
-      <Card className="border-b-0 py-4 px-4 sm:px-6 lg:px-8 bg-white">
+      <Card className="border-b-0 py-4 px-4 sm:px-6 lg:px-8 border-none  bg-white">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
           <div className="text-black font-bold text-lg mb-2 sm:mb-0">
             Employment Type
@@ -75,7 +75,9 @@ const EmploymentType = () => {
         ) : (
           <Table
             columns={columns}
+            showHeader={false}
             dataSource={reformattedData}
+            bordered={true}
             className="min-w-[320px]"
             pagination={{
               pageSize: pageSize,

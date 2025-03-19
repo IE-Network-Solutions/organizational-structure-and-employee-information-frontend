@@ -8,7 +8,6 @@ import ListOfRoles from './role/roleForm';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteGroupPermission } from '@/store/server/features/employees/settings/groupPermission/mutations';
 import { useDeleteRole } from '@/store/server/features/employees/settings/role/mutations';
-import AdminSettingHeader from './adminSettingHeader';
 const SettingsPage = () => {
   const {
     currentModal,
@@ -52,7 +51,6 @@ const SettingsPage = () => {
   };
   return (
     <div className="w-full h-auto p-0 sm:p-1 md:p-2 lg:p-3 xl:p-4">
-      <AdminSettingHeader title="Setting" subtitle="Role Permission Settings" />
       <ParentRolePermissionCards onChange={onChange} />
       <GroupPermission />
       {(currentModal === 'roleModal' || currentModal === 'editRoleModal') && (

@@ -26,6 +26,7 @@ const FiscalYearListCard: React.FC = () => {
     setCurrentPage,
     setPageSize,
     setEditMode,
+    setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
 
   const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>(
@@ -70,12 +71,20 @@ const FiscalYearListCard: React.FC = () => {
     return <p>Loading...</p>;
   }
 
+  const handelDrawerOpen = () => {
+    setOpenFiscalYearDrawer(true);
+  };
+
   return (
     <div className="mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Fiscal Year</h2>
         <AccessGuard permissions={[Permissions.CreateCalendar]}>
-          <Button type="primary" icon={<PlusOutlined />} onClick={openDrawer}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handelDrawerOpen}
+          >
             Create Fiscal Year
           </Button>
         </AccessGuard>
@@ -238,7 +247,7 @@ const FiscalYearListCard: React.FC = () => {
           setCurrentPage(1);
         }}
       />
-      {/* <CustomWorFiscalYearDrawer /> */}
+      <CustomWorFiscalYearDrawer />
     </div>
   );
 };

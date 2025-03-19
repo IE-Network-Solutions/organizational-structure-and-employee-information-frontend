@@ -27,7 +27,7 @@ const GroupPermissionComponent = () => {
   };
 
   return (
-    <Card>
+    <Card className="border-none">
       <div className="flex justify-center items-center">
         {groupPermissionData?.items?.length === 0 && groupPermissionLoading && (
           <Spin size="large" />

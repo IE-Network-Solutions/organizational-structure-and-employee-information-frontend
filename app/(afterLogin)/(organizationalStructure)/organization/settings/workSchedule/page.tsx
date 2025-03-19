@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Button, Card, Collapse, Dropdown, Form, Menu, Space } from 'antd';
+import { Button, Card, Collapse, Dropdown, Menu, Space } from 'antd';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { MoreOutlined, PlusOutlined } from '@ant-design/icons';
 import { useFetchSchedule } from '@/store/server/features/organizationStructure/workSchedule/queries';
@@ -14,8 +14,6 @@ function WorkScheduleTab() {
   const handleMenuClick = () => {};
   const { data: workScheudleData } = useFetchSchedule();
   const { Panel } = Collapse;
-  const [form] = Form.useForm();
-  const handleStepChange = () => {};
 
   const {
     setDetail,

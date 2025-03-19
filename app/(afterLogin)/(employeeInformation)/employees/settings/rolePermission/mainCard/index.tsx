@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card, Tabs } from 'antd'; // Assuming Ant Design is being used
+import { Card, Tabs } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import GroupPermissionComponent from '../groupPermission';
 import RoleComponent from '../role';
@@ -48,11 +48,11 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
   };
   return (
     <div className="flex gap-2">
-      <Card className="w-full md:w-4/5 bg-white top-0">
+      <Card className="w-full bg-white top-0 border-none">
         <div className="flex flex-col md:flex-row justify-between">
           <CustomBreadcrumb
             title={tabButton}
-            subtitle="Admin can see all fields, and do everything the system offers"
+            subtitle=""
             items={[
               { title: 'Home', href: '/' },
               { title: 'Tenants', href: '/tenant-management/tenants' },
@@ -64,7 +64,7 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
                 onClick={handleClickNewButton}
                 title={`New ${tabButton}`}
                 icon={<FaPlus />}
-                className=" text-xs mt-4 md:mt-0"
+                className=" text-xs mt-4 md:mt-0 "
               />
             </AccessGuard>
           )}

@@ -1,5 +1,4 @@
 'use client';
-import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
 import { Card, Typography } from 'antd';
 import React from 'react';
@@ -20,11 +19,7 @@ const Positions: React.FC = () => {
   };
   return (
     <div className="w-full h-auto p-0 sm:p-1 md:p-2 lg:p-3 xl:p-4">
-      <div className="flex gap-2 items-center mb-4">
-        <CustomBreadcrumb title="Positions" subtitle="Employee Position" />
-      </div>
-
-      <Card>
+      <Card className="border-none">
         <div className="flex items-center justify-between">
           <Title level={5}>Employee Positions</Title>
           <AccessGuard permissions={[Permissions.CreatePosition]}>

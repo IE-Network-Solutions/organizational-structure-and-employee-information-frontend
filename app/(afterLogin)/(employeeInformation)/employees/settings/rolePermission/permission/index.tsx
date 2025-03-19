@@ -65,7 +65,6 @@ const Permission: React.FC<any> = () => {
     },
   ];
   const { Option } = Select;
-  const { Search } = Input;
   const handleSearchChange = (e: any, termKey: string) => {
     if (e === undefined || e === '') {
       setSearchTerm({
@@ -79,35 +78,41 @@ const Permission: React.FC<any> = () => {
 
   return (
     <div>
-      <Card>
-        <div className="flex flex-col lg:flex-row justify-start gap-4">
-          <Select
-            showSearch
-            className="w-full lg:w-1/2"
-            placeholder="Select a group"
-            optionFilterProp="children"
-            allowClear
-            onChange={(value) => handleSearchChange(value, 'permissionGroupId')}
-            filterOption={(input, option: any) =>
-              option.props.children
-                .toLowerCase()
-                .indexOf(input.toLowerCase()) >= 0
-            }
-          >
-            {groupPermissionDatawithOutPagination?.items?.map(
-              (item: GroupPermissionItem) => (
-                <Option key={item?.id} value={item?.id}>
-                  {item?.name}
-                </Option>
-              ),
-            )}
-          </Select>
-          <Search
-            className="w-full lg:w-1/2"
-            placeholder="Search permission"
-            allowClear
-            onChange={(value) => handleSearchChange(value.target.value, 'name')}
-          />
+      <Card bodyStyle={{ padding: 0 }} className="border-none">
+        <div className="flex justify-between gap-6 mt-2">
+          <div className="w-full">
+            <Input
+              className="w-full  h-11 px-4 mx-0"
+              placeholder="Search permission"
+              allowClear
+              onChange={(e) => handleSearchChange(e.target.value, 'name')}
+            />
+          </div>
+          <div className="w-full text-end">
+            <Select
+              showSearch
+              className="w-full  h-11 text-start"
+              placeholder="Select a group"
+              optionFilterProp="children"
+              allowClear
+              onChange={(value) =>
+                handleSearchChange(value, 'permissionGroupId')
+              }
+              filterOption={(input, option: any) =>
+                option.props.children
+                  .toLowerCase()
+                  .indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {groupPermissionDatawithOutPagination?.items?.map(
+                (item: GroupPermissionItem) => (
+                  <Option key={item?.id} value={item?.id}>
+                    {item?.name}
+                  </Option>
+                ),
+              )}
+            </Select>
+          </div>
         </div>
       </Card>
       <div className="mt-4 mb-4">
