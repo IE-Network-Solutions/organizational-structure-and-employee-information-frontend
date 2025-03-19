@@ -1,5 +1,5 @@
 'use client';
-import { Button, Drawer, Tabs } from 'antd';
+import { Button, Drawer, Spin, Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import { FaPlus } from 'react-icons/fa';
 import AllRecognition from '../_components/recognition/allRecognition';
@@ -15,7 +15,7 @@ const Page = () => {
   const { open, setOpen, setOpenRecognitionType, openRecognitionType } =
     ConversationStore();
   // const { data: recognitionType } = useGetAllRecognitionType();
-  const { data: recognitionType } = useGetAllRecognitionWithRelations();
+  const { data: recognitionType,isLoading } = useGetAllRecognitionWithRelations();
 
   const onChange = () => {};
 
@@ -49,24 +49,26 @@ const Page = () => {
 
   return (
     <div>
-      <div className="flex justify-start">
-        <Tabs
-          className="max-w-[850px] overflow-x-scrollable"
-          defaultActiveKey="1"
-          items={items}
-          onChange={onChange}
-        />
-        <AccessGuard permissions={[Permissions.CreateRecognition]}>
-          <Button
-            onClick={() => setOpenRecognitionType(true)}
-            icon={<FaPlus />}
-            type="primary"
-            className="flex gap-2 ml-2 mt-3"
-          >
-            Category
-          </Button>
-        </AccessGuard>
-      </div>
+      <Spin spinning={isLoading}>
+        <div className="flex justify-start">
+          <Tabs
+            className="max-w-[850px] overflow-x-scrollable"
+            defaultActiveKey="1"
+            items={items}
+            onChange={onChange}
+          />
+          <AccessGuard permissions={[Permissions.CreateRecognition]}>
+            <Button
+              onClick={() => setOpenRecognitionType(true)}
+              icon={<FaPlus />}
+              type="primary"
+              className="flex gap-2 ml-2 mt-3"
+            >
+              Category
+            </Button>
+          </AccessGuard>
+        </div>
+      </Spin>
 
       <CustomDrawerLayout
         open={open}
