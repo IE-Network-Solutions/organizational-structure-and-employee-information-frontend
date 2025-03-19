@@ -66,7 +66,7 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
                 icon={<FaPlus />}
                 className=" text-xs mt-4 md:mt-0 "
               />
-             </AccessGuard>
+            </AccessGuard>
           )}
         </div>
         <footer>

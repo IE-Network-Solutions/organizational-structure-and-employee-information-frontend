@@ -5,8 +5,12 @@ import { Form, Input, Select, Modal, Button, Checkbox } from 'antd';
 import { Permission, Role } from '@/types/dashboard/adminManagement';
 import { RiErrorWarningFill } from 'react-icons/ri';
 import { useGetRole } from '@/store/server/features/employees/settings/role/queries';
-import { useGetPermissions, useGetPermissionsWithOutPagination } from '@/store/server/features/employees/settings/permission/queries';
-import { useGetPermissionGroups, useGetPermissionGroupsWithOutPagination } from '@/store/server/features/employees/settings/groupPermission/queries';
+import {
+  useGetPermissionsWithOutPagination,
+} from '@/store/server/features/employees/settings/permission/queries';
+import {
+  useGetPermissionGroupsWithOutPagination,
+} from '@/store/server/features/employees/settings/groupPermission/queries';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import {
   useAddRole,
@@ -38,26 +42,26 @@ const ListOfRoles = () => {
     setCurrentModal,
   } = useSettingStore();
 
-
   const { data: rolePermissionsData, refetch } = useGetRole(selectedRole);
 
   const { data: permissionData } = useGetPermissionsWithOutPagination();
-  const { data: groupPermissionData } = useGetPermissionGroupsWithOutPagination();
+  const { data: groupPermissionData } =
+    useGetPermissionGroupsWithOutPagination();
 
-  const basicGroupPermissionList:any=groupPermissionData?.items?.filter((item:any)=>item.isBasic===true);
+  const basicGroupPermissionList: any = groupPermissionData?.items?.filter(
+    (item: any) => item.isBasic === true,
+  );
   const basicPermission = Array.from(
     new Set(
       basicGroupPermissionList?.flatMap((group: any) =>
-        group?.permissions?.map((item: any) => item?.id)
-      ) ?? []
-    )
+        group?.permissions?.map((item: any) => item?.id),
+      ) ?? [],
+    ),
   );
-  const basicGroupPermissionListIds = groupPermissionData?.items
-  ?.filter((item: any) => item.isBasic === true)
-  .map((item: any) => item.id.toString()) || [];
-
-
-
+  const basicGroupPermissionListIds =
+    groupPermissionData?.items
+      ?.filter((item: any) => item.isBasic === true)
+      .map((item: any) => item.id.toString()) || [];
 
   useEffect(() => {
     if (selectedRole !== null) {
@@ -65,24 +69,25 @@ const ListOfRoles = () => {
     }
   }, [selectedRole, refetch]);
 
-
-
-
   useEffect(() => {
     if (rolePermissionsData) {
-      const permission = rolePermissionsData?.permissions?.map((item: any) => item.id);
-      setSelectedGroupPermission(basicGroupPermissionListIds)
-      setPermissionList([...permission ?? [],...basicGroupPermissionListIds]);
+      const permission = rolePermissionsData?.permissions?.map(
+        (item: any) => item.id,
+      );
+      setSelectedGroupPermission(basicGroupPermissionListIds);
+      setPermissionList([
+        ...(permission ?? []),
+        ...basicGroupPermissionListIds,
+      ]);
     }
   }, [rolePermissionsData]);
-
 
   const handleModalPermissionChange = (checkedValues: string[]) => {
     setTempSelectedPermissions(checkedValues);
   };
 
   const handleChangeOnGroupSelection = (value: string[]) => {
-    setSelectedGroupPermission(value)
+    setSelectedGroupPermission(value);
 
     const newGroupId = value.find(
       (id) => !selectedGroupPermission.includes(id),
@@ -139,51 +144,45 @@ const ListOfRoles = () => {
     setSelectedGroupForModal(null);
     setSelectAll(false);
   };
- 
-  
+
   useEffect(() => {
     const permissionArray = Array.from(
       new Set([
         ...permissionList,
         ...selectedPermissionsUnderGroup,
-        ...basicPermission
-      ])
+        ...basicPermission,
+      ]),
     );
-  
+
     if (selectedRole) {
       form.setFieldsValue({
         id: rolePermissionsData?.id,
         name: rolePermissionsData?.name,
         description: rolePermissionsData?.description,
-        permission: permissionArray
+        permission: permissionArray,
       });
     } else {
       form.setFieldsValue({
-        permission: permissionArray
+        permission: permissionArray,
       });
     }
   }, [
     selectedRole,
     selectedPermissionsUnderGroup,
     permissionList,
-    basicPermission, 
+    basicPermission,
     form,
-    rolePermissionsData
+    rolePermissionsData,
   ]);
-  
-
-
 
   const handleCreateRole = async (values: Role) => {
-
     createRoleMutation.mutate(values);
     setCurrentModal(null);
   };
   const handleRoleUpdate = (values: any) => {
-    updateRoleMutation.mutate({values,roleId:selectedRole});
+    updateRoleMutation.mutate({ values, roleId: selectedRole });
     setCurrentModal(null);
   };
-
 
   const handleSelectAll = () => {
     if (selectAll) {
@@ -221,7 +220,10 @@ const ListOfRoles = () => {
           form={form}
           name="basic"
           layout="vertical"
-          onFinish={currentModal === 'editRoleModal' ? handleRoleUpdate : handleCreateRole
+          onFinish={
+            currentModal === 'editRoleModal'
+              ? handleRoleUpdate
+              : handleCreateRole
           }
           className="p-4 sm:p-2 md:p-4 lg:p-6"
         >
@@ -264,7 +266,9 @@ const ListOfRoles = () => {
               </Form.Item>
             </div>
             <div className="mb-1">
-              <p className="text-xs font-bold text-gray-600">Group Permission</p>
+              <p className="text-xs font-bold text-gray-600">
+                Group Permission
+              </p>
               <Select
                 id="groupDescriptionForRole"
                 mode="tags"
@@ -327,7 +331,7 @@ const ListOfRoles = () => {
                   form.resetFields();
                   setSelectedRole(null);
                   setCurrentModal(null);
-                  setSelectedPermissionsUnderGroup([])
+                  setSelectedPermissionsUnderGroup([]);
                 }}
               >
                 Cancel
@@ -350,18 +354,17 @@ const ListOfRoles = () => {
         onCancel={() => setModalVisible(false)}
         footer={[
           <Button
-          key="cancel"
-          onClick={() => {
+            key="cancel"
+            onClick={() => {
               setModalVisible(false);
               const newGroupPermission = selectedGroupPermission?.filter(
-              (item) => item !== selectedGroupForModal?.id
-            );
-            setSelectedGroupPermission(newGroupPermission);
-          }}
-        >
-          Cancel
-        </Button>
-        ,           
+                (item) => item !== selectedGroupForModal?.id,
+              );
+              setSelectedGroupPermission(newGroupPermission);
+            }}
+          >
+            Cancel
+          </Button>,
           <Button
             key="confirm"
             type="primary"
