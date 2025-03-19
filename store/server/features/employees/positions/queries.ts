@@ -4,18 +4,17 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
-const getPositions = async () => {
+const getPositions = async (currentPage:number,pageSize:number) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const pageSize = usePositionState.getState().pageSize;
-  const currentPage = usePositionState.getState().currentPage;
+
   const headers = {
     Authorization: `Bearer ${token}`,
     tenantId: tenantId,
   };
 
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/positions?limit=${pageSize}&&page=${currentPage}`,
+    url: `${ORG_AND_EMP_URL}/positions?limit=${pageSize}&page=${currentPage}`,
     method: 'GET',
     headers,
   });
@@ -52,8 +51,8 @@ const getPositionsByID = async (id: string) => {
   });
 };
 
-export const useGetPositions = () => {
-  return useQuery('positions', getPositions);
+export const useGetPositions = (currentPage:number,pageSize:number) => {
+  return useQuery('positions', ()=>getPositions(currentPage,pageSize));
 };
 export const useGetAllPositions = () => {
   return useQuery('allPositions', getAllPositions);

@@ -1,6 +1,6 @@
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { Pencil, Trash2 } from 'lucide-react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useGetPositions } from '@/store/server/features/employees/positions/queries';
 import { usePositionState } from '@/store/uistate/features/employees/positions';
 import { useDeletePosition } from '@/store/server/features/employees/positions/mutation';
@@ -8,10 +8,11 @@ import PositionsEdit from '../positionEdit';
 import RecruitmentPagination from '@/app/(afterLogin)/(recruitment)/recruitment/_components';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { Pagination } from 'antd';
 
 const PositionCards: React.FC = () => {
-  const { data: positions } = useGetPositions();
   const { mutate: deletePosition } = useDeletePosition();
+
 
   const {
     currentPage,
@@ -27,6 +28,7 @@ const PositionCards: React.FC = () => {
     setDeletePositionId,
     setEditModal,
   } = usePositionState();
+  const { data: positions ,refetch } = useGetPositions(currentPage,pageSize);
 
   const handlePositionEditModalOpen = (position: any) => {
     setSelectedPosition(position);
@@ -43,6 +45,12 @@ const PositionCards: React.FC = () => {
     setDeleteModal(false);
   };
 
+
+  console.log(currentPage,pageSize,"*******************")
+
+  useEffect(()=>{
+      refetch();
+  },[currentPage,pageSize])
   return (
     <>
       {positions?.items && positions?.items?.length > 0 ? (
@@ -83,6 +91,13 @@ const PositionCards: React.FC = () => {
         onConfirm={handleDelete}
       />
       {editModal && <PositionsEdit />}
+      {/* <Pagination 
+            align="end" 
+            defaultCurrent={currentPage} 
+            onChange={(page: number, pageSize: number)=>{setPageSize(pageSize); setCurrentPage(page)}}
+            total={positions?.meta.totalItems}
+          /> */}
+
       <RecruitmentPagination
         current={currentPage}
         total={positions?.meta?.totalItems ?? 1}
