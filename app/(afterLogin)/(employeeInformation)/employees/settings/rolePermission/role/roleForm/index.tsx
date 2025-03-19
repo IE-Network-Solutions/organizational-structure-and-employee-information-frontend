@@ -5,12 +5,8 @@ import { Form, Input, Select, Modal, Button, Checkbox } from 'antd';
 import { Permission, Role } from '@/types/dashboard/adminManagement';
 import { RiErrorWarningFill } from 'react-icons/ri';
 import { useGetRole } from '@/store/server/features/employees/settings/role/queries';
-import {
-  useGetPermissionsWithOutPagination,
-} from '@/store/server/features/employees/settings/permission/queries';
-import {
-  useGetPermissionGroupsWithOutPagination,
-} from '@/store/server/features/employees/settings/groupPermission/queries';
+import { useGetPermissionsWithOutPagination } from '@/store/server/features/employees/settings/permission/queries';
+import { useGetPermissionGroupsWithOutPagination } from '@/store/server/features/employees/settings/groupPermission/queries';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import {
   useAddRole,
