@@ -50,6 +50,14 @@ export const singleCurrency = async (id: string) => {
   });
   return response;
 };
+export const allCurrency = async () => {
+  const response = await crudRequest({
+    url: `${TNA_URL}/currency`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+  return response;
+};
 export const useGetTna = (
   query: Partial<RequestCommonQueryData>,
   data: Partial<TnaRequestBody>,
@@ -88,6 +96,12 @@ export const useCurrency = () => {
 };
 export const useSingleCurrency = (id: string) => {
   return useQuery<any>(['singleCurrency'], () => singleCurrency(id), {
+    keepPreviousData: true,
+  });
+};
+
+export const useAllCurrencies = () => {
+  return useQuery<any>(['allCurrency'], () => allCurrency(), {
     keepPreviousData: true,
   });
 };
