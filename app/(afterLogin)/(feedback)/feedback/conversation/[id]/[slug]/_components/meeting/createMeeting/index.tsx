@@ -144,9 +144,26 @@ const CreateMeeting = ({
   );
   const onChangeHandler = (selectedDepartmentIds: string[]) => {
     if (selectedDepartmentIds?.length === 0) {
-      // form1?.setFieldValue('userId', [])
+      form1.setFieldValue('userId', []);
+      setSelectedUsers([]);
       setSetOfUser([]);
     } else {
+      const selectedUsersIds = form1.getFieldValue('userId');
+      const filterOurSelectedUsers = selectedUsersIds.filter(
+        (userId: string) => {
+          const user = allUserData?.items?.find(
+            (user: any) => user.id === userId,
+          );
+          const departmentId = user?.employeeJobInformation?.find(
+            (job: any) => job?.departmentId && job?.isPositionActive === true,
+          )?.departmentId;
+          return departmentId && selectedDepartmentIds.includes(departmentId);
+        },
+      );
+
+      form1.setFieldValue('userId', filterOurSelectedUsers);
+      setSelectedUsers(filterOurSelectedUsers);
+
       const usersInSelectedDepartments = allUserData?.items?.filter(
         (user: any) => {
           const departmentId = user.employeeJobInformation?.find(
@@ -186,7 +203,7 @@ const CreateMeeting = ({
     return {
       value: matchingUser?.id,
       label: matchingUser
-        ? `${matchingUser.firstName} ${matchingUser.middleName} ${matchingUser.lastName}`
+        ? `${matchingUser?.firstName} ${matchingUser?.middleName} ${matchingUser?.lastName}`
         : null,
     };
   });

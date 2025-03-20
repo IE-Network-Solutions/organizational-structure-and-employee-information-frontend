@@ -24,7 +24,8 @@ const { Option } = Select;
 const { Dragger } = Upload;
 
 const BasicInformationForm = ({ form }: any) => {
-  const { profileFileList, setProfileFileList } = useEmployeeManagementStore();
+  const { profileFileList, setBirthDate, setProfileFileList } =
+    useEmployeeManagementStore();
   const { data: nationalities, isLoading: isLoadingNationality } =
     useGetNationalities();
 
@@ -72,9 +73,6 @@ const BasicInformationForm = ({ form }: any) => {
     return '';
   };
 
-  const disableFutureDates = (current: any) => {
-    return current && current > dayjs().endOf('day');
-  };
   return (
     <div className="">
       <Row justify="center" style={{ width: '100%' }}>
@@ -231,7 +229,19 @@ const BasicInformationForm = ({ form }: any) => {
             id="userDateOfBirthId"
             rules={[{ required: true }]}
           >
-            <DatePicker className="w-full" disabledDate={disableFutureDates} />
+            <DatePicker
+              className="w-full"
+              onChange={(date) => setBirthDate(date)}
+              defaultPickerValue={dayjs().subtract(18, 'years')}
+              disabledDate={(current) => {
+                const minDate = dayjs().subtract(100, 'years');
+                const maxDate = dayjs().subtract(18, 'years');
+                return (
+                  current &&
+                  (current.isBefore(minDate) || current.isAfter(maxDate))
+                );
+              }}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>

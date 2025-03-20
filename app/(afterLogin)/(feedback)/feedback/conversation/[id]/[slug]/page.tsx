@@ -14,6 +14,7 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useAddActionPlan } from '@/store/server/features/CFR/conversation/action-plan/mutation';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'antd/es/form/Form';
 interface Params {
   slug: string;
 }
@@ -29,6 +30,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
   const { data: allUserData } = useGetAllUsers();
   const { mutate: addActionPlan } = useAddActionPlan();
   const router = useRouter();
+  const [form2] = useForm();
 
   useEffect(() => {
     if (selectedUserId !== null && selectedUserId !== '') {
@@ -83,6 +85,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
     addActionPlan(updatedData, {
       onSuccess: () => {
         setOpen(false);
+        form2.resetFields();
       },
     });
   };
@@ -178,6 +181,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
         <CreateActionPlans
           slug={slug}
           onFinish={(values) => handleCreateActionPlan(values)}
+          form2={form2}
         />
       </CustomDrawerLayout>
     </TabLandingLayout>

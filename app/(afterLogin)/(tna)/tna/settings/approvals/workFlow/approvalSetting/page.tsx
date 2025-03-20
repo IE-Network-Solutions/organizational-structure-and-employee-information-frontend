@@ -59,6 +59,7 @@ const ApprovalSetting = () => {
         handleSubmit={handleSubmit}
         isSuccess={isSuccess}
         form={form}
+        title={'TNA '}
       />
     </div>
   );

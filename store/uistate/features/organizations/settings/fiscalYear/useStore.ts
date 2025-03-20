@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { DrawerState } from './interface';
 import { Dayjs } from 'dayjs';
+import { shallowEqual } from '@/utils/shallowEqual';
 
 export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   isFiscalYearOpen: false,
@@ -43,6 +44,10 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   setFiscalYearStart: (value: Dayjs) => set({ fiscalYearStart: value }),
   clearFormData: () => set({ formData: {} }),
 
+  isOpenfiscalYearDrawer: false,
+  setIsOpenFiscalYearDrawer: (isOpenfiscalYearDrawer: boolean) =>
+    set({ isOpenfiscalYearDrawer }),
+
   sessionData: [],
   setSessionData: (value: any[]) => set({ sessionData: value }),
 
@@ -50,10 +55,20 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   setFiscalYearFormValues: (newData) => set({ fiscalYearFormValues: newData }),
 
   monthRangeValues: [],
+  // setMonthRangeFormValues: (newData) =>
+  //   set((state) =>
+  //     JSON.stringify(state.monthRangeValues) !== JSON.stringify(newData)
+  //       ? { monthRangeValues: newData }
+  //       : state,
+  //   ),
+
   setMonthRangeFormValues: (newData) =>
     set((state) =>
-      JSON.stringify(state.monthRangeValues) !== JSON.stringify(newData)
+      !shallowEqual(state.monthRangeValues, newData)
         ? { monthRangeValues: newData }
         : state,
     ),
+
+  openfiscalYearDrawer: false,
+  setOpenFiscalYearDrawer: (value) => set({ openfiscalYearDrawer: value }),
 }));

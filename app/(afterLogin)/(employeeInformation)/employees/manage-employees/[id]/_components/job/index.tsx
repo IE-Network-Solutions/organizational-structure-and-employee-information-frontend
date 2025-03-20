@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { Card, Col, Row, Table } from 'antd';
+import { Button, Card, Col, DatePicker, Form, Row, Table } from 'antd';
 import { InfoLine } from '../common/infoLine';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import WorkScheduleComponent from './workSchedule';
@@ -10,6 +10,9 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import DownloadJobInformation from './downloadJobInformation';
 import BasicSalary from './basicSalary';
+import { LuPencil } from 'react-icons/lu';
+import { useState } from 'react';
+import { useUpdateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 
 function Job({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -17,7 +20,9 @@ function Job({ id }: { id: string }) {
   const handleAddEmployeeJobInformation = () => {
     setIsAddEmployeeJobInfoModalVisible(true);
   };
-
+  const { mutate: updateEmployeeInformation } = useUpdateEmployee();
+  const [isEditing, setIsEditing] = useState(false);
+  const [form] = Form.useForm();
   const columns = [
     {
       title: 'Effective Date',
@@ -62,13 +67,31 @@ function Job({ id }: { id: string }) {
       render: (text: string) => (text ? text : '-'),
     },
   ];
+
+  const handleEditClick = () => {
+    form.setFieldsValue({
+      joinedDate: dayjs(employeeData?.employeeInformation?.joinedDate),
+    });
+    setIsEditing((isEditing) => !isEditing);
+  };
+  const editJoinedDate = (values: any) => {
+    updateEmployeeInformation(
+      {
+        id: employeeData?.employeeInformation?.id,
+        values,
+      },
+      {
+        onSuccess: () => setIsEditing(false),
+      },
+    );
+  };
   return (
     <>
       {' '}
       <Card
         loading={isLoading}
         title="Employment Information"
-        // extra={<LuPencil />}
+        extra={<Button icon={<LuPencil />} onClick={handleEditClick} />}
         className="my-6 mt-0"
       >
         <Row gutter={[16, 24]}>
@@ -84,7 +107,7 @@ function Job({ id }: { id: string }) {
                         'months',
                       ) / 12,
                     )}
-                    {' Years,  '}
+                    {' Years, '}
                     {dayjs().diff(
                       dayjs(employeeData?.employeeInformation?.joinedDate),
                       'months',
@@ -99,24 +122,45 @@ function Job({ id }: { id: string }) {
             <InfoLine
               title="Joined Date"
               value={
-                dayjs(employeeData?.employeeInformation?.joinedDate)?.format(
-                  'DD MMMM, YYYY',
-                ) || '-'
+                isEditing ? (
+                  <Form onFinish={editJoinedDate} form={form} layout="inline">
+                    <Form.Item
+                      name="joinedDate"
+                      rules={[
+                        { required: true, message: 'Please select a date!' },
+                      ]}
+                    >
+                      <DatePicker format="YYYY-MM-DD" />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button type="primary" htmlType="submit">
+                        Save
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                ) : (
+                  dayjs(employeeData?.employeeInformation?.joinedDate)?.format(
+                    'DD MMMM, YYYY',
+                  ) || '-'
+                )
               }
             />
           </Col>
         </Row>
-      </Card>{' '}
+      </Card>
       <Card
+        className="my-6 mt-0"
         title={'Job Information'}
         extra={
-          <div className=" flex items-center justify-center gap-3">
+          <div className=" flex justify-center items-center gap-3">
             <AccessGuard
               permissions={[Permissions.UpdateEmployeeJobInformation]}
             >
               <FaPlus onClick={handleAddEmployeeJobInformation} />
             </AccessGuard>
-            <DownloadJobInformation id={id} />
+            <div className="pt-2">
+              <DownloadJobInformation id={id} />
+            </div>
           </div>
         }
       >

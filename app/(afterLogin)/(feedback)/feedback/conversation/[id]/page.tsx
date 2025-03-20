@@ -13,14 +13,16 @@ function Index({ params }: { params: Params }) {
   const { id } = params;
 
   const { data: conversationType, isLoading } = useGetConversationById(id);
-  const questionSetListData = conversationType?.questionSets?.map(
-    (item: any) => {
+
+  const questionSetListData = conversationType?.questionSets
+    ?.filter((item: any) => item.active === true)
+    ?.map((item: any) => {
       const userIds = item?.conversationInstances
-        .flatMap((instance: any) => instance.userId || []) // Collect and flatten userId arrays
+        .flatMap((instance: any) => instance.userId || [])
         .filter(
           (id: string, index: number, array: any) =>
             array?.indexOf(id) === index,
-        ); // Deduplicate
+        );
       return {
         id: item?.id,
         title: item?.name,
@@ -28,8 +30,7 @@ function Index({ params }: { params: Params }) {
         totalAttendees: userIds.length,
         meetingsConducted: item?.conversationInstances?.length ?? 0,
       };
-    },
-  );
+    });
 
   return (
     <TabLandingLayout
@@ -61,7 +62,7 @@ function Index({ params }: { params: Params }) {
         <div className="flex flex-col align-middle h-full w-full">
           <CustomizeRenderEmpty />
           <p className="text-center text-warning">
-            Info: Go to settings and define question sets under define question
+            Info: Go to settings and define question-set under define question
             tab.
           </p>
         </div>

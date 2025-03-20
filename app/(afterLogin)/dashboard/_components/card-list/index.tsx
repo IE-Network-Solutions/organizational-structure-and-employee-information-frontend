@@ -37,7 +37,7 @@ const CardList: FC<CardListProps> = ({ title, people, loading, type }) => {
     <Card
       bodyStyle={{ padding: '6px' }}
       loading={loading}
-      className="bg-white p-2 rounded-lg   w-full md:max-h-48"
+      className="bg-white p-2 rounded-lg h-full  w-full md:max-h-48"
     >
       <div className="flex items-center ">
         <span className="mr-2 text-2xl">🎉</span>

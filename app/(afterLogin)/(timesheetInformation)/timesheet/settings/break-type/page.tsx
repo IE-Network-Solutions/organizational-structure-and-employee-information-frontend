@@ -6,6 +6,8 @@ import React from 'react';
 import { LuPlus } from 'react-icons/lu';
 import BreakTypeSidebar from './_component/brakTypeSidebar';
 import BreakTypeTable from './_component/breakTypeTable/inex';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const Page = () => {
   const { setIsShowBreakTypeSidebar } = useTimesheetSettingsStore();
@@ -13,17 +15,19 @@ const Page = () => {
   return (
     <div>
       <PageHeader title="Break Type" size="small">
-        <Button
-          size="large"
-          type="primary"
-          id="createNewClosedHolidayFieldId"
-          icon={<LuPlus size={18} />}
-          onClick={() => {
-            setIsShowBreakTypeSidebar(true);
-          }}
-        >
-          New Break Type
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateBreakType]}>
+          <Button
+            size="large"
+            type="primary"
+            id="createNewClosedHolidayFieldId"
+            icon={<LuPlus size={18} />}
+            onClick={() => {
+              setIsShowBreakTypeSidebar(true);
+            }}
+          >
+            New Break Type
+          </Button>
+        </AccessGuard>
       </PageHeader>
       <BreakTypeSidebar />
       <BreakTypeTable />

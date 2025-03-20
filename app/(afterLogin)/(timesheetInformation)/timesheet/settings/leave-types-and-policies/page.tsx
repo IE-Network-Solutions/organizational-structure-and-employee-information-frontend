@@ -9,6 +9,7 @@ import LeaveTypeCard from './_components/leaveTypeCard';
 import TypesAndPoliciesSidebar from './_components/typesAndPoliciesSidebar';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import TypesAndPoliciesEdit from './_components/typesAndPoliciesEdit';
 
 const Page = () => {
   const { setIsShowTypeAndPoliciesSidebar } = useTimesheetSettingsStore();
@@ -33,6 +34,7 @@ const Page = () => {
         data.items.map((item) => <LeaveTypeCard key={item.id} item={item} />)}
 
       <TypesAndPoliciesSidebar />
+      <TypesAndPoliciesEdit />
     </>
   );
 };

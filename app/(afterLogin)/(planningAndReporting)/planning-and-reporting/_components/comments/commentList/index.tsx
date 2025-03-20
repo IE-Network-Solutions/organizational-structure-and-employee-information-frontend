@@ -13,11 +13,10 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { CommentsData } from '@/types/okr';
 import { Button, Col, Input, Form, Row, Avatar } from 'antd';
 import relativeTime from 'dayjs/plugin/relativeTime';
-
 import dayjs from 'dayjs';
 import CommentActionMenu from '../commentActionMenu';
 import { FaUser } from 'react-icons/fa';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 dayjs.extend(relativeTime);
 
@@ -35,42 +34,37 @@ const CommentList = ({
     useAddPlanComment();
   const { mutate: onAddReportComment, isLoading: addReportLoading } =
     useAddReportComment();
-
   const { mutate: deletePlanComment, isLoading: deletePlanLoading } =
     useDeletePlanComment();
   const { mutate: deleteReportComment, isLoading: deleteReportLoading } =
     useDeleteReportComment();
-
   const { mutate: onUpdatePlanComment, isLoading: editPlanLoading } =
     useUpdatePlanComment();
   const { mutate: onUpdateReportComment, isLoading: editReportLoading } =
     useUpdateReportComment();
 
   const [editingCommentId, setEditingCommentId] = useState<string>('');
-
   const { userId } = useAuthenticationStore();
-
-  const getUserDetail = (id: string) => {
-    const user = allUsers?.items?.find((user: any) => id === user.id);
-    return user
-      ? {
-          firstName: user.firstName || '-',
-          lastName: user.lastName || '-',
-          middleName: user.middleName || '-',
-          profileImage: user.profileImage,
-          role: user.role?.name || '-',
-          fullName: `${user.firstName} ${user.middleName} ${user.lastName}`,
-        }
-      : {
-          firstName: '-',
-          lastName: '-',
-          middleName: '-',
-          profileImage: null,
-          role: '-',
-          fullName: '-',
-        };
-  };
   const [form] = Form.useForm();
+
+  // Memoize the user details for performance
+  const getUserDetail = useMemo(
+    () => (id: string) => {
+      const user = allUsers?.items?.find((user: any) => id === user.id);
+      return user
+        ? {
+            fullName: `${user.firstName} ${user.middleName} ${user.lastName}`,
+            profileImage: user.profileImage,
+            role: user.role?.name || '-',
+          }
+        : {
+            fullName: '-',
+            profileImage: null,
+            role: '-',
+          };
+    },
+    [allUsers],
+  );
 
   const handleSubmit = () => {
     form
@@ -108,57 +102,64 @@ const CommentList = ({
         // Handle validation error if needed
       });
   };
+  const handleEdit = (commentData: CommentsData) => {
+    form.setFieldsValue({ comment: commentData.comment });
+    setEditingCommentId(commentData.id);
+  };
 
-  const handleEdit = (data: CommentsData) => {
-    form.setFieldsValue({ comment: data.comment });
-    setEditingCommentId(data.id); // Set the ID to indicate edit mode
-  };
   const handleDelete = (id: string) => {
-    if (isPlanCard) {
-      deletePlanComment(id);
-    } else {
-      deleteReportComment(id);
-    }
+    const mutation = isPlanCard ? deletePlanComment : deleteReportComment;
+    mutation(id);
   };
+
+  const isLoading =
+    addPlanLoading ||
+    addReportLoading ||
+    deletePlanLoading ||
+    deleteReportLoading ||
+    editPlanLoading ||
+    editReportLoading;
+
   return (
     <div className="w-full">
-      {data.map((commentData) => (
-        <Row
-          key={commentData.id}
-          justify="space-between"
-          align="middle"
-          className="w-full p-3 border-b last:border-b-0"
-        >
-          <Col>
-            <div className="text-xs font-semibold flex items-center">
-              <Avatar
-                src={
-                  getUserDetail(commentData.commentedBy)?.profileImage ||
-                  undefined
-                }
-                icon={
-                  !getUserDetail(commentData.commentedBy)?.profileImage ? (
-                    <FaUser />
-                  ) : undefined
-                }
-                alt={getUserDetail(commentData.commentedBy)?.fullName || 'User'}
-                className="mr-1"
+      {data.map((commentData) => {
+        const { fullName, profileImage } = getUserDetail(
+          commentData.commentedBy,
+        );
+
+        return (
+          <Row
+            key={commentData.id}
+            justify="space-between"
+            align="middle"
+            className="w-full"
+          >
+            <Col>
+              <div className="text-xs font-semibold flex items-center">
+                <Avatar
+                  src={profileImage || undefined}
+                  icon={!profileImage ? <FaUser /> : undefined}
+                  alt={fullName}
+                  className="mr-1"
+                />
+                <span className="font-normal"> {fullName}</span>
+                <div className="text-gray-400 text-xs ml-2">
+                  {dayjs(commentData.createdAt).fromNow()}
+                </div>
+              </div>
+              <div className="text-gray-700  ml-9 font-semibold">
+                {commentData.comment}
+              </div>
+            </Col>
+            <Col hidden={commentData?.commentedBy !== userId}>
+              <CommentActionMenu
+                onEdit={() => handleEdit(commentData)}
+                onDelete={() => handleDelete(commentData.id)}
               />
-              {getUserDetail(commentData.commentedBy)?.fullName}
-            </div>
-            <div className="text-gray-700">{commentData.comment}</div>
-            <div className="text-gray-500 text-xs">
-              {dayjs(commentData.createdAt).fromNow()}
-            </div>
-          </Col>
-          <Col hidden={commentData?.commentedBy !== userId}>
-            <CommentActionMenu
-              onEdit={() => handleEdit(commentData)}
-              onDelete={() => handleDelete(commentData?.id)}
-            />
-          </Col>
-        </Row>
-      ))}
+            </Col>
+          </Row>
+        );
+      })}
 
       <Form
         form={form}
@@ -189,14 +190,7 @@ const CommentList = ({
           <Col span={4}>
             <Form.Item>
               <Button
-                loading={
-                  addPlanLoading ||
-                  addReportLoading ||
-                  deletePlanLoading ||
-                  deleteReportLoading ||
-                  editPlanLoading ||
-                  editReportLoading
-                }
+                loading={isLoading}
                 type="primary"
                 htmlType="submit"
                 className="w-full"

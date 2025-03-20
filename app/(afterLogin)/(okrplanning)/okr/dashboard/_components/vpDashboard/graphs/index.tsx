@@ -8,10 +8,14 @@ import { useVariablePayStore } from '@/store/uistate/features/okrplanning/VP';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetCriteriaByFilter } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 
-const VPGraph: React.FC = () => {
+interface VPGraphProps {
+  id?: string;
+}
+const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
   const { searchParams } = useVariablePayStore();
   const { data: activeCalender } = useGetActiveFiscalYears();
   const userId = useAuthenticationStore.getState().userId;
+  const identifier = id ?? userId;
 
   function getActiveSessionMonthIds(activeCalender: any) {
     const activeSession = activeCalender?.sessions?.find(
@@ -24,7 +28,7 @@ const VPGraph: React.FC = () => {
 
   const activeMonthIds = getActiveSessionMonthIds(activeCalender);
   const { data: variablePay } = useGetCriteriaByFilter(
-    { activeMonthIds, userId },
+    { activeMonthIds, userId: identifier },
     searchParams?.selectedRange || '',
   );
 
