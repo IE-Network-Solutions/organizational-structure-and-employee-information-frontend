@@ -1,7 +1,7 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import React, { useState } from 'react';
-import { FaPlus } from 'react-icons/fa';
+import { FaDownload, FaPlus } from 'react-icons/fa';
 import OkrDrawer from './_components/okrDrawer';
 import Dashboard from './_components/dashboard';
 import AccessGuard from '@/utils/permissionGuard';
@@ -10,6 +10,7 @@ import CustomButton from '@/components/common/buttons/customButton';
 import { useGetUserObjective } from '@/store/server/features/okrplanning/okr/objective/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+
 const OKR: React.FC<any> = () => {
   const { userId } = useAuthenticationStore();
   const [open, setOpen] = useState(false);
@@ -49,13 +50,20 @@ const OKR: React.FC<any> = () => {
           userObjectives?.items?.some(
             (item: any) => item?.isClosed === false,
           ) ? (
-            <CustomButton
-              title="Set Objective"
-              id="createUserButton"
-              icon={<FaPlus className="mr-2" />}
-              onClick={showDrawer}
-              className="bg-blue-600 hover:bg-blue-700"
-            />
+            <div className="py-4 flex justify-center items-center gap-4">
+              <CustomButton
+                title="Download"
+                icon={<FaDownload size={16} />}
+                type="default"
+              />
+              <CustomButton
+                title="Set Objective"
+                id="createUserButton"
+                icon={<FaPlus className="mr-2" />}
+                onClick={showDrawer}
+                className="bg-blue-600 hover:bg-blue-700"
+              />
+            </div>
           ) : (
             ''
           )}
