@@ -12,7 +12,9 @@ import {
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
 
-import { Layout, Menu, Button, theme } from 'antd';
+import { Layout, Menu, Button, theme, Tree } from 'antd';
+import Key from 'antd';
+
 const { Header, Content, Sider } = Layout;
 import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
@@ -260,6 +262,236 @@ const menuItems: MenuProps['items'] = [
   },
 ];
 
+const treeData = [
+  {
+    title: (
+      <span className="flex items-center gap-2">
+        <CiSettings size={18} /> Organization
+      </span>
+    ),
+    key: '/organization',
+    className: 'font-bold',
+    children: [
+      { title: 'Org Structure', key: '/organization/chart', className: 'h-8' },
+      { title: 'Settings', key: '/organization/settings', className: 'h-8' },
+    ],
+  },
+  {
+    title: (
+      <span className="flex items-center gap-2">
+        <LuUsers2 size={18} /> Employees
+      </span>
+    ),
+    key: '/employees',
+    className: 'font-bold',
+    children: [
+      {
+        title: 'Manage Employees',
+        key: '/employees/manage-employees',
+        className: 'font-bold h-8',
+      },
+      {
+        title: 'Department Request',
+        key: '/employees/departmentRequest',
+        className: 'font-bold h-8',
+      },
+      {
+        title: 'Settings',
+        key: '/employees/settings',
+        className: 'font-bold h-8',
+      },
+    ],
+  },
+  {
+    title: (
+      <span className="flex items-center gap-2">
+        <PiSuitcaseSimpleThin size={18} /> Talent Acquisition
+      </span>
+    ),
+    key: '/recruitment',
+    className: 'font-bold',
+    children: [
+      { title: 'Jobs', key: '/recruitment/jobs' },
+      { title: 'Candidates', key: '/recruitment/candidate', className: 'h-8' },
+      {
+        title: 'Talent Pool',
+        key: '/recruitment/talent-pool',
+        className: 'h-8',
+      },
+      { title: 'Settings', key: '/recruitment/settings', className: 'h-8' },
+    ],
+  },
+  {
+    title: (
+      <span className="flex items-center gap-2">
+        <CiStar size={18} /> OKR
+      </span>
+    ),
+    key: '/okr-planning',
+    className: 'font-bold',
+    children: [
+      { title: 'Dashboard', key: '/okr/dashboard', className: 'font-bold h-8' },
+      { title: 'OKR', key: '/okr', className: 'font-bold h-8' },
+      {
+        title: 'Planning and Reporting',
+        key: '/planning-and-reporting',
+        className: 'font-bold h-8',
+      },
+      { title: 'Settings', key: '/okr/settings', className: 'font-bold h-8' },
+    ],
+  },
+  {
+    title: (
+      <span className="flex items-center gap-2">
+        <TbMessage2 size={18} /> CFR
+      </span>
+    ),
+    key: '/feedback',
+    className: 'font-bold',
+    children: [
+      {
+        title: 'Conversation',
+        key: '/feedback/conversation',
+        className: 'font-bold h-8',
+      },
+      {
+        title: 'Feedback',
+        key: '/feedback/feedback',
+        className: 'font-bold h-8',
+      },
+      {
+        title: 'Recognition',
+        key: '/feedback/recognition',
+        className: 'font-bold h-8',
+      },
+      {
+        title: 'Form',
+        key: '/feedback/categories',
+        className: 'font-bold h-8',
+      },
+      {
+        title: 'Settings',
+        key: '/feedback/settings',
+        className: 'font-bold h-8',
+      },
+    ],
+  },
+  {
+    title: (
+      <span className="flex items-center gap-2">
+        <CiBookmark size={18} /> Learning & Growth
+      </span>
+    ),
+    key: '/tna',
+    className: 'font-bold',
+    children: [
+      { title: 'My-TNA', key: '/tna/my-training', className: 'font-bold' },
+      {
+        title: 'Training Management',
+        key: '/tna/management',
+        className: 'font-bold h-8',
+      },
+      { title: 'TNA', key: '/tna/review', className: 'font-bold h-8' },
+      {
+        title: 'Settings',
+        key: '/tna/settings/course-category',
+        className: 'font-bold h-8',
+      },
+    ],
+  },
+  {
+    title: (
+      <span className="flex items-center gap-2">
+        <AiOutlineDollarCircle size={18} /> Payroll
+      </span>
+    ),
+    key: '/payroll',
+    className: 'font-bold',
+    children: [
+      {
+        title: 'Employee Information',
+        key: '/employee-information',
+        className: 'font-bold h-8',
+      },
+      { title: 'Payroll', key: '/payroll', className: 'font-bold h-8' },
+      { title: 'My Payroll', key: '/myPayroll', className: 'font-bold h-8' },
+      { title: 'Settings', key: '/settings', className: 'font-bold h-8' },
+    ],
+  },
+  {
+    title: (
+      <span className="flex items-center gap-2">
+        <CiCalendar size={18} /> Time & Attendance
+      </span>
+    ),
+    key: '/timesheet',
+    className: 'font-bold',
+    children: [
+      {
+        title: 'My Timesheet',
+        key: '/timesheet/my-timesheet',
+        className: 'font-bold h-8',
+      },
+      {
+        title: 'Employee Attendance',
+        key: '/timesheet/employee-attendance',
+        className: 'font-bold h-8',
+      },
+      {
+        title: 'Leave Management',
+        key: '/timesheet/leave-management/leaves',
+        className: 'font-bold h-8',
+      },
+      {
+        title: 'Settings',
+        key: '/timesheet/settings/closed-date',
+        className: 'font-bold h-8',
+      },
+    ],
+  },
+  {
+    title: (
+      <span className="flex items-center gap-2">
+        <PiMoneyLight size={18} /> Compensation & Benefit
+      </span>
+    ),
+    key: '/compensation',
+    className: 'font-bold',
+    children: [
+      { title: 'Allowance', key: '/allowance', className: 'font-bold h-8' },
+      { title: 'Benefit', key: '/benefit', className: 'font-bold h-8' },
+      { title: 'Deduction', key: '/deduction', className: 'font-bold h-8' },
+      {
+        title: 'Settings',
+        key: '/compensationSetting',
+        className: 'font-bold h-8',
+      },
+    ],
+  },
+  {
+    title: (
+      <span className="flex items-center gap-2">
+        <LuCircleDollarSign size={18} /> Incentive
+      </span>
+    ),
+    key: '/incentive',
+    className: 'font-bold',
+    children: [
+      {
+        title: 'Incentive',
+        key: '/incentive/incentivePage',
+        className: 'font-bold',
+      },
+      {
+        title: 'Variable Pay',
+        key: '/variable-pay',
+        className: 'font-bold h-8',
+      },
+      { title: 'Settings', key: '/incentive/settings', className: 'font-bold' },
+    ],
+  },
+];
+
 const userItems: MenuProps['items'] = [
   {
     key: '/okr-planning',
@@ -346,10 +578,35 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname(); // Add this hook
-
   const { userData, setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const userRole = userData?.role?.slug || '';
+  // const { pathname } = router;
+  const [expandedKeys, setExpandedKeys] = useState<
+    (string | number | bigint)[]
+  >([]); // Include bigint
+  const [selectedKeys, setSelectedKeys] = useState<
+    (string | number | bigint)[]
+  >([pathname]); // Include bigint
+
+  const handleSelect = (keys: (string | number | bigint)[], info: any) => {
+    // Include bigint
+    const selectedKey = keys[0]; // Now using (string | number | bigint)
+
+    if (info.node.children) {
+      // If it's a parent, toggle expand/collapse
+      setExpandedKeys((prev) =>
+        prev.includes(selectedKey)
+          ? prev.filter((key) => key !== selectedKey)
+          : [...prev, selectedKey],
+      );
+    } else {
+      // If it's a child, navigate
+      router.push(selectedKey + '');
+      setSelectedKeys(keys); // Update the selected key for navigation
+    }
+  };
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -388,6 +645,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     removeCookie('tenantId');
     window.location.reload();
   };
+  // const treeData = menuItems.map((item: any) => ({
+  //   title: (
+  //     <span className="flex items-center h-11 w-full">
+  //       {item.icon && <span className="mr-2">{item.icon}</span>}{' '}
+  //       {/* Render icon for the parent */}
+  //       {item.label}
+  //     </span>
+  //   ),
+  //   key: item.key,
+  //   className: item.className,
+  //   children: item.children?.map((child: any) => ({
+  //     title: child.label, // No icon for child items
+  //     key: child.key,
+  //     className: child.className,
+  //   })),
+  // }));
 
   return (
     <Layout>
@@ -445,7 +718,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         )}
 
         <div className="menu-with-lines">
-          <Menu
+          {/* <Menu
             mode="inline"
             defaultSelectedKeys={['/dashboard']}
             items={userRole === 'user' ? userItems : menuItems}
@@ -453,6 +726,29 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             onClick={handleMenuClick}
             selectedKeys={[pathname]}
             className={`my-5 [&_.ant-menu-item-selected]:!bg-gray-200 [&_.ant-menu-item-selected]:!text-black h-96`}
+          /> */}
+
+          {/* <Tree
+            treeData={treeData}
+            showLine={true}
+            defaultSelectedKeys={['/dashboard']}
+            selectedKeys={[pathname]}
+            onSelect={(selectedKeys) => {
+              // Handle navigation on select
+              const selectedKey = selectedKeys[0];
+              router.push(selectedKey + '');
+            }}
+            className="my-5 [&_.ant-tree-node-selected]:!bg-gray-200 [&_.ant-tree-node-selected]:!text-black h-96 w-full"
+          /> */}
+          <Tree
+            treeData={treeData}
+            showLine={true}
+            defaultExpandAll={false}
+            expandedKeys={expandedKeys}
+            selectedKeys={selectedKeys}
+            onSelect={handleSelect}
+            className="my-5 [&_.ant-tree-node-selected]:!bg-gray-200 [&_.ant-tree-node-selected]:!text-black h-96 w-full"
+            switcherIcon={null} // Hides the default expand/collapse icon
           />
         </div>
       </Sider>
