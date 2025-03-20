@@ -143,7 +143,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
         <div className="w-full md:w-1/4 p-2" id="subscriptionStatusFilter">
           <AccessGuard permissions={[Permissions.ViewAllStatusPlan]}>
             <Select
-              placeholder="status"
+              placeholder="Select Department"
               onChange={(value) => onSearchChange(value, 'status', true)}
               allowClear
               className="w-full h-14"
