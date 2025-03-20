@@ -46,6 +46,13 @@ const fetchRecognitionTypeByParentId = async (parentId: string) => {
     headers: requestHeader(),
   });
 };
+const fetchAllChildrenRecognition = async () => {
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/childe-recognition-type/child`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
 const fetchParentRecognition = async () => {
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition-type/parent-recognition-type/parent`,
@@ -77,6 +84,9 @@ const fetchIncentiveFormula = async (recognitionTypeId: string) => {
   });
 };
 
+export const useAllChildrenRecognition = () => {
+  return useQuery<any>('allChildRecognition', fetchAllChildrenRecognition);
+};
 export const useParentRecognition = () => {
   return useQuery<any>('parentRecognition', fetchParentRecognition);
 };

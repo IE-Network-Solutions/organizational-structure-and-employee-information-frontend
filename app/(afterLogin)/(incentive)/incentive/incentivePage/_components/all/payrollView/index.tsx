@@ -8,6 +8,7 @@ import {
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
 import IncentivePagination from '@/app/(afterLogin)/(incentive)/_components/incentivePagination';
+import IncentiveTableDetails from '../../incentiveTableDetails';
 
 const { Title } = Typography;
 
@@ -74,6 +75,7 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
             ))}
         </Row>
       </div>
+      <IncentiveTableDetails />
       <IncentivePagination
         current={currentPage}
         total={10}

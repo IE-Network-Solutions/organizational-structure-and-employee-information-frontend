@@ -2,20 +2,17 @@
 import React from 'react';
 import DefaultIncentiveSettingsTable from './_components/incentiveSettingsTable';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { useAllRecognition } from '@/store/server/features/incentive/other/queries';
+import { useAllChildrenRecognition } from '@/store/server/features/incentive/other/queries';
 
 const DefaultIncentiveSettingCard: React.FC = () => {
   const { data: recognitionData, isLoading: responseLoading } =
-    useAllRecognition();
+    useAllChildrenRecognition();
+  console.log(recognitionData, 'recognitionData');
   return (
     <div>
       <div className="mb-6">
         <PageHeader
-          title={
-            recognitionData?.items[0]?.recognitionType?.name
-              ? recognitionData?.items[0]?.recognitionType?.name
-              : ''
-          }
+          title={recognitionData?.[0]?.name ? recognitionData?.[0]?.name : '-'}
           size="small"
         ></PageHeader>
       </div>

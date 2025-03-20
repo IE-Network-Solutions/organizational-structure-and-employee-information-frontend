@@ -9,6 +9,14 @@ export interface AllIncentiveData {
   status: string;
 }
 
+export interface ProfileState {
+  name: string;
+  role: string;
+  recognition: string;
+  project: string;
+  avatarUrl: string;
+}
+
 export interface ProjectIncentiveData {
   recognition: string;
   employee_name: string;
