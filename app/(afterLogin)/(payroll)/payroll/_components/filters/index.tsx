@@ -210,7 +210,7 @@ const Filters: React.FC<FiltersProps> = ({ onSearch, disable = [] }) => {
             <Select
               placeholder="select department"
               onChange={(value) => handleSelectChange('departmentId', value)}
-              value={searchValue.payPeriodId}
+              value={searchValue.departmentId}
               allowClear
               style={{ width: '100%', height: '48px' }}
             >
