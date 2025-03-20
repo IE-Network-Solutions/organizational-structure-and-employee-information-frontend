@@ -22,6 +22,7 @@ const TnaUpdateSidebar = () => {
   const {
     isShowTnaUpdateSidebar: isShow,
     setIsShowTnaUpdateSidebar: setIsShow,
+    searchQuery,
     tnaId,
     setTnaId,
   } = useTnaReviewStore();
@@ -38,8 +39,9 @@ const TnaUpdateSidebar = () => {
         ...(tnaId && { id: [tnaId] }),
       },
     },
-    false,
-    false,
+    searchQuery,
+    true,
+    true,
   );
 
   const [form] = Form.useForm();

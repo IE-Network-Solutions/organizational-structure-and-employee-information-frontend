@@ -51,16 +51,18 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
     },
   ]);
   return (
-    <div className="page-wrap">
-      <PageHeader
-        title="Settings"
-        description="Training & Learning Settings"
-      ></PageHeader>
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="page-wrap">
+        <PageHeader
+          title="Settings"
+          description="Training & Learning Settings"
+        ></PageHeader>
 
-      <div className="flex gap-6 mt-8">
-        <SidebarMenu menuItems={menuItems} />
+        <div className="flex gap-6 mt-8">
+          <SidebarMenu menuItems={menuItems} />
 
-        <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+          <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+        </div>
       </div>
     </div>
   );

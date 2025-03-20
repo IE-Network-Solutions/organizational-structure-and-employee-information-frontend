@@ -38,6 +38,21 @@ const fetchAllRecognition = async () => {
     headers: requestHeader(),
   });
 };
+
+const fetchRecognitionTypeByParentId = async (parentId: string) => {
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/childe-recognition-type/child/${parentId}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
+const fetchParentRecognition = async () => {
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/parent-recognition-type/parent`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
 const fetchRecognitionById = async (recognitionId: string) => {
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition/${recognitionId}`,
@@ -48,7 +63,7 @@ const fetchRecognitionById = async (recognitionId: string) => {
 
 const fetchIncentiveCriteria = async () => {
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentive-criteria`,
+    url: `${ORG_DEV_URL}/recognition-criterias/all-criteria`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -62,6 +77,14 @@ const fetchIncentiveFormula = async (recognitionTypeId: string) => {
   });
 };
 
+export const useParentRecognition = () => {
+  return useQuery<any>('parentRecognition', fetchParentRecognition);
+};
+export const useRecognitionByParentId = (recognitionTypeId: string) => {
+  return useQuery<any>(['childRecognition', recognitionTypeId], () =>
+    fetchRecognitionTypeByParentId(recognitionTypeId),
+  );
+};
 export const useIncentiveFormulaByRecognitionId = (
   recognitionTypeId: string,
 ) => {
@@ -75,7 +98,7 @@ export const useAllRecognition = () => {
 };
 
 export const useRecognitionById = (recognitionId: string) => {
-  return useQuery<any>(['incentiveFormula', recognitionId], () =>
+  return useQuery<any>(['recognitionById', recognitionId], () =>
     fetchRecognitionById(recognitionId),
   );
 };

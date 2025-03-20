@@ -9,7 +9,7 @@ const setTna = async (items: any) => {
     url: `${TNA_URL}/tna`,
     method: 'PUT',
     headers: requestHeader(),
-    data: { items },
+    data: { items: items },
   });
 };
 
