@@ -56,9 +56,6 @@ const TnaReviewPage = () => {
     if (searchValues?.monthId) {
       queryParams.append('monthId', searchValues.monthId);
     }
-    if (searchValues?.Id) {
-      queryParams.append('monthId', searchValues.monthId);
-    }
 
     const searchParams = queryParams.toString()
       ? `?${queryParams.toString()}`
