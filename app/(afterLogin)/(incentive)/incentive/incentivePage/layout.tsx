@@ -112,7 +112,7 @@ const IncentivePage: React.FC = () => {
 
   return (
     <div className="m-1">
-      <div className="flex items-center justify-between">
+      <div>
         {isPayrollView && <PayRoleView operationSlot={OperationsSlot} />}
       </div>
 
