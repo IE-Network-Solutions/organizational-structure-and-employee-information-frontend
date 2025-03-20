@@ -46,8 +46,8 @@ const Performance: React.FC = () => {
           </Select>
         </div>
       </div>
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={24} md={24} lg={16} xl={16}>
+      <Row gutter={[16, 16]} justify="space-between">
+        <Col xs={24} sm={24} md={24} lg={14} xl={14}>
           <PerformanceChart
             selectedPeriodId={selectedPeriodId}
             userId={userId}

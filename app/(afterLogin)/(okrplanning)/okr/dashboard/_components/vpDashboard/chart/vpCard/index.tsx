@@ -69,15 +69,17 @@ const VPPayCard: React.FC<PayCardInterface> = ({ id }) => {
                       `${Number(vpScore?.score).toFixed(2)}%`
                     )}
 
-<div className="flex flex-wrap flex-col">
-                    <p className="text-sm font-extralight text-end text-gray-400">
-                      {`${Number(vpScore?.score) ? Number(vpScore?.score).toFixed(2) : 0} % achieved out of ${vpScore?.maxScore || 0}%`}
-                    </p>
-                    <Progress percent={achievedPercentage} showInfo={false} strokeColor ="#3636F0" />
-                  </div>
+                    <div className="flex flex-wrap flex-col">
+                      <p className="text-xs font-extralight text-end text-gray-400">
+                        {`${Number(vpScore?.score) ? Number(vpScore?.score).toFixed(2) : 0} % achieved out of ${vpScore?.maxScore || 0}%`}
+                      </p>
+                      <Progress
+                        percent={achievedPercentage}
+                        showInfo={false}
+                        strokeColor="#3636F0"
+                      />
+                    </div>
                   </Title>
-
-                 
                 </div>
               </div>
             </div>

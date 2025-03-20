@@ -22,9 +22,8 @@ const Dashboard: React.FC<any> = () => {
     <>
       <div className="flex items-center justify-between px-4">
         <CustomBreadcrumb
-            title={`${isVP ? 'VP' : 'Dashboard'}`}
-            subtitle={` ${isVP ? 'view your variable pay progress' : 'Employee’s OKR Dashboard View'} `} 
-
+          title={`${isVP ? 'VP' : 'Dashboard'}`}
+          subtitle={` ${isVP ? 'view your variable pay progress' : 'Employee’s OKR Dashboard View'} `}
         />
         <Space direction="vertical">
           <Switch
