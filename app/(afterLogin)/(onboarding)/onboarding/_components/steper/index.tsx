@@ -260,9 +260,6 @@ const OnboaringSteper: React.FC = () => {
     toggleLoading();
   };
 
-
-  console.log(branches,branches && branches?.items?.length >= 1
-    ,"********************************")
   const handleNextStep = () => {
     if (currentStep >= 4) {
       branches && branches?.items?.length >= 1
