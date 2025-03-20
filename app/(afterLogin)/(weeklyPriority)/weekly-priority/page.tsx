@@ -1,37 +1,12 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import React from 'react';
-import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { Radio, Tabs } from 'antd';
-import { RadioChangeEvent } from 'antd/lib';
-import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
-import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
-function Page() {
-  const { setActiveTab, activeTab, setActivePlanPeriod } =
-    PlanningAndReportingStore();
-  const { data: planningPeriods } = AllPlanningPeriods();
-  const { data: planningPeriodForUserId } =
-    useGetAssignedPlanningPeriodForUserId();
+import { useWeeklyPriorityStore } from '@/store/uistate/features/weeklyPriority/useStore';
+import Department from './_components/department';
 
-  const onChange = (e: RadioChangeEvent) => {
-    setActiveTab(e.target.value);
-  };
 
-  const TabsContent = () => {
-    const safePlanningPeriods = Array.isArray(planningPeriods)
-      ? planningPeriods
-      : [];
-
-    return safePlanningPeriods.map((item: any, index: number) => ({
-      label: (
-        <span className="font-semibold text-sm">
-          {item?.planningPeriod?.name || 'No name available'}
-        </span>
-      ),
-      key: String(index + 1),
-      children: activeTab === 1 ? "test one" : "test two",
-    }));
-  };
+function Page(): JSX.Element {
+  const { activeTab, setActiveTab } = useWeeklyPriorityStore();
 
   return (
     <div>
@@ -40,19 +15,34 @@ function Page() {
           <CustomBreadcrumb
             className="text-sm"
             title="Weekly Priority"
-            subtitle="OKR"
+            subtitle="OKR setting"
           />
+          <div className="flex items-center bg-gray-50 shadow-md rounded-lg w-fit h-12 p-1 gap-3">
+            <button
+              onClick={() => setActiveTab(1)}
+              className={
+                activeTab === 1
+                  ? ' px-4 h-full bg-white text-black text-sm rounded-md transition-all duration-300 shadow-sm'
+                  : ' px-4 h-full bg-transparent text-black text-sm transition-all duration-300'
+              }
+            >
+              Department
+            </button>
+            <button
+              onClick={() => setActiveTab(2)}
+              className={
+                activeTab === 2
+                  ? ' px-4 h-full bg-white text-black text-sm rounded-md transition-all duration-300 shadow-sm'
+                  : ' px-4 h-full bg-transparent text-black text-sm transition-all duration-300'
+              }
+            >
+              Team
+            </button>
+          </div>
         </div>
-        <div className="w-full h-auto space-y-4">
-          <Radio.Group
-            className="flex justify-center  font-semibold"
-            onChange={onChange}
-            value={activeTab}
-          >
-            <Radio value={1}>Department</Radio>
-            <Radio value={2}>Team</Radio>
-          </Radio.Group>
-         
+        <div className="mt-4">
+          {activeTab === 1 &&<Department/>}
+          {activeTab === 2 && <div>Team Content</div>}
         </div>
       </div>
     </div>
