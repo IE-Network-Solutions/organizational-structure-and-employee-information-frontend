@@ -108,16 +108,18 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
   ]);
 
   return (
-    <div className="h-auto w-auto pr-6 pb-6 pl-3">
-      <PageHeader
-        title="Settings"
-        description="Settings yout Leave here"
-      ></PageHeader>
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="h-auto w-auto pr-6 pb-6 pl-3">
+        <PageHeader
+          title="Settings"
+          description="Settings yout Leave here"
+        ></PageHeader>
 
-      <div className="flex gap-6 mt-8">
-        <SidebarMenu menuItems={menuItems} />
+        <div className="flex gap-6 mt-8">
+          <SidebarMenu menuItems={menuItems} />
 
-        <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+          <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+        </div>
       </div>
     </div>
   );

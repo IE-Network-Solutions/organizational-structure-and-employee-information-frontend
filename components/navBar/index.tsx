@@ -20,11 +20,10 @@ import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
 import { TbMessage2 } from 'react-icons/tb';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { CiBookmark } from 'react-icons/ci';
-import { TbCreditCardPay } from 'react-icons/tb';
 import { PiMoneyLight } from 'react-icons/pi';
 
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
-import { LuUsers2 } from 'react-icons/lu';
+import { LuCircleDollarSign, LuUsers2 } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
@@ -238,14 +237,24 @@ const menuItems: MenuProps['items'] = [
   },
   {
     key: '/incentive',
-    icon: <TbCreditCardPay />,
+    icon: <LuCircleDollarSign />,
     className: 'font-bold',
     label: 'Incentive',
     children: [
       {
+        key: '/incentive/incentivePage',
+        label: 'Incentive',
+        className: 'font-bold',
+      },
+      {
         key: '/variable-pay',
         label: 'Variable Pay',
         className: 'font-bold h-8',
+      },
+      {
+        key: '/incentive/settings',
+        label: 'Settings',
+        className: 'font-bold',
       },
     ],
   },
@@ -504,7 +513,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           <div
-            className="p-2 bg-white overflow-auto"
+            className=" bg-white overflow-auto"
             style={{
               borderRadius: borderRadiusLG,
               marginTop: '3rem',

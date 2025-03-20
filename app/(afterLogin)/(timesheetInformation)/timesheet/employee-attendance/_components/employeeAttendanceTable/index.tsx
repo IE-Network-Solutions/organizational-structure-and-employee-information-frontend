@@ -197,7 +197,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
   useEffect(() => {
     if (data && data.items) {
-      const nData = data.items.map((item) => {
+      const sortedItems = [...data.items].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+
+      const nData = sortedItems.map((item) => {
         const calcTotal = calculateAttendanceRecordToTotalWorkTime(item);
         return {
           key: item.id,
@@ -215,6 +220,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           action: item,
         };
       });
+
       setTableData(nData);
     }
   }, [data]);

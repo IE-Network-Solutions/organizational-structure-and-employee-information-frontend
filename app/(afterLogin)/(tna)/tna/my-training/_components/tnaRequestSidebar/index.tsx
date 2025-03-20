@@ -113,8 +113,7 @@ const TnaRequestSidebar = () => {
 
   const onFinish = () => {
     const value = form.getFieldsValue();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { trainingNeedCategory, ...otherData } = data?.items[0] || {};
+    const { ...otherData } = data?.items[0] || {};
     setTna([
       {
         ...otherData,

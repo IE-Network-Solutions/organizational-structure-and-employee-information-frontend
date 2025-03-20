@@ -103,6 +103,8 @@ export const useUpdateRecognitionWithCriteria = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
+
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -114,6 +116,8 @@ export const useUpdateRecognitionType = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
+
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -125,6 +129,7 @@ export const useDeleteRecognitionType = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -136,6 +141,7 @@ export const useAddRecognitionType = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -146,6 +152,9 @@ export const useCreateRecognition = () => {
   return useMutation(createRecognition, {
     onSuccess: (notused, variables: any) => {
       queryClient.invalidateQueries('recognitions');
+      queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
+
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

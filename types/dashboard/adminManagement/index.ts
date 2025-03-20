@@ -134,6 +134,7 @@ export interface UserData {
   action: string;
 }
 export interface EmployeeData {
+  key?: string;
   id: string;
   employee_name: string;
   employee_attendance_id: number;
