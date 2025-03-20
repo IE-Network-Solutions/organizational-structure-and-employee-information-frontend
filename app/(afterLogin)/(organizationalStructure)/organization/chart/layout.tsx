@@ -108,18 +108,18 @@ export default function ChartLayout({
                 />
               </Dropdown>
               {selectedKey !== 'chart' && (
-                 <Dropdown
-                 overlay={orgComposeAndMergeMenues}
-                 trigger={['click']}
-                 placement="bottomRight"
-               >
-                 <Button
-                   type="primary"
-                   className="w-16 h-14 px-6 py-6 rounded-lg flex items-center justify-center gap-2"
-                 >
-                   <BsThreeDotsVertical size={16} />
-                 </Button>
-               </Dropdown>
+                <Dropdown
+                  overlay={orgComposeAndMergeMenues}
+                  trigger={['click']}
+                  placement="bottomRight"
+                >
+                  <Button
+                    type="primary"
+                    className="w-16 h-14 px-6 py-6 rounded-lg flex items-center justify-center gap-2"
+                  >
+                    <BsThreeDotsVertical size={16} />
+                  </Button>
+                </Dropdown>
               )}
             </div>
           }

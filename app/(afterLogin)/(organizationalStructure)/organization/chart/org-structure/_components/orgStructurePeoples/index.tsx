@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import { Card } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
@@ -205,60 +204,59 @@ const OrgChartComponent: React.FC = () => {
 
   return (
     <div className="w-full overflow-x-auto">
-     
       <div className="w-full py-7 overflow-x-auto ">
-          {orgStructureLoading ? (
-            <OrgChartSkeleton loading={orgStructureLoading} />
-          ) : (
-            <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef}>
-              <Tree
-                label={
-                  <DepartmentNode
-                    data={{
-                      id: orgStructureData?.id || '',
-                      name: orgStructureData?.name || '',
-                      department: orgStructureData?.department || [],
-                      branchId: orgStructureData?.branchId,
-                      description: '',
-                      collapsed: false,
-                    }}
-                    onEdit={() => {}}
-                    onAdd={() => handleAdd(orgStructureData)}
-                    onDelete={() => {}}
-                    isRoot={true}
-                  />
-                }
-                lineWidth={'1px'}
-                lineColor={'#CBD5E0'}
-                lineBorderRadius={'10px'}
-              >
-                {renderTreeNodes(
-                  orgStructureData?.department || [],
-                  handleEdit,
-                  handleAdd,
-                  handleDelete,
-                  false,
-                  setDepartmentTobeDeletedId,
-                )}
-              </Tree>
-            </div>
-          )}
+        {orgStructureLoading ? (
+          <OrgChartSkeleton loading={orgStructureLoading} />
+        ) : (
+          <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef}>
+            <Tree
+              label={
+                <DepartmentNode
+                  data={{
+                    id: orgStructureData?.id || '',
+                    name: orgStructureData?.name || '',
+                    department: orgStructureData?.department || [],
+                    branchId: orgStructureData?.branchId,
+                    description: '',
+                    collapsed: false,
+                  }}
+                  onEdit={() => {}}
+                  onAdd={() => handleAdd(orgStructureData)}
+                  onDelete={() => {}}
+                  isRoot={true}
+                />
+              }
+              lineWidth={'1px'}
+              lineColor={'#CBD5E0'}
+              lineBorderRadius={'10px'}
+            >
+              {renderTreeNodes(
+                orgStructureData?.department || [],
+                handleEdit,
+                handleAdd,
+                handleDelete,
+                false,
+                setDepartmentTobeDeletedId,
+              )}
+            </Tree>
+          </div>
+        )}
 
-          <DepartmentForm
-            onClose={() => setIsFormVisible(false)}
-            open={isFormVisible}
-            submitAction={handleFormSubmit}
-            departmentData={selectedDepartment ?? undefined}
-            title={selectedDepartment ? 'Edit Department' : 'Add Department'}
-          />
+        <DepartmentForm
+          onClose={() => setIsFormVisible(false)}
+          open={isFormVisible}
+          submitAction={handleFormSubmit}
+          departmentData={selectedDepartment ?? undefined}
+          title={selectedDepartment ? 'Edit Department' : 'Add Department'}
+        />
 
-          <DeleteModal
-            open={isDeleteConfirmVisible}
-            onConfirm={handleDeleteConfirm}
-            onCancel={() => setIsDeleteConfirmVisible(false)}
-            loading={deleteLoading}
-          />
-        </div>
+        <DeleteModal
+          open={isDeleteConfirmVisible}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setIsDeleteConfirmVisible(false)}
+          loading={deleteLoading}
+        />
+      </div>
 
       <CreateEmployeeJobInformation id={userId} />
     </div>
