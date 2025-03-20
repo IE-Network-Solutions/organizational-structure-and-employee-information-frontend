@@ -8,6 +8,7 @@ import {
 } from '@/store/server/features/payroll/payroll/queries';
 import dayjs from 'dayjs';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const { Option } = Select;
 
@@ -20,6 +21,8 @@ const Filters: React.FC<FiltersProps> = ({ onSearch, disable = [] }) => {
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
   const { data: employeeData } = useGetAllUsers();
   const { data: payPeriodData } = useGetPayPeriod();
+  const { data: departmentData } = useGetDepartments();
+
   const { data: payroll } = useGetActivePayroll();
 
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
@@ -202,7 +205,23 @@ const Filters: React.FC<FiltersProps> = ({ onSearch, disable = [] }) => {
             </Select>
           </Col>
         )}
-
+        {disable?.includes('department') && (
+          <Col style={{ flex: '1 1 50%', minWidth: '200px' }}>
+            <Select
+              placeholder="select department"
+              onChange={(value) => handleSelectChange('departmentId', value)}
+              value={searchValue.payPeriodId}
+              allowClear
+              style={{ width: '100%', height: '48px' }}
+            >
+              {departmentData?.map((department: any) => (
+                <Option key={department.id} value={department.id}>
+                  {department?.name}
+                </Option>
+              ))}
+            </Select>
+          </Col>
+        )}
         {!disable?.includes('payPeriod') && (
           <Col style={{ flex: '1 1 50%', minWidth: '200px' }}>
             <Select

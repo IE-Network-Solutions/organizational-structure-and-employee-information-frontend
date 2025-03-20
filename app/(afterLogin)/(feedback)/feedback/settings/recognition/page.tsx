@@ -15,7 +15,8 @@ const Page = () => {
   const { open, setOpen, setOpenRecognitionType, openRecognitionType } =
     ConversationStore();
   // const { data: recognitionType } = useGetAllRecognitionType();
-  const { data: recognitionType,isLoading } = useGetAllRecognitionWithRelations();
+  const { data: recognitionType, isLoading } =
+    useGetAllRecognitionWithRelations();
 
   const onChange = () => {};
 
