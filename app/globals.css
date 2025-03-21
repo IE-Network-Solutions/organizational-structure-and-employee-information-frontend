@@ -208,3 +208,26 @@ h6 {
 .lesson-material-article h3 {
   @apply text-gray-900 text-[24px];
 }
+
+.ant-pagination.invoice-table  {
+  display: flex !important;
+}
+
+.ant-pagination.invoice-table  .ant-pagination-options {
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.ant-pagination.invoice-table  .ant-pagination-total-text {
+  position: absolute !important;
+  right: 130px !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .ant-pagination.invoice-table  .ant-pagination-total-text {
+    bottom: 10px;
+  }
+}

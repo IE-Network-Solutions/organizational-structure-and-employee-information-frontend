@@ -243,6 +243,17 @@ const menuItems: MenuProps['items'] = [
       },
     ],
   },
+  {
+    key: '/admin',
+    icon: <CiSettings />,
+    label: 'Admin',
+    className: 'font-bold',
+    children: [
+      { key: '/admin/dashboard', label: 'Dashboard' },
+      { key: '/admin/billing', label: 'Billing and Invoice' },
+      { key: '/admin/profile', label: 'Update Profile' },
+    ],
+  },
 ];
 
 const userItems: MenuProps['items'] = [
@@ -330,11 +341,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
-  const pathname = usePathname(); // Add this hook
+  const pathname = usePathname();
 
   const { userData, setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const userRole = userData?.role?.slug || '';
+  const isAdminPage = pathname.startsWith('/admin');
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -497,11 +510,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           <div
-            className="p-2 bg-white overflow-auto"
+            className={`p-2 ${!isAdminPage ? 'bg-white' : ''} overflow-auto`}
             style={{
               borderRadius: borderRadiusLG,
               marginTop: '3rem',
-              marginRight: '1.3rem',
+              marginRight: `${!isAdminPage ? '1.3rem' : ''}`,
             }}
           >
             {children}
