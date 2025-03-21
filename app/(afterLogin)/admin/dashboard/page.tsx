@@ -1,14 +1,14 @@
 'use client';
 
 import CustomBreadcrumb from "@/components/common/breadCramp";
-import { CalendarFilled, UserOutlined } from '@ant-design/icons';
+import { CalendarFilled, UserOutlined, SyncOutlined, FileImageFilled, FileDoneOutlined } from '@ant-design/icons';
 import { Card, Checkbox, Skeleton } from "antd";
 import { useEffect, useState } from "react";
 import React from "react";
 import { mockPlans } from "../_mockData/mockPlans";
 import { Plan } from "../_mockInterfaces/plan";
 import CustomButton from "@/components/common/buttons/customButton";
-import InvoicesTable from '../_components/invoicesTabel/invoicesTable'
+import InvoicesTable from '../_components/invoicesTable/invoicesTable'
 import { mockInvoices } from '../_mockData/mockInvoices'
 import { useRouter } from "next/navigation";
 
@@ -23,7 +23,7 @@ const AdminDashboard = () => {
             setIsLoading(true);
             setTimeout(() => {
                 setIsLoading(false);
-            }, 5000);
+            }, 1000);
         };
         fetchData();
     }, []);
@@ -32,25 +32,25 @@ const AdminDashboard = () => {
         {
             overview: 'Current Subscription',
             color: '#3636F0',
-            icon: <UserOutlined />,
+            icon: <SyncOutlined />,
             id: 'currentSubscription',
         },
         {
             overview: 'Total Quota',
             color: '#3636F0',
-            icon: <CalendarFilled />,
+            icon: <FileImageFilled />,
             id: 'totalQuota',
         },
         {
             overview: 'Active User',
             color: '#3636F0',
-            icon: <CalendarFilled />,
+            icon: <UserOutlined />,
             id: 'activeUser',
         },
         {
             overview: 'Invoice Status',
             color: '#3636F0',
-            icon: <CalendarFilled />,
+            icon: <FileDoneOutlined />,
             id: 'invoiceStatus',
         },
         {
@@ -214,8 +214,8 @@ const AdminDashboard = () => {
                                         type='default'
                                     />
                                     <CustomButton
-                                        title="Issue Next Bill"
-                                        onClick={() => {}}
+                                        title="Pay Next Bill"
+                                        onClick={() => router.push('/admin/plan?step=3')}
                                         className='text-center flex justify-center items-center w-full md:w-auto'
                                         type='default'
                                     />

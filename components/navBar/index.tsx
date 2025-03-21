@@ -514,7 +514,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             style={{
               borderRadius: borderRadiusLG,
               marginTop: '3rem',
-              marginRight: '1.3rem',
+              marginRight: `${!isAdminPage ? '1.3rem' : ''}`,
             }}
           >
             {children}

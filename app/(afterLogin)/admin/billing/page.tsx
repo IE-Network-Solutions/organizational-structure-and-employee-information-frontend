@@ -2,7 +2,7 @@
 
 import CustomBreadcrumb from "@/components/common/breadCramp";
 import { AppstoreOutlined, CalendarFilled, CheckCircleFilled, EditFilled, UserOutlined } from '@ant-design/icons';
-import InvoicesTable from "../_components/invoicesTabel/invoicesTable";
+import InvoicesTable from "../_components/invoicesTable/invoicesTable";
 import { mockInvoices } from "../_mockData/mockInvoices";
 import { useEffect, useState } from "react";
 import { Card, Skeleton } from "antd";

@@ -102,7 +102,7 @@ const PlanPage = () => {
                     </div>
                     <div className="flex justify-center gap-4 mt-8">
                         <Button
-                            onClick={handlePreviousStep}
+                            onClick={() => router.back()}
                             className="text-center flex justify-center items-center"
                             type="default"
                         >
@@ -218,7 +218,7 @@ const PlanPage = () => {
                         <div className='flex flex-col rounded-lg border border-gray-200 pt-4 pb-10 max-w-[700px] min-h-[280px] mx-auto'>
                             <div className='flex items-center justify-between gap-2 border-b border-gray-200 pb-4 px-8'>
                                 <span className='text-2xl font-bold'>
-                                    Invoice for Subscription Update: <span className='text-primary'>September 2025</span>
+                                    Invoice for Subscription Update: <span className='text-primary'>April 2025</span>
                                 </span>
                                 <button 
                                     className="text-blue-600 hover:text-blue-800"
@@ -249,7 +249,7 @@ const PlanPage = () => {
                                         ['Credit note', '$20']
                                     ].map(([label, value], index) => (
                                         <div key={index} className='flex items-center justify-start gap-2'>
-                                            <span className='text-md min-w-[150px]'>{label}</span>
+                                            <span className='text-md min-w-[90px] md:min-w-[150px]'>{label}</span>
                                             <span className='text-md font-bold'>{value}</span>
                                         </div>
                                     ))}
@@ -280,10 +280,10 @@ const PlanPage = () => {
 
                             <div className='flex flex-col gap-2 mt-6 mb-2 pb-6 px-8'>
                                 <span className='text-2xl font-bold'>Pay with</span>
-                                <div className='flex justify-around mt-4'>
+                                <div className='flex justify-around gap-2 mt-4'>
                                     <div className='flex flex-col gap-2'>
                                         <div 
-                                            className='flex items-center justify-center px-3 py-2 border border-gray-200 rounded-lg cursor-pointer hover:[box-shadow:0_2px_4px_0_#4e4ef1] transition-all duration-300'
+                                            className='flex items-center justify-center px-3 py-2 border border-gray-200 rounded-lg md:max-h-none max-h-[40px] cursor-pointer hover:[box-shadow:0_2px_4px_0_#4e4ef1] transition-all duration-300'
                                             onClick={() => {}}
                                         >
                                             <Image src="/icons/chapa-pay.svg" alt="Credit Card" width={108} height={40} />
@@ -291,7 +291,7 @@ const PlanPage = () => {
                                     </div>
                                     <div className='flex flex-col gap-2'>
                                         <div 
-                                            className='flex items-center justify-center px-3 py-2 border border-gray-200 rounded-lg cursor-pointer hover:[box-shadow:0_2px_4px_0_#4e4ef1] transition-all duration-300'
+                                            className='flex items-center justify-center px-3 py-2 border border-gray-200 rounded-lg md:max-h-none max-h-[40px] cursor-pointer hover:[box-shadow:0_2px_4px_0_#4e4ef1] transition-all duration-300'
                                             onClick={() => {}}
                                         >
                                             <Image src="/icons/stripe-pay.svg" alt="Credit Card" width={108} height={40} />
