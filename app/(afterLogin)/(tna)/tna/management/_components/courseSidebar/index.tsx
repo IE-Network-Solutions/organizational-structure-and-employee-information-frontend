@@ -3,7 +3,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Button, Form, Input, Select } from 'antd';
+import { Button, Form, Input, Select, TreeSelect } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
 import { formatLinkToUploadFile, formatToOptions } from '@/helpers/formatTo';
@@ -60,6 +60,31 @@ const CourseCategorySidebar = () => {
       onClose();
     }
   }, [isSuccess]);
+
+  const departmentData = [
+    {
+      title: 'All',
+      value: 'all',
+      key: 'all',
+      children: [
+        {
+          title: 'Department 1',
+          value: 'department-1',
+          key: 'department-1',
+        },
+        {
+          title: 'Department 2',
+          value: 'department-2',
+          key: 'department-2',
+        },
+        {
+          title: 'Department 3',
+          value: 'department-3',
+          key: 'department-3',
+        },
+      ],
+    },
+  ];
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -183,6 +208,18 @@ const CourseCategorySidebar = () => {
               className="control-tarea"
               rows={6}
               placeholder="Enter the Description"
+            />
+          </Form.Item>
+          <Form.Item
+            name="department"
+            label="Department Permission"
+            rules={[{ required: true, message: 'Required' }]}
+            className="form-item"
+          >
+            <TreeSelect
+              treeData={departmentData}
+              treeCheckable={true}
+              className="control"
             />
           </Form.Item>
         </Form>

@@ -1,6 +1,6 @@
 import React, { FC, useEffect } from 'react';
 import { Course } from '@/types/tna/course';
-import { Card, Spin } from 'antd';
+import { Card } from 'antd';
 import Meta from 'antd/lib/card/Meta';
 import ActionButton from '@/components/common/actionButton';
 import { classNames } from '@/utils/classNames';
