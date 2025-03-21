@@ -95,7 +95,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   return (
     <div className="p-2 grid gap-0">
       <div className="flex justify-center">
-        <Card className="bg-gray-100 shadow-sm rounded-lg w-full">
+        <Card className="bg-white shadow-sm rounded-lg w-full mb-3">
           <div className="flex flex-col gap-4">
             {/* Title Section */}
             <div className="flex justify-between items-start">
@@ -131,7 +131,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   <Progress
                     percent={objective?.objectiveProgress}
                     showInfo={false}
-                    strokeColor="#8C8CF0"
+                    strokeColor="#3636f0"
                     trailColor="#EDEDF6"
                     className="w-full sm:w-32"
                   />
@@ -144,7 +144,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 <div className="grid items-center gap-0">
                   <div className="flex items-center">
                     <PiCalendarMinusBold className="text-blue mt-1" />
-                    <div className="text-2xl font-bold text-blue">
+                    <div className="text-2xl font-bold text-[#3636f0]">
                       {objective?.daysLeft}
                     </div>
                   </div>

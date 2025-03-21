@@ -50,8 +50,9 @@ export class SidebarMenuItem {
   }
 
   private cloneIcon(item?: any, className?: string) {
-    return React.cloneElement(item, {
-      className,
-    });
+    if (!React.isValidElement(item)) {
+      return null; // or return a default icon/component
+    }
+    return React.cloneElement(item, className);
   }
 }

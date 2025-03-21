@@ -125,7 +125,7 @@ const OrgChartComponent: React.FC = () => {
   };
 
   return (
-    <Card title={<div className="text-2xl font-bold">ORG Chart</div>}>
+    <Card className="border-none">
       <div className="w-full py-7 overflow-x-auto">
         {orgStructureLoading ? (
           <OrgChartSkeleton loading={orgStructureLoading} />
