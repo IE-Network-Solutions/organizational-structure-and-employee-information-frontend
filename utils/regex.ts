@@ -1,1 +1,1 @@
-export const phoneRegex = /^[0-9]{10,15}$/ 
+export const phoneRegex = /^[0-9]{10,15}$/;

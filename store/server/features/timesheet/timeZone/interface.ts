@@ -1,5 +1,4 @@
 export interface TimeZoneDataType {
-    id?: string;
-    timezone: string;
-  }
-  
+  id?: string;
+  timezone: string;
+}

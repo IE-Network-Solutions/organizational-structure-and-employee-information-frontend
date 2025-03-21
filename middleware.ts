@@ -6,7 +6,7 @@ export function middleware(req: NextRequest) {
   try {
     const url = req.nextUrl;
     const pathname = url.pathname;
-    
+
     // TODO: Uncomment and restore token validation and redirects
     /*
     const token = getCookie('token', req);
@@ -25,7 +25,7 @@ export function middleware(req: NextRequest) {
     */
 
     if (pathname === '/onboarding') return NextResponse.next();
-    
+
     // TODO: Uncomment and restore the redirect for the root path
     /*
     if (!isExcludedPath && isRootPath) {
@@ -36,7 +36,7 @@ export function middleware(req: NextRequest) {
       }
     }
     */
-    
+
     return NextResponse.next();
   } catch (error) {
     return NextResponse.next(); // Proceed to next response in case of error
