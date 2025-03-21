@@ -10,87 +10,14 @@ import { removeCookie, setCookie } from '@/helpers/storageHelper';
 import { Spin } from 'antd';
 import { auth } from '@/utils/firebaseConfig';
 
-/**
- * Interface for the props of the ReactQueryWrapper component
- * @property children - The child components to be wrapped by the QueryClientProvider
- */
-
 interface ReactQueryWrapperProps {
   children: ReactNode;
 }
-/**
- * ReactQueryWrapper component that provides the QueryClient to its children
- *
- * @param children The child components to be wrapped by the QueryClientProvider
- * @returns The QueryClientProvider wrapping the children
- */
 
 const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   const router = useRouter();
   const { setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
-
-  const handleLogout = () => {
-    setToken('');
-    setTenantId('');
-    setLocalId('');
-    removeCookie('token');
-    router.push(`/authentication/login`);
-    setUserId('');
-    setLocalId('');
-    setError('');
-    removeCookie('token');
-    removeCookie('tenantId');
-    window.location.reload();
-  };
-
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      mutations: {
-        onError(error: any) {
-          if (error?.response?.status === 401) {
-            sessionStorage.setItem(
-              'redirectAfterLogin',
-              window.location.pathname,
-            );
-            handleLogout();
-          }
-          handleNetworkError(error);
-        },
-        onSuccess: (variables: any, context: any) => {
-          const method =
-            context?.method?.toUpperCase() || variables?.method?.toUpperCase();
-          const customMessage = context?.customMessage || undefined;
-
-          handleSuccessMessage(method, customMessage);
-        },
-      },
-    },
-    queryCache: new QueryCache({
-      onError(error: any) {
-        if (error.response) {
-          if (error.response.status === 401) {
-            sessionStorage.setItem(
-              'redirectAfterLogin',
-              window.location.pathname,
-            );
-            handleLogout();
-          }
-        }
-        if (process.env.NODE_ENV !== 'production') {
-          handleNetworkError(error);
-        }
-      },
-    }),
-  });
-
-  const FullPageSpinner = () => {
-    return (
-      <div className="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50 flex justify-center items-center">
-        <Spin size="large" />
-      </div>
-    );
-  };
 
   const refreshToken = async () => {
     const getCookieFromDocument = (key: string): string | null => {
@@ -100,32 +27,73 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
     };
 
     const token = getCookieFromDocument('token');
-    if (token) {
-      const user = auth.currentUser;
-      if (user) {
-        try {
-          const refreshedToken = await user.getIdToken(true); // Force refresh token
-          if (refreshedToken !== token) {
-            setCookie('token', refreshedToken, 30);
-            useAuthenticationStore.getState().setToken(refreshedToken);
-          }
-        } catch (error) {
-          handleNetworkError(error);
+    if (token && auth.currentUser) {
+      try {
+        const refreshedToken = await auth.currentUser.getIdToken(true); // Force refresh
+        if (refreshedToken !== token) {
+          setCookie('token', refreshedToken, 30);
+          useAuthenticationStore.getState().setToken(refreshedToken);
         }
+        return refreshedToken;
+      } catch (error) {
+        handleNetworkError(error); // Show error but don't logout
+        return null; // Return null to indicate failure without logging out
       }
     }
+    return null; // No valid token or user, but no logout
   };
-  useEffect(() => {
-    refreshToken();
-    const refreshInterval = setInterval(
-      () => {
-        refreshToken();
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      mutations: {
+        onError: async (error: any) => {
+          if (error?.response?.status === 401) {
+            const newToken = await refreshToken();
+            if (newToken) {
+              queryClient.invalidateQueries(); // Retry with new token
+            } else {
+              handleNetworkError(error);
+            }
+          } else {
+            handleNetworkError(error); 
+          }
+        },
+        onSuccess: (variables: any, context: any) => {
+          const method =
+            context?.method?.toUpperCase() || variables?.method?.toUpperCase();
+          const customMessage = context?.customMessage || undefined;
+          handleSuccessMessage(method, customMessage);
+        },
       },
-      50 * 60 * 1000,
-    );
-    return () => {
-      clearInterval(refreshInterval);
-    };
+    },
+    queryCache: new QueryCache({
+      onError: async (error: any, query) => {
+        if (error?.response?.status === 401) {
+          const newToken = await refreshToken();
+          if (newToken) {
+          } else {
+            handleNetworkError(error); 
+          }
+        } else if (process.env.NODE_ENV !== 'production') {
+          handleNetworkError(error); 
+        }
+      },
+    }),
+  });
+
+  const FullPageSpinner = () => (
+    <div className="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50 flex justify-center items-center">
+      <Spin size="large" />
+    </div>
+  );
+
+  useEffect(() => {
+    refreshToken(); // Initial token refresh on mount
+    const refreshInterval = setInterval(() => {
+      refreshToken();
+    }, 50 * 60 * 1000); // Refresh every 50 minutes
+
+    return () => clearInterval(refreshInterval);
   }, []);
 
   return (

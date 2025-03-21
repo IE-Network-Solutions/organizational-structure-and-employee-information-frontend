@@ -5,7 +5,6 @@ import './globals.css';
 import AntdConfigProvider from '@/providers/antdProvider';
 import ReactQueryWrapper from '@/providers/reactQueryProvider';
 import ConditionalNav from '@/providers/conditionalNav';
-import { AuthProvider } from '@/providers/auth-providers';
 const manrope = Manrope({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -21,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-test="layout">
       <body className={manrope.className}>
-        <AuthProvider>
+        {/* <AuthProvider> */}
           <ReactQueryWrapper>
             <AntdRegistry>
               <AntdConfigProvider>
@@ -29,7 +28,7 @@ export default function RootLayout({
               </AntdConfigProvider>
             </AntdRegistry>
           </ReactQueryWrapper>
-        </AuthProvider>
+        {/* </AuthProvider> */}
       </body>
     </html>
   );
