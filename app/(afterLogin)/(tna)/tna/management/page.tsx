@@ -12,7 +12,8 @@ import { CommonObject } from '@/types/commons/commonObject';
 import { useDebounce } from '@/utils/useDebounce';
 import { CourseManagementRequestBody } from '@/store/server/features/tna/management/interface';
 import CourseCard from '@/app/(afterLogin)/(tna)/tna/management/_components/courseCard';
-import { localUserID } from '@/utils/constants';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const TnaManagementPage = () => {
   const { setIsShowCourseSidebar, isShowCourseSidebar, setCourseCategory } =
@@ -61,21 +62,24 @@ const TnaManagementPage = () => {
   return (
     <div className="page-wrap">
       <PageHeader
-        title="Trainging & Learning"
+        title="Training & Learning"
         description="Training and Learning module"
       >
         <Flex gap={16}>
           <CourseFilter onChange={onFilterChange} />
-          <Button
-            size="large"
-            type="primary"
-            className="h-[54px]"
-            icon={<LuPlus size={16} />}
-            loading={isFetching}
-            onClick={() => setIsShowCourseSidebar(true)}
-          >
-            Add Course
-          </Button>
+          <AccessGuard permissions={[Permissions.CreateCourse]}>
+            <Button
+              id="tnaAddCourseActionButtonId"
+              size="large"
+              type="primary"
+              className="h-[54px]"
+              icon={<LuPlus size={16} />}
+              loading={isFetching}
+              onClick={() => setIsShowCourseSidebar(true)}
+            >
+              Add Course
+            </Button>
+          </AccessGuard>
         </Flex>
       </PageHeader>
 

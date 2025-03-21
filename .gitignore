@@ -4,6 +4,8 @@
 /node_modules
 /.pnp
 .env
+.env.local
+
 .pnp.js
 .yarn/install-state.gz
 
@@ -39,3 +41,5 @@ next-env.d.ts
 yarn.lock
 
 .idea
+
+Jenkinsfile

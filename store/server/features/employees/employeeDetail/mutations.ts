@@ -5,6 +5,52 @@ import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
+// Mutation function for updating profile image
+const updateProfileImageMutation = async (formData: FormData) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/update-profile-image`, // Endpoint expects a POST request
+    method: 'POST',
+    data: formData,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+      'Content-Type': 'multipart/form-data', // Required for file uploads
+    },
+  });
+};
+
+// useUpdateProfileImage hook
+export const useUpdateProfileImage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ id, formData }: { id: string; formData: FormData }) => {
+      // Append user ID to formData
+      formData.append('userId', id);
+
+      return updateProfileImageMutation(formData);
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('employee'); // Invalidate queries related to employee data
+        NotificationMessage.success({
+          message: 'Successfully Updated',
+          description: 'Profile image successfully updated.',
+        });
+      },
+      onError: () => {
+        NotificationMessage.error({
+          message: 'Update Failed',
+          description: 'Failed to update profile image. Please try again.',
+        });
+      },
+    },
+  );
+};
+
 // Mutation function
 const updateEmployeeMutation = async (id: string, values: any) => {
   const token = useAuthenticationStore.getState().token;
@@ -20,7 +66,20 @@ const updateEmployeeMutation = async (id: string, values: any) => {
     data: values,
   });
 };
+const updateEmployeeInformation = async (id: string, values: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/${id}`,
+    method: 'patch',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    data: values,
+  });
+};
 // Mutation function
 const updateEmployeeRolePermissionMutation = async (
   id: string,
@@ -74,22 +133,16 @@ const deleteEmployeeDocument = async (id: string) => {
   }
 };
 
-const createEmployeeDocument = async (id: string, values: any) => {
-  const formData = new FormData();
+const createEmployeeDocument = async (formData: FormData) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  formData.append('userId', id);
-  formData.append(
-    'documentName',
-    values?.documentName?.fileList[0]?.originFileObj,
-  );
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-document`,
     method: 'POST',
     data: formData,
     headers: {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
     },
   });
 };
@@ -161,23 +214,42 @@ export const useUpdateEmployeeRolePermission = () => {
     },
   );
 };
-export const useAddEmployeeDocument = () => {
+export const useUpdateEmployeeInformation = () => {
   const queryClient = useQueryClient();
+
   return useMutation(
     ({ id, values }: { id: string; values: any }) =>
-      createEmployeeDocument(id, values),
+      updateEmployeeInformation(id, values),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('employees');
+        queryClient.invalidateQueries('employee');
+        NotificationMessage.success({
+          message: 'Successfully Updated',
+          description: 'Employee successfully updated',
+        });
+      },
+    },
+  );
+};
+export const useAddEmployeeDocument = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    async (formData: FormData) => {
+      return await createEmployeeDocument(formData);
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('employee');
         NotificationMessage.success({
           message: 'Successfully Created',
-          description: 'Employee successfully Created',
+          description: 'Document successfully uploaded',
         });
       },
       onError: () => {
         NotificationMessage.error({
-          message: 'Creating Failed',
-          description: 'Employee Created Failed',
+          message: 'Creation Failed',
+          description: 'Document upload failed',
         });
       },
     },

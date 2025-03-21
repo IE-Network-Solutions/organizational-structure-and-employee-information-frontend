@@ -10,8 +10,9 @@ import { formatLinkToUploadFile, formatToOptions } from '@/helpers/formatTo';
 import CustomUpload from '@/components/form/customUpload';
 import React, { useEffect, useState } from 'react';
 import { useSetCourseManagement } from '@/store/server/features/tna/management/mutation';
-import { localUserID } from '@/utils/constants';
+
 import { useGetCoursesManagement } from '@/store/server/features/tna/management/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const CourseCategorySidebar = () => {
   const [isDraft, setIsDraft] = useState(false);
@@ -22,6 +23,7 @@ const CourseCategorySidebar = () => {
     courseId,
     setCourseId,
   } = useTnaManagementStore();
+  const { userId } = useAuthenticationStore();
   const { mutate: setCourse, isLoading, isSuccess } = useSetCourseManagement();
   const {
     data: coursesData,
@@ -94,7 +96,7 @@ const CourseCategorySidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: 'Create',
+      label: courseId ? <span>Edit</span> : <span>Create</span>,
       key: 'create',
       className: 'h-14',
       type: 'primary',
@@ -128,7 +130,7 @@ const CourseCategorySidebar = () => {
         overview: value.overview,
         thumbnail: value.thumbnail[0]['response'],
         isDraft: isDraft,
-        preparedBy: localUserID,
+        preparedBy: userId,
       },
     ]);
   };
@@ -140,7 +142,7 @@ const CourseCategorySidebar = () => {
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            Add Course
+            {courseId ? <span>Edit Course</span> : <span>Add course </span>}
           </CustomDrawerHeader>
         }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
@@ -159,7 +161,7 @@ const CourseCategorySidebar = () => {
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
           >
-            <Input className="control" />
+            <Input id="tnaCourseNameFieldId" className="control" />
           </Form.Item>
           <Form.Item
             name="courseCategoryId"
@@ -168,6 +170,7 @@ const CourseCategorySidebar = () => {
             className="form-item"
           >
             <Select
+              id="tnaCourseCategoryFieldId"
               className="control"
               placeholder="Select Category"
               options={formatToOptions(courseCategory, 'title', 'id')}
@@ -176,6 +179,7 @@ const CourseCategorySidebar = () => {
           <Form.Item
             name="thumbnail"
             label="Thumbnail"
+            id="tnaCourseThumbnailFieldId"
             className="form-item"
             valuePropName="fileList"
             rules={[{ required: true, message: 'Required' }]}
@@ -185,6 +189,7 @@ const CourseCategorySidebar = () => {
           >
             <CustomUpload
               mode="draggable"
+              id="tnaCourseThumbnailFieldId"
               className="w-full mt-3"
               listType="picture"
               accept="image/*"
@@ -199,6 +204,7 @@ const CourseCategorySidebar = () => {
             className="form-item"
           >
             <Input.TextArea
+              id="tnaCourseDescriptionFieldId"
               className="control-tarea"
               rows={6}
               placeholder="Enter the Description"
@@ -221,6 +227,7 @@ const CourseCategorySidebar = () => {
           <Button
             type="primary"
             htmlType="button"
+            id="tnaCourseSubmitButtonId"
             loading={isLoading}
             onClick={() => {
               setIsDraft(true);

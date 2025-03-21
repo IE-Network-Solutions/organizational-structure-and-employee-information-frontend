@@ -9,6 +9,7 @@ type TimesheetSettingsState = {
   isShowCarryOverRuleSidebar: boolean;
   isShowTypeAndPoliciesSidebar: boolean;
   isShowClosedDateSidebar: boolean;
+  isShowBreakTypeSidebar: boolean;
   isShowLeaveRequestSidebar: boolean;
 
   attendanceNotificationType: AttendanceNotificationType[];
@@ -16,6 +17,10 @@ type TimesheetSettingsState = {
   attendanceRuleId: string | null;
   allowedAreaId: string | null;
   leaveRequestId: string | null;
+  selectedClosedDate: any | null;
+  selectedBreakType: any | null;
+  isTo: boolean;
+  isLoading: boolean;
 };
 
 type TimesheetSettingsStateAction = {
@@ -30,6 +35,7 @@ type TimesheetSettingsStateAction = {
     isShowTypeAndPoliciesSidebar: boolean,
   ) => void;
   setIsShowClosedDateSidebar: (isShowClosedDateSidebar: boolean) => void;
+  setIsShowBreakTypeSidebar: (isShowBreakTypeSidebar: boolean) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
 
   setAttendanceNotificationType: (
@@ -39,11 +45,25 @@ type TimesheetSettingsStateAction = {
   setAttendanceRuleId: (attendanceRuleId: string | null) => void;
   setAllowedAreaId: (allowedAreaId: string | null) => void;
   setLeaveRequestId: (leaveRequestId: string | null) => void;
+  setSelectedClosedDate: (closedDate: any | null) => void;
+  setSelectedBreakType: (breakType: any | null) => void;
+  setIsTo: (isTo: boolean) => void;
+  setIsLoading: (isLoading: boolean) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
   TimesheetSettingsState & TimesheetSettingsStateAction
 > = (set) => ({
+  selectedClosedDate: null,
+  setSelectedClosedDate: (closedDate) => {
+    set({ selectedClosedDate: closedDate });
+  },
+
+  selectedBreakType: null,
+  setSelectedBreakType: (breakType) => {
+    set({ selectedBreakType: breakType });
+  },
+
   isShowLocationSidebar: false,
   setIsShowLocationSidebar: (isShowLocationSidebar: boolean) => {
     set({ isShowLocationSidebar });
@@ -79,6 +99,11 @@ const timesheetSettingsSlice: StateCreator<
     set({ isShowClosedDateSidebar });
   },
 
+  isShowBreakTypeSidebar: false,
+  setIsShowBreakTypeSidebar: (isShowBreakTypeSidebar: boolean) => {
+    set({ isShowBreakTypeSidebar });
+  },
+
   isShowLeaveRequestSidebar: false,
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => {
     set({ isShowLeaveRequestSidebar });
@@ -107,6 +132,14 @@ const timesheetSettingsSlice: StateCreator<
   leaveRequestId: null,
   setLeaveRequestId: (leaveRequestId) => {
     set({ leaveRequestId });
+  },
+  isTo: false,
+  setIsTo: (isTo: boolean) => {
+    set({ isTo });
+  },
+  isLoading: false,
+  setIsLoading: (isLoading: boolean) => {
+    set({ isLoading });
   },
 });
 

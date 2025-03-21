@@ -69,14 +69,22 @@ const AddTypesSidebar = () => {
 
   const periodOption = [
     {
+      id: 'AccrualRulePeriodDaily',
+      value: AccrualRulePeriod.DAILY,
+      label: 'Daily',
+    },
+    {
+      id: 'AccrualRulePeriodMonthly',
       value: AccrualRulePeriod.MONTHLY,
       label: 'Monthly',
     },
     {
+      id: 'AccrualRulePeriodQuarterly',
       value: AccrualRulePeriod.QUARTER,
       label: 'Quarter',
     },
     {
+      id: 'AccrualRulePeriodYearly',
       value: AccrualRulePeriod.YEAR,
       label: 'Year',
     },
@@ -103,6 +111,7 @@ const AddTypesSidebar = () => {
             <Space direction="vertical" className="w-full" size={24}>
               <Form.Item
                 label="Accrual Name"
+                id="accrualNameId"
                 rules={[{ required: true, message: 'Required' }]}
                 name="title"
               >
@@ -110,6 +119,7 @@ const AddTypesSidebar = () => {
               </Form.Item>
               <Form.Item
                 label="Accrual Period"
+                id="accrualPeriodId"
                 rules={[{ required: true, message: 'Required' }]}
                 name="period"
               >

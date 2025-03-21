@@ -12,11 +12,12 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
   duration = '',
 }) => {
   return (
-    <div className="w-full h-[88px] rounded-[10px] bg-white py-4 px-6">
+    <div className="w-full h-[120px] rounded-[10px] bg-white py-4 px-6">
       <div className="flex item-center justify-between">
         <div className="text-base font-bold text-gray-900">{title}</div>
         <Button
           className="w-5 h-5"
+          id={`leaveBalanceCardInfo${title}Id`}
           type="text"
           icon={<FiInfo size={18} className="text-gray-500" />}
         />

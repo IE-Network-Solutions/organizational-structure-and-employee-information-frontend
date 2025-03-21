@@ -11,6 +11,8 @@ import { LuPlus } from 'react-icons/lu';
 import NewAccrualRuleSidebar from './_components/newAccrualRuleSidebar';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const Page = () => {
   const {
@@ -73,14 +75,17 @@ const Page = () => {
   return (
     <>
       <PageHeader title="Accrual Rule" size="small">
-        <Button
-          size="large"
-          type="primary"
-          icon={<LuPlus size={18} />}
-          onClick={() => setIsShowNewAccrualRuleSidebar(true)}
-        >
-          New Rule
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateLeaveAccrual]}>
+          <Button
+            size="large"
+            type="primary"
+            id="accrutualRuleId"
+            icon={<LuPlus size={18} />}
+            onClick={() => setIsShowNewAccrualRuleSidebar(true)}
+          >
+            New Rule
+          </Button>
+        </AccessGuard>
       </PageHeader>
 
       <Table

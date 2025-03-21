@@ -16,11 +16,12 @@ const EmployeeAddressForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['address', 'addressCountry']}
+            name={['address', 'country']}
             label="Country"
             id="addressCountryId"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('country', value)
                     ? Promise.resolve()
@@ -36,11 +37,12 @@ const EmployeeAddressForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['address', 'addressCity']}
+            name={['address', 'city']}
             label="City"
             id="addressCityId"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('city', value)
                     ? Promise.resolve()

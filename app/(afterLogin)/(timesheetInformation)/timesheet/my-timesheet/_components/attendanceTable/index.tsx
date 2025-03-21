@@ -7,7 +7,7 @@ import { GoLocation } from 'react-icons/go';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { CommonObject } from '@/types/commons/commonObject';
-import { DATE_FORMAT, DATETIME_FORMAT, localUserID } from '@/utils/constants';
+import { DATE_FORMAT, DATETIME_FORMAT } from '@/utils/constants';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import {
@@ -24,10 +24,12 @@ import {
 } from '@/helpers/calculateHelper';
 import usePagination from '@/utils/usePagination';
 import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const AttendanceTable = () => {
+  const { userId } = useAuthenticationStore();
   const userFilter: Partial<AttendanceRequestBody['filter']> = {
-    userIds: [localUserID ?? ''],
+    userIds: [userId ?? ''],
   };
   const { setIsShowViewSidebar, setViewAttendanceId } = useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
@@ -61,7 +63,7 @@ const AttendanceTable = () => {
       dataIndex: 'clockIn',
       key: 'clockIn',
       render: (date: string) => (
-        <div>{dayjs(date).format(DATETIME_FORMAT)}</div>
+        <div>{date ? dayjs(date).format(DATETIME_FORMAT) : '-'}</div>
       ),
     },
     {
@@ -79,7 +81,7 @@ const AttendanceTable = () => {
       dataIndex: 'clockOut',
       key: 'clockOut',
       render: (date: string) => (
-        <div>{dayjs(date).format(DATETIME_FORMAT)}</div>
+        <div>{date ? dayjs(date).format(DATETIME_FORMAT) : '-'}</div>
       ),
     },
     {
@@ -161,7 +163,7 @@ const AttendanceTable = () => {
             item?.geolocations[item?.geolocations.length - 1]?.allowedArea
               ?.title ?? '',
           status: item,
-          totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
+          totalTime: `${item.startAt && item.endAt ? `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs` : '-'} `,
           overTime: item.overTimeMinutes + ' min',
           action: item,
         };
@@ -193,7 +195,7 @@ const AttendanceTable = () => {
   return (
     <>
       <div className="flex items-center gap-0.5 mb-6">
-        <div className="text-2xl font-bold text-gray-900">Attendance</div>
+        <div className="text-2xl font-bold text-gray-900">My Attendance</div>
         <Button
           type="text"
           size="small"
@@ -216,6 +218,7 @@ const AttendanceTable = () => {
           setOrderDirection(sorter['order']);
           setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
         }}
+        scroll={{ x: 'min-content' }}
       />
     </>
   );

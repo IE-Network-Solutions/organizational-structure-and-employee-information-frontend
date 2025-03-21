@@ -5,6 +5,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { CreateEmployeeJobInformationInterface } from './interface';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -99,12 +100,6 @@ export const useAddEmployee = () => {
         description: 'Employee successfully Created',
       });
     },
-    onError: () => {
-      NotificationMessage.error({
-        message: 'Creating Failed',
-        description: 'Employee Created Failed',
-      });
-    },
   });
 };
 export const useUpdateEmployee = () => {
@@ -141,17 +136,13 @@ export const useDeleteEmployee = () => {
 export const useCreateJobInformation = () => {
   const queryClient = useQueryClient();
   return useMutation(createJobInformation, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('employeesJb');
+    onSuccess: (data: CreateEmployeeJobInformationInterface) => {
+      queryClient.invalidateQueries(['employee', data.userId]);
+      queryClient.invalidateQueries('employees');
+      queryClient.invalidateQueries('basicSalary');
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Employee successfully Created',
-      });
-    },
-    onError: () => {
-      NotificationMessage.error({
-        message: 'Creating Failed',
-        description: 'Employee Created Failed',
       });
     },
   });

@@ -3,8 +3,6 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
 
 /**
  * Function to fetch a list of employee branches by sending a GET request to the API.
@@ -12,6 +10,9 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @returns The response data from the API.
  */
 const getEmployeeBranches = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/branchs`,
     method: 'GET',
@@ -27,8 +28,25 @@ const getEmployeeBranches = async () => {
  * @returns The response data from the API.
  */
 const getEmployeeDepartments = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/tenant/departments`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+const getAllUsersWithOutPagination = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -56,6 +74,9 @@ export const employeeAllFilter = async (
   branchId: string,
   searchString: string,
 ) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
   const response = await crudRequest({
     url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted ? isDeleted : null}&page=${currentPage}&limit=${pageSize}`,
     method: 'GET',
@@ -134,6 +155,9 @@ export const useEmployeeAllFilter = (
  * @returns The response data from the API
  */
 const getEmployees = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users?deletedAt=null`,
     headers: {
@@ -151,6 +175,9 @@ const getEmployees = async () => {
  */
 
 const getEmployee = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
   try {
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -164,6 +191,24 @@ const getEmployee = async (id: string) => {
     throw error;
   }
 };
+
+export const useGetAllUsers = () =>
+  useQuery<any>('employeesWithOutPagination', getAllUsersWithOutPagination);
+
+const getAllUsersDataWithOutPagination = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/all-users/all`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+export const useGetAllUsersData = () =>
+  useQuery<any>('allEmployeesData', getAllUsersDataWithOutPagination);
 
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.

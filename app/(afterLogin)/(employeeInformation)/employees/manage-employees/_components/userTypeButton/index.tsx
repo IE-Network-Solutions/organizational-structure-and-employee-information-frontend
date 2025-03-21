@@ -5,7 +5,7 @@ const userTypeButton = (val: string) => {
     return (
       <Button
         id="roleTypeOwner"
-        className="text-[#41a9f0] text-xs font-medium w-[90px] px-[50px] bg-[#add5f0]"
+        className="text-[#41a9f0] text-xs font-medium w-[90px] px-[30px] bg-[#add5f0]"
       >
         ON BOARDING
       </Button>
@@ -14,7 +14,7 @@ const userTypeButton = (val: string) => {
     return (
       <Button
         id="roleTypeAdmin"
-        className="text-[#5555f4] text-xs font-medium w-[90px] px-[50px] bg-[#b2b2ff]"
+        className="text-[#5555f4] text-xs font-medium w-[90px] px-[30px]  bg-[#b2b2ff]"
       >
         Permanent
       </Button>
@@ -23,7 +23,7 @@ const userTypeButton = (val: string) => {
     return (
       <Button
         id="roleTypeSuper"
-        className="text-[#9f7dff] text-xs font-medium w-[90px] px-[50px] bg-[#f4f0ff]"
+        className="text-[#9f7dff] text-xs font-medium w-[90px] px-[30px]  bg-[#f4f0ff]"
       >
         PROBATION
       </Button>
@@ -32,7 +32,7 @@ const userTypeButton = (val: string) => {
     return (
       <Button
         id="roleTypeSuper"
-        className="text-[#e86064] text-xs font-medium w-[90px] px-[50px] bg-[#ffedec]"
+        className="text-[#e86064] text-xs font-medium w-[90px] px-[30px] bg-[#ffedec]"
       >
         ON LEAVE
       </Button>
@@ -41,7 +41,7 @@ const userTypeButton = (val: string) => {
     return (
       <Button
         id="roleTypeNull"
-        className="text-white text-xs font-medium w-[90px] px-[50px] bg-sky-600"
+        className="text-white text-xs font-medium w-[90px] px-[30px] bg-sky-600"
       >
         Unknown
       </Button>
@@ -50,10 +50,10 @@ const userTypeButton = (val: string) => {
     return (
       <Button
         id="roleTypeOther"
-        className="bg-indigo-400 text-xs font-medium w-[90px] px-[50px] text-white"
+        className="bg-indigo-400 text-xs font-medium w-[90px] px-[30px]  text-white"
         title={val}
       >
-        {val?.slice(0, 8)}
+        {val?.slice(0, 20)}
       </Button>
     );
   }

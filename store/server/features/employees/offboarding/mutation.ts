@@ -45,7 +45,7 @@ const addTerminationTasks = async (values: EmployeeOffBoardingTasks[]) => {
 };
 
 const addOffboardingTasksTemplate = async (
-  values: EmployeeOffBoardingTasks,
+  values: EmployeeOffBoardingTasks[],
 ) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/offboarding-tasks-template`,
@@ -191,6 +191,7 @@ export const useAddOffboardingTasksTemplate = () => {
   return useMutation(addOffboardingTasksTemplate, {
     onSuccess: () => {
       queryClient.invalidateQueries('offboardItemsTemplate');
+
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Item successfully Created',
@@ -210,6 +211,8 @@ export const useRehireTerminatedEmployee = () => {
   return useMutation(rehireTerminatedEmployee, {
     onSuccess: () => {
       queryClient.invalidateQueries('offboardingActiveTermiantionsByUserId');
+      queryClient.invalidateQueries('employees'); // Invalidate both caches
+
       NotificationMessage.success({
         message: 'Successfully Updated',
         description: 'Item successfully updated',

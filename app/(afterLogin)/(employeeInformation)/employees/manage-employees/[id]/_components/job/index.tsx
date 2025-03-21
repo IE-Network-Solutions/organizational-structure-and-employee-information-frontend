@@ -1,42 +1,65 @@
 import dayjs from 'dayjs';
 import { Card, Col, Row, Table } from 'antd';
-import { LuPencil } from 'react-icons/lu';
 import { InfoLine } from '../common/infoLine';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import WorkScheduleComponent from './workSchedule';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { CreateEmployeeJobInformation } from './addEmployeeJobInfrmation';
+import { FaPlus } from 'react-icons/fa';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import DownloadJobInformation from './downloadJobInformation';
+import BasicSalary from './basicSalary';
 
 function Job({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
+  const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
+  const handleAddEmployeeJobInformation = () => {
+    setIsAddEmployeeJobInfoModalVisible(true);
+  };
 
   const columns = [
     {
       title: 'Effective Date',
       dataIndex: 'effectiveStartDate',
       key: 'effectiveStartDate',
+      render: (text: string) => (text ? text.slice(0, 10) : '-'),
     },
     {
       title: 'Job Title',
-      dataIndex: 'jobTitle',
-      key: 'jobTitle',
+      dataIndex: 'position',
+      key: 'position',
+      render: (ruleData: any, record: any) => (
+        <>{record?.position?.name ?? '-'}</>
+      ),
     },
     {
       title: 'Employment Type',
-      dataIndex: 'employmentTypeId',
-      key: 'employmentTypeId',
+      dataIndex: 'employementTypeId',
+      key: 'employementTypeId',
       render: (ruleData: any, record: any) => (
-        <>{record?.employmentType?.name}</>
+        <>{record?.employementType?.name ?? '-'}</>
       ),
     },
     {
       title: 'Manager',
       dataIndex: 'address',
       key: 'address',
+      render: (text: string) => (text ? text : '-'),
     },
     {
       title: 'Department',
       dataIndex: 'department',
       key: 'address',
-      render: (ruleData: any, record: any) => <>{record?.department?.name}</>,
+      render: (ruleData: any, record: any) => (
+        <>{record?.department?.name ?? '-'}</>
+      ),
+    },
+    {
+      title: 'Job Status',
+      dataIndex: 'jobAction',
+      key: 'jobAction',
+      render: (text: string) => (text ? text : '-'),
     },
   ];
   return (
@@ -45,7 +68,7 @@ function Job({ id }: { id: string }) {
       <Card
         loading={isLoading}
         title="Employment Information"
-        extra={<LuPencil />}
+        // extra={<LuPencil />}
         className="my-6 mt-0"
       >
         <Row gutter={[16, 24]}>
@@ -84,7 +107,19 @@ function Job({ id }: { id: string }) {
           </Col>
         </Row>
       </Card>{' '}
-      <Card>
+      <Card
+        title={'Job Information'}
+        extra={
+          <div className=" flex items-center justify-center gap-3">
+            <AccessGuard
+              permissions={[Permissions.UpdateEmployeeJobInformation]}
+            >
+              <FaPlus onClick={handleAddEmployeeJobInformation} />
+            </AccessGuard>
+            <DownloadJobInformation id={id} />
+          </div>
+        }
+      >
         <Table
           dataSource={employeeData?.employeeJobInformation}
           columns={columns}
@@ -93,6 +128,8 @@ function Job({ id }: { id: string }) {
         />
       </Card>
       <WorkScheduleComponent id={id} />
+      <CreateEmployeeJobInformation id={id} />
+      <BasicSalary id={id} />
     </>
   );
 }

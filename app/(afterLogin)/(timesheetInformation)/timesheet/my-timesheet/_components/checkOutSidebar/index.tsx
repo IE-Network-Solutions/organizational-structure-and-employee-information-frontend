@@ -11,10 +11,10 @@ import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHea
 import { BreakTypeStatus, formatBreakTypeToStatus } from '@/helpers/formatTo';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
-import { localUserID } from '@/utils/constants';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import TakePicture from '@/components/common/takePicture';
 import { MdKeyboardArrowDown } from 'react-icons/md';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 type LabelRender = SelectProps['labelRender'];
 
@@ -32,7 +32,7 @@ const CheckOutSidebar = () => {
     breakTypes,
     currentAttendance,
   } = useMyTimesheetStore();
-
+  const { userId } = useAuthenticationStore();
   const { mutate: setCurrentAttendance, isSuccess } = useSetCurrentAttendance();
 
   const [form] = Form.useForm();
@@ -41,7 +41,7 @@ const CheckOutSidebar = () => {
     const nOptions: CustomSelectOption[] = breakTypes.map((item) => {
       return {
         label: item.title,
-        value: item.id,
+        value: item.id ?? '',
         ...formatBreakTypeToStatus(item, currentAttendance),
       };
     });
@@ -94,7 +94,7 @@ const CheckOutSidebar = () => {
           setCurrentAttendance({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-            userId: localUserID,
+            userId: userId,
             isSignIn: false,
             breakTypeId: value.type,
             file: value.photo,
@@ -134,6 +134,7 @@ const CheckOutSidebar = () => {
           <Form.Item
             name="type"
             label="Checkin type"
+            id="checkTypeSelect"
             rules={[{ required: true, message: 'Required' }]}
             className={itemClass}
           >
@@ -146,8 +147,9 @@ const CheckOutSidebar = () => {
               }
               onChange={setSelectedType}
             >
-              {options.map((option) => (
+              {options.map((option, key) => (
                 <Select.Option
+                  id={`chekinTypeOption${key}`}
                   value={option.value}
                   key={option.value}
                   disabled={option.disabled}
@@ -175,7 +177,7 @@ const CheckOutSidebar = () => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="photo">
+          <Form.Item id="checkinPictureId" name="photo">
             <TakePicture
               onChange={(imgSrc) => {
                 form.setFieldValue('photo', imgSrc);

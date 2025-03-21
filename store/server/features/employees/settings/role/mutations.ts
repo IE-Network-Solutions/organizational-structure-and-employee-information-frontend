@@ -4,8 +4,6 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
 
 /**
  * Function to create a new role by sending a POST request to the API.
@@ -15,6 +13,10 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  */
 
 const createRole = async (values: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const updatedRole = { ...values, tenantId: tenantId };
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles`,
     method: 'POST',
@@ -22,7 +24,7 @@ const createRole = async (values: any) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
-    data: values,
+    data: updatedRole,
   });
 };
 
@@ -36,6 +38,10 @@ const createRole = async (values: any) => {
  */
 
 const updateRole = async ({ values, roleId }: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const updatedRole = { ...values, tenantId: tenantId };
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles/${roleId}`,
     method: 'patch',
@@ -44,7 +50,7 @@ const updateRole = async ({ values, roleId }: any) => {
       tenantId: tenantId, // Pass tenantId in the headers
     },
 
-    data: values,
+    data: updatedRole,
   });
 };
 
@@ -65,6 +71,8 @@ const deleteRole = async ({
   setCurrentModal,
   setDeletedId,
 }: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

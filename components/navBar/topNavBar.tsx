@@ -1,33 +1,34 @@
 'use client';
 import React from 'react';
-import { Badge, Avatar, Menu, Dropdown, Layout } from 'antd';
-import { MailOutlined, BellOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, Menu, Dropdown, Layout } from 'antd';
+import { useRouter } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import NotificationBar from './notificationBar';
+import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 
 const { Header } = Layout;
 
 interface NavBarProps {
   page: string;
-  userid: string;
+  handleLogout: () => void;
 }
 
-const NavBar = ({ page, userid }: NavBarProps) => {
+const NavBar = ({ page, handleLogout }: NavBarProps) => {
+  const router = useRouter();
+
+  const { userId } = useAuthenticationStore();
+  const { data: employeeData } = useGetEmployee(userId);
+
+  const handleProfileRoute = () => {
+    router.push(`/employees/manage-employees/${userId}`);
+  };
+
   const menu = (
     <Menu>
       <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/profile`}>
-          Profile
-        </a>
+        <a onClick={handleProfileRoute}>Profile</a>
       </Menu.Item>
-      <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/settings`}>
-          Settings
-        </a>
-      </Menu.Item>
-      <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href={`${URL}/logout`}>
-          Logout
-        </a>
-      </Menu.Item>
+      <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
     </Menu>
   );
 
@@ -39,18 +40,12 @@ const NavBar = ({ page, userid }: NavBarProps) => {
       }}
     >
       <p>{page}</p>
-      <div className="flex items-center">
-        <Badge count={5} className="mx-4">
-          <MailOutlined style={{ fontSize: '20px' }} />
-        </Badge>
-        <Badge count={10} className="mx-4">
-          <BellOutlined style={{ fontSize: '20px' }} />
-        </Badge>
+      <div className="flex items-center gap-5">
+        <NotificationBar />
         <Dropdown overlay={menu} placement="bottomRight">
           <Avatar
-            icon={<UserOutlined />}
-            src={`${URL}/user/${userid}`}
-            className="cursor-pointer"
+            src={employeeData?.profileImage}
+            className="cursor-pointer border-gray-300 rounded-full"
           />
         </Dropdown>
       </div>

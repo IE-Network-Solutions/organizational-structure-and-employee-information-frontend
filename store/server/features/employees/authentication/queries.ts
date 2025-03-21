@@ -1,7 +1,32 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import axios from 'axios';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '@/utils/firebaseConfig';
+import { message } from 'antd';
+
+export const usePasswordReset = () => {
+  return useMutation(
+    async (email: string) => {
+      const domainName = window.location.hostname;
+      const dynamicLink = `https://${domainName}/authentication/reset-password`;
+      const actionCodeSettings = {
+        url: dynamicLink,
+        handleCodeInApp: true,
+      };
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
+    },
+    {
+      onSuccess: () => {
+        message.success('Password reset email sent! Please check your inbox.');
+      },
+      onError: () => {
+        message.error('Error sending password reset email. Please try again.');
+      },
+    },
+  );
+};
 
 /**
  * Function to fetch a tenant id by sending a GET request to the API
@@ -17,7 +42,9 @@ const getTenantId = async () => {
     };
     const response = await axios.get(
       `${ORG_AND_EMP_URL}/users/firebase/${localId}`,
-      { headers },
+      {
+        headers,
+      },
     );
     return response.data;
   } catch (error) {

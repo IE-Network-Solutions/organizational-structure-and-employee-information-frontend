@@ -8,6 +8,8 @@ import { FaRegFile } from 'react-icons/fa6';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
 import { useDeleteCourseManagement } from '@/store/server/features/tna/management/mutation';
 import { useRouter } from 'next/navigation';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface CourseCardProps {
   item: Course;
@@ -31,57 +33,62 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
   }, [isSuccess]);
 
   return (
-    <Card
-      hoverable
-      className={classNames('relative', { 'opacity-70': item.isDraft }, [
-        className,
-        'min-h-full',
-      ])}
-      loading={isLoading}
-      cover={
-        <img
-          alt="example"
-          src={item.thumbnail ?? ''}
-          className="w-full h-[250px] object-cover object-top"
-        />
-      }
-      onClick={() => {
-        router.push(`/tna/management/${item.id}`);
-      }}
-    >
-      <div className="absolute top-5 left-5 z-10 py-2 px-3 rounded-lg bg-primary text-white text-sm font-semibold">
-        {item.isDraft ? (
-          <div className="flex items-center gap-2">
-            Draft <FaRegFile size={16} />
-          </div>
-        ) : (
-          item.courseCategory.title
-        )}
-      </div>
-      <Meta
-        title={
-          <div className="flex items-center gap-1">
-            <div className="text-lg font-bold text-gray-900 flex-1 text-pretty">
-              {item.title}
+    <Spin spinning={isLoading}>
+      <Card
+        hoverable
+        className={classNames('relative', { 'opacity-70': item?.isDraft }, [
+          className,
+        ])}
+        cover={
+          <img
+            alt="example"
+            src={item?.thumbnail ?? ''}
+            className="w-full h-[250px] object-cover object-top"
+          />
+        }
+        onClick={() => {
+          router.push(`/tna/management/${item?.id}`);
+        }}
+      >
+        <div className="absolute top-5 left-5 z-10 py-2 px-3 rounded-lg bg-primary text-white text-sm font-semibold">
+          {item?.isDraft ? (
+            <div className="flex items-center gap-2">
+              Draft <FaRegFile size={16} />
             </div>
-            <ActionButton
-              onEdit={(e: MouseEvent) => {
-                e.stopPropagation();
-                setCourseId(item.id);
-                setIsShowCourseSidebar(true);
-              }}
-              onDelete={(e: MouseEvent) => {
-                e.stopPropagation();
-                deleteCourse([item.id]);
-              }}
-            />
-          </div>
-        }
-        description={
-          <div className="text-base text-gray-600">{item.overview}</div>
-        }
-      />
-    </Card>
+          ) : (
+            item?.courseCategory?.title || ''
+          )}
+        </div>
+        <Meta
+          title={
+            <div className="flex items-center gap-1">
+              <div className="text-lg font-bold text-gray-900 flex-1 text-pretty">
+                {item?.title}
+              </div>
+            </div>
+          }
+          description={
+            <div className="text-base text-gray-600">{item?.overview}</div>
+          }
+        />
+      </Card>
+      <div className="action-buttons mt-2 flex gap-2">
+        <AccessGuard
+          permissions={[Permissions.UpdateCourse, Permissions.DeleteCourse]}
+        >
+          <ActionButton
+            id={item?.id ?? null}
+            onEdit={() => {
+              setCourseId(item?.id);
+              setIsShowCourseSidebar(true);
+            }}
+            onDelete={() => {
+              deleteCourse([item?.id]);
+            }}
+          />
+        </AccessGuard>
+      </div>
+    </Spin>
   );
 };
 
