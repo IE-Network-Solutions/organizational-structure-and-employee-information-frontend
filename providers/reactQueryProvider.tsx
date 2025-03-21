@@ -1,12 +1,11 @@
 'use client';
 import { QueryCache, QueryClient, QueryClientProvider } from 'react-query';
 import { ReactNode, Suspense, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { handleNetworkError } from '@/utils/showErrorResponse';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { removeCookie, setCookie } from '@/helpers/storageHelper';
+import { setCookie } from '@/helpers/storageHelper';
 import { Spin } from 'antd';
 import { auth } from '@/utils/firebaseConfig';
 
@@ -15,9 +14,9 @@ interface ReactQueryWrapperProps {
 }
 
 const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
-  const router = useRouter();
-  const { setLocalId, setTenantId, setToken, setUserId, setError } =
-    useAuthenticationStore();
+  // const router = useRouter();
+  // const { setLocalId, setTenantId, setToken, setUserId, setError } =
+  //   useAuthenticationStore();
 
   const refreshToken = async () => {
     const getCookieFromDocument = (key: string): string | null => {
@@ -55,7 +54,7 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
               handleNetworkError(error);
             }
           } else {
-            handleNetworkError(error); 
+            handleNetworkError(error);
           }
         },
         onSuccess: (variables: any, context: any) => {
@@ -67,15 +66,15 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       },
     },
     queryCache: new QueryCache({
-      onError: async (error: any, query) => {
+      onError: async (error: any) => {
         if (error?.response?.status === 401) {
           const newToken = await refreshToken();
           if (newToken) {
           } else {
-            handleNetworkError(error); 
+            handleNetworkError(error);
           }
         } else if (process.env.NODE_ENV !== 'production') {
-          handleNetworkError(error); 
+          handleNetworkError(error);
         }
       },
     }),
@@ -89,9 +88,12 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
 
   useEffect(() => {
     refreshToken(); // Initial token refresh on mount
-    const refreshInterval = setInterval(() => {
-      refreshToken();
-    }, 50 * 60 * 1000); // Refresh every 50 minutes
+    const refreshInterval = setInterval(
+      () => {
+        refreshToken();
+      },
+      50 * 60 * 1000,
+    ); // Refresh every 50 minutes
 
     return () => clearInterval(refreshInterval);
   }, []);

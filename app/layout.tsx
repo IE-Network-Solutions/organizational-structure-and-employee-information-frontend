@@ -21,13 +21,13 @@ export default function RootLayout({
     <html lang="en" data-test="layout">
       <body className={manrope.className}>
         {/* <AuthProvider> */}
-          <ReactQueryWrapper>
-            <AntdRegistry>
-              <AntdConfigProvider>
-                <ConditionalNav>{children}</ConditionalNav>
-              </AntdConfigProvider>
-            </AntdRegistry>
-          </ReactQueryWrapper>
+        <ReactQueryWrapper>
+          <AntdRegistry>
+            <AntdConfigProvider>
+              <ConditionalNav>{children}</ConditionalNav>
+            </AntdConfigProvider>
+          </AntdRegistry>
+        </ReactQueryWrapper>
         {/* </AuthProvider> */}
       </body>
     </html>
