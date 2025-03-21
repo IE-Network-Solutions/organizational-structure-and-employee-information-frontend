@@ -163,7 +163,6 @@ const InvoicesTable = ({ data, loading = false }: InvoicesTableProps) => {
       sorter: (a, b) => a.status.localeCompare(b.status),
       render: (status: string) => {
         let className = '';
-        const style = {};
 
         switch (status) {
           case 'DRAFT':
@@ -194,7 +193,6 @@ const InvoicesTable = ({ data, loading = false }: InvoicesTableProps) => {
         return (
           <span
             className={`rounded-lg px-2 py-2 text-sm font-medium ${className}`}
-            style={style}
           >
             {status}
           </span>
