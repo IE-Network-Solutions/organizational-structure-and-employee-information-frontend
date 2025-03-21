@@ -34,6 +34,7 @@ const TnaRequestSidebar = () => {
     monthId,
     sessionId,
     yearId,
+    searchQuery,
     setSearchQuery,
     tnaId,
     setTnaId,
@@ -75,8 +76,9 @@ const TnaRequestSidebar = () => {
         id: tnaId ? [tnaId] : [],
       },
     },
-    false,
-    false,
+    searchQuery,
+    true,
+    true,
   );
 
   const [form] = Form.useForm();
@@ -127,22 +129,37 @@ const TnaRequestSidebar = () => {
     // Extract `trainingNeedCategory`, keep `otherData`
     const { ...otherData } = data?.items?.[0] || {};
 
-    setTna(
-      [
-        {
-          ...otherData, // Retain existing data from items[0]
-          ...finalValues, // Include monthId, yearId, sessionId
-          certStatus: TrainingNeedAssessmentCertStatus.IN_PROGRESS,
-          status: TrainingNeedAssessmentStatus.PENDING,
-          assignedUserId: userId,
-          approvalWorkflowId:
-            approvalUserData?.length > 0
-              ? approvalUserData[0]?.id
-              : approvalDepartmentData?.[0]?.id,
-        },
-      ],
-      { onSuccess: () => onClose() },
-    );
+    const dataValue: any = [
+      {
+        ...otherData, // Retain existing data from items[0]
+        ...finalValues, // Include monthId, yearId, sessionId
+        certStatus: TrainingNeedAssessmentCertStatus.IN_PROGRESS,
+        status: TrainingNeedAssessmentStatus.PENDING,
+        assignedUserId: userId,
+        approvalWorkflowId:
+          approvalUserData?.length > 0
+            ? approvalUserData[0]?.id
+            : approvalDepartmentData?.[0]?.id,
+      },
+    ];
+
+    const filteredData = dataValue?.map((originalData: any) => ({
+      title: originalData.title,
+      trainingPrice: originalData?.trainingPrice, // Modify the training price as requested
+      assignedUserId: originalData.assignedUserId,
+      trainingNeedCategoryId: originalData.trainingNeedCategoryId,
+      approvalWorkflowId: originalData.approvalWorkflowId,
+      currencyId: originalData.currencyId,
+      sessionId: originalData.sessionId,
+      yearId: originalData.yearId,
+      monthId: originalData.monthId,
+      departmentId: originalData?.departmentId, // Modified departmentId
+      status: originalData.status,
+      certStatus: originalData.certStatus,
+      trainingProofs: [],
+    }));
+
+    setTna(filteredData, { onSuccess: () => onClose() });
   };
 
   const onClose = () => {

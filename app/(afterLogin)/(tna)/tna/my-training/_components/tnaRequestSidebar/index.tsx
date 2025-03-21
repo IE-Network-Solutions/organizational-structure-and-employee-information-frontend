@@ -25,8 +25,13 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
 
 const TnaRequestSidebar = () => {
-  const { isShowTnaReviewSidebar, setIsShowTnaReviewSidebar, tnaId, setTnaId } =
-    useTnaReviewStore();
+  const {
+    isShowTnaReviewSidebar,
+    setIsShowTnaReviewSidebar,
+    searchQuery,
+    tnaId,
+    setTnaId,
+  } = useTnaReviewStore();
   const { userId } = useAuthenticationStore();
 
   const { data: employeeData } = useGetEmployee(userId);
@@ -63,8 +68,9 @@ const TnaRequestSidebar = () => {
         id: tnaId ? [tnaId] : [],
       },
     },
-    false,
-    false,
+    searchQuery,
+    true,
+    true,
   );
 
   const [form] = Form.useForm();
@@ -113,8 +119,7 @@ const TnaRequestSidebar = () => {
 
   const onFinish = () => {
     const value = form.getFieldsValue();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { trainingNeedCategory, ...otherData } = data?.items[0] || {};
+    const { ...otherData } = data?.items[0] || {};
     setTna([
       {
         ...otherData,

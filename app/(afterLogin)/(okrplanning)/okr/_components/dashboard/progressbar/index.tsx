@@ -40,12 +40,14 @@ const ProgressPercent: React.FC<PercentageProps> = ({
             </div>
             <Progress
               style={{ color: '#3636f0' }}
-              strokeColor={'bg-blue-600'}
+              strokeColor="#3636f0"
               strokeWidth={8}
               size={150}
               percent={typeof percent === 'number' ? percent : 0} // Handle numeric percent
               type="circle"
-              format={formatText} // Use the formatText function for custom display
+              format={() => (
+                <span className="text-[#3636F0]">{formatText()}</span>
+              )}
             />
           </div>
         </div>

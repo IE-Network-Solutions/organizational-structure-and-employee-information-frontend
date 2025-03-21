@@ -74,6 +74,7 @@ const OnboaringSteper: React.FC = () => {
   } = useStepStore((state) => state);
 
   const { createWorkSchedule, getSchedule } = useScheduleStore();
+  const { data: branches } = useGetBranches();
 
   const { orgData } = useOrganizationStore();
   // const { getFiscalYear } = useFiscalYearStore();
@@ -258,7 +259,6 @@ const OnboaringSteper: React.FC = () => {
     }
     toggleLoading();
   };
-  const { data: branches } = useGetBranches();
 
   const handleNextStep = () => {
     if (currentStep >= 4) {

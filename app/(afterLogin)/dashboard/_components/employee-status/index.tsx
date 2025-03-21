@@ -108,7 +108,6 @@ const EmploymentStats: React.FC = () => {
               margin: '0 auto',
             }}
           >
-            <Doughnut data={data} options={options} />
             <div
               className="absolute text-center bg-white shadow-lg w-16 h-16 rounded-full flex flex-col items-center justify-center px-3 z-0"
               style={{
@@ -120,6 +119,9 @@ const EmploymentStats: React.FC = () => {
             >
               <div className="font-bold text-xl">{totalCount}</div>
               <div className="font-light text-[8px]">Total Emp</div>
+            </div>
+            <div style={{ position: 'relative', zIndex: '1' }}>
+              <Doughnut data={data} options={options} />
             </div>
           </div>
           <div style={{ marginLeft: '20px' }}>

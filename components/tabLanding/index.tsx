@@ -61,7 +61,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
                       disabled
                       id={`${title}CustomButtonId`}
                       icon={buttonIcon ?? <FaPlus />}
-                      className={`h-14 px-6 py-6 rounded-lg flex justify-start items-center gap-2 text-xs bg-blue-600 hover:bg-blue-700 h-4`}
+                      className={`h-14 px-6 py-6 rounded-lg flex justify-start items-center gap-2 text-xs bg-blue-600 hover:bg-blue-700`}
                     >
                       <div className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight">
                         {buttonTitle}
