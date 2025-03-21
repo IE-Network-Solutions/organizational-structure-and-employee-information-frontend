@@ -9,7 +9,7 @@ interface ClickStatus {
 // Create the store
 const useClickStatus = create<ClickStatus>((set) => ({
   statuses: {}, // Stores { id: boolean }
-  
+
   setClickStatus: (id: string, value: boolean) =>
     set((state) => ({
       statuses: { ...state.statuses, [id]: value },

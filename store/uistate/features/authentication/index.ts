@@ -1,7 +1,6 @@
 import { setCookie } from '@/helpers/storageHelper';
 import create from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { set, get, del } from 'idb-keyval'; // Import idb-keyval methods
 
 interface StoreState {
   token: string;
@@ -78,7 +77,6 @@ export const useAuthenticationStore = create<StoreState>()(
         //   userId: state.userId,
         // }),
       },
-      
     ),
   ),
 );
