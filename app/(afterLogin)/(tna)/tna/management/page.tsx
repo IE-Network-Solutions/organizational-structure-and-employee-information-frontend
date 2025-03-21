@@ -98,7 +98,7 @@ const TnaManagementPage = () => {
                 ) : null
               ) : (
                 <CourseCard item={item} key={item.id} refetch={refetch} />
-              )
+              ),
             )}
           </div>
         </Spin>
