@@ -37,17 +37,13 @@ const AdminProfile = () => {
         onChange(info) {
         const { status } = info.file
         if (status !== 'uploading') {
-            // console.log(info.file, info.fileList)
         }
         if (status === 'done') {
-            // console.log(`${info.file.name} file uploaded successfully`)
         } else if (status === 'error') {
-            console.log(`${info.file.name} file upload failed.`)
+            // console.log(`${info.file.name} file upload failed.`)
         }
         },
-        onDrop(e) {
-            //  console.log('Dropped files', e.dataTransfer.files)
-        },
+        onDrop() {}
     }
 
     return (
@@ -135,7 +131,6 @@ const AdminProfile = () => {
                                     </Select>
                                 </Form.Item>
 
-                                {/* Region */}
                                 <Form.Item
                                     name="region"
                                     label="Region"
@@ -144,7 +139,6 @@ const AdminProfile = () => {
                                     <Input placeholder="Enter region" />
                                 </Form.Item>
 
-                                {/* Company Phone */}
                                 <Form.Item
                                     name="companyPhone"
                                     label="Company Phone"
