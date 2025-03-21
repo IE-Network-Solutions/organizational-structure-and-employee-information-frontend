@@ -5,7 +5,6 @@ import GenerateModal from './generateModal';
 import { useAllIncentiveCards } from '@/store/server/features/incentive/all/queries';
 import {
   IncentiveDetail,
-  RecordType,
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
 import IncentivePagination from '@/app/(afterLogin)/(incentive)/_components/incentivePagination';
@@ -21,7 +20,6 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
   const { currentPage, setCurrentPage, pageSize, setPageSize } =
     useIncentiveStore();
 
-  console.log(cardData, '765redfghjk');
   return (
     <div className="m-3">
       <div className="flex items-center justify-between">
@@ -37,7 +35,7 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
             cardData?.items?.length &&
             cardData?.items?.map((items: IncentiveDetail) => (
               <Col key={items?.id} xs={24} sm={24} md={24} lg={8} xl={8}>
-                <Link href={`/incentive/${items?.id}`} passHref>
+                <Link href={`/incentive/incentivePage/${items?.id}`}>
                   <Card className="bg-[#FAFAFA]" bordered={false}>
                     <div className="flex flex-wrap items-start justify-between mb-0">
                       <Title level={5}>{items?.year}</Title>

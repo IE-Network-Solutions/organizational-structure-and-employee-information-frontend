@@ -6,8 +6,9 @@ import {
 import { Avatar, Table, TableColumnsType, Tooltip } from 'antd';
 import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
-const columns: TableColumnsType<AllIncentiveData> = [
+const columns: TableColumnsType<any> = [
   {
     title: 'Recognition',
     dataIndex: 'recognition',
@@ -43,6 +44,8 @@ const IncentiveTableAfterGenerate: React.FC = () => {
       searchParams?.byYear || ' ',
       searchParams?.bySession || '',
       searchParams?.byMonth || '',
+      pageSize,
+      currentPage,
     );
 
   const onPageChange = (page: number, pageSize?: number) => {
@@ -52,35 +55,53 @@ const IncentiveTableAfterGenerate: React.FC = () => {
     }
   };
 
-  const allIncentiveTableData = incentiveData?.map((item: AllIncentiveData) => {
-    return {
-      recognition: item?.recognition,
-      employee_name: (
-        <Tooltip>
-          <div className="flex flex-wrap items-center justify-start gap-3">
-            <Avatar icon={<UserOutlined />} />
-            <span>{item?.employee_name}</span>
-          </div>
-        </Tooltip>
-      ),
-      role: item?.role,
-      criteria: (
-        <div className="rounded-xl p-3 mx-2 bg-[#D3E4F0] text-[#1D9BF0] font-semibold inline-block">
-          {item?.criteria}
-        </div>
-      ),
-      bonus: (
-        <div>
-          {item?.bonus} {''}ETB
-        </div>
-      ),
-      status: (
-        <div className="rounded-xl p-1 mx-2 bg-[#D3E4F0] text-[#1D9BF0] font-semibold inline-block">
-          {item?.status}
-        </div>
-      ),
-    };
-  });
+  const { data: employeeData } = useGetAllUsers();
+
+  const getEmployeeInformation = (id: string) => {
+    const user = employeeData?.items?.find((item: any) => item.id === id);
+    return user;
+  };
+
+  const allIncentiveTableData =
+    responseLoading || incentiveData?.items?.length < 0
+      ? []
+      : incentiveData?.items?.map((item: AllIncentiveData) => {
+          return {
+            userId: item?.userId,
+            recognition: item?.recognitionType || '--',
+            employee_name: (
+              <Tooltip>
+                <div className="flex flex-wrap items-center justify-start gap-3">
+                  <Avatar icon={<UserOutlined />} />
+                  <span>
+                    {getEmployeeInformation(item?.userId)?.firstName +
+                      '  ' +
+                      getEmployeeInformation(item?.userId)?.middleName}
+                  </span>
+                </div>
+              </Tooltip>
+            ),
+            role: getEmployeeInformation(item?.userId)?.role?.name,
+            criteria: item?.breakdown?.map((criterion, index) => (
+              <div
+                key={criterion?.criterionKey || index}
+                className="rounded-xl p-3 mx-2 bg-[#D3E4F0] text-[#1D9BF0] font-semibold inline-block"
+              >
+                {criterion?.criterionKey}
+              </div>
+            )),
+            bonus: (
+              <div>
+                {item?.amount} {''}ETB
+              </div>
+            ),
+            status: (
+              <div className="rounded-lg px-3 py-2 mx-2 bg-[#D3E4F0] text-[#1D9BF0] font-semibold inline-block">
+                {item?.isPaid === true ? 'Paid' : 'Unpaid'}
+              </div>
+            ),
+          };
+        });
 
   return (
     <div>
@@ -99,6 +120,7 @@ const IncentiveTableAfterGenerate: React.FC = () => {
         loading={responseLoading}
         scroll={{ x: 1000 }}
       />
+      hello there
     </div>
   );
 };

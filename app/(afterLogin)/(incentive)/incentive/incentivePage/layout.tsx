@@ -35,19 +35,17 @@ const IncentivePage: React.FC = () => {
             </div>
           ),
         },
-        ...(parentRecognition.length > 0
-          ? parentRecognition.map((item: any) => ({
-              key: item?.id,
-              label: (
-                <span className="font-semibold text-md p-3">{item?.name}</span>
-              ),
-              children: (
-                <div className="mx-3">
-                  <DynamicIncentive parentRecognitionId={item?.id} />
-                </div>
-              ),
-            }))
-          : []),
+        ...(parentRecognition ?? []).map((item: any) => ({
+          key: item?.id,
+          label: (
+            <span className="font-semibold text-md p-3">{item?.name}</span>
+          ),
+          children: (
+            <div className="mx-3">
+              <DynamicIncentive parentRecognitionId={item?.id} />
+            </div>
+          ),
+        })),
       ];
 
   const OperationsSlot = useMemo(() => {
