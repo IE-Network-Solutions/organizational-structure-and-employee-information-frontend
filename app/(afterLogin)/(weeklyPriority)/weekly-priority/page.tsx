@@ -2,8 +2,7 @@
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import React from 'react';
 import { useWeeklyPriorityStore } from '@/store/uistate/features/weeklyPriority/useStore';
-import Department from './_components/department';
-
+import Department from './_components/department-team/department';
 
 function Page(): JSX.Element {
   const { activeTab, setActiveTab } = useWeeklyPriorityStore();
@@ -41,8 +40,7 @@ function Page(): JSX.Element {
           </div>
         </div>
         <div className="mt-4">
-          {activeTab === 1 &&<Department/>}
-          {activeTab === 2 && <div>Team Content</div>}
+         <Department />
         </div>
       </div>
     </div>

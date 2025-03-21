@@ -48,5 +48,5 @@ export const useGetSimpleEmployee = (empId: string) =>
 export const useGetEmployee = (empId: string) =>
   useQuery<any>(['employeeItemData', empId], () => getEmployee(empId), {
     keepPreviousData: true,
-    enabled: empId.length > 0,
+    enabled: empId?.length > 0,
   });
