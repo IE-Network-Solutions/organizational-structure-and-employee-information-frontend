@@ -103,24 +103,24 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
       <div className="mb-2 flex flex-col sm:flex-row justify-between items-start sm:items-end">
         <div className="flex gap-4 ml-0 sm:ml-10">
           <div className="flex items-center gap-2">
-            <div className="bg-light_purple text-blue font-semibold text-xs flex items-center p-2 rounded-lg">
+            <div className="bg-light_purple text-[#3636f0] font-semibold text-xs flex items-center p-2 rounded-lg">
               {keyResult?.metricType?.name}
             </div>
             <div className="flex items-center gap-1">
-              <div className="text-blue text-xl">&#x2022;</div>
-              <div className="text-blue mt-1 text-xs flex items-center rounded-lg">
+              <div className="text-[#3636f0] text-xl">&#x2022;</div>
+              <div className="text-[#687588] mt-1 text-xs flex items-center rounded-lg">
                 Metric
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="bg-light_purple text-blue font-semibold text-xs flex items-center p-2 rounded-lg">
+            <div className="bg-light_purple text-[#3636f0] font-semibold text-xs flex items-center p-2 rounded-lg">
               {keyResult?.weight}
             </div>
             <div className="flex items-center gap-1">
-              <div className="text-blue text-xl">&#x2022;</div>
-              <div className="text-blue mt-1 text-xs flex items-center rounded-lg">
+              <div className="text-[#3636f0] text-xl">&#x2022;</div>
+              <div className="text-[#687588] mt-1 text-xs flex items-center rounded-lg">
                 Weight
               </div>
             </div>
@@ -130,7 +130,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         <div className="grid gap-4 mt-3 sm:mt-0">
           <div className="flex gap-4">
             <div className="flex items-center gap-2">
-              <div className="bg-light_purple text-blue font-semibold text-sm p-1 w-16 sm:w-20 text-center rounded-lg">
+              <div className="bg-light_purple text-[#3636f0] font-semibold text-sm p-1 w-16 sm:w-20 text-center rounded-lg">
                 {keyResult?.metricType?.name === 'Milestone'
                   ? keyResult?.milestones?.filter(
                       (e: any) => e.status === 'Completed',
@@ -139,14 +139,13 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
                     ? keyResult?.progress
                     : Number(keyResult?.currentValue)?.toLocaleString() || 0}
               </div>
-              <div className="flex items-center gap-1">
-                <div className="text-blue text-xl">&#x2022;</div>
-                <div className="text-blue mt-1 text-xs flex items-center rounded-lg">
+              <div className="flex items-center gap-0">
+                <div className="text-[#3636f0] text-xl">&#x2022;</div>
+                <div className="text-[#687588] mt-1 text-xs flex items-center rounded-lg">
                   Achieved
                 </div>
               </div>
             </div>
-            <div className="text-xl">|</div>
             <div className="flex items-center gap-2">
               <div className="bg-light_purple text-blue font-semibold text-sm p-1 min-w-16 sm:min-w-20 text-center rounded-lg">
                 {keyResult?.metricType?.name === 'Milestone'
@@ -156,8 +155,8 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
                     : Number(keyResult?.targetValue)?.toLocaleString() || 0}
               </div>
               <div className="flex items-center gap-1">
-                <div className="text-blue text-xl">&#x2022;</div>
-                <div className="text-blue mt-1 text-xs flex items-center rounded-lg">
+                <div className="text-[#3636f0] text-xl">&#x2022;</div>
+                <div className="text-[#687588] mt-1 text-xs flex items-center rounded-lg">
                   {keyResult?.metricType?.name === 'Milestone'
                     ? 'Milestones'
                     : 'Target'}
