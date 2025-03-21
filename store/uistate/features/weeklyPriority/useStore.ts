@@ -30,15 +30,14 @@ interface WeeklyPriorityState {
   setDepartmentId: (departmentId: string) => void;
   weekIds?: string[];
   setWeekIds: (weekIds: string[]) => void;
-
 }
 
 export const useWeeklyPriorityStore = create<WeeklyPriorityState>((set) => ({
   activeTab: 1,
   setActiveTab: (tab) => set({ activeTab: tab }),
-  departmentId: "",
+  departmentId: '',
   setDepartmentId: (id) => set({ departmentId: id }),
-  weekIds:[],
+  weekIds: [],
   setWeekIds: (id) => set({ weekIds: id }),
   data: [],
   setData: (newData) => set({ data: newData }),
@@ -85,7 +84,7 @@ export const useWeeklyPriorityStore = create<WeeklyPriorityState>((set) => ({
 
       // Remove the task at the given taskIndex
       newData[itemIndex].tasks = newData[itemIndex].tasks.filter(
-        (_, index) => index !== taskIndex,
+        (notused, index) => index !== taskIndex,
       );
 
       // If no tasks remain, remove the entire card

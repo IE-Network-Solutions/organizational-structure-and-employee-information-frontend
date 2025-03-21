@@ -40,7 +40,7 @@ function Page(): JSX.Element {
           </div>
         </div>
         <div className="mt-4">
-         <Department />
+          <Department />
         </div>
       </div>
     </div>

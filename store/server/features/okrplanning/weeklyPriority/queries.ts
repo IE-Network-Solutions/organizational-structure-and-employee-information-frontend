@@ -23,25 +23,23 @@ type WeekData = {
   title: string;
 }[];
 
-
 type ResponseData = {
   items?: DataItem[];
 };
 
- const getDepartmentChild = async (departmentId: string) => {
-  if(departmentId){
+const getDepartmentChild = async (departmentId: string) => {
+  if (departmentId) {
     return crudRequest({
-    url: `${ORG_AND_EMP_URL}/departments/child-departments/departments/${departmentId}`,
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    },
-  });
+      url: `${ORG_AND_EMP_URL}/departments/child-departments/departments/${departmentId}`,
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+        tenantId: tenantId, // Pass tenantId in the headers
+      },
+    });
   }
-  
 };
- const getWeeks= async () => {
+const getWeeks = async () => {
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/weekly-priorities-week`,
     method: 'GET',
@@ -59,7 +57,7 @@ const getWeeklyPriority = async (
   try {
     const response = await axios.post(
       `${OKR_AND_PLANNING_URL}/weekly-priorities`,
-      { departmentId: departmentIds, weeklyPriorityWeekId:weeklyId }, // This is the request body
+      { departmentId: departmentIds, weeklyPriorityWeekId: weeklyId }, // This is the request body
       {
         headers: {
           Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -93,23 +91,15 @@ export const useGetWeeklyPriorities = (
   departmentIds: string[],
   weeklyId: string[],
 ) =>
-  useQuery<ResponseData>(['weeklyPriorities',departmentIds,weeklyId], () =>
+  useQuery<ResponseData>(['weeklyPriorities', departmentIds, weeklyId], () =>
     getWeeklyPriority(departmentIds, weeklyId),
   );
-export const useGetDepartmentChild = (
-
-  departmentId: string,
-
-) =>
+export const useGetDepartmentChild = (departmentId: string) =>
   useQuery<DepartmentData>(['departmentChild', departmentId], () =>
     getDepartmentChild(departmentId),
   );
-  
-export const useGetWeeks = (
-) =>
-  useQuery<WeekData>('weeks', () =>
-    getWeeks(),
-  );
+
+export const useGetWeeks = () => useQuery<WeekData>('weeks', () => getWeeks());
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.
