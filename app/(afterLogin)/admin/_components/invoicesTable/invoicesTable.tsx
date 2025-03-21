@@ -163,7 +163,7 @@ const InvoicesTable = ({ data, loading = false }: InvoicesTableProps) => {
       sorter: (a, b) => a.status.localeCompare(b.status),
       render: (status: string) => {
         let className = '';
-        let style = {};
+        const style = {};
 
         switch (status) {
           case 'DRAFT':
