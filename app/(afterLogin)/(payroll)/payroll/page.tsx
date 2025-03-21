@@ -15,6 +15,7 @@ import Filters from './_components/filters';
 import {
   useGetActivePayroll,
   useGetAllActiveBasicSalary,
+  useGetEmployeeInfo,
 } from '@/store/server/features/payroll/payroll/queries';
 import {
   useCreatePayroll,
@@ -27,8 +28,10 @@ import { saveAs } from 'file-saver';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
+import { useExportData } from './_components/excel';
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [exportBank, setExportBank] = useState(true);
   const [bankLetter, setBankLetter] = useState(true);
   const [paySlip, setPaySlip] = useState(false);
   const [exportPayrollData, setExportPayrollData] = useState(true);
@@ -37,6 +40,7 @@ const Payroll = () => {
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
   const [payPeriodId, setPayPeriodId] = useState('');
   const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
+  const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
 
@@ -47,6 +51,7 @@ const Payroll = () => {
     useSendingPayrollPayslip();
 
   const { generateBankLetter } = useGenerateBankLetter();
+  const { exportToExcel } = useExportData();
 
   const [loading, setLoading] = useState(false);
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
@@ -72,12 +77,13 @@ const Payroll = () => {
   const handleExportAll = async () => {
     const exportTasks: Promise<any>[] = []; // Ensure array contains promises
 
-    // if (paySlip) exportTasks.push(Promise.resolve(sendingPaySlipHandler(mergedPayroll)));
+    if (paySlip)
+      exportTasks.push(Promise.resolve(sendingPaySlipHandler(mergedPayroll)));
 
     if (exportPayrollData)
       exportTasks.push(Promise.resolve(handleDeductionExportPayroll()));
 
-    // if (exportBank) exportTasks.push(Promise.resolve(handleExportBank()));
+    if (exportBank) exportTasks.push(handleExportBank());
 
     if (bankLetter)
       exportTasks.push(
@@ -107,6 +113,57 @@ const Payroll = () => {
     } finally {
       setLoading(false);
       setIsModalOpen(false);
+    }
+  };
+
+  type Payroll = {
+    employeeId: string;
+    netPay: number;
+  };
+
+  const handleExportBank = async () => {
+    if (!employeeInfo || employeeInfo.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      const flatData = employeeInfo.map((employee: any) => {
+        const payroll = mergedPayroll.find(
+          (p: any) => p.employeeId === employee.id,
+        ) as Payroll | undefined;
+
+        return {
+          employeeName: `${employee.firstName || ''} ${employee.middleName || ''} ${employee.lastName || ''}`,
+          email: employee.email || '--',
+          accountNumber:
+            employee.employeeInformation?.bankInformation?.accountNumber ||
+            '--',
+          bankName:
+            employee.employeeInformation?.bankInformation?.bankName || '--',
+          netPay: payroll?.netPay ?? '--', // Ensure a fallback value
+        };
+      });
+
+      const exportColumns = [
+        { header: 'Employee Name', key: 'employeeName', width: 50 },
+        { header: 'Employee Email', key: 'email', width: 50 },
+        { header: 'Account Number', key: 'accountNumber', width: 40 },
+        { header: 'Bank Name', key: 'bankName', width: 30 },
+        { header: 'Net Pay', key: 'netPay', width: 30 },
+      ];
+
+      await exportToExcel(flatData, exportColumns, 'Banks');
+    } catch (error) {
+      notification.error({
+        message: 'Error Exporting Bank Information',
+        description: 'An error occurred while exporting data.',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -499,6 +556,7 @@ const Payroll = () => {
       render: (key: string) => Number(key || 0)?.toLocaleString(),
     },
   ];
+
   return (
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4 scrollbar-none">
@@ -642,6 +700,14 @@ const Payroll = () => {
               disabled
               checked={paySlip}
               onChange={() => setPaySlip(!paySlip)}
+            />
+          </div>
+
+          <div className="flex flex-col justify-between items-start gap-2 ">
+            <span>Export Bank</span>
+            <Switch
+              checked={bankLetter}
+              onChange={() => setExportBank(!exportBank)}
             />
           </div>
         </div>
