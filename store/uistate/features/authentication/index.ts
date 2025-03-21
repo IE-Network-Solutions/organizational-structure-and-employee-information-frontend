@@ -56,6 +56,7 @@ export const useAuthenticationStore = create<StoreState>()(
           tenantId: state.tenantId,
           localId: state.localId,
           userId: state.userId,
+          userData: state.userData,
         }),
         // getStorage: () => ({
         //   getItem: async (key: string) => {
