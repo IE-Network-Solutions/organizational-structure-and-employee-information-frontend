@@ -15,7 +15,6 @@ import Filters from './_components/filters';
 import {
   useGetActivePayroll,
   useGetAllActiveBasicSalary,
-  useGetEmployeeInfo,
 } from '@/store/server/features/payroll/payroll/queries';
 import {
   useCreatePayroll,
@@ -23,7 +22,6 @@ import {
   useSendingPayrollPayslip,
 } from '@/store/server/features/payroll/payroll/mutation';
 import PayrollCard from './_components/cards';
-import { useExportData } from './_components/excel';
 import { useGenerateBankLetter } from './_components/Latter';
 import { saveAs } from 'file-saver';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -31,7 +29,6 @@ import { useGetAllUsersData } from '@/store/server/features/employees/employeeMa
 import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [exportBank, setExportBank] = useState(true);
   const [bankLetter, setBankLetter] = useState(true);
   const [paySlip, setPaySlip] = useState(false);
   const [exportPayrollData, setExportPayrollData] = useState(true);
@@ -40,7 +37,6 @@ const Payroll = () => {
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
   const [payPeriodId, setPayPeriodId] = useState('');
   const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
-  const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
 
@@ -50,7 +46,6 @@ const Payroll = () => {
   const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
     useSendingPayrollPayslip();
 
-  const { exportToExcel } = useExportData();
   const { generateBankLetter } = useGenerateBankLetter();
 
   const [loading, setLoading] = useState(false);
@@ -384,11 +379,6 @@ const Payroll = () => {
       setLoading(false);
     }
   };
-  type Payroll = {
-    employeeId: string;
-    netPay: number;
-  };
-
 
   const handleBankLetter = async (amount: any) => {
     if (!amount) {
@@ -623,7 +613,7 @@ const Payroll = () => {
             type="primary"
             onClick={handleExportAll}
             className="text-white bg-blue border-none"
-            disabled={!(exportBank || bankLetter) || loading}
+            disabled={!bankLetter || loading}
             loading={loading}
           >
             Export
