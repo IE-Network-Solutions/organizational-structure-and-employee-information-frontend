@@ -29,7 +29,7 @@ const TaskCard: React.FC = () => {
   const session = activeFiscalYear?.sessions?.find(
     (item: any) => !item?.active,
   );
-  const month = session?.months?.find((item: any) => !item?.active);
+  const month = session?.months?.find((item: any) => item?.active===true);
   const userDepartmentId = userInfo?.employeeJobInformation[0]?.departmentId;
   const handleEditToggle = (itemIndex: number, taskIndex: number) => {
     const newData = [...data];
