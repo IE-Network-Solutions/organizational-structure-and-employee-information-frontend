@@ -27,7 +27,7 @@ const TaskCard: React.FC = () => {
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
 
   const session = activeFiscalYear?.sessions?.find(
-    (item: any) => !item?.active,
+    (item: any) => item?.active===true,
   );
   const month = session?.months?.find((item: any) => item?.active===true);
   const userDepartmentId = userInfo?.employeeJobInformation[0]?.departmentId;
