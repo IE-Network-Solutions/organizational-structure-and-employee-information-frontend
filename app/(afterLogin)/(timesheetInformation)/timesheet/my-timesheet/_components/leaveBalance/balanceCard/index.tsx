@@ -12,7 +12,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
   duration = '',
 }) => {
   return (
-    <div className="w-full h-[120px] rounded-[10px] bg-white py-4 px-6">
+    <div className="w-full h-[120px] rounded-[10px] bg-white py-4 px-6 my-2 shadow-lg">
       <div className="flex item-center justify-between">
         <div className="text-base font-bold text-gray-900">{title}</div>
         <Button
