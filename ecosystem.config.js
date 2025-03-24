@@ -5,7 +5,7 @@ module.exports = {
       script: 'npm',
       args: 'run start',
       env: {
-        PORT: process.env.NEXT_PUBLIC_PORT || 3001,
+        PORT: 3001,
       }
     },
     {
@@ -13,7 +13,7 @@ module.exports = {
       script: 'npm',
       args: 'run start',
       env: {
-        PORT: process.env.NEXT_PUBLIC_PORT || 9412,
+        PORT: 9412,
       },
     },
     {
@@ -21,7 +21,7 @@ module.exports = {
       script: 'npm',
       args: 'run start',
       env: {
-        PORT: process.env.NEXT_PUBLIC_PORT || 9411,
+        PORT: 9411,
       },
     },
   ],
