@@ -17,7 +17,7 @@ const ApprovalStatusesInfo = () => {
   ];
 
   return (
-    <div className="flex items-center gap-2.5 py-[5px] px-3 rounded-lg border border-gray-100 w-max">
+    <div className="flex items-center gap-2.5 py-[5px] px-3 rounded-lg w-max">
       {statuses.map((status) => (
         <div key={status.text} className="flex items-center gap-[5px]">
           <Image width={24} height={24} src={status.img} alt="" />

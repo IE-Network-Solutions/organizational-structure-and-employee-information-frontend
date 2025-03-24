@@ -87,15 +87,16 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
               size={20}
             />
             <span className="text-lg">{keyResult?.progress || 0}%</span>
-            {keyResult?.isClosed === false && (
-              <Dropdown
-                overlay={menu}
-                trigger={['click']}
-                placement="bottomRight"
-              >
-                <IoIosMore className="text-gray-500 text-lg cursor-pointer" />
-              </Dropdown>
-            )}
+            {keyResult?.isClosed === false &&
+              Number(keyResult?.progress) === 0 && (
+                <Dropdown
+                  overlay={menu}
+                  trigger={['click']}
+                  placement="bottomRight"
+                >
+                  <IoIosMore className="text-gray-500 text-lg cursor-pointer" />
+                </Dropdown>
+              )}
           </div>
         </div>
       </div>

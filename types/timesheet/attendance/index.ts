@@ -18,7 +18,7 @@ export const AttendanceRecordTypeBadgeTheme: Record<
   [AttendanceRecordType.LATE]: StatusBadgeTheme.warning,
   [AttendanceRecordType.EARLY]: StatusBadgeTheme.warning,
   [AttendanceRecordType.ABSENT]: StatusBadgeTheme.danger,
-  [AttendanceRecordType.PRESENT]: StatusBadgeTheme.secondary,
+  [AttendanceRecordType.PRESENT]: StatusBadgeTheme.success,
 };
 
 export const attendanceRecordTypeOption: {
