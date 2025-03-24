@@ -32,7 +32,7 @@ const LeaveBalance = () => {
               className="w-6 h-6"
               type="text"
               id="leaveBalanceCardLeftId"
-              icon={<LeftOutlined size={16} className="text-gray-900" />}
+              icon={<LeftOutlined size={16} className="text-black font-bold" />}
               onClick={() => swiper?.slidePrev()}
             />
           </div>
@@ -65,7 +65,7 @@ const LeaveBalance = () => {
             <Button
               className="w-6 h-6"
               type="text"
-              icon={<RightOutlined size={16} className="text-gray-900" />}
+              icon={<RightOutlined size={16} className="text-black font-bold" />}
               onClick={() => swiper?.slideNext()}
             />
           </div>

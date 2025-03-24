@@ -2,7 +2,7 @@
 import { FC, ReactNode, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import {  ConfigProvider, Menu, MenuProps } from 'antd';
+import { ConfigProvider, Menu, MenuProps } from 'antd';
 import { MdOutlinePayments } from 'react-icons/md';
 import { HiOutlineReceiptTax } from 'react-icons/hi';
 import { GiSuspensionBridge } from 'react-icons/gi';

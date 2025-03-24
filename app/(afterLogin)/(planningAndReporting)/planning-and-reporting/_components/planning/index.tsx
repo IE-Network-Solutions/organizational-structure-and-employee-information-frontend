@@ -62,6 +62,7 @@ function Planning() {
     activeTab,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
+
   const { userId } = useAuthenticationStore();
   const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
     useApprovalPlanningPeriods();
@@ -88,7 +89,7 @@ function Planning() {
 
   const { data: allPlanning, isLoading: getPlanningLoading } = useGetPlanning({
     userId: selectedUser,
-    planPeriodId: planningPeriodId ?? '', // Provide a default string value
+    planPeriodId: planningPeriodId ?? '',
     page,
     pageSize,
   });

@@ -23,16 +23,18 @@ import {
   useSendingPayrollPayslip,
 } from '@/store/server/features/payroll/payroll/mutation';
 import PayrollCard from './_components/cards';
-import { useExportData } from './_components/excel';
 import { useGenerateBankLetter } from './_components/Latter';
 import { saveAs } from 'file-saver';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
+import { useExportData } from './_components/excel';
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportBank, setExportBank] = useState(true);
   const [bankLetter, setBankLetter] = useState(true);
+  const [paySlip, setPaySlip] = useState(false);
+  const [exportPayrollData, setExportPayrollData] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
@@ -48,8 +50,8 @@ const Payroll = () => {
   const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
     useSendingPayrollPayslip();
 
-  const { exportToExcel } = useExportData();
   const { generateBankLetter } = useGenerateBankLetter();
+  const { exportToExcel } = useExportData();
 
   const [loading, setLoading] = useState(false);
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
@@ -73,11 +75,20 @@ const Payroll = () => {
   }, [payroll, allEmployees]);
 
   const handleExportAll = async () => {
-    const exportTasks = [];
+    const exportTasks: Promise<any>[] = []; // Ensure array contains promises
+
+    if (paySlip)
+      exportTasks.push(Promise.resolve(sendingPaySlipHandler(mergedPayroll)));
+
+    if (exportPayrollData)
+      exportTasks.push(Promise.resolve(handleDeductionExportPayroll()));
 
     if (exportBank) exportTasks.push(handleExportBank());
+
     if (bankLetter)
-      exportTasks.push(handleBankLetter(payroll?.totalNetPayAmount));
+      exportTasks.push(
+        Promise.resolve(handleBankLetter(payroll?.totalNetPayAmount)),
+      );
 
     if (exportTasks.length === 0) {
       notification.error({
@@ -89,7 +100,7 @@ const Payroll = () => {
 
     setLoading(true);
     try {
-      await Promise.all(exportTasks);
+      await Promise.all(exportTasks); // Await all promises
       notification.success({
         message: 'Export Successful',
         description: 'Selected export operations completed successfully.',
@@ -104,6 +115,58 @@ const Payroll = () => {
       setIsModalOpen(false);
     }
   };
+
+  type Payroll = {
+    employeeId: string;
+    netPay: number;
+  };
+
+  const handleExportBank = async () => {
+    if (!employeeInfo || employeeInfo.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      const flatData = employeeInfo.map((employee: any) => {
+        const payroll = mergedPayroll.find(
+          (p: any) => p.employeeId === employee.id,
+        ) as Payroll | undefined;
+
+        return {
+          employeeName: `${employee.firstName || ''} ${employee.middleName || ''} ${employee.lastName || ''}`,
+          email: employee.email || '--',
+          accountNumber:
+            employee.employeeInformation?.bankInformation?.accountNumber ||
+            '--',
+          bankName:
+            employee.employeeInformation?.bankInformation?.bankName || '--',
+          netPay: payroll?.netPay ?? '--', // Ensure a fallback value
+        };
+      });
+
+      const exportColumns = [
+        { header: 'Employee Name', key: 'employeeName', width: 50 },
+        { header: 'Employee Email', key: 'email', width: 50 },
+        { header: 'Account Number', key: 'accountNumber', width: 40 },
+        { header: 'Bank Name', key: 'bankName', width: 30 },
+        { header: 'Net Pay', key: 'netPay', width: 30 },
+      ];
+
+      await exportToExcel(flatData, exportColumns, 'Banks');
+    } catch (error) {
+      notification.error({
+        message: 'Error Exporting Bank Information',
+        description: 'An error occurred while exporting data.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSearch = (searchValues: any) => {
     const queryParams = new URLSearchParams();
 
@@ -373,56 +436,6 @@ const Payroll = () => {
       setLoading(false);
     }
   };
-  type Payroll = {
-    employeeId: string;
-    netPay: number;
-  };
-
-  const handleExportBank = async () => {
-    if (!employeeInfo || employeeInfo.length === 0) {
-      notification.error({
-        message: 'No Data Available',
-        description: 'There is no data available to export.',
-      });
-      return;
-    }
-    setLoading(true);
-    try {
-      const flatData = employeeInfo.map((employee: any) => {
-        const payroll = mergedPayroll.find(
-          (p: any) => p.employeeId === employee.id,
-        ) as Payroll | undefined;
-
-        return {
-          employeeName: `${employee.firstName || ''} ${employee.middleName || ''} ${employee.lastName || ''}`,
-          email: employee.email || '--',
-          accountNumber:
-            employee.employeeInformation?.bankInformation?.accountNumber ||
-            '--',
-          bankName:
-            employee.employeeInformation?.bankInformation?.bankName || '--',
-          netPay: payroll?.netPay ?? '--', // Ensure a fallback value
-        };
-      });
-
-      const exportColumns = [
-        { header: 'Employee Name', key: 'employeeName', width: 50 },
-        { header: 'Employee Email', key: 'email', width: 50 },
-        { header: 'Account Number', key: 'accountNumber', width: 40 },
-        { header: 'Bank Name', key: 'bankName', width: 30 },
-        { header: 'Net Pay', key: 'netPay', width: 30 },
-      ];
-
-      await exportToExcel(flatData, exportColumns, 'Banks');
-    } catch (error) {
-      notification.error({
-        message: 'Error Exporting Bank Information',
-        description: 'An error occurred while exporting data.',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleBankLetter = async (amount: any) => {
     if (!amount) {
@@ -543,39 +556,46 @@ const Payroll = () => {
       render: (key: string) => Number(key || 0)?.toLocaleString(),
     },
   ];
+
   return (
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4 scrollbar-none">
-        <h2 style={{ marginBottom: '20px' }}>Payroll</h2>
+        <h2 className="text-3xl mb-7">Payroll</h2>
         <h2 hidden style={{ marginBottom: '20px' }}>
           {payPeriodQuery}
         </h2>
 
-        <div className="flex gap-4">
+        <div className="flex gap-4  mb-7">
           <Button
-            type="default"
-            className="text-white bg-primary border-none p-6"
+            // type="default"
+            className="text-[#3636F0] bg-[#B2B2FF] border-none p-6"
             onClick={() => setIsModalOpen(true)}
           >
             Export
           </Button>
-          <Button
-            type="primary"
-            className="text-white  border-none p-6"
-            // onClick={handleExportPayroll}
-            onClick={handleDeductionExportPayroll}
-          >
-            Export Payroll
-          </Button>
-          {/* <Button
-            type="default"
-            className="text-white bg-violet-500 border-none p-6"
-            onClick={handleDeductionExportPayroll}
-          >
-            Export Deductions
-          </Button> */}
+
           <Popconfirm
-            title="Are you sure you want to delete the payroll?"
+            title="Are you sure?"
+            description="This will send the payslip to every employee via email."
+            okText="Yes, Send"
+            cancelText="No"
+            onConfirm={() => sendingPaySlipHandler(mergedPayroll)}
+          >
+            <Button
+              type="default"
+              loading={sendingPaySlipLoading}
+              className="text-white bg-primary border-none p-6"
+            >
+              Send Email
+            </Button>
+          </Popconfirm>
+
+          <Popconfirm
+            title={
+              payroll?.payrolls.length
+                ? 'Are you sure you want to regenerate the payroll ?'
+                : 'Are you sure you want to generate the payroll ?'
+            }
             onConfirm={handleDeletePayroll}
             okText="Yes"
             cancelText="No"
@@ -590,15 +610,13 @@ const Payroll = () => {
               loading={isCreatingPayroll || loading || deleteLoading}
               disabled={isCreatingPayroll || loading || deleteLoading}
             >
-              {payroll?.payrolls.length > 0
-                ? 'Delete Payroll'
-                : 'Generate Payroll'}
+              Generate
             </Button>
           </Popconfirm>
         </div>
       </div>
 
-      <Filters onSearch={handleSearch} />
+      <Filters onSearch={handleSearch} oneRow={true} />
       <Row
         gutter={16}
         style={{
@@ -653,7 +671,7 @@ const Payroll = () => {
             type="primary"
             onClick={handleExportAll}
             className="text-white bg-blue border-none"
-            disabled={!(exportBank || bankLetter) || loading}
+            disabled={!bankLetter || loading}
             loading={loading}
           >
             Export
@@ -663,32 +681,37 @@ const Payroll = () => {
         <div className="flex flex-col gap-5 m-6">
           <div className="flex flex-col justify-between items-start gap-2 ">
             <span>Export Bank Letter</span>
-            <Switch checked={bankLetter} onChange={setBankLetter} />
+            <Switch
+              checked={bankLetter}
+              onChange={() => setBankLetter(!bankLetter)}
+            />
           </div>
           <div className="flex flex-col justify-between items-start gap-2 ">
+            <span>Export Payroll</span>
+            <Switch
+              checked={exportPayrollData}
+              onChange={() => setExportPayrollData(!exportPayrollData)}
+            />
+          </div>
+
+          <div className="flex flex-col justify-between items-start gap-2 ">
+            <span> Send Email for employees</span>
+            <Switch
+              disabled
+              checked={paySlip}
+              onChange={() => setPaySlip(!paySlip)}
+            />
+          </div>
+
+          <div className="flex flex-col justify-between items-start gap-2 ">
             <span>Export Bank</span>
-            <Switch checked={exportBank} onChange={setExportBank} />
+            <Switch
+              checked={bankLetter}
+              onChange={() => setExportBank(!exportBank)}
+            />
           </div>
         </div>
       </Modal>
-      <div className="h-12 overflow-hidden">
-        <Popconfirm
-          title="Are you sure?"
-          description="This will send the payslip to every employee via email."
-          okText="Yes, Send"
-          cancelText="No"
-          onConfirm={() => sendingPaySlipHandler(mergedPayroll)}
-        >
-          <Button
-            type="default"
-            loading={sendingPaySlipLoading}
-            className="text-white bg-primary border-none p-6"
-          >
-            Send Email for employees
-          </Button>
-        </Popconfirm>
-        {/* <PaySlip data={mergedPayroll} /> */}
-      </div>
     </div>
   );
 };

@@ -53,6 +53,7 @@ const LeaveRequestDetail = () => {
     leaveRequestSidebarData ?? '',
   );
 
+
   const { data: logData } = useGetSingleApprovalLog(
     leaveRequestSidebarData ?? '',
     leaveRequestSidebarWorkflowData ?? '',
@@ -61,6 +62,8 @@ const LeaveRequestDetail = () => {
   const { data: approverLog } = useGetSingleApproval(
     leaveRequestSidebarData ?? '',
   );
+
+
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',

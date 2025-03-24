@@ -49,6 +49,8 @@ export default function ChartLayout({
     drawTitle,
     setDrawerVisible,
     setDepartmentTobeDeletedId,
+    selectedKey,
+    setSelectedKey,
   } = useOrganizationStore.getState();
 
   const { reset } = useDepartmentStore();
@@ -73,6 +75,7 @@ export default function ChartLayout({
   // Handling menu click and navigation
   const onMenuClick = (e: any) => {
     const key = e['key'] as string;
+    setSelectedKey(key);
     switch (key) {
       case 'structure':
         router.push('/organization/chart/org-structure');
@@ -90,7 +93,7 @@ export default function ChartLayout({
       {/* ORG Structure Section */}
       <div className="w-full overflow-x-auto">
         <Card
-          className="w-full"
+          className="w-full border-none"
           title={<div className="text-2xl font-bold">ORG Structure</div>}
           extra={
             <div className="py-4 flex justify-center items-center gap-4">
@@ -104,18 +107,20 @@ export default function ChartLayout({
                   type="default"
                 />
               </Dropdown>
-              <Dropdown
-                overlay={orgComposeAndMergeMenues}
-                trigger={['click']}
-                placement="bottomRight"
-              >
-                <Button
-                  type="primary"
-                  className="w-16 h-14 px-6 py-6 rounded-lg flex items-center justify-center gap-2"
+              {selectedKey !== 'chart' && (
+                <Dropdown
+                  overlay={orgComposeAndMergeMenues}
+                  trigger={['click']}
+                  placement="bottomRight"
                 >
-                  <BsThreeDotsVertical size={16} />
-                </Button>
-              </Dropdown>
+                  <Button
+                    type="primary"
+                    className="w-16 h-14 px-6 py-6 rounded-lg flex items-center justify-center gap-2"
+                  >
+                    <BsThreeDotsVertical size={16} />
+                  </Button>
+                </Dropdown>
+              )}
             </div>
           }
         >

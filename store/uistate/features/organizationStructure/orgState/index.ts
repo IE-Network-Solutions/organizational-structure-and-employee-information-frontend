@@ -122,6 +122,8 @@ const useOrganizationStore = create<OrganizationState>((set) => ({
     set({ departmentTobeDeletedId }),
   setShiftDepartmentId: (departmentTobeShiftedId: string) =>
     set({ departmentTobeShiftedId }),
+  selectedKey: 'structure',
+  setSelectedKey: (key) => set({ selectedKey: key }),
 }));
 
 export default useOrganizationStore;

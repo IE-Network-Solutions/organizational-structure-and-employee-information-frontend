@@ -10,8 +10,9 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 const DownloadExcelButton: React.FC = () => {
   const { selectedRecognitionTypeId, activeKey, setSelectedRecognitionTypeId } =
     useIncentiveStore();
+
   const { data: excelHeaders, isLoading: templateResponseLoading } =
-    useExcelHeaders(selectedRecognitionTypeId);
+    useExcelHeaders(selectedRecognitionTypeId || '');
 
   const { data: childRecognitionData, isLoading: responseLoading } =
     useRecognitionByParentId(activeKey !== '1' ? activeKey : '');
@@ -66,12 +67,12 @@ const DownloadExcelButton: React.FC = () => {
     <Popover
       content={
         <div>
-          {childRecognitionData.map((item: any) => (
+          {childRecognitionData?.map((item: any) => (
             <div
               key={item?.id}
               onClick={() => {
                 handleTemplateDownload();
-                setSelectedRecognitionTypeId(item?.id);
+                setSelectedRecognitionTypeId(item?.id || '');
               }}
               className="flex flex-col border-[1px] w-60 my-2 rounded-xl border-gray-300 p-2 cursor-pointer hover:bg-gray-100 transition"
             >

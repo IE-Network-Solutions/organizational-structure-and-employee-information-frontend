@@ -6,13 +6,25 @@ import { useQuery } from 'react-query';
 const fetchAllIncentiveData = async (
   employeeName: string,
   year: string,
-  session: string,
+  session: string | string[], // Accepts both string and array
   month: string,
+  page: number,
+  current: number,
 ) => {
+  // Ensure session is always an array and convert it to a proper query format
+
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentive?employee_name=${employeeName}&&year=${year}&&sessions=${session}&&month=${month}  `,
-    method: 'GET',
+    url: `${INCENTIVE_URL}/incentives/get-all-incentives?limit=${page}&page=${current}`,
+    method: 'POST',
     headers: requestHeader(),
+    data: {
+      userId: employeeName,
+      year: year,
+      sessionId: session ?? [],
+      monthId: month,
+      // limit: page,
+      // page: current,
+    },
   });
 };
 
@@ -131,9 +143,12 @@ export const useGetAllIncentiveData = (
   year: string,
   session: string,
   month: string,
+  page: number,
+  current: number,
 ) => {
   return useQuery<any>(
-    ['getAllIncentiveData', employeeName, year, session, month],
-    () => fetchAllIncentiveData(employeeName, year, session, month),
+    ['getAllIncentiveData', employeeName, year, session, month, page, current],
+    () =>
+      fetchAllIncentiveData(employeeName, year, session, month, page, current),
   );
 };
