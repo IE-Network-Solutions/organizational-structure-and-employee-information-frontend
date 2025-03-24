@@ -259,22 +259,7 @@ const CustomFieldsDrawer: React.FC<{
         }}
       </Form.List>
 
-      <Form.Item>
-        <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-8">
-          <Button
-            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border:none"
-            htmlType="submit"
-          >
-            {isEdit ? 'Update Template' : 'Create'}
-          </Button>
-          <Button
-            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-        </div>
-      </Form.Item>
+      <Form.Item></Form.Item>
     </Form>
   );
 
@@ -304,8 +289,23 @@ const CustomFieldsDrawer: React.FC<{
         open={isCustomFieldsDrawerOpen}
         modalHeader={customFieldsDrawerHeader}
         onClose={onClose}
-        width="40%"
-        footer={null}
+        width="30%"
+        footer={
+          <div className="flex justify-center w-full bg-[#fff] absolute bottom-8 space-x-5">
+            <Button
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+              htmlType="submit"
+            >
+              {isEdit ? 'Update Template' : 'Create'}
+            </Button>
+          </div>
+        }
       >
         <div className="pb-[60px]">{renderFormContent()}</div>
       </CustomDrawerLayout>

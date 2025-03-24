@@ -9,7 +9,7 @@ interface UserCardProps {
   name: string | undefined | React.ReactNode;
   description?: string;
   size?: 'small' | 'medium';
-  email?:string;
+  email?: string;
 }
 
 const UserCard: FC<UserCardProps> = ({
@@ -17,7 +17,7 @@ const UserCard: FC<UserCardProps> = ({
   name,
   description = '',
   size = 'medium',
-  email
+  email,
 }) => {
   // const sizeWH = size === 'medium' ? 40 : 24;
   return (
@@ -40,7 +40,7 @@ const UserCard: FC<UserCardProps> = ({
         >
           {name}
         </div>
-        {email&&
+        {email && (
           <div
             className={classNames('text-gray-700 mt-1', {
               'text-lg': size === 'medium',
@@ -49,7 +49,7 @@ const UserCard: FC<UserCardProps> = ({
           >
             {email}
           </div>
-        }
+        )}
         {description && (
           <div className="text-[10px] text-gray-500 mt-0.5">{description}</div>
         )}

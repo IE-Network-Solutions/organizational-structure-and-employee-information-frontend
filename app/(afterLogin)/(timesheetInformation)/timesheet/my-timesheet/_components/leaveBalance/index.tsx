@@ -65,7 +65,9 @@ const LeaveBalance = () => {
             <Button
               className="w-6 h-6"
               type="text"
-              icon={<RightOutlined size={16} className="text-black font-bold" />}
+              icon={
+                <RightOutlined size={16} className="text-black font-bold" />
+              }
               onClick={() => swiper?.slideNext()}
             />
           </div>
