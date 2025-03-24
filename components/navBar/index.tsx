@@ -45,8 +45,18 @@ const menuItems: CustomMenuItem[] = [
     className: 'font-bold',
     permissions: ['view_organization'],
     children: [
-      { key: '/organization/chart', label: 'Org Structure', className: 'h-8', permissions: ['view_organization_chart'] },
-      { key: '/organization/settings', label: 'Settings', className: 'h-8', permissions: ['view_organization_settings'] },
+      {
+        key: '/organization/chart',
+        label: 'Org Structure',
+        className: 'h-8',
+        permissions: ['view_organization_chart'],
+      },
+      {
+        key: '/organization/settings',
+        label: 'Settings',
+        className: 'h-8',
+        permissions: ['view_organization_settings'],
+      },
     ],
   },
   {
@@ -83,7 +93,11 @@ const menuItems: CustomMenuItem[] = [
     label: 'Talent Acquisition',
     permissions: ['view_recruitment'],
     children: [
-      { key: '/recruitment/jobs', label: 'Jobs', permissions: ['manage_recruitment_jobs'] },
+      {
+        key: '/recruitment/jobs',
+        label: 'Jobs',
+        permissions: ['manage_recruitment_jobs'],
+      },
       {
         key: '/recruitment/candidate',
         label: 'Candidates',
@@ -96,7 +110,12 @@ const menuItems: CustomMenuItem[] = [
         className: 'h-8',
         permissions: ['manage_recruitment_talent_pool'],
       },
-      { key: '/recruitment/settings', label: 'Settings', className: 'h-8', permissions: ['manage_recruitment_settings'] },
+      {
+        key: '/recruitment/settings',
+        label: 'Settings',
+        className: 'h-8',
+        permissions: ['manage_recruitment_settings'],
+      },
     ],
   },
   {
@@ -106,15 +125,30 @@ const menuItems: CustomMenuItem[] = [
     className: 'font-bold',
     permissions: ['view_okr'],
     children: [
-      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold h-8', permissions: ['view_okr_dashboard'] },
-      { key: '/okr', label: 'OKR', className: 'font-bold h-8', permissions: ['view_okr_overview'] },
+      {
+        key: '/okr/dashboard',
+        label: 'Dashboard',
+        className: 'font-bold h-8',
+        permissions: ['view_okr_dashboard'],
+      },
+      {
+        key: '/okr',
+        label: 'OKR',
+        className: 'font-bold h-8',
+        permissions: ['view_okr_overview'],
+      },
       {
         key: '/planning-and-reporting',
         label: 'Planning and Reporting',
         className: 'font-bold h-8',
         permissions: ['manage_planning_reporting'],
       },
-      { key: '/okr/settings', label: 'Settings', className: 'font-bold h-8', permissions: ['manage_okr_settings'] },
+      {
+        key: '/okr/settings',
+        label: 'Settings',
+        className: 'font-bold h-8',
+        permissions: ['manage_okr_settings'],
+      },
     ],
   },
   {
@@ -124,11 +158,36 @@ const menuItems: CustomMenuItem[] = [
     className: 'font-bold',
     permissions: ['view_feedback'],
     children: [
-      { key: '/feedback/conversation', label: 'Conversation', className: 'font-bold h-8', permissions: ['view_feedback_conversation'] },
-      { key: '/feedback/feedback', label: 'Feedback', className: 'font-bold h-8', permissions: ['view_feedback_list'] },
-      { key: '/feedback/recognition', label: 'Recognition', className: 'font-bold h-8', permissions: ['view_feedback_recognition'] },
-      { key: '/feedback/categories', label: 'Form', className: 'font-bold h-8', permissions: ['manage_feedback_forms'] },
-      { key: '/feedback/settings', label: 'Settings', className: 'font-bold h-8', permissions: ['manage_feedback_settings'] },
+      {
+        key: '/feedback/conversation',
+        label: 'Conversation',
+        className: 'font-bold h-8',
+        permissions: ['view_feedback_conversation'],
+      },
+      {
+        key: '/feedback/feedback',
+        label: 'Feedback',
+        className: 'font-bold h-8',
+        permissions: ['view_feedback_list'],
+      },
+      {
+        key: '/feedback/recognition',
+        label: 'Recognition',
+        className: 'font-bold h-8',
+        permissions: ['view_feedback_recognition'],
+      },
+      {
+        key: '/feedback/categories',
+        label: 'Form',
+        className: 'font-bold h-8',
+        permissions: ['manage_feedback_forms'],
+      },
+      {
+        key: '/feedback/settings',
+        label: 'Settings',
+        className: 'font-bold h-8',
+        permissions: ['manage_feedback_settings'],
+      },
     ],
   },
   {
@@ -138,10 +197,30 @@ const menuItems: CustomMenuItem[] = [
     label: 'Learning & Growth',
     permissions: ['view_learning_growth'],
     children: [
-      { key: '/tna/my-training', label: 'My-TNA', className: 'font-bold', permissions: ['view_my_training'] },
-      { key: '/tna/management', label: 'Training Management', className: 'font-bold h-8', permissions: ['manage_training'] },
-      { key: '/tna/review', label: 'TNA', className: 'font-bold h-8', permissions: ['view_tna_review'] },
-      { key: '/tna/settings/course-category', label: 'Settings', className: 'font-bold h-8', permissions: ['manage_tna_settings'] },
+      {
+        key: '/tna/my-training',
+        label: 'My-TNA',
+        className: 'font-bold',
+        permissions: ['view_my_training'],
+      },
+      {
+        key: '/tna/management',
+        label: 'Training Management',
+        className: 'font-bold h-8',
+        permissions: ['manage_training'],
+      },
+      {
+        key: '/tna/review',
+        label: 'TNA',
+        className: 'font-bold h-8',
+        permissions: ['view_tna_review'],
+      },
+      {
+        key: '/tna/settings/course-category',
+        label: 'Settings',
+        className: 'font-bold h-8',
+        permissions: ['manage_tna_settings'],
+      },
     ],
   },
   {
@@ -151,10 +230,30 @@ const menuItems: CustomMenuItem[] = [
     label: 'Payroll',
     permissions: ['view_payroll'],
     children: [
-      { key: '/employee-information', label: 'Employee Information', className: 'font-bold h-8', permissions: ['view_employee_information'] },
-      { key: '/payroll', label: 'Payroll', className: 'font-bold h-8', permissions: ['view_payroll_overview'] },
-      { key: '/myPayroll', label: 'My Payroll', className: 'font-bold h-8', permissions: ['view_my_payroll'] },
-      { key: '/settings', label: 'Settings', className: 'font-bold h-8', permissions: ['manage_payroll_settings'] },
+      {
+        key: '/employee-information',
+        label: 'Employee Information',
+        className: 'font-bold h-8',
+        permissions: ['view_employee_information'],
+      },
+      {
+        key: '/payroll',
+        label: 'Payroll',
+        className: 'font-bold h-8',
+        permissions: ['view_payroll_overview'],
+      },
+      {
+        key: '/myPayroll',
+        label: 'My Payroll',
+        className: 'font-bold h-8',
+        permissions: ['view_my_payroll'],
+      },
+      {
+        key: '/settings',
+        label: 'Settings',
+        className: 'font-bold h-8',
+        permissions: ['manage_payroll_settings'],
+      },
     ],
   },
   {
@@ -164,10 +263,30 @@ const menuItems: CustomMenuItem[] = [
     label: 'Time & Attendance',
     permissions: ['view_timesheet'],
     children: [
-      { key: '/timesheet/my-timesheet', label: 'My Timesheet', className: 'font-bold h-8', permissions: ['view_my_timesheet'] },
-      { key: '/timesheet/employee-attendance', label: 'Employee Attendance', className: 'font-bold h-8', permissions: ['view_employee_attendance'] },
-      { key: '/timesheet/leave-management/leaves', label: 'Leave Management', className: 'font-bold h-8', permissions: ['manage_leave_management'] },
-      { key: '/timesheet/settings/closed-date', label: 'Settings', className: 'font-bold h-8', permissions: ['manage_timesheet_settings'] },
+      {
+        key: '/timesheet/my-timesheet',
+        label: 'My Timesheet',
+        className: 'font-bold h-8',
+        permissions: ['view_my_timesheet'],
+      },
+      {
+        key: '/timesheet/employee-attendance',
+        label: 'Employee Attendance',
+        className: 'font-bold h-8',
+        permissions: ['view_employee_attendance'],
+      },
+      {
+        key: '/timesheet/leave-management/leaves',
+        label: 'Leave Management',
+        className: 'font-bold h-8',
+        permissions: ['manage_leave_management'],
+      },
+      {
+        key: '/timesheet/settings/closed-date',
+        label: 'Settings',
+        className: 'font-bold h-8',
+        permissions: ['manage_timesheet_settings'],
+      },
     ],
   },
   {
@@ -177,10 +296,30 @@ const menuItems: CustomMenuItem[] = [
     label: 'Compensation & Benefit',
     permissions: ['view_compensation'],
     children: [
-      { key: '/allowance', label: 'Allowance', className: 'font-bold h-8', permissions: ['view_allowance'] },
-      { key: '/benefit', label: 'Benefit', className: 'font-bold h-8', permissions: ['view_benefit'] },
-      { key: '/deduction', label: 'Deduction', className: 'font-bold h-8', permissions: ['view_deduction'] },
-      { key: '/compensationSetting', label: 'Settings', className: 'font-bold h-8', permissions: ['manage_compensation_settings'] },
+      {
+        key: '/allowance',
+        label: 'Allowance',
+        className: 'font-bold h-8',
+        permissions: ['view_allowance'],
+      },
+      {
+        key: '/benefit',
+        label: 'Benefit',
+        className: 'font-bold h-8',
+        permissions: ['view_benefit'],
+      },
+      {
+        key: '/deduction',
+        label: 'Deduction',
+        className: 'font-bold h-8',
+        permissions: ['view_deduction'],
+      },
+      {
+        key: '/compensationSetting',
+        label: 'Settings',
+        className: 'font-bold h-8',
+        permissions: ['manage_compensation_settings'],
+      },
     ],
   },
   {
@@ -190,9 +329,24 @@ const menuItems: CustomMenuItem[] = [
     label: 'Incentive',
     permissions: ['view_incentive'],
     children: [
-      { key: '/incentive/incentivePage', label: 'Incentive', className: 'font-bold', permissions: ['view_incentive_page'] },
-      { key: '/variable-pay', label: 'Variable Pay', className: 'font-bold h-8', permissions: ['view_variable_pay'] },
-      { key: '/incentive/settings', label: 'Settings', className: 'font-bold', permissions: ['manage_incentive_settings'] },
+      {
+        key: '/incentive/incentivePage',
+        label: 'Incentive',
+        className: 'font-bold',
+        permissions: ['view_incentive_page'],
+      },
+      {
+        key: '/variable-pay',
+        label: 'Variable Pay',
+        className: 'font-bold h-8',
+        permissions: ['view_variable_pay'],
+      },
+      {
+        key: '/incentive/settings',
+        label: 'Settings',
+        className: 'font-bold',
+        permissions: ['manage_incentive_settings'],
+      },
     ],
   },
 ];
@@ -205,8 +359,18 @@ const userItems: CustomMenuItem[] = [
     className: 'font-bold',
     permissions: ['view_okr'],
     children: [
-      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold h-8', permissions: ['view_okr_dashboard'] },
-      { key: '/okr', label: 'OKR', className: 'font-bold h-8', permissions: ['view_okr'] },
+      {
+        key: '/okr/dashboard',
+        label: 'Dashboard',
+        className: 'font-bold h-8',
+        permissions: ['view_okr_dashboard'],
+      },
+      {
+        key: '/okr',
+        label: 'OKR',
+        className: 'font-bold h-8',
+        permissions: ['view_okr'],
+      },
       {
         key: '/planning-and-reporting',
         label: 'Planning and Reporting',
@@ -279,7 +443,6 @@ const userItems: CustomMenuItem[] = [
   // },
 ];
 
-
 interface MyComponentProps {
   children: ReactNode;
 }
@@ -321,56 +484,54 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setMobileCollapsed(true);
     }
   };
-  
+
   const filteredUserItems: any = userItems
-  .map((item) => {
-    const hasAccess = AccessGuard.checkAccess({
-      permissions: item.permissions, // Specify permissions needed
-    });
+    .map((item) => {
+      const hasAccess = AccessGuard.checkAccess({
+        permissions: item.permissions, // Specify permissions needed
+      });
 
-    // If the user doesn't have access, return null (which will be filtered later)
-    if (!hasAccess) return null;
+      // If the user doesn't have access, return null (which will be filtered later)
+      if (!hasAccess) return null;
 
-    // Filter children based on their permissions
-    const filteredChildren = item.children
-      ? item.children.filter((child) =>
-          AccessGuard.checkAccess({
-            permissions: child.permissions,
-          })
-        )
-      : [];
-
-    // Return the item with filtered children (if any)
-    return {
-      ...item,
-      children: filteredChildren,
-    };
-  })
-  .filter(Boolean); // Remove any `null` values
-
-
-  const filteredMenuItems: any = menuItems
-  .map((item) => {
-    const hasAccess = AccessGuard.checkAccess({
-      permissions: item.permissions, // Specify permissions needed
-    });
-
-    if (!hasAccess) return null;
-
-    return {
-      ...item,
-      children: item.children
+      // Filter children based on their permissions
+      const filteredChildren = item.children
         ? item.children.filter((child) =>
             AccessGuard.checkAccess({
               permissions: child.permissions,
-            })
+            }),
           )
-        : [],
-    };
-  })
-  .filter(Boolean);
+        : [];
 
-  
+      // Return the item with filtered children (if any)
+      return {
+        ...item,
+        children: filteredChildren,
+      };
+    })
+    .filter(Boolean); // Remove any `null` values
+
+  const filteredMenuItems: any = menuItems
+    .map((item) => {
+      const hasAccess = AccessGuard.checkAccess({
+        permissions: item.permissions, // Specify permissions needed
+      });
+
+      if (!hasAccess) return null;
+
+      return {
+        ...item,
+        children: item.children
+          ? item.children.filter((child) =>
+              AccessGuard.checkAccess({
+                permissions: child.permissions,
+              }),
+            )
+          : [],
+      };
+    })
+    .filter(Boolean);
+
   const handleLogout = () => {
     setToken('');
     setTenantId('');
@@ -524,5 +685,3 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 };
 
 export default Nav;
-
-
