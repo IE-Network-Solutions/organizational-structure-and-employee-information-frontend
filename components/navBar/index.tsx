@@ -393,13 +393,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setMobileCollapsed(!mobileCollapsed);
   };
 
-  const handleMenuClick = (e: { key: string }) => {
-    router.push(e.key);
-    if (isMobile) {
-      setMobileCollapsed(true);
-    }
-  };
-
   const handleLogout = () => {
     setToken('');
     setTenantId('');
