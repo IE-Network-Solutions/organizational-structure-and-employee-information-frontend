@@ -1,5 +1,6 @@
 'use client';
 import React, { ReactNode, useState, useEffect } from 'react';
+import '../../app/globals.css';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   AppstoreOutlined,
@@ -11,12 +12,9 @@ import {
   MdOutlineKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
-
-import { Layout, Menu, Button, theme, Tree } from 'antd';
-import Key from 'antd';
+import { Layout, Button, theme, Tree } from 'antd';
 
 const { Header, Content, Sider } = Layout;
-import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
 import { TbMessage2 } from 'react-icons/tb';
@@ -31,254 +29,31 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import Logo from '../common/logo';
 import SimpleLogo from '../common/logo/simpleLogo';
 
-const menuItems: MenuProps['items'] = [
-  {
-    key: '/organization',
-    icon: <CiSettings />,
-    label: 'Organization',
-    className: 'font-bold',
-    children: [
-      { key: '/organization/chart', label: 'Org Structure', className: 'h-8' },
-      { key: '/organization/settings', label: 'Settings', className: 'h-8' },
-    ],
-  },
-  {
-    key: '/employees',
-    icon: <LuUsers2 />,
-    label: 'Employees',
-    className: 'font-bold',
-    children: [
-      {
-        key: '/employees/manage-employees',
-        label: 'Manage Employees',
-        className: 'font-bold h-8',
-      },
-      {
-        key: '/employees/departmentRequest',
-        label: 'Department Request',
-        className: 'font-bold h-8',
-      },
-      {
-        key: '/employees/settings',
-        label: 'Settings',
-        className: 'font-bold h-8',
-      },
-    ],
-  },
-  {
-    key: '/recruitment',
-    icon: <PiSuitcaseSimpleThin />,
-    className: 'font-bold',
-    label: 'Talent Acquisition',
-    children: [
-      { key: '/recruitment/jobs', label: 'Jobs' },
-      {
-        key: '/recruitment/candidate',
-        label: 'Candidates',
-        className: 'h-8',
-      },
-      {
-        key: '/recruitment/talent-pool',
-        label: 'Talent Pool',
-        className: 'h-8',
-      },
-      { key: '/recruitment/settings', label: 'Settings', className: 'h-8' },
-    ],
-  },
-  {
-    key: '/okr-planning',
-    label: 'OKR',
-    icon: <CiStar size={20} />,
-    className: 'font-bold',
-    children: [
-      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold h-8' },
-      { key: '/okr', label: 'OKR', className: 'font-bold h-8' },
-      {
-        key: '/planning-and-reporting',
-        label: 'Planning and Reporting',
-        className: 'font-bold h-8',
-      },
-      // {
-      //   key: '/monitoring-evaluation',
-      //   label: 'Monitoring & Evaluation',
-      //   className: 'font-bold',
-      // },
-      { key: '/okr/settings', label: 'Settings', className: 'font-bold h-8' },
-    ],
-  },
-  {
-    key: '/feedback',
-    label: 'CFR',
-    icon: <TbMessage2 />,
-    className: 'font-bold',
-    children: [
-      {
-        key: '/feedback/conversation',
-        label: 'Conversation',
-        className: 'font-bold h-8',
-      },
-      {
-        key: '/feedback/feedback',
-        label: 'Feedback',
-        className: 'font-bold h-8',
-      },
-      {
-        key: '/feedback/recognition',
-        label: 'Recognition',
-        className: 'font-bold h-8',
-      },
-      {
-        key: '/feedback/categories',
-        label: 'Form',
-        className: 'font-bold h-8',
-      },
-      {
-        key: '/feedback/settings',
-        label: 'Settings',
-        className: 'font-bold h-8',
-      },
-    ],
-  },
-  {
-    key: '/tna',
-    icon: <CiBookmark />,
-    className: 'font-bold',
-    label: 'Learning & Growth',
-    children: [
-      { key: '/tna/my-training', label: 'My-TNA', className: 'font-bold' },
-
-      {
-        key: '/tna/management',
-        label: 'Training Management',
-        className: 'font-bold h-8',
-      },
-      { key: '/tna/review', label: 'TNA', className: 'font-bold h-8' },
-      {
-        key: '/tna/settings/course-category',
-        label: 'Settings',
-        className: 'font-bold h-8',
-      },
-    ],
-  },
-  // payroll
-  {
-    key: '/payroll',
-    icon: <AiOutlineDollarCircle />,
-    className: 'font-bold',
-    label: 'Payroll',
-    children: [
-      {
-        key: '/employee-information',
-        label: 'Employee Information',
-        className: 'font-bold h-8',
-      },
-      { key: '/payroll', label: 'Payroll', className: 'font-bold h-8' },
-      { key: '/myPayroll', label: 'My Payroll', className: 'font-bold h-8' },
-      {
-        key: '/settings',
-        label: 'Settings',
-        className: 'font-bold h-8',
-      },
-    ],
-  },
-  {
-    key: '/timesheet',
-    icon: <CiCalendar />,
-    className: 'font-bold',
-    label: 'Time & Attendance',
-    children: [
-      {
-        key: '/timesheet/my-timesheet',
-        label: 'My timesheet',
-        className: 'font-bold h08',
-      },
-      {
-        key: '/timesheet/employee-attendance',
-        label: 'Employee Attendance',
-        className: 'font-bold h-8',
-      },
-      {
-        key: '/timesheet/leave-management/leaves',
-        label: 'Leave Management',
-        className: 'font-bold h-8',
-      },
-      {
-        key: '/timesheet/settings/closed-date',
-        label: 'Settings',
-        className: 'font-bold h-8',
-      },
-    ],
-  },
-  {
-    key: '/compensation',
-    icon: <PiMoneyLight />,
-    className: 'font-bold',
-    label: 'Compensation & Benefit',
-    children: [
-      {
-        key: '/allowance',
-        label: 'Allowance',
-        className: 'font-bold h-8',
-      },
-      {
-        key: '/benefit',
-        label: 'Benefit',
-        className: 'font-bold h-8',
-      },
-      {
-        key: '/deduction',
-        label: 'Deduction',
-        className: 'font-bold h-8',
-      },
-      {
-        key: '/compensationSetting',
-        label: 'Settings',
-        className: 'font-bold h-8',
-      },
-    ],
-  },
-  {
-    key: '/incentive',
-    icon: <LuCircleDollarSign />,
-    className: 'font-bold',
-    label: 'Incentive',
-    children: [
-      {
-        key: '/incentive/incentivePage',
-        label: 'Incentive',
-        className: 'font-bold',
-      },
-      {
-        key: '/variable-pay',
-        label: 'Variable Pay',
-        className: 'font-bold h-8',
-      },
-      {
-        key: '/incentive/settings',
-        label: 'Settings',
-        className: 'font-bold',
-      },
-    ],
-  },
-];
-
 const treeData = [
   {
     title: (
-      <span className="flex items-center gap-2">
+      <span className="flex items-center gap-2 h-12 w-60">
         <CiSettings size={18} /> Organization
       </span>
     ),
     key: '/organization',
     className: 'font-bold',
     children: [
-      { title: 'Org Structure', key: '/organization/chart', className: 'h-8' },
-      { title: 'Settings', key: '/organization/settings', className: 'h-8' },
+      {
+        title: 'Org Structure',
+        key: '/organization/chart',
+        className: 'font-bold h-9',
+      },
+      {
+        title: 'Settings',
+        key: '/organization/settings',
+        className: 'font-bold h-9',
+      },
     ],
   },
   {
     title: (
-      <span className="flex items-center gap-2">
+      <span className="flex items-center gap-2 h-12 w-60">
         <LuUsers2 size={18} /> Employees
       </span>
     ),
@@ -288,61 +63,69 @@ const treeData = [
       {
         title: 'Manage Employees',
         key: '/employees/manage-employees',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
       {
         title: 'Department Request',
         key: '/employees/departmentRequest',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
       {
         title: 'Settings',
         key: '/employees/settings',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
     ],
   },
   {
     title: (
-      <span className="flex items-center gap-2">
+      <span className="flex items-center gap-2 h-12 w-60">
         <PiSuitcaseSimpleThin size={18} /> Talent Acquisition
       </span>
     ),
     key: '/recruitment',
     className: 'font-bold',
     children: [
-      { title: 'Jobs', key: '/recruitment/jobs' },
-      { title: 'Candidates', key: '/recruitment/candidate', className: 'h-8' },
+      { title: 'Jobs', key: '/recruitment/jobs', className: 'font-bold h-9' },
+      {
+        title: 'Candidates',
+        key: '/recruitment/candidate',
+        className: 'font-bold h-9',
+      },
       {
         title: 'Talent Pool',
         key: '/recruitment/talent-pool',
-        className: 'h-8',
+        className: 'font-bold h-9',
       },
-      { title: 'Settings', key: '/recruitment/settings', className: 'h-8' },
+      {
+        title: 'Settings',
+        key: '/recruitment/settings',
+        className: 'font-bold h-9',
+      },
     ],
   },
   {
     title: (
-      <span className="flex items-center gap-2">
+      <span className="flex items-center gap-2 h-12 w-60">
         <CiStar size={18} /> OKR
       </span>
     ),
     key: '/okr-planning',
     className: 'font-bold',
     children: [
-      { title: 'Dashboard', key: '/okr/dashboard', className: 'font-bold h-8' },
+      { title: 'Dashboard', key: '/okr/dashboard', className: 'font-bold h-9' },
       { title: 'OKR', key: '/okr', className: 'font-bold h-8' },
       {
         title: 'Planning and Reporting',
         key: '/planning-and-reporting',
         className: 'font-bold h-8',
       },
-      { title: 'Settings', key: '/okr/settings', className: 'font-bold h-8' },
+      { title: 'Settings', key: '/okr/settings', className: 'font-bold h-9' },
     ],
   },
   {
     title: (
-      <span className="flex items-center gap-2">
+      <span className="flex items-center gap-2 h-12 w-60">
         <TbMessage2 size={18} /> CFR
       </span>
     ),
@@ -352,75 +135,75 @@ const treeData = [
       {
         title: 'Conversation',
         key: '/feedback/conversation',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
       {
         title: 'Feedback',
         key: '/feedback/feedback',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
       {
         title: 'Recognition',
         key: '/feedback/recognition',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
       {
         title: 'Form',
         key: '/feedback/categories',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
       {
         title: 'Settings',
         key: '/feedback/settings',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
     ],
   },
   {
     title: (
-      <span className="flex items-center gap-2">
+      <span className="flex items-center gap-2 h-12 w-60">
         <CiBookmark size={18} /> Learning & Growth
       </span>
     ),
     key: '/tna',
     className: 'font-bold',
     children: [
-      { title: 'My-TNA', key: '/tna/my-training', className: 'font-bold' },
+      { title: 'My-TNA', key: '/tna/my-training', className: 'font-bold h-9' },
       {
         title: 'Training Management',
         key: '/tna/management',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
-      { title: 'TNA', key: '/tna/review', className: 'font-bold h-8' },
+      { title: 'TNA', key: '/tna/review', className: 'font-bold h-9' },
       {
         title: 'Settings',
         key: '/tna/settings/course-category',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
     ],
   },
   {
     title: (
-      <span className="flex items-center gap-2">
+      <span className="flex items-center gap-2 h-12 w-60">
         <AiOutlineDollarCircle size={18} /> Payroll
       </span>
     ),
-    key: '/payroll',
+    key: 'payroll',
     className: 'font-bold',
     children: [
       {
         title: 'Employee Information',
         key: '/employee-information',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
-      { title: 'Payroll', key: '/payroll', className: 'font-bold h-8' },
-      { title: 'My Payroll', key: '/myPayroll', className: 'font-bold h-8' },
-      { title: 'Settings', key: '/settings', className: 'font-bold h-8' },
+      { title: 'Payroll', key: '/payroll', className: 'font-bold h-9' },
+      { title: 'My Payroll', key: '/myPayroll', className: 'font-bold h-9' },
+      { title: 'Settings', key: '/settings', className: 'font-bold h-9' },
     ],
   },
   {
     title: (
-      <span className="flex items-center gap-2">
+      <span className="flex items-center gap-2 h-12 w-60">
         <CiCalendar size={18} /> Time & Attendance
       </span>
     ),
@@ -430,47 +213,47 @@ const treeData = [
       {
         title: 'My Timesheet',
         key: '/timesheet/my-timesheet',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
       {
         title: 'Employee Attendance',
         key: '/timesheet/employee-attendance',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
       {
         title: 'Leave Management',
         key: '/timesheet/leave-management/leaves',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
       {
         title: 'Settings',
         key: '/timesheet/settings/closed-date',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
     ],
   },
   {
     title: (
-      <span className="flex items-center gap-2">
+      <span className="flex items-center gap-2 h-12 w-60">
         <PiMoneyLight size={18} /> Compensation & Benefit
       </span>
     ),
     key: '/compensation',
     className: 'font-bold',
     children: [
-      { title: 'Allowance', key: '/allowance', className: 'font-bold h-8' },
-      { title: 'Benefit', key: '/benefit', className: 'font-bold h-8' },
-      { title: 'Deduction', key: '/deduction', className: 'font-bold h-8' },
+      { title: 'Allowance', key: '/allowance', className: 'font-bold h-9' },
+      { title: 'Benefit', key: '/benefit', className: 'font-bold h-9' },
+      { title: 'Deduction', key: '/deduction', className: 'font-bold h-9' },
       {
         title: 'Settings',
         key: '/compensationSetting',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
     ],
   },
   {
     title: (
-      <span className="flex items-center gap-2">
+      <span className="flex items-center gap-2 h-12 w-60">
         <LuCircleDollarSign size={18} /> Incentive
       </span>
     ),
@@ -480,89 +263,74 @@ const treeData = [
       {
         title: 'Incentive',
         key: '/incentive/incentivePage',
-        className: 'font-bold',
+        className: 'font-bold h-9',
       },
       {
         title: 'Variable Pay',
         key: '/variable-pay',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
-      { title: 'Settings', key: '/incentive/settings', className: 'font-bold' },
+      {
+        title: 'Settings',
+        key: '/incentive/settings',
+        className: 'font-bold h-9',
+      },
     ],
   },
 ];
 
-const userItems: MenuProps['items'] = [
+const userItems = [
   {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <CiStar size={20} /> OKR
+      </span>
+    ),
     key: '/okr-planning',
-    label: 'OKR',
-    icon: <CiStar size={20} />,
     className: 'font-bold',
     children: [
-      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold h-8' },
-      { key: '/okr', label: 'OKR', className: 'font-bold h-8' },
+      { title: 'Dashboard', key: '/okr/dashboard', className: 'font-bold h-9' },
+      { title: 'OKR', key: '/okr', className: 'font-bold h-9' },
       {
+        title: 'Planning and Reporting',
         key: '/planning-and-reporting',
-        label: 'Planning and Reporting',
-        className: 'font-bold h-8',
+        className: 'font-bold h-9',
       },
     ],
   },
-  //   {
-  //     key: '/feedback',
-  //     label: 'CFR',
-  //     icon: <UserOutlined />,
-  //     className: 'font-bold',
-  //     children: [
-  //       {
-  //         key: '/feedback/categories',
-  //         label: 'Form',
-  //         icon: <UserOutlined />,
-  //         className: 'font-bold',
-  //       },
-  //     ],
-  //   },
-  {
-    key: '/tna',
-    icon: <BarChartOutlined />,
-    className: 'font-bold',
-    label: 'Learning & Growth',
-    children: [
-      {
-        key: '/tna/management',
-        label: 'Training Management',
-        className: 'font-bold h-8',
-      },
-      // { key: '/tna/review', label: 'TNA', className: 'font-bold' },
-    ],
-  },
-  {
-    key: '/timesheet',
-    icon: <CiCalendar />,
-    className: 'font-bold',
-    label: 'Time & Attendance',
-    children: [
-      {
-        key: '/timesheet/my-timesheet',
-        label: 'My timesheet',
-        className: 'font-bold h-8',
-      },
-    ],
-  },
-  // {
-  //   key: '/incentive',
-  //   icon: <CiCalendar />,
-  //   className: 'font-bold',
-  //   label: 'Incentive',
-  //   children: [
-  //     {
-  //       key: '/variable-pay',
-  //       label: 'Variable Pay',
-  //       className: 'font-bold',
-  //     }
 
-  //   ],
-  // },
+  {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <BarChartOutlined /> Learning & Growth
+      </span>
+    ),
+    key: '/tna',
+    className: 'font-bold',
+    children: [
+      {
+        title: 'Training Management',
+        key: '/tna/management',
+        className: 'font-bold h-9',
+      },
+    ],
+  },
+  {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <CiCalendar /> Time & Attendance
+      </span>
+    ),
+    key: '/timesheet',
+    className: 'font-bold',
+    children: [
+      {
+        title: 'My timesheet',
+        key: '/timesheet/my-timesheet',
+        className: 'font-bold h-9',
+      },
+    ],
+  },
 ];
 
 interface MyComponentProps {
@@ -645,22 +413,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     removeCookie('tenantId');
     window.location.reload();
   };
-  // const treeData = menuItems.map((item: any) => ({
-  //   title: (
-  //     <span className="flex items-center h-11 w-full">
-  //       {item.icon && <span className="mr-2">{item.icon}</span>}{' '}
-  //       {/* Render icon for the parent */}
-  //       {item.label}
-  //     </span>
-  //   ),
-  //   key: item.key,
-  //   className: item.className,
-  //   children: item.children?.map((child: any) => ({
-  //     title: child.label, // No icon for child items
-  //     key: child.key,
-  //     className: child.className,
-  //   })),
-  // }));
 
   return (
     <Layout>
@@ -717,38 +469,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </Button>
         )}
 
-        <div className="menu-with-lines">
-          {/* <Menu
-            mode="inline"
-            defaultSelectedKeys={['/dashboard']}
-            items={userRole === 'user' ? userItems : menuItems}
-            inlineCollapsed={collapsed}
-            onClick={handleMenuClick}
-            selectedKeys={[pathname]}
-            className={`my-5 [&_.ant-menu-item-selected]:!bg-gray-200 [&_.ant-menu-item-selected]:!text-black h-96`}
-          /> */}
-
-          {/* <Tree
-            treeData={treeData}
-            showLine={true}
-            defaultSelectedKeys={['/dashboard']}
-            selectedKeys={[pathname]}
-            onSelect={(selectedKeys) => {
-              // Handle navigation on select
-              const selectedKey = selectedKeys[0];
-              router.push(selectedKey + '');
-            }}
-            className="my-5 [&_.ant-tree-node-selected]:!bg-gray-200 [&_.ant-tree-node-selected]:!text-black h-96 w-full"
-          /> */}
+        <div className="relative">
+          <div className="absolute left-2 top-0 w-[10px] h-full bg-white z-10"></div>
           <Tree
-            treeData={treeData}
-            showLine={true}
+            treeData={userRole === 'user' ? userItems : treeData}
+            showLine={{ showLeafIcon: false }} // Only show lines for child nodes
             defaultExpandAll={false}
             expandedKeys={expandedKeys}
             selectedKeys={selectedKeys}
             onSelect={handleSelect}
-            className="my-5 [&_.ant-tree-node-selected]:!bg-gray-200 [&_.ant-tree-node-selected]:!text-black h-96 w-full"
-            switcherIcon={null} // Hides the default expand/collapse icon
+            className="my-5 [&_.ant-tree-node-selected]:!bg-gray-200 [&_.ant-tree-node-selected]:!text-black h-full w-full"
+            switcherIcon={null}
           />
         </div>
       </Sider>
