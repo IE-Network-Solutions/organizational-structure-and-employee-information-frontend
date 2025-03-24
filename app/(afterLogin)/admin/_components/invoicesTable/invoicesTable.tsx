@@ -8,6 +8,9 @@ import { mockPlans } from '../../_mockData/mockPlans';
 import { RightOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+
+dayjs.extend(isBetween);
 
 const { RangePicker } = DatePicker;
 const { Search } = Input;
@@ -268,7 +271,7 @@ const InvoicesTable = ({ data, loading = false }: InvoicesTableProps) => {
         />
 
         <RangePicker
-          placeholder={['Start Voice Date', 'End Voice Date']}
+          placeholder={['Start Issue Date', 'End Issue Date']}
           value={voiceDateRange}
           onChange={(dates) =>
             setVoiceDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
