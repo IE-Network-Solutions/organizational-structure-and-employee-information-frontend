@@ -76,6 +76,12 @@ export enum Permissions {
   // Time and Attendance time zone settings
   UpdateTimeZone = 'update-time-zone',
 
+  // payroll permission
+  PayrollExport = 'payroll-export',
+  SendPayslipEmail = 'send-payslip-email',
+  GeneratePayroll = 'generate-payroll',
+  DeletePayroll = 'delete-payroll',
+
   // sidebar Permissions
 
   DownloadOrganizationStructure = 'download-organization-structure',
@@ -322,10 +328,12 @@ export enum Permissions {
   // DeleteOneToOne = 'delete-one-to-one',
   // EditOneToOne = 'edit-one-to-one',
 
-  // //feedback
-  // CreateFeedack = 'create-feedback',
-  // DeleteFeedack = 'delete-feedback',
-  // EditFeedack = 'edit-feedback',
+  // feedback
+  CreateFeedack = 'create-feedback',
+  DeleteFeedack = 'delete-feedback',
+  EditFeedack = 'edit-feedback',
+  ViewAllEmployeeFeedback = 'view-all-employees-feedback',
+  
 
   // //recognition
   // CreateRecognitionType = 'create-recognition-type',
