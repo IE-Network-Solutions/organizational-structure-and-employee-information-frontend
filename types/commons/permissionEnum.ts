@@ -328,10 +328,12 @@ export enum Permissions {
   // DeleteOneToOne = 'delete-one-to-one',
   // EditOneToOne = 'edit-one-to-one',
 
-  // //feedback
-  // CreateFeedack = 'create-feedback',
-  // DeleteFeedack = 'delete-feedback',
-  // EditFeedack = 'edit-feedback',
+  // feedback
+  CreateFeedack = 'create-feedback',
+  DeleteFeedack = 'delete-feedback',
+  EditFeedack = 'edit-feedback',
+  ViewAllEmployeeFeedback = 'view-all-employees-feedback',
+  
 
   // //recognition
   // CreateRecognitionType = 'create-recognition-type',
