@@ -12,7 +12,6 @@ import React from 'react';
 import { FaEye } from 'react-icons/fa';
 import { FaEllipsisVertical } from 'react-icons/fa6';
 import { IoIosArrowForward } from 'react-icons/io';
-import { FileDown } from 'lucide-react';
 import CandidateDetail from '../../../jobs/[id]/_components/candidateDetail/page';
 import DeleteCandidate from '../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../_components/modals/editCandidate';
@@ -132,15 +131,6 @@ const AllCandidateTable: React.FC = () => {
   };
 
   const data = candidateList?.items?.map((item: any, index: any) => {
-    const handleDownload = () => {
-      const link = document.createElement('a');
-      link.href = item?.resumeUrl;
-      link.download = item?.documentName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
-
     const items = [
       {
         key: 'moveToTalentPool',
@@ -181,21 +171,21 @@ const AllCandidateTable: React.FC = () => {
         item?.jobCandidate?.isExternalApplicant === false
           ? 'External'
           : 'Internal',
+
       cv: (
-        <div className="flex items-center justify-between">
-          <span
-            className="text-xs font-semibold cursor-pointer"
-            title={item?.documentName ?? 'CV.pdf'}
-          >
-            {item?.documentName?.length > 8
-              ? `${item.documentName.slice(0, 8)}...`
-              : (item?.documentName ?? 'CV.pdf')}{' '}
-          </span>
-          <div className="cursor-pointer" onClick={handleDownload}>
-            <FileDown size={20} strokeWidth={1.25} />
-          </div>
-        </div>
+        <a
+          href={item?.resumeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs font-semibold cursor-pointer flex items-center gap-2"
+          title={item?.documentName ?? 'CV.pdf'}
+        >
+          {item?.documentName?.length > 8
+            ? `${item.documentName.slice(0, 8)}...`
+            : (item?.documentName ?? 'CV.pdf')}
+        </a>
       ),
+
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
       stages: (
         <div>
@@ -246,6 +236,7 @@ const AllCandidateTable: React.FC = () => {
       ),
     };
   });
+
   return (
     <div>
       <Table
