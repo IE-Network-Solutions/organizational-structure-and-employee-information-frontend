@@ -7,38 +7,50 @@ pipeline {
                 script {
                     withCredentials([
                         string(credentialsId: 'REMOTE_SERVER_TEST', variable: 'REMOTE_SERVER_TEST'),
-                        string(credentialsId: 'REMOTE_SERVER_PROD', variable: 'REMOTE_SERVER_PROD')
+                        string(credentialsId: 'REMOTE_SERVER_PROD', variable: 'REMOTE_SERVER_PROD'),
                     ]) {
                         def branchName = env.GIT_BRANCH ?: sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                        env.BRANCH_NAME = branchName
 
                         if (branchName.contains('develop')) {
-                            env.SSH_CREDENTIALS_ID = 'peptest'
-                            env.REMOTE_SERVER = REMOTE_SERVER_TEST
+                            env.SSH_CREDENTIALS_ID_1 = 'peptest'
+                            env.REMOTE_SERVER_1 = REMOTE_SERVER_TEST
+                            env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
+                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env'
                         } else if (branchName.contains('production')) {
-                            env.SSH_CREDENTIALS_ID = 'pepproduction'
-                            env.REMOTE_SERVER = REMOTE_SERVER_PROD
+                            env.SSH_CREDENTIALS_ID_1 = 'pepproduction'
+                            env.REMOTE_SERVER_1 = REMOTE_SERVER_PROD
+                            env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
+                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env'
+                        } else if (branchName.contains('staging')) {
+                            env.SSH_CREDENTIALS_ID_1 = 'pepproduction'
+                            env.REMOTE_SERVER_1 = REMOTE_SERVER_PROD
+                            env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
+                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/staging'
                         }
                     }
                 }
             }
         }
 
-        stage('Fetch Environment Variables') {
+    stage('Fetch Environment Variables') {
             steps {
                 script {
-                    sshagent([env.SSH_CREDENTIALS_ID]) {
+                    sshagent([env.SSH_CREDENTIALS_ID_1]) {
+                        
+                                def secretsPath = env.SECRETS_PATH
                         env.REPO_URL = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_URL /home/ubuntu/secrets/.osei-front-env | cut -d= -f2 | tr -d \"\\r\"'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep REPO_URL ${secretsPath}  | cut -d= -f2 | tr -d \"\\r\"'",
                             returnStdout: true
                         ).trim()
 
                         env.BRANCH_NAME = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep BRANCH_NAME /home/ubuntu/secrets/.osei-front-env | cut -d= -f2 | tr -d \"\\r\"'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep BRANCH_NAME ${secretsPath} | cut -d= -f2 | tr -d \"\\r\"'",
                             returnStdout: true
                         ).trim()
 
                         env.REPO_DIR = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_DIR /home/ubuntu/secrets/.osei-front-env | cut -d= -f2 | tr -d \"\\r\"'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep REPO_DIR ${secretsPath}  | cut -d= -f2 | tr -d \"\\r\"'",
                             returnStdout: true
                         ).trim()
                     }
@@ -48,9 +60,9 @@ pipeline {
 
         stage('Prepare Repository') {
             steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
                         if [ -d "$REPO_DIR" ]; then
                             sudo chown -R \$USER:\$USER $REPO_DIR
                             sudo chmod -R 755 $REPO_DIR
@@ -62,9 +74,9 @@ pipeline {
 
         stage('Pull Latest Changes') {
             steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
                         if [ ! -d "$REPO_DIR/.git" ]; then
                             git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR
                         else
@@ -77,43 +89,69 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                                        script {
+                    def envPath = env.FRONTEND_ENV_PATH
+                                            
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cp ~/frontend-env/.osei-front-env ~/$REPO_DIR/.env'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm install'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm install'
                     """
                 }
             }
+        }
         }
 
         stage('Format Repo') {
             steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run format'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run format'
                     """
                 }
             }
         }
 
-        stage('Run Next.js App') {
+stage('Run Next.js App') {
+    parallel {
+        stage('Start App on Server') {
+            when {
+                expression { env.BRANCH_NAME == "'develop'" || env.BRANCH_NAME == "'production'" }
+            }
             steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run build'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 delete osei-front-app || true'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 start ecosystem.config.js --env production'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run build'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 delete osei-front-app || true'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 start ecosystem.config.js --env production'
+                    """
+                }
+            }
+        }
+
+        stage('Start App on Staging Server') {
+            when {
+                expression { env.BRANCH_NAME == "'staging'" }
+            }
+            steps {
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run build'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 delete osei-front-app-staging || true'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 start stage-ecosystem.config.js --env production'
                     """
                 }
             }
         }
     }
+}
+
+    }
 
     post {
         success {
-            echo 'Next.js application deployed successfully!'
+            echo 'Nest.js application deployed successfully!'
         }
-
         failure {
             echo 'Deployment failed.'
             emailext(
