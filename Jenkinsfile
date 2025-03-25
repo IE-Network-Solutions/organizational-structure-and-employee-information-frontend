@@ -40,17 +40,17 @@ pipeline {
                         
                                 def secretsPath = env.SECRETS_PATH
                         env.REPO_URL = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_URL ${secretsPath}  | cut -d= -f2 | tr -d \"\\r\"'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep REPO_URL ${secretsPath}  | cut -d= -f2 | tr -d \"\\r\"'",
                             returnStdout: true
                         ).trim()
 
                         env.BRANCH_NAME = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep BRANCH_NAME ${secretsPath} | cut -d= -f2 | tr -d \"\\r\"'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep BRANCH_NAME ${secretsPath} | cut -d= -f2 | tr -d \"\\r\"'",
                             returnStdout: true
                         ).trim()
 
                         env.REPO_DIR = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_DIR ${secretsPath}  | cut -d= -f2 | tr -d \"\\r\"'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep REPO_DIR ${secretsPath}  | cut -d= -f2 | tr -d \"\\r\"'",
                             returnStdout: true
                         ).trim()
                     }
@@ -62,7 +62,7 @@ pipeline {
             steps {
                 sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
                         if [ -d "$REPO_DIR" ]; then
                             sudo chown -R \$USER:\$USER $REPO_DIR
                             sudo chmod -R 755 $REPO_DIR
@@ -76,7 +76,7 @@ pipeline {
             steps {
                 sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
                         if [ ! -d "$REPO_DIR/.git" ]; then
                             git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR
                         else
@@ -94,8 +94,8 @@ pipeline {
                                             
                 sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm install'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm install'
                     """
                 }
             }
@@ -106,7 +106,7 @@ pipeline {
             steps {
                 sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run format'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run format'
                     """
                 }
             }
@@ -121,9 +121,9 @@ stage('Run Next.js App') {
             steps {
                 sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run build'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 delete osei-front-app || true'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 start ecosystem.config.js --env production'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run build'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 delete osei-front-app || true'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 start ecosystem.config.js --env production'
                     """
                 }
             }
@@ -136,9 +136,9 @@ stage('Run Next.js App') {
             steps {
                 sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run build'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 delete staging-osei-front-app || true'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 start stage-ecosystem.config.js --env staging'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run build'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 delete staging-osei-front-app || true'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 start stage-ecosystem.config.js --env staging'
                     """
                 }
             }
