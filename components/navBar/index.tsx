@@ -28,8 +28,17 @@ import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
 import SimpleLogo from '../common/logo/simpleLogo';
+import AccessGuard from '@/utils/permissionGuard';
+interface CustomMenuItem {
+  key: string;
+  icon?: React.ReactNode;
+  title: React.ReactNode; // Changed from `label` to `title`
+  className?: string;
+  permissions?: string[];
+  children?: CustomMenuItem[];
+}
 
-const treeData = [
+const treeData: CustomMenuItem[] = [
   {
     title: (
       <span className="flex items-center gap-2 h-12 w-60">
@@ -38,6 +47,7 @@ const treeData = [
     ),
     key: '/organization',
     className: 'font-bold',
+    permissions: ['view_organization'],
     children: [
       {
         title: 'Org Structure',
@@ -59,6 +69,7 @@ const treeData = [
     ),
     key: '/employees',
     className: 'font-bold',
+    permissions: ['view_employees'],
     children: [
       {
         title: 'Manage Employees',
@@ -112,6 +123,7 @@ const treeData = [
     ),
     key: '/okr-planning',
     className: 'font-bold',
+    permissions: ['view_okr'],
     children: [
       { title: 'Dashboard', key: '/okr/dashboard', className: 'font-bold h-9' },
       { title: 'OKR', key: '/okr', className: 'font-bold h-8' },
@@ -119,6 +131,13 @@ const treeData = [
         title: 'Planning and Reporting',
         key: '/planning-and-reporting',
         className: 'font-bold h-8',
+        permissions: ['manage_planning_reporting'],
+      },
+      {
+        key: '/okr/settings',
+        title: 'Settings',
+        className: 'font-bold h-8',
+        permissions: ['manage_okr_settings'],
       },
       { title: 'Settings', key: '/okr/settings', className: 'font-bold h-9' },
     ],
@@ -131,6 +150,7 @@ const treeData = [
     ),
     key: '/feedback',
     className: 'font-bold',
+    permissions: ['view_feedback'],
     children: [
       {
         title: 'Conversation',
@@ -288,6 +308,7 @@ const userItems = [
     ),
     key: '/okr-planning',
     className: 'font-bold',
+    permissions: ['view_okr'],
     children: [
       { title: 'Dashboard', key: '/okr/dashboard', className: 'font-bold h-9' },
       { title: 'OKR', key: '/okr', className: 'font-bold h-9' },
@@ -402,7 +423,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setUserId('');
     setLocalId('');
     setError('');
-    removeCookie('token');
     removeCookie('tenantId');
     window.location.reload();
   };
