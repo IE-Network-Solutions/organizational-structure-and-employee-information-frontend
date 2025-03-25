@@ -36,7 +36,7 @@ pipeline {
     stage('Fetch Environment Variables') {
             steps {
                 script {
-                    sshagent([env.SSH_CREDENTIALS_ID]) {
+                    sshagent([env.SSH_CREDENTIALS_ID_1]) {
                         
                                 def secretsPath = env.SECRETS_PATH
                         env.REPO_URL = sh(
@@ -60,7 +60,7 @@ pipeline {
 
         stage('Prepare Repository') {
             steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
                         if [ -d "$REPO_DIR" ]; then
@@ -74,7 +74,7 @@ pipeline {
 
         stage('Pull Latest Changes') {
             steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
                         if [ ! -d "$REPO_DIR/.git" ]; then
@@ -92,7 +92,7 @@ pipeline {
                                         script {
                     def envPath = env.FRONTEND_ENV_PATH
                                             
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm install'
@@ -104,7 +104,7 @@ pipeline {
 
         stage('Format Repo') {
             steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run format'
                     """
@@ -119,7 +119,7 @@ stage('Run Next.js App') {
                 expression { env.BRANCH_NAME == "'develop'" || env.BRANCH_NAME == "'production'" }
             }
             steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run build'
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 delete osei-front-app || true'
@@ -134,7 +134,7 @@ stage('Run Next.js App') {
                 expression { env.BRANCH_NAME == "'staging'" }
             }
             steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm run build'
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && sudo pm2 delete staging-osei-front-app || true'
