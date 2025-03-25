@@ -89,14 +89,17 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                                        script {
                     def envPath = env.FRONTEND_ENV_PATH
+                                            
+                sshagent([env.SSH_CREDENTIALS_ID]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm install'
                     """
                 }
             }
+        }
         }
 
         stage('Format Repo') {
