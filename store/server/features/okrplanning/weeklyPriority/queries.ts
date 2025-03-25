@@ -31,7 +31,7 @@ type ResponseData = {
  const getDepartmentChild = async (departmentId: string) => {
   if(departmentId){
     return crudRequest({
-    url: `${ORG_AND_EMP_URL}/departments/child-departments/departments/${departmentId}`,
+    url: `${ORG_AND_EMP_URL}/departments/child-departments/departments/all-levels/${departmentId}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
