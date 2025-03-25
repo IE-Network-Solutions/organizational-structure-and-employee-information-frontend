@@ -58,8 +58,6 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
     setIncentiveId(value?.id ?? '');
   };
 
-  console.log(recognitionData, 'recognitionData');
-
   const incentiveTableData = {
     id: recognitionData?.[0]?.id,
     name: recognitionData?.[0]?.recognitionType?.name,

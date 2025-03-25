@@ -1,3 +1,4 @@
+'use client';
 import { useGetAllIncentiveData } from '@/store/server/features/incentive/other/queries';
 import {
   AllIncentiveData,
@@ -104,6 +105,7 @@ const AllIncentiveTable: React.FC = () => {
                 {item?.isPaid === true ? 'Paid' : 'Unpaid'}
               </div>
             ),
+            rowLink: `/incentive/${item?.userId}`,
           };
         });
 
@@ -123,6 +125,12 @@ const AllIncentiveTable: React.FC = () => {
         }}
         loading={responseLoading}
         scroll={{ x: 1000 }}
+        onRow={(record) => ({
+          onClick: () => {
+            // Redirect to the incentive detail page using the userId from the record
+            window.location.href = record.rowLink;
+          },
+        })}
       />
     </div>
   );

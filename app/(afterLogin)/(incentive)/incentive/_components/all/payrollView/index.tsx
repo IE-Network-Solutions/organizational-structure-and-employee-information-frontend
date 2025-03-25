@@ -78,7 +78,6 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
             ))}
         </Row>
       </div>
-      <IncentiveTableDetails />
       <IncentivePagination
         current={currentPage}
         total={10}
