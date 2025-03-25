@@ -8,7 +8,6 @@ pipeline {
                     withCredentials([
                         string(credentialsId: 'REMOTE_SERVER_TEST', variable: 'REMOTE_SERVER_TEST'),
                         string(credentialsId: 'REMOTE_SERVER_PROD', variable: 'REMOTE_SERVER_PROD'),
-                        string(credentialsId: 'REMOTE_SERVER_PROD2', variable: 'REMOTE_SERVER_PROD2')
                     ]) {
                         def branchName = env.GIT_BRANCH ?: sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
                         env.BRANCH_NAME = branchName
@@ -16,18 +15,17 @@ pipeline {
                         if (branchName.contains('develop')) {
                             env.SSH_CREDENTIALS_ID_1 = 'peptest'
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_TEST
-                            env.REMOTE_SERVER_2 = REMOTE_SERVER_PROD2
-                            env.SECRETS_PATH = '/home/ubuntu/secrets/.tenant-front-env'
+                            env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
                             env.BACKEND_ENV_PATH = '/home/ubuntu/frontend-env'
                         } else if (branchName.contains('production')) {
                             env.SSH_CREDENTIALS_ID_1 = 'pepproduction'
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_PROD
-                           env.SECRETS_PATH = '/home/ubuntu/secrets/.tenant-front-env'
+                            env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
                             env.BACKEND_ENV_PATH = '/home/ubuntu/frontend-env'
                         } else if (branchName.contains('staging')) {
                             env.SSH_CREDENTIALS_ID_1 = 'pepproduction'
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_PROD
-                            env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.tenant-front-env'
+                            env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
                             env.BACKEND_ENV_PATH = '/home/ubuntu/frontend-env/staging'
                         }
                     }
