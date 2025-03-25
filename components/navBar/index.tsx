@@ -101,6 +101,11 @@ const menuItems: MenuProps['items'] = [
         label: 'Weekly Priority',
         className: 'font-bold',
       },
+      {
+        key: '/weekly-priority',
+        label: 'Weekly Priority',
+        className: 'font-bold',
+      },
       // {
       //   key: '/monitoring-evaluation',
       //   label: 'Monitoring & Evaluation',
