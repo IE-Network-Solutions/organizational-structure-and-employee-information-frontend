@@ -113,38 +113,35 @@ pipeline {
         }
 
 stage('Run Next.js App') {
-    parallel {
-        stage('Start App on Server') {
-            when {
-                expression { env.BRANCH_NAME == "'develop'" || env.BRANCH_NAME == "'production'" }
-            }
-            steps {
+    steps {
+        script {
+            if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'production') {
                 sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run build'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 delete osei-front-app || true'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 start ecosystem.config.js --env production'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
+                            cd ~/$REPO_DIR &&
+                            npm run build &&
+                            sudo pm2 delete osei-front-app || true &&
+                            sudo pm2 start ecosystem.config.js --env production
+                        '
                     """
                 }
-            }
-        }
-
-        stage('Start App on Staging Server') {
-            when {
-                expression { env.BRANCH_NAME == "'staging'" }
-            }
-            steps {
+            } else if (env.BRANCH_NAME == 'staging') {
                 sshagent([env.SSH_CREDENTIALS_ID_1]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run build'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 delete osei-front-app-staging || true'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 start stage-ecosystem.config.js --env production'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
+                            cd ~/$REPO_DIR &&
+                            npm run build &&
+                            sudo pm2 delete osei-front-app-staging || true &&
+                            sudo pm2 start stage-ecosystem.config.js --env production
+                        '
                     """
                 }
             }
         }
     }
 }
+
 
     }
 
