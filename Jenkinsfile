@@ -16,17 +16,17 @@ pipeline {
                             env.SSH_CREDENTIALS_ID_1 = 'peptest'
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_TEST
                             env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
-                            env.BACKEND_ENV_PATH = '/home/ubuntu/frontend-env'
+                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env'
                         } else if (branchName.contains('production')) {
                             env.SSH_CREDENTIALS_ID_1 = 'pepproduction'
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_PROD
                             env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
-                            env.BACKEND_ENV_PATH = '/home/ubuntu/frontend-env'
+                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env'
                         } else if (branchName.contains('staging')) {
                             env.SSH_CREDENTIALS_ID_1 = 'pepproduction'
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_PROD
                             env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
-                            env.BACKEND_ENV_PATH = '/home/ubuntu/frontend-env/staging'
+                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/staging'
                         }
                     }
                 }
@@ -37,6 +37,8 @@ pipeline {
             steps {
                 script {
                     sshagent([env.SSH_CREDENTIALS_ID]) {
+                        
+                                def secretsPath = env.SECRETS_PATH
                         env.REPO_URL = sh(
                             script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_URL ${secretsPath}  | cut -d= -f2 | tr -d \"\\r\"'",
                             returnStdout: true
@@ -88,6 +90,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sshagent([env.SSH_CREDENTIALS_ID]) {
+                    def envPath = env.FRONTEND_ENV_PATH
                     sh """
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm install'
