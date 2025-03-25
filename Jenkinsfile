@@ -38,17 +38,17 @@ pipeline {
                 script {
                     sshagent([env.SSH_CREDENTIALS_ID]) {
                         env.REPO_URL = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_URL /home/ubuntu/secrets/.osei-front-env | cut -d= -f2 | tr -d \"\\r\"'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_URL ${secretsPath}  | cut -d= -f2 | tr -d \"\\r\"'",
                             returnStdout: true
                         ).trim()
 
                         env.BRANCH_NAME = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep BRANCH_NAME /home/ubuntu/secrets/.osei-front-env | cut -d= -f2 | tr -d \"\\r\"'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep BRANCH_NAME ${secretsPath} | cut -d= -f2 | tr -d \"\\r\"'",
                             returnStdout: true
                         ).trim()
 
                         env.REPO_DIR = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_DIR /home/ubuntu/secrets/.osei-front-env | cut -d= -f2 | tr -d \"\\r\"'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_DIR ${secretsPath}  | cut -d= -f2 | tr -d \"\\r\"'",
                             returnStdout: true
                         ).trim()
                     }
@@ -89,7 +89,7 @@ pipeline {
             steps {
                 sshagent([env.SSH_CREDENTIALS_ID]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cp ~/frontend-env/.osei-front-env ~/$REPO_DIR/.env'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'cd ~/$REPO_DIR && npm install'
                     """
                 }
