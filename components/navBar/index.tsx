@@ -28,7 +28,7 @@ import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
 import SimpleLogo from '../common/logo/simpleLogo';
-import AccessGuard from '@/utils/permissionGuard';
+
 interface CustomMenuItem {
   key: string;
   icon?: React.ReactNode;
@@ -139,7 +139,6 @@ const treeData: CustomMenuItem[] = [
         className: 'font-bold h-8',
         permissions: ['manage_okr_settings'],
       },
-      { title: 'Settings', key: '/okr/settings', className: 'font-bold h-9' },
     ],
   },
   {
@@ -299,7 +298,7 @@ const treeData: CustomMenuItem[] = [
   },
 ];
 
-const userItems = [
+const userItems: CustomMenuItem[] = [
   {
     title: (
       <span className="flex items-center gap-2 h-12 w-60">
