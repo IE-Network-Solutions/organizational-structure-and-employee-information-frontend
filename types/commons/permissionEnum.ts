@@ -76,6 +76,12 @@ export enum Permissions {
   // Time and Attendance time zone settings
   UpdateTimeZone = 'update-time-zone',
 
+  // payroll permission
+  PayrollExport = 'payroll-export',
+  SendPayslipEmail = 'send-payslip-email',
+  GeneratePayroll = 'generate-payroll',
+  DeletePayroll = 'delete-payroll',
+
   // sidebar Permissions
 
   DownloadOrganizationStructure = 'download-organization-structure',
