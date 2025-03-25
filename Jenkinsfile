@@ -33,7 +33,7 @@ pipeline {
             }
         }
 
-   stage('Fetch Environment Variables') {
+    stage('Fetch Environment Variables') {
             steps {
                 script {
                     sshagent([env.SSH_CREDENTIALS_ID]) {
