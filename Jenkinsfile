@@ -113,7 +113,6 @@ pipeline {
         }
 
 stage('Run Next.js App') {
-    parallel {
         stage('Start App on Server') {
             when {
                 expression { env.BRANCH_NAME == "'develop'" || env.BRANCH_NAME == "'production'" }
@@ -143,7 +142,6 @@ stage('Run Next.js App') {
                 }
             }
         }
-    }
 }
 
     }
