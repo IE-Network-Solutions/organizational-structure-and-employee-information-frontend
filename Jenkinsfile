@@ -114,7 +114,7 @@ pipeline {
 
 stage('Run Next.js App') {
     parallel {
-        stage('Start App on Production or Develop Server') {
+        stage('Start App on Server') {
             when {
                 expression { env.BRANCH_NAME == "'develop'" || env.BRANCH_NAME == "'production'" }
             }
