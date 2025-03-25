@@ -138,7 +138,7 @@ stage('Run Next.js App') {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run build'
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 delete staging-osei-front-app || true'
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 start stage-ecosystem.config.js --env staging'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && sudo pm2 start stage-ecosystem.config.js --env production'
                     """
                 }
             }
