@@ -2,7 +2,7 @@
 module.exports = {
   apps: [
     {
-      name: 'staging-osei-front-app',
+      name: 'osei-front-app-staging',
       script: 'node_modules/next/dist/bin/next',
       args: 'start -p 3005',
       env: {
