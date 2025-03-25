@@ -63,18 +63,24 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
         onFinish={handleCreateBiWeeklyWithActionPlan}
       >
         {Array.from(
-          /* eslint-disable @typescript-eslint/naming-convention */
           { length: numberOfActionPlan },
-          (
-            __ /* eslint-disable @typescript-eslint/naming-convention */,
-            index,
-          ) => (
+          (notused, index) => (
             <Card
               key={index}
               title={
                 <div
                   className="flex justify-end text-red-600 cursor-pointer"
-                  onClick={() => setNumberOfActionPlan(numberOfActionPlan - 1)}
+                  onClick={() => {
+                    const currentValues = form.getFieldsValue();
+                    const updatedValues = Array.from({
+                      length: numberOfActionPlan,
+                    })
+                      .map((notused, i) => currentValues[i])
+                      .filter((notused, i) => i !== index);
+                    // Update the form values and adjust `numberOfActionPlan`
+                    form.setFieldsValue(updatedValues);
+                    setNumberOfActionPlan(numberOfActionPlan - 1);
+                  }}
                 >
                   <TiDeleteOutline />
                 </div>
@@ -89,10 +95,6 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
                     id={`actionPlanId${index + 1}`}
                     rules={[
                       { required: true, message: 'Action title is required' },
-                      {
-                        max: 40,
-                        message: 'Action title cannot exceed 40 characters',
-                      },
                     ]}
                   >
                     <Input />
@@ -176,7 +178,7 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
                       <Option key="pending" value="pending">
                         Pending
                       </Option>
-                      <Option key="solved" value="solved">
+                      <Option key="completed" value="completed">
                         Solved
                       </Option>
                     </Select>

@@ -20,9 +20,16 @@ const headers = {
  * Fetch all talent pool data from the API.
  * @returns Promise with the list of talent pool candidates.
  */
-const getAllTalentPool = async () => {
+const getAllTalentPool = async (
+  dateRange: string,
+  department: string,
+  job: string,
+  stages: string,
+  pageSize: number,
+  currentPage: number,
+) => {
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/talent-pool`,
+    url: `${RECRUITMENT_URL}/talent-pool?department=${department}&jobDeadline=${dateRange ?? null}&&jobTitle=${job}&&status=${stages}&limit=${pageSize}&page=${currentPage}`,
     method: 'GET',
     headers,
   });
@@ -62,8 +69,26 @@ const getApplicantStatusStages = async () => {
  * Uses React Query's useQuery to manage the query state.
  * @returns Query object containing the list of talent pool candidates.
  */
-export const useGetTalentPool = () =>
-  useQuery<TalentPoolResponse>('talentPool', getAllTalentPool);
+export const useGetTalentPool = (
+  dateRange: string,
+  department: string,
+  job: string,
+  stages: string,
+  pageSize: number,
+  currentPage: number,
+) =>
+  useQuery<TalentPoolResponse>(
+    ['talentPool', dateRange, department, job, stages, pageSize, currentPage],
+    () =>
+      getAllTalentPool(
+        dateRange,
+        department,
+        job,
+        stages,
+        pageSize,
+        currentPage,
+      ),
+  );
 
 export const useGetCandidates = () =>
   useQuery<TalentPoolResponse>('candidates', getAllCandidates);

@@ -10,6 +10,8 @@ import { useGetReprimandLog } from '@/store/server/features/okrplanning/monitori
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import { useGetReprimandType } from '@/store/server/features/okrplanning/monitoring-evaluation/reprimand-type/queries';
 import { Select } from 'antd';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const Reprimand = () => {
   const {
@@ -70,13 +72,15 @@ const Reprimand = () => {
             Given Upon Reprimand
           </span>
         </div>
-        <CustomButton
-          title="Reprimand"
-          id="reprimandButton"
-          icon={<GoPlus size={20} className="mr-2" />}
-          onClick={showDrawer}
-          className="bg-blue-600 hover:bg-blue-700 text-sm md:text-base"
-        />
+        <AccessGuard permissions={[Permissions.CreateReprimand]}>
+          <CustomButton
+            title="Reprimand"
+            id="reprimandButton"
+            icon={<GoPlus size={20} className="mr-2" />}
+            onClick={showDrawer}
+            className="bg-blue-600 hover:bg-blue-700 text-sm md:text-base"
+          />
+        </AccessGuard>
       </div>
       <div className="flex  justify-between items-center mb-4 gap-5">
         <Select
@@ -91,7 +95,8 @@ const Reprimand = () => {
           options={allUsers?.items?.map((item: any) => ({
             ...item,
             value: item?.id,
-            label: item?.firstName + ' ' + item?.lastName,
+            label:
+              item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
           }))}
         />
         <Select

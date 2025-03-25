@@ -6,9 +6,9 @@ import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { useGetQuestionSetByConversationId } from '@/store/server/features/conversation/questionSet/queries';
+import { useGetQuestionSetByConversationId } from '@/store/server/features/CFR/conversation/questionSet/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useCreateConversationResponse } from '@/store/server/features/conversation/conversation-response/mutation';
+import { useCreateConversationResponse } from '@/store/server/features/CFR/conversation/conversation-response/mutation';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { v4 as uuidv4 } from 'uuid';
@@ -114,6 +114,8 @@ const CreateMeeting = ({
           form1.resetFields();
           form2.resetFields();
           onClose();
+          setChildrenDrawer(false);
+          setCurrentStep(0);
         },
       });
     } catch (error) {
@@ -142,6 +144,7 @@ const CreateMeeting = ({
   );
   const onChangeHandler = (selectedDepartmentIds: string[]) => {
     if (selectedDepartmentIds?.length === 0) {
+      // form1?.setFieldValue('userId', [])
       setSetOfUser([]);
     } else {
       const usersInSelectedDepartments = allUserData?.items?.filter(
@@ -183,7 +186,7 @@ const CreateMeeting = ({
     return {
       value: matchingUser?.id,
       label: matchingUser
-        ? `${matchingUser.firstName} ${matchingUser.lastName}`
+        ? `${matchingUser?.firstName} ${matchingUser?.middleName} ${matchingUser?.lastName}`
         : null,
     };
   });
@@ -230,6 +233,7 @@ const CreateMeeting = ({
 
     return groupedResult;
   };
+
   return (
     <>
       <Steps
@@ -265,10 +269,12 @@ const CreateMeeting = ({
               <QuestionResponseForm
                 key={`attendee_${attendee.id}_${attendeeIndex}`}
                 attendee={attendee}
+                formData={form1.getFieldsValue}
                 attendeeIndex={attendeeIndex}
                 attendeesOptions={attendeesOptions}
                 questionSet={questionSet}
                 handleAttendeeChange={handleAttendeeChange}
+                form={form1}
               />
             ))}
 

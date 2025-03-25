@@ -4,6 +4,8 @@ import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
 import { Spin } from 'antd';
 import { CourseCategory } from '@/types/tna/course';
 import { useDeleteCourseCategory } from '@/store/server/features/tna/courseCategory/mutation';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface CourseCategoryCardProps {
   item: CourseCategory;
@@ -20,17 +22,23 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({ item }) => {
         <div className="text-lg font-semibold text-gray-900 flex-1">
           {item.title}
         </div>
-
-        <ActionButtons
-          id={item?.id ?? null}
-          onDelete={() => {
-            deleteCategory([item.id]);
-          }}
-          onEdit={() => {
-            setCourseCategoryId(item.id);
-            setIsShowCourseCategorySidebar(true);
-          }}
-        />
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateCourseCategory,
+            Permissions.DeleteCourseCategory,
+          ]}
+        >
+          <ActionButtons
+            id={item?.id ?? null}
+            onDelete={() => {
+              deleteCategory([item.id]);
+            }}
+            onEdit={() => {
+              setCourseCategoryId(item.id);
+              setIsShowCourseCategorySidebar(true);
+            }}
+          />
+        </AccessGuard>
       </div>
     </Spin>
   );

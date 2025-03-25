@@ -1,6 +1,5 @@
 import { Button, Dropdown, Menu, Popconfirm } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
-
 const CommentActionMenu = ({
   onEdit,
   onDelete,
@@ -13,6 +12,7 @@ const CommentActionMenu = ({
       <Menu.Item key="edit" onClick={onEdit}>
         Edit
       </Menu.Item>
+
       <Menu.Item key="delete">
         <Popconfirm
           title="Are you sure you want to delete this comment?"

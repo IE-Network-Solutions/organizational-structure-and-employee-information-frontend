@@ -6,7 +6,9 @@ const RookStarsList: React.FC<RookStarsListProps> = ({
   title,
   planningPeriodId,
 }) => {
-  const { data: rockStars } = useGetRockStars(planningPeriodId);
+  const { data: rockStars = [] } = useGetRockStars(planningPeriodId, {
+    enabled: !!planningPeriodId,
+  });
 
   return (
     <Card
@@ -18,7 +20,7 @@ const RookStarsList: React.FC<RookStarsListProps> = ({
       bodyStyle={{ padding: 0 }}
     >
       <List
-        className=" overflow-y-auto scrollbar-none "
+        className=" overflow-y-auto max-h-72 scrollbar-none "
         dataSource={rockStars}
         size="small"
         renderItem={(item: any) => (

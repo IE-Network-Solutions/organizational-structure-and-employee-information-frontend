@@ -4,6 +4,8 @@ import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { MoreOutlined, PlusOutlined } from '@ant-design/icons';
 import { useFetchSchedule } from '@/store/server/features/organizationStructure/workSchedule/queries';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 function WorkScheduleTab() {
   const handleMenuClick = () => {};
@@ -48,20 +50,24 @@ function WorkScheduleTab() {
 
   const renderMenu = (scheduleItem: any) => (
     <Menu onClick={handleMenuClick}>
-      <Menu.Item
-        key="edit"
-        onClick={() => handleEditSchedule(scheduleItem)}
-        icon={<FaEdit />}
-      >
-        Edit
-      </Menu.Item>
-      <Menu.Item
-        key="delete"
-        icon={<FaTrashAlt />}
-        onClick={() => handleDeleteSchedule(scheduleItem)}
-      >
-        Delete
-      </Menu.Item>
+      <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
+        <Menu.Item
+          key="edit"
+          onClick={() => handleEditSchedule(scheduleItem)}
+          icon={<FaEdit />}
+        >
+          Edit
+        </Menu.Item>
+      </AccessGuard>
+      <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
+        <Menu.Item
+          key="delete"
+          icon={<FaTrashAlt />}
+          onClick={() => handleDeleteSchedule(scheduleItem)}
+        >
+          Delete
+        </Menu.Item>
+      </AccessGuard>
     </Menu>
   );
 
@@ -69,16 +75,18 @@ function WorkScheduleTab() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Work Schedule</h2>
-        <Space>
-          <Button
-            type="primary"
-            className="h-12"
-            icon={<PlusOutlined />}
-            onClick={openDrawer}
-          >
-            New Schedule
-          </Button>
-        </Space>
+        <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
+          <Space>
+            <Button
+              type="primary"
+              className="h-12"
+              icon={<PlusOutlined />}
+              onClick={openDrawer}
+            >
+              New Schedule
+            </Button>
+          </Space>
+        </AccessGuard>
       </div>
 
       <Collapse

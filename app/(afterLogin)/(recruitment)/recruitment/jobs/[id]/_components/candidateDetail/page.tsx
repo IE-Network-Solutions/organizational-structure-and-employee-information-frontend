@@ -1,11 +1,10 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
-import { Button, Tabs } from 'antd';
-import React, { useCallback } from 'react';
+import { Tabs } from 'antd';
+import React from 'react';
 import { FaPhone } from 'react-icons/fa';
 import { MdOutlineMail } from 'react-icons/md';
 import CoverLetter from '../tabs/coverLetter';
-import CandidateActivity from '../tabs/activity';
 import JobResponse from '../tabs/response';
 
 const CandidateDetail: React.FC = ({}) => {
@@ -31,23 +30,17 @@ const CandidateDetail: React.FC = ({}) => {
       ),
       children: <JobResponse selectedCandidate={selectedCandidate} />,
     },
-    {
-      key: '3',
-      label: (
-        <span className="mt-4">
-          <p className="font-semibold">Activity</p>
-        </span>
-      ),
-      children: <CandidateActivity selectedCandidate={selectedCandidate} />,
-    },
+    // {
+    //   key: '3',
+    //   label: (
+    //     <span className="mt-4">
+    //       <p className="font-semibold">Activity</p>
+    //     </span>
+    //   ),
+    //   children: <CandidateActivity selectedCandidate={selectedCandidate} />,
+    // },
   ];
-  const handleClose = useCallback(() => {
-    setCandidateDetailDrawer(false);
-  }, [setCandidateDetailDrawer]);
 
-  const handleApprove = useCallback(() => {
-    // Handle approval logic here
-  }, []);
   const candidateDrawerHeader = (
     <div className="flex flex-col items-between justify-center gap-2">
       <div className="flex items-center justify-start gap-4">
@@ -74,19 +67,24 @@ const CandidateDetail: React.FC = ({}) => {
             {selectedCandidate?.phone}
           </div>
         </div>
-        <div className="flex justify-end w-full bg-[#fff] px-4 py-4 gap-6">
-          <Button
-            onClick={handleClose}
-            className="flex justify-center text-xs font-medium text-gray-800 bg-white p-3 px-8 h-10 hover:border-gray-500 border-gray-300"
-          >
-            Decline
-          </Button>
-          <Button
-            onClick={handleApprove}
-            className="flex justify-center text-xs font-medium text-white bg-green-600 p-3 px-8 h-10"
-          >
-            Approve
-          </Button>
+        <div className="flex justify-end w-full bg-[#fff] px-4 py-4 gap-2">
+          <div className="border-[1px] border-gray-500 p-3 rounded-lg">
+            <span className="text-sm font-normal text-gray-500">Status: </span>
+            {selectedCandidate?.jobCandidate?.map((item: any) => (
+              <span
+                key={item?.id}
+                className={`text-sm font-normal ${
+                  item?.applicantStatusStage?.title === 'Accepted'
+                    ? 'text-green-500'
+                    : item?.applicantStatusStage?.title === 'Declined'
+                      ? 'text-red-500'
+                      : ''
+                }`}
+              >
+                {' ' + item?.applicantStatusStage?.title}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </div>

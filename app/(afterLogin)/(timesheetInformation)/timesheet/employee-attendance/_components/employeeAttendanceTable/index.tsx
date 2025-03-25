@@ -55,8 +55,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setOrderDirection,
   } = usePagination(1, 10);
   const {
+    setEmployeeId,
     setIsShowEmployeeAttendanceSidebar,
-    setNewData,
     setEmployeeAttendanceId,
   } = useEmployeeAttendanceStore();
   const [filter, setFilter] =
@@ -65,7 +65,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     { page, limit, orderBy, orderDirection },
     { filter },
   );
-
   const EmpRender = ({ userId }: any) => {
     const {
       isLoading,
@@ -83,7 +82,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         </div>
         <Avatar size={24} icon={<UserOutlined />} />
         <div className="flex-1">
-          <div className="text-xs text-gray-900">
+          <div className="text-xs text-gray-900 flex gap-2">
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
           </div>
@@ -95,11 +94,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     ) : (
       '-'
     );
-  };
-  const onEdit = ($id: string, $item: any) => {
-    setIsShowEmployeeAttendanceSidebar(true);
-    setEmployeeAttendanceId($id);
-    setNewData($item);
   };
 
   const columns: TableColumnsType<any> = [
@@ -122,7 +116,9 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       dataIndex: 'clockIn',
       key: 'clockIn',
       render: (date: string) => (
-        <div>{dayjs(date).format(DATETIME_FORMAT)}</div>
+        <div>
+          {date ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT) : '-'}
+        </div>
       ),
     },
     {
@@ -130,7 +126,9 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       dataIndex: 'clockOut',
       key: 'clockOut',
       render: (date: string) => (
-        <div>{date ? dayjs(date).format(DATETIME_FORMAT) : '-'}</div>
+        <div>
+          {date ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT) : '-'}
+        </div>
       ),
     },
     {
@@ -171,12 +169,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       render: (text: string) => <div>{text}</div>,
     },
     {
-      title: 'Approval Status',
-      dataIndex: 'approvalStatus',
-      key: 'approvalStatus',
-      render: () => <div>-</div>,
-    },
-    {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
@@ -187,7 +179,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             icon={<FiEdit2 size={16} />}
             id={`${item?.id}buttonPopOverActionForOnEditActionId`}
             type="primary"
-            onClick={() => onEdit(item?.id, item)}
+            onClick={() => {
+              setEmployeeId(item?.userId), setEmployeeAttendanceId(item?.id);
+              setIsShowEmployeeAttendanceSidebar(true);
+            }}
           />
         );
       },
@@ -212,9 +207,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           clockIn: item.startAt,
           clockOut: item.endAt,
           status: item,
-          totalTime: `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
+          totalTime:
+            item.startAt &&
+            item.endAt &&
+            `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
           overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,
-          approvalStatus: item,
           action: item,
         };
       });

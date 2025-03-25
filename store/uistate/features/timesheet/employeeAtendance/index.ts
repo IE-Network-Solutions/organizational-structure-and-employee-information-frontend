@@ -2,16 +2,22 @@ import { create, StateCreator } from 'zustand';
 
 type EmployeeAttendanceState = {
   isShowEmployeeAttendanceSidebar: boolean;
-  employeeAttendanceId: string | null;
-  newData: any;
+  isAbsent: boolean;
+  employeeAttendanceId: string | '';
+  employeeId: string;
+  isShowBreakAttendanceImportSidebar: boolean;
 };
 
 type EmployeeAttendanceStateAction = {
   setIsShowEmployeeAttendanceSidebar: (
     isShowEmployeeAttendanceSidebar: boolean,
   ) => void;
-  setEmployeeAttendanceId: (employeeAttendanceId: string | null) => void;
-  setNewData: (newData: any) => void;
+  setIsAbsent: (isAbsent: boolean) => void;
+  setEmployeeAttendanceId: (employeeAttendanceId: string | '') => void;
+  setEmployeeId: (employeeId: string) => void;
+  setIsShowBreakAttendanceImportSidebar: (
+    isShowBreakAttendanceImportSidebar: boolean,
+  ) => void;
 };
 
 const employeeAttendanceSlice: StateCreator<
@@ -23,14 +29,24 @@ const employeeAttendanceSlice: StateCreator<
   ) => {
     set({ isShowEmployeeAttendanceSidebar });
   },
+  isAbsent: false,
+  setIsAbsent: (isAbsent: boolean) => {
+    set({ isAbsent });
+  },
 
-  employeeAttendanceId: null,
-  setEmployeeAttendanceId: (employeeAttendanceId: string | null) => {
+  employeeAttendanceId: '',
+  setEmployeeAttendanceId: (employeeAttendanceId: string | '') => {
     set({ employeeAttendanceId });
   },
-  newData: null,
-  setNewData: (newData: any) => {
-    set({ newData });
+
+  employeeId: '',
+  setEmployeeId: (employeeId: string) => set({ employeeId }),
+
+  isShowBreakAttendanceImportSidebar: false,
+  setIsShowBreakAttendanceImportSidebar: (
+    isShowBreakAttendanceImportSidebar: boolean,
+  ) => {
+    set({ isShowBreakAttendanceImportSidebar });
   },
 });
 

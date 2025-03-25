@@ -1,18 +1,20 @@
 'use client';
 import TabLandingLayout from '@/components/tabLanding';
 import React, { useEffect } from 'react';
-import { Card, Col, Row, Skeleton, Tabs } from 'antd';
+import { Button, Card, Col, Row, Skeleton, Tabs } from 'antd';
 import CollapsibleCardList from './_components/collapsableCard';
 import ActionPlans from './_components/actionPlans';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
-import { useGetAllConversationInstancesById } from '@/store/server/features/conversation/conversation-instance/queries';
+import { useGetAllConversationInstancesById } from '@/store/server/features/CFR/conversation/conversation-instance/queries';
 import ConversationInstanceDetail from './_components/biWeeklyDetail';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import CreateActionPlans from './_components/createActionPlans';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { useAddActionPlan } from '@/store/server/features/conversation/action-plan/mutation';
+import { useAddActionPlan } from '@/store/server/features/CFR/conversation/action-plan/mutation';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'antd/es/form/Form';
 interface Params {
   slug: string;
 }
@@ -27,6 +29,8 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
     useGetAllConversationInstancesById(slug);
   const { data: allUserData } = useGetAllUsers();
   const { mutate: addActionPlan } = useAddActionPlan();
+  const router = useRouter();
+  const [form2] = useForm();
 
   useEffect(() => {
     if (selectedUserId !== null && selectedUserId !== '') {
@@ -52,7 +56,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
       return {
         ...questionResponse,
         employeeDetail:
-          `${employeeData?.firstName || ''} ${employeeData?.lastName || ''}`.trim(),
+          `${employeeData?.firstName || ''} ${employeeData?.middleName || ''} ${employeeData?.lastName || ''}`.trim(),
       };
     }
 
@@ -67,7 +71,9 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
         responseData: getQuestionResponse(conversationQuestion?.id),
       }),
     );
-  const handleRedirectback = () => {};
+  const handleRedirectback = () => {
+    router.back();
+  };
 
   const handleCreateActionPlan = (values: any) => {
     const updatedData = {
@@ -79,6 +85,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
     addActionPlan(updatedData, {
       onSuccess: () => {
         setOpen(false);
+        form2.resetFields();
       },
     });
   };
@@ -123,11 +130,14 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
       id="conversationLayoutId"
       onClickHandler={() => setOpen(true)}
       title={
-        <span onClick={() => handleRedirectback} className="cursor-pointer">
-          ← Details
-        </span>
+        <div>
+          {' '}
+          <Button type="link" onClick={() => handleRedirectback()}>
+            ←
+          </Button>{' '}
+          <span>Details</span>
+        </div>
       }
-      allowSearch={false}
       subtitle=""
     >
       <Row gutter={[16, 24]}>
@@ -171,6 +181,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
         <CreateActionPlans
           slug={slug}
           onFinish={(values) => handleCreateActionPlan(values)}
+          form2={form2}
         />
       </CustomDrawerLayout>
     </TabLandingLayout>

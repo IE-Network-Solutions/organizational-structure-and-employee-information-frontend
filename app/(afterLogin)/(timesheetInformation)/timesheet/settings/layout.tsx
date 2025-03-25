@@ -87,9 +87,17 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       item: {
         key: 'approval-workflow',
         icon: <TbLayoutList />,
-        label: <p className="menu-item-label">Approval WorkFLow</p>,
+        label: <p className="menu-item-label">Approval Workflow</p>,
       },
       link: '/timesheet/settings/approvals',
+    },
+    {
+      item: {
+        key: 'time-zone',
+        icon: <TbLayoutList />,
+        label: <p className="menu-item-label">Time Zone</p>,
+      },
+      link: '/timesheet/settings/time-zone',
     },
   ]);
 
