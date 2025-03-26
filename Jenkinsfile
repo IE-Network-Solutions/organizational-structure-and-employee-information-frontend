@@ -116,7 +116,7 @@ stage('Run Next.js App') {
     parallel {
         stage('Deploy to Develop/Production') {
             when {
-                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'production' }
+                expression { env.BRANCH_NAME.contains('develop') || env.BRANCH_NAME.contains('production') }
             }
             steps {
                 script {
@@ -135,7 +135,7 @@ stage('Run Next.js App') {
         }
         stage('Deploy to Staging') {
             when {
-                expression { env.BRANCH_NAME == 'staging' }
+                expression { env.BRANCH_NAME.contains('staging') }
             }
             steps {
                 script {
@@ -154,6 +154,7 @@ stage('Run Next.js App') {
         }
     }
 }
+
 
 
 
