@@ -111,13 +111,13 @@ const AllCandidateTable: React.FC = () => {
 
   const handleMenuClick = (key: string, candidate: any) => {
     if (key === 'edit') {
-     setEditCandidate(candidate);
-     setEditCandidateModal(true);
-     setSelectedCandidateID(candidate?.id);
-   } else if (key === 'delete') {
-     setDeleteCandidateId(candidate?.id);
-     setDeleteCandidateModal(true);
-   }
+      setEditCandidate(candidate);
+      setEditCandidateModal(true);
+      setSelectedCandidateID(candidate?.id);
+    } else if (key === 'delete') {
+      setDeleteCandidateId(candidate?.id);
+      setDeleteCandidateModal(true);
+    }
   };
 
   const handleCandidateDetail = (candidate: any) => {
@@ -233,7 +233,7 @@ const AllCandidateTable: React.FC = () => {
   });
 
   const rowSelection = {
-    onChange: (_: any, selectedRows: any) => {
+    onChange: (notused: any, selectedRows: any) => {
       setSelectedCandidate(
         candidateList?.items?.filter((item: any) =>
           selectedRows.some((row: any) => row.id === item.id),
