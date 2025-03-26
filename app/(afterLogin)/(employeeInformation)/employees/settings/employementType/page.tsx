@@ -56,7 +56,7 @@ const EmploymentType = () => {
           </div>
           <AccessGuard permissions={[Permissions.CreateEmploymentType]}>
             <Button
-              className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
+              className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
               onClick={showDrawer}
             >
               <FaPlus className="text-white" />

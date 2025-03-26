@@ -16,7 +16,7 @@ const CreatePosition: React.FC = () => {
   };
 
   const addPositionDrawerHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
       Add New Position
     </div>
   );
@@ -37,7 +37,22 @@ const CreatePosition: React.FC = () => {
         onClose={handleCloseDrawer}
         modalHeader={addPositionDrawerHeader}
         width="40%"
-        footer={null}
+        footer={
+          <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 bottom-8  space-x-5">
+            <Button
+              onClick={handleCloseDrawer}
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => form.submit()}
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+            >
+              Submit
+            </Button>
+          </div>
+        }
       >
         <Form
           form={form}
@@ -87,22 +102,6 @@ const CreatePosition: React.FC = () => {
             ]}
           >
             <TextArea rows={4} placeholder="Job description" allowClear />
-          </Form.Item>
-          <Form.Item>
-            <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
-              <Button
-                onClick={handleCloseDrawer}
-                className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
-              >
-                Cancel
-              </Button>
-              <Button
-                htmlType="submit"
-                className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
-              >
-                Submit
-              </Button>
-            </div>
           </Form.Item>
         </Form>
       </CustomDrawerLayout>

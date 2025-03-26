@@ -88,8 +88,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   }
 
   const createJobDrawerHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      New Candidate
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
+      Add New Candidate
     </div>
   );
 

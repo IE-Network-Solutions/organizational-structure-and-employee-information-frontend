@@ -87,7 +87,7 @@ const EditCandidate: React.FC = () => {
     setEditCandidateModal(false);
   };
   const editCandidateHeader = (
-    <div className="flex flex-col items-center">Edit Candidate</div>
+    <div className="flex flex-col items-center py-4">Edit Candidate</div>
   );
 
   useEffect(() => {
@@ -340,7 +340,7 @@ const EditCandidate: React.FC = () => {
               </Button>
               <Button
                 htmlType="submit"
-                className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+                className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
               >
                 Save Changes
               </Button>
