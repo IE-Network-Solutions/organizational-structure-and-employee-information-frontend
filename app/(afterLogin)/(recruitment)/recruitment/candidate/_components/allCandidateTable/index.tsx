@@ -11,7 +11,6 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
 import { FaEllipsisVertical } from 'react-icons/fa6';
-import { IoIosArrowForward } from 'react-icons/io';
 import { FileDown } from 'lucide-react';
 import CandidateDetail from '../../../jobs/[id]/_components/candidateDetail/page';
 import DeleteCandidate from '../../../_components/modals/deleteCandidate';
@@ -92,7 +91,6 @@ const AllCandidateTable: React.FC = () => {
     setEditCandidate,
     setDeleteCandidateId,
     setDeleteCandidateModal,
-    setMoveToTalentPoolModal,
   } = useCandidateState();
 
   const { data: candidateList, isLoading: isResponseLoading } =
@@ -112,17 +110,14 @@ const AllCandidateTable: React.FC = () => {
   };
 
   const handleMenuClick = (key: string, candidate: any) => {
-    if (key === 'moveToTalentPool') {
-      setMoveToTalentPoolModal(true);
-      setSelectedCandidate(candidate);
-    } else if (key === 'edit') {
-      setEditCandidate(candidate);
-      setEditCandidateModal(true);
-      setSelectedCandidateID(candidate?.id);
-    } else if (key === 'delete') {
-      setDeleteCandidateId(candidate?.id);
-      setDeleteCandidateModal(true);
-    }
+    if (key === 'edit') {
+     setEditCandidate(candidate);
+     setEditCandidateModal(true);
+     setSelectedCandidateID(candidate?.id);
+   } else if (key === 'delete') {
+     setDeleteCandidateId(candidate?.id);
+     setDeleteCandidateModal(true);
+   }
   };
 
   const handleCandidateDetail = (candidate: any) => {
@@ -142,17 +137,6 @@ const AllCandidateTable: React.FC = () => {
     };
 
     const items = [
-      {
-        key: 'moveToTalentPool',
-        label: (
-          <div className="text-primary font-normal text-sm flex items-center justify-start gap-1">
-            Move to Talent Pool
-            <IoIosArrowForward size={12} />
-          </div>
-        ),
-        onClick: () => handleMenuClick('moveToTalentPool', item),
-        permissions: [Permissions.TransferCandidate],
-      },
       {
         key: 'edit',
         label: 'Edit',
@@ -174,6 +158,7 @@ const AllCandidateTable: React.FC = () => {
 
     return {
       key: index,
+      id: item.id,
       candidateName: item?.fullName ?? '--',
       phoneNumber: item?.phone ?? '--',
       cgpa: item?.CGPA ?? '--',
@@ -246,12 +231,24 @@ const AllCandidateTable: React.FC = () => {
       ),
     };
   });
+
+  const rowSelection = {
+    onChange: (_: any, selectedRows: any) => {
+      setSelectedCandidate(
+        candidateList?.items?.filter((item: any) =>
+          selectedRows.some((row: any) => row.id === item.id),
+        ),
+      );
+    },
+  };
+
   return (
     <div>
       <Table
         className="w-full"
         columns={columns}
         dataSource={data}
+        rowSelection={rowSelection} // Enable selection
         pagination={{
           total: candidateList?.meta?.totalItems,
           current: currentPage,
