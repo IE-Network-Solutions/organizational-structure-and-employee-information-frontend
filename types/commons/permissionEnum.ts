@@ -333,7 +333,6 @@ export enum Permissions {
   DeleteFeedack = 'delete-feedback',
   EditFeedack = 'edit-feedback',
   ViewAllEmployeeFeedback = 'view-all-employees-feedback',
-  
 
   // //recognition
   // CreateRecognitionType = 'create-recognition-type',
