@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Col, Row, Skeleton } from 'antd';
+import { Card, Col, Progress, Row, Skeleton } from 'antd';
 import { BiAward } from 'react-icons/bi';
 import {
   GoArrowUp,
@@ -11,12 +11,17 @@ import { useVariablePayStore } from '@/store/uistate/features/okrplanning/VP';
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-const CriteriaCard: React.FC = () => {
+interface CriteriaCardProps {
+  id?: string;
+}
+const CriteriaCard: React.FC<CriteriaCardProps> = ({ id }) => {
   const { cardsPerPage, visibleIndex, setVisibleIndex } = useVariablePayStore();
 
   const userId = useAuthenticationStore.getState().userId;
+  const identifier = id ?? userId;
+
   const { data: criteriaCardData, isLoading: isResponseLoading } =
-    useGetVPScore(userId);
+    useGetVPScore(identifier);
 
   const scrollNext = () => {
     if (visibleIndex + cardsPerPage < criteriaCardData?.criteria?.length) {
@@ -40,21 +45,59 @@ const CriteriaCard: React.FC = () => {
             {criteriaCardData?.criteria
               .slice(visibleIndex, visibleIndex + cardsPerPage)
               .map((item: any, index: any) => {
-                const change = item?.score - item?.previousScore;
+                const change =
+                  item?.score.toFixed(2) - item?.previousScore.toFixed(2);
+                const achievedPercentage = Number(
+                  ((item?.score / item?.weight) * 100).toFixed(1),
+                );
                 return (
                   <Col key={index} xs={24} sm={12} md={8}>
                     <Card className="mt-10 bg-[#FAFAFA]" bordered={false}>
-                      <div className="flex items-center mb-8">
-                        <div className="w-10 h-10 rounded-full bg-indigo-50 flex justify-center items-center">
-                          <BiAward size={25} fill="#0BA259" />
-                        </div>
+                      <div className="mb-8">
+                        {item?.isDeduction === true ? (
+                          <div className="flex flex-col ">
+                            <div className="font-sm text-sm text-[#d0342c] text-end">
+                              Deductible
+                            </div>
+                            <div className="flex items-end justify-start gap-2">
+                              <div className="w-10 h-10 rounded-full bg-[#FFEDEC] flex justify-center items-center">
+                                <div>
+                                  <BiAward size={25} fill="#d0342c" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="mb-8 flex flex-col">
+                            <div className="font-sm text-sm text-[#FAFAFA] text-end">
+                              t
+                            </div>
+                            <div className="w-10 h-10 rounded-full bg-[#7152F30D] flex justify-center items-center">
+                              <BiAward size={25} fill="#0BA259" />
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <h3 className="text-sm font-medium text-gray-500 mb-2">
                         {item?.name}
                       </h3>
-                      <p className="text-3xl font-bold text-gray-900">
-                        {parseInt(item?.weight, 10)}%
-                      </p>
+                      <div className="relative ">
+                        <div className="flex flex-wrap items-center justify-between">
+                          <p className="text-3xl font-bold text-gray-900">
+                            {Number(item?.score?.toFixed(2))}%
+                          </p>
+                          <div className="flex flex-wrap flex-col">
+                            <p className="text-sm text-end text-gray-500">
+                              {`${Number(item?.score) ? Number(item?.score).toFixed(1) : 0} % achieved out of ${item?.weight || 0}%`}
+                            </p>
+                            <Progress
+                              percent={achievedPercentage}
+                              showInfo={false}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
                       <div className="flex items-center mt-2 text-sm text-gray-500 justify-end">
                         <span
                           className={`font-medium flex items-center ${

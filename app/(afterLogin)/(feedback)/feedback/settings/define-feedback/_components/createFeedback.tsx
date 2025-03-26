@@ -8,7 +8,11 @@ import {
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
 
-function CreateFeedback() {
+interface DataProps {
+  form: any;
+}
+
+const CreateFeedback: React.FC<DataProps> = ({ form }) => {
   const {
     variantType,
     activeTab,
@@ -16,7 +20,6 @@ function CreateFeedback() {
     setOpen,
     setSelectedFeedback,
   } = ConversationStore();
-  const [form] = Form.useForm();
   const { mutate: createFeedback, isLoading: createFeedbackLoading } =
     useCreateFeedback();
   const { mutate: updateFeedback, isLoading: feedbackUpdateLoading } =
@@ -58,13 +61,19 @@ function CreateFeedback() {
         description: selectedFeedback?.description,
         points: selectedFeedback?.points,
       });
+    } else {
+      form?.resetFields();
     }
   }, [selectedFeedback]);
 
   return (
     <div className="mt-5 flex justify-center">
       <Card
-        title="Create Appreciation Type"
+        title={
+          selectedFeedback?.id
+            ? `Edit ${variantType} type`
+            : `Create ${variantType} type`
+        }
         bordered={true}
         style={{ width: 500 }}
       >
@@ -79,14 +88,14 @@ function CreateFeedback() {
           {/* Appreciation Type Name */}
           <Form.Item
             className={commonClass}
-            label={<div className={commonClass}>Appreciation Type Name</div>}
+            label={<div className={commonClass}>Objective</div>}
             name="name"
             rules={[
               {
                 required: true,
-                message: 'Please enter the appreciation type name!',
+                message: `Please enter the ${variantType} objective name!`,
               },
-              { max: 50, message: 'Name cannot exceed 50 characters.' },
+              { max: 250, message: 'Name cannot exceed 250 characters.' },
             ]}
           >
             <Input className={commonClass} placeholder="Enter type name" />
@@ -99,8 +108,8 @@ function CreateFeedback() {
             rules={[
               { required: true, message: 'Please enter a description!' },
               {
-                max: 200,
-                message: 'Description cannot exceed 200 characters.',
+                max: 250,
+                message: 'Description cannot exceed 250 characters.',
               },
             ]}
           >
@@ -110,11 +119,7 @@ function CreateFeedback() {
               placeholder="Enter description"
             />
           </Form.Item>
-          <Form.Item
-            name="perspectiveId"
-            label="Select Perspective"
-            rules={[{ required: true, message: 'Please select a department' }]}
-          >
+          <Form.Item name="perspectiveId" label="Select Perspective">
             <Select
               loading={getPerspectiveLoading}
               placeholder="Select a perspective"
@@ -174,6 +179,6 @@ function CreateFeedback() {
       </Card>
     </div>
   );
-}
+};
 
 export default CreateFeedback;

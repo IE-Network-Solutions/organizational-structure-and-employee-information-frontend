@@ -41,11 +41,16 @@ export interface PlanningAndReporting {
   resetWeights: () => void;
 
   selectedStatuses: Record<string, string | undefined>; // Map task IDs to their statuses
-  setStatus: (taskId: string, status: string) => void; // Function to update status
-
+  setStatus: (taskId: string, status: any) => void; // Function to update status
+  resetStatuses: () => void;
   page: number; // Map task IDs to their statuses
   setPage: (page: number) => void; // Function to update status
-
+  pageSize: number;
+  setPageSize: (value: number) => void;
+  pageReporting: number; // Map task IDs to their statuses
+  setPageReporting: (pageReporting: number) => void; // Function to update status
+  pageSizeReporting: number;
+  setPageSizeReporting: (value: number) => void;
   selectedPlanId: string;
   setSelectedPlanId: (selectedPlanId: string) => void;
 
@@ -74,6 +79,7 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
           [taskId]: status, // Update the specific task status
         },
       })),
+    resetStatuses: () => set({ selectedStatuses: {} }), // Reset to initial state
 
     openReportModal: false,
     setOpenReportModal: (openReportModal: boolean) => set({ openReportModal }),
@@ -100,6 +106,13 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
 
     page: 1, // Map task IDs to their statuses
     setPage: (page: number) => set({ page }), // Function to update status
+    pageSize: 10,
+    setPageSize: (value: number) => set({ pageSize: value }),
+
+    pageReporting: 1, // Map task IDs to their statuses
+    setPageReporting: (pageReporting: number) => set({ pageReporting }), // Function to update status
+    pageSizeReporting: 10,
+    setPageSizeReporting: (value: number) => set({ pageSizeReporting: value }),
 
     setWeight: (key, weight) =>
       set((state) => {

@@ -369,7 +369,7 @@ const MilestoneView: React.FC<OKRProps> = ({
         </div>
 
         {keyValue?.milestones?.length != 0 && keyValue?.milestones && (
-          <Form.Item className="px-5" label="Milestones">
+          <Form.Item className="px-5" label="Milestones" required>
             {keyValue?.milestones.map((milestone, mindex) => (
               <div
                 key={mindex}
@@ -380,16 +380,32 @@ const MilestoneView: React.FC<OKRProps> = ({
                   {index + 1}.{mindex + 1}
                 </div>
 
-                <Input
-                  disabled={milestone?.status == 'Completed'}
-                  id={`milestone-title-${index}-${mindex}`}
-                  placeholder="Milestone Name"
-                  value={milestone.title || ''}
-                  className="flex-1"
-                  onChange={(e) =>
-                    milestoneChange(e.target.value, index, mindex, 'title')
-                  }
-                />
+                {/* <Input
+                    id={`milestone-title-${index}-${mindex}`}
+                    placeholder="Milestone Name"
+                    value={milestone.title || ''}
+                    className="flex-1"
+                    onChange={(e) =>
+                      milestoneChange(e.target.value, index, mindex, 'title')
+                    }
+                    required
+                  /> */}
+                <Form.Item
+                  name={['milestones', index, mindex, 'title']}
+                  rules={[
+                    { required: true, message: 'Milestone name is required' },
+                  ]}
+                  className="flex-1 "
+                >
+                  <Input
+                    id={`milestone-title-${index}-${mindex}`}
+                    placeholder="Milestone Name"
+                    value={milestone.title || ''}
+                    onChange={(e) =>
+                      milestoneChange(e.target.value, index, mindex, 'title')
+                    }
+                  />
+                </Form.Item>
 
                 <InputNumber
                   disabled={milestone?.status == 'Completed'}

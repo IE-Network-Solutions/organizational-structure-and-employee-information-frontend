@@ -1,13 +1,4 @@
-import {
-  Button,
-  Col,
-  Form,
-  Input,
-  InputNumber,
-  Row,
-  Select,
-  Space,
-} from 'antd';
+import { Col, Form, Input, InputNumber, Row, Select, Space } from 'antd';
 import { MdCancel } from 'react-icons/md';
 
 interface SubTaskInterface {
@@ -179,14 +170,14 @@ function SubTaskComponent({
               </Row>
             </>
           ))}
-          <Button
+          {/* <Button
             className="w-16 h-2 text-[10px] "
             type="link"
             onClick={() => subOpt.add()}
             block
           >
             + Add Sub Task
-          </Button>
+          </Button> */}
         </div>
       )}
     </Form.List>

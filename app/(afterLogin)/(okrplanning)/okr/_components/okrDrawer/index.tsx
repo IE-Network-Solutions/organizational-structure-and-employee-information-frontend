@@ -229,7 +229,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               label="Supervisor Key Result"
               rules={[
                 {
-                  required: reportsToId ? true : false,
+                  required: !reportsToId ? true : false,
                   message: 'Please enter the Objective name',
                 },
               ]}

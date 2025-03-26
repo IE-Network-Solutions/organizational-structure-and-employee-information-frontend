@@ -4,18 +4,18 @@ import { OrgChart } from './interface';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
 /**
  * Fetch all organization charts from the API.
  * @returns Promise with the list of organization charts.
  */
 
 const getAllOrgCharts = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/departments`,
     method: 'GET',
@@ -29,6 +29,12 @@ const getAllOrgCharts = async () => {
  */
 
 const getAllOrgChartsPeople = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/user/user-tree`,
     method: 'GET',
@@ -42,6 +48,12 @@ const getAllOrgChartsPeople = async () => {
  * @returns Promise with the organization chart data.
  */
 const getOrgChart = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/${id}`,
     method: 'GET',

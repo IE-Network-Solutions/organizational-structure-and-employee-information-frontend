@@ -284,7 +284,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             onRemove={handleDocumentRemove}
             customRequest={customRequest}
             listType="picture"
-            accept="*/*"
+            accept="application/pdf"
           >
             <p>
               <Image

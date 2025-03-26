@@ -4,9 +4,8 @@ import { useCreateJobInformation } from '@/store/server/features/employees/emplo
 import JobTimeLineForm from '../../../../_components/allFormData/jobTimeLineForm';
 import WorkScheduleForm from '../../../../_components/allFormData/workScheduleForm';
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
-import { useEffect } from 'react';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
 
 interface Ids {
   id: string;
@@ -19,7 +18,6 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
   } = useEmployeeManagementStore();
 
   const { data: employeeData } = useGetEmployee(id);
-  const { data: basicSalary } = useGetBasicSalaryById(id);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
@@ -27,57 +25,17 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
     setIsAddEmployeeJobInfoModalVisible(false);
   };
 
-  const activeJob = basicSalary?.find((job: any) => job?.status === true);
-
-  useEffect(() => {
-    if (employeeData && employeeData.employeeJobInformation.length > 0) {
-      const jobInfo = employeeData.employeeJobInformation[0];
-
-      form.setFieldsValue({
-        positionId: jobInfo?.position?.name || '',
-        employementTypeId: jobInfo?.employementType?.name || '',
-        departmentId: jobInfo?.department?.name || '',
-        branchId: jobInfo?.branch?.name || '',
-        departmentLeadOrNot: jobInfo?.departmentLeadOrNot,
-        basicSalary: activeJob?.basicSalary.toString() || '',
-        jobAction: jobInfo?.jobAction,
-        employmentContractType:
-          jobInfo?.employementType?.name === 'Permanent'
-            ? 'Permanent'
-            : 'Contractual',
-        workScheduleId: jobInfo?.workSchedule?.name || '',
-      });
-    }
-  }, [employeeData, activeJob, form]);
-
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
-    const positionId = employeeData?.employeeJobInformation?.find(
-      (job: any) => job?.position?.name === values.positionId,
-    )?.position?.id;
-    const employementTypeId = employeeData?.employeeJobInformation?.find(
-      (job: any) => job?.employementType?.name === values.employementTypeId,
-    )?.employementType?.id;
-    const departmentId = employeeData?.employeeJobInformation?.find(
-      (job: any) => job?.department?.name === values.departmentId,
-    )?.department?.id;
-    const branchId = employeeData?.employeeJobInformation?.find(
-      (job: any) => job?.branch?.name === values.branchId,
-    )?.branch?.id;
-    const workScheduleId = employeeData?.employeeJobInformation?.find(
-      (job: any) => job?.workSchedule?.name === values.workScheduleId,
-    )?.workSchedule?.id;
-
-    values.positionId = positionId || '';
-    values.employementTypeId = employementTypeId || '';
-    values.departmentId = departmentId || '';
-    values.branchId = branchId || '';
-    values.workScheduleId = workScheduleId || '';
     values.userId = id;
-    // values.basicSalary = parseInt(values.basicSalary.toString(), 10);
+    values.basicSalary = parseInt(values.basicSalary.toString(), 10);
     values.departmentLeadOrNot
       ? values.departmentLeadOrNot
       : (values.departmentLeadOrNot = false);
-    createJobInformation(values);
+    createJobInformation(values, {
+      onSuccess: () => {
+        handleClose();
+      },
+    });
   };
 
   return (
@@ -92,6 +50,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
       >
         <Form form={form} onFinish={createTsks} layout="vertical">
           <JobTimeLineForm />
+          <BasicSalaryForm />
           <WorkScheduleForm
             selectedWorkScheduleDetails={
               employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
@@ -114,7 +73,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
                 name="cancel"
                 onClick={handleClose}
               >
-                Cancel{' '}
+                Cancel
               </Button>
             </Row>
           </Form.Item>

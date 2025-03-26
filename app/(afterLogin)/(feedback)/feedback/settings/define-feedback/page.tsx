@@ -13,6 +13,7 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 import { Department } from '@/types/dashboard/organization';
 import { useCreatePerspective } from '@/store/server/features/CFR/feedback/mutations';
 import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
+
 const { TextArea } = Input;
 
 const Page = () => {
@@ -32,18 +33,20 @@ const Page = () => {
   const { data: departments } = useGetDepartments();
   const { mutate: addPerspective } = useCreatePerspective();
   const { data: perspectiveData } = useGetAllPerspectives();
+  const [form1] = Form.useForm();
 
   getAllFeedbackTypes;
   const onChange = (key: string) => {
     setActiveTab(key);
   };
   const onCloseHandler = () => {
+    form?.resetFields();
     setOpen(false);
     setSelectedFeedback(null);
   };
 
   const getDepartment = (id: string) => {
-    return departments?.find((item: Department) => (item.id = id));
+    return departments?.find((item: Department) => item.id === id);
   };
   useEffect(() => {
     setActiveTab(getAllFeedbackTypes?.items?.[0]?.id);
@@ -56,7 +59,11 @@ const Page = () => {
 
   const modalHeader = (
     <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-      <p>Add New {activeTabName}</p>
+      <p>
+        {selectedFeedback === null
+          ? `Add New ${activeTabName}`
+          : `Edit New ${activeTabName}`}
+      </p>
       <p>{variantType} type</p>
     </div>
   );
@@ -86,7 +93,7 @@ const Page = () => {
             </Button>
           </div>
           {perspectiveData?.map((item: any) => (
-            <Card className="mx-2" key={item.id}>
+            <Card className="mx-2 my-2" key={item.id}>
               <div className="flex justify-between">
                 <div>
                   <p className="font-bold">{item?.name}</p>
@@ -97,7 +104,7 @@ const Page = () => {
                     <strong>department</strong>
                   </p>
                   <p className="flex gap-2 ml-2 text-xs">
-                    {getDepartment(item?.departmentId).name}
+                    {getDepartment(item?.departmentId)?.name}
                   </p>
                 </div>
               </div>
@@ -141,7 +148,7 @@ const Page = () => {
         modalHeader={modalHeader}
         width="30%"
       >
-        <CreateFeedback />
+        <CreateFeedback form={form1} />
       </CustomDrawerLayout>
       <Modal
         title="Basic Modal"

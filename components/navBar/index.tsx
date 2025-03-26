@@ -89,6 +89,11 @@ const menuItems: MenuProps['items'] = [
         label: 'Planning and Reporting',
         className: 'font-bold',
       },
+      {
+        key: '/weekly-priority',
+        label: 'Weekly Priority',
+        className: 'font-bold',
+      },
       // {
       //   key: '/monitoring-evaluation',
       //   label: 'Monitoring & Evaluation',
@@ -161,12 +166,13 @@ const menuItems: MenuProps['items'] = [
     className: 'font-bold',
     label: 'Payroll',
     children: [
-      // {
-      //   key: '/employee-information',
-      //   label: 'Employee Information',
-      //   className: 'font-bold',
-      // },
+      {
+        key: '/employee-information',
+        label: 'Employee Information',
+        className: 'font-bold',
+      },
       { key: '/payroll', label: 'Payroll', className: 'font-bold' },
+      { key: '/myPayroll', label: 'My Payroll', className: 'font-bold' },
       {
         key: '/settings',
         label: 'Settings',
@@ -230,6 +236,19 @@ const menuItems: MenuProps['items'] = [
       },
     ],
   },
+  {
+    key: '/incentive',
+    icon: <CiCalendar />,
+    className: 'font-bold',
+    label: 'Incentive',
+    children: [
+      {
+        key: '/variable-pay',
+        label: 'Variable Pay',
+        className: 'font-bold',
+      },
+    ],
+  },
 ];
 
 const userItems: MenuProps['items'] = [
@@ -289,6 +308,20 @@ const userItems: MenuProps['items'] = [
       },
     ],
   },
+  // {
+  //   key: '/incentive',
+  //   icon: <CiCalendar />,
+  //   className: 'font-bold',
+  //   label: 'Incentive',
+  //   children: [
+  //     {
+  //       key: '/variable-pay',
+  //       label: 'Variable Pay',
+  //       className: 'font-bold',
+  //     }
+
+  //   ],
+  // },
 ];
 
 interface MyComponentProps {

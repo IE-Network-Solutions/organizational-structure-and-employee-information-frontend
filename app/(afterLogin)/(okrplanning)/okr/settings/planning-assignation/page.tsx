@@ -1,5 +1,5 @@
 'use client';
-import { Table, Button, Popconfirm, Form, Select } from 'antd';
+import { Table, Button, Popconfirm, Form, Select, Spin } from 'antd';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
 import PlanningAssignationDrawer from './_components/planning-assignation-drawer';
@@ -34,13 +34,13 @@ const PlanAssignment: React.FC = () => {
     setPageSize,
   } = useOKRSettingStore();
   const { mutate: deletePlanningAssign } = useDeletePlanningUser();
-  const { data: allUserWithPlanningPeriod } = useGetAllAssignedUser(
-    page,
-    pageSize,
-    userId || '',
-  );
+  const {
+    data: allUserWithPlanningPeriod,
+    isLoading: allUserPlanningPeriodLoading,
+  } = useGetAllAssignedUser(page, pageSize, userId || '');
   const { data: getAllPlanningPeriod } = useGetAllPlanningPeriods();
-  const { data: employeeData } = useGetAllUsers();
+  const { data: employeeData, isLoading: employeeDataLoading } =
+    useGetAllUsers();
   const userToPlanning = allUserWithPlanningPeriod?.items.reduce(
     (acc: GroupedUser[], item: PlanningPeriodUser) => {
       let group = acc.find((group) => group.userId === item.userId);
@@ -61,9 +61,10 @@ const PlanAssignment: React.FC = () => {
 
     // Destructure firstName and lastName with fallback
     const firstName = employee?.firstName || '-';
+    const middleName = employee?.middleName || '';
     const lastName = employee?.lastName || '';
 
-    return `${firstName} ${lastName}`;
+    return `${firstName} ${middleName} ${lastName}`;
   };
 
   const getPlanningPeriod = (planningPeriodId: string) => {
@@ -105,26 +106,43 @@ const PlanAssignment: React.FC = () => {
     setUserId(id);
   };
 
-  const dataSources = userToPlanning?.map((item: any, index: number) => ({
-    id: index + 1, // Assigning a unique id based on the index
-    name: getEmployeeData(item?.userId), // Assuming getEmployeeData returns an object with a name property
-    plans: item?.items
-      ?.map((plan: any) => getPlanningPeriod(plan.planningPeriodId)) // Get each plan name
-      .join(', '), // Combine plan names into a single string
-    key: item?.userId, // Using userId as the key to ensure uniqueness
-    actions: {
-      // Adding actions property
-      edit: () => handleEdit(item),
-      delete: () => handleDelete(item),
-    },
-  }));
+  const dataSources = userToPlanning?.map((item: any, index: number) => {
+    const latestUpdatedAt = item?.items
+      ? item.items.reduce((latest: any, currentItem: any) => {
+          return !latest ||
+            new Date(currentItem.updatedAt) > new Date(latest.updatedAt)
+            ? currentItem
+            : latest;
+        }, null)?.updatedAt
+      : null;
+
+    return {
+      id: index + 1,
+      name: getEmployeeData(item?.userId),
+      plans: item?.items
+        ?.map((plan: any) => getPlanningPeriod(plan.planningPeriodId))
+        .join(', '),
+      key: item?.userId,
+      createdAt: item?.items?.[0]?.createdAt,
+      updatedAt: latestUpdatedAt, // Assign latest updatedAt
+      actions: {
+        edit: () => handleEdit(item),
+        delete: () => handleDelete(item),
+      },
+    };
+  });
 
   const columns: ColumnsType<any> = [
     {
       title: 'Employee Name',
       dataIndex: 'name',
       key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
+      render: (notused, record) => (
+        <span>
+          {employeeDataLoading ? <Spin size="small" /> : record?.name}
+        </span>
+      ),
+      sorter: (a, b) => (a.name || '').localeCompare(b.name || ''),
     },
     {
       title: 'Plans', // Assuming you want to display plan names
@@ -132,10 +150,11 @@ const PlanAssignment: React.FC = () => {
       key: 'plans',
     },
     {
-      title: 'Date', // Displaying a static date for now
-      dataIndex: 'date',
-      key: 'date',
-      render: () => dayjs('2023-09-12').format('DD MMM YYYY'),
+      title: 'last Update', // Displaying a static date for now
+      dataIndex: 'updatedAt',
+      key: 'updatedAt',
+      render: (notused, record) =>
+        dayjs(record?.updatedAt).format('DD MMM YYYY'),
     },
     {
       title: 'Actions',
@@ -195,10 +214,12 @@ const PlanAssignment: React.FC = () => {
             value: list?.id,
             label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
           }))}
+          loading={employeeDataLoading}
         />
       </Form.Item>
 
       <Table
+        loading={allUserPlanningPeriodLoading}
         dataSource={dataSources}
         columns={columns}
         pagination={{

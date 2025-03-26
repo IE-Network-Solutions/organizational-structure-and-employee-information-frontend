@@ -1,7 +1,8 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { APPROVER_URL } from '@/utils/constants';
+import { APPROVER_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
+import { AllApprovalWorkFlow } from './interface';
 
 export const approvalFilter = async (
   pageSize: number,
@@ -23,6 +24,35 @@ export const approvalFilter = async (
   });
   return response;
 };
+export const getLeaveRequestByWorkFlowId = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const response = await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/workflowId/${id}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+  return response;
+};
+
+export const getAllWorkFlow = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const response = await crudRequest({
+    url: `${APPROVER_URL}/approvalWorkflows/allWorkflow`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+  return response;
+};
+
 export const allApproval = async (entityId: string, branch: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -85,6 +115,17 @@ export const useApprovalFilter = (
   );
 };
 
+export const useGetAllLeaveRequestByWorkFlowId = (id: string) => {
+  return useQuery<any>(
+    ['leaveRequests', id],
+    () => getLeaveRequestByWorkFlowId(id),
+    {
+      keepPreviousData: true,
+      enabled: !!id,
+    },
+  );
+};
+
 export const useAllApproval = (entityId: string, branch: string) => {
   return useQuery<any>(
     ['allApprovals', entityId],
@@ -105,6 +146,7 @@ export const useSingleApproval = (entityId: string, approvalType: string) => {
     },
   );
 };
+
 export const useCurrentApproval = (
   approvalWorkflowId: string,
   requesterId: string,
@@ -115,6 +157,16 @@ export const useCurrentApproval = (
     {
       keepPreviousData: true,
       enabled: false,
+    },
+  );
+};
+
+export const useGetAllApprovalWorkflow = () => {
+  return useQuery<AllApprovalWorkFlow>(
+    ['getAllApprovalWorkflow'],
+    () => getAllWorkFlow(),
+    {
+      keepPreviousData: true,
     },
   );
 };

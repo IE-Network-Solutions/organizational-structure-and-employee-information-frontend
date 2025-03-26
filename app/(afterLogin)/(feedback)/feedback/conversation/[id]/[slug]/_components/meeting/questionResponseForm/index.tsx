@@ -7,9 +7,8 @@ const QuestionResponseForm = ({
   attendeesOptions,
   questionSet,
   handleAttendeeChange,
-  form
+  form,
 }: any) => {
-
   useEffect(() => {
     form.setFieldsValue({
       [`userId_${attendeeIndex}`]: attendeesOptions[attendeeIndex]?.value,
@@ -24,13 +23,13 @@ const QuestionResponseForm = ({
         }
         rules={[{ required: true, message: 'Please select an attendee' }]}
       >
-        
         <Select
           placeholder="Select attendee"
           className="text-black text-sm font-semibold"
           options={attendeesOptions}
           onChange={handleAttendeeChange}
           value={attendeesOptions[attendeeIndex].value}
+          disabled
         />
       </Form.Item>
 

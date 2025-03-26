@@ -37,12 +37,17 @@ export const options = {
   },
 };
 
-const LineGraph: React.FC = () => {
+interface PayCardInterface {
+  id?: string;
+}
+
+const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
   const userId = useAuthenticationStore?.getState().userId;
   const { data: getAllMonth } = useGetAllMonth();
+  const identifier = id ?? userId;
 
   const { data: lineGraph, isLoading: isGraphLoading } =
-    useGetVPLineGraphData(userId);
+    useGetVPLineGraphData(identifier);
   const getMonthName = (id: string) => {
     return (
       getAllMonth?.items?.find((monthItem: any) => monthItem?.id === id) ?? {}

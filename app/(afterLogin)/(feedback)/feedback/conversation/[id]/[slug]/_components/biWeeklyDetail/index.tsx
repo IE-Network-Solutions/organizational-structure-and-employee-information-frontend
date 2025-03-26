@@ -68,7 +68,6 @@ function ConversationInstanceDetail({
                   />,
                 ]}
               >
-                
                 <div className="flex flex-col w-full">
                   <span
                     className="mb-1 font-semibold text-gray-700 text-xs truncate w-full"
@@ -77,6 +76,7 @@ function ConversationInstanceDetail({
                     {activePosition?.department?.name || '-'}
                   </span>
                   <UserCard
+                    data={attendee}
                     name={
                       <span className="text-xs font-medium cursor-pointer truncate w-full">
                         {`${attendee?.firstName ?? '-'} ${attendee?.middleName ?? ''} ${attendee?.lastName ?? ''}`}
@@ -85,7 +85,6 @@ function ConversationInstanceDetail({
                     profileImage={attendee?.profileImage}
                     size="small"
                   />
-                  
                 </div>
               </List.Item>
             );

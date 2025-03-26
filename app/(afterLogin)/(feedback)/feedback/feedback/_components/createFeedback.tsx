@@ -29,9 +29,9 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
   );
   const { data: getAllUsersData } = useGetAllUsers();
   const { data: getAllFeedbackTypeById } = useFetchFeedbackTypeById(activeTab);
+
   const { data: departments, isLoading } = useGetDepartments();
   const { data: perspectiveData } = useGetPerspectiveById(selectedDepartment);
-
   const {
     mutate: createFeedbackRecord,
     isLoading: loadingCreateFeedbackRecord,
@@ -48,7 +48,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         points:
           getAllFeedbackTypeById?.feedback?.find(
             (feedback: FeedbackItem) => feedback.id === values.feedbackId,
-          )?.points || 0, // Default to 0 if feedback is not found or points are undefined
+          )?.points || 0,
         issuerId: userId,
         feedbackTypeId: activeTab,
       };
@@ -87,9 +87,14 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
 
   // Ensure perspectiveIds is always an array to avoid errors
   const filteredFeedback = getAllFeedbackTypeById?.feedback?.filter(
-    (item: any) => perspectiveIds.includes(item.perspectiveId),
+    (item: any) => {
+      if (item.perspectiveId) {
+        return perspectiveIds.includes(item.perspectiveId);
+      } else {
+        return true;
+      }
+    },
   );
-
   // const filteredFeedback=getAllFeedbackTypeById?.feedback
   useEffect(() => {
     const getDepartmenId = (perspectiveId: string | undefined) => {
@@ -108,6 +113,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         action: selectedFeedbackRecord?.action,
       });
   }, [selectedFeedbackRecord]);
+
   return (
     <Form
       form={form}
@@ -138,7 +144,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
             getAllUsersData?.items
               ?.filter((i: any) => i.id !== userId)
               ?.map((item: any) => ({
-                label: `${item?.firstName} ${item?.lastName}`, // `label` for display
+                label: `${item?.firstName} ${item?.middleName} ${item?.lastName}`, // `label` for display
                 value: item?.id, // `value` for internal use
               })) ?? []
           }
@@ -178,7 +184,6 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
       >
         <Select
           showSearch
-          disabled={filteredFeedback?.length < 1}
           placeholder="Select Feedback"
           options={
             filteredFeedback
@@ -232,10 +237,19 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           <Select
             mode="multiple"
             placeholder="Select CC employee(s)"
+            filterOption={(input: any, option: any) =>
+              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+            }
             options={
               getAllUsersData?.items?.map((item: any) => ({
                 key: item?.id,
-                value: `${item?.firstName} ${item?.lastName}`,
+                value: item?.email,
+                label:
+                  item?.firstName +
+                  ' ' +
+                  item?.middleName +
+                  '' +
+                  item?.lastName,
               })) ?? []
             }
           />

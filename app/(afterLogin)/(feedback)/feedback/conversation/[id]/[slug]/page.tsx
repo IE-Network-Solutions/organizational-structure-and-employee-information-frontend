@@ -13,7 +13,8 @@ import CreateActionPlans from './_components/createActionPlans';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useAddActionPlan } from '@/store/server/features/CFR/conversation/action-plan/mutation';
 import dayjs from 'dayjs';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
+import { useForm } from 'antd/es/form/Form';
 interface Params {
   slug: string;
 }
@@ -28,7 +29,8 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
     useGetAllConversationInstancesById(slug);
   const { data: allUserData } = useGetAllUsers();
   const { mutate: addActionPlan } = useAddActionPlan();
-  const router = useRouter()
+  const router = useRouter();
+  const [form2] = useForm();
 
   useEffect(() => {
     if (selectedUserId !== null && selectedUserId !== '') {
@@ -54,7 +56,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
       return {
         ...questionResponse,
         employeeDetail:
-          `${employeeData?.firstName || ''} ${employeeData?.lastName || ''}`.trim(),
+          `${employeeData?.firstName || ''} ${employeeData?.middleName || ''} ${employeeData?.lastName || ''}`.trim(),
       };
     }
 
@@ -83,6 +85,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
     addActionPlan(updatedData, {
       onSuccess: () => {
         setOpen(false);
+        form2.resetFields();
       },
     });
   };
@@ -129,7 +132,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
       title={
         <div>
           {' '}
-          <Button type='link' onClick={() => handleRedirectback()}>
+          <Button type="link" onClick={() => handleRedirectback()}>
             ←
           </Button>{' '}
           <span>Details</span>
@@ -178,6 +181,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
         <CreateActionPlans
           slug={slug}
           onFinish={(values) => handleCreateActionPlan(values)}
+          form2={form2}
         />
       </CustomDrawerLayout>
     </TabLandingLayout>
