@@ -11,7 +11,6 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
 import { FaEllipsisVertical } from 'react-icons/fa6';
-import { FileDown } from 'lucide-react';
 import CandidateDetail from '../../../jobs/[id]/_components/candidateDetail/page';
 import DeleteCandidate from '../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../_components/modals/editCandidate';
