@@ -4,13 +4,11 @@ import AllIncentiveTable from './table';
 import IncentiveCards from '../cards';
 import { Card, Skeleton } from 'antd';
 
-interface ParentResponseLoadingProps {
+interface LoadingProps {
   parentResponseLoading: boolean;
 }
 
-const All: React.FC<ParentResponseLoadingProps> = ({
-  parentResponseLoading,
-}) => {
+const All: React.FC<LoadingProps> = ({ parentResponseLoading }) => {
   return (
     <div className="">
       {parentResponseLoading ? (
