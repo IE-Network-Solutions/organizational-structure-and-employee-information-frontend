@@ -113,6 +113,11 @@ const treeData: CustomMenuItem[] = [
         key: '/recruitment/settings',
         className: 'font-bold h-9',
       },
+      {
+        title: 'HrFlow.Ai',
+        key: '/recruitment/hrflow.ai',
+        className: 'font-bold h-9',
+      },
     ],
   },
   {
