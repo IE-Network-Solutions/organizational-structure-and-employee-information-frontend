@@ -23,6 +23,8 @@ import { useTransferStore } from '@/store/uistate/features/organizationStructure
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { Form } from 'antd';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 // Layout component definition
 export default function ChartLayout({
@@ -101,25 +103,31 @@ export default function ChartLayout({
                 overlay={exportOrgStrucutreMenu(chartRef, exportToPDFOrJPEG)}
                 trigger={['click']}
               >
-                <CustomButton
-                  title="Download"
-                  icon={<FaDownload size={16} />}
-                  type="default"
-                />
+                <AccessGuard
+                  permissions={[Permissions.DownloadOrganizationStructure]}
+                >
+                  <CustomButton
+                    title="Download"
+                    icon={<FaDownload size={16} />}
+                    type="default"
+                  />
+                </AccessGuard>
               </Dropdown>
               {selectedKey !== 'chart' && (
-                <Dropdown
-                  overlay={orgComposeAndMergeMenues}
-                  trigger={['click']}
-                  placement="bottomRight"
-                >
-                  <Button
-                    type="primary"
-                    className="w-16 h-14 px-6 py-6 rounded-lg flex items-center justify-center gap-2"
+                <AccessGuard permissions={[Permissions.MergeDepartment]}>
+                  <Dropdown
+                    overlay={orgComposeAndMergeMenues}
+                    trigger={['click']}
+                    placement="bottomRight"
                   >
-                    <BsThreeDotsVertical size={16} />
-                  </Button>
-                </Dropdown>
+                    <Button
+                      type="primary"
+                      className="w-16 h-14 px-6 py-6 rounded-lg flex items-center justify-center gap-2"
+                    >
+                      <BsThreeDotsVertical size={16} />
+                    </Button>
+                  </Dropdown>
+                </AccessGuard>
               )}
             </div>
           }

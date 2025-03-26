@@ -29,6 +29,8 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
 import { useExportData } from './_components/excel';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportBank, setExportBank] = useState(true);
@@ -566,13 +568,14 @@ const Payroll = () => {
         </h2>
 
         <div className="flex gap-4  mb-7">
-          <Button
-            // type="default"
-            className="text-[#3636F0] bg-[#B2B2FF] border-none p-6"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Export
-          </Button>
+          <AccessGuard permissions={[Permissions.PayrollExport]}>
+            <Button
+              className="text-[#3636F0] bg-[#B2B2FF] border-none p-6"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Export
+            </Button>
+          </AccessGuard>
 
           <Popconfirm
             title="Are you sure?"
@@ -581,13 +584,15 @@ const Payroll = () => {
             cancelText="No"
             onConfirm={() => sendingPaySlipHandler(mergedPayroll)}
           >
-            <Button
-              type="default"
-              loading={sendingPaySlipLoading}
-              className="text-white bg-primary border-none p-6"
-            >
-              Send Email
-            </Button>
+            <AccessGuard permissions={[Permissions.SendPayslipEmail]}>
+              <Button
+                type="default"
+                loading={sendingPaySlipLoading}
+                className="text-white bg-primary border-none p-6"
+              >
+                Send Email
+              </Button>
+            </AccessGuard>
           </Popconfirm>
 
           <Popconfirm
@@ -601,17 +606,26 @@ const Payroll = () => {
             cancelText="No"
             disabled={!(payroll?.payrolls.length > 0)}
           >
-            <Button
-              type="primary"
-              className="p-6"
-              onClick={
-                payroll?.payrolls.length > 0 ? undefined : handleGeneratePayroll
-              }
-              loading={isCreatingPayroll || loading || deleteLoading}
-              disabled={isCreatingPayroll || loading || deleteLoading}
+            <AccessGuard
+              permissions={[
+                Permissions.GeneratePayroll,
+                Permissions.DeletePayroll,
+              ]}
             >
-              Generate
-            </Button>
+              <Button
+                type="primary"
+                className="p-6"
+                onClick={
+                  payroll?.payrolls.length > 0
+                    ? undefined
+                    : handleGeneratePayroll
+                }
+                loading={isCreatingPayroll || loading || deleteLoading}
+                disabled={isCreatingPayroll || loading || deleteLoading}
+              >
+                Generate
+              </Button>
+            </AccessGuard>
           </Popconfirm>
         </div>
       </div>
