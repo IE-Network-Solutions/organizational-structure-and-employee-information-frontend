@@ -130,33 +130,19 @@ export interface RecordType {
   employeeCount: number;
 }
 
-export interface IncentiveBreakdown {
-  criteriaId: string;
-  criterionKey: string;
-  score: number;
-}
+export type IncentiveItem = {
+  name: string;
+};
 
-export interface IncentiveDetail {
-  id: string;
-  amount: string;
-  breakdown: IncentiveBreakdown[];
-  createdAt: string;
-  createdBy: string | null;
-  deletedAt: string | null;
+export type IncentiveDetail = {
+  criteria: IncentiveItem[];
   isPaid: boolean;
-  isRate: boolean;
-  monthId: string;
-  recognitionId: string;
-  recognitionType: string;
   sessionId: string;
-  tenantId: string;
-  updatedAt: string;
-  updatedBy: string | null;
-  userId: string;
-  year: string;
-  totalAmount: string;
-  employeeCount: string;
-}
+  totalAmount: number;
+  totalEmployees: number;
+  totalIncentives: number;
+  parentRecognitionTypeId: string;
+};
 
 export interface Records {
   Records: RecordType[];

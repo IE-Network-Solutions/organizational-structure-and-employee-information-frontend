@@ -80,7 +80,11 @@ const RecruitmentStatusDrawer: React.FC = () => {
       footer={
         <div className="flex justify-center items-center w-full">
           <div className="flex justify-between items-center gap-4">
-            <CustomButton title="Cancel" onClick={handleCancel} />
+            <CustomButton
+              title="Cancel "
+              onClick={handleCancel}
+              type="default"
+            />
             <CustomButton
               title={isEditMode ? 'Update' : 'Create'}
               onClick={handleSubmit}

@@ -417,8 +417,8 @@ const MilestoneView: React.FC<OKRProps> = ({
                   <Input
                     disabled={milestone?.status == 'Completed'}
                     id={`milestone-title-${index}-${mindex}`}
-                    placeholder="Milestone Name"
-                    // value={milestone.title || ''}
+                    placeholder={`${milestone.title}`}
+                    // value={milestone?.title}
                     onChange={(e) =>
                       milestoneChange(e.target.value, index, mindex, 'title')
                     }

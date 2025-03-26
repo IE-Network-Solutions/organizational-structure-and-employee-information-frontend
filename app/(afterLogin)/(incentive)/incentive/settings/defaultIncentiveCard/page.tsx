@@ -7,7 +7,6 @@ import { useAllChildrenRecognition } from '@/store/server/features/incentive/oth
 const DefaultIncentiveSettingCard: React.FC = () => {
   const { data: recognitionData, isLoading: responseLoading } =
     useAllChildrenRecognition();
-  console.log(recognitionData, 'recognitionData');
   return (
     <div>
       <div className="mb-6">

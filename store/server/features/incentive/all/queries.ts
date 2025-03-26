@@ -5,8 +5,7 @@ import { useQuery } from 'react-query';
 
 const fetchIncentiveCards = async () => {
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentives`,
-    // url: 'https://mocki.io/v1/cc636a80-e006-4818-b1c4-1698038dcccd',
+    url: `${INCENTIVE_URL}/incentives/get-incentive/group-by-session`,
     method: 'GET',
     headers: requestHeader(),
   });

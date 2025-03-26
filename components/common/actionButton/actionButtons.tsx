@@ -1,7 +1,8 @@
 import { Button, Space } from 'antd';
-import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiTrash2 } from 'react-icons/fi';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
 import { FC } from 'react';
+import { GrFormEdit } from 'react-icons/gr';
 
 interface ActionButtonsProps {
   disableEdit?: boolean;
@@ -26,8 +27,8 @@ const ActionButtons: FC<ActionButtonsProps> = ({
     <Space size={10}>
       {onEdit && (
         <Button
-          className="w-[30px] h-[30px]"
-          icon={<FiEdit2 size={16} />}
+          className="w-[30px] h-[30px] bg-blue"
+          icon={<GrFormEdit size={20} />}
           id={`${id}buttonPopOverActionForOnEditActionId`}
           type="primary"
           loading={loading}
