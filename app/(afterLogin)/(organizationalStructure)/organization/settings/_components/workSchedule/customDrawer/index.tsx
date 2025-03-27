@@ -6,22 +6,21 @@ import { useCreateSchedule } from '@/store/server/features/organizationStructure
 import { ScheduleDetail } from '@/store/uistate/features/organizationStructure/workSchedule/interface';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import { showValidationErrors } from '@/utils/showValidationErrors';
-import { FC, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Form, Input, TimePicker, Switch, Table } from 'antd';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
-import { FormInstance } from 'antd/lib';
 
-interface WorkScheduleFormProps {
-  form: FormInstance;
-  scheduleName: string;
-  detail: ScheduleDetail[];
-  setScheduleName: (name: string) => void;
-  setDetail: (day: string, updatedData: Partial<ScheduleDetail>) => void;
-  setStandardHours: (hours: number) => void;
-}
+// interface WorkScheduleFormProps {
+//   form: FormInstance;
+//   scheduleName: string;
+//   detail: ScheduleDetail[];
+//   setScheduleName: (name: string) => void;
+//   setDetail: (day: string, updatedData: Partial<ScheduleDetail>) => void;
+//   setStandardHours: (hours: number) => void;
+// }
 
-const CustomWorkingScheduleDrawer: FC<WorkScheduleFormProps> = () => {
+const CustomWorkingScheduleDrawer = () => {
   const {
     clearState,
     createWorkSchedule,
