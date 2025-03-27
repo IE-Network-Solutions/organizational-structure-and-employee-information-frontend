@@ -5,15 +5,10 @@ import AllIncentiveTable from './table';
 import IncentiveCards from '../cards';
 import { Card, Skeleton } from 'antd';
 
-const All: React.FC<{ parentResponseLoading: unknown }> = ({
-  parentResponseLoading,
-}) => {
-  const isLoading =
-    typeof parentResponseLoading === 'boolean' ? parentResponseLoading : false;
-
+function All({ parentResponseLoading }: { parentResponseLoading?: boolean }) {
   return (
     <div className="">
-      {isLoading ? (
+      {parentResponseLoading ? (
         <div className="grid grid-cols-3 gap-4">
           {[...Array(3)].map(
             /* eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -28,18 +23,18 @@ const All: React.FC<{ parentResponseLoading: unknown }> = ({
       ) : (
         <IncentiveCards />
       )}
-      {isLoading ? (
+      {parentResponseLoading ? (
         <Skeleton active paragraph={{ rows: 1 }} />
       ) : (
         <IncentiveFilter />
       )}
-      {isLoading ? (
+      {parentResponseLoading ? (
         <Skeleton active paragraph={{ rows: 4 }} />
       ) : (
         <AllIncentiveTable />
       )}
     </div>
   );
-};
+}
 
 export default All;
