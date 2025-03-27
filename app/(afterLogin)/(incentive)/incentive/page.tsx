@@ -5,8 +5,8 @@ import { TabsProps } from 'antd/lib';
 import PayRoleView from './payroll-detail';
 import { useEffect, useMemo } from 'react';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
-import DynamicIncentive from './compensation/dynamicRecoginition/page';
 import AllIncentives from './compensation/all/page';
+import DynamicIncentive from './compensation/dynamicRecoginition';
 
 const Page = () => {
   const {
@@ -25,7 +25,7 @@ const Page = () => {
 
   useEffect(() => {
     setParentResponseIsLoading(parentResponseLoading);
-  }, []);
+  }, [parentResponseLoading]);
 
   const items: TabsProps['items'] = parentResponseLoading
     ? [{ key: 'loading', label: <Skeleton active />, children: null }]

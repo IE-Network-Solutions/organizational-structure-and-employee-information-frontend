@@ -280,7 +280,7 @@ const treeData: CustomMenuItem[] = [
     children: [
       {
         key: '/incentive',
-        label: 'Incentive',
+        title: 'Incentive',
         className: 'font-bold',
         permissions: ['view_incentive_page'],
       },
