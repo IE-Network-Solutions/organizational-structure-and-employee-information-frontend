@@ -85,6 +85,4 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
     </Form>
   );
 };
-
-
 export default TableFilter;
