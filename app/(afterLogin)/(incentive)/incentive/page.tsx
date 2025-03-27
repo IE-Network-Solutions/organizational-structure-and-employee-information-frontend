@@ -6,7 +6,7 @@ import PayRoleView from './payroll-detail';
 import { useMemo } from 'react';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import DynamicIncentive from './compensation/dynamicRecoginition/page';
-import { AllIncentives } from './compensation/all/page';
+import AllIncentives from './compensation/all/page';
 
 const Page = () => {
   const {
