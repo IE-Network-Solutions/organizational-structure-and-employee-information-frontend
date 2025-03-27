@@ -55,18 +55,20 @@ const BreakTypeTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (rule: any, record: any) => (
-        <AccessGuard
-          permissions={[
-            Permissions.UpdateBreakType,
-            Permissions.DeleteBreakType,
-          ]}
-        >
-          <ActionButtons
-            id={record?.id ?? null}
-            onEdit={() => handleEdit(record)}
-            onDelete={() => handleDelete(record)}
-          />
-        </AccessGuard>
+        <>
+          <AccessGuard permissions={[Permissions.UpdateBreakType]}>
+            <ActionButtons
+              id={record?.id ?? null}
+              onEdit={() => handleEdit(record)}
+            />
+          </AccessGuard>{' '}
+          <AccessGuard permissions={[Permissions.DeleteBreakType]}>
+            <ActionButtons
+              id={record?.id ?? null}
+              onDelete={() => handleDelete(record)}
+            />
+          </AccessGuard>
+        </>
       ),
     },
   ];

@@ -76,7 +76,7 @@ const DefineOkrRule = () => {
               <AccessGuard permissions={[Permissions.UpdateOkrRule]}>
                 <Button
                   icon={<EditOutlined />}
-                  className="mr-2 bg-blue text-white"
+                  className="mr-2 bg-blue text-white border-none"
                   shape="circle"
                   onClick={() => handleEditModal(item)}
                 />
@@ -84,7 +84,7 @@ const DefineOkrRule = () => {
               <AccessGuard permissions={[Permissions.DeleteOkrRule]}>
                 <Button
                   icon={<DeleteOutlined />}
-                  className="mr-2 bg-red-500 text-white"
+                  className="mr-2 bg-red-500 text-white border-none"
                   shape="circle"
                   onClick={() => showDeleteModal(item?.id as string)}
                 />

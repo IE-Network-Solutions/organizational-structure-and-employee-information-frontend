@@ -78,7 +78,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-       <CreateEmployeeJobInformation id={userId} />
+      <CreateEmployeeJobInformation id={userId} />
     </div>
   );
 }
