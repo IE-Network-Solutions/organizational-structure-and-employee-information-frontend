@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import IncentiveFilter from './filters';
 import AllIncentiveTable from './table';
@@ -5,13 +6,16 @@ import IncentiveCards from '../cards';
 import { Card, Skeleton } from 'antd';
 
 interface LoadingProps {
-  parentResponseLoading: any;
+  parentResponseLoading: unknown;
 }
 
 const All: React.FC<LoadingProps> = ({ parentResponseLoading }) => {
+  const isLoading =
+    typeof parentResponseLoading === 'boolean' ? parentResponseLoading : false;
+
   return (
     <div className="">
-      {parentResponseLoading ? (
+      {isLoading ? (
         <div className="grid grid-cols-3 gap-4">
           {[...Array(3)].map(
             /* eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -26,12 +30,12 @@ const All: React.FC<LoadingProps> = ({ parentResponseLoading }) => {
       ) : (
         <IncentiveCards />
       )}
-      {parentResponseLoading ? (
+      {isLoading ? (
         <Skeleton active paragraph={{ rows: 1 }} />
       ) : (
         <IncentiveFilter />
       )}
-      {parentResponseLoading ? (
+      {isLoading ? (
         <Skeleton active paragraph={{ rows: 4 }} />
       ) : (
         <AllIncentiveTable />
