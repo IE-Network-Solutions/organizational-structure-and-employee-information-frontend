@@ -6,7 +6,7 @@ import IncentiveCards from '../cards';
 import { Card, Skeleton } from 'antd';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 
-export default function AllIncentives() {
+const AllIncentives = () => {
   const { parentResponseIsLoading } = useIncentiveStore();
   return (
     <div className="">
@@ -37,4 +37,6 @@ export default function AllIncentives() {
       )}
     </div>
   );
-}
+};
+
+export default AllIncentives;
