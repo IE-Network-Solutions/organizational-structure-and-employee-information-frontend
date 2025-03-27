@@ -21,7 +21,6 @@ import { TbMessage2 } from 'react-icons/tb';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { CiBookmark } from 'react-icons/ci';
 import { PiMoneyLight } from 'react-icons/pi';
-
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuCircleDollarSign, LuUsers2 } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
@@ -280,9 +279,10 @@ const treeData: CustomMenuItem[] = [
     className: 'font-bold',
     children: [
       {
+        key: '/incentive',
         title: 'Incentive',
-        key: '/incentive/incentivePage',
-        className: 'font-bold h-9',
+        className: 'font-bold',
+        permissions: ['view_incentive_page'],
       },
       {
         title: 'Variable Pay',
