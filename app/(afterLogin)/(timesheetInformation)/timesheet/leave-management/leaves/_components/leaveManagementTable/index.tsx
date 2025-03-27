@@ -245,21 +245,23 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   return (
     <div className="mt-6">
       <LeaveManagementTableFilter onChange={onFilterChange} />
-
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={tableData}
-        loading={isFetching}
-        rowSelection={{ checkStrictly: false }}
-        pagination={defaultTablePagination(data?.meta?.totalItems)}
-        onChange={(pagination, filters, sorter: any) => {
-          setPage(pagination.current ?? 1);
-          setLimit(pagination.pageSize ?? 10);
-          setOrderDirection(sorter['order']);
-          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-        }}
-      />
+      <div className="flxe overflow-y-hidden scrollbar-none ">
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={tableData}
+          loading={isFetching}
+          rowClassName={() => 'h-[50px]'}
+          rowSelection={{ checkStrictly: false }}
+          pagination={defaultTablePagination(data?.meta?.totalItems)}
+          onChange={(pagination, filters, sorter: any) => {
+            setPage(pagination.current ?? 1);
+            setLimit(pagination.pageSize ?? 10);
+            setOrderDirection(sorter['order']);
+            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+          }}
+        />
+      </div>
     </div>
   );
 };
