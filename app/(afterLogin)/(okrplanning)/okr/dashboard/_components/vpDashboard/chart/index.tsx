@@ -9,10 +9,10 @@ interface VPChartProps {
 const VPChart: React.FC<VPChartProps> = ({ id }) => {
   return (
     <Row gutter={[16, 18]}>
-      <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+      <Col xs={24} sm={24} md={10} lg={10} xl={10}>
         <VPPayCard id={id} />
       </Col>
-      <Col xs={24} sm={24} md={16} lg={16} xl={16}>
+      <Col xs={24} sm={24} md={12} lg={12} xl={12}>
         <LineGraph id={id} />
       </Col>
     </Row>

@@ -311,7 +311,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           <Button
             id="nextButton"
             onClick={() => stepChange(1)}
-            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
           >
             Next
           </Button>

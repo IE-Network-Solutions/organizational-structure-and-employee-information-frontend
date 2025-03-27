@@ -20,11 +20,6 @@ const columns: TableColumnsType<any> = [
     sorter: (a, b) => a.recognition.localeCompare(b.employee_name),
   },
   {
-    title: 'Role',
-    dataIndex: 'role',
-    sorter: (a, b) => a.recognition.localeCompare(b.role),
-  },
-  {
     title: 'Criteria',
     dataIndex: 'criteria',
     sorter: (a, b) => a.recognition.localeCompare(b.criteria),
@@ -40,30 +35,31 @@ const columns: TableColumnsType<any> = [
     sorter: (a, b) => a.recognition.localeCompare(b.status),
   },
 ];
-const AllIncentiveTable: React.FC = () => {
+const IncentiveTableAfterGenerate: React.FC = () => {
   const { searchParams, currentPage, pageSize, setCurrentPage, setPageSize } =
     useIncentiveStore();
   const { data: incentiveData, isLoading: responseLoading } =
     useGetAllIncentiveData(
       searchParams?.employee_name || '',
       searchParams?.byYear || ' ',
-      searchParams?.bySession,
+      searchParams?.bySession || '',
       searchParams?.byMonth || '',
       pageSize,
       currentPage,
     );
-  const { data: employeeData } = useGetAllUsers();
-
-  const getEmployeeInformation = (id: string) => {
-    const user = employeeData?.items?.find((item: any) => item.id === id);
-    return user;
-  };
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     if (pageSize) {
       setPageSize(pageSize);
     }
+  };
+
+  const { data: employeeData } = useGetAllUsers();
+
+  const getEmployeeInformation = (id: string) => {
+    const user = employeeData?.items?.find((item: any) => item.id === id);
+    return user;
   };
 
   const allIncentiveTableData =
@@ -124,8 +120,9 @@ const AllIncentiveTable: React.FC = () => {
         loading={responseLoading}
         scroll={{ x: 1000 }}
       />
+      hello there
     </div>
   );
 };
 
-export default AllIncentiveTable;
+export default IncentiveTableAfterGenerate;

@@ -60,7 +60,7 @@ const TnaManagementPage = () => {
   }, 500);
 
   return (
-    <div className="page-wrap">
+    <div className="page-wrap bg-[#f5f5f5] ">
       <PageHeader
         title="Training & Learning"
         description="Training and Learning module"

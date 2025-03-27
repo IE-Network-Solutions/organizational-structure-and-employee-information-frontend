@@ -81,7 +81,7 @@ export const useGetProjectIncentiveData = (
       ),
   );
 };
-export const useGetAllIncentiveData = (projectId: string) => {
+export const useGetAllIncentiveDatas = (projectId: string) => {
   return useQuery<any>(['getProjectIncentiveData', projectId], () =>
     fetchProjectIncentiveDataByID(projectId),
   );

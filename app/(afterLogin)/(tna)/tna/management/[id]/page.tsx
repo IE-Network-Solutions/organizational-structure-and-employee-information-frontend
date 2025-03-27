@@ -42,6 +42,7 @@ const CoursePage = () => {
         items={tabItems}
         centered
         defaultActiveKey="overview"
+        tabBarStyle={{ width: '750px', margin: '8px auto' }}
       />
     </>
   ) : null;
