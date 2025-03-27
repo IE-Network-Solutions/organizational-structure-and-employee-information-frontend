@@ -51,7 +51,7 @@ const DefineOkrRule = () => {
   }
   const { data: OkrRules, isLoading } = useGetOkrRule();
   return (
-    <div className="p-6   w-full">
+    <div className="p-10 rounded-2xl bg-white h-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">OKR Rule</h2>
         <AccessGuard permissions={[Permissions.CreateOkrRule]}>

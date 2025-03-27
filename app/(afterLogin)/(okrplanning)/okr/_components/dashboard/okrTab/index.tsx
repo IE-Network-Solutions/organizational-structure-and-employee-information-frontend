@@ -1,5 +1,5 @@
 'use client';
-import { Pagination, Spin, Tabs } from 'antd';
+import { Spin, Tabs } from 'antd';
 import React from 'react';
 import ObjectiveCard from '../objectivecard';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -15,6 +15,7 @@ import { EmptyImage } from '@/components/emptyIndicator';
 import OkrProgress from '../okrprogress';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import CustomPagination from '@/components/customPagination';
 
 export default function OkrTab() {
   const { TabPane } = Tabs;
@@ -114,14 +115,13 @@ export default function OkrTab() {
               {userObjectives?.items?.map((obj: any) => (
                 <ObjectiveCard key={obj.id} myOkr={true} objective={obj} />
               ))}
-              <Pagination
-                total={userObjectives?.meta?.totalItems}
-                current={userObjectives?.meta?.currentPage}
+
+              <CustomPagination
+                current={userObjectives?.meta?.currentPage || 1}
+                total={userObjectives?.meta?.totalItems || 1}
                 pageSize={pageSize}
                 onChange={onPageChange}
-                showSizeChanger={true}
                 onShowSizeChange={onPageChange}
-                pageSizeOptions={['5', '10', '20', '50', '100']}
               />
             </>
           ) : (
@@ -145,14 +145,13 @@ export default function OkrTab() {
                 {teamObjective?.items?.map((obj: any) => (
                   <ObjectiveCard key={obj.id} myOkr={false} objective={obj} />
                 ))}
-                <Pagination
-                  total={teamObjective?.meta?.totalItems}
-                  current={teamObjective?.meta?.currentPage}
-                  pageSize={teamPageSize}
+
+                <CustomPagination
+                  current={teamObjective?.meta?.currentPage || 1}
+                  total={teamObjective?.meta?.totalItems || 1}
+                  pageSize={pageSize}
                   onChange={onTeamPageChange}
-                  showSizeChanger={true}
                   onShowSizeChange={onTeamPageChange}
-                  pageSizeOptions={['5', '10', '20', '50', '100']}
                 />
               </>
             ) : (
@@ -178,14 +177,12 @@ export default function OkrTab() {
                   <ObjectiveCard key={obj.id} myOkr={false} objective={obj} />
                 ))}
 
-                <Pagination
-                  total={companyObjective?.meta?.totalItems}
-                  current={companyObjective?.meta?.currentPage}
-                  pageSize={companyPageSize}
+                <CustomPagination
+                  current={companyObjective?.meta?.currentPage || 1}
+                  total={companyObjective?.meta?.totalItems || 1}
+                  pageSize={pageSize}
                   onChange={onCompanyPageChange}
-                  showSizeChanger={true}
                   onShowSizeChange={onCompanyPageChange}
-                  pageSizeOptions={['5', '10', '20', '50', '100']}
                 />
               </>
             ) : (

@@ -67,7 +67,7 @@
 import { redirect } from 'next/navigation';
 
 const CFRSettings = () => {
-  redirect('/feedback/settings/recognition');
+  redirect('/feedback/settings/define-feedback');
   return null;
 };
 

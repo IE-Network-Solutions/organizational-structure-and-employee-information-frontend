@@ -3,7 +3,7 @@ import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 import { useDebounce } from '@/utils/useDebounce';
-import { Button, Col, Row, Select } from 'antd';
+import { Button, Col, Row, Select, Spin } from 'antd';
 import React from 'react';
 
 const { Option } = Select;
@@ -20,7 +20,11 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
   const allEmployeesIds: string[] = tableData.map(
     (employee: any) => employee.name,
   );
-  const { refetch } = useGetAllCalculatedVpScore(allEmployeesIds, false);
+  const {
+    refetch,
+    isLoading: refreshLoading,
+    isFetching,
+  } = useGetAllCalculatedVpScore(allEmployeesIds, false);
 
   const handleSearchEmployee = async (
     value: string | boolean,
@@ -132,8 +136,9 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
               className="w-full h-14"
               type="primary"
               onClick={() => refetch()}
+              disabled={refreshLoading || isFetching}
             >
-              Refresh VP
+              {refreshLoading || isFetching ? <Spin /> : 'Refresh VP'}
             </Button>
           </Col>
           <Col xs={24} sm={24} md={6} lg={6} xl={6}>

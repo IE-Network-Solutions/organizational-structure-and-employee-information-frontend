@@ -178,9 +178,9 @@ export function groupParentTasks(tasks: Task[]): ObjectiveGroup[] {
   const result: Record<string, ObjectiveGroup> = {};
 
   tasks.forEach((task) => {
-    const objectiveId = task.keyResult.objective.id;
-    const keyResultId = task.keyResult.id;
-    const milestoneId = task.milestone ? task.milestone.id : null;
+    const objectiveId = task?.keyResult?.objective.id;
+    const keyResultId = task?.keyResult?.id;
+    const milestoneId = task?.milestone ? task.milestone.id : null;
 
     // Ensure the structure for objectives
     if (!result[objectiveId]) {

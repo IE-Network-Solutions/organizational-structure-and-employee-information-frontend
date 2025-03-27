@@ -6,7 +6,10 @@ import TabLandingLayout from '@/components/tabLanding';
 import { PiPlus } from 'react-icons/pi';
 import EmployeeSearchComponent from '@/components/common/search/searchComponent';
 import { useEffect } from 'react';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useEmployeeDepartments,
+  useGetAllUsers,
+} from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
@@ -19,6 +22,8 @@ import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/acti
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { FeedbackService } from './_components/feedbackAnalytics';
 import { FeedbackCard, FeedbackCardSkeleton } from './_components/feedbackCard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 
 const Page = () => {
   const {
@@ -60,9 +65,11 @@ const Page = () => {
     data: getAllFeedbackCardData,
     isLoading: getFeedbackCardDataLoading,
   } = useFetchAllFeedbackRecord({ variantType, activeTab, empId, userId });
+
   const [form] = Form.useForm();
 
   const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
+  const { data: EmployeeDepartment } = useEmployeeDepartments();
 
   const { data: getAllUsers } = useGetAllUsers();
   const feedbackAnaliytics = FeedbackService?.getFeedbackStats(
@@ -113,7 +120,11 @@ const Page = () => {
   const items: TabsProps['items'] = [
     {
       key: 'all',
-      label: 'All Employees',
+      label: (
+        <AccessGuard permissions={[Permissions.ViewAllEmployeeFeedback]}>
+          All Employees
+        </AccessGuard>
+      ),
     },
     {
       key: 'personal',
@@ -141,7 +152,7 @@ const Page = () => {
           (item: any) => item.id === record.recipientId,
         );
         return user
-          ? `${user.firstName} ${user.middleName} ${user.lastName}`
+          ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
           : 'Unknown'; // Return full name or fallback
       },
     },
@@ -153,8 +164,9 @@ const Page = () => {
         const user = getAllUsers?.items?.find(
           (item: any) => item.id === record.issuerId,
         );
+
         return user
-          ? `${user.firstName} ${user.middleName} ${user.lastName}`
+          ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
           : 'Unknown'; // Return full name or fallback
       },
     },
@@ -185,6 +197,46 @@ const Page = () => {
       },
 
       key: 'reason',
+    },
+
+    {
+      title: 'Objective',
+      dataIndex: 'objective',
+      render: (notused: any, record: any) => {
+        return record.feedbackVariant.name ? (
+          <Tooltip title={record?.feedbackVariant.name}>
+            {record?.feedbackVariant.name?.length >= 40
+              ? record?.feedbackVariant.name?.slice(0, 40) + '....'
+              : record?.feedbackVariant.name}{' '}
+          </Tooltip>
+        ) : (
+          'N/A'
+        );
+      },
+
+      key: 'objective',
+    },
+
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      render: (notused: any, record: any) => {
+        const data = EmployeeDepartment.find(
+          (item: any) =>
+            item.id === record.feedbackVariant?.perspective?.departmentId,
+        );
+        return data?.name ? (
+          <Tooltip title={data?.name}>
+            {data?.name?.length >= 40
+              ? data?.name?.slice(0, 40) + '....'
+              : data?.name}
+          </Tooltip>
+        ) : (
+          '-'
+        );
+      },
+
+      key: 'name',
     },
     {
       title: 'Action To be Taken',
@@ -348,11 +400,14 @@ const Page = () => {
           onChange={onChangeFeedbackType}
         />
       </Spin>
-      <Tabs
-        defaultActiveKey="appreciation"
-        items={variantTypeItems}
-        onChange={onChange}
-      />
+
+      <AccessGuard permissions={[Permissions.CreateFeedack]}>
+        <Tabs
+          defaultActiveKey="appreciation"
+          items={variantTypeItems}
+          onChange={onChange}
+        />
+      </AccessGuard>
       <div className="-mx-12 -mt-10">
         <TabLandingLayout
           buttonTitle={<div className="text-sm">{variantType}</div>}

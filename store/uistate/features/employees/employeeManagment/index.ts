@@ -1,5 +1,6 @@
 // useStore.ts
 import { MetaData } from '@/types/dashboard/tenant/clientAdministration';
+import { Dayjs } from 'dayjs';
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
 export interface CustomFieldsProps {
@@ -52,6 +53,7 @@ export type EditState = {
   emergencyContact: boolean;
   bankInformation: boolean;
   rolePermission: boolean;
+  additionalInformation: boolean;
 };
 export interface WorkScheduleData {
   items: WorkSchedule[];
@@ -116,15 +118,47 @@ interface UserState {
 
   selectedPermissions: string[] | [];
   setSelectedPermissions: (selectedPermissions: string[] | []) => void;
+  setSelectedUniquePermissions: (newPermissions: string[] | []) => void;
+
+  selectedGroupPermissions: string[] | [];
+  setSelectedGroupPermissions: (
+    selectedGroupPermissions: string[] | [],
+  ) => void;
+  setSelectedUniqueGroupPermissions: (
+    selectedGroupPermissions: string[] | [],
+  ) => void;
+
+  selectedBasicPermissions: string[] | [];
+  setSelectedBasicPermissions: (
+    selectedBasicPermissions: string[] | [],
+  ) => void;
+  setSelectedUniqueBasicPermissions: (
+    selectedBasicPermissions: string[] | [],
+  ) => void;
+
+  selectedBasicGroupPermissions: string[] | [];
+  setSelectedBasicGroupPermissions: (
+    selectedBasicGroupPermissions: string[] | [],
+  ) => void;
+  setSelectedUniqueBasicGroupPermissions: (
+    selectedBasicGroupPermissions: string[] | [],
+  ) => void;
 
   documentFileList: any[];
   setDocumentFileList: (fileList: any[]) => void;
   removeDocument: (uid: string) => void;
 
+  birthDate: Dayjs | null;
+  setBirthDate: (birthDate: Dayjs | null) => void;
+
   edit: EditState;
   setEdit: (key: keyof EditState) => void;
   selectionType: 'checkbox' | 'radio';
   setSelectionType: (selectionType: 'checkbox' | 'radio') => void;
+
+  searchValue: string | null;
+  setSearchValue: (searchValue: string | null) => void;
+
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
   reHireModal: boolean;
@@ -136,6 +170,10 @@ interface UserState {
   setIsAddEmployeeJobInfoModalVisible: (
     isAddEmployeeJobInfoModalVisible: boolean,
   ) => void;
+  employeeJobInfoModalWidth: string | null;
+  setEmployeeJobInfoModalWidth: (
+    employeeJobInfoModalWidth: string | null,
+  ) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -144,6 +182,11 @@ export const useEmployeeManagementStore = create<UserState>()(
     setIsAddEmployeeJobInfoModalVisible: (
       isAddEmployeeJobInfoModalVisible: boolean,
     ) => set({ isAddEmployeeJobInfoModalVisible }),
+
+    birthDate: null,
+    setBirthDate: (birthDate: Dayjs | null) => set({ birthDate }),
+    searchValue: null,
+    setSearchValue: (searchValue: string | null) => set({ searchValue }),
 
     open: false,
     deleteModal: false,
@@ -155,6 +198,7 @@ export const useEmployeeManagementStore = create<UserState>()(
       emergencyContact: false,
       bankInformation: false,
       rolePermission: false,
+      additionalInformation: false,
     },
     setEdit: (key: keyof EditState) =>
       set((state) => ({
@@ -220,6 +264,46 @@ export const useEmployeeManagementStore = create<UserState>()(
     selectedPermissions: [],
     setSelectedPermissions: (selectedPermissions: string[] | []) =>
       set({ selectedPermissions }),
+    setSelectedUniquePermissions: (newPermissions: string[] | []) =>
+      set((state) => ({
+        selectedPermissions: Array.from(
+          new Set([...state.selectedPermissions, ...newPermissions]),
+        ),
+      })),
+
+    selectedGroupPermissions: [],
+    setSelectedGroupPermissions: (selectedGroupPermissions: string[] | []) =>
+      set({ selectedGroupPermissions }),
+
+    setSelectedUniqueGroupPermissions: (newGroupPermissions: string[] | []) =>
+      set((state) => ({
+        selectedGroupPermissions: Array.from(
+          new Set([...state.selectedGroupPermissions, ...newGroupPermissions]),
+        ),
+      })),
+
+    selectedBasicPermissions: [],
+    setSelectedBasicPermissions: (selectedBasicPermissions: string[] | []) =>
+      set({ selectedBasicPermissions }),
+    setSelectedUniqueBasicPermissions: (newPermissions: string[] | []) =>
+      set((state) => ({
+        selectedBasicPermissions: Array.from(
+          new Set([...state.selectedBasicPermissions, ...newPermissions]),
+        ),
+      })),
+
+    selectedBasicGroupPermissions: [],
+    setSelectedBasicGroupPermissions: (
+      selectedBasicGroupPermissions: string[] | [],
+    ) => set({ selectedBasicGroupPermissions }),
+    setSelectedUniqueBasicGroupPermissions: (
+      newGroupPermissions: string[] | [],
+    ) =>
+      set((state) => ({
+        selectedBasicPermissions: Array.from(
+          new Set([...state.selectedBasicPermissions, ...newGroupPermissions]),
+        ),
+      })),
 
     documentFileList: [],
     setDocumentFileList: (fileList) => set({ documentFileList: fileList }),
@@ -241,5 +325,8 @@ export const useEmployeeManagementStore = create<UserState>()(
       set((state) => ({
         searchParams: { ...state.searchParams, [key]: value },
       })),
+    employeeJobInfoModalWidth: null,
+    setEmployeeJobInfoModalWidth: (employeeJobInfoModalWidth: string | null) =>
+      set({ employeeJobInfoModalWidth }),
   })),
 );

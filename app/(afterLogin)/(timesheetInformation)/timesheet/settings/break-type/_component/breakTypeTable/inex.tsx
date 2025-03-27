@@ -2,9 +2,11 @@ import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useDeleteBreakType } from '@/store/server/features/timesheet/breakType/mutation';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
+import AccessGuard from '@/utils/permissionGuard';
 import { Spin, Table, TableColumnsType } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const BreakTypeTable = () => {
   const { setIsShowBreakTypeSidebar, setSelectedBreakType } =
@@ -53,11 +55,18 @@ const BreakTypeTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (rule: any, record: any) => (
-        <ActionButtons
-          id={record?.id ?? null}
-          onEdit={() => handleEdit(record)}
-          onDelete={() => handleDelete(record)}
-        />
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateBreakType,
+            Permissions.DeleteBreakType,
+          ]}
+        >
+          <ActionButtons
+            id={record?.id ?? null}
+            onEdit={() => handleEdit(record)}
+            onDelete={() => handleDelete(record)}
+          />
+        </AccessGuard>
       ),
     },
   ];

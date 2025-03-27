@@ -209,7 +209,7 @@ const MettingDataTable = ({
     if (allUserData) {
       const userOptions = allUserData.items?.map((user: any) => ({
         key: user.id,
-        value: `${user.firstName} ${user.middleName} ${user.lastName}`,
+        value: `${user?.firstName} ${user?.middleName} ${user?.lastName}`,
       }));
       updateFieldOptions('employee', userOptions);
     }

@@ -12,6 +12,7 @@ const RookStarsList: React.FC<RookStarsListProps> = ({
 
   return (
     <Card
+      className="h-80"
       title={
         <div className="text-lg font-bold gap-2 flex items-center justify-between  ">
           {title}

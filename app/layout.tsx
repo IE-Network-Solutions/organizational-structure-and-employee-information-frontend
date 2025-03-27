@@ -20,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-test="layout">
       <body className={manrope.className}>
+        {/* <AuthProvider> */}
         <ReactQueryWrapper>
           <AntdRegistry>
             <AntdConfigProvider>
@@ -27,6 +28,7 @@ export default function RootLayout({
             </AntdConfigProvider>
           </AntdRegistry>
         </ReactQueryWrapper>
+        {/* </AuthProvider> */}
       </body>
     </html>
   );

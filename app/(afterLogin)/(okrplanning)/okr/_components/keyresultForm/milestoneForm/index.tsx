@@ -10,11 +10,12 @@ import {
   Col,
 } from 'antd';
 import { GoPlus } from 'react-icons/go';
-import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
+import cancelIcon from '../../../../../../../public/image/Button.svg';
+import Image from 'next/image';
 
 const MilestoneForm: React.FC<OKRFormProps> = ({
   keyItem,
@@ -48,14 +49,21 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
       <Form form={form} layout="vertical" initialValues={keyItem}>
         <div className="border border-blue rounded-lg p-4 mx-0 lg:mx-8">
           <div className="flex justify-end">
-            <IoIosCloseCircleOutline
-              size={20}
-              title="Cancel"
+            <div
               onClick={() => removeKeyResult(index)}
-              className="cursor-pointer text-red-500 mb-2"
+              title="Cancel"
               aria-label="Cancel"
               id={`cancel-key-result-${index}`}
-            />
+              className="cursor-pointer bg-[#3636F0] mb-2 rounded-full border-none flex items-center justify-center w-[20px] h-[20px]"
+            >
+              <Image
+                src={cancelIcon}
+                alt="Cancel Icon"
+                width={20}
+                height={20}
+                className="rounded-full"
+              />
+            </div>
           </div>
 
           <Form.Item
@@ -99,7 +107,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
 
           <Form.Item
             className="font-semibold text-xs w-full mb-2"
-            name="title"
+            name={`title-${index}`}
             rules={[
               { required: true, message: 'Please enter the Key Result name' },
             ]}
@@ -108,7 +116,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
             <Input
               placeholder="Key Result Name"
               aria-label="Key Result Name"
+              // onChange={handleTitleChange}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
+              // onBlur={() => form.validateFields(['title'])}
             />
           </Form.Item>
 

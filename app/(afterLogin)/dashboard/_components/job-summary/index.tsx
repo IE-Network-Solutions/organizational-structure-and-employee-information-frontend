@@ -24,7 +24,7 @@ const JobSummary = () => {
       {
         data: dataValues, // Sample data for active, inactive, and closed jobs
         backgroundColor: ['#2f78ee', '#3636ee', '#1d9bf0'],
-        borderWidth: 1,
+        borderWidth: 2,
       },
     ],
   };
@@ -97,13 +97,16 @@ const JobSummary = () => {
               margin: '0 auto',
             }}
           >
-            <Doughnut data={data} options={options} />
+            <div style={{ position: 'relative', zIndex: '1' }}>
+              <Doughnut data={data} options={options} />
+            </div>{' '}
             <div
-              className="absolute text-center  bg-white w-20 h-20 rounded-full flex flex-col items-center justify-center   px-3 z-0 "
+              className="absolute text-center bg-white shadow-lg w-16 h-16 rounded-full flex flex-col items-center justify-center px-3 z-0"
               style={{
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
+                zIndex: '-1',
               }}
             >
               <div className="font-bold text-2xl">{totalCount}</div>

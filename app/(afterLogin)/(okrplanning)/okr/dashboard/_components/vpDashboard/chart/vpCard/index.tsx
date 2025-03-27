@@ -8,9 +8,15 @@ import { AiOutlineReload } from 'react-icons/ai';
 import { GoArrowDown, GoArrowUp } from 'react-icons/go';
 
 const { Title } = Typography;
-const VPPayCard: React.FC = () => {
+interface PayCardInterface {
+  id?: string;
+}
+const VPPayCard: React.FC<PayCardInterface> = ({ id }) => {
   const userId = useAuthenticationStore.getState().userId;
-  const { data: vpScore, isLoading: isResponseLoading } = useGetVPScore(userId);
+  const identifier = id ?? userId;
+
+  const { data: vpScore, isLoading: isResponseLoading } =
+    useGetVPScore(identifier);
 
   const {
     isLoading: isUpdatedLoading,
@@ -22,19 +28,13 @@ const VPPayCard: React.FC = () => {
     (parseInt(vpScore?.score, 10) / vpScore?.maxScore) * 100;
 
   return (
-    <Card size="default" bordered={false}>
+    <Card size="default" bordered={false} className="border-none shadow-none">
       {isResponseLoading ? (
         <Skeleton active />
       ) : (
         <>
-          <div className="flex flex-col items-start justify-center">
-            <p className="text-3xl font-extrabold text-gray-800 my-3">VP</p>
-            <p className="text-[16px] font-medium text-gray-500">
-              Manage your Variable Pay
-            </p>
-          </div>
-          <div className="mx-4">
-            <div className="mt-[60px]">
+          <div className="">
+            <div className="mt-[10px]">
               <div className="flex items-center justify-start">
                 <p className="text-gray-500 text-md font-medium my-3 mr-3">
                   Total VP Score
@@ -55,8 +55,8 @@ const VPPayCard: React.FC = () => {
                 />
               </div>
               <div className="relative ">
-                <div className="flex flex-wrap items-center justify-between">
-                  <Title className=" font-bold text-gray-900">
+                <div className="">
+                  <Title className=" font-bold text-gray-700 flex flex-wrap justify-between  ">
                     {(isResponseLoading && !vpScore) ||
                     isUpdatedLoading ||
                     isRefetching ? (
@@ -66,16 +66,20 @@ const VPPayCard: React.FC = () => {
                         title={{ width: 80 }}
                       />
                     ) : (
-                      `${Number(vpScore?.score).toFixed(2)}`
+                      `${Number(vpScore?.score).toFixed(2)}%`
                     )}
-                  </Title>
 
-                  <div className="flex flex-wrap flex-col">
-                    <p className="text-sm text-end text-gray-500">
-                      {`${Number(vpScore?.score) ? Number(vpScore?.score).toFixed(2) : 0} % achieved out of ${vpScore?.maxScore || 0}%`}
-                    </p>
-                    <Progress percent={achievedPercentage} showInfo={false} />
-                  </div>
+                    <div className="flex flex-wrap flex-col">
+                      <p className="text-xs font-extralight text-end text-gray-400">
+                        {`${Number(vpScore?.score) ? Number(vpScore?.score).toFixed(2) : 0} % achieved out of ${vpScore?.maxScore || 0}%`}
+                      </p>
+                      <Progress
+                        percent={achievedPercentage}
+                        showInfo={false}
+                        strokeColor="#3636F0"
+                      />
+                    </div>
+                  </Title>
                 </div>
               </div>
             </div>

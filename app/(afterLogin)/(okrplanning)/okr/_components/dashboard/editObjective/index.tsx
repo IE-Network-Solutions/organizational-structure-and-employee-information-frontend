@@ -26,6 +26,7 @@ interface OkrDrawerProps {
   open: boolean;
   onClose: () => void;
   objective: any;
+  isClosed: boolean;
 }
 
 // Convert the component to TypeScript
