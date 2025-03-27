@@ -5,7 +5,11 @@ import AllIncentiveTable from './table';
 import IncentiveCards from '../cards';
 import { Card, Skeleton } from 'antd';
 
-function All({ parentResponseLoading }: { parentResponseLoading?: boolean }) {
+export const All = ({
+  parentResponseLoading,
+}: {
+  parentResponseLoading: boolean;
+}) => {
   return (
     <div className="">
       {parentResponseLoading ? (
@@ -35,6 +39,4 @@ function All({ parentResponseLoading }: { parentResponseLoading?: boolean }) {
       )}
     </div>
   );
-}
-
-export default All;
+};
