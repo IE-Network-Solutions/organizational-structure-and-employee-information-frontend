@@ -8,8 +8,31 @@ import EmploymentStats from './_components/employee-status';
 import JobSummary from './_components/job-summary';
 import { Applicants } from './_components/applicants';
 import AccessGuard from '@/utils/permissionGuard';
-
+import { useEffect } from 'react';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { useRouter } from 'next/navigation';
+import { CreateEmployeeJobInformation } from '../(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
 export default function Home() {
+  const router = useRouter();
+  const { userId } = useAuthenticationStore.getState();
+  const { data: departments } = useGetDepartments();
+  const { data: employeeData } = useGetEmployee(userId);
+  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
+    useEmployeeManagementStore();
+  useEffect(() => {
+    if (departments?.length < 1) {
+      router.push('/onboarding');
+    } else if (
+      employeeData &&
+      employeeData?.employeeJobInformation?.length < 1
+    ) {
+      setIsAddEmployeeJobInfoModalVisible(true);
+      setEmployeeJobInfoModalWidth('100%');
+    }
+  }, [employeeData, departments, setIsAddEmployeeJobInfoModalVisible]);
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       {/* Main Grid */}
@@ -55,6 +78,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <CreateEmployeeJobInformation id={userId} />
     </div>
   );
 }

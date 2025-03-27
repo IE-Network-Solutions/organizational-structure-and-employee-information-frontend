@@ -3,7 +3,16 @@ interface SearchFieldOption {
   key: string;
   value: string;
 }
-
+interface DateRange {
+  startDate: string;
+  endDate: string;
+}
+interface Employee {
+  id: string;
+  name: string;
+  criteria: string[];
+  value: number;
+}
 interface SearchField {
   key: string;
   placeholder: string;
@@ -16,12 +25,27 @@ export type SearchValue = {
   sessionId?: string;
   employeeId?: string;
 };
+interface CriteriaScore {
+  name: string;
+  id: string;
+  score: string;
+}
+
+interface EmployeeEvaluation {
+  recipientId: string;
+  totalPoints: string;
+  criteriaScore: CriteriaScore[];
+}
+
+type EmployeeEvaluations = EmployeeEvaluation[];
+
 export interface CategoriesUseState {
   open: boolean;
   current: number;
   pageSize: number;
   totalPages: number;
-
+  dateRange: DateRange;
+  setDateRange: (dateRange: DateRange) => void;
   searchField: SearchField[];
   setSearchField: (fields: SearchField[]) => void;
 
@@ -41,6 +65,20 @@ export interface CategoriesUseState {
 
   searchValue: Record<string, string | undefined>; // Dynamic object to store selected values
   updateSearchValue: (key: string, value: string) => void;
+  visible: boolean;
+  setVisible: (visible: boolean) => void;
+  visibleEmployee: boolean;
+  setVisibleEmployee: (visibleEmployee: boolean) => void;
+  recognitionTypeId: string;
+  setRecognitionTypeId: (recognitionTypeId: string) => void;
+  selectedEmployees: Employee[];
+  setSelectedEmployees: (employees: Employee[]) => void;
+  employeesList: EmployeeEvaluations[];
+  setEmployeesList: (employeesList: EmployeeEvaluations[]) => void;
+  selectedEmployeeId: string | null;
+  setSelectedEmployeeId: (selectedEmployeeId: string) => void;
+  filterOption: string;
+  setFilterOption: (filterOption: string) => void;
 }
 const initialSearchField: SearchField[] = [
   {
@@ -74,7 +112,14 @@ export const useRecongnitionStore = create<CategoriesUseState>((set) => ({
   current: 1,
   pageSize: 10,
   totalPages: 1,
-
+  visible: false,
+  visibleEmployee: false,
+  recognitionTypeId: '',
+  selectedEmployees: [],
+  employeesList: [],
+  selectedEmployeeId: null,
+  filterOption: 'all',
+  dateRange: { startDate: '', endDate: '' },
   searchValue: {},
   updateSearchValue: (key, value) =>
     set((state) => ({
@@ -111,4 +156,14 @@ export const useRecongnitionStore = create<CategoriesUseState>((set) => ({
   setPageSize: (pageSize: number) => set({ pageSize }),
   setCurrent: (value: number) => set({ current: value }),
   setOpen: (open: boolean) => set({ open }),
+  setVisible: (visible: boolean) => set({ visible }),
+  setVisibleEmployee: (visibleEmployee: boolean) => set({ visibleEmployee }),
+  setRecognitionTypeId: (recognitionTypeId: string) =>
+    set({ recognitionTypeId }),
+  setSelectedEmployees: (employees) => set({ selectedEmployees: employees }),
+  setEmployeesList: (employees) => set({ employeesList: employees }),
+  setFilterOption: (filterOption: string) => set({ filterOption }),
+  setSelectedEmployeeId: (selectedEmployeeId: string) =>
+    set({ selectedEmployeeId }),
+  setDateRange: (dateRange: DateRange) => set({ dateRange }),
 }));

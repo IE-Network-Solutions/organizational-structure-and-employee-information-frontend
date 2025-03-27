@@ -1,7 +1,9 @@
 import { Department } from '@/types/dashboard/organization';
+import AccessGuard from '@/utils/permissionGuard';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Card, Dropdown, Menu, Tooltip } from 'antd';
 import { Pencil } from 'lucide-react';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface DepartmentNodeProps {
   data: Department;
@@ -41,14 +43,16 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
     <Card className="p-1.5 rounded-3xl inline-block  border-[#CBD5E0] border-2 sm:w-auto">
       {isRoot && (
         <div className="flex justify-center items-center z-50">
-          <Button
-            id="ceoButton"
-            icon={<PlusOutlined />}
-            size="small"
-            type="primary"
-            className={`rounded-full absolute bottom-[-10px] hide-on-download z-50`}
-            onClick={onAdd}
-          />
+          <AccessGuard permissions={[Permissions.CreateDepartment]}>
+            <Button
+              id="ceoButton"
+              icon={<PlusOutlined />}
+              size="small"
+              type="primary"
+              className={`rounded-full absolute bottom-[-10px] hide-on-download z-50`}
+              onClick={onAdd}
+            />
+          </AccessGuard>
         </div>
       )}
       {!isRoot && (
@@ -57,12 +61,19 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
           trigger={['click']}
           className="absolute top-[1px]  hide-on-download "
         >
-          <Button
-            icon={<Pencil size={8} />}
-            id={`${data.name}ThreeDotButton`}
-            size="small"
-            className="absolute bg-black text-white hover:bg-gray-800 border-none rounded-full top-[-3px] right-[-3px] w-[18px] h-[18px]"
-          />
+          <AccessGuard
+            permissions={[
+              Permissions.UpdateDepartment,
+              Permissions.DeleteDepartment,
+            ]}
+          >
+            <Button
+              icon={<Pencil size={8} />}
+              id={`${data.name}ThreeDotButton`}
+              size="small"
+              className="absolute bg-black text-white hover:bg-gray-800 border-none rounded-full top-[-3px] right-[-3px] w-[18px] h-[18px]"
+            />
+          </AccessGuard>
         </Dropdown>
       )}
 
@@ -79,15 +90,17 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
       </div>
       {!isRoot && (
         <div className="flex justify-center items-center z-50">
-          <Button
-            id={`${data.name}Button`}
-            icon={<PlusOutlined />}
-            size="small"
-            type="primary"
-            className={`rounded-full absolute bottom-[-10px] hide-on-download z-50`}
-            style={{ marginTop: '5px' }}
-            onClick={onAdd}
-          />
+          <AccessGuard permissions={[Permissions.CreateDepartment]}>
+            <Button
+              id={`${data.name}Button`}
+              icon={<PlusOutlined />}
+              size="small"
+              type="primary"
+              className={`rounded-full absolute bottom-[-10px] hide-on-download z-50`}
+              style={{ marginTop: '5px' }}
+              onClick={onAdd}
+            />
+          </AccessGuard>
         </div>
       )}
     </Card>
