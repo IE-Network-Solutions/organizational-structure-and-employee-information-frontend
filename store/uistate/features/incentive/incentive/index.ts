@@ -247,6 +247,7 @@ type IncentiveState = {
   selectedRecognitionTypeId: string;
   selectedRecognition: any;
   selectedSessions: string[];
+  parentResponseIsLoading: boolean;
 };
 
 type IncentiveActions = {
@@ -272,6 +273,8 @@ type IncentiveActions = {
   setSelectedRecognitionTypeId: (value: string) => void;
   setSelectedRecognition: (recognition: any) => void;
   setSelectedSessions: (value: string[]) => void;
+
+  setParentResponseIsLoading: (parentResponseIsLoading: boolean) => void;
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -289,6 +292,10 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
     set((state) => ({
       searchParams: { ...state.searchParams, [key]: value },
     })),
+
+  parentResponseIsLoading: false,
+  setParentResponseIsLoading: (parentResponseIsLoading: boolean) =>
+    set({ parentResponseIsLoading }),
 
   currentPage: 1,
   setCurrentPage: (currentPage) => set({ currentPage }),

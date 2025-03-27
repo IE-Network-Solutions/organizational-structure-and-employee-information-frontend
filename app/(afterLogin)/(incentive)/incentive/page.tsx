@@ -3,7 +3,7 @@ import { useParentRecognition } from '@/store/server/features/incentive/other/qu
 import { Button, Skeleton, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import PayRoleView from './payroll-detail';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import DynamicIncentive from './compensation/dynamicRecoginition/page';
 import AllIncentives from './compensation/all/page';
@@ -18,9 +18,14 @@ const Page = () => {
     setShowGenerateModal,
     showGenerateModal,
     setSelectedRecognition,
+    setParentResponseIsLoading,
   } = useIncentiveStore();
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
+
+  useEffect(() => {
+    setParentResponseIsLoading(parentResponseLoading);
+  }, []);
 
   const items: TabsProps['items'] = parentResponseLoading
     ? [{ key: 'loading', label: <Skeleton active />, children: null }]
@@ -33,7 +38,7 @@ const Page = () => {
               {isPayrollView ? (
                 <PayRoleView operationSlot={''} />
               ) : (
-                <AllIncentives parentResponseLoading={parentResponseLoading} />
+                <AllIncentives />
               )}
             </div>
           ),
