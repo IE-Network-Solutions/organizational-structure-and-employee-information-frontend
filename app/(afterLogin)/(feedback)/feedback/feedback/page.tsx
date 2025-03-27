@@ -401,13 +401,11 @@ const Page = () => {
         />
       </Spin>
 
-      <AccessGuard permissions={[Permissions.CreateFeedack]}>
-        <Tabs
-          defaultActiveKey="appreciation"
-          items={variantTypeItems}
-          onChange={onChange}
-        />
-      </AccessGuard>
+      <Tabs
+        defaultActiveKey="appreciation"
+        items={variantTypeItems}
+        onChange={onChange}
+      />
       <div className="-mx-12 -mt-10">
         <TabLandingLayout
           buttonTitle={<div className="text-sm">{variantType}</div>}
@@ -421,6 +419,7 @@ const Page = () => {
             <div className="capitalize">{`Given up on  ${variantType}`}</div>
           }
           allowSearch={false}
+          permissionsData={[Permissions.CreateFeedback]}
         >
           <EmployeeSearchComponent fields={searchField} />
           <Table

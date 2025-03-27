@@ -271,7 +271,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
         Add Agenda Item
       </Button>
 
-      <div className="flex justify-center mt-10">
+      <div className="w-full bg-[#fff] absolute bottom-8 flex justify-center  space-x-5">
         <Popconfirm
           title="Are you sure you want to cancel and reset the form?"
           onConfirm={() => {
@@ -283,6 +283,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
         >
           <Button style={{ marginRight: 8 }}>Cancel</Button>
         </Popconfirm>
+
         {isEdit ? (
           <Button htmlType="submit" type="primary">
             Edit

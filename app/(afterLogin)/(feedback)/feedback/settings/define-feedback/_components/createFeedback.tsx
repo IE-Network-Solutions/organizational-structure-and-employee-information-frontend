@@ -70,12 +70,12 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
   return (
     <div className="mt-5 flex justify-center">
       <Card
-        title={
-          selectedFeedback?.id
-            ? `Edit ${variantType} type`
-            : `Create ${variantType} type`
-        }
-        bordered={true}
+        className="border-none"
+        // title={
+        //   selectedFeedback?.id
+        //     ? `Edit ${variantType} type`
+        //     : `Create ${variantType} type`
+        // }
         style={{ width: 500 }}
       >
         <Form
@@ -165,25 +165,27 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
 
           {/* Submit Button */}
           <Form.Item>
-            {selectedFeedback?.id ? (
-              <Button
-                type="primary"
-                loading={feedbackUpdateLoading}
-                htmlType="submit"
-                block
-              >
-                Update
-              </Button>
-            ) : (
-              <Button
-                loading={createFeedbackLoading}
-                type="primary"
-                htmlType="submit"
-                block
-              >
-                Submit
-              </Button>
-            )}
+            <div className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-[115px] ">
+              <Button onClick={() => setOpen(false)}>Cancel</Button>
+
+              {selectedFeedback?.id ? (
+                <Button
+                  type="primary"
+                  loading={feedbackUpdateLoading}
+                  htmlType="submit"
+                >
+                  Update
+                </Button>
+              ) : (
+                <Button
+                  loading={createFeedbackLoading}
+                  type="primary"
+                  htmlType="submit"
+                >
+                  Submit
+                </Button>
+              )}
+            </div>
           </Form.Item>
         </Form>
       </Card>
