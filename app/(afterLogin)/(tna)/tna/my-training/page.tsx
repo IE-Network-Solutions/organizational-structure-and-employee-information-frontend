@@ -15,7 +15,7 @@ import TnaRequestSidebar from '@/app/(afterLogin)/(tna)/tna/review/_components/t
 import { useRouter } from 'next/navigation';
 
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { TnaRequestBody } from '@/store/server/features/tna/review/interface';
 import {
   TrainingNeedAssessment,
@@ -250,7 +250,7 @@ const TnaReviewPage = () => {
           columns={tableColumns}
           dataSource={tableData}
           loading={isLoading || isLoadingDelete}
-          pagination={defaultTablePagination(data?.meta?.totalItems)}
+          pagination={DefaultTablePagination(data?.meta?.totalItems)}
           onChange={(pagination, filters, sorter: any) => {
             setPage(pagination.current ?? 1);
             setLimit(pagination.pageSize ?? 10);
