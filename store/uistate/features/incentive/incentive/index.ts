@@ -71,6 +71,14 @@ export interface AllIncentiveData {
   recognitionType: string;
 }
 
+export interface ProfileState {
+  name: string;
+  role: string;
+  recognition: string;
+  project: string;
+  avatarUrl: string;
+}
+
 export interface ProjectIncentiveData {
   recognition: string;
   employee_name: string;
@@ -122,33 +130,19 @@ export interface RecordType {
   employeeCount: number;
 }
 
-export interface IncentiveBreakdown {
-  criteriaId: string;
-  criterionKey: string;
-  score: number;
-}
+export type IncentiveItem = {
+  name: string;
+};
 
-export interface IncentiveDetail {
-  id: string;
-  amount: string;
-  breakdown: IncentiveBreakdown[];
-  createdAt: string;
-  createdBy: string | null;
-  deletedAt: string | null;
+export type IncentiveDetail = {
+  criteria: IncentiveItem[];
   isPaid: boolean;
-  isRate: boolean;
-  monthId: string;
-  recognitionId: string;
-  recognitionType: string;
   sessionId: string;
-  tenantId: string;
-  updatedAt: string;
-  updatedBy: string | null;
-  userId: string;
-  year: string;
-  totalAmount: string;
-  employeeCount: string;
-}
+  totalAmount: number;
+  totalEmployees: number;
+  totalIncentives: number;
+  parentRecognitionTypeId: string;
+};
 
 export interface Records {
   Records: RecordType[];
@@ -253,6 +247,7 @@ type IncentiveState = {
   selectedRecognitionTypeId: string;
   selectedRecognition: any;
   selectedSessions: string[];
+  parentResponseIsLoading: boolean;
 };
 
 type IncentiveActions = {
@@ -278,6 +273,8 @@ type IncentiveActions = {
   setSelectedRecognitionTypeId: (value: string) => void;
   setSelectedRecognition: (recognition: any) => void;
   setSelectedSessions: (value: string[]) => void;
+
+  setParentResponseIsLoading: (parentResponseIsLoading: boolean) => void;
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -295,6 +292,10 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
     set((state) => ({
       searchParams: { ...state.searchParams, [key]: value },
     })),
+
+  parentResponseIsLoading: false,
+  setParentResponseIsLoading: (parentResponseIsLoading: boolean) =>
+    set({ parentResponseIsLoading }),
 
   currentPage: 1,
   setCurrentPage: (currentPage) => set({ currentPage }),

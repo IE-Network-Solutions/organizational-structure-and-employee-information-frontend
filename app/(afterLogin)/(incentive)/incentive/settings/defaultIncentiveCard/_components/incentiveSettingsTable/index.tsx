@@ -59,10 +59,10 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
   };
 
   const incentiveTableData = {
-    id: recognitionData?.items[0]?.id,
-    name: recognitionData?.items[0]?.recognitionType?.name,
+    id: recognitionData?.[0]?.id,
+    name: recognitionData?.[0]?.recognitionType?.name,
     recognition_criteria:
-      recognitionData?.items[0]?.recognitionType?.recognitionCriteria?.map(
+      recognitionData?.[0]?.recognitionType?.recognitionCriteria?.map(
         (criterion: RecognitionCriteria, index: string) => (
           <span
             key={index}
