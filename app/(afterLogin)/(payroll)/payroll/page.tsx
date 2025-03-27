@@ -277,7 +277,6 @@ const Payroll = () => {
       minWidth: 150,
       render: (notused: any, record: any) =>
         Number(record.breakdown?.variablePay?.amount)?.toLocaleString(),
-    
     },
     {
       title: 'Net Income',
@@ -316,26 +315,27 @@ const Payroll = () => {
             Export Payroll
           </Button>
 
-<Popconfirm
-  title="Are you sure you want to delete the payroll?"
-  onConfirm={handleDeletePayroll}
-  okText="Yes"
-  cancelText="No"
-  disabled={!(payroll?.payrolls.length > 0)}
->
-  <Button
-    type="primary"
-    className="p-6"
-    onClick={
-      payroll?.payrolls.length > 0 ? undefined : handleGeneratePayroll
-    }
-    loading={isCreatingPayroll || loading || deleteLoading}
-    disabled={isCreatingPayroll || loading || deleteLoading}
-  >
-    {payroll?.payrolls.length > 0 ? 'Delete Payroll' : 'Generate Payroll'}
-  </Button>
-</Popconfirm>
-
+          <Popconfirm
+            title="Are you sure you want to delete the payroll?"
+            onConfirm={handleDeletePayroll}
+            okText="Yes"
+            cancelText="No"
+            disabled={!(payroll?.payrolls.length > 0)}
+          >
+            <Button
+              type="primary"
+              className="p-6"
+              onClick={
+                payroll?.payrolls.length > 0 ? undefined : handleGeneratePayroll
+              }
+              loading={isCreatingPayroll || loading || deleteLoading}
+              disabled={isCreatingPayroll || loading || deleteLoading}
+            >
+              {payroll?.payrolls.length > 0
+                ? 'Delete Payroll'
+                : 'Generate Payroll'}
+            </Button>
+          </Popconfirm>
         </div>
       </div>
 

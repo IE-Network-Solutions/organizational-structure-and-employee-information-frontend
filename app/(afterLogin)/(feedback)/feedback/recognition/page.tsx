@@ -1,7 +1,6 @@
 'use client';
 import EmployeeSearchComponent from '@/components/common/search/searchComponent';
 import TabLandingLayout from '@/components/tabLanding';
-import { useCreateRecognition } from '@/store/server/features/CFR/recognition/mutation';
 import {
   useGetAllRecognition,
   useGetAllRecognitionData,
@@ -21,24 +20,25 @@ import { useRecongnitionStore } from '@/store/uistate/features/conversation/reco
 import { Card, Table, TableColumnsType, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import dayjs from 'dayjs';
-import { PlusIcon } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { CiMedal } from 'react-icons/ci';
 import { useRouter } from 'next/navigation';
+import RecognitionTypeModal from './_components/recognitionTypeModal';
+import EmployeeRecognitionModal from './_components/EmployeeRecognitionModal';
 function Page() {
   const {
     updateSearchValue,
     searchValue,
-    selectedRecognitionType,
     setSelectedRecognitionType,
-    activeSessionId,
     setActiveSession,
-    activeMonthId,
     setActiveMonthId,
-    fiscalActiveYearId,
     setFiscalActiveYearId,
     current,
     pageSize,
+    visible,
+    visibleEmployee,
+    setVisible,
+    setVisibleEmployee,
   } = useRecongnitionStore();
   const { data: allUserData } = useGetAllUsers();
   const { data: recognitionType } = useGetAllRecognitionData();
@@ -49,8 +49,6 @@ function Page() {
     current,
     pageSize,
   });
-  const { mutate: createRecognition } = useCreateRecognition();
-
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
   const { data: getAllFisicalYear } = useGetAllFiscalYears();
   const navigate = useRouter();
@@ -98,20 +96,18 @@ function Page() {
     },
     {
       title: 'Criteria',
-      dataIndex: 'criteria',
+      dataIndex: 'criteriaScore',
       render: (notused, record) =>
-        record?.recognitionType?.criteria?.length ? (
+        record?.criteriaScore?.length ? (
           <div className="flex flex-wrap gap-2">
-            {record?.recognitionType?.criteria.map(
-              (criteria: any, index: number) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-gray-100 rounded text-sm"
-                >
-                  {criteria?.criterionKey}
-                </span>
-              ),
-            )}
+            {record?.criteriaScore?.map((criteria: any, index: number) => (
+              <span
+                key={index}
+                className="px-2 py-1 bg-gray-100 rounded text-sm"
+              >
+                {criteria?.name}
+              </span>
+            ))}
           </div>
         ) : (
           <span>-</span>
@@ -124,15 +120,16 @@ function Page() {
       dataIndex: 'dateIssued',
       render: (notused, record) =>
         record?.dateIssued
-          ? (dayjs(record?.dateIssued).format('YYYY-MM-DD') ?? '-')
+          ? (dayjs(record?.dateIssued).format('MMMM DD YYYY') ?? '-')
           : '-',
     },
+
     {
       title: 'Issued By',
       dataIndex: 'createdBy',
       render: (notused, record) =>
         record.issuerId
-          ? `${getEmployeeData(record.issuerId)?.firstName ?? '-'} ${getEmployeeData(record.recipientId)?.middleName ?? '-'} ${getEmployeeData(record.issuerId)?.lastName ?? '-'}`
+          ? `${getEmployeeData(record.issuerId)?.firstName ?? '-'} ${getEmployeeData(record.issuerId)?.middleName ?? '-'} ${getEmployeeData(record.issuerId)?.lastName ?? '-'}`
           : 'system',
     },
     {
@@ -236,6 +233,9 @@ function Page() {
   const handleRowClick = (record: any) => {
     navigate.push(`/feedback/recognition/${record.id}`);
   };
+  function handleRecognitionModal() {
+    setVisible(true);
+  }
 
   return (
     <div>
@@ -248,28 +248,30 @@ function Page() {
       <>
         <TabLandingLayout
           id="conversationLayoutId"
-          onClickHandler={() => {
-            const recognitionTypeId = selectedRecognitionType;
-            // Correcting how the object is passed
-            fiscalActiveYearId &&
-              activeMonthId &&
-              createRecognition({
-                recognitionTypeId,
-                calendarId: fiscalActiveYearId,
-                sessionId: activeSessionId, // Assigning directly
-                monthId: activeMonthId, // Assigning directly
-              });
-          }}
+          // onClickHandler={() => {
+          //   const recognitionTypeId = selectedRecognitionType;
+          //   // Correcting how the object is passed
+          //   fiscalActiveYearId &&
+          //     activeMonthId &&
+          //     createRecognition({
+          //       recognitionTypeId,
+          //       calendarId: fiscalActiveYearId,
+          //       sessionId: activeSessionId, // Assigning directly
+          //       monthId: activeMonthId, // Assigning directly
+          //     });
+          // }}
+          onClickHandler={() => handleRecognitionModal()}
           title="Recognition"
           subtitle="Manage Recognition"
-          buttonDisabled={
-            !fiscalActiveYearId || !activeMonthId || !activeSessionId
-          }
-          disabledMessage={'make sure you have active session'}
-          buttonTitle={
-            selectedRecognitionType !== '1' ? 'Generate Recognition' : false
-          }
-          buttonIcon={<PlusIcon />}
+          // buttonDisabled={
+          //   !fiscalActiveYearId || !activeMonthId || !activeSessionId
+          // }
+          // disabledMessage={'make sure you have active session'}
+          // buttonTitle={
+          //   selectedRecognitionType !== '1' ? 'Generate Recognition' : false
+          // }
+          buttonTitle={'Recognize'}
+          // buttonIcon={<PlusIcon />}
         >
           <EmployeeSearchComponent
             fields={searcFields}
@@ -290,6 +292,14 @@ function Page() {
             })}
           />
         </TabLandingLayout>
+        <RecognitionTypeModal
+          visible={visible}
+          onCancel={() => setVisible(false)}
+        />
+        <EmployeeRecognitionModal
+          visible={visibleEmployee}
+          onCancel={() => setVisibleEmployee(false)}
+        />
       </>
     </div>
   );

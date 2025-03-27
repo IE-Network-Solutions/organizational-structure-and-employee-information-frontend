@@ -45,7 +45,6 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
                   <CustomButton
                     title={buttonTitle}
                     id={`${id}-createButtonId`}
-                    icon={buttonIcon ?? <FaPlus />}
                     onClick={onClickHandler}
                     className="text-xs bg-blue-600 hover:bg-blue-700 h-4"
                   />
