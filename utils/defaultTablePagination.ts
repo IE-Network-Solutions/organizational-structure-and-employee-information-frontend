@@ -1,7 +1,7 @@
 import { TablePaginationConfig } from 'antd';
 import { useMediaQuery } from 'react-responsive';
 
-export const defaultTablePagination = (
+export const DefaultTablePagination = (
   total: number = 1,
   onChange?: (page: number, pageSize: number) => void,
 ): TablePaginationConfig | false => {

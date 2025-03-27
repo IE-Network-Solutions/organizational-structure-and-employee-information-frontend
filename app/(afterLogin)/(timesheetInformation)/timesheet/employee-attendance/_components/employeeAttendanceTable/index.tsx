@@ -26,7 +26,7 @@ import {
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import { CommonObject } from '@/types/commons/commonObject';
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 import { FiEdit2 } from 'react-icons/fi';
@@ -254,7 +254,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           columns={columns}
           dataSource={tableData}
           rowSelection={{ checkStrictly: false }}
-          pagination={defaultTablePagination(data?.meta?.totalItems)}
+          pagination={DefaultTablePagination(data?.meta?.totalItems)}
           rowClassName={() => 'h-[60px]'}
           scroll={{ x: 'max-content' }}
           className="w-full"
