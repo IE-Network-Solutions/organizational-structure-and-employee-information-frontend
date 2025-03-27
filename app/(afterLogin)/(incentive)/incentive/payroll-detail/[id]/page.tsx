@@ -12,7 +12,6 @@ interface IncentiveTableDetailsProps {
 function page({ params: { id } }: IncentiveTableDetailsProps) {
   return (
     <div className="m-4">
-      {/* <DynamicIncentiveCards parentRecognitionId={id} /> */}
       <DynamicIncentiveFilter />
       <IncentiveTableAfterGenerate id={id} />
     </div>
