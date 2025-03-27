@@ -5,7 +5,7 @@ import IncentiveCards from '../cards';
 import { Card, Skeleton } from 'antd';
 
 interface LoadingProps {
-  parentResponseLoading: boolean;
+  parentResponseLoading: any;
 }
 
 const All: React.FC<LoadingProps> = ({ parentResponseLoading }) => {

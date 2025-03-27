@@ -25,7 +25,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
 
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
-    setEmployeeJobInfoModalWidth(null)
+    setEmployeeJobInfoModalWidth(null);
   };
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
