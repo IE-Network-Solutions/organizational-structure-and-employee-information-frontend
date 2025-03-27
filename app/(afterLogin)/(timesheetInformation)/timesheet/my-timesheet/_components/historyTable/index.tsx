@@ -22,7 +22,7 @@ import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesh
 import { AiOutlineReload } from 'react-icons/ai';
 import { LuPlus } from 'react-icons/lu';
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -247,7 +247,7 @@ const HistoryTable = () => {
         columns={columns}
         loading={isFetching}
         dataSource={tableData}
-        pagination={defaultTablePagination(data?.meta?.totalItems)}
+        pagination={DefaultTablePagination(data?.meta?.totalItems)}
         onChange={(pagination, filters, sorter: any) => {
           setPage(pagination.current ?? 1);
           setLimit(pagination.pageSize ?? 10);
