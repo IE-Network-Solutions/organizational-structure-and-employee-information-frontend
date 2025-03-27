@@ -5,7 +5,7 @@ import AllIncentiveTable from './table';
 import IncentiveCards from '../cards';
 import { Card, Skeleton } from 'antd';
 
-export const All = ({
+export const AllIncentives = ({
   parentResponseLoading,
 }: {
   parentResponseLoading: boolean;
