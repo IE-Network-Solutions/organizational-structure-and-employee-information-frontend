@@ -155,7 +155,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
       onClose={handleClose}
       modalHeader={
         <CustomDrawerHeader className="flex justify-center ">
-          {recognitionData?.recognitionType?.name}
+          {recognitionData?.recognitionType?.name || '-'}
         </CustomDrawerHeader>
       }
       footer={null}

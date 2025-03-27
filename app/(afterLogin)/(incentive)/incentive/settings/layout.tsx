@@ -7,7 +7,7 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 import SidebarMenu from '@/components/sidebarMenu';
 import { usePathname } from 'next/navigation';
-import { useAllRecognition } from '@/store/server/features/incentive/other/queries';
+import { useAllChildrenRecognition } from '@/store/server/features/incentive/other/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { CiCalendarDate } from 'react-icons/ci';
 import { Skeleton } from 'antd';
@@ -23,12 +23,11 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
   const { menuItems, setMenuItems, currentItem, setCurrentItem } =
     useIncentiveStore();
   const { data: recognitionData, isLoading: responseLoading } =
-    useAllRecognition();
-
+    useAllChildrenRecognition();
   useEffect(() => {
-    if (recognitionData && recognitionData?.items?.length > 0) {
+    if (recognitionData && recognitionData?.length > 0) {
       // Extract the first item separately
-      const firstItem = recognitionData?.items[0];
+      const firstItem = recognitionData[0];
 
       const defaultIncentiveSettings = {
         item: {
@@ -45,7 +44,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
           ),
           label: (
             <p className="menu-item-label">
-              {firstItem?.recognitionType?.name ?? 'Default Incentive '}
+              {firstItem?.name ?? 'Default Incentive '}
             </p>
           ),
           className: currentItem === firstItem?.id ? 'px-6' : 'px-1',
@@ -55,7 +54,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
 
       // Map remaining items (excluding the first item)
       const dynamicMenuItems =
-        recognitionData?.items?.slice(1).map((item: any) => ({
+        recognitionData?.slice(1).map((item: any) => ({
           item: {
             key: item?.id,
             icon: (
@@ -66,9 +65,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
                 }
               />
             ),
-            label: (
-              <p className="menu-item-label">{item?.recognitionType?.name}</p>
-            ),
+            label: <p className="menu-item-label">{item?.name || '-'}</p>,
             className: currentItem === item?.id ? 'px-6' : 'px-1',
           },
           link: `/incentive/settings/${item?.id}`,
