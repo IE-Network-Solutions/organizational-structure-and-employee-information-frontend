@@ -38,4 +38,5 @@ const AllIncentives = () => {
     </div>
   );
 };
+
 export default AllIncentives;
