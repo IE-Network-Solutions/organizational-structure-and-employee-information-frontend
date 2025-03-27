@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { classNames } from '@/utils/classNames';
+import { useMediaQuery } from 'react-responsive';
 
 interface PageHeaderProps {
   title: React.ReactNode;
@@ -15,19 +16,33 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   size = 'medium',
   children,
 }) => {
+  const isSmallScreen = useMediaQuery({ maxWidth: 768 }); // Detect small screens
+
   return (
     <div className="flex justify-between items-center">
       <div className="flex-1">
-        <h2
-          className={classNames('text-gray-900', {
-            'text-2xl': size === 'medium',
-            'text-xl': size === 'small',
-          })}
-        >
-          {title}
-        </h2>
+        {isSmallScreen ? (
+          <h2
+            className={classNames('text-gray-900 m-1', {
+              'text-xl': size === 'medium',
+              'text-lg': size === 'small',
+            })}
+          >
+            {title}
+          </h2>
+        ) : (
+          <h2
+            className={classNames('text-gray-900', {
+              'text-2xl': size === 'medium',
+              'text-xl': size === 'small',
+            })}
+          >
+            {title}
+          </h2>
+        )}
+
         {description && (
-          <div className="mt-2 text-sm text-gray-600 font-medium">
+          <div className="m-1 sm:mt-2 text-sm text-gray-600 font-medium">
             {description}
           </div>
         )}

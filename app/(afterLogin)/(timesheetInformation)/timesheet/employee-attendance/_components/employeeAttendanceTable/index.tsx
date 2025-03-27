@@ -6,9 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { Avatar, Button, Space, Table } from 'antd';
-
 import TableFilter from './tableFilter';
-
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import {
@@ -250,19 +248,24 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       <div className="mb-6">
         <TableFilter onChange={onFilterChange} />
       </div>
-      <Table
-        loading={isFetching}
-        columns={columns}
-        dataSource={tableData}
-        rowSelection={{ checkStrictly: false }}
-        pagination={defaultTablePagination(data?.meta?.totalItems)}
-        onChange={(pagination, filters, sorter: any) => {
-          setPage(pagination.current ?? 1);
-          setLimit(pagination.pageSize ?? 10);
-          setOrderDirection(sorter['order']);
-          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-        }}
-      />
+      <div className="flex  overflow-x-auto scrollbar-none  w-full">
+        <Table
+          loading={isFetching}
+          columns={columns}
+          dataSource={tableData}
+          rowSelection={{ checkStrictly: false }}
+          pagination={defaultTablePagination(data?.meta?.totalItems)}
+          rowClassName={() => 'h-[60px]'}
+          scroll={{ x: 'max-content' }}
+          className="w-full"
+          onChange={(pagination, filters, sorter: any) => {
+            setPage(pagination.current ?? 1);
+            setLimit(pagination.pageSize ?? 5);
+            setOrderDirection(sorter['order']);
+            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+          }}
+        />
+      </div>
     </>
   );
 };
