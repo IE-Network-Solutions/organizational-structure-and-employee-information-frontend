@@ -5,11 +5,9 @@ import AllIncentiveTable from './table';
 import IncentiveCards from '../cards';
 import { Card, Skeleton } from 'antd';
 
-interface LoadingProps {
-  parentResponseLoading: unknown;
-}
-
-const All: React.FC<LoadingProps> = ({ parentResponseLoading }) => {
+const All: React.FC<{ parentResponseLoading: unknown }> = ({
+  parentResponseLoading,
+}) => {
   const isLoading =
     typeof parentResponseLoading === 'boolean' ? parentResponseLoading : false;
 
