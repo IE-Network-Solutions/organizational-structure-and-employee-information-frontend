@@ -23,7 +23,6 @@ type WeekData = {
   title: string;
 }[];
 
-
 type ResponseData = {
   items?: DataItem[];
 };
