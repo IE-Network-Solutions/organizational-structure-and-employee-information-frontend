@@ -223,16 +223,6 @@ const AllCandidateTable: React.FC = () => {
     };
   });
 
-  const rowSelection = {
-    onChange: (notused: any, selectedRows: any) => {
-      setSelectedCandidate(
-        candidateList?.items?.filter((item: any) =>
-          selectedRows.some((row: any) => row.id === item.id),
-        ),
-      );
-    },
-  };
-
   return (
     <div>
       <Table
