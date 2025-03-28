@@ -80,7 +80,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
         </Form.Item>
       </Form>
       <div className="flex justify-center  items-center">
-        <Button className="w-96 h-12" type="primary" onClick={onSubmit}>
+        <Button className="w-[90px] h-11" type="primary" onClick={onSubmit}>
           Submit
         </Button>
       </div>

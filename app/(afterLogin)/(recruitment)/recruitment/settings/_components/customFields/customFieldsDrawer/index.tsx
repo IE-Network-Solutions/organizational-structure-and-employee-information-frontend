@@ -121,6 +121,7 @@ const CustomFieldsDrawer: React.FC<{
       initialValues={{
         title: question?.title,
       }}
+      className="h-full"
     >
       <Form.Item
         name="title"

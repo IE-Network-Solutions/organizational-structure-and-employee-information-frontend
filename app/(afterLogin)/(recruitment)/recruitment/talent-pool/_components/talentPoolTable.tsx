@@ -10,6 +10,7 @@ import TransferTalentPoolToCandidateModal from './transferModal';
 import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import RecruitmentPagination from '../../_components';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const TalentPoolTable: React.FC<any> = () => {
@@ -144,19 +145,18 @@ const TalentPoolTable: React.FC<any> = () => {
         <Table
           dataSource={candidates?.items}
           columns={columns}
-          pagination={{
-            total: candidates?.meta?.totalItems,
-            current: currentPage,
-            pageSize: page,
-            onChange: onPageChange,
-            showSizeChanger: true,
-            onShowSizeChange: onPageChange,
-          }}
+          pagination={false}
           loading={responseLoading}
           scroll={{ x: 1000 }}
         />
       )}
-
+      <RecruitmentPagination
+        current={currentPage}
+        total={candidates?.meta?.totalItems ?? 1}
+        pageSize={page}
+        onChange={onPageChange}
+        onShowSizeChange={onPageChange}
+      />
       <TransferTalentPoolToCandidateModal
         visible={isModalVisible}
         onConfirm={handleOk}
