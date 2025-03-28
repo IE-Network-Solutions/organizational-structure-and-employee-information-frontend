@@ -41,6 +41,8 @@ export const useOKRStore = create<OKRState>()(
       isClosed: false,
     },
 
+    selectedMetric: null,
+    setSelectedMetric: (selectedMetric: any) => set({ selectedMetric }),
     // Initialize key result value state
     keyResultValue: [],
     keyResultId: '',

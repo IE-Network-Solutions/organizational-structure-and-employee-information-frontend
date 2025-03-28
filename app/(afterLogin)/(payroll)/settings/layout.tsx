@@ -1,8 +1,9 @@
 'use client';
 import { FC, ReactNode, useEffect, useState } from 'react';
-import { Card, ConfigProvider, Menu, MenuProps } from 'antd';
-import { MdOutlinePayments } from 'react-icons/md';
 import { usePathname, useRouter } from 'next/navigation';
+import PageHeader from '@/components/common/pageHeader/pageHeader';
+import { ConfigProvider, Menu, MenuProps } from 'antd';
+import { MdOutlinePayments } from 'react-icons/md';
 import { HiOutlineReceiptTax } from 'react-icons/hi';
 import { GiSuspensionBridge } from 'react-icons/gi';
 
@@ -114,39 +115,39 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 w-full h-auto">
-      <div className="flex justify-start">
-        <Card className="shadow-none" bordered={false}>
-          <p className="font-bold text-lg md:text-xl lg:text-3xl">Setting</p>
-          <p className="text-gray-400 text-sm md:text-base">Payroll Settings</p>
-        </Card>
-      </div>
-      <div className="flex flex-col md:flex-row gap-4 md:gap-6 mt-6 md:mt-8">
-        <ConfigProvider
-          theme={{
-            components: {
-              Menu: {
-                itemHeight: 56,
-                itemPaddingInline: 0,
-                itemMarginInline: 0,
-                itemMarginBlock: 16,
-                itemActiveBg: '#F8F8F8',
-                itemHoverBg: 'rgba(248,248,248,0.92)',
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="p-4 md:p-6 lg:p-8 w-full h-auto">
+        <PageHeader
+          title="Settings"
+          description="Payroll Settings"
+        ></PageHeader>
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6 mt-6 md:mt-8">
+          <ConfigProvider
+            theme={{
+              components: {
+                Menu: {
+                  itemHeight: 56,
+                  itemPaddingInline: 0,
+                  itemMarginInline: 0,
+                  itemMarginBlock: 16,
+                  itemActiveBg: '#F8F8F8',
+                  itemHoverBg: 'rgba(248,248,248,0.92)',
+                },
               },
-            },
-          }}
-        >
-          <Menu
-            className="w-full md:w-[250px] lg:w-[300px] rounded-2xl py-2 px-6 h-max border border-gray-300"
-            items={menuItems.onlyItems}
-            mode="inline"
-            selectedKeys={[currentItem]}
-            onClick={onMenuClick}
-          />
-        </ConfigProvider>
+            }}
+          >
+            <Menu
+              className="w-full md:w-[250px] lg:w-[300px] rounded-2xl py-2 px-6 h-max border border-gray-300"
+              items={menuItems.onlyItems}
+              mode="inline"
+              selectedKeys={[currentItem]}
+              onClick={onMenuClick}
+            />
+          </ConfigProvider>
 
-        <div className="w-full border border-gray-300 rounded-2xl">
-          {children}
+          <div className="w-full border border-gray-300 rounded-2xl">
+            {children}
+          </div>
         </div>
       </div>
     </div>

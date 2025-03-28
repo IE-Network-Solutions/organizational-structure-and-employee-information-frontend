@@ -12,7 +12,10 @@ import {
 } from '@/types/tna/tna';
 import { useApprovalTNAStore } from '@/store/uistate/features/tna/settings/approval';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
-import { useSingleCurrency } from '@/store/server/features/tna/review/queries';
+import {
+  useAllCurrencies,
+  useSingleCurrency,
+} from '@/store/server/features/tna/review/queries';
 import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
 import {
   useSetAllApproveTnaRequest,
@@ -45,6 +48,7 @@ const TnaApprovalTable = () => {
   const onPageChange = (page: number) => {
     setUserCurrentPage(page);
   };
+  const { data: allCurrencies } = useAllCurrencies(); // Fetch all currencies at once
   const columns: TableColumnsType<any> = [
     {
       title: 'Title',
@@ -297,11 +301,29 @@ const TnaApprovalTable = () => {
       };
     },
   );
-  const totalTnaPrice = currentApproverData?.items?.reduce(
-    (acc: any, item: any) => acc + (item.trainingPrice || 0),
-    0,
-  );
 
+  // Create a mapping of currencyId -> { code, symbol }
+  const currencyMap =
+    allCurrencies?.reduce((acc: any, currency: any) => {
+      acc[currency.id] = { code: currency.code, symbol: currency.symbol };
+      return acc;
+    }, {}) || {}; // Default to an empty object if no currencies are fetched
+
+  // Calculate total TNA price per currency
+  const currencyTotals = currentApproverData?.items?.reduce(
+    (acc: any, item: any) => {
+      const currencyId = item.currencyId || 'Unknown'; // Ensure every item has a currencyId
+      const price = item.trainingPrice || 0;
+
+      if (!acc[currencyId]) {
+        acc[currencyId] = 0;
+      }
+
+      acc[currencyId] += price;
+      return acc;
+    },
+    {},
+  );
   return (
     <>
       {currentApproverData?.items?.length > 0 ? (
@@ -312,15 +334,29 @@ const TnaApprovalTable = () => {
             </div>
           </div>
           <div className="flex items-center justify-end mb-6">
-            <div className="flex justify-between p-2 items-center bg-gray-100 rounded-lg mb-6 mx-3">
-              <span className="text-xs font-normal text-gray-700">
-                Total TNA Price:
-              </span>{' '}
-              <span className="text-xs font-bold text-blue-600">
-                {' ' + totalTnaPrice.toLocaleString()}
-              </span>
+            <div className="flex flex-col p-2 bg-gray-100 rounded-lg mb-6 mx-3">
+              {Object.entries(currencyTotals).map(([currencyId, total]) => {
+                const currencyData = currencyMap[currencyId] || {
+                  code: 'Unknown',
+                  symbol: '',
+                }; // Ensure valid currency name & symbol
+                return (
+                  <div
+                    key={currencyId}
+                    className="flex justify-between items-center mb-2"
+                  >
+                    <span className="text-xs font-normal text-gray-700">
+                      Total TNA Price ({currencyData.code} {currencyData.symbol}
+                      ):
+                    </span>
+                    <span className="text-xs font-bold text-blue-600">
+                      {' ' + Number(total).toLocaleString()}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
-
+            ;
             <div className="flex items-center space-x-2 mb-6">
               <Popconfirm
                 title="All Approve Request"

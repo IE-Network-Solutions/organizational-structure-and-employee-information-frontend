@@ -3,9 +3,12 @@ import React from 'react';
 import KeyResultView from '../../keyresultView';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import CustomButton from '@/components/common/buttons/customButton';
-import { Form } from 'antd';
+import { Form, Select } from 'antd';
 import { useUpdateKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
+
+const { Option } = Select;
 
 // Define the props interface
 interface OkrDrawerProps {
@@ -16,16 +19,17 @@ interface OkrDrawerProps {
 
 // Convert the component to TypeScript
 const EditKeyResult: React.FC<OkrDrawerProps> = (props) => {
+  const { data: Metrics } = useGetMetrics();
+
   const [form] = Form.useForm();
   const { mutate: updateKeyResult, isLoading } = useUpdateKeyResult();
-  const { keyResultValue, objectiveValue } = useOKRStore();
+  const { keyResultValue, objectiveValue, setKeyResultValue } = useOKRStore();
+  // const [selectedMetric, setSelectedMetric] = useState<any | null>(null);
   const onSubmit = () => {
     form
       .validateFields()
       .then(() => {
         const keyResult = keyResultValue;
-
-        // Iterate over each keyResult to validate all milestone key types
 
         const keyType = keyResult?.metricType?.name || keyResult?.key_type;
         if (keyType === 'Milestone') {
@@ -101,6 +105,19 @@ const EditKeyResult: React.FC<OkrDrawerProps> = (props) => {
     </div>
   );
 
+  const handleMetricChange = (metricType: any) => {
+    const newKeyResult = {
+      ...props?.keyResult,
+      metricType,
+      metricTypeId: metricType?.id, // Update metricTypeId as well
+    };
+    // if (metricType?.name !== 'Milestone') {
+    //   delete newKeyResult.milestones;
+    //   delete newKeyResult.keyMilestones;
+    // }
+    setKeyResultValue(newKeyResult);
+  };
+
   return (
     <CustomDrawerLayout
       open={props?.open}
@@ -109,6 +126,25 @@ const EditKeyResult: React.FC<OkrDrawerProps> = (props) => {
       width="50%"
       footer={footer}
     >
+      <span className="font-bold mx-3">Metric type</span>
+      <Select
+        placeholder="Selecte Metric Type"
+        onChange={(val) => {
+          const selectedObject =
+            Metrics?.items?.find((item: any) => item.id === val) || null;
+          if (selectedObject) handleMetricChange(selectedObject);
+        }}
+        value={props?.keyResult.metricTypeId}
+        allowClear
+        className="w-full mx-3 mt-1"
+      >
+        {Metrics?.items?.map((item: any) => (
+          <Option key={item?.id} value={item?.id}>
+            {item?.name}
+          </Option>
+        ))}
+      </Select>
+
       <KeyResultView
         key={1}
         keyValue={props?.keyResult}

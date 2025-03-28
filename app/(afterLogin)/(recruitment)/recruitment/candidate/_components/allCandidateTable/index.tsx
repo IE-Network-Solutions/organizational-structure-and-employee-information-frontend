@@ -11,8 +11,6 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
 import { FaEllipsisVertical } from 'react-icons/fa6';
-import { IoIosArrowForward } from 'react-icons/io';
-import { FileDown } from 'lucide-react';
 import CandidateDetail from '../../../jobs/[id]/_components/candidateDetail/page';
 import DeleteCandidate from '../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../_components/modals/editCandidate';
@@ -93,7 +91,6 @@ const AllCandidateTable: React.FC = () => {
     setEditCandidate,
     setDeleteCandidateId,
     setDeleteCandidateModal,
-    setMoveToTalentPoolModal,
   } = useCandidateState();
 
   const { data: candidateList, isLoading: isResponseLoading } =
@@ -113,10 +110,7 @@ const AllCandidateTable: React.FC = () => {
   };
 
   const handleMenuClick = (key: string, candidate: any) => {
-    if (key === 'moveToTalentPool') {
-      setMoveToTalentPoolModal(true);
-      setSelectedCandidate(candidate);
-    } else if (key === 'edit') {
+    if (key === 'edit') {
       setEditCandidate(candidate);
       setEditCandidateModal(true);
       setSelectedCandidateID(candidate?.id);
@@ -133,27 +127,7 @@ const AllCandidateTable: React.FC = () => {
   };
 
   const data = candidateList?.items?.map((item: any, index: any) => {
-    const handleDownload = () => {
-      const link = document.createElement('a');
-      link.href = item?.resumeUrl;
-      link.download = item?.documentName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
-
     const items = [
-      {
-        key: 'moveToTalentPool',
-        label: (
-          <div className="text-primary font-normal text-sm flex items-center justify-start gap-1">
-            Move to Talent Pool
-            <IoIosArrowForward size={12} />
-          </div>
-        ),
-        onClick: () => handleMenuClick('moveToTalentPool', item),
-        permissions: [Permissions.TransferCandidate],
-      },
       {
         key: 'edit',
         label: 'Edit',
@@ -175,6 +149,7 @@ const AllCandidateTable: React.FC = () => {
 
     return {
       key: index,
+      id: item.id,
       candidateName: item?.fullName ?? '--',
       phoneNumber: item?.phone ?? '--',
       cgpa: item?.CGPA ?? '--',
@@ -182,21 +157,21 @@ const AllCandidateTable: React.FC = () => {
         item?.jobCandidate?.isExternalApplicant === false
           ? 'External'
           : 'Internal',
+
       cv: (
-        <div className="flex items-center justify-between">
-          <span
-            className="text-xs font-semibold cursor-pointer"
-            title={item?.documentName ?? 'CV.pdf'}
-          >
-            {item?.documentName?.length > 8
-              ? `${item.documentName.slice(0, 8)}...`
-              : (item?.documentName ?? 'CV.pdf')}{' '}
-          </span>
-          <div className="cursor-pointer" onClick={handleDownload}>
-            <FileDown size={20} strokeWidth={1.25} />
-          </div>
-        </div>
+        <a
+          href={item?.resumeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs font-semibold cursor-pointer flex items-center gap-2"
+          title={item?.documentName ?? 'CV.pdf'}
+        >
+          {item?.documentName?.length > 8
+            ? `${item.documentName.slice(0, 8)}...`
+            : (item?.documentName ?? 'CV.pdf')}
+        </a>
       ),
+
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
       stages: (
         <div>
@@ -247,6 +222,17 @@ const AllCandidateTable: React.FC = () => {
       ),
     };
   });
+
+  const rowSelection = {
+    onChange: (notused: any, selectedRows: any) => {
+      setSelectedCandidate(
+        candidateList?.items?.filter((item: any) =>
+          selectedRows.some((row: any) => row.id === item.id),
+        ),
+      );
+    },
+  };
+
   return (
     <div>
       <Table

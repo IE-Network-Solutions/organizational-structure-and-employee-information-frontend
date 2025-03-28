@@ -11,9 +11,10 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 const getTna = async (
   query: Partial<RequestCommonQueryData>,
   data: Partial<TnaRequestBody>,
+  searchQuery: string,
 ) => {
   return await crudRequest({
-    url: `${TNA_URL}/tna`,
+    url: `${TNA_URL}/tna${searchQuery}`,
     method: 'POST',
     headers: requestHeader(),
     data,
@@ -49,15 +50,24 @@ export const singleCurrency = async (id: string) => {
   });
   return response;
 };
+export const allCurrency = async () => {
+  const response = await crudRequest({
+    url: `${TNA_URL}/currency`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+  return response;
+};
 export const useGetTna = (
   query: Partial<RequestCommonQueryData>,
   data: Partial<TnaRequestBody>,
+  searchQuery: string,
   isKeepData: boolean = true,
   isEnabled: boolean = true,
 ) => {
   return useQuery<ApiResponse<TrainingNeedAssessment>>(
-    ['tna', query, data],
-    () => getTna(query, data),
+    ['tna', query, data, searchQuery],
+    () => getTna(query, data, searchQuery),
     {
       keepPreviousData: isKeepData,
       enabled: isEnabled,
@@ -86,6 +96,12 @@ export const useCurrency = () => {
 };
 export const useSingleCurrency = (id: string) => {
   return useQuery<any>(['singleCurrency'], () => singleCurrency(id), {
+    keepPreviousData: true,
+  });
+};
+
+export const useAllCurrencies = () => {
+  return useQuery<any>(['allCurrency'], () => allCurrency(), {
     keepPreviousData: true,
   });
 };

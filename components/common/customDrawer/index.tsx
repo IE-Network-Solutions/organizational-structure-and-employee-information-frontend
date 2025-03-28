@@ -88,6 +88,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         styles={{
           header: { borderBottom: 'none' },
           footer: { borderTop: 'none' },
+          body: { padding: '0 36px' },
         }}
       >
         {children}
