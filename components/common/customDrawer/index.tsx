@@ -53,6 +53,8 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
 
   // Render the component only on the client side
   if (!isClient) return null;
+
+  console.log(open , !hideButton, '********************************');
   return (
     <div>
       <>

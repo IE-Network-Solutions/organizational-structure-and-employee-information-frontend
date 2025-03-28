@@ -445,7 +445,7 @@ const Page = () => {
         </TabLandingLayout>
       </div>
       <div>
-        <CustomDrawerLayout
+        {/* <CustomDrawerLayout
           open={
             (open && activeTabName !== '') || selectedFeedbackRecord !== null
           }
@@ -456,9 +456,9 @@ const Page = () => {
           }}
           modalHeader={modalHeader}
           width="40%"
-        >
+        > */}
           <CreateFeedbackForm form={form} />
-        </CustomDrawerLayout>
+        {/* </CustomDrawerLayout> */}
       </div>
     </TabLandingLayout>
   );

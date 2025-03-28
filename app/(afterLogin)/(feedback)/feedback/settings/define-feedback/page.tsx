@@ -257,18 +257,39 @@ const Page = () => {
         </div>
       </div>
 
-      <CustomDrawerLayout
+      {/* <CustomDrawerLayout
         open={open || selectedFeedback?.id}
         onClose={onCloseHandler}
         modalHeader={modalHeader}
         width="30%"
-      >
+      > */}
         <CreateFeedback form={form} />
-      </CustomDrawerLayout>
+      {/* </CustomDrawerLayout> */}
       <CustomDrawerLayout
         open={addPerspectiveModal || editingItem?.id}
         onClose={() => handleCancel()}
         modalHeader={editingItem ? 'Edit Perspective' : perspectiveModalHeader}
+        footer={
+          <Form.Item>
+            <div className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5">
+              <Button
+                onClick={() => {
+                  form.resetFields();
+                  handleCancel();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => form.submit()}
+                loading={!editingItem ? createLoading : updateLoading}
+              >
+                {editingItem ? 'Update' : 'Create'}
+              </Button>
+            </div>
+          </Form.Item>
+        }
         width="30%"
       >
         <Form
@@ -314,27 +335,6 @@ const Page = () => {
                 </Select.Option>
               ))}
             </Select>
-          </Form.Item>
-
-          <Form.Item className="flex justify-center mx-10">
-            <div className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-56">
-              <Button
-                onClick={() => {
-                  form.resetFields();
-                  handleCancel();
-                }}
-                danger
-              >
-                Cancel
-              </Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={!editingItem ? createLoading : updateLoading}
-              >
-                {editingItem ? 'Update' : 'Create'}
-              </Button>
-            </div>
           </Form.Item>
         </Form>
       </CustomDrawerLayout>
