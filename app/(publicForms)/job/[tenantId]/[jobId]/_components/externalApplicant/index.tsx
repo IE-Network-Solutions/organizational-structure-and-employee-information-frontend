@@ -101,7 +101,6 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
           <span className="text-md font-semibold text-gray-700">Upload CV</span>
         }
         rules={[
-          { required: true, message: 'Please upload your CV' },
           {
             /* eslint-disable @typescript-eslint/naming-convention */
             validator: (_, fileList) => {
@@ -109,15 +108,14 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
               if (!fileList || fileList.length === 0) {
                 return Promise.reject('Please upload your CV');
               }
-              const isValidFormat: boolean = fileList.every(
-                (file: { type: string }) =>
-                  [
-                    'application/pdf',
-                    'application/msword',
-                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                  ].includes(file.type),
+              const isValidFormat = fileList.every((file: { type: string }) =>
+                [
+                  'application/pdf',
+                  'application/msword',
+                  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                ].includes(file.type),
               );
-              const isValidSize: boolean = fileList.every(
+              const isValidSize = fileList.every(
                 (file: { size: number }) => file.size / 1024 / 1024 < 5,
               );
               if (!isValidFormat) {
@@ -152,7 +150,7 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
         </Dragger>
       </Form.Item>
       <div className="text-xs font-sm mb-5 ">
-        Max file size : 5MB. File format : .pdf
+        Max file size : 5MB. File format : pdf
       </div>
       <Row gutter={16}>
         <Col xs={24} sm={24} md={12} lg={12} xl={12}>
@@ -251,13 +249,29 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
             label={
               <span className="text-md font-semibold text-gray-700">CGPA</span>
             }
-            rules={[{ required: true, message: 'Please input CGPA' }]}
+            rules={[
+              { required: true, message: 'Please input CGPA' },
+              {
+                /* eslint-disable @typescript-eslint/naming-convention */
+                validator: (_, value) =>
+                  /* eslint-enable @typescript-eslint/naming-convention */
+                  value >= 0 && value <= 4
+                    ? Promise.resolve()
+                    : Promise.reject('CGPA must be between 0.0 and 4.0'),
+              },
+            ]}
           >
-            <InputNumber className="text-sm w-full h-10" placeholder="CGPA" />
+            <InputNumber
+              className="text-sm w-full h-10"
+              placeholder="CGPA"
+              min={0}
+              max={4}
+              step={0.01}
+            />
           </Form.Item>
           <div className="flex items-center justify-start gap-1 ml-1">
             <FaInfoCircle />
-            <div className="text-xs font-md">Put your point 4.0 scale</div>
+            <div className="text-xs font-md">Put your point on a 4.0 scale</div>
           </div>
         </Col>
       </Row>
