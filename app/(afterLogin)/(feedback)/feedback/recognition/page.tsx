@@ -43,7 +43,7 @@ function Page() {
   const { data: allUserData } = useGetAllUsers();
   const { data: recognitionType } = useGetAllRecognitionData();
   const { data: totalRecogniion } = useGetTotalRecognition();
-  const { data: getAllRecognition } = useGetAllRecognition({
+  const { data: getAllRecognition, isLoading } = useGetAllRecognition({
     searchValue,
     current,
     pageSize,
@@ -289,6 +289,7 @@ function Page() {
             onRow={(record) => ({
               onClick: () => handleRowClick(record), // Add click handler
             })}
+            loading={isLoading}
           />
         </TabLandingLayout>
         <RecognitionTypeModal
