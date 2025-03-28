@@ -103,7 +103,9 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
         rules={[
           { required: true, message: 'Please upload your CV' },
           {
+            /* eslint-disable @typescript-eslint/naming-convention */
             validator: (_, fileList) => {
+              /* eslint-enable @typescript-eslint/naming-convention */
               if (!fileList || fileList.length === 0) {
                 return Promise.reject('Please upload your CV');
               }
