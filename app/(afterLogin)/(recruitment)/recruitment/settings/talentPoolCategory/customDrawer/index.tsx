@@ -1,3 +1,4 @@
+'use client';
 import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import {

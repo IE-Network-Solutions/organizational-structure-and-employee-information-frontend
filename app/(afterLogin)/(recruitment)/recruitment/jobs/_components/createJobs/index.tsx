@@ -46,6 +46,17 @@ const CreateJobs: React.FC = () => {
   const handleStepChange = (value: number) => {
     setCurrentStep(value);
   };
+  // const handleStepChange = async (value: number) => {
+  //   try {
+  //     if (currentStep === 0) {
+
+  //       await form.validateFields();
+  //     }
+  //     setCurrentStep(value);
+  //   } catch (error) {
+  //   }
+  // };
+
   const addNewDrawerHeader = (
     <div className="flex flex-col items-center">
       <div className="flex items-center justify-between">

@@ -19,6 +19,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import DeleteCandidate from '../../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../../_components/modals/editCandidate';
 import MoveToTalentPool from '../../../../_components/modals/moveToTalentPool';
+import RecruitmentPagination from '../../../../_components';
 
 interface TableProps {
   jobId: string;
@@ -238,16 +239,15 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         className="w-full"
         columns={columns}
         dataSource={data}
-        pagination={{
-          total: candidateList?.meta?.totalItems,
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
         loading={isResponseLoading}
         scroll={{ x: 1000 }}
+      />
+      <RecruitmentPagination
+        current={currentPage}
+        total={candidateList?.meta?.totalItems ?? 1}
+        pageSize={pageSize}
+        onChange={onPageChange}
+        onShowSizeChange={onPageChange}
       />
       <DeleteCandidate />
       <EditCandidate />
