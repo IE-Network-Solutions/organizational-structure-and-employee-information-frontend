@@ -1,14 +1,5 @@
 'use client';
-import {
-  Button,
-  Card,
-  Form,
-  Input,
-  Select,
-  Tabs,
-  Pagination,
-  Space,
-} from 'antd';
+import { Button, Card, Form, Input, Select, Tabs, Pagination } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
@@ -326,14 +317,7 @@ const Page = () => {
           </Form.Item>
 
           <Form.Item className="flex justify-center mx-10">
-            <Space size="middle">
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={!editingItem ? createLoading : updateLoading}
-              >
-                {editingItem ? 'Update' : 'Create'}
-              </Button>
+            <div className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-56">
               <Button
                 onClick={() => {
                   form.resetFields();
@@ -343,7 +327,14 @@ const Page = () => {
               >
                 Cancel
               </Button>
-            </Space>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={!editingItem ? createLoading : updateLoading}
+              >
+                {editingItem ? 'Update' : 'Create'}
+              </Button>
+            </div>
           </Form.Item>
         </Form>
       </CustomDrawerLayout>

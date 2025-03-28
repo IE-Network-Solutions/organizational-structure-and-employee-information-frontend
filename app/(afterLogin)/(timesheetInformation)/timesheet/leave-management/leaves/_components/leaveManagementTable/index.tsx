@@ -22,7 +22,7 @@ import {
 } from '@/types/timesheet/settings';
 import { CommonObject } from '@/types/commons/commonObject';
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
@@ -245,23 +245,21 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   return (
     <div className="mt-6">
       <LeaveManagementTableFilter onChange={onFilterChange} />
-      <div className="flxe overflow-y-hidden scrollbar-none ">
-        <Table
-          className="mt-6"
-          columns={columns}
-          dataSource={tableData}
-          loading={isFetching}
-          rowClassName={() => 'h-[50px]'}
-          rowSelection={{ checkStrictly: false }}
-          pagination={defaultTablePagination(data?.meta?.totalItems)}
-          onChange={(pagination, filters, sorter: any) => {
-            setPage(pagination.current ?? 1);
-            setLimit(pagination.pageSize ?? 10);
-            setOrderDirection(sorter['order']);
-            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-          }}
-        />
-      </div>
+
+      <Table
+        className="mt-6"
+        columns={columns}
+        dataSource={tableData}
+        loading={isFetching}
+        rowSelection={{ checkStrictly: false }}
+        pagination={DefaultTablePagination(data?.meta?.totalItems)}
+        onChange={(pagination, filters, sorter: any) => {
+          setPage(pagination.current ?? 1);
+          setLimit(pagination.pageSize ?? 10);
+          setOrderDirection(sorter['order']);
+          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+        }}
+      />
     </div>
   );
 };

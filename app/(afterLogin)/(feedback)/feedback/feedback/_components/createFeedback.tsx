@@ -257,7 +257,11 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
       )}
 
       {/* Submit Button */}
-      <Form.Item>
+      <Form.Item className=" w-full bg-[#fff] absolute bottom-8 flex justify-center space-x-5 ">
+        <Button onClick={() => setOpen(false)} type="default" className="mr-4 ">
+          Cancel
+        </Button>
+
         {selectedFeedbackRecord !== null ? (
           <Button type="primary" htmlType="submit">
             Update

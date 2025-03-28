@@ -61,15 +61,15 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
 
     return (
       <>
-        <div style={{ marginBottom: 16 }}>
-          <Input.Search
-            placeholder="Search feedbacks..."
-            allowClear
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ width: 300 }}
-          />
-        </div>
-        <div className="flex justify-end text-xs mx-2">
+        <div className="flex justify-between text-xs mx-2">
+          <div style={{ marginBottom: 16 }}>
+            <Input.Search
+              placeholder="Search feedbacks..."
+              allowClear
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ width: 300 }}
+            />
+          </div>
           <Button
             type="primary"
             htmlType="button"

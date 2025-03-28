@@ -158,8 +158,12 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish, form2 }) => {
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={12} className="flex justify-end">
+      <Row gutter={16} className=" flex justify-center">
+        <Col
+          xs={24}
+          sm={12}
+          className=" w-full bg-[#fff] absolute bottom-8 flex justify-center space-x-5"
+        >
           <Popconfirm
             title="reset all you filled"
             description="Are you sure to reset all fields value ?"
@@ -171,8 +175,7 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish, form2 }) => {
               Cancel
             </Button>
           </Popconfirm>
-        </Col>
-        <Col xs={24} sm={12}>
+
           <Button
             // loading={isLoading}
             htmlType="submit"
@@ -184,6 +187,7 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish, form2 }) => {
             Create
           </Button>
         </Col>
+        <Col xs={24} sm={12}></Col>
       </Row>
     </Form>
   );

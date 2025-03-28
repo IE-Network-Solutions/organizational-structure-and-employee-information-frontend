@@ -10,7 +10,7 @@ import { Button, Table } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import NewAccrualRuleSidebar from './_components/newAccrualRuleSidebar';
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
@@ -93,7 +93,7 @@ const Page = () => {
         className="mt-6"
         loading={isFetching}
         dataSource={tableData()}
-        pagination={defaultTablePagination(data?.meta?.totalItems)}
+        pagination={DefaultTablePagination(data?.meta?.totalItems)}
         onChange={(pagination, filters, sorter: any) => {
           setPage(pagination.current ?? 1);
           setLimit(pagination.pageSize ?? 10);
