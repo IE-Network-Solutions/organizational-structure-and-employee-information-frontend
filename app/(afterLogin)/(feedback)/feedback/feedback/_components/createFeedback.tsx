@@ -31,21 +31,10 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
   const {
     open,
     setOpen,
-    setVariantType,
     setSelectedFeedbackRecord,
     selectedFeedbackRecord,
     variantType,
-    setUserId,
-    setActiveTab,
     activeTab,
-    empId,
-    setEmpId,
-    givenDate,
-    setGivenDate,
-    pageSize,
-    setPageSize,
-    page,
-    setPage,
   } = ConversationStore();
   const [selectedDepartment, setSelectedDepartmentId] = useState<string | null>(
     null,
@@ -63,11 +52,9 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     mutate: updateFeedbackRecord,
     isLoading: loadingUpdateFeedbackRecord,
   } = useUpdateFeedbackRecord();
-  const { data: getAllFeedbackTypes, isLoading: getFeedbackTypeLoading } =
-    useFetchAllFeedbackTypes();
+  const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
 
   const onFinish = (values: any) => {
-    console.log('object', values);
     if (selectedFeedbackRecord !== null) {
       const updatedValues = {
         ...values,
@@ -163,12 +150,8 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
       width="40%"
       footer={
         <Form.Item>
-          <div className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5">
-            <Button
-              onClick={() => setOpen(false)}
-              type="default"
-              className="mr-4 "
-            >
+          <div className=" w-full bg-[#fff] absolute flex justify-center space-x-5">
+            <Button onClick={() => setOpen(false)} type="default">
               Cancel
             </Button>
 
@@ -309,6 +292,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
             rules={[
               { required: true, message: 'Please select at least one CC!' },
             ]}
+            className="mb-8"
           >
             <Select
               mode="multiple"
@@ -333,8 +317,6 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
             />
           </Form.Item>
         )}
-
-        {/* Submit Button */}
       </Form>
     </CustomDrawerLayout>
   );

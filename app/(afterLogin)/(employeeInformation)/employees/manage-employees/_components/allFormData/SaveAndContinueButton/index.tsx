@@ -35,7 +35,9 @@ const ButtonContinue: React.FC<Props> = ({
             okText="Yes"
             cancelText="No"
           >
-            <Button type='default' name="cancelSidebarButtonId">Cancel</Button>
+            <Button type="default" name="cancelSidebarButtonId">
+              Cancel
+            </Button>
           </Popconfirm>
         )}
 

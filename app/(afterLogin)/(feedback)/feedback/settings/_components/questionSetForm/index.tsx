@@ -31,7 +31,7 @@ const QuestionSetForm = () => {
     questions,
     setQuestions,
   } = ConversationStore();
-  const { open, setActiveTab } = ConversationStore();
+  const { open } = ConversationStore();
 
   const [form] = Form.useForm();
   const { mutate: createConversationQuestionSet, isLoading: createIsLoading } =
@@ -300,30 +300,38 @@ const QuestionSetForm = () => {
       modalHeader={modalHeader}
       footer={
         <Form.Item>
-        <div className="w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5">
-          {editableData === null ? (
-            <Button type="primary" loading={createIsLoading} onClick={() => form.submit()}>
-              Submit
-            </Button>
-          ) : (
-            <Button type="primary" loading={updateIsLoading} onClick={() => form.submit()}>
-              Update
-            </Button>
-          )}
-          <Popconfirm
-            title="Are you sure you want to reset the form?"
-            onConfirm={() => {
-              setQuestions([]);
-              setEditableData(null);
-              form.resetFields();
-            }}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="default">Reset</Button>
-          </Popconfirm>
-        </div>
-      </Form.Item>
+          <div className="w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5">
+            <Popconfirm
+              title="Are you sure you want to reset the form?"
+              onConfirm={() => {
+                setQuestions([]);
+                setEditableData(null);
+                form.resetFields();
+              }}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="default">Reset</Button>
+            </Popconfirm>
+            {editableData === null ? (
+              <Button
+                type="primary"
+                loading={createIsLoading}
+                onClick={() => form.submit()}
+              >
+                Submit
+              </Button>
+            ) : (
+              <Button
+                type="primary"
+                loading={updateIsLoading}
+                onClick={() => form.submit()}
+              >
+                Update
+              </Button>
+            )}
+          </div>
+        </Form.Item>
       }
       width="40%"
     >

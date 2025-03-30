@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form, Input, InputNumber, Button, Card, Select } from 'antd';
+import { Form, Input, InputNumber, Button, Select } from 'antd';
 import { commonClass } from '@/types/enumTypes';
 import {
   useCreateFeedback,
@@ -19,16 +19,9 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
     selectedFeedback,
     variantType,
     activeTab,
-    setActiveTab,
     open,
     setOpen,
     setSelectedFeedback,
-    editingItem,
-    setEditingItem,
-    pageSize,
-    setPageSize,
-    page,
-    setPage,
   } = ConversationStore();
   const { mutate: createFeedback, isLoading: createFeedbackLoading } =
     useCreateFeedback();

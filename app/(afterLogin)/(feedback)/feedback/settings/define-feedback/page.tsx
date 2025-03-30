@@ -27,13 +27,7 @@ const Page = () => {
   const [form] = Form.useForm();
 
   const {
-    selectedFeedback,
-    variantType,
-    activeTab,
     setActiveTab,
-    open,
-    setOpen,
-    setSelectedFeedback,
     editingItem,
     setEditingItem,
     pageSize,
@@ -62,11 +56,12 @@ const Page = () => {
       <p>Add New Perspective</p>
     </div>
   ) : null;
-  const onCloseHandler = () => {
-    form?.resetFields();
-    setOpen(false);
-    setSelectedFeedback(null);
-  };
+
+  // const onCloseHandler = () => {
+  //   form?.resetFields();
+  //   setOpen(false);
+  //   setSelectedFeedback(null);
+  // };
   const handleEdit = (item: any) => {
     setEditingItem(item);
     form.setFieldsValue({
@@ -92,21 +87,21 @@ const Page = () => {
     }
   }, [editingItem]);
 
-  const activeTabName =
-    getAllFeedbackTypes?.items?.find(
-      (item: FeedbackTypeItems) => item.id === activeTab,
-    )?.category || '';
+  // const activeTabName =
+  //   getAllFeedbackTypes?.items?.find(
+  //     (item: FeedbackTypeItems) => item.id === activeTab,
+  //   )?.category || '';
 
-  const modalHeader = (
-    <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-      <p>
-        {selectedFeedback === null
-          ? `Add New ${activeTabName}`
-          : `Edit New ${activeTabName}`}
-      </p>
-      <p>{variantType} type</p>
-    </div>
-  );
+  // const modalHeader = (
+  //   <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
+  //     <p>
+  //       {selectedFeedback === null
+  //         ? `Add New ${activeTabName}`
+  //         : `Edit New ${activeTabName}`}
+  //     </p>
+  //     <p>{variantType} type</p>
+  //   </div>
+  // );
   const paginatedData = perspectiveData?.slice(
     (page - 1) * pageSize,
     page * pageSize,
@@ -263,7 +258,7 @@ const Page = () => {
         modalHeader={modalHeader}
         width="30%"
       > */}
-        <CreateFeedback form={form} />
+      <CreateFeedback form={form} />
       {/* </CustomDrawerLayout> */}
       <CustomDrawerLayout
         open={addPerspectiveModal || editingItem?.id}

@@ -79,8 +79,8 @@ const Branches = () => {
     </Menu>
   );
   return (
-    <div className="flex-1rounded-lg my-4 md:my-8 items-center w-full h-full">
-      <div className="bg-white p-4 md:p-8 lg:p-12 rounded-lg h-full w-full">
+    <div className="flex-1 rounded-lg  items-center w-full h-full">
+      <div className="bg-white p-3 rounded-lg h-full w-full">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-xl custom:text-xl md:text-2xl lg:text-4xl font-semibold">
             Branches

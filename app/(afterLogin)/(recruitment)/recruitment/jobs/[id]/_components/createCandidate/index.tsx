@@ -131,15 +131,26 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       onClose={onClose}
       modalHeader={createJobDrawerHeader}
       width="40%"
-      footer={null}
+      footer={
+        <Form.Item>
+          <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
+            <Button
+              onClick={onClose}
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => form.submit()}
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+            >
+              Create
+            </Button>
+          </div>
+        </Form.Item>
+      }
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={() => {
-          handleSubmit();
-        }}
-      >
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <Form.Item
           id="fullNameId"
           name="fullName"
@@ -317,26 +328,9 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             </div>
           </Dragger>
         </Form.Item>
-        <div className="text-sm font-md mb-5">
+        <div className="text-sm font-md mb-8">
           Max file size: 5MB. File formats: .pdf, .doc, .docx
         </div>
-
-        <Form.Item>
-          <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
-            <Button
-              onClick={onClose}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
-            >
-              Cancel
-            </Button>
-            <Button
-              htmlType="submit"
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
-            >
-              Create
-            </Button>
-          </div>
-        </Form.Item>
       </Form>
     </CustomDrawerLayout>
   );
