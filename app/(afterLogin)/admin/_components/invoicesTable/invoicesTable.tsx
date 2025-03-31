@@ -110,15 +110,17 @@ const InvoicesTable = ({
   };
 
   const getPlanName = (subscriptionId: string) => {
-    // Сначала ищем в переданных подписках
-    const subscription = subscriptions.find(sub => sub.id === subscriptionId);
+    // First try to find subscription by id
+    const subscription = subscriptions?.find(sub => sub.id === subscriptionId);
+    
     if (subscription?.plan?.name) {
       return subscription.plan.name;
     }
     
-    // Если не нашли в подписках, ищем в notes инвойса (там часто есть название плана)
+    // If not found in subscriptions directly, look for plan information in invoice notes
     const invoice = data.find(inv => inv.subscriptionId === subscriptionId);
     if (invoice?.notes) {
+      // Try to extract plan name from notes (often in format "Subscription invoice for X план")
       const match = invoice.notes.match(/for\s+(.+?)(?:\s+план|\s*$)/i);
       if (match && match[1]) {
         return match[1];
@@ -129,8 +131,12 @@ const InvoicesTable = ({
   };
 
   const getCurrencySymbol = (currencyId: string) => {
-    const currency = currencies.find(c => c.id === currencyId);
+    const currency = currencies?.find(c => c.id === currencyId);
     return currency?.symbol || '$';
+  };
+
+  const getSubscription = (invoiceSubscriptionId: string) => {
+    return subscriptions?.find(s => s.id === invoiceSubscriptionId);
   };
 
   const filteredData = data.filter((invoice) => {
@@ -189,10 +195,11 @@ const InvoicesTable = ({
     {
       title: 'Plan',
       dataIndex: 'subscriptionId',
-      sorter: (a, b) =>
-        getPlanName(a.subscriptionId).localeCompare(
-          getPlanName(b.subscriptionId),
-        ),
+      sorter: (a, b) => {
+        const planNameA = getPlanName(a.subscriptionId);
+        const planNameB = getPlanName(b.subscriptionId);
+        return planNameA.localeCompare(planNameB);
+      },
       render: (subscriptionId: string) => (
         <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-2 w-fit whitespace-nowrap">
           <span className="w-2 h-2 min-w-2 min-h-2 rounded-full bg-primary" />
@@ -216,7 +223,7 @@ const InvoicesTable = ({
       dataIndex: 'currencyId',
       sorter: (a, b) => a.currencyId.localeCompare(b.currencyId),
       render: (currencyId: string) => {
-        const currency = currencies.find(c => c.id === currencyId);
+        const currency = currencies?.find(c => c.id === currencyId);
         return <span>{currency?.symbol || currencyId}</span>;
       },
     },
