@@ -390,3 +390,45 @@ export interface RenewSubscriptionRequest {
 export interface PrepaySubscriptionRequest {
   subscriptionId: string;
 }
+/**
+ * Tenant
+ */
+
+interface ClientContact {
+  contactPersonName: string;
+  email: string;
+  PhoneNumber: string;
+  clientId: string;
+  client: string;
+}
+
+export interface Tenant {
+  id?: string;
+  companyName: string;
+  companyEmail: string;
+  phoneNumber: string;
+  address: string;
+  businessSize: string;
+  industry: string;
+  country: string;
+  region: string;
+  timezone: string;
+  subscription: Subscription;
+  subscriptionDate: string;
+  subscriptionEndDate: string;
+  subscriptionType: string;
+  subscriptionStatus: string;
+  domainName: string;
+  domainUrl: string;
+  description: string;
+  logo: string;
+  stamp: string;
+  billingEmail: string;
+  billingPhoneNumber: string;
+  notes: string;
+  contactPersonName: string;
+  contactPersonEmail: string;
+  contactPersonPhoneNumber: string;
+  preferredIndustry: string;
+  clientContacts: ClientContact[];
+}
