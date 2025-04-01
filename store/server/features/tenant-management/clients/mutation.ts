@@ -34,7 +34,7 @@ export const updateClient = async (id: string, data: UpdateClientDto) => {
   
   // Remove the id from the data since it is already used in the URL
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { id: _, ...cleanData } = data;
+  const { id: ignored, ...cleanData } = data;
   
   try {
     const response = await axios({
