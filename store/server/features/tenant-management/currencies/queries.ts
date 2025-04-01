@@ -26,6 +26,8 @@ export const useGetCurrencies = (
     {
       keepPreviousData: isKeepData,
       enabled: isEnabled,
+      retry: 1, 
+      refetchOnWindowFocus: false
     },
   );
 };

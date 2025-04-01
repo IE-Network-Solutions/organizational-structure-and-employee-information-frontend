@@ -8,23 +8,142 @@ import {
   EditFilled,
 } from '@ant-design/icons';
 import InvoicesTable from '../_components/invoicesTable/invoicesTable';
-import { mockInvoices } from '../_mockData/mockInvoices';
 import { useEffect, useState } from 'react';
 import { Card, Skeleton } from 'antd';
 import React from 'react';
+import { Currency, Invoice, Plan, Subscription } from '@/types/tenant-management';
+import { useGetInvoices } from '@/store/server/features/tenant-management/invoices/queries';
+import { useGetCurrencies } from '@/store/server/features/tenant-management/currencies/queries';
+import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
+import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
+import { DEFAULT_TENANT_ID } from '@/utils/constants';
 
 const BillingPage = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  
+  const { data: invoicesData, isLoading: isInvoicesLoading } = useGetInvoices(
+    {filter: {
+      tenantId: DEFAULT_TENANT_ID
+    }},
+    'ASC',
+    false,
+    true
+  );
+
+  const { data: plansData, isLoading: plansLoading } = useGetPlans(
+    { filter: {} },
+    true,
+    true,
+    'ASC'
+  );
+
+  const { data: currenciesData, isLoading: currenciesLoading } = useGetCurrencies(
+    { filter: {} },
+    true,
+    true
+  );
+
+  const { data: subscriptionsData, isLoading: subscriptionsLoading } = useGetSubscriptions(
+    { filter: {
+      tenantId: [DEFAULT_TENANT_ID]
+    } },
+    true,
+    true
+  );
+  
+  useEffect(() => {
+    if (invoicesData?.items && invoicesData.items.length > 0) {
+      const sortedInvoices = [...invoicesData.items].sort((a, b) => {
+        // Sort by creation date in descending order (newest first)
+        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      });
+      setInvoices(sortedInvoices);
+    } else {
+      setInvoices([]);
+    }
+  }, [invoicesData]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
+    if (currenciesData?.items && currenciesData.items.length > 0) {
+      setCurrencies(currenciesData.items);
+    }
+  }, [currenciesData]);
+
+  useEffect(() => {
+    if (plansData?.items && plansData.items.length > 0) {
+      setPlans(plansData.items);
+    }
+  }, [plansData]);
+
+  useEffect(() => {
+    if (subscriptionsData?.items && subscriptionsData.items.length > 0) {
+      setSubscriptions(subscriptionsData.items);
+    }
+  }, [subscriptionsData]);
+
+  // Calculate statistics
+  const calculateStats = () => {
+    let totalAmount = 0;
+    let issuedAmount = 0;
+    let paidAmount = 0;
+    let overdueAmount = 0;
+
+    invoices.forEach(invoice => {
+      // Convert string amount to number
+      // totalAmount can come as a string, so we convert it to a number
+      const amount = typeof invoice.totalAmount === 'string' 
+        ? parseFloat(invoice.totalAmount) 
+        : (invoice.totalAmount || 0);
+      
+      totalAmount += amount;
+      
+      switch(invoice.status?.toLowerCase()) {
+        case 'issued':
+          issuedAmount += amount;
+          break;
+        case 'paid':
+          paidAmount += amount;
+          break;
+        case 'overdue':
+          overdueAmount += amount;
+          break;
+      }
+    });
+
+    return {
+      totalAmount,
+      issuedAmount,
+      paidAmount,
+      overdueAmount
     };
-    fetchData();
-  }, []);
+  };
+  
+  const stats = calculateStats();
+
+  // Format large numbers with K (thousands) suffix
+  const formatLargeNumber = (amount: number) => {
+    if (amount >= 1000) {
+      // Format to 1 decimal place if not a round thousand
+      const isRoundThousand = amount % 1000 === 0;
+      const value = amount / 1000;
+      const formattedValue = isRoundThousand 
+        ? value.toFixed(0) 
+        : value.toFixed(1).replace(/\.0$/, ''); // Remove .0 if it ends with it
+      
+      return `$${formattedValue}K`;
+    }
+    
+    // For amounts less than 1000, use regular currency format
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
 
   const dashboardData = [
     {
@@ -56,21 +175,23 @@ const BillingPage = () => {
   const dashboardValues = [
     {
       id: 'totalInvoice',
-      value: '$72K',
+      value: formatLargeNumber(stats.totalAmount),
     },
     {
       id: 'issued',
-      value: '$230',
+      value: formatLargeNumber(stats.issuedAmount),
     },
     {
       id: 'paid',
-      value: '$450k',
+      value: formatLargeNumber(stats.paidAmount),
     },
     {
       id: 'overdue',
-      value: '$50k',
+      value: formatLargeNumber(stats.overdueAmount),
     },
   ];
+
+  const isLoading = isInvoicesLoading || plansLoading || currenciesLoading || subscriptionsLoading;
 
   return (
     <div className="h-auto w-auto px-6 py-6">
@@ -132,7 +253,13 @@ const BillingPage = () => {
       </div>
 
       <div className="mb-[35px] mt-[25px] ">
-        <InvoicesTable data={mockInvoices} loading={isLoading} />
+        <InvoicesTable 
+          data={invoices} 
+          loading={isLoading} 
+          plans={plans}
+          currencies={currencies}
+          subscriptions={subscriptions}
+        />
       </div>
     </div>
   );
