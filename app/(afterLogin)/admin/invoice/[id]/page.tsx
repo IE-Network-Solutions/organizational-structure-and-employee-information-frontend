@@ -1,6 +1,6 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { Skeleton, Button, notification, Spin } from 'antd';
+import { Skeleton, Button, notification } from 'antd';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';

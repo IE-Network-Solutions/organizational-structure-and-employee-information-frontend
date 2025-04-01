@@ -1,6 +1,6 @@
 'use client';
 
-import { Table, Input, Select, DatePicker, Spin } from 'antd';
+import { Table, Input, Select, DatePicker, notification } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Invoice, Currency, Plan, InvoiceStatus, Subscription } from '@/types/tenant-management';
 import { useState, useEffect } from 'react';
@@ -44,7 +44,7 @@ const InvoicesTable = ({
   const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<string | null>(null);
   const router = useRouter();
 
-  const { data: invoiceDetail, isLoading: isDownloading } = useGetInvoiceDetail(
+  const { data: invoiceDetail } = useGetInvoiceDetail(
     selectedInvoiceId || '',
     'PDF'
   );
@@ -62,39 +62,35 @@ const InvoicesTable = ({
         document.body.removeChild(link);
       })
       .catch(error => {
-        console.error('Error downloading file:', error);
+        notification.error({
+          message: 'Error downloading file',
+          description: error instanceof Error ? error.message : 'An unknown error occurred'
+        });
       })
       .finally(() => {
         setDownloadingInvoiceId(null);
       });
   };
 
-  // Эффект для скачивания PDF, когда данные получены
   useEffect(() => {
     if (invoiceDetail && selectedInvoiceId) {
-      // Используем безопасное приведение типов для доступа к данным
       const response = invoiceDetail as any;
       
-      // Ищем путь к файлу в различных свойствах ответа
       const filePath = response.path || response.data?.path || response.items?.[0]?.path;
       
       if (filePath) {
         const fullUrl = `${TENANT_BASE_URL}/${filePath}`;
         
-        // Создаем имя файла на основе ID инвойса
         const invoice = data.find(inv => inv.id === selectedInvoiceId);
         const fileName = invoice 
           ? `Invoice-${invoice.invoiceNumber}.pdf` 
           : `Invoice-${selectedInvoiceId}.pdf`;
         
-        // Скачиваем файл вместо открытия в новой вкладке
         downloadFile(fullUrl, fileName);
       } else {
-        // Если путь не найден, убираем индикатор загрузки
         setDownloadingInvoiceId(null);
       }
       
-      // Сбрасываем выбранный инвойс
       setSelectedInvoiceId(null);
     }
   }, [invoiceDetail, selectedInvoiceId, data]);

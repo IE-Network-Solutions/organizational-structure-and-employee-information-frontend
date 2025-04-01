@@ -355,10 +355,9 @@ const PlanPage = () => {
         throw new Error('No redirect URL received from payment provider');
       }
     } catch (error) {
-      console.error('Payment initiation error:', error);
       notification.error({
         message: 'Payment Failed',
-        description: 'There was an error initiating payment. Please try again later.'
+        description: error instanceof Error ? error.message : 'There was an error initiating payment. Please try again later.'
       });
       setIsProcessingPayment(false);
     }
@@ -389,7 +388,10 @@ const PlanPage = () => {
         setCurrentInvoice(updatedSubscription.invoices[0]);
       }
     } catch (error) {
-      console.error('Error refetching subscriptions:', error);
+      notification.error({
+        message: 'Error refetching subscriptions',
+        description: error instanceof Error ? error.message : 'An unknown error occurred'
+      });
     }
   };
 
@@ -450,10 +452,9 @@ const PlanPage = () => {
         description: 'Please proceed to payment to complete the process.',
       });
     } catch (error) {
-      console.error('Error creating/upgrading subscription:', error);
       notification.error({
         message: 'Operation Failed',
-        description: 'Failed to process your subscription. Please try again later.',
+        description: error instanceof Error ? error.message : 'Failed to process your subscription. Please try again later.',
       });
     } finally {
       setIsCreatingSubscription(false);
@@ -523,10 +524,9 @@ const PlanPage = () => {
         description: 'Your invoice PDF is being downloaded.',
       });
     } catch (error) {
-      console.error('Error downloading PDF:', error);
       notification.error({
         message: 'Download Failed',
-        description: 'Failed to download the invoice PDF. Please try again later.',
+        description: error instanceof Error ? error.message : 'Failed to download the invoice PDF. Please try again later.',
       });
     } finally {
       setIsDownloading(false);
@@ -612,7 +612,7 @@ const PlanPage = () => {
                     )}
                     {isQuotaDisabled && (
                       <div className="text-gray-500 text-sm">
-                        You can only update the subscription period at this time. To change the user quota, please use the "Update User Quota" button.
+                        You can only update the subscription period at this time. To change the user quota, please use the &quot;Update User Quota&quot; button.
                       </div>
                     )}
                     {!isQuotaDisabled && !isQuotaChanged() && (
@@ -691,7 +691,7 @@ const PlanPage = () => {
                     </Select>
                     {isPeriodDisabled && (
                       <div className="text-gray-500 text-sm">
-                        You can only update the user quota at this time. To change the subscription period, please use the "Update Subscription Period" button.
+                        You can only update the user quota at this time. To change the subscription period, please use the &quot;Update Subscription Period&quot; button.
                       </div>
                     )}
                     {!isPeriodDisabled && !isPeriodChanged() && (
