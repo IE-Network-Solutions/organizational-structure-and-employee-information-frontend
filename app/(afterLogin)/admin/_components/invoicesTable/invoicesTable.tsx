@@ -27,7 +27,6 @@ interface InvoicesTableProps {
 const InvoicesTable = ({ 
   data, 
   loading = false, 
-  plans, 
   currencies,
   subscriptions = []
 }: InvoicesTableProps) => {
@@ -135,10 +134,6 @@ const InvoicesTable = ({
     return currency?.symbol || '$';
   };
 
-  const getSubscription = (invoiceSubscriptionId: string) => {
-    return subscriptions?.find(s => s.id === invoiceSubscriptionId);
-  };
-
   const filteredData = data.filter((invoice) => {
     const matchesSearch = invoice.id
       .toLowerCase()
@@ -183,6 +178,7 @@ const InvoicesTable = ({
       dataIndex: 'invoiceNumber',
       sorter: (a, b) => a.invoiceNumber - b.invoiceNumber,
       render: (invoiceNumber: string) => <span>#{invoiceNumber}</span>,
+      defaultSortOrder: 'descend',
     },
     {
       title: 'Issue Date',

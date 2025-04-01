@@ -1,6 +1,6 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { Skeleton, Button, notification } from 'antd';
+import { Skeleton, Button, notification, Spin } from 'antd';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -10,6 +10,7 @@ import { useGetInvoiceDetail } from '@/store/server/features/tenant-management/i
 import { TENANT_BASE_URL } from '@/utils/constants';
 import dayjs from 'dayjs';
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
+import { useInitiatePayment } from '@/store/server/features/tenant-management/payments/queries';
 
 const InvoiceItem = () => {
   const router = useRouter();
@@ -21,6 +22,7 @@ const InvoiceItem = () => {
   const [invoiceData, setInvoiceData] = useState<Invoice | null>(null);
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'chapa' | 'stripe' | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   
   // Get plans data
   const { data: plansData} = useGetPlans(
@@ -41,6 +43,9 @@ const InvoiceItem = () => {
     id as string,
     'PDF'
   );
+
+  // Initialize payment mutation
+  const initiatePaymentMutation = useInitiatePayment();
 
   useEffect(() => {
     if (plansData) {
@@ -72,9 +77,64 @@ const InvoiceItem = () => {
   };
 
   // Handle payment
-  const handlePayment = () => {
-    console.log(`Selected payment method: ${selectedPaymentMethod}`);
-    // Additional payment logic would go here
+  const handlePayment = async () => {
+    if (!selectedPaymentMethod || !id) {
+      notification.error({
+        message: 'Payment Error',
+        description: 'Please select a payment method to continue.',
+      });
+      return;
+    }
+
+    setIsProcessingPayment(true);
+
+    try {
+      // Get current URL as return URL
+      const returnUrl = window.location.href;
+      
+      // Prepare payment data
+      const paymentData = {
+        paymentMethod: selectedPaymentMethod.toUpperCase(),
+        paymentProvider: selectedPaymentMethod,
+        returnUrl
+      };
+
+      // Call the payment API
+      const response = await initiatePaymentMutation.mutateAsync({
+        invoiceId: id as string,
+        data: paymentData
+      });
+
+      // Handle successful response
+      const apiResponse = response as any;
+      
+      if (apiResponse && apiResponse.data && apiResponse.data.redirectUrl) {
+        notification.success({
+          message: 'Payment Initiated',
+          description: 'You will be redirected to the payment page.'
+        });
+
+        // Redirect to payment provider page
+        window.location.href = apiResponse.data.redirectUrl;
+      } else if (apiResponse && apiResponse.redirectUrl) {
+        // Handle case where redirectUrl is at the root level
+        notification.success({
+          message: 'Payment Initiated',
+          description: 'You will be redirected to the payment page.'
+        });
+
+        // Redirect to payment provider page
+        window.location.href = apiResponse.redirectUrl;
+      } else {
+        throw new Error('No redirect URL received from payment provider');
+      }
+    } catch (error) {
+      notification.error({
+        message: 'Payment Failed',
+        description: error instanceof Error ? error.message : 'There was an error initiating payment. Please try again later.'
+      });
+      setIsProcessingPayment(false);
+    }
   };
 
   // Get PDF URL after data is loaded
@@ -319,9 +379,10 @@ const InvoiceItem = () => {
                         onClick={handlePayment}
                         className="text-center flex justify-center items-center"
                         type="primary"
-                        disabled={isInvoiceLoading || !selectedPaymentMethod}
+                        disabled={isInvoiceLoading || !selectedPaymentMethod || isProcessingPayment}
+                        icon={isProcessingPayment ? <LoadingOutlined /> : null}
                       >
-                        Pay Now
+                        {isProcessingPayment ? 'Processing...' : 'Pay Now'}
                       </Button>
                     )}
                   </div>

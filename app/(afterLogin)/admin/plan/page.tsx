@@ -3,14 +3,18 @@
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Button, InputNumber, Select, Skeleton } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Button, InputNumber, Select, Skeleton, notification } from 'antd';
+import { ExclamationCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import Image from 'next/image';
-import { Plan, PeriodType, Subscription } from '@/types/tenant-management';
+import { Plan, PeriodType, Subscription, Invoice } from '@/types/tenant-management';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useGetPeriodTypes } from '@/store/server/features/tenant-management/period-types/queries';
-import { DEFAULT_TENANT_ID } from '@/utils/constants';
+import { DEFAULT_TENANT_ID, TENANT_BASE_URL } from '@/utils/constants';
+import { useCreateSubscription, useUpgradeSubscription } from '@/store/server/features/tenant-management/manage-subscriptions/mutation';
+import { useInitiatePayment } from '@/store/server/features/tenant-management/payments/queries';
+import dayjs from 'dayjs';
+
 
 const PlanPage = () => {
   const router = useRouter();
@@ -24,6 +28,11 @@ const PlanPage = () => {
   const [availablePeriods, setAvailablePeriods] = useState<PeriodType[]>([]);
   const [quotaError, setQuotaError] = useState<string | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'chapa' | 'stripe' | null>(null);
+  const [isCreatingSubscription, setIsCreatingSubscription] = useState(false);
+  const [updatedSubscription, setUpdatedSubscription] = useState<Subscription | null>(null);
+  const [currentInvoice, setCurrentInvoice] = useState<Invoice | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   // State for API data
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -33,7 +42,7 @@ const PlanPage = () => {
   const [currentPeriodType, setCurrentPeriodType] = useState<PeriodType | null>(null);
   
   // Fetch subscriptions
-  const { data: subscriptionsData, isLoading: isSubscriptionsLoading } = useGetSubscriptions(
+  const { data: subscriptionsData, isLoading: isSubscriptionsLoading, refetch: refetchSubscriptions } = useGetSubscriptions(
     { filter: { tenantId: [DEFAULT_TENANT_ID] } },
     true,
     true
@@ -53,6 +62,13 @@ const PlanPage = () => {
     true,
     true
   );
+
+  // Mutations for creating/updating subscriptions
+  const createSubscriptionMutation = useCreateSubscription();
+  const upgradeSubscriptionMutation = useUpgradeSubscription();
+
+  // Initialize payment mutation
+  const initiatePaymentMutation = useInitiatePayment();
 
   // Initial setup based on URL parameters
   useEffect(() => {
@@ -254,11 +270,11 @@ const PlanPage = () => {
     }
   };
 
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  // Format date
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return '';
+    return dayjs(dateString).format('MMMM D, YYYY');
+  };
 
   // Calculate total amount based on selected options - simplified version
   const calculateTotalAmount = () => {
@@ -277,18 +293,6 @@ const PlanPage = () => {
   const totalAmount = calculateTotalAmount();
   const isLoading = isSubscriptionsLoading || isPlansLoading || isPeriodTypesLoading;
 
-  // Функция для расчета даты окончания периода
-  const calculateEndDate = () => {
-    const startDate = new Date();
-    if (!selectedPeriodType) return startDate;
-    
-    const periodInMonths = selectedPeriodType.periodInMonths || 1;
-    const endDate = new Date(startDate);
-    endDate.setMonth(startDate.getMonth() + periodInMonths);
-    
-    return endDate;
-  };
-
   // Handle payment method selection
   const handlePaymentMethodSelect = (method: 'chapa' | 'stripe') => {
     if (selectedPaymentMethod === method) {
@@ -299,9 +303,65 @@ const PlanPage = () => {
   };
 
   // Handle payment
-  const handlePayment = () => {
-    console.log(`Selected payment method: ${selectedPaymentMethod}`);
-    // Additional payment logic would go here
+  const handlePayment = async () => {
+    if (!selectedPaymentMethod || !currentInvoice?.id) {
+      notification.error({
+        message: 'Payment Error',
+        description: 'Please select a payment method and ensure you have a valid invoice.',
+      });
+      return;
+    }
+
+    setIsProcessingPayment(true);
+
+    try {
+      // Get current URL as return URL
+      const returnUrl = window.location.href;
+      
+      // Prepare payment data
+      const paymentData = {
+        paymentMethod: selectedPaymentMethod.toUpperCase(),
+        paymentProvider: selectedPaymentMethod,
+        returnUrl
+      };
+
+      // Call the payment API
+      const response = await initiatePaymentMutation.mutateAsync({
+        invoiceId: currentInvoice.id as string,
+        data: paymentData
+      });
+
+      // Handle successful response
+      const apiResponse = response as any;
+      
+      if (apiResponse && apiResponse.data && apiResponse.data.redirectUrl) {
+        notification.success({
+          message: 'Payment Initiated',
+          description: 'You will be redirected to the payment page.'
+        });
+
+        // Redirect to payment provider page
+        window.location.href = apiResponse.data.redirectUrl;
+      } else if (apiResponse && apiResponse.redirectUrl) {
+        // Handle case where redirectUrl is at the root level
+        notification.success({
+          message: 'Payment Initiated',
+          description: 'You will be redirected to the payment page.'
+        });
+
+        // Redirect to payment provider page
+        window.location.href = apiResponse.redirectUrl;
+      } else {
+        throw new Error('No redirect URL received from payment provider');
+      }
+    } catch (error) {
+      console.error('Payment initiation error:', error);
+      notification.error({
+        message: 'Payment Failed',
+        description: 'There was an error initiating payment. Please try again later.'
+      });
+      setIsProcessingPayment(false);
+    }
   };
 
   // Check if this is an update of the same plan
@@ -312,6 +372,166 @@ const PlanPage = () => {
 
   // Check if period field should be disabled
   const isPeriodDisabled = Boolean(isSamePlanUpdate && updateSource === 'quota');
+
+  // After the subscription is created/updated, refetch the list to get the latest data
+  const handleRefetchSubscriptions = async () => {
+    // if (!updatedSubscriptionId) return;
+    
+    try {
+      // Refetch all subscriptions to get the latest data
+      const result = await refetchSubscriptions();
+      
+      if (result.data?.items && result.data.items.length > 0) {
+        // Find the subscription we just created/updated
+        const updatedSubscription = result.data?.items[0] as Subscription;
+
+        setUpdatedSubscription(updatedSubscription);
+        setCurrentInvoice(updatedSubscription.invoices[0]);
+      }
+    } catch (error) {
+      console.error('Error refetching subscriptions:', error);
+    }
+  };
+
+  const handleConfirmation = async () => {
+    if (!currentPlan || !selectedPeriodType || !updatedQuota) {
+      notification.error({
+        message: 'Missing data',
+        description: 'Required data for subscription is missing. Please try again.',
+      });
+      return;
+    }
+
+    setIsCreatingSubscription(true);
+
+    try {
+      const selectedPlanPeriod = currentPlan.periods?.find(
+        pp => pp.periodTypeId === selectedPeriodType.id
+      );
+
+      if (!selectedPlanPeriod) {
+        throw new Error('Selected period not found in plan');
+      }
+
+      // Common subscription data
+      const subscriptionData = {
+        planId: currentPlan.id,
+        planPeriodId: selectedPlanPeriod.id,
+        slots: updatedQuota,
+        tenantId: DEFAULT_TENANT_ID,
+      };
+
+      let response;
+
+      // Determine if it's a new subscription or upgrade
+      if (!activeSubscription) {
+        // Create new subscription
+        response = await createSubscriptionMutation.mutateAsync(subscriptionData);
+      } else {
+        // Upgrade existing subscription
+        const upgradeData = {
+          ...subscriptionData,
+          subscriptionId: activeSubscription.id,
+        };
+        response = await upgradeSubscriptionMutation.mutateAsync(upgradeData);
+      }
+      
+      // Save the subscription ID for fetching details
+      if (response && (response.id || response.data?.id)) {
+        // Refetch the subscriptions to get the invoice
+        await handleRefetchSubscriptions();
+      }
+
+      // Move to payment step
+      setCurrentStep(3);
+      
+      notification.success({
+        message: !activeSubscription ? 'Subscription Created' : 'Subscription Updated',
+        description: 'Please proceed to payment to complete the process.',
+      });
+    } catch (error) {
+      console.error('Error creating/upgrading subscription:', error);
+      notification.error({
+        message: 'Operation Failed',
+        description: 'Failed to process your subscription. Please try again later.',
+      });
+    } finally {
+      setIsCreatingSubscription(false);
+    }
+  };
+
+  // PDF download handler
+  const handleDownloadPdf = async () => {
+    // Check if we have an invoice ID
+    if (!currentInvoice?.id) {
+      notification.warning({
+        message: 'No Invoice Available',
+        description: 'Please complete the subscription process first to generate an invoice.'
+      });
+      return;
+    }
+
+    setIsDownloading(true);
+
+    try {
+      // Шаг 1: Получить ссылку на PDF
+      const invoiceDetailResponse = await fetch(`${TENANT_BASE_URL}/api/v1/subscription/rest/invoices/${currentInvoice.id}/detail?fileType=PDF`);
+      
+      if (!invoiceDetailResponse.ok) {
+        throw new Error(`Failed to fetch PDF details: ${invoiceDetailResponse.status} ${invoiceDetailResponse.statusText}`);
+      }
+      
+      const invoiceDetail = await invoiceDetailResponse.json();
+      const filePath = invoiceDetail.path || invoiceDetail.data?.path;
+      
+      if (!filePath) {
+        throw new Error('PDF path not found in response');
+      }
+      
+      const pdfFileUrl = `${TENANT_BASE_URL}/${filePath}`;
+      
+      // Шаг 2: Скачать PDF
+      const pdfResponse = await fetch(pdfFileUrl);
+      
+      if (!pdfResponse.ok) {
+        throw new Error(`Failed to download PDF: ${pdfResponse.status} ${pdfResponse.statusText}`);
+      }
+      
+      // Get the blob from the response
+      const blob = await pdfResponse.blob();
+      
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create a link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `invoice-${currentInvoice.id}.pdf`;
+      
+      // Append the link to the document
+      document.body.appendChild(link);
+      
+      // Click the link to download the file
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      notification.success({
+        message: 'Download Started',
+        description: 'Your invoice PDF is being downloaded.',
+      });
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      notification.error({
+        message: 'Download Failed',
+        description: 'Failed to download the invoice PDF. Please try again later.',
+      });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const renderStepContent = () => {
     const steps = [
@@ -551,10 +771,11 @@ const PlanPage = () => {
                 Cancel
               </Button>
               <Button
-                onClick={handleNextStep}
+                onClick={handleConfirmation}
                 className="text-center flex justify-center items-center"
                 type="primary"
-                disabled={isLoading}
+                loading={isCreatingSubscription}
+                disabled={isLoading || isCreatingSubscription}
               >
                 Confirm and Pay
               </Button>
@@ -584,17 +805,22 @@ const PlanPage = () => {
                     </span>
                     <button
                       className="text-blue-600 hover:text-blue-800"
-                      onClick={() => {}}
+                      onClick={handleDownloadPdf}
+                      disabled={isDownloading || !currentInvoice?.id}
                     >
-                      <Image
-                        src="/icons/file-download.svg"
-                        alt="Download"
-                        width={25}
-                        height={25}
-                        style={{
-                          minWidth: '25px',
-                        }}
-                      />
+                      {isDownloading ? (
+                        <LoadingOutlined style={{ fontSize: 25 }} spin />
+                      ) : (
+                        <Image
+                          src="/icons/file-download.svg"
+                          alt="Download"
+                          width={25}
+                          height={25}
+                          style={{
+                            minWidth: '25px',
+                          }}
+                        />
+                      )}
                     </button>
                   </div>
 
@@ -603,19 +829,18 @@ const PlanPage = () => {
                       Invoice Payment Information
                     </div>
                     <div className="flex flex-col gap-2">
-                      {/* TODO change Invoice Number to real invoice number */}
                       {[
-                        ['Invoice Number:', `INV-${new Date().getFullYear()}${new Date().getMonth() + 1}${new Date().getDate()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`],
-                        ['Issue Date:', currentDate],
+                        ['Invoice Number:', `#${currentInvoice?.invoiceNumber}`],
+                        ['Issue Date:', currentInvoice?.createdAt],
                         ['Payment Date:', ''],
                         [
                           'Billing Period:',
-                          `${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} - 
-                          ${calculateEndDate().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
+                          updatedSubscription?.startAt && updatedSubscription?.endAt ?
+                          `${formatDate(updatedSubscription?.startAt)} - ${formatDate(updatedSubscription?.endAt)}` : '-'
                         ],
-                        ['Number of Users:', updatedQuota || activeSubscription?.slotTotal || 0],
-                        ['Amount:', `${currentPlan?.currency?.symbol || '$'}${totalAmount}`],
-                        ['Credit note:', '-'],
+                        ['Number of Users:', updatedSubscription?.slotTotal || 0],
+                        ['Amount:', `${currentPlan?.currency?.symbol || '$'}${ currentInvoice?.totalAmount }`],
+                        ['Notes:', currentInvoice?.notes || '-'],
                       ].map(([label, value], index) => (
                         <div
                           key={index}
@@ -624,7 +849,7 @@ const PlanPage = () => {
                           <span className="text-md min-w-[90px] md:min-w-[150px]">
                             {label}
                           </span>
-                          <span className={`text-md ${index === 10 ? 'font-bold text-lg' : 'font-semibold'}`}>
+                          <span className={`text-md ${index === 5 ? 'font-bold text-lg' : 'font-semibold'}`}>
                             {value}
                           </span>
                         </div>
@@ -644,7 +869,7 @@ const PlanPage = () => {
                           className="flex items-center justify-center text-md font-bold border border-success rounded-lg px-2 gap-2"
                         >
                           <span className="flex min-w-[10px] w-[10px] h-[10px] bg-success rounded-full"></span>
-                          <span>{currentPlan?.name || 'N/A'}</span>
+                          <span>{updatedSubscription?.plan?.name || 'N/A'}</span>
                         </span>,
                       ],
                       [
@@ -653,7 +878,7 @@ const PlanPage = () => {
                           key="status"
                           className="text-md font-bold text-orange bg-orange/10 rounded-lg px-4 py-2"
                         >
-                          {activeSubscription?.invoices?.[0]?.status}
+                          {currentInvoice?.status || ''}
                         </span>,
                       ],
                       ['Paid By', '-'],
@@ -708,13 +933,18 @@ const PlanPage = () => {
                         </div>
                       </div>
                     </div>
+                    {!selectedPaymentMethod && (
+                      <div className="text-center text-gray-500 text-sm mt-4">
+                        Please select a payment method to continue
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             )}
             <div className="flex justify-center gap-4 mt-8">
               <Button
-                onClick={handlePreviousStep}
+                onClick={() => router.push('/admin/dashboard')}
                 className="text-center flex justify-center items-center"
                 type="default"
               >
@@ -724,9 +954,10 @@ const PlanPage = () => {
                 onClick={handlePayment}
                 className="text-center flex justify-center items-center"
                 type="primary"
-                disabled={isLoading || !selectedPaymentMethod}
+                disabled={isLoading || !selectedPaymentMethod || isProcessingPayment}
+                icon={isProcessingPayment ? <LoadingOutlined /> : null}
               >
-                Pay Now
+                {isProcessingPayment ? 'Processing...' : 'Pay Now'}
               </Button>
             </div>
           </div>

@@ -8,7 +8,7 @@ import {
   FileImageFilled,
   FileDoneOutlined,
 } from '@ant-design/icons';
-import { Card, Checkbox, Skeleton } from 'antd';
+import { Card, Checkbox, Skeleton, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import CustomButton from '@/components/common/buttons/customButton';
@@ -64,9 +64,13 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (invoicesData) {
       if (invoicesData?.items && invoicesData.items.length > 0) {
-        setInvoices(invoicesData.items);
+        
+        const sortedInvoices = [...invoicesData.items].sort((a, b) => {   
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+        });
+        setInvoices(sortedInvoices);
         // Set the latest invoice
-        setLastInvoice(invoicesData.items[0]);
+        setLastInvoice(sortedInvoices[0]);
       } else {
         // No invoices available
         setInvoices([]);
@@ -118,6 +122,17 @@ const AdminDashboard = () => {
     
     // Convert first letter to uppercase
     return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  };
+
+  // Check if the latest invoice is paid
+  const isLatestInvoicePaid = () => {
+    if (!lastInvoice) return true; // If no invoice, allow actions
+    return lastInvoice.status?.toLowerCase() === 'paid';
+  };
+
+  // Generate tooltip message for disabled buttons
+  const getDisabledTooltip = () => {
+    return "Please pay your current invoice before making changes to your subscription";
   };
 
   const dashboardData = [
@@ -317,18 +332,34 @@ const AdminDashboard = () => {
                 </div>
                 {plan.id === currentPlan?.id ? (
                   <div className="flex flex-wrap gap-4 mt-8 pl-0 md:pl-4">
-                    <CustomButton
-                      title="Update User Quota"
-                      onClick={() => router.push('/admin/plan?source=quota')}
-                      className="text-center flex justify-center items-center w-full md:w-auto"
-                      type="default"
-                    />
-                    <CustomButton
-                      title="Update Subscription Period"
-                      onClick={() => router.push('/admin/plan?source=period&step=1')}
-                      className="text-center flex justify-center items-center w-full md:w-auto"
-                      type="default"
-                    />
+                    <Tooltip 
+                      title={!isLatestInvoicePaid() ? getDisabledTooltip() : ""}
+                      placement="bottom"
+                    >
+                      <span className="w-full md:w-auto">
+                        <CustomButton
+                          title="Update User Quota"
+                          onClick={() => router.push('/admin/plan?source=quota')}
+                          className="text-center flex justify-center items-center w-full"
+                          type="default"
+                          disabled={!isLatestInvoicePaid()}
+                        />
+                      </span>
+                    </Tooltip>
+                    <Tooltip 
+                      title={!isLatestInvoicePaid() ? getDisabledTooltip() : ""}
+                      placement="bottom"
+                    >
+                      <span className="w-full md:w-auto">
+                        <CustomButton
+                          title="Update Subscription Period"
+                          onClick={() => router.push('/admin/plan?source=period&step=1')}
+                          className="text-center flex justify-center items-center w-full"
+                          type="default"
+                          disabled={!isLatestInvoicePaid()}
+                        />
+                      </span>
+                    </Tooltip>
                     <CustomButton
                       title="Pay Next Bill"
                       onClick={() => router.push(`/admin/invoice/${activeSubscription?.invoices[0]?.id}`)}
@@ -338,16 +369,24 @@ const AdminDashboard = () => {
                   </div>
                 ) : (
                   <div className="flex justify-center mt-8">
-                    <CustomButton
-                      title={
-                        hasSelectedPlan && plan.slotPrice < Number(currentPlan?.slotPrice)
-                          ? 'Downgrade Plan'
-                          : 'Upgrade Plan'
-                      }
-                      onClick={() => router.push('/admin/plan')}
-                      className="w-full text-center flex justify-center items-center"
-                      type="primary"
-                    />
+                    <Tooltip 
+                      title={!isLatestInvoicePaid() ? getDisabledTooltip() : ""}
+                      placement="bottom"
+                    >
+                      <span className="w-full">
+                        <CustomButton
+                          title={
+                            hasSelectedPlan && plan.slotPrice < Number(currentPlan?.slotPrice)
+                              ? 'Downgrade Plan'
+                              : 'Upgrade Plan'
+                          }
+                          onClick={() => router.push('/admin/plan')}
+                          className="w-full text-center flex justify-center items-center"
+                          type="primary"
+                          disabled={!isLatestInvoicePaid()}
+                        />
+                      </span>
+                    </Tooltip>
                   </div>
                 )}
               </div>
@@ -364,7 +403,7 @@ const AdminDashboard = () => {
 
       <InvoicesTable 
         data={invoices} 
-        loading={isLoading} 
+        loading={isLoading}
         plans={plans}
         currencies={currencies}
         subscriptions={subscriptions}
