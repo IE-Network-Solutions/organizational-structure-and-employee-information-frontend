@@ -194,7 +194,7 @@ const FiscalYearForm: React.FC = () => {
           )}
           <Button
             onClick={handleNext}
-            className="text-sm font-medium text-white bg-pr border-none-none"
+            className="text-sm font-medium text-white bg-primary border-none"
           >
             Next
           </Button>

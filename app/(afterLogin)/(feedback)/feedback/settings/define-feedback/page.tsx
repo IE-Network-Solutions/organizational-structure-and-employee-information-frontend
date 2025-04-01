@@ -27,13 +27,7 @@ const Page = () => {
   const [form] = Form.useForm();
 
   const {
-    selectedFeedback,
-    variantType,
-    activeTab,
     setActiveTab,
-    open,
-    setOpen,
-    setSelectedFeedback,
     editingItem,
     setEditingItem,
     pageSize,
@@ -62,11 +56,12 @@ const Page = () => {
       <p>Add New Perspective</p>
     </div>
   ) : null;
-  const onCloseHandler = () => {
-    form?.resetFields();
-    setOpen(false);
-    setSelectedFeedback(null);
-  };
+
+  // const onCloseHandler = () => {
+  //   form?.resetFields();
+  //   setOpen(false);
+  //   setSelectedFeedback(null);
+  // };
   const handleEdit = (item: any) => {
     setEditingItem(item);
     form.setFieldsValue({
@@ -92,21 +87,21 @@ const Page = () => {
     }
   }, [editingItem]);
 
-  const activeTabName =
-    getAllFeedbackTypes?.items?.find(
-      (item: FeedbackTypeItems) => item.id === activeTab,
-    )?.category || '';
+  // const activeTabName =
+  //   getAllFeedbackTypes?.items?.find(
+  //     (item: FeedbackTypeItems) => item.id === activeTab,
+  //   )?.category || '';
 
-  const modalHeader = (
-    <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-      <p>
-        {selectedFeedback === null
-          ? `Add New ${activeTabName}`
-          : `Edit New ${activeTabName}`}
-      </p>
-      <p>{variantType} type</p>
-    </div>
-  );
+  // const modalHeader = (
+  //   <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
+  //     <p>
+  //       {selectedFeedback === null
+  //         ? `Add New ${activeTabName}`
+  //         : `Edit New ${activeTabName}`}
+  //     </p>
+  //     <p>{variantType} type</p>
+  //   </div>
+  // );
   const paginatedData = perspectiveData?.slice(
     (page - 1) * pageSize,
     page * pageSize,
@@ -257,18 +252,39 @@ const Page = () => {
         </div>
       </div>
 
-      <CustomDrawerLayout
+      {/* <CustomDrawerLayout
         open={open || selectedFeedback?.id}
         onClose={onCloseHandler}
         modalHeader={modalHeader}
         width="30%"
-      >
-        <CreateFeedback form={form} />
-      </CustomDrawerLayout>
+      > */}
+      <CreateFeedback form={form} />
+      {/* </CustomDrawerLayout> */}
       <CustomDrawerLayout
         open={addPerspectiveModal || editingItem?.id}
         onClose={() => handleCancel()}
         modalHeader={editingItem ? 'Edit Perspective' : perspectiveModalHeader}
+        footer={
+          <Form.Item>
+            <div className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5">
+              <Button
+                onClick={() => {
+                  form.resetFields();
+                  handleCancel();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => form.submit()}
+                loading={!editingItem ? createLoading : updateLoading}
+              >
+                {editingItem ? 'Update' : 'Create'}
+              </Button>
+            </div>
+          </Form.Item>
+        }
         width="30%"
       >
         <Form
@@ -314,27 +330,6 @@ const Page = () => {
                 </Select.Option>
               ))}
             </Select>
-          </Form.Item>
-
-          <Form.Item className="flex justify-center mx-10">
-            <div className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-56">
-              <Button
-                onClick={() => {
-                  form.resetFields();
-                  handleCancel();
-                }}
-                danger
-              >
-                Cancel
-              </Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={!editingItem ? createLoading : updateLoading}
-              >
-                {editingItem ? 'Update' : 'Create'}
-              </Button>
-            </div>
           </Form.Item>
         </Form>
       </CustomDrawerLayout>
