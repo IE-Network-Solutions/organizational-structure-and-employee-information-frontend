@@ -9,9 +9,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { useGetInvoiceDetail } from '@/store/server/features/tenant-management/invoices/queries';
 import { TENANT_BASE_URL } from '@/utils/constants';
 import dayjs from 'dayjs';
-import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
-import { DEFAULT_TENANT_ID } from '@/utils/constants';
-import { Subscription } from '@/types/tenant-management';
+import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 
 const InvoiceItem = () => {
   const router = useRouter();
@@ -19,9 +17,19 @@ const InvoiceItem = () => {
   
   const [isDownloading, setIsDownloading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [invoiceData, setInvoiceData] = useState<Invoice | null>(null);
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'chapa' | 'stripe' | null>(null);
   
+  // Get plans data
+  const { data: plansData} = useGetPlans(
+    { filter: {} },
+    true,
+    true,
+    'ASC'
+  );
+
   // Get invoice data
   const { data: invoiceResponse, isLoading: isInvoiceLoading } = useGetInvoiceDetail(
     id as string,
@@ -34,19 +42,27 @@ const InvoiceItem = () => {
     'PDF'
   );
 
-  const { data: currentPlanData, isLoading: isCurrentPlanLoading } = useGetSubscriptionByTenant(DEFAULT_TENANT_ID);
-
   useEffect(() => {
-    if (currentPlanData) {
-      const subscription = (currentPlanData as any).data as Subscription;
-      setCurrentPlan(subscription?.plan as Plan);
+    if (plansData) {
+      setPlans(plansData.items);
     }
-  }, [currentPlanData]);
+  }, [plansData]);
   
-  // Extract invoice data from API response with type casting
-  const invoiceData = invoiceResponse ? (invoiceResponse as any).item as Invoice : null;
+  useEffect(() => {
+    if (invoiceResponse) {
+      // Correctly access invoice data from API response
+      const invoiceData = (invoiceResponse as any).item as Invoice;
+      setInvoiceData(invoiceData);
+      
+      // Find and set current plan
+      if (invoiceData?.subscription?.planId) {
+        const plan = plans.find(plan => plan.id === invoiceData.subscription.planId);
+        setCurrentPlan(plan as Plan);
+      }
+    }
+  }, [invoiceResponse, plans]);
 
-   // Handle payment method selection
+  // Handle payment method selection
   const handlePaymentMethodSelect = (method: 'chapa' | 'stripe') => {
     if (selectedPaymentMethod === method) {
       setSelectedPaymentMethod(null);
@@ -181,12 +197,10 @@ const InvoiceItem = () => {
                   {[
                     ['Invoice Number:', `#${invoiceData?.invoiceNumber || ''}`],
                     ['Issue Date:', formatDate(invoiceData?.invoiceAt)],
-                    ['Due Date:', formatDate(invoiceData?.dueAt)],
-                    ['Invoice Type:', invoiceData?.invoiceType || ''],
+                    ['Payment Date:', formatDate(invoiceData?.dueAt)],
+                    ['Billing Period:', invoiceData?.subscription?.startAt && invoiceData?.subscription?.endAt ? `${formatDate(invoiceData?.subscription?.startAt)} - ${formatDate(invoiceData?.subscription?.endAt)}` : '-'],
                     ['Number of users:', invoiceData?.subscription?.slotTotal || '-'],
-                    ['Amount', `$${invoiceData?.totalAmount || 0}`],
-                    ['Tax Amount', `$${invoiceData?.taxAmount || 0}`],
-                    ['Discount', `$${invoiceData?.discountAmount || 0}`],
+                    ['Amount', `${invoiceData?.totalAmount}`]
                   ].map(([label, value], index) => (
                     <div
                       key={index}
@@ -201,7 +215,7 @@ const InvoiceItem = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col justify-between w-full gap-2 border-b border-gray-200 mt-6 mb-2 pb-6 px-8">
+              <div className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
                 {[
                   [
                     'Plan Type',
@@ -210,7 +224,7 @@ const InvoiceItem = () => {
                       className="flex items-center justify-center text-md font-bold border border-success rounded-lg px-2 gap-2"
                     >
                       <span className="flex min-w-[10px] w-[10px] h-[10px] bg-success rounded-full"></span>
-                      <span>{!isCurrentPlanLoading && currentPlan?.name || 'N/A'}</span>
+                      <span>{currentPlan?.name || 'N/A'}</span>
                     </span>,
                   ],
                   [
@@ -219,10 +233,21 @@ const InvoiceItem = () => {
                       key="status"
                       className={`text-md font-bold rounded-lg px-4 py-2 ${getStatusClass(invoiceData?.status)}`}
                     >
-                      {invoiceData?.status || 'Pending'}
+                      {invoiceData?.status}
                     </span>,
                   ],
-                  ['Notes', invoiceData?.notes || '-'],
+                  [
+                    'Amount',
+                    <span key="amount" className="text-md font-bold">
+                      {invoiceData?.totalAmount}
+                    </span>,
+                  ],
+                  [
+                    'Notes',
+                    <span key="notes" className="text-md">
+                      {invoiceData?.notes || '-'}
+                    </span>,
+                  ],
                 ].map(([label, value], index) => (
                   <div
                     key={index}
