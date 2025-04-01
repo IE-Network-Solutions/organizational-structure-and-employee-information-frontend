@@ -1,6 +1,7 @@
 'use client';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGrantObjectiveEditAccess } from '@/store/server/features/okrplanning/okr/editAccess/mutation';
+import { useGetAllObjective } from '@/store/server/features/okrplanning/okr/editAccess/queries';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import useObjectiveEditAccessStore from '@/store/uistate/features/okrplanning/okrSetting/editAccess';
 import { EditAccessTableProps } from '@/store/uistate/features/okrplanning/okrSetting/editAccess';
@@ -38,12 +39,30 @@ const EditAccessTable: React.FC = () => {
   const { data: allUser, isLoading: responseLoading } = useGetAllUsersData();
   const { mutate: grantEditAccess } = useGrantObjectiveEditAccess();
 
+  const { data: allUserObjective } = useGetAllObjective();
+
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     if (pageSize) {
       setPageSize(pageSize);
     }
   };
+  // =============> This area <============
+  React.useEffect(() => {
+    if (allUser?.items && allUserObjective?.items) {
+      const newSwitchStates = allUser?.items?.reduce(
+        (acc: Record<string, boolean>, user: any) => {
+          const userObjective = allUserObjective?.items?.find(
+            (obj: any) => obj?.userId === user?.id,
+          );
+          acc[user?.id] = userObjective ? !userObjective?.isClosed : false;
+          return acc;
+        },
+        {},
+      );
+      setSwitchStates(newSwitchStates);
+    }
+  }, [allUser, allUserObjective]);
 
   const activeSessionId =
     activeFiscalYear?.sessions?.find((item: any) => item?.active)?.id || '';
@@ -106,10 +125,10 @@ const EditAccessTable: React.FC = () => {
   });
 
   const filteredDataSource = searchParams?.employee_name
-    ? data.filter(
-        (employee: any) =>
-          employee?.name?.toLowerCase() ===
-          (searchParams?.employee_name as string)?.toLowerCase(),
+    ? data.filter((employee: any) =>
+        employee?.name
+          ?.toLowerCase()
+          .includes((searchParams?.employee_name as string)?.toLowerCase()),
       )
     : data;
 

@@ -88,8 +88,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   }
 
   const createJobDrawerHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      New Candidate
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
+      Add New Candidate
     </div>
   );
 
@@ -117,9 +117,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
     };
     formData.append('newFormData', JSON.stringify(formattedValues));
 
-    createCandidate(formData);
-    setCreateJobDrawer(false);
-    form.resetFields();
+    createCandidate(formData, {
+      onSuccess: () => {
+        setCreateJobDrawer(false);
+        form.resetFields();
+      },
+    });
   };
 
   return (
@@ -145,10 +148,17 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               Full-Name
             </span>
           }
-          rules={[{ required: true, message: 'Please input full name!' }]}
+          rules={[
+            { required: true, message: 'Please input full name!' },
+            {
+              pattern: /^[a-zA-Z\s]+$/,
+              message: 'Only letters and spaces are allowed!',
+            },
+          ]}
         >
           <Input placeholder="Full Name" className="w-full h-10 text-sm" />
         </Form.Item>
+
         <Row gutter={16}>
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Form.Item
@@ -160,9 +170,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                 </span>
               }
               rules={[
+                { required: true, message: 'Please input the email address!' },
                 {
-                  required: true,
-                  message: 'Please input the email address!',
+                  type: 'email',
+                  message: 'Please enter a valid email address!',
                 },
               ]}
             >
@@ -173,6 +184,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               />
             </Form.Item>
           </Col>
+
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
             <Form.Item
               id="phoneNumberId"
@@ -184,6 +196,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               }
               rules={[
                 { required: true, message: 'Please input the phone number!' },
+                {
+                  pattern: /^\+?[1-9]\d{1,14}$/,
+                  message: 'Please enter a valid phone number!',
+                },
               ]}
             >
               <Input
@@ -265,6 +281,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             placeholder="Please enter your cover letter here"
           />
         </Form.Item>
+
         <Form.Item
           id="documentNameId"
           name="resumeUrl"
@@ -273,9 +290,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               Upload CV
             </span>
           }
-          rules={[
-            { required: true, message: 'Please choose the document type' },
-          ]}
+          rules={[{ required: true, message: 'Please upload your CV' }]}
         >
           <Dragger
             name="documentName"
@@ -284,7 +299,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             onRemove={handleDocumentRemove}
             customRequest={customRequest}
             listType="picture"
-            accept="application/pdf"
+            accept=".pdf,.doc,.docx"
           >
             <p>
               <Image
@@ -302,8 +317,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             </div>
           </Dragger>
         </Form.Item>
-        <div className="text-sm font-md mb-5 ">
-          Max file size : 5MB. File format : .pdf
+        <div className="text-sm font-md mb-5">
+          Max file size: 5MB. File formats: .pdf, .doc, .docx
         </div>
 
         <Form.Item>

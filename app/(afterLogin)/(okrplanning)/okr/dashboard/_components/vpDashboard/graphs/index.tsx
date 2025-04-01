@@ -1,12 +1,11 @@
 import { Col, Row } from 'antd';
 import React from 'react';
 import ActualVsTargetChart from './actualVsTarget';
-import CriteriaContributionChart from './criteriaContribution';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import CriteriaFilter from './criteriaFilter';
 import { useVariablePayStore } from '@/store/uistate/features/okrplanning/VP';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetCriteriaByFilter } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+import CriteriaContributionChart from './criteriaContribution';
 
 interface VPGraphProps {
   id?: string;
@@ -34,12 +33,11 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
 
   return (
     <div className="w-full mt-12">
-      <CriteriaFilter />
-      <Row gutter={[16, 16]} className="mt-4">
+      <Row gutter={[16, 16]} className="mt-4" justify="space-between">
         <Col xs={24} sm={24} md={12} lg={12} xl={12}>
           <ActualVsTargetChart variablePay={variablePay} />
         </Col>
-        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+        <Col xs={24} sm={24} md={10} lg={10} xl={10}>
           <CriteriaContributionChart variablePay={variablePay} />
         </Col>
       </Row>

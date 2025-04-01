@@ -22,6 +22,8 @@ import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/acti
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { FeedbackService } from './_components/feedbackAnalytics';
 import { FeedbackCard, FeedbackCardSkeleton } from './_components/feedbackCard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 
 const Page = () => {
   const {
@@ -118,7 +120,11 @@ const Page = () => {
   const items: TabsProps['items'] = [
     {
       key: 'all',
-      label: 'All Employees',
+      label: (
+        <AccessGuard permissions={[Permissions.ViewAllEmployeeFeedback]}>
+          All Employees
+        </AccessGuard>
+      ),
     },
     {
       key: 'personal',
@@ -394,6 +400,7 @@ const Page = () => {
           onChange={onChangeFeedbackType}
         />
       </Spin>
+
       <Tabs
         defaultActiveKey="appreciation"
         items={variantTypeItems}
@@ -412,6 +419,7 @@ const Page = () => {
             <div className="capitalize">{`Given up on  ${variantType}`}</div>
           }
           allowSearch={false}
+          permissionsData={[Permissions.CreateFeedback]}
         >
           <EmployeeSearchComponent fields={searchField} />
           <Table

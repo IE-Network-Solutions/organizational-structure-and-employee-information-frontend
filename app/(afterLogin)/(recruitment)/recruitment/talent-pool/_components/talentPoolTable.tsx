@@ -20,6 +20,7 @@ const TalentPoolTable: React.FC<any> = () => {
     searchParams?.department ?? '',
     searchParams?.job ?? '',
     searchParams?.stages ?? '',
+    searchParams?.talentPoolCategory ?? '',
     page,
     currentPage,
   );
@@ -79,21 +80,22 @@ const TalentPoolTable: React.FC<any> = () => {
       dataIndex: ['jobCandidateInformation', 'resumeUrl'],
       key: 'cv',
       render: (text: string) => {
-        const displayText = text ? text : '-';
-        const maxLength = 20;
+        // const displayText = text ? text : '-';
+        // const maxLength = 20;
 
-        const truncatedText =
-          displayText.length > maxLength
-            ? `${displayText.substring(0, maxLength)}...`
-            : displayText;
+        // const truncatedText =
+        //   displayText.length > maxLength
+        //     ? `${displayText.substring(0, maxLength)}...`
+        //     : displayText;
 
         return (
           <a
             className="flex justify-start gap-7 items-center"
             href={text ? text : '#'}
-            download
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <div className="text-wrap">{truncatedText}</div>
+            {/* <div className="text-wrap">{truncatedText}</div> */}
             <TbFileDownload size={20} />
           </a>
         );
@@ -108,7 +110,7 @@ const TalentPoolTable: React.FC<any> = () => {
       ),
     },
     {
-      title: 'Actions',
+      title: 'Action',
       key: 'actions',
       render: (_: any, record: any) => (
         <AccessGuard permissions={[Permissions.TransferCandidate]}>

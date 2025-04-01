@@ -116,6 +116,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
       footer={footer}
+      width="30%"
     >
       <Form
         form={form}

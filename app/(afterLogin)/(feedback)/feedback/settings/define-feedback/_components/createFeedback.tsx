@@ -10,9 +10,10 @@ import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/quer
 
 interface DataProps {
   form: any;
+  activeTabName?: string;
 }
 
-const CreateFeedback: React.FC<DataProps> = ({ form }) => {
+const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
   const {
     variantType,
     activeTab,
@@ -69,12 +70,12 @@ const CreateFeedback: React.FC<DataProps> = ({ form }) => {
   return (
     <div className="mt-5 flex justify-center">
       <Card
-        title={
-          selectedFeedback?.id
-            ? `Edit ${variantType} type`
-            : `Create ${variantType} type`
-        }
-        bordered={true}
+        className="border-none"
+        // title={
+        //   selectedFeedback?.id
+        //     ? `Edit ${variantType} type`
+        //     : `Create ${variantType} type`
+        // }
         style={{ width: 500 }}
       >
         <Form
@@ -119,7 +120,16 @@ const CreateFeedback: React.FC<DataProps> = ({ form }) => {
               placeholder="Enter description"
             />
           </Form.Item>
-          <Form.Item name="perspectiveId" label="Select Perspective">
+          <Form.Item
+            name="perspectiveId"
+            label="Select Perspective"
+            rules={[
+              {
+                required: activeTabName === 'KPI',
+                message: 'Please select a perspective!',
+              },
+            ]}
+          >
             <Select
               loading={getPerspectiveLoading}
               placeholder="Select a perspective"
@@ -155,25 +165,27 @@ const CreateFeedback: React.FC<DataProps> = ({ form }) => {
 
           {/* Submit Button */}
           <Form.Item>
-            {selectedFeedback?.id ? (
-              <Button
-                type="primary"
-                loading={feedbackUpdateLoading}
-                htmlType="submit"
-                block
-              >
-                Update
-              </Button>
-            ) : (
-              <Button
-                loading={createFeedbackLoading}
-                type="primary"
-                htmlType="submit"
-                block
-              >
-                Submit
-              </Button>
-            )}
+            <div className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-[115px] ">
+              <Button onClick={() => setOpen(false)}>Cancel</Button>
+
+              {selectedFeedback?.id ? (
+                <Button
+                  type="primary"
+                  loading={feedbackUpdateLoading}
+                  htmlType="submit"
+                >
+                  Update
+                </Button>
+              ) : (
+                <Button
+                  loading={createFeedbackLoading}
+                  type="primary"
+                  htmlType="submit"
+                >
+                  Submit
+                </Button>
+              )}
+            </div>
           </Form.Item>
         </Form>
       </Card>

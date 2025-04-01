@@ -16,6 +16,7 @@ export interface GroupPermissionItem {
   deletedAt: string | null;
   description: string;
   name: string;
+  isBasic: boolean;
   permissions: any[]; // Adjust this type if you have a specific structure for permissions
   tenantId: string;
 }

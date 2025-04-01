@@ -1,6 +1,3 @@
-import { Form } from 'antd';
-import { FC } from 'react';
-import WorkSchedule from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/workSchedule';
 import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { DayOfWeek } from '@/store/server/features/organizationStructure/workSchedule/interface';
@@ -9,8 +6,21 @@ import { useCreateSchedule } from '@/store/server/features/organizationStructure
 import { ScheduleDetail } from '@/store/uistate/features/organizationStructure/workSchedule/interface';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import { showValidationErrors } from '@/utils/showValidationErrors';
+import { useEffect } from 'react';
+import { Form, Input, TimePicker, Switch, Table } from 'antd';
+import dayjs from 'dayjs';
+import { ColumnsType } from 'antd/es/table';
 
-const CustomWorkingScheduleDrawer: FC = () => {
+// interface WorkScheduleFormProps {
+//   form: FormInstance;
+//   scheduleName: string;
+//   detail: ScheduleDetail[];
+//   setScheduleName: (name: string) => void;
+//   setDetail: (day: string, updatedData: Partial<ScheduleDetail>) => void;
+//   setStandardHours: (hours: number) => void;
+// }
+
+const CustomWorkingScheduleDrawer = () => {
   const {
     clearState,
     createWorkSchedule,
@@ -20,10 +30,17 @@ const CustomWorkingScheduleDrawer: FC = () => {
     isOpen,
     closeDrawer,
     isEditMode,
+    setDetail,
+    setScheduleName,
+    setStandardHours,
   } = useScheduleStore();
   const { mutate: updateSchedule } = useUpdateSchedule();
   const { mutate: createSchedule } = useCreateSchedule();
   const [form] = Form.useForm();
+  const { detail } = useScheduleStore((state) => ({
+    scheduleName: state.scheduleName,
+    detail: state.detail,
+  }));
 
   const handleCancel = () => {
     clearState();
@@ -76,6 +93,129 @@ const CustomWorkingScheduleDrawer: FC = () => {
     }
   };
 
+  useEffect(() => {
+    const fieldValues: Record<string, any> = {
+      scheduleName,
+      ...detail.reduce(
+        (acc, item) => {
+          acc[`${item.dayOfWeek}-working`] = item.status;
+          acc[`${item.dayOfWeek}-start`] = item.startTime
+            ? dayjs(item.startTime, 'h:mm A')
+            : null;
+          acc[`${item.dayOfWeek}-end`] = item.endTime
+            ? dayjs(item.endTime, 'h:mm A')
+            : null;
+          return acc;
+        },
+        {} as Record<string, any>,
+      ),
+    };
+    form.setFieldsValue(fieldValues);
+  }, [form, scheduleName, detail]);
+
+  const handleValuesChange = (s: any, allValues: any) => {
+    let totalHours = 0;
+    detail.forEach((item) => {
+      const start = allValues[`${item.dayOfWeek}-start`];
+      const end = allValues[`${item.dayOfWeek}-end`];
+      if (start && end && item.status) {
+        const duration = dayjs(end).diff(dayjs(start), 'hour', true);
+        totalHours += duration;
+      }
+    });
+    setStandardHours(totalHours);
+  };
+
+  const columns: ColumnsType<ScheduleDetail> = [
+    {
+      title: 'Working Day',
+      dataIndex: 'dayOfWeek',
+      key: 'dayOfWeek',
+      render: (s, record) => (
+        <Form.Item
+          name={`${record.dayOfWeek}-working`}
+          valuePropName="checked"
+          noStyle
+        >
+          <div className="flex gap-2 md:gap-4 justify-start items-center">
+            <Switch
+              checked={record.status}
+              onChange={(checked) =>
+                setDetail(record.dayOfWeek, { status: checked })
+              }
+            />
+            <p>{record.dayOfWeek}</p>
+          </div>
+        </Form.Item>
+      ),
+    },
+    {
+      title: 'Starting Time',
+      dataIndex: 'startTime',
+      key: 'startTime',
+      render: (s, record) => (
+        <Form.Item name={`${record.dayOfWeek}-start`} noStyle>
+          <TimePicker
+            format="h:mm A"
+            disabled={!record.status}
+            use12Hours
+            className="min-w-[100px]"
+            onChange={(time) =>
+              setDetail(record.dayOfWeek, {
+                startTime: time ? dayjs(time).format('h:mm A') : '',
+              })
+            }
+          />
+        </Form.Item>
+      ),
+    },
+    {
+      title: 'End Time',
+      dataIndex: 'endTime',
+      key: 'endTime',
+      render: (s, record) => (
+        <Form.Item name={`${record.dayOfWeek}-end`} noStyle>
+          <TimePicker
+            format="h:mm A"
+            disabled={!record.status}
+            use12Hours
+            className="min-w-[100px]"
+            onChange={(time) =>
+              setDetail(record.dayOfWeek, {
+                endTime: time ? dayjs(time).format('h:mm A') : '',
+              })
+            }
+          />
+        </Form.Item>
+      ),
+    },
+    {
+      title: 'Duration',
+      dataIndex: 'hours',
+      key: 'hours',
+      render: (s, record) => (
+        <Form.Item shouldUpdate noStyle>
+          {({ getFieldValue }) => {
+            const start = getFieldValue(`${record.dayOfWeek}-start`);
+            const end = getFieldValue(`${record.dayOfWeek}-end`);
+            const duration =
+              start && end ? dayjs(end).diff(dayjs(start), 'hour', true) : 0;
+            return (
+              <span>
+                {record.status
+                  ? duration
+                    ? duration.toFixed(1)
+                    : record.hours.toFixed(1)
+                  : ''}
+                h
+              </span>
+            );
+          }}
+        </Form.Item>
+      ),
+    },
+  ];
+
   return (
     <CustomDrawerLayout
       modalHeader={
@@ -83,7 +223,7 @@ const CustomWorkingScheduleDrawer: FC = () => {
       }
       onClose={handleCancel}
       open={isOpen}
-      width="50%"
+      width="40%"
       footer={
         <div className="flex justify-between items-center w-full">
           <div className="flex justify items-center gap-2">
@@ -104,7 +244,31 @@ const CustomWorkingScheduleDrawer: FC = () => {
         </div>
       }
     >
-      <WorkSchedule form={form} />
+      <Form
+        form={form}
+        layout="vertical"
+        onValuesChange={handleValuesChange}
+        className="w-full"
+      >
+        <Form.Item
+          name="scheduleName"
+          label="Schedule Name"
+          rules={[{ required: true, message: 'Please input schedule name!' }]}
+        >
+          <Input
+            size="large"
+            placeholder="Enter your schedule name"
+            value={scheduleName}
+            onChange={(e) => setScheduleName(e.target.value)}
+          />
+        </Form.Item>
+        <Table
+          columns={columns}
+          dataSource={detail}
+          pagination={false}
+          scroll={{ x: '100%' }}
+        />
+      </Form>
     </CustomDrawerLayout>
   );
 };
