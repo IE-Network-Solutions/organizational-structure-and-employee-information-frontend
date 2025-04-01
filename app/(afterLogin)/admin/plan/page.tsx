@@ -231,6 +231,21 @@ const PlanPage = () => {
     return true;
   };
   
+  // Check if period has been changed and is valid
+  const isPeriodChanged = () => {
+    // If no period selected, it's not valid
+    if (!updatedPeriod) return false;
+    
+    // Get current period from active subscription
+    const currentPeriodCode = currentPeriodType?.code;
+    
+    // If same as current period, it's not changed
+    if (updatedPeriod === currentPeriodCode) return false;
+    
+    // Otherwise it's valid and changed
+    return true;
+  };
+  
   const handlePeriodChange = (value: string) => {
     setUpdatedPeriod(value);
     const period = periodTypes.find(p => p.code === value);
@@ -245,49 +260,18 @@ const PlanPage = () => {
     year: 'numeric',
   });
 
-  // Calculate total amount based on selected options
+  // Calculate total amount based on selected options - simplified version
   const calculateTotalAmount = () => {
-    if (!currentPlan || !updatedQuota) return 0;
-    
-    let effectiveSlotPrice;
-    let periodMultiplier = 1;
+    if (!currentPlan || !updatedQuota || !selectedPeriodType) return 0;
     
     // Get current plan period
-    const planPeriod = currentPlan.periods?.find(pp => pp.periodTypeId === selectedPeriodType?.id);
+    const planPeriod = currentPlan.periods?.find(pp => pp.periodTypeId === selectedPeriodType.id);
     
-    // Get period multiplier from selected period type
-    if (selectedPeriodType) {
-      periodMultiplier = selectedPeriodType.periodInMonths || 1;
-    }
+    // Get slot price (either period-specific or from the plan)
+    const slotPrice = planPeriod?.periodSlotPrice || currentPlan.slotPrice;
     
-    // Determine effective slot price according to subscription-management-scenarios.md
-    if (planPeriod?.periodSlotPrice !== null && planPeriod?.periodSlotPrice !== undefined) {
-      // Use period-specific price if defined
-      if (planPeriod.periodSlotDiscountPrice !== null && planPeriod.periodSlotDiscountPrice !== undefined) {
-        effectiveSlotPrice = planPeriod.periodSlotDiscountPrice;
-      } else if (planPeriod.discountPercentage !== null && planPeriod.discountPercentage !== undefined) {
-        effectiveSlotPrice = planPeriod.periodSlotPrice * (1 - planPeriod.discountPercentage / 100);
-      } else {
-        effectiveSlotPrice = planPeriod.periodSlotPrice;
-      }
-    } else {
-      // Fall back to plan-level pricing
-      if (currentPlan.slotDiscountPrice !== null && currentPlan.slotDiscountPrice !== undefined) {
-        effectiveSlotPrice = currentPlan.slotDiscountPrice;
-      } else {
-        effectiveSlotPrice = currentPlan.slotPrice;
-      }
-      
-      // Apply period discount if defined
-      if (planPeriod?.discountPercentage !== null && planPeriod?.discountPercentage !== undefined) {
-        effectiveSlotPrice = effectiveSlotPrice * (1 - planPeriod.discountPercentage / 100);
-      }
-    }
-    
-    // Calculate total price
-    const totalPrice = effectiveSlotPrice * updatedQuota * periodMultiplier;
-    
-    return totalPrice;
+    // Simple calculation: quota * price
+    return updatedQuota * slotPrice;
   };
 
   const totalAmount = calculateTotalAmount();
@@ -303,43 +287,6 @@ const PlanPage = () => {
     endDate.setMonth(startDate.getMonth() + periodInMonths);
     
     return endDate;
-  };
-
-  // Helper function to extract the effective slot price for debugging
-  const calculateEffectiveSlotPrice = () => {
-    if (!currentPlan) return 0;
-    
-    // Get current plan period
-    const planPeriod = currentPlan.periods?.find(pp => pp.periodTypeId === selectedPeriodType?.id);
-    
-    // Determine effective slot price using the same logic as in calculateTotalAmount
-    if (planPeriod?.periodSlotPrice !== null && planPeriod?.periodSlotPrice !== undefined) {
-      // Use period-specific price if defined
-      if (planPeriod.periodSlotDiscountPrice !== null && planPeriod.periodSlotDiscountPrice !== undefined) {
-        return planPeriod.periodSlotDiscountPrice;
-      } else if (planPeriod.discountPercentage !== null && planPeriod.discountPercentage !== undefined) {
-        return planPeriod.periodSlotPrice * (1 - planPeriod.discountPercentage / 100);
-      } else {
-        return planPeriod.periodSlotPrice;
-      }
-    } else {
-      // Fall back to plan-level pricing
-      if (currentPlan.slotDiscountPrice !== null && currentPlan.slotDiscountPrice !== undefined) {
-        let price = currentPlan.slotDiscountPrice;
-        // Apply period discount if defined
-        if (planPeriod?.discountPercentage !== null && planPeriod?.discountPercentage !== undefined) {
-          price = price * (1 - planPeriod.discountPercentage / 100);
-        }
-        return price;
-      } else {
-        let price = currentPlan.slotPrice;
-        // Apply period discount if defined
-        if (planPeriod?.discountPercentage !== null && planPeriod?.discountPercentage !== undefined) {
-          price = price * (1 - planPeriod.discountPercentage / 100);
-        }
-        return price;
-      }
-    }
   };
 
   // Handle payment method selection
@@ -433,7 +380,6 @@ const PlanPage = () => {
                     <span className="font-bold">Update Number of user quota</span>
                     <InputNumber
                       min={0}
-                      max={1000}
                       value={updatedQuota}
                       className="w-full max-w-[300px] py-2"
                       onChange={handleQuotaChange}
@@ -528,6 +474,11 @@ const PlanPage = () => {
                         You can only update the user quota at this time. To change the subscription period, please use the "Update Subscription Period" button.
                       </div>
                     )}
+                    {!isPeriodDisabled && !isPeriodChanged() && (
+                      <div className="text-gray-500 text-sm">
+                        Please change the period value to continue
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -544,7 +495,7 @@ const PlanPage = () => {
                 onClick={handleNextStep}
                 className="text-center flex justify-center items-center"
                 type="primary"
-                disabled={isLoading || (isPeriodDisabled && !updatedPeriod)}
+                disabled={isLoading || (!isPeriodDisabled && !isPeriodChanged())}
               >
                 Continue
               </Button>
@@ -576,73 +527,18 @@ const PlanPage = () => {
                     <span>Number of User Quota</span>
                     <span>{updatedQuota || activeSubscription?.slotTotal || 0}</span>
                   </div>
-                  <div className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
+                  <div className="flex items-center justify-between gap-2 mb-4 text-lg font-bold">
                     <span>Total Amount</span>
-                    <span>{currentPlan?.currency?.symbol || '$'}{totalAmount}</span>
+                    <span>{currentPlan?.currency?.symbol || '$'}{totalAmount.toFixed(2)}</span>
                   </div>
-                  {process.env.NODE_ENV === 'development' && (
-                    <div className="flex flex-col gap-1 mb-3 text-sm text-gray-500 border-t pt-2 border-dashed border-gray-300">
-                      <div className="flex justify-between">
-                        <span>Debug: Current Plan</span>
-                        <span>{currentPlan ? currentPlan.name : 'No plan'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Debug: Plan ID</span>
-                        <span>{currentPlan ? currentPlan.id.slice(0, 8) + '...' : 'None'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Debug: Period</span>
-                        <span>{selectedPeriodType ? selectedPeriodType.code : 'No period selected'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Debug: Months in Period</span>
-                        <span>{selectedPeriodType ? selectedPeriodType.periodInMonths : 'N/A'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Debug: Base Slot Price</span>
-                        <span>{currentPlan?.slotPrice || 'N/A'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Debug: Discount Slot Price</span>
-                        <span>{currentPlan?.slotDiscountPrice || 'Not set'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Debug: Period Slot Price</span>
-                        <span>
-                          {selectedPeriodType && currentPlan?.periods 
-                            ? (currentPlan.periods.find(pp => pp.periodTypeId === selectedPeriodType.id)?.periodSlotPrice || 'Using base price')
-                            : 'N/A'
-                          }
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Debug: Period Slot Discount Price</span>
-                        <span>
-                          {selectedPeriodType && currentPlan?.periods 
-                            ? (currentPlan.periods.find(pp => pp.periodTypeId === selectedPeriodType.id)?.periodSlotDiscountPrice || 'Not set')
-                            : 'N/A'
-                          }
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Debug: Period Discount %</span>
-                        <span>
-                          {selectedPeriodType && currentPlan?.periods 
-                            ? (currentPlan.periods.find(pp => pp.periodTypeId === selectedPeriodType.id)?.discountPercentage 
-                              ? currentPlan.periods.find(pp => pp.periodTypeId === selectedPeriodType.id)?.discountPercentage + '%'
-                              : 'Not set')
-                            : 'N/A'
-                          }
-                        </span>
-                      </div>
-                      <div className="flex justify-between font-bold border-t border-dashed border-gray-300 mt-1 pt-1">
-                        <span>Debug: Final Price Calculation</span>
-                        <span>
-                          {`${calculateEffectiveSlotPrice()} × ${updatedQuota} × ${selectedPeriodType?.periodInMonths || 1} = ${totalAmount}`}
-                        </span>
-                      </div>
+                  <div className="border-t border-gray-200 pt-4 mt-2">
+                    <div className="text-sm text-gray-500 flex items-center gap-2">
+                      <ExclamationCircleOutlined />
+                      <span>
+                        Changes will take effect after payment is completed and processed.
+                      </span>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             )}
