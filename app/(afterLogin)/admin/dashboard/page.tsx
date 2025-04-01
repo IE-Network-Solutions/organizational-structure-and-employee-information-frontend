@@ -64,13 +64,9 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (invoicesData) {
       if (invoicesData?.items && invoicesData.items.length > 0) {
-        const sortedInvoices = [...invoicesData.items].sort((a, b) => {
-          // Sort by creation date in descending order (newest first)
-          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
-        });
-        setInvoices(sortedInvoices);
+        setInvoices(invoicesData.items);
         // Set the latest invoice
-        setLastInvoice(sortedInvoices[0]);
+        setLastInvoice(invoicesData.items[0]);
       } else {
         // No invoices available
         setInvoices([]);
@@ -323,19 +319,19 @@ const AdminDashboard = () => {
                   <div className="flex flex-wrap gap-4 mt-8 pl-0 md:pl-4">
                     <CustomButton
                       title="Update User Quota"
-                      onClick={() => router.push('/admin/plan')}
+                      onClick={() => router.push('/admin/plan?source=quota')}
                       className="text-center flex justify-center items-center w-full md:w-auto"
                       type="default"
                     />
                     <CustomButton
                       title="Update Subscription Period"
-                      onClick={() => router.push('/admin/plan?step=1')}
+                      onClick={() => router.push('/admin/plan?source=period&step=1')}
                       className="text-center flex justify-center items-center w-full md:w-auto"
                       type="default"
                     />
                     <CustomButton
                       title="Pay Next Bill"
-                      onClick={() => router.push('/admin/plan?step=3')}
+                      onClick={() => router.push(`/admin/invoice/${activeSubscription?.invoices[0]?.id}`)}
                       className="text-center flex justify-center items-center w-full md:w-auto"
                       type="default"
                     />

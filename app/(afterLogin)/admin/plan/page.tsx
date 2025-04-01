@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Button, InputNumber, Select, Skeleton } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import Image from 'next/image';
-import { Plan, PeriodType, PlanPeriod, Currency, Subscription } from '@/types/tenant-management';
+import { Plan, PeriodType, Subscription } from '@/types/tenant-management';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useGetPeriodTypes } from '@/store/server/features/tenant-management/period-types/queries';
@@ -16,6 +16,7 @@ const PlanPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialStep = parseInt(searchParams.get('step') || '0');
+  const updateSource = searchParams.get('source') || 'default'; // 'quota' or 'period'
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [updatedQuota, setUpdatedQuota] = useState<number | null>(null);
   const [updatedPeriod, setUpdatedPeriod] = useState<string | null>(null);
@@ -27,7 +28,6 @@ const PlanPage = () => {
   // State for API data
   const [plans, setPlans] = useState<Plan[]>([]);
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [activeSubscription, setActiveSubscription] = useState<Subscription | null>(null);
   const [periodTypes, setPeriodTypes] = useState<PeriodType[]>([]);
   const [currentPeriodType, setCurrentPeriodType] = useState<PeriodType | null>(null);
@@ -88,20 +88,17 @@ const PlanPage = () => {
   // Process subscription data
   useEffect(() => {
     if (subscriptionsData?.items && subscriptionsData.items.length > 0) {
-      setSubscriptions(subscriptionsData.items);
-      
       // Find active subscription
       const active = subscriptionsData.items.find(sub => sub.isActive === true);
       if (active) {
         setActiveSubscription(active);
-        
         // Initialize updatedQuota with current quota from active subscription
-        if (!updatedQuota && active.slotTotal) {
+        if (active.slotTotal) {
           setUpdatedQuota(active.slotTotal);
         }
       }
     }
-  }, [subscriptionsData, updatedQuota]);
+  }, [subscriptionsData]);
 
   // Process plans data
   useEffect(() => {
@@ -216,12 +213,30 @@ const PlanPage = () => {
   
   const handlePreviousStep = () => setCurrentStep((prev) => prev - 1);
   const handleQuotaChange = (value: number | null) => {
+    // Always update the value, even if null
+    setUpdatedQuota(value);
+    
+    // Show error if value is less than current quota
     if (value !== null && activeSubscription?.slotTotal && value < activeSubscription.slotTotal) {
       setQuotaError('Your quota is below total number of user quota');
     } else {
       setQuotaError(null);
     }
-    setUpdatedQuota(value);
+  };
+  
+  // Check if quota has been changed and is valid
+  const isQuotaChanged = () => {
+    // If value is null or empty, it's not valid
+    if (updatedQuota === null) return false;
+    
+    // If value equals current quota, it's not changed
+    if (updatedQuota === activeSubscription?.slotTotal) return false;
+    
+    // If value is less than current quota, it's not valid
+    if (activeSubscription?.slotTotal && updatedQuota < activeSubscription.slotTotal) return false;
+    
+    // Otherwise it's valid and changed
+    return true;
   };
   
   const handlePeriodChange = (value: string) => {
@@ -350,6 +365,23 @@ const PlanPage = () => {
     // Additional payment logic would go here
   };
 
+  // Check if this is an update of the same plan
+  const isSamePlanUpdate = activeSubscription && currentPlan && activeSubscription.planId === currentPlan.id;
+
+  // Check if quota field should be disabled
+  const isQuotaDisabled = Boolean(isSamePlanUpdate && updateSource === 'period');
+
+  // Check if period field should be disabled
+  const isPeriodDisabled = Boolean(isSamePlanUpdate && updateSource === 'quota');
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Update Source:', updateSource);
+    console.log('Is Same Plan Update:', isSamePlanUpdate);
+    console.log('Is Quota Disabled:', isQuotaDisabled);
+    console.log('Is Period Disabled:', isPeriodDisabled);
+  }, [updateSource, isSamePlanUpdate, isQuotaDisabled, isPeriodDisabled]);
+
   const renderStepContent = () => {
     const steps = [
       { title: 'Number of User Quota' },
@@ -418,13 +450,25 @@ const PlanPage = () => {
                     <InputNumber
                       min={0}
                       max={1000}
-                      defaultValue={activeSubscription?.slotTotal || 0}
+                      value={updatedQuota}
                       className="w-full max-w-[300px] py-2"
                       onChange={handleQuotaChange}
                       status={quotaError ? 'error' : ''}
+                      controls={false}
+                      disabled={isQuotaDisabled}
                     />
                     {quotaError && (
                       <div className="text-red-500 text-sm">{quotaError}</div>
+                    )}
+                    {isQuotaDisabled && (
+                      <div className="text-gray-500 text-sm">
+                        You can only update the subscription period at this time. To change the user quota, please use the "Update User Quota" button.
+                      </div>
+                    )}
+                    {!isQuotaDisabled && !isQuotaChanged() && (
+                      <div className="text-gray-500 text-sm">
+                        Please change the quota value to continue
+                      </div>
                     )}
                   </div>
                   <div className="text-sm flex items-center gap-2">
@@ -448,7 +492,7 @@ const PlanPage = () => {
                 onClick={handleNextStep}
                 className="text-center flex justify-center items-center"
                 type="primary"
-                disabled={isLoading || !!quotaError}
+                disabled={isLoading || (!isQuotaDisabled && !isQuotaChanged())}
               >
                 Continue
               </Button>
@@ -485,6 +529,7 @@ const PlanPage = () => {
                       value={updatedPeriod || currentPeriodType?.code}
                       className="w-full max-w-[300px] min-h-[48px]"
                       onChange={handlePeriodChange}
+                      disabled={isPeriodDisabled}
                     >
                       {availablePeriods.map((period) => (
                         <Select.Option key={period.id} value={period.code}>
@@ -494,6 +539,11 @@ const PlanPage = () => {
                         </Select.Option>
                       ))}
                     </Select>
+                    {isPeriodDisabled && (
+                      <div className="text-gray-500 text-sm">
+                        You can only update the user quota at this time. To change the subscription period, please use the "Update Subscription Period" button.
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -510,7 +560,7 @@ const PlanPage = () => {
                 onClick={handleNextStep}
                 className="text-center flex justify-center items-center"
                 type="primary"
-                disabled={isLoading}
+                disabled={isLoading || (isPeriodDisabled && !updatedPeriod)}
               >
                 Continue
               </Button>
