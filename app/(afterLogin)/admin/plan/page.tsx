@@ -64,23 +64,19 @@ const PlanPage = () => {
         const plan = plans.find(p => p.id === planId);
         if (plan) {
           setCurrentPlan(plan);
-          console.log("Setting plan from URL params on direct navigation:", plan.name);
         } else {
           // If plan not found, use first available plan
           setCurrentPlan(plans[0]);
-          console.log("Plan ID not found, using first plan:", plans[0].name);
         }
       } else if (activeSubscription) {
         // If no planId but we have active subscription, use its plan
         const plan = plans.find(p => p.id === activeSubscription.planId);
         if (plan) {
           setCurrentPlan(plan);
-          console.log("Using plan from active subscription on direct navigation:", plan.name);
         }
       } else {
         // Default to first plan
         setCurrentPlan(plans[0]);
-        console.log("No plan info in URL or subscription, using first plan:", plans[0].name);
       }
     }
   }, [initialStep, plans, currentPlan, searchParams, activeSubscription]);
@@ -110,7 +106,6 @@ const PlanPage = () => {
         const plan = plansData.items.find(p => p.id === activeSubscription.planId);
         if (plan) {
           setCurrentPlan(plan);
-          console.log("Setting current plan from active subscription:", plan.name);
         }
       } else if (searchParams.get('planId')) {
         // If no active subscription but planId is in URL params, use that plan
@@ -118,12 +113,10 @@ const PlanPage = () => {
         const plan = plansData.items.find(p => p.id === planId);
         if (plan) {
           setCurrentPlan(plan);
-          console.log("Setting current plan from URL parameter:", plan.name);
         }
       } else if (plansData.items.length > 0 && !currentPlan) {
         // If no active subscription and no planId in URL, use the first available plan
         setCurrentPlan(plansData.items[0]);
-        console.log("Setting current plan to first available plan:", plansData.items[0].name);
       }
     }
   }, [plansData, activeSubscription, searchParams, currentPlan]);
@@ -206,7 +199,6 @@ const PlanPage = () => {
     // Если мы переходим к шагу подтверждения, убедимся, что у нас есть план
     if (currentStep === 1 && !currentPlan && plans.length > 0) {
       setCurrentPlan(plans[0]);
-      console.log("Setting current plan before confirmation step:", plans[0].name);
     }
     setCurrentStep((prev) => prev + 1);
   };
@@ -373,14 +365,6 @@ const PlanPage = () => {
 
   // Check if period field should be disabled
   const isPeriodDisabled = Boolean(isSamePlanUpdate && updateSource === 'quota');
-
-  // Debug logging
-  useEffect(() => {
-    console.log('Update Source:', updateSource);
-    console.log('Is Same Plan Update:', isSamePlanUpdate);
-    console.log('Is Quota Disabled:', isQuotaDisabled);
-    console.log('Is Period Disabled:', isPeriodDisabled);
-  }, [updateSource, isSamePlanUpdate, isQuotaDisabled, isPeriodDisabled]);
 
   const renderStepContent = () => {
     const steps = [
