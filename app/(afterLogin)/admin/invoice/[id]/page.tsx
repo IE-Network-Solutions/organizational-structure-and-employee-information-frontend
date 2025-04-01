@@ -4,11 +4,14 @@ import { Skeleton, Button, notification } from 'antd';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Invoice } from '@/types/tenant-management';
+import { Invoice, Plan } from '@/types/tenant-management';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useGetInvoiceDetail } from '@/store/server/features/tenant-management/invoices/queries';
 import { TENANT_BASE_URL } from '@/utils/constants';
 import dayjs from 'dayjs';
+import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
+import { DEFAULT_TENANT_ID } from '@/utils/constants';
+import { Subscription } from '@/types/tenant-management';
 
 const InvoiceItem = () => {
   const router = useRouter();
@@ -16,6 +19,8 @@ const InvoiceItem = () => {
   
   const [isDownloading, setIsDownloading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'chapa' | 'stripe' | null>(null);
   
   // Get invoice data
   const { data: invoiceResponse, isLoading: isInvoiceLoading } = useGetInvoiceDetail(
@@ -28,9 +33,33 @@ const InvoiceItem = () => {
     id as string,
     'PDF'
   );
+
+  const { data: currentPlanData, isLoading: isCurrentPlanLoading } = useGetSubscriptionByTenant(DEFAULT_TENANT_ID);
+
+  useEffect(() => {
+    if (currentPlanData) {
+      const subscription = (currentPlanData as any).data as Subscription;
+      setCurrentPlan(subscription?.plan as Plan);
+    }
+  }, [currentPlanData]);
   
   // Extract invoice data from API response with type casting
   const invoiceData = invoiceResponse ? (invoiceResponse as any).item as Invoice : null;
+
+   // Handle payment method selection
+  const handlePaymentMethodSelect = (method: 'chapa' | 'stripe') => {
+    if (selectedPaymentMethod === method) {
+      setSelectedPaymentMethod(null);
+    } else {
+      setSelectedPaymentMethod(method);
+    }
+  };
+
+  // Handle payment
+  const handlePayment = () => {
+    console.log(`Selected payment method: ${selectedPaymentMethod}`);
+    // Additional payment logic would go here
+  };
 
   // Get PDF URL after data is loaded
   useEffect(() => {
@@ -181,7 +210,7 @@ const InvoiceItem = () => {
                       className="flex items-center justify-center text-md font-bold border border-success rounded-lg px-2 gap-2"
                     >
                       <span className="flex min-w-[10px] w-[10px] h-[10px] bg-success rounded-full"></span>
-                      <span>{invoiceData?.subscription?.plan?.name || 'Standard plan'}</span>
+                      <span>{!isCurrentPlanLoading && currentPlan?.name || 'N/A'}</span>
                     </span>,
                   ],
                   [
@@ -207,6 +236,49 @@ const InvoiceItem = () => {
                 ))}
               </div>
 
+
+              {invoiceData?.status?.toLowerCase() === 'pending' && (
+                <div className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
+                  <span className="text-2xl font-bold">Pay with</span>
+                  <div className="flex justify-around gap-2 mt-4">
+                    <div className="flex flex-col gap-2">
+                      <div
+                        className={`flex items-center justify-center px-3 py-2 border rounded-lg md:max-h-none max-h-[40px] cursor-pointer transition-all duration-300 ${
+                          selectedPaymentMethod === 'chapa' 
+                            ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]' 
+                            : 'border-gray-200 hover:shadow-[0_2px_4px_0_#4e4ef1]'
+                        }`}
+                        onClick={() => handlePaymentMethodSelect('chapa')}
+                      >
+                        <Image
+                          src="/icons/chapa-pay.svg"
+                          alt="Chapa Payment"
+                          width={108}
+                          height={40}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <div
+                        className={`flex items-center justify-center px-3 py-2 border rounded-lg md:max-h-none max-h-[40px] cursor-pointer transition-all duration-300 ${
+                          selectedPaymentMethod === 'stripe' 
+                            ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]' 
+                            : 'border-gray-200 hover:shadow-[0_2px_4px_0_#4e4ef1]'
+                        }`}
+                        onClick={() => handlePaymentMethodSelect('stripe')}
+                      >
+                        <Image
+                          src="/icons/stripe-pay.svg"
+                          alt="Stripe Payment"
+                          width={108}
+                          height={40}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
                 <div className="flex justify-around gap-2 mt-4">
                   <div className="flex justify-center gap-4 mt-8">
@@ -219,11 +291,12 @@ const InvoiceItem = () => {
                     </Button>
                     {invoiceData?.status?.toLowerCase() === 'pending' && (
                       <Button
-                        onClick={() => router.push('/admin/plan')}
+                        onClick={handlePayment}
                         className="text-center flex justify-center items-center"
                         type="primary"
+                        disabled={isInvoiceLoading || !selectedPaymentMethod}
                       >
-                        Proceed to payment
+                        Pay Now
                       </Button>
                     )}
                   </div>

@@ -2,14 +2,16 @@
 
 import Image from 'next/image';
 import { Upload, Form, Input, Select, Skeleton, notification, Button } from 'antd';
-import type { UploadProps } from 'antd';
+import type { UploadProps, UploadFile } from 'antd';
+import type { RcFile } from 'antd/es/upload';
 import { countries } from '@/utils/countries';
 import { useEffect, useState } from 'react';
 import { useGetClientById } from '@/store/server/features/tenant-management/clients/queries';
 import { useUpdateClient } from '@/store/server/features/tenant-management/clients/mutation';
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
-import { Tenant } from '@/types/tenant-management';
+import { Tenant, Subscription } from '@/types/tenant-management';
 import type { UpdateClientDto } from '@/store/server/features/tenant-management/clients/mutation';
+import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -31,6 +33,9 @@ const AdminProfile = () => {
 
   // Fetch client data using the existing query hook
   const { data: client, isLoading: isClientLoading, error } = useGetClientById(DEFAULT_TENANT_ID);
+  
+  // Fetch subscription data using the existing query hook
+  const { data: subscriptionData } = useGetSubscriptionByTenant(DEFAULT_TENANT_ID);
   
   // Checking the existence of images
   useEffect(() => {
@@ -362,7 +367,9 @@ const AdminProfile = () => {
             <Skeleton active paragraph={{ rows: 10 }} />
           </div>
         ) : (
-          <ProfileForm />
+          <>
+            <ProfileForm />
+          </>
         )}
       </div>
     </div>

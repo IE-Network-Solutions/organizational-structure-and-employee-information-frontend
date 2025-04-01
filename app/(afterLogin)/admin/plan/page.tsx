@@ -337,7 +337,6 @@ const PlanPage = () => {
 
   // Handle payment method selection
   const handlePaymentMethodSelect = (method: 'chapa' | 'stripe') => {
-    // Если метод уже выбран, то снимаем выбор
     if (selectedPaymentMethod === method) {
       setSelectedPaymentMethod(null);
     } else {
@@ -724,7 +723,7 @@ const PlanPage = () => {
                           key="status"
                           className="text-md font-bold text-orange bg-orange/10 rounded-lg px-4 py-2"
                         >
-                          Pending Payment
+                          {activeSubscription?.invoices?.[0]?.status}
                         </span>,
                       ],
                       ['Paid By', '-'],
