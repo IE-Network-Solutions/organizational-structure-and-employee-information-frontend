@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { Tenant } from '@/types/tenant-management';
 import axios from 'axios';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-
+import { notification } from 'antd';
 export interface UpdateClientDto {
   id?: string;
   companyName?: string;
@@ -33,6 +33,7 @@ export const updateClient = async (id: string, data: UpdateClientDto) => {
   const token = useAuthenticationStore.getState().token;
   
   // Remove the id from the data since it is already used in the URL
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _, ...cleanData } = data;
   
   try {
@@ -49,7 +50,10 @@ export const updateClient = async (id: string, data: UpdateClientDto) => {
     
     return response.data;
   } catch (error) {
-    console.error('Error updating client:', error);
+    notification.error({
+      message: 'Error updating client',
+      description: error instanceof Error ? error.message : 'An unknown error occurred'
+    });
     throw error;
   }
 };
@@ -61,7 +65,8 @@ export const useUpdateClient = () => {
   return useMutation<Tenant, Error, { id: string; data: UpdateClientDto }>(
     ({ id, data }) => updateClient(id, data),
     {
-      onSuccess: (data, variables) => {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      onSuccess: (_, variables) => {
         queryClient.invalidateQueries(['client', variables.id]);
         
         queryClient.invalidateQueries('clients');
