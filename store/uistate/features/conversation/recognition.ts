@@ -79,7 +79,11 @@ export interface CategoriesUseState {
   setSelectedEmployeeId: (selectedEmployeeId: string) => void;
   filterOption: string;
   setFilterOption: (filterOption: string) => void;
+  selectedRowKeys: React.Key[];
+  setSelectedRowKeys: (keys: React.Key[]) => void;
+  resetSelection: () => void;
 }
+
 const initialSearchField: SearchField[] = [
   {
     key: 'employee',
@@ -166,4 +170,8 @@ export const useRecongnitionStore = create<CategoriesUseState>((set) => ({
   setSelectedEmployeeId: (selectedEmployeeId: string) =>
     set({ selectedEmployeeId }),
   setDateRange: (dateRange: DateRange) => set({ dateRange }),
+  selectedRowKeys: [],
+  setSelectedRowKeys: (keys) => set({ selectedRowKeys: keys }),
+
+  resetSelection: () => set({ selectedRowKeys: [], selectedEmployees: [] }),
 }));

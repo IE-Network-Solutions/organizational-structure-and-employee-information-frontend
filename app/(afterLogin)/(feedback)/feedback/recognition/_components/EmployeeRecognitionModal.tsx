@@ -37,7 +37,6 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
     recognitionTypeId,
     setVisibleEmployee,
     setRecognitionTypeId,
-    setEmployeesList,
     setDateRange,
     setVisible,
     selectedEmployeeId,
@@ -46,6 +45,9 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
     filterOption,
     setFilterOption,
     dateRange,
+    selectedRowKeys,
+    setSelectedRowKeys,
+    resetSelection,
   } = useRecongnitionStore();
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
   const { mutate: createEmployeeRecognition, isLoading } =
@@ -143,9 +145,10 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
       sorter: (a, b) => Number(a.totalPoints) - Number(b.totalPoints),
     },
   ];
-
   const rowSelection = {
-    onChange: (selectedRowKeys: React.Key[], selectedRows: any) => {
+    selectedRowKeys,
+    onChange: (keys: React.Key[], selectedRows: any) => {
+      setSelectedRowKeys(keys);
       setSelectedEmployees(selectedRows);
     },
   };
@@ -164,34 +167,49 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
     createEmployeeRecognition(
       { value: payload },
       {
-        onSuccess: (data) => {
+        onSuccess: () => {
           setVisibleEmployee(false);
           setVisible(false);
           form.resetFields();
           setRecognitionTypeId('');
-          setEmployeesList(data);
           setDateRange({ startDate: '', endDate: '' });
           setSelectedEmployees([]);
           setSelectedEmployeeId('');
+          resetSelection();
         },
       },
     );
+  };
+  const handleCancel = () => {
+    onCancel();
+    form.resetFields();
+    setRecognitionTypeId('');
+    setDateRange({ startDate: '', endDate: '' });
+    setSelectedEmployees([]);
+    setSelectedEmployeeId('');
+    setSelectedRowKeys([]); // Reset selected rows
   };
 
   return (
     <Modal
       open={visible}
-      onCancel={onCancel}
+      onCancel={handleCancel}
       footer={
         <Form.Item style={{ textAlign: 'center' }}>
           <Button
             disabled={isLoading}
-            onClick={onCancel}
+            onClick={handleCancel}
             style={{ marginRight: 8 }}
           >
             Cancel
           </Button>
-          <Button loading={isLoading} type="primary" htmlType="submit">
+          <Button
+            onClick={() => form.submit()} // Manually trigger form submission
+            loading={isLoading}
+            type="primary"
+            htmlType="submit"
+            disabled={selectedEmployees.length === 0}
+          >
             Create
           </Button>
         </Form.Item>

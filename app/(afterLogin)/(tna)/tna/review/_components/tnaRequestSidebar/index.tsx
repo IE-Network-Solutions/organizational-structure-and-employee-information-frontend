@@ -200,7 +200,7 @@ const TnaRequestSidebar = () => {
             buttons={footerModalItems}
           />
         }
-        width="50%"
+        width="30%"
       >
         <Form
           layout="vertical"

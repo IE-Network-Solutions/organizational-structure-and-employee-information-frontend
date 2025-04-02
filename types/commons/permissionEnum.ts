@@ -329,7 +329,7 @@ export enum Permissions {
   // EditOneToOne = 'edit-one-to-one',
 
   // feedback
-  CreateFeedack = 'create-feedback',
+  CreateFeedback = 'create-feedback',
   DeleteFeedack = 'delete-feedback',
   EditFeedack = 'edit-feedback',
   ViewAllEmployeeFeedback = 'view-all-employees-feedback',
