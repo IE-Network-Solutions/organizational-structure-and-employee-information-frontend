@@ -306,4 +306,8 @@ export enum Permissions {
   ChangePassword = 'change-password',
   ChangeProfileImage = 'change-profile-image',
   ChangeManagerProfile = 'change-manager-profile',
+  // basicSalary
+  CreateBasicSalary = 'create-basic-salary',
+  UpdateBasicSalary = 'update-basic-salary',
+
 }
