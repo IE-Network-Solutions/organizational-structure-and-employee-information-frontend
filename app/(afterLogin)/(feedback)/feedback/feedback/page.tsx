@@ -11,7 +11,6 @@ import {
   useGetAllUsers,
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
 import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
 import dayjs from 'dayjs';
@@ -27,11 +26,9 @@ import AccessGuard from '@/utils/permissionGuard';
 
 const Page = () => {
   const {
-    open,
     setOpen,
     setVariantType,
     setSelectedFeedbackRecord,
-    selectedFeedbackRecord,
     variantType,
     setUserId,
     userId,
@@ -106,16 +103,16 @@ const Page = () => {
     setActiveTab(key);
   };
 
-  const activeTabName =
-    getAllFeedbackTypes?.items?.find(
-      (item: FeedbackTypeItems) => item.id === activeTab,
-    )?.category ?? '';
+  // const activeTabName =
+  //   getAllFeedbackTypes?.items?.find(
+  //     (item: FeedbackTypeItems) => item.id === activeTab,
+  //   )?.category ?? '';
 
-  const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {`${activeTabName} - ${variantType}`}
-    </div>
-  );
+  // const modalHeader = (
+  //   <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+  //     {`${activeTabName} - ${variantType}`}
+  //   </div>
+  // );
 
   const items: TabsProps['items'] = [
     {
@@ -401,13 +398,11 @@ const Page = () => {
         />
       </Spin>
 
-      <AccessGuard permissions={[Permissions.CreateFeedack]}>
-        <Tabs
-          defaultActiveKey="appreciation"
-          items={variantTypeItems}
-          onChange={onChange}
-        />
-      </AccessGuard>
+      <Tabs
+        defaultActiveKey="appreciation"
+        items={variantTypeItems}
+        onChange={onChange}
+      />
       <div className="-mx-12 -mt-10">
         <TabLandingLayout
           buttonTitle={<div className="text-sm">{variantType}</div>}
@@ -421,6 +416,7 @@ const Page = () => {
             <div className="capitalize">{`Given up on  ${variantType}`}</div>
           }
           allowSearch={false}
+          permissionsData={[Permissions.CreateFeedback]}
         >
           <EmployeeSearchComponent fields={searchField} />
           <Table
@@ -446,7 +442,7 @@ const Page = () => {
         </TabLandingLayout>
       </div>
       <div>
-        <CustomDrawerLayout
+        {/* <CustomDrawerLayout
           open={
             (open && activeTabName !== '') || selectedFeedbackRecord !== null
           }
@@ -457,9 +453,9 @@ const Page = () => {
           }}
           modalHeader={modalHeader}
           width="40%"
-        >
-          <CreateFeedbackForm form={form} />
-        </CustomDrawerLayout>
+        > */}
+        <CreateFeedbackForm form={form} />
+        {/* </CustomDrawerLayout> */}
       </div>
     </TabLandingLayout>
   );

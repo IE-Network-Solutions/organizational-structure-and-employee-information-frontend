@@ -22,7 +22,7 @@ import {
 } from '@/types/timesheet/settings';
 import { CommonObject } from '@/types/commons/commonObject';
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
@@ -252,7 +252,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
         dataSource={tableData}
         loading={isFetching}
         rowSelection={{ checkStrictly: false }}
-        pagination={defaultTablePagination(data?.meta?.totalItems)}
+        pagination={DefaultTablePagination(data?.meta?.totalItems)}
         onChange={(pagination, filters, sorter: any) => {
           setPage(pagination.current ?? 1);
           setLimit(pagination.pageSize ?? 10);

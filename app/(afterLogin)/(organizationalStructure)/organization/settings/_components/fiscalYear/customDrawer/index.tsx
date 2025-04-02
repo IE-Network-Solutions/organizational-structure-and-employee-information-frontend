@@ -1,4 +1,3 @@
-import FiscalYear from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/fiscalYear';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
   useCreateFiscalYear,
@@ -15,6 +14,7 @@ import {
   Month,
   Session,
 } from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import FiscalYearForm from './fiscalYearForm';
 
 interface FiscalYearDrawerProps {
   form?: FormInstance;
@@ -183,12 +183,13 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
 
   const formContent = (
     <Form layout="vertical" onFinish={handleSubmit}>
-      {current === 0 && <FiscalYear form={form1} />}
+      {current === 0 && <FiscalYearForm />}
       {current === 1 && (
         <SessionDrawer
           form={form2}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
+          isFiscalYear={true}
         />
       )}
       {current === 2 && (
@@ -197,6 +198,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
           onNextStep={handleNextStep}
+          isFiscalYear={true}
         />
       )}
     </Form>
@@ -213,7 +215,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           }
           onClose={handleCancel}
           open={openfiscalYearDrawer}
-          width="50%"
+          width="35%"
           footer={null}
         >
           {formContent}
