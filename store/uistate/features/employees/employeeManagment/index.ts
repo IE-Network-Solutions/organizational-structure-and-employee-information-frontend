@@ -68,7 +68,10 @@ interface SearchParams {
 }
 interface UserState {
   isBasicSalaryModalVisible: boolean;
+  setIsBasicSalaryModalVisible: (isBasicSalaryModalVisible: boolean) => void;
+
   basicSalaryData: any | null;
+  setBasicSalaryData: (basicSalaryData: any) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
   userCurrentPage: number;
@@ -187,8 +190,8 @@ export const useEmployeeManagementStore = create<UserState>()(
     isBasicSalaryModalVisible: false,
     setIsBasicSalaryModalVisible: (isBasicSalaryModalVisible: boolean) =>
       set({ isBasicSalaryModalVisible }),
-    basicSalaryData: null,
     setBasicSalaryData: (basicSalaryData: any) => set({ basicSalaryData }),
+    basicSalaryData: null,
     birthDate: null,
     setBirthDate: (birthDate: Dayjs | null) => set({ birthDate }),
     searchValue: null,
