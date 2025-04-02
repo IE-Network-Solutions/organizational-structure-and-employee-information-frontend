@@ -78,27 +78,23 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
       render: (ruleData: any, record: any) =>
         record?.status && (
           <div className="flex gap-2">
-           <AccessGuard
-                        permissions={[Permissions.CreateBasicSalary]}
-                      >
-                     <Tooltip title="Add Basic Salary">
-              <Button
-                onClick={() => handleVisibilityData(record)}
-                // type="primary"
-                icon={<HiPlus />}
-              ></Button>
-            </Tooltip>     
-                      </AccessGuard>
-                      <AccessGuard
-                        permissions={[Permissions.UpdateBasicSalary]}
-                      >
-            <Tooltip title="Edit Basic Salary">
-              <Button
-                onClick={() => handleVisibilityEdit(record)}
-                // type="primary"
-                icon={<MdEdit />}
-              ></Button>
-            </Tooltip>
+            <AccessGuard permissions={[Permissions.CreateBasicSalary]}>
+              <Tooltip title="Add Basic Salary">
+                <Button
+                  onClick={() => handleVisibilityData(record)}
+                  // type="primary"
+                  icon={<HiPlus />}
+                ></Button>
+              </Tooltip>
+            </AccessGuard>
+            <AccessGuard permissions={[Permissions.UpdateBasicSalary]}>
+              <Tooltip title="Edit Basic Salary">
+                <Button
+                  onClick={() => handleVisibilityEdit(record)}
+                  // type="primary"
+                  icon={<MdEdit />}
+                ></Button>
+              </Tooltip>
             </AccessGuard>
           </div>
         ),

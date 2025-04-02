@@ -309,5 +309,4 @@ export enum Permissions {
   // basicSalary
   CreateBasicSalary = 'create-basic-salary',
   UpdateBasicSalary = 'update-basic-salary',
-
 }
