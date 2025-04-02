@@ -6,6 +6,8 @@ import React from 'react';
 import { HiPlus } from 'react-icons/hi';
 import BasicSalaryModal from './_components/basicSalaryModal';
 import { MdEdit } from 'react-icons/md';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface Ids {
   id: string;
@@ -76,20 +78,24 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
       render: (ruleData: any, record: any) =>
         record?.status && (
           <div className="flex gap-2">
-            <Tooltip title="Add Basic Salary">
-              <Button
-                onClick={() => handleVisibilityData(record)}
-                // type="primary"
-                icon={<HiPlus />}
-              ></Button>
-            </Tooltip>
-            <Tooltip title="Edit Basic Salary">
-              <Button
-                onClick={() => handleVisibilityEdit(record)}
-                // type="primary"
-                icon={<MdEdit />}
-              ></Button>
-            </Tooltip>
+            <AccessGuard permissions={[Permissions.CreateBasicSalary]}>
+              <Tooltip title="Add Basic Salary">
+                <Button
+                  onClick={() => handleVisibilityData(record)}
+                  // type="primary"
+                  icon={<HiPlus />}
+                ></Button>
+              </Tooltip>
+            </AccessGuard>
+            <AccessGuard permissions={[Permissions.UpdateBasicSalary]}>
+              <Tooltip title="Edit Basic Salary">
+                <Button
+                  onClick={() => handleVisibilityEdit(record)}
+                  // type="primary"
+                  icon={<MdEdit />}
+                ></Button>
+              </Tooltip>
+            </AccessGuard>
           </div>
         ),
     },
