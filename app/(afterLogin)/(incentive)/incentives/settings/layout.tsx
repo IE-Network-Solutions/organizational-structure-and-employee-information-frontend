@@ -24,6 +24,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
     useIncentiveStore();
   const { data: recognitionData, isLoading: responseLoading } =
     useAllChildrenRecognition();
+
   useEffect(() => {
     if (recognitionData && recognitionData?.length > 0) {
       // Extract the first item separately
@@ -36,7 +37,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
             <CiCalendarDate
               size={16}
               className={
-                currentItem === firstItem?.id
+                currentItem === 'defaultIncentiveCard' || firstItem?.id
                   ? 'text-[#4DAEF0]'
                   : 'text-gray-500'
               }
@@ -47,7 +48,10 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
               {firstItem?.name ?? 'Default Incentive '}
             </p>
           ),
-          className: currentItem === firstItem?.id ? 'px-6' : 'px-1',
+          className:
+            currentItem === 'defaultIncentiveCard' || firstItem?.id
+              ? 'px-6'
+              : 'px-1',
         },
         link: `/incentives/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
       };

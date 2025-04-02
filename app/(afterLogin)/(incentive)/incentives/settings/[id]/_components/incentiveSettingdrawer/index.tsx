@@ -7,7 +7,6 @@ import {
 import {
   useIncentiveCriteria,
   useIncentiveFormulaByRecognitionId,
-  useRecognitionByParentId,
 } from '@/store/server/features/incentive/other/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { Button, Col, Form, Input, Radio, Row } from 'antd';
@@ -33,8 +32,6 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
 
   const recognitionId = id;
 
-  console.log(recognitionId, 'this is id');
-
   //   ===========> UI States <============
 
   const {
@@ -52,14 +49,10 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
 
   const { data: incentiveData } = useIncentiveCriteria();
   const { mutate: updateIncentiveFormula } = useUpdateIncentiveFormula();
-  const { data: RecognitionByParentId } =
-    useRecognitionByParentId(recognitionId);
   const { mutate: createFormula } = useSetIncentiveFormula();
 
   const { data: formulaById } =
     useIncentiveFormulaByRecognitionId(recognitionId);
-
-  console.log(RecognitionByParentId, 'RecognitionByParentId');
 
   //   ===========> Functions <============
 
@@ -75,10 +68,12 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   };
 
   useEffect(() => {
-    if (formulaById) {
-      setFormula(formulaById?.expression);
+    if (formulaById && recognitionId) {
+      setFormula(formulaById?.expression || []);
+    } else {
+      setFormula([]);
     }
-  }, [formulaById, form]);
+  }, [formulaById, recognitionId]);
 
   const handleOptionClick = (id: string, name: string, type: string) => {
     if (name === 'Clear') {
@@ -156,14 +151,13 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     setValue(value);
   }, [value]);
 
-  console.log(incentiveData, 'incentiveDatayyyyyy');
   return (
     <CustomDrawerLayout
       open={openIncentiveDrawer}
       onClose={handleClose}
       modalHeader={
         <CustomDrawerHeader className="flex justify-center ">
-          {recognitionData?.recognitionType?.name || '-'}
+          {recognitionData?.name || '-'}
         </CustomDrawerHeader>
       }
       footer={null}

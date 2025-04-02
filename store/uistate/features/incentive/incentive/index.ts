@@ -161,12 +161,26 @@ export type CertificateDetails = {
   title: string;
 };
 
+export interface Criteria {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+  criteriaName: string;
+  sourceEndpoint: string;
+  criteriaType: 'System' | 'Custom';
+  active: boolean;
+  tenantId: string;
+}
+
 export type RecognitionCriteria = {
   active: boolean;
   condition: string;
   createdAt: string;
   createdBy?: string | null;
-  criterionKey: string;
+  criteria: Criteria;
   deletedAt?: string | null;
   id: string;
   operator: string;
@@ -248,6 +262,7 @@ type IncentiveState = {
   selectedRecognition: any;
   selectedSessions: string[];
   parentResponseIsLoading: boolean;
+  parentTypeId: string;
 };
 
 type IncentiveActions = {
@@ -273,7 +288,7 @@ type IncentiveActions = {
   setSelectedRecognitionTypeId: (value: string) => void;
   setSelectedRecognition: (recognition: any) => void;
   setSelectedSessions: (value: string[]) => void;
-
+  setParentTypeId: (value: string) => void;
   setParentResponseIsLoading: (parentResponseIsLoading: boolean) => void;
 };
 
@@ -361,6 +376,9 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
 
   selectedSessions: [],
   setSelectedSessions: (value) => set({ selectedSessions: value }),
+
+  parentTypeId: '',
+  setParentTypeId: (value) => set({ parentTypeId: value }),
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(

@@ -84,7 +84,7 @@ const fetchParentRecognition = async () => {
 };
 const fetchRecognitionById = async (recognitionId: string) => {
   return await crudRequest({
-    url: `${ORG_DEV_URL}/recognition/${recognitionId}`,
+    url: `${ORG_DEV_URL}/recognition-type/${recognitionId}`,
     method: 'GET',
     headers: requestHeader(),
   });

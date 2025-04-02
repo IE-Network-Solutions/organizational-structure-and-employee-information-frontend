@@ -45,12 +45,8 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
   recognitionData,
   responseLoading,
 }) => {
-  const {
-    setOpenIncentiveDrawer,
-
-    setIncentiveId,
-    setIncentive,
-  } = useIncentiveStore();
+  const { setOpenIncentiveDrawer, setIncentiveId, setIncentive } =
+    useIncentiveStore();
 
   const handleProjectIncentiveEdit = (value: IncentiveRecognitionParams) => {
     setIncentive(value);
@@ -60,18 +56,17 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
 
   const incentiveTableData = {
     id: recognitionData?.[0]?.id,
-    name: recognitionData?.[0]?.recognitionType?.name,
-    recognition_criteria:
-      recognitionData?.[0]?.recognitionType?.recognitionCriteria?.map(
-        (criterion: RecognitionCriteria, index: string) => (
-          <span
-            key={index}
-            className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1"
-          >
-            {criterion?.criterionKey}
-          </span>
-        ),
+    name: recognitionData?.[0]?.name,
+    recognition_criteria: recognitionData?.[0]?.recognitionCriteria?.map(
+      (criterion: RecognitionCriteria, index: string) => (
+        <span
+          key={index}
+          className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1"
+        >
+          {criterion?.criteria?.criteriaName || '--'}
+        </span>
       ),
+    ),
     action: (
       <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
         <Pencil
