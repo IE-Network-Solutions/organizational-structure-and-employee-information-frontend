@@ -1,7 +1,11 @@
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 import { useGetPositionsById } from '@/store/server/features/employees/positions/queries';
-import { Card, Col, Row, Space, Spin, Timeline } from 'antd';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { Button, Card, Space, Spin, Table, Tooltip } from 'antd';
 import React from 'react';
+import { HiPlus } from 'react-icons/hi';
+import BasicSalaryModal from './_components/basicSalaryModal';
+import { MdEdit } from 'react-icons/md';
 
 interface Ids {
   id: string;
@@ -30,62 +34,89 @@ export const BasicSalaryDetails = ({
 
 const BasicSalary: React.FC<Ids> = ({ id }) => {
   const { isLoading, data: basicSalary } = useGetBasicSalaryById(id);
+  const {
+    setIsBasicSalaryModalVisible,
+    isBasicSalaryModalVisible,
+    setBasicSalaryData,
+  } = useEmployeeManagementStore();
+  const columns = [
+    {
+      title: 'Date',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (text: string) => new Date(text).toLocaleDateString(),
+    },
+    {
+      title: 'Basic Salary',
+      dataIndex: 'basicSalary',
+      key: 'basicSalary',
+      render: (basicSalary: string) => (
+        <>{Number(basicSalary)?.toLocaleString() || '-'}</>
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: boolean) => <>{status ? 'Active' : 'Inactive'}</>,
+    },
+    {
+      title: 'Job Position:',
+      dataIndex: 'jobInfo',
+      key: 'jobInfo',
+      render: (ruleData: any, record: any) => (
+        <BasicSalaryDetails empId={record?.jobInfo?.positionId} />
+      ),
+    },
 
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+      render: (ruleData: any, record: any) =>
+        record?.status && (
+          <div className="flex gap-2">
+            <Tooltip title="Add Basic Salary">
+              <Button
+                onClick={() => handleVisibilityData(record)}
+                // type="primary"
+                icon={<HiPlus />}
+              ></Button>
+            </Tooltip>
+            <Tooltip title="Edit Basic Salary">
+              <Button
+                onClick={() => handleVisibilityEdit(record)}
+                // type="primary"
+                icon={<MdEdit />}
+              ></Button>
+            </Tooltip>
+          </div>
+        ),
+    },
+  ];
+  const handleVisibilityEdit = (record: any) => {
+    setIsBasicSalaryModalVisible(true);
+    setBasicSalaryData({ ...record, isEdit: true });
+  };
+  const handleVisibilityData = (record: any) => {
+    setIsBasicSalaryModalVisible(true);
+    setBasicSalaryData({ ...record, isEdit: false });
+  };
   return (
     <div>
       <Card title="Basic Salary" className="my-6 mt-0">
-        <Row className="my-3 justify-items-center items-center border border-solid p-4 rounded-lg">
-          <Col
-            span={12}
-            className="justify-items-center items-center font-bold"
-          >
-            Date
-          </Col>
-          <Col span={12} className="justify-items-center items-center">
-            Reason
-          </Col>
-        </Row>
-
-        <Timeline mode="left" className="border border-solid p-4 rounded-lg">
-          {isLoading ? (
-            <Timeline.Item>
-              <div className="flex justify-center items-center">
-                <Spin size="large" />
-              </div>
-            </Timeline.Item>
-          ) : !basicSalary || basicSalary.length === 0 ? (
-            <Timeline.Item>
-              <div className="text-center text-gray-500">
-                No Basic Salary records found.
-              </div>
-            </Timeline.Item>
-          ) : (
-            basicSalary
-              .slice()
-              .reverse()
-              .map((item: any) => (
-                <Timeline.Item
-                  key={item.id}
-                  label={new Date(item?.createdAt).toLocaleDateString()}
-                >
-                  <div>
-                    <p>
-                      <strong>Basic Salary:</strong> ${item?.basicSalary}
-                    </p>
-                    <p>
-                      <strong>Status:</strong>{' '}
-                      {item?.status ? 'Active' : 'Inactive'}
-                    </p>
-                    <p>
-                      <strong>Job Position:</strong>{' '}
-                      <BasicSalaryDetails empId={item?.jobInfo?.positionId} />
-                    </p>
-                  </div>
-                </Timeline.Item>
-              ))
-          )}
-        </Timeline>
+        <Table
+          dataSource={basicSalary?.slice()?.reverse()}
+          columns={columns}
+          className="w-full overflow-auto"
+          pagination={{ hideOnSinglePage: true }}
+          loading={isLoading}
+        />
       </Card>
+      <BasicSalaryModal
+        visible={isBasicSalaryModalVisible}
+        onCancel={() => setIsBasicSalaryModalVisible(false)}
+      />
     </div>
   );
 };
