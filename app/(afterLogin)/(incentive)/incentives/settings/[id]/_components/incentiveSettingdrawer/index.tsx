@@ -7,6 +7,7 @@ import {
 import {
   useIncentiveCriteria,
   useIncentiveFormulaByRecognitionId,
+  useRecognitionByParentId,
 } from '@/store/server/features/incentive/other/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { Button, Col, Form, Input, Radio, Row } from 'antd';
@@ -32,6 +33,8 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
 
   const recognitionId = id;
 
+  console.log(recognitionId, 'this is id');
+
   //   ===========> UI States <============
 
   const {
@@ -49,11 +52,14 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
 
   const { data: incentiveData } = useIncentiveCriteria();
   const { mutate: updateIncentiveFormula } = useUpdateIncentiveFormula();
-
+  const { data: RecognitionByParentId } =
+    useRecognitionByParentId(recognitionId);
   const { mutate: createFormula } = useSetIncentiveFormula();
 
   const { data: formulaById } =
     useIncentiveFormulaByRecognitionId(recognitionId);
+
+  console.log(RecognitionByParentId, 'RecognitionByParentId');
 
   //   ===========> Functions <============
 
@@ -149,6 +155,8 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   useEffect(() => {
     setValue(value);
   }, [value]);
+
+  console.log(incentiveData, 'incentiveDatayyyyyy');
   return (
     <CustomDrawerLayout
       open={openIncentiveDrawer}
@@ -239,12 +247,12 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
                       {incentiveData?.items ? (
                         incentiveData?.items?.map((option: any) => (
                           <div key={option?.id}>
-                            {option?.criterionKey && (
+                            {option?.criteria?.criteriaName && (
                               <Button
                                 onClick={() =>
                                   handleOptionClick(
-                                    option?.id,
-                                    option?.criterionKey,
+                                    option?.criteria?.id,
+                                    option?.criteria?.criteriaName,
                                     'criteria',
                                   )
                                 }
@@ -252,7 +260,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
                               >
                                 <div className="flex flex-wrap items-center justify-center">
                                   <span className="text-md font-md">
-                                    {option?.criterionKey}
+                                    {option?.criteria?.criteriaName}
                                   </span>
                                 </div>
                               </Button>

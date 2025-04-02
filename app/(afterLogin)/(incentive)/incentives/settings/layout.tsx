@@ -49,7 +49,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
           ),
           className: currentItem === firstItem?.id ? 'px-6' : 'px-1',
         },
-        link: `/incentive/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
+        link: `/incentives/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
       };
 
       // Map remaining items (excluding the first item)
@@ -68,7 +68,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
             label: <p className="menu-item-label">{item?.name || '-'}</p>,
             className: currentItem === item?.id ? 'px-6' : 'px-1',
           },
-          link: `/incentive/settings/${item?.id}`,
+          link: `/incentives/settings/${item?.id}`,
         })) || [];
 
       setMenuItems([defaultIncentiveSettings, ...dynamicMenuItems]);

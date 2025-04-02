@@ -281,7 +281,7 @@ const treeData: CustomMenuItem[] = [
       {
         key: '/incentives',
         title: 'Incentive',
-        className: 'font-bold',
+        className: 'font-bold h-9',
         permissions: ['view_incentive_page'],
       },
       {
@@ -291,7 +291,7 @@ const treeData: CustomMenuItem[] = [
       },
       {
         title: 'Settings',
-        key: '/incentive/settings',
+        key: '/incentives/settings',
         className: 'font-bold h-9',
       },
     ],

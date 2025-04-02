@@ -208,3 +208,11 @@ h6 {
 .lesson-material-article h3 {
   @apply text-gray-900 text-[24px];
 }
+
+.ant-tree-treenode-selected .ant-tree-title {
+  height: 30px !important;
+  width: 180px !important;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
