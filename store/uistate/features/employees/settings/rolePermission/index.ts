@@ -6,6 +6,7 @@ import {
 } from '@/types/dashboard/adminManagement';
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
+
 interface StoreState {
   deletedId: DeletedId | null;
   pageSize: number;
@@ -43,6 +44,33 @@ interface StoreState {
 
   selectedRoleOnOption: any;
   setSelectedRoleOnOption: (selectedRoleOnOption: any) => void;
+
+  isModalVisible: boolean;
+  setIsModalVisible: (value: any) => void;
+  selectedGroup: any;
+  setSelectedGroup: (value: any) => void;
+  selectedPermissions: any;
+  setSelectedPermissions: (value: any) => void;
+
+  selectedGroupPermission: string[];
+  setSelectedGroupPermission: (selectedGroupPermission: string[]) => void;
+
+  selectedPermissionsUnderGroup: string[];
+  setSelectedPermissionsUnderGroup: (
+    selectedPermissionsUnderGroup: string[],
+  ) => void;
+
+  selectedGroupForModal: any | null;
+  setSelectedGroupForModal: (selectedGroupForModal: any | null) => void;
+
+  modalVisible: boolean;
+  setModalVisible: (modalVisible: boolean) => void;
+
+  tempSelectedPermissions: string[];
+  setTempSelectedPermissions: (tempSelectedPermissions: string[]) => void;
+
+  selectAll: boolean;
+  setSelectAll: (selectAll: boolean) => void;
 }
 
 export const useSettingStore = create<StoreState>()(
@@ -81,5 +109,36 @@ export const useSettingStore = create<StoreState>()(
     setRoleCurrentPage: (roleCurrentPage) => set({ roleCurrentPage }),
     setPermissionCurrentPage: (permissionCurrentPage) =>
       set({ permissionCurrentPage }),
+
+    isModalVisible: false,
+    setIsModalVisible: (isModalVisible: boolean) => set({ isModalVisible }),
+    selectedGroup: null,
+    setSelectedGroup: (value) => set({ selectedGroup: value }),
+    selectedPermissions: [],
+    setSelectedPermissions: (selectedPermissions: any) =>
+      set({ selectedPermissions }),
+
+    selectedGroupPermission: [],
+    setSelectedGroupPermission: (selectedGroupPermission: string[]) =>
+      set({ selectedGroupPermission }),
+
+    selectedPermissionsUnderGroup: [],
+    setSelectedPermissionsUnderGroup: (
+      selectedPermissionsUnderGroup: string[],
+    ) => set({ selectedPermissionsUnderGroup }),
+
+    selectedGroupForModal: null,
+    setSelectedGroupForModal: (selectedGroupForModal: any | null) =>
+      set({ selectedGroupForModal }),
+
+    modalVisible: false,
+    setModalVisible: (modalVisible: boolean) => set({ modalVisible }),
+
+    tempSelectedPermissions: [],
+    setTempSelectedPermissions: (tempSelectedPermissions: string[]) =>
+      set({ tempSelectedPermissions }),
+
+    selectAll: false,
+    setSelectAll: (selectAll: boolean) => set({ selectAll }),
   })),
 );

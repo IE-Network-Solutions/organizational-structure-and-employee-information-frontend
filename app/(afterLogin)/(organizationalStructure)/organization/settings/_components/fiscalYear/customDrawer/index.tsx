@@ -1,4 +1,3 @@
-import FiscalYear from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/fiscalYear';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
   useCreateFiscalYear,
@@ -15,9 +14,10 @@ import {
   Month,
   Session,
 } from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import FiscalYearForm from './fiscalYearForm';
 
 interface FiscalYearDrawerProps {
-  form: FormInstance;
+  form?: FormInstance;
   handleNextStep?: () => void;
 }
 const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
@@ -32,8 +32,6 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     isEditMode,
     selectedFiscalYear,
     calendarType,
-    isFiscalYearOpen,
-    closeFiscalYearDrawer,
     setEditMode,
     setSelectedFiscalYear,
     fiscalYearFormValues,
@@ -43,6 +41,8 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     setMonthRangeFormValues,
     setFiscalYearFormValues,
     setSessionFormValues,
+    openfiscalYearDrawer,
+    setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
   const { data: departments } = useGetDepartments();
 
@@ -58,7 +58,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     useCreateFiscalYear();
 
   const handleCancel = () => {
-    closeFiscalYearDrawer();
+    setOpenFiscalYearDrawer(false);
     setEditMode(false);
     setSelectedFiscalYear(null);
     setCurrent(0);
@@ -175,6 +175,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           setFiscalYearFormValues({});
           setSessionFormValues({});
           setCurrent(0);
+          setOpenFiscalYearDrawer(false);
         },
       });
     }
@@ -182,12 +183,13 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
 
   const formContent = (
     <Form layout="vertical" onFinish={handleSubmit}>
-      {current === 0 && <FiscalYear form={form1} />}
+      {current === 0 && <FiscalYearForm />}
       {current === 1 && (
         <SessionDrawer
           form={form2}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
+          isFiscalYear={true}
         />
       )}
       {current === 2 && (
@@ -196,26 +198,31 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
           onNextStep={handleNextStep}
+          isFiscalYear={true}
         />
       )}
     </Form>
   );
-  return departments?.length ? (
-    <CustomDrawerLayout
-      modalHeader={
-        <h1 className="text-2xl font-semibold">
-          {isEditMode ? 'Edit New Fiscal Year' : 'Add New Fiscal Year'}
-        </h1>
-      }
-      onClose={handleCancel}
-      open={isFiscalYearOpen}
-      width="50%"
-      footer={null}
-    >
-      {formContent}
-    </CustomDrawerLayout>
-  ) : (
-    formContent
+
+  return (
+    <>
+      {(!departments?.length || openfiscalYearDrawer) && (
+        <CustomDrawerLayout
+          modalHeader={
+            <h1 className="flex justify-center text-xl font-extrabold text-gray-800 py-6 ">
+              {isEditMode ? 'Edit New Fiscal Year' : 'Add New Fiscal Year'}
+            </h1>
+          }
+          onClose={handleCancel}
+          open={openfiscalYearDrawer}
+          width="35%"
+          footer={null}
+        >
+          {formContent}
+        </CustomDrawerLayout>
+      )}
+      {!departments?.length && !openfiscalYearDrawer && formContent}
+    </>
   );
 };
 

@@ -23,6 +23,7 @@ const TnaUpdateSidebar = () => {
     isShowTnaUpdateSidebar: isShow,
     setIsShowTnaUpdateSidebar: setIsShow,
     tnaId,
+    searchQuery,
     setTnaId,
   } = useTnaReviewStore();
 
@@ -38,6 +39,7 @@ const TnaUpdateSidebar = () => {
         ...(tnaId && { id: [tnaId] }),
       },
     },
+    searchQuery,
     false,
     false,
   );

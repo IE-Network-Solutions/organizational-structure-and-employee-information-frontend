@@ -23,6 +23,7 @@ import { useState } from 'react';
 import { useUpdateProfileImage } from '@/store/server/features/employees/employeeDetail/mutations';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const { Dragger } = Upload;
 
@@ -30,6 +31,7 @@ function BasicInfo({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
   const { profileFileList, setProfileFileList } = useEmployeeManagementStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { userId } = useAuthenticationStore();
 
   const { mutate: updateProfileImage, isLoading: isUploading } =
     useUpdateProfileImage();
@@ -118,15 +120,16 @@ function BasicInfo({ id }: { id: string }) {
             }
             className="relative z-0"
           />
-
-          <AccessGuard permissions={[Permissions.ChangeProfileImage]}>
+          {userId === id ? (
             <div
               className="absolute bottom-0 left-0 w-full h-1/2 z-10 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-b-full cursor-pointer"
               onClick={showModal}
             >
               <p className="text-white text-sm font-semibold">Change Image</p>
             </div>
-          </AccessGuard>
+          ) : (
+            ''
+          )}
         </div>
         <h5>
           {employeeData?.firstName} {employeeData?.middleName}{' '}
@@ -195,7 +198,7 @@ function BasicInfo({ id }: { id: string }) {
           )}
         </Dragger>
       </Modal>
-      <div className="flex gap-5 my-2 items-center">
+      <div className="px-4 flex gap-5 my-2 items-center">
         <HiOutlineMail color="#BFBFBF" />
         <p className="font-semibold">{employeeData?.email}</p>
       </div>

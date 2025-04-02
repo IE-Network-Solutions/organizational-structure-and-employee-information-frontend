@@ -100,7 +100,34 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
         label={
           <span className="text-md font-semibold text-gray-700">Upload CV</span>
         }
-        rules={[{ required: true, message: 'Please choose the document type' }]}
+        rules={[
+          {
+            /* eslint-disable @typescript-eslint/naming-convention */
+            validator: (_, fileList) => {
+              /* eslint-enable @typescript-eslint/naming-convention */
+              if (!fileList || fileList.length === 0) {
+                return Promise.reject('Please upload your CV');
+              }
+              const isValidFormat = fileList.every((file: { type: string }) =>
+                [
+                  'application/pdf',
+                  'application/msword',
+                  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                ].includes(file.type),
+              );
+              const isValidSize = fileList.every(
+                (file: { size: number }) => file.size / 1024 / 1024 < 5,
+              );
+              if (!isValidFormat) {
+                return Promise.reject('Only PDF and DOC files are allowed');
+              }
+              if (!isValidSize) {
+                return Promise.reject('File must be less than 5MB');
+              }
+              return Promise.resolve();
+            },
+          },
+        ]}
       >
         <Dragger
           name="documentName"
@@ -109,16 +136,10 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
           onRemove={handleDocumentRemove}
           customRequest={customRequest}
           listType="picture"
-          accept="*/*"
+          accept=".pdf,.doc,.docx"
         >
           <div className="flex items-center justify-center">
-            <Image
-              className="flex items-center justify-center"
-              src={cvUpload.src}
-              alt="Loading"
-              width={30}
-              height={30}
-            />
+            <Image src={cvUpload.src} alt="Upload" width={30} height={30} />
           </div>
           <div className="flex flex-col justify-center items-center text-md font-semibold text-gray-950">
             <p>Upload your CV</p>
@@ -129,7 +150,7 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
         </Dragger>
       </Form.Item>
       <div className="text-xs font-sm mb-5 ">
-        Max file size : 5MB. File format : .pdf
+        Max file size : 5MB. File format : pdf
       </div>
       <Row gutter={16}>
         <Col xs={24} sm={24} md={12} lg={12} xl={12}>
@@ -141,7 +162,13 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
                 Full-Name
               </span>
             }
-            rules={[{ required: true, message: 'Please input full name!' }]}
+            rules={[
+              { required: true, message: 'Please input full name!' },
+              {
+                pattern: /^[a-zA-Z\s]+$/,
+                message: 'Only letters and spaces are allowed!',
+              },
+            ]}
           >
             <Input placeholder="Full Name" className="w-full h-10 text-sm" />
           </Form.Item>
@@ -159,10 +186,8 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
               </span>
             }
             rules={[
-              {
-                required: true,
-                message: 'Please input the email address!',
-              },
+              { required: true, message: 'Please input the email address!' },
+              { type: 'email', message: 'Please enter a valid email address!' },
             ]}
           >
             <Input
@@ -182,9 +207,11 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
               </span>
             }
             rules={[
+              { required: true, message: 'Please input the phone number!' },
               {
-                required: true,
-                message: 'Please input the phone number!',
+                pattern: /^\+?[1-9]\d{1,14}$/,
+                message:
+                  'Please enter a valid phone number (e.g., +1234567890)!',
               },
             ]}
           >
@@ -222,13 +249,29 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
             label={
               <span className="text-md font-semibold text-gray-700">CGPA</span>
             }
-            rules={[{ required: true, message: 'Please input CGPA' }]}
+            rules={[
+              { required: true, message: 'Please input CGPA' },
+              {
+                /* eslint-disable @typescript-eslint/naming-convention */
+                validator: (_, value) =>
+                  /* eslint-enable @typescript-eslint/naming-convention */
+                  value >= 0 && value <= 4
+                    ? Promise.resolve()
+                    : Promise.reject('CGPA must be between 0.0 and 4.0'),
+              },
+            ]}
           >
-            <InputNumber className="text-sm w-full h-10" placeholder="CGPA" />
+            <InputNumber
+              className="text-sm w-full h-10"
+              placeholder="CGPA"
+              min={0}
+              max={4}
+              step={0.01}
+            />
           </Form.Item>
           <div className="flex items-center justify-start gap-1 ml-1">
             <FaInfoCircle />
-            <div className="text-xs font-md">Put your point 4.0 scale</div>
+            <div className="text-xs font-md">Put your point on a 4.0 scale</div>
           </div>
         </Col>
       </Row>

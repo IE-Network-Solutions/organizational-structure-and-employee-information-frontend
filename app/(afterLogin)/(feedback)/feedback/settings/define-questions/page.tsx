@@ -1,7 +1,6 @@
 'use client';
 import { Button, Tabs } from 'antd';
-import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import { TabsProps } from 'antd';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { FaPlus } from 'react-icons/fa';
 import QuestionSetForm from '../_components/questionSetForm';
@@ -13,7 +12,7 @@ import { useConversationTypes } from '@/store/server/features/CFR/conversation/q
 import { ConversationTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 
 const Page = () => {
-  const { open, setOpen, activeTab, setActiveTab } = ConversationStore();
+  const { setOpen, activeTab, setActiveTab } = ConversationStore();
   const { data: getAllConversationType } = useConversationTypes();
 
   const onChange = (key: string) => {
@@ -28,11 +27,12 @@ const Page = () => {
       (item: ConversationTypeItems) => item.id === activeTab,
     )?.name || '';
 
-  const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      Add New {activeTabName}
-    </div>
-  );
+  // const modalHeader = (
+  //   <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+  //     Add New {activeTabName}
+  //   </div>
+  // );
+
   const items: TabsProps['items'] = getAllConversationType?.items?.map(
     (item: ConversationTypeItems) => ({
       key: item?.id,
@@ -63,14 +63,7 @@ const Page = () => {
         items={items}
         onChange={onChange}
       />
-      <CustomDrawerLayout
-        open={open && activeTabName !== ''}
-        onClose={() => setOpen(false)}
-        modalHeader={modalHeader}
-        width="40%"
-      >
-        <QuestionSetForm />
-      </CustomDrawerLayout>
+      <QuestionSetForm />
     </div>
   );
 };
