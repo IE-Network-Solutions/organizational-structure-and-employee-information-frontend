@@ -106,6 +106,7 @@ const AdminProfile = () => {
           contactPersonName: clientData.contactPersonName,
           personEmail: clientData.contactPersonEmail,
           personPhone: clientData.contactPersonPhoneNumber,
+          billingEmail: clientData.billingEmail,
         });
       }
     }, [form, clientData]);
@@ -132,6 +133,7 @@ const AdminProfile = () => {
           contactPersonName: values.contactPersonName,
           contactPersonEmail: values.personEmail,
           contactPersonPhoneNumber: values.personPhone,
+          billingEmail: values.billingEmail,
         };
         
         await updateClientMutation.mutateAsync({
@@ -266,6 +268,17 @@ const AdminProfile = () => {
           >
             <Input placeholder="Enter company phone (e.g. +61-2-8765-4321)" />
           </Form.Item>
+
+          <Form.Item
+            name="billingEmail"
+            label="Billing Email"
+            rules={[
+              { required: true, message: 'Please enter billing email' },
+              { type: 'email', message: 'Please enter a valid email' },
+            ]}
+          >
+            <Input placeholder="Enter billing email" />
+          </Form.Item>
         </div>
 
         <div className="mb-4">
@@ -334,6 +347,7 @@ const AdminProfile = () => {
           >
             <Input placeholder="Enter person phone (e.g. +61-2-8765-4321)" />
           </Form.Item>
+
         </div>
         
         <Form.Item>
