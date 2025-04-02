@@ -24,6 +24,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
     useIncentiveStore();
   const { data: recognitionData, isLoading: responseLoading } =
     useAllChildrenRecognition();
+
   useEffect(() => {
     if (recognitionData && recognitionData?.length > 0) {
       // Extract the first item separately
@@ -36,7 +37,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
             <CiCalendarDate
               size={16}
               className={
-                currentItem === firstItem?.id
+                currentItem === 'defaultIncentiveCard' || firstItem?.id
                   ? 'text-[#4DAEF0]'
                   : 'text-gray-500'
               }
@@ -47,9 +48,12 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
               {firstItem?.name ?? 'Default Incentive '}
             </p>
           ),
-          className: currentItem === firstItem?.id ? 'px-6' : 'px-1',
+          className:
+            currentItem === 'defaultIncentiveCard' || firstItem?.id
+              ? 'px-6'
+              : 'px-1',
         },
-        link: `/incentive/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
+        link: `/incentives/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
       };
 
       // Map remaining items (excluding the first item)
@@ -68,7 +72,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
             label: <p className="menu-item-label">{item?.name || '-'}</p>,
             className: currentItem === item?.id ? 'px-6' : 'px-1',
           },
-          link: `/incentive/settings/${item?.id}`,
+          link: `/incentives/settings/${item?.id}`,
         })) || [];
 
       setMenuItems([defaultIncentiveSettings, ...dynamicMenuItems]);
