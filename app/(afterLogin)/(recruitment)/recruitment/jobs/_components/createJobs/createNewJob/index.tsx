@@ -297,7 +297,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           },
         ]}
       >
-        <TextEditor placeholder="Description" />
+        <TextEditor height={250} placeholder="Description" />
       </Form.Item>
       <Form.Item>
         <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">

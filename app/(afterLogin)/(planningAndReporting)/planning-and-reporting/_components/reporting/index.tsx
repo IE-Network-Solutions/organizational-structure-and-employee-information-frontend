@@ -197,7 +197,6 @@ function Reporting() {
     <Spin spinning={getReportLoading} tip="Loading...">
       <div className="min-h-screen">
         <div className="flex flex-wrap justify-between items-center my-4 gap-4">
-          <Title level={5}>Reporting</Title>
           <Tooltip
             title={
               // selectedUser.length === 1 && selectedUser[0] === userId &&    // to check and make ensure only reports their report
@@ -206,30 +205,31 @@ function Reporting() {
                 ? 'Please Create Plan First'
                 : ''
             }
-          >
-            <div style={{ display: 'inline-block' }}>
-              <CustomButton
-                disabled={
-                  // selectedUser.includes(userId) &&
-                  allUserPlanning && allUserPlanning.length < 1
-                }
-                title={`Create ${activeTabName} report`}
-                id="createActiveTabName"
-                icon={<FaPlus className="mr-2" />}
-                onClick={() => setOpenReportModal(true)}
-                className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
-                loading={getUserPlanningLoading}
-              />
-            </div>
-          </Tooltip>
+          ></Tooltip>
         </div>
-        {hasPermission && (
-          <EmployeeSearch
-            optionArray1={employeeData?.items}
-            optionArray2={ReportingType}
-            optionArray3={departmentData}
-          />
-        )}
+        <div className="flex justify-between items-center gap-4">
+          {hasPermission && (
+            <EmployeeSearch
+              optionArray1={employeeData?.items}
+              optionArray2={ReportingType}
+              optionArray3={departmentData}
+            />
+          )}
+          <div className="inline-block pb-4">
+            <CustomButton
+              disabled={
+                // selectedUser.includes(userId) &&
+                allUserPlanning && allUserPlanning.length < 1
+              }
+              title={`Create ${activeTabName} report`}
+              id="createActiveTabName"
+              icon={<FaPlus className="mr-2" />}
+              onClick={() => setOpenReportModal(true)}
+              className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
+              loading={getUserPlanningLoading}
+            />
+          </div>
+        </div>
 
         {allReporting?.items?.map((dataItem: any, index: number) => (
           <>

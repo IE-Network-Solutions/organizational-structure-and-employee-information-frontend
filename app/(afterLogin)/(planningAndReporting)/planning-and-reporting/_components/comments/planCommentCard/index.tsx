@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Skeleton } from 'antd';
 import { CommentsData } from '@/types/okr';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import CommentAuthorsAvatars from '../commentAuthorsAvatar';
 import CommentList from '../commentList';
 // Extend Day.js with the relative time plugin
@@ -22,7 +21,8 @@ const CommentCard: React.FC<Props> = ({
   planId,
   isPlanCard,
 }) => {
-  const { viewComment, setViewComment } = PlanningAndReportingStore();
+  const [viewComment, setViewComment] = useState(false);
+
   return (
     <Card
       bodyStyle={{ padding: 10 }}
@@ -50,9 +50,12 @@ const CommentCard: React.FC<Props> = ({
     >
       <div className="flex items-center  gap-1 text-sm cursor-pointer mb-2">
         {CommentAuthorsAvatars(data)}
-        <span onClick={() => setViewComment(!viewComment)}>
+        <span
+          className="text-md font-semibold"
+          onClick={() => setViewComment(!viewComment)}
+        >
           {' '}
-          Comments {data?.length}
+          {data?.length} Comments
         </span>
       </div>
       {loading ? (

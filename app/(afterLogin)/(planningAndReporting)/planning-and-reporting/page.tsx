@@ -95,7 +95,7 @@ function Page() {
   };
 
   return (
-    <div>
+    <div className="bg-[#f5f5f5]">
       <div className="h-full min-h-screen w-auto p-4">
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb

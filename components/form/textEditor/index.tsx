@@ -12,6 +12,7 @@ interface TextEditorProps {
   value?: string;
   className?: string;
   placeholder?: string;
+  height: number;
 }
 
 const TextEditor: FC<TextEditorProps> = ({
@@ -19,6 +20,7 @@ const TextEditor: FC<TextEditorProps> = ({
   value = '',
   className = '',
   placeholder = '',
+  height = 250,
 }) => {
   const [toolbar, setToolbar] = useState<any>(null);
 
@@ -64,7 +66,7 @@ const TextEditor: FC<TextEditorProps> = ({
           value="center"
         ></button>
       </div>
-      <div className="p-6 h-[250px] overflow-y-auto">
+      <div className="p-6 overflow-y-auto" style={{ height: `${height}px` }}>
         {toolbar && (
           <QuillEditor
             id="quillEditorFieldId"

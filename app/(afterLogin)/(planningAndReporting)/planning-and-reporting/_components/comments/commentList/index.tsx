@@ -17,6 +17,7 @@ import dayjs from 'dayjs';
 import CommentActionMenu from '../commentActionMenu';
 import { FaUser } from 'react-icons/fa';
 import { useState, useMemo } from 'react';
+import TextEditor from '@/components/form/textEditor';
 
 dayjs.extend(relativeTime);
 
@@ -122,7 +123,7 @@ const CommentList = ({
 
   return (
     <div className="w-full">
-      {data.map((commentData) => {
+      {data?.map((commentData) => {
         const { fullName, profileImage } = getUserDetail(
           commentData.commentedBy,
         );
@@ -177,29 +178,25 @@ const CommentList = ({
         <Form.Item name="commentedBy" initialValue={userId} hidden>
           <Input type="hidden" />
         </Form.Item>
-        <Row gutter={8} align="middle" className="w-full">
-          <Col span={20}>
-            <Form.Item
-              name="comment"
-              rules={[{ required: true, message: 'Please enter a comment' }]}
-              className="w-full"
-            >
-              <Input placeholder="Add a comment..." />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
-            <Form.Item>
-              <Button
-                loading={isLoading}
-                type="primary"
-                htmlType="submit"
-                className="w-full"
-              >
-                Send
-              </Button>
-            </Form.Item>
-          </Col>
-        </Row>
+
+        <Form.Item
+          name="comment"
+          rules={[{ required: true, message: 'Please enter a comment' }]}
+          className="w-full"
+        >
+          <TextEditor height={100} placeholder="Add a comment..." />
+        </Form.Item>
+
+        <Form.Item className="flex justify-end w-full">
+          <Button
+            loading={isLoading}
+            type="primary"
+            htmlType="submit"
+            className="my-2 w-auto"
+          >
+            Comment
+          </Button>
+        </Form.Item>
       </Form>
     </div>
   );

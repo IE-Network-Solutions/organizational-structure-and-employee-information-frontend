@@ -203,7 +203,6 @@ function Planning() {
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
         <div className="flex flex-wrap justify-between items-center my-4 gap-4">
-          <Title level={5}>Planning</Title>
           <Tooltip
             title={
               allUserPlanning?.length != 0
@@ -217,37 +216,38 @@ function Planning() {
                     ? `Please create ${planningPeriodHierarchy?.parentPlan?.name} Plan before creating ${activeTabName} Plan`
                     : ''
             }
-          >
-            <div style={{ display: 'inline-block' }}>
-              {userPlanningPeriodId && (
-                <CustomButton
-                  disabled={
-                    allUserPlanning?.length > 0 ||
-                    (planningPeriodHierarchy?.parentPlan?.plans?.length ??
-                      0) === 0 ||
-                    (planningPeriodHierarchy?.parentPlan?.plans?.filter(
-                      (i: any) => !i.isReported,
-                    ).length ?? 0) === 0 ||
-                    (objective?.items?.length ?? 0) === 0
-                  }
-                  loading={isLoading}
-                  title={`Create ${activeTabName} Plan`}
-                  id="createActiveTabName"
-                  icon={<FaPlus className="mr-2" />}
-                  onClick={() => setOpen(true)}
-                  className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
-                />
-              )}
-            </div>
-          </Tooltip>
+          ></Tooltip>
         </div>
-        {hasPermission && (
-          <EmployeeSearch
-            optionArray1={employeeData?.items}
-            optionArray2={PlanningType}
-            optionArray3={departmentData}
-          />
-        )}
+        <div className="flex justify-between items-center gap-4">
+          {hasPermission && (
+            <EmployeeSearch
+              optionArray1={employeeData?.items}
+              optionArray2={PlanningType}
+              optionArray3={departmentData}
+            />
+          )}
+          <div className="inline-block pb-4">
+            {userPlanningPeriodId && (
+              <CustomButton
+                disabled={
+                  allUserPlanning?.length > 0 ||
+                  (planningPeriodHierarchy?.parentPlan?.plans?.length ?? 0) ===
+                    0 ||
+                  (planningPeriodHierarchy?.parentPlan?.plans?.filter(
+                    (i: any) => !i.isReported,
+                  ).length ?? 0) === 0 ||
+                  (objective?.items?.length ?? 0) === 0
+                }
+                loading={isLoading}
+                title={`Create ${activeTabName} Plan`}
+                id="createActiveTabName"
+                icon={<FaPlus className="mr-2" />}
+                onClick={() => setOpen(true)}
+                className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
+              />
+            )}
+          </div>
+        </div>
 
         {transformedData?.map((dataItem: any, index: number) => (
           <>

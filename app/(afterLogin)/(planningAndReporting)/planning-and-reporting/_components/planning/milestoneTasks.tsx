@@ -47,10 +47,6 @@ const TaskRow = ({ task, keyResult, parent = false }: any) => (
       </Text>
     </Col>
     <Col>
-      {/* Priority Section */}
-      <Text type="secondary" className="text-[10px] mr-2">
-        <span className="text-xl text-blue">&bull;</span> Priority
-      </Text>
       <Tag
         className="font-bold border-none w-16 text-center capitalize text-[10px]"
         color={getPriorityColor(task?.priority)}

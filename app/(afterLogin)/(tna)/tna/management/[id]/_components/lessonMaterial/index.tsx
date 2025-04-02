@@ -184,7 +184,11 @@ const CourseLessonMaterial = () => {
           rules={[{ required: true, message: 'Required' }]}
           className="form-item"
         >
-          <TextEditor className="mt-3" placeholder="Enter the Article" />
+          <TextEditor
+            height={250}
+            className="mt-3"
+            placeholder="Enter the Article"
+          />
         </Form.Item>
         <Form.Item
           name="videos"
