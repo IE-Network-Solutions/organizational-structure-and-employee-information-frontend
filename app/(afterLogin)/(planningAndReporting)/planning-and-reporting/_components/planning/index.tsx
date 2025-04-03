@@ -199,6 +199,15 @@ function Planning() {
       planningPeriodId || '', // Provide a default string value if undefined
     );
 
+
+
+    const isActive =
+    planningPeriodHierarchy?.parentPlan 
+      ? (planningPeriodHierarchy?.parentPlan?.plans?.length ?? 0) === 0 ||
+        (planningPeriodHierarchy?.parentPlan?.plans?.filter((i: any) => !i.isReported).length ?? 0) === 0
+      : false;
+
+
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -222,13 +231,8 @@ function Planning() {
               {userPlanningPeriodId && (
                 <CustomButton
                   disabled={
-                    allUserPlanning?.length > 0 ||
-                    (planningPeriodHierarchy?.parentPlan?.plans?.length ??
-                      0) === 0 ||
-                    (planningPeriodHierarchy?.parentPlan?.plans?.filter(
-                      (i: any) => !i.isReported,
-                    ).length ?? 0) === 0 ||
-                    (objective?.items?.length ?? 0) === 0
+                    (allUserPlanning?.length > 0 || isActive ||
+                    ((objective?.items?.length ?? 0) === 0))
                   }
                   loading={isLoading}
                   title={`Create ${activeTabName} Plan`}
@@ -237,7 +241,7 @@ function Planning() {
                   onClick={() => setOpen(true)}
                   className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
                 />
-              )}
+               )}
             </div>
           </Tooltip>
         </div>
