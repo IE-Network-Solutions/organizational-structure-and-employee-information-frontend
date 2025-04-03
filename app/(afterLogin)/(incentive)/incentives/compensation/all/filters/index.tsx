@@ -56,6 +56,7 @@ const IncentiveFilter: React.FC = () => {
   };
   const handleCreatedByYear = (yearId: string) => {
     setSelectedYear(yearId);
+
     const selectedFiscalYear = fiscalYear?.items?.find(
       (year: any) => year?.id === yearId,
     );

@@ -135,7 +135,7 @@ const AllIncentiveTable: React.FC = () => {
         scroll={{ x: 1000 }}
         onRow={(record) => ({
           onClick: () => {
-            router.push(`/incentive/detail/${record?.id}`);
+            router.push(`/incentives/detail/${record?.id}`);
           },
         })}
       />

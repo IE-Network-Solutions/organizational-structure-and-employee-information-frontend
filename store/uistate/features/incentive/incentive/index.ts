@@ -263,6 +263,12 @@ type IncentiveState = {
   selectedSessions: string[];
   parentResponseIsLoading: boolean;
   parentTypeId: string;
+  isOpen: boolean;
+  parentRecognitionTypeId: string | null;
+  sessionId: string[];
+  generateAll: boolean;
+  filteredSessions: any[];
+  selectedFiscalYear: string | null;
 };
 
 type IncentiveActions = {
@@ -290,6 +296,12 @@ type IncentiveActions = {
   setSelectedSessions: (value: string[]) => void;
   setParentTypeId: (value: string) => void;
   setParentResponseIsLoading: (parentResponseIsLoading: boolean) => void;
+  setIsOpen: (isOpen: boolean) => void;
+  setParentRecognitionTypeId: (id: string | null) => void;
+  setSessionId: (ids: string[]) => void;
+  setGenerateAll: (value: boolean) => void;
+  setFilteredSessions: (sessions: any[]) => void;
+  setSelectedFiscalYear: (year: string | null) => void;
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -379,6 +391,23 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
 
   parentTypeId: '',
   setParentTypeId: (value) => set({ parentTypeId: value }),
+
+  isOpen: false,
+  setIsOpen: (isOpen) => set({ isOpen }),
+
+  parentRecognitionTypeId: null,
+  sessionId: [],
+  generateAll: false,
+
+  setParentRecognitionTypeId: (id) => set({ parentRecognitionTypeId: id }),
+  setSessionId: (ids) => set({ sessionId: ids }),
+  setGenerateAll: (value) => set({ generateAll: value }),
+
+  filteredSessions: [],
+  setFilteredSessions: (sessions) => set({ filteredSessions: sessions }),
+
+  selectedFiscalYear: null,
+  setSelectedFiscalYear: (year) => set({ selectedFiscalYear: year }),
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(
