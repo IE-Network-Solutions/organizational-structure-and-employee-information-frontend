@@ -18,7 +18,7 @@ const fetchAllIncentiveData = async (
     data: {
       userId: employeeName,
       year: year,
-      sessionId: session ?? [],
+      sessionId: session,
       monthId: month,
     },
   });

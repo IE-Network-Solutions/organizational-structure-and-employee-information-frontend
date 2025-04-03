@@ -7,6 +7,7 @@ import { useEffect, useMemo } from 'react';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import AllIncentives from './compensation/all/page';
 import DynamicIncentive from './compensation/dynamicRecoginition';
+import ExportModal from './compensation/all/export';
 
 const Page = () => {
   const {
@@ -18,14 +19,21 @@ const Page = () => {
     setShowGenerateModal,
     showGenerateModal,
     setSelectedRecognition,
+    selectedRecognition,
     setParentResponseIsLoading,
+    setIsOpen,
   } = useIncentiveStore();
+
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
 
   useEffect(() => {
     setParentResponseIsLoading(parentResponseLoading);
   }, [parentResponseLoading]);
+
+  const handleExportClick = () => {
+    setIsOpen(true);
+  };
 
   const items: TabsProps['items'] = parentResponseLoading
     ? [{ key: 'loading', label: <Skeleton active />, children: null }]
@@ -68,7 +76,10 @@ const Page = () => {
               Generate
             </Button>
           ) : (
-            <Button className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4">
+            <Button
+              onClick={() => handleExportClick()}
+              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
+            >
               Export
             </Button>
           )}
@@ -85,7 +96,10 @@ const Page = () => {
       // Show Import & Generate for all other tabs
       return (
         <div className="flex items-center justify-center gap-3">
-          <Button className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4">
+          <Button
+            onClick={() => handleExportClick()}
+            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
+          >
             Export
           </Button>
           <Button
@@ -141,6 +155,7 @@ const Page = () => {
           {/* )} */}
         </>
       )}
+      <ExportModal selectedRecognition={selectedRecognition?.id} />
     </div>
   );
 };

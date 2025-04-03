@@ -19,35 +19,35 @@ const IncentiveDetail: React.FC<IncentiveUserInfoProps> = ({ detailId }) => {
           </span>
         </Col>
 
-        {userDetail && Object.keys(userDetail).length > 0 ? (
-          <>
-            {userDetail?.breakdown &&
-              Array.isArray(userDetail?.breakdown) &&
-              userDetail?.breakdown?.map((item: any, index: number) => (
-                <React.Fragment key={index}>
-                  <Col
-                    xs={24}
-                    sm={24}
-                    md={8}
-                    lg={8}
-                    xl={8}
-                    className="font-medium text-gray-600"
-                  >
-                    {item?.criterionKey}
-                  </Col>
-                  <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                    <span className="text-gray-900 font-semibold">
-                      {item?.score ?? 'N/A'}
-                    </span>
-                  </Col>
-                </React.Fragment>
-              ))}
-          </>
-        ) : (
-          <Col span={24} className="text-center text-gray-500">
-            No user details available
-          </Col>
-        )}
+        {/* {userDetail && Object.keys(userDetail).length > 0 ? (
+          <> */}
+        {userDetail?.breakdown &&
+          Array.isArray(userDetail?.breakdown) &&
+          userDetail?.breakdown?.map((item: any, index: number) => (
+            <React.Fragment key={index}>
+              <Col
+                xs={24}
+                sm={24}
+                md={8}
+                lg={8}
+                xl={8}
+                className="font-medium text-gray-600"
+              >
+                {item?.criterionKey}
+              </Col>
+              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <span className="text-gray-900 font-semibold">
+                  {item?.score ?? 'N/A'}
+                </span>
+              </Col>
+            </React.Fragment>
+          ))}
+        {/* </> */}
+        {/* // ) : (
+        //   <Col span={24} className="text-center text-gray-500">
+        //     No user details available
+        //   </Col>
+        // )} */}
         <Col xs={24} sm={24} md={8} lg={8} xl={8}>
           Bonus
         </Col>

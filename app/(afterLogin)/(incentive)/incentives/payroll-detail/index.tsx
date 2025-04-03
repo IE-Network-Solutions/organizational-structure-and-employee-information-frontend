@@ -60,7 +60,7 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
             cardData.items.map((items: IncentiveDetail, index: number) => (
               <Col key={index} xs={24} sm={24} md={24} lg={8} xl={8}>
                 <Link
-                  href={`/incentive/payroll-detail/${items?.parentRecognitionTypeId}`}
+                  href={`/incentives/payroll-detail/${items?.parentRecognitionTypeId}`}
                 >
                   <Card className="bg-[#FAFAFA]" bordered={false}>
                     <div className="flex flex-wrap items-start justify-between mb-0">
