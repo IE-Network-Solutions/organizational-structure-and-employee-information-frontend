@@ -368,11 +368,11 @@ const InvoiceItem = () => {
                 <div className="flex justify-around gap-2 mt-4">
                   <div className="flex justify-center gap-4 mt-8">
                     <Button
-                      onClick={() => invoiceData?.status?.toLowerCase() === 'pending' ? router.back() : router.push('/admin/dashboard')}
+                      onClick={() => router.push('/admin/dashboard')}
                       className="text-center flex justify-center items-center"
                       type="default"
                     >
-                      {invoiceData?.status?.toLowerCase() === 'pending' ? 'Back' : 'Dashboard'}
+                      Dashboard
                     </Button>
                     {invoiceData?.status?.toLowerCase() === 'pending' && (
                       <Button

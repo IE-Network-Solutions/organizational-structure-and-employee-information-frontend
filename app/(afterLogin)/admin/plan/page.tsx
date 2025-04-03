@@ -30,9 +30,6 @@ const PlanPage = () => {
   const [availablePeriods, setAvailablePeriods] = useState<PeriodType[]>([]);
   const [quotaError, setQuotaError] = useState<string | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'chapa' | 'stripe' | null>(null);
-  const [isCreatingSubscription, setIsCreatingSubscription] = useState(false);
-  const [updatedSubscription, setUpdatedSubscription] = useState<Subscription | null>(null);
-  const [currentInvoice, setCurrentInvoice] = useState<Invoice | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
@@ -430,19 +427,9 @@ const PlanPage = () => {
 
   // After the subscription is created/updated, refetch the list to get the latest data
   const handleRefetchSubscriptions = async () => {
-    // if (!updatedSubscriptionId) return;
-    
     try {
-      // Refetch all subscriptions to get the latest data
-      const result = await refetchSubscriptions();
-      
-      if (result.data?.items && result.data.items.length > 0) {
-        // Find the subscription we just created/updated
-        const updatedSubscription = result.data?.items[0] as Subscription;
-
-        setUpdatedSubscription(updatedSubscription);
-        setCurrentInvoice(updatedSubscription.invoices[0]);
-      }
+      // Просто обновляем подписки, без установки лишних переменных
+      await refetchSubscriptions();
     } catch (error) {
       notification.error({
         message: 'Error refetching subscriptions',
@@ -460,7 +447,7 @@ const PlanPage = () => {
       return;
     }
 
-    setIsCreatingSubscription(true);
+    setIsProcessingPayment(true);
 
     try {
       const selectedPlanPeriod = currentPlan.periods?.find(
@@ -516,7 +503,7 @@ const PlanPage = () => {
         description: error instanceof Error ? error.message : 'Failed to process your subscription. Please try again later.',
       });
     } finally {
-      setIsCreatingSubscription(false);
+      setIsProcessingPayment(false);
     }
   };
 
@@ -847,8 +834,8 @@ const PlanPage = () => {
                 onClick={handleConfirmation}
                 className="text-center flex justify-center items-center"
                 type="primary"
-                loading={isCreatingSubscription}
-                disabled={isLoading || isCreatingSubscription}
+                loading={isProcessingPayment}
+                disabled={isLoading || isProcessingPayment}
               >
                 Confirm and Pay
               </Button>
