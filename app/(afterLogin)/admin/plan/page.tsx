@@ -353,7 +353,7 @@ const PlanPage = () => {
 
   // Handle payment
   const handlePayment = async () => {
-    if (!selectedPaymentMethod || !currentInvoice?.id) {
+    if (!selectedPaymentMethod || !updatedSubscriptionValue?.invoices[0]?.id) {
       notification.error({
         message: 'Payment Error',
         description: 'Please select a payment method and ensure you have a valid invoice.',
@@ -376,7 +376,7 @@ const PlanPage = () => {
 
       // Call the payment API
       const response = await initiatePaymentMutation.mutateAsync({
-        invoiceId: currentInvoice.id as string,
+        invoiceId: updatedSubscriptionValue?.invoices[0]?.id as string,
         data: paymentData
       });
 
