@@ -20,6 +20,7 @@ interface PayRoleViewProps {
 const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
   const { data: cardData, isLoading: cardResponseLoading } =
     useAllIncentiveCards();
+
   const { data: allSessions } = useFetchIncentiveSessions();
   const { currentPage, setCurrentPage, pageSize, setPageSize } =
     useIncentiveStore();
@@ -28,6 +29,7 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
     const user = allSessions?.items?.find((item: any) => item?.id === id);
     return user;
   };
+
   return (
     <div className="m-3">
       <div className="flex items-center justify-between">
@@ -83,16 +85,26 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
                       )}
                     </div>
                     <Divider className="mt-0" />
-                    {items?.criteria?.map((cat: IncentiveItem, idx: number) => (
-                      <div
-                        key={idx}
-                        className="bg-[#D3E4F0] rounded-xl my-3 py-2 px-3 inline-block mx-1"
-                      >
+                    {Array.isArray(items?.criteria) &&
+                    items?.criteria.length > 0 ? (
+                      items?.criteria.map((cat: IncentiveItem, idx: number) => (
+                        <div
+                          key={idx}
+                          className="bg-[#D3E4F0] rounded-xl my-3 py-2 px-3 inline-block mx-1"
+                        >
+                          <span className="text-[#1D9BF0] text-sm font-semibold">
+                            {cat?.name}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="bg-[#D3E4F0] rounded-xl my-3 py-2 px-3 inline-block mx-1">
                         <span className="text-[#1D9BF0] text-sm font-semibold">
-                          {cat?.name}
+                          Fixed Amount
                         </span>
                       </div>
-                    ))}
+                    )}
+
                     <div className="flex flex-wrap items-center justify-between mt-3">
                       <span className="text-[16px] font-semibold text-[#687588]">
                         {items?.totalAmount || 0} ETB
