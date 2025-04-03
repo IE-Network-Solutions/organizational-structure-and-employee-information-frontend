@@ -380,7 +380,7 @@ const AdminDashboard = () => {
                               ? 'Downgrade Plan'
                               : 'Upgrade Plan'
                           }
-                          onClick={() => router.push('/admin/plan')}
+                          onClick={() => router.push(`/admin/plan?planId=${plan.id}`)}
                           className="w-full text-center flex justify-center items-center"
                           type="primary"
                           disabled={!isLatestInvoicePaid()}
