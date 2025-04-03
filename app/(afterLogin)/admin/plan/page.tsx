@@ -14,6 +14,8 @@ import { DEFAULT_TENANT_ID, TENANT_BASE_URL } from '@/utils/constants';
 import { useCreateSubscription, useUpgradeSubscription } from '@/store/server/features/tenant-management/manage-subscriptions/mutation';
 import { useInitiatePayment } from '@/store/server/features/tenant-management/payments/queries';
 import dayjs from 'dayjs';
+import { useCalculateSubscriptionPrice } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
+import { CalculateSubscriptionPriceDto, CalculateSubscriptionPriceResponse } from '@/store/server/features/tenant-management/manage-subscriptions/interface';
 
 
 const PlanPage = () => {
@@ -70,32 +72,54 @@ const PlanPage = () => {
   // Initialize payment mutation
   const initiatePaymentMutation = useInitiatePayment();
 
-  // Initial setup based on URL parameters
+  // New state for calculation
+  const [calculationDto, setCalculationDto] = useState<CalculateSubscriptionPriceDto | null>(null);
+  const [isCalculationEnabled, setIsCalculationEnabled] = useState(false);
+  const [calculationResult, setCalculationResult] = useState<CalculateSubscriptionPriceResponse | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
+
+  // Add the calculation hook
+  const { data: calculationData, error: calculationError } = useCalculateSubscriptionPrice(
+    calculationDto,
+    isCalculationEnabled
+  );
+
+  // Leave this useEffect, which loads plans
   useEffect(() => {
-    // If directly going to subscription period step, ensure we have a plan
-    if (initialStep === 1 && plans.length > 0 && !currentPlan) {
-      // Check if planId is in URL
-      const planId = searchParams.get('planId');
-      if (planId) {
-        const plan = plans.find(p => p.id === planId);
-        if (plan) {
-          setCurrentPlan(plan);
-        } else {
-          // If plan not found, use first available plan
-          setCurrentPlan(plans[0]);
-        }
-      } else if (activeSubscription) {
-        // If no planId but we have active subscription, use its plan
-        const plan = plans.find(p => p.id === activeSubscription.planId);
-        if (plan) {
-          setCurrentPlan(plan);
-        }
-      } else {
-        // Default to first plan
-        setCurrentPlan(plans[0]);
+    if (plansData?.items && plansData.items.length > 0) {
+      setPlans(plansData.items);
+    }
+  }, [plansData]);
+
+  // Add our new simple useEffect
+  useEffect(() => {
+    if (!plans.length) return;
+    
+    // 1. Priority: planId from URL parameter
+    const planId = searchParams.get('planId');
+    if (planId) {
+      const selectedPlan = plans.find(p => p.id === planId);
+      if (selectedPlan) {
+        setCurrentPlan(selectedPlan);
+        return;
       }
     }
-  }, [initialStep, plans, currentPlan, searchParams, activeSubscription]);
+    
+    // 2. Priority: plan from active subscription
+    if (activeSubscription?.planId) {
+      const subscriptionPlan = plans.find(p => p.id === activeSubscription.planId);
+      if (subscriptionPlan) {
+        setCurrentPlan(subscriptionPlan);
+        return;
+      }
+    }
+    
+    // 3. If nothing matches, use the first available plan
+    if (!currentPlan && plans.length > 0) {
+      setCurrentPlan(plans[0]);
+    }
+
+  }, [plans, searchParams, activeSubscription, currentPlan]);
 
   // Process subscription data
   useEffect(() => {
@@ -112,31 +136,6 @@ const PlanPage = () => {
     }
   }, [subscriptionsData]);
 
-  // Process plans data
-  useEffect(() => {
-    if (plansData?.items && plansData.items.length > 0) {
-      setPlans(plansData.items);
-      
-      // If we have an active subscription, find its plan
-      if (activeSubscription) {
-        const plan = plansData.items.find(p => p.id === activeSubscription.planId);
-        if (plan) {
-          setCurrentPlan(plan);
-        }
-      } else if (searchParams.get('planId')) {
-        // If no active subscription but planId is in URL params, use that plan
-        const planId = searchParams.get('planId');
-        const plan = plansData.items.find(p => p.id === planId);
-        if (plan) {
-          setCurrentPlan(plan);
-        }
-      } else if (plansData.items.length > 0 && !currentPlan) {
-        // If no active subscription and no planId in URL, use the first available plan
-        setCurrentPlan(plansData.items[0]);
-      }
-    }
-  }, [plansData, activeSubscription, searchParams, currentPlan]);
-
   // Process period types data
   useEffect(() => {
     if (periodTypesData?.items && periodTypesData.items.length > 0) {
@@ -144,64 +143,53 @@ const PlanPage = () => {
     }
   }, [periodTypesData]);
 
-  // Set available periods based on current plan
+  // Replace the complex useEffect for periods with a simpler one
   useEffect(() => {
-    // For the case when we have a current plan with periods and period types are loaded
-    if (currentPlan && currentPlan.periods && periodTypes.length > 0) {
-      // Extract period types from plan periods
-      const planPeriodTypes: PeriodType[] = [];
-      
-      // For each plan period, find the corresponding period type
+    if (!currentPlan || !periodTypes.length) return;
+
+    // 1. Get available periods for the selected plan
+    const planPeriodTypes: PeriodType[] = [];
+    if (currentPlan.periods) {
       currentPlan.periods.forEach(planPeriod => {
         const periodType = periodTypes.find(pt => pt.id === planPeriod.periodTypeId);
         if (periodType) {
           planPeriodTypes.push(periodType);
         }
       });
+    }
+    setAvailablePeriods(planPeriodTypes.length ? planPeriodTypes : periodTypes);
+
+    // 2. Determine the period based on the rules:
+    // - if there is an active subscription with the same plan, take its period
+    // - otherwise take the period with the smallest periodInMonths
+    if (activeSubscription && activeSubscription.planId === currentPlan.id && activeSubscription.planPeriodId) {
+      // Search for the period from the active subscription
+      const currentPlanPeriod = currentPlan.periods?.find(
+        period => period.id === activeSubscription.planPeriodId
+      );
       
-      setAvailablePeriods(planPeriodTypes);
-      
-      // Set current period type from the active subscription
-      if (activeSubscription && activeSubscription.planPeriodId) {
-        // Find the plan period in the current plan that matches the active subscription's planPeriodId
-        const currentPlanPeriod = currentPlan.periods.find(
-          period => period.id === activeSubscription.planPeriodId
-        );
-        
-        if (currentPlanPeriod) {
-          // Find the period type using the periodTypeId from the found plan period
-          const currentPT = periodTypes.find(pt => pt.id === currentPlanPeriod.periodTypeId);
-          if (currentPT) {
-            setCurrentPeriodType(currentPT);
-            if (!updatedPeriod) {
-              setUpdatedPeriod(currentPT.code);
-            }
-          }
-        }
-      } else if (planPeriodTypes.length > 0) {
-        // If no active subscription or no planPeriodId, set default period from plan
-        const defaultPeriod = planPeriodTypes[0];
-        setCurrentPeriodType(defaultPeriod);
-        if (!updatedPeriod) {
-          setUpdatedPeriod(defaultPeriod.code);
-        }
-      }
-    } else if (periodTypes.length > 0) {
-      // If no current plan (first subscription), show all possible periods
-      setAvailablePeriods(periodTypes);
-      
-      // Set default period (first in the list)
-      if (!currentPeriodType) {
-        const defaultPeriod = periodTypes[0];
-        setCurrentPeriodType(defaultPeriod);
-        if (!updatedPeriod) {
-          setUpdatedPeriod(defaultPeriod.code);
+      if (currentPlanPeriod) {
+        const periodFromSubscription = periodTypes.find(pt => pt.id === currentPlanPeriod.periodTypeId);
+        if (periodFromSubscription) {
+          setCurrentPeriodType(periodFromSubscription);
+          setUpdatedPeriod(periodFromSubscription.code);
+          return;
         }
       }
     }
-  }, [currentPlan, periodTypes, activeSubscription, updatedPeriod, currentPeriodType]);
+    
+    // If there is no corresponding subscription or period not found, take the period with the smallest periodInMonths
+    if (planPeriodTypes.length > 0) {
+      // Sort by ascending periodInMonths and take the first (shortest) period
+      const sortedPeriods = [...planPeriodTypes].sort((a, b) => 
+        (a.periodInMonths || 0) - (b.periodInMonths || 0)
+      );
+      setCurrentPeriodType(sortedPeriods[0]);
+      setUpdatedPeriod(sortedPeriods[0].code);
+    }
+  }, [currentPlan, periodTypes, activeSubscription]);
 
-  // Убедимся, что выбранный период отображается правильно на шаге подтверждения
+  // Ensure the selected period is displayed correctly on the confirmation step
   useEffect(() => {
     if (updatedPeriod) {
       const period = periodTypes.find(p => p.code === updatedPeriod);
@@ -211,15 +199,71 @@ const PlanPage = () => {
     }
   }, [updatedPeriod, periodTypes]);
 
-  const handleNextStep = () => {
-    // Если мы переходим к шагу подтверждения, убедимся, что у нас есть план
-    if (currentStep === 1 && !currentPlan && plans.length > 0) {
-      setCurrentPlan(plans[0]);
+  // Add an effect to handle calculation results
+  useEffect(() => {
+    if (isCalculationEnabled && calculationData?.item) {
+      setCalculationResult(calculationData.item);
+      setIsCalculationEnabled(false);
+      setIsCalculating(false);
+      // Go to the confirmation step
+      setCurrentStep(2);
+    } else if (isCalculationEnabled && calculationError) {
+      notification.error({
+        message: 'Calculation Error',
+        description: calculationError instanceof Error ? calculationError.message : 'Failed to calculate the cost. Please try again.'
+      });
+      setIsCalculationEnabled(false);
+      setIsCalculating(false);
     }
-    setCurrentStep((prev) => prev + 1);
+  }, [calculationData, calculationError, isCalculationEnabled]);
+
+  const handleNextStep = () => {
+    if (currentStep === 1) {
+      // If we are on the period selection step and move to confirmation, start calculation
+      if (!selectedPeriodType || !updatedQuota || !currentPlan) {
+        notification.error({
+          message: 'Missing data',
+          description: 'Please fill in all required fields'
+        });
+        return;
+      }
+      
+      // Find the ID of the selected period
+      const selectedPlanPeriod = currentPlan.periods?.find(
+        pp => pp.periodTypeId === selectedPeriodType.id
+      );
+      
+      if (!selectedPlanPeriod) {
+        notification.error({
+          message: 'Period selection error',
+          description: 'Selected period not found in plan'
+        });
+        return;
+      }
+      
+      // Create DTO for calculation
+      const dto: CalculateSubscriptionPriceDto = {
+        planId: currentPlan.id,
+        planPeriodId: selectedPlanPeriod.id,
+        slotTotal: updatedQuota,
+        ...(activeSubscription ? { subscriptionId: activeSubscription.id } : {})
+      };
+      
+      // Start the calculation process
+      setCalculationDto(dto);
+      setCalculationResult(null);
+      setIsCalculationEnabled(true);
+      setIsCalculating(true);
+      
+      // Don't change the step here - this will happen after receiving the result
+    } else {
+      // For other steps, just move forward
+      setCurrentStep((prev) => prev + 1);
+    }
   };
   
   const handlePreviousStep = () => setCurrentStep((prev) => prev - 1);
+
   const handleQuotaChange = (value: number | null) => {
     // Always update the value, even if null
     setUpdatedQuota(value);
@@ -227,6 +271,8 @@ const PlanPage = () => {
     // Show error if value is less than current quota
     if (value !== null && activeSubscription?.slotTotal && value < activeSubscription.slotTotal) {
       setQuotaError('Your quota is below total number of user quota');
+    }  else if (value === null || value === undefined || value === 0) {
+      setQuotaError('Please enter a valid number');
     } else {
       setQuotaError(null);
     }
@@ -249,16 +295,19 @@ const PlanPage = () => {
   
   // Check if period has been changed and is valid
   const isPeriodChanged = () => {
-    // If no period selected, it's not valid
+    // If there is no active subscription, any selected period is considered valid
+    if (!activeSubscription) return true;
+    
+    // If there is no selected period, it is invalid
     if (!updatedPeriod) return false;
     
-    // Get current period from active subscription
+    // Get the current period from the active subscription
     const currentPeriodCode = currentPeriodType?.code;
     
-    // If same as current period, it's not changed
+    // If it matches the current period, it is not considered changed
     if (updatedPeriod === currentPeriodCode) return false;
     
-    // Otherwise it's valid and changed
+    // Otherwise it is valid and changed  
     return true;
   };
   
@@ -403,7 +452,7 @@ const PlanPage = () => {
   };
 
   const handleConfirmation = async () => {
-    if (!currentPlan || !selectedPeriodType || !updatedQuota) {
+    if (!currentPlan || !selectedPeriodType || !updatedQuota || !calculationResult) {
       notification.error({
         message: 'Missing data',
         description: 'Required data for subscription is missing. Please try again.',
@@ -422,36 +471,35 @@ const PlanPage = () => {
         throw new Error('Selected period not found in plan');
       }
 
-      // Common subscription data
-      const subscriptionData = {
-        planId: currentPlan.id,
-        planPeriodId: selectedPlanPeriod.id,
-        slots: updatedQuota,
-        tenantId: DEFAULT_TENANT_ID,
-      };
-
       let response;
 
-      // Determine if it's a new subscription or upgrade
       if (!activeSubscription) {
         // Create new subscription
-        response = await createSubscriptionMutation.mutateAsync(subscriptionData);
-      } else {
-        // Upgrade existing subscription
-        const upgradeData = {
-          ...subscriptionData,
-          subscriptionId: activeSubscription.id,
+        const createData = {
+          planId: currentPlan.id,
+          planPeriodId: selectedPlanPeriod.id,
+          slots: updatedQuota,
+          tenantId: DEFAULT_TENANT_ID,
         };
+        
+        response = await createSubscriptionMutation.mutateAsync(createData);
+      } else {
+        // Update existing subscription
+        const upgradeData = {
+          subscriptionId: activeSubscription.id,
+          planId: currentPlan.id,
+          planPeriodId: selectedPlanPeriod.id,
+          slots: updatedQuota,
+          tenantId: DEFAULT_TENANT_ID,
+        };
+        
         response = await upgradeSubscriptionMutation.mutateAsync(upgradeData);
       }
       
-      // Save the subscription ID for fetching details
       if (response && (response.id || response.data?.id)) {
-        // Refetch the subscriptions to get the invoice
         await handleRefetchSubscriptions();
       }
 
-      // Move to payment step
       setCurrentStep(3);
       
       notification.success({
@@ -482,7 +530,7 @@ const PlanPage = () => {
     setIsDownloading(true);
 
     try {
-      // Шаг 1: Получить ссылку на PDF
+      // Step 1: Get the PDF link
       const invoiceDetailResponse = await fetch(`${TENANT_BASE_URL}/api/v1/subscription/rest/invoices/${currentInvoice.id}/detail?fileType=PDF`);
       
       if (!invoiceDetailResponse.ok) {
@@ -498,7 +546,7 @@ const PlanPage = () => {
       
       const pdfFileUrl = `${TENANT_BASE_URL}/${filePath}`;
       
-      // Шаг 2: Скачать PDF
+      // Step 2: Download PDF
       const pdfResponse = await fetch(pdfFileUrl);
       
       if (!pdfResponse.ok) {
@@ -596,17 +644,20 @@ const PlanPage = () => {
                 <div className="flex flex-col rounded-lg border border-gray-200 pt-8 pb-10 px-8 max-w-[700px] min-h-[280px] mx-auto">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-2xl font-bold">Current User Quota</span>
-                    <span
-                      className="text-md font-bold px-3 py-1 border border-gray-400"
-                      style={{ borderRadius: '10px' }}
-                    >
-                      {activeSubscription?.slotTotal || 0}
-                    </span>
+                    { activeSubscription && currentPlan && activeSubscription.plan.id === currentPlan.id && (
+                      <span
+                        className="text-md font-bold px-3 py-1 border border-gray-400"
+                        style={{ borderRadius: '10px' }}
+                      >
+                        {activeSubscription?.slotTotal || 0}
+                      </span>
+                    )}
                   </div>
                   <div className="flex flex-col gap-2 mt-6 mb-2">
                     <span className="font-bold">Update Number of user quota</span>
                     <InputNumber
                       min={0}
+                      type='number'
                       value={updatedQuota}
                       className="w-full max-w-[300px] py-2"
                       onChange={handleQuotaChange}
@@ -671,24 +722,27 @@ const PlanPage = () => {
                     <span className="text-2xl font-bold">
                       Current Subscription Period
                     </span>
-                    <span
+                    { activeSubscription && currentPlan && activeSubscription.plan.id === currentPlan.id && (
+                      <span
                       className="text-md font-bold px-3 py-1 border border-gray-400"
                       style={{
                         borderRadius: '10px',
                       }}
                     >
-                      {updatedPeriod || currentPeriodType?.code}
-                    </span>
+                        {updatedPeriod || currentPeriodType?.code}
+                      </span>
+                    )}
                   </div>
                   <div className="flex flex-col gap-2 mt-6 mb-2">
                     <span className="font-bold">Update Subscription Period</span>
+                    <span className="font-bold">{currentPeriodType?.code || 'jest'}</span>
                     <Select
                       value={updatedPeriod || currentPeriodType?.code}
                       className="w-full max-w-[300px] min-h-[48px]"
                       onChange={handlePeriodChange}
                       disabled={isPeriodDisabled}
                     >
-                      {availablePeriods.map((period) => (
+                      {availablePeriods.sort((a, b) => (a.periodInMonths || 0) - (b.periodInMonths || 0)).map((period) => (
                         <Select.Option key={period.id} value={period.code}>
                           {period.code} - {currentPlan?.currency?.symbol || '$'}
                           {currentPlan?.periods?.find(pp => pp.periodTypeId === period.id)?.periodSlotPrice || 
@@ -701,7 +755,7 @@ const PlanPage = () => {
                         You can only update the user quota at this time. To change the subscription period, please use the &quot;Update Subscription Period&quot; button.
                       </div>
                     )}
-                    {!isPeriodDisabled && !isPeriodChanged() && (
+                    {!isPeriodDisabled && !isPeriodChanged() && activeSubscription && (
                       <div className="text-gray-500 text-sm">
                         Please change the period value to continue
                       </div>
@@ -722,9 +776,10 @@ const PlanPage = () => {
                 onClick={handleNextStep}
                 className="text-center flex justify-center items-center"
                 type="primary"
-                disabled={isLoading || (!isPeriodDisabled && !isPeriodChanged())}
+                loading={isCalculating}
+                disabled={isLoading || (!isPeriodDisabled && !isPeriodChanged()) || isCalculating}
               >
-                Continue
+                {isCalculating ? 'Calculating...' : 'Continue'}
               </Button>
             </div>
           </div>
@@ -756,7 +811,12 @@ const PlanPage = () => {
                   </div>
                   <div className="flex items-center justify-between gap-2 mb-4 text-lg font-bold">
                     <span>Total Amount</span>
-                    <span>{currentPlan?.currency?.symbol || '$'}{totalAmount.toFixed(2)}</span>
+                    <span>
+                      {calculationResult 
+                        ? `${currentPlan?.currency?.symbol || '$'}${calculationResult.totalAmount.toFixed(2)}`
+                        : `${currentPlan?.currency?.symbol || '$'}${totalAmount.toFixed(2)}`
+                      }
+                    </span>
                   </div>
                   <div className="border-t border-gray-200 pt-4 mt-2">
                     <div className="text-sm text-gray-500 flex items-center gap-2">

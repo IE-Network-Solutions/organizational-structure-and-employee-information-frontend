@@ -6,6 +6,21 @@ import {
   PrepaySubscriptionRequest,
 } from '@/types/tenant-management';
 
+// New interfaces for calculating the cost
+export interface CalculateSubscriptionPriceDto {
+  subscriptionId?: string;
+  planId: string;
+  planPeriodId: string;
+  slotTotal: number;
+}
+
+export interface CalculateSubscriptionPriceResponse {
+  periodInMonths: number;
+  slotPricePerPeriod: number;
+  effectiveSlotPrice: number;
+  totalAmount: number;
+}
+
 export type {
   GetSubscriptionByTenantRequest,
   UpgradeSubscriptionRequest,
