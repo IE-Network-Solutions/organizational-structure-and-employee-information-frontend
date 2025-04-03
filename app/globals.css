@@ -209,10 +209,25 @@ h6 {
   @apply text-gray-900 text-[24px];
 }
 
-.ant-tree-treenode-selected .ant-tree-title {
-  height: 30px !important;
-  width: 180px !important;
+.ant-tree-treenode .ant-tree-title {
+  height: 2.25rem !important; /* h-9 */
+  width: 14rem !important; /* w-60 */
   display: flex;
   align-items: center;
   justify-content: start;
 }
+
+.ant-tree-treenode-selected .ant-tree-title {
+  background-color: #f5f5f5 !important; /* Slightly darker for selection */
+}
+
+.ant-tree-treenode:hover .ant-tree-title {
+  background-color: #f5f5f5 !important; /* Light grey on hover */
+}
+
+.ant-tree-treenode .ant-tree-title {
+  transition: background-color 0.2s ease-in-out;
+}
+
+
+
