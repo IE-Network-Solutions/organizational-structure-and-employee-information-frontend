@@ -474,23 +474,27 @@ const PlanPage = () => {
       let response;
 
       if (!activeSubscription) {
-        // Create new subscription
+        // Creating a new subscription - exactly match the format from another project
         const createData = {
           planId: currentPlan.id,
           planPeriodId: selectedPlanPeriod.id,
-          slots: updatedQuota,
+          slotTotal: updatedQuota, // Use slotTotal instead of slots
           tenantId: DEFAULT_TENANT_ID,
+          currencyId: currentPlan.currency?.id, // Add currencyId
+          subscriptionPrice: calculationResult.totalAmount, // Use the calculated amount
+          subscriptionStatus: "pending" as any, // Explicit type casting to solve the problem
+          isActive: false // Default inactive until payment
         };
         
         response = await createSubscriptionMutation.mutateAsync(createData);
       } else {
-        // Update existing subscription
+        // Updating an existing subscription
         const upgradeData = {
           subscriptionId: activeSubscription.id,
           planId: currentPlan.id,
           planPeriodId: selectedPlanPeriod.id,
-          slots: updatedQuota,
-          tenantId: DEFAULT_TENANT_ID,
+          slotTotal: updatedQuota, // Use slotTotal instead of slots
+          tenantId: DEFAULT_TENANT_ID
         };
         
         response = await upgradeSubscriptionMutation.mutateAsync(upgradeData);
@@ -516,10 +520,12 @@ const PlanPage = () => {
     }
   };
 
+  const updatedSubscriptionValue = subscriptionsData?.items[0];
+
   // PDF download handler
   const handleDownloadPdf = async () => {
     // Check if we have an invoice ID
-    if (!currentInvoice?.id) {
+    if (!updatedSubscriptionValue?.invoices[0]?.id) {
       notification.warning({
         message: 'No Invoice Available',
         description: 'Please complete the subscription process first to generate an invoice.'
@@ -531,7 +537,7 @@ const PlanPage = () => {
 
     try {
       // Step 1: Get the PDF link
-      const invoiceDetailResponse = await fetch(`${TENANT_BASE_URL}/api/v1/subscription/rest/invoices/${currentInvoice.id}/detail?fileType=PDF`);
+      const invoiceDetailResponse = await fetch(`${TENANT_BASE_URL}/api/v1/subscription/rest/invoices/${updatedSubscriptionValue?.invoices[0]?.id}/detail?fileType=PDF`);
       
       if (!invoiceDetailResponse.ok) {
         throw new Error(`Failed to fetch PDF details: ${invoiceDetailResponse.status} ${invoiceDetailResponse.statusText}`);
@@ -562,7 +568,7 @@ const PlanPage = () => {
       // Create a link element
       const link = document.createElement('a');
       link.href = url;
-      link.download = `invoice-${currentInvoice.id}.pdf`;
+      link.download = `invoice-${updatedSubscriptionValue?.invoices[0]?.id}.pdf`;
       
       // Append the link to the document
       document.body.appendChild(link);
@@ -873,7 +879,7 @@ const PlanPage = () => {
                     <button
                       className="text-blue-600 hover:text-blue-800"
                       onClick={handleDownloadPdf}
-                      disabled={isDownloading || !currentInvoice?.id}
+                      disabled={isDownloading || !updatedSubscriptionValue?.invoices[0]?.id}
                     >
                       {isDownloading ? (
                         <LoadingOutlined style={{ fontSize: 25 }} spin />
@@ -897,17 +903,17 @@ const PlanPage = () => {
                     </div>
                     <div className="flex flex-col gap-2">
                       {[
-                        ['Invoice Number:', `#${currentInvoice?.invoiceNumber}`],
-                        ['Issue Date:', currentInvoice?.createdAt],
+                        ['Invoice Number:', `#${updatedSubscriptionValue?.invoices[0]?.invoiceNumber}`],
+                        ['Issue Date:', formatDate(updatedSubscriptionValue?.invoices[0]?.createdAt)],
                         ['Payment Date:', ''],
                         [
                           'Billing Period:',
-                          updatedSubscription?.startAt && updatedSubscription?.endAt ?
-                          `${formatDate(updatedSubscription?.startAt)} - ${formatDate(updatedSubscription?.endAt)}` : '-'
+                          updatedSubscriptionValue?.startAt && updatedSubscriptionValue?.endAt ?
+                          `${formatDate(updatedSubscriptionValue?.startAt)} - ${formatDate(updatedSubscriptionValue?.endAt)}` : '-'
                         ],
-                        ['Number of Users:', updatedSubscription?.slotTotal || 0],
-                        ['Amount:', `${currentPlan?.currency?.symbol || '$'}${ currentInvoice?.totalAmount }`],
-                        ['Notes:', currentInvoice?.notes || '-'],
+                        ['Number of Users:', updatedSubscriptionValue?.slotTotal || 0],
+                        ['Amount:', `${currentPlan?.currency?.symbol || '$'}${ updatedSubscriptionValue?.invoices[0]?.totalAmount }`],
+                        ['Notes:', updatedSubscriptionValue?.invoices[0]?.notes || '-'],
                       ].map(([label, value], index) => (
                         <div
                           key={index}
@@ -936,7 +942,7 @@ const PlanPage = () => {
                           className="flex items-center justify-center text-md font-bold border border-success rounded-lg px-2 gap-2"
                         >
                           <span className="flex min-w-[10px] w-[10px] h-[10px] bg-success rounded-full"></span>
-                          <span>{updatedSubscription?.plan?.name || 'N/A'}</span>
+                          <span>{updatedSubscriptionValue?.plan?.name || 'N/A'}</span>
                         </span>,
                       ],
                       [
@@ -945,7 +951,7 @@ const PlanPage = () => {
                           key="status"
                           className="text-md font-bold text-orange bg-orange/10 rounded-lg px-4 py-2"
                         >
-                          {currentInvoice?.status || ''}
+                          {updatedSubscriptionValue?.invoices[0]?.status || ''}
                         </span>,
                       ],
                       ['Paid By', '-'],
