@@ -33,7 +33,8 @@ export interface CategoriesUseState {
 
   setCurrent: (value: number) => void;
 
-  setOpen: (value: boolean) => void;
+  setOpen: (open: boolean) => void;
+  setOpenModal: (open: boolean) => void;
 
   searchQuery: string;
   setSearchQuery: (searchQuery: string) => void;
@@ -213,4 +214,5 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   setCurrent: (value) => set({ current: value }),
   setOpen: (open) => set({ open }),
+  setOpenModal: (open) => set({ open }),
 }));
