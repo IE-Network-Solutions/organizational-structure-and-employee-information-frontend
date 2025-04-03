@@ -315,8 +315,8 @@ const PlanPage = () => {
     setIsProcessingPayment(true);
 
     try {
-      // Get current URL as return URL
-      const returnUrl = window.location.href;
+      // Use the dashboard URL as return URL instead of current location
+      const returnUrl = `${window.location.origin}/admin/dashboard`;
       
       // Prepare payment data
       const paymentData = {
@@ -352,7 +352,14 @@ const PlanPage = () => {
         // Redirect to payment provider page
         window.location.href = apiResponse.redirectUrl;
       } else {
-        throw new Error('No redirect URL received from payment provider');
+        // If no redirect URL received, go to dashboard
+        notification.success({
+          message: 'Payment Initiated',
+          description: 'Redirecting to dashboard.'
+        });
+        
+        // Use Next.js router to navigate to dashboard
+        router.push('/admin/dashboard');
       }
     } catch (error) {
       notification.error({
