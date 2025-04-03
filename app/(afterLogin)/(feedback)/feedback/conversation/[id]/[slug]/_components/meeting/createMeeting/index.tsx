@@ -8,6 +8,8 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useGetQuestionSetByConversationId } from '@/store/server/features/CFR/conversation/questionSet/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { ConversationStore as ConversationStoreCopy } from '@/store/uistate/features/feedback/conversation';
+
 import { useCreateConversationResponse } from '@/store/server/features/CFR/conversation/conversation-response/mutation';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -49,6 +51,7 @@ const CreateMeeting = ({
   const { data: allDepartmentWithData } = useGetDepartmentsWithUsers();
   const { mutate: createConversationResponse } =
     useCreateConversationResponse();
+  const { setOpenModal } = ConversationStoreCopy();
 
   const handleCreateBiWeeklyWithActionPlan = async () => {
     try {
@@ -210,6 +213,7 @@ const CreateMeeting = ({
 
   const handleCancel = () => {
     form1.resetFields();
+    setOpenModal(false);
     setOpen(false);
     setSelectedEditActionPlan(null);
     setNumberOfActionPlan(1);
@@ -257,6 +261,7 @@ const CreateMeeting = ({
         current={currentStep}
         size="small"
         className="flex justify-center my-6 sm:my-10"
+        style={{ flexDirection: 'row' }}
       >
         <Step icon={customDot(0)} />
         <Step icon={customDot(1)} />
