@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Button, InputNumber, Select, Skeleton, notification } from 'antd';
 import { ExclamationCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import Image from 'next/image';
-import { Plan, PeriodType, Subscription, Invoice } from '@/types/tenant-management';
+import { Plan, PeriodType, Subscription } from '@/types/tenant-management';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useGetPeriodTypes } from '@/store/server/features/tenant-management/period-types/queries';
