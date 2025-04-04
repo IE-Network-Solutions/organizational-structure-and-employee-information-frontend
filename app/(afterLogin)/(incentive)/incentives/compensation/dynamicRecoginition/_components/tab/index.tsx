@@ -17,7 +17,6 @@ const DetailPageTabs: React.FC = () => {
     setShowGenerateModal,
     showGenerateModal,
     setSelectedRecognition,
-    selectedRecognition,
     setParentResponseIsLoading,
     setIsOpen,
   } = useIncentiveStore();
