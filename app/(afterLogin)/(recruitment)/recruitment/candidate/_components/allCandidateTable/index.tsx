@@ -49,7 +49,12 @@ const AllCandidateTable: React.FC = () => {
     {
       title: 'AI score',
       dataIndex: 'score',
-      render:()=><span className='bg-green-100 px-4 rounded text-green-800 text-xs'>90%</span>},
+      render: () => (
+        <span className="bg-green-100 px-4 rounded text-green-800 text-xs">
+          90%
+        </span>
+      ),
+    },
     {
       title: 'Phone Number',
       dataIndex: 'phoneNumber',
