@@ -112,6 +112,11 @@ const treeData: CustomMenuItem[] = [
         key: '/recruitment/settings',
         className: 'font-bold h-9',
       },
+      {
+        title: 'HrFlow.Ai',
+        key: '/recruitment/hrflow.ai',
+        className: 'font-bold h-9',
+      },
     ],
   },
   {
@@ -272,16 +277,16 @@ const treeData: CustomMenuItem[] = [
   {
     title: (
       <span className="flex items-center gap-2 h-12 w-60">
-        <LuCircleDollarSign size={18} /> Incentive
+        <LuCircleDollarSign size={18} /> Incentives
       </span>
     ),
     key: '/incentive',
     className: 'font-bold',
     children: [
       {
-        key: '/incentive',
+        key: '/incentives',
         title: 'Incentive',
-        className: 'font-bold',
+        className: 'font-bold h-9',
         permissions: ['view_incentive_page'],
       },
       {
@@ -291,7 +296,7 @@ const treeData: CustomMenuItem[] = [
       },
       {
         title: 'Settings',
-        key: '/incentive/settings',
+        key: '/incentives/settings',
         className: 'font-bold h-9',
       },
     ],
@@ -490,7 +495,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             expandedKeys={expandedKeys}
             selectedKeys={selectedKeys}
             onSelect={handleSelect}
-            className="my-5 [&_.ant-tree-node-selected]:!bg-gray-200 [&_.ant-tree-node-selected]:!text-black h-full w-full"
+            className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full"
             switcherIcon={null}
           />
         </div>

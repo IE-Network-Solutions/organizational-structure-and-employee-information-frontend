@@ -348,4 +348,8 @@ export enum Permissions {
   ViewDailyPlan = 'view-daily-plan',
   ViewWeeklyPlan = 'view-weekly-plan',
   ViewMonthlyPlan = 'view-monthly-plan',
+
+  //basic Salary
+  CreateBasicSalary = 'create-basic-salary',
+  UpdateBasicSalary = 'update-basic-salary',
 }
