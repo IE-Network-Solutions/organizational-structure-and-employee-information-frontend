@@ -12,14 +12,16 @@ const DownloadExcelButton: React.FC = () => {
     useIncentiveStore();
 
   const { data: excelHeaders, isLoading: templateResponseLoading } =
-    useExcelHeaders(selectedRecognitionTypeId ?? '');
+    useExcelHeaders(selectedRecognitionTypeId);
 
   const { data: childRecognitionData, isLoading: responseLoading } =
     useRecognitionByParentId(activeKey !== '1' ? activeKey : '');
 
   const handleTemplateDownload = async () => {
     if (excelHeaders?.length === 0) {
-      NotificationMessage.warning({ message: 'Headers are not loaded yet!' });
+      NotificationMessage.warning({
+        message: ' Excel Headers are not loaded yet!',
+      });
       return;
     }
 

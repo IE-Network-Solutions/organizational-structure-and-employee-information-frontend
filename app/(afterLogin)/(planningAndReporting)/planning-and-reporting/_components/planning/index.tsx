@@ -223,37 +223,25 @@ function Planning() {
                     ? `Please create ${planningPeriodHierarchy?.parentPlan?.name} Plan before creating ${activeTabName} Plan`
                     : ''
             }
-          ></Tooltip>
-        </div>
-        <div className="flex justify-between items-center gap-4">
-          {hasPermission && (
-            <EmployeeSearch
-              optionArray1={employeeData?.items}
-              optionArray2={PlanningType}
-              optionArray3={departmentData}
-            />
-          )}
-          <div className="inline-block pb-4">
-            {userPlanningPeriodId && (
-              <CustomButton
-                disabled={
-                  allUserPlanning?.length > 0 ||
-                  (planningPeriodHierarchy?.parentPlan?.plans?.length ?? 0) ===
-                    0 ||
-                  (planningPeriodHierarchy?.parentPlan?.plans?.filter(
-                    (i: any) => !i.isReported,
-                  ).length ?? 0) === 0 ||
-                  (objective?.items?.length ?? 0) === 0
-                }
-                loading={isLoading}
-                title={`Create ${activeTabName} Plan`}
-                id="createActiveTabName"
-                icon={<FaPlus className="mr-2" />}
-                onClick={() => setOpen(true)}
-                className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
-              />
-            )}
-          </div>
+          >
+            <div style={{ display: 'inline-block' }}>
+              {userPlanningPeriodId && (
+                <CustomButton
+                  disabled={
+                    allUserPlanning?.length > 0 ||
+                    isActive ||
+                    (objective?.items?.length ?? 0) === 0
+                  }
+                  loading={isLoading}
+                  title={`Create ${activeTabName} Plan`}
+                  id="createActiveTabName"
+                  icon={<FaPlus className="mr-2" />}
+                  onClick={() => setOpen(true)}
+                  className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
+                />
+              )}
+            </div>
+          </Tooltip>
         </div>
 
         {transformedData?.map((dataItem: any, index: number) => (
