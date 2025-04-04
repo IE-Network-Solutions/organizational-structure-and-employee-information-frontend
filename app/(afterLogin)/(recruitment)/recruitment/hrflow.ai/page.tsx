@@ -32,7 +32,7 @@ const AllCandidates: React.FC = () => {
           <WhatYouNeed />
           <AccessGuard permissions={[Permissions.CreateCandidate]}>
             <CustomButton
-              title="Add candidates"
+              title="Add candidate"
               id="createUserButton"
               icon={<FaPlus className="mr-2" />}
               onClick={showDrawer}
