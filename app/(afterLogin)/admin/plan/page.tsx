@@ -465,7 +465,7 @@ const PlanPage = () => {
         const createData = {
           planId: currentPlan.id,
           planPeriodId: selectedPlanPeriod.id,
-          slotTotal: updatedQuota, // Use slotTotal instead of slots
+          slots: updatedQuota, // Use slots instead of slots
           tenantId: DEFAULT_TENANT_ID,
           currencyId: currentPlan.currency?.id, // Add currencyId
           subscriptionPrice: calculationResult.totalAmount, // Use the calculated amount
@@ -480,7 +480,7 @@ const PlanPage = () => {
           subscriptionId: activeSubscription.id,
           planId: currentPlan.id,
           planPeriodId: selectedPlanPeriod.id,
-          slotTotal: updatedQuota, // Use slotTotal instead of slots
+          slots: updatedQuota, // Use slot instead of slots
           tenantId: DEFAULT_TENANT_ID
         };
         
