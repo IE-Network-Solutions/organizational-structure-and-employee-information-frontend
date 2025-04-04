@@ -50,7 +50,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
         <div className="flex items-center my-4 gap-4 md:gap-8">
           <WhatYouNeed />
           <CustomButton
-            title="Add candidates"
+            title="Add candidate"
             id="createUserButton"
             icon={<FaPlus className="mr-2" />}
             onClick={showDrawer}
