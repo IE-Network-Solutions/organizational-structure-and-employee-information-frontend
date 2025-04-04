@@ -31,7 +31,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   };
 
   const customBreadCrumbSubTitle = (
-    <div className="flex items-center justify-start">
+    <div className="flex items-center justify-start space-x-4">
       <div className="flex items-center justify-center text-sm font-normal text-gray-400">
         List Job
       </div>
