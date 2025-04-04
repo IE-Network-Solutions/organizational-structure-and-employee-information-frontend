@@ -1,3 +1,4 @@
+'use client';
 import { Typography } from 'antd';
 import React from 'react';
 import { useRecruitmentStatusStore } from '@/store/uistate/features/recruitment/settings/status';
