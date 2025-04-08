@@ -266,15 +266,25 @@ const Payroll = () => {
 
       const exportColumns = [
         { type: 'Basic Salary', key: 'basicSalary' },
-        { type: 'Total Allowance', key: 'totalAllowance' },
-        { type: 'Total Benefits', key: 'totalBenefits' },
+        { type: 'Transport Allowance', key: 'transportAllowance' },
+        { type: 'Taxable Transport', key: 'taxableTransport' },
+        // { type: 'Total Allowance', key: 'totalAllowance' },
+        { type: 'Total Award', key: 'totalBenefits' },
+        { type: 'Gross Salary', key: 'grossIncome' },
+        { type: 'Taxable Income', key: 'taxableIncome' },
+
         { type: 'Tax', key: 'tax' },
         { type: 'Total Deduction', key: 'totalDeduction' },
-        { type: 'Variable Pay', key: 'variablePay' },
-        { type: 'Gross Income', key: 'grossIncome' },
+        { type: 'Employee Pension', key: 'employeePension' },
+        { type: 'Company Pension', key: 'companyPesnion' },
+        // { type: 'Total Deduction', key: 'totalDeduction' },
+        // { type: 'Variable Pay', key: 'variablePay' },
+        // { type: 'Gross Income', key: 'grossIncome' },
         { type: 'Net Income', key: 'netIncome' },
       ];
-
+      const columnHeaderMap = new Map<string, string>(
+        exportColumns.map((col) => [col.key, col.type])
+      );
       exportColumns.forEach((col) => uniquePayrollColumns.add(col.key));
       mergedPayroll.forEach((item: any) => {
         item.breakdown?.allowances?.forEach((a: any) =>
@@ -287,6 +297,7 @@ const Payroll = () => {
           uniqueMeritTypes.add(m.type),
         );
       });
+
       mergedPayroll.forEach((item: any) => {
         const fullName =
           `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
@@ -298,21 +309,41 @@ const Payroll = () => {
           ? item.breakdown.tax.amount.toFixed(2)
           : '0.0';
 
+          
         const deductions = item.breakdown?.totalDeductionWithPension || [];
         const allowances = item.breakdown?.allowances || [];
         const merits = item.breakdown?.merits || [];
+        const transportAllowance = allowances?.filter((item:any) => item.type === 'Transport Allowance')?.reduce((acc:any, item:any) => {
+          return acc + Number(item.amount);
+        }, 0);
+        const taxableTransport = transportAllowance-600;
+        const totalBenefits = item.totalMerit || 0;
 
         const payrollRowData: any = {
           fullName,
           basicSalary: Number(basicSalary).toFixed(2),
-          totalAllowance: Number(item.totalAllowance || 0).toFixed(2),
-          totalBenefits: Number(item.totalMerit || 0).toFixed(2),
-          totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
-          tax,
+          transportAllowance:Number(transportAllowance).toFixed(2),
+          taxableTransport:Number(taxableTransport).toFixed(2),
+          totalBenefits: Number(totalBenefits || 0).toFixed(2),
           grossIncome: Number(item.grossSalary || 0).toFixed(2),
-          variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(
-            2,
-          ),
+
+          taxableIncome: Number(item.grossSalary-600 || 0).toFixed(2),
+          tax,
+          totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
+          employeePension: Number(
+            item.breakdown?.pension?.find((i: any) => i.type == 'Pension')
+              ?.amount || 0,
+          ).toFixed(2),
+          companyPesnion: Number(
+            item.breakdown?.pension?.find(
+              (i: any) => i.type == 'CompanyContribution',
+            )?.amount || 0,
+          ).toFixed(2),
+
+          // totalAllowance: Number(item.totalAllowance || 0).toFixed(2),
+          // variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(
+          //   2,
+          // ),
           netIncome: Number(item.netPay || 0).toFixed(2),
         };
 
@@ -371,7 +402,7 @@ const Payroll = () => {
         const headers = [
           { header: 'Full Name', key: 'fullName', minWidth: 30 },
           ...Array.from(uniqueTypes).map((type) => ({
-            header: type,
+            header: columnHeaderMap.get(type) || type,
             key: type,
             minWidth: 12, // Ensure readable width
           })),
