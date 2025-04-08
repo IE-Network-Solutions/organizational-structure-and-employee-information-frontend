@@ -1,6 +1,7 @@
 import React, { FC, useEffect } from 'react';
 import { Course } from '@/types/tna/course';
 import { Card } from 'antd';
+import { Spin } from 'antd';
 import Meta from 'antd/lib/card/Meta';
 import ActionButton from '@/components/common/actionButton';
 import { classNames } from '@/utils/classNames';
@@ -10,6 +11,7 @@ import { useDeleteCourseManagement } from '@/store/server/features/tna/managemen
 import { useRouter } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import Image from 'next/image';
 
 interface CourseCardProps {
   item: Course;
@@ -30,7 +32,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
     if (isSuccess) {
       refetch();
     }
-  }, [isSuccess]);
+  }, [isSuccess, refetch]);
 
   return (
     <Spin spinning={isLoading}>
@@ -42,9 +44,11 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
           [className],
         )}
         cover={
-          <img
+          <Image
             alt="example"
             src={item?.thumbnail ?? ''}
+            width={300}
+            height={250}
             className="w-full h-[250px] object-cover object-top"
           />
         }

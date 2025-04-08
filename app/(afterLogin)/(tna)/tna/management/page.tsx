@@ -14,6 +14,7 @@ import { CourseManagementRequestBody } from '@/store/server/features/tna/managem
 import CourseCard from '@/app/(afterLogin)/(tna)/tna/management/_components/courseCard';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { localUserID } from '@/utils/constants';
 
 const TnaManagementPage = () => {
   const { setIsShowCourseSidebar, isShowCourseSidebar, setCourseCategory } =
