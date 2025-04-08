@@ -283,7 +283,7 @@ const Payroll = () => {
         { type: 'Net Income', key: 'netIncome' },
       ];
       const columnHeaderMap = new Map<string, string>(
-        exportColumns.map((col) => [col.key, col.type])
+        exportColumns.map((col) => [col.key, col.type]),
       );
       exportColumns.forEach((col) => uniquePayrollColumns.add(col.key));
       mergedPayroll.forEach((item: any) => {
@@ -309,25 +309,26 @@ const Payroll = () => {
           ? item.breakdown.tax.amount.toFixed(2)
           : '0.0';
 
-          
         const deductions = item.breakdown?.totalDeductionWithPension || [];
         const allowances = item.breakdown?.allowances || [];
         const merits = item.breakdown?.merits || [];
-        const transportAllowance = allowances?.filter((item:any) => item.type === 'Transport Allowance')?.reduce((acc:any, item:any) => {
-          return acc + Number(item.amount);
-        }, 0);
-        const taxableTransport = transportAllowance-600;
+        const transportAllowance = allowances
+          ?.filter((item: any) => item.type === 'Transport Allowance')
+          ?.reduce((acc: any, item: any) => {
+            return acc + Number(item.amount);
+          }, 0);
+        const taxableTransport = transportAllowance - 600;
         const totalBenefits = item.totalMerit || 0;
 
         const payrollRowData: any = {
           fullName,
           basicSalary: Number(basicSalary).toFixed(2),
-          transportAllowance:Number(transportAllowance).toFixed(2),
-          taxableTransport:Number(taxableTransport).toFixed(2),
+          transportAllowance: Number(transportAllowance).toFixed(2),
+          taxableTransport: Number(taxableTransport).toFixed(2),
           totalBenefits: Number(totalBenefits || 0).toFixed(2),
           grossIncome: Number(item.grossSalary || 0).toFixed(2),
 
-          taxableIncome: Number(item.grossSalary-600 || 0).toFixed(2),
+          taxableIncome: Number(item.grossSalary - 600 || 0).toFixed(2),
           tax,
           totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
           employeePension: Number(
@@ -513,6 +514,31 @@ const Payroll = () => {
       },
     },
     {
+      title: 'Transport Allowance',
+      dataIndex: 'transportAllowance',
+      key: 'transportAllowance',
+      minWidth: 150,
+      render: (_: any, record: any) => {
+        const totalTransportAllowance = record.breakdown?.allowances
+          ?.filter((item: any) => item.type === 'Transport Allowance')
+          ?.reduce((acc: number, item: any) => acc + Number(item.amount), 0) || 0;
+        return <div>{totalTransportAllowance.toFixed(2)}</div>;
+      },
+    },
+    {
+      title: 'Taxable Transport Allowance',
+      dataIndex: 'taxableTransportAllowance', // Fixed typo in dataIndex
+      key: 'taxableTransportAllowance', // Fixed typo in key (taxabale -> taxable)
+      minWidth: 150,
+      render: (_: any, record: any) => {
+        const totalTransportAllowance = record.breakdown?.allowances
+          ?.filter((item: any) => item.type === 'Transport Allowance')
+          ?.reduce((acc: number, item: any) => acc + Number(item.amount), 0) || 0;
+        const taxableAmount = totalTransportAllowance - 600;
+        return <div>{taxableAmount.toFixed(2)}</div>;
+      },
+    },
+    {
       title: 'Total Allowance',
       dataIndex: 'totalAllowance',
       key: 'totalAllowance',
@@ -580,6 +606,14 @@ const Payroll = () => {
       key: 'grossSalary',
       minWidth: 150,
       render: (key: string) => Number(key)?.toLocaleString(),
+    },
+    {
+      title: 'Taxable Income',
+      dataIndex: 'taxableIncome',
+      key: 'taxableIncome',
+      minWidth: 150,
+      render: (notused: any, record: any) =>
+        Number(record.grossSalary - 600)?.toLocaleString(),
     },
     {
       title: 'Net Income',
