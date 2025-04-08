@@ -97,10 +97,34 @@ const updateCompensationStatus = async ({ id }: { id: string }) => {
     headers,
   });
 };
-
+const updateCompensation = async ({ id,values }: { id: string,values:any }) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${PAYROLL_URL}/compensation-items/update/compensation-status/${id}`,
+    method: 'PATCH',
+    headers,
+    data:values
+  });
+};
 export const useUpdateCompensationStatus = () => {
   const queryClient = useQueryClient();
   return useMutation(updateCompensationStatus, {
+    onSuccess: (unused: any, variables: any) => {
+      queryClient.invalidateQueries('allowanceType');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method, 'Compensation status successfully updated.');
+    },
+  });
+};
+
+export const useUpdateCompensation = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateCompensation, {
     onSuccess: (unused: any, variables: any) => {
       queryClient.invalidateQueries('allowanceType');
       const method = variables?.method?.toUpperCase();
