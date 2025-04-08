@@ -43,7 +43,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
       <div className="h-auto w-auto pr-6 pb-6 pl-3">
         <PageHeader title="Settings" description="Manage your settings here" />
 
-        <div className="flex  flex-col lg:flex-row gap-6 mt-8"> 
+        <div className="flex  flex-col lg:flex-row gap-6 mt-8">
           <SidebarMenu menuItems={menuItems} />
           <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
         </div>

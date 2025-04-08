@@ -11,7 +11,6 @@ import {
 import { Branch } from '@/store/server/features/organizationStructure/branchs/interface';
 import { useBranchStore } from '@/store/uistate/features/organizationStructure/branchStore';
 import DeleteModal from '@/components/common/deleteModal';
-import { BiPlus } from 'react-icons/bi';
 import BranchForm from '@/app/(afterLogin)/(employeeInformation)/_components/branchForm';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';

@@ -18,7 +18,7 @@ const GroupPermissionComponent = () => {
   const { data: groupPermissionData, isLoading: groupPermissionLoading } =
     useGetPermissionGroups(permissonGroupCurrentPage, pageSize);
 
-  const  handleButtonClick = (id: string) => {
+  const handleButtonClick = (id: string) => {
     setVisibleEditCardId(visibleEditCardId === id ? null : id);
   };
   const onPageChange = (page: number, pageSize: number) => {

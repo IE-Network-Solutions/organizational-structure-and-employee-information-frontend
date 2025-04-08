@@ -9,7 +9,6 @@ import type { TabsProps } from 'antd';
 import Permission from '../permission';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import CustomButton from '@/components/common/buttons/customButton';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 interface OnChange {

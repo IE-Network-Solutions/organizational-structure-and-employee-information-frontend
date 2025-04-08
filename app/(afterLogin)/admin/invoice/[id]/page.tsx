@@ -15,33 +15,28 @@ import { useInitiatePayment } from '@/store/server/features/tenant-management/pa
 const InvoiceItem = () => {
   const router = useRouter();
   const { id } = useParams();
-  
+
   const [isDownloading, setIsDownloading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [invoiceData, setInvoiceData] = useState<Invoice | null>(null);
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'chapa' | 'stripe' | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    'chapa' | 'stripe' | null
+  >(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  
+
   // Get plans data
-  const { data: plansData} = useGetPlans(
-    { filter: {} },
-    true,
-    true,
-    'ASC'
-  );
+  const { data: plansData } = useGetPlans({ filter: {} }, true, true, 'ASC');
 
   // Get invoice data
-  const { data: invoiceResponse, isLoading: isInvoiceLoading } = useGetInvoiceDetail(
-    id as string,
-    ''
-  );
-  
+  const { data: invoiceResponse, isLoading: isInvoiceLoading } =
+    useGetInvoiceDetail(id as string, '');
+
   // Get PDF link
   const { data: pdfResponse, isLoading: isPdfLoading } = useGetInvoiceDetail(
     id as string,
-    'PDF'
+    'PDF',
   );
 
   // Initialize payment mutation
@@ -52,16 +47,18 @@ const InvoiceItem = () => {
       setPlans(plansData.items);
     }
   }, [plansData]);
-  
+
   useEffect(() => {
     if (invoiceResponse) {
       // Correctly access invoice data from API response
       const invoiceData = (invoiceResponse as any).item as Invoice;
       setInvoiceData(invoiceData);
-      
+
       // Find and set current plan
       if (invoiceData?.subscription?.planId) {
-        const plan = plans.find(plan => plan.id === invoiceData.subscription.planId);
+        const plan = plans.find(
+          (plan) => plan.id === invoiceData.subscription.planId,
+        );
         setCurrentPlan(plan as Plan);
       }
     }
@@ -91,27 +88,27 @@ const InvoiceItem = () => {
     try {
       // Get current URL as return URL
       const returnUrl = window.location.href;
-      
+
       // Prepare payment data
       const paymentData = {
         paymentMethod: selectedPaymentMethod.toUpperCase(),
         paymentProvider: selectedPaymentMethod,
-        returnUrl
+        returnUrl,
       };
 
       // Call the payment API
       const response = await initiatePaymentMutation.mutateAsync({
         invoiceId: id as string,
-        data: paymentData
+        data: paymentData,
       });
 
       // Handle successful response
       const apiResponse = response as any;
-      
+
       if (apiResponse && apiResponse.data && apiResponse.data.redirectUrl) {
         notification.success({
           message: 'Payment Initiated',
-          description: 'You will be redirected to the payment page.'
+          description: 'You will be redirected to the payment page.',
         });
 
         // Redirect to payment provider page
@@ -120,7 +117,7 @@ const InvoiceItem = () => {
         // Handle case where redirectUrl is at the root level
         notification.success({
           message: 'Payment Initiated',
-          description: 'You will be redirected to the payment page.'
+          description: 'You will be redirected to the payment page.',
         });
 
         // Redirect to payment provider page
@@ -131,7 +128,10 @@ const InvoiceItem = () => {
     } catch (error) {
       notification.error({
         message: 'Payment Failed',
-        description: error instanceof Error ? error.message : 'There was an error initiating payment. Please try again later.'
+        description:
+          error instanceof Error
+            ? error.message
+            : 'There was an error initiating payment. Please try again later.',
       });
       setIsProcessingPayment(false);
     }
@@ -142,7 +142,7 @@ const InvoiceItem = () => {
     if (pdfResponse) {
       const response = pdfResponse as any;
       const filePath = response.path || response.data?.path;
-      
+
       if (filePath) {
         setPdfUrl(`${TENANT_BASE_URL}/${filePath}`);
       }
@@ -154,18 +154,18 @@ const InvoiceItem = () => {
     if (!pdfUrl) {
       notification.warning({
         message: 'PDF Not Available',
-        description: 'PDF document is not available for this invoice.'
+        description: 'PDF document is not available for this invoice.',
       });
       return;
     }
-    
+
     setIsDownloading(true);
-    
+
     try {
       // Download file from the known URL
       const response = await fetch(pdfUrl);
       const blob = await response.blob();
-      
+
       // Create download link
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
@@ -176,7 +176,7 @@ const InvoiceItem = () => {
     } catch {
       notification.error({
         message: 'Download Failed',
-        description: 'Unable to download the PDF. Please try again later.'
+        description: 'Unable to download the PDF. Please try again later.',
       });
     } finally {
       setIsDownloading(false);
@@ -188,11 +188,11 @@ const InvoiceItem = () => {
     if (!dateString) return '';
     return dayjs(dateString).format('MMMM D, YYYY');
   };
-  
+
   // Get status with appropriate style class
   const getStatusClass = (status: string | undefined) => {
     if (!status) return 'text-gray-600 bg-gray-100';
-    
+
     switch (status.toLowerCase()) {
       case 'paid':
         return 'text-green-600 bg-green-100';
@@ -258,9 +258,18 @@ const InvoiceItem = () => {
                     ['Invoice Number:', `#${invoiceData?.invoiceNumber || ''}`],
                     ['Issue Date:', formatDate(invoiceData?.invoiceAt)],
                     ['Payment Date:', formatDate(invoiceData?.dueAt)],
-                    ['Billing Period:', invoiceData?.subscription?.startAt && invoiceData?.subscription?.endAt ? `${formatDate(invoiceData?.subscription?.startAt)} - ${formatDate(invoiceData?.subscription?.endAt)}` : '-'],
-                    ['Number of users:', invoiceData?.subscription?.slotTotal || '-'],
-                    ['Amount', `${invoiceData?.totalAmount}`]
+                    [
+                      'Billing Period:',
+                      invoiceData?.subscription?.startAt &&
+                      invoiceData?.subscription?.endAt
+                        ? `${formatDate(invoiceData?.subscription?.startAt)} - ${formatDate(invoiceData?.subscription?.endAt)}`
+                        : '-',
+                    ],
+                    [
+                      'Number of users:',
+                      invoiceData?.subscription?.slotTotal || '-',
+                    ],
+                    ['Amount', `${invoiceData?.totalAmount}`],
                   ].map(([label, value], index) => (
                     <div
                       key={index}
@@ -321,7 +330,6 @@ const InvoiceItem = () => {
                 ))}
               </div>
 
-
               {invoiceData?.status?.toLowerCase() === 'pending' && (
                 <div className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
                   <span className="text-2xl font-bold">Pay with</span>
@@ -329,8 +337,8 @@ const InvoiceItem = () => {
                     <div className="flex flex-col gap-2">
                       <div
                         className={`flex items-center justify-center px-3 py-2 border rounded-lg md:max-h-none max-h-[40px] cursor-pointer transition-all duration-300 ${
-                          selectedPaymentMethod === 'chapa' 
-                            ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]' 
+                          selectedPaymentMethod === 'chapa'
+                            ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]'
                             : 'border-gray-200 hover:shadow-[0_2px_4px_0_#4e4ef1]'
                         }`}
                         onClick={() => handlePaymentMethodSelect('chapa')}
@@ -346,8 +354,8 @@ const InvoiceItem = () => {
                     <div className="flex flex-col gap-2">
                       <div
                         className={`flex items-center justify-center px-3 py-2 border rounded-lg md:max-h-none max-h-[40px] cursor-pointer transition-all duration-300 ${
-                          selectedPaymentMethod === 'stripe' 
-                            ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]' 
+                          selectedPaymentMethod === 'stripe'
+                            ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]'
                             : 'border-gray-200 hover:shadow-[0_2px_4px_0_#4e4ef1]'
                         }`}
                         onClick={() => handlePaymentMethodSelect('stripe')}
@@ -379,7 +387,11 @@ const InvoiceItem = () => {
                         onClick={handlePayment}
                         className="text-center flex justify-center items-center"
                         type="primary"
-                        disabled={isInvoiceLoading || !selectedPaymentMethod || isProcessingPayment}
+                        disabled={
+                          isInvoiceLoading ||
+                          !selectedPaymentMethod ||
+                          isProcessingPayment
+                        }
                         icon={isProcessingPayment ? <LoadingOutlined /> : null}
                       >
                         {isProcessingPayment ? 'Processing...' : 'Pay Now'}

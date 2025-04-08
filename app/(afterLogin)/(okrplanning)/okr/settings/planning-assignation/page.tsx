@@ -189,7 +189,7 @@ const PlanAssignment: React.FC = () => {
     },
   ];
   return (
-    <div className="p-10 rounded-2xl shadow-md bg-white ">
+    <div className="p-10 rounded-2xl shadow-md bg-white h-full">
       <div className="flex justify-between mb-4">
         <h2 className="text-lg font-semibold">Plan Assignation</h2>
         <AccessGuard permissions={[Permissions.AssignPlanningPeriod]}>

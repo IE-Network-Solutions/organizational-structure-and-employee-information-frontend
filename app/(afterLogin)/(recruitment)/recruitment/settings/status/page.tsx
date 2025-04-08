@@ -10,7 +10,6 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteRecruitmentStatus } from '@/store/server/features/recruitment/settings/status/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import CustomButton from '@/components/common/buttons/customButton';
 import { Pencil, Trash2 } from 'lucide-react';
 
 const { Title } = Typography;
@@ -65,7 +64,8 @@ const Status: React.FC = () => {
             className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
           /> */}
           <Button
-          type='primary'
+            type="primary"
+            id="createStatusButton"
             onClick={handleOpen}
             icon={<FaPlus size={13} className="mr-2" />}
           >

@@ -1,9 +1,8 @@
 'use client';
 import { FC, ReactNode, useEffect, useState } from 'react';
-import { ConfigProvider, Menu, MenuProps } from 'antd';
 import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
 import { HiOutlineBriefcase } from 'react-icons/hi2';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { RiAwardFill } from 'react-icons/ri';
 import { FaUserEdit } from 'react-icons/fa';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
@@ -15,34 +14,33 @@ interface OkrSettingsLayoutProps {
   children: ReactNode;
 }
 
-type MenuItem = Required<MenuProps>['items'][number];
+// type MenuItem = Required<MenuProps>['items'][number];
 
-type MenuItemType = {
-  item: MenuItem;
-  link: string;
-};
+// type MenuItemType = {
+//   item: MenuItem;
+//   link: string;
+// };
 
-class NMenuItem {
-  items: MenuItemType[];
-  constructor(items: MenuItemType[]) {
-    this.items = items;
-  }
+// class NMenuItem {
+//   items: MenuItemType[];
+//   constructor(items: MenuItemType[]) {
+//     this.items = items;
+//   }
 
-  get onlyItems(): MenuItem[] {
-    return this.items.map((item) => item.item);
-  }
+//   get onlyItems(): MenuItem[] {
+//     return this.items.map((item) => item.item);
+//   }
 
-  findItem(itemKey: string): MenuItemType {
-    const iComponent = this.items.find((item) => item.item!.key === itemKey);
-    return iComponent ? iComponent : this.items[0];
-  }
-}
+//   findItem(itemKey: string): MenuItemType {
+//     const iComponent = this.items.find((item) => item.item!.key === itemKey);
+//     return iComponent ? iComponent : this.items[0];
+//   }
+// }
 
 const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
-  const router = useRouter();
   const pathname = usePathname();
   const [currentItem, setCurrentItem] = useState<string>('');
-  const isMobile = useMediaQuery({ maxWidth: 768 });
+  const isMobile = useMediaQuery({ maxWidth: 1024 });
 
   const menuItems = new SidebarMenuItem([
     {
@@ -205,10 +203,10 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
     setCurrentItem(lastKey);
   }, [pathname]);
 
-  const onMenuClick = (e: any) => {
-    const key = e['key'] as string;
-    router.push(menuItems.findItem(key).link);
-  };
+  // const onMenuClick = (e: any) => {
+  //   const key = e['key'] as string;
+  //   router.push(menuItems.findItem(key).link);
+  // };
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">

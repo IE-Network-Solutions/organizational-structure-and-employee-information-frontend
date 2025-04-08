@@ -1,5 +1,4 @@
 'use client';
-import CustomButton from '@/components/common/buttons/customButton';
 import { Button, Card, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';

@@ -55,8 +55,8 @@ const Page = () => {
         </Space>
       </PageHeader>
 
-      {attendanceNotificationType.map((type) => (
-        <div className="overflow-x-auto scrollbar-none w-full">
+      {attendanceNotificationType.map((type, index) => (
+        <div key={index} className="overflow-x-auto scrollbar-none w-full">
           <TypeTable type={type} key={type.id} />
         </div>
       ))}

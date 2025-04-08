@@ -1,5 +1,5 @@
 'use client';
-import { Button, Table, Spin } from 'antd'; 
+import { Button, Table, Spin } from 'antd';
 import React from 'react';
 import { FaPlus, FaUser } from 'react-icons/fa';
 import EmployementTypeSideDrawer from './_components/employementTypeSideDrawer';
