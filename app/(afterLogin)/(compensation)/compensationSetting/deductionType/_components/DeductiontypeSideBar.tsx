@@ -158,7 +158,6 @@ const DeductiontypeSideBar = () => {
   ];
 
 
-  console.log(selectedDeductionRecord,"selectedDeductionRecord")
   return (
     isDeductionOpen && (
       <CustomDrawerLayout
