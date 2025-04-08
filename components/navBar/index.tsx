@@ -304,12 +304,12 @@ const treeData: CustomMenuItem[] = [
   {
     key: '/admin',
     icon: <CiSettings />,
-    label: 'Admin',
+    title: 'Admin',
     className: 'font-bold',
     children: [
-      { key: '/admin/dashboard', label: 'Dashboard' },
-      { key: '/admin/billing', label: 'Billing and Invoice' },
-      { key: '/admin/profile', label: 'Update Profile' },
+      { key: '/admin/dashboard', title: 'Dashboard' },
+      { key: '/admin/billing', title: 'Billing and Invoice' },
+      { key: '/admin/profile', title: 'Update Profile' },
     ],
   },
 ];
