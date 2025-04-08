@@ -144,6 +144,10 @@ interface UserState {
   setIsAddEmployeeJobInfoModalVisible: (
     isAddEmployeeJobInfoModalVisible: boolean,
   ) => void;
+  isBasicSalaryModalVisible: boolean;
+  setIsBasicSalaryModalVisible: (isBasicSalaryModalVisible: boolean) => void;
+  basicSalaryData: any;
+  setBasicSalaryData: (basicSalaryData: any) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -152,7 +156,11 @@ export const useEmployeeManagementStore = create<UserState>()(
     setIsAddEmployeeJobInfoModalVisible: (
       isAddEmployeeJobInfoModalVisible: boolean,
     ) => set({ isAddEmployeeJobInfoModalVisible }),
-
+    isBasicSalaryModalVisible: false,
+    setIsBasicSalaryModalVisible: (isBasicSalaryModalVisible: boolean) =>
+      set({ isBasicSalaryModalVisible }),
+    basicSalaryData: null,
+    setBasicSalaryData: (basicSalaryData: any) => set({ basicSalaryData }),
     birthDate: null,
     setBirthDate: (birthDate: Dayjs | null) => set({ birthDate }),
     searchValue: null,
