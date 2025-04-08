@@ -31,5 +31,5 @@ export const INCENTIVE_URL = process.env.INCENTIVE_URL;
 export const EMAIL_URL = process.env.EMAIL_URL;
 
 const tenantId = useAuthenticationStore.getState().tenantId;
-export const DEFAULT_TENANT_ID = tenantId || '659b45f7-b10f-44bc-b3cd-1562721a0133';
+export const DEFAULT_TENANT_ID = tenantId;
 
