@@ -32,8 +32,12 @@ export const useFetchIncentiveUserDetails = (userId: string) => {
   );
 };
 export const useExcelHeaders = (recognitionsTypeId: string) => {
-  return useQuery<any>(['allIncentiveCards', recognitionsTypeId], () =>
-    fetchExcelHeaders(recognitionsTypeId),
+  return useQuery<any>(
+    ['allIncentiveCards', recognitionsTypeId],
+    () => fetchExcelHeaders(recognitionsTypeId),
+    {
+      enabled: !!recognitionsTypeId,
+    },
   );
 };
 export const useAllIncentiveCards = () => {

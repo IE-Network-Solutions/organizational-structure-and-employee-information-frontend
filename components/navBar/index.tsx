@@ -112,6 +112,11 @@ const treeData: CustomMenuItem[] = [
         key: '/recruitment/settings',
         className: 'font-bold h-9',
       },
+      {
+        title: 'HrFlow.Ai',
+        key: '/recruitment/hrflow.ai',
+        className: 'font-bold h-9',
+      },
     ],
   },
   {
@@ -490,7 +495,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             expandedKeys={expandedKeys}
             selectedKeys={selectedKeys}
             onSelect={handleSelect}
-            className="my-5 [&_.ant-tree-node-selected]:!bg-gray-200 [&_.ant-tree-node-selected]:!text-black h-full w-full"
+            className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full"
             switcherIcon={null}
           />
         </div>
