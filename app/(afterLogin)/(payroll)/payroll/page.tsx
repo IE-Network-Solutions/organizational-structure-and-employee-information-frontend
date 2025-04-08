@@ -518,10 +518,14 @@ const Payroll = () => {
       dataIndex: 'transportAllowance',
       key: 'transportAllowance',
       minWidth: 150,
-      render: (_: any, record: any) => {
-        const totalTransportAllowance = record.breakdown?.allowances
-          ?.filter((item: any) => item.type === 'Transport Allowance')
-          ?.reduce((acc: number, item: any) => acc + Number(item.amount), 0) || 0;
+      render: (notused: any, record: any) => {
+        const totalTransportAllowance =
+          record.breakdown?.allowances
+            ?.filter((item: any) => item.type === 'Transport Allowance')
+            ?.reduce(
+              (acc: number, item: any) => acc + Number(item.amount),
+              0,
+            ) || 0;
         return <div>{totalTransportAllowance.toFixed(2)}</div>;
       },
     },
@@ -530,10 +534,14 @@ const Payroll = () => {
       dataIndex: 'taxableTransportAllowance', // Fixed typo in dataIndex
       key: 'taxableTransportAllowance', // Fixed typo in key (taxabale -> taxable)
       minWidth: 150,
-      render: (_: any, record: any) => {
-        const totalTransportAllowance = record.breakdown?.allowances
-          ?.filter((item: any) => item.type === 'Transport Allowance')
-          ?.reduce((acc: number, item: any) => acc + Number(item.amount), 0) || 0;
+      render: (notused: any, record: any) => {
+        const totalTransportAllowance =
+          record.breakdown?.allowances
+            ?.filter((item: any) => item.type === 'Transport Allowance')
+            ?.reduce(
+              (acc: number, item: any) => acc + Number(item.amount),
+              0,
+            ) || 0;
         const taxableAmount = totalTransportAllowance - 600;
         return <div>{taxableAmount.toFixed(2)}</div>;
       },
