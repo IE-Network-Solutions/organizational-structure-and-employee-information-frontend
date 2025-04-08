@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import { IoIosArrowDown } from 'react-icons/io';
 import { MdKeyboardArrowUp } from 'react-icons/md';
 import CustomWorFiscalYearDrawer from '../../_components/fiscalYear/customDrawer';
+import { FaPlus } from 'react-icons/fa';
 
 const FiscalYearListCard: React.FC = () => {
   const {
@@ -82,10 +83,11 @@ const FiscalYearListCard: React.FC = () => {
         <AccessGuard permissions={[Permissions.CreateCalendar]}>
           <Button
             type="primary"
-            icon={<PlusOutlined />}
+            icon={<FaPlus  />}
             onClick={handelDrawerOpen}
           >
-            Create Fiscal Year
+            <span className="hidden lg:inline">Create Fiscal Year</span>
+            
           </Button>
         </AccessGuard>
       </div>

@@ -51,9 +51,9 @@ const Page = () => {
   return (
     <div>
       <Spin spinning={isLoading}>
-        <div className="flex justify-between">
+        <div className="flex md:flex-row flex-col-reverse justify-between">
           <Tabs
-            className="max-w-[850px] overflow-x-scrollable"
+            className="max-w-full overflow-x-auto "
             defaultActiveKey="1"
             items={items}
             onChange={onChange}

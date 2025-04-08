@@ -1,5 +1,5 @@
 'use client';
-import { Button, Card, Table, Spin } from 'antd'; // Added Spin for loading indicator
+import { Button, Table, Spin } from 'antd'; 
 import React from 'react';
 import { FaPlus, FaUser } from 'react-icons/fa';
 import EmployementTypeSideDrawer from './_components/employementTypeSideDrawer';
@@ -49,22 +49,35 @@ const EmploymentType = () => {
 
   return (
     <>
-      <Card className="border-b-0 py-4 px-4 sm:px-6 lg:px-8 border-none  bg-white">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+      <div className="border-b-0 py-3 sm:px-6 lg:px-8 border-none bg-white">
+        <div className="flex justify-between items-center">
           <div className="text-black font-bold text-lg mb-2 sm:mb-0">
             Employment Type
           </div>
-          <AccessGuard permissions={[Permissions.CreateEmploymentType]}>
-            <Button
-              className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
-              onClick={showDrawer}
-            >
-              <FaPlus className="text-white" />
-              <span>Add New Type</span>
-            </Button>
-          </AccessGuard>
+
+          <div className="flex items-center space-x-2">
+            <AccessGuard permissions={[Permissions.CreateEmploymentType]}>
+              {/* Desktop button */}
+              <Button
+                className="hidden sm:flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
+                onClick={showDrawer}
+              >
+                <FaPlus className="text-white" />
+                <span>Add New Type</span>
+              </Button>
+
+              {/* Mobile button */}
+              <Button
+                className="flex sm:hidden items-center justify-center px-3 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
+                onClick={showDrawer}
+              >
+                <FaPlus className="text-white" />
+              </Button>
+            </AccessGuard>
+          </div>
         </div>
-      </Card>
+      </div>
+
       <EmployementTypeSideDrawer onClose={onClose} />
 
       <div className="overflow-x-auto">

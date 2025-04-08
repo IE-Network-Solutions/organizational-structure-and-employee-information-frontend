@@ -1,5 +1,5 @@
 'use client';
-import { Typography } from 'antd';
+import { Button, Typography } from 'antd';
 import React from 'react';
 import { useRecruitmentStatusStore } from '@/store/uistate/features/recruitment/settings/status';
 import RecruitmentStatusDrawer from './statusDrawer';
@@ -57,13 +57,20 @@ const Status: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <Title level={5}>Define New Status</Title>
         <AccessGuard permissions={[Permissions.CreateApplicationStage]}>
-          <CustomButton
+          {/* <CustomButton
             title="Define New Status"
             id="createStatusButton"
             icon={<FaPlus size={13} className="mr-2" />}
             onClick={handleOpen}
             className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
-          />
+          /> */}
+          <Button
+          type='primary'
+            onClick={handleOpen}
+            icon={<FaPlus size={13} className="mr-2" />}
+          >
+            <span className="hidden lg:inline">Define New Status</span>
+          </Button>
         </AccessGuard>
       </div>
 

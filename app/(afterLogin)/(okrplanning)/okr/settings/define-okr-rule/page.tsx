@@ -11,6 +11,7 @@ import { useGetOkrRule } from '@/store/server/features/okrplanning/monitoring-ev
 import OkrRuleDrawer from './okr-rule';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const DefineOkrRule = () => {
   const {
@@ -58,9 +59,10 @@ const DefineOkrRule = () => {
           <Button
             type="primary"
             className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
+            icon={<FaPlus className="text-xs" />}
             onClick={showDrawer}
           >
-            + Add Rule
+            <span className="hidden md:block ">Add Rule</span>
           </Button>
         </AccessGuard>
       </div>

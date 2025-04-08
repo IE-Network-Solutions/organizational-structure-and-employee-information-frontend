@@ -4,7 +4,7 @@ import { useGetActiveFiscalYears } from '@/store/server/features/organizationStr
 import useObjectiveEditAccessStore from '@/store/uistate/features/okrplanning/okrSetting/editAccess';
 import AccessGuard from '@/utils/permissionGuard';
 import { useDebounce } from '@/utils/useDebounce';
-import { Button, Col, Input, Row } from 'antd';
+import { Button, Col, Input, Row, Switch } from 'antd';
 import React from 'react';
 import { IoCheckmarkOutline } from 'react-icons/io5';
 import { MdOutlineCancel } from 'react-icons/md';
@@ -63,7 +63,7 @@ const SearchEmployee: React.FC = () => {
           />
         </Col>
         <Col xl={6} md={6} lg={6} sm={24} xs={24}>
-          {checked === false ? (
+          {/* {checked === false ? (
             <AccessGuard permissions={[Permissions.GrantAllOKRAccess]}>
               <Button
                 type="primary"
@@ -91,7 +91,24 @@ const SearchEmployee: React.FC = () => {
                 Grant all access
               </Button>
             </AccessGuard>
-          )}
+          )} */}
+
+          <AccessGuard permissions={[Permissions.GrantAllOKRAccess]}>
+            <div className="w-full h-14 flex items-center justify-between">
+              <span className="text-base font-medium hidden lg:inline">
+                {checked ? 'Revoke all access' : 'Grant all access'}
+              </span>
+              <Switch
+                checked={checked}
+                onChange={(checked) => {
+                  setChecked(checked);
+                  handleSubmit();
+                }}
+                checkedChildren={<IoCheckmarkOutline size={18} />}
+                unCheckedChildren={<MdOutlineCancel size={18} />}
+              />
+            </div>
+          </AccessGuard>
         </Col>
       </Row>
     </div>

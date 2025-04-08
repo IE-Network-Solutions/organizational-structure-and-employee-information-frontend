@@ -146,17 +146,17 @@ function Page() {
   ];
 
   return (
-    <div className="p-10 justify-center items-center rounded-2xl bg-white">
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Criteria Management</h1>
+    <div className="p-10 rounded-2xl bg-white ">
+      <div className="flex justify-between mb-6">
+        <h1 className="text-2xl font-bold md:text-lg">Criteria Management</h1>
         <AccessGuard permissions={[Permissions.CreateVpScoringConfigurations]}>
           <Button
             type="primary"
-            className="flex items-center space-x-2 py-8 px-8"
+            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 md:w-auto"
             icon={<FaPlus />}
             onClick={() => openDrawer()}
           >
-            New Scoring Configuration
+            <span className="hidden lg:block"> Scoring Configuration</span>
           </Button>
         </AccessGuard>
       </div>
@@ -166,25 +166,26 @@ function Page() {
         onTypeChange={handleTypeChange}
         criteriaNames={['All Types', ...criteriaTypes]}
       />
-
-      <Tabs centered defaultActiveKey="1">
-        <Tabs.TabPane tab="Scoring Configuration" key="1">
-          <Table
-            dataSource={assignedCriteriaData}
-            columns={assignedCriteriaColumns}
-            pagination={{ pageSize: 5 }}
-            loading={vpScoringLoading}
-          />
-        </Tabs.TabPane>
-        <Tabs.TabPane tab="Available Criteria" key="2">
-          <Table
-            dataSource={availableCriteriaData}
-            columns={availableCriteriaColumns}
-            pagination={{ pageSize: 5 }}
-            loading={criteriaLoading}
-          />
-        </Tabs.TabPane>
-      </Tabs>
+      <div className="flex  overflow-x-auto scrollbar-none  w-full">
+        <Tabs centered defaultActiveKey="1">
+          <Tabs.TabPane tab="Scoring Configuration" key="1">
+            <Table
+              dataSource={assignedCriteriaData}
+              columns={assignedCriteriaColumns}
+              pagination={{ pageSize: 5 }}
+              loading={vpScoringLoading}
+            />
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Available Criteria" key="2">
+            <Table
+              dataSource={availableCriteriaData}
+              columns={availableCriteriaColumns}
+              pagination={{ pageSize: 5 }}
+              loading={criteriaLoading}
+            />
+          </Tabs.TabPane>
+        </Tabs>
+      </div>
       <ScoringDrawer />
     </div>
   );

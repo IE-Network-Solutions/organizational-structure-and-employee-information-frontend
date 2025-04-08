@@ -35,8 +35,9 @@ const Page = () => {
               size="large"
               icon={<LuPlus size={18} />}
               onClick={() => setIsShowRulesAddTypeSidebar(true)}
+              type="primary"
             >
-              New Type
+              <span className="hidden md:inline"> New Type</span>
             </Button>
           </AccessGuard>
           <AccessGuard permissions={[Permissions.CreateAttendanceRule]}>
@@ -48,14 +49,16 @@ const Page = () => {
               disabled={!attendanceNotificationType.length}
               onClick={() => setIsShowCreateRuleSidebar(true)}
             >
-              New Rule
+              <span className="hidden md:inline"> New Rule</span>
             </Button>
           </AccessGuard>
         </Space>
       </PageHeader>
 
       {attendanceNotificationType.map((type) => (
-        <TypeTable type={type} key={type.id} />
+        <div className="overflow-x-auto scrollbar-none w-full">
+          <TypeTable type={type} key={type.id} />
+        </div>
       ))}
 
       <AddTypeSidebar />
