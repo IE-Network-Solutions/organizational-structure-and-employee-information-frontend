@@ -9,8 +9,8 @@ export const OKR_AND_PLANNING_URL =
 export const ORG_DEV_URL = process.env.ORG_DEV_URL;
 export const RECRUITMENT_URL = process.env.RECRUITMENT_URL;
 export const PUBLIC_DOMAIN = process.env.PUBLIC_DOMAIN;
-export const TENANT_BASE_URL = 'https://dev.api.tenant.pep.staging.lobsterlab.io';
-export const TENANT_MGMT_URL = `${TENANT_BASE_URL}/api/v1`;
+export const TENANT_MGMT_URL = process.env.TENANT_MGMT_URL;
+export const TENANT_BASE_URL = TENANT_MGMT_URL?.replace('/api/v1', '');
 
 export const NOTIFICATION_URL = process.env.NOTIFICATION_URL;
 export const APPROVER_URL = process.env.NEXT_PUBLIC_APPROVERS_URL;
@@ -31,5 +31,5 @@ export const INCENTIVE_URL = process.env.INCENTIVE_URL;
 export const EMAIL_URL = process.env.EMAIL_URL;
 
 const tenantId = useAuthenticationStore.getState().tenantId;
-export const DEFAULT_TENANT_ID = tenantId || '659b45f7-b10f-44bc-b3cd-1562721a0133';
+export const DEFAULT_TENANT_ID = tenantId;
 
