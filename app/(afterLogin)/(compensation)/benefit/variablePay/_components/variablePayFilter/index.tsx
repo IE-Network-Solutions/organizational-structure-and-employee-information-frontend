@@ -11,8 +11,15 @@ const { Option } = Select;
 interface VPFilterParams {
   tableData: any;
 }
+
 const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
-  const { searchParams, setSearchParams, setOpenModal } = useVariablePayStore();
+  const {
+    searchParams,
+    setSearchParams,
+    setOpenModal,
+    sessionMonths,
+    setSessionMonths,
+  } = useVariablePayStore();
 
   const { data: employeeData } = useGetAllUsers();
   const { data: activeCalender } = useGetActiveFiscalYears();
@@ -37,16 +44,22 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
 
   const handleSessionChange = (sessionId: string) => {
     const selectedSession = activeCalender?.sessions?.find(
-      (session) => session.id === sessionId,
+      (session) => session?.id === sessionId,
     );
 
     if (selectedSession) {
-      const allMonthIds = selectedSession?.months?.map((month) => month.id);
+      const allMonthIds = selectedSession?.months?.map((month) => month?.id);
       setSearchParams('selectedSession', sessionId);
       setSearchParams(
         'selectedMonth',
         allMonthIds ? allMonthIds.join(',') : '',
       );
+
+      setSessionMonths(selectedSession?.months || []);
+    } else {
+      setSessionMonths([]); // clear months if no session is selected
+      setSearchParams('selectedSession', '');
+      setSearchParams('selectedMonth', '');
     }
   };
 
@@ -120,15 +133,15 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
               onChange={handleMonthChange}
               allowClear
               className="w-full h-14"
-              // value={searchParams?.selectedMonth || activeMonth?.id}
+              disabled={
+                !searchParams?.selectedSession || sessionMonths.length === 0
+              }
             >
-              {activeCalender?.sessions?.map((session) =>
-                session?.months?.map((month) => (
-                  <Option key={month?.id} value={month?.id}>
-                    {month?.name}
-                  </Option>
-                )),
-              )}
+              {sessionMonths.map((month) => (
+                <Option key={month?.id} value={month?.id}>
+                  {month?.name}
+                </Option>
+              ))}
             </Select>
           </Col>
           <Col xs={24} sm={24} md={6} lg={6} xl={6}>
