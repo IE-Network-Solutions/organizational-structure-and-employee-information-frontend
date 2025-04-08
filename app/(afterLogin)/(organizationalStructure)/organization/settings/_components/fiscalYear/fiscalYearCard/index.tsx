@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 
 import { IoIosArrowDown } from 'react-icons/io';
 import { MdKeyboardArrowUp } from 'react-icons/md';
+import CustomWorFiscalYearDrawer from '../customDrawer';
 
 const FiscalYearListCard: React.FC = () => {
   const {
@@ -52,7 +53,7 @@ const FiscalYearListCard: React.FC = () => {
   const { data: fiscalYears, isLoading: fiscalYearsFetchLoading } =
     useGetAllFiscalYears(pageSize, currentPage);
 
-  const { openDrawer } = useFiscalYearDrawerStore();
+  const { openDrawer, setIsOpenFiscalYearDrawer } = useFiscalYearDrawerStore();
 
   const handleMenuClick = (key: string, fYear: FiscalYear) => {
     if (key === 'edit') {
@@ -68,13 +69,19 @@ const FiscalYearListCard: React.FC = () => {
   if (fiscalYearsFetchLoading) {
     return <p>Loading...</p>;
   }
-
   return (
     <div className="mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Fiscal Year</h2>
         <AccessGuard permissions={[Permissions.CreateCalendar]}>
-          <Button type="primary" icon={<PlusOutlined />} onClick={openDrawer}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setIsOpenFiscalYearDrawer(true);
+              openDrawer;
+            }}
+          >
             Create Fiscal Year
           </Button>
         </AccessGuard>
@@ -237,6 +244,7 @@ const FiscalYearListCard: React.FC = () => {
           setCurrentPage(1);
         }}
       />
+      <CustomWorFiscalYearDrawer />
     </div>
   );
 };

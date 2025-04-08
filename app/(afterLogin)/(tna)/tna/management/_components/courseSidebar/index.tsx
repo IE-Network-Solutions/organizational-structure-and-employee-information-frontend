@@ -145,8 +145,13 @@ const CourseCategorySidebar = () => {
             {courseId ? <span>Edit Course</span> : <span>Add course </span>}
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
-        width="50%"
+        footer={
+          <CustomDrawerFooterButton
+            className="w-1/2 mx-auto mt-5"
+            buttons={footerModalItems}
+          />
+        }
+        width="30%"
       >
         <Form
           layout="vertical"

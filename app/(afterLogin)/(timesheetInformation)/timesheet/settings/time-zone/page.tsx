@@ -2,16 +2,18 @@
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { useUpdateTimeZone } from '@/store/server/features/timesheet/timeZone/mutation';
 import { useGetTimeZone } from '@/store/server/features/timesheet/timeZone/queries';
+import AccessGuard from '@/utils/permissionGuard';
 import { Button, Form, Select } from 'antd';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 // Define the type for GMT offset options
 interface GmtOffsetOption {
   value: string;
   label: string;
 }
-  // eslint-disable-next-line @typescript-eslint/naming-convention
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const gmtOffsets: GmtOffsetOption[] = Array.from({ length: 27 }, (_, i) => {
-    // eslint-enable-next-line @typescript-eslint/naming-convention
+  // eslint-enable-next-line @typescript-eslint/naming-convention
   const hour = i - 12;
   const sign = hour >= 0 ? '+' : '-';
   const absHour = Math.abs(hour).toString().padStart(2, '0');
@@ -62,9 +64,11 @@ const TimezoneSelect = () => {
             />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={isLoading}>
-              Update Timezone
-            </Button>
+            <AccessGuard permissions={[Permissions.UpdateTimeZone]}>
+              <Button type="primary" htmlType="submit" loading={isLoading}>
+                Update Timezone
+              </Button>
+            </AccessGuard>
           </Form.Item>
         </Form>
         <hr />

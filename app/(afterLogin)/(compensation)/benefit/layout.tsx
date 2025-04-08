@@ -1,6 +1,5 @@
 'use client';
 import { FC, ReactNode, useEffect, useState } from 'react';
-import { CiCalendarDate } from 'react-icons/ci';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import SidebarMenu from '@/components/sidebarMenu';
@@ -22,7 +21,6 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         filteredData?.map((allowance: any) => ({
           item: {
             key: allowance.id,
-            icon: <CiCalendarDate />,
             label: (
               <p className="menu-item-label">
                 {allowance.name || 'Unnamed Allowance'}
@@ -36,7 +34,6 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'variablePay',
-          icon: <CiCalendarDate />,
           label: <p className="menu-item-label">Variable Pay</p>,
           className: 'px-1',
         },

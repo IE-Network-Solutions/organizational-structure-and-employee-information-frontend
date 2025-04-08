@@ -13,7 +13,8 @@ import {
 import { MoreOutlined } from '@ant-design/icons';
 
 const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
-  const { setObjectiveValue, objectiveValue } = useOKRStore();
+  const { setObjectiveValue, objectiveValue, keyResultId, objectiveId } =
+    useOKRStore();
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: deleteObjective } = useDeleteObjective();
@@ -22,7 +23,6 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     setOpenDeleteModal(true);
     setObjectiveValue(objective);
   };
-
   const onCloseDeleteModal = () => {
     setOpenDeleteModal(false);
     setObjectiveValue(defaultObjective);
@@ -66,10 +66,36 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
       },
     });
   }
+
+  // ==========> Deleting Key result and distributing weight Section <===============
+  const selectedObjective = objective?.id === objectiveId ? objective : null;
+
+  const relatedKeyResults =
+    (selectedObjective &&
+      selectedObjective?.keyResults?.filter(
+        (kr: any) => kr.objectiveId === objectiveId,
+      )) ||
+    [];
+  const remainingKeyResults = relatedKeyResults?.filter(
+    (kr: any) => kr?.id !== keyResultId,
+  );
+
+  const keyResultToDelete = relatedKeyResults.find(
+    (kr: any) => kr.id === keyResultId,
+  );
+
+  const redistributedWeight =
+    parseFloat(keyResultToDelete?.weight) / remainingKeyResults.length;
+
+  const updatedKeyResults = remainingKeyResults.map((kr: any) => ({
+    id: kr.id,
+    weight: parseFloat(kr.weight) + redistributedWeight,
+  }));
+
   return (
     <div className="p-2 grid gap-0">
       <div className="flex justify-center">
-        <Card className="bg-gray-100 shadow-sm rounded-lg w-full">
+        <Card className="bg-white shadow-sm rounded-lg w-full mb-3">
           <div className="flex flex-col gap-4">
             {/* Title Section */}
             <div className="flex justify-between items-start">
@@ -105,7 +131,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   <Progress
                     percent={objective?.objectiveProgress}
                     showInfo={false}
-                    strokeColor="#8C8CF0"
+                    strokeColor="#3636f0"
                     trailColor="#EDEDF6"
                     className="w-full sm:w-32"
                   />
@@ -118,7 +144,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 <div className="grid items-center gap-0">
                   <div className="flex items-center">
                     <PiCalendarMinusBold className="text-blue mt-1" />
-                    <div className="text-2xl font-bold text-blue">
+                    <div className="text-2xl font-bold text-[#3636f0]">
                       {objective?.daysLeft}
                     </div>
                   </div>
@@ -165,6 +191,8 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           myOkr={myOkr}
           keyResult={keyResult}
           key={keyResult.id}
+          updatedKeyResults={updatedKeyResults}
+          objectiveId={objectiveId}
         />
       ))}
     </div>

@@ -41,10 +41,9 @@ const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
 };
 
 const LeaveBalanceTable: React.FC = () => {
-  const { userId } = useLeaveBalanceStore();
+  const { userId, leaveTypeId } = useLeaveBalanceStore();
   const { data: leaveBalanceData, isLoading: leaveBalanceIsLoading } =
-    useGetLeaveBalance(userId);
-
+    useGetLeaveBalance(userId, leaveTypeId);
   const columns: TableColumnsType<NewUserData> = [
     {
       title: 'Leave Name',

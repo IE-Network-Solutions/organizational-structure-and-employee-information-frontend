@@ -142,7 +142,7 @@ const ObjectiveKeyResult: React.FC = () => {
                 </div> */}
               </div>
               <div className="flex gap-1 items-center">
-                <h2>{OKRData?.supervisorOkr ?? 0}</h2>
+                <h2>{(OKRData?.supervisorOkr ?? 0).toFixed(2)}</h2>
                 <h5>%</h5>
               </div>
               <div className="text-gray-700 mb-3">

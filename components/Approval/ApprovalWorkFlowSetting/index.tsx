@@ -92,11 +92,11 @@ const ApprovalWorkFlowSettingComponent = ({
           {title
             ? title
             : approverType === 'Sequential'
-              ? 'Leave '
+              ? 'Sequential '
               : approverType === 'Parallel'
-                ? 'TNA '
+                ? 'Parallel '
                 : approverType === 'Conditional'
-                  ? 'Purchasing Approval '
+                  ? 'Conditional '
                   : ' '}
           Approval Setting
         </div>
