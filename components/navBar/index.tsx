@@ -301,6 +301,17 @@ const treeData: CustomMenuItem[] = [
       },
     ],
   },
+  {
+    key: '/admin',
+    icon: <CiSettings />,
+    title: 'Admin',
+    className: 'font-bold',
+    children: [
+      { key: '/admin/dashboard', title: 'Dashboard' },
+      { key: '/admin/billing', title: 'Billing and Invoice' },
+      { key: '/admin/profile', title: 'Update Profile' },
+    ],
+  },
 ];
 
 const userItems: CustomMenuItem[] = [
@@ -374,6 +385,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { userData, setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const userRole = userData?.role?.slug || '';
+  const isAdminPage = pathname.startsWith('/admin');
+
   // const { pathname } = router;
   const [expandedKeys, setExpandedKeys] = useState<
     (string | number | bigint)[]
@@ -557,11 +570,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           <div
-            className=" bg-white overflow-auto"
+            className={`p-2 overflow-auto ${!isAdminPage ? 'bg-white' : ''} overflow-auto`}
             style={{
               borderRadius: borderRadiusLG,
               marginTop: '3rem',
-              marginRight: '1.3rem',
+              marginRight: `${!isAdminPage ? '1.3rem' : ''}`,
             }}
           >
             {children}
