@@ -32,6 +32,7 @@ const config: Config = {
         blue: '#0062FF',
         purple: '#8C62FF',
         light_purple: '#E7E7FF',
+        lightblue: '#d3e4f0',
       },
       fontFamily: {
         sans: ['Manrope', 'sans-serif'],

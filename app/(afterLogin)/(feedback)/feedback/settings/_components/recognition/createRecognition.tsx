@@ -11,6 +11,7 @@ import {
   useUpdateRecognitionWithCriteria,
 } from '@/store/server/features/CFR/recognition/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
+import CustomDrawerLayout from '@/components/common/customDrawer';
 
 interface RecognitionFormValues {
   id: string;
@@ -49,6 +50,7 @@ const RecognitionForm: React.FC<PropsData> = ({
 }) => {
   const [form] = Form.useForm();
   const {
+    openRecognitionType,
     setOpenRecognitionType,
     parentRecognitionTypeId,
     setSelectedRecognitionType,
@@ -56,6 +58,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     setTotalWeight,
     totalWeight,
   } = ConversationStore();
+
   const { data: allDepartmentWithData } = useGetDepartmentsWithUsers();
   const { data: recognitionTypeWithOutCriteria } =
     useGetAllRecognitionTypeWithOutCriteria();
@@ -73,6 +76,12 @@ const RecognitionForm: React.FC<PropsData> = ({
   } = useUpdateRecognitionWithCriteria();
 
   const [selectedCriteria, setSelectedCriteria] = useState<any>([]);
+
+  const modalHeader = (
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+      {openRecognitionType ? 'Update Recognition' : 'Add New Recognition'}
+    </div>
+  );
 
   // This function will calculate the total weight of all criteria
   const calculateTotalWeight = (criteria: any[]) => {
@@ -207,97 +216,99 @@ const RecognitionForm: React.FC<PropsData> = ({
   }, [recognitionTypeById]);
 
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={onFinish}
-      className="text-xs text-gray-950"
-      initialValues={{
-        isMonetized: false,
-        requiresCertification: false,
-        frequency: 'monthly',
-      }}
+    <CustomDrawerLayout
+      modalHeader={modalHeader}
+      onClose={() => setOpenRecognitionType(false)}
+      open={openRecognitionType}
+      width="40%"
+      footer={
+        <Form.Item>
+          <div className="flex justify-center space-x-5 bottom-8">
+            <Popconfirm
+              title="Are you sure you want to cancel?"
+              onConfirm={() => {
+                form.resetFields();
+                setSelectedRecognitionType('');
+                setOpenRecognitionType(false);
+              }}
+              okText="Yes"
+              cancelText="No"
+              placement="top"
+            >
+              <Button type="default" htmlType="button" className="text-xs">
+                Cancel
+              </Button>
+            </Popconfirm>
+            <Button
+              loading={
+                selectedRecognitionType !== ''
+                  ? updateWithCriteriaLoading
+                  : createLoading
+              }
+              disabled={selectedCriteria?.length > 0 && totalWeight !== 1}
+              type="primary"
+              onClick={() => form.submit()}
+              className="text-xs"
+            >
+              {selectedRecognitionType !== '' ? 'Update' : 'Create'}
+            </Button>
+          </div>
+        </Form.Item>
+      }
     >
-      <Form.Item
-        label={
-          <span className="text-black text-xs font-semibold">
-            Recognition Name
-          </span>
-        }
-        name="name"
-        rules={[
-          { required: true, message: 'Please enter the recognition name' },
-        ]}
-      >
-        <Input
-          placeholder="Enter recognition type name"
-          className="text-xs text-gray-950"
-        />
-      </Form.Item>
-
-      <Form.Item
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
         className="text-xs text-gray-950"
-        label={
-          <span className="text-black text-xs font-semibold">Description</span>
-        }
-        name="description"
-        rules={[{ required: true, message: 'Please enter a description' }]}
+        initialValues={{
+          isMonetized: false,
+          requiresCertification: false,
+          frequency: 'monthly',
+        }}
       >
-        <Input.TextArea
-          placeholder="Enter a detailed description"
-          rows={4}
-          className="text-xs text-gray-950"
-        />
-      </Form.Item>
-      {!createCategory && (
+        <Form.Item
+          label={
+            <span className="text-black text-xs font-semibold">
+              Recognition Name
+            </span>
+          }
+          name="name"
+          rules={[
+            { required: true, message: 'Please enter the recognition name' },
+          ]}
+        >
+          <Input
+            placeholder="Enter recognition type name"
+            className="text-xs text-gray-950"
+          />
+        </Form.Item>
+
         <Form.Item
           className="text-xs text-gray-950"
           label={
             <span className="text-black text-xs font-semibold">
-              Recognition Criteria
+              Description
             </span>
           }
-          name="criteria"
-          rules={[
-            {
-              required: true,
-              message: 'Please select at least one criterion',
-            },
-          ]}
+          name="description"
+          rules={[{ required: true, message: 'Please enter a description' }]}
         >
-          <Select
-            mode="multiple"
-            placeholder="Select criteria"
+          <Input.TextArea
+            placeholder="Enter a detailed description"
+            rows={4}
             className="text-xs text-gray-950"
-            onChange={handleCriteriaChange}
-          >
-            {CRITERIA_OPTIONS.map((option) => (
-              <Select.Option key={option.id} value={option.value}>
-                {option.label}
-              </Select.Option>
-            ))}
-          </Select>
+          />
         </Form.Item>
-      )}
-      {selectedCriteria.map((criteria: any, index: number) => (
-        <div
-          className="flex gap-1"
-          key={`recognition-criteria-${criteria.criterionKey}-${index}`}
-        >
-          {selectedRecognitionType !== '' && (
-            <Form.Item
-              className="w-1/2 text-xs text-gray-950"
-              name={['recognitionCriteria', index, 'id']}
-              initialValue={criteria.id}
-              hidden
-            ></Form.Item>
-          )}
+        {!createCategory && (
           <Form.Item
-            labelAlign="left"
-            className="w-1/2 text-xs text-gray-950"
-            label={getLabel('Criteria')}
-            name={['recognitionCriteria', index, 'criterionKey']}
-            initialValue={criteria.criterionKey}
+            className="text-xs text-gray-950"
+            label={
+              <span className="text-black text-xs font-semibold">
+                Recognition Criteria
+              </span>
+            }
+            name="criteria"
             rules={[
               {
                 required: true,
@@ -305,275 +316,288 @@ const RecognitionForm: React.FC<PropsData> = ({
               },
             ]}
           >
-            <Input className={commonClass} disabled />
+            <Select
+              mode="multiple"
+              placeholder="Select criteria"
+              className="text-xs text-gray-950"
+              onChange={handleCriteriaChange}
+            >
+              {CRITERIA_OPTIONS.map((option) => (
+                <Select.Option key={option.id} value={option.value}>
+                  {option.label}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
-
-          <Form.Item
-            className="w-1/2 text-xs text-gray-950"
-            label={getLabel('Weight')}
-            name={['recognitionCriteria', index, 'weight']}
-            initialValue={criteria.weight}
-            rules={[
-              { required: true, message: 'Please enter weight' },
-              {
-                validator: (notused, value) => {
-                  const weight = parseFloat(value || 0); // Default to 0 if value is invalid
-                  if (weight < 0.1 || weight > 1) {
-                    return Promise.reject('The weight should be between 0.1-1');
-                  }
-                  return Promise.resolve();
+        )}
+        {selectedCriteria.map((criteria: any, index: number) => (
+          <div
+            className="flex gap-1"
+            key={`recognition-criteria-${criteria.criterionKey}-${index}`}
+          >
+            {selectedRecognitionType !== '' && (
+              <Form.Item
+                className="w-1/2 text-xs text-gray-950"
+                name={['recognitionCriteria', index, 'id']}
+                initialValue={criteria.id}
+                hidden
+              ></Form.Item>
+            )}
+            <Form.Item
+              labelAlign="left"
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel('Criteria')}
+              name={['recognitionCriteria', index, 'criterionKey']}
+              initialValue={criteria.criterionKey}
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select at least one criterion',
                 },
-              },
-            ]}
+              ]}
+            >
+              <Input className={commonClass} disabled />
+            </Form.Item>
+
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel('Weight')}
+              name={['recognitionCriteria', index, 'weight']}
+              initialValue={criteria.weight}
+              rules={[
+                { required: true, message: 'Please enter weight' },
+                {
+                  validator: (notused, value) => {
+                    const weight = parseFloat(value || 0); // Default to 0 if value is invalid
+                    if (weight < 0.1 || weight > 1) {
+                      return Promise.reject(
+                        'The weight should be between 0.1-1',
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <Input
+                type="number"
+                min={0.1} // Browser-level constraint
+                max={1} // Browser-level constraint
+                step={0.01}
+                placeholder="Enter weight (0.1-1)"
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value || '0');
+                  handleWeightChange(index, value);
+                }}
+              />
+            </Form.Item>
+
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel('Operator')}
+              name={['recognitionCriteria', index, 'operator']}
+              initialValue={criteria.operator}
+              rules={[{ required: true, message: 'Please enter operator' }]}
+            >
+              <Select placeholder="Select operator" className={commonClass}>
+                {Object.values(AggregateOperator).map((operator, opIndex) => (
+                  <Select.Option
+                    key={`operator-${operator}-${opIndex}`}
+                    value={operator}
+                    className={commonClass}
+                  >
+                    {operator}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel('Condition')}
+              name={['recognitionCriteria', index, 'condition']}
+              initialValue={criteria.condition}
+              rules={[{ required: true, message: 'Please enter condition' }]}
+            >
+              <Select placeholder="Select condition" className={commonClass}>
+                {Object.values(ConditionOperator).map((operator, condIndex) => (
+                  <Select.Option
+                    key={`condition-${operator}-${condIndex}`}
+                    value={operator}
+                    className={commonClass}
+                  >
+                    {operator}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              label={getLabel('Value')}
+              name={['recognitionCriteria', index, 'value']}
+              initialValue={criteria.value}
+              rules={[{ required: true, message: 'Please enter value' }]}
+            >
+              <Input
+                type="number"
+                placeholder="Enter value"
+                className={commonClass}
+              />
+            </Form.Item>
+          </div>
+        ))}
+
+        {!createCategory && (
+          <div
+            className={`mt-2 text-xs ${totalWeight !== 1 ? 'text-red-500' : 'text-gray-600'}`}
           >
-            <Input
-              type="number"
-              min={0.1} // Browser-level constraint
-              max={1} // Browser-level constraint
-              step={0.01}
-              placeholder="Enter weight (0.1-1)"
-              onChange={(e) => {
-                const value = parseFloat(e.target.value || '0');
-                handleWeightChange(index, value);
-              }}
-            />
+            Total Weight: {totalWeight} {totalWeight !== 1 && '(Must equal 1)'}
+          </div>
+        )}
+
+        <div className="flex">
+          <Form.Item
+            className="text-xs text-gray-950"
+            label={
+              <span className="text-black text-xs font-semibold">
+                Monetized
+              </span>
+            }
+            initialValue={false}
+            name="isMonetized"
+            valuePropName="checked"
+          >
+            <Switch />
           </Form.Item>
 
           <Form.Item
-            className="w-1/2 text-xs text-gray-950"
-            label={getLabel('Operator')}
-            name={['recognitionCriteria', index, 'operator']}
-            initialValue={criteria.operator}
-            rules={[{ required: true, message: 'Please enter operator' }]}
+            className="text-xs text-gray-950"
+            label={
+              <span className="text-black text-xs font-semibold">
+                Requires Certification
+              </span>
+            }
+            name="requiresCertification"
+            valuePropName="checked"
+            initialValue={false}
           >
-            <Select placeholder="Select operator" className={commonClass}>
-              {Object.values(AggregateOperator).map((operator, opIndex) => (
-                <Select.Option
-                  key={`operator-${operator}-${opIndex}`}
-                  value={operator}
-                  className={commonClass}
-                >
-                  {operator}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            className="w-1/2 text-xs text-gray-950"
-            label={getLabel('Condition')}
-            name={['recognitionCriteria', index, 'condition']}
-            initialValue={criteria.condition}
-            rules={[{ required: true, message: 'Please enter condition' }]}
-          >
-            <Select placeholder="Select condition" className={commonClass}>
-              {Object.values(ConditionOperator).map((operator, condIndex) => (
-                <Select.Option
-                  key={`condition-${operator}-${condIndex}`}
-                  value={operator}
-                  className={commonClass}
-                >
-                  {operator}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            className="w-1/2 text-xs text-gray-950"
-            label={getLabel('Value')}
-            name={['recognitionCriteria', index, 'value']}
-            initialValue={criteria.value}
-            rules={[{ required: true, message: 'Please enter value' }]}
-          >
-            <Input
-              type="number"
-              placeholder="Enter value"
-              className={commonClass}
-            />
+            <Switch />
           </Form.Item>
         </div>
-      ))}
-
-      {!createCategory && (
-        <div
-          className={`mt-2 text-xs ${totalWeight !== 1 ? 'text-red-500' : 'text-gray-600'}`}
-        >
-          Total Weight: {totalWeight} {totalWeight !== 1 && '(Must equal 1)'}
-        </div>
-      )}
-
-      <div className="flex">
-        <Form.Item
-          className="text-xs text-gray-950"
-          label={
-            <span className="text-black text-xs font-semibold">Monetized</span>
+        {/* Certification Data */}
+        <Form.Item>
+          {({ getFieldValue }) =>
+            getFieldValue('requiresCertification') && (
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <Form.Item
+                  className="text-xs text-gray-950"
+                  label={
+                    <span className="text-black text-xs font-semibold">
+                      Certification Title
+                    </span>
+                  }
+                  name={['certificationData', 'title']}
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please enter certification title',
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder="Enter certification title"
+                    className="text-xs text-gray-950"
+                  />
+                </Form.Item>
+                <Form.Item
+                  className="text-xs text-gray-950"
+                  label={
+                    <span className="text-black text-xs font-semibold">
+                      Certification Details
+                    </span>
+                  }
+                  name={['certificationData', 'details']}
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please enter certification details',
+                    },
+                  ]}
+                >
+                  <Input.TextArea
+                    placeholder="Enter details for certification"
+                    rows={3}
+                    className="text-xs text-gray-950"
+                  />
+                </Form.Item>
+              </Space>
+            )
           }
-          initialValue={false}
-          name="isMonetized"
-          valuePropName="checked"
-        >
-          <Switch />
         </Form.Item>
 
         <Form.Item
           className="text-xs text-gray-950"
           label={
-            <span className="text-black text-xs font-semibold">
-              Requires Certification
-            </span>
+            <span className="text-black text-xs font-semibold">Frequency</span>
           }
-          name="requiresCertification"
-          valuePropName="checked"
-          initialValue={false}
-        >
-          <Switch />
-        </Form.Item>
-      </div>
-      {/* Certification Data */}
-      <Form.Item>
-        {({ getFieldValue }) =>
-          getFieldValue('requiresCertification') && (
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Form.Item
-                className="text-xs text-gray-950"
-                label={
-                  <span className="text-black text-xs font-semibold">
-                    Certification Title
-                  </span>
-                }
-                name={['certificationData', 'title']}
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter certification title',
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Enter certification title"
-                  className="text-xs text-gray-950"
-                />
-              </Form.Item>
-              <Form.Item
-                className="text-xs text-gray-950"
-                label={
-                  <span className="text-black text-xs font-semibold">
-                    Certification Details
-                  </span>
-                }
-                name={['certificationData', 'details']}
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter certification details',
-                  },
-                ]}
-              >
-                <Input.TextArea
-                  placeholder="Enter details for certification"
-                  rows={3}
-                  className="text-xs text-gray-950"
-                />
-              </Form.Item>
-            </Space>
-          )
-        }
-      </Form.Item>
-
-      <Form.Item
-        className="text-xs text-gray-950"
-        label={
-          <span className="text-black text-xs font-semibold">Frequency</span>
-        }
-        name="frequency"
-        rules={[{ required: true, message: 'Please select a frequency' }]}
-      >
-        <Select className="text-xs text-gray-950">
-          <Select.Option value="weekly">Weekly</Select.Option>
-          <Select.Option value="monthly">Monthly</Select.Option>
-          <Select.Option value="quarterly">Quarterly</Select.Option>
-          <Select.Option value="yearly">Yearly</Select.Option>
-        </Select>
-      </Form.Item>
-
-      {!createCategory && (
-        <Form.Item
-          className="text-xs text-gray-950"
-          hidden
-          label={
-            <span className="text-black text-xs font-semibold">
-              Parent Type
-            </span>
-          }
-          initialValue={parentRecognitionTypeId}
-          name="parentTypeId"
+          name="frequency"
+          rules={[{ required: true, message: 'Please select a frequency' }]}
         >
           <Select className="text-xs text-gray-950">
-            {recognitionTypeWithOutCriteria?.items?.map((item: any) => (
-              <Select.Option key={item?.id} value={item?.id}>
-                {item?.name}
-              </Select.Option>
+            <Select.Option value="weekly">Weekly</Select.Option>
+            <Select.Option value="monthly">Monthly</Select.Option>
+            <Select.Option value="quarterly">Quarterly</Select.Option>
+            <Select.Option value="yearly">Yearly</Select.Option>
+          </Select>
+        </Form.Item>
+
+        {!createCategory && (
+          <Form.Item
+            className="text-xs text-gray-950"
+            hidden
+            label={
+              <span className="text-black text-xs font-semibold">
+                Parent Type
+              </span>
+            }
+            initialValue={parentRecognitionTypeId}
+            name="parentTypeId"
+          >
+            <Select className="text-xs text-gray-950">
+              {recognitionTypeWithOutCriteria?.items?.map((item: any) => (
+                <Select.Option key={item?.id} value={item?.id}>
+                  {item?.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        )}
+        <Form.Item
+          className="text-xs text-gray-950"
+          label={
+            <span className="text-black text-xs font-semibold">Department</span>
+          }
+          name="departmentId"
+          rules={[
+            { required: true, message: 'Please enter the department ID' },
+          ]}
+        >
+          <Select
+            placeholder="Select a department"
+            className="text-black text-xs font-semibold"
+          >
+            {allDepartmentWithData?.map((dep: any) => (
+              <Option key={dep.id} value={dep.id}>
+                <span className="text-xs font-semibold text-black">
+                  {dep?.name}
+                </span>
+              </Option>
             ))}
           </Select>
         </Form.Item>
-      )}
-      <Form.Item
-        className="text-xs text-gray-950"
-        label={
-          <span className="text-black text-xs font-semibold">Department</span>
-        }
-        name="departmentId"
-        rules={[{ required: true, message: 'Please enter the department ID' }]}
-      >
-        <Select
-          placeholder="Select a department"
-          className="text-black text-xs font-semibold"
-        >
-          {allDepartmentWithData?.map((dep: any) => (
-            <Option key={dep.id} value={dep.id}>
-              <span className="text-xs font-semibold text-black">
-                {dep?.name}
-              </span>
-            </Option>
-          ))}
-        </Select>
-      </Form.Item>
-
-      <Form.Item>
-        <div className="flex justify-center space-x-4">
-          <Button
-            loading={
-              selectedRecognitionType !== ''
-                ? updateWithCriteriaLoading
-                : createLoading
-            }
-            disabled={selectedCriteria?.length > 0 && totalWeight !== 1}
-            type="primary"
-            htmlType="submit"
-            className="text-xs"
-          >
-            {selectedRecognitionType !== '' ? 'Update' : 'Create'}
-          </Button>
-
-          <Popconfirm
-            title="Are you sure you want to cancel?"
-            onConfirm={() => {
-              form.resetFields();
-              setSelectedRecognitionType('');
-              setOpenRecognitionType(false);
-            }}
-            okText="Yes"
-            cancelText="No"
-            placement="top"
-          >
-            <Button type="primary" danger htmlType="button" className="text-xs">
-              Cancel
-            </Button>
-          </Popconfirm>
-        </div>
-      </Form.Item>
-    </Form>
+      </Form>
+    </CustomDrawerLayout>
   );
 };
 

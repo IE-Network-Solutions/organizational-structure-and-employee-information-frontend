@@ -6,13 +6,11 @@ import { useQuery } from 'react-query';
 const fetchAllIncentiveData = async (
   employeeName: string,
   year: string,
-  session: string | string[], // Accepts both string and array
+  session: string | string[],
   month: string,
   page: number,
   current: number,
 ) => {
-  // Ensure session is always an array and convert it to a proper query format
-
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentives/get-all-incentives?limit=${page}&page=${current}`,
     method: 'POST',
@@ -20,26 +18,31 @@ const fetchAllIncentiveData = async (
     data: {
       userId: employeeName,
       year: year,
-      sessionId: session ?? [],
+      sessionId: session,
       monthId: month,
-      // limit: page,
-      // page: current,
     },
   });
 };
 
 const fetchProjectIncentiveData = async (
+  recognitionsTypeId: string,
   employeeName: string,
-  project: string,
-  recognition: string,
   year: string,
-  session: string,
+  session: string | string[],
+  month: string,
+  page: number,
+  current: number,
 ) => {
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentive?employee_name=${employeeName}&&project=${project}&&recognition=${recognition}&&year=${year}&&session=${session}`,
-    // url: 'https://mocki.io/v1/c4e934a6-27b5-4ccb-a83d-bd8f7ae9d294',
-    method: 'GET',
+    url: `${INCENTIVE_URL}/incentives/all/${recognitionsTypeId}?limit=${page}&page=${current}`,
+    method: 'POST',
     headers: requestHeader(),
+    data: {
+      userId: employeeName,
+      year: year,
+      sessionId: session ?? [],
+      monthId: month,
+    },
   });
 };
 
@@ -50,10 +53,24 @@ const fetchAllRecognition = async () => {
     headers: requestHeader(),
   });
 };
+const fetchUserDetail = async () => {
+  return await crudRequest({
+    url: `${INCENTIVE_URL}/incentives/get-incentive/group-by-session`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
 
 const fetchRecognitionTypeByParentId = async (parentId: string) => {
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition-type/childe-recognition-type/child/${parentId}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
+const fetchAllChildrenRecognition = async () => {
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/childe-recognition-type/child`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -67,7 +84,7 @@ const fetchParentRecognition = async () => {
 };
 const fetchRecognitionById = async (recognitionId: string) => {
   return await crudRequest({
-    url: `${ORG_DEV_URL}/recognition/${recognitionId}`,
+    url: `${ORG_DEV_URL}/recognition-type/${recognitionId}`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -89,6 +106,12 @@ const fetchIncentiveFormula = async (recognitionTypeId: string) => {
   });
 };
 
+export const useAllChildrenRecognition = () => {
+  return useQuery<any>('allChildRecognition', fetchAllChildrenRecognition);
+};
+export const useUserDetail = () => {
+  return useQuery<any>('useDetail', fetchUserDetail);
+};
 export const useParentRecognition = () => {
   return useQuery<any>('parentRecognition', fetchParentRecognition);
 };
@@ -119,22 +142,35 @@ export const useIncentiveCriteria = () => {
   return useQuery<any>('incentiveCriteria', fetchIncentiveCriteria);
 };
 
-export const useGetProjectIncentiveData = (
+export const useGetIncentiveDataByRecognitionId = (
+  recognitionsTypeId: string,
   employeeName: string,
-  project: string,
-  recognition: string,
   year: string,
   session: string,
+  month: string,
+  page: number,
+  current: number,
 ) => {
   return useQuery<any>(
-    ['getAllIncentiveData', employeeName, project, recognition, year, session],
+    [
+      'getAllIncentiveData',
+      recognitionsTypeId,
+      employeeName,
+      year,
+      session,
+      month,
+      page,
+      current,
+    ],
     () =>
       fetchProjectIncentiveData(
+        recognitionsTypeId,
         employeeName,
-        project,
-        recognition,
         year,
         session,
+        month,
+        page,
+        current,
       ),
   );
 };

@@ -1,5 +1,5 @@
 'use client';
-import { Button, Drawer, Spin, Tabs } from 'antd';
+import { Button, Spin, Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import { FaPlus } from 'react-icons/fa';
 import AllRecognition from '../_components/recognition/allRecognition';
@@ -51,7 +51,7 @@ const Page = () => {
   return (
     <div>
       <Spin spinning={isLoading}>
-        <div className="flex justify-start">
+        <div className="flex justify-between">
           <Tabs
             className="max-w-[850px] overflow-x-scrollable"
             defaultActiveKey="1"
@@ -79,17 +79,17 @@ const Page = () => {
       >
         <RecognitionForm onClose={() => setOpen(false)} />
       </CustomDrawerLayout>
-      <Drawer
+      {/* <Drawer
         width={600} // Adjust the width as needed
         title={modalHeader}
         onClose={() => setOpenRecognitionType(false)}
         open={openRecognitionType}
-      >
-        <RecognitionForm
-          createCategory={true}
-          onClose={() => setOpenRecognitionType(false)}
-        />
-      </Drawer>
+      > */}
+      <RecognitionForm
+        createCategory={true}
+        onClose={() => setOpenRecognitionType(false)}
+      />
+      {/* </Drawer> */}
     </div>
   );
 };
