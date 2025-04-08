@@ -210,7 +210,7 @@ const FiscalYearListCard: React.FC = () => {
         ))
       ) : (
         <div className="mx-auto p-4 text-center">
-          <p>No Fiscal Year found.</p>
+          <p>No Fiscal Year found</p>
         </div>
       )}
       <Pagination
