@@ -1,4 +1,4 @@
-import { useAuthenticationStore } from "@/store/uistate/features/authentication";
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 export const ORG_AND_EMP_URL = process.env.ORG_AND_EMP_URL;
 export const OKR_URL = process.env.OKR_URL;
@@ -31,5 +31,4 @@ export const INCENTIVE_URL = process.env.INCENTIVE_URL;
 export const EMAIL_URL = process.env.EMAIL_URL;
 
 const tenantId = useAuthenticationStore.getState().tenantId;
-export const DEFAULT_TENANT_ID = tenantId
-
+export const DEFAULT_TENANT_ID = tenantId;

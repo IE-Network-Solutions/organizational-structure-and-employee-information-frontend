@@ -63,4 +63,4 @@ export interface CreateClientDto {
   contactPersonPhoneNumber: string;
   logo: string;
   preferredIndustry: string;
-} 
+}

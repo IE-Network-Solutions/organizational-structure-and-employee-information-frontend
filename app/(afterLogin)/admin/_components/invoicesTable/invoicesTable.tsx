@@ -2,7 +2,13 @@
 
 import { Table, Input, Select, DatePicker, notification } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { Invoice, Currency, Plan, InvoiceStatus, Subscription } from '@/types/tenant-management';
+import {
+  Invoice,
+  Currency,
+  Plan,
+  InvoiceStatus,
+  Subscription,
+} from '@/types/tenant-management';
 import { useState, useEffect } from 'react';
 import { RightOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
@@ -24,11 +30,11 @@ interface InvoicesTableProps {
   subscriptions?: Subscription[];
 }
 
-const InvoicesTable = ({ 
-  data, 
-  loading = false, 
+const InvoicesTable = ({
+  data,
+  loading = false,
   currencies,
-  subscriptions = []
+  subscriptions = [],
 }: InvoicesTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -40,20 +46,24 @@ const InvoicesTable = ({
   const [voiceDateRange, setVoiceDateRange] = useState<
     [dayjs.Dayjs, dayjs.Dayjs] | null
   >(null);
-  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
-  const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<string | null>(null);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(
+    null,
+  );
+  const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<
+    string | null
+  >(null);
   const router = useRouter();
 
   const { data: invoiceDetail } = useGetInvoiceDetail(
     selectedInvoiceId || '',
-    'PDF'
+    'PDF',
   );
 
   // Функция для скачивания файла
   const downloadFile = (url: string, filename: string) => {
     fetch(url)
-      .then(response => response.blob())
-      .then(blob => {
+      .then((response) => response.blob())
+      .then((blob) => {
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = filename;
@@ -61,10 +71,13 @@ const InvoicesTable = ({
         link.click();
         document.body.removeChild(link);
       })
-      .catch(error => {
+      .catch((error) => {
         notification.error({
           message: 'Error downloading file',
-          description: error instanceof Error ? error.message : 'An unknown error occurred'
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
         });
       })
       .finally(() => {
@@ -75,22 +88,23 @@ const InvoicesTable = ({
   useEffect(() => {
     if (invoiceDetail && selectedInvoiceId) {
       const response = invoiceDetail as any;
-      
-      const filePath = response.path || response.data?.path || response.items?.[0]?.path;
-      
+
+      const filePath =
+        response.path || response.data?.path || response.items?.[0]?.path;
+
       if (filePath) {
         const fullUrl = `${TENANT_BASE_URL}/${filePath}`;
-        
-        const invoice = data.find(inv => inv.id === selectedInvoiceId);
-        const fileName = invoice 
-          ? `Invoice-${invoice.invoiceNumber}.pdf` 
+
+        const invoice = data.find((inv) => inv.id === selectedInvoiceId);
+        const fileName = invoice
+          ? `Invoice-${invoice.invoiceNumber}.pdf`
           : `Invoice-${selectedInvoiceId}.pdf`;
-        
+
         downloadFile(fullUrl, fileName);
       } else {
         setDownloadingInvoiceId(null);
       }
-      
+
       setSelectedInvoiceId(null);
     }
   }, [invoiceDetail, selectedInvoiceId, data]);
@@ -106,14 +120,16 @@ const InvoicesTable = ({
 
   const getPlanName = (subscriptionId: string) => {
     // First try to find subscription by id
-    const subscription = subscriptions?.find(sub => sub.id === subscriptionId);
-    
+    const subscription = subscriptions?.find(
+      (sub) => sub.id === subscriptionId,
+    );
+
     if (subscription?.plan?.name) {
       return subscription.plan.name;
     }
-    
+
     // If not found in subscriptions directly, look for plan information in invoice notes
-    const invoice = data.find(inv => inv.subscriptionId === subscriptionId);
+    const invoice = data.find((inv) => inv.subscriptionId === subscriptionId);
     if (invoice?.notes) {
       // Try to extract plan name from notes (often in format "Subscription invoice for X план")
       const match = invoice.notes.match(/for\s+(.+?)(?:\s+план|\s*$)/i);
@@ -121,12 +137,12 @@ const InvoicesTable = ({
         return match[1];
       }
     }
-    
+
     return 'Unknown Plan';
   };
 
   const getCurrencySymbol = (currencyId: string) => {
-    const currency = currencies?.find(c => c.id === currencyId);
+    const currency = currencies?.find((c) => c.id === currencyId);
     return currency?.symbol || '$';
   };
 
@@ -157,7 +173,7 @@ const InvoicesTable = ({
     );
   });
 
-  const statusOptions = Object.values(InvoiceStatus).map(status => ({
+  const statusOptions = Object.values(InvoiceStatus).map((status) => ({
     value: status,
     label: status,
   }));
@@ -181,8 +197,7 @@ const InvoicesTable = ({
       dataIndex: 'invoiceAt',
       sorter: (a, b) =>
         new Date(a.invoiceAt).getTime() - new Date(b.invoiceAt).getTime(),
-      render: (date: string) =>
-        dayjs(date).format('MMMM D, YYYY'),
+      render: (date: string) => dayjs(date).format('MMMM D, YYYY'),
     },
     {
       title: 'Plan',
@@ -215,7 +230,7 @@ const InvoicesTable = ({
       dataIndex: 'currencyId',
       sorter: (a, b) => a.currencyId.localeCompare(b.currencyId),
       render: (currencyId: string) => {
-        const currency = currencies?.find(c => c.id === currencyId);
+        const currency = currencies?.find((c) => c.id === currencyId);
         return <span>{currency?.symbol || currencyId}</span>;
       },
     },
@@ -224,8 +239,7 @@ const InvoicesTable = ({
       dataIndex: 'dueAt',
       sorter: (a, b) =>
         new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime(),
-      render: (date: string) =>
-        dayjs(date).format('MMMM D, YYYY'),
+      render: (date: string) => dayjs(date).format('MMMM D, YYYY'),
     },
     {
       title: 'Status',
@@ -267,7 +281,7 @@ const InvoicesTable = ({
       render: (...args: [string, Invoice]) => {
         const record = args[1];
         const isDownloadingThis = downloadingInvoiceId === record.id;
-        
+
         return (
           <div className="flex items-center gap-4">
             <button
