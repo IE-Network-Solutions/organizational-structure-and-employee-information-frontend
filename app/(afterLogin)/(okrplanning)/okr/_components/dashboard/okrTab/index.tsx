@@ -15,6 +15,7 @@ import { EmptyImage } from '@/components/emptyIndicator';
 import OkrProgress from '../okrprogress';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import EmployeeOKRTable from '../EmployeeOkr';
 
 export default function OkrTab() {
   const { TabPane } = Tabs;
@@ -193,6 +194,11 @@ export default function OkrTab() {
                 <EmptyImage />
               </div>
             )}
+          </TabPane>
+        )}
+          {canVieCompanyOkr && (
+          <TabPane tab="All Employee OKR" key={4}>
+            <EmployeeOKRTable />
           </TabPane>
         )}
       </Tabs>
