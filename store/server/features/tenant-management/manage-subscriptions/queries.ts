@@ -3,7 +3,11 @@ import { TENANT_MGMT_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
-import { CalculateSubscriptionPriceDto, CalculateSubscriptionPriceResponse, GetSubscriptionByTenantRequest } from './interface';
+import {
+  CalculateSubscriptionPriceDto,
+  CalculateSubscriptionPriceResponse,
+  GetSubscriptionByTenantRequest,
+} from './interface';
 import { Subscription } from '@/types/tenant-management';
 import { notification } from 'antd';
 
@@ -48,15 +52,25 @@ export const useCalculateSubscriptionPrice = (
   isEnabled: boolean = false,
 ) => {
   return useQuery<ApiResponse<CalculateSubscriptionPriceResponse>>(
-    ['calculate-subscription-price', data?.planId, data?.planPeriodId, data?.slotTotal, data?.subscriptionId],
+    [
+      'calculate-subscription-price',
+      data?.planId,
+      data?.planPeriodId,
+      data?.slotTotal,
+      data?.subscriptionId,
+    ],
     async () => {
       try {
-        const response = await calculateSubscriptionPrice(data as CalculateSubscriptionPriceDto);
+        const response = await calculateSubscriptionPrice(
+          data as CalculateSubscriptionPriceDto,
+        );
         // Check the structure of the response. If the data came in the correct format even without .item,
         // convert them to the standard ApiResponse format
-        if (response && 
-            typeof response.periodInMonths === 'number' && 
-            typeof response.totalAmount === 'number') {
+        if (
+          response &&
+          typeof response.periodInMonths === 'number' &&
+          typeof response.totalAmount === 'number'
+        ) {
           return {
             statusCode: 200,
             message: 'Success',
@@ -68,25 +82,30 @@ export const useCalculateSubscriptionPrice = (
               itemCount: 1,
               itemsPerPage: 1,
               totalPages: 1,
-              currentPage: 1
-            }
+              currentPage: 1,
+            },
           } as ApiResponse<CalculateSubscriptionPriceResponse>;
         }
-        
+
         return response;
       } catch (error) {
         notification.error({
           message: 'Calculation failed',
-          description: error instanceof Error ? error.message : 'Please try again',
+          description:
+            error instanceof Error ? error.message : 'Please try again',
         });
         throw error;
       }
     },
     {
-      enabled: isEnabled && !!data?.planId && !!data?.planPeriodId && !!data?.slotTotal,
+      enabled:
+        isEnabled &&
+        !!data?.planId &&
+        !!data?.planPeriodId &&
+        !!data?.slotTotal,
       cacheTime: 5 * 60 * 1000, // 5 minutes
       staleTime: 1 * 60 * 1000, // 1 minute
-      retry: 1
+      retry: 1,
     },
   );
 };

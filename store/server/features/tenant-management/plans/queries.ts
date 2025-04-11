@@ -6,7 +6,10 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 
-const getPlans = async (data: Partial<PlanRequestBody>, orderDirection: 'ASC' | 'DESC' = 'ASC') => {
+const getPlans = async (
+  data: Partial<PlanRequestBody>,
+  orderDirection: 'ASC' | 'DESC' = 'ASC',
+) => {
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/plans?orderDirection=${orderDirection}`,
     method: 'POST',
@@ -19,7 +22,7 @@ export const useGetPlans = (
   data: Partial<PlanRequestBody> = {},
   isKeepData: boolean = true,
   isEnabled: boolean = true,
-  orderDirection: 'ASC' | 'DESC' = 'ASC'
+  orderDirection: 'ASC' | 'DESC' = 'ASC',
 ) => {
   return useQuery<ApiResponse<Plan>>(
     Object.keys(data).length ? ['plans', data] : 'plans',
@@ -27,8 +30,8 @@ export const useGetPlans = (
     {
       keepPreviousData: isKeepData,
       enabled: isEnabled,
-      retry: 1, 
-      refetchOnWindowFocus: false
+      retry: 1,
+      refetchOnWindowFocus: false,
     },
   );
 };
