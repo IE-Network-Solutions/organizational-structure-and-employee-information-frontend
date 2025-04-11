@@ -130,7 +130,7 @@ const Page = () => {
               className="text-xs"
               icon={<FaPlus className="text-xs" />}
             >
-              Add Perspective
+              <span className="hidden md:inline"> Add Perspective</span>
             </Button>
           </div>
           {paginatedData?.map((item: any) => (

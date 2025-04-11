@@ -20,6 +20,7 @@ import { useDeletePlanningUser } from '@/store/server/features/employees/plannin
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 // Define columns with correct type
 
@@ -188,15 +189,17 @@ const PlanAssignment: React.FC = () => {
     },
   ];
   return (
-    <div className="p-10 rounded-2xl shadow-md bg-white">
+    <div className="p-10 rounded-2xl shadow-md bg-white h-full">
       <div className="flex justify-between mb-4">
         <h2 className="text-lg font-semibold">Plan Assignation</h2>
         <AccessGuard permissions={[Permissions.AssignPlanningPeriod]}>
           <Button
+            icon={<FaPlus />}
             onClick={showDrawer}
-            className="bg-blue text-white h-8 font-semibold w-32 border-none"
+            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
+            type="primary"
           >
-            Assign
+            <span className="hidden lg:block">Assign</span>
           </Button>
         </AccessGuard>
       </div>
@@ -205,8 +208,7 @@ const PlanAssignment: React.FC = () => {
         <Select
           placeholder="Select a person"
           showSearch
-          style={{ width: 300 }}
-          className="mb-4"
+          className="mb-4 w-full"
           allowClear
           optionFilterProp="label"
           onChange={onChange}
@@ -218,22 +220,24 @@ const PlanAssignment: React.FC = () => {
         />
       </Form.Item>
 
-      <Table
-        loading={allUserPlanningPeriodLoading}
-        dataSource={dataSources}
-        columns={columns}
-        pagination={{
-          pageSize: allUserWithPlanningPeriod?.meta.itemsPerPage, // Set the page size from your meta data
-          current: allUserWithPlanningPeriod?.meta.currentPage, // Current page number
-          total: allUserWithPlanningPeriod?.meta.totalItems, // Total number of items
+      <div className="overflow-x-auto scrollbar-none w-full">
+        <Table
+          loading={allUserPlanningPeriodLoading}
+          dataSource={dataSources}
+          columns={columns}
+          pagination={{
+            pageSize: allUserWithPlanningPeriod?.meta.itemsPerPage, // Set the page size from your meta data
+            current: allUserWithPlanningPeriod?.meta.currentPage, // Current page number
+            total: allUserWithPlanningPeriod?.meta.totalItems, // Total number of items
 
-          showSizeChanger: true, // Optional: Allow users to change page size
-          onChange: (page, pageSize) => {
-            setPage(page);
-            setPageSize(pageSize);
-          },
-        }}
-      />
+            showSizeChanger: true, // Optional: Allow users to change page size
+            onChange: (page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            },
+          }}
+        />
+      </div>
 
       <PlanningAssignationDrawer open={open} onClose={onClose} />
       <DeleteModal

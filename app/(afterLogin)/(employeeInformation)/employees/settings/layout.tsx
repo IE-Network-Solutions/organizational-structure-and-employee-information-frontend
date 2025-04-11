@@ -18,7 +18,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'employementType',
-        icon: <FaUser />,
+        icon: <FaUser className="hidden lg:block" />,
         label: <p>Employment Type</p>,
       },
       link: '/employees/settings/employementType',
@@ -27,7 +27,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'rolePermission',
-        icon: <IoMdSettings />,
+        icon: <IoMdSettings className="hidden lg:block" />,
         label: 'Role Permission',
       },
       link: '/employees/settings/rolePermission',
@@ -35,7 +35,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'positions',
-        icon: <IoMdSettings />,
+        icon: <IoMdSettings className="hidden lg:block" />,
         label: 'Positions',
       },
       link: '/employees/settings/positions',
@@ -43,7 +43,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'approvals',
-        icon: <IoMdSettings />,
+        icon: <IoMdSettings className="hidden lg:block" />,
         label: 'Approvals',
       },
       link: '/employees/settings/approvals',
@@ -63,7 +63,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           description="Manage your system settings here"
         />
 
-        <div className="flex gap-6 mt-8">
+        <div className="flex flex-col lg:flex-row gap-6 mt-8">
           {/* Sidebar Menu */}
           {/* <Menu
             mode="vertical"
@@ -73,7 +73,9 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
             items={menuItems}
           /> */}
           <SidebarMenu menuItems={menuItems} />
-          <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+          <BlockWrapper className="flex-1 h-max overflow-x-auto">
+            {children}
+          </BlockWrapper>
 
           {/* Content Area */}
           {/* <BlockWrapper className="flex-1 h-max">

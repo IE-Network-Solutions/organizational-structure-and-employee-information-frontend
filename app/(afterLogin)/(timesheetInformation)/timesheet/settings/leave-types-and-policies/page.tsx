@@ -16,22 +16,27 @@ const Page = () => {
   const { data } = useGetLeaveTypes();
   return (
     <>
-      <PageHeader title="Types and Policies" size="small">
-        <AccessGuard permissions={[Permissions.CreateLeaveType]}>
-          <Button
-            size="large"
-            type="primary"
-            icon={<LuPlus size={18} />}
-            id={`createNewTypesAndPoliciesButtonId`}
-            onClick={() => setIsShowTypeAndPoliciesSidebar(true)}
-          >
-            New Type
-          </Button>
-        </AccessGuard>
-      </PageHeader>
-
-      {data &&
-        data.items.map((item) => <LeaveTypeCard key={item.id} item={item} />)}
+      <div className="relative">
+        <div className="absolute top-0 left-0 w-full h-1/2 mb-5 ">
+          <PageHeader title="Types and Policies" size="small">
+            <AccessGuard permissions={[Permissions.CreateLeaveType]}>
+              <Button
+                size="large"
+                type="primary"
+                icon={<LuPlus size={18} />}
+                id={`createNewTypesAndPoliciesButtonId`}
+                onClick={() => setIsShowTypeAndPoliciesSidebar(true)}
+              >
+                <span className="hidden md:inline"> New Type</span>
+              </Button>
+            </AccessGuard>
+          </PageHeader>
+        </div>
+      </div>
+      <div className="w-full overflow-x-auto p-2 mt-12">
+        {data &&
+          data.items.map((item) => <LeaveTypeCard key={item.id} item={item} />)}
+      </div>
 
       <TypesAndPoliciesSidebar />
       <TypesAndPoliciesEdit />
