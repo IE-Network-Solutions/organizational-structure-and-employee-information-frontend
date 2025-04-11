@@ -88,7 +88,7 @@ const OKR: React.FC<any> = () => {
           </AccessGuard>
           {userObjectives?.items?.length === 0 ||
           userObjectives?.items?.some(
-            (item: any) => item?.isClosed === false,
+            (item: any) => item?.isClosed == false,
           ) ? (
             <div className="py-4 flex justify-center items-center gap-4">
               <CustomButton
