@@ -1,8 +1,7 @@
 import React from 'react';
-import CustomButton from '@/components/common/buttons/customButton';
 import { MergeForm, DeleteForm, TransferForm } from '../forms';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { FormInstance } from 'antd';
+import { Button, FormInstance } from 'antd';
 
 interface CustomDrawerProps {
   loading: boolean;
@@ -50,8 +49,14 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       }
       width={width}
       footer={
-        <div className="w-full absolute bottom-8 flex justify-center space-x-5">
-          <CustomButton
+        <div className="w-full absolute  flex justify-center space-x-5">
+          <Button type="default" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="primary" onClick={onSubmit} loading={loading}>
+            {footerButtonText}
+          </Button>
+          {/* <CustomButton
             type="default"
             title="Cancel"
             onClick={onClose}
@@ -62,7 +67,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             type="primary"
             onClick={onSubmit}
             loading={loading}
-          />
+          /> */}
         </div>
       }
     >

@@ -1,5 +1,5 @@
 'use client';
-import { Typography } from 'antd';
+import { Button, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { useTalentPoolSettingsStore } from '@/store/uistate/features/recruitment/settings/talentPoolCategory';
@@ -8,7 +8,6 @@ import CustomDeleteTalentPool from '../deleteModal';
 import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import CustomButton from '@/components/common/buttons/customButton';
 import { Pencil, Trash2 } from 'lucide-react';
 import TalentPoolDrawer from '../customDrawer';
 
@@ -37,13 +36,21 @@ function TalentPoolCategoryTab() {
       <div className="flex justify-between items-center mb-4">
         <Title level={5}>Talent Pool Category</Title>
         <AccessGuard permissions={[Permissions.CreateTalentPool]}>
-          <CustomButton
+          {/* <CustomButton
             title=" New Talent Pool Category"
             id="createTalentPoolButton"
             icon={<FaPlus size={13} className="mr-2" />}
             onClick={openDrawer}
             className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
-          />
+          /> */}
+          <Button
+            type="primary"
+            id="createTalentPoolButton"
+            onClick={openDrawer}
+            icon={<FaPlus />}
+          >
+            <span className="hidden lg:inline"> Talent Pool Category</span>
+          </Button>
         </AccessGuard>
       </div>
 

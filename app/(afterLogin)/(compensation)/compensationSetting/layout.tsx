@@ -17,7 +17,7 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'allowanceType',
-        icon: <CiCalendarDate />,
+        icon: <CiCalendarDate className="hidden lg:inline" />,
         label: <p className="menu-item-label">Allowance Type</p>,
         className: 'px-1',
       },
@@ -26,7 +26,7 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'benefitType',
-        icon: <CiCalendarDate />,
+        icon: <CiCalendarDate className="hidden lg:inline" />,
         label: <p className="menu-item-label">Benefit Type</p>,
         className: 'px-1',
       },
@@ -35,7 +35,7 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'deductionType',
-        icon: <CiCalendarDate />,
+        icon: <CiCalendarDate className="hidden lg:inline" />,
         label: <p className="menu-item-label">Deduction Type</p>,
         className: 'px-1',
       },
@@ -50,11 +50,11 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
           title="Settings"
           description="Compensation Settings"
         ></PageHeader>
-
-        <div className="flex gap-6 mt-8">
+        <div className="flex flex-col lg:flex-row gap-6 mt-8">
           <SidebarMenu menuItems={menuItems} />
-
-          <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+          <BlockWrapper className="flex-1 h-max overflow-x-auto">
+            {children}
+          </BlockWrapper>
         </div>
       </div>
     </div>

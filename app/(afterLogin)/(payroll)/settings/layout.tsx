@@ -1,54 +1,58 @@
 'use client';
 import { FC, ReactNode, useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { ConfigProvider, Menu, MenuProps } from 'antd';
 import { MdOutlinePayments } from 'react-icons/md';
 import { HiOutlineReceiptTax } from 'react-icons/hi';
 import { GiSuspensionBridge } from 'react-icons/gi';
+import SidebarMenu from '@/components/sidebarMenu';
+import { SidebarMenuItem } from '@/types/sidebarMenu';
+import { useMediaQuery } from 'react-responsive';
 
 interface OkrSettingsLayoutProps {
   children: ReactNode;
 }
 
-type MenuItem = Required<MenuProps>['items'][number];
+// type MenuItem = Required<MenuProps>['items'][number];
 
-type MenuItemType = {
-  item: MenuItem;
-  link: string;
-};
+// type MenuItemType = {
+//   item: MenuItem;
+//   link: string;
 
-class NMenuItem {
-  items: MenuItemType[];
-  constructor(items: MenuItemType[]) {
-    this.items = items;
-  }
+// };
 
-  get onlyItems(): MenuItem[] {
-    return this.items.map((item) => item.item);
-  }
+// class NMenuItem {
+//   items: MenuItemType[];
+//   constructor(items: MenuItemType[]) {
+//     this.items = items;
+//   }
 
-  findItem(itemKey: string): MenuItemType {
-    const iComponent = this.items.find((item) => item.item!.key === itemKey);
-    return iComponent ? iComponent : this.items[0];
-  }
-}
+//   get onlyItems(): MenuItem[] {
+//     return this.items.map((item) => item.item);
+//   }
+
+//   findItem(itemKey: string): MenuItemType {
+//     const iComponent = this.items.find((item) => item.item!.key === itemKey);
+//     return iComponent ? iComponent : this.items[0];
+//   }
+// }
 
 const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
-  const router = useRouter();
   const pathname = usePathname();
   const [currentItem, setCurrentItem] = useState<string>('');
-  const menuItems = new NMenuItem([
+  const isMobile = useMediaQuery({ maxWidth: 1024 });
+
+  const menuItems = new SidebarMenuItem([
     {
       item: {
         key: 'tax-rule',
-        icon: (
+        icon: !isMobile ? (
           <HiOutlineReceiptTax
             className={
               currentItem === 'tax-rule' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
           />
-        ),
+        ) : null,
         label: <p className="font-bold text-sm text-gray-900">Tax Rule</p>,
         className: currentItem === 'tax-rule' ? 'px-4' : 'px-1',
       },
@@ -57,13 +61,13 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'pension',
-        icon: (
+        icon: !isMobile ? (
           <GiSuspensionBridge
             className={
               currentItem === 'pension' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
           />
-        ),
+        ) : null,
         label: <p className="font-bold text-sm text-gray-900">Pension</p>,
         className: currentItem === 'planning-assignation' ? 'px-4' : 'px-1',
       },
@@ -73,13 +77,13 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'pay-period',
-        icon: (
+        icon: !isMobile ? (
           <MdOutlinePayments
             className={
               currentItem === 'pey-period' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
           />
-        ),
+        ) : null,
         label: <p className="font-bold text-sm text-gray-900">Pay Period</p>,
         className: currentItem === 'pay-period' ? 'px-4' : 'px-1',
       },
@@ -109,10 +113,10 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
     setCurrentItem(lastKey);
   }, [pathname]);
 
-  const onMenuClick = (e: any) => {
-    const key = e['key'] as string;
-    router.push(menuItems.findItem(key).link);
-  };
+  // const onMenuClick = (e: any) => {
+  //   const key = e['key'] as string;
+  //   router.push(menuItems.findItem(key).link);
+  // };
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
@@ -121,8 +125,8 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
           title="Settings"
           description="Payroll Settings"
         ></PageHeader>
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6 mt-6 md:mt-8">
-          <ConfigProvider
+        <div className="flex flex-col lg:flex-row gap-4 md:gap-6 mt-6 md:mt-8">
+          {/* <ConfigProvider
             theme={{
               components: {
                 Menu: {
@@ -143,7 +147,8 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
               selectedKeys={[currentItem]}
               onClick={onMenuClick}
             />
-          </ConfigProvider>
+          </ConfigProvider> */}
+          <SidebarMenu menuItems={menuItems} />
 
           <div className="w-full border border-gray-300 rounded-2xl">
             {children}

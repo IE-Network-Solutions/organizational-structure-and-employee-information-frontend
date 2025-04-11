@@ -570,7 +570,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           <div
-            className={`p-2 overflow-auto ${!isAdminPage ? 'bg-white' : ''} overflow-auto`}
+            className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''} overflow-auto`}
             style={{
               borderRadius: borderRadiusLG,
               marginTop: '3rem',

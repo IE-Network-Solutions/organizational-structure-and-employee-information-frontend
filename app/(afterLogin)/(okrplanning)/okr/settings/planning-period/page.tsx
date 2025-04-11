@@ -117,7 +117,7 @@ const PlanningPeriod = () => {
   );
 
   return (
-    <div className="p-10 rounded-2xl bg-white">
+    <div className="p-10 rounded-2xl bg-white h-full">
       <div className="mb-4">
         <Input.Search
           placeholder="Search period by name"

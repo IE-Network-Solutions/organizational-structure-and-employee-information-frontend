@@ -11,10 +11,10 @@ import {
 import { Branch } from '@/store/server/features/organizationStructure/branchs/interface';
 import { useBranchStore } from '@/store/uistate/features/organizationStructure/branchStore';
 import DeleteModal from '@/components/common/deleteModal';
-import { BiPlus } from 'react-icons/bi';
 import BranchForm from '@/app/(afterLogin)/(employeeInformation)/_components/branchForm';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const Branches = () => {
   const { data: branches, isLoading } = useGetBranches();
@@ -86,8 +86,8 @@ const Branches = () => {
             Branches
           </h2>
           <AccessGuard permissions={[Permissions.CreateBranch]}>
-            <Button icon={<BiPlus />} type="primary" onClick={handleAddNew}>
-              Add
+            <Button icon={<FaPlus />} type="primary" onClick={handleAddNew}>
+              <span className="hidden lg:block">Add Branch</span>
             </Button>
           </AccessGuard>
         </div>

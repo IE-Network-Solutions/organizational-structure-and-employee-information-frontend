@@ -64,6 +64,7 @@ const CreateJobs: React.FC = () => {
           current={currentStep}
           onChange={handleStepChange}
           size="default"
+          responsive={false}
           className="w-full"
         >
           <Step icon={customDot(0)} />

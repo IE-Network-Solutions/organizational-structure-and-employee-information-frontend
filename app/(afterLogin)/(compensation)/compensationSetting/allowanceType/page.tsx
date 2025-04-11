@@ -2,12 +2,12 @@
 import React from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button } from 'antd';
-import { LuPlus } from 'react-icons/lu';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AllowanceTypeTable from './_components/allowanceTypeTable';
 import AllowanceTypeSideBar from './_components/allowanceTypeSidebar';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
+import { FaPlus } from 'react-icons/fa';
 
 const AllowanceTypePage = () => {
   const { setIsAllowanceOpen } = useCompensationSettingStore();
@@ -17,20 +17,21 @@ const AllowanceTypePage = () => {
       <PageHeader title="Allowance Types" size="small">
         <AccessGuard permissions={[Permissions.CreateAllowanceType]}>
           <Button
-            size="large"
             type="primary"
             id="createNewClosedHolidayFieldId"
-            icon={<LuPlus size={18} />}
+            icon={<FaPlus />}
             onClick={() => {
               setIsAllowanceOpen(true);
             }}
           >
-            New Allowance Type
+            <span className="hidden lg:inline"> New Allowance Type</span>
           </Button>
         </AccessGuard>
       </PageHeader>
       <AllowanceTypeSideBar />
-      <AllowanceTypeTable />
+      <div className="flex overflow-x-auto scrollbar-none w-full ">
+        <AllowanceTypeTable />
+      </div>
     </>
   );
 };
