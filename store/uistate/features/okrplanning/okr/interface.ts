@@ -58,6 +58,7 @@ export interface Objective {
   keyResults?: KeyResult[] | any;
   user?: User;
   keyResultValue?: KeyResult[] | any;
+  isClosed: boolean;
 }
 export const defaultObjective: Objective = {
   allignedKeyResultId: '',
@@ -69,6 +70,7 @@ export const defaultObjective: Objective = {
   objectiveProgress: 0,
   keyResults: [],
   keyResultValue: [],
+  isClosed: false,
 };
 interface SearchObjParams {
   userId: string;
@@ -112,13 +114,21 @@ export interface OKRState {
   keyResults?: KeyResult[];
   objective: Objective;
   objectiveValue: Objective;
+  keyResultId: string;
+  objectiveId: string;
   setObjective: (objective: Objective) => void;
   setObjectiveValue: (objectiveValue: Objective) => void;
   setKeyResult: (keyResult: KeyResult[]) => void;
+  setKeyResultId: (keyResultId: string) => void;
+  setObjectiveId: (objectiveId: string) => void;
   addKeyResult: () => void;
   addKeyResultValue: (value: any) => void;
   handleKeyResultChange: (value: any, index: number, field: string) => void;
   handleSingleKeyResultChange: (value: any, field: string) => void;
+
+  selectedMetric: any;
+  setSelectedMetric: (selectedMetric: any) => void;
+
   handleMilestoneChange: (
     value: any,
     keyResultIndex: number,
@@ -150,8 +160,16 @@ export interface OKRState {
   companyCurrentPage: number;
   setCompanyPageSize: (companyPageSize: number) => void;
   setCompanyCurrentPage: (companyCurrentPage: number) => void;
+  employeePageSize: number;
+  employeeCurrentPage: number;
+  setEmployeePageSize: (employeePageSize: number) => void;
+  setEmployeeCurrentPage: (employeeCurrentPage: number) => void;
   okrTab: number | string;
   setOkrTab: (okrTab: number | string) => void;
   alignment: boolean;
   setAlignment: (alignment: boolean) => void;
+  fiscalYearId: string;
+  setFiscalYearId: (fiscalYearId: string) => void;
+  sessionIds: string[];
+  setSessionIds: (sessionId: string[]) => void;
 }

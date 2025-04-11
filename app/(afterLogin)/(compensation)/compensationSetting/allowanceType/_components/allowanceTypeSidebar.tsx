@@ -128,7 +128,7 @@ const AllowanceTypeSideBar = () => {
           </CustomDrawerHeader>
         }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
-        width="600px"
+        width="30%"
       >
         <Spin spinning={isLoading}>
           <Form
@@ -194,12 +194,25 @@ const AllowanceTypeSideBar = () => {
             <Form.Item
               name="defaultAmount"
               label={isRateAllowance ? 'Rate' : 'Fixed Amount'}
-              rules={[{ required: true, message: 'Required' }]}
+              rules={[
+                { required: true, message: 'Amount is Required' },
+                {
+                  validator: (notused, value) => {
+                    if (value < 0) {
+                      return Promise.reject(
+                        new Error('Amount cannot be negative'),
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
               className="form-item"
             >
               <Input
                 className="control"
                 type="number"
+                min={0}
                 placeholder="Enter Allowance Ammount"
                 style={{ height: '32px', padding: '4px 8px' }}
               />

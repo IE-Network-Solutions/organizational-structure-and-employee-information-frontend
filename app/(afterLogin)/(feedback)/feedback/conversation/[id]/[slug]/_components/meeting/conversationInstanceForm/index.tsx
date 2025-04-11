@@ -14,6 +14,7 @@ import { TiPlusOutline } from 'react-icons/ti';
 import dayjs from 'dayjs';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import { ConversationStore } from '@/store/uistate/features/conversation';
+import { ConversationStore as ConversationStoreCopy } from '@/store/uistate/features/feedback/conversation';
 
 const { Option } = Select;
 
@@ -47,6 +48,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
   } = useOrganizationalDevelopment();
   const { setOfUser, setSetOfUser, setOpen } = ConversationStore();
 
+  const { setOpenModal } = ConversationStoreCopy();
   const handleAgendaChange = (value: string, index: number) => {
     const updatedAgenda = [...agendaItems];
     updatedAgenda[index] = value;
@@ -219,13 +221,13 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
             <Option
               key={user.id}
               value={user.id}
-              label={`${user.firstName} ${user.middleName} ${user.lastName}`}
+              label={`${user?.firstName} ${user?.middleName} ${user?.lastName}`}
             >
               <Checkbox
                 checked={selectedUsers.includes(user.id)}
                 onClick={(e) => e.stopPropagation()}
               >
-                {user.firstName} ${user.middleName} {user.lastName}
+                {user?.firstName} ${user?.middleName} {user?.lastName}
               </Checkbox>
             </Option>
           ))}
@@ -271,10 +273,11 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
         Add Agenda Item
       </Button>
 
-      <div className="flex justify-center mt-10">
+      <div className="w-full bg-[#fff] absolute bottom-8 flex justify-center space-x-5">
         <Popconfirm
           title="Are you sure you want to cancel and reset the form?"
           onConfirm={() => {
+            setOpenModal(false);
             setOpen(false);
             form.resetFields();
           }}
@@ -283,6 +286,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
         >
           <Button style={{ marginRight: 8 }}>Cancel</Button>
         </Popconfirm>
+
         {isEdit ? (
           <Button htmlType="submit" type="primary">
             Edit

@@ -23,7 +23,7 @@ import {
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const AttendanceTable = () => {
@@ -211,7 +211,7 @@ const AttendanceTable = () => {
         columns={columns}
         dataSource={tableData}
         loading={isFetching}
-        pagination={defaultTablePagination(data?.meta?.totalItems)}
+        pagination={DefaultTablePagination(data?.meta?.totalItems)}
         onChange={(pagination, filters, sorter: any) => {
           setPage(pagination.current ?? 1);
           setLimit(pagination.pageSize ?? 10);

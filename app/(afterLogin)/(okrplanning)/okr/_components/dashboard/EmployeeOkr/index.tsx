@@ -1,172 +1,173 @@
-import React from "react";
-import { Table, Button, Dropdown, Menu, Avatar } from "antd";
-import { DownOutlined } from "@ant-design/icons";
-
-interface Employee {
-  key: string;
-  name: string;
-  email: string;
-  title: string;
-  role: string;
-  department: string;
-  quarter: string;
-  score: number;
-}
-
-const employees: Employee[] = [
-  {
-    key: "1",
-    name: "Mathias Abdissa",
-    email: "mathias@enetwork.co",
-    title: "UI UX Designer",
-    role: "PM",
-    department: "Saas",
-    quarter: "FY2017 Q3",
-    score: 90,
-  },
-  {
-    key: "2",
-    name: "Hanna Baptista",
-    email: "hanna@enetwork.co",
-    title: "Graphic Designer",
-    role: "CFO",
-    department: "Saas",
-    quarter: "FY2017 Q3",
-    score: 60,
-  },
-  {
-    key: "3",
-    name: "Miracle Geict",
-    email: "miracle@enetwork.co",
-    title: "Finance",
-    role: "SO",
-    department: "Saas",
-    quarter: "FY2017 Q3",
-    score: 85,
-  },
-  {
-    key: "4",
-    name: "Rayna Torff",
-    email: "rayna@enetwork.co",
-    title: "Project Manager",
-    role: "SO",
-    department: "Saas",
-    quarter: "FY2017 Q3",
-    score: 75,
-  },
-  {
-    key: "5",
-    name: "Giana Lipshutz",
-    email: "giana@enetwork.co",
-    title: "Creative Director",
-    role: "PM",
-    department: "Saas",
-    quarter: "FY2017 Q3",
-    score: 90,
-  },
-  {
-    key: "6",
-    name: "James George",
-    email: "james@enetwork.co",
-    title: "Lead Designer",
-    role: "Designer",
-    department: "Saas",
-    quarter: "FY2017 Q3",
-    score: 60,
-  },
-  {
-    key: "7",
-    name: "Jordyn George",
-    email: "jordyn@enetwork.co",
-    title: "IT Support",
-    role: "Saas TL",
-    department: "Saas",
-    quarter: "FY2017 Q3",
-    score: 90,
-  },
-  {
-    key: "8",
-    name: "Skylar Herwitz",
-    email: "skylar@enetwork.co",
-    title: "3D Designer",
-    role: "Admin",
-    department: "Saas",
-    quarter: "FY2017 Q3",
-    score: 100,
-  },
-];
+import React, { useEffect } from 'react';
+import { Table, Avatar, Pagination } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import { useGetEmployeeOkr } from '@/store/server/features/okrplanning/okr/objective/queries';
+import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 
 const getScoreTag = (score: number): JSX.Element => {
   if (score >= 90)
-    return <span className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold">{score}%</span>;
+    return (
+      <span className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold">
+        {score?.toLocaleString()}%
+      </span>
+    );
   if (score >= 75)
-    return <span className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">{score}%</span>;
-  return <span className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">{score}%</span>;
+    return (
+      <span className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+        {score?.toLocaleString()}%
+      </span>
+    );
+  return (
+    <span className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">
+      {score?.toLocaleString()}%
+    </span>
+  );
+};
+import { LoadingOutlined } from '@ant-design/icons';
+import { useGetSessionById } from '@/store/server/features/payroll/payroll/queries';
+
+const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
+  const { data: userDetails, isLoading, error } = useGetEmployee(empId);
+
+  if (isLoading)
+    return (
+      <>
+        <LoadingOutlined />
+      </>
+    );
+
+  if (error || !userDetails) return '-';
+
+  const userName =
+    `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
+    '-';
+  const email = `${userDetails?.email} ` || '-';
+  const profileImage = userDetails?.profileImage;
+  const jobPosition =
+    `${userDetails?.employeeJobInformation[0]?.position?.name} ` || '-';
+  const department =
+    `${userDetails?.employeeJobInformation[0]?.department?.name} ` || '-';
+  return (
+    <>
+      {type === 'user' ? (
+        <div className="flex gap-2">
+          <Avatar src={profileImage} icon={<UserOutlined />} />
+          <div>
+            {userName}
+            <div className="text-xs text-gray-500">{email}</div>
+          </div>
+        </div>
+      ) : (
+        <span className="text-xs text-gray-500">
+          {type == 'job' ? jobPosition : department}
+        </span>
+      )}
+    </>
+  );
+};
+const SessionDetail = ({ sessionId }: { sessionId: string[] }) => {
+  const { data: session, isLoading, error } = useGetSessionById(sessionId);
+
+  if (isLoading)
+    return (
+      <>
+        <LoadingOutlined />
+      </>
+    );
+
+  if (error || !session) return '-';
+
+  const sessionName = `${session?.name}` || '-';
+
+  return <span className="text-xs text-gray-500">{sessionName}</span>;
 };
 
 const columns = [
   {
-    title: "Employee Name",
-    dataIndex: "name",
-    key: "name",
-    render: (_: string, record: Employee) => (
-      <div className="flex items-center gap-2">
-         {!true ? (
-                            <Avatar size={30}  />
-                          ) : (
-                            <Avatar size={30}>
-                              {record.name[0]?.toUpperCase()}{' '}
-                              {record.name[0]?.toUpperCase()}
-                              
-                            </Avatar>
-                          )}
-                          <div>
-        <div className="font-medium text-gray-900">{record.name}</div>
-        <div className="text-gray-500 text-sm">{record.email}</div>
-        </div>
-      </div>
+    title: 'Employee Name',
+    dataIndex: 'userId',
+    key: 'userId',
+    render: (userId: string) => <EmployeeDetails type="user" empId={userId} />,
+  },
+  {
+    title: 'Job Title',
+    dataIndex: 'title',
+    key: 'title',
+    render: (notused: any, render: any) => (
+      <EmployeeDetails type="job" empId={render?.userId} />
+    ),
+  },
+
+  {
+    title: 'Department',
+    dataIndex: 'department',
+    key: 'department',
+    render: (notused: any, render: any) => (
+      <EmployeeDetails type="department" empId={render?.userId} />
     ),
   },
   {
-    title: "Job Title",
-    dataIndex: "title",
-    key: "title",
+    title: 'Quarter',
+    dataIndex: 'quarter',
+    key: 'quarter',
+    render: (notused: any, render: any) => (
+      <SessionDetail sessionId={render?.sessionId} />
+    ),
   },
   {
-    title: "Role",
-    dataIndex: "role",
-    key: "role",
-  },
-  {
-    title: "Department",
-    dataIndex: "department",
-    key: "department",
-  },
-  {
-    title: "Quarter",
-    dataIndex: "quarter",
-    key: "quarter",
-  },
-  {
-    title: "OKR Score",
-    dataIndex: "score",
-    key: "score",
+    title: 'OKR Score',
+    dataIndex: 'okrScore',
+    key: 'okrScore',
     render: (score: number) => getScoreTag(score),
   },
 ];
 
 const EmployeeOKRTable: React.FC = () => {
-  
-
+  const {
+    searchObjParams,
+    sessionIds,
+    employeePageSize,
+    employeeCurrentPage,
+    setEmployeePageSize,
+    setEmployeeCurrentPage,
+  } = useOKRStore();
+  const {
+    data: employeeOkr,
+    isLoading,
+    refetch,
+  } = useGetEmployeeOkr(
+    sessionIds,
+    searchObjParams,
+    employeePageSize,
+    employeeCurrentPage,
+  );
+  useEffect(() => {
+    refetch();
+  }, [sessionIds]);
+  const onPageChange = (page: number, pageSize?: number) => {
+    setEmployeeCurrentPage(page);
+    if (pageSize) {
+      setEmployeePageSize(pageSize);
+    }
+  };
   return (
     <div className="py-6">
-      <div className="flex gap-4 mb-4">
-        
-      </div>
       <Table
         columns={columns}
-        dataSource={employees}
-        pagination={{ pageSize: 8, showSizeChanger: true, total: 50 }}
+        dataSource={Array.isArray(employeeOkr?.items) ? employeeOkr?.items : []}
+        pagination={false}
+        loading={isLoading}
+      />
+      <Pagination
+        total={employeeOkr?.meta?.totalItems}
+        current={employeeOkr?.meta?.currentPage}
+        pageSize={employeePageSize}
+        onChange={onPageChange}
+        showSizeChanger={true}
+        onShowSizeChange={onPageChange}
+        pageSizeOptions={['5', '10', '20', '50', '100']}
+        className="mt-4 flex w-full justify-end"
       />
     </div>
   );

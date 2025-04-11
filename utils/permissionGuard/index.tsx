@@ -1,3 +1,4 @@
+'use client';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
@@ -16,7 +17,7 @@ const AccessGuard: React.FC<AccessGuardProps> & {
 
   useEffect(() => {
     setIsClient(true);
-  });
+  }, []);
 
   if (!isClient) {
     return <></>;

@@ -124,7 +124,7 @@ const Pension = () => {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-10 rounded-2xl bg-white">
       <div className="flex justify-between items-center">
         <Title level={3}>Pension</Title>
         <Button

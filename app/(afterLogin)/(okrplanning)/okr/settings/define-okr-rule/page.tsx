@@ -51,7 +51,7 @@ const DefineOkrRule = () => {
   }
   const { data: OkrRules, isLoading } = useGetOkrRule();
   return (
-    <div className="p-6   w-full">
+    <div className="p-10 rounded-2xl bg-white h-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">OKR Rule</h2>
         <AccessGuard permissions={[Permissions.CreateOkrRule]}>
@@ -76,7 +76,7 @@ const DefineOkrRule = () => {
               <AccessGuard permissions={[Permissions.UpdateOkrRule]}>
                 <Button
                   icon={<EditOutlined />}
-                  className="mr-2 bg-blue text-white"
+                  className="mr-2 bg-blue text-white border-none"
                   shape="circle"
                   onClick={() => handleEditModal(item)}
                 />
@@ -84,7 +84,7 @@ const DefineOkrRule = () => {
               <AccessGuard permissions={[Permissions.DeleteOkrRule]}>
                 <Button
                   icon={<DeleteOutlined />}
-                  className="mr-2 bg-red-500 text-white"
+                  className="mr-2 bg-red-500 text-white border-none"
                   shape="circle"
                   onClick={() => showDeleteModal(item?.id as string)}
                 />

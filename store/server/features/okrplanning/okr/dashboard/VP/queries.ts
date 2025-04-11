@@ -111,16 +111,13 @@ export const useGetAllMonth = () => {
   });
 };
 
-export const useGetVPScore = (userId: number | string) => {
+export const useGetVPScore = (userId: string) => {
   return useQuery<any>(['VPScores', userId], () => getVpScore(userId), {
     keepPreviousData: true,
   });
 };
 
-export const useGetVpScoreCalculate = (
-  userId: number | string,
-  enabled = true,
-) => {
+export const useGetVpScoreCalculate = (userId: string, enabled = true) => {
   const queryClient = useQueryClient();
   return useQuery<any>(
     ['VPScoresCalculate', userId],

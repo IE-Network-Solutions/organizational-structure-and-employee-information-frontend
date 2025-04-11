@@ -76,6 +76,7 @@ function ConversationInstanceDetail({
                     {activePosition?.department?.name || '-'}
                   </span>
                   <UserCard
+                    data={attendee}
                     name={
                       <span className="text-xs font-medium cursor-pointer truncate w-full">
                         {`${attendee?.firstName ?? '-'} ${attendee?.middleName ?? ''} ${attendee?.lastName ?? ''}`}

@@ -11,7 +11,6 @@ import {
   Row,
   Select,
 } from 'antd';
-import { useForm } from 'antd/es/form/Form';
 import Image from 'next/image';
 import React from 'react';
 const { Option } = Select;
@@ -19,13 +18,13 @@ const { Option } = Select;
 interface PropsData {
   slug: string;
   onFinish: (data: any) => void;
+  form2: any;
 }
 
-const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish }) => {
+const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish, form2 }) => {
   const { data: allUserData, isLoading: userDataLoading } = useGetAllUsers();
   const { setOpen } = useOrganizationalDevelopment();
 
-  const [form2] = useForm();
   const { setSelectedEditActionPlan } = useOrganizationalDevelopment();
 
   const handleCancel = () => {
@@ -71,13 +70,7 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish }) => {
             name="comment"
             label={`Comment`}
             id={`actionPlanDescription`}
-            rules={[
-              { required: true, message: 'Comment is required' },
-              {
-                max: 40, // Set the maximum number of characters allowed
-                message: 'Comment cannot exceed 40 characters',
-              },
-            ]}
+            rules={[{ required: true, message: 'Comment is required' }]}
           >
             <Input.TextArea rows={6} />
           </Form.Item>
@@ -165,8 +158,12 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish }) => {
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={12} className="flex justify-end">
+      <Row gutter={16} className=" flex justify-center">
+        <Col
+          xs={24}
+          sm={12}
+          className=" w-full bg-[#fff] absolute bottom-8 flex justify-center space-x-5"
+        >
           <Popconfirm
             title="reset all you filled"
             description="Are you sure to reset all fields value ?"
@@ -178,8 +175,7 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish }) => {
               Cancel
             </Button>
           </Popconfirm>
-        </Col>
-        <Col xs={24} sm={12}>
+
           <Button
             // loading={isLoading}
             htmlType="submit"
@@ -191,6 +187,7 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish }) => {
             Create
           </Button>
         </Col>
+        <Col xs={24} sm={12}></Col>
       </Row>
     </Form>
   );

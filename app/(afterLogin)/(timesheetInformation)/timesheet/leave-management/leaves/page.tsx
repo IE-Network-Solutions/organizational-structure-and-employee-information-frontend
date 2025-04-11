@@ -14,6 +14,7 @@ import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveReque
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import LeaveRequestSidebar from '../../my-timesheet/_components/leaveRequestSidebar';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
+import { useMediaQuery } from 'react-responsive';
 
 const LeaveManagement = () => {
   const [bodyRequest, setBodyRequest] = useState<LeaveRequestBody>(
@@ -26,6 +27,7 @@ const LeaveManagement = () => {
     isFetching,
     refetch,
   } = useGetLeaveRequest({}, bodyRequest, true, false);
+  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
 
@@ -60,7 +62,7 @@ const LeaveManagement = () => {
 
   return (
     <>
-      <div className="h-auto w-auto pr-6 pb-6 pl-3">
+      <div className="h-auto w-auto pb-6">
         <BlockWrapper>
           <PageHeader title="Leave Management">
             <Space size={20}>
@@ -104,8 +106,9 @@ const LeaveManagement = () => {
                 }
               >
                 <CustomButton
-                  title="Download CSV"
+                  title={!isSmallScreen ? 'Download CSV' : ' '} // Hide text on small screens
                   id="downloadCsvFileId"
+                  className={isSmallScreen ? 'w-[65px]' : ''}
                   icon={<TbFileDownload size={20} />}
                   loading={isFetching}
                 />

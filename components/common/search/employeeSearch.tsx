@@ -6,6 +6,7 @@ import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndR
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const { Option } = Select;
 interface Option {
@@ -25,6 +26,8 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
   optionArray3,
 }) => {
   const { setSelectedUser, selectedUser } = PlanningAndReportingStore();
+  const { data: employeeData } = useGetAllUsers();
+
   const { userId } = useAuthenticationStore();
   /*eslint-disable @typescript-eslint/no-unused-vars */
   const getUserIdsByDepartmentId = (selectedDepartmentId: string) => {
@@ -45,6 +48,16 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
     } else if (key === 'type') {
       if (value === 'allPlan' || value === 'allReport') {
         setSelectedUser(['all']);
+      } else if (value === 'subordinatePlan' || value === 'subordinateReport') {
+        const subordinates = employeeData.items
+          .filter((employee: any) => employee.reportingTo?.id === userId)
+          .map((employee: any) => employee.id); // Get the IDs of subordinates
+
+        setSelectedUser(
+          subordinates.length > 0
+            ? ['subordinate', ...subordinates]
+            : ['subordinate'],
+        );
       } else {
         setSelectedUser([userId]);
       }
@@ -73,8 +86,8 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
               }}
             >
               {optionArray1?.map((item: any) => {
-                let displayFirstName = item.firstName || ''; // Handle null firstName
-                let displayMiddleName = item.middleName || ''; // Handle null middleName
+                let displayFirstName = item?.firstName || ''; // Handle null firstName
+                let displayMiddleName = item?.middleName || ''; // Handle null middleName
 
                 // Truncate long names
                 const maxNameLength = 10;
@@ -107,19 +120,19 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
             <Select
               placeholder="Select Type"
               value={
-                selectedUser.length === 1 && selectedUser.includes(userId)
-                  ? optionArray2?.[0]?.key // Exactly one user selected, and it's the current user
-                  : selectedUser.length > 1
-                    ? undefined // Multiple users selected
-                    : selectedUser.includes('all')
-                      ? 'All User' // If "all" is selected, choose 'allPlan'
-                      : undefined // Default fallback if no conditions match
+                selectedUser.includes('all')
+                  ? 'All User'
+                  : selectedUser.includes('subordinate')
+                    ? 'Subordinate'
+                    : selectedUser.length === 1 && selectedUser.includes(userId)
+                      ? optionArray2?.[0]?.key
+                      : undefined
               }
               onChange={(value) => onSearchChange(value, 'type', true)}
               allowClear
               className="w-full h-14"
             >
-              {optionArray2?.map((item, index) => (
+              {optionArray2?.map((item) => (
                 <Option key={item.key} value={item.key}>
                   {item.value}
                 </Option>
@@ -130,7 +143,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
         <div className="w-full md:w-1/4 p-2" id="subscriptionStatusFilter">
           <AccessGuard permissions={[Permissions.ViewAllStatusPlan]}>
             <Select
-              placeholder="status"
+              placeholder="Select Department"
               onChange={(value) => onSearchChange(value, 'status', true)}
               allowClear
               className="w-full h-14"

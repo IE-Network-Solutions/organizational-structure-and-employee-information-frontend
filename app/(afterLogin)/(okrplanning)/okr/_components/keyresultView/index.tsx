@@ -15,7 +15,6 @@ const KeyResultView: React.FC<OKRProps> = ({
   isEdit = false,
   form,
 }) => {
-  // Conditionally render the view based on key_type
   const renderView = () => {
     switch (keyValue.key_type || keyValue.metricType?.name) {
       case 'Milestone':

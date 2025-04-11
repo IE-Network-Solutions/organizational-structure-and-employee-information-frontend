@@ -8,6 +8,8 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useGetQuestionSetByConversationId } from '@/store/server/features/CFR/conversation/questionSet/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { ConversationStore as ConversationStoreCopy } from '@/store/uistate/features/feedback/conversation';
+
 import { useCreateConversationResponse } from '@/store/server/features/CFR/conversation/conversation-response/mutation';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -49,6 +51,7 @@ const CreateMeeting = ({
   const { data: allDepartmentWithData } = useGetDepartmentsWithUsers();
   const { mutate: createConversationResponse } =
     useCreateConversationResponse();
+  const { setOpenModal } = ConversationStoreCopy();
 
   const handleCreateBiWeeklyWithActionPlan = async () => {
     try {
@@ -144,9 +147,26 @@ const CreateMeeting = ({
   );
   const onChangeHandler = (selectedDepartmentIds: string[]) => {
     if (selectedDepartmentIds?.length === 0) {
-      // form1?.setFieldValue('userId', [])
+      form1.setFieldValue('userId', []);
+      setSelectedUsers([]);
       setSetOfUser([]);
     } else {
+      const selectedUsersIds = form1.getFieldValue('userId');
+      const filterOurSelectedUsers = selectedUsersIds.filter(
+        (userId: string) => {
+          const user = allUserData?.items?.find(
+            (user: any) => user.id === userId,
+          );
+          const departmentId = user?.employeeJobInformation?.find(
+            (job: any) => job?.departmentId && job?.isPositionActive === true,
+          )?.departmentId;
+          return departmentId && selectedDepartmentIds.includes(departmentId);
+        },
+      );
+
+      form1.setFieldValue('userId', filterOurSelectedUsers);
+      setSelectedUsers(filterOurSelectedUsers);
+
       const usersInSelectedDepartments = allUserData?.items?.filter(
         (user: any) => {
           const departmentId = user.employeeJobInformation?.find(
@@ -186,13 +206,14 @@ const CreateMeeting = ({
     return {
       value: matchingUser?.id,
       label: matchingUser
-        ? `${matchingUser.firstName} ${matchingUser.middleName} ${matchingUser.lastName}`
+        ? `${matchingUser?.firstName} ${matchingUser?.middleName} ${matchingUser?.lastName}`
         : null,
     };
   });
 
   const handleCancel = () => {
     form1.resetFields();
+    setOpenModal(false);
     setOpen(false);
     setSelectedEditActionPlan(null);
     setNumberOfActionPlan(1);
@@ -240,6 +261,7 @@ const CreateMeeting = ({
         current={currentStep}
         size="small"
         className="flex justify-center my-6 sm:my-10"
+        style={{ flexDirection: 'row' }}
       >
         <Step icon={customDot(0)} />
         <Step icon={customDot(1)} />

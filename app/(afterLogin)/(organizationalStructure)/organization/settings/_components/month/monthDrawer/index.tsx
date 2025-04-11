@@ -11,6 +11,7 @@ interface DrawerProps {
   isCreateLoading: boolean;
   isUpdateLoading: boolean;
   onNextStep: any;
+  isFiscalYear?: boolean;
 }
 /* eslint-disable-next-line @typescript-eslint/naming-convention */
 const classifyMonths = (
@@ -157,12 +158,19 @@ const MonthDrawer: React.FC<DrawerProps> = ({
         })),
     );
 
-    setMonthRangeFormValues(transformedData);
-  }, [groupedMonths]);
+    if (
+      JSON.stringify(transformedData) !==
+      JSON.stringify(useFiscalYearDrawerStore.getState().monthRangeValues)
+    ) {
+      setMonthRangeFormValues(transformedData);
+    }
+  }, []);
 
   return (
     <>
-      <div className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full">
+      <div
+        className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full`}
+      >
         <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-4">
           Set up Month
         </div>

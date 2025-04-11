@@ -4,6 +4,7 @@ import { Form, Input, Select, Button, Space, Modal } from 'antd';
 import { DepartmentFormProps } from '@/types/dashboard/organization';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 import { showValidationErrors } from '@/utils/showValidationErrors';
+import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
 
 const { Option } = Select;
 
@@ -16,7 +17,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
 }) => {
   const [form] = Form.useForm();
   const { data: branches } = useGetBranches();
-
+  const { setSelectedDepartment } = useOrganizationStore();
   useEffect(() => {
     if (departmentData) {
       form.resetFields();
@@ -41,18 +42,22 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
         showValidationErrors(info?.errorFields);
       });
   };
-
+  const handleCancel = () => {
+    form.resetFields();
+    onClose();
+    setSelectedDepartment(null);
+  };
   return (
     <Modal
       title={title}
       width={520}
       onClose={() => form.resetFields()}
-      onCancel={onClose}
+      onCancel={handleCancel}
       open={open}
       footer={
         <div style={{ textAlign: 'right' }}>
           <Space>
-            <Button id="cancelDepartmentButton" onClick={onClose}>
+            <Button id="cancelDepartmentButton" onClick={handleCancel}>
               Cancel
             </Button>
             <Button
@@ -70,7 +75,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
         </div>
       }
     >
-      <Form layout="vertical" form={form} initialValues={departmentData || {}}>
+      <Form layout="vertical" form={form}>
         <Form.Item
           name="name"
           label="Department/Team Name"

@@ -18,7 +18,8 @@ const SidebarMenu: FC<SidebarMenuProps> = ({ menuItems }) => {
     const lastKey = pathSegments[pathSegments.length - 1];
     menuItems.currentItemKey = lastKey;
     setCurrentItem(lastKey);
-  }, [pathname]);
+  }, [pathname, menuItems]);
+
   const onMenuClick = (e: any) => {
     const key = e['key'] as string;
 
@@ -41,7 +42,7 @@ const SidebarMenu: FC<SidebarMenuProps> = ({ menuItems }) => {
       }}
     >
       <Menu
-        className="w-[300px] rounded-2xl py-2 px-6 h-max"
+        className="w-[300px] rounded-2xl py-2 px-6 h-max "
         items={menuItems.onlyItems}
         mode="inline"
         selectedKeys={[currentItem]}

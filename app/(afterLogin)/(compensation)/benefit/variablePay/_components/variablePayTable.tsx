@@ -10,6 +10,7 @@ import {
   useGetVariablePay,
 } from '@/store/server/features/payroll/payroll/queries';
 import VariablePayFilter from './variablePayFilter';
+import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 
 const VariablePayTable = () => {
   const { currentPage, pageSize, searchParams, setCurrentPage, setPageSize } =
@@ -35,16 +36,13 @@ const VariablePayTable = () => {
     allUsersVariablePay?.items?.map((variablePay: any) => ({
       id: variablePay?.id,
       name: variablePay?.userId,
+      userId: variablePay?.userId,
       VpInPercentile: variablePay?.vpScoring?.totalPercentage,
       VpScore: variablePay?.vpScore,
       Benefit: '',
       Action: (
-        // <Link href={`employees/manage-employees/${variablePay?.id}`}>
-        <Link href={'okr/dashboard'}>
-          <Button
-            // id={`editUserButton${item?.id}`}
-            className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 "
-          >
+        <Link href={`okr/dashboard/${variablePay?.userId}`}>
+          <Button className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 border-none ">
             <FaEye />
           </Button>
         </Link>
@@ -99,10 +97,18 @@ const VariablePayTable = () => {
       )
     : tableData;
 
+  const allEmployeesIds: string[] = tableData.map(
+    (employee: any) => employee.name,
+  );
+  const { isLoading: refreshLoading, isFetching } = useGetAllCalculatedVpScore(
+    allEmployeesIds,
+    false,
+  );
+
   return (
     <>
       <VariablePayFilter tableData={tableData} />
-      <Spin spinning={isLoading}>
+      <Spin spinning={isLoading || isFetching || refreshLoading}>
         <Table
           className="mt-6"
           columns={columns}

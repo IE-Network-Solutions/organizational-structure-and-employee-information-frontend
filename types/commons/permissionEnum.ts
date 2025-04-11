@@ -55,6 +55,42 @@ export enum Permissions {
   DeleteAppreciationType = 'delete-appreciation-type',
   CreateOkrRule = 'create-okr-rule',
 
+  // OKR Criteria Management
+  CreateVpScoringConfigurations = 'create-vp-scoring-configurations',
+  UpdateVpScoringConfigurations = 'update-vp-scoring-configurations',
+  DeleteVpScoringConfigurations = 'delete-vp-scoring-configurations',
+
+  // OKR Target Assignment
+  AssignVpTargets = 'assign-vp-targets',
+  UpdateVpTargetsAssignation = 'update-vp-target-assignation',
+  DeleteVpTargetsAssignation = 'delete-vp-target-assignation',
+
+  // OKR Edit Access
+  GrantAllOKRAccess = 'grant-all-okr-access',
+
+  // Time and Attendance break type settings
+  CreateBreakType = 'create-break-type',
+  UpdateBreakType = 'update-break-type',
+  DeleteBreakType = 'delete-break-type',
+
+  // Time and Attendance time zone settings
+  UpdateTimeZone = 'update-time-zone',
+
+  // payroll permission
+  PayrollExport = 'payroll-export',
+  SendPayslipEmail = 'send-payslip-email',
+  GeneratePayroll = 'generate-payroll',
+  DeletePayroll = 'delete-payroll',
+
+  // sidebar Permissions
+
+  DownloadOrganizationStructure = 'download-organization-structure',
+  ViewOrganizationStructureUsertree = 'view-organization-structure-user-tree',
+  ViewOrganizationStructureDepartmentTree = 'view-organization-structure-department-tree',
+  ViewOrganizationStructureSetting = 'view-organization-structure-setting',
+  ViewManageEmployees = 'view-manage-employees',
+  ViewChangeBranchRequestSideBar = 'view-change-branch-request-side-bar',
+
   UpdateLeaveRequest = 'update-leave-request',
   DeleteLeaveRequest = 'delete-leave-request',
   ViewAttendanceDetails = 'view-attendance-details',
@@ -292,13 +328,28 @@ export enum Permissions {
   // DeleteOneToOne = 'delete-one-to-one',
   // EditOneToOne = 'edit-one-to-one',
 
-  // //feedback
-  // CreateFeedack = 'create-feedback',
-  // DeleteFeedack = 'delete-feedback',
-  // EditFeedack = 'edit-feedback',
+  // feedback
+  CreateFeedback = 'create-feedback',
+  DeleteFeedack = 'delete-feedback',
+  EditFeedack = 'edit-feedback',
+  ViewAllEmployeeFeedback = 'view-all-employees-feedback',
 
   // //recognition
   // CreateRecognitionType = 'create-recognition-type',
   // DeleteRecognitionType = 'delete-recognition-type',
   // EditRecognitionType = 'edit-recognition-type',
+
+  //profile
+  ChangePassword = 'change-password',
+  ChangeProfileImage = 'change-profile-image',
+  ChangeManagerProfile = 'change-manager-profile',
+
+  //planning
+  ViewDailyPlan = 'view-daily-plan',
+  ViewWeeklyPlan = 'view-weekly-plan',
+  ViewMonthlyPlan = 'view-monthly-plan',
+
+  //basic Salary
+  CreateBasicSalary = 'create-basic-salary',
+  UpdateBasicSalary = 'update-basic-salary',
 }

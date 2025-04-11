@@ -10,11 +10,22 @@ import BankInformationComponent from './bankInformationComponent';
 import PersonalDataComponent from './personalDataComponent';
 import EmergencyContact from './emergencyContact';
 import AddressComponent from './AddressComponent';
+import { useGetEmployeInformationForms } from '@/store/server/features/employees/employeeManagment/employeInformationForm/queries';
+import AdditionalInformation from './additionalInformation';
 
 function General({ id }: { id: string }) {
   const { data: employeeData } = useGetEmployee(id);
+
   const { setEdit } = useEmployeeManagementStore();
   const [form] = Form.useForm();
+  const { data: employeeInformationForm } = useGetEmployeInformationForms();
+
+  const mergedFields = employeeInformationForm?.items.flatMap((form) =>
+    form.form.map((field) => ({
+      ...field,
+      formTitle: form.formTitle, // Add formTitle to each field
+    })),
+  );
 
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   useGetNationalities();
@@ -47,6 +58,12 @@ function General({ id }: { id: string }) {
               values: { bankInformation: values },
             });
             break;
+          case 'additionalInformation':
+            updateEmployeeInformation({
+              id: employeeData?.employeeInformation?.id,
+              values: { additionalInformation: values },
+            });
+            break;
         }
         setEdit(editKey);
       })
@@ -56,9 +73,26 @@ function General({ id }: { id: string }) {
   return (
     <>
       <PersonalDataComponent id={id} handleSaveChanges={handleSaveChanges} />
-      <EmergencyContact id={id} handleSaveChanges={handleSaveChanges} />
-      <AddressComponent id={id} handleSaveChanges={handleSaveChanges} />
-      <BankInformationComponent id={id} handleSaveChanges={handleSaveChanges} />
+      <EmergencyContact
+        mergedFields={mergedFields}
+        id={id}
+        handleSaveChanges={handleSaveChanges}
+      />
+      <AddressComponent
+        mergedFields={mergedFields}
+        id={id}
+        handleSaveChanges={handleSaveChanges}
+      />
+      <BankInformationComponent
+        mergedFields={mergedFields}
+        id={id}
+        handleSaveChanges={handleSaveChanges}
+      />
+      <AdditionalInformation
+        mergedFields={mergedFields}
+        id={id}
+        handleSaveChanges={handleSaveChanges}
+      />
     </>
   );
 }

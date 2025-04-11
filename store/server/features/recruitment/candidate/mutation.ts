@@ -61,7 +61,7 @@ const moveToTalentPool = async (data: any) => {
   };
   return await crudRequest({
     method: 'POST',
-    url: `${RECRUITMENT_URL}/talent-pool/transfer-to-talent-pool`,
+    url: `${RECRUITMENT_URL}/talent-pool/transfer-multiple-candidates`,
     headers,
     data,
   });

@@ -32,7 +32,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       case 'transfer':
         return <TransferForm />;
       case 'merge':
-        return <MergeForm />;
+        return <MergeForm form={form} />;
       case 'delete':
         return <DeleteForm form={form} />;
       default:
@@ -44,13 +44,13 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       open={visible}
       onClose={onClose}
       modalHeader={
-        <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+        <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4 ">
           {title}
         </div>
       }
       width={width}
       footer={
-        <div className="w-full flex justify-center items-center gap-4 pt-8">
+        <div className="w-full absolute bottom-8 flex justify-center space-x-5">
           <CustomButton
             type="default"
             title="Cancel"

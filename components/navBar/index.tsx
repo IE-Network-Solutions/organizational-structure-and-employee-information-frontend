@@ -1,10 +1,10 @@
 'use client';
 import React, { ReactNode, useState, useEffect } from 'react';
+import '../../app/globals.css';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   AppstoreOutlined,
   BarChartOutlined,
-  UserOutlined,
   MenuOutlined,
 } from '@ant-design/icons';
 import {
@@ -12,310 +12,361 @@ import {
   MdOutlineKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
+import { Layout, Button, theme, Tree } from 'antd';
 
-import { Layout, Menu, Button, theme } from 'antd';
 const { Header, Content, Sider } = Layout;
-import type { MenuProps } from 'antd';
 import NavBar from './topNavBar';
-import { FiSettings } from 'react-icons/fi';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
+import { TbMessage2 } from 'react-icons/tb';
+import { AiOutlineDollarCircle } from 'react-icons/ai';
+import { CiBookmark } from 'react-icons/ci';
+import { PiMoneyLight } from 'react-icons/pi';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
-import { LuUsers2 } from 'react-icons/lu';
+import { LuCircleDollarSign, LuUsers2 } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
 import SimpleLogo from '../common/logo/simpleLogo';
 
-const menuItems: MenuProps['items'] = [
+interface CustomMenuItem {
+  key: string;
+  icon?: React.ReactNode;
+  title: React.ReactNode; // Changed from `label` to `title`
+  className?: string;
+  permissions?: string[];
+  children?: CustomMenuItem[];
+}
+
+const treeData: CustomMenuItem[] = [
   {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <CiSettings size={18} /> Organization
+      </span>
+    ),
     key: '/organization',
-    icon: <CiSettings />,
-    label: 'Organization',
     className: 'font-bold',
+    permissions: ['view_organization'],
     children: [
-      { key: '/organization/chart', label: 'Org Structure' },
-      { key: '/organization/settings', label: 'Settings' },
+      {
+        title: 'Org Structure',
+        key: '/organization/chart',
+        className: 'font-bold h-9',
+      },
+      {
+        title: 'Settings',
+        key: '/organization/settings',
+        className: 'font-bold h-9',
+      },
     ],
   },
   {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <LuUsers2 size={18} /> Employees
+      </span>
+    ),
     key: '/employees',
-    icon: <LuUsers2 />,
-    label: 'Employees',
     className: 'font-bold',
+    permissions: ['view_employees'],
     children: [
       {
+        title: 'Manage Employees',
         key: '/employees/manage-employees',
-        label: 'Manage Employees',
-        className: 'font-bold',
+        className: 'font-bold h-9',
       },
       {
+        title: 'Department Request',
         key: '/employees/departmentRequest',
-        label: 'Department Request',
-        className: 'font-bold',
+        className: 'font-bold h-9',
       },
-      { key: '/employees/settings', label: 'Settings', className: 'font-bold' },
+      {
+        title: 'Settings',
+        key: '/employees/settings',
+        className: 'font-bold h-9',
+      },
     ],
   },
   {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <PiSuitcaseSimpleThin size={18} /> Talent Acquisition
+      </span>
+    ),
     key: '/recruitment',
-    icon: <PiSuitcaseSimpleThin />,
     className: 'font-bold',
-    label: 'Talent Acquisition',
     children: [
-      { key: '/recruitment/jobs', label: 'Jobs', icon: <UserOutlined /> },
+      { title: 'Jobs', key: '/recruitment/jobs', className: 'font-bold h-9' },
       {
+        title: 'Candidates',
         key: '/recruitment/candidate',
-        label: 'Candidates',
-        icon: <UserOutlined />,
+        className: 'font-bold h-9',
       },
       {
+        title: 'Talent Pool',
         key: '/recruitment/talent-pool',
-        label: 'Talent Pool',
-        icon: <UserOutlined />,
+        className: 'font-bold h-9',
       },
-      { key: '/recruitment/settings', label: 'Settings', icon: <FiSettings /> },
+      {
+        title: 'Settings',
+        key: '/recruitment/settings',
+        className: 'font-bold h-9',
+      },
+      {
+        title: 'HrFlow.Ai',
+        key: '/recruitment/hrflow.ai',
+        className: 'font-bold h-9',
+      },
     ],
   },
   {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <CiStar size={18} /> OKR
+      </span>
+    ),
     key: '/okr-planning',
-    label: 'OKR',
-    icon: <CiStar size={20} />,
     className: 'font-bold',
+    permissions: ['view_okr'],
     children: [
-      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold' },
-      { key: '/okr', label: 'OKR', className: 'font-bold' },
+      { title: 'Dashboard', key: '/okr/dashboard', className: 'font-bold h-9' },
+      { title: 'OKR', key: '/okr', className: 'font-bold h-8' },
       {
+        title: 'Planning and Reporting',
         key: '/planning-and-reporting',
-        label: 'Planning and Reporting',
-        className: 'font-bold',
+        className: 'font-bold h-8',
+        permissions: ['manage_planning_reporting'],
       },
-      // {
-      //   key: '/monitoring-evaluation',
-      //   label: 'Monitoring & Evaluation',
-      //   className: 'font-bold',
-      // },
-      { key: '/okr/settings', label: 'Settings', className: 'font-bold' },
+      {
+        key: '/okr/settings',
+        title: 'Settings',
+        className: 'font-bold h-8',
+        permissions: ['manage_okr_settings'],
+      },
     ],
   },
   {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <TbMessage2 size={18} /> CFR
+      </span>
+    ),
     key: '/feedback',
-    label: 'CFR',
-    icon: <UserOutlined />,
     className: 'font-bold',
+    permissions: ['view_feedback'],
     children: [
       {
+        title: 'Conversation',
         key: '/feedback/conversation',
-        label: 'Conversation',
-        className: 'font-bold',
-        icon: <FiSettings />,
+        className: 'font-bold h-9',
       },
       {
+        title: 'Feedback',
         key: '/feedback/feedback',
-        label: 'Feedback',
-        className: 'font-bold',
-        icon: <FiSettings />,
+        className: 'font-bold h-9',
       },
       {
+        title: 'Recognition',
         key: '/feedback/recognition',
-        label: 'Recognition',
-        className: 'font-bold',
-        icon: <FiSettings />,
+        className: 'font-bold h-9',
       },
       {
+        title: 'Form',
         key: '/feedback/categories',
-        label: 'Form',
-        icon: <UserOutlined />,
-        className: 'font-bold',
+        className: 'font-bold h-9',
       },
       {
+        title: 'Settings',
         key: '/feedback/settings',
-        label: 'Settings',
-        className: 'font-bold',
-        icon: <FiSettings />,
+        className: 'font-bold h-9',
       },
     ],
   },
   {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <CiBookmark size={18} /> Learning & Growth
+      </span>
+    ),
     key: '/tna',
-    icon: <BarChartOutlined />,
     className: 'font-bold',
-    label: 'Learning & Growth',
     children: [
+      { title: 'My-TNA', key: '/tna/my-training', className: 'font-bold h-9' },
       {
+        title: 'Training Management',
         key: '/tna/management',
-        label: 'Training Management',
-        className: 'font-bold',
+        className: 'font-bold h-9',
       },
-      { key: '/tna/review', label: 'TNA', className: 'font-bold' },
+      { title: 'TNA', key: '/tna/review', className: 'font-bold h-9' },
       {
+        title: 'Settings',
         key: '/tna/settings/course-category',
-        label: 'Settings',
-        className: 'font-bold',
+        className: 'font-bold h-9',
       },
     ],
   },
-  // payroll
   {
-    key: '/payroll',
-    icon: <PiSuitcaseSimpleThin />,
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <AiOutlineDollarCircle size={18} /> Payroll
+      </span>
+    ),
+    key: 'payroll',
     className: 'font-bold',
-    label: 'Payroll',
     children: [
-      // {
-      //   key: '/employee-information',
-      //   label: 'Employee Information',
-      //   className: 'font-bold',
-      // },
-      { key: '/payroll', label: 'Payroll', className: 'font-bold' },
       {
-        key: '/settings',
-        label: 'Settings',
-        className: 'font-bold',
+        title: 'Employee Information',
+        key: '/employee-information',
+        className: 'font-bold h-9',
       },
+      { title: 'Payroll', key: '/payroll', className: 'font-bold h-9' },
+      { title: 'My Payroll', key: '/myPayroll', className: 'font-bold h-9' },
+      { title: 'Settings', key: '/settings', className: 'font-bold h-9' },
     ],
   },
   {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <CiCalendar size={18} /> Time & Attendance
+      </span>
+    ),
     key: '/timesheet',
-    icon: <CiCalendar />,
     className: 'font-bold',
-    label: 'Time & Attendance',
     children: [
       {
+        title: 'My Timesheet',
         key: '/timesheet/my-timesheet',
-        label: 'My timesheet',
-        className: 'font-bold',
+        className: 'font-bold h-9',
       },
       {
+        title: 'Employee Attendance',
         key: '/timesheet/employee-attendance',
-        label: 'Employee Attendance',
-        className: 'font-bold',
+        className: 'font-bold h-9',
       },
       {
+        title: 'Leave Management',
         key: '/timesheet/leave-management/leaves',
-        label: 'Leave Management',
-        className: 'font-bold',
+        className: 'font-bold h-9',
       },
       {
+        title: 'Settings',
         key: '/timesheet/settings/closed-date',
-        label: 'Settings',
-        className: 'font-bold',
+        className: 'font-bold h-9',
       },
     ],
   },
   {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <PiMoneyLight size={18} /> Compensation & Benefit
+      </span>
+    ),
     key: '/compensation',
-    icon: <CiCalendar />,
     className: 'font-bold',
-    label: 'Compensation & Benefit',
     children: [
+      { title: 'Allowance', key: '/allowance', className: 'font-bold h-9' },
+      { title: 'Benefit', key: '/benefit', className: 'font-bold h-9' },
+      { title: 'Deduction', key: '/deduction', className: 'font-bold h-9' },
       {
-        key: '/allowance',
-        label: 'Allowance',
-        className: 'font-bold',
-      },
-      {
-        key: '/benefit',
-        label: 'Benefit',
-        className: 'font-bold',
-      },
-      {
-        key: '/deduction',
-        label: 'Deduction',
-        className: 'font-bold',
-      },
-      {
+        title: 'Settings',
         key: '/compensationSetting',
-        label: 'Settings',
-        className: 'font-bold',
+        className: 'font-bold h-9',
       },
     ],
   },
   {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <LuCircleDollarSign size={18} /> Incentives
+      </span>
+    ),
     key: '/incentive',
-    icon: <CiCalendar />,
     className: 'font-bold',
-    label: 'Incentive',
     children: [
       {
-        key: '/variable-pay',
-        label: 'Variable Pay',
-        className: 'font-bold',
+        key: '/incentives',
+        title: 'Incentive',
+        className: 'font-bold h-9',
+        permissions: ['view_incentive_page'],
       },
+      {
+        title: 'Variable Pay',
+        key: '/variable-pay',
+        className: 'font-bold h-9',
+      },
+      {
+        title: 'Settings',
+        key: '/incentives/settings',
+        className: 'font-bold h-9',
+      },
+    ],
+  },
+  {
+    key: '/admin',
+    icon: <CiSettings />,
+    title: 'Admin',
+    className: 'font-bold',
+    children: [
+      { key: '/admin/dashboard', title: 'Dashboard' },
+      { key: '/admin/billing', title: 'Billing and Invoice' },
+      { key: '/admin/profile', title: 'Update Profile' },
     ],
   },
 ];
 
-const userItems: MenuProps['items'] = [
+const userItems: CustomMenuItem[] = [
   {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <CiStar size={20} /> OKR
+      </span>
+    ),
     key: '/okr-planning',
-    label: 'OKR',
-    icon: <CiStar size={20} />,
     className: 'font-bold',
+    permissions: ['view_okr'],
     children: [
-      { key: '/okr/dashboard', label: 'Dashboard', className: 'font-bold' },
-      { key: '/okr', label: 'OKR', className: 'font-bold' },
+      { title: 'Dashboard', key: '/okr/dashboard', className: 'font-bold h-9' },
+      { title: 'OKR', key: '/okr', className: 'font-bold h-9' },
       {
+        title: 'Planning and Reporting',
         key: '/planning-and-reporting',
-        label: 'Planning and Reporting',
-        className: 'font-bold',
+        className: 'font-bold h-9',
       },
     ],
   },
-  //   {
-  //     key: '/feedback',
-  //     label: 'CFR',
-  //     icon: <UserOutlined />,
-  //     className: 'font-bold',
-  //     children: [
-  //       {
-  //         key: '/feedback/categories',
-  //         label: 'Form',
-  //         icon: <UserOutlined />,
-  //         className: 'font-bold',
-  //       },
-  //     ],
-  //   },
-  {
-    key: '/tna',
-    icon: <BarChartOutlined />,
-    className: 'font-bold',
-    label: 'Learning & Growth',
-    children: [
-      {
-        key: '/tna/management',
-        label: 'Training Management',
-        className: 'font-bold',
-      },
-      // { key: '/tna/review', label: 'TNA', className: 'font-bold' },
-    ],
-  },
-  {
-    key: '/timesheet',
-    icon: <CiCalendar />,
-    className: 'font-bold',
-    label: 'Time & Attendance',
-    children: [
-      {
-        key: '/timesheet/my-timesheet',
-        label: 'My timesheet',
-        className: 'font-bold',
-      },
-    ],
-  },
-  // {
-  //   key: '/incentive',
-  //   icon: <CiCalendar />,
-  //   className: 'font-bold',
-  //   label: 'Incentive',
-  //   children: [
-  //     {
-  //       key: '/variable-pay',
-  //       label: 'Variable Pay',
-  //       className: 'font-bold',
-  //     }
 
-  //   ],
-  // },
+  {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <BarChartOutlined /> Learning & Growth
+      </span>
+    ),
+    key: '/tna',
+    className: 'font-bold',
+    children: [
+      {
+        title: 'Training Management',
+        key: '/tna/management',
+        className: 'font-bold h-9',
+      },
+    ],
+  },
+  {
+    title: (
+      <span className="flex items-center gap-2 h-12 w-60">
+        <CiCalendar /> Time & Attendance
+      </span>
+    ),
+    key: '/timesheet',
+    className: 'font-bold',
+    children: [
+      {
+        title: 'My timesheet',
+        key: '/timesheet/my-timesheet',
+        className: 'font-bold h-9',
+      },
+    ],
+  },
 ];
 
 interface MyComponentProps {
@@ -331,10 +382,37 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname(); // Add this hook
-
   const { userData, setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const userRole = userData?.role?.slug || '';
+  const isAdminPage = pathname.startsWith('/admin');
+
+  // const { pathname } = router;
+  const [expandedKeys, setExpandedKeys] = useState<
+    (string | number | bigint)[]
+  >([]); // Include bigint
+  const [selectedKeys, setSelectedKeys] = useState<
+    (string | number | bigint)[]
+  >([pathname]); // Include bigint
+
+  const handleSelect = (keys: (string | number | bigint)[], info: any) => {
+    // Include bigint
+    const selectedKey = keys[0]; // Now using (string | number | bigint)
+
+    if (info.node.children) {
+      // If it's a parent, toggle expand/collapse
+      setExpandedKeys((prev) =>
+        prev.includes(selectedKey)
+          ? prev.filter((key) => key !== selectedKey)
+          : [...prev, selectedKey],
+      );
+    } else {
+      // If it's a child, navigate
+      router.push(selectedKey + '');
+      setSelectedKeys(keys); // Update the selected key for navigation
+    }
+  };
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -353,13 +431,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setMobileCollapsed(!mobileCollapsed);
   };
 
-  const handleMenuClick = (e: { key: string }) => {
-    router.push(e.key);
-    if (isMobile) {
-      setMobileCollapsed(true);
-    }
-  };
-
   const handleLogout = () => {
     setToken('');
     setTenantId('');
@@ -369,7 +440,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setUserId('');
     setLocalId('');
     setError('');
-    removeCookie('token');
     removeCookie('tenantId');
     window.location.reload();
   };
@@ -429,16 +499,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </Button>
         )}
 
-        <Menu
-          mode="inline"
-          defaultSelectedKeys={['/dashboard']}
-          items={userRole === 'user' ? userItems : menuItems}
-          inlineCollapsed={collapsed}
-          // className="my-5"
-          onClick={handleMenuClick}
-          selectedKeys={[pathname]}
-          className={`my-5 [&_.ant-menu-item-selected]:!bg-[#3636F0] [&_.ant-menu-item-selected]:!text-white`}
-        />
+        <div className="relative">
+          <div className="absolute left-2 top-0 w-[10px] h-full bg-white z-10"></div>
+          <Tree
+            treeData={userRole === 'user' ? userItems : treeData}
+            showLine={{ showLeafIcon: false }} // Only show lines for child nodes
+            defaultExpandAll={false}
+            expandedKeys={expandedKeys}
+            selectedKeys={selectedKeys}
+            onSelect={handleSelect}
+            className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full"
+            switcherIcon={null}
+          />
+        </div>
       </Sider>
       <Layout
         style={{
@@ -497,11 +570,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           <div
-            className="p-2 bg-white overflow-auto"
+            className={`p-2 overflow-auto ${!isAdminPage ? 'bg-white' : ''} overflow-auto`}
             style={{
               borderRadius: borderRadiusLG,
               marginTop: '3rem',
-              marginRight: '1.3rem',
+              marginRight: `${!isAdminPage ? '1.3rem' : ''}`,
             }}
           >
             {children}

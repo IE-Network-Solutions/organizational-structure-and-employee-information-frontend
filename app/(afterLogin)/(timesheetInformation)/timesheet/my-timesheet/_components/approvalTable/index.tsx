@@ -252,10 +252,12 @@ const ApprovalTable = () => {
 
     allApprover(body, {
       onSuccess: (data) => {
-        const transformData = data.items.map(({ id }: { id: string }) => ({
-          leaveRequestId: id,
-          status: 'approved',
-        }));
+        const transformData = data.items.map(
+          ({ requestId }: { requestId: string }) => ({
+            leaveRequestId: requestId,
+            status: 'approved',
+          }),
+        );
         finalAllApproval(transformData);
       },
     });

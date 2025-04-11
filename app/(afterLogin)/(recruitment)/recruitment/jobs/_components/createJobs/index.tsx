@@ -46,6 +46,17 @@ const CreateJobs: React.FC = () => {
   const handleStepChange = (value: number) => {
     setCurrentStep(value);
   };
+  // const handleStepChange = async (value: number) => {
+  //   try {
+  //     if (currentStep === 0) {
+
+  //       await form.validateFields();
+  //     }
+  //     setCurrentStep(value);
+  //   } catch (error) {
+  //   }
+  // };
+
   const addNewDrawerHeader = (
     <div className="flex flex-col items-center">
       <div className="flex items-center justify-between">
@@ -115,11 +126,10 @@ const CreateJobs: React.FC = () => {
           const newJobId = response?.id;
           setSelectedJobId(newJobId);
           setAddNewDrawer(false);
+          form.resetFields();
+          setCurrentStep(0);
         },
       });
-      // setAddJobModalResult(true);
-      // createJob(formattedValue);
-      // setAddNewDrawer(false);
     } catch {
       NotificationMessage.error({
         message: 'Publish Failed',
