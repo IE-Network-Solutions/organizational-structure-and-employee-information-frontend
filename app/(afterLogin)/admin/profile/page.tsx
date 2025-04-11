@@ -91,7 +91,6 @@ const AdminProfile = () => {
       }
       if (status === 'done') {
       } else if (status === 'error') {
-        // console.log(`${info.file.name} file upload failed.`)
       }
     },
     onDrop() {},
