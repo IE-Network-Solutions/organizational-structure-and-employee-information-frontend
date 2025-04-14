@@ -124,12 +124,15 @@ const Approvals = () => {
                 onClick={() => setAddDepartmentApproval(true)}
               >
                 <FaPlus className="text-white" />
-                <span> Add Approval</span>
+                <span className="hidden lg:inline"> Add Approval</span>
               </Button>
             </PermissionWraper>
           </div>
+
           <div className="flex flex-col gap-4">
             <ApprovalBranchFilter />
+          </div>
+          <div className="flex  overflow-x-auto scrollbar-none  w-full">
             <ApprovalTable />
           </div>
         </div>

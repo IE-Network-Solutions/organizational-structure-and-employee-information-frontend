@@ -17,7 +17,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'define-feedback',
-        icon: <RiFeedbackLine />,
+        icon: <RiFeedbackLine className="hidden lg:block" />,
         label: <p className="menu-item-label">Define Feedback</p>,
         className: 'px-1',
       },
@@ -26,7 +26,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'define-questions',
-        icon: <GoQuestion />,
+        icon: <GoQuestion className="hidden lg:block" />,
         label: <p className="menu-item-label">Define Questions</p>,
         className: 'px-1',
       },
@@ -44,7 +44,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'recognition',
-        icon: <CiCalendarDate />,
+        icon: <CiCalendarDate className="hidden lg:block" />,
         label: <p className="menu-item-label">Recognition</p>,
         className: 'px-1',
       },
@@ -60,7 +60,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           description="Organizational development settings"
         ></PageHeader>
 
-        <div className="flex gap-6 mt-8">
+        <div className=" flex flex-col lg:flex-row gap-6 mt-8">
           <SidebarMenu menuItems={menuItems} />
 
           <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>

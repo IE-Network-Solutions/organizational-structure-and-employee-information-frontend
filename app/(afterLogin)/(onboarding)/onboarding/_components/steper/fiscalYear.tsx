@@ -44,7 +44,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
       );
     }
 
-    if (dayjs(value).isBefore(dayjs(), 'day')) {
+    if (activeCalendar && dayjs(value).isBefore(dayjs(), 'day')) {
       return Promise.reject(new Error('Start date cannot be in the past.'));
     }
 

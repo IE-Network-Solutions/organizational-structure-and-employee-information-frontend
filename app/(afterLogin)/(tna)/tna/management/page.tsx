@@ -14,6 +14,7 @@ import { CourseManagementRequestBody } from '@/store/server/features/tna/managem
 import CourseCard from '@/app/(afterLogin)/(tna)/tna/management/_components/courseCard';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { localUserID } from '@/utils/constants';
 
 const TnaManagementPage = () => {
   const { setIsShowCourseSidebar, isShowCourseSidebar, setCourseCategory } =
@@ -90,9 +91,15 @@ const TnaManagementPage = () => {
       ) : (
         <Spin spinning={isFetchingCourse}>
           <div className="grid grid-cols-course-list gap-6 mt-8">
-            {coursesData?.items?.map((item) => (
-              <CourseCard item={item} key={item.id} refetch={refetch} />
-            ))}
+            {coursesData?.items?.map((item) =>
+              item.isDraft ? (
+                item.preparedBy === localUserID ? (
+                  <CourseCard item={item} key={item.id} refetch={refetch} />
+                ) : null
+              ) : (
+                <CourseCard item={item} key={item.id} refetch={refetch} />
+              ),
+            )}
           </div>
         </Spin>
       )}

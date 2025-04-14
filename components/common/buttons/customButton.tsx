@@ -2,7 +2,7 @@ import { Button } from 'antd';
 import { ButtonProps } from 'antd/lib/button';
 
 interface CustomButtonProps extends ButtonProps {
-  title: string;
+  title: string | any;
   icon?: React.ReactNode;
   className?: string;
   onClick?: () => void;
