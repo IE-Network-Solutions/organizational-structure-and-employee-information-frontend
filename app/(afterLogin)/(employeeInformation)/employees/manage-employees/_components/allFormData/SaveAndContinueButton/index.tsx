@@ -17,7 +17,7 @@ const ButtonContinue: React.FC<Props> = ({
 
   return (
     <Form.Item className="font-semibold text-xs">
-      <div className="w-full flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-6 sm:mt-8">
+      <div className="w-full flex  sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-6 sm:mt-8">
         {current !== 0 ? (
           <Button
             name="cancelUserSidebarButton"
@@ -35,7 +35,7 @@ const ButtonContinue: React.FC<Props> = ({
             okText="Yes"
             cancelText="No"
           >
-            <Button name="cancelSidebarButtonId" danger>
+            <Button type="default" name="cancelSidebarButtonId">
               Cancel
             </Button>
           </Popconfirm>

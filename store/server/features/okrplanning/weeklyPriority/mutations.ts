@@ -64,7 +64,7 @@ export const useDeleteWeeklyPriority = () => {
       queryClient.invalidateQueries('weeklyPriorities'); // Adjust the query key as necessary
       NotificationMessage.success({
         message: 'Successfully Deleted',
-        description: 'Task removed successfully deleted.',
+        description: 'Task Removed Successfully.',
       });
     },
   });
@@ -77,7 +77,7 @@ export const useCreateWeeklyPriority = () => {
       queryClient.invalidateQueries('weeklyPriorities'); // Adjust the query key as necessary
       NotificationMessage.success({
         message: 'Successfully Created',
-        description: 'Task removed successfully deleted.',
+        description: 'Task Created Successfully.',
       });
     },
   });
@@ -89,7 +89,7 @@ export const useUpdateWeeklyPriority = () => {
       queryClient.invalidateQueries('weeklyPriorities'); // Adjust the query key as necessary
       NotificationMessage.success({
         message: 'Successfully Updated',
-        description: 'Task removed successfully deleted.',
+        description: 'Task Updated Successfully.',
       });
     },
   });

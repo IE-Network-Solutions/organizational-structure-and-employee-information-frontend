@@ -64,7 +64,7 @@ const CustomRadio: FC<CustomRadioProps> = ({
     if (onChange) {
       onChange(!!isChecked);
     }
-  }, [isChecked]);
+  }, [isChecked, onChange]);
 
   return (
     <Radio

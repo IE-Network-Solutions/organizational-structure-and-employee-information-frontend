@@ -56,16 +56,16 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
         </div>
       )}
       {!isRoot && (
-        <Dropdown
-          overlay={menu}
-          trigger={['click']}
-          className="absolute top-[1px]  hide-on-download "
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateDepartment,
+            Permissions.DeleteDepartment,
+          ]}
         >
-          <AccessGuard
-            permissions={[
-              Permissions.UpdateDepartment,
-              Permissions.DeleteDepartment,
-            ]}
+          <Dropdown
+            overlay={menu}
+            trigger={['click']}
+            className="absolute top-[1px]  hide-on-download "
           >
             <Button
               icon={<Pencil size={8} />}
@@ -73,8 +73,8 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
               size="small"
               className="absolute bg-black text-white hover:bg-gray-800 border-none rounded-full top-[-3px] right-[-3px] w-[18px] h-[18px]"
             />
-          </AccessGuard>
-        </Dropdown>
+          </Dropdown>
+        </AccessGuard>
       )}
 
       <div

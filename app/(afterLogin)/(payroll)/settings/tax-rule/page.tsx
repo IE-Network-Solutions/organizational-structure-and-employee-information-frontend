@@ -90,14 +90,15 @@ const TaxRules = () => {
           Add Tax Rule
         </Button> */}
       </div>
-
-      <Table
-        dataSource={data}
-        columns={columns}
-        pagination={false}
-        bordered
-        loading={isLoading}
-      />
+      <div className="flex overflow-x-auto scrollbar-none w-full">
+        <Table
+          dataSource={data}
+          columns={columns}
+          pagination={false}
+          bordered
+          loading={isLoading}
+        />
+      </div>
       <Drawer />
     </div>
   );

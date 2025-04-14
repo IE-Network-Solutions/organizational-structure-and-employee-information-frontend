@@ -39,7 +39,7 @@ const FiscalYearForm: React.FC = () => {
       );
     }
 
-    if (dayjs(value).isBefore(dayjs(), 'day')) {
+    if (activeCalendar && dayjs(value).isBefore(dayjs(), 'day')) {
       return Promise.reject(new Error('Start date cannot be in the past.'));
     }
 
@@ -194,7 +194,7 @@ const FiscalYearForm: React.FC = () => {
           )}
           <Button
             onClick={handleNext}
-            className="text-sm font-medium text-white bg-pr border-none-none"
+            className="text-sm font-medium text-white bg-primary border-none"
           >
             Next
           </Button>

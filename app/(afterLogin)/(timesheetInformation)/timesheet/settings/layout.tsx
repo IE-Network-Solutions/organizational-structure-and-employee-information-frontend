@@ -25,7 +25,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'closed-date',
-        icon: <CiCalendarDate />,
+        icon: <CiCalendarDate className="hidden lg:block" />,
         label: <p className="menu-item-label">Closed Date</p>,
         className: 'px-1',
       },
@@ -34,7 +34,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'break-type',
-        icon: <BsFileBreak />,
+        icon: <BsFileBreak className="hidden lg:block" />,
         label: <p className="menu-item-label">Break Type</p>,
         className: 'px-1',
       },
@@ -43,7 +43,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'leave-types-and-policies',
-        icon: <FiFileText />,
+        icon: <FiFileText className="hidden lg:block" />,
         label: <p className="menu-item-label">Leave Types & Policies</p>,
       },
       link: '/timesheet/settings/leave-types-and-policies',
@@ -51,7 +51,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'allowed-areas',
-        icon: <GoKey />,
+        icon: <GoKey className="hidden lg:block" />,
         label: <p className="menu-item-label">Allowed Areas</p>,
       },
       link: '/timesheet/settings/allowed-areas',
@@ -59,7 +59,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'attendance-rules',
-        icon: <IoTimeOutline />,
+        icon: <IoTimeOutline className="hidden lg:block" />,
         label: <p className="menu-item-label">Attendance Rules</p>,
       },
       link: '/timesheet/settings/attendance-rules',
@@ -67,7 +67,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'imported-logs',
-        icon: <AiOutlineImport />,
+        icon: <AiOutlineImport className="hidden lg:block" />,
         label: <p className="menu-item-label">Imported Logs</p>,
       },
       link: '/timesheet/settings/imported-logs',
@@ -75,7 +75,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'accrual-rule',
-        icon: <GrTransaction />,
+        icon: <GrTransaction className="hidden lg:block" />,
         label: <p className="menu-item-label">Accrual Rule</p>,
       },
       link: '/timesheet/settings/accrual-rule',
@@ -83,7 +83,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'carry-over-rule',
-        icon: <IoArrowUndoCircleOutline />,
+        icon: <IoArrowUndoCircleOutline className="hidden lg:block" />,
         label: <p className="menu-item-label">Carry-over Rule</p>,
       },
       link: '/timesheet/settings/carry-over-rule',
@@ -92,7 +92,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'approval-workflow',
-        icon: <PiUserCircleCheck />,
+        icon: <PiUserCircleCheck className="hidden lg:block" />,
         label: <p className="menu-item-label">Approval Workflow</p>,
       },
       link: '/timesheet/settings/approvals',
@@ -100,7 +100,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'time-zone',
-        icon: <IoTimeOutline />,
+        icon: <IoTimeOutline className="hidden lg:block" />,
         label: <p className="menu-item-label">Time Zone</p>,
       },
       link: '/timesheet/settings/time-zone',
@@ -112,13 +112,15 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       <div className="h-auto w-auto pr-6 pb-6 pl-3">
         <PageHeader
           title="Settings"
-          description="Settings yout Leave here"
+          description="Settings for timesheet management"
         ></PageHeader>
 
-        <div className="flex gap-6 mt-8">
+        <div className="flex flex-col lg:flex-row gap-6 mt-8 ">
           <SidebarMenu menuItems={menuItems} />
 
-          <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+          <BlockWrapper className="flex-1 h-max overflow-x-auto ">
+            {children}
+          </BlockWrapper>
         </div>
       </div>
     </div>
