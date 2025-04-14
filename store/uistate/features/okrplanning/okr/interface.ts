@@ -160,8 +160,16 @@ export interface OKRState {
   companyCurrentPage: number;
   setCompanyPageSize: (companyPageSize: number) => void;
   setCompanyCurrentPage: (companyCurrentPage: number) => void;
+  employeePageSize: number;
+  employeeCurrentPage: number;
+  setEmployeePageSize: (employeePageSize: number) => void;
+  setEmployeeCurrentPage: (employeeCurrentPage: number) => void;
   okrTab: number | string;
   setOkrTab: (okrTab: number | string) => void;
   alignment: boolean;
   setAlignment: (alignment: boolean) => void;
+  fiscalYearId: string;
+  setFiscalYearId: (fiscalYearId: string) => void;
+  sessionIds: string[];
+  setSessionIds: (sessionId: string[]) => void;
 }

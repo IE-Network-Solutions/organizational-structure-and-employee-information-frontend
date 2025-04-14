@@ -93,6 +93,37 @@ const getObjectiveByCompany = async (
     throw error;
   }
 };
+const getEmployeeOkr = async (
+  sessions: string[],
+  searchObjParams: {
+    userId: string;
+    metricTypeId: string;
+    departmentId: string;
+  },
+  page: number,
+  currentPage: number,
+) => {
+  try {
+    const response = await axios.post(
+      `${OKR_AND_PLANNING_URL}/objective/get-okr-progress/all-employees?page=${currentPage}&limit=${page}`,
+      {
+        sessions,
+        userId: searchObjParams?.userId,
+        departmentId: searchObjParams?.departmentId,
+        metricTypeId: searchObjParams?.metricTypeId,
+      }, // merged into one object
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          tenantId: tenantId,
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 /**
  * Function to fetch a single post by sending a GET request to the API
@@ -186,4 +217,18 @@ export const useGetCompanyObjective = (
     {
       keepPreviousData: true,
     },
+  );
+export const useGetEmployeeOkr = (
+  sessions: string[],
+  searchObjParams: {
+    userId: string;
+    metricTypeId: string;
+    departmentId: string;
+  },
+  page: number,
+  currentPage: number,
+) =>
+  useQuery<ResponseData>(
+    ['employeeOkrInformation', sessions, searchObjParams, page, currentPage],
+    () => getEmployeeOkr(sessions, searchObjParams, page, currentPage),
   );

@@ -1,4 +1,3 @@
-import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { DayOfWeek } from '@/store/server/features/organizationStructure/workSchedule/interface';
 import { useUpdateSchedule } from '@/store/server/features/organizationStructure/workSchedule/mutation';
@@ -7,7 +6,7 @@ import { ScheduleDetail } from '@/store/uistate/features/organizationStructure/w
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useEffect } from 'react';
-import { Form, Input, TimePicker, Switch, Table } from 'antd';
+import { Form, Input, TimePicker, Switch, Table, Button } from 'antd';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
 
@@ -226,12 +225,18 @@ const CustomWorkingScheduleDrawer = () => {
       width="40%"
       footer={
         <div className="flex justify-between items-center w-full">
-          <div className="flex justify items-center gap-2">
+          <div className="flex justify items-center gap-2 mt-4">
             <span>Total Working hours:</span>
-            <span>{standardHours.toFixed(1) ?? '-'}</span>
+            <span className="mr-4">{standardHours.toFixed(1) ?? '-'}</span>
           </div>
-          <div className="flex justify-between items-center gap-4">
-            <CustomButton
+          <div className="flex gap-4 mt-4 mr-8">
+            <Button type="default" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button type="primary" onClick={handleSubmit}>
+              {isEditMode ? 'Update' : 'Create'}
+            </Button>
+            {/* <CustomButton
               className="bg-gray-200 text-gray-700 hover:bg-gray-300"
               title="Cancel"
               onClick={handleCancel}
@@ -239,7 +244,7 @@ const CustomWorkingScheduleDrawer = () => {
             <CustomButton
               title={isEditMode ? 'Update' : 'Create'}
               onClick={handleSubmit}
-            />
+            /> */}
           </div>
         </div>
       }

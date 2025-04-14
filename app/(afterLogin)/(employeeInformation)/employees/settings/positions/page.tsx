@@ -1,6 +1,5 @@
 'use client';
-import CustomButton from '@/components/common/buttons/customButton';
-import { Card, Typography } from 'antd';
+import { Button, Card, Typography } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import PositionCards from './positionCards';
@@ -23,13 +22,16 @@ const Positions: React.FC = () => {
         <div className="flex items-center justify-between">
           <Title level={5}>Employee Positions</Title>
           <AccessGuard permissions={[Permissions.CreatePosition]}>
-            <CustomButton
-              title="New Position"
+            {/* <CustomButton
+              title={<span className="hidden sm:inline">New Position</span>}
               id="createUserButton"
               icon={<FaPlus size={13} className="mr-2" />}
               onClick={showDrawer}
               className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
-            />
+            /> */}
+            <Button type="primary" icon={<FaPlus />} onClick={showDrawer}>
+              <span className="hidden lg:inline">New Position</span>
+            </Button>
           </AccessGuard>
         </div>
         <PositionCards />

@@ -11,10 +11,10 @@ import {
 import { Branch } from '@/store/server/features/organizationStructure/branchs/interface';
 import { useBranchStore } from '@/store/uistate/features/organizationStructure/branchStore';
 import DeleteModal from '@/components/common/deleteModal';
-import { BiPlus } from 'react-icons/bi';
 import BranchForm from '@/app/(afterLogin)/(employeeInformation)/_components/branchForm';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const Branches = () => {
   const { data: branches, isLoading } = useGetBranches();
@@ -79,15 +79,15 @@ const Branches = () => {
     </Menu>
   );
   return (
-    <div className="flex-1rounded-lg my-4 md:my-8 items-center w-full h-full">
-      <div className="bg-white p-4 md:p-8 lg:p-12 rounded-lg h-full w-full">
+    <div className="flex-1 rounded-lg  items-center w-full h-full">
+      <div className="bg-white p-3 rounded-lg h-full w-full">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-xl custom:text-xl md:text-2xl lg:text-4xl font-semibold">
             Branches
           </h2>
           <AccessGuard permissions={[Permissions.CreateBranch]}>
-            <Button icon={<BiPlus />} type="primary" onClick={handleAddNew}>
-              Add
+            <Button icon={<FaPlus />} type="primary" onClick={handleAddNew}>
+              <span className="hidden lg:block">Add Branch</span>
             </Button>
           </AccessGuard>
         </div>

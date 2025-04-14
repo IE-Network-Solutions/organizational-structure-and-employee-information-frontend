@@ -77,7 +77,6 @@ const Page = ({ params }: { params: Params }) => {
         open={open}
         onClose={() => setOpen(false)}
         modalHeader={modalHeader}
-        width="40%"
       >
         <CreateMeeting id={id} slug={slug} onClose={() => setOpen(false)} />
       </CustomDrawerLayout>

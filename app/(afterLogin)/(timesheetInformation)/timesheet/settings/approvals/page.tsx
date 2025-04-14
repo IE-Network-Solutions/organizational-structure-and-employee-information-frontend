@@ -33,7 +33,9 @@ const Workflow = () => {
       </div>
       <div className="px-5">
         <ApprovalFilter />
-        <ApprovalListTable />
+        <div className="overflow-x-auto w-full">
+          <ApprovalListTable />
+        </div>
       </div>
     </div>
   );

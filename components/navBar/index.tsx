@@ -112,6 +112,11 @@ const treeData: CustomMenuItem[] = [
         key: '/recruitment/settings',
         className: 'font-bold h-9',
       },
+      {
+        title: 'HrFlow.Ai',
+        key: '/recruitment/hrflow.ai',
+        className: 'font-bold h-9',
+      },
     ],
   },
   {
@@ -272,16 +277,16 @@ const treeData: CustomMenuItem[] = [
   {
     title: (
       <span className="flex items-center gap-2 h-12 w-60">
-        <LuCircleDollarSign size={18} /> Incentive
+        <LuCircleDollarSign size={18} /> Incentives
       </span>
     ),
     key: '/incentive',
     className: 'font-bold',
     children: [
       {
-        key: '/incentive',
+        key: '/incentives',
         title: 'Incentive',
-        className: 'font-bold',
+        className: 'font-bold h-9',
         permissions: ['view_incentive_page'],
       },
       {
@@ -291,9 +296,20 @@ const treeData: CustomMenuItem[] = [
       },
       {
         title: 'Settings',
-        key: '/incentive/settings',
+        key: '/incentives/settings',
         className: 'font-bold h-9',
       },
+    ],
+  },
+  {
+    key: '/admin',
+    icon: <CiSettings />,
+    title: 'Admin',
+    className: 'font-bold',
+    children: [
+      { key: '/admin/dashboard', title: 'Dashboard' },
+      { key: '/admin/billing', title: 'Billing and Invoice' },
+      { key: '/admin/profile', title: 'Update Profile' },
     ],
   },
 ];
@@ -369,6 +385,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { userData, setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const userRole = userData?.role?.slug || '';
+  const isAdminPage = pathname.startsWith('/admin');
+
   // const { pathname } = router;
   const [expandedKeys, setExpandedKeys] = useState<
     (string | number | bigint)[]
@@ -490,7 +508,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             expandedKeys={expandedKeys}
             selectedKeys={selectedKeys}
             onSelect={handleSelect}
-            className="my-5 [&_.ant-tree-node-selected]:!bg-gray-200 [&_.ant-tree-node-selected]:!text-black h-full w-full"
+            className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full"
             switcherIcon={null}
           />
         </div>
@@ -552,11 +570,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           <div
-            className=" bg-white overflow-auto"
+            className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''} overflow-auto`}
             style={{
               borderRadius: borderRadiusLG,
               marginTop: '3rem',
-              marginRight: '1.3rem',
+              marginRight: `${!isAdminPage ? '1.3rem' : ''}`,
             }}
           >
             {children}
