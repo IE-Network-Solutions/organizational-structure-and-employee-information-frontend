@@ -313,7 +313,11 @@ const PlanPage = () => {
     if (updatedQuota === null) return false;
 
     // If value equals current quota, it's not changed
-    if (updatedQuota === activeSubscription?.slotTotal) return false;
+    if (
+      updatedQuota === activeSubscription?.slotTotal &&
+      activeSubscription?.planId === currentPlan?.id
+    )
+      return false;
 
     // If value is less than current quota, it's not valid
     if (
@@ -335,10 +339,11 @@ const PlanPage = () => {
     if (!updatedPeriod) return false;
 
     // Get the current period from the active subscription
-    const currentPeriodCode = currentPeriodType?.code;
+    // const currentPeriodCode = currentPeriodType?.code;
 
-    // If it matches the current period, it is not considered changed
-    if (updatedPeriod === currentPeriodCode) return false;
+    // If it matches the current period, it is not considered changed. UPDATED
+
+    // if (updatedPeriod === currentPeriodCode) return false;
 
     // Otherwise it is valid and changed
     return true;
@@ -522,7 +527,7 @@ const PlanPage = () => {
         const createData = {
           planId: currentPlan.id,
           planPeriodId: selectedPlanPeriod.id,
-          slots: updatedQuota, // Use slots instead of slots
+          slotTotal: updatedQuota, // Use slots instead of slots
           tenantId: DEFAULT_TENANT_ID,
           currencyId: currentPlan.currency?.id, // Add currencyId
           subscriptionPrice: calculationResult.totalAmount, // Use the calculated amount
@@ -537,7 +542,7 @@ const PlanPage = () => {
           subscriptionId: activeSubscription.id,
           planId: currentPlan.id,
           planPeriodId: selectedPlanPeriod.id,
-          slots: updatedQuota, // Use slot instead of slots
+          slotTotal: updatedQuota, // Use slot instead of slots
           tenantId: DEFAULT_TENANT_ID,
         };
 
@@ -1059,7 +1064,9 @@ const PlanPage = () => {
                         >
                           <span className="flex min-w-[10px] w-[10px] h-[10px] bg-success rounded-full"></span>
                           <span>
-                            {updatedSubscriptionValue?.plan?.name || 'N/A'}
+                            {updatedSubscriptionValue?.invoices[0]
+                              ?.paymentMetadata?.targetState?.plan?.name ||
+                              'N/A'}
                           </span>
                         </span>,
                       ],
