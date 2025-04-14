@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Button, Card, Dropdown, Pagination } from 'antd';
-import { PlusOutlined, MoreOutlined } from '@ant-design/icons';
+import { MoreOutlined } from '@ant-design/icons';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import {
   FiscalYear,
@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import { IoIosArrowDown } from 'react-icons/io';
 import { MdKeyboardArrowUp } from 'react-icons/md';
 import CustomWorFiscalYearDrawer from '../../_components/fiscalYear/customDrawer';
+import { FaPlus } from 'react-icons/fa';
 
 const FiscalYearListCard: React.FC = () => {
   const {
@@ -80,12 +81,8 @@ const FiscalYearListCard: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Fiscal Year</h2>
         <AccessGuard permissions={[Permissions.CreateCalendar]}>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handelDrawerOpen}
-          >
-            Create Fiscal Year
+          <Button type="primary" icon={<FaPlus />} onClick={handelDrawerOpen}>
+            <span className="hidden lg:inline">Create Fiscal Year</span>
           </Button>
         </AccessGuard>
       </div>

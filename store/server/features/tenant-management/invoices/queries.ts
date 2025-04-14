@@ -6,7 +6,10 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 
-const getInvoices = async (data: Partial<InvoiceRequestBody>, orderDirection?: string) => {
+const getInvoices = async (
+  data: Partial<InvoiceRequestBody>,
+  orderDirection?: string,
+) => {
   let url = `${TENANT_MGMT_URL}/subscription/rest/invoices`;
   if (orderDirection) {
     url += `?orderDirection=${orderDirection}`;
@@ -31,9 +34,9 @@ export const useGetInvoices = (
     {
       keepPreviousData: isKeepData,
       enabled: isEnabled,
-      retry: 1, 
-      refetchOnWindowFocus: false
-    }
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
   );
 };
 
@@ -53,7 +56,7 @@ export const useGetInvoiceDetail = (
     {
       enabled: !!invoiceId,
       retry: 1,
-      refetchOnWindowFocus: false
+      refetchOnWindowFocus: false,
     },
   );
 };

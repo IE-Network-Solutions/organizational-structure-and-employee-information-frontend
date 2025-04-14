@@ -1,7 +1,15 @@
 'use client';
 
 import Image from 'next/image';
-import { Upload, Form, Input, Select, Skeleton, notification, Button } from 'antd';
+import {
+  Upload,
+  Form,
+  Input,
+  Select,
+  Skeleton,
+  notification,
+  Button,
+} from 'antd';
 import type { UploadProps } from 'antd';
 import { countries } from '@/utils/countries';
 import { useEffect, useState } from 'react';
@@ -30,13 +38,17 @@ const AdminProfile = () => {
   const [stampExists, setStampExists] = useState(false);
 
   // Fetch client data using the existing query hook
-  const { data: client, isLoading: isClientLoading, error } = useGetClientById(DEFAULT_TENANT_ID);
-  
+  const {
+    data: client,
+    isLoading: isClientLoading,
+    error,
+  } = useGetClientById(DEFAULT_TENANT_ID);
+
   // Checking the existence of images
   useEffect(() => {
     const checkImageExists = (url: string): Promise<boolean> => {
       if (!isValidImageUrl(url)) return Promise.resolve(false);
-      
+
       return new Promise((resolve) => {
         const img = new globalThis.Image();
         img.onload = () => resolve(true);
@@ -49,7 +61,7 @@ const AdminProfile = () => {
       if (client.logo) {
         checkImageExists(client.logo).then(setLogoExists);
       }
-      
+
       if (client.stamp) {
         checkImageExists(client.stamp).then(setStampExists);
       }
@@ -79,21 +91,20 @@ const AdminProfile = () => {
       }
       if (status === 'done') {
       } else if (status === 'error') {
-        // console.log(`${info.file.name} file upload failed.`)
       }
     },
     onDrop() {},
   };
-  
+
   // Component with profile form
   const ProfileForm = () => {
     // Form initialization here is only when the component is actually rendered
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
-    
+
     // Hook to update client data
     const updateClientMutation = useUpdateClient();
-    
+
     // Filling the form with data when mounting the component
     useEffect(() => {
       if (clientData) {
@@ -110,7 +121,7 @@ const AdminProfile = () => {
         });
       }
     }, [form, clientData]);
-    
+
     const handleFormSubmit = async (values: any) => {
       if (!clientData?.id) {
         notification.error({
@@ -119,9 +130,9 @@ const AdminProfile = () => {
         });
         return;
       }
-      
+
       setSubmitting(true);
-      
+
       try {
         const updateData: UpdateClientDto = {
           id: clientData.id,
@@ -135,12 +146,12 @@ const AdminProfile = () => {
           contactPersonPhoneNumber: values.personPhone,
           billingEmail: values.billingEmail,
         };
-        
+
         await updateClientMutation.mutateAsync({
           id: clientData.id,
-          data: updateData
+          data: updateData,
         });
-        
+
         notification.success({
           message: 'Success',
           description: 'Profile information updated successfully',
@@ -148,19 +159,20 @@ const AdminProfile = () => {
       } catch (error) {
         notification.error({
           message: 'Error',
-          description: error instanceof Error 
-            ? error.message 
-            : 'Failed to update profile information',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'Failed to update profile information',
         });
       } finally {
         setSubmitting(false);
       }
     };
-    
+
     return (
-      <Form 
-        form={form} 
-        layout="vertical" 
+      <Form
+        form={form}
+        layout="vertical"
         initialValues={{ prefix: '1' }}
         onFinish={handleFormSubmit}
       >
@@ -202,9 +214,7 @@ const AdminProfile = () => {
           <Form.Item
             name="companyName"
             label="Company Name"
-            rules={[
-              { required: true, message: 'Please enter company name' },
-            ]}
+            rules={[{ required: true, message: 'Please enter company name' }]}
           >
             <Input placeholder="Enter company name" />
           </Form.Item>
@@ -313,9 +323,7 @@ const AdminProfile = () => {
           </div>
         </Dragger>
 
-        <h2 className="text-2xl font-bold mt-6 mb-6">
-          Contact information
-        </h2>
+        <h2 className="text-2xl font-bold mt-6 mb-6">Contact information</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-6">
           <Form.Item name="contactPersonName" label="Contact Person Name">
@@ -347,9 +355,8 @@ const AdminProfile = () => {
           >
             <Input placeholder="Enter person phone (e.g. +61-2-8765-4321)" />
           </Form.Item>
-
         </div>
-        
+
         <Form.Item>
           <Button
             type="primary"

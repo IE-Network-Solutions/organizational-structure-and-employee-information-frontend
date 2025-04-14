@@ -142,6 +142,39 @@ const updateKeyResults = async (data: any) => {
     headers: requestHeader(),
   });
 };
+const downloadEmployeeOkrScore = async (data: any) => {
+  try {
+    const response = await axios.post(
+      `${OKR_AND_PLANNING_URL}/objective/export-okr-progress/all-employees/export`,
+      data,
+      {
+        headers: {
+          ...requestHeader(),
+        },
+        responseType: 'blob', // Important for file download!
+      },
+    );
+    const blob = new Blob([response.data], {
+      type: response.headers['content-type'],
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const disposition = response.headers['content-disposition'];
+    let fileName = 'Employee okr score export.xlsx';
+    if (disposition && disposition.includes('filename=')) {
+      fileName = disposition.split('filename=')[1].replace(/"/g, '');
+    }
+
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const useUpdateObjectiveNestedDelete = () => {
   const queryClient = useQueryClient();
@@ -196,6 +229,14 @@ export const useDeleteKeyResult = () => {
 export const useDeleteMilestone = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteMilestone, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('ObjectiveInformation');
+    },
+  });
+};
+export const useDownloadEmployeeOkrScore = () => {
+  const queryClient = useQueryClient();
+  return useMutation(downloadEmployeeOkrScore, {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
     },

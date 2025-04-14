@@ -44,7 +44,10 @@ interface InitiatePaymentResponse {
 }
 
 // Function to initiate a payment for an invoice
-const initiatePayment = async (invoiceId: string, data: InitiatePaymentRequest) => {
+const initiatePayment = async (
+  invoiceId: string,
+  data: InitiatePaymentRequest,
+) => {
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/payments/initiate/${invoiceId}`,
     method: 'POST',
@@ -55,7 +58,9 @@ const initiatePayment = async (invoiceId: string, data: InitiatePaymentRequest) 
 
 // Hook for initiating payment
 export const useInitiatePayment = () => {
-  return useMutation<ApiResponse<InitiatePaymentResponse>, Error, { invoiceId: string; data: InitiatePaymentRequest }>(
-    ({ invoiceId, data }) => initiatePayment(invoiceId, data)
-  );
+  return useMutation<
+    ApiResponse<InitiatePaymentResponse>,
+    Error,
+    { invoiceId: string; data: InitiatePaymentRequest }
+  >(({ invoiceId, data }) => initiatePayment(invoiceId, data));
 };
