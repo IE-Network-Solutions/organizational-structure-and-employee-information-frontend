@@ -37,8 +37,6 @@ interface CustomMenuItem {
   children?: CustomMenuItem[];
 }
 
-
-
 interface MyComponentProps {
   children: ReactNode;
 }
@@ -459,7 +457,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setSelectedKeys(keys); // Update the selected key for navigation
     }
   };
-  console.log('--------expandedKeys-----------', expandedKeys);
 
   useEffect(() => {
     const handleResize = () => {
