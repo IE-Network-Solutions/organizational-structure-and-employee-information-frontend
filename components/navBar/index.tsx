@@ -224,11 +224,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           key: '/feedback/recognition',
           className: 'font-bold h-9',
         },
-        {
-          title: 'Form',
-          key: '/feedback/categories',
-          className: 'font-bold h-9',
-        },
+       
         {
           title: 'Settings',
           key: '/feedback/settings',
