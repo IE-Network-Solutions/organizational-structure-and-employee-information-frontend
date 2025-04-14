@@ -15,7 +15,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'status',
-        icon: <TbNotes />,
+        icon: <TbNotes className="hidden lg:block" />,
         label: <p className="menu-item-label">Define Status</p>,
       },
       link: '/recruitment/settings/status',
@@ -23,7 +23,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'talentPoolCategoryTab',
-        icon: <TbNotes />,
+        icon: <TbNotes className="hidden lg:block" />,
         label: <p className="menu-item-label">Talent Pool Category</p>,
       },
       link: '/recruitment/settings/talentPoolCategory/talentPoolCategoryTab',
@@ -31,7 +31,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'customFields',
-        icon: <TbNotes />,
+        icon: <TbNotes className="hidden lg:block" />,
         label: <p className="menu-item-label">Template Question</p>,
       },
       link: '/recruitment/settings/customFields',
@@ -43,7 +43,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
       <div className="h-auto w-auto pr-6 pb-6 pl-3">
         <PageHeader title="Settings" description="Recruitment settings " />
 
-        <div className="flex gap-6 mt-8">
+        <div className="flex flex-col lg:flex-row  gap-6 mt-8">
           <SidebarMenu menuItems={menuItems} />
           <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
         </div>

@@ -19,6 +19,7 @@ import { useChangeCandidateStatus } from '@/store/server/features/recruitment/ca
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import RecruitmentPagination from '../../../_components';
 
 const AllCandidateTable: React.FC = () => {
   const { data: statusStage } = useGetStages();
@@ -44,6 +45,15 @@ const AllCandidateTable: React.FC = () => {
       title: 'Name',
       dataIndex: 'candidateName',
       sorter: (a, b) => a.candidateName.localeCompare(b.candidateName),
+    },
+    {
+      title: 'AI score',
+      dataIndex: 'score',
+      render: () => (
+        <span className="bg-green-100 px-4 rounded text-green-800 text-xs">
+          90%
+        </span>
+      ),
     },
     {
       title: 'Phone Number',
@@ -222,33 +232,21 @@ const AllCandidateTable: React.FC = () => {
     };
   });
 
-  const rowSelection = {
-    onChange: (notused: any, selectedRows: any) => {
-      setSelectedCandidate(
-        candidateList?.items?.filter((item: any) =>
-          selectedRows.some((row: any) => row.id === item.id),
-        ),
-      );
-    },
-  };
-
   return (
     <div>
       <Table
         className="w-full"
         columns={columns}
         dataSource={data}
-        rowSelection={rowSelection} // Enable selection
-        pagination={{
-          total: candidateList?.meta?.totalItems,
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
         loading={isResponseLoading}
         scroll={{ x: 1000 }}
+      />
+      <RecruitmentPagination
+        current={currentPage}
+        total={candidateList?.meta?.totalItems ?? 1}
+        pageSize={pageSize}
+        onChange={onPageChange}
+        onShowSizeChange={onPageChange}
       />
       <CandidateDetail />
       <DeleteCandidate />

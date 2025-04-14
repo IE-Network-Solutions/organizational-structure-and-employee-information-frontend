@@ -12,7 +12,6 @@ import Pagination from '../../pagination';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import dayjs from 'dayjs';
-
 import { IoIosArrowDown } from 'react-icons/io';
 import { MdKeyboardArrowUp } from 'react-icons/md';
 import CustomWorFiscalYearDrawer from '../customDrawer';
@@ -218,17 +217,7 @@ const FiscalYearListCard: React.FC = () => {
         ))
       ) : (
         <div className="mx-auto p-4 text-center">
-          <p>No Fiscal Year found.</p>
-          <AccessGuard permissions={[Permissions.CreateCalendar]}>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={openDrawer}
-              className="mt-4"
-            >
-              Create Fiscal Year
-            </Button>
-          </AccessGuard>
+          <p>No Fiscal Year found</p>
         </div>
       )}
       <Pagination

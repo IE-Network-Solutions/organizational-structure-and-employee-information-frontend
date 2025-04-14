@@ -88,12 +88,14 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   const handleSubmit = () => {
     const formValues = form.getFieldsValue();
 
-    const cleanedExpression = formula
-      .map((item: any) =>
-        item.type === 'criteria' ? `"${item.id}"` : item.name,
-      )
-      .join(' ');
-
+    const cleanedExpression =
+      Array.isArray(formula) && formula.length > 0
+        ? formula
+            .map((item: any) =>
+              item?.type === 'criteria' ? `"${item?.id}"` : item?.name,
+            )
+            .join(' ')
+        : '';
     const formdata = {
       recognitionTypeId: recognitionId,
       expression: value === 'Fixed' ? null : JSON.stringify(cleanedExpression),
@@ -147,6 +149,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
       form.setFieldsValue({ fixedAmount: formulaById?.monetizedValue || '' });
     }
   }, [openIncentiveDrawer, formulaById]);
+
   useEffect(() => {
     setValue(value);
   }, [value]);
@@ -170,7 +173,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
         onFinish={handleSubmit}
       >
         <Form.Item
-          rules={[{ required: true, message: 'Please choose amount' }]}
+          rules={[{ required: true, message: 'Please choose type' }]}
           label={
             <span className="font-bold">
               Formula <span className="text-red-500">*</span>

@@ -199,6 +199,13 @@ function Planning() {
       planningPeriodId || '', // Provide a default string value if undefined
     );
 
+  const isActive = planningPeriodHierarchy?.parentPlan
+    ? (planningPeriodHierarchy?.parentPlan?.plans?.length ?? 0) === 0 ||
+      (planningPeriodHierarchy?.parentPlan?.plans?.filter(
+        (i: any) => !i.isReported,
+      ).length ?? 0) === 0
+    : false;
+
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -223,11 +230,7 @@ function Planning() {
                 <CustomButton
                   disabled={
                     allUserPlanning?.length > 0 ||
-                    (planningPeriodHierarchy?.parentPlan?.plans?.length ??
-                      0) === 0 ||
-                    (planningPeriodHierarchy?.parentPlan?.plans?.filter(
-                      (i: any) => !i.isReported,
-                    ).length ?? 0) === 0 ||
+                    isActive ||
                     (objective?.items?.length ?? 0) === 0
                   }
                   loading={isLoading}
