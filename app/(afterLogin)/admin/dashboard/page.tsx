@@ -16,7 +16,12 @@ import InvoicesTable from '../_components/invoicesTable/invoicesTable';
 import { useRouter } from 'next/navigation';
 import { useGetInvoices } from '@/store/server/features/tenant-management/invoices/queries';
 import { useGetCurrencies } from '@/store/server/features/tenant-management/currencies/queries';
-import { Currency, Invoice, Plan, Subscription } from '@/types/tenant-management';
+import {
+  Currency,
+  Invoice,
+  Plan,
+  Subscription,
+} from '@/types/tenant-management';
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
@@ -27,46 +32,53 @@ const AdminDashboard = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [currentPlan, setCurrentPlan] = useState<Plan>();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [activeSubscription, setActiveSubscription] = useState<Subscription | null>(null);
+  const [activeSubscription, setActiveSubscription] =
+    useState<Subscription | null>(null);
+  const [paymentCurrency, setPaymentCurrency] = useState('USD');
+
   const [lastInvoice, setLastInvoice] = useState<Invoice | null>(null);
   const router = useRouter();
-  
+
   const { data: invoicesData, isLoading: isInvoicesLoading } = useGetInvoices(
-    {filter: {
-      tenantId: DEFAULT_TENANT_ID
-    }},
+    {
+      filter: {
+        tenantId: DEFAULT_TENANT_ID,
+      },
+    },
     'ASC',
     false,
-    true
+    true,
   );
 
   const { data: plansData, isLoading: plansLoading } = useGetPlans(
     { filter: {} },
     true,
     true,
-    'ASC'
+    'ASC',
   );
 
-  const { data: currenciesData, isLoading: currenciesLoading } = useGetCurrencies(
-    { filter: {} },
-    true,
-    true
-  );
+  const { data: currenciesData, isLoading: currenciesLoading } =
+    useGetCurrencies({ filter: {} }, true, true);
 
-  const { data: subscriptionsData, isLoading: subscriptionsLoading } = useGetSubscriptions(
-    { filter: {
-      tenantId: [DEFAULT_TENANT_ID]
-    } },
-    true,
-    true
-  );
+  const { data: subscriptionsData, isLoading: subscriptionsLoading } =
+    useGetSubscriptions(
+      {
+        filter: {
+          tenantId: [DEFAULT_TENANT_ID],
+        },
+      },
+      true,
+      true,
+    );
 
   useEffect(() => {
     if (invoicesData) {
       if (invoicesData?.items && invoicesData.items.length > 0) {
-        
-        const sortedInvoices = [...invoicesData.items].sort((a, b) => {   
-          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+        const sortedInvoices = [...invoicesData.items].sort((a, b) => {
+          return (
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime()
+          );
         });
         setInvoices(sortedInvoices);
         // Set the latest invoice
@@ -95,16 +107,19 @@ const AdminDashboard = () => {
     if (subscriptionsData?.items && subscriptionsData.items.length > 0) {
       const allSubscriptions = subscriptionsData.items;
       setSubscriptions(allSubscriptions);
-      
+
       // Find active subscription
-      const active = allSubscriptions.find(sub => sub.isActive === true);
+      const active = allSubscriptions.find((sub) => sub.isActive === true);
       if (active) {
         setActiveSubscription(active);
         setCurrentPlan(active.plan);
       } else {
         // If no active subscription found, use the latest one by creation date
         const sortedSubs = [...allSubscriptions].sort((a, b) => {
-          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+          return (
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime()
+          );
         });
         setActiveSubscription(sortedSubs[0]);
         setCurrentPlan(sortedSubs[0]?.plan);
@@ -119,7 +134,7 @@ const AdminDashboard = () => {
 
   const getFormattedSubscriptionStatus = (status?: string): string => {
     if (!status) return 'Unknown';
-    
+
     // Convert first letter to uppercase
     return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
   };
@@ -132,7 +147,7 @@ const AdminDashboard = () => {
 
   // Generate tooltip message for disabled buttons
   const getDisabledTooltip = () => {
-    return "Please pay your current invoice before making changes to your subscription";
+    return 'Please pay your current invoice before making changes to your subscription';
   };
 
   const dashboardData = [
@@ -185,11 +200,17 @@ const AdminDashboard = () => {
       },
       {
         id: 'invoiceStatus',
-        value: lastInvoice ? getFormattedSubscriptionStatus(lastInvoice.status) : 'No Invoice',
+        value: lastInvoice
+          ? getFormattedSubscriptionStatus(lastInvoice.status)
+          : 'No Invoice',
       },
       {
         id: 'subscriptionStatus',
-        value: activeSubscription ? getFormattedSubscriptionStatus(activeSubscription.subscriptionStatus) : 'No Subscription',
+        value: activeSubscription
+          ? getFormattedSubscriptionStatus(
+              activeSubscription.subscriptionStatus,
+            )
+          : 'No Subscription',
       },
     ];
   };
@@ -200,7 +221,11 @@ const AdminDashboard = () => {
     .filter((plan: any) => plan.isPublic)
     .sort((a: any, b: any) => a.slotPrice - b.slotPrice);
 
-  const isLoading = isInvoicesLoading || plansLoading || currenciesLoading || subscriptionsLoading;
+  const isLoading =
+    isInvoicesLoading ||
+    plansLoading ||
+    currenciesLoading ||
+    subscriptionsLoading;
   const hasSelectedPlan = !!currentPlan;
 
   return (
@@ -209,7 +234,7 @@ const AdminDashboard = () => {
         title="Hi, Admin"
         subtitle="Manage Tenant Billing, Invoices, and Profile Information"
       />
-      
+
       <div className="grid gap-3  mb-[35px] mt-[25px] md:grid-cols-2 lg:grid-cols-5">
         {dashboardData.map((item, idx) => {
           const valueData = dashboardValues.find((v) => v.id === item.id);
@@ -280,129 +305,223 @@ const AdminDashboard = () => {
           ))}
         </div>
       ) : (
-        <div
-          className="flex flex-col mb-[35px] mt-[25px] md:flex-row justify-between items-center gap-4 bg-purple/10 rounded-lg p-4"
-          style={{
-            boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
-            overflowX: 'auto'
-          }}
-        >
-          {allPlans.length > 0 ? (
-            allPlans.map((plan) => (
-              <div
-                key={plan.id}
-                className={`flex flex-col justify-between gap-2 rounded-lg p-4
+        <>
+          <div className="flex items-center bg-gray-200 shadow-md rounded-lg w-36 h-12 p-1">
+            {currenciesData?.items &&
+              currenciesData.items.length > 0 &&
+              currenciesData.items.map((currency) => (
+                <button
+                  onClick={() => setPaymentCurrency(currency?.code)}
+                  className={`w-1/2 h-full ${
+                    paymentCurrency === currency.code
+                      ? 'bg-white text-black shadow-sm'
+                      : 'bg-transparent text-black'
+                  } text-sm rounded-md transition-all duration-300 ease-in-out`}
+                >
+                  {currency.code}
+                </button>
+              ))}
+          </div>
+          <div
+            className="flex flex-col mb-[35px] mt-[25px] md:flex-row justify-between items-center gap-4 bg-purple/10 rounded-lg p-4"
+            style={{
+              boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
+              overflowX: 'auto',
+            }}
+          >
+            {allPlans.length > 0 ? (
+              allPlans
+                .filter(
+                  (p) =>
+                    p.currency.code === paymentCurrency ||
+                    p.id === currentPlan?.id,
+                )
+                .map((plan) => (
+                  <div
+                    key={plan.id}
+                    className={`flex flex-col justify-between gap-2 rounded-lg p-4
                                   ${plan.id === currentPlan?.id ? 'w-full' : 'bg-white'}
                                   ${allPlans.length > 2 && plan.id !== currentPlan?.id ? 'md:min-w-[335px]' : 'md:min-w-[435px]'}
                                   min-h-[571px] w-full md:w-auto`}
-              >
-                <div className="flex flex-col gap-2">
-                  <div className="flex justify-between text-lg font-extrabold mb-2">
-                    <span>{plan.name}</span>
-                    {plan.id === currentPlan?.id && (
-                      <div className="text-sm rounded-lg bg-white font-bold p-2">
-                        Renews in{' '}
-                        <span
-                          className={
-                            plan.invoiceGenerationDaysBefore < 10
-                              ? 'text-red-500'
-                              : 'text-green-500'
+                  >
+                    <div className="flex flex-col gap-2">
+                      <div className="flex justify-between text-lg font-extrabold mb-2">
+                        <span>{plan.name}</span>
+                        <div>
+                          {' '}
+                          {/* {plan.id === currentPlan?.id && (
+                            <div className="text-sm rounded-lg bg-white font-bold p-2">
+                              Renews in{' '}
+                              <span
+                                className={
+                                  plan.invoiceGenerationDaysBefore < 10
+                                    ? 'text-red-500'
+                                    : 'text-green-500'
+                                }
+                              >
+                                {plan.invoiceGenerationDaysBefore} days
+                              </span>
+                            </div>
+                          )} */}
+                          {activeSubscription &&
+                            plan.id === currentPlan?.id && (
+                              <div className="text-sm rounded-lg bg-white font-bold p-2 ">
+                                Expires in{' '}
+                                <span
+                                  className={
+                                    new Date(
+                                      activeSubscription.trialEndAt &&
+                                      activeSubscription.isTrial
+                                        ? activeSubscription.trialEndAt
+                                        : activeSubscription.endAt,
+                                    ).getTime() -
+                                      Date.now() <
+                                    10 * 24 * 60 * 60 * 1000 // Less than 10 days
+                                      ? 'text-red-500'
+                                      : 'text-green-500'
+                                  }
+                                >
+                                  {Math.ceil(
+                                    (new Date(
+                                      activeSubscription.trialEndAt &&
+                                      activeSubscription.isTrial
+                                        ? activeSubscription.trialEndAt
+                                        : activeSubscription.endAt,
+                                    ).getTime() -
+                                      Date.now()) /
+                                      (24 * 60 * 60 * 1000),
+                                  )}{' '}
+                                  days
+                                </span>
+                              </div>
+                            )}
+                        </div>
+                      </div>
+                      {!plan.isFree && (
+                        <>
+                          <div className="text-5xl font-bold">
+                            {plan.currency.symbol}
+                            {plan.slotPrice}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            per user billed annually
+                          </div>
+                        </>
+                      )}
+                      <div className="mt-8 mb-6 font-bold">
+                        Get in depth with our system
+                      </div>
+                      <div className="flex flex-col gap-5">
+                        {plan.planDetails &&
+                          plan.planDetails.map((detail, index) => (
+                            <div key={index} className="flex gap-2 font-bold">
+                              <Checkbox checked={true} />
+                              <span>{detail}</span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                    {plan.id === currentPlan?.id ? (
+                      <div className="flex flex-wrap gap-4 mt-8 pl-0 md:pl-4">
+                        {plan.isFree !== true && (
+                          <Tooltip
+                            title={
+                              !isLatestInvoicePaid() ? getDisabledTooltip() : ''
+                            }
+                            placement="bottom"
+                          >
+                            <span className="w-full md:w-auto">
+                              <CustomButton
+                                title="Update User Quota"
+                                onClick={() =>
+                                  router.push('/admin/plan?source=quota')
+                                }
+                                className="text-center flex justify-center items-center w-full"
+                                type="default"
+                                disabled={!isLatestInvoicePaid()}
+                              />
+                            </span>
+                          </Tooltip>
+                        )}
+                        {plan.isFree !== true && (
+                          <Tooltip
+                            title={
+                              !isLatestInvoicePaid() ? getDisabledTooltip() : ''
+                            }
+                            placement="bottom"
+                          >
+                            <span className="w-full md:w-auto">
+                              <CustomButton
+                                title="Update Subscription Period"
+                                onClick={() =>
+                                  router.push(
+                                    '/admin/plan?source=period&step=1',
+                                  )
+                                }
+                                className="text-center flex justify-center items-center w-full"
+                                type="default"
+                                disabled={!isLatestInvoicePaid()}
+                              />
+                            </span>
+                          </Tooltip>
+                        )}
+                        {plan.isFree !== true && (
+                          <CustomButton
+                            title="Pay Next Bill"
+                            onClick={() =>
+                              router.push(
+                                `/admin/invoice/${activeSubscription?.invoices[0]?.id}`,
+                              )
+                            }
+                            className="text-center flex justify-center items-center w-full md:w-auto"
+                            type="default"
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex justify-center mt-8">
+                        <Tooltip
+                          title={
+                            !isLatestInvoicePaid() ? getDisabledTooltip() : ''
                           }
+                          placement="bottom"
                         >
-                          {plan.invoiceGenerationDaysBefore} days
-                        </span>
+                          <span className="w-full">
+                            <CustomButton
+                              title={
+                                hasSelectedPlan &&
+                                plan.slotPrice < Number(currentPlan?.slotPrice)
+                                  ? 'Downgrade Plan'
+                                  : 'Upgrade Plan'
+                              }
+                              onClick={() =>
+                                router.push(`/admin/plan?planId=${plan.id}`)
+                              }
+                              className="w-full text-center flex justify-center items-center"
+                              type="primary"
+                              disabled={!isLatestInvoicePaid()}
+                            />
+                          </span>
+                        </Tooltip>
                       </div>
                     )}
                   </div>
-                  <div className="text-5xl font-bold">${plan.slotPrice}</div>
-                  <div className="text-sm text-gray-500">
-                    per user billed annually
-                  </div>
-                  <div className="mt-8 mb-6 font-bold">
-                    Get in depth with our system
-                  </div>
-                  <div className="flex flex-col gap-5">
-                    {plan.planDetails && plan.planDetails.map((detail, index) => (
-                      <div key={index} className="flex gap-2 font-bold">
-                        <Checkbox checked={true} />
-                        <span>{detail}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {plan.id === currentPlan?.id ? (
-                  <div className="flex flex-wrap gap-4 mt-8 pl-0 md:pl-4">
-                    <Tooltip 
-                      title={!isLatestInvoicePaid() ? getDisabledTooltip() : ""}
-                      placement="bottom"
-                    >
-                      <span className="w-full md:w-auto">
-                        <CustomButton
-                          title="Update User Quota"
-                          onClick={() => router.push('/admin/plan?source=quota')}
-                          className="text-center flex justify-center items-center w-full"
-                          type="default"
-                          disabled={!isLatestInvoicePaid()}
-                        />
-                      </span>
-                    </Tooltip>
-                    <Tooltip 
-                      title={!isLatestInvoicePaid() ? getDisabledTooltip() : ""}
-                      placement="bottom"
-                    >
-                      <span className="w-full md:w-auto">
-                        <CustomButton
-                          title="Update Subscription Period"
-                          onClick={() => router.push('/admin/plan?source=period&step=1')}
-                          className="text-center flex justify-center items-center w-full"
-                          type="default"
-                          disabled={!isLatestInvoicePaid()}
-                        />
-                      </span>
-                    </Tooltip>
-                    <CustomButton
-                      title="Pay Next Bill"
-                      onClick={() => router.push(`/admin/invoice/${activeSubscription?.invoices[0]?.id}`)}
-                      className="text-center flex justify-center items-center w-full md:w-auto"
-                      type="default"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex justify-center mt-8">
-                    <Tooltip 
-                      title={!isLatestInvoicePaid() ? getDisabledTooltip() : ""}
-                      placement="bottom"
-                    >
-                      <span className="w-full">
-                        <CustomButton
-                          title={
-                            hasSelectedPlan && plan.slotPrice < Number(currentPlan?.slotPrice)
-                              ? 'Downgrade Plan'
-                              : 'Upgrade Plan'
-                          }
-                          onClick={() => router.push(`/admin/plan?planId=${plan.id}`)}
-                          className="w-full text-center flex justify-center items-center"
-                          type="primary"
-                          disabled={!isLatestInvoicePaid()}
-                        />
-                      </span>
-                    </Tooltip>
-                  </div>
-                )}
+                ))
+            ) : (
+              <div className="w-full py-10 text-center">
+                <p className="text-gray-500 text-lg">
+                  No plans available. Please check back later.
+                </p>
               </div>
-            ))
-          ) : (
-            <div className="w-full py-10 text-center">
-              <p className="text-gray-500 text-lg">No plans available. Please check back later.</p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </>
       )}
 
       <div className="text-2xl font-bold mb-5">Tenant Billing History</div>
 
-      <InvoicesTable 
-        data={invoices} 
+      <InvoicesTable
+        data={invoices}
         loading={isLoading}
         plans={plans}
         currencies={currencies}

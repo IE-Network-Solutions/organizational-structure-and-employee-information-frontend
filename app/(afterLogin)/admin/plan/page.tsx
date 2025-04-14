@@ -11,12 +11,17 @@ import { useGetSubscriptions } from '@/store/server/features/tenant-management/s
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useGetPeriodTypes } from '@/store/server/features/tenant-management/period-types/queries';
 import { DEFAULT_TENANT_ID, TENANT_BASE_URL } from '@/utils/constants';
-import { useCreateSubscription, useUpgradeSubscription } from '@/store/server/features/tenant-management/manage-subscriptions/mutation';
+import {
+  useCreateSubscription,
+  useUpgradeSubscription,
+} from '@/store/server/features/tenant-management/manage-subscriptions/mutation';
 import { useInitiatePayment } from '@/store/server/features/tenant-management/payments/queries';
 import dayjs from 'dayjs';
 import { useCalculateSubscriptionPrice } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
-import { CalculateSubscriptionPriceDto, CalculateSubscriptionPriceResponse } from '@/store/server/features/tenant-management/manage-subscriptions/interface';
-
+import {
+  CalculateSubscriptionPriceDto,
+  CalculateSubscriptionPriceResponse,
+} from '@/store/server/features/tenant-management/manage-subscriptions/interface';
 
 const PlanPage = () => {
   const router = useRouter();
@@ -26,25 +31,35 @@ const PlanPage = () => {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [updatedQuota, setUpdatedQuota] = useState<number | null>(null);
   const [updatedPeriod, setUpdatedPeriod] = useState<string | null>(null);
-  const [selectedPeriodType, setSelectedPeriodType] = useState<PeriodType | null>(null);
+  const [selectedPeriodType, setSelectedPeriodType] =
+    useState<PeriodType | null>(null);
   const [availablePeriods, setAvailablePeriods] = useState<PeriodType[]>([]);
   const [quotaError, setQuotaError] = useState<string | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'chapa' | 'stripe' | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    'chapa' | 'stripe' | null
+  >(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   // State for API data
   const [plans, setPlans] = useState<Plan[]>([]);
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
-  const [activeSubscription, setActiveSubscription] = useState<Subscription | null>(null);
+  const [activeSubscription, setActiveSubscription] =
+    useState<Subscription | null>(null);
   const [periodTypes, setPeriodTypes] = useState<PeriodType[]>([]);
-  const [currentPeriodType, setCurrentPeriodType] = useState<PeriodType | null>(null);
-  
+  const [currentPeriodType, setCurrentPeriodType] = useState<PeriodType | null>(
+    null,
+  );
+
   // Fetch subscriptions
-  const { data: subscriptionsData, isLoading: isSubscriptionsLoading, refetch: refetchSubscriptions } = useGetSubscriptions(
+  const {
+    data: subscriptionsData,
+    isLoading: isSubscriptionsLoading,
+    refetch: refetchSubscriptions,
+  } = useGetSubscriptions(
     { filter: { tenantId: [DEFAULT_TENANT_ID] } },
     true,
-    true
+    true,
   );
 
   // Fetch plans
@@ -52,15 +67,12 @@ const PlanPage = () => {
     { filter: {} },
     true,
     true,
-    'ASC'
+    'ASC',
   );
 
   // Fetch period types
-  const { data: periodTypesData, isLoading: isPeriodTypesLoading } = useGetPeriodTypes(
-    { filter: {} },
-    true,
-    true
-  );
+  const { data: periodTypesData, isLoading: isPeriodTypesLoading } =
+    useGetPeriodTypes({ filter: {} }, true, true);
 
   // Mutations for creating/updating subscriptions
   const createSubscriptionMutation = useCreateSubscription();
@@ -70,16 +82,16 @@ const PlanPage = () => {
   const initiatePaymentMutation = useInitiatePayment();
 
   // New state for calculation
-  const [calculationDto, setCalculationDto] = useState<CalculateSubscriptionPriceDto | null>(null);
+  const [calculationDto, setCalculationDto] =
+    useState<CalculateSubscriptionPriceDto | null>(null);
   const [isCalculationEnabled, setIsCalculationEnabled] = useState(false);
-  const [calculationResult, setCalculationResult] = useState<CalculateSubscriptionPriceResponse | null>(null);
+  const [calculationResult, setCalculationResult] =
+    useState<CalculateSubscriptionPriceResponse | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
   // Add the calculation hook
-  const { data: calculationData, error: calculationError } = useCalculateSubscriptionPrice(
-    calculationDto,
-    isCalculationEnabled
-  );
+  const { data: calculationData, error: calculationError } =
+    useCalculateSubscriptionPrice(calculationDto, isCalculationEnabled);
 
   // Leave this useEffect, which loads plans
   useEffect(() => {
@@ -91,38 +103,41 @@ const PlanPage = () => {
   // Add our new simple useEffect
   useEffect(() => {
     if (!plans.length) return;
-    
+
     // 1. Priority: planId from URL parameter
     const planId = searchParams.get('planId');
     if (planId) {
-      const selectedPlan = plans.find(p => p.id === planId);
+      const selectedPlan = plans.find((p) => p.id === planId);
       if (selectedPlan) {
         setCurrentPlan(selectedPlan);
         return;
       }
     }
-    
+
     // 2. Priority: plan from active subscription
     if (activeSubscription?.planId) {
-      const subscriptionPlan = plans.find(p => p.id === activeSubscription.planId);
+      const subscriptionPlan = plans.find(
+        (p) => p.id === activeSubscription.planId,
+      );
       if (subscriptionPlan) {
         setCurrentPlan(subscriptionPlan);
         return;
       }
     }
-    
+
     // 3. If nothing matches, use the first available plan
     if (!currentPlan && plans.length > 0) {
       setCurrentPlan(plans[0]);
     }
-
   }, [plans, searchParams, activeSubscription, currentPlan]);
 
   // Process subscription data
   useEffect(() => {
     if (subscriptionsData?.items && subscriptionsData.items.length > 0) {
       // Find active subscription
-      const active = subscriptionsData.items.find(sub => sub.isActive === true);
+      const active = subscriptionsData.items.find(
+        (sub) => sub.isActive === true,
+      );
       if (active) {
         setActiveSubscription(active);
         // Initialize updatedQuota with current quota from active subscription
@@ -147,8 +162,10 @@ const PlanPage = () => {
     // 1. Get available periods for the selected plan
     const planPeriodTypes: PeriodType[] = [];
     if (currentPlan.periods) {
-      currentPlan.periods.forEach(planPeriod => {
-        const periodType = periodTypes.find(pt => pt.id === planPeriod.periodTypeId);
+      currentPlan.periods.forEach((planPeriod) => {
+        const periodType = periodTypes.find(
+          (pt) => pt.id === planPeriod.periodTypeId,
+        );
         if (periodType) {
           planPeriodTypes.push(periodType);
         }
@@ -159,14 +176,20 @@ const PlanPage = () => {
     // 2. Determine the period based on the rules:
     // - if there is an active subscription with the same plan, take its period
     // - otherwise take the period with the smallest periodInMonths
-    if (activeSubscription && activeSubscription.planId === currentPlan.id && activeSubscription.planPeriodId) {
+    if (
+      activeSubscription &&
+      activeSubscription.planId === currentPlan.id &&
+      activeSubscription.planPeriodId
+    ) {
       // Search for the period from the active subscription
       const currentPlanPeriod = currentPlan.periods?.find(
-        period => period.id === activeSubscription.planPeriodId
+        (period) => period.id === activeSubscription.planPeriodId,
       );
-      
+
       if (currentPlanPeriod) {
-        const periodFromSubscription = periodTypes.find(pt => pt.id === currentPlanPeriod.periodTypeId);
+        const periodFromSubscription = periodTypes.find(
+          (pt) => pt.id === currentPlanPeriod.periodTypeId,
+        );
         if (periodFromSubscription) {
           setCurrentPeriodType(periodFromSubscription);
           setUpdatedPeriod(periodFromSubscription.code);
@@ -174,12 +197,12 @@ const PlanPage = () => {
         }
       }
     }
-    
+
     // If there is no corresponding subscription or period not found, take the period with the smallest periodInMonths
     if (planPeriodTypes.length > 0) {
       // Sort by ascending periodInMonths and take the first (shortest) period
-      const sortedPeriods = [...planPeriodTypes].sort((a, b) => 
-        (a.periodInMonths || 0) - (b.periodInMonths || 0)
+      const sortedPeriods = [...planPeriodTypes].sort(
+        (a, b) => (a.periodInMonths || 0) - (b.periodInMonths || 0),
       );
       setCurrentPeriodType(sortedPeriods[0]);
       setUpdatedPeriod(sortedPeriods[0].code);
@@ -189,7 +212,7 @@ const PlanPage = () => {
   // Ensure the selected period is displayed correctly on the confirmation step
   useEffect(() => {
     if (updatedPeriod) {
-      const period = periodTypes.find(p => p.code === updatedPeriod);
+      const period = periodTypes.find((p) => p.code === updatedPeriod);
       if (period) {
         setSelectedPeriodType(period);
       }
@@ -207,7 +230,10 @@ const PlanPage = () => {
     } else if (isCalculationEnabled && calculationError) {
       notification.error({
         message: 'Calculation Error',
-        description: calculationError instanceof Error ? calculationError.message : 'Failed to calculate the cost. Please try again.'
+        description:
+          calculationError instanceof Error
+            ? calculationError.message
+            : 'Failed to calculate the cost. Please try again.',
       });
       setIsCalculationEnabled(false);
       setIsCalculating(false);
@@ -220,97 +246,112 @@ const PlanPage = () => {
       if (!selectedPeriodType || !updatedQuota || !currentPlan) {
         notification.error({
           message: 'Missing data',
-          description: 'Please fill in all required fields'
+          description: 'Please fill in all required fields',
         });
         return;
       }
-      
+
       // Find the ID of the selected period
       const selectedPlanPeriod = currentPlan.periods?.find(
-        pp => pp.periodTypeId === selectedPeriodType.id
+        (pp) => pp.periodTypeId === selectedPeriodType.id,
       );
-      
+
       if (!selectedPlanPeriod) {
         notification.error({
           message: 'Period selection error',
-          description: 'Selected period not found in plan'
+          description: 'Selected period not found in plan',
         });
         return;
       }
-      
+
       // Create DTO for calculation
       const dto: CalculateSubscriptionPriceDto = {
         planId: currentPlan.id,
         planPeriodId: selectedPlanPeriod.id,
         slotTotal: updatedQuota,
-        ...(activeSubscription ? { subscriptionId: activeSubscription.id } : {})
+        ...(activeSubscription
+          ? { subscriptionId: activeSubscription.id }
+          : {}),
       };
-      
+
       // Start the calculation process
       setCalculationDto(dto);
       setCalculationResult(null);
       setIsCalculationEnabled(true);
       setIsCalculating(true);
-      
+
       // Don't change the step here - this will happen after receiving the result
     } else {
       // For other steps, just move forward
       setCurrentStep((prev) => prev + 1);
     }
   };
-  
+
   const handlePreviousStep = () => setCurrentStep((prev) => prev - 1);
 
   const handleQuotaChange = (value: number | null) => {
     // Always update the value, even if null
     setUpdatedQuota(value);
-    
+
     // Show error if value is less than current quota
-    if (value !== null && activeSubscription?.slotTotal && value < activeSubscription.slotTotal) {
+    if (
+      value !== null &&
+      activeSubscription?.slotTotal &&
+      value < activeSubscription.slotTotal
+    ) {
       setQuotaError('Your quota is below total number of user quota');
-    }  else if (value === null || value === undefined || value === 0) {
+    } else if (value === null || value === undefined || value === 0) {
       setQuotaError('Please enter a valid number');
     } else {
       setQuotaError(null);
     }
   };
-  
+
   // Check if quota has been changed and is valid
   const isQuotaChanged = () => {
     // If value is null or empty, it's not valid
     if (updatedQuota === null) return false;
-    
+
     // If value equals current quota, it's not changed
-    if (updatedQuota === activeSubscription?.slotTotal) return false;
-    
+    if (
+      updatedQuota === activeSubscription?.slotTotal &&
+      activeSubscription?.planId === currentPlan?.id
+    )
+      return false;
+
     // If value is less than current quota, it's not valid
-    if (activeSubscription?.slotTotal && updatedQuota < activeSubscription.slotTotal) return false;
-    
+    if (
+      activeSubscription?.slotTotal &&
+      updatedQuota < activeSubscription.slotTotal
+    )
+      return false;
+
     // Otherwise it's valid and changed
     return true;
   };
-  
+
   // Check if period has been changed and is valid
   const isPeriodChanged = () => {
     // If there is no active subscription, any selected period is considered valid
     if (!activeSubscription) return true;
-    
+
     // If there is no selected period, it is invalid
     if (!updatedPeriod) return false;
-    
+
     // Get the current period from the active subscription
     const currentPeriodCode = currentPeriodType?.code;
-    
-    // If it matches the current period, it is not considered changed
-    if (updatedPeriod === currentPeriodCode) return false;
-    
-    // Otherwise it is valid and changed  
+
+    // If it matches the current period, it is not considered changed. UPDATED
+
+    // if (updatedPeriod === currentPeriodCode) return false;
+
+    // Otherwise it is valid and changed
     return true;
   };
-  
+
   const handlePeriodChange = (value: string) => {
     setUpdatedPeriod(value);
-    const period = periodTypes.find(p => p.code === value);
+    const period = periodTypes.find((p) => p.code === value);
     if (period) {
       setSelectedPeriodType(period);
     }
@@ -325,19 +366,22 @@ const PlanPage = () => {
   // Calculate total amount based on selected options - simplified version
   const calculateTotalAmount = () => {
     if (!currentPlan || !updatedQuota || !selectedPeriodType) return 0;
-    
+
     // Get current plan period
-    const planPeriod = currentPlan.periods?.find(pp => pp.periodTypeId === selectedPeriodType.id);
-    
+    const planPeriod = currentPlan.periods?.find(
+      (pp) => pp.periodTypeId === selectedPeriodType.id,
+    );
+
     // Get slot price (either period-specific or from the plan)
     const slotPrice = planPeriod?.periodSlotPrice || currentPlan.slotPrice;
-    
+
     // Simple calculation: quota * price
     return updatedQuota * slotPrice;
   };
 
   const totalAmount = calculateTotalAmount();
-  const isLoading = isSubscriptionsLoading || isPlansLoading || isPeriodTypesLoading;
+  const isLoading =
+    isSubscriptionsLoading || isPlansLoading || isPeriodTypesLoading;
 
   // Handle payment method selection
   const handlePaymentMethodSelect = (method: 'chapa' | 'stripe') => {
@@ -353,7 +397,8 @@ const PlanPage = () => {
     if (!selectedPaymentMethod || !updatedSubscriptionValue?.invoices[0]?.id) {
       notification.error({
         message: 'Payment Error',
-        description: 'Please select a payment method and ensure you have a valid invoice.',
+        description:
+          'Please select a payment method and ensure you have a valid invoice.',
       });
       return;
     }
@@ -363,27 +408,27 @@ const PlanPage = () => {
     try {
       // Use the dashboard URL as return URL instead of current location
       const returnUrl = `${window.location.origin}/admin/dashboard`;
-      
+
       // Prepare payment data
       const paymentData = {
         paymentMethod: selectedPaymentMethod.toUpperCase(),
         paymentProvider: selectedPaymentMethod,
-        returnUrl
+        returnUrl,
       };
 
       // Call the payment API
       const response = await initiatePaymentMutation.mutateAsync({
         invoiceId: updatedSubscriptionValue?.invoices[0]?.id as string,
-        data: paymentData
+        data: paymentData,
       });
 
       // Handle successful response
       const apiResponse = response as any;
-      
+
       if (apiResponse && apiResponse.data && apiResponse.data.redirectUrl) {
         notification.success({
           message: 'Payment Initiated',
-          description: 'You will be redirected to the payment page.'
+          description: 'You will be redirected to the payment page.',
         });
 
         // Redirect to payment provider page
@@ -392,7 +437,7 @@ const PlanPage = () => {
         // Handle case where redirectUrl is at the root level
         notification.success({
           message: 'Payment Initiated',
-          description: 'You will be redirected to the payment page.'
+          description: 'You will be redirected to the payment page.',
         });
 
         // Redirect to payment provider page
@@ -401,29 +446,39 @@ const PlanPage = () => {
         // If no redirect URL received, go to dashboard
         notification.success({
           message: 'Payment Initiated',
-          description: 'Redirecting to dashboard.'
+          description: 'Redirecting to dashboard.',
         });
-        
+
         // Use Next.js router to navigate to dashboard
         router.push('/admin/dashboard');
       }
     } catch (error) {
       notification.error({
         message: 'Payment Failed',
-        description: error instanceof Error ? error.message : 'There was an error initiating payment. Please try again later.'
+        description:
+          error instanceof Error
+            ? error.message
+            : 'There was an error initiating payment. Please try again later.',
       });
       setIsProcessingPayment(false);
     }
   };
 
   // Check if this is an update of the same plan
-  const isSamePlanUpdate = activeSubscription && currentPlan && activeSubscription.planId === currentPlan.id;
+  const isSamePlanUpdate =
+    activeSubscription &&
+    currentPlan &&
+    activeSubscription.planId === currentPlan.id;
 
   // Check if quota field should be disabled
-  const isQuotaDisabled = Boolean(isSamePlanUpdate && updateSource === 'period');
+  const isQuotaDisabled = Boolean(
+    isSamePlanUpdate && updateSource === 'period',
+  );
 
   // Check if period field should be disabled
-  const isPeriodDisabled = Boolean(isSamePlanUpdate && updateSource === 'quota');
+  const isPeriodDisabled = Boolean(
+    isSamePlanUpdate && updateSource === 'quota',
+  );
 
   // After the subscription is created/updated, refetch the list to get the latest data
   const handleRefetchSubscriptions = async () => {
@@ -433,16 +488,23 @@ const PlanPage = () => {
     } catch (error) {
       notification.error({
         message: 'Error refetching subscriptions',
-        description: error instanceof Error ? error.message : 'An unknown error occurred'
+        description:
+          error instanceof Error ? error.message : 'An unknown error occurred',
       });
     }
   };
 
   const handleConfirmation = async () => {
-    if (!currentPlan || !selectedPeriodType || !updatedQuota || !calculationResult) {
+    if (
+      !currentPlan ||
+      !selectedPeriodType ||
+      !updatedQuota ||
+      !calculationResult
+    ) {
       notification.error({
         message: 'Missing data',
-        description: 'Required data for subscription is missing. Please try again.',
+        description:
+          'Required data for subscription is missing. Please try again.',
       });
       return;
     }
@@ -451,7 +513,7 @@ const PlanPage = () => {
 
     try {
       const selectedPlanPeriod = currentPlan.periods?.find(
-        pp => pp.periodTypeId === selectedPeriodType.id
+        (pp) => pp.periodTypeId === selectedPeriodType.id,
       );
 
       if (!selectedPlanPeriod) {
@@ -465,14 +527,14 @@ const PlanPage = () => {
         const createData = {
           planId: currentPlan.id,
           planPeriodId: selectedPlanPeriod.id,
-          slots: updatedQuota, // Use slots instead of slots
+          slotTotal: updatedQuota, // Use slots instead of slots
           tenantId: DEFAULT_TENANT_ID,
           currencyId: currentPlan.currency?.id, // Add currencyId
           subscriptionPrice: calculationResult.totalAmount, // Use the calculated amount
-          subscriptionStatus: "pending" as any, // Explicit type casting to solve the problem
-          isActive: false // Default inactive until payment
+          subscriptionStatus: 'pending' as any, // Explicit type casting to solve the problem
+          isActive: false, // Default inactive until payment
         };
-        
+
         response = await createSubscriptionMutation.mutateAsync(createData);
       } else {
         // Updating an existing subscription
@@ -480,27 +542,32 @@ const PlanPage = () => {
           subscriptionId: activeSubscription.id,
           planId: currentPlan.id,
           planPeriodId: selectedPlanPeriod.id,
-          slots: updatedQuota, // Use slot instead of slots
-          tenantId: DEFAULT_TENANT_ID
+          slotTotal: updatedQuota, // Use slot instead of slots
+          tenantId: DEFAULT_TENANT_ID,
         };
-        
+
         response = await upgradeSubscriptionMutation.mutateAsync(upgradeData);
       }
-      
+
       if (response && (response.id || response.data?.id)) {
         await handleRefetchSubscriptions();
       }
 
       setCurrentStep(3);
-      
+
       notification.success({
-        message: !activeSubscription ? 'Subscription Created' : 'Subscription Updated',
+        message: !activeSubscription
+          ? 'Subscription Created'
+          : 'Subscription Updated',
         description: 'Please proceed to payment to complete the process.',
       });
     } catch (error) {
       notification.error({
         message: 'Operation Failed',
-        description: error instanceof Error ? error.message : 'Failed to process your subscription. Please try again later.',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Failed to process your subscription. Please try again later.',
       });
     } finally {
       setIsProcessingPayment(false);
@@ -515,7 +582,8 @@ const PlanPage = () => {
     if (!updatedSubscriptionValue?.invoices[0]?.id) {
       notification.warning({
         message: 'No Invoice Available',
-        description: 'Please complete the subscription process first to generate an invoice.'
+        description:
+          'Please complete the subscription process first to generate an invoice.',
       });
       return;
     }
@@ -524,49 +592,55 @@ const PlanPage = () => {
 
     try {
       // Step 1: Get the PDF link
-      const invoiceDetailResponse = await fetch(`${TENANT_BASE_URL}/api/v1/subscription/rest/invoices/${updatedSubscriptionValue?.invoices[0]?.id}/detail?fileType=PDF`);
-      
+      const invoiceDetailResponse = await fetch(
+        `${TENANT_BASE_URL}/api/v1/subscription/rest/invoices/${updatedSubscriptionValue?.invoices[0]?.id}/detail?fileType=PDF`,
+      );
+
       if (!invoiceDetailResponse.ok) {
-        throw new Error(`Failed to fetch PDF details: ${invoiceDetailResponse.status} ${invoiceDetailResponse.statusText}`);
+        throw new Error(
+          `Failed to fetch PDF details: ${invoiceDetailResponse.status} ${invoiceDetailResponse.statusText}`,
+        );
       }
-      
+
       const invoiceDetail = await invoiceDetailResponse.json();
       const filePath = invoiceDetail.path || invoiceDetail.data?.path;
-      
+
       if (!filePath) {
         throw new Error('PDF path not found in response');
       }
-      
+
       const pdfFileUrl = `${TENANT_BASE_URL}/${filePath}`;
-      
+
       // Step 2: Download PDF
       const pdfResponse = await fetch(pdfFileUrl);
-      
+
       if (!pdfResponse.ok) {
-        throw new Error(`Failed to download PDF: ${pdfResponse.status} ${pdfResponse.statusText}`);
+        throw new Error(
+          `Failed to download PDF: ${pdfResponse.status} ${pdfResponse.statusText}`,
+        );
       }
-      
+
       // Get the blob from the response
       const blob = await pdfResponse.blob();
-      
+
       // Create a URL for the blob
       const url = window.URL.createObjectURL(blob);
-      
+
       // Create a link element
       const link = document.createElement('a');
       link.href = url;
       link.download = `invoice-${updatedSubscriptionValue?.invoices[0]?.id}.pdf`;
-      
+
       // Append the link to the document
       document.body.appendChild(link);
-      
+
       // Click the link to download the file
       link.click();
-      
+
       // Clean up
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      
+
       notification.success({
         message: 'Download Started',
         description: 'Your invoice PDF is being downloaded.',
@@ -574,7 +648,10 @@ const PlanPage = () => {
     } catch (error) {
       notification.error({
         message: 'Download Failed',
-        description: error instanceof Error ? error.message : 'Failed to download the invoice PDF. Please try again later.',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Failed to download the invoice PDF. Please try again later.',
       });
     } finally {
       setIsDownloading(false);
@@ -636,21 +713,27 @@ const PlanPage = () => {
               <div className="mt-8">
                 <div className="flex flex-col rounded-lg border border-gray-200 pt-8 pb-10 px-8 max-w-[700px] min-h-[280px] mx-auto">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-2xl font-bold">Current User Quota</span>
-                    { activeSubscription && currentPlan && activeSubscription.plan.id === currentPlan.id && (
-                      <span
-                        className="text-md font-bold px-3 py-1 border border-gray-400"
-                        style={{ borderRadius: '10px' }}
-                      >
-                        {activeSubscription?.slotTotal || 0}
-                      </span>
-                    )}
+                    <span className="text-2xl font-bold">
+                      Current User Quota
+                    </span>
+                    {activeSubscription &&
+                      currentPlan &&
+                      activeSubscription.plan.id === currentPlan.id && (
+                        <span
+                          className="text-md font-bold px-3 py-1 border border-gray-400"
+                          style={{ borderRadius: '10px' }}
+                        >
+                          {activeSubscription?.slotTotal || 0}
+                        </span>
+                      )}
                   </div>
                   <div className="flex flex-col gap-2 mt-6 mb-2">
-                    <span className="font-bold">Update Number of user quota</span>
+                    <span className="font-bold">
+                      Update Number of user quota
+                    </span>
                     <InputNumber
                       min={0}
-                      type='number'
+                      type="number"
                       value={updatedQuota}
                       className="w-full max-w-[300px] py-2"
                       onChange={handleQuotaChange}
@@ -663,7 +746,9 @@ const PlanPage = () => {
                     )}
                     {isQuotaDisabled && (
                       <div className="text-gray-500 text-sm">
-                        You can only update the subscription period at this time. To change the user quota, please use the &quot;Update User Quota&quot; button.
+                        You can only update the subscription period at this
+                        time. To change the user quota, please use the
+                        &quot;Update User Quota&quot; button.
                       </div>
                     )}
                     {!isQuotaDisabled && !isQuotaChanged() && (
@@ -715,44 +800,62 @@ const PlanPage = () => {
                     <span className="text-2xl font-bold">
                       Current Subscription Period
                     </span>
-                    { activeSubscription && currentPlan && activeSubscription.plan.id === currentPlan.id && (
-                      <span
-                      className="text-md font-bold px-3 py-1 border border-gray-400"
-                      style={{
-                        borderRadius: '10px',
-                      }}
-                    >
-                        {updatedPeriod || currentPeriodType?.code}
-                      </span>
-                    )}
+                    {activeSubscription &&
+                      currentPlan &&
+                      activeSubscription.plan.id === currentPlan.id && (
+                        <span
+                          className="text-md font-bold px-3 py-1 border border-gray-400"
+                          style={{
+                            borderRadius: '10px',
+                          }}
+                        >
+                          {updatedPeriod || currentPeriodType?.code}
+                        </span>
+                      )}
                   </div>
                   <div className="flex flex-col gap-2 mt-6 mb-2">
-                    <span className="font-bold">Update Subscription Period</span>
-                    <span className="font-bold">{currentPeriodType?.code || 'jest'}</span>
+                    <span className="font-bold">
+                      Update Subscription Period
+                    </span>
+                    <span className="font-bold">
+                      {currentPeriodType?.code || 'jest'}
+                    </span>
                     <Select
                       value={updatedPeriod || currentPeriodType?.code}
                       className="w-full max-w-[300px] min-h-[48px]"
                       onChange={handlePeriodChange}
                       disabled={isPeriodDisabled}
                     >
-                      {availablePeriods.sort((a, b) => (a.periodInMonths || 0) - (b.periodInMonths || 0)).map((period) => (
-                        <Select.Option key={period.id} value={period.code}>
-                          {period.code} - {currentPlan?.currency?.symbol || '$'}
-                          {currentPlan?.periods?.find(pp => pp.periodTypeId === period.id)?.periodSlotPrice || 
-                          currentPlan?.slotPrice}/user
-                        </Select.Option>
-                      ))}
+                      {availablePeriods
+                        .sort(
+                          (a, b) =>
+                            (a.periodInMonths || 0) - (b.periodInMonths || 0),
+                        )
+                        .map((period) => (
+                          <Select.Option key={period.id} value={period.code}>
+                            {period.code} -{' '}
+                            {currentPlan?.currency?.symbol || '$'}
+                            {currentPlan?.periods?.find(
+                              (pp) => pp.periodTypeId === period.id,
+                            )?.periodSlotPrice || currentPlan?.slotPrice}
+                            /user
+                          </Select.Option>
+                        ))}
                     </Select>
                     {isPeriodDisabled && (
                       <div className="text-gray-500 text-sm">
-                        You can only update the user quota at this time. To change the subscription period, please use the &quot;Update Subscription Period&quot; button.
+                        You can only update the user quota at this time. To
+                        change the subscription period, please use the
+                        &quot;Update Subscription Period&quot; button.
                       </div>
                     )}
-                    {!isPeriodDisabled && !isPeriodChanged() && activeSubscription && (
-                      <div className="text-gray-500 text-sm">
-                        Please change the period value to continue
-                      </div>
-                    )}
+                    {!isPeriodDisabled &&
+                      !isPeriodChanged() &&
+                      activeSubscription && (
+                        <div className="text-gray-500 text-sm">
+                          Please change the period value to continue
+                        </div>
+                      )}
                   </div>
                 </div>
               </div>
@@ -770,7 +873,11 @@ const PlanPage = () => {
                 className="text-center flex justify-center items-center"
                 type="primary"
                 loading={isCalculating}
-                disabled={isLoading || (!isPeriodDisabled && !isPeriodChanged()) || isCalculating}
+                disabled={
+                  isLoading ||
+                  (!isPeriodDisabled && !isPeriodChanged()) ||
+                  isCalculating
+                }
               >
                 {isCalculating ? 'Calculating...' : 'Continue'}
               </Button>
@@ -794,28 +901,28 @@ const PlanPage = () => {
                   </div>
                   <div className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
                     <span>Subscription Period</span>
-                    <span>
-                      {updatedPeriod || currentPeriodType?.code}
-                    </span>
+                    <span>{updatedPeriod || currentPeriodType?.code}</span>
                   </div>
                   <div className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
                     <span>Number of User Quota</span>
-                    <span>{updatedQuota || activeSubscription?.slotTotal || 0}</span>
+                    <span>
+                      {updatedQuota || activeSubscription?.slotTotal || 0}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between gap-2 mb-4 text-lg font-bold">
                     <span>Total Amount</span>
                     <span>
-                      {calculationResult 
+                      {calculationResult
                         ? `${currentPlan?.currency?.symbol || '$'}${calculationResult.totalAmount.toFixed(2)}`
-                        : `${currentPlan?.currency?.symbol || '$'}${totalAmount.toFixed(2)}`
-                      }
+                        : `${currentPlan?.currency?.symbol || '$'}${totalAmount.toFixed(2)}`}
                     </span>
                   </div>
                   <div className="border-t border-gray-200 pt-4 mt-2">
                     <div className="text-sm text-gray-500 flex items-center gap-2">
                       <ExclamationCircleOutlined />
                       <span>
-                        Changes will take effect after payment is completed and processed.
+                        Changes will take effect after payment is completed and
+                        processed.
                       </span>
                     </div>
                   </div>
@@ -855,18 +962,24 @@ const PlanPage = () => {
                 <div className="flex flex-col rounded-lg border border-gray-200 pt-4 pb-10 max-w-[700px] min-h-[280px] mx-auto">
                   <div className="flex items-center justify-between gap-2 border-b border-gray-200 pb-4 px-8">
                     <span className="text-2xl font-bold">
-                      {activeSubscription 
-                        ? 'Invoice for Subscription Update' 
-                        : 'Invoice for New Subscription'
-                      }:{' '}
+                      {activeSubscription
+                        ? 'Invoice for Subscription Update'
+                        : 'Invoice for New Subscription'}
+                      :{' '}
                       <span className="text-primary">
-                        {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                        {new Date().toLocaleDateString('en-US', {
+                          month: 'long',
+                          year: 'numeric',
+                        })}
                       </span>
                     </span>
                     <button
                       className="text-blue-600 hover:text-blue-800"
                       onClick={handleDownloadPdf}
-                      disabled={isDownloading || !updatedSubscriptionValue?.invoices[0]?.id}
+                      disabled={
+                        isDownloading ||
+                        !updatedSubscriptionValue?.invoices[0]?.id
+                      }
                     >
                       {isDownloading ? (
                         <LoadingOutlined style={{ fontSize: 25 }} spin />
@@ -890,17 +1003,36 @@ const PlanPage = () => {
                     </div>
                     <div className="flex flex-col gap-2">
                       {[
-                        ['Invoice Number:', `#${updatedSubscriptionValue?.invoices[0]?.invoiceNumber}`],
-                        ['Issue Date:', formatDate(updatedSubscriptionValue?.invoices[0]?.createdAt)],
+                        [
+                          'Invoice Number:',
+                          `#${updatedSubscriptionValue?.invoices[0]?.invoiceNumber}`,
+                        ],
+                        [
+                          'Issue Date:',
+                          formatDate(
+                            updatedSubscriptionValue?.invoices[0]?.createdAt,
+                          ),
+                        ],
                         ['Payment Date:', ''],
                         [
                           'Billing Period:',
-                          updatedSubscriptionValue?.startAt && updatedSubscriptionValue?.endAt ?
-                          `${formatDate(updatedSubscriptionValue?.startAt)} - ${formatDate(updatedSubscriptionValue?.endAt)}` : '-'
+                          updatedSubscriptionValue?.startAt &&
+                          updatedSubscriptionValue?.endAt
+                            ? `${formatDate(updatedSubscriptionValue?.startAt)} - ${formatDate(updatedSubscriptionValue?.endAt)}`
+                            : '-',
                         ],
-                        ['Number of Users:', updatedSubscriptionValue?.slotTotal || 0],
-                        ['Amount:', `${currentPlan?.currency?.symbol || '$'}${ updatedSubscriptionValue?.invoices[0]?.totalAmount }`],
-                        ['Notes:', updatedSubscriptionValue?.invoices[0]?.notes || '-'],
+                        [
+                          'Number of Users:',
+                          updatedSubscriptionValue?.slotTotal || 0,
+                        ],
+                        [
+                          'Amount:',
+                          `${currentPlan?.currency?.symbol || '$'}${updatedSubscriptionValue?.invoices[0]?.totalAmount}`,
+                        ],
+                        [
+                          'Notes:',
+                          updatedSubscriptionValue?.invoices[0]?.notes || '-',
+                        ],
                       ].map(([label, value], index) => (
                         <div
                           key={index}
@@ -909,7 +1041,9 @@ const PlanPage = () => {
                           <span className="text-md min-w-[90px] md:min-w-[150px]">
                             {label}
                           </span>
-                          <span className={`text-md ${index === 5 ? 'font-bold text-lg' : 'font-semibold'}`}>
+                          <span
+                            className={`text-md ${index === 5 ? 'font-bold text-lg' : 'font-semibold'}`}
+                          >
                             {value}
                           </span>
                         </div>
@@ -929,7 +1063,11 @@ const PlanPage = () => {
                           className="flex items-center justify-center text-md font-bold border border-success rounded-lg px-2 gap-2"
                         >
                           <span className="flex min-w-[10px] w-[10px] h-[10px] bg-success rounded-full"></span>
-                          <span>{updatedSubscriptionValue?.plan?.name || 'N/A'}</span>
+                          <span>
+                            {updatedSubscriptionValue?.invoices[0]
+                              ?.paymentMetadata?.targetState?.plan?.name ||
+                              'N/A'}
+                          </span>
                         </span>,
                       ],
                       [
@@ -961,8 +1099,8 @@ const PlanPage = () => {
                       <div className="flex flex-col gap-2">
                         <div
                           className={`flex items-center justify-center px-3 py-2 border rounded-lg md:max-h-none max-h-[40px] cursor-pointer transition-all duration-300 ${
-                            selectedPaymentMethod === 'chapa' 
-                              ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]' 
+                            selectedPaymentMethod === 'chapa'
+                              ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]'
                               : 'border-gray-200 hover:shadow-[0_2px_4px_0_#4e4ef1]'
                           }`}
                           onClick={() => handlePaymentMethodSelect('chapa')}
@@ -978,8 +1116,8 @@ const PlanPage = () => {
                       <div className="flex flex-col gap-2">
                         <div
                           className={`flex items-center justify-center px-3 py-2 border rounded-lg md:max-h-none max-h-[40px] cursor-pointer transition-all duration-300 ${
-                            selectedPaymentMethod === 'stripe' 
-                              ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]' 
+                            selectedPaymentMethod === 'stripe'
+                              ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]'
                               : 'border-gray-200 hover:shadow-[0_2px_4px_0_#4e4ef1]'
                           }`}
                           onClick={() => handlePaymentMethodSelect('stripe')}
@@ -1014,7 +1152,9 @@ const PlanPage = () => {
                 onClick={handlePayment}
                 className="text-center flex justify-center items-center"
                 type="primary"
-                disabled={isLoading || !selectedPaymentMethod || isProcessingPayment}
+                disabled={
+                  isLoading || !selectedPaymentMethod || isProcessingPayment
+                }
                 icon={isProcessingPayment ? <LoadingOutlined /> : null}
               >
                 {isProcessingPayment ? 'Processing...' : 'Pay Now'}
