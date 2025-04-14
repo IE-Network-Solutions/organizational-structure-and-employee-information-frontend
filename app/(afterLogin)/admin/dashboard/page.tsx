@@ -309,8 +309,9 @@ const AdminDashboard = () => {
           <div className="flex items-center bg-gray-200 shadow-md rounded-lg w-36 h-12 p-1">
             {currenciesData?.items &&
               currenciesData.items.length > 0 &&
-              currenciesData.items.map((currency) => (
+              currenciesData.items.map((currency, i) => (
                 <button
+                  key={i}
                   onClick={() => setPaymentCurrency(currency?.code)}
                   className={`w-1/2 h-full ${
                     paymentCurrency === currency.code
