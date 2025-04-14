@@ -339,7 +339,7 @@ const PlanPage = () => {
     if (!updatedPeriod) return false;
 
     // Get the current period from the active subscription
-    const currentPeriodCode = currentPeriodType?.code;
+    // const currentPeriodCode = currentPeriodType?.code;
 
     // If it matches the current period, it is not considered changed. UPDATED
 
