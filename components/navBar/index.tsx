@@ -2,11 +2,7 @@
 import React, { ReactNode, useState, useEffect } from 'react';
 import '../../app/globals.css';
 import { usePathname, useRouter } from 'next/navigation';
-import {
-  AppstoreOutlined,
-  BarChartOutlined,
-  MenuOutlined,
-} from '@ant-design/icons';
+import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
   MdOutlineKeyboardDoubleArrowRight,
@@ -52,7 +48,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const pathname = usePathname(); // Add this hook
   const { userData, setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
-  const userRole = userData?.role?.slug || '';
   const isAdminPage = pathname.startsWith('/admin');
 
   // const { pathname } = router;
