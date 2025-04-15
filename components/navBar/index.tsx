@@ -37,353 +37,6 @@ interface CustomMenuItem {
   children?: CustomMenuItem[];
 }
 
-// const treeData: CustomMenuItem[] = [
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <CiSettings size={18} /> Organization
-//       </span>
-//     ),
-//     key: '/organization',
-//     className: 'font-bold',
-//     permissions: ['view_organization'],
-//     children: [
-//       {
-//         title: 'Org Structure',
-//         key: '/organization/chart',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Settings',
-//         key: '/organization/settings',
-//         className: 'font-bold h-9',
-//       },
-//     ],
-//   },
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <LuUsers2 size={18} /> Employees
-//       </span>
-//     ),
-//     key: '/employees',
-//     className: 'font-bold',
-//     permissions: ['view_employees'],
-//     children: [
-//       {
-//         title: 'Manage Employees',
-//         key: '/employees/manage-employees',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Department Request',
-//         key: '/employees/departmentRequest',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Settings',
-//         key: '/employees/settings',
-//         className: 'font-bold h-9',
-//       },
-//     ],
-//   },
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <PiSuitcaseSimpleThin size={18} /> Talent Acquisition
-//       </span>
-//     ),
-//     key: '/recruitment',
-//     className: 'font-bold',
-//     children: [
-//       { title: 'Jobs', key: '/recruitment/jobs', className: 'font-bold h-9' },
-//       {
-//         title: 'Candidates',
-//         key: '/recruitment/candidate',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Talent Pool',
-//         key: '/recruitment/talent-pool',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Settings',
-//         key: '/recruitment/settings',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'HrFlow.Ai',
-//         key: '/recruitment/hrflow.ai',
-//         className: 'font-bold h-9',
-//       },
-//     ],
-//   },
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <CiStar size={18} /> OKR
-//       </span>
-//     ),
-//     key: '/okr-planning',
-//     className: 'font-bold',
-//     permissions: ['view_okr'],
-//     children: [
-//       { title: 'Dashboard', key: '/okr/dashboard', className: 'font-bold h-9' },
-//       { title: 'OKR', key: '/okr', className: 'font-bold h-8' },
-//       {
-//         title: 'Planning and Reporting',
-//         key: '/planning-and-reporting',
-//         className: 'font-bold h-8',
-//         permissions: ['manage_planning_reporting'],
-//       },
-//       {
-//         key: '/okr/settings',
-//         title: 'Settings',
-//         className: 'font-bold h-8',
-//         permissions: ['manage_okr_settings'],
-//       },
-//     ],
-//   },
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <TbMessage2 size={18} /> CFR
-//       </span>
-//     ),
-//     key: '/feedback',
-//     className: 'font-bold',
-//     permissions: ['view_feedback'],
-//     children: [
-//       {
-//         title: 'Conversation',
-//         key: '/feedback/conversation',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Feedback',
-//         key: '/feedback/feedback',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Recognition',
-//         key: '/feedback/recognition',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Form',
-//         key: '/feedback/categories',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Settings',
-//         key: '/feedback/settings',
-//         className: 'font-bold h-9',
-//       },
-//     ],
-//   },
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <CiBookmark size={18} /> Learning & Growth
-//       </span>
-//     ),
-//     key: '/tna',
-//     className: 'font-bold',
-//     children: [
-//       { title: 'My-TNA', key: '/tna/my-training', className: 'font-bold h-9' },
-//       {
-//         title: 'Training Management',
-//         key: '/tna/management',
-//         className: 'font-bold h-9',
-//       },
-//       { title: 'TNA', key: '/tna/review', className: 'font-bold h-9' },
-//       {
-//         title: 'Settings',
-//         key: '/tna/settings/course-category',
-//         className: 'font-bold h-9',
-//       },
-//     ],
-//   },
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <AiOutlineDollarCircle size={18} /> Payroll
-//       </span>
-//     ),
-//     key: 'payroll',
-//     className: 'font-bold',
-//     children: [
-//       {
-//         title: 'Employee Information',
-//         key: '/employee-information',
-//         className: 'font-bold h-9',
-//       },
-//       { title: 'Payroll', key: '/payroll', className: 'font-bold h-9' },
-//       { title: 'My Payroll', key: '/myPayroll', className: 'font-bold h-9' },
-//       { title: 'Settings', key: '/settings', className: 'font-bold h-9' },
-//     ],
-//   },
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <CiCalendar size={18} /> Time & Attendance
-//       </span>
-//     ),
-//     key: '/timesheet',
-//     className: 'font-bold',
-//     children: [
-//       {
-//         title: 'My Timesheet',
-//         key: '/timesheet/my-timesheet',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Employee Attendance',
-//         key: '/timesheet/employee-attendance',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Leave Management',
-//         key: '/timesheet/leave-management/leaves',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Settings',
-//         key: '/timesheet/settings/closed-date',
-//         className: 'font-bold h-9',
-//       },
-//     ],
-//   },
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <PiMoneyLight size={18} /> Compensation & Benefit
-//       </span>
-//     ),
-//     key: '/compensation',
-//     className: 'font-bold',
-//     children: [
-//       { title: 'Allowance', key: '/allowance', className: 'font-bold h-9' },
-//       { title: 'Benefit', key: '/benefit', className: 'font-bold h-9' },
-//       { title: 'Deduction', key: '/deduction', className: 'font-bold h-9' },
-//       {
-//         title: 'Settings',
-//         key: '/compensationSetting',
-//         className: 'font-bold h-9',
-//       },
-//     ],
-//   },
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <LuCircleDollarSign size={18} /> Incentives
-//       </span>
-//     ),
-//     key: '/incentive',
-//     className: 'font-bold',
-//     children: [
-//       {
-//         key: '/incentives',
-//         title: 'Incentive',
-//         className: 'font-bold h-9',
-//         permissions: ['view_incentive_page'],
-//       },
-//       {
-//         title: 'Variable Pay',
-//         key: '/variable-pay',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         title: 'Settings',
-//         key: '/incentives/settings',
-//         className: 'font-bold h-9',
-//       },
-//     ],
-//   },
-//   {
-//     key: '/admin',
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <CiSettings size={18} /> Admin
-//       </span>
-//     ),
-//     className: 'font-bold',
-//     children: [
-//       {
-//         key: '/admin/dashboard',
-//         title: 'Dashboard',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         key: '/admin/billing',
-//         title: 'Billing and Invoice',
-//         className: 'font-bold h-9',
-//       },
-//       {
-//         key: '/admin/profile',
-//         title: 'Update Profile',
-//         className: 'font-bold h-9',
-//       },
-//     ],
-//   },
-// ];
-
-// const userItems: CustomMenuItem[] = [
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <CiStar size={20} /> OKR
-//       </span>
-//     ),
-//     key: '/okr-planning',
-//     className: 'font-bold',
-//     permissions: ['view_okr'],
-//     children: [
-//       { title: 'Dashboard', key: '/okr/dashboard', className: 'font-bold h-9' },
-//       { title: 'OKR', key: '/okr', className: 'font-bold h-9' },
-//       {
-//         title: 'Planning and Reporting',
-//         key: '/planning-and-reporting',
-//         className: 'font-bold h-9',
-//       },
-//     ],
-//   },
-
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <BarChartOutlined /> Learning & Growth
-//       </span>
-//     ),
-//     key: '/tna',
-//     className: 'font-bold',
-//     children: [
-//       {
-//         title: 'Training Management',
-//         key: '/tna/management',
-//         className: 'font-bold h-9',
-//       },
-//     ],
-//   },
-//   {
-//     title: (
-//       <span className="flex items-center gap-2 h-12 w-60">
-//         <CiCalendar /> Time & Attendance
-//       </span>
-//     ),
-//     key: '/timesheet',
-//     className: 'font-bold',
-//     children: [
-//       {
-//         title: 'My timesheet',
-//         key: '/timesheet/my-timesheet',
-//         className: 'font-bold h-9',
-//       },
-//     ],
-//   },
-// ];
-
 interface MyComponentProps {
   children: ReactNode;
 }
@@ -431,11 +84,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: 'Org Structure',
           key: '/organization/chart',
           className: 'font-bold h-9',
+          permissions: ['view_organization_chart'],
         },
         {
           title: 'Settings',
           key: '/organization/settings',
           className: 'font-bold h-9',
+          permissions: ['view_organization_settings'],
         },
       ],
     },
@@ -457,16 +112,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: 'Manage Employees',
           key: '/employees/manage-employees',
           className: 'font-bold h-9',
+          permissions: ['manage_employees'],
         },
         {
           title: 'Department Request',
           key: '/employees/departmentRequest',
           className: 'font-bold h-9',
+          permissions: ['manage_department_requests'],
         },
         {
           title: 'Settings',
           key: '/employees/settings',
           className: 'font-bold h-9',
+          permissions: ['manage_employee_settings'],
         },
       ],
     },
@@ -482,27 +140,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: '/recruitment',
       className: 'font-bold',
+      permissions: ['view_recruitment'],
       children: [
-        { title: 'Jobs', key: '/recruitment/jobs', className: 'font-bold h-9' },
+        {
+          title: 'Jobs',
+          key: '/recruitment/jobs',
+          className: 'font-bold h-9',
+          permissions: ['manage_recruitment_jobs'],
+        },
         {
           title: 'Candidates',
           key: '/recruitment/candidate',
           className: 'font-bold h-9',
+          permissions: ['manage_recruitment_candidates'],
         },
         {
           title: 'Talent Pool',
           key: '/recruitment/talent-pool',
           className: 'font-bold h-9',
+          permissions: ['manage_recruitment_talent_pool'],
         },
         {
           title: 'Settings',
           key: '/recruitment/settings',
           className: 'font-bold h-9',
-        },
-        {
-          title: 'HrFlow.Ai',
-          key: '/recruitment/hrflow.ai',
-          className: 'font-bold h-9',
+          permissions: ['manage_recruitment_settings'],
         },
       ],
     },
@@ -526,8 +188,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: 'Dashboard',
           key: '/okr/dashboard',
           className: 'font-bold h-9',
+          permissions: ['view_okr_dashboard'],
         },
-        { title: 'OKR', key: '/okr', className: 'font-bold h-8' },
+        {
+          title: 'OKR',
+          key: '/okr',
+          className: 'font-bold h-8',
+          permissions: ['view_okr_overview'],
+        },
         {
           title: 'Planning and Reporting',
           key: '/planning-and-reporting',
@@ -560,26 +228,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: 'Conversation',
           key: '/feedback/conversation',
           className: 'font-bold h-9',
+          permissions: ['view_feedback_conversation'],
         },
         {
           title: 'Feedback',
           key: '/feedback/feedback',
           className: 'font-bold h-9',
+          permissions: ['view_feedback_list'],
         },
         {
           title: 'Recognition',
           key: '/feedback/recognition',
           className: 'font-bold h-9',
+          permissions: ['view_feedback_recognition'],
         },
         {
           title: 'Form',
           key: '/feedback/categories',
           className: 'font-bold h-9',
+          permissions: ['manage_feedback_forms'],
         },
         {
           title: 'Settings',
           key: '/feedback/settings',
           className: 'font-bold h-9',
+          permissions: ['manage_feedback_settings'],
         },
       ],
     },
@@ -595,22 +268,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: '/tna',
       className: 'font-bold',
+      permissions: ['view_learning_growth'],
       children: [
         {
           title: 'My-TNA',
           key: '/tna/my-training',
           className: 'font-bold h-9',
+          permissions: ['view_my_training'],
         },
         {
           title: 'Training Management',
           key: '/tna/management',
           className: 'font-bold h-9',
+          permissions: ['manage_training'],
         },
-        { title: 'TNA', key: '/tna/review', className: 'font-bold h-9' },
+        {
+          title: 'TNA',
+          key: '/tna/review',
+          className: 'font-bold h-9',
+          permissions: ['view_tna_review'],
+        },
         {
           title: 'Settings',
           key: '/tna/settings/course-category',
           className: 'font-bold h-9',
+          permissions: ['manage_tna_settings'],
         },
       ],
     },
@@ -631,10 +313,26 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: 'Employee Information',
           key: '/employee-information',
           className: 'font-bold h-9',
+          permissions: ['view_employee_information'],
         },
-        { title: 'Payroll', key: '/payroll', className: 'font-bold h-9' },
-        { title: 'My Payroll', key: '/myPayroll', className: 'font-bold h-9' },
-        { title: 'Settings', key: '/settings', className: 'font-bold h-9' },
+        {
+          title: 'Payroll',
+          key: '/payroll',
+          className: 'font-bold h-9',
+          permissions: ['view_payroll_overview'],
+        },
+        {
+          title: 'My Payroll',
+          key: '/myPayroll',
+          className: 'font-bold h-9',
+          permissions: ['view_my_payroll'],
+        },
+        {
+          title: 'Settings',
+          key: '/settings',
+          className: 'font-bold h-9',
+          permissions: ['manage_payroll_settings'],
+        },
       ],
     },
     {
@@ -649,26 +347,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: '/timesheet',
       className: 'font-bold',
+      permissions: ['view_timesheet'],
       children: [
         {
           title: 'My Timesheet',
           key: '/timesheet/my-timesheet',
           className: 'font-bold h-9',
+          permissions: ['view_my_timesheet'],
         },
         {
           title: 'Employee Attendance',
           key: '/timesheet/employee-attendance',
           className: 'font-bold h-9',
+          permissions: ['view_employee_attendance'],
         },
         {
           title: 'Leave Management',
           key: '/timesheet/leave-management/leaves',
           className: 'font-bold h-9',
+          permissions: ['manage_leave_management'],
         },
         {
           title: 'Settings',
           key: '/timesheet/settings/closed-date',
           className: 'font-bold h-9',
+          permissions: ['manage_timesheet_settings'],
         },
       ],
     },
@@ -686,14 +389,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: '/compensation',
       className: 'font-bold',
+      permissions: ['view_compensation'],
       children: [
-        { title: 'Allowance', key: '/allowance', className: 'font-bold h-9' },
-        { title: 'Benefit', key: '/benefit', className: 'font-bold h-9' },
-        { title: 'Deduction', key: '/deduction', className: 'font-bold h-9' },
+        {
+          title: 'Allowance',
+          key: '/allowance',
+          className: 'font-bold h-9',
+          permissions: ['view_allowance'],
+        },
+        {
+          title: 'Benefit',
+          key: '/benefit',
+          className: 'font-bold h-9',
+          permissions: ['view_benefit'],
+        },
+        {
+          title: 'Deduction',
+          key: '/deduction',
+          className: 'font-bold h-9',
+          permissions: ['view_deduction'],
+        },
         {
           title: 'Settings',
           key: '/compensationSetting',
           className: 'font-bold h-9',
+          permissions: ['manage_compensation_settings'],
         },
       ],
     },
@@ -709,6 +429,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: '/incentive',
       className: 'font-bold',
+      permissions: ['view_incentive'],
       children: [
         {
           key: '/incentives',
@@ -720,70 +441,43 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: 'Variable Pay',
           key: '/variable-pay',
           className: 'font-bold h-9',
+          permissions: ['view_variable_pay'],
         },
         {
           title: 'Settings',
           key: '/incentives/settings',
           className: 'font-bold h-9',
+          permissions: ['manage_incentive_settings'],
         },
       ],
     },
-  ];
-
-  const userItems: CustomMenuItem[] = [
     {
+      key: '/admin',
       title: (
         <span className="flex items-center gap-2 h-12 w-60">
-          <CiStar size={20} /> OKR
+          <CiSettings size={18} /> Admin
         </span>
       ),
-      key: '/okr-planning',
       className: 'font-bold',
-      permissions: ['view_okr'],
+      permissions: ['view_admin_configuration'],
       children: [
         {
+          key: '/admin/dashboard',
           title: 'Dashboard',
-          key: '/okr/dashboard',
           className: 'font-bold h-9',
+          permissions: ['view_admin_dashboard'],
         },
-        { title: 'OKR', key: '/okr', className: 'font-bold h-9' },
         {
-          title: 'Planning and Reporting',
-          key: '/planning-and-reporting',
+          key: '/admin/billing',
+          title: 'Billing and Invoice',
           className: 'font-bold h-9',
+          permissions: ['view_admin_billing'],
         },
-      ],
-    },
-
-    {
-      title: (
-        <span className="flex items-center gap-2 h-12 w-60">
-          <BarChartOutlined /> Learning & Growth
-        </span>
-      ),
-      key: '/tna',
-      className: 'font-bold',
-      children: [
         {
-          title: 'Training Management',
-          key: '/tna/management',
+          key: '/admin/profile',
+          title: 'Update Profile',
           className: 'font-bold h-9',
-        },
-      ],
-    },
-    {
-      title: (
-        <span className="flex items-center gap-2 h-12 w-60">
-          <CiCalendar /> Time & Attendance
-        </span>
-      ),
-      key: '/timesheet',
-      className: 'font-bold',
-      children: [
-        {
-          title: 'My timesheet',
-          key: '/timesheet/my-timesheet',
-          className: 'font-bold h-9',
+          permissions: ['view_admin_profile'],
         },
       ],
     },
@@ -896,7 +590,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <div className="relative">
           <div className="absolute left-2 top-0 w-[10px] h-full bg-white z-10"></div>
           <Tree
-            treeData={userRole === 'user' ? userItems : treeData}
+            treeData={treeData}
             showLine={{ showLeafIcon: false }} // Only show lines for child nodes
             defaultExpandAll={false}
             expandedKeys={expandedKeys}
