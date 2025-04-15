@@ -1,4 +1,5 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
@@ -132,6 +133,58 @@ const deleteMilestone = async (deletedId: string) => {
   }
 };
 
+// Function to update the remaining key results
+const updateKeyResults = async (data: any) => {
+  return await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/key-results/bulk-update/objectives/${data?.objectiveId}`,
+    method: 'PUT',
+    data,
+    headers: requestHeader(),
+  });
+};
+const downloadEmployeeOkrScore = async (data: any) => {
+  try {
+    const response = await axios.post(
+      `${OKR_AND_PLANNING_URL}/objective/export-okr-progress/all-employees/export`,
+      data,
+      {
+        headers: {
+          ...requestHeader(),
+        },
+        responseType: 'blob', // Important for file download!
+      },
+    );
+    const blob = new Blob([response.data], {
+      type: response.headers['content-type'],
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const disposition = response.headers['content-disposition'];
+    let fileName = 'Employee okr score export.xlsx';
+    if (disposition && disposition.includes('filename=')) {
+      fileName = disposition.split('filename=')[1].replace(/"/g, '');
+    }
+
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const useUpdateObjectiveNestedDelete = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateKeyResults, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('ObjectiveInformation');
+    },
+  });
+};
+
 export const useDeleteObjective = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteObjective, {
@@ -156,6 +209,7 @@ export const useUpdateObjective = () => {
     },
   });
 };
+
 export const useUpdateKeyResult = () => {
   const queryClient = useQueryClient();
   return useMutation(updateKeyResult, {
@@ -175,6 +229,14 @@ export const useDeleteKeyResult = () => {
 export const useDeleteMilestone = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteMilestone, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('ObjectiveInformation');
+    },
+  });
+};
+export const useDownloadEmployeeOkrScore = () => {
+  const queryClient = useQueryClient();
+  return useMutation(downloadEmployeeOkrScore, {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
     },

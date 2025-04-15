@@ -1,52 +1,58 @@
 'use client';
 import { FC, ReactNode, useEffect, useState } from 'react';
-import { Card, ConfigProvider, Menu, MenuProps } from 'antd';
-import { TbLayoutList } from 'react-icons/tb';
-import { usePathname, useRouter } from 'next/navigation';
-import { FaBomb } from 'react-icons/fa';
+import { usePathname } from 'next/navigation';
+import PageHeader from '@/components/common/pageHeader/pageHeader';
+import { MdOutlinePayments } from 'react-icons/md';
+import { HiOutlineReceiptTax } from 'react-icons/hi';
+import { GiSuspensionBridge } from 'react-icons/gi';
+import SidebarMenu from '@/components/sidebarMenu';
+import { SidebarMenuItem } from '@/types/sidebarMenu';
+import { useMediaQuery } from 'react-responsive';
 
 interface OkrSettingsLayoutProps {
   children: ReactNode;
 }
 
-type MenuItem = Required<MenuProps>['items'][number];
+// type MenuItem = Required<MenuProps>['items'][number];
 
-type MenuItemType = {
-  item: MenuItem;
-  link: string;
-};
+// type MenuItemType = {
+//   item: MenuItem;
+//   link: string;
 
-class NMenuItem {
-  items: MenuItemType[];
-  constructor(items: MenuItemType[]) {
-    this.items = items;
-  }
+// };
 
-  get onlyItems(): MenuItem[] {
-    return this.items.map((item) => item.item);
-  }
+// class NMenuItem {
+//   items: MenuItemType[];
+//   constructor(items: MenuItemType[]) {
+//     this.items = items;
+//   }
 
-  findItem(itemKey: string): MenuItemType {
-    const iComponent = this.items.find((item) => item.item!.key === itemKey);
-    return iComponent ? iComponent : this.items[0];
-  }
-}
+//   get onlyItems(): MenuItem[] {
+//     return this.items.map((item) => item.item);
+//   }
+
+//   findItem(itemKey: string): MenuItemType {
+//     const iComponent = this.items.find((item) => item.item!.key === itemKey);
+//     return iComponent ? iComponent : this.items[0];
+//   }
+// }
 
 const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
-  const router = useRouter();
   const pathname = usePathname();
   const [currentItem, setCurrentItem] = useState<string>('');
-  const menuItems = new NMenuItem([
+  const isMobile = useMediaQuery({ maxWidth: 1024 });
+
+  const menuItems = new SidebarMenuItem([
     {
       item: {
         key: 'tax-rule',
-        icon: (
-          <TbLayoutList
+        icon: !isMobile ? (
+          <HiOutlineReceiptTax
             className={
               currentItem === 'tax-rule' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
           />
-        ),
+        ) : null,
         label: <p className="font-bold text-sm text-gray-900">Tax Rule</p>,
         className: currentItem === 'tax-rule' ? 'px-4' : 'px-1',
       },
@@ -55,13 +61,13 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'pension',
-        icon: (
-          <TbLayoutList
+        icon: !isMobile ? (
+          <GiSuspensionBridge
             className={
               currentItem === 'pension' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
           />
-        ),
+        ) : null,
         label: <p className="font-bold text-sm text-gray-900">Pension</p>,
         className: currentItem === 'planning-assignation' ? 'px-4' : 'px-1',
       },
@@ -71,13 +77,13 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'pay-period',
-        icon: (
-          <FaBomb
+        icon: !isMobile ? (
+          <MdOutlinePayments
             className={
               currentItem === 'pey-period' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
           />
-        ),
+        ) : null,
         label: <p className="font-bold text-sm text-gray-900">Pay Period</p>,
         className: currentItem === 'pay-period' ? 'px-4' : 'px-1',
       },
@@ -107,45 +113,46 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
     setCurrentItem(lastKey);
   }, [pathname]);
 
-  const onMenuClick = (e: any) => {
-    const key = e['key'] as string;
-    router.push(menuItems.findItem(key).link);
-  };
+  // const onMenuClick = (e: any) => {
+  //   const key = e['key'] as string;
+  //   router.push(menuItems.findItem(key).link);
+  // };
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 w-full h-auto">
-      <div className="flex justify-start">
-        <Card className="shadow-none" bordered={false}>
-          <p className="font-bold text-lg md:text-xl lg:text-3xl">Setting</p>
-          <p className="text-gray-400 text-sm md:text-base">Payroll Settings</p>
-        </Card>
-      </div>
-      <div className="flex flex-col md:flex-row gap-4 md:gap-6 mt-6 md:mt-8">
-        <ConfigProvider
-          theme={{
-            components: {
-              Menu: {
-                itemHeight: 56,
-                itemPaddingInline: 0,
-                itemMarginInline: 0,
-                itemMarginBlock: 16,
-                itemActiveBg: '#F8F8F8',
-                itemHoverBg: 'rgba(248,248,248,0.92)',
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="p-4 md:p-6 lg:p-8 w-full h-auto">
+        <PageHeader
+          title="Settings"
+          description="Payroll Settings"
+        ></PageHeader>
+        <div className="flex flex-col lg:flex-row gap-4 md:gap-6 mt-6 md:mt-8">
+          {/* <ConfigProvider
+            theme={{
+              components: {
+                Menu: {
+                  itemHeight: 56,
+                  itemPaddingInline: 0,
+                  itemMarginInline: 0,
+                  itemMarginBlock: 16,
+                  itemActiveBg: '#F8F8F8',
+                  itemHoverBg: 'rgba(248,248,248,0.92)',
+                },
               },
-            },
-          }}
-        >
-          <Menu
-            className="w-full md:w-[250px] lg:w-[300px] rounded-2xl py-2 px-6 h-max border border-gray-300"
-            items={menuItems.onlyItems}
-            mode="inline"
-            selectedKeys={[currentItem]}
-            onClick={onMenuClick}
-          />
-        </ConfigProvider>
+            }}
+          >
+            <Menu
+              className="w-full md:w-[250px] lg:w-[300px] rounded-2xl py-2 px-6 h-max border border-gray-300"
+              items={menuItems.onlyItems}
+              mode="inline"
+              selectedKeys={[currentItem]}
+              onClick={onMenuClick}
+            />
+          </ConfigProvider> */}
+          <SidebarMenu menuItems={menuItems} />
 
-        <div className="w-full border border-gray-300 rounded-2xl">
-          {children}
+          <div className="w-full border border-gray-300 rounded-2xl">
+            {children}
+          </div>
         </div>
       </div>
     </div>

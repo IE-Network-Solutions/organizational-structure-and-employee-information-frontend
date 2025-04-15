@@ -23,13 +23,27 @@ import { useAllApproval } from '@/store/server/features/approver/queries';
 import { APPROVALTYPES } from '@/types/enumTypes';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
+import Filters from '@/app/(afterLogin)/(payroll)/payroll/_components/filters';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+const { Option } = Select;
 
 const TnaRequestSidebar = () => {
-  const { isShowTnaReviewSidebar, setIsShowTnaReviewSidebar, tnaId, setTnaId } =
-    useTnaReviewStore();
+  const {
+    isShowTnaReviewSidebar,
+    setIsShowTnaReviewSidebar,
+    monthId,
+    sessionId,
+    yearId,
+    searchQuery,
+    setSearchQuery,
+    tnaId,
+    setTnaId,
+  } = useTnaReviewStore();
   const { userId } = useAuthenticationStore();
 
   const { data: employeeData } = useGetEmployee(userId);
+  const { data: departmentData } = useGetDepartments();
+
   const { data: tnaCurrency } = useCurrency();
   const { data: tnaCategoryData } = useGetTnaCategory({});
 
@@ -51,7 +65,7 @@ const TnaRequestSidebar = () => {
     if (userId) getUserApproval();
   }, [userId]);
 
-  const { mutate: setTna, isLoading, isSuccess } = useSetTna();
+  const { mutate: setTna, isLoading } = useSetTna();
   const { data, isFetching, refetch } = useGetTna(
     {
       page: 1,
@@ -62,8 +76,9 @@ const TnaRequestSidebar = () => {
         id: tnaId ? [tnaId] : [],
       },
     },
-    false,
-    false,
+    searchQuery,
+    true,
+    true,
   );
 
   const [form] = Form.useForm();
@@ -80,11 +95,6 @@ const TnaRequestSidebar = () => {
     }
   }, [data]);
 
-  useEffect(() => {
-    if (isSuccess) {
-      onClose();
-    }
-  }, [isSuccess]);
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -111,28 +121,67 @@ const TnaRequestSidebar = () => {
   ];
 
   const onFinish = () => {
-    const value = form.getFieldsValue();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { trainingNeedCategory, ...otherData } = data?.items[0] || {};
-    setTna([
+    const value = form.getFieldsValue(); // Get form values
+
+    // Merge values with monthId, yearId, and sessionId
+    const finalValues = { ...value, monthId, yearId, sessionId };
+
+    // Extract `trainingNeedCategory`, keep `otherData`
+    const { ...otherData } = data?.items?.[0] || {};
+
+    const dataValue: any = [
       {
-        ...otherData,
-        ...value,
+        ...otherData, // Retain existing data from items[0]
+        ...finalValues, // Include monthId, yearId, sessionId
         certStatus: TrainingNeedAssessmentCertStatus.IN_PROGRESS,
         status: TrainingNeedAssessmentStatus.PENDING,
         assignedUserId: userId,
         approvalWorkflowId:
           approvalUserData?.length > 0
             ? approvalUserData[0]?.id
-            : approvalDepartmentData[0]?.id,
+            : approvalDepartmentData?.[0]?.id,
       },
-    ]);
+    ];
+
+    const filteredData = dataValue?.map((originalData: any) => ({
+      title: originalData.title,
+      trainingPrice: originalData?.trainingPrice, // Modify the training price as requested
+      assignedUserId: originalData.assignedUserId,
+      trainingNeedCategoryId: originalData.trainingNeedCategoryId,
+      approvalWorkflowId: originalData.approvalWorkflowId,
+      currencyId: originalData.currencyId,
+      sessionId: originalData.sessionId,
+      yearId: originalData.yearId,
+      monthId: originalData.monthId,
+      departmentId: originalData?.departmentId, // Modified departmentId
+      status: originalData.status,
+      certStatus: originalData.certStatus,
+      trainingProofs: [],
+    }));
+
+    setTna(filteredData, { onSuccess: () => onClose() });
   };
 
   const onClose = () => {
     setTnaId(null);
     form.resetFields();
     setIsShowTnaReviewSidebar(false);
+  };
+  const handleSearch = (searchValues: any) => {
+    const queryParams = new URLSearchParams();
+
+    if (searchValues?.employeeId) {
+      queryParams.append('employeeId', searchValues.employeeId);
+    }
+    if (searchValues?.monthId) {
+      queryParams.append('monthId', searchValues.monthId);
+    }
+
+    const searchParams = queryParams.toString()
+      ? `?${queryParams.toString()}`
+      : '';
+    setSearchQuery(searchParams);
+    refetch();
   };
 
   return (
@@ -151,7 +200,7 @@ const TnaRequestSidebar = () => {
             buttons={footerModalItems}
           />
         }
-        width="50%"
+        width="30%"
       >
         <Form
           layout="vertical"
@@ -168,6 +217,26 @@ const TnaRequestSidebar = () => {
           >
             <Input id="tnaRequestTitleFieldId" className="control" />
           </Form.Item>
+
+          <Filters onSearch={handleSearch} disable={['name', 'payPeriod']} />
+          <Form.Item
+            name="departmentId"
+            label="Department"
+            className="form-item"
+          >
+            <Select
+              placeholder="department data"
+              allowClear
+              style={{ width: '100%', height: '48px' }}
+            >
+              {departmentData?.map((department: any) => (
+                <Option key={department.id} value={department.id}>
+                  {department?.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
           <Form.Item name="reason" label="Reason" className="form-item">
             <Input className="control" />
           </Form.Item>

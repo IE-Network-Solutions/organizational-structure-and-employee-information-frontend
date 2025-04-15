@@ -10,7 +10,7 @@ import { Button, Table } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import NewAccrualRuleSidebar from './_components/newAccrualRuleSidebar';
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
@@ -74,33 +74,42 @@ const Page = () => {
 
   return (
     <>
-      <PageHeader title="Accrual Rule" size="small">
-        <AccessGuard permissions={[Permissions.CreateLeaveAccrual]}>
-          <Button
-            size="large"
-            type="primary"
-            id="accrutualRuleId"
-            icon={<LuPlus size={18} />}
-            onClick={() => setIsShowNewAccrualRuleSidebar(true)}
-          >
-            New Rule
-          </Button>
-        </AccessGuard>
-      </PageHeader>
+      <div className="relative">
+        <div className="absolute top-0 left-0 w-full h-1/2 mb-4 ">
+          <PageHeader title="Accrual Rule" size="small">
+            <AccessGuard permissions={[Permissions.CreateLeaveAccrual]}>
+              <Button
+                size="large"
+                type="primary"
+                id="accrutualRuleId"
+                icon={<LuPlus size={18} />}
+                onClick={() => setIsShowNewAccrualRuleSidebar(true)}
+              >
+                <span className="hidden md:inline"> New Accrual Rule</span>
+              </Button>
+            </AccessGuard>
+          </PageHeader>
+        </div>
+      </div>
+      <div className="overflow-x-auto scrollbar-none w-full">
+        <Table
+          columns={columns}
+          className="mt-12"
+          loading={isFetching}
+          dataSource={tableData()}
+          pagination={DefaultTablePagination(data?.meta?.totalItems)}
+          onChange={(pagination, filters, sorter: any) => {
+            setPage(pagination.current ?? 1);
+            setLimit(pagination.pageSize ?? 10);
+            setOrderDirection(sorter['order']);
+            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+          }}
+        />
+      </div>
 
-      <Table
-        columns={columns}
-        className="mt-6"
-        loading={isFetching}
-        dataSource={tableData()}
-        pagination={defaultTablePagination(data?.meta?.totalItems)}
-        onChange={(pagination, filters, sorter: any) => {
-          setPage(pagination.current ?? 1);
-          setLimit(pagination.pageSize ?? 10);
-          setOrderDirection(sorter['order']);
-          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-        }}
-      />
+      {/* Scrollable Container for Horizontal Scroll */}
+
+      {/* Sidebar for creating new accrual rule */}
 
       <NewAccrualRuleSidebar />
     </>

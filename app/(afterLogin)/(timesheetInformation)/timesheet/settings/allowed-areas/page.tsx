@@ -15,20 +15,24 @@ const Page = () => {
   const { data } = useGetAllowedAreas();
   return (
     <>
-      <PageHeader title="Allowed Areas" size="small">
-        <AccessGuard permissions={[Permissions.CreateAllowedArea]}>
-          <Button
-            icon={<LuPlus size={18} />}
-            type="primary"
-            size="large"
-            id="newLocationCreateButtonId"
-            onClick={() => setIsShowLocationSidebar(true)}
-          >
-            New Location
-          </Button>
-        </AccessGuard>
-      </PageHeader>
-      <div className="mt-6">
+      <div className="relative">
+        <div className="absolute top-0 left-0 w-full h-1/2 mb-4 ">
+          <PageHeader title="Allowed Areas" size="small">
+            <AccessGuard permissions={[Permissions.CreateAllowedArea]}>
+              <Button
+                icon={<LuPlus size={18} />}
+                type="primary"
+                size="large"
+                id="newLocationCreateButtonId"
+                onClick={() => setIsShowLocationSidebar(true)}
+              >
+                <span className="hidden md:inline"> New Location</span>
+              </Button>
+            </AccessGuard>
+          </PageHeader>
+        </div>
+      </div>
+      <div className="w-full overflow-x-auto p-2 mt-12">
         {data &&
           data.items.map((item) => <AreaCard key={item.id} item={item} />)}
       </div>

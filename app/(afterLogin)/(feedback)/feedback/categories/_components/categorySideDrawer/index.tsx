@@ -214,16 +214,16 @@ const CategorySideDrawer: React.FC<any> = (props) => {
                 </Collapse>
               </Form.Item>
               <Form.Item>
-                <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
+                <div className="flex justify-center absolute w-full bg-[#fff] space-x-5 mt-24">
                   <Button
                     onClick={handleCloseDrawer}
-                    className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+                    className=" text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleSubmit}
-                    className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+                    className="flex justify-center text-sm font-medium text-white bg-primary  hover:border-gray-500 p-4 px-10 h-12 border-none"
                   >
                     Submit
                   </Button>

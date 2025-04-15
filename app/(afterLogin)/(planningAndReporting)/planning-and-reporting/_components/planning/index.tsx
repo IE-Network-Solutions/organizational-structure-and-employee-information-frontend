@@ -17,9 +17,9 @@ import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { IoIosOpen, IoMdMore } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
-import KeyResultMetrics from '../keyResult';
 import {
   AllPlanningPeriods,
+  useDefaultPlanningPeriods,
   useGetPlanning,
   useGetPlanningPeriodsHierarchy,
   useGetUserPlanning,
@@ -41,7 +41,11 @@ import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
-import MilestoneTasks from './milestoneTasks';
+import { FiCheckCircle } from 'react-icons/fi';
+import KeyResultTasks from './KeyResultTasks';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+
 const { Title } = Typography;
 
 function Planning() {
@@ -58,20 +62,34 @@ function Planning() {
     activeTab,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
+
   const { userId } = useAuthenticationStore();
   const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
     useApprovalPlanningPeriods();
   const { data: departmentData } = useGetDepartmentsWithUsers();
-  const { data: planningPeriods } = AllPlanningPeriods();
+  const { data: planningPeriods } = useDefaultPlanningPeriods();
+  const { data: userPlanningPeriods } = AllPlanningPeriods();
+
+  const hasPermission = AccessGuard.checkAccess({
+    permissions: [
+      Permissions.ViewDailyPlan,
+      Permissions.ViewWeeklyPlan,
+      Permissions.ViewMonthlyPlan,
+    ],
+  });
+
+  const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
+
   // const { mutate: handleDeletePlan, isLoading: loadingDeletePlan } =
   //   useDeletePlanById();
   const { data: objective } = useFetchObjectives(userId);
-  const planningPeriodId =
-    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
+  const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
+  const userPlanningPeriodId =
+    userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
 
   const { data: allPlanning, isLoading: getPlanningLoading } = useGetPlanning({
     userId: selectedUser,
-    planPeriodId: planningPeriodId ?? '', // Provide a default string value
+    planPeriodId: planningPeriodId ?? '',
     page,
     pageSize,
   });
@@ -91,8 +109,7 @@ function Planning() {
     };
     approvalPlanningPeriod(data);
   };
-  const activeTabName =
-    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
+  const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
   const getEmployeeData = (id: string) => {
     const employeeDataDetail = employeeData?.items?.find(
       (emp: any) => emp?.id === id,
@@ -181,6 +198,14 @@ function Planning() {
       userId,
       planningPeriodId || '', // Provide a default string value if undefined
     );
+
+  const isActive = planningPeriodHierarchy?.parentPlan
+    ? (planningPeriodHierarchy?.parentPlan?.plans?.length ?? 0) === 0 ||
+      (planningPeriodHierarchy?.parentPlan?.plans?.filter(
+        (i: any) => !i.isReported,
+      ).length ?? 0) === 0
+    : false;
+
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -201,60 +226,56 @@ function Planning() {
             }
           >
             <div style={{ display: 'inline-block' }}>
-              <CustomButton
-                disabled={
-                  // selectedUser.includes(userId) &&
-                  allUserPlanning?.length > 0 ||
-                  planningPeriodHierarchy?.parentPlan?.plans?.length == 0 ||
-                  planningPeriodHierarchy?.parentPlan?.plans?.filter(
-                    (i: any) => i.isReported === false,
-                  )?.length == 0 ||
-                  objective?.items?.length == 0
-                }
-                loading={isLoading}
-                title={`Create ${activeTabName} Plan`}
-                id="createActiveTabName"
-                icon={<FaPlus className="mr-2" />}
-                onClick={() => setOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700"
-              />
+              {userPlanningPeriodId && (
+                <CustomButton
+                  disabled={
+                    allUserPlanning?.length > 0 ||
+                    isActive ||
+                    (objective?.items?.length ?? 0) === 0
+                  }
+                  loading={isLoading}
+                  title={`Create ${activeTabName} Plan`}
+                  id="createActiveTabName"
+                  icon={<FaPlus className="mr-2" />}
+                  onClick={() => setOpen(true)}
+                  className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
+                />
+              )}
             </div>
           </Tooltip>
         </div>
-        <EmployeeSearch
-          optionArray1={employeeData?.items}
-          optionArray2={PlanningType}
-          optionArray3={departmentData}
-        />
+        {hasPermission && (
+          <EmployeeSearch
+            optionArray1={employeeData?.items}
+            optionArray2={PlanningType}
+            optionArray3={departmentData}
+          />
+        )}
+
         {transformedData?.map((dataItem: any, index: number) => (
           <>
-            <Card
-              key={index}
-              className="mb-2"
-              loading={getPlanningLoading}
-              title={
-                <div>
-                  <Row gutter={16} className="items-center">
-                    <Col xs={4} sm={2} md={1}>
-                      {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
-                        <Avatar
-                          src={
-                            getEmployeeData(dataItem?.createdBy)?.profileImage
-                          }
-                          style={{ verticalAlign: 'middle' }}
-                          size="default"
-                        />
-                      ) : (
-                        <Avatar
-                          icon={<UserOutlined />}
-                          style={{ verticalAlign: 'middle' }}
-                          size="default"
-                        />
-                      )}
-                    </Col>
-                    <Col xs={20} sm={22} md={23}>
-                      <Row className="font-bold text-lg">
-                        <Row className="font-bold text-xs">
+            <Card key={index} className="mb-2" loading={getPlanningLoading}>
+              <div>
+                <Row gutter={16} className="items-center">
+                  <Col xs={4} sm={2} md={1}>
+                    {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
+                      <Avatar
+                        src={getEmployeeData(dataItem?.createdBy)?.profileImage}
+                        style={{ verticalAlign: 'middle' }}
+                        size="default"
+                      />
+                    ) : (
+                      <Avatar
+                        icon={<UserOutlined />}
+                        style={{ verticalAlign: 'middle' }}
+                        size="default"
+                      />
+                    )}
+                  </Col>
+                  <Col xs={20} sm={22} md={23}>
+                    <Row className="flex justify-between items-center">
+                      <Row gutter={16} justify={'start'} align={'middle'}>
+                        <div className="flex flex-col text-xs ml-2">
                           {getEmployeeData(dataItem?.createdBy)?.firstName +
                             ' ' +
                             (getEmployeeData(dataItem?.createdBy)?.middleName
@@ -262,84 +283,91 @@ function Planning() {
                                   .middleName.charAt(0)
                                   .toUpperCase()
                               : '')}
-                        </Row>
+                          .
+                          <span className="text-gray-500 text-xs">
+                            {dataItem?.createdBy
+                              ? getEmployeeData(dataItem?.createdBy)
+                                  ?.employeeJobInformation?.[0]?.department
+                                  ?.name || ''
+                              : ''}
+                          </span>
+                        </div>
                       </Row>
-                      <Row className="flex justify-between items-center">
-                        <Row gutter={16} justify={'start'} align={'middle'}>
-                          <Col className="text-gray-500 text-xs">Status</Col>
-                          <Col>
-                            <div
-                              className={` py-1 px-1 text-white rounded-md ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
-                            >
-                              <MdOutlinePending size={14} />
-                            </div>
-                          </Col>
-                          <Col className="text-xs -ml-3">
+                      <Col span={10} className="flex justify-end items-center">
+                        <Col>
+                          <div
+                            className={` py-1 px-1 text-white rounded-full ${dataItem?.isValidated ? 'bg-green-600' : 'bg-yellow-300'}`}
+                          >
+                            {dataItem?.isValidated ? (
+                              <FiCheckCircle />
+                            ) : (
+                              <MdOutlinePending size={16} />
+                            )}
+                          </div>
+                        </Col>
+                        <div className="flex flex-col text-xs ml-2">
+                          <span className="mr-4">
                             {dataItem?.isValidated ? 'Closed' : 'Open'}
-                          </Col>
-                        </Row>
-                        <Col
-                          span={10}
-                          className="flex justify-end items-center"
-                        >
+                          </span>
                           <span className="mr-4 text-gray-500">
                             {dayjs(dataItem?.createdAt).format(
                               'MMMM DD YYYY, h:mm:ss A',
                             )}
                           </span>
-                          {/* {!dataItem?.isValidated && ( */}
-                          <>
-                            {userId ===
-                              getEmployeeData(dataItem?.createdBy)?.reportingTo
-                                ?.id && (
+                        </div>
+
+                        {/* {!dataItem?.isValidated && ( */}
+                        <>
+                          {userId ===
+                            getEmployeeData(dataItem?.createdBy)?.reportingTo
+                              ?.id && (
+                            <Dropdown
+                              overlay={actionsMenu(
+                                dataItem,
+                                handleApproveHandler,
+                                isApprovalLoading,
+                              )}
+                              trigger={['click']}
+                            >
+                              <Button
+                                loading={isApprovalLoading}
+                                type="text"
+                                icon={<IoMdMore className="text-2xl" />}
+                                className="cursor-pointer text-green border-none  hover:text-success"
+                              />
+                            </Dropdown>
+                          )}
+                          {userId === dataItem?.createdBy &&
+                            dataItem?.isValidated == false &&
+                            dataItem?.isReported == false && (
                               <Dropdown
-                                overlay={actionsMenu(
+                                overlay={actionsMenuEditandDelte(
                                   dataItem,
-                                  handleApproveHandler,
-                                  isApprovalLoading,
+                                  setEditing,
+                                  setSelectedPlanId,
+                                  setOpen,
                                 )}
                                 trigger={['click']}
                               >
                                 <Button
-                                  loading={isApprovalLoading}
+                                  // loading={loadingDeletePlan}
                                   type="text"
                                   icon={<IoMdMore className="text-2xl" />}
-                                  className="cursor-pointer text-green border-none  hover:text-success"
+                                  className="cursor-pointer  text-black border-none  hover:text-primary"
                                 />
                               </Dropdown>
                             )}
-                            {userId === dataItem?.createdBy &&
-                              dataItem?.isValidated == false &&
-                              dataItem?.isReported == false && (
-                                <Dropdown
-                                  overlay={actionsMenuEditandDelte(
-                                    dataItem,
-                                    setEditing,
-                                    setSelectedPlanId,
-                                    setOpen,
-                                  )}
-                                  trigger={['click']}
-                                >
-                                  <Button
-                                    // loading={loadingDeletePlan}
-                                    type="text"
-                                    icon={<IoMdMore className="text-2xl" />}
-                                    className="cursor-pointer  text-black border-none  hover:text-primary"
-                                  />
-                                </Dropdown>
-                              )}
-                          </>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                </div>
-              }
-            >
+                        </>
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
+              </div>
               {dataItem?.keyResults?.map(
                 (keyResult: any, keyResultIndex: number) => (
                   <div key={keyResult?.id} className="">
-                    <KeyResultMetrics
+                    <KeyResultTasks
+                      keyResultIndex={keyResultIndex}
                       keyResult={
                         keyResult ?? {
                           id: 'defaultKeyResult',
@@ -347,10 +375,7 @@ function Planning() {
                           tasks: [],
                         }
                       }
-                    />
-                    <MilestoneTasks
-                      keyResultIndex={keyResultIndex}
-                      keyResult={keyResult}
+                      activeTab={activeTab}
                     />
                   </div>
                 ),

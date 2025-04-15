@@ -112,7 +112,7 @@ const AssignTargetDrawer: React.FC = () => {
           {currentId ? 'Update Target' : 'Assign Target'}
         </span>
       }
-      width="700px"
+      width="30%"
       footer={
         <div className="flex justify-center items-center w-full h-full">
           <div className="flex justify-between items-center gap-4">

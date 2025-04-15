@@ -20,6 +20,7 @@ export interface CategoriesUseState {
   setPageSize: (pageSize: number) => void;
   setCurrent: (value: number) => void;
   setOpen: (value: boolean) => void;
+  setOpenModal: (value: boolean) => void;
 
   searchField: Field[];
   setSearchField: (fields: Field[]) => void;
@@ -39,4 +40,5 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setPageSize: (pageSize) => set({ pageSize }),
   setCurrent: (value) => set({ current: value }),
   setOpen: (open) => set({ open }),
+  setOpenModal: (open) => set({ open }),
 }));
