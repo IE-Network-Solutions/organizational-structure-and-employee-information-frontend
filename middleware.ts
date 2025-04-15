@@ -23,6 +23,9 @@ export function middleware(req: NextRequest) {
     if (pathname === '/onboarding') return NextResponse.next();
     if (!isExcludedPath && isRootPath) {
       if (token) {
+        if (fiscalExpired === 'true') {
+          return NextResponse.redirect(new URL('/fiscal-ended', req.url));
+        }
         return NextResponse.redirect(new URL('/dashboard', req.url));
       } else {
         return NextResponse.redirect(new URL('/authentication/login', req.url));
