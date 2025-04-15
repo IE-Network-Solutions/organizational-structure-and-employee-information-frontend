@@ -8,8 +8,10 @@ export function middleware(req: NextRequest) {
     const pathname = url.pathname;
 
     // TODO: Uncomment and restore token validation and redirects
-    
+
     const token = getCookie('token', req);
+    const fiscalExpired = getCookie('activeCalendar', req);
+
     const excludedPath = [
       '/authentication/login',
       '/authentication/forget-password',
@@ -22,23 +24,21 @@ export function middleware(req: NextRequest) {
     if (!isExcludedPath && !token) {
       return NextResponse.redirect(new URL('/authentication/login', req.url));
     }
-    
 
     if (pathname === '/onboarding') return NextResponse.next();
 
     // TODO: Uncomment and restore the redirect for the root path
-    
+
     if (!isExcludedPath && isRootPath) {
+      if (new Date('2025-04-04') < new Date()) {
+        return NextResponse.redirect(new URL('/fiscal-ended', req.url));
+      }
       if (token) {
-        if (fiscalExpired === 'true') {
-          return NextResponse.redirect(new URL('/fiscal-ended', req.url));
-        }
         return NextResponse.redirect(new URL('/dashboard', req.url));
       } else {
         return NextResponse.redirect(new URL('/authentication/login', req.url));
       }
     }
-    
 
     return NextResponse.next();
   } catch (error) {
