@@ -156,24 +156,6 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
               </div>
             )}
           </Form.Item>
-          <Form.Item
-            layout="horizontal"
-            className="w-full font-bold"
-            label="Target"
-            id={`key-result-target-${index}`}
-          >
-            <Select
-              value={keyValue.progress}
-              className="w-full text-xs"
-              onChange={(value) => {
-                handleChange(value, 'progress');
-              }}
-              aria-label="Key Result Target"
-            >
-              <Option value={0}>Not Achieved</Option>
-              <Option value={100}>Achieved</Option>
-            </Select>
-          </Form.Item>
         </div>
       </Form>
     </div>
