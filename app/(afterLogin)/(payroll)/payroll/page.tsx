@@ -193,7 +193,6 @@ const Payroll = () => {
   };
 
   const handleGeneratePayroll = async () => {
-    
     if (!allActiveSalary || allActiveSalary.length === 0) {
       notification.error({
         message: 'No Active Salaries',
@@ -241,10 +240,6 @@ const Payroll = () => {
       payPeriodId: item.payPeriodId,
       employeeId: item.employeeInfo.id,
     }));
-
-    console.log(values,"1******************")
-    return console.log(values,"2******************")
-
     sendPaySlip({ values });
   };
   const handleDeductionExportPayroll = async () => {
@@ -496,9 +491,6 @@ const Payroll = () => {
     }
   };
 
-
-  console.log(mergedPayroll.length , payroll?.payrolls?.length,"*******************")
-
   const columns = [
     {
       title: 'Full Name',
@@ -664,25 +656,37 @@ const Payroll = () => {
                 <div>
                   {mergedPayroll.length > 0 ? (
                     mergedPayroll.length < allEmployees?.items?.length ? (
-                      <p>This will send payslips to {mergedPayroll.length} selected employees (filtered from {allEmployees?.items?.length} total).</p>
+                      <p>
+                        This will send payslips to {mergedPayroll.length}{' '}
+                        selected employees (filtered from{' '}
+                        {allEmployees?.items?.length} total).
+                      </p>
                     ) : (
-                      <p>This will send payslips to ALL {allEmployees?.items?.length} employees.</p>
+                      <p>
+                        This will send payslips to ALL{' '}
+                        {allEmployees?.items?.length} employees.
+                      </p>
                     )
                   ) : (
                     <p style={{ color: 'red', marginTop: '8px' }}>
                       No employees selected. Please adjust your filters.
                     </p>
                   )}
-                  {mergedPayroll.length > 0 && mergedPayroll.length < allEmployees?.items?.length && (
-                    <p style={{ color: 'orange', marginTop: '8px' }}>
-                      Note: You're sending to a filtered subset. Clear filters to send to everyone.
-                    </p>
-                  )}
+                  {mergedPayroll.length > 0 &&
+                    mergedPayroll.length < allEmployees?.items?.length && (
+                      <p style={{ color: 'orange', marginTop: '8px' }}>
+                        Note: You&apos;re sending to a filtered subset. Clear
+                        filters to send to everyone.
+                      </p>
+                    )}
                 </div>
               }
               okText={
-                mergedPayroll.length === 0 ? "Cannot Send" : 
-                mergedPayroll.length < allEmployees?.items?.length ? "Send to Filtered" : "Send to All"
+                mergedPayroll.length === 0
+                  ? 'Cannot Send'
+                  : mergedPayroll.length < allEmployees?.items?.length
+                    ? 'Send to Filtered'
+                    : 'Send to All'
               }
               cancelText="Cancel"
               onConfirm={() => {
@@ -691,7 +695,7 @@ const Payroll = () => {
                 }
               }}
               okButtonProps={{
-                disabled: mergedPayroll.length === 0
+                disabled: mergedPayroll.length === 0,
               }}
             >
               <Button
@@ -700,8 +704,11 @@ const Payroll = () => {
                 className="text-white bg-primary border-none p-6"
                 disabled={mergedPayroll.length === 0}
               >
-                {mergedPayroll.length === 0 ? "No Employees Selected" : 
-                mergedPayroll.length < allEmployees?.items?.length ? `Send to ${mergedPayroll.length} Filtered` : "Send to All"}
+                {mergedPayroll.length === 0
+                  ? 'No Employees Selected'
+                  : mergedPayroll.length < allEmployees?.items?.length
+                    ? `Send to ${mergedPayroll.length} Filtered`
+                    : 'Send to All'}
               </Button>
             </Popconfirm>
           </AccessGuard>
@@ -725,8 +732,8 @@ const Payroll = () => {
               <Button
                 type="primary"
                 className="p-6"
-                onClick={()=>{
-                  handleGeneratePayroll()
+                onClick={() => {
+                  handleGeneratePayroll();
                 }}
                 // onClick={
                 //   payroll?.payrolls.length > 0
