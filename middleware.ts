@@ -30,7 +30,7 @@ export function middleware(req: NextRequest) {
     // TODO: Uncomment and restore the redirect for the root path
 
     if (!isExcludedPath && isRootPath) {
-      if (new Date('2025-04-04') < new Date()) {
+      if (new Date(fiscalExpired!) < new Date()) {
         return NextResponse.redirect(new URL('/fiscal-ended', req.url));
       }
       if (token) {

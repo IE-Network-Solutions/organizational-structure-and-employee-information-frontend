@@ -28,7 +28,6 @@ const FiscalYearListCard: React.FC = () => {
     setPageSize,
     setEditMode,
     setOpenFiscalYearDrawer,
-    isDeleteMode,
   } = useFiscalYearDrawerStore();
 
   const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>(

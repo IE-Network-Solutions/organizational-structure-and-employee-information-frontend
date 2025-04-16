@@ -5,8 +5,8 @@ export default function FiscalEndedPage() {
         ⚠️ Fiscal Year Ended
       </h1>
       <p className="text-white max-w-md">
-        Your organization's active fiscal year has ended. Please contact your
-        administrator for further access.
+        Your organization&#39;s active fiscal year has ended. Please contact
+        your administrator for further access.
       </p>
     </div>
   );
