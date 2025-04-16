@@ -13,7 +13,7 @@ interface DeleteFormProps {
   form?: FormInstance;
 }
 
-export const TransferForm = () => {
+export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
   const {
     rootDepartment,
     setRootDepartment,
@@ -29,7 +29,6 @@ export const TransferForm = () => {
     value: item.id,
     label: item.name,
   }));
-
 
   const departmentCache: Record<string, any> = {};
 
@@ -133,7 +132,7 @@ export const TransferForm = () => {
   }, [childDepartment, rootDepartment, orgStructureData]);
 
   return (
-    <Form layout="vertical">
+    <Form layout="vertical" form={form}>
       <Form.Item
         label="Select the teams to transfer from"
         name="Transfer From teams"
