@@ -112,7 +112,7 @@ const EmployeeAttendance = () => {
 
   return (
     <>
-      <div className="h-auto w-auto pr-6 pb-6 pl-3">
+      <div className="h-auto w-auto bg-gray-100 sm:bg-white pr-3 pb-6 pl-6 sm:pl-3">
         <PageHeader
           title="Employee Attendance"
           description="Manage your Team Attendance"
