@@ -55,24 +55,27 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
               .join(' ')}
             rules={[
               {
-                validator: (notUsed: any, value: any) => {
+                /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+                validator: (_rule: any, value: any) => {
+                  /*  eslint-enable-next-line @typescript-eslint/naming-convention */
                   let fieldValidation = getFieldValidation(key);
 
-                  switch (key) {
-                    case 'phoneNumber':
-                      fieldValidation = 'number';
-                      break;
-                    case 'firstName':
-                    case 'middleName':
-                    case 'lastName':
-                    case 'gender':
-                      fieldValidation = 'text';
-                      break;
-                    case 'nationality':
-                      fieldValidation = 'any';
-                      break;
-                    default:
-                      fieldValidation = getFieldValidation(key);
+                  if (key.toLowerCase().includes('number')) {
+                    fieldValidation = 'number';
+                  } else {
+                    switch (key) {
+                      case 'firstName':
+                      case 'middleName':
+                      case 'lastName':
+                      case 'gender':
+                        fieldValidation = 'text';
+                        break;
+                      case 'nationality':
+                        fieldValidation = 'any'; // You can change to 'text' if stricter validation is needed
+                        break;
+                      default:
+                        fieldValidation = 'any'; // fallback function
+                    }
                   }
 
                   const validationError = validateField(
