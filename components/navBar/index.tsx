@@ -46,7 +46,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname(); // Add this hook
-  const { userData, setLocalId, setTenantId, setToken, setUserId, setError } =
+  const { setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
