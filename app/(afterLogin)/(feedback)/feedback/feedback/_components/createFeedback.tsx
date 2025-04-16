@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Select, Input, Button } from 'antd';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetAllUsers, useGetActiveEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import {
   useFetchAllFeedbackTypes,
   useFetchFeedbackTypeById,
@@ -40,6 +40,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     null,
   );
   const { data: getAllUsersData } = useGetAllUsers();
+  const { data: getActiveEmployee } = useGetActiveEmployee();
   const { data: getAllFeedbackTypeById } = useFetchFeedbackTypeById(activeTab);
 
   const { data: departments, isLoading } = useGetDepartments();
@@ -138,6 +139,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     </div>
   );
 
+
   return (
     <CustomDrawerLayout
       open={(open && activeTabName !== '') || selectedFeedbackRecord !== null}
@@ -198,9 +200,10 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         >
           <Select
             showSearch
+            allowClear
             placeholder="Select employee"
             options={
-              getAllUsersData?.items
+              getActiveEmployee?.items
                 ?.filter((i: any) => i.id !== userId)
                 ?.map((item: any) => ({
                   label: `${item?.firstName} ${item?.middleName} ${item?.lastName}`, // `label` for display
