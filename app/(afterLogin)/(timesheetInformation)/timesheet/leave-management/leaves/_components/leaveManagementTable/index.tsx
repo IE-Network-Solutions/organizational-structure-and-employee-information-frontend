@@ -248,6 +248,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       <div className="flex  overflow-x-auto scrollbar-none  w-full">
         <Table
           className="mt-6 w-full"
+          rowClassName={() => 'h-[60px]'}
+          scroll={{ x: 'max-content' }}
           columns={columns}
           dataSource={tableData}
           loading={isFetching}

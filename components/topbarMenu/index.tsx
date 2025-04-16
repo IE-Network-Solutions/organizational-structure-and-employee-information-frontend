@@ -41,7 +41,7 @@ const TopbarMenu: FC<SidebarMenuProps> = ({ menuItems }) => {
       }}
     >
       <Menu
-        className="w-full flex justify-end rounded-2xl py-2 px-6 h-max"
+        className="w-full flex justify-center sm:justify-end  rounded-2xl py-2 px-6 h-max bg-gray-100 sm:bg-white"
         items={menuItems.onlyItems}
         mode="horizontal"
         selectedKeys={[currentItem]}
