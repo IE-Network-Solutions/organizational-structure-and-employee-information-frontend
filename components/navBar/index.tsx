@@ -45,18 +45,18 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
-  const pathname = usePathname(); // Add this hook
+  const pathname = usePathname();
+
   const { setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
-  // const { pathname } = router;
   const [expandedKeys, setExpandedKeys] = useState<
     (string | number | bigint)[]
-  >([]); // Include bigint
+  >([]);
   const [selectedKeys, setSelectedKeys] = useState<
     (string | number | bigint)[]
-  >([pathname]); // Include bigint
+  >([pathname]);
 
   const treeData: CustomMenuItem[] = [
     {
@@ -490,6 +490,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setSelectedKeys(keys); // Update the selected key for navigation
     }
   };
+  const handleDoubleClick = (event: React.MouseEvent, node: any) => {
+    const key = node?.key;
+    if (!node.children && key) {
+      router.push(String(key));
+    }
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -586,6 +592,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             expandedKeys={expandedKeys}
             selectedKeys={selectedKeys}
             onSelect={handleSelect}
+            onDoubleClick={handleDoubleClick}
             className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full"
             switcherIcon={null}
           />
