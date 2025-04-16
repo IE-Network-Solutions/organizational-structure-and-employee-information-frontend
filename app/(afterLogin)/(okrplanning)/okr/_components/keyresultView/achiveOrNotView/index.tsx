@@ -163,7 +163,8 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             id={`key-result-target-${index}`}
           >
             <Select
-              value={keyValue.progress}
+              disabled
+              value={0}
               className="w-full text-xs"
               onChange={(value) => {
                 handleChange(value, 'progress');
