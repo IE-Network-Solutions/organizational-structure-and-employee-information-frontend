@@ -62,7 +62,7 @@ const Payroll = () => {
 
   useEffect(() => {
     if (payroll?.payrolls && allEmployees?.items) {
-      const mergedData = payroll.payrolls.map((pay: any) => {
+      const mergedData = payroll?.payrolls.map((pay: any) => {
         const employee = allEmployees.items.find(
           (emp: any) => emp.id === pay.employeeId,
         );
@@ -496,6 +496,9 @@ const Payroll = () => {
     }
   };
 
+
+  console.log(mergedPayroll.length , payroll?.payrolls?.length,"*******************")
+
   const columns = [
     {
       title: 'Full Name',
@@ -654,33 +657,54 @@ const Payroll = () => {
             </Button>
           </AccessGuard>
 
-          <Popconfirm
-          title="Send Payslips"
-          // description={
-          //   <div>
-          //     <p>This will send payslips to {mergedPayroll.length > 0 ? 'selected employees' : 'ALL employees'} via email.</p>
-          //     {mergedPayroll.length === 0 && (
-          //       <p style={{ color: 'orange', marginTop: '8px' }}>
-          //         Note: If you want to send to specific individuals only, please filter the list first.
-          //       </p>
-          //     )}
-          //   </div>
-          // }
-          okText={mergedPayroll.length > 0 ? "Send to Selected" : "Send to All"}
-          cancelText="Cancel"
-          onConfirm={() => sendingPaySlipHandler(mergedPayroll)}
-          >
           <AccessGuard permissions={[Permissions.SendPayslipEmail]}>
-            <Button
-              type="default"
-              loading={sendingPaySlipLoading}
-              className="text-white bg-primary border-none p-6"
+            <Popconfirm
+              title="Send Payslips"
+              description={
+                <div>
+                  {mergedPayroll.length > 0 ? (
+                    mergedPayroll.length < allEmployees?.items?.length ? (
+                      <p>This will send payslips to {mergedPayroll.length} selected employees (filtered from {allEmployees?.items?.length} total).</p>
+                    ) : (
+                      <p>This will send payslips to ALL {allEmployees?.items?.length} employees.</p>
+                    )
+                  ) : (
+                    <p style={{ color: 'red', marginTop: '8px' }}>
+                      No employees selected. Please adjust your filters.
+                    </p>
+                  )}
+                  {mergedPayroll.length > 0 && mergedPayroll.length < allEmployees?.items?.length && (
+                    <p style={{ color: 'orange', marginTop: '8px' }}>
+                      Note: You're sending to a filtered subset. Clear filters to send to everyone.
+                    </p>
+                  )}
+                </div>
+              }
+              okText={
+                mergedPayroll.length === 0 ? "Cannot Send" : 
+                mergedPayroll.length < allEmployees?.items?.length ? "Send to Filtered" : "Send to All"
+              }
+              cancelText="Cancel"
+              onConfirm={() => {
+                if (mergedPayroll.length > 0) {
+                  sendingPaySlipHandler(mergedPayroll);
+                }
+              }}
+              okButtonProps={{
+                disabled: mergedPayroll.length === 0
+              }}
             >
-              Send Email
-            </Button>
+              <Button
+                type="default"
+                loading={sendingPaySlipLoading}
+                className="text-white bg-primary border-none p-6"
+                disabled={mergedPayroll.length === 0}
+              >
+                {mergedPayroll.length === 0 ? "No Employees Selected" : 
+                mergedPayroll.length < allEmployees?.items?.length ? `Send to ${mergedPayroll.length} Filtered` : "Send to All"}
+              </Button>
+            </Popconfirm>
           </AccessGuard>
-          </Popconfirm>
-
           <Popconfirm
             title={
               payroll?.payrolls.length
