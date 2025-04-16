@@ -1,11 +1,11 @@
 import React from 'react';
-import { Button, Input, DatePicker, Form, InputNumber, Tooltip } from 'antd';
+import { Button, Input, DatePicker, Form, InputNumber, Tooltip, Select } from 'antd';
 import dayjs from 'dayjs';
 import { VscClose } from 'react-icons/vsc';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
-
+const {Option} = Select;
 const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   const {
     handleKeyResultChange,
