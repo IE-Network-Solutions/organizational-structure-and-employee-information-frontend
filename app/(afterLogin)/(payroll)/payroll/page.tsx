@@ -193,6 +193,7 @@ const Payroll = () => {
   };
 
   const handleGeneratePayroll = async () => {
+    
     if (!allActiveSalary || allActiveSalary.length === 0) {
       notification.error({
         message: 'No Active Salaries',
@@ -240,6 +241,9 @@ const Payroll = () => {
       payPeriodId: item.payPeriodId,
       employeeId: item.employeeInfo.id,
     }));
+
+    console.log(values,"1******************")
+    return console.log(values,"2******************")
 
     sendPaySlip({ values });
   };
@@ -651,21 +655,30 @@ const Payroll = () => {
           </AccessGuard>
 
           <Popconfirm
-            title="Are you sure?"
-            description="This will send the payslip to every employee via email."
-            okText="Yes, Send"
-            cancelText="No"
-            onConfirm={() => sendingPaySlipHandler(mergedPayroll)}
+          title="Send Payslips"
+          // description={
+          //   <div>
+          //     <p>This will send payslips to {mergedPayroll.length > 0 ? 'selected employees' : 'ALL employees'} via email.</p>
+          //     {mergedPayroll.length === 0 && (
+          //       <p style={{ color: 'orange', marginTop: '8px' }}>
+          //         Note: If you want to send to specific individuals only, please filter the list first.
+          //       </p>
+          //     )}
+          //   </div>
+          // }
+          okText={mergedPayroll.length > 0 ? "Send to Selected" : "Send to All"}
+          cancelText="Cancel"
+          onConfirm={() => sendingPaySlipHandler(mergedPayroll)}
           >
-            <AccessGuard permissions={[Permissions.SendPayslipEmail]}>
-              <Button
-                type="default"
-                loading={sendingPaySlipLoading}
-                className="text-white bg-primary border-none p-6"
-              >
-                Send Email
-              </Button>
-            </AccessGuard>
+          <AccessGuard permissions={[Permissions.SendPayslipEmail]}>
+            <Button
+              type="default"
+              loading={sendingPaySlipLoading}
+              className="text-white bg-primary border-none p-6"
+            >
+              Send Email
+            </Button>
+          </AccessGuard>
           </Popconfirm>
 
           <Popconfirm
@@ -688,15 +701,18 @@ const Payroll = () => {
               <Button
                 type="primary"
                 className="p-6"
-                onClick={
-                  payroll?.payrolls.length > 0
-                    ? undefined
-                    : handleGeneratePayroll
-                }
+                onClick={()=>{
+                  handleGeneratePayroll()
+                }}
+                // onClick={
+                //   payroll?.payrolls.length > 0
+                //     ? undefined
+                //     : handleGeneratePayroll
+                // }
                 loading={isCreatingPayroll || loading || deleteLoading}
-                disabled={isCreatingPayroll || loading || deleteLoading}
+                // disabled={isCreatingPayroll || loading || deleteLoading}
               >
-                Generate
+                {payroll?.payrolls.length > 0 ? 'Regenerate' : 'Generate'}
               </Button>
             </AccessGuard>
           </Popconfirm>
