@@ -22,7 +22,7 @@ const VPPayCard: React.FC<PayCardInterface> = ({ id }) => {
     isLoading: isUpdatedLoading,
     refetch,
     isRefetching,
-  } = useGetVpScoreCalculate(userId, false);
+  } = useGetVpScoreCalculate(identifier, false);
 
   const achievedPercentage =
     (parseInt(vpScore?.score, 10) / vpScore?.maxScore) * 100;

@@ -13,7 +13,7 @@ interface DeleteFormProps {
   form?: FormInstance;
 }
 
-export const TransferForm = () => {
+export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
   const {
     rootDepartment,
     setRootDepartment,
@@ -29,10 +29,6 @@ export const TransferForm = () => {
     value: item.id,
     label: item.name,
   }));
-
-  const filteredChildDepartments = OPTIONS?.filter(
-    (item: any) => item.value !== rootDepartment?.id,
-  );
 
   const departmentCache: Record<string, any> = {};
 
@@ -136,7 +132,7 @@ export const TransferForm = () => {
   }, [childDepartment, rootDepartment, orgStructureData]);
 
   return (
-    <Form layout="vertical">
+    <Form layout="vertical" form={form}>
       <Form.Item
         label="Select the teams to transfer from"
         name="Transfer From teams"
@@ -153,7 +149,15 @@ export const TransferForm = () => {
           style={{ width: '100%' }}
           value={childDepartment.map((child) => child.id)}
           onChange={handleChildDepartmentsChange}
-          options={filteredChildDepartments} // Use filtered child department options
+          options={OPTIONS?.filter(
+            (item: any) => item.value !== rootDepartment?.id,
+          )}
+          optionFilterProp="label"
+          filterOption={(input, option) =>
+            (option?.label as string)
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
         />
       </Form.Item>
 
@@ -171,7 +175,10 @@ export const TransferForm = () => {
           optionFilterProp="label"
           value={rootDepartment?.id}
           onChange={handleRootDepartmentChange}
-          options={OPTIONS}
+          options={OPTIONS?.filter(
+            (item: any) =>
+              !childDepartment.some((child) => child.id === item.value),
+          )}
         />
       </Form.Item>
 
