@@ -17,6 +17,7 @@ import { MdKeyboardArrowUp } from 'react-icons/md';
 import CustomWorFiscalYearDrawer from '../../_components/fiscalYear/customDrawer';
 import { FaPlus } from 'react-icons/fa';
 import CustomDeleteFiscalYears from '../deleteModal';
+import CustomDeleteFiscalYearss from '../deleteModal';
 
 const FiscalYearListCard: React.FC = () => {
   const {
@@ -233,7 +234,7 @@ const FiscalYearListCard: React.FC = () => {
         }}
       />
       <CustomWorFiscalYearDrawer />
-      <CustomDeleteFiscalYears />
+      <CustomDeleteFiscalYearss />
     </div>
   );
 };
