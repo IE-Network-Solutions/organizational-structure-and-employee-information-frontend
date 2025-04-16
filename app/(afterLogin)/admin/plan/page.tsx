@@ -280,8 +280,8 @@ const PlanPage = () => {
     // If value is null or empty, it's not valid
     if (updatedQuota === null) return false;
     
-    // If value equals current quota, it's not changed
-    if (updatedQuota === activeSubscription?.slotTotal) return false;
+    // If value equals current quota, it's not changed & planId is the same
+    if (updatedQuota === activeSubscription?.slotTotal && activeSubscription?.planId === currentPlan?.id) return false;
     
     // If value is less than current quota, it's not valid
     if (activeSubscription?.slotTotal && updatedQuota < activeSubscription.slotTotal) return false;
@@ -738,8 +738,10 @@ const PlanPage = () => {
                       {availablePeriods.sort((a, b) => (a.periodInMonths || 0) - (b.periodInMonths || 0)).map((period) => (
                         <Select.Option key={period.id} value={period.code}>
                           {period.code} - {currentPlan?.currency?.symbol || '$'}
-                          {currentPlan?.periods?.find(pp => pp.periodTypeId === period.id)?.periodSlotPrice || 
-                          currentPlan?.slotPrice}/user
+                          {
+                            Number(currentPlan?.periods?.find(pp => pp.periodTypeId === period.id)?.periodSlotPrice) *
+                            Number(currentPlan?.periods?.find(pp => pp.periodTypeId === period.id)?.periodType?.periodInMonths)
+                          }/user
                         </Select.Option>
                       ))}
                     </Select>
