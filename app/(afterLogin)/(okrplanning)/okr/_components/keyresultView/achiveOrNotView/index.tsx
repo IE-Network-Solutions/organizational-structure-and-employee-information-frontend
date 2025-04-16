@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  Button,
-  Input,
-  DatePicker,
-  Form,
-  InputNumber,
-  Tooltip,
-  Select,
-} from 'antd';
+import { Button, Input, DatePicker, Form, InputNumber, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { VscClose } from 'react-icons/vsc';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
@@ -15,7 +7,6 @@ import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 
 const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
-  const { Option } = Select;
   const {
     handleKeyResultChange,
     handleSingleKeyResultChange,
@@ -155,24 +146,6 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                 Deadline is required
               </div>
             )}
-          </Form.Item>
-          <Form.Item
-            layout="horizontal"
-            className="w-full font-bold"
-            label="Target"
-            id={`key-result-target-${index}`}
-          >
-            <Select
-              value={keyValue.progress}
-              className="w-full text-xs"
-              onChange={(value) => {
-                handleChange(value, 'progress');
-              }}
-              aria-label="Key Result Target"
-            >
-              <Option value={0}>Not Achieved</Option>
-              <Option value={100}>Achieved</Option>
-            </Select>
           </Form.Item>
         </div>
       </Form>
