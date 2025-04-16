@@ -236,13 +236,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           key: '/feedback/recognition',
           className: 'font-bold h-9',
           permissions: ['view_feedback_recognition'],
-        },
-        {
-          title: 'Form',
-          key: '/feedback/categories',
-          className: 'font-bold h-9',
-          permissions: ['manage_feedback_forms'],
-        },
+        },       
+
         {
           title: 'Settings',
           key: '/feedback/settings',
