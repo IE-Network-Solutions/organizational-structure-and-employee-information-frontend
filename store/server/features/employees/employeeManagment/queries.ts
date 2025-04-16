@@ -183,19 +183,20 @@ const getActiveEmployee = async () => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/users/all-users/all/payroll-data`, { 
-      headers,
-    });
+    const response = await axios.get(
+      `${ORG_AND_EMP_URL}/users/all-users/all/payroll-data`,
+      {
+        headers,
+      },
+    );
     return response.data;
   } catch (error) {
     throw error;
   }
-
-}
+};
 
 export const useGetActiveEmployee = () =>
   useQuery<any>('ActiveEmployees', getActiveEmployee);
-
 
 const getEmployee = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
