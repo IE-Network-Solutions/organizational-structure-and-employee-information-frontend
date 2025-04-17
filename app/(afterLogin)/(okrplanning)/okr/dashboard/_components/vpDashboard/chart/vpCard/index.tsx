@@ -30,7 +30,7 @@ const VPPayCard: React.FC<PayCardInterface> = ({ id }) => {
   return (
     <Card size="default" bordered={false} className="border-none shadow-none">
       {isResponseLoading ? (
-        <Skeleton active />
+        <Skeleton active paragraph={{ rows: 0 }} />
       ) : (
         <>
           <div className="">
