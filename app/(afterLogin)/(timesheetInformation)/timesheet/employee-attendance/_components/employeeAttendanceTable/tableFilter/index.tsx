@@ -61,7 +61,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
               mode="multiple"
               placeholder="Select Employee"
               allowClear
-              className="w-full h-[50px]"
+              className="w-full min-h-[50px] py-2"
               suffixIcon={
                 <MdKeyboardArrowDown size={16} className="text-gray-900" />
               }
