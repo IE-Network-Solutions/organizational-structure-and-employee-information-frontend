@@ -34,6 +34,9 @@ export interface WorkScheduleDetail {
   endTime: string;
   hours: number;
   status: boolean;
+  duration: number;
+  workDay: boolean;
+  day: string;
 }
 
 export interface WorkSchedule {
