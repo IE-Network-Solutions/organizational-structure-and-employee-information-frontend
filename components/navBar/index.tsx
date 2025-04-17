@@ -8,7 +8,7 @@ import {
   MdOutlineKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
-import { Layout, Button, theme, Tree } from 'antd';
+import { Layout, Button, theme, Tree, Skeleton } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import NavBar from './topNavBar';
@@ -23,6 +23,8 @@ import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
 import SimpleLogo from '../common/logo/simpleLogo';
+import AccessGuard from '@/utils/permissionGuard';
+import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 
 interface CustomMenuItem {
   key: string;
@@ -46,7 +48,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-
+  const { userId } = useAuthenticationStore();
+  const { isLoading } = useGetEmployee(userId);
   const { setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
@@ -530,6 +533,27 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     window.location.reload();
   };
 
+  const filteredMenuItems: any = treeData
+    .map((item) => {
+      const hasAccess = AccessGuard.checkAccess({
+        permissions: item.permissions, // Specify permissions needed
+      });
+
+      if (!hasAccess) return null;
+
+      return {
+        ...item,
+
+        children: item.children
+          ? item.children.filter((child) =>
+              AccessGuard.checkAccess({
+                permissions: child.permissions,
+              }),
+            )
+          : [],
+      };
+    })
+    .filter(Boolean);
   return (
     <Layout>
       <Sider
@@ -545,6 +569,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           zIndex: 1000,
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
+          overflowX: 'hidden',
         }}
         trigger={null}
         collapsible
@@ -587,17 +612,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
         <div className="relative">
           <div className="absolute left-2 top-0 w-[10px] h-full bg-white z-10"></div>
-          <Tree
-            treeData={treeData}
-            showLine={{ showLeafIcon: false }} // Only show lines for child nodes
-            defaultExpandAll={false}
-            expandedKeys={expandedKeys}
-            selectedKeys={selectedKeys}
-            onSelect={handleSelect}
-            onDoubleClick={handleDoubleClick}
-            className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full"
-            switcherIcon={null}
-          />
+          {isLoading ? (
+            <div className="px-5 w-full h-full flex justify-center items-center my-5">
+              <Skeleton active />{' '}
+            </div>
+          ) : (
+            <Tree
+              treeData={filteredMenuItems}
+              showLine={{ showLeafIcon: false }} // Only show lines for child nodes
+              defaultExpandAll={false}
+              expandedKeys={expandedKeys}
+              selectedKeys={selectedKeys}
+              onSelect={handleSelect}
+              onDoubleClick={handleDoubleClick}
+              className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full"
+              switcherIcon={null}
+            />
+          )}
         </div>
       </Sider>
       <Layout
