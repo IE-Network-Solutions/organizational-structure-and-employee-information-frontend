@@ -738,8 +738,10 @@ const PlanPage = () => {
                       {availablePeriods.sort((a, b) => (a.periodInMonths || 0) - (b.periodInMonths || 0)).map((period) => (
                         <Select.Option key={period.id} value={period.code}>
                           {period.code} - {currentPlan?.currency?.symbol || '$'}
-                          {currentPlan?.periods?.find(pp => pp.periodTypeId === period.id)?.periodSlotPrice || 
-                          currentPlan?.slotPrice}/user
+                          {
+                            Number(currentPlan?.periods?.find(pp => pp.periodTypeId === period.id)?.periodSlotPrice) *
+                            Number(currentPlan?.periods?.find(pp => pp.periodTypeId === period.id)?.periodType?.periodInMonths)
+                          }/user
                         </Select.Option>
                       ))}
                     </Select>
