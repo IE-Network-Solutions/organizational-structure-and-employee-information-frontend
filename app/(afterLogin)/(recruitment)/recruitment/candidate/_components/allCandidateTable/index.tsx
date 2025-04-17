@@ -19,6 +19,9 @@ import { useChangeCandidateStatus } from '@/store/server/features/recruitment/ca
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import RecruitmentPagination from '../../../_components';
+import { FaLinkedin } from 'react-icons/fa';
+import { SiGmail } from 'react-icons/si';
 
 const AllCandidateTable: React.FC = () => {
   const { data: statusStage } = useGetStages();
@@ -45,15 +48,15 @@ const AllCandidateTable: React.FC = () => {
       dataIndex: 'candidateName',
       sorter: (a, b) => a.candidateName.localeCompare(b.candidateName),
     },
-    {
-      title: 'AI score',
-      dataIndex: 'score',
-      render: () => (
-        <span className="bg-green-100 px-4 rounded text-green-800 text-xs">
-          90%
-        </span>
-      ),
-    },
+    // {
+    //   title: 'AI score',
+    //   dataIndex: 'score',
+    //   render: () => (
+    //     <span className="bg-green-100 px-4 rounded text-green-800 text-xs">
+    //       90%
+    //     </span>
+    //   ),
+    // },
     {
       title: 'Phone Number',
       dataIndex: 'phoneNumber',
@@ -65,7 +68,7 @@ const AllCandidateTable: React.FC = () => {
       sorter: (a: any, b: any) => a.cgpa - b.cgpa,
     },
     {
-      title: 'Internal/External',
+      title: 'Internal/ External',
       dataIndex: 'internal_external',
       sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
     },
@@ -74,8 +77,17 @@ const AllCandidateTable: React.FC = () => {
       dataIndex: 'cv',
     },
     {
-      title: 'Created Date',
+      title: 'Applied/ Created Date',
       dataIndex: 'createdAt',
+    },
+    {
+      title: 'Date of Graduation',
+      dataIndex: 'graduateYear',
+    },
+
+    {
+      title: 'Social profile',
+      dataIndex: 'LinkedInURL',
     },
     {
       title: 'Stages',
@@ -181,13 +193,32 @@ const AllCandidateTable: React.FC = () => {
       ),
 
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
+      graduateYear: item?.graduateYear
+        ? dayjs(item.graduateYear).format('DD MMMM YYYY')
+        : '--',
+      LinkedInURL: (
+        <div className="flex justify-around">
+          <a
+            href={item?.LinkedInURL}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="LinkedIn"
+          >
+            <FaLinkedin size={20} />
+          </a>
+          <a href={item?.email} title="Email">
+            <SiGmail size={20} />
+          </a>
+        </div>
+      ),
       stages: (
         <div>
           <Select
             defaultValue={item?.jobCandidate?.map(
               (e: any) => e?.applicantStatusStage?.title ?? '--',
             )}
-            style={{ width: 120 }}
+            // style={{ width: 120 }}
+            className="w-full"
             onChange={(value) =>
               handleStageChange(
                 value,
@@ -208,7 +239,7 @@ const AllCandidateTable: React.FC = () => {
           <Button
             id={`editUserButton${item?.id}`}
             disabled={item?.deletedAt !== null}
-            className="bg-primary px-[10px]  text-white disabled:bg-gray-400 "
+            className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none "
             onClick={() => handleCandidateDetail(item)}
           >
             <FaEye />
@@ -231,33 +262,21 @@ const AllCandidateTable: React.FC = () => {
     };
   });
 
-  const rowSelection = {
-    onChange: (notused: any, selectedRows: any) => {
-      setSelectedCandidate(
-        candidateList?.items?.filter((item: any) =>
-          selectedRows.some((row: any) => row.id === item.id),
-        ),
-      );
-    },
-  };
-
   return (
     <div>
       <Table
         className="w-full"
         columns={columns}
         dataSource={data}
-        rowSelection={rowSelection} // Enable selection
-        pagination={{
-          total: candidateList?.meta?.totalItems,
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
         loading={isResponseLoading}
         scroll={{ x: 1000 }}
+      />
+      <RecruitmentPagination
+        current={currentPage}
+        total={candidateList?.meta?.totalItems ?? 1}
+        pageSize={pageSize}
+        onChange={onPageChange}
+        onShowSizeChange={onPageChange}
       />
       <CandidateDetail />
       <DeleteCandidate />

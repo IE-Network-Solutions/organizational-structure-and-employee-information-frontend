@@ -86,18 +86,7 @@ const TaskRow = ({ task, keyResult, parent = false }: any) => (
 
 // Reusable Milestone Component
 const Milestone = ({ milestone, milestoneIndex, keyResult }: any) => (
-  <Row className="rounded-lg py-1 pr-3" key={milestone?.id}>
-    {/* Milestone Title */}
-    {/* {keyResult?.metricType?.name === 'Milestone' && (
-      <Col className="ml-5 mb-1" span={24}>
-        <strong>
-          {`${milestoneIndex + 1}. ${
-            milestone?.title || milestone?.description || 'No milestone Title'
-          }`}
-        </strong>
-      </Col>
-    )} */}
-    {/* Tasks */}
+  <>
     {milestone?.tasks?.length > 0
       ? milestone.tasks.map((task: any, taskIndex: number) => (
           <TaskRow
@@ -110,16 +99,16 @@ const Milestone = ({ milestone, milestoneIndex, keyResult }: any) => (
         ))
       : // Parent Tasks
         milestone?.parentTask?.map((task: any) => (
-          <Row key={task.id} className="w-full">
+          <div key={task.id} className="w-full">
             <ParentTask
               keyResult={keyResult}
               parent={true}
               tasks={task?.tasks}
               parentTaskName={task?.task}
             />
-          </Row>
+          </div>
         ))}
-  </Row>
+  </>
 );
 
 // Main Component

@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
 import { Button, Card, Collapse, Dropdown, Menu, Space } from 'antd';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
-import { MoreOutlined, PlusOutlined } from '@ant-design/icons';
+import { FaEdit, FaPlus, FaTrashAlt } from 'react-icons/fa';
+import { MoreOutlined } from '@ant-design/icons';
 import { useFetchSchedule } from '@/store/server/features/organizationStructure/workSchedule/queries';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import AccessGuard from '@/utils/permissionGuard';
@@ -85,10 +85,10 @@ function WorkScheduleTab() {
               <Button
                 type="primary"
                 className="h-12"
-                icon={<PlusOutlined />}
+                icon={<FaPlus />}
                 onClick={openDrawer}
               >
-                New Schedule
+                <span className="hidden lg:inline">Create work Schedule</span>
               </Button>
             </Space>
           </AccessGuard>

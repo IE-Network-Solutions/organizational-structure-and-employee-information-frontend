@@ -92,20 +92,25 @@ const UserSidebar = (props: any) => {
       )}
     </div>
   );
-
+  function handleCancel() {
+    props?.onClose();
+    form.resetFields();
+    setProfileFileList([]);
+  }
   return (
     open && (
       <CustomDrawerLayout
         open={open}
-        onClose={props?.onClose}
+        onClose={handleCancel}
         modalHeader={modalHeader}
         width="40%"
       >
         <Steps
           current={current}
           size="small"
+          responsive={false}
           // onChange={onChange}
-          className="px-32 sm:my-10"
+          className="  sm:my-10"
         >
           <Step icon={customDot(1)} />
           <Step icon={customDot(2)} />

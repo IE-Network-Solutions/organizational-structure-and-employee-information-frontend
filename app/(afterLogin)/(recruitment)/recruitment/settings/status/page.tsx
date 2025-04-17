@@ -1,16 +1,18 @@
 'use client';
-import { Button, Card } from 'antd';
+import { Button, Typography } from 'antd';
 import React from 'react';
-import { PlusOutlined } from '@ant-design/icons';
 import { useRecruitmentStatusStore } from '@/store/uistate/features/recruitment/settings/status';
 import RecruitmentStatusDrawer from './statusDrawer';
 import { useGetRecruitmentStatuses } from '@/store/server/features/recruitment/settings/status/queries';
 import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteRecruitmentStatus } from '@/store/server/features/recruitment/settings/status/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { Pencil, Trash2 } from 'lucide-react';
+
+const { Title } = Typography;
 
 const Status: React.FC = () => {
   const {
@@ -52,15 +54,22 @@ const Status: React.FC = () => {
     <div className="p-6">
       {/* Header section */}
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-2xl font-semibold">Status</h3>
+        <Title level={5}>Define New Status</Title>
         <AccessGuard permissions={[Permissions.CreateApplicationStage]}>
+          {/* <CustomButton
+            title="Define New Status"
+            id="createStatusButton"
+            icon={<FaPlus size={13} className="mr-2" />}
+            onClick={handleOpen}
+            className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
+          /> */}
           <Button
             type="primary"
-            icon={<PlusOutlined />}
+            id="createStatusButton"
             onClick={handleOpen}
-            className="bg-purple-600 h-16 font-bold"
+            icon={<FaPlus size={13} className="mr-2" />}
           >
-            Define New Status
+            <span className="hidden lg:inline">Define New Status</span>
           </Button>
         </AccessGuard>
       </div>
@@ -77,38 +86,32 @@ const Status: React.FC = () => {
           </>
         ) : (
           recruitmentStatus?.items?.map((status: any, index: number) => (
-            <Card key={index} className="shadow-sm rounded-lg">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold">
-                  {status.title ?? ''}
-                </span>
-
-                <div>
-                  <AccessGuard
-                    permissions={[Permissions.UpdateApplicationStage]}
-                  >
-                    <Button
-                      icon={<FaEdit />}
+            <div
+              key={index}
+              className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"
+            >
+              <div className="text-medium font-medium">{status?.title}</div>
+              <div className="flex items-center justify-center gap-2">
+                <AccessGuard permissions={[Permissions.UpdateApplicationStage]}>
+                  <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+                    <Pencil
+                      size={15}
+                      className="text-white cursor-pointer"
                       onClick={() => handleEditStatus(status)}
-                      type="default"
-                      size={'large'}
-                      className="border-none text-blue-600 mr-2"
                     />
-                  </AccessGuard>
-                  <AccessGuard
-                    permissions={[Permissions.DeleteApplicationStage]}
-                  >
-                    <Button
-                      icon={<FaTrashAlt />}
+                  </div>
+                </AccessGuard>
+                <AccessGuard permissions={[Permissions.DeleteApplicationStage]}>
+                  <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
+                    <Trash2
+                      size={15}
+                      className="text-white cursor-pointer"
                       onClick={() => handleDeleteStatus(status)}
-                      type="default"
-                      size={'large'}
-                      className="border-none text-red-600"
                     />
-                  </AccessGuard>
-                </div>
+                  </div>
+                </AccessGuard>
               </div>
-            </Card>
+            </div>
           ))
         )}
       </div>

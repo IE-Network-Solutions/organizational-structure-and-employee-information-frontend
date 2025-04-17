@@ -82,7 +82,7 @@ const PositionsEdit: React.FC = () => {
           <Form.Item>
             <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
               <Button
-                htmlType="reset"
+                onClick={() => setEditModal(false)}
                 className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
               >
                 Cancel

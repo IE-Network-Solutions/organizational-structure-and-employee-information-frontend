@@ -3,7 +3,7 @@ import { useDeleteFiscalYear } from '@/store/server/features/organizationStructu
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import React from 'react';
 
-function CustomDeleteFiscalYear() {
+function CustomDeleteFiscalYears() {
   const {
     isDeleteMode,
     selectedFiscalYear,
@@ -28,4 +28,4 @@ function CustomDeleteFiscalYear() {
   );
 }
 
-export default CustomDeleteFiscalYear;
+export default CustomDeleteFiscalYears;

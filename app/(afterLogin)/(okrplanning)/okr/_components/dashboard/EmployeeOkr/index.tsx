@@ -1,0 +1,176 @@
+import React, { useEffect } from 'react';
+import { Table, Avatar, Pagination } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import { useGetEmployeeOkr } from '@/store/server/features/okrplanning/okr/objective/queries';
+import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+
+const getScoreTag = (score: number): JSX.Element => {
+  if (score >= 90)
+    return (
+      <span className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold">
+        {score?.toLocaleString()}%
+      </span>
+    );
+  if (score >= 75)
+    return (
+      <span className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+        {score?.toLocaleString()}%
+      </span>
+    );
+  return (
+    <span className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">
+      {score?.toLocaleString()}%
+    </span>
+  );
+};
+import { LoadingOutlined } from '@ant-design/icons';
+import { useGetSessionById } from '@/store/server/features/payroll/payroll/queries';
+
+const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
+  const { data: userDetails, isLoading, error } = useGetEmployee(empId);
+
+  if (isLoading)
+    return (
+      <>
+        <LoadingOutlined />
+      </>
+    );
+
+  if (error || !userDetails) return '-';
+
+  const userName =
+    `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
+    '-';
+  const email = `${userDetails?.email} ` || '-';
+  const profileImage = userDetails?.profileImage;
+  const jobPosition =
+    `${userDetails?.employeeJobInformation[0]?.position?.name} ` || '-';
+  const department =
+    `${userDetails?.employeeJobInformation[0]?.department?.name} ` || '-';
+  return (
+    <>
+      {type === 'user' ? (
+        <div className="flex gap-2">
+          <Avatar src={profileImage} icon={<UserOutlined />} />
+          <div>
+            {userName}
+            <div className="text-xs text-gray-500">{email}</div>
+          </div>
+        </div>
+      ) : (
+        <span className="text-xs text-gray-500">
+          {type == 'job' ? jobPosition : department}
+        </span>
+      )}
+    </>
+  );
+};
+const SessionDetail = ({ sessionId }: { sessionId: string[] }) => {
+  const { data: session, isLoading, error } = useGetSessionById(sessionId);
+
+  if (isLoading)
+    return (
+      <>
+        <LoadingOutlined />
+      </>
+    );
+
+  if (error || !session) return '-';
+
+  const sessionName = `${session?.name}` || '-';
+
+  return <span className="text-xs text-gray-500">{sessionName}</span>;
+};
+
+const columns = [
+  {
+    title: 'Employee Name',
+    dataIndex: 'userId',
+    key: 'userId',
+    render: (userId: string) => <EmployeeDetails type="user" empId={userId} />,
+  },
+  {
+    title: 'Job Title',
+    dataIndex: 'title',
+    key: 'title',
+    render: (notused: any, render: any) => (
+      <EmployeeDetails type="job" empId={render?.userId} />
+    ),
+  },
+
+  {
+    title: 'Department',
+    dataIndex: 'department',
+    key: 'department',
+    render: (notused: any, render: any) => (
+      <EmployeeDetails type="department" empId={render?.userId} />
+    ),
+  },
+  {
+    title: 'Quarter',
+    dataIndex: 'quarter',
+    key: 'quarter',
+    render: (notused: any, render: any) => (
+      <SessionDetail sessionId={render?.sessionId} />
+    ),
+  },
+  {
+    title: 'OKR Score',
+    dataIndex: 'okrScore',
+    key: 'okrScore',
+    render: (score: number) => getScoreTag(score),
+  },
+];
+
+const EmployeeOKRTable: React.FC = () => {
+  const {
+    searchObjParams,
+    sessionIds,
+    employeePageSize,
+    employeeCurrentPage,
+    setEmployeePageSize,
+    setEmployeeCurrentPage,
+  } = useOKRStore();
+  const {
+    data: employeeOkr,
+    isLoading,
+    refetch,
+  } = useGetEmployeeOkr(
+    sessionIds,
+    searchObjParams,
+    employeePageSize,
+    employeeCurrentPage,
+  );
+  useEffect(() => {
+    refetch();
+  }, [sessionIds]);
+  const onPageChange = (page: number, pageSize?: number) => {
+    setEmployeeCurrentPage(page);
+    if (pageSize) {
+      setEmployeePageSize(pageSize);
+    }
+  };
+  return (
+    <div className="py-6">
+      <Table
+        columns={columns}
+        dataSource={Array.isArray(employeeOkr?.items) ? employeeOkr?.items : []}
+        pagination={false}
+        loading={isLoading}
+      />
+      <Pagination
+        total={employeeOkr?.meta?.totalItems}
+        current={employeeOkr?.meta?.currentPage}
+        pageSize={employeePageSize}
+        onChange={onPageChange}
+        showSizeChanger={true}
+        onShowSizeChange={onPageChange}
+        pageSizeOptions={['5', '10', '20', '50', '100']}
+        className="mt-4 flex w-full justify-end"
+      />
+    </div>
+  );
+};
+
+export default EmployeeOKRTable;

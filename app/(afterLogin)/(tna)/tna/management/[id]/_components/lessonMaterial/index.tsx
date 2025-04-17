@@ -245,6 +245,7 @@ const CourseLessonMaterial = () => {
               name="order"
               label="Course Material Order in No"
               className="form-item"
+              rules={[{ required: true, message: 'Required' }]}
             >
               <InputNumber
                 className="control-number"
