@@ -45,7 +45,6 @@ const OkrSearch: React.FC = () => {
     setFiscalYearId(selectedFiscalYear?.id || '');
   }, [getAllFiscalYears, fiscalYearId, okrTab]);
 
-
   const DepartmentWithUsers = Departments?.filter(
     (i: any) => i.users?.length > 0,
   );

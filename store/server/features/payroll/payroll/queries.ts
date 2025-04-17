@@ -19,7 +19,6 @@ const getPayRoll = async () => {
 export const useGetPayRoll = () => useQuery('payroll', getPayRoll);
 
 const getAllActiveBasicSalary = async () => {
-  
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
