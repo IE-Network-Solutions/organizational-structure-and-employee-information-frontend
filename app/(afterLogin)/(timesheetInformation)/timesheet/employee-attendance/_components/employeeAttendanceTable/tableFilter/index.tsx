@@ -9,6 +9,7 @@ import { CommonObject } from '@/types/commons/commonObject';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useMediaQuery } from 'react-responsive';
 import { IoMdSwitch } from 'react-icons/io';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 interface TableFilterProps {
   onChange: (val: CommonObject) => void;
@@ -17,11 +18,25 @@ interface TableFilterProps {
 const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   const [form] = Form.useForm();
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+  const { data: employeeData } = useGetAllUsers();
 
   const handleMenuClick = (value: AttendanceRecordType) => {
     form.setFieldsValue({ type: value });
     onChange(form.getFieldsValue());
   };
+
+  const employeeOptions =
+    employeeData?.items?.map((employee: any) => ({
+      value: employee.id,
+      label: `${employee?.firstName} ${employee?.middleName} ${employee?.lastName}`,
+    })) || [];
+
+  // const options =
+  //   employeeData?.items?.map((emp: any) => ({
+  //     value: emp.id,
+  //     label: `${emp?.firstName || ''} ${emp?.middleName} ${emp?.lastName}`, // Full name as label
+  //     employeeData: emp,
+  //   })) || [];
 
   return (
     <Form form={form} onFieldsChange={() => onChange(form.getFieldsValue())}>
@@ -40,8 +55,30 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
           </Form.Item>
         </Col>
         {!isSmallScreen ? <Col xs={0} sm={3} md={4} lg={5}></Col> : ''}
-
         <Col xs="auto" sm={16} md={8} lg={6}>
+          <Form.Item name="employeeId">
+            <Select
+              mode="multiple"
+              placeholder="Select Employee"
+              allowClear
+              className="w-full min-h-[50px] py-2"
+              suffixIcon={
+                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+              }
+              options={employeeOptions}
+              showSearch
+              optionFilterProp="label"
+              filterOption={(input, option) =>
+                (typeof option?.label === 'string'
+                  ? option.label.toLowerCase()
+                  : ''
+                ).includes(input.toLowerCase())
+              }
+            />
+          </Form.Item>
+        </Col>
+
+        <Col xs={24} sm={12} md={8} lg={8}>
           <Form.Item name="type">
             {isSmallScreen ? (
               <Dropdown
@@ -85,4 +122,5 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
     </Form>
   );
 };
+
 export default TableFilter;
