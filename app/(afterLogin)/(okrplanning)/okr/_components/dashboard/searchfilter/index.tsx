@@ -36,6 +36,7 @@ const OkrSearch: React.FC = () => {
     if (!selectedFiscalYear) {
       setFiscalYearId(''); // or null, depending on your app
       setSessionIds([]);
+      return;
     }
 
     const sessionIds =
@@ -43,6 +44,7 @@ const OkrSearch: React.FC = () => {
     setSessionIds(sessionIds);
     setFiscalYearId(selectedFiscalYear?.id || '');
   }, [getAllFiscalYears, fiscalYearId, okrTab]);
+
 
   const DepartmentWithUsers = Departments?.filter(
     (i: any) => i.users?.length > 0,
