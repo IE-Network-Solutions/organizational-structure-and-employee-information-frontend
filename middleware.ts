@@ -37,7 +37,7 @@ export function middleware(req: NextRequest) {
 
     return NextResponse.next();
   } catch (error) {
-    return NextResponse.next();
+    return NextResponse.next(); // Proceed to next response in case of error
   }
 }
 
