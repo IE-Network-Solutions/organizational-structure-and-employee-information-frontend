@@ -180,7 +180,6 @@ const MonthDrawer: React.FC<DrawerProps> = ({
             <div key={section} className="mb-6">
               {months.map((month, index) => {
                 const { startDate, endDate } = getMonthStartEndDates(month);
-                const monthName = `Month-${month}`;
                 return (
                   <React.Fragment key={month}>
                     <Form.Item
@@ -197,12 +196,12 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                           message: `Please input the month name!`,
                         },
                       ]}
-                      initialValue={monthName}
+                      initialValue={`${generateMonthName(Number(section), index).split(' (')[0]}`}
                     >
                       <Input
                         size="large"
                         className="w-full text-sm"
-                        placeholder={`Enter name for month ${month}`}
+                        placeholder={`Enter name for ${generateMonthName(Number(section), index).split(' (')[0]}`}
                       />
                     </Form.Item>
 
@@ -249,7 +248,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                       label={<span className="font-medium">Description</span>}
                     >
                       <TextArea
-                        placeholder={`Enter description for month ${month}`}
+                        placeholder={`Enter description for ${generateMonthName(Number(section), index).split(' (')[0]}`}
                         className={'h-32 font-normal text-sm mt-2'}
                         size="large"
                       />

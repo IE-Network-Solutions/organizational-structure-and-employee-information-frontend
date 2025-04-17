@@ -146,18 +146,34 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       startDate: fiscalYearFormValues?.fiscalYearStartDate,
       endDate: fiscalYearFormValues?.fiscalYearEndDate,
       description: fiscalYearFormValues?.fiscalYearDescription,
-      sessions: fiscalYearData?.map((session: Session) => ({
-        name: session?.name,
-        description: session?.description,
-        startDate: session?.startDate,
-        endDate: session?.endDate,
-        months: session?.months?.map((month: Month) => ({
-          name: month?.name,
-          description: month?.description,
-          startDate: month?.startDate,
-          endDate: month?.endDate,
-        })),
-      })),
+      sessions: fiscalYearData?.map(
+        (session: Session, sessionIndex: number) => {
+          const sessionFromSelected =
+            selectedFiscalYear?.sessions?.[sessionIndex];
+
+          return {
+            ...(isEditMode &&
+              sessionFromSelected?.id && { id: sessionFromSelected?.id }),
+            name: session?.name,
+            description: session?.description,
+            startDate: session?.startDate,
+            endDate: session?.endDate,
+            months: session?.months?.map((month: Month, monthIndex: number) => {
+              const monthFromSelected =
+                sessionFromSelected?.months?.[monthIndex];
+
+              return {
+                ...(isEditMode &&
+                  monthFromSelected?.id && { id: monthFromSelected?.id }),
+                name: month?.name,
+                description: month?.description,
+                startDate: month?.startDate,
+                endDate: month?.endDate,
+              };
+            }),
+          };
+        },
+      ),
     };
 
     if (isEditMode) {
