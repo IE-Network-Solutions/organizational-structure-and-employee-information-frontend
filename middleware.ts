@@ -4,9 +4,12 @@ import { getCookie } from './helpers/storageHelper';
 
 export function middleware(req: NextRequest) {
   try {
-    const token = getCookie('token', req);
     const url = req.nextUrl;
     const pathname = url.pathname;
+
+    // TODO: Uncomment and restore token validation and redirects
+
+    const token = getCookie('token', req);
     const excludedPath = [
       '/authentication/login',
       '/authentication/forget-password',
@@ -21,6 +24,9 @@ export function middleware(req: NextRequest) {
     }
 
     if (pathname === '/onboarding') return NextResponse.next();
+
+    // TODO: Uncomment and restore the redirect for the root path
+
     if (!isExcludedPath && isRootPath) {
       if (token) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
@@ -28,6 +34,7 @@ export function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL('/authentication/login', req.url));
       }
     }
+
     return NextResponse.next();
   } catch (error) {
     return NextResponse.next(); // Proceed to next response in case of error

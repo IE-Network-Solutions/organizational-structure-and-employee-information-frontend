@@ -15,23 +15,31 @@ const Page = () => {
 
   return (
     <>
-      <PageHeader title="Closed Date" size="small">
-        <AccessGuard permissions={[Permissions.CreateClosedDate]}>
-          <Button
-            size="large"
-            type="primary"
-            id="createNewClosedHolidayFieldId"
-            icon={<LuPlus size={18} />}
-            onClick={() => {
-              setSelectedClosedDate(null), setIsShowClosedDateSidebar(true);
-            }}
-          >
-            New Closed Date
-          </Button>
-        </AccessGuard>
-      </PageHeader>
+      <div className="relative">
+        <div className="absolute top-0 left-0 w-full h-1/2 mb-3 ">
+          <PageHeader title="Closed Date" size="small">
+            <AccessGuard permissions={[Permissions.CreateClosedDate]}>
+              <Button
+                size="large"
+                type="primary"
+                id="createNewClosedHolidayFieldId"
+                icon={<LuPlus size={18} />}
+                onClick={() => {
+                  setSelectedClosedDate(null);
+                  setIsShowClosedDateSidebar(true);
+                }}
+              >
+                <span className="hidden sm:inline"> New Closed Date</span>
+              </Button>
+            </AccessGuard>
+          </PageHeader>
+        </div>
+      </div>
 
-      <ClosedDateTable />
+      {/* Scrollable Container for Horizontal Scroll */}
+      <div className="w-full overflow-x-auto border border-gray-300 rounded-lg p-2 mt-12">
+        <ClosedDateTable />
+      </div>
 
       <ClosedDateSidebar />
     </>

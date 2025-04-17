@@ -34,6 +34,9 @@ export interface WorkScheduleDetail {
   endTime: string;
   hours: number;
   status: boolean;
+  duration: number;
+  workDay: boolean;
+  day: string;
 }
 
 export interface WorkSchedule {
@@ -53,6 +56,7 @@ export type EditState = {
   emergencyContact: boolean;
   bankInformation: boolean;
   rolePermission: boolean;
+  additionalInformation: boolean;
 };
 export interface WorkScheduleData {
   items: WorkSchedule[];
@@ -66,6 +70,11 @@ interface SearchParams {
   allStatus: string | null;
 }
 interface UserState {
+  isBasicSalaryModalVisible: boolean;
+  setIsBasicSalaryModalVisible: (isBasicSalaryModalVisible: boolean) => void;
+
+  basicSalaryData: any | null;
+  setBasicSalaryData: (basicSalaryData: any) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
   userCurrentPage: number;
@@ -117,6 +126,31 @@ interface UserState {
 
   selectedPermissions: string[] | [];
   setSelectedPermissions: (selectedPermissions: string[] | []) => void;
+  setSelectedUniquePermissions: (newPermissions: string[] | []) => void;
+
+  selectedGroupPermissions: string[] | [];
+  setSelectedGroupPermissions: (
+    selectedGroupPermissions: string[] | [],
+  ) => void;
+  setSelectedUniqueGroupPermissions: (
+    selectedGroupPermissions: string[] | [],
+  ) => void;
+
+  selectedBasicPermissions: string[] | [];
+  setSelectedBasicPermissions: (
+    selectedBasicPermissions: string[] | [],
+  ) => void;
+  setSelectedUniqueBasicPermissions: (
+    selectedBasicPermissions: string[] | [],
+  ) => void;
+
+  selectedBasicGroupPermissions: string[] | [];
+  setSelectedBasicGroupPermissions: (
+    selectedBasicGroupPermissions: string[] | [],
+  ) => void;
+  setSelectedUniqueBasicGroupPermissions: (
+    selectedBasicGroupPermissions: string[] | [],
+  ) => void;
 
   documentFileList: any[];
   setDocumentFileList: (fileList: any[]) => void;
@@ -144,10 +178,10 @@ interface UserState {
   setIsAddEmployeeJobInfoModalVisible: (
     isAddEmployeeJobInfoModalVisible: boolean,
   ) => void;
-  isBasicSalaryModalVisible: boolean;
-  setIsBasicSalaryModalVisible: (isBasicSalaryModalVisible: boolean) => void;
-  basicSalaryData: any;
-  setBasicSalaryData: (basicSalaryData: any) => void;
+  employeeJobInfoModalWidth: string | null;
+  setEmployeeJobInfoModalWidth: (
+    employeeJobInfoModalWidth: string | null,
+  ) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -159,8 +193,8 @@ export const useEmployeeManagementStore = create<UserState>()(
     isBasicSalaryModalVisible: false,
     setIsBasicSalaryModalVisible: (isBasicSalaryModalVisible: boolean) =>
       set({ isBasicSalaryModalVisible }),
-    basicSalaryData: null,
     setBasicSalaryData: (basicSalaryData: any) => set({ basicSalaryData }),
+    basicSalaryData: null,
     birthDate: null,
     setBirthDate: (birthDate: Dayjs | null) => set({ birthDate }),
     searchValue: null,
@@ -176,6 +210,7 @@ export const useEmployeeManagementStore = create<UserState>()(
       emergencyContact: false,
       bankInformation: false,
       rolePermission: false,
+      additionalInformation: false,
     },
     setEdit: (key: keyof EditState) =>
       set((state) => ({
@@ -241,6 +276,46 @@ export const useEmployeeManagementStore = create<UserState>()(
     selectedPermissions: [],
     setSelectedPermissions: (selectedPermissions: string[] | []) =>
       set({ selectedPermissions }),
+    setSelectedUniquePermissions: (newPermissions: string[] | []) =>
+      set((state) => ({
+        selectedPermissions: Array.from(
+          new Set([...state.selectedPermissions, ...newPermissions]),
+        ),
+      })),
+
+    selectedGroupPermissions: [],
+    setSelectedGroupPermissions: (selectedGroupPermissions: string[] | []) =>
+      set({ selectedGroupPermissions }),
+
+    setSelectedUniqueGroupPermissions: (newGroupPermissions: string[] | []) =>
+      set((state) => ({
+        selectedGroupPermissions: Array.from(
+          new Set([...state.selectedGroupPermissions, ...newGroupPermissions]),
+        ),
+      })),
+
+    selectedBasicPermissions: [],
+    setSelectedBasicPermissions: (selectedBasicPermissions: string[] | []) =>
+      set({ selectedBasicPermissions }),
+    setSelectedUniqueBasicPermissions: (newPermissions: string[] | []) =>
+      set((state) => ({
+        selectedBasicPermissions: Array.from(
+          new Set([...state.selectedBasicPermissions, ...newPermissions]),
+        ),
+      })),
+
+    selectedBasicGroupPermissions: [],
+    setSelectedBasicGroupPermissions: (
+      selectedBasicGroupPermissions: string[] | [],
+    ) => set({ selectedBasicGroupPermissions }),
+    setSelectedUniqueBasicGroupPermissions: (
+      newGroupPermissions: string[] | [],
+    ) =>
+      set((state) => ({
+        selectedBasicPermissions: Array.from(
+          new Set([...state.selectedBasicPermissions, ...newGroupPermissions]),
+        ),
+      })),
 
     documentFileList: [],
     setDocumentFileList: (fileList) => set({ documentFileList: fileList }),
@@ -262,5 +337,8 @@ export const useEmployeeManagementStore = create<UserState>()(
       set((state) => ({
         searchParams: { ...state.searchParams, [key]: value },
       })),
+    employeeJobInfoModalWidth: null,
+    setEmployeeJobInfoModalWidth: (employeeJobInfoModalWidth: string | null) =>
+      set({ employeeJobInfoModalWidth }),
   })),
 );

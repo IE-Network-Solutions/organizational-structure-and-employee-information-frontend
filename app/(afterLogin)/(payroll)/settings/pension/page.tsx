@@ -1,9 +1,10 @@
 'use client';
 import { Table, Button, Typography, Input } from 'antd';
-import { EditOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
+import { EditOutlined, SaveOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 import { useGetAllPensionRule } from '@/store/server/features/payroll/payroll/queries';
 import { useUpdatePensionRule } from '@/store/server/features/payroll/payroll/mutation';
+import { FaPlus } from 'react-icons/fa';
 const { Title } = Typography;
 type PensionRule = {
   id: string;
@@ -124,25 +125,25 @@ const Pension = () => {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-10 rounded-2xl bg-white">
       <div className="flex justify-between items-center">
         <Title level={3}>Pension</Title>
         <Button
-          type="default"
-          className="bg-slate-200 border-none text-gray-400"
-          icon={<PlusOutlined />}
+          type="primary"
+          icon={<FaPlus />}
           style={{ marginBottom: '20px' }}
         >
-          Pension Rule
+          <span className="hidden lg:inline"> Pension Rule</span>
         </Button>
       </div>
-
-      <Table
-        dataSource={pensionRule ?? []}
-        columns={columns}
-        pagination={false}
-        loading={isLoading}
-      />
+      <div className="flex overflow-x-auto scrollbar-none w-full">
+        <Table
+          dataSource={pensionRule ?? []}
+          columns={columns}
+          pagination={false}
+          loading={isLoading}
+        />
+      </div>
     </div>
   );
 };

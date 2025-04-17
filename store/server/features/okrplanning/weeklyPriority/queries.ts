@@ -100,15 +100,3 @@ export const useGetDepartmentChild = (departmentId: string) =>
   );
 
 export const useGetWeeks = () => useQuery<WeekData>('weeks', () => getWeeks());
-
-/**
- * Custom hook to fetch a single post by ID using useQuery from react-query.
- *
- * @param postId The ID of the post to fetch
- * @returns The query object for fetching the post.
- *
- * @description
- * This hook uses `useQuery` to fetch a single post by its ID. It returns the
- * query object containing the post data, and it keeps the previous data
- * while the new data is being fetched.
- */

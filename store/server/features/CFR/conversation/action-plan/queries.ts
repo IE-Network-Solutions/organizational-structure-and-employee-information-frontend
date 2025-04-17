@@ -35,6 +35,20 @@ const getQuestionSetById = async (id: string) => {
   });
 };
 
+const getActionPlansById = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/conversation-action-plans/${id}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 const getActionPlansByConversationInstanceId = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -75,6 +89,15 @@ export const useGetAllActionPlansById = (id: string) => {
     enabled: typeof id === 'string' && id.length > 0,
     keepPreviousData: true,
   });
+};
+export const useGetActionPlansById = (id: string) => {
+  return useQuery<any>(
+    'conversationActionPlanId',
+    () => getActionPlansById(id),
+    {
+      enabled: typeof id === 'string' && id.length > 0,
+    },
+  );
 };
 
 export const useGetAllActionPlans = () => {

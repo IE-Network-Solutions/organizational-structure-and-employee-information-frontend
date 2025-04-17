@@ -67,7 +67,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       ...objectiveValue,
       title: objectiveTitle || '',
     });
-  }, [objectiveTitle]);
+    form.setFieldsValue({ title: objectiveTitle || '' });
+  }, [objectiveTitle, form]);
   const handleDrawerClose = () => {
     form.resetFields(); // Reset all form fields
     setObjectiveValue(defaultObjective); // Reset the objective state
@@ -108,10 +109,21 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           });
           return; // Stop submission if the sum is not 100
         }
+
         if (keyResults && keyResults.length !== 0) {
           // Iterate over each keyResult to validate all milestone key types
           for (const [index, keyResult] of keyResults.entries()) {
             const keyType = keyResult?.metricType?.name || keyResult?.key_type;
+            if (
+              keyResult?.title == '' ||
+              keyResult?.title == null ||
+              keyResult?.title == undefined
+            ) {
+              NotificationMessage.warning({
+                message: `Please Enter Number ${index + 1} Key Result Name`,
+              });
+              return; // Stop submission if the sum is not 100
+            }
             if (keyType === 'Milestone') {
               // Check if at least one milestone is added
               if (!keyResult.milestones || keyResult.milestones.length === 0) {
@@ -176,15 +188,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         // Validation failed
       });
   };
-  useEffect(() => {
-    if (objectiveValue) {
-      form.setFieldsValue(objectiveValue); // Set form fields with appType values
-    } else {
-      form.resetFields(); // Reset form if appType is null
-    }
-  }, [objectiveValue, form]);
+
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-2">
+    <div className="w-full flex justify-center items-center  pt-2  bottom-8  space-x-5 ">
       <CustomButton
         id="cancel-button"
         type="default"
@@ -306,7 +312,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 <Input
                   id="title-input-field"
                   allowClear
-                  value={objectiveValue?.title || ''}
+                  // value={objectiveValue?.title || ''}
                   onChange={(e) => {
                     handleObjectiveChange(e.target.value, 'title');
                   }}

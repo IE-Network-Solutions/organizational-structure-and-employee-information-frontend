@@ -12,6 +12,8 @@ import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/em
 import DeletePopover from '@/components/common/actionButton/deletePopover';
 import { useDeleteAssignedTarget } from '@/store/server/features/okrplanning/okr/target/mutation';
 import { useGetCriteriaTargets } from '@/store/server/features/okrplanning/okr/criteria/queries';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 function Page() {
   const [searchText, setSearchText] = useState('');
@@ -79,18 +81,22 @@ function Page() {
       key: 'action',
       render: (record: any) => (
         <div className="flex space-x-2">
-          <Button
-            type="default"
-            className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-600 border-none"
-            icon={<GrEdit />}
-            onClick={() => handleEditClick(record.key)}
-          />
-          <DeletePopover onDelete={() => handleDelete(record.key)}>
+          <AccessGuard permissions={[Permissions.UpdateVpTargetsAssignation]}>
             <Button
               type="default"
-              className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-              icon={<RiDeleteBin6Line />}
+              className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-600 border-none"
+              icon={<GrEdit />}
+              onClick={() => handleEditClick(record.key)}
             />
+          </AccessGuard>
+          <DeletePopover onDelete={() => handleDelete(record.key)}>
+            <AccessGuard permissions={[Permissions.DeleteVpTargetsAssignation]}>
+              <Button
+                type="default"
+                className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
+                icon={<RiDeleteBin6Line />}
+              />
+            </AccessGuard>
           </DeletePopover>
         </div>
       ),
@@ -106,17 +112,19 @@ function Page() {
   const handleTypeChange = (value: string) => setSelectedType(value);
 
   return (
-    <div className="p-10">
+    <div className="p-10 rounded-2xl bg-white h-full">
       <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Target Assignment</h1>
-        <Button
-          type="primary"
-          className="flex items-center space-x-2 py-8 px-8"
-          icon={<FaPlus />}
-          onClick={() => openDrawer()}
-        >
-          Assign Target
-        </Button>
+        <h1 className="text-2xl font-bold md:text-lg  ">Target Assignment</h1>
+        <AccessGuard permissions={[Permissions.AssignVpTargets]}>
+          <Button
+            type="primary"
+            className=" "
+            icon={<FaPlus />}
+            onClick={() => openDrawer()}
+          >
+            <span className="hidden lg:block"> Assign Target</span>
+          </Button>
+        </AccessGuard>
       </div>
 
       <TargetFilters
@@ -124,12 +132,14 @@ function Page() {
         onTypeChange={handleTypeChange}
         targetNames={['All Types', ...criteriaTypes]}
       />
-      <Table
-        dataSource={dataSource}
-        columns={columns}
-        pagination={{ pageSize: 5 }}
-        loading={targetAssignmentLoading}
-      />
+      <div className="flex  overflow-x-auto scrollbar-none  w-full">
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          pagination={{ pageSize: 5 }}
+          loading={targetAssignmentLoading}
+        />
+      </div>
 
       <AssignTargetDrawer />
     </div>

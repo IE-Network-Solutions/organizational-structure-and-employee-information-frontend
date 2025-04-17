@@ -11,7 +11,6 @@ import {
   useGetAllUsers,
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import CreateFeedbackForm from './_components/createFeedback';
 import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
 import dayjs from 'dayjs';
@@ -22,14 +21,14 @@ import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/acti
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { FeedbackService } from './_components/feedbackAnalytics';
 import { FeedbackCard, FeedbackCardSkeleton } from './_components/feedbackCard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 
 const Page = () => {
   const {
-    open,
     setOpen,
     setVariantType,
     setSelectedFeedbackRecord,
-    selectedFeedbackRecord,
     variantType,
     setUserId,
     userId,
@@ -104,21 +103,25 @@ const Page = () => {
     setActiveTab(key);
   };
 
-  const activeTabName =
-    getAllFeedbackTypes?.items?.find(
-      (item: FeedbackTypeItems) => item.id === activeTab,
-    )?.category ?? '';
+  // const activeTabName =
+  //   getAllFeedbackTypes?.items?.find(
+  //     (item: FeedbackTypeItems) => item.id === activeTab,
+  //   )?.category ?? '';
 
-  const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {`${activeTabName} - ${variantType}`}
-    </div>
-  );
+  // const modalHeader = (
+  //   <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+  //     {`${activeTabName} - ${variantType}`}
+  //   </div>
+  // );
 
   const items: TabsProps['items'] = [
     {
       key: 'all',
-      label: 'All Employees',
+      label: (
+        <AccessGuard permissions={[Permissions.ViewAllEmployeeFeedback]}>
+          All Employees
+        </AccessGuard>
+      ),
     },
     {
       key: 'personal',
@@ -394,6 +397,7 @@ const Page = () => {
           onChange={onChangeFeedbackType}
         />
       </Spin>
+
       <Tabs
         defaultActiveKey="appreciation"
         items={variantTypeItems}
@@ -412,6 +416,7 @@ const Page = () => {
             <div className="capitalize">{`Given up on  ${variantType}`}</div>
           }
           allowSearch={false}
+          permissionsData={[Permissions.CreateFeedback]}
         >
           <EmployeeSearchComponent fields={searchField} />
           <Table
@@ -437,7 +442,7 @@ const Page = () => {
         </TabLandingLayout>
       </div>
       <div>
-        <CustomDrawerLayout
+        {/* <CustomDrawerLayout
           open={
             (open && activeTabName !== '') || selectedFeedbackRecord !== null
           }
@@ -448,9 +453,9 @@ const Page = () => {
           }}
           modalHeader={modalHeader}
           width="40%"
-        >
-          <CreateFeedbackForm form={form} />
-        </CustomDrawerLayout>
+        > */}
+        <CreateFeedbackForm form={form} />
+        {/* </CustomDrawerLayout> */}
       </div>
     </TabLandingLayout>
   );

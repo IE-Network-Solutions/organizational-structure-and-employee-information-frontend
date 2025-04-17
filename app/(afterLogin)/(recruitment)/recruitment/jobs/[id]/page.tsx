@@ -31,7 +31,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   };
 
   const customBreadCrumbSubTitle = (
-    <div className="flex items-center justify-start">
+    <div className="flex items-center justify-start space-x-4">
       <div className="flex items-center justify-center text-sm font-normal text-gray-400">
         List Job
       </div>
@@ -50,7 +50,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
         <div className="flex items-center my-4 gap-4 md:gap-8">
           <WhatYouNeed />
           <CustomButton
-            title="Add candidates"
+            title="Add candidate"
             id="createUserButton"
             icon={<FaPlus className="mr-2" />}
             onClick={showDrawer}

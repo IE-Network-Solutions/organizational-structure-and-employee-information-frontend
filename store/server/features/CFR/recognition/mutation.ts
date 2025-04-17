@@ -20,6 +20,21 @@ const addRecognitionType = async (data: any) => {
     headers,
   });
 };
+const updateRecognitionTypeWithCriteria = async (data: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/update-recognition/with-criteria/${data?.id}`,
+    method: 'patch',
+    data,
+    headers,
+  });
+};
+
 const updateRecognitionType = async (data: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -35,20 +50,9 @@ const updateRecognitionType = async (data: any) => {
   });
 };
 
-const createRecognition = async ({
-  recognitionTypeId,
-  calendarId,
-  sessionId,
-  monthId,
-}: {
-  recognitionTypeId: string;
-  calendarId: string;
-  sessionId: string;
-  monthId: string;
-}) => {
+const createRecognition = async ({ value }: { value: any }) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const userId = useAuthenticationStore.getState().userId;
 
   const headers = {
     tenantId: tenantId,
@@ -57,13 +61,22 @@ const createRecognition = async ({
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition`,
     method: 'post',
-    data: {
-      issuerId: userId,
-      recognitionTypeId,
-      calendarId,
-      sessionId,
-      monthId,
-    },
+    data: value,
+    headers,
+  });
+};
+const createEmployeeRecognition = async ({ value }: { value: any }) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition/recognize`,
+    method: 'post',
+    data: value,
     headers,
   });
 };
@@ -82,12 +95,27 @@ const deleteRecognitionType = async (id: any) => {
     headers,
   });
 };
+export const useUpdateRecognitionWithCriteria = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateRecognitionTypeWithCriteria, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
+
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
 export const useUpdateRecognitionType = () => {
   const queryClient = useQueryClient();
   return useMutation(updateRecognitionType, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
+
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -99,6 +127,7 @@ export const useDeleteRecognitionType = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -110,6 +139,7 @@ export const useAddRecognitionType = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -118,6 +148,20 @@ export const useAddRecognitionType = () => {
 export const useCreateRecognition = () => {
   const queryClient = useQueryClient();
   return useMutation(createRecognition, {
+    onSuccess: (notused, variables: any) => {
+      queryClient.invalidateQueries('recognitions');
+      queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
+
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+    // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
+  });
+};
+export const useCreateEmployeeRecognition = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createEmployeeRecognition, {
     onSuccess: (notused, variables: any) => {
       queryClient.invalidateQueries('recognitions');
       const method = variables?.method?.toUpperCase();

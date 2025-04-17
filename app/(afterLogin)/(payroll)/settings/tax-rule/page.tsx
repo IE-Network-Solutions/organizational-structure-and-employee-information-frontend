@@ -83,21 +83,22 @@ const TaxRules = () => {
   // };
 
   return (
-    <div className="p-6">
+    <div className="p-10 rounded-2xl bg-white">
       <div className="flex justify-between items-center">
         <Title level={3}>Tax Rule</Title>
         {/* <Button type="primary" icon={<PlusOutlined />} onClick={handleAddRule}>
           Add Tax Rule
         </Button> */}
       </div>
-
-      <Table
-        dataSource={data}
-        columns={columns}
-        pagination={false}
-        bordered
-        loading={isLoading}
-      />
+      <div className="flex overflow-x-auto scrollbar-none w-full">
+        <Table
+          dataSource={data}
+          columns={columns}
+          pagination={false}
+          bordered
+          loading={isLoading}
+        />
+      </div>
       <Drawer />
     </div>
   );

@@ -11,6 +11,7 @@ interface SessionDrawerProps {
   form: FormInstance;
   isCreateLoading: boolean;
   isUpdateLoading: boolean;
+  isFiscalYear?: boolean;
 }
 
 const SessionDrawer: React.FC<SessionDrawerProps> = ({
@@ -85,7 +86,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   };
 
   useEffect(() => {
-    const updatedSessionData = sessionData.map((session: any) => ({
+    const updatedSessionData = sessionData?.map((session: any) => ({
       ...session,
       sessionStartDate: session.sessionStartDate
         ? dayjs(session.sessionStartDate)
@@ -170,12 +171,14 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   }, [isEditMode, selectedFiscalYear, form]);
 
   return (
-    <div className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full">
+    <div
+      className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full`}
+    >
       <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-4">
         Set up Session
       </div>
       <Form form={form} layout="vertical">
-        {sessionData.map((item, index) => {
+        {sessionData?.map((item, index) => {
           return (
             <div className="my-3" key={index}>
               <Form.Item

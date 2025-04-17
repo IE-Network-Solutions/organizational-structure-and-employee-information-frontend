@@ -79,10 +79,16 @@ const AddressComponent = ({
                         let fieldValidation = getFieldValidation(key);
 
                         switch (key) {
-                          case 'country':
-                          case 'city':
-                            fieldValidation = 'text';
+                          case 'phoneNumber':
+                            fieldValidation = 'number';
                             break;
+                          case 'firstName':
+                          case 'middleName':
+                          case 'lastName':
+                          case 'subCity':
+                            fieldValidation = 'any';
+                            break;
+
                           default:
                             fieldValidation = getFieldValidation(key);
                         }

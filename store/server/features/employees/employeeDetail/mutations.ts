@@ -95,7 +95,7 @@ const updateEmployeeRolePermissionMutation = async (
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     },
-    data: values,
+    data: { ...values, groupPermissionId: undefined }, // Ensuring it doesn't get sent
   });
 };
 const updateEmployeeJobInformationMutation = async (

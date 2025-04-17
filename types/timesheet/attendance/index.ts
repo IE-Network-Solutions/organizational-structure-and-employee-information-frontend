@@ -2,6 +2,7 @@ import { BreakType } from '@/types/timesheet/breakType';
 import { StatusBadgeTheme } from '@/components/common/statusBadge';
 import { Geolocation } from '@/types/timesheet/geolocation';
 import { DateInfo } from '@/types/commons/dateInfo';
+import { Meta } from '@/store/server/features/okrPlanningAndReporting/interface';
 
 export enum AttendanceRecordType {
   LATE = 'late',
@@ -17,7 +18,7 @@ export const AttendanceRecordTypeBadgeTheme: Record<
   [AttendanceRecordType.LATE]: StatusBadgeTheme.warning,
   [AttendanceRecordType.EARLY]: StatusBadgeTheme.warning,
   [AttendanceRecordType.ABSENT]: StatusBadgeTheme.danger,
-  [AttendanceRecordType.PRESENT]: StatusBadgeTheme.secondary,
+  [AttendanceRecordType.PRESENT]: StatusBadgeTheme.success,
 };
 
 export const attendanceRecordTypeOption: {
@@ -47,7 +48,10 @@ export interface AttendanceRecord extends DateInfo {
   attendanceImportId: string | null;
   import: AttendanceImport;
 }
-
+export interface PaginateAttendanceRecord extends DateInfo {
+  items: AttendanceRecord[];
+  meta: Meta;
+}
 export interface AttendanceBreak extends DateInfo {
   id: string;
   tenantId: string;

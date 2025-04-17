@@ -1,5 +1,5 @@
 'use client';
-import { Button, Drawer, Tabs } from 'antd';
+import { Button, Spin, Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import { FaPlus } from 'react-icons/fa';
 import AllRecognition from '../_components/recognition/allRecognition';
@@ -7,21 +7,22 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 
 import RecognitionForm from '../_components/recognition/createRecognition';
-import { useGetAllRecognitionData } from '@/store/server/features/CFR/recognition/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
 
 const Page = () => {
   const { open, setOpen, setOpenRecognitionType, openRecognitionType } =
     ConversationStore();
   // const { data: recognitionType } = useGetAllRecognitionType();
-  const { data: recognitionType } = useGetAllRecognitionData();
+  const { data: recognitionType, isLoading } =
+    useGetAllRecognitionWithRelations();
 
   const onChange = () => {};
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      Add New Recognition
+      {openRecognitionType ? 'Update Recognition' : 'Add New Recognition'}
     </div>
   );
 
@@ -49,24 +50,26 @@ const Page = () => {
 
   return (
     <div>
-      <div className="flex justify-start">
-        <Tabs
-          className="max-w-[850px] overflow-x-scrollable"
-          defaultActiveKey="1"
-          items={items}
-          onChange={onChange}
-        />
-        <AccessGuard permissions={[Permissions.CreateRecognition]}>
-          <Button
-            onClick={() => setOpenRecognitionType(true)}
-            icon={<FaPlus />}
-            type="primary"
-            className="flex gap-2 ml-2 mt-3"
-          >
-            Category
-          </Button>
-        </AccessGuard>
-      </div>
+      <Spin spinning={isLoading}>
+        <div className="flex md:flex-row flex-col-reverse justify-between">
+          <Tabs
+            className="max-w-full overflow-x-auto "
+            defaultActiveKey="1"
+            items={items}
+            onChange={onChange}
+          />
+          <AccessGuard permissions={[Permissions.CreateRecognition]}>
+            <Button
+              onClick={() => setOpenRecognitionType(true)}
+              icon={<FaPlus />}
+              type="primary"
+              className="flex gap-2 ml-2 mt-3"
+            >
+              Category
+            </Button>
+          </AccessGuard>
+        </div>
+      </Spin>
 
       <CustomDrawerLayout
         open={open}
@@ -74,19 +77,19 @@ const Page = () => {
         modalHeader={modalHeader}
         width="50%"
       >
-        <RecognitionForm />
+        <RecognitionForm onClose={() => setOpen(false)} />
       </CustomDrawerLayout>
-      <Drawer
+      {/* <Drawer
         width={600} // Adjust the width as needed
         title={modalHeader}
         onClose={() => setOpenRecognitionType(false)}
         open={openRecognitionType}
-      >
-        <RecognitionForm
-          createCategory={true}
-          onClose={() => setOpenRecognitionType(false)}
-        />
-      </Drawer>
+      > */}
+      <RecognitionForm
+        createCategory={true}
+        onClose={() => setOpenRecognitionType(false)}
+      />
+      {/* </Drawer> */}
     </div>
   );
 };

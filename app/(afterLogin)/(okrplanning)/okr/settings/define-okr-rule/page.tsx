@@ -11,6 +11,7 @@ import { useGetOkrRule } from '@/store/server/features/okrplanning/monitoring-ev
 import OkrRuleDrawer from './okr-rule';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const DefineOkrRule = () => {
   const {
@@ -51,16 +52,17 @@ const DefineOkrRule = () => {
   }
   const { data: OkrRules, isLoading } = useGetOkrRule();
   return (
-    <div className="p-6   w-full">
+    <div className="p-10 rounded-2xl bg-white h-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">OKR Rule</h2>
         <AccessGuard permissions={[Permissions.CreateOkrRule]}>
           <Button
             type="primary"
             className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
+            icon={<FaPlus className="text-xs" />}
             onClick={showDrawer}
           >
-            + Add Rule
+            <span className="hidden md:block ">Add Rule</span>
           </Button>
         </AccessGuard>
       </div>
@@ -76,7 +78,7 @@ const DefineOkrRule = () => {
               <AccessGuard permissions={[Permissions.UpdateOkrRule]}>
                 <Button
                   icon={<EditOutlined />}
-                  className="mr-2 bg-blue text-white"
+                  className="mr-2 bg-blue text-white border-none"
                   shape="circle"
                   onClick={() => handleEditModal(item)}
                 />
@@ -84,7 +86,7 @@ const DefineOkrRule = () => {
               <AccessGuard permissions={[Permissions.DeleteOkrRule]}>
                 <Button
                   icon={<DeleteOutlined />}
-                  className="mr-2 bg-red-500 text-white"
+                  className="mr-2 bg-red-500 text-white border-none"
                   shape="circle"
                   onClick={() => showDeleteModal(item?.id as string)}
                 />

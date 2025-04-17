@@ -16,7 +16,7 @@ import TnaRequestSidebar from '@/app/(afterLogin)/(tna)/tna/review/_components/t
 import { useRouter } from 'next/navigation';
 import { useGetTna } from '@/store/server/features/tna/review/queries';
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { TnaRequestBody } from '@/store/server/features/tna/review/interface';
 import {
   TrainingNeedAssessment,
@@ -33,8 +33,37 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import UserCard from '@/components/common/userCard/userCard';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import TnaApprovalTable from './_components/approvalTabel';
+import Filters from '@/app/(afterLogin)/(payroll)/payroll/_components/filters';
 
 const TnaReviewPage = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (searchValues: any) => {
+    const queryParams = new URLSearchParams();
+
+    if (searchValues?.sessionId) {
+      queryParams.append('sessionId', searchValues.sessionId);
+    }
+    if (searchValues?.yearId) {
+      queryParams.append('yearId', searchValues.yearId);
+    }
+    if (searchValues?.currencyId) {
+      queryParams.append('currencyId', searchValues.currencyId);
+    }
+    if (searchValues?.departmentId) {
+      queryParams.append('departmentId', searchValues.departmentId);
+    }
+    if (searchValues?.monthId) {
+      queryParams.append('monthId', searchValues.monthId);
+    }
+
+    const searchParams = queryParams.toString()
+      ? `?${queryParams.toString()}`
+      : '';
+    setSearchQuery(searchParams);
+    refetch();
+  };
+
   const EmpRender = ({ userId }: any) => {
     const {
       isLoading,
@@ -82,6 +111,7 @@ const TnaReviewPage = () => {
   const { data, isLoading, refetch } = useGetTna(
     { page, limit, orderBy, orderDirection },
     { filter },
+    searchQuery,
   );
 
   const {
@@ -109,6 +139,7 @@ const TnaReviewPage = () => {
           key: item.id,
           title: item.title,
           createdBy: item.assignedUserId,
+          trainingPrice: item.trainingPrice,
           completedAt: item.completedAt,
           attachment: item.trainingProofs,
           status: item.status,
@@ -118,6 +149,7 @@ const TnaReviewPage = () => {
       );
     }
   }, [data]);
+  <Filters onSearch={handleSearch} disable={['name', 'payPeriod']} />;
 
   const tableColumns: TableColumnsType<any> = [
     {
@@ -133,6 +165,13 @@ const TnaReviewPage = () => {
       key: 'createdBy',
       sorter: true,
       render: (text: string) => <EmpRender userId={text} />,
+    },
+    {
+      title: 'price',
+      dataIndex: 'trainingPrice',
+      key: 'trainingPrice',
+      sorter: true,
+      render: (text: string) => <div>{text}</div>,
     },
     {
       title: 'Completed Date',
@@ -276,13 +315,17 @@ const TnaReviewPage = () => {
             </AccessGuard>
           </Space>
         </PageHeader>
+        <Filters
+          onSearch={handleSearch}
+          disable={['name', 'payPeriod', 'department']}
+        />
 
         <Table
           className="mt-6"
           columns={tableColumns}
           dataSource={tableData}
           loading={isLoading || isLoadingDelete}
-          pagination={defaultTablePagination(data?.meta?.totalItems)}
+          pagination={DefaultTablePagination(data?.meta?.totalItems)}
           onChange={(pagination, filters, sorter: any) => {
             setPage(pagination.current ?? 1);
             setLimit(pagination.pageSize ?? 10);

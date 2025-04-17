@@ -16,7 +16,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'course-category',
-        icon: <CiCalendarDate />,
+        icon: <CiCalendarDate className="hidden lg:block" />,
         label: <p className="menu-item-label">Course Category</p>,
         className: 'px-1',
       },
@@ -25,7 +25,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'tna-category',
-        icon: <CiCalendarDate />,
+        icon: <CiCalendarDate className="hidden lg:block" />,
         label: <p className="menu-item-label">TNA Category</p>,
         className: 'px-1',
       },
@@ -34,7 +34,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'commitment-rule',
-        icon: <CiCalendarDate />,
+        icon: <CiCalendarDate className="hidden lg:block" />,
         label: <p className="menu-item-label">Commitment Rule</p>,
         className: 'px-1',
       },
@@ -43,7 +43,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'approval-workflow',
-        icon: <TbLayoutList />,
+        icon: <TbLayoutList className="hidden lg:block" />,
         label: <p className="menu-item-label">Approval Workflow</p>,
         className: 'px-1',
       },
@@ -51,16 +51,18 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
     },
   ]);
   return (
-    <div className="page-wrap">
-      <PageHeader
-        title="Settings"
-        description="Training & Learning Settings"
-      ></PageHeader>
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="page-wrap">
+        <PageHeader
+          title="Settings"
+          description="Training & Learning Settings"
+        ></PageHeader>
 
-      <div className="flex gap-6 mt-8">
-        <SidebarMenu menuItems={menuItems} />
+        <div className="flex flex-col lg:flex-row gap-6 mt-8">
+          <SidebarMenu menuItems={menuItems} />
 
-        <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+          <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+        </div>
       </div>
     </div>
   );
