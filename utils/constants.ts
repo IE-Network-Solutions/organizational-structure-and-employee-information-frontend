@@ -35,4 +35,3 @@ export const EMAIL_URL = process.env.EMAIL_URL;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 export const DEFAULT_TENANT_ID = tenantId;
-
