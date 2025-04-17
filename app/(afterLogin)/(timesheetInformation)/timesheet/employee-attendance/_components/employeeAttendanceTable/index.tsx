@@ -236,6 +236,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       nFilter['type'] = val.type;
     }
 
+    if (val.employeeId) {
+      nFilter['userIds'] = Array.isArray(val.employeeId)
+        ? val.employeeId
+        : [val.employeeId];
+    }
+
     setFilter(nFilter);
     setBodyRequest((prev) => ({
       ...prev,

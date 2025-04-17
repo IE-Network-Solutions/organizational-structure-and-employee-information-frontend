@@ -43,7 +43,7 @@ const MilestoneView: React.FC<OKRProps> = ({
     const newMilestone: Milestone = {
       title: '',
       weight: 0, // Will be calculated dynamically
-      status: 'In Progress', // Optional default status
+      status: 'In Progress',
     };
 
     const updatedObjectiveValue = {
@@ -52,7 +52,6 @@ const MilestoneView: React.FC<OKRProps> = ({
         if (i === index) {
           const currentMilestones = item.milestones || [];
 
-          // Separate completed and non-completed milestones
           const completedMilestones = currentMilestones.filter(
             (milestone: Milestone) => milestone.status === 'Completed',
           );
@@ -60,7 +59,7 @@ const MilestoneView: React.FC<OKRProps> = ({
             (milestone: Milestone) => milestone.status !== 'Completed',
           );
 
-          const totalMilestones = nonCompletedMilestones.length + 1; // Include the new milestone
+          const totalMilestones = nonCompletedMilestones.length + 1;
           const remainingWeight =
             100 -
             completedMilestones.reduce(
@@ -68,16 +67,19 @@ const MilestoneView: React.FC<OKRProps> = ({
               0,
             );
 
-          // Recalculate weights for non-completed milestones and the new milestone
+          const weightPerMilestone = Math.round(
+            remainingWeight / totalMilestones,
+          );
+
           const updatedMilestones = [
-            ...completedMilestones, // Keep completed milestones unchanged
+            ...completedMilestones,
             ...nonCompletedMilestones.map((milestone: Milestone) => ({
               ...milestone,
-              weight: remainingWeight / totalMilestones,
+              weight: weightPerMilestone,
             })),
             {
               ...newMilestone,
-              weight: remainingWeight / totalMilestones,
+              weight: weightPerMilestone,
             },
           ];
 
@@ -96,7 +98,6 @@ const MilestoneView: React.FC<OKRProps> = ({
   const handleAddMilestoneSingleMilestone = () => {
     const currentMilestones = keyResultValue.milestones || [];
 
-    // Separate completed and non-completed milestones
     const completedMilestones = currentMilestones.filter(
       (milestone: any) => milestone.status === 'Completed',
     );
@@ -104,7 +105,6 @@ const MilestoneView: React.FC<OKRProps> = ({
       (milestone: any) => milestone.status !== 'Completed',
     );
 
-    // Calculate remaining weight after accounting for completed milestones
     const remainingWeight =
       100 -
       completedMilestones.reduce(
@@ -112,25 +112,27 @@ const MilestoneView: React.FC<OKRProps> = ({
         0,
       );
 
-    const totalNonCompletedMilestones = nonCompletedMilestones.length + 1; // Include the new milestone
+    const totalNonCompletedMilestones = nonCompletedMilestones.length + 1;
+
+    const weightPerMilestone = Math.round(
+      remainingWeight / totalNonCompletedMilestones,
+    );
 
     const newMilestone = {
       title: '',
-      weight: remainingWeight / totalNonCompletedMilestones,
-      status: 'In Progress', // Optional default status
+      weight: weightPerMilestone,
+      status: 'In Progress',
     };
 
-    // Recalculate weights for non-completed milestones
     const updatedMilestones = [
-      ...completedMilestones, // Keep completed milestones unchanged
+      ...completedMilestones,
       ...nonCompletedMilestones.map((milestone: any) => ({
         ...milestone,
-        weight: remainingWeight / totalNonCompletedMilestones,
+        weight: weightPerMilestone,
       })),
-      newMilestone, // Add the new milestone
+      newMilestone,
     ];
 
-    // Update the key result value
     const updatedKeyResultValue = {
       ...keyResultValue,
       milestones: updatedMilestones,
@@ -143,7 +145,6 @@ const MilestoneView: React.FC<OKRProps> = ({
     const newKeyResult = [...objectiveValue?.keyResults];
     const currentMilestones = newKeyResult[index]?.milestones || [];
 
-    // Separate completed and non-completed milestones
     const completedMilestones = currentMilestones.filter(
       (milestone: any) => milestone.status === 'Completed',
     );
@@ -151,13 +152,10 @@ const MilestoneView: React.FC<OKRProps> = ({
       (milestone: any) => milestone.status !== 'Completed',
     );
 
-    // Remove the milestone with the specified ID
-    /* eslint-enable @typescript-eslint/naming-convention */
     const updatedNonCompletedMilestones = nonCompletedMilestones.filter(
       (notused: any, mi: number) => mi !== mId,
     );
-    /* eslint-disable @typescript-eslint/naming-convention */
-    // Calculate the remaining weight for non-completed milestones
+
     const remainingWeight =
       100 -
       completedMilestones.reduce(
@@ -167,16 +165,18 @@ const MilestoneView: React.FC<OKRProps> = ({
 
     const totalNonCompletedMilestones = updatedNonCompletedMilestones.length;
 
-    // Recalculate weights for non-completed milestones
+    const weightPerMilestone = Math.round(
+      remainingWeight / totalNonCompletedMilestones,
+    );
+
     const recalculatedMilestones = [
-      ...completedMilestones, // Keep completed milestones unchanged
+      ...completedMilestones,
       ...updatedNonCompletedMilestones.map((milestone: any) => ({
         ...milestone,
-        weight: remainingWeight / totalNonCompletedMilestones,
+        weight: weightPerMilestone,
       })),
     ];
 
-    // Update the key result
     newKeyResult[index] = {
       ...newKeyResult[index],
       milestones: recalculatedMilestones,
@@ -252,7 +252,10 @@ const MilestoneView: React.FC<OKRProps> = ({
   }
 
   const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
-
+  const totalMilestoneWeight = keyValue?.milestones?.reduce(
+    (sum: number, milestone: Milestone) => sum + milestone.weight,
+    0,
+  );
   return (
     <div
       className="py-4  border-b-[1px] border-gray-300"
@@ -276,7 +279,7 @@ const MilestoneView: React.FC<OKRProps> = ({
               {
                 required: true,
                 message: 'Milestone title is required',
-                validator: (_, value) =>
+                validator: (notused, value) =>
                   value && value.trim() !== ''
                     ? Promise.resolve()
                     : Promise.reject(new Error('Milestone title is required')),
@@ -418,7 +421,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                     disabled={milestone?.status == 'Completed'}
                     id={`milestone-title-${index}-${mindex}`}
                     placeholder={`${milestone.title}`}
-                    // value={milestone?.title}
+                    defaultValue={`${milestone.title}`}
                     onChange={(e) =>
                       milestoneChange(e.target.value, index, mindex, 'title')
                     }
@@ -470,6 +473,12 @@ const MilestoneView: React.FC<OKRProps> = ({
                 </Form.Item>
               </div>
             ))}
+            <div className="flex justify-end">
+              <span className="text-sm text-gray-500">
+                Total Milestone Weight:{' '}
+                <strong>{totalMilestoneWeight} %</strong>
+              </span>
+            </div>
           </Form.Item>
         )}
       </Form>

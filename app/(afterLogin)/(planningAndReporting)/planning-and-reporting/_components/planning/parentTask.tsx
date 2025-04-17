@@ -20,9 +20,9 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
   const generateTreeData = (tasks: any[]): any[] => {
     return tasks.map((task, index) => ({
       title: (
-        <div className="grid justify-between items-center gap-2 grid-cols-12 w-[calc(90vw-50%)]">
-          {/* Task Title & Icon */}
-          <div className="col-span-7">
+        <div className="grid grid-cols-12 w-full pr-2">
+          {/* Task Title and Icon */}
+          <div className="col-span-6 ">
             <span className="text-xs">{task?.task}</span>
             {task?.achieveMK &&
               (keyResult?.metricType?.name === 'Milestone' ? (
@@ -32,34 +32,33 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
               ))}
           </div>
 
-          {/* Task Details (Priority, Weight, Target) */}
-          <div className="col-span-5">
+          {/* Details */}
+          <div className="col-span-6 flex gap-1 text-[10px] ml-auto justify-end flex-wrap items-center">
             <Tag
-              className="font-bold border-none w-16 text-center capitalize text-[10px]"
+              className="font-semibold border-none text-center capitalize px-2 py-0 h-5"
               color={getPriorityColor(task?.priority)}
             >
               {task?.priority || 'None'}
             </Tag>
 
-            <Text type="secondary" className="text-[10px] mr-2">
-              <span className="text-xs text-blue">&bull;</span> Weight:
+            <Text type="secondary">
+              <span className="text-blue mr-1">&bull;</span>Weight:
             </Text>
             <Tag
-              className="font-bold border-none w-16 text-center text-blue text-[10px]"
+              className="font-semibold border-none text-blue px-2 py-0 h-5"
               color="#B2B2FF"
             >
               {task?.weight || 0}
             </Tag>
 
-            {/* Show Target if applicable */}
             {keyResult?.metricType?.name !== 'Milestone' &&
               keyResult?.metricType?.name !== 'Achieve' && (
                 <>
-                  <Text type="secondary" className="text-[10px]">
-                    <span className="text-xs text-blue">&bull;</span> Target:
+                  <Text type="secondary">
+                    <span className="text-blue mr-1">&bull;</span>Target:
                   </Text>
                   <Tag
-                    className="font-bold border-none w-16 text-center text-blue text-[10px]"
+                    className="font-semibold border-none text-blue px-2 py-0 h-5"
                     color="#B2B2FF"
                   >
                     {Number(task?.targetValue)?.toLocaleString() || 'N/A'}
@@ -77,14 +76,14 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
         ) : (
           <MdKey size={14} className="text-gray-500" />
         )
-      ) : null, // Child node icon
+      ) : null,
     }));
   };
 
   const treeData = [
     {
       title: (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full">
           <div className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#cfaaff]">
             <span className="rounded-full bg-blue w-1 h-1"></span>
           </div>
@@ -97,13 +96,15 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
   ];
 
   return (
-    <Tree
-      treeData={treeData}
-      showIcon
-      showLine={{ showLeafIcon: false }}
-      switcherIcon={null}
-      defaultExpandAll
-    />
+    <div className="w-full max-w-[850px]">
+      <Tree
+        treeData={treeData}
+        showIcon
+        showLine={{ showLeafIcon: false }}
+        switcherIcon={null}
+        defaultExpandAll
+      />
+    </div>
   );
 };
 

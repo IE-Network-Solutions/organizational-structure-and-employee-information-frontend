@@ -25,7 +25,7 @@ const DeductionTypePage = () => {
               setIsDeductionOpen(true);
             }}
           >
-            <span className="hidden lg:inline"> New DeductionT ype</span>
+            <span className="hidden lg:inline"> New Deduction Type</span>
           </Button>
         </AccessGuard>
       </PageHeader>

@@ -23,7 +23,7 @@ export const crudRequest = async ({
   params,
 }: RequestParams) => {
   const userId = useAuthenticationStore.getState().userId;
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  const tenantId = '9b320d7d-bece-4dd4-bb87-dd226f70daef';
 
   headers = { ...headers, requestedBy: userId, createdBy: userId, tenantId };
   try {

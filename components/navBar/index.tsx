@@ -1,7 +1,7 @@
 'use client';
 import React, { ReactNode, useState, useEffect } from 'react';
 import '../../app/globals.css';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
@@ -45,18 +45,18 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
-  const pathname = usePathname(); // Add this hook
+  const pathname = usePathname();
+
   const { setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
-  // const { pathname } = router;
   const [expandedKeys, setExpandedKeys] = useState<
     (string | number | bigint)[]
-  >([]); // Include bigint
+  >([]);
   const [selectedKeys, setSelectedKeys] = useState<
     (string | number | bigint)[]
-  >([pathname]); // Include bigint
+  >([pathname]);
 
   const treeData: CustomMenuItem[] = [
     {
@@ -237,12 +237,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           className: 'font-bold h-9',
           permissions: ['view_feedback_recognition'],
         },
-        {
-          title: 'Form',
-          key: '/feedback/categories',
-          className: 'font-bold h-9',
-          permissions: ['manage_feedback_forms'],
-        },
+
         {
           title: 'Settings',
           key: '/feedback/settings',
@@ -479,20 +474,28 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   ];
 
   const handleSelect = (keys: (string | number | bigint)[], info: any) => {
-    // Include bigint
-    const selectedKey = keys[0]; // Now using (string | number | bigint)
+    const selectedKey = info?.node?.key;
+    if (!selectedKey) return;
 
     if (info.node.children) {
-      // If it's a parent, toggle expand/collapse
       setExpandedKeys((prev) =>
         prev.includes(selectedKey)
           ? prev.filter((key) => key !== selectedKey)
           : [...prev, selectedKey],
       );
     } else {
-      // If it's a child, navigate
-      router.push(selectedKey + '');
-      setSelectedKeys(keys); // Update the selected key for navigation
+      const path = String(selectedKey);
+      if (pathname !== path) {
+        router.push(path);
+      }
+
+      setSelectedKeys([selectedKey]);
+    }
+  };
+  const handleDoubleClick = (event: React.MouseEvent, node: any) => {
+    const key = node?.key;
+    if (!node.children && key) {
+      router.push(String(key));
     }
   };
 
@@ -591,6 +594,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             expandedKeys={expandedKeys}
             selectedKeys={selectedKeys}
             onSelect={handleSelect}
+            onDoubleClick={handleDoubleClick}
             className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full"
             switcherIcon={null}
           />

@@ -92,12 +92,16 @@ const UserSidebar = (props: any) => {
       )}
     </div>
   );
-
+  function handleCancel() {
+    props?.onClose();
+    form.resetFields();
+    setProfileFileList([]);
+  }
   return (
     open && (
       <CustomDrawerLayout
         open={open}
-        onClose={props?.onClose}
+        onClose={handleCancel}
         modalHeader={modalHeader}
         width="40%"
       >

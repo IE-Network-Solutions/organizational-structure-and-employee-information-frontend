@@ -29,7 +29,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   const renderDrawerContent = () => {
     switch (drawerContent) {
       case 'transfer':
-        return <TransferForm />;
+        return <TransferForm form={form} />;
       case 'merge':
         return <MergeForm form={form} />;
       case 'delete':
