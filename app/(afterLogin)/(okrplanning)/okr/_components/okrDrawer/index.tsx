@@ -222,16 +222,14 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         layout="vertical"
         initialValues={objectiveValue}
       >
-        
-        
         <Row gutter={[16, 16]} className="w-full">
           {/* Objective/Alignment */}
-          
+
           <Col xs={24} sm={12} md={16}>
-          <Checkbox checked={alignment} onChange={() => handleAlignment()}>
-          Change Objective Name
-        </Checkbox>
-        </Col>
+            <Checkbox checked={alignment} onChange={() => handleAlignment()}>
+              Change Objective Name
+            </Checkbox>
+          </Col>
           <Col xs={24} sm={12} md={16}>
             <Form.Item
               id="alignment-select"

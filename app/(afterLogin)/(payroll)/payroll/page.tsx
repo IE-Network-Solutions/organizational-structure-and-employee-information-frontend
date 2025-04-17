@@ -123,52 +123,6 @@ const Payroll = () => {
     netPay: number;
   };
 
-  const handleExportBank = async () => {
-    if (!employeeInfo || employeeInfo.length === 0) {
-      notification.error({
-        message: 'No Data Available',
-        description: 'There is no data available to export.',
-      });
-      return;
-    }
-    setLoading(true);
-    try {
-      const flatData = employeeInfo.map((employee: any) => {
-        const payroll = mergedPayroll.find(
-          (p: any) => p.employeeId === employee.id,
-        ) as Payroll | undefined;
-
-        return {
-          employeeName: `${employee.firstName || ''} ${employee.middleName || ''} ${employee.lastName || ''}`,
-          email: employee.email || '--',
-          accountNumber:
-            employee.employeeInformation?.bankInformation?.accountNumber ||
-            '--',
-          bankName:
-            employee.employeeInformation?.bankInformation?.bankName || '--',
-          netPay: payroll?.netPay ?? '--', // Ensure a fallback value
-        };
-      });
-
-      const exportColumns = [
-        { header: 'Employee Name', key: 'employeeName', width: 50 },
-        { header: 'Employee Email', key: 'email', width: 50 },
-        { header: 'Account Number', key: 'accountNumber', width: 40 },
-        { header: 'Bank Name', key: 'bankName', width: 30 },
-        { header: 'Net Pay', key: 'netPay', width: 30 },
-      ];
-
-      await exportToExcel(flatData, exportColumns, 'Banks');
-    } catch (error) {
-      notification.error({
-        message: 'Error Exporting Bank Information',
-        description: 'An error occurred while exporting data.',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSearch = (searchValues: any) => {
     const queryParams = new URLSearchParams();
 
@@ -470,12 +424,6 @@ const Payroll = () => {
     }
   };
 
-  
-  type Payroll = {
-    employeeId: string;
-    netPay: number;
-  };
-
   const handleExportBank = async () => {
     if (!employeeInfo || employeeInfo.length === 0) {
       notification.error({
@@ -521,7 +469,6 @@ const Payroll = () => {
       setLoading(false);
     }
   };
-
 
   const handleBankLetter = async (amount: any) => {
     if (!amount) {
