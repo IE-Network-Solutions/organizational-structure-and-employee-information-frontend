@@ -19,3 +19,25 @@ const fetchObjectives = async (id: string) => {
 
 export const useFetchObjectives = (id: string) =>
   useQuery<any>(['fetchObjectives', id], () => fetchObjectives(id));
+
+const fetchFailedPlanOfPlanningPeriod = async (planningPeriodId: string) => {
+  return crudRequest({
+    url: `${OKR_URL}/plan-tasks/failed-plan-of-planning-period/${planningPeriodId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetUsersFailedPlanOfPlanningPeriod = (
+  planningPeriodId: string,
+) =>
+  useQuery<any>(
+    ['fetchFailedPlanOfPlanningPeriod', planningPeriodId],
+    () => fetchFailedPlanOfPlanningPeriod(planningPeriodId),
+    {
+      enabled: !!planningPeriodId,
+    },
+  );

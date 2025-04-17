@@ -2,7 +2,10 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { Button, Form, Spin, Tooltip } from 'antd';
 import { useCreatePlanTasks } from '@/store/server/features/employees/planning/mutation';
-import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
+import {
+  useFetchObjectives,
+  // useGetUsersFailedPlanOfPlanningPeriod,
+} from '@/store/server/features/employees/planning/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
   AllPlanningPeriods,
@@ -44,12 +47,14 @@ function CreatePlan() {
     userId,
     planningPeriodId || '', // Provide a default string value if undefined
   );
+  // const { data: failedPlan } = useGetUsersFailedPlanOfPlanningPeriod(
+  //   planningPeriodId || '',
+  // );
 
   // Ensure planningPeriods is always an array before using find
   const safePlanningPeriods = Array.isArray(planningPeriods)
     ? planningPeriods
     : [];
-
   // Use find safely
   const planningUserId = safePlanningPeriods.find(
     (item: any) => item.planningPeriod?.id == planningPeriodId,
