@@ -43,8 +43,6 @@ import { UserOutlined } from '@ant-design/icons';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { FiCheckCircle } from 'react-icons/fi';
 import KeyResultTasks from './KeyResultTasks';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Title } = Typography;
 
@@ -70,13 +68,13 @@ function Planning() {
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
 
-  const hasPermission = AccessGuard.checkAccess({
-    permissions: [
-      Permissions.ViewDailyPlan,
-      Permissions.ViewWeeklyPlan,
-      Permissions.ViewMonthlyPlan,
-    ],
-  });
+  // const hasPermission = AccessGuard.checkAccess({
+  //   permissions: [
+  //     Permissions.ViewDailyPlan,
+  //     Permissions.ViewWeeklyPlan,
+  //     Permissions.ViewMonthlyPlan,
+  //   ],
+  // });
 
   const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
 
@@ -244,13 +242,13 @@ function Planning() {
             </div>
           </Tooltip>
         </div>
-        {hasPermission && (
+        
           <EmployeeSearch
             optionArray1={employeeData?.items}
             optionArray2={PlanningType}
             optionArray3={departmentData}
           />
-        )}
+        
 
         {transformedData?.map((dataItem: any, index: number) => (
           <>
