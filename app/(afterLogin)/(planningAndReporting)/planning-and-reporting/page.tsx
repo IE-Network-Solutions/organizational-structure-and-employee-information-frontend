@@ -16,12 +16,16 @@ import CreateReport from './_components/createReport';
 import EditReport from './_components/editReport';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { use } from 'chai';
 
 function Page() {
-  const { setActiveTab, activeTab, activePlanPeriod,setActivePlanPeriod,activePlanPeriodId,setActivePlanPeriodId } =
-    PlanningAndReportingStore();
-  const { data: planningPeriods,isLoading } = AllPlanningPeriods();
+  const {
+    setActiveTab,
+    activeTab,
+    activePlanPeriod,
+    setActivePlanPeriod,
+    setActivePlanPeriodId,
+  } = PlanningAndReportingStore();
+  const { data: planningPeriods, isLoading } = AllPlanningPeriods();
   const { data: defaultPlanningPeriods } = useDefaultPlanningPeriods();
 
   const { data: planningPeriodForUserId } =
@@ -84,8 +88,6 @@ function Page() {
       ? mergedPlanningPeriods
       : safePlanningPeriods;
 
-      console.log('planningPeriodForUserId*********', finalPlanningPeriods);
-
     return finalPlanningPeriods.map((item: any, index: number) => ({
       label: (
         <span className="font-semibold text-sm">
@@ -97,23 +99,19 @@ function Page() {
       children: activeTab === 1 ? <Planning /> : <Reporting />,
     }));
   };
-  console.log('planningPeriodForUserId', TabsContent());
 
   useEffect(() => {
     const TabsContentData = TabsContent();
     const selectedTab = TabsContentData?.find(
       (item) => item.key === String(activePlanPeriod),
     );
-    // console.log("(((((((((((((((((((((",TabsContentData,selectedTab)
-    setActivePlanPeriodId(selectedTab?.id || ''); 
-  }, [activePlanPeriod,planningPeriods,defaultPlanningPeriods,isLoading]);
-
-
-
-  // console.log('activePlanPeriodIdData', activePlanPeriodId,activePlanPeriod);
+    setActivePlanPeriodId(selectedTab?.id || '');
+  }, [activePlanPeriod, planningPeriods, defaultPlanningPeriods, isLoading]);
 
   const TabsContentData = TabsContent();
-  const selectedTab = TabsContentData?.find((item) => item.key === String(activePlanPeriod));
+  const selectedTab = TabsContentData?.find(
+    (item) => item.key === String(activePlanPeriod),
+  );
 
   return (
     <div>
@@ -150,7 +148,7 @@ function Page() {
         <div className="w-full h-auto space-y-4">
           <Tabs
             defaultActiveKey={selectedTab?.id}
-            onChange={(key: any) =>setActivePlanPeriod(key)}
+            onChange={(key: any) => setActivePlanPeriod(key)}
             centered
             items={TabsContent() ?? []}
           />

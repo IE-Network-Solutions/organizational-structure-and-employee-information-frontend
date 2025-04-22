@@ -58,7 +58,6 @@ function Reporting() {
     setPageReporting,
     pageSizeReporting,
     activePlanPeriodId,
-    setActivePlanPeriodId,
     setPageSizeReporting,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
@@ -83,11 +82,14 @@ function Reporting() {
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
   // const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
-  const planningPeriodId =activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId =
+    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
 
   // const userPlanningPeriodId =
   //   userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
-  const userPlanningPeriodId =userPlanningPeriods?.find((item)=>item?.planningPeriodId===planningPeriodId)?.planningPeriodId;
+  const userPlanningPeriodId = userPlanningPeriods?.find(
+    (item) => item?.planningPeriodId === planningPeriodId,
+  )?.planningPeriodId;
 
   const { data: allUserPlanning, isLoading: getUserPlanningLoading } =
     useGetUserPlanning(planningPeriodId ?? '', activeTab.toString());
@@ -97,7 +99,7 @@ function Reporting() {
     pageReporting,
     pageSizeReporting,
   });
-  const getPlanningPeriodDetail= (id: string) => {
+  const getPlanningPeriodDetail = (id: string) => {
     const planningPeriodDetail = planningPeriods?.items?.find(
       (period: any) => period?.id === id,
     );
