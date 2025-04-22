@@ -141,13 +141,9 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
 
                 {/* Milestone handling */}
                 {hasMilestone && (
-                 
                   <>
-                  
                     {kr?.milestones?.map((ml) => (
-                     
                       <div key={ml?.id}>
-                        
                         <div className="flex items-center justify-between">
                           <span className="text-xs">{ml?.title}</span>
                           <div className="flex gap-2 items-center">
@@ -156,7 +152,6 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                               onClick={() => {
                                 setMKAsATask(null);
                                 handleAddBoard(kr?.id + ml?.id);
-                                console.log("k",kr?.id,"M",ml?.id);
                               }}
                               type="link"
                               icon={<BiPlus size={14} />}
@@ -202,7 +197,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         </div>
 
                         <Divider className="my-2" />
-                       
+
                         {/* Forms for Key Result and Milestone */}
                         {planningPeriodId && planningUserId && (
                           <>
@@ -219,7 +214,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                               isMKAsTask={!!mkAsATask}
                               keyResult={kr}
                             />
-                           
+
                             <BoardCardForm
                               form={form}
                               handleAddName={handleAddName}

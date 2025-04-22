@@ -15,7 +15,6 @@ import {
 } from 'antd';
 
 import {
-  AllPlanningPeriods,
   useDefaultPlanningPeriods,
   useGetPlannedTaskForReport,
   useGetPlanningPeriodsHierarchy,
@@ -51,21 +50,21 @@ function CreateReport() {
     resetWeights();
   };
   // const { data: planningPeriods } = AllPlanningPeriods();
-    const { data: planningPeriods } = useDefaultPlanningPeriods();
-  
+  const { data: planningPeriods } = useDefaultPlanningPeriods();
+
   const { mutate: createReport, isLoading: createReportLoading } =
     useCreateReportForUnReportedtasks();
 
+  const getPlanningPeriodDetail = (id: string) => {
+    const planningPeriodDetail = planningPeriods?.items?.find(
+      (period: any) => period?.id === id,
+    );
+    return planningPeriodDetail || {}; // Return an empty object if planningPeriodDetail is undefined
+  };
+  const planningPeriodId =
+    activePlanPeriodId ?? planningPeriods?.[activePlanPeriod - 1]?.id;
 
-    const getPlanningPeriodDetail = (id: string) => {
-      const planningPeriodDetail = planningPeriods?.items?.find(
-        (period: any) => period?.id === id,
-      );
-      return planningPeriodDetail || {}; // Return an empty object if planningPeriodDetail is undefined
-    };
-    const planningPeriodId =activePlanPeriodId ??  planningPeriods?.[activePlanPeriod - 1]?.id;
-
-     const planningPeriodName =getPlanningPeriodDetail(activePlanPeriodId)?.name;
+  const planningPeriodName = getPlanningPeriodDetail(activePlanPeriodId)?.name;
 
   // const { data: allUnReportedPlanningTask } =
   //   useGetUnReportedPlanning(planningPeriodId,activeTab);

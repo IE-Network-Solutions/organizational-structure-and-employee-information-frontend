@@ -17,7 +17,6 @@ function CreatePlan() {
     setOpen,
     weights,
     totalWeight,
-    activePlanPeriod,
     isEditing,
     setWeight,
     mkAsATask,
@@ -39,8 +38,7 @@ function CreatePlan() {
   // const planningPeriodId =
   //   planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
- const planningPeriodId = activePlanPeriodId;
-
+  const planningPeriodId = activePlanPeriodId;
 
   const {
     data: planningPeriodHierarchy,

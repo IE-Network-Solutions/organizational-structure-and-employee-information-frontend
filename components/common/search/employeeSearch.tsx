@@ -142,26 +142,26 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
         </div>
         <div className="w-full md:w-1/4 p-2" id="subscriptionStatusFilter">
           <AccessGuard permissions={[Permissions.ViewAllStatusPlan]}>
-             <Select
-                        id={`selectDepartment`}
-                        placeholder="Select Department"
-                        onChange={(value) => onSearchChange(value, 'status', true)}
-                        allowClear
-                        showSearch
-                        className="w-full h-14"
-                        optionFilterProp="children" // Enables searching based on the text in options
-                        filterOption={(input, option) =>
-                          (option?.children as any)
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                      >
-                        {optionArray3?.map((item: any) => (
-                          <Select.Option key={item?.id} value={item?.id}>
-                            {item?.name}
-                          </Select.Option>
-                        ))}
-                      </Select>
+            <Select
+              id={`selectDepartment`}
+              placeholder="Select Department"
+              onChange={(value) => onSearchChange(value, 'status', true)}
+              allowClear
+              showSearch
+              className="w-full h-14"
+              optionFilterProp="children" // Enables searching based on the text in options
+              filterOption={(input, option) =>
+                (option?.children as any)
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+            >
+              {optionArray3?.map((item: any) => (
+                <Select.Option key={item?.id} value={item?.id}>
+                  {item?.name}
+                </Select.Option>
+              ))}
+            </Select>
           </AccessGuard>
         </div>
       </div>
