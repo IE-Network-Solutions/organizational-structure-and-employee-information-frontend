@@ -255,20 +255,11 @@ function Planning() {
             </div>
           </Tooltip>
         </div>
-<<<<<<< Updated upstream
-        {/* {hasPermission && ( */}
-=======
-
->>>>>>> Stashed changes
         <EmployeeSearch
           optionArray1={employeeData?.items}
           optionArray2={PlanningType}
           optionArray3={departmentData}
         />
-<<<<<<< Updated upstream
-        {/* )}  */}
-=======
->>>>>>> Stashed changes
 
         {transformedData?.map((dataItem: any, index: number) => (
           <>
