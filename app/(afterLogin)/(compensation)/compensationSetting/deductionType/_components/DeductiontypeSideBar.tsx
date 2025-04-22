@@ -8,7 +8,10 @@ import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useEffect } from 'react';
 // import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
-import { useCreateAllowanceType,useUpdateCompensation } from '@/store/server/features/compensation/settings/mutations';
+import {
+  useCreateAllowanceType,
+  useUpdateCompensation,
+} from '@/store/server/features/compensation/settings/mutations';
 // import { RadioChangeEvent } from 'antd/lib';
 // import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 
@@ -35,7 +38,8 @@ const DeductiontypeSideBar = () => {
     // setDepartmentUsers,
   } = useCompensationSettingStore();
   const { mutate: createAllowanceType, isLoading } = useCreateAllowanceType();
-  const { mutate: updateAllowanceType, isLoading:updateIsLOading } = useUpdateCompensation();
+  const { mutate: updateAllowanceType, isLoading: updateIsLOading } =
+    useUpdateCompensation();
 
   const [form] = Form.useForm();
   // const { data: departments } = useGetDepartmentsWithUsers();
@@ -89,23 +93,25 @@ const DeductiontypeSideBar = () => {
       defaultAmount: 0,
       applicableTo: 'PER-EMPLOYEE',
     };
-    {selectedDeductionRecord?.id ?
-      updateAllowanceType({id:selectedDeductionRecord?.id,values:value}, {
-        onSuccess: () => {
-          form.resetFields();
-          onClose();
-        },
-      })
-    :
-    createAllowanceType(value, {
-      onSuccess: () => {
-        form.resetFields();
-        onClose();
-      },
-    });
-    
+    {
+      selectedDeductionRecord?.id
+        ? updateAllowanceType(
+            { id: selectedDeductionRecord?.id, values: value },
+            {
+              onSuccess: () => {
+                form.resetFields();
+                onClose();
+              },
+            },
+          )
+        : createAllowanceType(value, {
+            onSuccess: () => {
+              form.resetFields();
+              onClose();
+            },
+          });
+    }
   };
-}
 
   // const handleDepartmentChange = (value: string[]) => {
   //   if (value.length === 0) {
@@ -156,7 +162,6 @@ const DeductiontypeSideBar = () => {
       onClick: () => form.submit(),
     },
   ];
-
 
   return (
     isDeductionOpen && (

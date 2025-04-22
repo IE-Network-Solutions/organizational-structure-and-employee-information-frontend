@@ -59,7 +59,6 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
 
   const handleCancel = () => {
     setOpenFiscalYearDrawer(false);
-    // closeFiscalYearDrawer();
     setEditMode(false);
     setSelectedFiscalYear(null);
     setCurrent(0);
@@ -162,10 +161,24 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     };
 
     if (isEditMode) {
-      updateFiscalYear({
-        id: selectedFiscalYear?.id,
-        fiscalYear: fiscalYearPayload,
-      });
+      updateFiscalYear(
+        {
+          id: selectedFiscalYear?.id,
+          fiscalYear: fiscalYearPayload,
+        },
+        {
+          onSuccess: () => {
+            form1.resetFields();
+            form2.resetFields();
+            form3.resetFields();
+            setMonthRangeFormValues(null);
+            setFiscalYearFormValues({});
+            setSessionFormValues({});
+            setCurrent(0);
+            setOpenFiscalYearDrawer(false);
+          },
+        },
+      );
     } else {
       createFiscalYear(fiscalYearPayload, {
         onSuccess: () => {
@@ -176,6 +189,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           setFiscalYearFormValues({});
           setSessionFormValues({});
           setCurrent(0);
+          setOpenFiscalYearDrawer(false);
         },
       });
     }

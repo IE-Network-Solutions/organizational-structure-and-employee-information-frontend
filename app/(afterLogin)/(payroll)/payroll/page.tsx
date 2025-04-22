@@ -62,7 +62,7 @@ const Payroll = () => {
 
   useEffect(() => {
     if (payroll?.payrolls && allEmployees?.items) {
-      const mergedData = payroll.payrolls.map((pay: any) => {
+      const mergedData = payroll?.payrolls.map((pay: any) => {
         const employee = allEmployees.items.find(
           (emp: any) => emp.id === pay.employeeId,
         );
@@ -121,52 +121,6 @@ const Payroll = () => {
   type Payroll = {
     employeeId: string;
     netPay: number;
-  };
-
-  const handleExportBank = async () => {
-    if (!employeeInfo || employeeInfo.length === 0) {
-      notification.error({
-        message: 'No Data Available',
-        description: 'There is no data available to export.',
-      });
-      return;
-    }
-    setLoading(true);
-    try {
-      const flatData = employeeInfo.map((employee: any) => {
-        const payroll = mergedPayroll.find(
-          (p: any) => p.employeeId === employee.id,
-        ) as Payroll | undefined;
-
-        return {
-          employeeName: `${employee.firstName || ''} ${employee.middleName || ''} ${employee.lastName || ''}`,
-          email: employee.email || '--',
-          accountNumber:
-            employee.employeeInformation?.bankInformation?.accountNumber ||
-            '--',
-          bankName:
-            employee.employeeInformation?.bankInformation?.bankName || '--',
-          netPay: payroll?.netPay ?? '--', // Ensure a fallback value
-        };
-      });
-
-      const exportColumns = [
-        { header: 'Employee Name', key: 'employeeName', width: 50 },
-        { header: 'Employee Email', key: 'email', width: 50 },
-        { header: 'Account Number', key: 'accountNumber', width: 40 },
-        { header: 'Bank Name', key: 'bankName', width: 30 },
-        { header: 'Net Pay', key: 'netPay', width: 30 },
-      ];
-
-      await exportToExcel(flatData, exportColumns, 'Banks');
-    } catch (error) {
-      notification.error({
-        message: 'Error Exporting Bank Information',
-        description: 'An error occurred while exporting data.',
-      });
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleSearch = (searchValues: any) => {
@@ -240,7 +194,6 @@ const Payroll = () => {
       payPeriodId: item.payPeriodId,
       employeeId: item.employeeInfo.id,
     }));
-
     sendPaySlip({ values });
   };
   const handleDeductionExportPayroll = async () => {
@@ -471,6 +424,52 @@ const Payroll = () => {
     }
   };
 
+  const handleExportBank = async () => {
+    if (!employeeInfo || employeeInfo.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      const flatData = employeeInfo.map((employee: any) => {
+        const payroll = mergedPayroll.find(
+          (p: any) => p.employeeId === employee.id,
+        ) as Payroll | undefined;
+
+        return {
+          employeeName: `${employee.firstName || ''} ${employee.middleName || ''} ${employee.lastName || ''}`,
+          email: employee.email || '--',
+          accountNumber:
+            employee.employeeInformation?.bankInformation?.accountNumber ||
+            '--',
+          bankName:
+            employee.employeeInformation?.bankInformation?.bankName || '--',
+          netPay: payroll?.netPay ?? '--', // Ensure a fallback value
+        };
+      });
+
+      const exportColumns = [
+        { header: 'Employee Name', key: 'employeeName', width: 50 },
+        { header: 'Employee Email', key: 'email', width: 50 },
+        { header: 'Account Number', key: 'accountNumber', width: 40 },
+        { header: 'Bank Name', key: 'bankName', width: 30 },
+        { header: 'Net Pay', key: 'netPay', width: 30 },
+      ];
+
+      await exportToExcel(flatData, exportColumns, 'Banks');
+    } catch (error) {
+      notification.error({
+        message: 'Error Exporting Bank Information',
+        description: 'An error occurred while exporting data.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleBankLetter = async (amount: any) => {
     if (!amount) {
       notification.error({
@@ -650,24 +649,69 @@ const Payroll = () => {
             </Button>
           </AccessGuard>
 
-          <Popconfirm
-            title="Are you sure?"
-            description="This will send the payslip to every employee via email."
-            okText="Yes, Send"
-            cancelText="No"
-            onConfirm={() => sendingPaySlipHandler(mergedPayroll)}
-          >
-            <AccessGuard permissions={[Permissions.SendPayslipEmail]}>
+          <AccessGuard permissions={[Permissions.SendPayslipEmail]}>
+            <Popconfirm
+              title="Send Payslips"
+              description={
+                <div>
+                  {mergedPayroll.length > 0 ? (
+                    mergedPayroll.length < allEmployees?.items?.length ? (
+                      <p>
+                        This will send payslips to {mergedPayroll.length}{' '}
+                        selected employees (filtered from{' '}
+                        {allEmployees?.items?.length} total).
+                      </p>
+                    ) : (
+                      <p>
+                        This will send payslips to ALL{' '}
+                        {allEmployees?.items?.length} employees.
+                      </p>
+                    )
+                  ) : (
+                    <p style={{ color: 'red', marginTop: '8px' }}>
+                      No employees selected. Please adjust your filters.
+                    </p>
+                  )}
+                  {mergedPayroll.length > 0 &&
+                    mergedPayroll.length < allEmployees?.items?.length && (
+                      <p style={{ color: 'orange', marginTop: '8px' }}>
+                        Note: You&apos;re sending to a filtered subset. Clear
+                        filters to send to everyone.
+                      </p>
+                    )}
+                </div>
+              }
+              okText={
+                mergedPayroll.length === 0
+                  ? 'Cannot Send'
+                  : mergedPayroll.length < allEmployees?.items?.length
+                    ? 'Send to Filtered'
+                    : 'Send to All'
+              }
+              cancelText="Cancel"
+              onConfirm={() => {
+                if (mergedPayroll.length > 0) {
+                  sendingPaySlipHandler(mergedPayroll);
+                }
+              }}
+              okButtonProps={{
+                disabled: mergedPayroll.length === 0,
+              }}
+            >
               <Button
                 type="default"
                 loading={sendingPaySlipLoading}
                 className="text-white bg-primary border-none p-6"
+                disabled={mergedPayroll.length === 0}
               >
-                Send Email
+                {mergedPayroll.length === 0
+                  ? 'No Employees Selected'
+                  : mergedPayroll.length < allEmployees?.items?.length
+                    ? `Send to ${mergedPayroll.length} Filtered`
+                    : 'Send to All'}
               </Button>
-            </AccessGuard>
-          </Popconfirm>
-
+            </Popconfirm>
+          </AccessGuard>
           <Popconfirm
             title={
               payroll?.payrolls.length
@@ -688,15 +732,18 @@ const Payroll = () => {
               <Button
                 type="primary"
                 className="p-6"
-                onClick={
-                  payroll?.payrolls.length > 0
-                    ? undefined
-                    : handleGeneratePayroll
-                }
+                onClick={() => {
+                  handleGeneratePayroll();
+                }}
+                // onClick={
+                //   payroll?.payrolls.length > 0
+                //     ? undefined
+                //     : handleGeneratePayroll
+                // }
                 loading={isCreatingPayroll || loading || deleteLoading}
-                disabled={isCreatingPayroll || loading || deleteLoading}
+                // disabled={isCreatingPayroll || loading || deleteLoading}
               >
-                Generate
+                {payroll?.payrolls.length > 0 ? 'Regenerate' : 'Generate'}
               </Button>
             </AccessGuard>
           </Popconfirm>

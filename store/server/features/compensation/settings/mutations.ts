@@ -97,7 +97,13 @@ const updateCompensationStatus = async ({ id }: { id: string }) => {
     headers,
   });
 };
-const updateCompensation = async ({ id,values }: { id: string,values:any }) => {
+const updateCompensation = async ({
+  id,
+  values,
+}: {
+  id: string;
+  values: any;
+}) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -108,7 +114,7 @@ const updateCompensation = async ({ id,values }: { id: string,values:any }) => {
     url: `${PAYROLL_URL}/compensation-items/update/compensation-status/${id}`,
     method: 'PATCH',
     headers,
-    data:values
+    data: values,
   });
 };
 export const useUpdateCompensationStatus = () => {

@@ -22,7 +22,8 @@ const getAllActiveBasicSalary = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/basic-salary/active`,
+    // url: `${ORG_AND_EMP_URL}/basic-salary/active`,
+    url: `${ORG_AND_EMP_URL}/basic-salary/active/users `,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,

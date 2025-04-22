@@ -23,19 +23,19 @@ import AttendanceImportErrorModal from './_components/attendanceImportErrorModal
 const EmployeeAttendance = () => {
   const isSmallScreen = useMediaQuery({ maxWidth: 768 }); // Detect small screens
 
-  const [isLoading, setIsLoading] = useState(false);
-  // const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
   const importAttendance = useRef<HTMLInputElement | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isExportLoading, setIsExportLoading] = useState(false);
+  const [exportType, setExportType] = useState<'EXCEL' | 'PDF' | null>(null);
   const [file, setFile] = useState<any>();
-  const [bodyRequest, setBodyRequest] = useState<AttendanceRequestBody>(
-    {} as AttendanceRequestBody,
-  );
-  const { data, isFetching, refetch } = useGetAttendances(
-    {},
-    bodyRequest,
-    true,
-    false,
-  );
+  const [bodyRequest, setBodyRequest] = useState<AttendanceRequestBody>({
+    filter: {}, // Initialize with empty filter
+  });
+  const { data, isFetching } = useGetAttendances({}, bodyRequest, true, true);
+
+  // Log the current state of data and request
+  useEffect(() => {}, [data, bodyRequest, isFetching]);
+
   const {
     mutate: uploadImport,
     isLoading: isLoadingImport,
@@ -53,17 +53,6 @@ const EmployeeAttendance = () => {
   }, [data]);
 
   useEffect(() => {
-    if (bodyRequest.exportType) {
-      refetch().finally(() => {
-        setBodyRequest((prev) => ({
-          ...prev,
-          exportType: undefined,
-        }));
-      });
-    }
-  }, [bodyRequest]);
-
-  useEffect(() => {
     if (file) {
       setIsLoading(true);
       fileUpload(file).then((res) => {
@@ -74,11 +63,71 @@ const EmployeeAttendance = () => {
     }
   }, [file]);
 
-  const onExport = (type: 'PDF' | 'EXCEL') => {
-    setBodyRequest((prev) => ({
-      ...prev,
-      exportType: type,
-    }));
+  const onExport = async (type: 'PDF' | 'EXCEL') => {
+    try {
+      setExportType(type);
+      setIsExportLoading(true);
+      if (!data?.items?.length) {
+        return;
+      }
+
+      // Create a new request object with export type and filter
+      const exportRequest: AttendanceRequestBody = {
+        exportType: type,
+        filter: {
+          attendanceRecordIds: data.items.map((item) => item.id),
+          userIds: data.items.map((item) => item.userId),
+          date: {
+            from: data.items[0].createdAt,
+            to: data.items[data.items.length - 1].createdAt,
+          },
+          type: data.items.some((item) => item.isAbsent)
+            ? 'absent'
+            : data.items.some((item) => item.lateByMinutes > 0)
+              ? 'late'
+              : data.items.some((item) => item.earlyByMinutes > 0)
+                ? 'early'
+                : 'present',
+        },
+      };
+
+      // Set the request
+      setBodyRequest(exportRequest);
+
+      // Wait for the state to update and get the response
+      const response = await new Promise<{ file: string }>((resolve) => {
+        const checkData = () => {
+          if (data?.file) {
+            resolve({ file: data.file });
+          } else {
+            setTimeout(checkData, 100);
+          }
+        };
+        checkData();
+      });
+
+      if (response?.file) {
+        const url = new URL(TIME_AND_ATTENDANCE_URL!);
+        const fileUrl = `${url.origin}/${response.file}`;
+
+        // Create a temporary link to trigger the download
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = `attendance_${type.toLowerCase()}_${new Date().toISOString().split('T')[0]}.${type.toLowerCase()}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+      }
+    } catch (error) {
+    } finally {
+      setIsExportLoading(false);
+      setExportType(null);
+      setBodyRequest((prev) => ({
+        ...prev,
+        exportType: undefined,
+      }));
+    }
   };
 
   // Dropdown Menu for Import Buttons
@@ -112,7 +161,7 @@ const EmployeeAttendance = () => {
 
   return (
     <>
-      <div className="h-auto w-auto pr-6 pb-6 pl-3">
+      <div className="h-auto w-auto bg-gray-100 sm:bg-white pr-3 pb-6 pl-6 sm:pl-3">
         <PageHeader
           title="Employee Attendance"
           description="Manage your Team Attendance"
@@ -133,7 +182,7 @@ const EmployeeAttendance = () => {
                     <Button
                       icon={<TbFileUpload size={18} />}
                       size="large"
-                      loading={isFetching || isLoading || isLoadingImport}
+                      loading={isLoading || isLoadingImport}
                       className="w-full sm:w-auto mt-2 sm:mt-0 flex justify-between items-center"
                     >
                       {/* Display only icons in small screens */}
@@ -152,7 +201,7 @@ const EmployeeAttendance = () => {
                     <Button
                       icon={<TbFileUpload size={18} />}
                       size="large"
-                      loading={isFetching || isLoading || isLoadingImport}
+                      loading={isLoading || isLoadingImport}
                       onClick={() => {
                         if (importAttendance) {
                           importAttendance.current?.click();
@@ -172,7 +221,7 @@ const EmployeeAttendance = () => {
                     <Button
                       icon={<TbFileUpload size={18} />}
                       size="large"
-                      loading={isFetching || isLoading || isLoadingImport}
+                      loading={isLoading || isLoadingImport}
                       onClick={() =>
                         setIsShowBreakAttendanceImportSidebar(true)
                       }
@@ -235,7 +284,10 @@ const EmployeeAttendance = () => {
                             type="primary"
                             icon={<TbLayoutList size={16} />}
                             onClick={() => onExport('EXCEL')}
-                          ></Button>
+                            loading={isExportLoading && exportType === 'EXCEL'}
+                          >
+                            Excel
+                          </Button>
                         </Col>
                         <Col span={12}>
                           <Button
@@ -244,6 +296,7 @@ const EmployeeAttendance = () => {
                             type="primary"
                             icon={<LuBookmark size={16} />}
                             onClick={() => onExport('PDF')}
+                            loading={isExportLoading && exportType === 'PDF'}
                           >
                             PDF
                           </Button>
@@ -256,7 +309,7 @@ const EmployeeAttendance = () => {
                     icon={<TbFileDownload size={18} />}
                     size="large"
                     type="primary"
-                    loading={isFetching || isLoading || isLoadingImport}
+                    loading={isExportLoading}
                     className="w-full sm:w-auto mt-2 sm:mt-0 p-4"
                   >
                     {!isSmallScreen ? 'Export' : ''}
