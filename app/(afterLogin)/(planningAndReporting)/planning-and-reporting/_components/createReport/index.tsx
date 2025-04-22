@@ -16,6 +16,7 @@ import {
 
 import {
   AllPlanningPeriods,
+  useDefaultPlanningPeriods,
   useGetPlannedTaskForReport,
   useGetPlanningPeriodsHierarchy,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
@@ -38,6 +39,7 @@ function CreateReport() {
     resetWeights,
     setStatus,
     resetStatuses,
+    activePlanPeriodId,
     selectedStatuses,
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
@@ -48,14 +50,22 @@ function CreateReport() {
     resetStatuses();
     resetWeights();
   };
-  const { data: planningPeriods } = AllPlanningPeriods();
+  // const { data: planningPeriods } = AllPlanningPeriods();
+    const { data: planningPeriods } = useDefaultPlanningPeriods();
+  
   const { mutate: createReport, isLoading: createReportLoading } =
     useCreateReportForUnReportedtasks();
 
-  const planningPeriodId =
-    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
-  const planningPeriodName =
-    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
+
+    const getPlanningPeriodDetail = (id: string) => {
+      const planningPeriodDetail = planningPeriods?.items?.find(
+        (period: any) => period?.id === id,
+      );
+      return planningPeriodDetail || {}; // Return an empty object if planningPeriodDetail is undefined
+    };
+    const planningPeriodId =activePlanPeriodId ??  planningPeriods?.[activePlanPeriod - 1]?.id;
+
+     const planningPeriodName =getPlanningPeriodDetail(activePlanPeriodId)?.name;
 
   // const { data: allUnReportedPlanningTask } =
   //   useGetUnReportedPlanning(planningPeriodId,activeTab);

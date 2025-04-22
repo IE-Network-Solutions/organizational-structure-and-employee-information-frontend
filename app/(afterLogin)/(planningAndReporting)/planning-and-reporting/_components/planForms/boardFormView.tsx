@@ -42,7 +42,7 @@ function BoardCardForm({
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
   const { setClickStatus } = useClickStatus();
-
+console.log(milestoneId,"lllll")
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
