@@ -255,13 +255,11 @@ function Planning() {
             </div>
           </Tooltip>
         </div>
-        {/* {hasPermission && ( */}
         <EmployeeSearch
           optionArray1={employeeData?.items}
           optionArray2={PlanningType}
           optionArray3={departmentData}
         />
-        {/* )}  */}
 
         {transformedData?.map((dataItem: any, index: number) => (
           <>
