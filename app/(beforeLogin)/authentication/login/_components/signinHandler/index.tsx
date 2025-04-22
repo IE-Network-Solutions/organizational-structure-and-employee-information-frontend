@@ -56,24 +56,26 @@ export const useHandleSignIn = () => {
         setUserData(fetchedData?.data);
         message.success('Welcome!');
         message.loading({ content: 'Redirecting...', key: 'redirect' });
-        const redirectPath =
-          sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
-        sessionStorage.removeItem('redirectAfterLogin');
+        // const redirectPath =
+        //   sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
+        // sessionStorage.removeItem('redirectAfterLogin');
 
         if (fetchedData?.data?.hasCompany === false) {
           router.push('/onboarding');
-        } else if (redirectPath) {
-          router.push(redirectPath);
-        } else if (fetchedData?.data?.hasChangedPassword === false) {
+        }
+        // else if (redirectPath) {
+        //   router.push(redirectPath);
+        // }
+        else if (fetchedData?.data?.hasChangedPassword === false) {
           router.push('/authentication/new-password');
         } else if (
           fetchedData?.data?.hasCompany === true &&
           fetchedData?.data?.hasChangedPassword === true &&
-          new Date('2025-03-04') > new Date()
+          new Date(activeFiscalYear!.endDate) > new Date()
         ) {
           router.push('/dashboard');
-        } else if (new Date('2025-03-04') < new Date()) {
-          router.push('/fiscal-ended');
+        } else if (new Date(activeFiscalYear!.endDate) < new Date()) {
+          router.push('/organization/settings/fiscalYear/fiscalYearCard');
         }
       }
     } catch (err: any) {

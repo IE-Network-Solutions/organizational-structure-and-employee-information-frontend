@@ -10,7 +10,20 @@ export function middleware(req: NextRequest) {
     // TODO: Uncomment and restore token validation and redirects
 
     const token = getCookie('token', req);
-    const fiscalExpired = getCookie('activeCalendar', req);
+    const calendarCookie = getCookie('activeCalendar', req);
+
+    let hasEndedFiscalYear = false;
+
+    if (calendarCookie) {
+      const activeCalendar = JSON.parse(calendarCookie);
+      if (
+        activeCalendar?.isActive &&
+        activeCalendar?.endDate &&
+        new Date(activeCalendar?.endDate) < new Date()
+      ) {
+        hasEndedFiscalYear = true;
+      }
+    }
 
     const excludedPath = [
       '/authentication/login',
@@ -25,14 +38,20 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/authentication/login', req.url));
     }
 
+    if (
+      token &&
+      hasEndedFiscalYear &&
+      !pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
+    ) {
+      return NextResponse.redirect(
+        new URL('/organization/settings/fiscalYear/fiscalYearCard', req.url),
+      );
+    }
     if (pathname === '/onboarding') return NextResponse.next();
 
     // TODO: Uncomment and restore the redirect for the root path
 
     if (!isExcludedPath && isRootPath) {
-      if (new Date('2025-04-04') < new Date()) {
-        return NextResponse.redirect(new URL('/fiscal-ended', req.url));
-      }
       if (token) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       } else {

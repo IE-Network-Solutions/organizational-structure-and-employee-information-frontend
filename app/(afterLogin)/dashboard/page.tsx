@@ -16,7 +16,9 @@ export default function Home() {
     useGetActiveFiscalYears();
 
   const hasEndedFiscalYear =
-    activeCalender?.isActive && new Date(activeCalender?.endDate) < new Date();
+    activeCalender?.isActive &&
+    activeCalender?.endDate &&
+    new Date(activeCalender?.endDate) < new Date();
 
   const mainLayout = (
     <div className="min-h-screen bg-gray-100 p-4">
@@ -68,7 +70,7 @@ export default function Home() {
     <>
       {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }} />}
       {hasEndedFiscalYear && (
-        <div className="bg-[#323B49] p-2 rounded-lg my-2 h-12 flex items-center justify-start text-lg">
+        <div className="bg-[#323B49] p-2 rounded-lg h-12 flex items-center justify-start text-lg">
           <span className="text-[#FFDE65] px-2">
             Your fiscal year has ended
           </span>
