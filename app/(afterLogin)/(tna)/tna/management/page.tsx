@@ -11,7 +11,7 @@ import CourseFilter from '@/app/(afterLogin)/(tna)/tna/management/_components/co
 import { CommonObject } from '@/types/commons/commonObject';
 import { useDebounce } from '@/utils/useDebounce';
 import { CourseManagementRequestBody } from '@/store/server/features/tna/management/interface';
-import CourseCard from '@/app/(afterLogin)/(tna)/tna/management/_components/courseCard/index';
+import CourseCard from '@/app/(afterLogin)/(tna)/tna/management/_components/courseCard';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { localUserID } from '@/utils/constants';
