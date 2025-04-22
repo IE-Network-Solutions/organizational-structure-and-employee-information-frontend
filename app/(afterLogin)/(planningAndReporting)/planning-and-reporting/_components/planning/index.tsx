@@ -43,8 +43,6 @@ import { UserOutlined } from '@ant-design/icons';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { FiCheckCircle } from 'react-icons/fi';
 import KeyResultTasks from './KeyResultTasks';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Title } = Typography;
 
@@ -61,8 +59,6 @@ function Planning() {
     setPageSize,
     activeTab,
     activePlanPeriodId,
-    setActivePlanPeriodId,
-    setActivePlanPeriod,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
 
@@ -81,8 +77,7 @@ function Planning() {
   //   ],
   // });
 
-
-  const getPlanningPeriodDetail= (id: string) => {
+  const getPlanningPeriodDetail = (id: string) => {
     const planningPeriodDetail = planningPeriods?.items?.find(
       (period: any) => period?.id === id,
     );
@@ -94,10 +89,12 @@ function Planning() {
   //   useDeletePlanById();
   const { data: objective } = useFetchObjectives(userId);
   // const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
-  const planningPeriodId =activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId =
+    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
   // const userPlanningPeriodId =userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
-  const userPlanningPeriodId =userPlanningPeriods?.find((item)=>item?.planningPeriodId===planningPeriodId)?.planningPeriodId;
-
+  const userPlanningPeriodId = userPlanningPeriods?.find(
+    (item) => item?.planningPeriodId === planningPeriodId,
+  )?.planningPeriodId;
 
   const { data: allPlanning, isLoading: getPlanningLoading } = useGetPlanning({
     userId: selectedUser,
@@ -259,12 +256,12 @@ function Planning() {
           </Tooltip>
         </div>
         {/* {hasPermission && ( */}
-          <EmployeeSearch
-            optionArray1={employeeData?.items}
-            optionArray2={PlanningType}
-            optionArray3={departmentData}
-          />
-         {/* )}  */}
+        <EmployeeSearch
+          optionArray1={employeeData?.items}
+          optionArray2={PlanningType}
+          optionArray3={departmentData}
+        />
+        {/* )}  */}
 
         {transformedData?.map((dataItem: any, index: number) => (
           <>
