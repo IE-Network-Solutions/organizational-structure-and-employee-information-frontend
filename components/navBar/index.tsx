@@ -201,6 +201,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           permissions: ['manage_planning_reporting'],
         },
         {
+          title: 'Weekly Priority',
+          key: '/weekly-priority',
+          className: 'font-bold h-8',
+          permissions: ['view_weekly_priority'],
+        },
+        {
           key: '/okr/settings',
           title: 'Settings',
           className: 'font-bold h-8',

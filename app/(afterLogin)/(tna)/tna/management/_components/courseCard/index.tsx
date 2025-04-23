@@ -72,6 +72,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
                 system course
               </div>
             )}
+
             <Meta
               title={
                 <div className="flex items-center gap-1">
