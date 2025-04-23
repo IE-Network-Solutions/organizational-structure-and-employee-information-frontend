@@ -24,6 +24,7 @@ function EditPlan() {
     selectedPlanId,
     setSelectedPlanId,
     setWeight,
+    activePlanPeriodId,
     resetWeights,
     totalWeight,
     mkAsATask,
@@ -47,13 +48,17 @@ function EditPlan() {
   const { data: planGroupData, isLoading: loadingPlanGroupData } =
     useGetPlanningById(selectedPlanId);
 
-  const planningPeriodId =
-    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
-  const planningUserId = Array.isArray(planningPeriods)
-    ? planningPeriods.find(
-        (item: any) => item.planningPeriod?.id === planningPeriodId,
-      )?.id
-    : undefined;
+    const planningPeriodId =
+    activePlanPeriodId ?? planningPeriods?.[activePlanPeriod - 1]?.id;
+
+    const safePlanningPeriods = Array.isArray(planningPeriods)
+    ? planningPeriods
+    : [];
+    
+    const planningUserId = safePlanningPeriods.find(
+      (item: any) => item.planningPeriod?.id == planningPeriodId,
+    )?.id;
+    
   const {
     data: planningPeriodHierarchy,
     isLoading: loadingPlanningPeriodHierarchy,
