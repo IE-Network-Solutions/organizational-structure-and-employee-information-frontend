@@ -57,6 +57,7 @@ function Reporting() {
     pageReporting,
     setPageReporting,
     pageSizeReporting,
+    activePlanPeriodId,
     setPageSizeReporting,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
@@ -73,16 +74,22 @@ function Reporting() {
     ],
   });
 
-  const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
+  // const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
 
   // const { mutate: handleDeleteReport, isLoading: loadingDeleteReport } =
   //   useDeleteReportById();
 
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
-  const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
-  const userPlanningPeriodId =
-    userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
+  // const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId =
+    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+
+  // const userPlanningPeriodId =
+  //   userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
+  const userPlanningPeriodId = userPlanningPeriods?.find(
+    (item) => item?.planningPeriodId === planningPeriodId,
+  )?.planningPeriodId;
 
   const { data: allUserPlanning, isLoading: getUserPlanningLoading } =
     useGetUserPlanning(planningPeriodId ?? '', activeTab.toString());
@@ -92,12 +99,20 @@ function Reporting() {
     pageReporting,
     pageSizeReporting,
   });
+  const getPlanningPeriodDetail = (id: string) => {
+    const planningPeriodDetail = planningPeriods?.items?.find(
+      (period: any) => period?.id === id,
+    );
+    return planningPeriodDetail || {}; // Return an empty object if planningPeriodDetail is undefined
+  };
   // const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(
   //   planningPeriodId ?? '',
   //   activeTab,
   // );
 
-  const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
+  // const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
+  const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
+
   const getEmployeeData = (id: string) => {
     const employeeDataDetail = employeeData?.items?.find(
       (emp: any) => emp?.id === id,
@@ -283,9 +298,9 @@ function Reporting() {
                         >
                           <Col>
                             <div
-                              className={` py-1 px-1 text-white rounded-full ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
+                              className={` py-1 px-1 text-white rounded-full ${dataItem?.plan?.isReportValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
                             >
-                              {dataItem?.isValidated ? (
+                              {dataItem?.plan?.isReportValidated ? (
                                 <FiCheckCircle />
                               ) : (
                                 <MdOutlinePending size={16} />
@@ -294,7 +309,7 @@ function Reporting() {
                           </Col>
                           <div className="flex flex-col text-xs ml-2">
                             <span className="mr-4">
-                              {dataItem?.isValidated ? 'Closed' : 'Open'}
+                              {dataItem?.plan?.isReportValidated ? 'Closed' : 'Open'}
                             </span>
                             <span className="mr-4 text-gray-500">
                               {dayjs(dataItem?.createdAt).format(
@@ -329,7 +344,8 @@ function Reporting() {
                             )}
                             {userId ===
                               (dataItem?.userId ?? dataItem?.createdBy) &&
-                              dataItem?.plan?.isReportValidated == false && (
+                              dataItem?.plan?.isReportValidated == false && 
+                              (
                                 <Dropdown
                                   overlay={actionsMenuEditandDelte(
                                     dataItem,
