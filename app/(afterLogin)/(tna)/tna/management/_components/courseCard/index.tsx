@@ -69,7 +69,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
             </div>
             {item?.tenantId === null && (
               <div className="absolute top-5 right-5 z-10 py-2 px-3 rounded-lg bg-green-500 text-white text-sm font-semibold">
-                Free Course
+                system course
               </div>
             )}
             <Meta
