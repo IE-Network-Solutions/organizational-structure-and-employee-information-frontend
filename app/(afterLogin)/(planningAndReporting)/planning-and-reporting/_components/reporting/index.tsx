@@ -309,7 +309,9 @@ function Reporting() {
                           </Col>
                           <div className="flex flex-col text-xs ml-2">
                             <span className="mr-4">
-                              {dataItem?.plan?.isReportValidated ? 'Closed' : 'Open'}
+                              {dataItem?.plan?.isReportValidated
+                                ? 'Closed'
+                                : 'Open'}
                             </span>
                             <span className="mr-4 text-gray-500">
                               {dayjs(dataItem?.createdAt).format(
@@ -344,8 +346,7 @@ function Reporting() {
                             )}
                             {userId ===
                               (dataItem?.userId ?? dataItem?.createdBy) &&
-                              dataItem?.plan?.isReportValidated == false && 
-                              (
+                              dataItem?.plan?.isReportValidated == false && (
                                 <Dropdown
                                   overlay={actionsMenuEditandDelte(
                                     dataItem,
