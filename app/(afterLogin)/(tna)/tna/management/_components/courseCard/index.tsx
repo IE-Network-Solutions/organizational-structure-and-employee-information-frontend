@@ -2,8 +2,6 @@ import React, { FC, useEffect } from 'react';
 import { Course } from '@/types/tna/course';
 import { Card } from 'antd';
 import { Spin } from 'antd';
-import Meta from 'antd/lib/card/Meta';
-import ActionButton from '@/components/common/actionButton';
 import { classNames } from '@/utils/classNames';
 import { FaRegFile } from 'react-icons/fa6';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
@@ -11,7 +9,7 @@ import { useDeleteCourseManagement } from '@/store/server/features/tna/managemen
 import { useRouter } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import Image from 'next/image';
+import { IoInformationCircleOutline } from "react-icons/io5";
 
 interface CourseCardProps {
   item: Course;
@@ -39,68 +37,54 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
       <Card
         hoverable
         className={classNames(
-          'relative min-h-[400px] max-h-[400px] overflow-hidden',
+          'relative bg-white rounded-xl shadow-sm w-[140px] sm:w-[160px] md:w-[180px] h-[120px] sm:h-[140px] flex items-center justify-center cursor-pointer',
           { 'opacity-70': item?.isDraft },
           [className],
         )}
-        cover={
-          <Image
-            alt="example"
-            src={item?.thumbnail ?? ''}
-            width={300}
-            height={250}
-            className="w-full h-[250px] object-cover object-top"
-          />
-        }
+        bodyStyle={{ 
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '16px 8px'
+        }}
         onClick={() => {
           router.push(`/tna/management/${item?.id}`);
         }}
       >
-        <div className="flex justify-between ">
-          <div>
-            <div className="absolute top-5 left-5 z-10 py-2 px-3 rounded-lg bg-primary text-white text-sm font-semibold">
-              {item?.isDraft ? (
-                <div className="flex items-center gap-2">
-                  Draft <FaRegFile size={16} />
-                </div>
-              ) : (
-                item?.courseCategory?.title || ''
-              )}
+        <div className="absolute top-2 right-2 flex items-center gap-1">
+          {item?.isDraft && (
+            <div className="flex items-center text-gray-500">
+              <FaRegFile className="w-3.5 h-3.5" />
             </div>
-            {item?.tenantId === null && (
-              <div className="absolute top-5 right-5 z-10 py-2 px-3 rounded-lg bg-green-500 text-white text-sm font-semibold">
-                system course
-              </div>
-            )}
-            <Meta
-              title={
-                <div className="flex items-center gap-1">
-                  <div className="text-lg font-bold text-gray-900 flex-1 text-pretty">
-                    {item?.title}
-                  </div>
-                </div>
-              }
-              description={
-                <div className="text-base text-gray-600">{item?.overview}</div>
-              }
-            />
-          </div>
-          <div className="action-buttons mt-2  gap-2">
-            <AccessGuard
-              permissions={[Permissions.UpdateCourse, Permissions.DeleteCourse]}
+          )}
+          <AccessGuard
+            permissions={[Permissions.UpdateCourse, Permissions.DeleteCourse]}
+          >
+            <div 
+              className="text-gray-400 hover:text-gray-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCourseId(item?.id);
+                setIsShowCourseSidebar(true);
+              }}
             >
-              <ActionButton
-                id={item?.id ?? null}
-                onEdit={() => {
-                  setCourseId(item?.id);
-                  setIsShowCourseSidebar(true);
-                }}
-                onDelete={() => {
-                  deleteCourse([item?.id]);
-                }}
-                onCancelDelete={() => ''}
-              />
-            </AccessGuard>
+              <IoInformationCircleOutline className="w-4 h-4" />
+            </div>
+          </AccessGuard>
+        </div>
+
+        <div className="flex flex-col items-center text-center">
+          <div className="text-sm sm:text-base font-medium text-gray-900 mb-2 line-clamp-2 px-1">
+            {item?.title}
+          </div>
+          <div className="text-lg sm:text-xl font-semibold text-primary">
+            {item?.courseLessons?.length || 0}
+          </div>
+          <div className="text-xs sm:text-sm text-gray-500">
+            Lessons
           </div>
         </div>
       </Card>

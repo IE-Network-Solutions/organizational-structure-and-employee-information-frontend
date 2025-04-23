@@ -25,7 +25,7 @@ const LeaveBalance = () => {
       <div className="text-2xl font-bold text-gray-900 mb-2.5">
         Leave Balances
       </div>
-      <div className="flex items-center">
+      <div className="flex sm:flex-col-2 items-center">
         {data.items.length > 4 && (
           <div className="w-10 flex flex-col justify-center">
             <Button

@@ -15,14 +15,20 @@ import CourseCard from '@/app/(afterLogin)/(tna)/tna/management/_components/cour
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { localUserID } from '@/utils/constants';
+import { Swiper as SwiperType } from 'swiper';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+
+import 'swiper/css';
+import 'swiper/css/navigation';
 
 const TnaManagementPage = () => {
   const { setIsShowCourseSidebar, isShowCourseSidebar, setCourseCategory } =
     useTnaManagementStore();
   const { data: categoryData, isFetching } = useGetCourseCategory({});
-  const [filter, setFilter] = useState<Partial<CourseManagementRequestBody>>(
-    {},
-  );
+  const [filter, setFilter] = useState<Partial<CourseManagementRequestBody>>({});
+  const [swiper, setSwiper] = useState<SwiperType>();
   const {
     data: coursesData,
     isFetching: isFetchingCourse,
@@ -61,7 +67,7 @@ const TnaManagementPage = () => {
   }, 500);
 
   return (
-    <div className="page-wrap bg-[#f5f5f5] ">
+    <div className="page-wrap bg-[#f5f5f5]">
       <PageHeader
         title="Training & Learning"
         description="Training and Learning module"
@@ -90,15 +96,69 @@ const TnaManagementPage = () => {
         </div>
       ) : (
         <Spin spinning={isFetchingCourse}>
-          <div className="grid grid-cols-course-list gap-6 mt-8">
-            {coursesData?.items?.map((item) =>
-              item.isDraft ? (
-                item.preparedBy === localUserID ? (
-                  <CourseCard item={item} key={item.id} refetch={refetch} />
-                ) : null
-              ) : (
-                <CourseCard item={item} key={item.id} refetch={refetch} />
-              ),
+          <div className="flex items-center">
+            {coursesData?.items && coursesData.items.length > 3 && (
+              <div className="w-10 flex flex-col justify-center">
+                <Button
+                  className="w-6 h-6"
+                  type="text"
+                  icon={<LeftOutlined size={16} className="text-black font-bold" />}
+                  onClick={() => swiper?.slidePrev()}
+                />
+              </div>
+            )}
+            <Swiper
+              className="flex-1 px-1 py-2"
+              slidesPerView="auto"
+              spaceBetween={16}
+              breakpoints={{
+                320: {
+                  slidesPerView: 2.2,
+                  spaceBetween: 12,
+                },
+                480: {
+                  slidesPerView: 3.2,
+                  spaceBetween: 16,
+                },
+                768: {
+                  slidesPerView: 4,
+                  spaceBetween: 20,
+                },
+                1024: {
+                  slidesPerView: 5,
+                  spaceBetween: 24,
+                },
+                1280: {
+                  slidesPerView: 6,
+                  spaceBetween: 24,
+                }
+              }}
+              modules={[Navigation]}
+              onInit={(swiper) => {
+                setSwiper(swiper);
+              }}
+            >
+              {coursesData?.items?.map((item) => (
+                <SwiperSlide key={item.id}>
+                  {item.isDraft ? (
+                    item.preparedBy === localUserID ? (
+                      <CourseCard item={item} refetch={refetch} />
+                    ) : null
+                  ) : (
+                    <CourseCard item={item} refetch={refetch} />
+                  )}
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            {coursesData?.items && coursesData.items.length > 3 && (
+              <div className="w-10 h-full flex flex-col justify-center items-end">
+                <Button
+                  className="w-6 h-6"
+                  type="text"
+                  icon={<RightOutlined size={16} className="text-black font-bold" />}
+                  onClick={() => swiper?.slideNext()}
+                />
+              </div>
             )}
           </div>
         </Spin>
