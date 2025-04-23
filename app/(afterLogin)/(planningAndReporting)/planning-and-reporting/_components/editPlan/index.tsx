@@ -48,17 +48,17 @@ function EditPlan() {
   const { data: planGroupData, isLoading: loadingPlanGroupData } =
     useGetPlanningById(selectedPlanId);
 
-    const planningPeriodId =
+  const planningPeriodId =
     activePlanPeriodId ?? planningPeriods?.[activePlanPeriod - 1]?.id;
 
-    const safePlanningPeriods = Array.isArray(planningPeriods)
+  const safePlanningPeriods = Array.isArray(planningPeriods)
     ? planningPeriods
     : [];
-    
-    const planningUserId = safePlanningPeriods.find(
-      (item: any) => item.planningPeriod?.id == planningPeriodId,
-    )?.id;
-    
+
+  const planningUserId = safePlanningPeriods.find(
+    (item: any) => item.planningPeriod?.id == planningPeriodId,
+  )?.id;
+
   const {
     data: planningPeriodHierarchy,
     isLoading: loadingPlanningPeriodHierarchy,

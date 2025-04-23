@@ -17,7 +17,6 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import EmployeeOKRTable from '../EmployeeOkr';
 import CustomPagination from '@/components/customPagination';
-import { combine } from 'zustand/middleware';
 
 export default function OkrTab() {
   const { TabPane } = Tabs;
@@ -52,28 +51,39 @@ export default function OkrTab() {
       ?.find((i: any) => i.id == searchObjParams?.departmentId)
       ?.users?.map((user: any) => user.id) || [];
 
-  const { data: userObjectives, isLoading,  refetch:userRefetch } = useGetUserObjective(
+  const {
+    data: userObjectives,
+    isLoading,
+    refetch: userRefetch,
+  } = useGetUserObjective(
     userId,
     pageSize,
     currentPage,
     searchObjParams?.metricTypeId,
   );
-  const { data: teamObjective, isLoading: teamLoading,  refetch} = useGetTeamObjective(
+  const {
+    data: teamObjective,
+    isLoading: teamLoading,
+    refetch,
+  } = useGetTeamObjective(
     teamPageSize,
     teamCurrentPage,
     users,
     searchObjParams.userId,
     searchObjParams?.metricTypeId,
   );
-  const { data: companyObjective, isLoading: companyLoading,  refetch:CompanyRefetch } =
-    useGetCompanyObjective(
-      userId,
-      companyPageSize,
-      companyCurrentPage,
-      usersInDepartment,
-      searchObjParams.userId,
-      searchObjParams?.metricTypeId,
-    );
+  const {
+    data: companyObjective,
+    isLoading: companyLoading,
+    refetch: CompanyRefetch,
+  } = useGetCompanyObjective(
+    userId,
+    companyPageSize,
+    companyCurrentPage,
+    usersInDepartment,
+    searchObjParams.userId,
+    searchObjParams?.metricTypeId,
+  );
 
   const canVieTeamOkr = AccessGuard.checkAccess({
     permissions: [Permissions.ViewTeamOkr],
@@ -104,7 +114,6 @@ export default function OkrTab() {
           )}
           {userObjectives?.items?.length !== 0 ? (
             <>
-            
               {userObjectives?.items?.map((obj: any) => (
                 <ObjectiveCard key={obj.id} myOkr={true} objective={obj} />
               ))}
@@ -133,12 +142,12 @@ export default function OkrTab() {
           <TabPane tab="Team OKR" key={2}>
             <OkrProgress />
             {teamLoading && (
-            <Spin
-              size="large"
-              style={{ color: 'white' }}
-              className="text-white text-center flex w-full justify-center"
-            />
-          )}
+              <Spin
+                size="large"
+                style={{ color: 'white' }}
+                className="text-white text-center flex w-full justify-center"
+              />
+            )}
             {teamLoading && (
               <Spin
                 size="large"
@@ -175,13 +184,13 @@ export default function OkrTab() {
         )}
         {canVieCompanyOkr && (
           <TabPane tab="Company OKR" key={3}>
-              {companyLoading && (
-            <Spin
-              size="large"
-              style={{ color: 'white' }}
-              className="text-white text-center flex w-full justify-center"
-            />
-          )}
+            {companyLoading && (
+              <Spin
+                size="large"
+                style={{ color: 'white' }}
+                className="text-white text-center flex w-full justify-center"
+              />
+            )}
             <OkrProgress />
             {companyLoading && (
               <Spin
