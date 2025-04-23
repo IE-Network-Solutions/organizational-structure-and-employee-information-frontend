@@ -1,6 +1,6 @@
 'use client';
 import { Spin, Tabs } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import ObjectiveCard from '../objectivecard';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
@@ -17,6 +17,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import EmployeeOKRTable from '../EmployeeOkr';
 import CustomPagination from '@/components/customPagination';
+import { combine } from 'zustand/middleware';
 
 export default function OkrTab() {
   const { TabPane } = Tabs;
@@ -51,20 +52,20 @@ export default function OkrTab() {
       ?.find((i: any) => i.id == searchObjParams?.departmentId)
       ?.users?.map((user: any) => user.id) || [];
 
-  const { data: userObjectives, isLoading } = useGetUserObjective(
+  const { data: userObjectives, isLoading,  refetch:userRefetch } = useGetUserObjective(
     userId,
     pageSize,
     currentPage,
     searchObjParams?.metricTypeId,
   );
-  const { data: teamObjective, isLoading: teamLoading } = useGetTeamObjective(
+  const { data: teamObjective, isLoading: teamLoading,  refetch} = useGetTeamObjective(
     teamPageSize,
     teamCurrentPage,
     users,
     searchObjParams.userId,
     searchObjParams?.metricTypeId,
   );
-  const { data: companyObjective, isLoading: companyLoading } =
+  const { data: companyObjective, isLoading: companyLoading,  refetch:CompanyRefetch } =
     useGetCompanyObjective(
       userId,
       companyPageSize,
@@ -80,25 +81,15 @@ export default function OkrTab() {
   const canVieCompanyOkr = AccessGuard.checkAccess({
     permissions: [Permissions.ViewCompanyOkr],
   });
-
-  const onPageChange = (page: number, pageSize?: number) => {
-    setCurrentPage(page);
-    if (pageSize) {
-      setPageSize(pageSize);
-    }
-  };
-  const onTeamPageChange = (page: number, pageSize?: number) => {
-    setTeamCurrentPage(page);
-    if (pageSize) {
-      setTeamPageSize(pageSize);
-    }
-  };
-  const onCompanyPageChange = (page: number, pageSize?: number) => {
-    setCompanyCurrentPage(page);
-    if (pageSize) {
-      setCompanyPageSize(pageSize);
-    }
-  };
+  useEffect(() => {
+    userRefetch();
+  }, [pageSize, currentPage]);
+  useEffect(() => {
+    refetch();
+  }, [teamPageSize, teamCurrentPage]);
+  useEffect(() => {
+    CompanyRefetch();
+  }, [companyPageSize, companyCurrentPage]);
   return (
     <div className="mt-6">
       <Tabs defaultActiveKey="1" onChange={(key) => setOkrTab(key)}>
@@ -113,6 +104,7 @@ export default function OkrTab() {
           )}
           {userObjectives?.items?.length !== 0 ? (
             <>
+            
               {userObjectives?.items?.map((obj: any) => (
                 <ObjectiveCard key={obj.id} myOkr={true} objective={obj} />
               ))}
@@ -121,8 +113,14 @@ export default function OkrTab() {
                 current={userObjectives?.meta?.currentPage || 1}
                 total={userObjectives?.meta?.totalItems || 1}
                 pageSize={pageSize}
-                onChange={onPageChange}
-                onShowSizeChange={onPageChange}
+                onChange={(page, pageSize) => {
+                  setCurrentPage(page);
+                  setPageSize(pageSize);
+                }}
+                onShowSizeChange={(size) => {
+                  setPageSize(size);
+                  setCurrentPage(1);
+                }}
               />
             </>
           ) : (
@@ -134,6 +132,13 @@ export default function OkrTab() {
         {canVieTeamOkr && (
           <TabPane tab="Team OKR" key={2}>
             <OkrProgress />
+            {teamLoading && (
+            <Spin
+              size="large"
+              style={{ color: 'white' }}
+              className="text-white text-center flex w-full justify-center"
+            />
+          )}
             {teamLoading && (
               <Spin
                 size="large"
@@ -150,9 +155,15 @@ export default function OkrTab() {
                 <CustomPagination
                   current={teamObjective?.meta?.currentPage || 1}
                   total={teamObjective?.meta?.totalItems || 1}
-                  pageSize={pageSize}
-                  onChange={onTeamPageChange}
-                  onShowSizeChange={onTeamPageChange}
+                  pageSize={teamPageSize}
+                  onChange={(page, pageSize) => {
+                    setTeamCurrentPage(page);
+                    setTeamPageSize(pageSize);
+                  }}
+                  onShowSizeChange={(size) => {
+                    setTeamPageSize(size);
+                    setTeamCurrentPage(1);
+                  }}
                 />
               </>
             ) : (
@@ -164,6 +175,13 @@ export default function OkrTab() {
         )}
         {canVieCompanyOkr && (
           <TabPane tab="Company OKR" key={3}>
+              {companyLoading && (
+            <Spin
+              size="large"
+              style={{ color: 'white' }}
+              className="text-white text-center flex w-full justify-center"
+            />
+          )}
             <OkrProgress />
             {companyLoading && (
               <Spin
@@ -181,9 +199,15 @@ export default function OkrTab() {
                 <CustomPagination
                   current={companyObjective?.meta?.currentPage || 1}
                   total={companyObjective?.meta?.totalItems || 1}
-                  pageSize={pageSize}
-                  onChange={onCompanyPageChange}
-                  onShowSizeChange={onCompanyPageChange}
+                  pageSize={companyPageSize}
+                  onChange={(page, pageSize) => {
+                    setCompanyCurrentPage(page);
+                    setCompanyPageSize(pageSize);
+                  }}
+                  onShowSizeChange={(size) => {
+                    setCompanyPageSize(size);
+                    setCompanyCurrentPage(1);
+                  }}
                 />
               </>
             ) : (
