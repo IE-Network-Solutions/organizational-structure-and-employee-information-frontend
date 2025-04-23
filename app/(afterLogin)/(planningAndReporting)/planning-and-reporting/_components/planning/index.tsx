@@ -255,6 +255,7 @@ function Planning() {
             </div>
           </Tooltip>
         </div>
+
         <EmployeeSearch
           optionArray1={employeeData?.items}
           optionArray2={PlanningType}
