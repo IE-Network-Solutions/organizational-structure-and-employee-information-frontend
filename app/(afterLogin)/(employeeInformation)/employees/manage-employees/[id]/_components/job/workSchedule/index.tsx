@@ -125,13 +125,13 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
   const schedule = workSchedules?.items[0];
 
   const totalWorkingHours = schedule?.detail.reduce((total, day) => {
-    return total + day.hours;
+    return total + day.hours || 0;
   }, 0);
 
   const workingHours: { day: string; hours: number }[] =
     workSchedules?.items[0]?.detail?.map((day) => ({
-      day: day.dayOfWeek,
-      hours: day.hours,
+      day: day.dayOfWeek || '',
+      hours: day.hours || 0,
     })) || [];
   return (
     <Card
@@ -167,15 +167,15 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
               value={
                 <div className="flex gap-6">
                   <div className="flex flex-col space-y-1">
-                    {workingHours.map((item) => (
-                      <div key={`${item.day}-label`}>{item.day}</div>
+                    {workingHours?.map((item) => (
+                      <div key={`${item?.day}-label`}>{item?.day}</div>
                     ))}
                   </div>
 
                   <div className="flex flex-col space-y-1">
-                    {workingHours.map((item) => (
-                      <div key={`${item.day}-value`} className="font-normal">
-                        {item.hours} hours
+                    {workingHours?.map((item) => (
+                      <div key={`${item?.day}-value`} className="font-normal">
+                        {item?.hours} hours
                       </div>
                     ))}
                   </div>
