@@ -22,7 +22,7 @@ const ManageEmployees: React.FC<any> = () => {
   };
 
   return (
-    <div className="h-auto w-full p-4">
+    <div className="h-auto w-full ">
       <BlockWrapper>
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb
@@ -32,11 +32,11 @@ const ManageEmployees: React.FC<any> = () => {
           <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
             <AccessGuard permissions={[Permissions.RegisterNewEmployee]}>
               <CustomButton
-                title="Create user"
+              type='primary'
+                title={<span className="hidden sm:inline">Create user</span>}
                 id="createUserButton"
-                icon={<FaPlus className="mr-2" />}
+                icon={<FaPlus />}
                 onClick={showDrawer}
-                className="bg-blue-600 hover:bg-blue-700"
               />
             </AccessGuard>
             <UserSidebar onClose={onClose} />

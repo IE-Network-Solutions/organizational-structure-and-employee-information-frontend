@@ -5,8 +5,10 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useDebounce } from '@/utils/useDebounce';
-import { Col, Input, Row, Select } from 'antd';
+import { Col, Dropdown, Input, Menu, Row, Select } from 'antd';
 import React from 'react';
+import { IoMdSwitch } from 'react-icons/io';
+import { useMediaQuery } from 'react-responsive';
 
 const { Option } = Select;
 
@@ -25,6 +27,8 @@ const EmployeeSearch: React.FC = () => {
 
   const { data: EmployeeBranches } = useEmployeeBranches();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
+  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+
 
   const handleSearchEmployee = async (
     value: string | boolean,
@@ -64,11 +68,10 @@ const EmployeeSearch: React.FC = () => {
     ? 'notNull'
     : 'notNull';
 
-  return (
-    <div>
-      <Row gutter={[16, 24]} justify="space-between">
-        <Col lg={10} sm={24} xs={24}>
-          <div className="w-full">
+    return (
+      <div>
+        <Row gutter={[16, 24]} justify="space-between">
+          <Col lg={10} sm={24} xs={16}>
             <Input
               id={`inputEmployeeNames${searchParams.employee_name}`}
               placeholder="Search employee"
@@ -78,82 +81,143 @@ const EmployeeSearch: React.FC = () => {
               className="w-full h-14"
               allowClear
             />
-          </div>
-        </Col>
-
-        <Col lg={11} sm={24} xs={24}>
-          <Row gutter={[8, 16]}>
-            <Col lg={8} sm={12} xs={24}>
-              <Select
-                id={`selectBranches${searchParams.allOffices}`}
-                placeholder="All Offices"
-                onChange={handleBranchChange}
-                allowClear
-                className="w-full h-14"
-              >
-                {EmployeeBranches?.items?.map((item: any) => (
-                  <Option key={item?.id} value={item?.id}>
-                    {item?.name}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-            <Col lg={8} sm={12} xs={24}>
-              <Select
-                id={`selectDepartment${searchParams.allJobs}`}
-                placeholder="All Departments"
-                onChange={handleDepartmentChange}
-                allowClear
-                className=" w-full h-14"
-              >
-                {EmployeeDepartment?.map((item: any) => (
-                  <Option key={item?.id} value={item?.id}>
-                    {item?.name}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-            <Col lg={8} sm={12} xs={24}>
-              <Select
-                id={`selectStatus${searchParams.allStatus}`}
-                placeholder="Active"
-                onChange={handleStatusChange}
-                allowClear
-                className="w-full h-14"
-              >
-                <Option
-                  key="active"
-                  value={activeStatusValue}
-                  style={{
-                    backgroundColor:
-                      searchParams.allStatus === activeStatusValue
-                        ? '#f5f5f5'
-                        : 'transparent',
-                  }}
-                  className="hover:bg-gray-100"
+          </Col>
+  
+          <Col lg={11} sm={24} xs={8}>
+            {isSmallScreen ? (
+              <div className="flex justify-between gap-2 w-full">
+                {/* Branch */}
+                <Dropdown
+                  overlay={
+                    <Menu>
+                      {EmployeeBranches?.items?.map((item: any) => (
+                        <Menu.Item
+                          key={item?.id}
+                          onClick={() => handleSearchEmployee(item?.id, 'allOffices')}
+                        >
+                          {item?.name}
+                        </Menu.Item>
+                      ))}
+                    </Menu>
+                  }
+                  trigger={['click']}
                 >
-                  Active
-                </Option>
-                <Option
-                  key="inactive"
-                  value={inactiveStatusValue}
-                  style={{
-                    backgroundColor:
-                      searchParams.allStatus === inactiveStatusValue
-                        ? '#f5f5f5'
-                        : 'transparent',
-                  }}
-                  className="hover:bg-gray-100"
+                  <button className="w-[50px] h-[50px] flex items-center justify-center border border-gray-300 rounded">
+                    <IoMdSwitch size={24} />
+                  </button>
+                </Dropdown>
+  
+                {/* Department */}
+                <Dropdown
+                  overlay={
+                    <Menu>
+                      {EmployeeDepartment?.map((item: any) => (
+                        <Menu.Item
+                          key={item?.id}
+                          onClick={() => handleSearchEmployee(item?.id, 'allJobs')}
+                        >
+                          {item?.name}
+                        </Menu.Item>
+                      ))}
+                    </Menu>
+                  }
+                  trigger={['click']}
                 >
-                  Inactive
-                </Option>
-              </Select>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
-    </div>
-  );
+                  <button className="w-[50px] h-[50px] flex items-center justify-center border border-gray-300 rounded">
+                    <IoMdSwitch size={24} />
+                  </button>
+                </Dropdown>
+  
+                {/* Status */}
+                <Dropdown
+              overlay={
+                <Menu>
+                  <Menu.Item
+                    key="active"
+                    onClick={() => handleStatusChange(activeStatusValue)}
+                    style={{
+                      backgroundColor:
+                        searchParams.allStatus === activeStatusValue ? '#f5f5f5' : 'transparent',
+                    }}
+                    className="hover:bg-gray-100"
+                  >
+                    Active
+                  </Menu.Item>
+                  <Menu.Item
+                    key="inactive"
+                    onClick={() => handleStatusChange(inactiveStatusValue)}
+                    style={{
+                      backgroundColor:
+                        searchParams.allStatus === inactiveStatusValue ? '#f5f5f5' : 'transparent',
+                    }}
+                    className="hover:bg-gray-100"
+                  >
+                    Inactive
+                  </Menu.Item>
+                </Menu>
+              }
+              trigger={['click']}
+            >
+              <button className="w-[50px] h-[50px] flex items-center justify-center border border-gray-300 rounded">
+                <IoMdSwitch size={24} className="text-gray-900" />
+              </button>
+            </Dropdown>
+              </div>
+            ) : (
+              <Row gutter={[8, 16]}>
+                {/* Branch */}
+                <Col lg={8} sm={12} xs={8}>
+                  <Select
+                    placeholder="All Offices"
+                    onChange={(value) => handleSearchEmployee(value, 'allOffices')}
+                    allowClear
+                    className="w-full h-14"
+                    id={`selectBranches${searchParams.allOffices}`}
+                  >
+                    {EmployeeBranches?.items?.map((item: any) => (
+                      <Option key={item?.id} value={item?.id}>
+                        {item?.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Col>
+  
+                {/* Department */}
+                <Col lg={8} sm={12} xs={8}>
+                  <Select
+                    placeholder="All Departments"
+                    onChange={(value) => handleSearchEmployee(value, 'allJobs')}
+                    allowClear
+                    className="w-full h-14"
+                    id={`selectDepartment${searchParams.allJobs}`}
+                  >
+                    {EmployeeDepartment?.map((item: any) => (
+                      <Option key={item?.id} value={item?.id}>
+                        {item?.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Col>
+  
+                {/* Status */}
+                <Col lg={8} sm={12} xs={8}>
+                  <Select
+                    placeholder="Status"
+                    onChange={(value) => handleSearchEmployee(value, 'allStatus')}
+                    allowClear
+                    className="w-full h-14"
+                    id={`selectStatus${searchParams.allStatus}`}
+                  >
+                    <Option value={activeStatusValue}>Active</Option>
+                    <Option value={inactiveStatusValue}>Inactive</Option>
+                  </Select>
+                </Col>
+              </Row>
+            )}
+          </Col>
+        </Row>
+      </div>
+    );
 };
 
 export default EmployeeSearch;
