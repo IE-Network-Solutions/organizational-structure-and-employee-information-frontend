@@ -16,6 +16,7 @@ import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const NumericForm: React.FC<OKRFormProps> = ({
   keyItem,

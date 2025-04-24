@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { globalStateProps } from './interface';
+import { GlobalStateProps } from './interface';
 
-export const GlobalStateStore = create<globalStateProps>((set) => ({
+export const GlobalStateStore = create<GlobalStateProps>((set) => ({
   isMobile: false,
   collapsed: false,
   isAdminPage: false,

@@ -17,14 +17,14 @@ import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
-const CurrencyForm: React.FC<OKRFormProps & { isMobile: boolean }> = ({
+const CurrencyForm: React.FC<OKRFormProps> = ({
   keyItem,
   index,
   updateKeyResult,
   removeKeyResult,
   addKeyResultValue,
-  isMobile,
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
@@ -61,6 +61,7 @@ const CurrencyForm: React.FC<OKRFormProps & { isMobile: boolean }> = ({
     return null;
   };
 
+  const isMobile = useIsMobile();
   return (
     <div
       className={`p-4 ${isMobile ? 'p-2' : 'sm:p-6 lg:p-8'}`}
