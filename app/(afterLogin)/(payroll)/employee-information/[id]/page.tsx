@@ -142,7 +142,10 @@ const EmployeeProfile = () => {
       <Card
         title={
           isMobile && (
-            <span onClick={() => router.back()} className="flex items-center gap-2 cursor-pointer">
+            <span
+              onClick={() => router.back()}
+              className="flex items-center gap-2 cursor-pointer"
+            >
               <FaArrowLeft />
               <span className="text-lg font-bold">Detail Employee</span>
             </span>
@@ -594,52 +597,55 @@ const EmployeeProfile = () => {
 
               <TabPane tab="Payroll History" key="2">
                 <>
-              {payPeriodData ?
-                  payPeriodData
-                    ?.filter(
-                      (period: any) =>
-                        mergedPayroll.some(
+                  {payPeriodData ? (
+                    payPeriodData
+                      ?.filter(
+                        (period: any) =>
+                          mergedPayroll.some(
+                            (pay: any) => pay.payPeriodId === period.id,
+                          ), // Filter only periods with merged data
+                      )
+                      .map((period: any, index: any) => {
+                        const activeMergedPayroll = mergedPayroll.find(
                           (pay: any) => pay.payPeriodId === period.id,
-                        ), // Filter only periods with merged data
-                    )
-                    .map((period: any, index: any) => {
-                      const activeMergedPayroll = mergedPayroll.find(
-                        (pay: any) => pay.payPeriodId === period.id,
-                      );
+                        );
 
-                      return (
-                        <Collapse size="large" className="p-4" key={index}>
-                          <Collapse.Panel
-                            key={period.id}
-                            header={`${dayjs(period.startDate).format('MMMM-YYYY')}`}
-                          >
-                            <div className="flex gap-6 w-full m-4">
-                              <div className="flex flex-col gap-4 w-1/3">
-                                <Text className=" text-gray-600">
-                                  Salary Period
-                                </Text>
-                                <Text className=" text-gray-600">Pay Date</Text>
+                        return (
+                          <Collapse size="large" className="p-4" key={index}>
+                            <Collapse.Panel
+                              key={period.id}
+                              header={`${dayjs(period.startDate).format('MMMM-YYYY')}`}
+                            >
+                              <div className="flex gap-6 w-full m-4">
+                                <div className="flex flex-col gap-4 w-1/3">
+                                  <Text className=" text-gray-600">
+                                    Salary Period
+                                  </Text>
+                                  <Text className=" text-gray-600">
+                                    Pay Date
+                                  </Text>
+                                </div>
+                                <div className="flex flex-col gap-4 font-bold">
+                                  <Text>
+                                    {dayjs(period.startDate).format('MMM-YYYY')}
+                                  </Text>
+                                  <Text>
+                                    {dayjs(period.updatedAt).format(
+                                      'MMM-DD-YYYY',
+                                    )}
+                                  </Text>
+                                </div>
                               </div>
-                              <div className="flex flex-col gap-4 font-bold">
-                                <Text>
-                                  {dayjs(period.startDate).format('MMM-YYYY')}
-                                </Text>
-                                <Text>
-                                  {dayjs(period.updatedAt).format(
-                                    'MMM-DD-YYYY',
-                                  )}
-                                </Text>
-                              </div>
-                            </div>
-                            <PayrollDetails
-                              activeMergedPayroll={activeMergedPayroll}
-                            />
-                          </Collapse.Panel>
-                        </Collapse>
-                      );
-                    })
-                    : <Empty />
-                }
+                              <PayrollDetails
+                                activeMergedPayroll={activeMergedPayroll}
+                              />
+                            </Collapse.Panel>
+                          </Collapse>
+                        );
+                      })
+                  ) : (
+                    <Empty />
+                  )}
                 </>
               </TabPane>
               <TabPane tab="Settlement Track  ing" key="3">

@@ -228,7 +228,9 @@ const EmployeeInformation = () => {
   return (
     <div className={isMobile ? 'p-1' : 'p-5'}>
       <div className="flex justify-start items-center">
-        <span className="py-4 my-4 px-2 text-lg font-bold">Employees Payroll Information</span>
+        <span className="py-4 my-4 px-2 text-lg font-bold">
+          Employees Payroll Information
+        </span>
       </div>
       <Filters onSearch={handleSearch} />
 

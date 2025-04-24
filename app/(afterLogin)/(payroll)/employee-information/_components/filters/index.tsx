@@ -5,7 +5,6 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Button, Col, Modal, Row, Select } from 'antd';
-import { useState } from 'react';
 import { IoMdSwitch } from 'react-icons/io';
 
 interface FiltersProps {
@@ -15,8 +14,13 @@ const Filters: React.FC<FiltersProps> = () => {
   const { Option } = Select;
   const { data: employeeData } = useGetAllUsers();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
-  const { searchParams, setSearchValue, isModalOpen, setIsModalOpen, setSearchParams } =
-    useEmployeeManagementStore();
+  const {
+    searchParams,
+    setSearchValue,
+    isModalOpen,
+    setIsModalOpen,
+    setSearchParams,
+  } = useEmployeeManagementStore();
 
   const handleSearchEmployee = async (
     value: string | boolean,
@@ -41,73 +45,73 @@ const Filters: React.FC<FiltersProps> = () => {
       employeeData: emp,
     })) || [];
 
-    const { isMobile } = useIsMobile();
-    if (isMobile) {
-      return (
-        <>
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex-1 mr-2">
-              <Select
-                showSearch
-                allowClear
-                className="min-h-12 w-[100%]"
-                placeholder="Search by name"
-                onChange={(value) => handleEmployeeSelect(value)}
-                filterOption={(input, option) => {
-                  const label = option?.label;
-                  return (
-                    typeof label === 'string' &&
-                    label.toLowerCase().includes(input.toLowerCase())
-                  );
-                }}
-                options={options}
-              />
-            </div>
-            <Button
-              icon={<IoMdSwitch size={20} className="text-gray-800" />}
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center justify-center h-12"
+  const { isMobile } = useIsMobile();
+  if (isMobile) {
+    return (
+      <>
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex-1 mr-2">
+            <Select
+              showSearch
+              allowClear
+              className="min-h-12 w-[100%]"
+              placeholder="Search by name"
+              onChange={(value) => handleEmployeeSelect(value)}
+              filterOption={(input, option) => {
+                const label = option?.label;
+                return (
+                  typeof label === 'string' &&
+                  label.toLowerCase().includes(input.toLowerCase())
+                );
+              }}
+              options={options}
             />
           </div>
-  
-          <Modal
-            title="Filter"
-            style={{ top: 200 }} // <-- This adjusts the top margin
-            open={isModalOpen}
-            onCancel={() => setIsModalOpen(false)}
-            footer={[
-              <Button key="cancel" onClick={() => setIsModalOpen(false)}>
-                Cancel
-              </Button>,
-              <Button
-                key="filter"
-                type="primary"
-                onClick={() => setIsModalOpen(false)}
-                className="bg-purple-600"
-              >
-                Filter
-              </Button>,
-            ]}
-          >
-            <div className="py-4">
-              <Select
-                id={`selectDepartment${searchParams.allJobs}`}
-                placeholder="All Departments"
-                onChange={handleDepartmentChange}
-                allowClear
-                className="w-full h-14"
-              >
-                {EmployeeDepartment?.map((item: any) => (
-                  <Option key={item?.id} value={item?.id}>
-                    {item?.name}
-                  </Option>
-                ))}
-              </Select>
-            </div>
-          </Modal>
-        </>
-      );
-    }
+          <Button
+            icon={<IoMdSwitch size={20} className="text-gray-800" />}
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center justify-center h-12"
+          />
+        </div>
+
+        <Modal
+          title="Filter"
+          style={{ top: 200 }} // <-- This adjusts the top margin
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          footer={[
+            <Button key="cancel" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>,
+            <Button
+              key="filter"
+              type="primary"
+              onClick={() => setIsModalOpen(false)}
+              className="bg-purple-600"
+            >
+              Filter
+            </Button>,
+          ]}
+        >
+          <div className="py-4">
+            <Select
+              id={`selectDepartment${searchParams.allJobs}`}
+              placeholder="All Departments"
+              onChange={handleDepartmentChange}
+              allowClear
+              className="w-full h-14"
+            >
+              {EmployeeDepartment?.map((item: any) => (
+                <Option key={item?.id} value={item?.id}>
+                  {item?.name}
+                </Option>
+              ))}
+            </Select>
+          </div>
+        </Modal>
+      </>
+    );
+  }
   return (
     <div className="mb-6">
       <Row

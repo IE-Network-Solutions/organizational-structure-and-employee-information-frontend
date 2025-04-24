@@ -167,7 +167,7 @@ interface UserState {
   searchValue: string | null;
   setSearchValue: (searchValue: string | null) => void;
 
-  isModalOpen: boolean; 
+  isModalOpen: boolean;
   setIsModalOpen: (isModalOpen: boolean) => void;
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
