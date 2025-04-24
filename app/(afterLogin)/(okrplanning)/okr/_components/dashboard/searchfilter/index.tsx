@@ -36,6 +36,7 @@ const OkrSearch: React.FC = () => {
     if (!selectedFiscalYear) {
       setFiscalYearId(''); // or null, depending on your app
       setSessionIds([]);
+      return;
     }
 
     const sessionIds =

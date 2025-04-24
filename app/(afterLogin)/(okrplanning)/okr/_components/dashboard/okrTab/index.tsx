@@ -193,6 +193,7 @@ export default function OkrTab() {
             )}
           </TabPane>
         )}
+
         {canVieCompanyOkr && (
           <TabPane tab="All Employee OKR" key={4}>
             <EmployeeOKRTable />

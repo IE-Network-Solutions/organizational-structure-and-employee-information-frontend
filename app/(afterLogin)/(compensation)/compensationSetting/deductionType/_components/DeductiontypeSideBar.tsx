@@ -8,7 +8,10 @@ import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useEffect } from 'react';
 // import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
-import { useCreateAllowanceType } from '@/store/server/features/compensation/settings/mutations';
+import {
+  useCreateAllowanceType,
+  useUpdateCompensation,
+} from '@/store/server/features/compensation/settings/mutations';
 // import { RadioChangeEvent } from 'antd/lib';
 // import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 
@@ -35,6 +38,9 @@ const DeductiontypeSideBar = () => {
     // setDepartmentUsers,
   } = useCompensationSettingStore();
   const { mutate: createAllowanceType, isLoading } = useCreateAllowanceType();
+  const { mutate: updateAllowanceType, isLoading: updateIsLOading } =
+    useUpdateCompensation();
+
   const [form] = Form.useForm();
   // const { data: departments } = useGetDepartmentsWithUsers();
 
@@ -87,11 +93,24 @@ const DeductiontypeSideBar = () => {
       defaultAmount: 0,
       applicableTo: 'PER-EMPLOYEE',
     };
-    createAllowanceType(value, {
-      onSuccess: () => {
-        onClose();
-      },
-    });
+    {
+      selectedDeductionRecord?.id
+        ? updateAllowanceType(
+            { id: selectedDeductionRecord?.id, values: value },
+            {
+              onSuccess: () => {
+                form.resetFields();
+                onClose();
+              },
+            },
+          )
+        : createAllowanceType(value, {
+            onSuccess: () => {
+              form.resetFields();
+              onClose();
+            },
+          });
+    }
   };
 
   // const handleDepartmentChange = (value: string[]) => {
@@ -126,10 +145,10 @@ const DeductiontypeSideBar = () => {
       size: 'large',
       loading: false,
       onClick: () => onClose(),
-      disabled: isLoading,
+      disabled: selectedDeductionRecord?.id ? updateIsLOading : isLoading,
     },
     {
-      label: selectedDeductionRecord ? (
+      label: selectedDeductionRecord?.id ? (
         <span>Update</span>
       ) : (
         <span>Create</span>
@@ -138,11 +157,12 @@ const DeductiontypeSideBar = () => {
       className: 'h-14',
       type: 'primary',
       size: 'large',
-      loading: isLoading,
-      disabled: selectedDeductionRecord,
+      loading: selectedDeductionRecord?.id ? updateIsLOading : isLoading,
+      // disabled: selectedDeductionRecord,
       onClick: () => form.submit(),
     },
   ];
+
   return (
     isDeductionOpen && (
       <CustomDrawerLayout
@@ -150,7 +170,7 @@ const DeductiontypeSideBar = () => {
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            {selectedDeductionRecord ? (
+            {selectedDeductionRecord?.id ? (
               <span>Edit Deduction Type</span>
             ) : (
               <span>Add Deduction Type</span>
