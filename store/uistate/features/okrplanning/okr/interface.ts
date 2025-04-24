@@ -125,6 +125,10 @@ export interface OKRState {
   addKeyResultValue: (value: any) => void;
   handleKeyResultChange: (value: any, index: number, field: string) => void;
   handleSingleKeyResultChange: (value: any, field: string) => void;
+
+  selectedMetric: any;
+  setSelectedMetric: (selectedMetric: any) => void;
+
   handleMilestoneChange: (
     value: any,
     keyResultIndex: number,
@@ -156,8 +160,16 @@ export interface OKRState {
   companyCurrentPage: number;
   setCompanyPageSize: (companyPageSize: number) => void;
   setCompanyCurrentPage: (companyCurrentPage: number) => void;
+  employeePageSize: number;
+  employeeCurrentPage: number;
+  setEmployeePageSize: (employeePageSize: number) => void;
+  setEmployeeCurrentPage: (employeeCurrentPage: number) => void;
   okrTab: number | string;
   setOkrTab: (okrTab: number | string) => void;
   alignment: boolean;
   setAlignment: (alignment: boolean) => void;
+  fiscalYearId: string;
+  setFiscalYearId: (fiscalYearId: string) => void;
+  sessionIds: string[];
+  setSessionIds: (sessionId: string[]) => void;
 }

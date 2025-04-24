@@ -31,6 +31,9 @@ export interface PlanningAndReporting {
   activePlanPeriod: number;
   setActivePlanPeriod: (activePlanPeriod: number) => void;
 
+  activePlanPeriodId: string;
+  setActivePlanPeriodId: (activePlanPeriodId: string) => void;
+
   selectedUser: string[];
   setSelectedUser: (selectedUser: string[]) => void;
   weights: Record<string, number>;
@@ -98,6 +101,10 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     activePlanPeriod: 1,
     setActivePlanPeriod: (activePlanPeriod: number) =>
       set({ activePlanPeriod }),
+
+    activePlanPeriodId: '',
+    setActivePlanPeriodId: (activePlanPeriodId: string) =>
+      set({ activePlanPeriodId }),
 
     selectedUser: [userId],
     setSelectedUser: (selectedUser: string[]) => set({ selectedUser }),

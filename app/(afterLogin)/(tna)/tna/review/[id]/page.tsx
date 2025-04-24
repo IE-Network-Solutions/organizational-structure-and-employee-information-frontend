@@ -29,8 +29,12 @@ import ApprovalStatusesInfo from '@/components/common/approvalStatuses/approvalS
 import { useGetSingleApprovalLog } from '@/store/server/features/timesheet/leaveRequest/queries';
 
 const TnaDetailPage = () => {
-  const { isShowTnaUpdateSidebar, setTnaId, setIsShowTnaUpdateSidebar } =
-    useTnaReviewStore();
+  const {
+    isShowTnaUpdateSidebar,
+    setTnaId,
+    searchQuery,
+    setIsShowTnaUpdateSidebar,
+  } = useTnaReviewStore();
   const router = useRouter();
   const { id } = useParams();
   const { data, isFetching, refetch } = useGetTna(
@@ -43,6 +47,9 @@ const TnaDetailPage = () => {
         id: [id as string],
       },
     },
+    searchQuery,
+    true,
+    true,
   );
 
   useEffect(() => {

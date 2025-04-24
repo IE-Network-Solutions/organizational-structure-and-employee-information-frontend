@@ -11,10 +11,12 @@ export enum FieldType {
 export const PlanningType = [
   { key: 'myPlan', value: 'my plan' },
   { key: 'allPlan', value: 'all Plan' },
+  { key: 'subordinatePlan', value: 'subordinate plan' },
 ];
 export const ReportingType = [
   { key: 'myReport', value: 'my Report' },
   { key: 'allReport', value: 'all Report' },
+  { key: 'subordinateReport', value: 'subordinate Report' },
 ];
 
 export enum LocationType {

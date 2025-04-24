@@ -41,6 +41,8 @@ export const useOKRStore = create<OKRState>()(
       isClosed: false,
     },
 
+    selectedMetric: null,
+    setSelectedMetric: (selectedMetric: any) => set({ selectedMetric }),
     // Initialize key result value state
     keyResultValue: [],
     keyResultId: '',
@@ -265,9 +267,19 @@ export const useOKRStore = create<OKRState>()(
     companyCurrentPage: 1,
     setCompanyCurrentPage: (companyCurrentPage: number) =>
       set({ companyCurrentPage }),
+    employeePageSize: 10,
+    setEmployeePageSize: (employeePageSize: number) =>
+      set({ employeePageSize }),
+    employeeCurrentPage: 1,
+    setEmployeeCurrentPage: (employeeCurrentPage: number) =>
+      set({ employeeCurrentPage }),
     okrTab: 1,
     setOkrTab: (okrTab: number | string) => set({ okrTab }),
     alignment: false,
     setAlignment: (alignment: boolean) => set({ alignment }),
+    fiscalYearId: '',
+    setFiscalYearId: (fiscalYearId: string) => set({ fiscalYearId }),
+    sessionIds: [],
+    setSessionIds: (sessionIds: string[]) => set({ sessionIds }),
   })),
 );

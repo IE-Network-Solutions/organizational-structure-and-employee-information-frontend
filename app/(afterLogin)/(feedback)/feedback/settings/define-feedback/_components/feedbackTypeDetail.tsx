@@ -61,15 +61,16 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
 
     return (
       <>
-        <div style={{ marginBottom: 16 }}>
-          <Input.Search
-            placeholder="Search feedbacks..."
-            allowClear
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ width: 300 }}
-          />
-        </div>
-        <div className="flex justify-end text-xs mx-2">
+        <div className="flex justify-between text-xs mx-2 overflow-x-auto ">
+          <div style={{ marginBottom: 16 }}>
+            <Input.Search
+              placeholder="Search feedbacks..."
+              allowClear
+              onChange={(e) => setSearchQuery(e.target.value)}
+              // style={{ width: 300 }}
+              className="w-full sm:w-80 md:w-96 lg:w-[300px]"
+            />
+          </div>
           <Button
             type="primary"
             htmlType="button"
@@ -77,7 +78,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
             title="Add Type"
             onClick={() => setOpen(true)}
           >
-            Add Type
+            <span className="hidden md:inline"> Add Type</span>
           </Button>
         </div>
         {paginatedItems.map((item: any) => (

@@ -15,23 +15,29 @@ const Page = () => {
   const { data } = useGetCarryOverRules();
   return (
     <>
-      <PageHeader title="Carry-over Rule" size="small">
-        <AccessGuard permissions={[Permissions.CreateCarryOverRule]}>
-          <Button
-            size="large"
-            type="primary"
-            id="carryOver"
-            icon={<LuPlus size={18} />}
-            onClick={() => setIsShowCarryOverRuleSidebar(true)}
-          >
-            New Rule
-          </Button>
-        </AccessGuard>
-      </PageHeader>
-
-      {data &&
-        data.items.map((item) => <CarryOverCard key={item.id} item={item} />)}
-
+      {' '}
+      <div className="relative">
+        <div className="absolute top-0 left-0 w-full h-1/2 mb-3 ">
+          <PageHeader title="Carry-over Rule" size="small">
+            <AccessGuard permissions={[Permissions.CreateCarryOverRule]}>
+              <Button
+                size="large"
+                type="primary"
+                id="carryOver"
+                icon={<LuPlus size={18} />}
+                onClick={() => setIsShowCarryOverRuleSidebar(true)}
+              >
+                <span className="hidden md:inline"> New Carry-over Rule</span>
+              </Button>
+            </AccessGuard>
+          </PageHeader>
+        </div>
+      </div>
+      {/* Scrollable Container for Horizontal Scroll */}
+      <div className="w-full overflow-x-auto  mt-12">
+        {data &&
+          data.items.map((item) => <CarryOverCard key={item.id} item={item} />)}
+      </div>
       <CarryOverSidebar />
     </>
   );

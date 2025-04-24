@@ -170,8 +170,6 @@ const Documents = ({ id }: { id: string }) => {
                   <div className="flex justify-between items-center text-xl font-semibold text-gray-950">
                     <p>Documents Upload</p>
                     <div className="flex py-3 px-6 my-4 items-center">
-                      <FaPlus className="mx-2 p-1 text-gray-400" />
-
                       <Button
                         className="ant-upload-text font-semibold text-white  text-sm  bg-blue-500 hover:bg-blue-600"
                         type="primary"

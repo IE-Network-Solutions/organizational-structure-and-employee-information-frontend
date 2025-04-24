@@ -15,6 +15,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
+    setEmployeeJobInfoModalWidth,
+    employeeJobInfoModalWidth,
   } = useEmployeeManagementStore();
 
   const { data: employeeData } = useGetEmployee(id);
@@ -23,30 +25,15 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
 
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
+    setEmployeeJobInfoModalWidth(null);
   };
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
-    const positionId = employeeData?.employeeJobInformation?.find(
-      (job: any) => job?.position?.name === values.positionId,
-    )?.position?.id;
-    const employementTypeId = employeeData?.employeeJobInformation?.find(
-      (job: any) => job?.employementType?.name === values.employementTypeId,
-    )?.employementType?.id;
-    const departmentId = employeeData?.employeeJobInformation?.find(
-      (job: any) => job?.department?.name === values.departmentId,
-    )?.department?.id;
-    const branchId = employeeData?.employeeJobInformation?.find(
-      (job: any) => job?.branch?.name === values.branchId,
-    )?.branch?.id;
-    const workScheduleId = employeeData?.employeeJobInformation?.find(
-      (job: any) => job?.workSchedule?.name === values.workScheduleId,
-    )?.workSchedule?.id;
-
-    values.positionId = positionId || '';
-    values.employementTypeId = employementTypeId || '';
-    values.departmentId = departmentId || '';
-    values.branchId = branchId || '';
-    values.workScheduleId = workScheduleId || '';
+    values.positionId = form.getFieldValue('positionId') || '';
+    values.employementTypeId = form.getFieldValue('employementTypeId') || '';
+    values.departmentId = form.getFieldValue('departmentId') || '';
+    values.branchId = form.getFieldValue('branchId') || '';
+    values.workScheduleId = form.getFieldValue('workScheduleId') || '';
     values.userId = id;
     values.basicSalary = parseInt(values.basicSalary.toString(), 10);
     values.departmentLeadOrNot
@@ -63,6 +50,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
       <Modal
         title="Add Employee Job Information"
         centered
+        width={employeeJobInfoModalWidth || undefined}
         open={isAddEmployeeJobInfoModalVisible}
         onCancel={handleClose}
         footer={false}

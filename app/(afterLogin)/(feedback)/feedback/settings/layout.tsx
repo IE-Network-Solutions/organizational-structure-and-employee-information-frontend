@@ -4,9 +4,9 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 import SidebarMenu from '@/components/sidebarMenu';
-import { TfiMedallAlt } from 'react-icons/tfi';
 import { GoQuestion } from 'react-icons/go';
 import { RiFeedbackLine } from 'react-icons/ri';
+import { CiCalendarDate } from 'react-icons/ci';
 
 interface TimesheetSettingsLayoutProps {
   children: ReactNode;
@@ -17,7 +17,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'define-feedback',
-        icon: <RiFeedbackLine />,
+        icon: <RiFeedbackLine className="hidden lg:block" />,
         label: <p className="menu-item-label">Define Feedback</p>,
         className: 'px-1',
       },
@@ -26,7 +26,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'define-questions',
-        icon: <GoQuestion />,
+        icon: <GoQuestion className="hidden lg:block" />,
         label: <p className="menu-item-label">Define Questions</p>,
         className: 'px-1',
       },
@@ -43,8 +43,8 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     // },
     {
       item: {
-        key: 'recognition-setting',
-        icon: <TfiMedallAlt />,
+        key: 'recognition',
+        icon: <CiCalendarDate className="hidden lg:block" />,
         label: <p className="menu-item-label">Recognition</p>,
         className: 'px-1',
       },
@@ -53,16 +53,18 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   ]);
 
   return (
-    <div className="h-auto w-auto pr-6 pb-6 pl-3">
-      <PageHeader
-        title="Settings"
-        description="Organizational development settings"
-      ></PageHeader>
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="h-auto w-auto pr-6 pb-6 pl-3">
+        <PageHeader
+          title="Settings"
+          description="Organizational development settings"
+        ></PageHeader>
 
-      <div className="flex gap-6 mt-8">
-        <SidebarMenu menuItems={menuItems} />
+        <div className=" flex flex-col lg:flex-row gap-6 mt-8">
+          <SidebarMenu menuItems={menuItems} />
 
-        <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+          <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+        </div>
       </div>
     </div>
   );

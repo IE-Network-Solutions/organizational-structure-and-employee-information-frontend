@@ -9,18 +9,24 @@ import {
   Button,
   Col,
   DatePicker,
+  Divider,
   Form,
+  Input,
   Radio,
   Row,
   Select,
+  Space,
   Switch,
 } from 'antd';
 import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AiOutlineReload } from 'react-icons/ai';
 import { IoInformationCircleOutline } from 'react-icons/io5';
+import { PlusOutlined } from '@ant-design/icons';
+import { useCreatePosition } from '@/store/server/features/employees/positions/mutation';
 
 const JobTimeLineForm = () => {
+  const [form] = Form.useForm();
   const { birthDate } = useEmployeeManagementStore();
   const { data: departmentData, refetch: departmentsRefetch } =
     useGetDepartments();
@@ -29,12 +35,21 @@ const JobTimeLineForm = () => {
   const { data: branchOfficeData, refetch: branchOfficeRefetch } =
     useGetBranches();
   const { data: positions, refetch: positionRefetch } = useGetAllPositions();
-
+  const {
+    mutate: handleCreatePosition,
+    isLoading,
+    isSuccess,
+  } = useCreatePosition();
   const [contractType, setContractType] = useState<string>('Permanent');
 
   const handleContractTypeChange = (e: any) => {
     setContractType(e.target.value);
   };
+  useEffect(() => {
+    if (isSuccess) {
+      positionRefetch();
+    }
+  }, [isSuccess]);
 
   return (
     <div>
@@ -80,7 +95,7 @@ const JobTimeLineForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name="positionId"
+            name={'positionId'}
             id="jobTitle"
             label={
               <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -108,6 +123,36 @@ const JobTimeLineForm = () => {
                 value: positions?.id,
                 label: `${positions?.name ? positions?.name : ''} `,
               }))}
+              dropdownRender={(menu) => (
+                <>
+                  {menu}
+                  <Divider style={{ margin: '8px 0' }} />
+                  <Form
+                    form={form}
+                    onFinish={(e) => {
+                      handleCreatePosition(e);
+                      form.resetFields();
+                    }}
+                  >
+                    <Space>
+                      {' '}
+                      <Form.Item name="name" rules={[{ required: true }]}>
+                        <Input placeholder="Position" />
+                      </Form.Item>
+                      <Form.Item>
+                        <Button
+                          loading={isLoading}
+                          htmlType="submit"
+                          type="link"
+                          icon={<PlusOutlined />}
+                        >
+                          Add
+                        </Button>
+                      </Form.Item>
+                    </Space>
+                  </Form>
+                </>
+              )}
             />
           </Form.Item>
         </Col>

@@ -8,18 +8,26 @@ import {
 } from '@/store/server/features/payroll/payroll/queries';
 import dayjs from 'dayjs';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const { Option } = Select;
 
 interface FiltersProps {
   onSearch: (filters: { [key: string]: string }) => void;
   disable?: string[];
+  oneRow?: boolean;
 }
 
-const Filters: React.FC<FiltersProps> = ({ onSearch, disable = [] }) => {
+const Filters: React.FC<FiltersProps> = ({
+  onSearch,
+  disable = [],
+  oneRow = false,
+}) => {
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
   const { data: employeeData } = useGetAllUsers();
   const { data: payPeriodData } = useGetPayPeriod();
+  const { data: departmentData } = useGetDepartments();
+
   const { data: payroll } = useGetActivePayroll();
 
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
@@ -116,15 +124,25 @@ const Filters: React.FC<FiltersProps> = ({ onSearch, disable = [] }) => {
         gutter={[16, 16]}
         align="middle"
         justify="space-between"
-        style={{ flexWrap: 'wrap', display: 'flex' }}
+        style={{
+          flexWrap: oneRow ? 'nowrap' : 'wrap',
+          display: 'flex',
+          overflowX: oneRow ? 'auto' : 'visible',
+          gap: oneRow ? '4px' : '16px',
+        }}
       >
         {!disable?.includes('name') && (
-          <Col style={{ flex: '1 1 50%', minWidth: '200px' }}>
+          <Col
+            style={{
+              flex: oneRow ? '0 0 auto' : '1 1 50%',
+              minWidth: oneRow ? '400px' : '150px',
+            }}
+          >
             <Select
               showSearch
               allowClear
-              className="min-h-12 w-[100%]"
-              placeholder="Search by name"
+              className="min-h-12 w-full"
+              placeholder="Search Employee"
               onChange={(value) => handleEmployeeSelect(value)}
               filterOption={(input, option) => {
                 const label = option?.label;
@@ -139,7 +157,9 @@ const Filters: React.FC<FiltersProps> = ({ onSearch, disable = [] }) => {
         )}
 
         {!disable?.includes('year') && (
-          <Col style={{ flex: '1 1 50%', minWidth: '200px' }}>
+          <Col
+            style={{ flex: oneRow ? '0 0 auto' : '1 1 50%', minWidth: '150px' }}
+          >
             <Select
               placeholder="Year"
               onChange={(value) => {
@@ -160,7 +180,9 @@ const Filters: React.FC<FiltersProps> = ({ onSearch, disable = [] }) => {
         )}
 
         {!disable?.includes('session') && (
-          <Col style={{ flex: '1 1 50%', minWidth: '200px' }}>
+          <Col
+            style={{ flex: oneRow ? '0 0 auto' : '1 1 50%', minWidth: '150px' }}
+          >
             <Select
               placeholder="Session"
               onChange={(value) => {
@@ -182,7 +204,9 @@ const Filters: React.FC<FiltersProps> = ({ onSearch, disable = [] }) => {
         )}
 
         {!disable?.includes('month') && (
-          <Col style={{ flex: '1 1 50%', minWidth: '200px' }}>
+          <Col
+            style={{ flex: oneRow ? '0 0 auto' : '1 1 50%', minWidth: '150px' }}
+          >
             <Select
               placeholder="Month"
               onChange={(value) => {
@@ -203,8 +227,30 @@ const Filters: React.FC<FiltersProps> = ({ onSearch, disable = [] }) => {
           </Col>
         )}
 
+        {disable?.includes('department') && (
+          <Col
+            style={{ flex: oneRow ? '0 0 auto' : '1 1 50%', minWidth: '150px' }}
+          >
+            <Select
+              placeholder="Select department"
+              onChange={(value) => handleSelectChange('departmentId', value)}
+              value={searchValue.departmentId}
+              allowClear
+              style={{ width: '100%', height: '48px' }}
+            >
+              {departmentData?.map((department: any) => (
+                <Option key={department.id} value={department.id}>
+                  {department?.name}
+                </Option>
+              ))}
+            </Select>
+          </Col>
+        )}
+
         {!disable?.includes('payPeriod') && (
-          <Col style={{ flex: '1 1 50%', minWidth: '200px' }}>
+          <Col
+            style={{ flex: oneRow ? '0 0 auto' : '1 1 50%', minWidth: '150px' }}
+          >
             <Select
               placeholder="Pay Period"
               onChange={(value) => handleSelectChange('payPeriodId', value)}

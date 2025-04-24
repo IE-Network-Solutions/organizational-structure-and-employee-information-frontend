@@ -48,7 +48,7 @@ const UserSidebar = (props: any) => {
   }, [isSuccess]);
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
       Add New Employee
     </div>
   );
@@ -92,20 +92,25 @@ const UserSidebar = (props: any) => {
       )}
     </div>
   );
-
+  function handleCancel() {
+    props?.onClose();
+    form.resetFields();
+    setProfileFileList([]);
+  }
   return (
     open && (
       <CustomDrawerLayout
         open={open}
-        onClose={props?.onClose}
+        onClose={handleCancel}
         modalHeader={modalHeader}
         width="40%"
       >
         <Steps
           current={current}
           size="small"
+          responsive={false}
           // onChange={onChange}
-          className="px-32 sm:my-10"
+          className="  sm:my-10"
         >
           <Step icon={customDot(1)} />
           <Step icon={customDot(2)} />

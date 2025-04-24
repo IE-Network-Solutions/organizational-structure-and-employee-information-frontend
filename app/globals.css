@@ -208,56 +208,50 @@ h6 {
 .lesson-material-article h3 {
   @apply text-gray-900 text-[24px];
 }
-/* this is the css for the tree */
 
-.menu-with-lines .ant-menu-submenu > .ant-menu-submenu-title {
-  position: relative;
+.ant-pagination.invoice-table {
+  display: flex !important;
 }
 
-/* Remove lines for parent items */
-.menu-with-lines .ant-menu-submenu > .ant-menu-submenu-title::before,
-.menu-with-lines .ant-menu-submenu > .ant-menu-submenu-title::after {
-  display: none;
+.ant-pagination.invoice-table .ant-pagination-options {
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
 }
 
-/* Style child menu items */
-.menu-with-lines .ant-menu-submenu .ant-menu-item {
-  position: relative;
-  padding-left: 24px; /* Space for the symbols */
+.ant-pagination.invoice-table .ant-pagination-total-text {
+  position: absolute !important;
+  right: 130px !important;
+  margin: 0 !important;
 }
 
-/* Add "├──" before every child except the last */
-.menu-with-lines .ant-menu-submenu .ant-menu-item::before {
-  content: '├── ';
-  position: absolute;
-  left: 5px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #aaa; /* Light gray color */
-  font-size: 14px;
+@media (max-width: 768px) {
+  .ant-pagination.invoice-table .ant-pagination-total-text {
+    bottom: 10px;
+  }
 }
 
-/* Change "├──" to "└──" for the last child */
-.menu-with-lines .ant-menu-submenu .ant-menu-item:last-child::before {
-  content: '└── ';
+.ant-tree-treenode .ant-tree-title {
+  height: 2.25rem !important; /* h-9 */
+  width: 14rem !important; /* w-60 */
+  display: flex;
+  align-items: center;
+  justify-content: start;
 }
 
-.custom-tabs .ant-tabs-nav::before {
-  border: none;
+.ant-tree-treenode-selected .ant-tree-title {
+  background-color: #f5f5f5 !important; /* Slightly darker for selection */
 }
 
-.custom-tabs .ant-tabs-tab {
-  color: #888;
-  font-size: 14px;
-  padding: 4px 16px;
+.ant-tree-treenode:hover .ant-tree-title {
+  background-color: #f5f5f5 !important; /* Light grey on hover */
 }
 
-.custom-tabs .ant-tabs-tab-active {
-  color: #1890ff;
-  font-weight: 500;
+.ant-tree-treenode .ant-tree-title {
+  transition: background-color 0.2s ease-in-out;
 }
 
-.custom-tabs .ant-tabs-ink-bar {
-  background-color: #1890ff;
-  height: 2px;
+.ant-tree-treenode .ant-tree-title {
+  width: 100% !important;
 }

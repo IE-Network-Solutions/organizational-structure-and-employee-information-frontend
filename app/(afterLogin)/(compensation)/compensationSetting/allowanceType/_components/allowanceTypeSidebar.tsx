@@ -128,7 +128,7 @@ const AllowanceTypeSideBar = () => {
           </CustomDrawerHeader>
         }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
-        width="600px"
+        width="30%"
       >
         <Spin spinning={isLoading}>
           <Form

@@ -23,16 +23,20 @@ import {
   useSendingPayrollPayslip,
 } from '@/store/server/features/payroll/payroll/mutation';
 import PayrollCard from './_components/cards';
-import { useExportData } from './_components/excel';
 import { useGenerateBankLetter } from './_components/Latter';
 import { saveAs } from 'file-saver';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
+import { useExportData } from './_components/excel';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportBank, setExportBank] = useState(true);
   const [bankLetter, setBankLetter] = useState(true);
+  const [paySlip, setPaySlip] = useState(false);
+  const [exportPayrollData, setExportPayrollData] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
@@ -48,8 +52,8 @@ const Payroll = () => {
   const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
     useSendingPayrollPayslip();
 
-  const { exportToExcel } = useExportData();
   const { generateBankLetter } = useGenerateBankLetter();
+  const { exportToExcel } = useExportData();
 
   const [loading, setLoading] = useState(false);
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
@@ -58,7 +62,7 @@ const Payroll = () => {
 
   useEffect(() => {
     if (payroll?.payrolls && allEmployees?.items) {
-      const mergedData = payroll.payrolls.map((pay: any) => {
+      const mergedData = payroll?.payrolls.map((pay: any) => {
         const employee = allEmployees.items.find(
           (emp: any) => emp.id === pay.employeeId,
         );
@@ -73,11 +77,20 @@ const Payroll = () => {
   }, [payroll, allEmployees]);
 
   const handleExportAll = async () => {
-    const exportTasks = [];
+    const exportTasks: Promise<any>[] = []; // Ensure array contains promises
+
+    if (paySlip)
+      exportTasks.push(Promise.resolve(sendingPaySlipHandler(mergedPayroll)));
+
+    if (exportPayrollData)
+      exportTasks.push(Promise.resolve(handleDeductionExportPayroll()));
 
     if (exportBank) exportTasks.push(handleExportBank());
+
     if (bankLetter)
-      exportTasks.push(handleBankLetter(payroll?.totalNetPayAmount));
+      exportTasks.push(
+        Promise.resolve(handleBankLetter(payroll?.totalNetPayAmount)),
+      );
 
     if (exportTasks.length === 0) {
       notification.error({
@@ -89,7 +102,7 @@ const Payroll = () => {
 
     setLoading(true);
     try {
-      await Promise.all(exportTasks);
+      await Promise.all(exportTasks); // Await all promises
       notification.success({
         message: 'Export Successful',
         description: 'Selected export operations completed successfully.',
@@ -104,6 +117,12 @@ const Payroll = () => {
       setIsModalOpen(false);
     }
   };
+
+  type Payroll = {
+    employeeId: string;
+    netPay: number;
+  };
+
   const handleSearch = (searchValues: any) => {
     const queryParams = new URLSearchParams();
 
@@ -175,7 +194,6 @@ const Payroll = () => {
       payPeriodId: item.payPeriodId,
       employeeId: item.employeeInfo.id,
     }));
-
     sendPaySlip({ values });
   };
   const handleDeductionExportPayroll = async () => {
@@ -201,15 +219,25 @@ const Payroll = () => {
 
       const exportColumns = [
         { type: 'Basic Salary', key: 'basicSalary' },
-        { type: 'Total Allowance', key: 'totalAllowance' },
-        { type: 'Total Benefits', key: 'totalBenefits' },
+        { type: 'Transport Allowance', key: 'transportAllowance' },
+        { type: 'Taxable Transport', key: 'taxableTransport' },
+        // { type: 'Total Allowance', key: 'totalAllowance' },
+        { type: 'Total Award', key: 'totalBenefits' },
+        { type: 'Gross Salary', key: 'grossIncome' },
+        { type: 'Taxable Income', key: 'taxableIncome' },
+
         { type: 'Tax', key: 'tax' },
         { type: 'Total Deduction', key: 'totalDeduction' },
-        { type: 'Variable Pay', key: 'variablePay' },
-        { type: 'Gross Income', key: 'grossIncome' },
+        { type: 'Employee Pension', key: 'employeePension' },
+        { type: 'Company Pension', key: 'companyPesnion' },
+        // { type: 'Total Deduction', key: 'totalDeduction' },
+        // { type: 'Variable Pay', key: 'variablePay' },
+        // { type: 'Gross Income', key: 'grossIncome' },
         { type: 'Net Income', key: 'netIncome' },
       ];
-
+      const columnHeaderMap = new Map<string, string>(
+        exportColumns.map((col) => [col.key, col.type]),
+      );
       exportColumns.forEach((col) => uniquePayrollColumns.add(col.key));
       mergedPayroll.forEach((item: any) => {
         item.breakdown?.allowances?.forEach((a: any) =>
@@ -222,6 +250,7 @@ const Payroll = () => {
           uniqueMeritTypes.add(m.type),
         );
       });
+
       mergedPayroll.forEach((item: any) => {
         const fullName =
           `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
@@ -236,18 +265,39 @@ const Payroll = () => {
         const deductions = item.breakdown?.totalDeductionWithPension || [];
         const allowances = item.breakdown?.allowances || [];
         const merits = item.breakdown?.merits || [];
+        const transportAllowance = allowances
+          ?.filter((item: any) => item.type === 'Transport Allowance')
+          ?.reduce((acc: any, item: any) => {
+            return acc + Number(item.amount);
+          }, 0);
+        const taxableTransport = transportAllowance - 600;
+        const totalBenefits = item.totalMerit || 0;
 
         const payrollRowData: any = {
           fullName,
           basicSalary: Number(basicSalary).toFixed(2),
-          totalAllowance: Number(item.totalAllowance || 0).toFixed(2),
-          totalBenefits: Number(item.totalMerit || 0).toFixed(2),
-          totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
-          tax,
+          transportAllowance: Number(transportAllowance).toFixed(2),
+          taxableTransport: Number(taxableTransport).toFixed(2),
+          totalBenefits: Number(totalBenefits || 0).toFixed(2),
           grossIncome: Number(item.grossSalary || 0).toFixed(2),
-          variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(
-            2,
-          ),
+
+          taxableIncome: Number(item.grossSalary - 600 || 0).toFixed(2),
+          tax,
+          totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
+          employeePension: Number(
+            item.breakdown?.pension?.find((i: any) => i.type == 'Pension')
+              ?.amount || 0,
+          ).toFixed(2),
+          companyPesnion: Number(
+            item.breakdown?.pension?.find(
+              (i: any) => i.type == 'CompanyContribution',
+            )?.amount || 0,
+          ).toFixed(2),
+
+          // totalAllowance: Number(item.totalAllowance || 0).toFixed(2),
+          // variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(
+          //   2,
+          // ),
           netIncome: Number(item.netPay || 0).toFixed(2),
         };
 
@@ -306,7 +356,7 @@ const Payroll = () => {
         const headers = [
           { header: 'Full Name', key: 'fullName', minWidth: 30 },
           ...Array.from(uniqueTypes).map((type) => ({
-            header: type,
+            header: columnHeaderMap.get(type) || type,
             key: type,
             minWidth: 12, // Ensure readable width
           })),
@@ -372,10 +422,6 @@ const Payroll = () => {
     } finally {
       setLoading(false);
     }
-  };
-  type Payroll = {
-    employeeId: string;
-    netPay: number;
   };
 
   const handleExportBank = async () => {
@@ -467,6 +513,39 @@ const Payroll = () => {
       },
     },
     {
+      title: 'Transport Allowance',
+      dataIndex: 'transportAllowance',
+      key: 'transportAllowance',
+      minWidth: 150,
+      render: (notused: any, record: any) => {
+        const totalTransportAllowance =
+          record.breakdown?.allowances
+            ?.filter((item: any) => item.type === 'Transport Allowance')
+            ?.reduce(
+              (acc: number, item: any) => acc + Number(item.amount),
+              0,
+            ) || 0;
+        return <div>{totalTransportAllowance.toFixed(2)}</div>;
+      },
+    },
+    {
+      title: 'Taxable Transport Allowance',
+      dataIndex: 'taxableTransportAllowance', // Fixed typo in dataIndex
+      key: 'taxableTransportAllowance', // Fixed typo in key (taxabale -> taxable)
+      minWidth: 150,
+      render: (notused: any, record: any) => {
+        const totalTransportAllowance =
+          record.breakdown?.allowances
+            ?.filter((item: any) => item.type === 'Transport Allowance')
+            ?.reduce(
+              (acc: number, item: any) => acc + Number(item.amount),
+              0,
+            ) || 0;
+        const taxableAmount = totalTransportAllowance - 600;
+        return <div>{taxableAmount.toFixed(2)}</div>;
+      },
+    },
+    {
       title: 'Total Allowance',
       dataIndex: 'totalAllowance',
       key: 'totalAllowance',
@@ -536,6 +615,14 @@ const Payroll = () => {
       render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
+      title: 'Taxable Income',
+      dataIndex: 'taxableIncome',
+      key: 'taxableIncome',
+      minWidth: 150,
+      render: (notused: any, record: any) =>
+        Number(record.grossSalary - 600)?.toLocaleString(),
+    },
+    {
       title: 'Net Income',
       dataIndex: 'netPay',
       key: 'netPay',
@@ -543,62 +630,127 @@ const Payroll = () => {
       render: (key: string) => Number(key || 0)?.toLocaleString(),
     },
   ];
+
   return (
     <div style={{ padding: '20px' }}>
       <div className="flex justify-between items-center gap-4 scrollbar-none">
-        <h2 style={{ marginBottom: '20px' }}>Payroll</h2>
+        <h2 className="text-3xl mb-7">Payroll</h2>
         <h2 hidden style={{ marginBottom: '20px' }}>
           {payPeriodQuery}
         </h2>
 
-        <div className="flex gap-4">
-          <Button
-            type="default"
-            className="text-white bg-primary border-none p-6"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Export
-          </Button>
-          <Button
-            type="primary"
-            className="text-white  border-none p-6"
-            // onClick={handleExportPayroll}
-            onClick={handleDeductionExportPayroll}
-          >
-            Export Payroll
-          </Button>
-          {/* <Button
-            type="default"
-            className="text-white bg-violet-500 border-none p-6"
-            onClick={handleDeductionExportPayroll}
-          >
-            Export Deductions
-          </Button> */}
+        <div className="flex gap-4  mb-7">
+          <AccessGuard permissions={[Permissions.PayrollExport]}>
+            <Button
+              className="text-[#3636F0] bg-[#B2B2FF] border-none p-6"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Export
+            </Button>
+          </AccessGuard>
+
+          <AccessGuard permissions={[Permissions.SendPayslipEmail]}>
+            <Popconfirm
+              title="Send Payslips"
+              description={
+                <div>
+                  {mergedPayroll.length > 0 ? (
+                    mergedPayroll.length < allEmployees?.items?.length ? (
+                      <p>
+                        This will send payslips to {mergedPayroll.length}{' '}
+                        selected employees (filtered from{' '}
+                        {allEmployees?.items?.length} total).
+                      </p>
+                    ) : (
+                      <p>
+                        This will send payslips to ALL{' '}
+                        {allEmployees?.items?.length} employees.
+                      </p>
+                    )
+                  ) : (
+                    <p style={{ color: 'red', marginTop: '8px' }}>
+                      No employees selected. Please adjust your filters.
+                    </p>
+                  )}
+                  {mergedPayroll.length > 0 &&
+                    mergedPayroll.length < allEmployees?.items?.length && (
+                      <p style={{ color: 'orange', marginTop: '8px' }}>
+                        Note: You&apos;re sending to a filtered subset. Clear
+                        filters to send to everyone.
+                      </p>
+                    )}
+                </div>
+              }
+              okText={
+                mergedPayroll.length === 0
+                  ? 'Cannot Send'
+                  : mergedPayroll.length < allEmployees?.items?.length
+                    ? 'Send to Filtered'
+                    : 'Send to All'
+              }
+              cancelText="Cancel"
+              onConfirm={() => {
+                if (mergedPayroll.length > 0) {
+                  sendingPaySlipHandler(mergedPayroll);
+                }
+              }}
+              okButtonProps={{
+                disabled: mergedPayroll.length === 0,
+              }}
+            >
+              <Button
+                type="default"
+                loading={sendingPaySlipLoading}
+                className="text-white bg-primary border-none p-6"
+                disabled={mergedPayroll.length === 0}
+              >
+                {mergedPayroll.length === 0
+                  ? 'No Employees Selected'
+                  : mergedPayroll.length < allEmployees?.items?.length
+                    ? `Send to ${mergedPayroll.length} Filtered`
+                    : 'Send to All'}
+              </Button>
+            </Popconfirm>
+          </AccessGuard>
           <Popconfirm
-            title="Are you sure you want to delete the payroll?"
+            title={
+              payroll?.payrolls.length
+                ? 'Are you sure you want to regenerate the payroll ?'
+                : 'Are you sure you want to generate the payroll ?'
+            }
             onConfirm={handleDeletePayroll}
             okText="Yes"
             cancelText="No"
             disabled={!(payroll?.payrolls.length > 0)}
           >
-            <Button
-              type="primary"
-              className="p-6"
-              onClick={
-                payroll?.payrolls.length > 0 ? undefined : handleGeneratePayroll
-              }
-              loading={isCreatingPayroll || loading || deleteLoading}
-              disabled={isCreatingPayroll || loading || deleteLoading}
+            <AccessGuard
+              permissions={[
+                Permissions.GeneratePayroll,
+                Permissions.DeletePayroll,
+              ]}
             >
-              {payroll?.payrolls.length > 0
-                ? 'Delete Payroll'
-                : 'Generate Payroll'}
-            </Button>
+              <Button
+                type="primary"
+                className="p-6"
+                onClick={() => {
+                  handleGeneratePayroll();
+                }}
+                // onClick={
+                //   payroll?.payrolls.length > 0
+                //     ? undefined
+                //     : handleGeneratePayroll
+                // }
+                loading={isCreatingPayroll || loading || deleteLoading}
+                // disabled={isCreatingPayroll || loading || deleteLoading}
+              >
+                {payroll?.payrolls.length > 0 ? 'Regenerate' : 'Generate'}
+              </Button>
+            </AccessGuard>
           </Popconfirm>
         </div>
       </div>
 
-      <Filters onSearch={handleSearch} />
+      <Filters onSearch={handleSearch} oneRow={true} />
       <Row
         gutter={16}
         style={{
@@ -653,7 +805,7 @@ const Payroll = () => {
             type="primary"
             onClick={handleExportAll}
             className="text-white bg-blue border-none"
-            disabled={!(exportBank || bankLetter) || loading}
+            disabled={!bankLetter || loading}
             loading={loading}
           >
             Export
@@ -663,32 +815,37 @@ const Payroll = () => {
         <div className="flex flex-col gap-5 m-6">
           <div className="flex flex-col justify-between items-start gap-2 ">
             <span>Export Bank Letter</span>
-            <Switch checked={bankLetter} onChange={setBankLetter} />
+            <Switch
+              checked={bankLetter}
+              onChange={() => setBankLetter(!bankLetter)}
+            />
           </div>
           <div className="flex flex-col justify-between items-start gap-2 ">
+            <span>Export Payroll</span>
+            <Switch
+              checked={exportPayrollData}
+              onChange={() => setExportPayrollData(!exportPayrollData)}
+            />
+          </div>
+
+          <div className="flex flex-col justify-between items-start gap-2 ">
+            <span> Send Email for employees</span>
+            <Switch
+              disabled
+              checked={paySlip}
+              onChange={() => setPaySlip(!paySlip)}
+            />
+          </div>
+
+          <div className="flex flex-col justify-between items-start gap-2 ">
             <span>Export Bank</span>
-            <Switch checked={exportBank} onChange={setExportBank} />
+            <Switch
+              checked={bankLetter}
+              onChange={() => setExportBank(!exportBank)}
+            />
           </div>
         </div>
       </Modal>
-      <div className="h-12 overflow-hidden">
-        <Popconfirm
-          title="Are you sure?"
-          description="This will send the payslip to every employee via email."
-          okText="Yes, Send"
-          cancelText="No"
-          onConfirm={() => sendingPaySlipHandler(mergedPayroll)}
-        >
-          <Button
-            type="default"
-            loading={sendingPaySlipLoading}
-            className="text-white bg-primary border-none p-6"
-          >
-            Send Email for employees
-          </Button>
-        </Popconfirm>
-        {/* <PaySlip data={mergedPayroll} /> */}
-      </div>
     </div>
   );
 };

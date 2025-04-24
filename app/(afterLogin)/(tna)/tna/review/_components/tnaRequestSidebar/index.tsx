@@ -34,6 +34,7 @@ const TnaRequestSidebar = () => {
     monthId,
     sessionId,
     yearId,
+    searchQuery,
     setSearchQuery,
     tnaId,
     setTnaId,
@@ -75,8 +76,9 @@ const TnaRequestSidebar = () => {
         id: tnaId ? [tnaId] : [],
       },
     },
-    false,
-    false,
+    searchQuery,
+    true,
+    true,
   );
 
   const [form] = Form.useForm();
@@ -198,7 +200,7 @@ const TnaRequestSidebar = () => {
             buttons={footerModalItems}
           />
         }
-        width="50%"
+        width="30%"
       >
         <Form
           layout="vertical"

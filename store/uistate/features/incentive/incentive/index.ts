@@ -1,12 +1,82 @@
 import { create, StateCreator } from 'zustand';
 
+export interface BreakdownItem {
+  criteriaId: string;
+  score: number;
+  criterionKey: string;
+}
+
+export type MonthData = {
+  active: boolean;
+  createdAt: string;
+  createdBy: string | null;
+  deletedAt: string | null;
+  description: string | null;
+  endDate: string;
+  id: string;
+  name: string;
+  sessionId: string;
+  startDate: string;
+  tenantId: string;
+  updatedAt: string;
+  updatedBy: string | null;
+};
+
+export type CalendarData = {
+  active: boolean;
+  calendarId: string;
+  createdAt: string;
+  createdBy: string | null;
+  deletedAt: string | null;
+  description: string | null;
+  endDate: string;
+  id: string;
+  months: MonthData[];
+  name: string;
+  startDate: string;
+  tenantId: string;
+  updatedAt: string;
+  updatedBy: string | null;
+};
+
+export interface UserData {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  tenantId: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  deletedAt: string | null;
+  createdBy: string | null;
+  updatedBy?: string | null; // Assuming it can be null or undefined
+}
 export interface AllIncentiveData {
-  recognition: string;
-  employee_name: string;
+  id: string;
+  createdAt: string; // You can use `Date` if you plan to parse it into a Date object
+  updatedAt: string;
+  deletedAt: string | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+  isRate: boolean;
+  amount: string; // Consider `number` if you plan to parse it
+  breakdown: BreakdownItem[];
+  isPaid: boolean;
+  userId: string;
+  monthId: string;
+  sessionId: string;
+  payPeriodId: string | null;
+  recognitionId: string;
+  tenantId: string;
+  recognitionType: string;
+}
+
+export interface ProfileState {
+  name: string;
   role: string;
-  criteria: string;
-  bonus: string;
-  status: string;
+  recognition: string;
+  project: string;
+  avatarUrl: string;
 }
 
 export interface ProjectIncentiveData {
@@ -59,6 +129,21 @@ export interface RecordType {
   totalAmount: string;
   employeeCount: number;
 }
+
+export type IncentiveItem = {
+  name: string;
+};
+
+export type IncentiveDetail = {
+  criteria: IncentiveItem[];
+  isPaid: boolean;
+  sessionId: string;
+  totalAmount: number;
+  totalEmployees: number;
+  totalIncentives: number;
+  parentRecognitionTypeId: string;
+};
+
 export interface Records {
   Records: RecordType[];
 }
@@ -67,7 +152,7 @@ interface SearchParams {
   byProject: string;
   byRecognition: string;
   byYear: string;
-  bySession: string;
+  bySession: any;
   byMonth: string;
 }
 
@@ -76,12 +161,26 @@ export type CertificateDetails = {
   title: string;
 };
 
+export interface Criteria {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+  criteriaName: string;
+  sourceEndpoint: string;
+  criteriaType: 'System' | 'Custom';
+  active: boolean;
+  tenantId: string;
+}
+
 export type RecognitionCriteria = {
   active: boolean;
   condition: string;
   createdAt: string;
   createdBy?: string | null;
-  criterionKey: string;
+  criteria: Criteria;
   deletedAt?: string | null;
   id: string;
   operator: string;
@@ -161,6 +260,15 @@ type IncentiveState = {
   isSwitchOn: boolean;
   selectedRecognitionTypeId: string;
   selectedRecognition: any;
+  selectedSessions: string[];
+  parentResponseIsLoading: boolean;
+  parentTypeId: string;
+  isOpen: boolean;
+  parentRecognitionTypeId: string | null;
+  sessionId: string[];
+  generateAll: boolean;
+  filteredSessions: any[];
+  selectedFiscalYear: string | null;
 };
 
 type IncentiveActions = {
@@ -185,6 +293,15 @@ type IncentiveActions = {
   setIsSwitchOn: (value: boolean) => void;
   setSelectedRecognitionTypeId: (value: string) => void;
   setSelectedRecognition: (recognition: any) => void;
+  setSelectedSessions: (value: string[]) => void;
+  setParentTypeId: (value: string) => void;
+  setParentResponseIsLoading: (parentResponseIsLoading: boolean) => void;
+  setIsOpen: (isOpen: boolean) => void;
+  setParentRecognitionTypeId: (id: string | null) => void;
+  setSessionId: (ids: string[]) => void;
+  setGenerateAll: (value: boolean) => void;
+  setFilteredSessions: (sessions: any[]) => void;
+  setSelectedFiscalYear: (year: string | null) => void;
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -195,13 +312,17 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
     byProject: '',
     byRecognition: '',
     byYear: '',
-    bySession: '',
+    bySession: [],
     byMonth: '',
   },
   setSearchParams: (key, value) =>
     set((state) => ({
       searchParams: { ...state.searchParams, [key]: value },
     })),
+
+  parentResponseIsLoading: false,
+  setParentResponseIsLoading: (parentResponseIsLoading: boolean) =>
+    set({ parentResponseIsLoading }),
 
   currentPage: 1,
   setCurrentPage: (currentPage) => set({ currentPage }),
@@ -264,6 +385,29 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   selectedRecognition: null,
   setSelectedRecognition: (recognition) =>
     set({ selectedRecognition: recognition }),
+
+  selectedSessions: [],
+  setSelectedSessions: (value) => set({ selectedSessions: value }),
+
+  parentTypeId: '',
+  setParentTypeId: (value) => set({ parentTypeId: value }),
+
+  isOpen: false,
+  setIsOpen: (isOpen) => set({ isOpen }),
+
+  parentRecognitionTypeId: null,
+  sessionId: [],
+  generateAll: false,
+
+  setParentRecognitionTypeId: (id) => set({ parentRecognitionTypeId: id }),
+  setSessionId: (ids) => set({ sessionId: ids }),
+  setGenerateAll: (value) => set({ generateAll: value }),
+
+  filteredSessions: [],
+  setFilteredSessions: (sessions) => set({ filteredSessions: sessions }),
+
+  selectedFiscalYear: null,
+  setSelectedFiscalYear: (year) => set({ selectedFiscalYear: year }),
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(

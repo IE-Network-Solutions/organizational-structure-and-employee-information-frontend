@@ -43,8 +43,6 @@ import { UserOutlined } from '@ant-design/icons';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { FiCheckCircle } from 'react-icons/fi';
 import KeyResultTasks from './KeyResultTasks';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Title } = Typography;
 
@@ -60,8 +58,10 @@ function Planning() {
     pageSize,
     setPageSize,
     activeTab,
+    activePlanPeriodId,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
+
   const { userId } = useAuthenticationStore();
   const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
     useApprovalPlanningPeriods();
@@ -69,26 +69,36 @@ function Planning() {
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
 
-  const hasPermission = AccessGuard.checkAccess({
-    permissions: [
-      Permissions.ViewDailyPlan,
-      Permissions.ViewWeeklyPlan,
-      Permissions.ViewMonthlyPlan,
-    ],
-  });
+  // const hasPermission = AccessGuard.checkAccess({
+  //   permissions: [
+  //     Permissions.ViewDailyPlan,
+  //     Permissions.ViewWeeklyPlan,
+  //     Permissions.ViewMonthlyPlan,
+  //   ],
+  // });
 
-  const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
+  const getPlanningPeriodDetail = (id: string) => {
+    const planningPeriodDetail = planningPeriods?.items?.find(
+      (period: any) => period?.id === id,
+    );
+    return planningPeriodDetail || {}; // Return an empty object if planningPeriodDetail is undefined
+  };
+  // const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
 
   // const { mutate: handleDeletePlan, isLoading: loadingDeletePlan } =
   //   useDeletePlanById();
   const { data: objective } = useFetchObjectives(userId);
-  const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
-  const userPlanningPeriodId =
-    userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
+  // const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId =
+    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+  // const userPlanningPeriodId =userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
+  const userPlanningPeriodId = userPlanningPeriods?.find(
+    (item) => item?.planningPeriodId === planningPeriodId,
+  )?.planningPeriodId;
 
   const { data: allPlanning, isLoading: getPlanningLoading } = useGetPlanning({
     userId: selectedUser,
-    planPeriodId: planningPeriodId ?? '', // Provide a default string value
+    planPeriodId: planningPeriodId ?? '',
     page,
     pageSize,
   });
@@ -108,7 +118,9 @@ function Planning() {
     };
     approvalPlanningPeriod(data);
   };
-  const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
+  // const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
+  const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
+
   const getEmployeeData = (id: string) => {
     const employeeDataDetail = employeeData?.items?.find(
       (emp: any) => emp?.id === id,
@@ -198,6 +210,13 @@ function Planning() {
       planningPeriodId || '', // Provide a default string value if undefined
     );
 
+  const isActive = planningPeriodHierarchy?.parentPlan
+    ? (planningPeriodHierarchy?.parentPlan?.plans?.length ?? 0) === 0 ||
+      (planningPeriodHierarchy?.parentPlan?.plans?.filter(
+        (i: any) => !i.isReported,
+      ).length ?? 0) === 0
+    : false;
+
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -222,11 +241,7 @@ function Planning() {
                 <CustomButton
                   disabled={
                     allUserPlanning?.length > 0 ||
-                    (planningPeriodHierarchy?.parentPlan?.plans?.length ??
-                      0) === 0 ||
-                    (planningPeriodHierarchy?.parentPlan?.plans?.filter(
-                      (i: any) => !i.isReported,
-                    ).length ?? 0) === 0 ||
+                    isActive ||
                     (objective?.items?.length ?? 0) === 0
                   }
                   loading={isLoading}
@@ -240,13 +255,11 @@ function Planning() {
             </div>
           </Tooltip>
         </div>
-        {hasPermission && (
-          <EmployeeSearch
-            optionArray1={employeeData?.items}
-            optionArray2={PlanningType}
-            optionArray3={departmentData}
-          />
-        )}
+        <EmployeeSearch
+          optionArray1={employeeData?.items}
+          optionArray2={PlanningType}
+          optionArray3={departmentData}
+        />
 
         {transformedData?.map((dataItem: any, index: number) => (
           <>

@@ -34,6 +34,9 @@ export interface WorkScheduleDetail {
   endTime: string;
   hours: number;
   status: boolean;
+  duration: number;
+  workDay: boolean;
+  day: string;
 }
 
 export interface WorkSchedule {
@@ -67,6 +70,11 @@ interface SearchParams {
   allStatus: string | null;
 }
 interface UserState {
+  isBasicSalaryModalVisible: boolean;
+  setIsBasicSalaryModalVisible: (isBasicSalaryModalVisible: boolean) => void;
+
+  basicSalaryData: any | null;
+  setBasicSalaryData: (basicSalaryData: any) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
   userCurrentPage: number;
@@ -170,6 +178,10 @@ interface UserState {
   setIsAddEmployeeJobInfoModalVisible: (
     isAddEmployeeJobInfoModalVisible: boolean,
   ) => void;
+  employeeJobInfoModalWidth: string | null;
+  setEmployeeJobInfoModalWidth: (
+    employeeJobInfoModalWidth: string | null,
+  ) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -178,7 +190,11 @@ export const useEmployeeManagementStore = create<UserState>()(
     setIsAddEmployeeJobInfoModalVisible: (
       isAddEmployeeJobInfoModalVisible: boolean,
     ) => set({ isAddEmployeeJobInfoModalVisible }),
-
+    isBasicSalaryModalVisible: false,
+    setIsBasicSalaryModalVisible: (isBasicSalaryModalVisible: boolean) =>
+      set({ isBasicSalaryModalVisible }),
+    setBasicSalaryData: (basicSalaryData: any) => set({ basicSalaryData }),
+    basicSalaryData: null,
     birthDate: null,
     setBirthDate: (birthDate: Dayjs | null) => set({ birthDate }),
     searchValue: null,
@@ -321,5 +337,8 @@ export const useEmployeeManagementStore = create<UserState>()(
       set((state) => ({
         searchParams: { ...state.searchParams, [key]: value },
       })),
+    employeeJobInfoModalWidth: null,
+    setEmployeeJobInfoModalWidth: (employeeJobInfoModalWidth: string | null) =>
+      set({ employeeJobInfoModalWidth }),
   })),
 );

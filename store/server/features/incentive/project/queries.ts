@@ -38,7 +38,6 @@ const fetchProjectIncentiveData = async (
 const fetchProjectIncentiveDataByID = async (projectId: string) => {
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive/${projectId}`,
-    // url: 'https://mocki.io/v1/c4e934a6-27b5-4ccb-a83d-bd8f7ae9d294',
     method: 'GET',
     headers: requestHeader(),
   });
@@ -81,7 +80,7 @@ export const useGetProjectIncentiveData = (
       ),
   );
 };
-export const useGetAllIncentiveData = (projectId: string) => {
+export const useGetAllIncentiveDatas = (projectId: string) => {
   return useQuery<any>(['getProjectIncentiveData', projectId], () =>
     fetchProjectIncentiveDataByID(projectId),
   );

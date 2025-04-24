@@ -113,20 +113,12 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
           <div className="my-6 text-xl text-gray-600">
             Total Deduction{' '}
             {totalAmount([
-              ...(activeMergedPayroll?.breakdown?.pension || []),
               ...(activeMergedPayroll?.breakdown?.totalDeductionWithPension ||
                 []),
             ])}
           </div>
           <div className="flex gap-6 w-full">
             <div className="flex flex-col gap-6 w-1/3 justify-center items-start pl-4">
-              {activeMergedPayroll?.breakdown?.pension?.map(
-                (item: any, index: any) => (
-                  <Text className="text-gray-600" key={index}>
-                    {item.type}
-                  </Text>
-                ),
-              )}
               {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
                 (item: any, index: any) => (
                   <Text className="text-gray-600" key={index}>
@@ -136,13 +128,6 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
               )}
             </div>
             <div className="flex flex-col gap-6 text-right justify-end items-start">
-              {activeMergedPayroll?.breakdown?.pension?.map(
-                (item: any, index: any) => (
-                  <Text className="font-bold" key={index}>
-                    {parseFloat(item.amount).toFixed(2)}
-                  </Text>
-                ),
-              )}
               {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
                 (item: any, index: any) => (
                   <Text className="font-bold" key={index}>
