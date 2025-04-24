@@ -20,7 +20,7 @@ import {
   useGetPayPeriod,
 } from '@/store/server/features/payroll/payroll/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import PayrollDetails from './_components/PayrollDetails';
 import html2canvas from 'html2canvas';
@@ -34,7 +34,6 @@ import { MdKeyboardArrowRight } from 'react-icons/md';
 import SettlementDetail from './_components/settlementDetail';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { FaArrowLeft } from 'react-icons/fa';
-import Router from 'next/router';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -42,6 +41,7 @@ const { TabPane } = Tabs;
 const EmployeeProfile = () => {
   const { data: payPeriodData } = useGetPayPeriod();
   const { profileFileList } = useEmployeeManagementStore();
+  const router = useRouter();
 
   const openPayPeriods = payPeriodData?.filter(
     (period: any) => period.status === 'OPEN',
@@ -142,7 +142,7 @@ const EmployeeProfile = () => {
       <Card
         title={
           isMobile && (
-            <span onClick={() => Router.back()} className="flex items-center gap-2">
+            <span onClick={() => router.back()} className="flex items-center gap-2 cursor-pointer">
               <FaArrowLeft />
               <span className="text-lg font-bold">Detail Employee</span>
             </span>
