@@ -45,8 +45,14 @@ const PercentageForm: React.FC<OKRFormProps> = ({
   const { data: metrics } = useGetMetrics();
 
   return (
-    <div className={`p-4 ${isMobile ? 'p-2' : 'sm:p-6 lg:p-8'}`} id={`key-result-${index}`}>
-      <div className="border border-blue-500 rounded-lg p-4 mx-0" id={`form-container-${index}`}>
+    <div
+      className={`p-4 ${isMobile ? 'p-2' : 'sm:p-6 lg:p-8'}`}
+      id={`key-result-${index}`}
+    >
+      <div
+        className="border border-blue-500 rounded-lg p-4 mx-0"
+        id={`form-container-${index}`}
+      >
         <div className="flex justify-end mb-2">
           <button
             onClick={() => removeKeyResult(index)}
@@ -61,7 +67,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
 
         <Form form={form} initialValues={keyItem} layout="vertical">
           <Form.Item
-            rules={[{ required: true, message: 'Please select a Key Result type' }]}
+            rules={[
+              { required: true, message: 'Please select a Key Result type' },
+            ]}
             id={`metric-type-${index}`}
             className="mb-2"
           >
@@ -78,7 +86,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 }
               }}
               value={
-                metrics?.items?.find((metric) => metric.name === keyItem.key_type)?.id || ''
+                metrics?.items?.find(
+                  (metric) => metric.name === keyItem.key_type,
+                )?.id || ''
               }
             >
               <Option value="" disabled>
@@ -95,7 +105,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
           <Form.Item
             name="title"
             className={`font-semibold ${isMobile ? 'mb-3' : 'mb-2'}`}
-            rules={[{ required: true, message: 'Please enter the Key Result name' }]}
+            rules={[
+              { required: true, message: 'Please enter the Key Result name' },
+            ]}
             id={`key-result-title-${index}`}
           >
             <Input
@@ -113,7 +125,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 className={`font-semibold ${isMobile ? 'mb-3' : 'mb-2'}`}
                 name={`dead_line_${index}`}
                 label="Deadline"
-                rules={[{ required: true, message: 'Please select a deadline' }]}
+                rules={[
+                  { required: true, message: 'Please select a deadline' },
+                ]}
                 id={`key-result-deadline-${index}`}
               >
                 <DatePicker
@@ -147,7 +161,10 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 name="weight"
                 label="Weight"
                 rules={[
-                  { required: true, message: 'Please enter the weight as a Percentage' },
+                  {
+                    required: true,
+                    message: 'Please enter the weight as a Percentage',
+                  },
                   {
                     validator: (form, value) =>
                       value && value > 0
@@ -193,7 +210,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   max={100}
                   suffix="%"
                   value={keyItem.initialValue}
-                  onChange={(value) => updateKeyResult(index, 'initialValue', value)}
+                  onChange={(value) =>
+                    updateKeyResult(index, 'initialValue', value)
+                  }
                   aria-label="Initial Value"
                 />
               </Form.Item>
@@ -221,7 +240,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   max={100}
                   suffix="%"
                   value={keyItem.targetValue}
-                  onChange={(value) => updateKeyResult(index, 'targetValue', value)}
+                  onChange={(value) =>
+                    updateKeyResult(index, 'targetValue', value)
+                  }
                   aria-label="Target Value"
                 />
               </Form.Item>

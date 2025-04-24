@@ -359,11 +359,10 @@ const MilestoneView: React.FC<OKRProps> = ({
             </Popconfirm>
           </div>
         </div>
-        <div className={`flex ${isMobile ? 'gap-1 mb-1' : 'gap-3 mb-4'} items-center `}>
-          <Form.Item
-            layout="horizontal"
-            className="w-full h-5 font-bold"
-          >
+        <div
+          className={`flex ${isMobile ? 'gap-1 mb-1' : 'gap-3 mb-4'} items-center `}
+        >
+          <Form.Item layout="horizontal" className="w-full h-5 font-bold">
             <span className="text-sm font-bold">Deadline</span>
             <DatePicker
               id={`key-result-deadline-${index}`}

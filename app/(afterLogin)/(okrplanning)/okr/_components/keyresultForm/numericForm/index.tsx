@@ -44,8 +44,14 @@ const NumericForm: React.FC<OKRFormProps> = ({
   const { data: metrics } = useGetMetrics();
 
   return (
-    <div className={`p-4 ${isMobile ? 'p-2' : 'sm:p-6 lg:p-8'}`} id={`numeric-form-${index}`}>
-      <div className="border border-blue-500 rounded-lg p-4 mx-0" id={`form-container-${index}`}>
+    <div
+      className={`p-4 ${isMobile ? 'p-2' : 'sm:p-6 lg:p-8'}`}
+      id={`numeric-form-${index}`}
+    >
+      <div
+        className="border border-blue-500 rounded-lg p-4 mx-0"
+        id={`form-container-${index}`}
+      >
         <div className="flex justify-end mb-2">
           <button
             onClick={() => removeKeyResult(index)}
@@ -60,7 +66,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
 
         <Form form={form} initialValues={keyItem} layout="vertical">
           <Form.Item
-            rules={[{ required: true, message: 'Please select a Key Result type' }]}
+            rules={[
+              { required: true, message: 'Please select a Key Result type' },
+            ]}
             id={`key-type-select-${index}`}
             className="mb-2"
           >
@@ -77,7 +85,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 }
               }}
               value={
-                metrics?.items?.find((metric) => metric.name === keyItem.key_type)?.id || ''
+                metrics?.items?.find(
+                  (metric) => metric.name === keyItem.key_type,
+                )?.id || ''
               }
             >
               <Option value="" disabled>
@@ -94,7 +104,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
           <Form.Item
             className={`font-semibold ${isMobile ? 'mb-3' : 'mb-2'}`}
             name="title"
-            rules={[{ required: true, message: 'Please enter the Key Result name' }]}
+            rules={[
+              { required: true, message: 'Please enter the Key Result name' },
+            ]}
             id={`key-result-title-${index}`}
           >
             <Input
@@ -112,7 +124,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 className={`font-semibold ${isMobile ? 'mb-3' : 'mb-2'}`}
                 name={`dead_line_${index}`}
                 label="Deadline"
-                rules={[{ required: true, message: 'Please select a deadline' }]}
+                rules={[
+                  { required: true, message: 'Please select a deadline' },
+                ]}
                 id={`deadline-picker-${index}`}
               >
                 <DatePicker
@@ -175,13 +189,17 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 className={`font-semibold ${isMobile ? 'mb-3' : 'mb-2'}`}
                 name="initialValue"
                 label="Initial"
-                rules={[{ required: true, message: 'Please enter the initial value' }]}
+                rules={[
+                  { required: true, message: 'Please enter the initial value' },
+                ]}
                 id={`initial-value-input-${index}`}
               >
                 <InputNumber
                   className={`w-full ${isMobile ? 'h-10 text-sm' : 'h-8 text-xs'} rounded-md`}
                   value={keyItem.initialValue}
-                  onChange={(value) => updateKeyResult(index, 'initialValue', value)}
+                  onChange={(value) =>
+                    updateKeyResult(index, 'initialValue', value)
+                  }
                   formatter={(value) =>
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   }
@@ -209,7 +227,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 <InputNumber
                   className={`w-full ${isMobile ? 'h-10 text-sm' : 'h-8 text-xs'} rounded-md`}
                   value={keyItem.targetValue}
-                  onChange={(value) => updateKeyResult(index, 'targetValue', value)}
+                  onChange={(value) =>
+                    updateKeyResult(index, 'targetValue', value)
+                  }
                   formatter={(value) =>
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   }

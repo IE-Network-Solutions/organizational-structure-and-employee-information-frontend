@@ -151,7 +151,7 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           <Form.Item
             layout="horizontal"
             className="w-full font-bold"
-            label={isMobile ? undefined : "Deadline"}
+            label={isMobile ? undefined : 'Deadline'}
           >
             {isMobile && <span className="text-sm font-bold">Deadline</span>}
             <DatePicker

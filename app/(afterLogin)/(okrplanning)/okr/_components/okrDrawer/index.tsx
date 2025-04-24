@@ -328,9 +328,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           }`}
         >
           <div className="flex justify-between items-center mb-4">
-            <p
-              className={`font-bold ${isMobile ? 'text-sm' : 'text-xs'} h-6`}
-            >
+            <p className={`font-bold ${isMobile ? 'text-sm' : 'text-xs'} h-6`}>
               Set Key Result
             </p>
             <Button

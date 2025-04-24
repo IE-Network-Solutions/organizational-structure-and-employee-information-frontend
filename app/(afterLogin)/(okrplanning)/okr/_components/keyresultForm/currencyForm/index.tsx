@@ -62,8 +62,14 @@ const CurrencyForm: React.FC<OKRFormProps & { isMobile: boolean }> = ({
   };
 
   return (
-    <div className={`p-4 ${isMobile ? 'p-2' : 'sm:p-6 lg:p-8'}`} id={`currency-form-${index}`}>
-      <div className="border border-blue-500 rounded-lg p-4 mx-0" id={`form-container-${index}`}>
+    <div
+      className={`p-4 ${isMobile ? 'p-2' : 'sm:p-6 lg:p-8'}`}
+      id={`currency-form-${index}`}
+    >
+      <div
+        className="border border-blue-500 rounded-lg p-4 mx-0"
+        id={`form-container-${index}`}
+      >
         <div className="flex justify-end mb-2">
           <button
             onClick={() => removeKeyResult(index)}
@@ -78,7 +84,9 @@ const CurrencyForm: React.FC<OKRFormProps & { isMobile: boolean }> = ({
 
         <Form form={form} initialValues={keyItem} layout="vertical">
           <Form.Item
-            rules={[{ required: true, message: 'Please select a Key Result type' }]}
+            rules={[
+              { required: true, message: 'Please select a Key Result type' },
+            ]}
             id={`key-result-select-${index}`}
             className="mb-2"
           >
@@ -95,7 +103,9 @@ const CurrencyForm: React.FC<OKRFormProps & { isMobile: boolean }> = ({
                 }
               }}
               value={
-                metrics?.items?.find((metric) => metric.name === keyItem.key_type)?.id || ''
+                metrics?.items?.find(
+                  (metric) => metric.name === keyItem.key_type,
+                )?.id || ''
               }
             >
               <Option value="" disabled>
@@ -117,7 +127,9 @@ const CurrencyForm: React.FC<OKRFormProps & { isMobile: boolean }> = ({
                 validator: (rule, value) =>
                   !validateName('Key Result', value)
                     ? Promise.resolve()
-                    : Promise.reject(validateName('Key Result Name', value) || ''),
+                    : Promise.reject(
+                        validateName('Key Result Name', value) || '',
+                      ),
               },
             ]}
             id={`key-result-name-${index}`}
@@ -140,7 +152,9 @@ const CurrencyForm: React.FC<OKRFormProps & { isMobile: boolean }> = ({
                 label="Deadline"
                 labelCol={{ span: isMobile ? undefined : 6 }}
                 wrapperCol={{ span: isMobile ? undefined : 18 }}
-                rules={[{ required: true, message: 'Please select a deadline' }]}
+                rules={[
+                  { required: true, message: 'Please select a deadline' },
+                ]}
                 id={`deadline-${index}`}
               >
                 <DatePicker
@@ -210,7 +224,9 @@ const CurrencyForm: React.FC<OKRFormProps & { isMobile: boolean }> = ({
                 label="Initial"
                 labelCol={{ span: isMobile ? undefined : 6 }}
                 wrapperCol={{ span: isMobile ? undefined : 18 }}
-                rules={[{ required: true, message: 'Please enter an initial value' }]}
+                rules={[
+                  { required: true, message: 'Please enter an initial value' },
+                ]}
                 id={`initial-value-${index}`}
               >
                 <InputNumber

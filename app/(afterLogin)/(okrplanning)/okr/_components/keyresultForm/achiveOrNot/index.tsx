@@ -18,8 +18,6 @@ import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
-
-
 const AchieveOrNot: React.FC<OKRFormProps> = ({
   keyItem,
   index,
@@ -45,7 +43,10 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
   };
   const { isMobile } = useIsMobile();
   return (
-    <div className={`${isMobile ? 'p-2' : 'p-4 sm:p-6 lg:p-2'}`} id={`achieve-or-not-${index}`}>
+    <div
+      className={`${isMobile ? 'p-2' : 'p-4 sm:p-6 lg:p-2'}`}
+      id={`achieve-or-not-${index}`}
+    >
       <Form form={form} layout="vertical" initialValues={keyItem}>
         <div
           className={`border border-blue rounded-lg ${isMobile ? 'p-3' : 'p-4'} mx-0 ${!isMobile && 'lg:mx-8'}`}
@@ -66,7 +67,9 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
             <Select
               className="w-full text-xs"
               onChange={(value) => {
-                const selectedMetric = metrics?.items?.find(metric => metric.id === value);
+                const selectedMetric = metrics?.items?.find(
+                  (metric) => metric.id === value,
+                );
                 if (selectedMetric) {
                   updateKeyResult(index, 'metricTypeId', value);
                   updateKeyResult(index, 'key_type', selectedMetric.name);
@@ -85,7 +88,9 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
           <Form.Item
             className="font-semibold text-xs w-full mb-2 mt-2"
             name="title"
-            rules={[{ required: true, message: 'Please enter the Key Result name' }]}
+            rules={[
+              { required: true, message: 'Please enter the Key Result name' },
+            ]}
             id={`key-result-name-${index}`}
           >
             <Input
@@ -101,7 +106,9 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                 className="font-semibold text-xs w-full"
                 name={`dead_line_${index}`}
                 label="Deadline"
-                rules={[{ required: true, message: 'Please select a deadline' }]}
+                rules={[
+                  { required: true, message: 'Please select a deadline' },
+                ]}
                 id={`deadline-picker-${index}`}
               >
                 <DatePicker
@@ -111,13 +118,16 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                   disabledDate={(current) => {
                     const startOfToday = dayjs().startOf('day');
                     const objectiveDeadline = dayjs(objectiveValue?.deadline);
-                    return current && (current < startOfToday || current > objectiveDeadline);
+                    return (
+                      current &&
+                      (current < startOfToday || current > objectiveDeadline)
+                    );
                   }}
                   onChange={(date) =>
                     updateKeyResult(
                       index,
                       'deadline',
-                      date ? date.format('YYYY-MM-DD') : null
+                      date ? date.format('YYYY-MM-DD') : null,
                     )
                   }
                 />

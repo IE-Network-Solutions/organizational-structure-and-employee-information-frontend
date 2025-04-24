@@ -73,25 +73,33 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
 
           <Form.Item
             className="w-full"
-            rules={[{ required: true, message: 'Please select a Key Result type' }]}
+            rules={[
+              { required: true, message: 'Please select a Key Result type' },
+            ]}
             id={`key-result-type-${index}`}
           >
             <Select
               className="w-full text-xs"
               placeholder="Please select a metric type"
               onChange={(value) => {
-                const selectedMetric = metrics?.items?.find((metric) => metric.id === value);
+                const selectedMetric = metrics?.items?.find(
+                  (metric) => metric.id === value,
+                );
                 if (selectedMetric) {
                   updateKeyResult(index, 'metricTypeId', value);
                   updateKeyResult(index, 'key_type', selectedMetric.name);
                 }
               }}
               value={
-                metrics?.items?.find((metric) => metric.name === keyItem.key_type)?.id || ''
+                metrics?.items?.find(
+                  (metric) => metric.name === keyItem.key_type,
+                )?.id || ''
               }
               id={`select-metric-type-${index}`}
             >
-              <Option value="" disabled>Please select a metric type</Option>
+              <Option value="" disabled>
+                Please select a metric type
+              </Option>
               {metrics?.items?.map((metric) => (
                 <Option key={metric?.id} value={metric?.id}>
                   {metric?.name}
@@ -103,7 +111,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
           <Form.Item
             className="w-full font-semibold text-xs mb-2"
             name={`title-${index}`}
-            rules={[{ required: true, message: 'Please enter the Key Result name' }]}
+            rules={[
+              { required: true, message: 'Please enter the Key Result name' },
+            ]}
             id={`key-result-title-${index}`}
           >
             <Input
@@ -118,8 +128,10 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               <Form.Item
                 name={`dead_line_${index}`}
                 label="Deadline"
-                layout={isMobile ? "horizontal" : "vertical"}
-                rules={[{ required: true, message: 'Please select a deadline' }]}
+                layout={isMobile ? 'horizontal' : 'vertical'}
+                rules={[
+                  { required: true, message: 'Please select a deadline' },
+                ]}
                 id={`key-result-deadline-${index}`}
                 className="text-xs font-semibold"
               >
@@ -130,10 +142,17 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   disabledDate={(current) => {
                     const startOfToday = dayjs().startOf('day');
                     const objectiveDeadline = dayjs(objectiveValue?.deadline);
-                    return current && (current < startOfToday || current > objectiveDeadline);
+                    return (
+                      current &&
+                      (current < startOfToday || current > objectiveDeadline)
+                    );
                   }}
                   onChange={(date) =>
-                    updateKeyResult(index, 'deadline', date ? date.format('YYYY-MM-DD') : null)
+                    updateKeyResult(
+                      index,
+                      'deadline',
+                      date ? date.format('YYYY-MM-DD') : null,
+                    )
                   }
                   id={`deadline-picker-${index}`}
                 />

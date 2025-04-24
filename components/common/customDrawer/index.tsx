@@ -100,7 +100,6 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         open={open}
         style={{ paddingBottom: paddingBottom }}
         footer={footer}
-
         styles={{
           header: { borderBottom: 'none' },
           footer: { borderTop: 'none' },
