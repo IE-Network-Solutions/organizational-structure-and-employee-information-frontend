@@ -17,6 +17,10 @@ export interface AllowanceEntitlementTypes {
   setCurrentPage: (value: number) => void;
   setPageSize: (value: number) => void;
   setIsRate: (value: boolean) => void;
+
+    searchQuery:string; 
+    setSearchQuery:(searchQuery:string)=>void;
+  
 }
 
 const initialState = {
@@ -43,6 +47,9 @@ export const useAllowanceEntitlementStore = create<AllowanceEntitlementTypes>(
     setIsRate: (value) => set({ isRate: value }),
 
     resetStore: () => set(initialState),
+
+    searchQuery:'',
+    setSearchQuery:(searchQuery:string)=>set({searchQuery})
   }),
 );
 

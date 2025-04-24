@@ -7,6 +7,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AllAllowanceTable from './_components/allAllowanceTable';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { FaPlus } from 'react-icons/fa';
 
 const AllAllowancePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,8 +25,8 @@ const AllAllowancePage: React.FC = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center">
-        <PageHeader title="All Allowance Entitlement" size="small" />
+      <div className="flex justify-between">
+        <PageHeader title="All Allowance" size="small" />
         <Space direction="horizontal" size="large">
           <Select
             showSearch
@@ -49,17 +50,20 @@ const AllAllowancePage: React.FC = () => {
               type="primary"
               className="min-h-12"
               id="createNewClosedHolidayFieldId"
-              icon={<LuPlus size={18} />}
+              icon={<FaPlus />}
               onClick={() => {}}
               disabled
             >
-              Employees
+              <span className='hidden sm:inline'>
+                Employees
+              </span>
             </Button>
           </AccessGuard>
         </Space>
       </div>
-
+<div className='overflow-x-auto'>
       <AllAllowanceTable searchQuery={searchQuery} />
+      </div>
     </>
   );
 };
