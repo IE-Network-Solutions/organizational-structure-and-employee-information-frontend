@@ -102,7 +102,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
           footer: { borderTop: 'none' },
           body: { padding: '0 36px' },
         }}
-        height={400}
+        height={600}
         placement={placement}
       >
         {children}
