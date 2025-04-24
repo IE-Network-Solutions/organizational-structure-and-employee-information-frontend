@@ -13,6 +13,7 @@ import { VscClose } from 'react-icons/vsc';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import { useIsMobile } from '@/hooks/useIsMobile';
 const { Option } = Select;
 const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   const {
@@ -39,7 +40,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
       },
     });
   }
-
+  const { isMobile } = useIsMobile();
   const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
 
   return (
@@ -128,9 +129,10 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           <Form.Item
             layout="horizontal"
             className="w-full font-bold"
-            label="Deadline"
+            label={isMobile ? undefined : "Deadline"}
             id={`key-result-deadline-${index}`}
           >
+            {isMobile && <span className="text-sm font-bold">Deadline</span>}
             <DatePicker
               value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
               onChange={(dateString) => {

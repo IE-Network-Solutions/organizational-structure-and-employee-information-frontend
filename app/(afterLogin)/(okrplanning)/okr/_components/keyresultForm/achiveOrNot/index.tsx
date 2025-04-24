@@ -16,6 +16,9 @@ import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
+import { useIsMobile } from '@/hooks/useIsMobile';
+
+
 
 const AchieveOrNot: React.FC<OKRFormProps> = ({
   keyItem,
@@ -27,6 +30,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
   const { Option } = Select;
   const [form] = Form.useForm();
   const { setKeyResult, objectiveValue } = useOKRStore();
+  const { data: metrics } = useGetMetrics();
 
   const handleAddKeyResult = () => {
     form
@@ -39,14 +43,12 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
         showValidationErrors(info.errorFields);
       });
   };
-
-  const { data: metrics } = useGetMetrics();
-
+  const { isMobile } = useIsMobile();
   return (
-    <div className="p-4 sm:p-6 lg:p-2" id={`achieve-or-not-${index}`}>
+    <div className={`${isMobile ? 'p-2' : 'p-4 sm:p-6 lg:p-2'}`} id={`achieve-or-not-${index}`}>
       <Form form={form} layout="vertical" initialValues={keyItem}>
         <div
-          className="border border-blue rounded-lg p-4 mx-0 lg:mx-8"
+          className={`border border-blue rounded-lg ${isMobile ? 'p-3' : 'p-4'} mx-0 ${!isMobile && 'lg:mx-8'}`}
           id={`form-container-${index}`}
         >
           <div className="flex justify-end">
@@ -59,13 +61,12 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
               id={`remove-key-result-${index}`}
             />
           </div>
+
           <Form.Item className="w-full mb-2" id={`select-metric-${index}`}>
             <Select
               className="w-full text-xs"
               onChange={(value) => {
-                const selectedMetric = metrics?.items?.find(
-                  (metric) => metric.id === value,
-                );
+                const selectedMetric = metrics?.items?.find(metric => metric.id === value);
                 if (selectedMetric) {
                   updateKeyResult(index, 'metricTypeId', value);
                   updateKeyResult(index, 'key_type', selectedMetric.name);
@@ -80,12 +81,11 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
               ))}
             </Select>
           </Form.Item>
+
           <Form.Item
             className="font-semibold text-xs w-full mb-2 mt-2"
             name="title"
-            rules={[
-              { required: true, message: 'Please enter the Key Result name' },
-            ]}
+            rules={[{ required: true, message: 'Please enter the Key Result name' }]}
             id={`key-result-name-${index}`}
           >
             <Input
@@ -96,15 +96,12 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
           </Form.Item>
 
           <Row gutter={[16, 16]}>
-            <Col xs={24} md={12}>
+            <Col span={24} md={12}>
               <Form.Item
                 className="font-semibold text-xs w-full"
                 name={`dead_line_${index}`}
                 label="Deadline"
-                layout="horizontal"
-                rules={[
-                  { required: true, message: 'Please select a deadline' },
-                ]}
+                rules={[{ required: true, message: 'Please select a deadline' }]}
                 id={`deadline-picker-${index}`}
               >
                 <DatePicker
@@ -113,29 +110,24 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
                     const startOfToday = dayjs().startOf('day');
-                    const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
-
-                    return (
-                      current &&
-                      (current < startOfToday || current > objectiveDeadline)
-                    );
+                    const objectiveDeadline = dayjs(objectiveValue?.deadline);
+                    return current && (current < startOfToday || current > objectiveDeadline);
                   }}
                   onChange={(date) =>
                     updateKeyResult(
                       index,
                       'deadline',
-                      date ? date.format('YYYY-MM-DD') : null,
+                      date ? date.format('YYYY-MM-DD') : null
                     )
                   }
                 />
               </Form.Item>
             </Col>
 
-            <Col xs={24} md={12}>
+            <Col span={24} md={12}>
               <Form.Item
                 className="font-semibold text-xs w-full"
                 name="weight"
-                layout="horizontal"
                 label="Weight"
                 rules={[
                   { required: true, message: 'Please enter the Weight' },
@@ -155,11 +147,12 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
               </Form.Item>
             </Col>
           </Row>
-          <div className="flex justify-end">
+
+          <div className={`${isMobile ? 'mt-3' : 'flex justify-end'}`}>
             <Button
               onClick={handleAddKeyResult}
               type="primary"
-              className="bg-blue-600 text-xs md:w-32 w-full"
+              className={`bg-blue-600 text-xs ${isMobile ? 'w-full' : 'md:w-32'}`}
               icon={<GoPlus />}
               aria-label="Add Key Result"
               id={`add-key-result-${index}`}
