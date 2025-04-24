@@ -226,7 +226,7 @@ const EmployeeInformation = () => {
 
   const { isMobile } = useIsMobile();
   return (
-    <div className="p-5">
+    <div className={isMobile ? 'p-1' : 'p-5'}>
       {isMobile ? (
         <h2 className="py-4 text-lg font-semibold">Employees Payroll Information</h2>
       ) : (

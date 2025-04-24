@@ -3,13 +3,19 @@ import {
   useGetAllUsers,
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { Col, Row, Select } from 'antd';
+import { Col, Row, Select, Modal, Button } from 'antd';
+import { FilterOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { IoMdSwitch } from 'react-icons/io';
 
 interface FiltersProps {
   onSearch: (filters: { [key: string]: string }) => void;
 }
+
 const Filters: React.FC<FiltersProps> = () => {
   const { Option } = Select;
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: employeeData } = useGetAllUsers();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
   const { searchParams, setSearchValue, setSearchParams } =
@@ -28,6 +34,8 @@ const Filters: React.FC<FiltersProps> = () => {
     onSelectChange(value, 'allJobs');
   };
 
+  const { isMobile } = useIsMobile();
+
   const handleEmployeeSelect = (value: string) => {
     setSearchValue(value);
   };
@@ -38,6 +46,109 @@ const Filters: React.FC<FiltersProps> = () => {
       employeeData: emp,
     })) || [];
 
+  const FilterContent = () => (
+    <>
+      <div className={`${isMobile ? 'mb-4' : ''}`}>
+        <Select
+          showSearch
+          allowClear
+          className="min-h-12 w-[100%]"
+          placeholder="Search by name"
+          onChange={(value) => handleEmployeeSelect(value)}
+          filterOption={(input, option) => {
+            const label = option?.label;
+            return (
+              typeof label === 'string' &&
+              label.toLowerCase().includes(input.toLowerCase())
+            );
+          }}
+          options={options}
+        />
+      </div>
+      <div>
+        <Select
+          id={`selectDepartment${searchParams.allJobs}`}
+          placeholder="All Departments"
+          onChange={handleDepartmentChange}
+          allowClear
+          className="w-full h-14"
+        >
+          {EmployeeDepartment?.map((item: any) => (
+            <Option key={item?.id} value={item?.id}>
+              {item?.name}
+            </Option>
+          ))}
+        </Select>
+      </div>
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex-1 mr-2">
+            <Select
+              showSearch
+              allowClear
+              className="min-h-12 w-[100%]"
+              placeholder="Search by name"
+              onChange={(value) => handleEmployeeSelect(value)}
+              filterOption={(input, option) => {
+                const label = option?.label;
+                return (
+                  typeof label === 'string' &&
+                  label.toLowerCase().includes(input.toLowerCase())
+                );
+              }}
+              options={options}
+            />
+          </div>
+          <Button
+            icon={<IoMdSwitch size={20} className="text-gray-800" />}
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center justify-center h-12"
+          />
+        </div>
+
+        <Modal
+          title="Filter"
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          footer={[
+            <Button key="cancel" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>,
+            <Button
+              key="filter"
+              type="primary"
+              onClick={() => setIsModalOpen(false)}
+              className="bg-purple-600"
+            >
+              Filter
+            </Button>,
+          ]}
+        >
+          <div className="py-4">
+            <Select
+              id={`selectDepartment${searchParams.allJobs}`}
+              placeholder="All Departments"
+              onChange={handleDepartmentChange}
+              allowClear
+              className="w-full h-14"
+            >
+              {EmployeeDepartment?.map((item: any) => (
+                <Option key={item?.id} value={item?.id}>
+                  {item?.name}
+                </Option>
+              ))}
+            </Select>
+          </div>
+        </Modal>
+      </>
+    );
+  }
+
   return (
     <div className="mb-6">
       <Row
@@ -47,36 +158,7 @@ const Filters: React.FC<FiltersProps> = () => {
         style={{ flexWrap: 'nowrap' }}
       >
         <Col lg={16} md={14} sm={24} xs={24}>
-          <Select
-            showSearch
-            allowClear
-            className="min-h-12 w-[100%]"
-            placeholder="Search by name"
-            onChange={(value) => handleEmployeeSelect(value)}
-            filterOption={(input, option) => {
-              const label = option?.label;
-              return (
-                typeof label === 'string' &&
-                label.toLowerCase().includes(input.toLowerCase())
-              );
-            }}
-            options={options}
-          />
-        </Col>
-        <Col lg={8} sm={12} xs={24}>
-          <Select
-            id={`selectDepartment${searchParams.allJobs}`}
-            placeholder="All Departments"
-            onChange={handleDepartmentChange}
-            allowClear
-            className="w-full h-14"
-          >
-            {EmployeeDepartment?.map((item: any) => (
-              <Option key={item?.id} value={item?.id}>
-                {item?.name}
-              </Option>
-            ))}
-          </Select>
+          <FilterContent />
         </Col>
       </Row>
     </div>
