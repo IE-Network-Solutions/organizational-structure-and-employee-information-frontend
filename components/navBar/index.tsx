@@ -285,6 +285,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           permissions: ['manage_planning_reporting'],
         },
         {
+          title: 'Weekly Priority',
+          key: '/weekly-priority',
+          className: 'font-bold h-8',
+          permissions: ['view_weekly_priority'],
+        },
+        {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
