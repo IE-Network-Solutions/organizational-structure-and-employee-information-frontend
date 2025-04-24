@@ -340,7 +340,7 @@ const Page = () => {
       </div>
       {getFeedbackCardDataLoading ? (
         <div className="flex overflow-x-auto gap-4 p-4 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-x-visible scrollbar-none sm:flex-none">
-          {Array.from({ length: 4 }).map((_, index) => (
+          {Array.from({ length: 4 }).map((nonused, index) => (
             <div key={index} className="min-w-[90%] flex-shrink-0 sm:min-w-0">
               <FeedbackCardSkeleton />
             </div>
