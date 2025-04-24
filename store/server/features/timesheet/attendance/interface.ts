@@ -10,6 +10,21 @@ export interface AttendanceRequestBody {
     };
     locations?: string[];
   };
+  data?: Array<{
+    id: string;
+    userId: string;
+    startAt: string;
+    endAt: string;
+    earlyByMinutes: number;
+    lateByMinutes: number;
+    overTimeMinutes: number;
+    isAbsent: boolean;
+    isOnGoing: boolean;
+    createdAt: string;
+    updatedAt: string;
+    geolocations: any[];
+    attendanceBreaks: any[];
+  }>;
 }
 
 export interface AttendanceImportLogsBody {

@@ -67,7 +67,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       ...objectiveValue,
       title: objectiveTitle || '',
     });
-  }, [objectiveTitle]);
+    form.setFieldsValue({ title: objectiveTitle || '' });
+  }, [objectiveTitle, form]);
   const handleDrawerClose = () => {
     form.resetFields(); // Reset all form fields
     setObjectiveValue(defaultObjective); // Reset the objective state
@@ -187,15 +188,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         // Validation failed
       });
   };
-  useEffect(() => {
-    if (objectiveValue) {
-      form.setFieldsValue(objectiveValue); // Set form fields with appType values
-    } else {
-      form.resetFields(); // Reset form if appType is null
-    }
-  }, [objectiveValue, form]);
+
   const footer = (
-    <div className="w-full flex justify-center items-center  pt-2 absolute bottom-8  space-x-5 ">
+    <div className="w-full flex justify-center items-center  pt-2  bottom-8  space-x-5 ">
       <CustomButton
         id="cancel-button"
         type="default"
@@ -227,11 +222,14 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         layout="vertical"
         initialValues={objectiveValue}
       >
-        <Checkbox checked={alignment} onChange={() => handleAlignment()}>
-          Change Objective Name
-        </Checkbox>
         <Row gutter={[16, 16]} className="w-full">
           {/* Objective/Alignment */}
+
+          <Col xs={24} sm={12} md={16}>
+            <Checkbox checked={alignment} onChange={() => handleAlignment()}>
+              Change Objective Name
+            </Checkbox>
+          </Col>
           <Col xs={24} sm={12} md={16}>
             <Form.Item
               id="alignment-select"
@@ -312,7 +310,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 <Input
                   id="title-input-field"
                   allowClear
-                  value={objectiveValue?.title || ''}
+                  // value={objectiveValue?.title || ''}
                   onChange={(e) => {
                     handleObjectiveChange(e.target.value, 'title');
                   }}

@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Button,
   Card,
@@ -69,25 +69,33 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
   };
 
   const data: any = (selectedWorkSchedule?.detail || []).map(
-    (schedule, index) => ({
-      key: index.toString(), // Use index or another unique identifier
-      workingDay: (
-        <div className="flex space-x-2 justify-start">
-          <Switch checked={schedule?.status} disabled />
-          <span>{schedule.dayOfWeek}</span>
-        </div>
-      ),
-      time: (
-        <TimePicker
-          defaultValue={dayjs(schedule.hours || '00:00:00', 'HH:mm:ss')}
-          disabled
-        />
-      ),
-    }),
+    (schedule, index) => {
+      const decimalHour = schedule.duration || 0;
+      const hours = Math.floor(decimalHour);
+      const minutes = Math.round((decimalHour % 1) * 60);
+      const timeValue = dayjs()
+        .startOf('day')
+        .add(hours, 'hour')
+        .add(minutes, 'minute');
+
+      return {
+        key: index.toString(),
+        workingDay: (
+          <div className="flex space-x-2 justify-start">
+            <Switch checked={schedule?.workDay} disabled />
+            <span>{schedule.day}</span>
+          </div>
+        ),
+        time: <TimePicker value={timeValue} format="HH:mm" disabled />,
+      };
+    },
   );
 
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
+    if (workSchedule) {
+      workscheduleChangeHandler(workSchedule);
+    }
   };
   const workScheduleColumns: TableProps<DataType>['columns'] = [
     {
@@ -101,23 +109,30 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
       key: 'time',
     },
   ];
-  const dataValue = (workScheduleDetail: any) => {
-    return (workScheduleDetail || []).map((schedule: any, index: number) => ({
-      key: index.toString(), // Use index or another unique identifier
-      workingDay: (
-        <div className="flex space-x-2 justify-start">
-          <Switch checked={schedule?.status} disabled />
-          <span>{schedule.dayOfWeek}</span>
-        </div>
-      ),
-      time: (
-        <TimePicker
-          defaultValue={dayjs(schedule.hours || '00:00:00', 'HH:mm:ss')}
-          disabled
-        />
-      ),
-    }));
-  };
+
+  useEffect(() => {
+    const employeeDataInfo = {
+      ...employeeData,
+      workScheduleId: employeeData?.employeeJobInformation?.find(
+        (e: any) => e.isPositionActive === true,
+      )?.workScheduleId,
+    };
+    setWorkSchedule(employeeDataInfo?.workScheduleId);
+
+    form.setFieldsValue(employeeDataInfo);
+  }, [form, employeeData]);
+
+  const schedule = workSchedules?.items[0];
+
+  const totalWorkingHours = schedule?.detail.reduce((total, day) => {
+    return total + day.hours || 0;
+  }, 0);
+
+  const workingHours: { day: string; hours: number }[] =
+    workSchedules?.items[0]?.detail?.map((day) => ({
+      day: day.dayOfWeek || '',
+      hours: day.hours || 0,
+    })) || [];
   return (
     <Card
       loading={isLoading}
@@ -136,25 +151,37 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
         <Row gutter={[16, 24]}>
           <Col lg={16}>
             <InfoLine
-              title=""
+              title="Current schedule"
               value={
                 employeeData?.employeeJobInformation?.find(
                   (e: any) => e.isPositionActive === true,
                 )?.workSchedule?.name || ''
               }
             />
-            <Row gutter={16}>
-              <Col xs={24} sm={24}>
-                <Table
-                  columns={workScheduleColumns}
-                  dataSource={dataValue(
-                    employeeData?.employeeJobInformation[0]?.workSchedule
-                      ?.detail,
-                  )}
-                  pagination={false}
-                />
-              </Col>
-            </Row>
+            <InfoLine
+              title="Total working hours/week"
+              value={totalWorkingHours}
+            />
+            <InfoLine
+              title="Daily working hours"
+              value={
+                <div className="flex gap-6">
+                  <div className="flex flex-col space-y-1">
+                    {workingHours?.map((item) => (
+                      <div key={`${item?.day}-label`}>{item?.day}</div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    {workingHours?.map((item) => (
+                      <div key={`${item?.day}-value`} className="font-normal">
+                        {item?.hours} hours
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              }
+            />
           </Col>
         </Row>
       ) : (

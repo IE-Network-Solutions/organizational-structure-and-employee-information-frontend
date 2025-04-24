@@ -140,6 +140,7 @@ function BasicInfo({ id }: { id: string }) {
             (e: any) => e.isPositionActive === true,
           )?.position?.name || '-'}
         </p>
+
         <Tag color="purple-inverse">
           {employeeData?.employeeJobInformation?.find(
             (e: any) => e.isPositionActive === true,

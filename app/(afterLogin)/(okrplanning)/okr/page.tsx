@@ -76,28 +76,20 @@ const OKR: React.FC<any> = () => {
           subtitle="Employee's objective setting up"
         />
         <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
-          <AccessGuard permissions={[Permissions.ViewOkrReports]}>
-            <CustomButton
-              loading={empOkrScoreLoading}
-              title="Download"
-              id="createUserButton"
-              icon={<LiaFileDownloadSolid size={20} className="mr-2" />}
-              onClick={handleDownload}
-              className="bg-white text-black hover:bg-black hover:text-white border-2 border-black"
-            />
-          </AccessGuard>
           {userObjectives?.items?.length === 0 ||
           userObjectives?.items?.some(
             (item: any) => item?.isClosed == false,
           ) ? (
             <div className="py-4 flex justify-center items-center gap-4">
-              <CustomButton
-                loading={empOkrScoreLoading}
-                title="Download"
-                icon={<LiaFileDownloadSolid size={20} className="mr-2" />}
-                type="default"
-                onClick={handleDownload}
-              />
+              <AccessGuard permissions={[Permissions.ViewOkrReports]}>
+                <CustomButton
+                  loading={empOkrScoreLoading}
+                  title="Download"
+                  icon={<LiaFileDownloadSolid size={20} className="mr-2" />}
+                  type="default"
+                  onClick={handleDownload}
+                />
+              </AccessGuard>
               <CustomButton
                 title="Set Objective"
                 id="createUserButton"

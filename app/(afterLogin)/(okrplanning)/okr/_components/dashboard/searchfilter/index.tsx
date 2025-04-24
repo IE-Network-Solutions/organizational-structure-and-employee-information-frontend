@@ -43,7 +43,7 @@ const OkrSearch: React.FC = () => {
       selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
     setSessionIds(sessionIds);
     setFiscalYearId(selectedFiscalYear?.id || '');
-  }, [getAllFiscalYears, fiscalYearId, getActiveFisicalYear, okrTab]);
+  }, [getAllFiscalYears, fiscalYearId, okrTab]);
 
   const DepartmentWithUsers = Departments?.filter(
     (i: any) => i.users?.length > 0,

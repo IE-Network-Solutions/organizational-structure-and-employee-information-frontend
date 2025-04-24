@@ -1,14 +1,14 @@
 'use client';
 import React, { ReactNode, useState, useEffect } from 'react';
 import '../../app/globals.css';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
   MdOutlineKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
-import { Layout, Button, theme, Tree } from 'antd';
+import { Layout, Button, theme, Tree, Skeleton } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import NavBar from './topNavBar';
@@ -23,6 +23,8 @@ import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
 import SimpleLogo from '../common/logo/simpleLogo';
+import AccessGuard from '@/utils/permissionGuard';
+import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 
 interface CustomMenuItem {
   key: string;
@@ -45,18 +47,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
-  const pathname = usePathname(); // Add this hook
+  const pathname = usePathname();
+  const { userId } = useAuthenticationStore();
+  const { isLoading } = useGetEmployee(userId);
   const { setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
-  // const { pathname } = router;
   const [expandedKeys, setExpandedKeys] = useState<
     (string | number | bigint)[]
-  >([]); // Include bigint
+  >([]);
   const [selectedKeys, setSelectedKeys] = useState<
     (string | number | bigint)[]
-  >([pathname]); // Include bigint
+  >([pathname]);
 
   const treeData: CustomMenuItem[] = [
     {
@@ -196,6 +199,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           key: '/planning-and-reporting',
           className: 'font-bold h-8',
           permissions: ['manage_planning_reporting'],
+        },
+        {
+          title: 'Weekly Priority',
+          key: '/weekly-priority',
+          className: 'font-bold h-8',
+          permissions: ['view_weekly_priority'],
         },
         {
           key: '/okr/settings',
@@ -474,20 +483,28 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   ];
 
   const handleSelect = (keys: (string | number | bigint)[], info: any) => {
-    // Include bigint
-    const selectedKey = keys[0]; // Now using (string | number | bigint)
+    const selectedKey = info?.node?.key;
+    if (!selectedKey) return;
 
     if (info.node.children) {
-      // If it's a parent, toggle expand/collapse
       setExpandedKeys((prev) =>
         prev.includes(selectedKey)
           ? prev.filter((key) => key !== selectedKey)
           : [...prev, selectedKey],
       );
     } else {
-      // If it's a child, navigate
-      router.push(selectedKey + '');
-      setSelectedKeys(keys); // Update the selected key for navigation
+      const path = String(selectedKey);
+      if (pathname !== path) {
+        router.push(path);
+      }
+
+      setSelectedKeys([selectedKey]);
+    }
+  };
+  const handleDoubleClick = (event: React.MouseEvent, node: any) => {
+    const key = node?.key;
+    if (!node.children && key) {
+      router.push(String(key));
     }
   };
 
@@ -522,6 +539,27 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     window.location.reload();
   };
 
+  const filteredMenuItems: any = treeData
+    .map((item) => {
+      const hasAccess = AccessGuard.checkAccess({
+        permissions: item.permissions, // Specify permissions needed
+      });
+
+      if (!hasAccess) return null;
+
+      return {
+        ...item,
+
+        children: item.children
+          ? item.children.filter((child) =>
+              AccessGuard.checkAccess({
+                permissions: child.permissions,
+              }),
+            )
+          : [],
+      };
+    })
+    .filter(Boolean);
   return (
     <Layout>
       <Sider
@@ -537,6 +575,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           zIndex: 1000,
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
+          overflowX: 'hidden',
         }}
         trigger={null}
         collapsible
@@ -579,16 +618,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
         <div className="relative">
           <div className="absolute left-2 top-0 w-[10px] h-full bg-white z-10"></div>
-          <Tree
-            treeData={treeData}
-            showLine={{ showLeafIcon: false }} // Only show lines for child nodes
-            defaultExpandAll={false}
-            expandedKeys={expandedKeys}
-            selectedKeys={selectedKeys}
-            onSelect={handleSelect}
-            className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full"
-            switcherIcon={null}
-          />
+          {isLoading ? (
+            <div className="px-5 w-full h-full flex justify-center items-center my-5">
+              <Skeleton active />{' '}
+            </div>
+          ) : (
+            <Tree
+              treeData={filteredMenuItems}
+              showLine={{ showLeafIcon: false }} // Only show lines for child nodes
+              defaultExpandAll={false}
+              expandedKeys={expandedKeys}
+              selectedKeys={selectedKeys}
+              onSelect={handleSelect}
+              onDoubleClick={handleDoubleClick}
+              className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full"
+              switcherIcon={null}
+            />
+          )}
         </div>
       </Sider>
       <Layout

@@ -154,7 +154,11 @@ export default function ChartLayout({
             onSubmit={() => {
               if (footerButtonText == 'Transfer') {
                 if (transferDepartment) {
-                  transferDepartments(transferDepartment);
+                  transferDepartments(transferDepartment, {
+                    onSuccess: () => {
+                      closeDrawer();
+                    },
+                  });
                 }
               } else if (footerButtonText == 'Merge') {
                 mergeDepartments(mergeData);
