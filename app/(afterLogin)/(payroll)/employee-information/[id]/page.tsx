@@ -11,6 +11,7 @@ import {
   Collapse,
   Tag,
   List,
+  Empty,
 } from 'antd';
 import { PhoneOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useEffect, useRef } from 'react';
@@ -31,6 +32,9 @@ import { RcFile } from 'antd/es/upload';
 import { HiOutlineMail } from 'react-icons/hi';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import SettlementDetail from './_components/settlementDetail';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { FaArrowLeft } from 'react-icons/fa';
+import Router from 'next/router';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -131,12 +135,25 @@ const EmployeeProfile = () => {
     return '';
   };
 
+  const { isMobile } = useIsMobile();
+
   return (
-    <div style={{ padding: '24px' }}>
-      <Card>
+    <div style={{ padding: isMobile ? '2px' : '24px' }}>
+      <Card
+        title={
+          isMobile && (
+            <span onClick={() => Router.back()} className="flex items-center gap-2">
+              <FaArrowLeft />
+              <span className="text-lg font-bold">Detail Employee</span>
+            </span>
+          )
+        }
+        className={isMobile ? 'p-0' : 'p-4'}
+        bordered={false}
+      >
         <Row gutter={[32, 32]}>
           <Col lg={8} md={10} xs={24}>
-            <Card loading={isLoading} className="mb-3">
+            <Card loading={isLoading} className={isMobile ? 'mb-3' : 'mb-3'}>
               <div className="flex flex-col gap-3 items-center">
                 <div className="relative group">
                   <Avatar
@@ -219,7 +236,7 @@ const EmployeeProfile = () => {
               <TabPane
                 tab="Information"
                 key="1"
-                className="border border-solid rounded-xl p-4"
+                className={isMobile ? 'border border-solid rounded-xl p-4' : ''}
               >
                 <div>
                   <Title level={4}>Payroll Information</Title>
@@ -577,7 +594,8 @@ const EmployeeProfile = () => {
 
               <TabPane tab="Payroll History" key="2">
                 <>
-                  {payPeriodData
+              {payPeriodData ?
+                  payPeriodData
                     ?.filter(
                       (period: any) =>
                         mergedPayroll.some(
@@ -619,10 +637,12 @@ const EmployeeProfile = () => {
                           </Collapse.Panel>
                         </Collapse>
                       );
-                    })}
+                    })
+                    : <Empty />
+                }
                 </>
               </TabPane>
-              <TabPane tab="Settlement Tracking" key="3">
+              <TabPane tab="Settlement Track  ing" key="3">
                 <SettlementDetail />
               </TabPane>
             </Tabs>

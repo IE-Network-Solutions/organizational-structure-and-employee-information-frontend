@@ -227,12 +227,11 @@ const EmployeeInformation = () => {
   const { isMobile } = useIsMobile();
   return (
     <div className={isMobile ? 'p-1' : 'p-5'}>
-      {isMobile ? (
-        <h2 className="py-4 text-lg font-semibold">Employees Payroll Information</h2>
-      ) : (
-        <span className="py-4 text-lg font-semibold">Employees Payroll Information</span>
-      )}
+      <div className="flex justify-start items-center">
+        <span className="py-4 my-4 text-lg font-semibold">Employees Payroll Information</span>
+      </div>
       <Filters onSearch={handleSearch} />
+
       <Spin spinning={responseLoading || Loading}>
         <Table
           dataSource={dataSource.filter((item) =>
