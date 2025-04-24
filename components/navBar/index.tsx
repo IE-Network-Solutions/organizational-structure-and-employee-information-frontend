@@ -693,6 +693,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               borderRadius: borderRadiusLG,
               marginTop: '3rem',
               marginRight: `${!isAdminPage ? '1.3rem' : ''}`,
+              marginLeft: `${isMobile ? '1.3rem' : ''}`,
             }}
           >
             {children}
