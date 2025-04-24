@@ -1,6 +1,6 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import OkrDrawer from './_components/okrDrawer';
 import Dashboard from './_components/dashboard';
@@ -13,7 +13,6 @@ import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { LiaFileDownloadSolid } from 'react-icons/lia';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useDownloadEmployeeOkrScore } from '@/store/server/features/okrplanning/okr/objective/mutations';
-import { GlobalStateStore } from '@/store/uistate/features/global';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const OKR: React.FC<any> = () => {
@@ -37,7 +36,7 @@ const OKR: React.FC<any> = () => {
     searchObjParams?.metricTypeId,
   );
 
- const { isMobile, isTablet } = useIsMobile();
+  const { isMobile, isTablet } = useIsMobile();
 
   function handleDownload() {
     if (okrTab == 1) {
@@ -88,37 +87,46 @@ const OKR: React.FC<any> = () => {
             <div className="py-4 px-2 flex justify-center items-center gap-4">
               <AccessGuard permissions={[Permissions.ViewOkrReports]}>
                 <CustomButton
-                  size={isMobile ? "small" : "middle"}
+                  size={isMobile ? 'small' : 'middle'}
                   loading={empOkrScoreLoading}
-                  title={isMobile ? '': 'Download'}
+                  title={isMobile ? '' : 'Download'}
                   isTitleHidden={isMobile ? true : false}
-                  icon={<LiaFileDownloadSolid size={isMobile ? 14 : 20} 
-                  className={isMobile ? "mr-0" : "mr-2"} />}
+                  icon={
+                    <LiaFileDownloadSolid
+                      size={isMobile ? 14 : 20}
+                      className={isMobile ? 'mr-0' : 'mr-2'}
+                    />
+                  }
                   className={`bg-blue-600 hover:bg-blue-700 ${
                     isMobile
                       ? 'py-1 h-8 w-8 flex items-center justify-center'
                       : isTablet
-                      ? 'h-11 px-4 py-3'
-                      : 'h-14 px-6 py-6'
+                        ? 'h-11 px-4 py-3'
+                        : 'h-14 px-6 py-6'
                   }`}
                   type="default"
                   onClick={handleDownload}
                 />
               </AccessGuard>
               <CustomButton
-                size={isMobile ? "small" : "middle"}
+                size={isMobile ? 'small' : 'middle'}
                 title={isMobile ? '' : 'Set Objective'}
                 isTitleHidden={isMobile ? true : false}
                 id="createUserButton"
-                icon={<FaPlus size={isMobile ? 14 : 20} className={isMobile ? 'mr-0' : 'mr-2'} />}
+                icon={
+                  <FaPlus
+                    size={isMobile ? 14 : 20}
+                    className={isMobile ? 'mr-0' : 'mr-2'}
+                  />
+                }
                 onClick={showDrawer}
                 className={`bg-blue-600 hover:bg-blue-700 ${
                   isMobile
                     ? 'py-1 h-8 w-8 flex items-center justify-center'
                     : isTablet
-                    ? 'h-11 px-4 py-3'
-                    : 'h-14 px-6 py-6'
-                }`}              
+                      ? 'h-11 px-4 py-3'
+                      : 'h-14 px-6 py-6'
+                }`}
               />
             </div>
           ) : (

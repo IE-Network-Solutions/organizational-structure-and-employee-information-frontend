@@ -11,7 +11,8 @@ export const GlobalStateStore = create<globalStateProps>((set) => ({
   setIsMobile: (isMobile: boolean) => set({ isMobile }),
   setCollapsed: (collapsed: boolean) => set({ collapsed }),
   setIsAdminPage: (isAdminPage: boolean) => set({ isAdminPage }),
-  setIsMobileCollapsed: (isMobileCollapsed: boolean) => set({ isMobileCollapsed }),
+  setIsMobileCollapsed: (isMobileCollapsed: boolean) =>
+    set({ isMobileCollapsed }),
   setIsTablet: (isTablet: boolean) => set({ isTablet }),
   setTheme: (theme: string) => set({ theme }),
 }));

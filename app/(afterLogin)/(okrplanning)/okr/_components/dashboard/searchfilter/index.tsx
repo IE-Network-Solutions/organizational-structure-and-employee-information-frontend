@@ -8,10 +8,8 @@ import {
   useGetAllFiscalYears,
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
-import { FilterOutlined } from '@ant-design/icons';
 import CustomButton from '@/components/common/buttons/customButton';
 import { IoMdSwitch } from 'react-icons/io';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
@@ -33,7 +31,6 @@ const OkrSearch: React.FC = () => {
   const { data: Metrics } = useGetMetrics();
   const { data: allUsers } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
-  const {isMobile, isTablet} = useIsMobile();
 
   useEffect(() => {
     const selectedFiscalYear = fiscalYearId
@@ -63,87 +60,87 @@ const OkrSearch: React.FC = () => {
   const MobileFilterContent = () => (
     <div className="flex flex-col gap-4">
       <h3 className="text-lg font-medium mb-2">Filter</h3>
-      
+
       {/* Fiscal Year */}
       <div className="flex flex-col gap-2">
         <label className="text-sm text-gray-600">Fiscal year</label>
         <Select
-              loading={fyLoading}
-              disabled={okrTab != 4}
-              value={fiscalYearId}
-              id={`selectFiscalYear`}
-              placeholder="Filter by Fiscal Year"
-              onChange={(value) => setFiscalYearId(value)}
-              allowClear
-              showSearch
-              className="w-full h-14"
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                (option?.children as any)
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-            >
-              {getAllFiscalYears?.items?.map((item: any) => (
-                <Select.Option key={item?.id} value={item?.id}>
-                  {item?.name}
-                </Select.Option>
-              ))}
-            </Select>
+          loading={fyLoading}
+          disabled={okrTab != 4}
+          value={fiscalYearId}
+          id={`selectFiscalYear`}
+          placeholder="Filter by Fiscal Year"
+          onChange={(value) => setFiscalYearId(value)}
+          allowClear
+          showSearch
+          className="w-full h-14"
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            (option?.children as any)
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+        >
+          {getAllFiscalYears?.items?.map((item: any) => (
+            <Select.Option key={item?.id} value={item?.id}>
+              {item?.name}
+            </Select.Option>
+          ))}
+        </Select>
       </div>
 
       {/* Session */}
       <div className="flex flex-col gap-2">
         <label className="text-sm text-gray-600">Session</label>
         <Select
-              loading={fyLoading}
-              value={sessionIds}
-              disabled={okrTab != 4}
-              placeholder="Filter by Session"
-              mode="multiple"
-              className="w-full h-14 overflow-y-auto text-[10px]"              
-              allowClear
-              showSearch
-              onChange={setSessionIds}
-              filterOption={(input, option) =>
-                (option?.children as any)
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-            >
-              {getAllFiscalYears?.items
-                ?.find((fy: any) => fy.id === fiscalYearId)
-                ?.sessions?.map((session: any) => (
-                  <Option key={session.id} value={session.id}>
-                    {session.name}
-                  </Option>
-                ))}
-            </Select>
+          loading={fyLoading}
+          value={sessionIds}
+          disabled={okrTab != 4}
+          placeholder="Filter by Session"
+          mode="multiple"
+          className="w-full h-14 overflow-y-auto text-[10px]"
+          allowClear
+          showSearch
+          onChange={setSessionIds}
+          filterOption={(input, option) =>
+            (option?.children as any)
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+        >
+          {getAllFiscalYears?.items
+            ?.find((fy: any) => fy.id === fiscalYearId)
+            ?.sessions?.map((session: any) => (
+              <Option key={session.id} value={session.id}>
+                {session.name}
+              </Option>
+            ))}
+        </Select>
       </div>
 
       {/* Department */}
       {okrTab != 1 && (
         <div className="flex flex-col gap-2">
           <label className="text-sm text-gray-600">Department</label>
-            <Select
-                placeholder="Filter by Department"
-                className="w-full h-14"
-                allowClear
-                showSearch
-                value={searchObjParams.departmentId}
-                onChange={(value) => handleFilter(value, 'departmentId')}
-                filterOption={(input, option) =>
-                  (option?.children as any)
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-              >
-                {DepartmentWithUsers?.map((dept: any) => (
-                  <Option key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </Option>
-                ))}
-              </Select>
+          <Select
+            placeholder="Filter by Department"
+            className="w-full h-14"
+            allowClear
+            showSearch
+            value={searchObjParams.departmentId}
+            onChange={(value) => handleFilter(value, 'departmentId')}
+            filterOption={(input, option) =>
+              (option?.children as any)
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+          >
+            {DepartmentWithUsers?.map((dept: any) => (
+              <Option key={dept.id} value={dept.id}>
+                {dept.name}
+              </Option>
+            ))}
+          </Select>
         </div>
       )}
 
@@ -152,19 +149,19 @@ const OkrSearch: React.FC = () => {
         <div className="flex flex-col gap-2">
           <label className="text-sm text-gray-600">Metric Type</label>
           <Select
-                placeholder="Filter by Metric Type"
-                className="w-full h-14"
-                allowClear
-                value={searchObjParams.metricTypeId}
-                onChange={(value) => handleFilter(value, 'metricTypeId')}
-              >
-                <Option value="">All</Option>
-                {Metrics?.items?.map((metric: any) => (
-                  <Option key={metric.id} value={metric.id}>
-                    {metric.name}
-                  </Option>
-                ))}
-              </Select>
+            placeholder="Filter by Metric Type"
+            className="w-full h-14"
+            allowClear
+            value={searchObjParams.metricTypeId}
+            onChange={(value) => handleFilter(value, 'metricTypeId')}
+          >
+            <Option value="">All</Option>
+            {Metrics?.items?.map((metric: any) => (
+              <Option key={metric.id} value={metric.id}>
+                {metric.name}
+              </Option>
+            ))}
+          </Select>
         </div>
       )}
     </div>
@@ -334,12 +331,12 @@ const OkrSearch: React.FC = () => {
           )}
           <div className={`${okrTab == 1 ? 'ml-auto' : ''}`}>
             <CustomButton
-              type='default'
-              size='small'
+              type="default"
+              size="small"
               onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
               title=""
-              icon={<IoMdSwitch  size={20} className='text-gray-900'/>}
+              icon={<IoMdSwitch size={20} className="text-gray-900" />}
             />
           </div>
         </div>
@@ -362,7 +359,7 @@ const OkrSearch: React.FC = () => {
                   setIsModalOpen(false);
                 }}
                 className="px-6 py-2 text-white rounded-lg text-sm"
-             />
+              />
             </div>
           }
           className="!m-4 md:hidden"
@@ -370,7 +367,7 @@ const OkrSearch: React.FC = () => {
             top: '20%',
             transform: 'translateY(-50%)',
             maxHeight: '90vh',
-            overflowY: 'auto'
+            overflowY: 'auto',
           }}
           width="90%"
           centered

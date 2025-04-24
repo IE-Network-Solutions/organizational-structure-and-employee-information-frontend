@@ -137,12 +137,12 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         </button>
       </div>
       <div className="flex items-center">
-        {!isMobile &&
-        <span className="mr-2 text-sm text-gray-400">
-          Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
-          {Math.min(total, current * pageSize)} out of {total} entries
-        </span>
-        }
+        {!isMobile && (
+          <span className="mr-2 text-sm text-gray-400">
+            Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
+            {Math.min(total, current * pageSize)} out of {total} entries
+          </span>
+        )}
         <Select
           value={pageSize}
           className="w-24"

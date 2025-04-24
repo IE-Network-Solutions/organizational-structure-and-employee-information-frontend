@@ -92,14 +92,20 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   }));
 
   return (
-    <div className="p-2 grid gap-0">
+    <div className={`${isMobile ? 'p-0 grid gap-0' : 'p-2 grid gap-0'}`}>
       <div className="flex justify-center">
-        <Card className={`bg-white shadow-sm rounded-lg w-full mb-3 ${isMobile ? 'p-3' : 'p-6'}`}>
+        <Card
+          className={`bg-white shadow-sm rounded-lg w-full mb-3 ${isMobile ? 'p-0' : 'p-6'}`}
+        >
           <div className="flex flex-col gap-4">
             {/* Title Section */}
-            <div className={`flex justify-between items-start ${isMobile ? 'mb-2' : 'mb-4'}`}>
+            <div
+              className={`flex justify-between items-start ${isMobile ? 'mb-1' : 'mb-4'}`}
+            >
               <div className="flex flex-col">
-                <h2 className={`font-bold text-black ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                <h2
+                  className={`font-bold text-black ${isMobile ? 'text-xs' : 'text-sm'}`}
+                >
                   {objective?.title}
                 </h2>
               </div>
@@ -114,13 +120,19 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
               ) : null}
             </div>
 
-            <div className={`flex ${isMobile ? 'flex-col gap-4' : isTablet ? 'flex-col sm:flex-row gap-6' : 'flex-col sm:flex-row'} justify-between items-${isMobile ? 'start' : 'center'}`}>
+            <div
+              className={`flex ${isMobile ? 'flex-col gap-4' : isTablet ? 'flex-col sm:flex-row gap-6' : 'flex-col sm:flex-row'} justify-between items-${isMobile ? 'start' : 'center'}`}
+            >
               {/* Progress and Metrics Section */}
-              <div className={`${isMobile ? 'flex justify-between items-center gap-2 w-full' : 'flex items-center gap-2 w-full sm:gap-8'}`}>
+              <div
+                className={`${isMobile ? 'flex justify-between items-center gap-2 w-full' : 'flex items-center gap-2 w-full sm:gap-8'}`}
+              >
                 {/* Objective Progress */}
                 <div className={`${isMobile ? 'w-full' : 'grid items-center'}`}>
                   <div className="text-xs text-gray-600">
-                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue`}>
+                    <span
+                      className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue`}
+                    >
                       {Number(objective?.objectiveProgress)?.toLocaleString()}%
                     </span>{' '}
                     Objective Progress
@@ -138,10 +150,14 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 </div>
 
                 {/* Key Result Section */}
-                <div className={`${isMobile ? 'gap-2 items-center justify-between w-full' : 'grid items-center gap-0'}`}>
+                <div
+                  className={`${isMobile ? 'gap-2 items-center justify-between w-full' : 'grid items-center gap-0'}`}
+                >
                   <div className="flex items-center">
                     <PiCalendarMinusBold className="text-blue mt-1" />
-                    <div className={`font-bold text-[#3636f0] ${isMobile ? 'text-lg ml-2' : 'text-2xl'}`}>
+                    <div
+                      className={`font-bold text-[#3636f0] ${isMobile ? 'text-lg ml-2' : 'text-2xl'}`}
+                    >
                       {objective?.daysLeft}
                     </div>
                   </div>
@@ -150,7 +166,9 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
               </div>
 
               {!myOkr && (
-                <div className={`flex items-center gap-1 ${isMobile ? 'mt-2' : 'mt-4 sm:mt-0'}`}>
+                <div
+                  className={`flex items-center gap-1 ${isMobile ? 'mt-2' : 'mt-4 sm:mt-0'}`}
+                >
                   <div className="flex flex-col gap-0">
                     <span className="text-xs text-normal">{`${objective?.user?.firstName} ${objective?.user?.middleName}  ${objective?.user?.lastName} `}</span>
                     <span className="text-xs text-normal">
@@ -158,7 +176,10 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                     </span>
                   </div>
                   {objective?.user?.profileImage ? (
-                    <Avatar size={isMobile ? 32 : 40} src={objective?.user?.profileImage} />
+                    <Avatar
+                      size={isMobile ? 32 : 40}
+                      src={objective?.user?.profileImage}
+                    />
                   ) : (
                     <Avatar size={isMobile ? 32 : 40}>
                       {objective?.user?.firstName[0]?.toUpperCase()}{' '}
@@ -192,7 +213,6 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         onConfirm={() => handleDeleteObjective(objectiveValue.id as string)}
         onCancel={onCloseDeleteModal}
       />
-     
     </div>
   );
 };

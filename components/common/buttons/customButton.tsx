@@ -1,7 +1,6 @@
 import { Button } from 'antd';
 import { ButtonProps } from 'antd/lib/button';
 import type { ConfigProviderProps } from 'antd';
-import { FaLessThanEqual } from 'react-icons/fa6';
 
 type SizeType = ConfigProviderProps['componentSize'];
 
@@ -24,7 +23,6 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   size = 'default',
   ...rest
 }) => {
-
   const baseClassName = 'rounded-lg flex items-center justify-center';
   return (
     <Button

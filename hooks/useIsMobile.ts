@@ -18,11 +18,11 @@ export const useIsMobile = () => {
     window.addEventListener('resize', checkIsMobile);
     window.addEventListener('resize', checkIsTablet);
 
-        return () => {
+    return () => {
       window.removeEventListener('resize', checkIsMobile);
       window.removeEventListener('resize', checkIsTablet);
     };
   }, []);
 
   return { isMobile, isTablet };
-}; 
+};

@@ -13,8 +13,12 @@ export default function OkrProgress() {
   const { isMobile } = useIsMobile();
 
   return (
-    <div className={`${isMobile ? 'flex overflow-x-auto gap-4 pb-4 scrollbar-none' : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'}`}>
-      <div className={`${isMobile ? 'min-w-[calc(50%-8px)] flex-shrink-0' : ''}`}>
+    <div
+      className={`${isMobile ? 'flex overflow-x-auto gap-4 pb-4 scrollbar-none' : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'}`}
+    >
+      <div
+        className={`${isMobile ? 'min-w-[calc(50%-8px)] flex-shrink-0' : ''}`}
+      >
         {okrTab == 1 ? (
           <ProgressPercent
             title="Average OKR"
@@ -39,7 +43,9 @@ export default function OkrProgress() {
         ) : null}
       </div>
 
-      <div className={`${isMobile ? 'min-w-[calc(50%-8px)] flex-shrink-0' : ''}`}>
+      <div
+        className={`${isMobile ? 'min-w-[calc(50%-8px)] flex-shrink-0' : ''}`}
+      >
         <ProgressPercent
           title="Supervisor OKR"
           percent={(objectiveDashboard?.supervisorOkr as number) || 0}
@@ -48,7 +54,9 @@ export default function OkrProgress() {
         />
       </div>
 
-      <div className={`${isMobile ? 'min-w-[calc(50%-8px)] flex-shrink-0' : ''}`}>
+      <div
+        className={`${isMobile ? 'min-w-[calc(50%-8px)] flex-shrink-0' : ''}`}
+      >
         <ProgressPercent
           title="KR Completed"
           percent={
@@ -62,7 +70,9 @@ export default function OkrProgress() {
         />
       </div>
 
-      <div className={`${isMobile ? 'min-w-[calc(50%-8px)] flex-shrink-0' : ''}`}>
+      <div
+        className={`${isMobile ? 'min-w-[calc(50%-8px)] flex-shrink-0' : ''}`}
+      >
         <ProgressPercent
           title="Days Left"
           percent={(objectiveDashboard?.daysLeft as number) || 0}

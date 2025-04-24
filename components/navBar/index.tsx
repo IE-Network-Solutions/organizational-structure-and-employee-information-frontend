@@ -67,9 +67,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <CiSettings
             size={18}
-            className={expandedKeys.includes('/organization') ? 'text-blue' : ''}
+            className={
+              expandedKeys.includes('/organization') ? 'text-blue' : ''
+            }
           />
-          <span className={`${collapsed ? 'hidden' : 'block'}`}>Organization</span>
+          <span className={`${collapsed ? 'hidden' : 'block'}`}>
+            Organization
+          </span>
         </span>
       ),
       key: '/organization',
@@ -80,7 +84,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Org Structure</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Org Structure
+              </span>
             </span>
           ),
           key: '/organization/chart',
@@ -91,7 +97,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Settings</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Settings
+              </span>
             </span>
           ),
           key: '/organization/settings',
@@ -118,7 +126,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <LuUsers2 size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Manage Employees</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Manage Employees
+              </span>
             </span>
           ),
           key: '/employees/manage-employees',
@@ -129,7 +139,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Department Request</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Department Request
+              </span>
             </span>
           ),
           key: '/employees/departmentRequest',
@@ -140,7 +152,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Settings</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Settings
+              </span>
             </span>
           ),
           key: '/employees/settings',
@@ -156,7 +170,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             size={18}
             className={expandedKeys.includes('/recruitment') ? 'text-blue' : ''}
           />
-          <span className={`${collapsed ? 'hidden' : 'block'}`}>Talent Acquisition</span>
+          <span className={`${collapsed ? 'hidden' : 'block'}`}>
+            Talent Acquisition
+          </span>
         </span>
       ),
       key: '/recruitment',
@@ -178,7 +194,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Candidates</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Candidates
+              </span>
             </span>
           ),
           key: '/recruitment/candidate',
@@ -189,7 +207,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Talent Pool</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Talent Pool
+              </span>
             </span>
           ),
           key: '/recruitment/talent-pool',
@@ -200,7 +220,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Settings</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Settings
+              </span>
             </span>
           ),
           key: '/recruitment/settings',
@@ -214,7 +236,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <CiStar
             size={18}
-            className={expandedKeys.includes('/okr-planning') ? 'text-blue' : ''}
+            className={
+              expandedKeys.includes('/okr-planning') ? 'text-blue' : ''
+            }
           />
           <span className={`${collapsed ? 'hidden' : 'block'}`}>OKR</span>
         </span>
@@ -227,7 +251,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Dashboard</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Dashboard
+              </span>
             </span>
           ),
           key: '/okr/dashboard',
@@ -249,7 +275,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Planning and Reporting</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Planning and Reporting
+              </span>
             </span>
           ),
           key: '/planning-and-reporting',
@@ -260,7 +288,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Settings</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Settings
+              </span>
             </span>
           ),
           key: '/okr/settings',
@@ -287,7 +317,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Conversation</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Conversation
+              </span>
             </span>
           ),
           key: '/feedback/conversation',
@@ -298,7 +330,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Feedback</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Feedback
+              </span>
             </span>
           ),
           key: '/feedback/feedback',
@@ -309,7 +343,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Recognition</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Recognition
+              </span>
             </span>
           ),
           key: '/feedback/recognition',
@@ -320,7 +356,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Settings</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Settings
+              </span>
             </span>
           ),
           key: '/feedback/settings',
@@ -336,7 +374,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             size={18}
             className={expandedKeys.includes('/tna') ? 'text-blue' : ''}
           />
-          <span className={`${collapsed ? 'hidden' : 'block'}`}>Learning & Growth</span>
+          <span className={`${collapsed ? 'hidden' : 'block'}`}>
+            Learning & Growth
+          </span>
         </span>
       ),
       key: '/tna',
@@ -347,7 +387,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>My-TNA</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                My-TNA
+              </span>
             </span>
           ),
           key: '/tna/my-training',
@@ -358,7 +400,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Training Management</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Training Management
+              </span>
             </span>
           ),
           key: '/tna/management',
@@ -380,7 +424,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Settings</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Settings
+              </span>
             </span>
           ),
           key: '/tna/settings/course-category',
@@ -406,7 +452,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Employee Information</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Employee Information
+              </span>
             </span>
           ),
           key: '/employee-information',
@@ -417,7 +465,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Payroll</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Payroll
+              </span>
             </span>
           ),
           key: '/payroll',
@@ -428,7 +478,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>My Payroll</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                My Payroll
+              </span>
             </span>
           ),
           key: '/myPayroll',
@@ -439,7 +491,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Settings</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Settings
+              </span>
             </span>
           ),
           key: '/settings',
@@ -455,7 +509,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             size={18}
             className={expandedKeys.includes('/timesheet') ? 'text-blue' : ''}
           />
-          <span className={`${collapsed ? 'hidden' : 'block'}`}>Time & Attendance</span>
+          <span className={`${collapsed ? 'hidden' : 'block'}`}>
+            Time & Attendance
+          </span>
         </span>
       ),
       key: '/timesheet',
@@ -466,7 +522,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>My Timesheet</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                My Timesheet
+              </span>
             </span>
           ),
           key: '/timesheet/my-timesheet',
@@ -477,7 +535,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Employee Attendance</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Employee Attendance
+              </span>
             </span>
           ),
           key: '/timesheet/employee-attendance',
@@ -488,7 +548,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Leave Management</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Leave Management
+              </span>
             </span>
           ),
           key: '/timesheet/leave-management/leaves',
@@ -499,7 +561,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Settings</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Settings
+              </span>
             </span>
           ),
           key: '/timesheet/settings/closed-date',
@@ -513,9 +577,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <PiMoneyLight
             size={18}
-            className={expandedKeys.includes('/compensation') ? 'text-blue' : ''}
+            className={
+              expandedKeys.includes('/compensation') ? 'text-blue' : ''
+            }
           />
-          <span className={`${collapsed ? 'hidden' : 'block'}`}>Compensation & Benefit</span>
+          <span className={`${collapsed ? 'hidden' : 'block'}`}>
+            Compensation & Benefit
+          </span>
         </span>
       ),
       key: '/compensation',
@@ -526,7 +594,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Allowance</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Allowance
+              </span>
             </span>
           ),
           key: '/allowance',
@@ -537,7 +607,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Benefit</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Benefit
+              </span>
             </span>
           ),
           key: '/benefit',
@@ -548,7 +620,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Deduction</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Deduction
+              </span>
             </span>
           ),
           key: '/deduction',
@@ -559,7 +633,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Settings</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Settings
+              </span>
             </span>
           ),
           key: '/compensationSetting',
@@ -575,7 +651,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             size={18}
             className={expandedKeys.includes('/incentive') ? 'text-blue' : ''}
           />
-          <span className={`${collapsed ? 'hidden' : 'block'}`}>Incentives</span>
+          <span className={`${collapsed ? 'hidden' : 'block'}`}>
+            Incentives
+          </span>
         </span>
       ),
       key: '/incentive',
@@ -587,7 +665,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Incentive</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Incentive
+              </span>
             </span>
           ),
           className: 'font-bold',
@@ -597,7 +677,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Variable Pay</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Variable Pay
+              </span>
             </span>
           ),
           key: '/variable-pay',
@@ -608,7 +690,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Settings</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Settings
+              </span>
             </span>
           ),
           key: '/incentives/settings',
@@ -632,7 +716,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <AppstoreOutlined size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Dashboard</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Dashboard
+              </span>
             </span>
           ),
           key: '/admin/dashboard',
@@ -643,7 +729,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <LuCircleDollarSign size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Billing and Invoice</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Billing and Invoice
+              </span>
             </span>
           ),
           key: '/admin/billing',
@@ -654,7 +742,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: (
             <span className="flex items-center gap-2 h-9">
               <CiSettings size={16} />
-              <span className={`${collapsed ? 'hidden' : 'block'}`}>Update Profile</span>
+              <span className={`${collapsed ? 'hidden' : 'block'}`}>
+                Update Profile
+              </span>
             </span>
           ),
           key: '/admin/profile',
@@ -744,29 +834,41 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     })
     .filter(Boolean);
 
-  const getResponsiveTreeData = (data: CustomMenuItem[], collapsed: boolean): CustomMenuItem[] => {
-    return data.map(item => ({
+  const getResponsiveTreeData = (
+    data: CustomMenuItem[],
+    collapsed: boolean,
+  ): CustomMenuItem[] => {
+    return data.map((item) => ({
       ...item,
-      title: typeof item.title === 'string' ? (
-        <span className="flex items-center gap-2">
-          {item.icon}
-          <span className={`${collapsed ? 'hidden' : 'block'}`}>{item.title}</span>
-        </span>
-      ) : collapsed ? (
-        <Tooltip title={typeof item.title === 'string' ? item.title : 
-          // @ts-ignore - we know the span contains text
-          item.title.props.children[1].props.children} 
-          placement="right"
-        >
-          {item.title}
-        </Tooltip>
-      ) : item.title,
-      children: item.children ? getResponsiveTreeData(item.children, collapsed) : undefined,
-      className: `${item.className} ${collapsed ? 'mobile-item' : ''}`
+      title:
+        typeof item.title === 'string' ? (
+          <span className="flex items-center gap-2">
+            {item.icon}
+            <span className={`${collapsed ? 'hidden' : 'block'}`}>
+              {item.title}
+            </span>
+          </span>
+        ) : collapsed ? (
+          <Tooltip
+            title={
+              typeof item.title === 'string'
+                ? item.title
+                : // @ts-expect-error linter issue handler
+                  item.title.props.children[1].props.children
+            }
+            placement="right"
+          >
+            {item.title}
+          </Tooltip>
+        ) : (
+          item.title
+        ),
+      children: item.children
+        ? getResponsiveTreeData(item.children, collapsed)
+        : undefined,
+      className: `${item.className} ${collapsed ? 'mobile-item' : ''}`,
     }));
   };
-
-
 
   return (
     <Layout>
@@ -895,26 +997,25 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           <NavBar page="" handleLogout={handleLogout} />
         </Header>
         <Content
-            className="overflow-y-hidden min-h-screen"
+          className="overflow-y-hidden min-h-screen"
+          style={{
+            paddingTop: isMobile ? 4 : 24,
+            paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
+            transition: 'padding-left 0.3s ease',
+          }}
+        >
+          <div
+            className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
             style={{
-              paddingTop: isMobile ? 4 : 24,
-              paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
-              transition: 'padding-left 0.3s ease',
+              borderRadius: borderRadiusLG,
+              marginTop: '3rem',
+              marginRight: `${isMobile ? 0 : !isAdminPage ? '1.3rem' : ''}`,
             }}
           >
-            <div
-              className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
-              style={{
-                borderRadius: borderRadiusLG,
-                marginTop: '3rem',
-                marginRight: `${isMobile ? 0 : !isAdminPage ? '1.3rem' : ''}`,
-              }}
-            >
-              {children}
-            </div>
-          </Content>
-
-      </Layout> 
+            {children}
+          </div>
+        </Content>
+      </Layout>
     </Layout>
   );
 };
