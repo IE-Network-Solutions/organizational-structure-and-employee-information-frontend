@@ -39,7 +39,6 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
     setSelectedWorkSchedule,
     workSchedule,
     setWorkSchedule,
-
     edit,
     setEdit,
   } = useEmployeeManagementStore();
@@ -48,6 +47,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
   const { data: employeeData, isLoading } = useGetEmployee(id);
   const { data: workSchedules } = useGetWorkSchedules();
   const [form] = Form.useForm();
+
   const handleSaveChanges = (editKey: keyof EditState) => {
     form
       .validateFields()
@@ -151,14 +151,13 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
         <Row gutter={[16, 24]}>
           <Col lg={16}>
             <InfoLine
-              title=""
+              title="Current schedule"
               value={
                 employeeData?.employeeJobInformation?.find(
                   (e: any) => e.isPositionActive === true,
                 )?.workSchedule?.name || ''
               }
             />
-         
             <InfoLine
               title="Total working hours/week"
               value={totalWorkingHours}
