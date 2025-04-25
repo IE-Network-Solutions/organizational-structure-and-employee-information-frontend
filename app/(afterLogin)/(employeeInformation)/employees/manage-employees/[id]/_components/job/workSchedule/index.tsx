@@ -165,7 +165,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
             <InfoLine
               title="Daily working hours"
               value={
-                <div className="flex gap-6">
+                <div className="flex gap-10">
                   <div className="flex flex-col space-y-1">
                     {workingHours?.map((item) => (
                       <div key={`${item?.day}-label`}>{item?.day}</div>
@@ -174,7 +174,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
 
                   <div className="flex flex-col space-y-1">
                     {workingHours?.map((item) => (
-                      <div key={`${item?.day}-value`} className="font-normal">
+                      <div key={`${item?.day}-value`} className="font-light">
                         {item?.hours} hours
                       </div>
                     ))}
