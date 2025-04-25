@@ -1,6 +1,6 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { Tabs } from 'antd';
 import Planning from './_components/planning';
@@ -18,9 +18,14 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
 function Page() {
-  const { setActiveTab, activeTab, setActivePlanPeriod } =
-    PlanningAndReportingStore();
-  const { data: planningPeriods } = AllPlanningPeriods();
+  const {
+    setActiveTab,
+    activeTab,
+    activePlanPeriod,
+    setActivePlanPeriod,
+    setActivePlanPeriodId,
+  } = PlanningAndReportingStore();
+  const { data: planningPeriods, isLoading } = AllPlanningPeriods();
   const { data: defaultPlanningPeriods } = useDefaultPlanningPeriods();
 
   const { data: planningPeriodForUserId } =
@@ -89,10 +94,27 @@ function Page() {
           {item.planningPeriod.name || 'No name available'}
         </span>
       ),
+      id: item.planningPeriod.id,
       key: String(index + 1),
       children: activeTab === 1 ? <Planning /> : <Reporting />,
     }));
   };
+
+  useEffect(() => {
+    const TabsContentData = TabsContent();
+    const selectedTab = TabsContentData?.find(
+      (item) => item.key === String(activePlanPeriod),
+    );
+    // console.log("(((((((((((((((((((((",TabsContentData,selectedTab)
+    setActivePlanPeriodId(selectedTab?.id || '');
+  }, [activePlanPeriod, planningPeriods, defaultPlanningPeriods, isLoading]);
+
+  // console.log('activePlanPeriodIdData', activePlanPeriodId,activePlanPeriod);
+
+  const TabsContentData = TabsContent();
+  const selectedTab = TabsContentData?.find(
+    (item) => item.key === String(activePlanPeriod),
+  );
 
   return (
     <div>
@@ -128,8 +150,8 @@ function Page() {
         </div>
         <div className="w-full h-auto space-y-4">
           <Tabs
-            defaultActiveKey="1"
-            onChange={(e: any) => setActivePlanPeriod(e)}
+            defaultActiveKey={selectedTab?.id}
+            onChange={(key: any) => setActivePlanPeriod(key)}
             centered
             items={TabsContent() ?? []}
           />
