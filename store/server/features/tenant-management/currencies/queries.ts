@@ -31,29 +31,3 @@ export const useGetCurrencies = (
     },
   );
 };
-
-const allCurrencies = async (data: Partial<CurrencyRequestBody>) => {
-  return await crudRequest({
-    url: `${TENANT_MGMT_URL}/subscription/rest/currencies/all`,
-    method: 'GET',
-    headers: requestHeader(),
-    data,
-  });
-};
-
-export const useGetAllCurrencies = (
-  data: Partial<CurrencyRequestBody> = {},
-  isKeepData: boolean = true,
-  isEnabled: boolean = true,
-) => {
-  return useQuery<ApiResponse<Currency>>(
-    Object.keys(data).length ? ['currencies', data] : 'currencies',
-    () => allCurrencies(data),
-    {
-      keepPreviousData: isKeepData,
-      enabled: isEnabled,
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  );
-};
