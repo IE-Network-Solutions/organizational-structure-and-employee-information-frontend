@@ -2,7 +2,7 @@ import { GlobalStateStore } from '@/store/uistate/features/global';
 import { useEffect } from 'react';
 
 export const useIsMobile = (): Record<string, boolean> => {
-const {setIsMobile,isMobile,setIsTablet,isTablet} = GlobalStateStore()
+  const { setIsMobile, isMobile, setIsTablet, isTablet } = GlobalStateStore();
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -11,7 +11,7 @@ const {setIsMobile,isMobile,setIsTablet,isTablet} = GlobalStateStore()
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);
 
-    const checkIsTablet = () => { 
+    const checkIsTablet = () => {
       setIsTablet(window.innerWidth <= 1024);
     };
 
@@ -23,5 +23,5 @@ const {setIsMobile,isMobile,setIsTablet,isTablet} = GlobalStateStore()
     };
   }, []);
 
-  return { isMobile,isTablet };
-}; 
+  return { isMobile, isTablet };
+};

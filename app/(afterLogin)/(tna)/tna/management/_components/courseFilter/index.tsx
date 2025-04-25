@@ -7,7 +7,6 @@ import { FC } from 'react';
 import { IoMdSwitch } from 'react-icons/io';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 
-const { useBreakpoint } = Grid;
 
 interface CourseFilterProps {
   onChange: (value: CommonObject) => void;
