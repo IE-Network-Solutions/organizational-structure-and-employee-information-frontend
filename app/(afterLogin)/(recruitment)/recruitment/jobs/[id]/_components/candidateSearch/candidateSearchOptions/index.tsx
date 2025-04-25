@@ -5,7 +5,7 @@ import { useCandidateState } from '@/store/uistate/features/recruitment/candidat
 import { useDebounce } from '@/utils/useDebounce';
 import { Button, Col, DatePicker, Modal, Row, Select } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
-import React, { useState } from 'react';
+import React from 'react';
 import { IoMdSwitch } from 'react-icons/io';
 import { useMediaQuery } from 'react-responsive';
 import WhatYouNeed from '../whatYouNeed';
@@ -18,10 +18,15 @@ interface OptionParams {
 }
 
 const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
-  const { searchParams, setSearchParams, currentPage, pageSize } =
-    useCandidateState();
+  const {
+    searchParams,
+    setSearchParams,
+    currentPage,
+    pageSize,
+    showMobileFilter,
+    setShowMobileFilter,
+  } = useCandidateState();
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
-  const [showMobileFilter, setShowMobileFilter] = useState(false);
 
   const { data: EmployeeDepartment } = useEmployeeDepartments();
   const { data: jobList } = useGetJobs(
@@ -139,7 +144,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
             <WhatYouNeed />
             <div className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3">
               <IoMdSwitch
-                onClick={() => setShowMobileFilter((prev) => !prev)}
+                onClick={() => setShowMobileFilter(true)}
                 className="text-xl cursor-pointer"
               />
             </div>

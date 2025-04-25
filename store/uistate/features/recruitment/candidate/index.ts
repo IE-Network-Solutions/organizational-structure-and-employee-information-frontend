@@ -64,6 +64,9 @@ interface CandidateState {
 
   moveToTalentPool: boolean;
   setMoveToTalentPool: (value: boolean) => void;
+
+  showMobileFilter: boolean;
+  setShowMobileFilter: (value: boolean) => void;
 }
 
 export const useCandidateState = create<CandidateState>((set) => ({
@@ -128,4 +131,7 @@ export const useCandidateState = create<CandidateState>((set) => ({
 
   moveToTalentPool: false,
   setMoveToTalentPool: (value) => set({ moveToTalentPool: value }),
+
+  showMobileFilter: false,
+  setShowMobileFilter: (value: boolean) => set({ showMobileFilter: value }),
 }));
