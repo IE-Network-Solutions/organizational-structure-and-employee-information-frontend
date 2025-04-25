@@ -117,7 +117,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                 onClick={handleAddTaskClick}
                 disabled={!offboardingTermination}
               >
-                Add Task
+                <span className="hidden sm:inline">Add Task</span>
               </Button>
             </AccessGuard>
             <div id="offboarding-template-tasks">
@@ -131,7 +131,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                   disabled={!offboardingTermination}
                 >
                   <Button className="flex items-center">
-                    <SettingOutlined className="mr-2" />
+                    <SettingOutlined className="mr-2 hidden sm:inline" />
                     <DownOutlined />
                   </Button>
                 </Dropdown>

@@ -182,6 +182,9 @@ interface UserState {
   setEmployeeJobInfoModalWidth: (
     employeeJobInfoModalWidth: string | null,
   ) => void;
+
+  isMobileFilterVisible: boolean;
+  setIsMobileFilterVisible: (isMobileFilterVisible: boolean) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -340,5 +343,8 @@ export const useEmployeeManagementStore = create<UserState>()(
     employeeJobInfoModalWidth: null,
     setEmployeeJobInfoModalWidth: (employeeJobInfoModalWidth: string | null) =>
       set({ employeeJobInfoModalWidth }),
+    isMobileFilterVisible: false,
+    setIsMobileFilterVisible: (isMobileFilterVisible: boolean) =>
+      set({ isMobileFilterVisible }),
   })),
 );

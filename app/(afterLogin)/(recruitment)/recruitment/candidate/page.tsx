@@ -31,27 +31,27 @@ const AllCandidates: React.FC = () => {
     setCreateJobDrawer(false);
   };
   return (
-    <div className="h-auto w-full p-4  bg-white">
+    <div className="h-auto w-full p-4 bg-white sm:p-6">
       <div className="flex flex-wrap justify-between items-center">
-        <CustomBreadcrumb
-          title="Candidates"
-          subtitle="This is the data of all candidates who applied"
-        />
+        <CustomBreadcrumb title="Candidates" subtitle="All who applied" />
         <div className="flex items-center my-4 gap-4 md:gap-8">
-          <WhatYouNeed />
+          <div className="hidden sm:block">
+            <WhatYouNeed />
+          </div>
+
           {selectedCandidate?.length > 0 && (
             <CustomButton
               title="Move to Talent Pool"
               id="createUserButton"
               onClick={handleMoveToTalentsPool}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 flex items-center justify-center"
             />
           )}
           <AccessGuard permissions={[Permissions.CreateCandidate]}>
             <CustomButton
-              title="Add candidate"
+              title={<span className="hidden sm:inline">Add candidate</span>}
               id="createUserButton"
-              icon={<FaPlus className="mr-2" />}
+              icon={<FaPlus className="mr-0 sm:mr-2" />}
               onClick={showDrawer}
               className="bg-blue-600 hover:bg-blue-700"
             />
