@@ -5,6 +5,7 @@ import { IoSearch } from 'react-icons/io5';
 import { CommonObject } from '@/types/commons/commonObject';
 import { FC } from 'react';
 import { IoMdSwitch } from 'react-icons/io';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 
 const { useBreakpoint } = Grid;
 
@@ -15,8 +16,7 @@ interface CourseFilterProps {
 const CourseFilter: FC<CourseFilterProps> = ({ onChange }) => {
   const { courseCategory } = useTnaManagementStore();
   const [form] = Form.useForm();
-  const screens = useBreakpoint();
-  const isMobile = !screens.md;
+  const { isMobile } = useIsMobile();
 
   return (
     <Form
