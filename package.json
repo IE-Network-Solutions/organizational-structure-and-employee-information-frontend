@@ -40,6 +40,7 @@
     "react-quill": "^2.0.0",
     "react-responsive": "^10.0.1",
     "react-webcam": "^7.2.0",
+    "stripe": "^17.7.0",
     "swiper": "^11.1.10",
     "tailwind-scrollbar": "^3.1.0",
     "ts-jest": "^29.2.3",
