@@ -1,4 +1,4 @@
-import { Flex, Form, Input, Select, Grid, Tooltip } from 'antd';
+import { Flex, Form, Input, Select, Tooltip } from 'antd';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
 import { formatToOptions } from '@/helpers/formatTo';
 import { IoSearch } from 'react-icons/io5';
@@ -6,7 +6,6 @@ import { CommonObject } from '@/types/commons/commonObject';
 import { FC } from 'react';
 import { IoMdSwitch } from 'react-icons/io';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
-
 
 interface CourseFilterProps {
   onChange: (value: CommonObject) => void;
