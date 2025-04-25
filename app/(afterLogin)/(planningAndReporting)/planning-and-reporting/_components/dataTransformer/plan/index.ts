@@ -64,8 +64,8 @@ const groupByParentTask = (tasks: any[]) => {
   const parentTaskMap: any = {};
 
   tasks.forEach((task) => {
-    const parentTask = task.parentTask;
-    if (!parentTask || !parentTask.id) return;
+    const parentTask = task?.parentTask;
+    if (!parentTask || !parentTask?.id) return;
 
     if (!parentTaskMap[parentTask.id]) {
       parentTaskMap[parentTask.id] = {
@@ -109,29 +109,29 @@ export const groupPlanTasksByKeyResultAndMilestone = (plans: any) => {
 
         const milestones = groupByMilestone(
           keyResult?.tasks?.filter((task: any) => task?.milestone?.id),
-        );
+        ) ?? [];
 
-        const enhancedMilestones = milestones.map((milestone: any) => {
+        const enhancedMilestones = milestones?.map((milestone: any) => {
           const haveParentTasks = milestone?.tasks?.filter(
             (task: any) => task?.parentTask?.id,
-          );
+          ) ?? [];
           const haveNoParentTasks = milestone?.tasks?.filter(
             (task: any) => !task?.parentTask?.id,
-          );
+                ) ?? [] ;
           const groupedTasksByParentTask = groupByParentTask(haveParentTasks);
 
           return {
             ...milestone,
-            parentTask: groupedTasksByParentTask,
-            tasks: haveNoParentTasks,
+            parentTask: groupedTasksByParentTask ?? [],
+            tasks: haveNoParentTasks ?? [],
           };
         });
 
         return {
           ...keyResult,
-          tasks: tasksWithoutParent,
-          parentTask: groupedTaskData,
-          milestones: enhancedMilestones,
+          tasks: tasksWithoutParent ?? [],
+          parentTask: groupedTaskData ?? [],
+          milestones: enhancedMilestones ?? [],
         };
       }),
     };
@@ -194,8 +194,8 @@ export function groupParentTasks(tasks: Task[]): ObjectiveGroup[] {
     const objective = result[objectiveId];
 
     // Ensure the structure for key results
-    if (!objective.keyResults.some((kr) => kr.id === keyResultId)) {
-      objective.keyResults.push({
+    if (!objective?.keyResults?.some((kr) => kr?.id === keyResultId)) {
+      objective?.keyResults?.push({
         ...task.keyResult,
         id: keyResultId,
         milestones: [],
@@ -203,34 +203,36 @@ export function groupParentTasks(tasks: Task[]): ObjectiveGroup[] {
       } as KeyResultGroup);
     }
 
-    const keyResult = objective.keyResults.find((kr) => kr.id === keyResultId)!;
+    const keyResult = objective?.keyResults?.find(
+      (kr) => kr?.id === keyResultId,
+    )!;
 
     // If the task has a milestone, group it under the milestone
     if (milestoneId) {
-      if (!keyResult.milestones.some((ms) => ms.id === milestoneId)) {
-        keyResult.milestones.push({
+      if (!keyResult?.milestones?.some((ms) => ms?.id === milestoneId)) {
+        keyResult?.milestones?.push({
           id: milestoneId,
-          ...task.milestone,
+          ...task?.milestone,
           tasks: [],
         } as MilestoneGroup);
       }
 
-      const milestone = keyResult.milestones.find(
-        (ms) => ms.id === milestoneId,
+      const milestone = keyResult?.milestones?.find(
+        (ms) => ms?.id === milestoneId,
       )!;
-      milestone.tasks.push({ ...task });
+      milestone?.tasks?.push({ ...task });
     } else {
       // If no milestone, group it directly under the key result
-      keyResult.tasks.push({ ...task });
+      keyResult?.tasks?.push({ ...task });
     }
   });
 
   // Convert the result object into an array for easier traversal if needed
   return Object.values(result).map((objective) => ({
     ...objective,
-    keyResults: objective.keyResults.map((keyResult) => ({
+    keyResults: objective?.keyResults?.map((keyResult) => ({
       ...keyResult,
-      milestones: keyResult.milestones,
+      milestones: keyResult?.milestones ?? [],
     })),
   }));
 }
