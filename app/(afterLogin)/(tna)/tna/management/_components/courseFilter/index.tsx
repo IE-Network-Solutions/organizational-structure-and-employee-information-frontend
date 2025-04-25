@@ -1,7 +1,7 @@
 import { Flex, Form, Input, Select, Grid, Tooltip } from 'antd';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
 import { formatToOptions } from '@/helpers/formatTo';
-import { IoSearch, IoFilter } from 'react-icons/io5';
+import { IoSearch } from 'react-icons/io5';
 import { CommonObject } from '@/types/commons/commonObject';
 import { FC } from 'react';
 import { IoMdSwitch } from 'react-icons/io';
