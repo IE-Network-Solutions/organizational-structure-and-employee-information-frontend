@@ -17,6 +17,8 @@ interface StoreState {
   setLoading: (loading: boolean) => void;
   error: string | null;
   setError: (error: string | null) => void;
+  email: string | null;
+  setEmail: (error: string | null) => void;
 }
 export const useAuthenticationStore = create<StoreState>()(
   devtools(
@@ -47,6 +49,8 @@ export const useAuthenticationStore = create<StoreState>()(
         setLoading: (loading: boolean) => set({ loading }),
         error: null, // Non-persistent state
         setError: (error: string | null) => set({ error }),
+        email: null, // Non-persistent state
+        setEmail: (email: string | null) => set({ email }),
       }),
       {
         name: 'authentications-storage', // Unique name for the storage

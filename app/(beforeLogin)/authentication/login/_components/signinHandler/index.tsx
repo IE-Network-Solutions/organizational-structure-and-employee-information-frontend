@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useGetTenantId } from '@/store/server/features/employees/authentication/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { handleFirebaseSignInError } from '@/utils/showErrorResponse';
+import { useTenantChecker } from '../tenantChecker';
 
 export const useHandleSignIn = () => {
   const {
@@ -18,6 +19,7 @@ export const useHandleSignIn = () => {
 
   const { refetch: fetchTenantId } = useGetTenantId();
   const router = useRouter();
+  const { tenant } = useTenantChecker();
 
   const handleSignIn = async (signInMethod: () => Promise<any>) => {
     setLoading(true);
@@ -38,6 +40,14 @@ export const useHandleSignIn = () => {
         setToken('');
         setLocalId('');
       } else {
+        if (tenant?.id !== fetchedData?.data?.tenantId) {
+          message.error(
+            'The current tenant does not match the domain. Please check your domain and try again.',
+          );
+          setToken('');
+          setLocalId('');
+          return;
+        }
         setTenantId(fetchedData?.data?.tenantId);
         setUserId(fetchedData?.data?.id);
         setUserData(fetchedData?.data);
