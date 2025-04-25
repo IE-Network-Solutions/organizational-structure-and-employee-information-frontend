@@ -48,8 +48,6 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
   const { data: employeeData, isLoading } = useGetEmployee(id);
   const { data: workSchedules } = useGetWorkSchedules();
   const [form] = Form.useForm();
-
-  
   const handleSaveChanges = (editKey: keyof EditState) => {
     form
       .validateFields()
@@ -111,29 +109,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
       key: 'time',
     },
   ];
-  const dataValue = (workScheduleDetail: any) => {
-    return (workScheduleDetail || []).map((schedule: any, index: number) => {
-      // Convert decimal hours to HH:mm
-      const decimalHour = schedule.duration || 0;
-      const hours = Math.floor(decimalHour);
-      const minutes = Math.round((decimalHour % 1) * 60);
-      const timeValue = dayjs()
-        .startOf('day')
-        .add(hours, 'hour')
-        .add(minutes, 'minute');
 
-      return {
-        key: index.toString(),
-        workingDay: (
-          <div className="flex space-x-2 justify-start">
-            <Switch checked={schedule?.workDay} disabled />
-            <span>{schedule.day}</span>
-          </div>
-        ),
-        time: <TimePicker value={timeValue} format="HH:mm" disabled />,
-      };
-    });
-  };
   useEffect(() => {
     const employeeDataInfo = {
       ...employeeData,
@@ -141,9 +117,9 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
         (e: any) => e.isPositionActive === true,
       )?.workScheduleId,
     };
-    setWorkSchedule(employeeDataInfo?.workScheduleId); // Set workScheduleId in state
-    // Convert dateRange to dayjs object if it exist
-    form.setFieldsValue(employeeDataInfo); // Set form fields with converted values
+    setWorkSchedule(employeeDataInfo?.workScheduleId);
+
+    form.setFieldsValue(employeeDataInfo);
   }, [form, employeeData]);
 
   const schedule = workSchedules?.items[0];
@@ -157,7 +133,6 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
       day: day.dayOfWeek || '',
       hours: day.hours || 0,
     })) || [];
-
   return (
     <Card
       loading={isLoading}
@@ -183,18 +158,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
                 )?.workSchedule?.name || ''
               }
             />
-            <Row gutter={16}>
-              <Col xs={24} sm={24}>
-                <Table
-                  columns={workScheduleColumns}
-                  dataSource={dataValue(
-                    employeeData?.employeeJobInformation[0]?.workSchedule
-                      ?.detail,
-                  )}
-                  pagination={false}
-                />
-              </Col>
-            </Row>
+         
             <InfoLine
               title="Total working hours/week"
               value={totalWorkingHours}
