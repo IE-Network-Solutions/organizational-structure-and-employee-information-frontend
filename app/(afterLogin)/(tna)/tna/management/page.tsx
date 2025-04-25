@@ -11,7 +11,7 @@ import CourseFilter from '@/app/(afterLogin)/(tna)/tna/management/_components/co
 import { CommonObject } from '@/types/commons/commonObject';
 import { useDebounce } from '@/utils/useDebounce';
 import { CourseManagementRequestBody } from '@/store/server/features/tna/management/interface';
-import CourseCard from '@/app/(afterLogin)/(tna)/tna/management/_components/courseCard/index';
+import CourseCard from '@/app/(afterLogin)/(tna)/tna/management/_components/courseCard';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { localUserID } from '@/utils/constants';
@@ -19,6 +19,7 @@ import { Swiper as SwiperType } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { GlobalStateStore } from '@/store/uistate/features/global';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -28,6 +29,7 @@ const TnaManagementPage = () => {
     useTnaManagementStore();
   const { data: categoryData, isFetching } = useGetCourseCategory({});
   const [filter, setFilter] = useState<Partial<CourseManagementRequestBody>>({});
+  const { isMobile, isTablet } = GlobalStateStore();
   const [swiper, setSwiper] = useState<SwiperType>();
   const {
     data: coursesData,
@@ -97,7 +99,7 @@ const TnaManagementPage = () => {
       ) : (
         <Spin spinning={isFetchingCourse}>
           <div className="flex items-center">
-            {coursesData?.items && coursesData.items.length > 3 && (
+            {!isMobile && coursesData?.items && coursesData.items.length > 4 && (
               <div className="w-10 flex flex-col justify-center">
                 <Button
                   className="w-6 h-6"
@@ -108,32 +110,12 @@ const TnaManagementPage = () => {
               </div>
             )}
             <Swiper
-              className="flex-1 px-1 py-2"
-              slidesPerView="auto"
-              spaceBetween={16}
-              breakpoints={{
-                320: {
-                  slidesPerView: 2.2,
-                  spaceBetween: 12,
-                },
-                480: {
-                  slidesPerView: 3.2,
-                  spaceBetween: 16,
-                },
-                768: {
-                  slidesPerView: 4,
-                  spaceBetween: 20,
-                },
-                1024: {
-                  slidesPerView: 5,
-                  spaceBetween: 24,
-                },
-                1280: {
-                  slidesPerView: 6,
-                  spaceBetween: 24,
-                }
-              }}
+              className="flex-1"
+              id="courseSwiperId"
+              slidesPerView={isMobile ? 2.2 : isTablet ? 3 : 4}
+              spaceBetween={isMobile ? 12 : 16}
               modules={[Navigation]}
+              loop={!isMobile}
               onInit={(swiper) => {
                 setSwiper(swiper);
               }}
@@ -150,7 +132,8 @@ const TnaManagementPage = () => {
                 </SwiperSlide>
               ))}
             </Swiper>
-            {coursesData?.items && coursesData.items.length > 3 && (
+
+            {!isMobile && coursesData?.items && coursesData.items.length > 4 && (
               <div className="w-10 h-full flex flex-col justify-center items-end">
                 <Button
                   className="w-6 h-6"
