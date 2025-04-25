@@ -639,7 +639,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       </Sider>
       <Layout
         style={{
-          marginLeft: isMobile ? 0 : collapsed ? 10 : 20,
+          marginLeft: isMobile ? 20 : collapsed ? 10 : 20,
           transition: 'margin-left 0.3s ease',
         }}
       >

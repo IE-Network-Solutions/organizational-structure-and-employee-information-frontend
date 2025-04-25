@@ -78,7 +78,7 @@ const TnaManagementPage = () => {
               loading={isFetching}
               onClick={() => setIsShowCourseSidebar(true)}
             >
-              Add Course
+              <span className="hidden sm:block">Add Course</span>
             </Button>
           </AccessGuard>
         </Flex>
