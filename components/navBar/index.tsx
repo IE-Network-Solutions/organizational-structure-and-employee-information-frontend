@@ -639,7 +639,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       </Sider>
       <Layout
         style={{
-          marginLeft: isMobile ? 0 : collapsed ? 10 : 20,
+          marginLeft: isMobile ? 10 : collapsed ? 10 : 20,
           transition: 'margin-left 0.3s ease',
         }}
       >
@@ -698,7 +698,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             style={{
               borderRadius: borderRadiusLG,
               marginTop: '3rem',
-              marginRight: `${!isAdminPage ? '1.3rem' : ''}`,
+              marginRight: `${!isAdminPage ? '10px' : ''}`,
             }}
           >
             {children}
