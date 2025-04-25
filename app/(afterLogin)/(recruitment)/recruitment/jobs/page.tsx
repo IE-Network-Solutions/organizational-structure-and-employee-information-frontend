@@ -32,7 +32,7 @@ const RecruitmentPage: React.FC = () => {
               id="createJobButton"
               icon={<FaPlus className="mr-0 sm:mr-2" />}
               onClick={() => handleAddNewDrawer()}
-              className="bg-blue-600 hover:bg-blue-700 w-10 sm:w-auto px-0 sm:px-4 flex items-center justify-center "
+              className="bg-blue-600 hover:bg-blue-700 sm:w-auto px-0 sm:px-4 sm:flex sm:items-center sm:justify-center "
             />
           </AccessGuard>
         </div>
