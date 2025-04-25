@@ -28,7 +28,10 @@ import PayrollCard from './_components/cards';
 import { useGenerateBankLetter } from './_components/Latter';
 import { saveAs } from 'file-saver';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { useGetAllUsers, useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useGetAllUsers,
+  useGetAllUsersData,
+} from '@/store/server/features/employees/employeeManagment/queries';
 import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
 import { useExportData } from './_components/excel';
 import AccessGuard from '@/utils/permissionGuard';
@@ -37,6 +40,7 @@ import { IoMdSwitch } from 'react-icons/io';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { PiExportLight } from 'react-icons/pi';
 import { LuImport } from 'react-icons/lu';
+import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,7 +49,12 @@ const Payroll = () => {
   const [paySlip, setPaySlip] = useState(false);
   const [exportPayrollData, setExportPayrollData] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
+  const {
+    searchQuery,
+    setSearchQuery,
+    isFilterModalOpen,
+    setIsFilterModalOpen,
+  } = useEmployeeStore();
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
   const [payPeriodId, setPayPeriodId] = useState('');
   const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
@@ -53,13 +62,13 @@ const Payroll = () => {
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
   const { data: employeeData } = useGetAllUsers();
+  const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
 
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
 
   const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
     useSendingPayrollPayslip();
-
   const { generateBankLetter } = useGenerateBankLetter();
   const { exportToExcel } = useExportData();
 
@@ -638,11 +647,8 @@ const Payroll = () => {
       render: (key: string) => Number(key || 0)?.toLocaleString(),
     },
   ];
+  const { isMobile } = useIsMobile();
 
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
-
-const {isMobile} = useIsMobile();
   const handleEmployeeSelect = (value: string) => {
     setSearchValue((prev) => {
       const updatedSearchValue = { ...prev, employeeId: value };
@@ -651,17 +657,14 @@ const {isMobile} = useIsMobile();
     });
   };
   const options =
-  employeeData?.items?.map((emp: any) => ({
-    value: emp.id,
-    label: `${emp?.firstName || ''} ${emp?.middleName} ${emp?.lastName}`, // Full name as label
-    employeeData: emp,
-  })) || [];
+    employeeData?.items?.map((emp: any) => ({
+      value: emp.id,
+      label: `${emp?.firstName || ''} ${emp?.middleName} ${emp?.lastName}`, // Full name as label
+      employeeData: emp,
+    })) || [];
 
-
-
-  console.log(isMobile,"*********************")
   return (
-    <div className='mt-10' style={{ padding: isMobile ? '3px' : '20px' }}>
+    <div className="mt-10" style={{ padding: isMobile ? '3px' : '20px' }}>
       <div className="flex justify-between items-center gap-4 scrollbar-none">
         <h2 className="text-3xl mb-7">Payroll</h2>
         <h2 hidden style={{ marginBottom: '20px' }}>
@@ -679,7 +682,7 @@ const {isMobile} = useIsMobile();
             </Tooltip>
           </AccessGuard>
 
-          {!isMobile && 
+          {!isMobile && (
             <AccessGuard permissions={[Permissions.SendPayslipEmail]}>
               <Popconfirm
                 title="Send Payslips"
@@ -688,13 +691,14 @@ const {isMobile} = useIsMobile();
                     {mergedPayroll.length > 0 ? (
                       mergedPayroll.length < allEmployees?.items?.length ? (
                         <p>
-                          This will send payslips to {mergedPayroll.length} selected
-                          employees (filtered from {allEmployees?.items?.length} total).
+                          This will send payslips to {mergedPayroll.length}{' '}
+                          selected employees (filtered from{' '}
+                          {allEmployees?.items?.length} total).
                         </p>
                       ) : (
                         <p>
-                          This will send payslips to ALL {allEmployees?.items?.length}{' '}
-                          employees.
+                          This will send payslips to ALL{' '}
+                          {allEmployees?.items?.length} employees.
                         </p>
                       )
                     ) : (
@@ -705,8 +709,8 @@ const {isMobile} = useIsMobile();
                     {mergedPayroll.length > 0 &&
                       mergedPayroll.length < allEmployees?.items?.length && (
                         <p style={{ color: 'orange', marginTop: '8px' }}>
-                          Note: You're sending to a filtered subset. Clear filters to send
-                          to everyone.
+                          Note: You&apos;re sending to a filtered subset. Clear
+                          filters to send to everyone.
                         </p>
                       )}
                   </div>
@@ -728,30 +732,33 @@ const {isMobile} = useIsMobile();
                   disabled: mergedPayroll.length === 0,
                 }}
               >
-              <Tooltip
+                <Tooltip
                   title={
                     mergedPayroll.length === 0
                       ? 'No employees selected. Please adjust your filters.'
                       : mergedPayroll.length < allEmployees?.items?.length
-                      ? `Will send to ${mergedPayroll.length} filtered employee(s)`
-                      : 'Will send to all employees'
+                        ? `Will send to ${mergedPayroll.length} filtered employee(s)`
+                        : 'Will send to all employees'
                   }
                 >
-                  <span> {/* Important: wrap the disabled button in a span for tooltip to work */}
-                  <Button
-                        type="default"
-                        loading={sendingPaySlipLoading}
-                        className="text-white bg-primary border-none p-6 flex flex-col items-start disabled:opacity-50"
-                        disabled={mergedPayroll.length === 0}
-                      >
-                        <span className="text-base font-semibold">Send Payslip</span>
-                      </Button>
-                    </span>
-                  </Tooltip>
-
+                  <span>
+                    {' '}
+                    {/* Important: wrap the disabled button in a span for tooltip to work */}
+                    <Button
+                      type="default"
+                      loading={sendingPaySlipLoading}
+                      className="text-white bg-primary border-none p-6 flex flex-col items-start disabled:opacity-50"
+                      disabled={mergedPayroll.length === 0}
+                    >
+                      <span className="text-base font-semibold">
+                        Send Payslip
+                      </span>
+                    </Button>
+                  </span>
+                </Tooltip>
               </Popconfirm>
             </AccessGuard>
-          } 
+          )}
 
           <Popconfirm
             title={
@@ -770,7 +777,13 @@ const {isMobile} = useIsMobile();
                 Permissions.DeletePayroll,
               ]}
             >
-              <Tooltip title={payroll?.payrolls.length > 0 ? "Regenerate Payroll" : "Generate Payroll"}>
+              <Tooltip
+                title={
+                  payroll?.payrolls.length > 0
+                    ? 'Regenerate Payroll'
+                    : 'Generate Payroll'
+                }
+              >
                 <Button
                   type="primary"
                   className={`p-6 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
@@ -779,40 +792,49 @@ const {isMobile} = useIsMobile();
                   }}
                   loading={isCreatingPayroll || loading || deleteLoading}
                 >
-                  {isMobile ? <LuImport size={24} /> : (payroll?.payrolls.length > 0 ? 'Regenerate' : 'Generate')}
+                  {isMobile ? (
+                    <LuImport size={24} />
+                  ) : payroll?.payrolls.length > 0 ? (
+                    'Regenerate'
+                  ) : (
+                    'Generate'
+                  )}
                 </Button>
               </Tooltip>
             </AccessGuard>
           </Popconfirm>
         </div>
-
-
       </div>
 
-      {!isMobile ?
+      {!isMobile ? (
         <Filters onSearch={handleSearch} oneRow={true} />
-        :
-        <div className='flex justify-between items-center gap-4'>
-        <Select
-              showSearch
-              allowClear
-              className="min-h-12 w-full"
-              placeholder="Search Employee"
-              onChange={(value) => handleEmployeeSelect(value)}
-              filterOption={(input, option) => {
-                const label = option?.label;
-                return (
-                  typeof label === 'string' &&
-                  label.toLowerCase().includes(input.toLowerCase())
-                );
-              }}
-              options={options}
-            />  
-         <Button className='p-6' icon={<IoMdSwitch size={20} />} onClick={() => setIsFilterModalOpen(true)}/>
-     </div>
-       }
-      {isFilterModalOpen && 
-      <Modal
+      ) : (
+        <div className="flex justify-between items-center gap-4">
+          <Select
+            showSearch
+            allowClear
+            className="min-h-12 w-full"
+            placeholder="Search Employee"
+            value={searchValue?.employeeId}
+            onChange={(value) => handleEmployeeSelect(value)}
+            filterOption={(input, option) => {
+              const label = option?.label;
+              return (
+                typeof label === 'string' &&
+                label.toLowerCase().includes(input.toLowerCase())
+              );
+            }}
+            options={options}
+          />
+          <Button
+            className="p-6"
+            icon={<IoMdSwitch size={20} />}
+            onClick={() => setIsFilterModalOpen(true)}
+          />
+        </div>
+      )}
+      {isFilterModalOpen && (
+        <Modal
           title="Filters"
           open={isFilterModalOpen}
           onCancel={() => setIsFilterModalOpen(false)}
@@ -823,10 +845,9 @@ const {isMobile} = useIsMobile();
           ]}
           width={isMobile ? '90%' : '50%'}
         >
-         
           <Filters onSearch={handleSearch} oneRow={false} disable={['name']} />
         </Modal>
-      }
+      )}
       <Row
         gutter={16}
         style={{
@@ -835,7 +856,7 @@ const {isMobile} = useIsMobile();
           whiteSpace: isMobile ? 'normal' : 'nowrap',
           display: !isMobile ? 'flex' : 'block',
           flexWrap: 'nowrap',
-          width: isMobile ? '100%' : 'auto'
+          width: isMobile ? '100%' : 'auto',
         }}
         className="scrollbar-none"
       >
