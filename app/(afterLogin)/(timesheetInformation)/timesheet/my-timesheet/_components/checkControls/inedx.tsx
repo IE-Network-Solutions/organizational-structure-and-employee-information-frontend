@@ -1,5 +1,6 @@
 import { Button, Space } from 'antd';
 import { GoClock } from 'react-icons/go';
+import { CiLocationOn } from "react-icons/ci";
 import {
   CheckStatus,
   useMyTimesheetStore,
@@ -83,17 +84,17 @@ const CheckControl = () => {
       return (
         <AccessGuard permissions={[Permissions.CheckInRemotely]}>
           <Button
-            className="h-14 text-base"
+            className="h-14 text-base flex items-center justify-center gap-2 min-w-[56px] sm:min-w-[120px]"
             id="buttonCheckin"
             size="large"
             type="primary"
-            icon={<GoClock size={20} />}
             loading={isLoading || isFetching}
             onClick={() => {
               setAttendance(true);
             }}
           >
-            Check in
+            <CiLocationOn size={24} className="flex-shrink-0 text-white" />
+            <span className="hidden sm:inline">Check in</span>
           </Button>
         </AccessGuard>
       );
@@ -102,10 +103,9 @@ const CheckControl = () => {
         <Space>
           <AccessGuard permissions={[Permissions.CheckOutRemotely]}>
             <Button
-              className="h-14 text-base px-2"
+              className="h-14 text-base flex items-center justify-center gap-2 min-w-[56px] sm:min-w-[160px]"
               size="large"
               id="buttonBreakCheckOut"
-              icon={<GoClock size={20} />}
               loading={isLoading || isFetching}
               onClick={() => {
                 getCoords(() => {
@@ -113,19 +113,20 @@ const CheckControl = () => {
                 });
               }}
             >
-              Break Check Out
+              <CiLocationOn size={24} className="flex-shrink-0 text-gray-600" />
+              <span className="hidden sm:inline">Break Check Out</span>
             </Button>
             <Button
-              className="h-14 text-base"
+              className="h-14 text-base flex items-center justify-center gap-2 min-w-[56px] sm:min-w-[120px]"
               size="large"
               id="buttonCheckOut"
-              icon={<GoClock size={20} />}
               loading={isLoading || isFetching}
               onClick={() => {
                 setAttendance(false);
               }}
             >
-              Check out
+              <CiLocationOn size={24} className="flex-shrink-0 text-gray-600" />
+              <span className="hidden sm:inline">Check out</span>
             </Button>
           </AccessGuard>
         </Space>
@@ -140,16 +141,16 @@ const CheckControl = () => {
           )}
           <AccessGuard permissions={[Permissions.CheckInRemotely]}>
             <Button
-              className="h-14 text-base"
+              className="h-14 text-base flex items-center justify-center gap-2 min-w-[56px] sm:min-w-[120px]"
               size="large"
               id="checkInButton"
-              icon={<GoClock size={20} />}
               loading={isLoading || isFetching}
               onClick={() => {
                 setAttendance(true);
               }}
             >
-              Check in
+              <CiLocationOn size={24} className="flex-shrink-0 text-gray-600" />
+              <span className="hidden sm:inline">Check in</span>
             </Button>
           </AccessGuard>
         </Space>
