@@ -298,9 +298,9 @@ function Reporting() {
                         >
                           <Col>
                             <div
-                              className={` py-1 px-1 text-white rounded-full ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
+                              className={` py-1 px-1 text-white rounded-full ${dataItem?.plan?.isReportValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
                             >
-                              {dataItem?.isValidated ? (
+                              {dataItem?.plan?.isReportValidated ? (
                                 <FiCheckCircle />
                               ) : (
                                 <MdOutlinePending size={16} />
@@ -309,7 +309,9 @@ function Reporting() {
                           </Col>
                           <div className="flex flex-col text-xs ml-2">
                             <span className="mr-4">
-                              {dataItem?.isValidated ? 'Closed' : 'Open'}
+                              {dataItem?.plan?.isReportValidated
+                                ? 'Closed'
+                                : 'Open'}
                             </span>
                             <span className="mr-4 text-gray-500">
                               {dayjs(dataItem?.createdAt).format(

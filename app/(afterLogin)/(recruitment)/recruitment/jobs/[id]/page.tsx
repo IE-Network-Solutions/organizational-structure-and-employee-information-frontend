@@ -41,16 +41,18 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   );
 
   return (
-    <div className="h-auto w-full p-4  bg-white">
+    <div className="h-auto w-full p-4 bg-white sm:p-6">
       <div className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb
           title="Recruitment"
           subtitle={customBreadCrumbSubTitle}
         />
         <div className="flex items-center my-4 gap-4 md:gap-8">
-          <WhatYouNeed />
+          <div className="hidden sm:block">
+            <WhatYouNeed />
+          </div>
           <CustomButton
-            title="Add candidate"
+            title={<span className="hidden sm:inline">Add candidate</span>}
             id="createUserButton"
             icon={<FaPlus className="mr-2" />}
             onClick={showDrawer}
