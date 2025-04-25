@@ -28,7 +28,7 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
               </div>
             </div>
             <Tag
-              className="font-bold border-none w-8 text-center text-blue text-[10px]"
+              className="font-bold border-none min-w-8 text-center text-blue text-[10px]"
               color="#B2B2FF"
             >
               {' '}
@@ -48,7 +48,7 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
               </div>
             </div>
             <Tag
-              className="font-bold border-none w-8  text-center text-blue text-[10px]"
+              className="font-bold border-none min-w-8  text-center text-blue text-[10px]"
               color="#B2B2FF"
             >
               {' '}
