@@ -39,6 +39,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
     setSelectedWorkSchedule,
     workSchedule,
     setWorkSchedule,
+
     edit,
     setEdit,
   } = useEmployeeManagementStore();
@@ -48,6 +49,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
   const { data: workSchedules } = useGetWorkSchedules();
   const [form] = Form.useForm();
 
+  
   const handleSaveChanges = (editKey: keyof EditState) => {
     form
       .validateFields()
@@ -143,6 +145,19 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
     // Convert dateRange to dayjs object if it exist
     form.setFieldsValue(employeeDataInfo); // Set form fields with converted values
   }, [form, employeeData]);
+
+  const schedule = workSchedules?.items[0];
+
+  const totalWorkingHours = schedule?.detail.reduce((total, day) => {
+    return total + day.hours || 0;
+  }, 0);
+
+  const workingHours: { day: string; hours: number }[] =
+    workSchedules?.items[0]?.detail?.map((day) => ({
+      day: day.dayOfWeek || '',
+      hours: day.hours || 0,
+    })) || [];
+
   return (
     <Card
       loading={isLoading}
@@ -180,6 +195,30 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
                 />
               </Col>
             </Row>
+            <InfoLine
+              title="Total working hours/week"
+              value={totalWorkingHours}
+            />
+            <InfoLine
+              title="Daily working hours"
+              value={
+                <div className="flex gap-10">
+                  <div className="flex flex-col space-y-1">
+                    {workingHours?.map((item) => (
+                      <div key={`${item?.day}-label`}>{item?.day}</div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    {workingHours?.map((item) => (
+                      <div key={`${item?.day}-value`} className="font-light">
+                        {item?.hours} hours
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              }
+            />
           </Col>
         </Row>
       ) : (

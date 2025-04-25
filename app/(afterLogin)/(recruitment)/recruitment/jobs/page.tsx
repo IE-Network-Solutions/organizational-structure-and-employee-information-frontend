@@ -11,6 +11,7 @@ import ShareToSocialMedia from './_components/modals/share';
 import AddFormResult from './_components/modals/result';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 
 const RecruitmentPage: React.FC = () => {
   const { setAddNewDrawer } = useJobState();
@@ -20,21 +21,18 @@ const RecruitmentPage: React.FC = () => {
   };
 
   return (
-    <div className="p-8 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Jobs</h1>
-          <p className="text-gray-400">Here&apos;s all job list</p>
-        </div>
-        <div className="flex items-center my-4 gap-4 md:gap-8">
+    <div className="p-8 min-h-screen sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-1">
+        <CustomBreadcrumb title="Jobs" subtitle="Here's all job list" />
+        <div className="flex items-center sm:justify-between my-4 gap-4 md:gap-8">
           <WhatYouNeed />
           <AccessGuard permissions={[Permissions.CreateJobDescription]}>
             <CustomButton
-              title="Add New"
-              id="createUserButton"
-              icon={<FaPlus className="mr-2" />}
+              title={<span className="hidden sm:inline">Add New</span>}
+              id="createJobButton"
+              icon={<FaPlus className="mr-0 sm:mr-2" />}
               onClick={() => handleAddNewDrawer()}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 sm:w-auto px-0 sm:px-4 sm:flex sm:items-center sm:justify-center "
             />
           </AccessGuard>
         </div>

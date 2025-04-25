@@ -143,6 +143,13 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
     );
   };
 
+  const titleMap: Record<string, string> = {
+    educationalStatusDegree: 'Educational Status',
+    educationalStatusMaster: 'Educational Status Master',
+    pensionNumber: 'Pension Number',
+    tinNumber: 'TIN',
+  };
+
   return (
     <Card
       loading={isLoading}
@@ -174,7 +181,8 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                   ? nationalities?.items?.find((item) => item.id === val)
                       ?.name || '-'
                   : val?.toString() || '-';
-              return <InfoLine key={key} title={key} value={displayValue} />;
+              const title = titleMap[key] || key;
+              return <InfoLine key={key} title={title} value={displayValue} />;
             })}
           </Col>
         </Row>
