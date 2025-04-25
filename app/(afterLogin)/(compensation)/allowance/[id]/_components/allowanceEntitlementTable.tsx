@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-import { Select, Space, Spin, Table } from 'antd';
+import { Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { Button } from 'antd';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 import AllowanceEntitlementSideBar from './allowanceEntitlementSidebar';
 import { useFetchAllowanceEntitlements } from '@/store/server/features/compensation/allowance/queries';
@@ -15,15 +13,8 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 
 const AllowanceEntitlementTable = () => {
-  const {
-    setIsAllowanceEntitlementSidebarOpen,
-    isAllowanceGlobal,
-    currentPage,
-    pageSize,
-    setCurrentPage,
-    searchQuery,
-    setPageSize,
-  } = useAllowanceEntitlementStore();
+  const { currentPage, pageSize, setCurrentPage, searchQuery, setPageSize } =
+    useAllowanceEntitlementStore();
   const { mutate: deleteAllowanceEntitlement } =
     useDeleteAllowanceEntitlement();
   const { id } = useParams();
@@ -31,7 +22,6 @@ const AllowanceEntitlementTable = () => {
     data: allowanceEntitlementData,
     isLoading: fiscalActiveYearFetchLoading,
   } = useFetchAllowanceEntitlements(id);
-  const { data: employeeData } = useGetAllUsers();
   const EmployeeBasicSalary = ({
     id,
     amount,
@@ -123,14 +113,6 @@ const AllowanceEntitlementTable = () => {
     },
   ];
 
- 
-  const options =
-    employeeData?.items?.map((emp: any) => ({
-      value: emp.id,
-      label: `${emp.firstName || ''}  ${emp?.middleName} ${emp.lastName}`, // Full name as label
-      employeeData: emp,
-    })) || [];
-
   const filteredDataSource = searchQuery
     ? transformedData.filter(
         (employee: any) =>
@@ -140,7 +122,6 @@ const AllowanceEntitlementTable = () => {
 
   return (
     <Spin spinning={fiscalActiveYearFetchLoading}>
-      
       <Table
         className="mt-6"
         columns={columns}
