@@ -11,7 +11,6 @@ import { TENANT_BASE_URL } from '@/utils/constants';
 import dayjs from 'dayjs';
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useInitiatePayment } from '@/store/server/features/tenant-management/payments/queries';
-import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useStore';
 
 const InvoiceItem = () => {
   const router = useRouter();
@@ -66,20 +65,20 @@ const InvoiceItem = () => {
   }, [invoiceResponse, plans]);
 
   // Handle payment method selection
+  const handlePaymentMethodSelect = (method: 'chapa' | 'stripe') => {
+    if (selectedPaymentMethod === method) {
+      setSelectedPaymentMethod(null);
+    } else {
+      setSelectedPaymentMethod(method);
+    }
+  };
+
+  // Handle payment
   const handlePayment = async () => {
-    const paymentCurrency = currentPlan?.currency.code;
-
-    const selectedPaymentMethod =
-      paymentCurrency === 'ETB'
-        ? 'chapa'
-        : paymentCurrency === 'USD'
-          ? 'stripe'
-          : null;
-
     if (!selectedPaymentMethod || !id) {
       notification.error({
         message: 'Payment Error',
-        description: 'Please select a valid payment method to continue.',
+        description: 'Please select a payment method to continue.',
       });
       return;
     }
@@ -87,34 +86,41 @@ const InvoiceItem = () => {
     setIsProcessingPayment(true);
 
     try {
-      const returnUrl = `${window.location.origin}/admin/dashboard`;
+      // Get current URL as return URL
+      const returnUrl = window.location.href;
 
+      // Prepare payment data
       const paymentData = {
         paymentMethod: selectedPaymentMethod.toUpperCase(),
         paymentProvider: selectedPaymentMethod,
         returnUrl,
       };
 
+      // Call the payment API
       const response = await initiatePaymentMutation.mutateAsync({
         invoiceId: id as string,
         data: paymentData,
       });
 
+      // Handle successful response
       const apiResponse = response as any;
 
-      if (apiResponse?.data?.redirectUrl) {
+      if (apiResponse && apiResponse.data && apiResponse.data.redirectUrl) {
         notification.success({
           message: 'Payment Initiated',
           description: 'You will be redirected to the payment page.',
         });
 
+        // Redirect to payment provider page
         window.location.href = apiResponse.data.redirectUrl;
-      } else if (apiResponse?.redirectUrl) {
+      } else if (apiResponse && apiResponse.redirectUrl) {
+        // Handle case where redirectUrl is at the root level
         notification.success({
           message: 'Payment Initiated',
           description: 'You will be redirected to the payment page.',
         });
 
+        // Redirect to payment provider page
         window.location.href = apiResponse.redirectUrl;
       } else {
         throw new Error('No redirect URL received from payment provider');
@@ -127,7 +133,6 @@ const InvoiceItem = () => {
             ? error.message
             : 'There was an error initiating payment. Please try again later.',
       });
-    } finally {
       setIsProcessingPayment(false);
     }
   };
@@ -327,7 +332,43 @@ const InvoiceItem = () => {
 
               {invoiceData?.status?.toLowerCase() === 'pending' && (
                 <div className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
-                  <span className="text-2xl font-bold">Pay</span>
+                  <span className="text-2xl font-bold">Pay with</span>
+                  <div className="flex justify-around gap-2 mt-4">
+                    <div className="flex flex-col gap-2">
+                      <div
+                        className={`flex items-center justify-center px-3 py-2 border rounded-lg md:max-h-none max-h-[40px] cursor-pointer transition-all duration-300 ${
+                          selectedPaymentMethod === 'chapa'
+                            ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]'
+                            : 'border-gray-200 hover:shadow-[0_2px_4px_0_#4e4ef1]'
+                        }`}
+                        onClick={() => handlePaymentMethodSelect('chapa')}
+                      >
+                        <Image
+                          src="/icons/chapa-pay.svg"
+                          alt="Chapa Payment"
+                          width={108}
+                          height={40}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <div
+                        className={`flex items-center justify-center px-3 py-2 border rounded-lg md:max-h-none max-h-[40px] cursor-pointer transition-all duration-300 ${
+                          selectedPaymentMethod === 'stripe'
+                            ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]'
+                            : 'border-gray-200 hover:shadow-[0_2px_4px_0_#4e4ef1]'
+                        }`}
+                        onClick={() => handlePaymentMethodSelect('stripe')}
+                      >
+                        <Image
+                          src="/icons/stripe-pay.svg"
+                          alt="Stripe Payment"
+                          width={108}
+                          height={40}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -346,7 +387,11 @@ const InvoiceItem = () => {
                         onClick={handlePayment}
                         className="text-center flex justify-center items-center"
                         type="primary"
-                        disabled={isInvoiceLoading || isProcessingPayment}
+                        disabled={
+                          isInvoiceLoading ||
+                          !selectedPaymentMethod ||
+                          isProcessingPayment
+                        }
                         icon={isProcessingPayment ? <LoadingOutlined /> : null}
                       >
                         {isProcessingPayment ? 'Processing...' : 'Pay Now'}
