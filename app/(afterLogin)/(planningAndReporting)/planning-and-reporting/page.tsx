@@ -105,8 +105,11 @@ function Page() {
     const selectedTab = TabsContentData?.find(
       (item) => item.key === String(activePlanPeriod),
     );
+    // console.log("(((((((((((((((((((((",TabsContentData,selectedTab)
     setActivePlanPeriodId(selectedTab?.id || '');
   }, [activePlanPeriod, planningPeriods, defaultPlanningPeriods, isLoading]);
+
+  // console.log('activePlanPeriodIdData', activePlanPeriodId,activePlanPeriod);
 
   const TabsContentData = TabsContent();
   const selectedTab = TabsContentData?.find(
