@@ -42,7 +42,7 @@ export const useHandleSignIn = () => {
       } else {
         if (tenant?.id !== fetchedData?.data?.tenantId) {
           message.error(
-            'The current tenant does not match the domain. Please check your domain and try again.',
+            'This user does not belong to this tenant. Please contact your administrator.',
           );
           setToken('');
           setLocalId('');
