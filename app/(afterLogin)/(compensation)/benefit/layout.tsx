@@ -22,8 +22,10 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           item: {
             key: allowance.id,
             label: (
-              <p className="menu-item-label">
-                {allowance.name || 'Unnamed Allowance'}
+              <p className="menu-item-label" title={allowance.name}>
+                {allowance.name?.length > 15
+                  ? allowance.name?.slice(0, 15) + '...'
+                  : allowance.name || 'Unnamed Allowance'}
               </p>
             ),
             className: 'px-1',
@@ -47,13 +49,17 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="h-auto w-auto pr-6 pb-6 pl-3">
-      <PageHeader title="Benefit" description="Benefit" />
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="h-auto w-auto">
+        <PageHeader title="Benefit" description="Benefit" />
 
-      <div className="flex gap-6 mt-8">
-        <SidebarMenu menuItems={sidebarMenuItems} />
+        <div className="flex flex-col lg:flex-row gap-6 mt-8">
+          <SidebarMenu menuItems={sidebarMenuItems} />
 
-        <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+          <BlockWrapper className="flex-1 h-max overflow-x-auto">
+            {children}
+          </BlockWrapper>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-export interface GlobalStateStoreProps {
+export interface GlobalStateProps {
   isMobile: boolean;
   collapsed: boolean;
   isAdminPage: boolean;

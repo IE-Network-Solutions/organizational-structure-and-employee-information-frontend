@@ -17,6 +17,9 @@ export interface AllowanceEntitlementTypes {
   setCurrentPage: (value: number) => void;
   setPageSize: (value: number) => void;
   setIsRate: (value: boolean) => void;
+
+  searchQuery: string;
+  setSearchQuery: (searchQuery: string) => void;
 }
 
 const initialState = {
@@ -43,12 +46,17 @@ export const useAllowanceEntitlementStore = create<AllowanceEntitlementTypes>(
     setIsRate: (value) => set({ isRate: value }),
 
     resetStore: () => set(initialState),
+
+    searchQuery: '',
+    setSearchQuery: (searchQuery: string) => set({ searchQuery }),
   }),
 );
 
 interface AllAllowanceTypes {
   currentPage: number;
   pageSize: number;
+  isMobileFilterVisible: boolean;
+  setIsMobileFilterVisible: (isMobileFilterVisible: boolean) => void;
 
   setCurrentPage: (value: number) => void;
   setPageSize: (value: number) => void;
@@ -68,4 +76,7 @@ export const useAllAllowanceStore = create<AllAllowanceTypes>((set) => ({
   setPageSize: (value) => set({ pageSize: value }),
 
   resetStore: () => set(allAllowanceTypesInitialState),
+  isMobileFilterVisible: false,
+  setIsMobileFilterVisible: (isMobileFilterVisible: boolean) =>
+    set({ isMobileFilterVisible }),
 }));

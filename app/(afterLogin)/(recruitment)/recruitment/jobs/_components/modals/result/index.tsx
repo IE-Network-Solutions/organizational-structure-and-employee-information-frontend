@@ -17,7 +17,12 @@ const AddFormResult: React.FC = () => {
   };
   return (
     addJobModalResult && (
-      <Modal open={addJobModalResult} onCancel={handleClose} footer={null}>
+      <Modal
+        centered
+        open={addJobModalResult}
+        onCancel={handleClose}
+        footer={null}
+      >
         <Result
           icon={
             <div className="flex items-center justify-center">
