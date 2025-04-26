@@ -8,7 +8,7 @@ import {
   MdOutlineKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
-import { Layout, Button, theme, Tree, Skeleton, Tooltip, Dropdown } from 'antd';
+import { Layout, Button, theme, Tree, Skeleton, Dropdown } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import NavBar from './topNavBar';
@@ -67,10 +67,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <CiSettings
             size={18}
-            className={expandedKeys.includes('/organization') ? 'text-blue' : ''}
+            className={
+              expandedKeys.includes('/organization') ? 'text-blue' : ''
+            }
           />
           <span>Organization</span>
-
         </span>
       ),
       key: '/organization',
@@ -133,7 +134,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             className={expandedKeys.includes('/recruitment') ? 'text-blue' : ''}
           />
           <span>Talent Acquisition</span>
-
         </span>
       ),
       key: '/recruitment',
@@ -217,7 +217,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <TbMessage2
             size={18}
-            className={expandedKeys.includes('feedback-menu') ? 'text-blue' : ''}
+            className={
+              expandedKeys.includes('feedback-menu') ? 'text-blue' : ''
+            }
           />
           <span>CFR</span>
         </span>
@@ -260,7 +262,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             className={expandedKeys.includes('tna-menu') ? 'text-blue' : ''}
           />
           <span>Learning & Growth</span>
-
         </span>
       ),
       key: 'tna-menu',
@@ -337,10 +338,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <CiCalendar
             size={18}
-            className={expandedKeys.includes('timesheet-menu') ? 'text-blue' : ''}
+            className={
+              expandedKeys.includes('timesheet-menu') ? 'text-blue' : ''
+            }
           />
           <span>Time & Attendance</span>
-
         </span>
       ),
       key: 'timesheet-menu',
@@ -378,10 +380,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <PiMoneyLight
             size={18}
-            className={expandedKeys.includes('compensation-menu') ? 'text-blue' : ''}
+            className={
+              expandedKeys.includes('compensation-menu') ? 'text-blue' : ''
+            }
           />
           <span>Compensation & Benefit</span>
-
         </span>
       ),
       key: 'compensation-menu',
@@ -419,10 +422,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <LuCircleDollarSign
             size={18}
-            className={expandedKeys.includes('incentive-menu') ? 'text-blue' : ''}
+            className={
+              expandedKeys.includes('incentive-menu') ? 'text-blue' : ''
+            }
           />
           <span>Incentives</span>
-
         </span>
       ),
       key: 'incentive-menu',
@@ -568,9 +572,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return data.map((item) => {
       const renderSubMenu = (children: CustomMenuItem[]) => {
         return (
-          <div
-            className="bg-white rounded-lg shadow-lg p-2 min-w-[200px] ml-12"
-          >
+          <div className="bg-white rounded-lg shadow-lg p-2 min-w-[200px] ml-12">
             {children.map((child) => (
               <div
                 key={child.key}
@@ -595,7 +597,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
       const renderTitle = () => {
         if (React.isValidElement(item.title)) {
-          const icon = (item.title.props as { children?: React.ReactNode[] })?.children?.[0];
+          const icon = (item.title.props as { children?: React.ReactNode[] })
+            ?.children?.[0];
           return (
             <div className="flex items-center justify-center w-full">
               {icon}
@@ -614,14 +617,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               trigger={['click']}
               placement="bottomRight"
             >
-              <div 
+              <div
                 className="flex items-center justify-center w-full cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   setExpandedKeys((prev) =>
                     prev.includes(item.key)
                       ? prev.filter((key) => key !== item.key)
-                      : [...prev, item.key]
+                      : [...prev, item.key],
                   );
                 }}
               >
