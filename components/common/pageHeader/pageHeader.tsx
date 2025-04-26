@@ -22,7 +22,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   const isSmallScreen = useMediaQuery({ maxWidth: 768 }); // Detect small screens
 
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between flex-wrap items-center">
       <div className="flex-1">
         {isSmallScreen ? (
           <Tooltip title={toolTip} placement="top">
