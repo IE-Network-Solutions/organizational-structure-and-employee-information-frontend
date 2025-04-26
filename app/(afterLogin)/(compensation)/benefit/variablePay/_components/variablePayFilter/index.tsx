@@ -212,7 +212,6 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
               disabled={refreshLoading || isFetching}
             >
               <span className="truncate">
-                
                 {refreshLoading || isFetching ? <Spin /> : 'Refresh VP'}
               </span>
             </Button>
