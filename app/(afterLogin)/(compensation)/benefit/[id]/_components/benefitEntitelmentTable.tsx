@@ -9,23 +9,17 @@ import { useParams } from 'next/navigation';
 import { useDeleteBenefitEntitlement } from '@/store/server/features/compensation/benefit/mutations';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 
 const BenefitEntitlementTable = () => {
-  const {
-    currentPage,
-    pageSize,
-    setCurrentPage,
-    setPageSize,
-  } = useBenefitEntitlementStore();
+  const { currentPage, pageSize, setCurrentPage, setPageSize } =
+    useBenefitEntitlementStore();
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
   const { id } = useParams();
   const { data: benefitEntitlementsData, isLoading } =
     useFetchBenefitEntitlement(id);
 
   const { searchQuery } = useAllowanceEntitlementStore();
-
 
   const transformedData = Array.isArray(benefitEntitlementsData)
     ? benefitEntitlementsData.map((item: any) => ({

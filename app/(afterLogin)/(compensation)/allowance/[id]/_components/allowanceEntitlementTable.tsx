@@ -9,7 +9,6 @@ import { useFetchAllowanceEntitlements } from '@/store/server/features/compensat
 import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 
 const AllowanceEntitlementTable = () => {

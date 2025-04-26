@@ -129,7 +129,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
             title="Refresh VP"
             type="text"
             size="small"
-            className="w-10 h-10"
+            className=" h-10"
             icon={<AiOutlineReload size={24} className="text-gray-600" />}
             onClick={() => refetch()}
             disabled={refreshLoading || isFetching}
@@ -140,7 +140,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
             title="Send to Payroll"
             type="text"
             size="small"
-            className="w-10 h-10"
+            className="w-full h-10"
             icon={<MdOutlineUploadFile size={24} />}
             onClick={handleOpenModal}
           />
@@ -168,7 +168,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           </Col>
 
           {/* Session Select */}
-          <Col md={4}>
+          <Col md={5}>
             <Select
               placeholder="Select Session"
               onChange={handleSessionChange}
@@ -211,18 +211,22 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
               onClick={() => refetch()}
               disabled={refreshLoading || isFetching}
             >
-              {refreshLoading || isFetching ? <Spin /> : 'Refresh VP'}
+              <span className="truncate">
+                {' '}
+                {refreshLoading || isFetching ? <Spin /> : 'Refresh VP'}{' '}
+              </span>
             </Button>
           </Col>
 
           {/* Send to Payroll Button */}
           <Col md={4}>
             <Button
-              className="w-full h-14"
+              title="Send to Payroll"
+              className="w-full h-14 flex items-center justify-center gap-2"
               type="primary"
               onClick={handleOpenModal}
             >
-              Send to Payroll
+              <span className="truncate">Send to Payroll</span>
             </Button>
           </Col>
         </Col>

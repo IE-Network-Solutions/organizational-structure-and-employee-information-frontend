@@ -54,6 +54,7 @@ const SingleAllowancePage = () => {
                   : allowanceData.name
                 : ''
             }
+            size="small"
             toolTip={allowanceData?.name}
           />
         </div>
@@ -69,6 +70,7 @@ const SingleAllowancePage = () => {
                     : allowanceData.name
                   : ''
               }
+              size="small"
               toolTip={allowanceData?.name}
             />
           </div>
