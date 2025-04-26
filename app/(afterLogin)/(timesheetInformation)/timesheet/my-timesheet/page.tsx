@@ -8,7 +8,7 @@ import LeaveBalance from './_components/leaveBalance';
 import ViewAttendanceSidebar from './_components/viewAttendanceSidebar';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import CheckOutSidebar from './_components/checkOutSidebar';
-import CheckControl from './_components/checkControls/inedx';
+import CheckControl from './_components/checkControls/index';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import { useGetAllowedAreas } from '@/store/server/features/timesheet/allowedArea/queries';
 import LeaveRequestSidebar from './_components/leaveRequestSidebar';
