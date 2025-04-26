@@ -41,6 +41,7 @@ import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { PiExportLight } from 'react-icons/pi';
 import { LuImport } from 'react-icons/lu';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
+import { EmployeeData } from '@/types/dashboard/adminManagement';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -657,7 +658,7 @@ const Payroll = () => {
     });
   };
   const options =
-    employeeData?.items?.map((emp: any) => ({
+    employeeData?.items?.map((emp: Record<string, string>) => ({
       value: emp.id,
       label: `${emp?.firstName || ''} ${emp?.middleName} ${emp?.lastName}`, // Full name as label
       employeeData: emp,
