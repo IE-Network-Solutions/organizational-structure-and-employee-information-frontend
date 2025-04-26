@@ -486,7 +486,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     const selectedKey = info?.node?.key;
     if (!selectedKey) return;
 
-    console.log(info.node,"******************************");
     if (info.node.children) {
       setExpandedKeys((prev) =>
         prev.includes(selectedKey)
