@@ -8,7 +8,7 @@ import LeaveBalance from './_components/leaveBalance';
 import ViewAttendanceSidebar from './_components/viewAttendanceSidebar';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import CheckOutSidebar from './_components/checkOutSidebar';
-import CheckControl from './_components/checkControls/inedx';
+import CheckControl from './_components/checkControls/index';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import { useGetAllowedAreas } from '@/store/server/features/timesheet/allowedArea/queries';
 import LeaveRequestSidebar from './_components/leaveRequestSidebar';
@@ -37,28 +37,23 @@ const MyTimesheet = () => {
 
   return (
     <>
-      <div className="h-auto w-auto px-5 pb-5 bg-gray-100">
-        <PageHeader 
-          title={<span className="text-[14px] sm:text-lg lg:text-xl text-gray-600">My Attendance</span>}
-          description="Manage your Attendance"
-        >
+      <div className="h-auto w-auto pr-6 pb-6 pl-3">
+        <PageHeader title="My Attendance" description="Manage your Attendance">
           <CheckControl />
         </PageHeader>
-        <BlockWrapper className="p-0 mt-0 bg-transparent">
+        <BlockWrapper className="mt-[30px]">
           <ApprovalTable />
         </BlockWrapper>
 
-        <div className="mt-4 bg-white rounded-lg p-2 mx-2">
+        <div className="mt-6">
           <LeaveBalance />
         </div>
 
-        <BlockWrapper className="mt-4 bg-white rounded-lg mx-2">
-          <div className="p-2">
-            <HistoryTable />
-          </div>
+        <BlockWrapper className="mt-[30px]">
+          <HistoryTable />
         </BlockWrapper>
 
-        <BlockWrapper className="p-6 mt-4 bg-white rounded-lg mx-2">
+        <BlockWrapper className="mt-6">
           <AttendanceTable />
         </BlockWrapper>
       </div>

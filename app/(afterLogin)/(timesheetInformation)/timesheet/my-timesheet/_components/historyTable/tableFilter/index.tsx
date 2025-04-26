@@ -7,9 +7,16 @@ import { formatToOptions } from '@/helpers/formatTo';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { DATE_FORMAT } from '@/utils/constants';
 import { useState } from 'react';
+import dayjs from 'dayjs';
+
+interface FilterFormValues {
+  dateRange?: [dayjs.Dayjs, dayjs.Dayjs];
+  type?: string;
+  status?: string;
+}
 
 interface HistoryTableFilterProps {
-  onChange: (val: any) => void;
+  onChange: (val: FilterFormValues) => void;
 }
 
 const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
@@ -18,7 +25,7 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const FilterContent = () => (
-    <Form
+    <Form<FilterFormValues>
       form={form}
       onFieldsChange={() => {
         onChange(form.getFieldsValue());

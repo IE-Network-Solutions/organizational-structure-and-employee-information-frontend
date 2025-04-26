@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import HistoryTableFilter from './tableFilter/inedx';
+import HistoryTableFilter from './tableFilter';
 import { TableColumnsType } from '@/types/table/table';
 import { Button, Table } from 'antd';
 import { TbFileDownload } from 'react-icons/tb';
