@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import useDrawerStore from '@/store/uistate/features/drawer';
 import { Button, Drawer } from 'antd';
 import React, { useEffect } from 'react';
@@ -33,6 +34,8 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
     placement,
     setPlacement,
   } = useDrawerStore();
+
+  const { isMobile } = useIsMobile();
 
   useEffect(() => {
     setIsClient(true);
@@ -100,9 +103,9 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         styles={{
           header: { borderBottom: 'none' },
           footer: { borderTop: 'none' },
-          body: { padding: '0 36px' },
+          body: { padding: isMobile ? '0 12px' : '0 36px' },
         }}
-        height={400}
+        height={isMobile ? 600 : 400}
         placement={placement}
       >
         {children}

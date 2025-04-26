@@ -259,3 +259,12 @@ h6 {
 .ant-tree-treenode .ant-tree-title {
   width: 100% !important;
 }
+
+@layer components {
+  @media (max-width: 640px) {
+    /* Ant Design menu active item */
+    .ant-menu-item-selected {
+      @apply text-primary;
+    }
+  }
+}
