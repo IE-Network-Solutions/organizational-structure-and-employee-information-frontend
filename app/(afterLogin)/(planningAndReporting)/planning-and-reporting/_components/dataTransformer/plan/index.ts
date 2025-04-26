@@ -107,17 +107,17 @@ export const groupPlanTasksByKeyResultAndMilestone = (plans: any) => {
 
         const groupedTaskData = groupByParentTask(tasksWithParent);
 
-        const milestones = groupByMilestone(
-          keyResult?.tasks?.filter((task: any) => task?.milestone?.id),
-        ) ?? [];
+        const milestones =
+          groupByMilestone(
+            keyResult?.tasks?.filter((task: any) => task?.milestone?.id),
+          ) ?? [];
 
         const enhancedMilestones = milestones?.map((milestone: any) => {
-          const haveParentTasks = milestone?.tasks?.filter(
-            (task: any) => task?.parentTask?.id,
-          ) ?? [];
-          const haveNoParentTasks = milestone?.tasks?.filter(
-            (task: any) => !task?.parentTask?.id,
-                ) ?? [] ;
+          const haveParentTasks =
+            milestone?.tasks?.filter((task: any) => task?.parentTask?.id) ?? [];
+          const haveNoParentTasks =
+            milestone?.tasks?.filter((task: any) => !task?.parentTask?.id) ??
+            [];
           const groupedTasksByParentTask = groupByParentTask(haveParentTasks);
 
           return {
@@ -205,25 +205,32 @@ export function groupParentTasks(tasks: Task[]): ObjectiveGroup[] {
 
     const keyResult = objective?.keyResults?.find(
       (kr) => kr?.id === keyResultId,
-    )!;
+    );
+
+    // Skip if keyResult is undefined
+    if (!keyResult) return;
 
     // If the task has a milestone, group it under the milestone
     if (milestoneId) {
-      if (!keyResult?.milestones?.some((ms) => ms?.id === milestoneId)) {
-        keyResult?.milestones?.push({
+      if (!keyResult.milestones?.some((ms) => ms?.id === milestoneId)) {
+        keyResult.milestones?.push({
           id: milestoneId,
           ...task?.milestone,
           tasks: [],
         } as MilestoneGroup);
       }
 
-      const milestone = keyResult?.milestones?.find(
+      const milestone = keyResult.milestones?.find(
         (ms) => ms?.id === milestoneId,
-      )!;
-      milestone?.tasks?.push({ ...task });
+      );
+
+      // Skip if milestone is undefined
+      if (milestone) {
+        milestone.tasks?.push({ ...task });
+      }
     } else {
       // If no milestone, group it directly under the key result
-      keyResult?.tasks?.push({ ...task });
+      keyResult.tasks?.push({ ...task });
     }
   });
 
