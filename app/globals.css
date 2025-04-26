@@ -252,6 +252,10 @@ h6 {
   transition: background-color 0.2s ease-in-out;
 }
 
+.my-custom-datepicker {
+  max-width: 90vw;
+  font-size: 14px;
+}
 .ant-tree-treenode .ant-tree-title {
   width: 100% !important;
 }
