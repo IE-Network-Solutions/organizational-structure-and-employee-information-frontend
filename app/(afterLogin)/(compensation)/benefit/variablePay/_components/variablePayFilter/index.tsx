@@ -129,7 +129,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
             title="Refresh VP"
             type="text"
             size="small"
-            className=" h-10"
+            className="w-10 h-10"
             icon={<AiOutlineReload size={24} className="text-gray-600" />}
             onClick={() => refetch()}
             disabled={refreshLoading || isFetching}
@@ -140,7 +140,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
             title="Send to Payroll"
             type="text"
             size="small"
-            className="w-full h-10"
+            className="w-10 h-10"
             icon={<MdOutlineUploadFile size={24} />}
             onClick={handleOpenModal}
           />
@@ -212,8 +212,8 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
               disabled={refreshLoading || isFetching}
             >
               <span className="truncate">
-                {' '}
-                {refreshLoading || isFetching ? <Spin /> : 'Refresh VP'}{' '}
+                
+                {refreshLoading || isFetching ? <Spin /> : 'Refresh VP'}
               </span>
             </Button>
           </Col>
