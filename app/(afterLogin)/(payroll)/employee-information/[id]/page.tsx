@@ -11,7 +11,6 @@ import {
   Collapse,
   Tag,
   List,
-  Empty,
 } from 'antd';
 import { PhoneOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useEffect, useRef } from 'react';
@@ -34,6 +33,7 @@ import { MdKeyboardArrowRight } from 'react-icons/md';
 import SettlementDetail from './_components/settlementDetail';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { FaArrowLeft } from 'react-icons/fa';
+import { EmptyImage } from '@/components/emptyIndicator';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -156,7 +156,7 @@ const EmployeeProfile = () => {
       >
         <Row gutter={[32, 32]}>
           <Col lg={8} md={10} xs={24}>
-            <Card loading={isLoading} className={isMobile ? 'mb-3' : 'mb-3'}>
+            <Card loading={isLoading} className="mb-3">
               <div className="flex flex-col gap-3 items-center">
                 <div className="relative group">
                   <Avatar
@@ -644,11 +644,11 @@ const EmployeeProfile = () => {
                         );
                       })
                   ) : (
-                    <Empty />
-                  )}
+                    <EmptyImage/>      
+                )}
                 </>
               </TabPane>
-              <TabPane tab="Settlement Track  ing" key="3">
+              <TabPane tab="Settlement Tracking" key="3">
                 <SettlementDetail />
               </TabPane>
             </Tabs>
