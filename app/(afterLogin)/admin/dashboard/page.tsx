@@ -223,10 +223,6 @@ const AdminDashboard = () => {
 
   const dashboardValues = getDashboardValues();
 
-  const allPlans = plans
-    .filter((plan: any) => plan.isPublic)
-    .sort((a: any, b: any) => a.slotPrice - b.slotPrice);
-
   const isLoading =
     isInvoicesLoading ||
     plansLoading ||
