@@ -19,8 +19,6 @@ import { DATE_FORMAT } from '@/utils/constants';
 import dayjs from 'dayjs';
 import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
-import { AiOutlineReload } from 'react-icons/ai';
-import { LuPlus } from 'react-icons/lu';
 import usePagination from '@/utils/usePagination';
 import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
@@ -57,7 +55,7 @@ const HistoryTable = () => {
   } = usePagination(1, 10);
   const [filter, setFilter] =
     useState<Partial<LeaveRequestBody['filter']>>(userFilter);
-  const { data, isFetching, refetch } = useGetLeaveRequest(
+  const { data, isFetching } = useGetLeaveRequest(
     { page, limit, orderBy, orderDirection },
     { filter },
   );
@@ -127,9 +125,7 @@ const HistoryTable = () => {
       key: 'days',
       sorter: true,
       render: (text: string) => (
-        <div className="text-sm text-gray-900 py-4">
-          {text} Days
-        </div>
+        <div className="text-sm text-gray-900 py-4">{text} Days</div>
       ),
     },
     {
@@ -139,9 +135,7 @@ const HistoryTable = () => {
       sorter: true,
       responsive: ['sm'],
       render: (text: string) => (
-        <div className="text-sm text-gray-900 py-4">
-          {text}
-        </div>
+        <div className="text-sm text-gray-900 py-4">{text}</div>
       ),
     },
     {
@@ -236,7 +230,7 @@ const HistoryTable = () => {
     <>
       <div className="flex items-center justify-between mb-6">
         <div className="text-2xl font-bold text-gray-900">My Leave</div>
-        
+
         <div className="flex items-center">
           {/* Mobile View Icons */}
           <div className="sm:hidden flex items-center">

@@ -10,7 +10,10 @@ interface AttendanceTableFilterProps {
   onClose?: () => void;
 }
 
-const AttendanceTableFilter = ({ onChange, onClose }: AttendanceTableFilterProps) => {
+const AttendanceTableFilter = ({
+  onChange,
+  onClose,
+}: AttendanceTableFilterProps) => {
   const [dateRange, setDateRange] = useState<DateRangeValue>(null);
 
   const handleChange: RangePickerProps['onChange'] = (dates) => {
@@ -35,4 +38,4 @@ const AttendanceTableFilter = ({ onChange, onClose }: AttendanceTableFilterProps
   );
 };
 
-export default AttendanceTableFilter; 
+export default AttendanceTableFilter;

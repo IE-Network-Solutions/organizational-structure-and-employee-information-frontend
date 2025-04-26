@@ -254,7 +254,8 @@ const MilestoneView: React.FC<OKRProps> = ({
 
   const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
   const totalMilestoneWeight = keyValue?.milestones?.reduce(
-    (sum: number, milestone: Milestone) => Number(sum) + Number(milestone.weight),
+    (sum: number, milestone: Milestone) =>
+      Number(sum) + Number(milestone.weight),
     0,
   );
   const { isMobile } = useIsMobile();

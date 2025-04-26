@@ -32,7 +32,9 @@ const LeaveBalance = () => {
               className="absolute left-0 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
               type="text"
               id="leaveBalanceCardLeftId"
-              icon={<LeftOutlined className="text-gray-600 text-xl hover:text-primary transition-colors" />}
+              icon={
+                <LeftOutlined className="text-gray-600 text-xl hover:text-primary transition-colors" />
+              }
               onClick={() => swiper?.slidePrev()}
             />
           )}
@@ -55,7 +57,7 @@ const LeaveBalance = () => {
                 },
                 1024: {
                   slidesPerView: 4,
-                }
+                },
               }}
               onInit={(swiper) => {
                 setSwiper(swiper);
@@ -77,7 +79,9 @@ const LeaveBalance = () => {
             <Button
               className="absolute right-0 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
               type="text"
-              icon={<RightOutlined className="text-gray-600 text-xl hover:text-primary transition-colors" />}
+              icon={
+                <RightOutlined className="text-gray-600 text-xl hover:text-primary transition-colors" />
+              }
               onClick={() => swiper?.slideNext()}
             />
           )}

@@ -14,7 +14,9 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
   return (
     <div className="w-full h-[120px] rounded-xl bg-white py-4 px-4 sm:px-6 shadow-sm hover:shadow-md transition-shadow duration-200">
       <div className="flex items-center justify-between">
-        <div className="text-sm sm:text-base font-bold text-gray-900 line-clamp-1">{title}</div>
+        <div className="text-sm sm:text-base font-bold text-gray-900 line-clamp-1">
+          {title}
+        </div>
         <Button
           className="w-5 h-5 flex-shrink-0"
           id={`leaveBalanceCardInfo${title}Id`}
@@ -24,7 +26,9 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
       </div>
       <div className="mt-4 text-2xl sm:text-3xl font-bold text-primary">
         {duration}
-        <span className="text-sm sm:text-base font-medium text-gray-500 ml-1">days</span>
+        <span className="text-sm sm:text-base font-medium text-gray-500 ml-1">
+          days
+        </span>
       </div>
     </div>
   );

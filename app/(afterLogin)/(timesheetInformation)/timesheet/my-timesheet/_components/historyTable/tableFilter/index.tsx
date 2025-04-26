@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { DatePicker, Form, Select, Row, Col, Button, Drawer } from 'antd';
 import { MdKeyboardArrowDown } from 'react-icons/md';
-import { IoMdSwitch } from "react-icons/io";
+import { IoMdSwitch } from 'react-icons/io';
 import { LeaveRequestStatusOption } from '@/types/timesheet/settings';
 import { formatToOptions } from '@/helpers/formatTo';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
@@ -34,7 +34,12 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
     >
       <Row gutter={[16, 16]} className="w-full">
         <Col xs={24} md={8}>
-          <Form.Item id="historyDateRangeId" name="dateRange" label="Date Range" className="mb-0">
+          <Form.Item
+            id="historyDateRangeId"
+            name="dateRange"
+            label="Date Range"
+            className="mb-0"
+          >
             <DatePicker.RangePicker
               className="w-full h-[54px]"
               separator={'-'}
@@ -43,7 +48,12 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
           </Form.Item>
         </Col>
         <Col xs={24} md={8}>
-          <Form.Item id="historyType" name="type" label="Leave Type" className="mb-0">
+          <Form.Item
+            id="historyType"
+            name="type"
+            label="Leave Type"
+            className="mb-0"
+          >
             <Select
               placeholder="Select Type"
               className="w-full h-[54px]"
@@ -56,7 +66,12 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
           </Form.Item>
         </Col>
         <Col xs={24} md={8}>
-          <Form.Item id="historyStatus" name="status" label="Status" className="mb-0">
+          <Form.Item
+            id="historyStatus"
+            name="status"
+            label="Status"
+            className="mb-0"
+          >
             <Select
               placeholder="Select Status"
               className="w-full h-[54px]"
@@ -97,7 +112,10 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
         open={isFilterOpen}
         height="auto"
         className="md:hidden"
-        contentWrapperStyle={{ borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}
+        contentWrapperStyle={{
+          borderTopLeftRadius: '16px',
+          borderTopRightRadius: '16px',
+        }}
       >
         <div className="px-4 pb-6">
           <FilterContent />

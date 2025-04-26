@@ -95,28 +95,30 @@ const EmployeeAttendance = () => {
       setBodyRequest(exportRequest);
 
       // Wait for the state to update and get the response
-      const response = await new Promise<{ file: string }>((resolve, reject) => {
-        let attempts = 0;
-        const maxAttempts = 10; // Maximum number of attempts
-        const checkData = () => {
-          if (data?.file) {
-            resolve({ file: data.file });
-          } else if (attempts >= maxAttempts) {
-            reject(new Error('Export timed out'));
-          } else {
-            attempts++;
-            setTimeout(checkData, 500); // Check every 500ms
-          }
-        };
-        checkData();
-      });
+      const response = await new Promise<{ file: string }>(
+        (resolve, reject) => {
+          let attempts = 0;
+          const maxAttempts = 10; // Maximum number of attempts
+          const checkData = () => {
+            if (data?.file) {
+              resolve({ file: data.file });
+            } else if (attempts >= maxAttempts) {
+              reject(new Error('Export timed out'));
+            } else {
+              attempts++;
+              setTimeout(checkData, 500); // Check every 500ms
+            }
+          };
+          checkData();
+        },
+      );
 
       if (response?.file) {
         // Ensure the file path is properly formatted
-        const filePath = response.file.startsWith('/') 
-          ? response.file 
+        const filePath = response.file.startsWith('/')
+          ? response.file
           : `/${response.file}`;
-        
+
         const url = new URL(TIME_AND_ATTENDANCE_URL!);
         const fileUrl = `${url.origin}${filePath}`;
 
@@ -129,7 +131,6 @@ const EmployeeAttendance = () => {
         document.body.removeChild(link);
       }
     } catch (error) {
-      console.error('Export failed:', error);
       // You might want to show an error message to the user here
     } finally {
       setIsExportLoading(false);
