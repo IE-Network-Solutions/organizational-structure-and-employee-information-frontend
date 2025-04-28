@@ -167,6 +167,8 @@ interface UserState {
   searchValue: string | null;
   setSearchValue: (searchValue: string | null) => void;
 
+  isModalOpen: boolean;
+  setIsModalOpen: (isModalOpen: boolean) => void;
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
   reHireModal: boolean;
@@ -189,6 +191,8 @@ interface UserState {
 
 export const useEmployeeManagementStore = create<UserState>()(
   devtools((set) => ({
+    isModalOpen: false,
+    setIsModalOpen: (isModalOpen: boolean) => set({ isModalOpen }),
     isAddEmployeeJobInfoModalVisible: false,
     setIsAddEmployeeJobInfoModalVisible: (
       isAddEmployeeJobInfoModalVisible: boolean,
