@@ -1,22 +1,23 @@
+'use client';
 import { GlobalStateStore } from '@/store/uistate/features/global';
 import { useEffect } from 'react';
 
 export const useIsMobile = (): Record<string, boolean> => {
-  const { setIsMobile, isMobile, setIsTablet, isTablet } = GlobalStateStore();
+  const { isMobile, setIsMobile, isTablet, setIsTablet } = GlobalStateStore();
+
   useEffect(() => {
     const checkIsMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      setIsMobile(window.innerWidth <= 768); // Matches Tailwind's md breakpoint
+    };
+    const checkIsTablet = () => {
+      setIsTablet(window.innerWidth > 768 && window.innerWidth <= 1024);
     };
 
     checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-
-    const checkIsTablet = () => {
-      setIsTablet(window.innerWidth <= 1024);
-    };
-
     checkIsTablet();
+    window.addEventListener('resize', checkIsMobile);
     window.addEventListener('resize', checkIsTablet);
+
     return () => {
       window.removeEventListener('resize', checkIsMobile);
       window.removeEventListener('resize', checkIsTablet);

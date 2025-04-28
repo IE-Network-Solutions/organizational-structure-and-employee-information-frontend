@@ -108,20 +108,22 @@ const VariablePayTable = () => {
   return (
     <>
       <VariablePayFilter tableData={tableData} />
-      <Spin spinning={isLoading || isFetching || refreshLoading}>
-        <Table
-          className="mt-6"
-          columns={columns}
-          dataSource={filteredDataSource}
-          pagination={{
-            current: currentPage,
-            pageSize,
-            total: tableData.length,
-          }}
-          onChange={handleTableChange}
-        />
-        <VariablePayModal data={filteredDataSource} />
-      </Spin>
+      <div className="overflow-x-auto">
+        <Spin spinning={isLoading || isFetching || refreshLoading}>
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={filteredDataSource}
+            pagination={{
+              current: currentPage,
+              pageSize,
+              total: tableData.length,
+            }}
+            onChange={handleTableChange}
+          />
+          <VariablePayModal data={filteredDataSource} />
+        </Spin>
+      </div>
     </>
   );
 };
