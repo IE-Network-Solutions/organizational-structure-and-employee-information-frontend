@@ -22,7 +22,6 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   isTitleHidden = false,
   size = 'default',
   ...rest
-
 }) => {
   const baseClassName = 'rounded-lg flex items-center justify-center';
   return (
@@ -43,6 +42,5 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     </Button>
   );
 };
-
 
 export default CustomButton;
