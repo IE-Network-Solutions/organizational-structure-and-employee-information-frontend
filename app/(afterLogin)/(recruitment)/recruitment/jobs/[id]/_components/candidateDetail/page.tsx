@@ -6,6 +6,7 @@ import { FaPhone } from 'react-icons/fa';
 import { MdOutlineMail } from 'react-icons/md';
 import CoverLetter from '../tabs/coverLetter';
 import JobResponse from '../tabs/response';
+import CustomButton from '@/components/common/buttons/customButton';
 
 const CandidateDetail: React.FC = ({}) => {
   const { candidateDetailDrawer, setCandidateDetailDrawer, selectedCandidate } =
@@ -92,23 +93,32 @@ const CandidateDetail: React.FC = ({}) => {
 
   return (
     candidateDetailDrawer && (
-      <div>
-        <CustomDrawerLayout
-          open={candidateDetailDrawer}
-          onClose={() => setCandidateDetailDrawer(false)}
-          modalHeader={candidateDrawerHeader}
-          width="40%"
-        >
-          <div className="flex items-center justify-start gap-2">
-            <Tabs
-              items={items}
-              // tabBarGutter={16}
-              size="small"
-              tabBarStyle={{ textAlign: 'center' }}
-            />
+      <CustomDrawerLayout
+        open={candidateDetailDrawer}
+        onClose={() => setCandidateDetailDrawer(false)}
+        modalHeader={candidateDrawerHeader}
+        width="40%"
+        footer={
+          <div className="flex justify-center items-center w-full">
+            <div className="flex justify-between items-center gap-4">
+              <CustomButton
+                title="Cancel "
+                onClick={() => setCandidateDetailDrawer(false)}
+                type="default"
+              />
+            </div>
           </div>
-        </CustomDrawerLayout>
-      </div>
+        }
+      >
+        <div className="flex items-center justify-start gap-2">
+          <Tabs
+            items={items}
+            // tabBarGutter={16}
+            size="small"
+            tabBarStyle={{ textAlign: 'center' }}
+          />
+        </div>
+      </CustomDrawerLayout>
     )
   );
 };
