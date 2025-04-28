@@ -108,7 +108,7 @@ function Planning() {
   );
 
   const transformedData = groupPlanTasksByKeyResultAndMilestone(
-    allPlanning?.items,
+    allPlanning?.items ?? [],
   );
 
   const handleApproveHandler = (id: string, value: boolean) => {
