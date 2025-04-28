@@ -8,6 +8,7 @@ import { useDeleteCourseLesson } from '@/store/server/features/tna/lesson/mutati
 import { RiTriangleFill } from 'react-icons/ri';
 import { classNames } from '@/utils/classNames';
 import Link from 'next/link';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 
 interface LessonCardProps {
   lesson: CourseLesson;
@@ -27,6 +28,12 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
     isLoading,
     isSuccess,
   } = useDeleteCourseLesson();
+  const { isMobile } = useIsMobile();
+  const [activeKey, setActiveKey] = useState<string | string[] | undefined>(
+    undefined,
+  );
+
+  const shouldShowButton = !(isMobile && activeKey === lesson.id);
 
   useEffect(() => {
     if (lesson) {
@@ -41,16 +48,18 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
           extra: (
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
-                <Button
-                  id="tnaAddCourseMaterialButtonId"
-                  icon={<LuPlus size={16} className="text-primary" />}
-                  type="text"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setLesson(lesson);
-                    setIsShowLessonMaterial(true);
-                  }}
-                />
+                {shouldShowButton && (
+                  <Button
+                    id="tnaAddCourseMaterialButtonId"
+                    icon={<LuPlus size={16} className="text-primary" />}
+                    type="text"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLesson(lesson);
+                      setIsShowLessonMaterial(true);
+                    }}
+                  />
+                )}
               </div>
               <ActionButton
                 id={lesson?.id || null}
@@ -67,38 +76,55 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
             </div>
           ),
           children: (
-            <div className="pl-9">
-              {lesson.courseLessonMaterials.length ? (
-                lesson.courseLessonMaterials.map((item) => (
-                  <div
-                    className="flex items-center justify-between mb-1 last:mb-0"
-                    key={item.id}
-                  >
-                    <Link
-                      id="tnaRedirectToTnaManagment"
-                      href={`/tna/management/${course?.id}/${lesson.id}/${item.id}`}
-                      className="text-sm text-gray-600 hover:text-primary  w-full md:w-auto"
+            <div className="pl-9 flex">
+              <div className="flex-1">
+                {lesson.courseLessonMaterials.length ? (
+                  lesson.courseLessonMaterials.map((item) => (
+                    <div
+                      className="flex items-center justify-between mb-1 last:mb-0"
+                      key={item.id}
                     >
-                      {item.title}
-                    </Link>
+                      <Link
+                        id="tnaRedirectToTnaManagment"
+                        href={`/tna/management/${course?.id}/${lesson.id}/${item.id}`}
+                        className="text-sm text-gray-600 hover:text-primary  w-full md:w-auto"
+                      >
+                        {item.title}
+                      </Link>
 
-                    <div className="flex items-center gap-2 w-24 mr-4  min-w-[100px]">
-                      <div className="w-1 h-1 rounded-full bg-gray-900"></div>
-                      <div className="text-xs text-gray-400">
-                        {item.timeToFinishMinutes} minutes
+                      <div className="flex items-center gap-2 w-24 mr-4  min-w-[100px]">
+                        <div className="w-1 h-1 rounded-full bg-gray-900"></div>
+                        <div className="text-xs text-gray-400">
+                          {item.timeToFinishMinutes} minutes
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-sm text-gray-600">No-data</div>
+                  ))
+                ) : (
+                  <div className="text-sm text-gray-600">No-data</div>
+                )}
+              </div>
+              {isMobile && (
+                <div className="flex justify-center items-end">
+                  <Button
+                    className="flex items-end"
+                    id="tnaAddCourseMaterialButtonId"
+                    icon={<LuPlus size={16} className="text-primary" />}
+                    type="text"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLesson(lesson);
+                      setIsShowLessonMaterial(true);
+                    }}
+                  />
+                </div>
               )}
             </div>
           ),
         },
       ]);
     }
-  }, [lesson]);
+  }, [lesson, isMobile, activeKey]);
 
   useEffect(() => {
     if (isSuccess && refetchCourse) {
@@ -110,6 +136,14 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
     <Spin spinning={isLoading}>
       <Collapse
         className="mb-6 lesson-card"
+        activeKey={activeKey}
+        onChange={(key) => {
+          if (Array.isArray(key)) {
+            setActiveKey(key[0]);
+          } else {
+            setActiveKey(key);
+          }
+        }}
         items={items}
         style={{ borderColor: 'rgb(229 231 235)' }}
         expandIcon={({ isActive }) => (
