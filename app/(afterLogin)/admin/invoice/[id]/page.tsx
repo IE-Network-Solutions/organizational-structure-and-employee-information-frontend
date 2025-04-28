@@ -11,7 +11,6 @@ import { TENANT_BASE_URL } from '@/utils/constants';
 import dayjs from 'dayjs';
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useInitiatePayment } from '@/store/server/features/tenant-management/payments/queries';
-import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useStore';
 
 const InvoiceItem = () => {
   const router = useRouter();
@@ -22,9 +21,6 @@ const InvoiceItem = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [invoiceData, setInvoiceData] = useState<Invoice | null>(null);
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
-    'chapa' | 'stripe' | null
-  >(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   // Get plans data

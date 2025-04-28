@@ -22,7 +22,6 @@ import {
   CalculateSubscriptionPriceDto,
   CalculateSubscriptionPriceResponse,
 } from '@/store/server/features/tenant-management/manage-subscriptions/interface';
-import { useGetAllCurrencies } from '@/store/server/features/tenant-management/currencies/queries';
 
 const PlanPage = () => {
   const router = useRouter();
@@ -36,9 +35,6 @@ const PlanPage = () => {
     useState<PeriodType | null>(null);
   const [availablePeriods, setAvailablePeriods] = useState<PeriodType[]>([]);
   const [quotaError, setQuotaError] = useState<string | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
-    'chapa' | 'stripe' | null
-  >(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
@@ -74,10 +70,6 @@ const PlanPage = () => {
   // Fetch period types
   const { data: periodTypesData, isLoading: isPeriodTypesLoading } =
     useGetPeriodTypes({ filter: {} }, true, true);
-
-  // Fetch currencies
-  const { data: currencies, isLoading: currenciesLoading } =
-    useGetAllCurrencies();
 
   // Mutations for creating/updating subscriptions
   const createSubscriptionMutation = useCreateSubscription();

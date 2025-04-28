@@ -15,6 +15,6 @@ export const usePaymentStore = create<PaymentStore>()(
     }),
     {
       name: 'payment-storage', // Key for localStorage
-    }
-  )
+    },
+  ),
 );
