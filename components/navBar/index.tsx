@@ -19,12 +19,13 @@ import { CiBookmark } from 'react-icons/ci';
 import { PiMoneyLight } from 'react-icons/pi';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuCircleDollarSign, LuUsers2 } from 'react-icons/lu';
-import { removeCookie } from '@/helpers/storageHelper';
+import { removeCookie, setCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
 import SimpleLogo from '../common/logo/simpleLogo';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 
 interface CustomMenuItem {
   key: string;
@@ -46,11 +47,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
+  const [subscriptionModules, setSubscriptionModules] = useState<
+    CustomMenuItem[]
+  >([]);
   const router = useRouter();
   const pathname = usePathname();
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
-  const { setLocalId, setTenantId, setToken, setUserId, setError } =
+  const { setLocalId, setTenantId, setToken, setUserId, setError, tenantId } =
     useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
@@ -60,6 +64,32 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [selectedKeys, setSelectedKeys] = useState<
     (string | number | bigint)[]
   >([pathname]);
+
+  const { data, isLoading: subscriptionLoading } =
+    useGetSubscriptionByTenant(tenantId);
+
+  useEffect(() => {
+    if (!data) {
+      setCookie('_sub', btoa('false'), 1);
+      router.push('/subscription-status/expired');
+    }
+    if (data?.plan?.modules) {
+      const filteredModules = treeData.filter((item) =>
+        data?.plan?.modules.some(
+          (module) => module.module.description === item.key,
+        ),
+      );
+      if (data) {
+        if (data.isActive && new Date(data.endAt) > new Date()) {
+          
+        }
+      } else {
+        
+        router.push('/subscription-status/expired');
+      }
+      setSubscriptionModules(filteredModules);
+    }
+  }, [data]);
 
   const treeData: CustomMenuItem[] = [
     {
@@ -533,7 +563,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     window.location.reload();
   };
 
-  const filteredMenuItems: any = treeData
+  const filteredMenuItems: any = subscriptionModules
     .map((item) => {
       const hasAccess = AccessGuard.checkAccess({
         permissions: item.permissions, // Specify permissions needed
@@ -612,7 +642,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
         <div className="relative">
           <div className="absolute left-2 top-0 w-[10px] h-full bg-white z-10"></div>
-          {isLoading ? (
+          {isLoading && subscriptionLoading ? (
             <div className="px-5 w-full h-full flex justify-center items-center my-5">
               <Skeleton active />{' '}
             </div>

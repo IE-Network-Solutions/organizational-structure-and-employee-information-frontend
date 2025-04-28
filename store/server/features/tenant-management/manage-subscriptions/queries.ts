@@ -26,7 +26,7 @@ export const useGetSubscriptionByTenant = (
   tenantId: string,
   isEnabled: boolean = true,
 ) => {
-  return useQuery<ApiResponse<Subscription>>(
+  return useQuery<Subscription>(
     ['subscription-by-tenant', tenantId],
     () => getSubscriptionByTenant({ tenantId }),
     {
