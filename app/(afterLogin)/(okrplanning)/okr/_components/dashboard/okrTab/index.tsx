@@ -121,13 +121,13 @@ export default function OkrTab() {
 
   return (
     <div className="mt-6">
-      <DynamicTabs 
-        defaultActiveKey="1" 
+      <DynamicTabs
+        defaultActiveKey="1"
         onChange={(key) => setOkrTab(key)}
         items={[
           {
-            key: "1",
-            label: "My OKR",
+            key: '1',
+            label: 'My OKR',
             children: (
               <div>
                 <OkrProgress />
@@ -161,96 +161,108 @@ export default function OkrTab() {
                   </div>
                 )}
               </div>
-            )
+            ),
           },
-          ...(canVieTeamOkr ? [{
-            key: "2",
-            label: "Team OKR",
-            children: (
-              <div>
-                <OkrProgress />
-                {teamLoading && (
-                  <Spin
-                    size="large"
-                    style={{ color: 'white' }}
-                    className="text-white text-center flex w-full justify-center"
-                  />
-                )}
-                {teamObjective?.items?.length !== 0 && (
-                  <div>
-                    <CustomPagination
-                      current={teamObjective?.meta?.currentPage || 1}
-                      total={teamObjective?.meta?.totalItems || 1}
-                      pageSize={teamPageSize}
-                      onChange={(page, pageSize) => {
-                        setTeamCurrentPage(page);
-                        setTeamPageSize(pageSize);
-                      }}
-                      onShowSizeChange={(size) => {
-                        setTeamPageSize(size);
-                        setTeamCurrentPage(1);
-                      }}
-                    />
-                  </div>
-                )}
-                {teamObjective?.items?.length === 0 && (
-                  <div className="flex justify-center">
-                    <EmptyImage />
-                  </div>
-                )}
-              </div>
-            )
-          }] : []),
-          ...(canVieCompanyOkr ? [{
-            key: "3",
-            label: "Company OKR",
-            children: (
-              <div>
-                {companyLoading && (
-                  <Spin
-                    size="large"
-                    style={{ color: 'white' }}
-                    className="text-white text-center flex w-full justify-center"
-                  />
-                )}
-                <OkrProgress />
-                {companyObjective?.items?.length !== 0 && (
-                  <div>
-                    {companyObjective?.items?.map((obj: any) => (
-                      <ObjectiveCard key={obj.id} myOkr={false} objective={obj} />
-                    ))}
-                    <CustomPagination
-                      current={companyObjective?.meta?.currentPage || 1}
-                      total={companyObjective?.meta?.totalItems || 1}
-                      pageSize={companyPageSize}
-                      onChange={(page, pageSize) => {
-                        setCompanyCurrentPage(page);
-                        setCompanyPageSize(pageSize);
-                      }}
-                      onShowSizeChange={(size) => {
-                        setCompanyPageSize(size);
-                        setCompanyCurrentPage(1);
-                      }}
-                    />
-                  </div>
-                )}
-                {companyObjective?.items?.length === 0 && (
-                  <div className="flex justify-center">
-                    <EmptyImage />
-                  </div>
-                )}
-              </div>
-            )
-          },
-          {
-            key: "4",
-            label: "All Employee OKR",
-            children: (
-              <div>
-                <EmployeeOKRTable />
-              </div>
-            )
-          }] : [])
+          ...(canVieTeamOkr
+            ? [
+                {
+                  key: '2',
+                  label: 'Team OKR',
+                  children: (
+                    <div>
+                      <OkrProgress />
+                      {teamLoading && (
+                        <Spin
+                          size="large"
+                          style={{ color: 'white' }}
+                          className="text-white text-center flex w-full justify-center"
+                        />
+                      )}
+                      {teamObjective?.items?.length !== 0 && (
+                        <div>
+                          <CustomPagination
+                            current={teamObjective?.meta?.currentPage || 1}
+                            total={teamObjective?.meta?.totalItems || 1}
+                            pageSize={teamPageSize}
+                            onChange={(page, pageSize) => {
+                              setTeamCurrentPage(page);
+                              setTeamPageSize(pageSize);
+                            }}
+                            onShowSizeChange={(size) => {
+                              setTeamPageSize(size);
+                              setTeamCurrentPage(1);
+                            }}
+                          />
+                        </div>
+                      )}
+                      {teamObjective?.items?.length === 0 && (
+                        <div className="flex justify-center">
+                          <EmptyImage />
+                        </div>
+                      )}
+                    </div>
+                  ),
+                },
+              ]
+            : []),
+          ...(canVieCompanyOkr
+            ? [
+                {
+                  key: '3',
+                  label: 'Company OKR',
+                  children: (
+                    <div>
+                      {companyLoading && (
+                        <Spin
+                          size="large"
+                          style={{ color: 'white' }}
+                          className="text-white text-center flex w-full justify-center"
+                        />
+                      )}
+                      <OkrProgress />
+                      {companyObjective?.items?.length !== 0 && (
+                        <div>
+                          {companyObjective?.items?.map((obj: any) => (
+                            <ObjectiveCard
+                              key={obj.id}
+                              myOkr={false}
+                              objective={obj}
+                            />
+                          ))}
+                          <CustomPagination
+                            current={companyObjective?.meta?.currentPage || 1}
+                            total={companyObjective?.meta?.totalItems || 1}
+                            pageSize={companyPageSize}
+                            onChange={(page, pageSize) => {
+                              setCompanyCurrentPage(page);
+                              setCompanyPageSize(pageSize);
+                            }}
+                            onShowSizeChange={(size) => {
+                              setCompanyPageSize(size);
+                              setCompanyCurrentPage(1);
+                            }}
+                          />
+                        </div>
+                      )}
+                      {companyObjective?.items?.length === 0 && (
+                        <div className="flex justify-center">
+                          <EmptyImage />
+                        </div>
+                      )}
+                    </div>
+                  ),
+                },
+                {
+                  key: '4',
+                  label: 'All Employee OKR',
+                  children: (
+                    <div>
+                      <EmployeeOKRTable />
+                    </div>
+                  ),
+                },
+              ]
+            : []),
         ]}
       />
     </div>

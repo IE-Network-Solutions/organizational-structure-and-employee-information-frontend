@@ -12,6 +12,7 @@ interface CustomButtonProps extends ButtonProps {
   isTitleHidden?: boolean;
   size?: SizeType;
 }
+const {isMobile}=useIsMobile();
 
 const CustomButton: React.FC<CustomButtonProps> = ({
   title,
@@ -22,7 +23,6 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   isTitleHidden = false,
   size = 'default',
   ...rest
-
 }) => {
   const baseClassName = 'rounded-lg flex items-center justify-center';
   return (
@@ -32,7 +32,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       id={`${title}CustomButtonId`}
       icon={icon}
       size={size as SizeType}
-      className={`${baseClassName} ${className}`}
+      className={`${isMobile}? 'h-14 px-6 py-6 rounded-lg flex  items-center justify-start gap-2 ' : `${baseClassName}` ${className}`}
       {...rest}
     >
       {!isTitleHidden && (
@@ -44,5 +44,18 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   );
 };
 
-
 export default CustomButton;
+
+
+  <Button
+    type={type}
+    onClick={onClick}
+    id={`${title}CustomButtonId`}
+    icon={icon}
+    className={` h-14 px-6 py-6 rounded-lg flex  items-center justify-start gap-2 ${className}`}
+    {...rest}
+  >
+    <div className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight">
+      {title}
+    </div>
+  </Button>
