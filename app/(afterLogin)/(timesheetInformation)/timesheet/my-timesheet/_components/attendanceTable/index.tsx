@@ -1,38 +1,37 @@
-import React, { useEffect, useState } from 'react';
-import AttendanceTableFilter from './tableFilter/inedx';
+import React, { useState } from 'react';
+import { Table, TablePaginationConfig, Drawer } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Space, Table } from 'antd';
-import { IoEyeOutline } from 'react-icons/io5';
-import { GoLocation } from 'react-icons/go';
+import AttendanceTableFilter from './tableFilter';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
-import StatusBadge from '@/components/common/statusBadge/statusBadge';
-import { CommonObject } from '@/types/commons/commonObject';
-import { DATE_FORMAT, DATETIME_FORMAT } from '@/utils/constants';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
-import {
-  AttendanceRecord,
-  AttendanceRecordTypeBadgeTheme,
-} from '@/types/timesheet/attendance';
-import { formatToAttendanceStatuses } from '@/helpers/formatTo';
+import { AttendanceRecord } from '@/types/timesheet/attendance';
 import dayjs from 'dayjs';
-import { AiOutlineReload } from 'react-icons/ai';
-import {
-  calculateAttendanceRecordToTotalWorkTime,
-  timeToHour,
-  timeToLastMinute,
-} from '@/helpers/calculateHelper';
-import usePagination from '@/utils/usePagination';
-import { DefaultTablePagination } from '@/utils/defaultTablePagination';
+import { DATE_FORMAT } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
+import usePagination from '@/utils/usePagination';
+import { Button } from 'antd';
+import { IoMdSwitch } from 'react-icons/io';
+import { SorterResult, FilterValue } from 'antd/es/table/interface';
+
+interface MyTimesheetStore {
+  setIsShowViewAttendanceSidebar: (show: boolean) => void;
+  setAttendanceData: (data: AttendanceRecord) => void;
+}
 
 const AttendanceTable = () => {
   const { userId } = useAuthenticationStore();
-  const userFilter: Partial<AttendanceRequestBody['filter']> = {
+  const store = useMyTimesheetStore() as unknown as MyTimesheetStore;
+  const { setIsShowViewAttendanceSidebar: isShow, setAttendanceData } = store;
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const [filter, setFilter] = useState<
+    Partial<AttendanceRequestBody['filter']>
+  >({
     userIds: [userId ?? ''],
-  };
-  const { setIsShowViewSidebar, setViewAttendanceId } = useMyTimesheetStore();
-  const [tableData, setTableData] = useState<any[]>([]);
+  });
+
   const {
     page,
     limit,
@@ -43,183 +42,234 @@ const AttendanceTable = () => {
     setOrderBy,
     setOrderDirection,
   } = usePagination(1, 10);
-  const [filter, setFilter] =
-    useState<Partial<AttendanceRequestBody['filter']>>(userFilter);
-  const { data, isFetching, refetch } = useGetAttendances(
+
+  const { data, isFetching } = useGetAttendances(
     { page, limit, orderBy, orderDirection },
     { filter },
   );
 
-  const columns: TableColumnsType<any> = [
+  const onFilterChange = (val: [dayjs.Dayjs, dayjs.Dayjs] | null) => {
+    if (val) {
+      setFilter((prev) => ({
+        ...prev,
+        date: {
+          from: val[0].format(DATE_FORMAT),
+          to: val[1].format(DATE_FORMAT),
+        },
+      }));
+    } else {
+      setFilter((prev) => ({
+        ...prev,
+        date: undefined,
+      }));
+    }
+  };
+
+  const columns: TableColumnsType<AttendanceRecord> = [
     {
       title: 'Date',
       dataIndex: 'createdAt',
       key: 'createdAt',
       sorter: true,
-      render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
-    },
-    {
-      title: 'Clock In',
-      dataIndex: 'clockIn',
-      key: 'clockIn',
       render: (date: string) => (
-        <div>{date ? dayjs(date).format(DATETIME_FORMAT) : '-'}</div>
-      ),
-    },
-    {
-      title: 'Location-in',
-      dataIndex: 'locationIn',
-      key: 'locationIn',
-      render: (text: string) => (
-        <div className="flex items-center justify-between">
-          {text} <GoLocation />
+        <div className="text-sm text-gray-900 py-4">
+          {dayjs(date).format(DATE_FORMAT)}
         </div>
       ),
     },
     {
-      title: 'Clock Out',
-      dataIndex: 'clockOut',
-      key: 'clockOut',
-      render: (date: string) => (
-        <div>{date ? dayjs(date).format(DATETIME_FORMAT) : '-'}</div>
-      ),
-    },
-    {
-      title: 'Location-Out',
-      dataIndex: 'locationOut',
-      key: 'locationOut',
-      render: (text: string) => (
-        <div className="flex items-center justify-between">
-          {text} <GoLocation />
+      title: 'Check In',
+      dataIndex: 'startAt',
+      key: 'startAt',
+      sorter: true,
+      render: (date: string | null) => (
+        <div className="text-sm text-gray-900 py-4">
+          {date ? dayjs(date).format('HH:mm:ss') : '-'}
         </div>
       ),
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (item: AttendanceRecord) => {
-        const statuses = formatToAttendanceStatuses(item);
-        return (
-          <Space>
-            {statuses.map((status) => (
-              <StatusBadge
-                theme={AttendanceRecordTypeBadgeTheme[status.status]}
-                key={status.status}
-              >
-                <div className="text-center">
-                  <div>{status.status}</div>
-                  {status.text && (
-                    <div className="font-normal">{status.text}</div>
-                  )}
-                </div>
-              </StatusBadge>
-            ))}
-          </Space>
-        );
-      },
+      title: 'Check Out',
+      dataIndex: 'endAt',
+      key: 'endAt',
+      sorter: true,
+      render: (date: string | null) => (
+        <div className="text-sm text-gray-900 py-4">
+          {date ? dayjs(date).format('HH:mm:ss') : '-'}
+        </div>
+      ),
     },
     {
-      title: 'Total time',
-      dataIndex: 'totalTime',
-      key: 'totalTime',
-      render: (text: string) => <div>{text}</div>,
-    },
-    {
-      title: 'Over-time',
-      dataIndex: 'overTime',
-      key: 'overTime',
-      render: (text: string) => <div>{text}</div>,
-    },
-    {
-      title: '',
+      title: 'Action',
       dataIndex: 'action',
       key: 'action',
-      render: (item: AttendanceRecord) => (
-        <Button
-          className="w-[30px] h-[30px]"
-          icon={<IoEyeOutline size={16} />}
-          type="primary"
-          onClick={() => {
-            setViewAttendanceId(item.id);
-            setIsShowViewSidebar(true);
-          }}
-        />
+      width: 80,
+      render: (text: string, record: AttendanceRecord) => (
+        <div className="py-4">
+          <Button
+            type="link"
+            onClick={() => {
+              setAttendanceData(record);
+              isShow(true);
+            }}
+          >
+            View
+          </Button>
+        </div>
       ),
     },
   ];
 
-  useEffect(() => {
-    if (data && data.items) {
-      const nData = data.items.map((item) => {
-        const calcTotal = calculateAttendanceRecordToTotalWorkTime(item);
-        return {
-          key: item.id,
-          createdAt: item.createdAt,
-          clockIn: item.startAt,
-          locationIn: item?.geolocations[0]?.allowedArea?.title ?? '',
-          clockOut: item.endAt,
-          locationOut:
-            item?.geolocations[item?.geolocations.length - 1]?.allowedArea
-              ?.title ?? '',
-          status: item,
-          totalTime: `${item.startAt && item.endAt ? `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs` : '-'} `,
-          overTime: item.overTimeMinutes + ' min',
-          action: item,
-        };
-      });
-      setTableData(nData);
+  const mobilePaginationItemRender = (
+    pageNumber: number,
+    type: string,
+    originalElement: React.ReactNode,
+  ) => {
+    if (type === 'prev') {
+      return (
+        <button className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 hover:bg-gray-50">
+          <span className="text-gray-600">&lt;</span>
+        </button>
+      );
     }
-  }, [data]);
-
-  const onFilterChange = (val: CommonObject) => {
-    const nFilter: Partial<AttendanceRequestBody['filter']> = { ...userFilter };
-    if (val.date) {
-      nFilter['date'] = {
-        from: val.date[0],
-        to: val.date[1],
-      };
+    if (type === 'next') {
+      return (
+        <button className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 hover:bg-gray-50">
+          <span className="text-gray-600">&gt;</span>
+        </button>
+      );
     }
-
-    if (val.location) {
-      nFilter['locations'] = [val.location];
+    if (type === 'page') {
+      return (
+        <button className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100">
+          <span className="text-gray-900">{originalElement}</span>
+        </button>
+      );
     }
+    return originalElement;
+  };
 
-    if (val.type) {
-      nFilter['type'] = val.type;
-    }
+  const handleTableChange = (
+    pagination: TablePaginationConfig,
+    filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<AttendanceRecord> | SorterResult<AttendanceRecord>[],
+  ) => {
+    const singleSorter = Array.isArray(sorter) ? sorter[0] : sorter;
+    setPage(pagination.current ?? 1);
+    setLimit(pagination.pageSize ?? 10);
+    setOrderDirection(singleSorter.order ?? undefined);
+    setOrderBy(singleSorter.order ? (singleSorter.field as string) : undefined);
+  };
 
-    setFilter(nFilter);
+  const CustomPagination = ({
+    current,
+    total,
+  }: {
+    current: number;
+    total: number;
+  }) => {
+    const totalPages = Math.ceil(total / limit);
+    const isFirstPage = current <= 1;
+    const isLastPage = current >= totalPages;
+
+    const handlePrevPage = () => {
+      if (!isFirstPage) {
+        setPage(current - 1);
+      }
+    };
+
+    const handleNextPage = () => {
+      if (!isLastPage) {
+        setPage(current + 1);
+      }
+    };
+
+    return (
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <button
+            className={`w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 ${!isFirstPage ? 'hover:bg-gray-50' : 'opacity-50 cursor-not-allowed'}`}
+            onClick={handlePrevPage}
+            disabled={isFirstPage}
+          >
+            <span className="text-gray-600">&lt;</span>
+          </button>
+          <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100">
+            <span className="text-gray-900">{current}</span>
+          </div>
+          <button
+            className={`w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 ${!isLastPage ? 'hover:bg-gray-50' : 'opacity-50 cursor-not-allowed'}`}
+            onClick={handleNextPage}
+            disabled={isLastPage}
+          >
+            <span className="text-gray-600">&gt;</span>
+          </button>
+        </div>
+        <div className="text-sm text-gray-600">{total} Result</div>
+      </div>
+    );
   };
 
   return (
     <>
-      <div className="flex items-center gap-0.5 mb-6">
-        <div className="text-2xl font-bold text-gray-900">My Attendance</div>
-        <Button
-          type="text"
-          size="small"
-          icon={<AiOutlineReload size={14} className="text-gray-600" />}
-          onClick={() => {
-            refetch();
-          }}
-        ></Button>
+      <div className="flex items-center justify-between mb-3 pr-2 bg-white rounded-lg p-2 mx-2">
+        <div className="text-lg font-semibold text-gray-900">Leave History</div>
+        <div className="flex items-center gap-2">
+          <Button
+            type="default"
+            className="ant-btn css-dev-only-do-not-override-kwtqki ant-btn-default ant-btn-color-default ant-btn-variant-outlined ant-btn-icon-only flex items-center justify-center w-12 h-12 hover:bg-gray-50 border-gray-200 sm:hidden"
+            icon={<IoMdSwitch size={24} />}
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+          />
+          <div className="hidden sm:block">
+            <AttendanceTableFilter onChange={onFilterChange} />
+          </div>
+        </div>
       </div>
-      <AttendanceTableFilter onChange={onFilterChange} />
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={tableData}
-        loading={isFetching}
-        pagination={DefaultTablePagination(data?.meta?.totalItems)}
-        onChange={(pagination, filters, sorter: any) => {
-          setPage(pagination.current ?? 1);
-          setLimit(pagination.pageSize ?? 10);
-          setOrderDirection(sorter['order']);
-          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-        }}
-        scroll={{ x: 'min-content' }}
-      />
+      <div className="bg-white rounded-lg p-2 mx-2">
+        <Table<AttendanceRecord>
+          className="mt-0"
+          columns={columns}
+          loading={isFetching}
+          dataSource={data?.items}
+          pagination={{
+            ...DefaultTablePagination(data?.meta?.totalItems),
+            className: 'hidden sm:flex items-center justify-start mt-3',
+            showSizeChanger: false,
+            itemRender: mobilePaginationItemRender,
+            simple: true,
+            size: 'small',
+            current: page,
+          }}
+          onChange={handleTableChange}
+          scroll={{ x: 'max-content' }}
+          size="small"
+        />
+        <div className="px-4 py-3 sm:hidden">
+          <CustomPagination
+            current={page}
+            total={data?.meta?.totalItems ?? 0}
+          />
+        </div>
+      </div>
+
+      <Drawer
+        title="Filter"
+        placement="bottom"
+        onClose={() => setIsFilterOpen(false)}
+        open={isFilterOpen}
+        height="auto"
+        className="rounded-t-2xl"
+        maskClosable={true}
+        destroyOnClose={true}
+      >
+        <div className="p-4">
+          <AttendanceTableFilter
+            onChange={onFilterChange}
+            onClose={() => setIsFilterOpen(false)}
+          />
+        </div>
+      </Drawer>
     </>
   );
 };
