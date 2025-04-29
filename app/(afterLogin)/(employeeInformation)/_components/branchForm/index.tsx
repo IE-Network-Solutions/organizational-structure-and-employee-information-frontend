@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect } from 'react';
-import { Form, Input, Button, Space, Modal } from 'antd';
+import { Form, Input, Button, Space, Modal, FormInstance } from 'antd';
 import { Branch } from '@/store/server/features/organizationStructure/branchs/interface';
 import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useBranchStore } from '@/store/uistate/features/organizationStructure/branchStore';
@@ -10,24 +10,24 @@ const BranchForm: React.FC<{
   submitAction: (values: Branch) => void;
   title: string;
   loading: boolean;
-  form?: any;
+  form?: FormInstance<Branch>;
 }> = ({ onClose, submitAction, title, loading, form }) => {
   const { formOpen, editingBranch, setEditingBranch, setSelectedBranch } =
     useBranchStore();
   useEffect(() => {
     if (editingBranch?.id) {
-      form.setFieldsValue({
+      form?.setFieldsValue({
         ...editingBranch,
       });
     } else {
-      form.resetFields();
+      form?.resetFields();
     }
   }, [editingBranch, form]);
 
   const handleSubmit = () => {
     form
-      .validateFields()
-      .then((values: any) => {
+      ?.validateFields()
+      .then((values: Branch) => {
         submitAction(values);
         onClose();
         form.resetFields();
@@ -44,7 +44,7 @@ const BranchForm: React.FC<{
       onCancel={() => {
         setEditingBranch(null);
         setSelectedBranch(null);
-        form.resetFields();
+        form?.resetFields();
         onClose();
       }}
       open={formOpen}
@@ -60,7 +60,7 @@ const BranchForm: React.FC<{
               onClick={() => {
                 setEditingBranch(null);
                 setSelectedBranch(null); // <- Clear the selected branch data
-                form.resetFields();
+                form?.resetFields();
                 onClose();
               }}
             >
