@@ -31,11 +31,11 @@ const AllCandidates: React.FC = () => {
     setCreateJobDrawer(false);
   };
   return (
-    <div className="h-auto w-full p-4 bg-white sm:p-6">
+    <div className="h-auto w-full p-4 bg-[#f5f5f5] sm:p-6">
       <div className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb title="Candidates" subtitle="All who applied" />
-        <div className="flex items-center my-4 gap-4 md:gap-8">
-          <div className="hidden sm:block">
+        <div className="flex items-center justify-between my-4 ">
+          <div className="hidden sm:block mr-4">
             <WhatYouNeed />
           </div>
 
@@ -44,22 +44,22 @@ const AllCandidates: React.FC = () => {
               title="Move to Talent Pool"
               id="createUserButton"
               onClick={handleMoveToTalentsPool}
-              className="bg-blue-600 hover:bg-blue-700 flex items-center justify-center"
+              className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
             />
           )}
           <AccessGuard permissions={[Permissions.CreateCandidate]}>
             <CustomButton
               title={<span className="hidden sm:inline">Add candidate</span>}
               id="createUserButton"
-              icon={<FaPlus className="mr-0 sm:mr-2" />}
+              icon={<FaPlus className="md:mr-0 ml-2" />}
               onClick={showDrawer}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
             />
             <CreateCandidate onClose={onClose} />
           </AccessGuard>
         </div>
       </div>
-      <div className="w-full h-auto">
+      <div className="w-full h-auto bg-white p-2 px-4 rounded-lg">
         <SearchOptions />
         <AllCandidateTable />
       </div>
