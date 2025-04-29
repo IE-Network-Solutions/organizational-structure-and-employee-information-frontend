@@ -10,6 +10,8 @@ export function middleware(req: NextRequest) {
     // TODO: Uncomment and restore token validation and redirects
 
     const token = getCookie('token', req);
+    const fiscalExpired = getCookie('activeCalendar', req);
+
     const excludedPath = [
       '/authentication/login',
       '/authentication/forget-password',
@@ -28,6 +30,9 @@ export function middleware(req: NextRequest) {
     // TODO: Uncomment and restore the redirect for the root path
 
     if (!isExcludedPath && isRootPath) {
+      if (new Date(fiscalExpired!) < new Date()) {
+        return NextResponse.redirect(new URL('/fiscal-ended', req.url));
+      }
       if (token) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       } else {
@@ -37,7 +42,7 @@ export function middleware(req: NextRequest) {
 
     return NextResponse.next();
   } catch (error) {
-    return NextResponse.next(); // Proceed to next response in case of error
+    return NextResponse.next();
   }
 }
 

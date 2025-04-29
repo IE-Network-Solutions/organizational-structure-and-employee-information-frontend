@@ -47,7 +47,7 @@ export interface FiscalYear {
   name: string;
   description: string;
   startDate: Dayjs | null;
-  endDate: Dayjs | null;
+  endDate: string | number | Date;
   sessions?: Session[]; // Use the Session type here
   closedDates?: ClosedDates[];
   isActive?: boolean;
