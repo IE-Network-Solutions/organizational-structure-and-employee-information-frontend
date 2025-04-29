@@ -59,7 +59,6 @@ const Drawer: React.FC = () => {
 
   const { isMobile } = useIsMobile();
 
-
   return (
     <CustomDrawerLayout
       open={isDrawerVisible && selectedPayrollData?.key}
@@ -120,7 +119,7 @@ const Drawer: React.FC = () => {
             style={{
               minHeight: isMobile ? 'auto' : 48,
               overflow: 'auto',
-            }} 
+            }}
           >
             {AllowanceData?.filter(
               (items: any) =>

@@ -39,7 +39,6 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { IoMdSwitch } from 'react-icons/io';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { PiExportLight } from 'react-icons/pi';
-import { LuImport } from 'react-icons/lu';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { CiCirclePlus } from 'react-icons/ci';
 
@@ -665,7 +664,13 @@ const Payroll = () => {
     })) || [];
 
   return (
-    <div className="mt-10" style={{ padding: isMobile ? '3px' : '20px' , marginLeft: isMobile ? '-10px' : '0px' }}>
+    <div
+      className="mt-10"
+      style={{
+        padding: isMobile ? '3px' : '20px',
+        marginLeft: isMobile ? '-10px' : '0px',
+      }}
+    >
       <div className="flex justify-between items-center gap-4 scrollbar-none">
         <h2 className="text-3xl mb-7">Payroll</h2>
         <h2 hidden style={{ marginBottom: '20px' }}>
@@ -826,11 +831,11 @@ const Payroll = () => {
             }}
             options={options}
           />
-        <Button
-          className="p-6 text-gray-500 border border-gray-300"
-          onClick={() => setIsFilterModalOpen(true)}
-          icon={<IoMdSwitch size={20} className="text-gray-700" />}
-        />
+          <Button
+            className="p-6 text-gray-500 border border-gray-300"
+            onClick={() => setIsFilterModalOpen(true)}
+            icon={<IoMdSwitch size={20} className="text-gray-700" />}
+          />
         </div>
       )}
       {isFilterModalOpen && (

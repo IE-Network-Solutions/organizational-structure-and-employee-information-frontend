@@ -148,11 +148,7 @@ const EmployeeInformation = () => {
       key: 'name',
       render: (text: string, record: any) => (
         <Space>
-          <Avatar 
-            size={32} 
-            src={record.profileImage} 
-            icon={<UserOutlined />}
-          />
+          <Avatar size={32} src={record.profileImage} icon={<UserOutlined />} />
           <span>{text}</span>
         </Space>
       ),
@@ -237,10 +233,9 @@ const EmployeeInformation = () => {
     refetch();
   };
 
-  
   const { isMobile } = useIsMobile();
   return (
-    <div className={ isMobile ? 'p-1' : 'p-5'}>
+    <div className={isMobile ? 'p-1' : 'p-5'}>
       <div className="flex justify-start items-center bg-gray-100 -mx-1">
         <span className="py-4 my-4 px-2 text-lg font-bold">
           Employees Payroll Information
