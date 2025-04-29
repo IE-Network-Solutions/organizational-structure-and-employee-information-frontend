@@ -173,9 +173,9 @@ const EmployeeInformation = () => {
       key: 'allowances',
       render: (allowances: any) =>
         allowances.map((item: any) => {
-          const color = item === 'Not Entitled' ? 'red' : 'blue';
+          const color = item === 'Not Entitled' ? 'red' : 'gray-300';
           return (
-            <Tag color={color} key={item}>
+            <Tag className={`${color} text-sm text-black`} key={item}>
               {item.name}
             </Tag>
           );
@@ -237,10 +237,11 @@ const EmployeeInformation = () => {
     refetch();
   };
 
+  
   const { isMobile } = useIsMobile();
   return (
-    <div className={isMobile ? 'p-1' : 'p-5'}>
-      <div className="flex justify-start items-center">
+    <div className={ isMobile ? 'p-1' : 'p-5'}>
+      <div className="flex justify-start items-center bg-gray-100 -mx-1">
         <span className="py-4 my-4 px-2 text-lg font-bold">
           Employees Payroll Information
         </span>
@@ -258,10 +259,12 @@ const EmployeeInformation = () => {
             style: { cursor: 'pointer' },
           })}
           pagination={{
+            position: ['bottomCenter'],
             pageSize: isMobile ? 7 : 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showLessItems: true,
+            showSizeChanger: false,
+            showQuickJumper: false,
+            showTotal: () => null, // Hide AntD's total display
+            simple: true, // Only prev / next / current
           }}
           scroll={{ x: 'max-content' }}
         />
