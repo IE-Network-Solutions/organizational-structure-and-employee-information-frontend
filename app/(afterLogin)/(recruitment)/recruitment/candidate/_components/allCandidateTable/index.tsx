@@ -264,7 +264,7 @@ const AllCandidateTable: React.FC = () => {
   });
 
   const rowSelection: TableRowSelection<CandidateData> = {
-    onChange: (_selectedRowKeys, selectedRows) => {
+    onChange: (nonused, selectedRows) => {
       setSelectedCandidate(
         candidateList?.items?.filter((item: CandidateData) =>
           selectedRows.some((row: CandidateData) => row.id === item.id),
