@@ -22,6 +22,8 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
     setIsShowAddLesson,
     refetchCourse,
     setIsShowLessonMaterial,
+    activeKey,
+    setActiveKey,
   } = useTnaManagementCoursePageStore();
   const {
     mutate: deleteLesson,
@@ -29,9 +31,6 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
     isSuccess,
   } = useDeleteCourseLesson();
   const { isMobile } = useIsMobile();
-  const [activeKey, setActiveKey] = useState<string | string[] | undefined>(
-    undefined,
-  );
 
   const shouldShowButton = !(isMobile && activeKey === lesson.id);
 
