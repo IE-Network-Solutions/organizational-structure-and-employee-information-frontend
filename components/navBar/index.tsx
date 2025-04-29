@@ -572,7 +572,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return data.map((item) => {
       const renderSubMenu = (children: CustomMenuItem[]) => {
         return (
-          <div className="bg-white rounded-lg p-2 min-w-[200px] ml-12">
+          <div className="bg-white rounded-lg shadow-lg p-2 min-w-[200px] ml-12">
             {children.map((child) => (
               <div
                 key={child.key}
@@ -722,7 +722,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       </Sider>
       <Layout
         style={{
-          marginLeft: isMobile ? 10 : collapsed ? 10 : 20,
+          marginLeft: isMobile ? 2 : collapsed ? 10 : 20,
           transition: 'margin-left 0.3s ease',
         }}
       >
@@ -772,7 +772,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <Content
           className="overflow-y-hidden min-h-screen"
           style={{
-            paddingTop: isMobile ? 4 : 24,
+            paddingInline: isMobile ? 8 : 24,
             paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
             transition: 'padding-left 0.3s ease',
           }}

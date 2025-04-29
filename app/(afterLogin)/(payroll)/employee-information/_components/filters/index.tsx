@@ -5,7 +5,7 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Button, Col, Modal, Row, Select } from 'antd';
-import { IoMdSwitch } from 'react-icons/io';
+import { LuSettings2 } from 'react-icons/lu';
 
 interface FiltersProps {
   onSearch: (filters: { [key: string]: string }) => void;
@@ -49,7 +49,7 @@ const Filters: React.FC<FiltersProps> = () => {
   if (isMobile) {
     return (
       <>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6 py-3 px-1">
           <div className="flex-1 mr-2">
             <Select
               showSearch
@@ -68,9 +68,9 @@ const Filters: React.FC<FiltersProps> = () => {
             />
           </div>
           <Button
-            icon={<IoMdSwitch size={20} className="text-gray-800" />}
+            className="p-5 min-h-12  text-gray-500 border border-gray-300"
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center h-12"
+            icon={<LuSettings2 size={20} />}
           />
         </div>
 
@@ -79,19 +79,23 @@ const Filters: React.FC<FiltersProps> = () => {
           style={{ top: 200 }} // <-- This adjusts the top margin
           open={isModalOpen}
           onCancel={() => setIsModalOpen(false)}
-          footer={[
-            <Button key="cancel" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>,
-            <Button
-              key="filter"
-              type="primary"
-              onClick={() => setIsModalOpen(false)}
-              className="bg-purple-600"
+          footer={
+            <div
+              style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}
             >
-              Filter
-            </Button>,
-          ]}
+              <Button key="cancel" onClick={() => setIsModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                key="filter"
+                type="primary"
+                onClick={() => setIsModalOpen(false)}
+                className="bg-purple-600"
+              >
+                Filter
+              </Button>
+            </div>
+          }
         >
           <div className="py-4">
             <Select
