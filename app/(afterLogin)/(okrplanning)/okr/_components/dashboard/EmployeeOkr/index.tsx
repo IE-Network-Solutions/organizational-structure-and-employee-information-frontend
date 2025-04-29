@@ -29,45 +29,47 @@ const ScoreTag = React.memo(({ score }: { score: number }): JSX.Element => {
 });
 
 // Memoized employee details component to prevent unnecessary re-renders
-const EmployeeDetails = React.memo(({ empId, type }: { empId: string; type: string }) => {
-  const { data: userDetails, isLoading, error } = useGetEmployee(empId);
+const EmployeeDetails = React.memo(
+  ({ empId, type }: { empId: string; type: string }) => {
+    const { data: userDetails, isLoading, error } = useGetEmployee(empId);
 
-  if (isLoading)
+    if (isLoading)
+      return (
+        <>
+          <LoadingOutlined />
+        </>
+      );
+
+    if (error || !userDetails) return '-';
+
+    const userName =
+      `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
+      '-';
+    const email = `${userDetails?.email} ` || '-';
+    const profileImage = userDetails?.profileImage;
+    const jobPosition =
+      `${userDetails?.employeeJobInformation[0]?.position?.name} ` || '-';
+    const department =
+      `${userDetails?.employeeJobInformation[0]?.department?.name} ` || '-';
     return (
       <>
-        <LoadingOutlined />
+        {type === 'user' ? (
+          <div className="flex gap-2">
+            <Avatar src={profileImage} icon={<UserOutlined />} />
+            <div>
+              {userName}
+              <div className="text-xs text-gray-500">{email}</div>
+            </div>
+          </div>
+        ) : (
+          <span className="text-xs text-gray-500">
+            {type == 'job' ? jobPosition : department}
+          </span>
+        )}
       </>
     );
-
-  if (error || !userDetails) return '-';
-
-  const userName =
-    `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
-    '-';
-  const email = `${userDetails?.email} ` || '-';
-  const profileImage = userDetails?.profileImage;
-  const jobPosition =
-    `${userDetails?.employeeJobInformation[0]?.position?.name} ` || '-';
-  const department =
-    `${userDetails?.employeeJobInformation[0]?.department?.name} ` || '-';
-  return (
-    <>
-      {type === 'user' ? (
-        <div className="flex gap-2">
-          <Avatar src={profileImage} icon={<UserOutlined />} />
-          <div>
-            {userName}
-            <div className="text-xs text-gray-500">{email}</div>
-          </div>
-        </div>
-      ) : (
-        <span className="text-xs text-gray-500">
-          {type == 'job' ? jobPosition : department}
-        </span>
-      )}
-    </>
-  );
-});
+  },
+);
 
 // Memoized session detail component to prevent unnecessary re-renders
 const SessionDetail = React.memo(({ sessionId }: { sessionId: string[] }) => {
@@ -96,7 +98,7 @@ const EmployeeOKRTable: React.FC = () => {
     setEmployeePageSize,
     setEmployeeCurrentPage,
   } = useOKRStore();
-  
+
   const {
     data: employeeOkr,
     isLoading,
@@ -107,60 +109,68 @@ const EmployeeOKRTable: React.FC = () => {
     employeePageSize,
     employeeCurrentPage,
   );
-  
+
   // Memoize columns to prevent unnecessary re-renders
-  const columns = useMemo(() => [
-    {
-      title: 'Employee Name',
-      dataIndex: 'userId',
-      key: 'userId',
-      render: (userId: string) => <EmployeeDetails type="user" empId={userId} />,
-    },
-    {
-      title: 'Job Title',
-      dataIndex: 'title',
-      key: 'title',
-      render: (notused: any, render: any) => (
-        <EmployeeDetails type="job" empId={render?.userId} />
-      ),
-    },
-    {
-      title: 'Department',
-      dataIndex: 'department',
-      key: 'department',
-      render: (notused: any, render: any) => (
-        <EmployeeDetails type="department" empId={render?.userId} />
-      ),
-    },
-    {
-      title: 'Quarter',
-      dataIndex: 'quarter',
-      key: 'quarter',
-      render: (notused: any, render: any) => (
-        <SessionDetail sessionId={render?.sessionId} />
-      ),
-    },
-    {
-      title: 'OKR Score',
-      dataIndex: 'okrScore',
-      key: 'okrScore',
-      render: (score: number) => <ScoreTag score={score} />,
-    },
-  ], []);
+  const columns = useMemo(
+    () => [
+      {
+        title: 'Employee Name',
+        dataIndex: 'userId',
+        key: 'userId',
+        render: (userId: string) => (
+          <EmployeeDetails type="user" empId={userId} />
+        ),
+      },
+      {
+        title: 'Job Title',
+        dataIndex: 'title',
+        key: 'title',
+        render: (notused: any, render: any) => (
+          <EmployeeDetails type="job" empId={render?.userId} />
+        ),
+      },
+      {
+        title: 'Department',
+        dataIndex: 'department',
+        key: 'department',
+        render: (notused: any, render: any) => (
+          <EmployeeDetails type="department" empId={render?.userId} />
+        ),
+      },
+      {
+        title: 'Quarter',
+        dataIndex: 'quarter',
+        key: 'quarter',
+        render: (notused: any, render: any) => (
+          <SessionDetail sessionId={render?.sessionId} />
+        ),
+      },
+      {
+        title: 'OKR Score',
+        dataIndex: 'okrScore',
+        key: 'okrScore',
+        render: (score: number) => <ScoreTag score={score} />,
+      },
+    ],
+    [],
+  );
 
   // Memoize data source to prevent unnecessary re-renders
-  const dataSource = useMemo(() => 
-    Array.isArray(employeeOkr?.items) ? employeeOkr?.items : [],
-    [employeeOkr?.items]
+  const dataSource = useMemo(
+    () => (Array.isArray(employeeOkr?.items) ? employeeOkr?.items : []),
+    [employeeOkr?.items],
   );
 
   // Memoize pagination change handler
-  const onPageChange = useCallback((page: number, pageSize?: number) => {
-    setEmployeeCurrentPage(page);
-    if (pageSize) {
-      setEmployeePageSize(pageSize);
-    }
-  }, [setEmployeeCurrentPage, setEmployeePageSize]);
+  const onPageChange = useCallback(
+    (page: number, pageSize?: number) => {
+      setEmployeeCurrentPage(page);
+      if (pageSize) {
+        setEmployeePageSize(pageSize);
+      }
+    },
+    [setEmployeeCurrentPage, setEmployeePageSize],
+  );
 
   useEffect(() => {
     refetch();
@@ -189,5 +199,9 @@ const EmployeeOKRTable: React.FC = () => {
     </div>
   );
 };
+
+ScoreTag.displayName = 'ScoreTag';
+EmployeeDetails.displayName = 'EmployeeDetails';
+SessionDetail.displayName = 'SessionDetail';
 
 export default React.memo(EmployeeOKRTable);

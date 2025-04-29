@@ -20,7 +20,8 @@ export const useIsMobile = (): { isMobile: boolean; isTablet: boolean } => {
         const width = window.innerWidth;
         // Mobile: <= 768px, Tablet: 769px - 1024px
         const newIsMobile = width <= BREAKPOINTS.mobile;
-        const newIsTablet = width > BREAKPOINTS.mobile && width <= BREAKPOINTS.tablet;
+        const newIsTablet =
+          width > BREAKPOINTS.mobile && width <= BREAKPOINTS.tablet;
 
         if (isMobile !== newIsMobile) {
           setIsMobile(newIsMobile);

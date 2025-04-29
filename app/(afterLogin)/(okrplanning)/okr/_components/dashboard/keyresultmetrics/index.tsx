@@ -103,14 +103,16 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
           size={isMobile ? 20 : 24}
           className="text-blue text-xl w-8 sm:w-10"
         />
-      <h2 className={`flex items-center gap-1 ${isMobile ? 'text-xs' : 'text-sm'} font-normal`}>
-        {keyResult?.title}
-        {isMobile && keyResult?.metricType?.name && (
-          <span className="inline-flex items-center -mt-3">
-            {getMetricName(keyResult.metricType.name)}
-          </span>
-        )}
-      </h2>
+        <h2
+          className={`flex items-center gap-1 ${isMobile ? 'text-xs' : 'text-sm'} font-normal`}
+        >
+          {keyResult?.title}
+          {isMobile && keyResult?.metricType?.name && (
+            <span className="inline-flex items-center -mt-3">
+              {getMetricName(keyResult.metricType.name)}
+            </span>
+          )}
+        </h2>
         {keyResult?.isClosed === false && Number(keyResult?.progress) === 0 && (
           <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
             <IoIosMore className="text-gray-500 text-lg cursor-pointer ml-auto" />
@@ -122,22 +124,23 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
       <div className="flex flex-wrap gap-2">
         {/* Metric and Weight */}
         <div className="flex flex-wrap gap-2">
-          {!isMobile &&
-          <div className="flex items-center gap-1">
-            <div
-              className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[6px] p-1' : 'text-xs p-2'} flex items-center rounded-lg`}
-            >
-              {keyResult?.metricType?.name}
-            </div>
+          {!isMobile && (
             <div className="flex items-center gap-1">
-              <div className="text-[#3636f0] text-xl">&#x2022;</div>
               <div
-                className={`text-[#687588] mt-1 ${isMobile ? 'text-[6px]' : 'text-xs'} flex items-center rounded-lg`}
+                className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[6px] p-1' : 'text-xs p-2'} flex items-center rounded-lg`}
               >
-                Metric
+                {keyResult?.metricType?.name}
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="text-[#3636f0] text-xl">&#x2022;</div>
+                <div
+                  className={`text-[#687588] mt-1 ${isMobile ? 'text-[6px]' : 'text-xs'} flex items-center rounded-lg`}
+                >
+                  Metric
+                </div>
               </div>
             </div>
-          </div>}
+          )}
 
           <div className="flex items-center gap-1">
             <div
