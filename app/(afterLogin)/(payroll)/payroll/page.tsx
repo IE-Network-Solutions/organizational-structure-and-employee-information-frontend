@@ -41,6 +41,7 @@ import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { PiExportLight } from 'react-icons/pi';
 import { LuImport } from 'react-icons/lu';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
+import { CiCirclePlus } from 'react-icons/ci';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -664,7 +665,7 @@ const Payroll = () => {
     })) || [];
 
   return (
-    <div className="mt-10" style={{ padding: isMobile ? '3px' : '20px' }}>
+    <div className="mt-10" style={{ padding: isMobile ? '3px' : '20px' , marginLeft: isMobile ? '-10px' : '0px' }}>
       <div className="flex justify-between items-center gap-4 scrollbar-none">
         <h2 className="text-3xl mb-7">Payroll</h2>
         <h2 hidden style={{ marginBottom: '20px' }}>
@@ -674,7 +675,7 @@ const Payroll = () => {
           <AccessGuard permissions={[Permissions.PayrollExport]}>
             <Tooltip title="Export">
               <Button
-                className={`text-[#3636F0] bg-[#B2B2FF] border-none p-6 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
+                className={`text-[#3636F0] bg-[#B2B2FF] border-none p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
                 onClick={() => setIsModalOpen(true)}
               >
                 {isMobile ? <PiExportLight size={24} /> : 'Export'}
@@ -747,7 +748,7 @@ const Payroll = () => {
                     <Button
                       type="default"
                       loading={sendingPaySlipLoading}
-                      className="text-white bg-primary border-none p-6 flex flex-col items-start disabled:opacity-50"
+                      className="text-white bg-primary border-none p-5 flex flex-col items-start disabled:opacity-50"
                       disabled={mergedPayroll.length === 0}
                     >
                       <span className="text-base font-semibold">
@@ -759,7 +760,6 @@ const Payroll = () => {
               </Popconfirm>
             </AccessGuard>
           )}
-
           <Popconfirm
             title={
               payroll?.payrolls.length
@@ -786,14 +786,14 @@ const Payroll = () => {
               >
                 <Button
                   type="primary"
-                  className={`p-6 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
+                  className={`p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
                   onClick={() => {
                     handleGeneratePayroll();
                   }}
                   loading={isCreatingPayroll || loading || deleteLoading}
                 >
                   {isMobile ? (
-                    <LuImport size={24} />
+                    <CiCirclePlus size={30} className="text-white font-bold" />
                   ) : payroll?.payrolls.length > 0 ? (
                     'Regenerate'
                   ) : (
@@ -826,11 +826,11 @@ const Payroll = () => {
             }}
             options={options}
           />
-          <Button
-            className="p-6"
-            icon={<IoMdSwitch size={20} />}
-            onClick={() => setIsFilterModalOpen(true)}
-          />
+        <Button
+          className="p-6 text-gray-500 border border-gray-300"
+          onClick={() => setIsFilterModalOpen(true)}
+          icon={<IoMdSwitch size={20} className="text-gray-700" />}
+        />
         </div>
       )}
       {isFilterModalOpen && (

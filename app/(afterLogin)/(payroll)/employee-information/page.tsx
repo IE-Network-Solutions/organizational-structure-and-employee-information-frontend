@@ -1,6 +1,6 @@
 'use client';
-import { Table, Tag, Button, Space, Spin } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import { Table, Tag, Button, Space, Spin, Avatar } from 'antd';
+import { EditOutlined, UserOutlined } from '@ant-design/icons';
 import Filters from './_components/filters';
 import { useRouter } from 'next/navigation';
 import Drawer from './_components/drawer';
@@ -29,11 +29,13 @@ interface Employee {
       accountNumber?: string;
     };
   };
+  profileImage?: string;
 }
 
 interface DataSource {
   key: string;
   name: string;
+  profileImage?: string;
   job: string;
   salary: string;
   allowances: string[];
@@ -126,6 +128,7 @@ const EmployeeInformation = () => {
       return {
         key: employee.id,
         name: `${employee?.firstName} ${employee?.middleName || ''} ${employee?.lastName}`.trim(),
+        profileImage: employee.profileImage,
         job: `${position}`,
         salary: `${activeSalary} ETB`,
         allowances: allowanceMap?.[employee?.id] || ['Not Specified'],
@@ -143,6 +146,16 @@ const EmployeeInformation = () => {
       title: 'Employee',
       dataIndex: 'name',
       key: 'name',
+      render: (text: string, record: any) => (
+        <Space>
+          <Avatar 
+            size={32} 
+            src={record.profileImage} 
+            icon={<UserOutlined />}
+          />
+          <span>{text}</span>
+        </Space>
+      ),
     },
     {
       title: 'Job Information',
@@ -245,9 +258,10 @@ const EmployeeInformation = () => {
             style: { cursor: 'pointer' },
           })}
           pagination={{
-            pageSize: 5,
+            pageSize: isMobile ? 7 : 10,
             showSizeChanger: true,
             showQuickJumper: true,
+            showLessItems: true,
           }}
           scroll={{ x: 'max-content' }}
         />

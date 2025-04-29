@@ -572,7 +572,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return data.map((item) => {
       const renderSubMenu = (children: CustomMenuItem[]) => {
         return (
-          <div className="bg-white rounded-lg p-2 min-w-[200px] ml-12">
+          <div className="bg-white rounded-lg shadow-lg p-2 min-w-[200px] ml-12">
             {children.map((child) => (
               <div
                 key={child.key}

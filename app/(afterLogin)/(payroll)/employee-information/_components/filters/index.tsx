@@ -68,10 +68,10 @@ const Filters: React.FC<FiltersProps> = () => {
             />
           </div>
           <Button
-            icon={<IoMdSwitch size={20} className="text-gray-800" />}
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center h-12"
-          />
+          className="p-5 min-h-12  text-gray-500 border border-gray-300"
+          onClick={() => setIsModalOpen(true)}
+          icon={<IoMdSwitch size={20} className="text-gray-700" />}
+        />
         </div>
 
         <Modal
