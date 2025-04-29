@@ -16,6 +16,7 @@ function CustomDeleteFiscalYears() {
     deleteFiscalYear(id);
     setDeleteMode(false);
   };
+
   return (
     <DeleteModal
       open={isDeleteMode}
