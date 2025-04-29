@@ -25,7 +25,6 @@ const AttendanceTable = () => {
   const store = useMyTimesheetStore() as unknown as MyTimesheetStore;
   const { setIsShowViewAttendanceSidebar: isShow, setAttendanceData } = store;
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-
   const [filter, setFilter] = useState<
     Partial<AttendanceRequestBody['filter']>
   >({
@@ -211,7 +210,7 @@ const AttendanceTable = () => {
   };
 
   return (
-    <>
+    <div className="bg-gray-100">
       <div className="flex items-center justify-between mb-3 pr-2 bg-white rounded-lg p-2 mx-2">
         <div className="text-lg font-semibold text-gray-900">Leave History</div>
         <div className="flex items-center gap-2">
@@ -270,7 +269,7 @@ const AttendanceTable = () => {
           />
         </div>
       </Drawer>
-    </>
+    </div>
   );
 };
 

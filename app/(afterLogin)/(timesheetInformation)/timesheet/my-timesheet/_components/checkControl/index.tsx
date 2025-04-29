@@ -1,23 +1,22 @@
+import React, { useState, useEffect } from 'react';
 import { Button, Space } from 'antd';
 import { GoClock } from 'react-icons/go';
+import { IoLocationOutline } from 'react-icons/io5';
 import {
   CheckStatus,
   useMyTimesheetStore,
 } from '@/store/uistate/features/timesheet/myTimesheet';
 import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
-import { useEffect, useState } from 'react';
-import {
-  calculateAttendanceRecordToTotalWorkTime,
-  timeToHour,
-  timeToLastMinute,
-} from '@/helpers/calculateHelper';
 import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { useIsMobile } from '@/hooks/useIsMobile';
-import { IoLocationOutline } from 'react-icons/io5';
+import {
+  calculateAttendanceRecordToTotalWorkTime,
+  timeToHour,
+  timeToLastMinute,
+} from '@/helpers/calculateHelper';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
@@ -29,7 +28,6 @@ const CheckControl = () => {
     setCurrentAttendance,
   } = useMyTimesheetStore();
 
-  const { isMobile } = useIsMobile();
   const { data: currentAttendanceData, isFetching } =
     useGetCurrentAttendance(userId);
   const { mutate: setCurrentAttendanceData, isLoading } =
@@ -86,31 +84,39 @@ const CheckControl = () => {
       return (
         <AccessGuard permissions={[Permissions.CheckInRemotely]}>
           <Button
-            className="h-14 text-base"
+            className="h-12 sm:h-14 text-base w-full sm:w-auto"
             id="buttonCheckin"
             size="large"
             type="primary"
             icon={
-              isMobile ? <IoLocationOutline size={30} /> : <GoClock size={30} />
+              <>
+                <IoLocationOutline className="block sm:hidden" size={20} />
+                <GoClock className="hidden sm:block" size={20} />
+              </>
             }
             loading={isLoading || isFetching}
             onClick={() => {
               setAttendance(true);
             }}
           >
-            {isMobile ? '' : 'Check in'}
+            Check in
           </Button>
         </AccessGuard>
       );
     case CheckStatus.started:
       return (
-        <Space>
+        <Space className="w-full sm:w-auto" direction="vertical" size="middle">
           <AccessGuard permissions={[Permissions.CheckOutRemotely]}>
             <Button
-              className="h-14 text-base px-2"
+              className="h-12 sm:h-14 text-base w-full sm:w-auto"
               size="large"
               id="buttonBreakCheckOut"
-              icon={<GoClock size={20} />}
+              icon={
+                <>
+                  <IoLocationOutline className="block sm:hidden" size={20} />
+                  <GoClock className="hidden sm:block" size={20} />
+                </>
+              }
               loading={isLoading || isFetching}
               onClick={() => {
                 getCoords(() => {
@@ -121,52 +127,50 @@ const CheckControl = () => {
               Break Check Out
             </Button>
             <Button
-              className="h-14 text-base"
+              className="h-12 sm:h-14 text-base w-full sm:w-auto"
               size="large"
               id="buttonCheckOut"
               icon={
-                isMobile ? (
-                  <IoLocationOutline size={30} />
-                ) : (
-                  <GoClock size={30} />
-                )
+                <>
+                  <IoLocationOutline className="block sm:hidden" size={20} />
+                  <GoClock className="hidden sm:block" size={20} />
+                </>
               }
               loading={isLoading || isFetching}
               onClick={() => {
                 setAttendance(false);
               }}
             >
-              {isMobile ? '' : 'Check out'}
+              Check out
             </Button>
           </AccessGuard>
         </Space>
       );
     case CheckStatus.breaking:
       return (
-        <Space size={32}>
+        <Space className="w-full sm:w-auto" direction="vertical" size="middle">
           {workTime && (
-            <div className="text-[28px] text-primary font-bold">
+            <div className="text-[24px] sm:text-[28px] text-primary font-bold text-center sm:text-left">
               {workTime} hrs
             </div>
           )}
           <AccessGuard permissions={[Permissions.CheckInRemotely]}>
             <Button
-              className="h-14 text-base"
+              className="h-12 sm:h-14 text-base w-full sm:w-auto"
               size="large"
               id="checkInButton"
               icon={
-                isMobile ? (
-                  <IoLocationOutline size={30} />
-                ) : (
-                  <GoClock size={30} />
-                )
+                <>
+                  <IoLocationOutline className="block sm:hidden" size={20} />
+                  <GoClock className="hidden sm:block" size={20} />
+                </>
               }
               loading={isLoading || isFetching}
               onClick={() => {
                 setAttendance(true);
               }}
             >
-              {isMobile ? '' : 'Check in'}
+              Check in
             </Button>
           </AccessGuard>
         </Space>

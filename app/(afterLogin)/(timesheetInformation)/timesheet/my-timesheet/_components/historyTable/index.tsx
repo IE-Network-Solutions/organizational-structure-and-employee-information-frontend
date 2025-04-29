@@ -227,7 +227,7 @@ const HistoryTable = () => {
   };
 
   return (
-    <>
+    <div className="bg-white p-4 pr-6 rounded-lg">
       <div className="flex items-center justify-between mb-6">
         <div className="text-2xl font-bold text-gray-900">My Leave</div>
 
@@ -237,16 +237,18 @@ const HistoryTable = () => {
             <div className="h-12 flex items-center">
               <HistoryTableFilter onChange={onFilterChange} />
             </div>
-            <AccessGuard permissions={[Permissions.SubmitLeaveRequest]}>
-              <Button
-                size="large"
-                type="primary"
-                className="h-12 w-12 flex items-center justify-center ml-3"
-                onClick={() => isShow(true)}
-              >
-                <span className="text-xl font-medium text-white">+</span>
-              </Button>
-            </AccessGuard>
+            <div className="-mt-8">
+              <AccessGuard permissions={[Permissions.SubmitLeaveRequest]}>
+                <Button
+                  size="large"
+                  type="primary"
+                  className="h-12 w-12 flex items-center justify-center ml-3 mt-4"
+                  onClick={() => isShow(true)}
+                >
+                  <span className="text-xl font-medium text-white">+</span>
+                </Button>
+              </AccessGuard>
+            </div>
           </div>
 
           {/* Desktop View */}
@@ -255,7 +257,7 @@ const HistoryTable = () => {
               <Button
                 size="large"
                 type="primary"
-                className="h-12 w-auto px-4 min-w-[48px] flex items-center justify-center"
+                className="h-12 w-auto px-0 min-w-[48px] flex items-center justify-center"
                 onClick={() => isShow(true)}
               >
                 <span className="text-xl font-medium text-white">+</span>
@@ -282,7 +284,7 @@ const HistoryTable = () => {
         }}
         scroll={{ x: 'max-content' }}
       />
-    </>
+    </div>
   );
 };
 
