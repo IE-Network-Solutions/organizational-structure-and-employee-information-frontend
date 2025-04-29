@@ -24,7 +24,6 @@ const Branches = () => {
   const [form] = Form.useForm();
 
   const {
-    formOpen,
     editingBranch,
     deleteModalVisible,
     branchToDelete,
