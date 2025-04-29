@@ -19,7 +19,7 @@ import {
   useGetPayPeriod,
 } from '@/store/server/features/payroll/payroll/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import PayrollDetails from './_components/PayrollDetails';
 import html2canvas from 'html2canvas';
@@ -31,6 +31,9 @@ import { RcFile } from 'antd/es/upload';
 import { HiOutlineMail } from 'react-icons/hi';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import SettlementDetail from './_components/settlementDetail';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { FaArrowLeft } from 'react-icons/fa';
+import { EmptyImage } from '@/components/emptyIndicator';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -38,6 +41,7 @@ const { TabPane } = Tabs;
 const EmployeeProfile = () => {
   const { data: payPeriodData } = useGetPayPeriod();
   const { profileFileList } = useEmployeeManagementStore();
+  const router = useRouter();
 
   const openPayPeriods = payPeriodData?.filter(
     (period: any) => period.status === 'OPEN',
@@ -131,9 +135,25 @@ const EmployeeProfile = () => {
     return '';
   };
 
+  const { isMobile } = useIsMobile();
+
   return (
-    <div style={{ padding: '24px' }}>
-      <Card>
+    <div style={{ padding: isMobile ? '2px' : '24px' }}>
+      <Card
+        title={
+          isMobile && (
+            <span
+              onClick={() => router.back()}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <FaArrowLeft />
+              <span className="text-lg font-bold">Detail Employee</span>
+            </span>
+          )
+        }
+        className={isMobile ? 'p-0' : 'p-4'}
+        bordered={false}
+      >
         <Row gutter={[32, 32]}>
           <Col lg={8} md={10} xs={24}>
             <Card loading={isLoading} className="mb-3">
@@ -219,7 +239,7 @@ const EmployeeProfile = () => {
               <TabPane
                 tab="Information"
                 key="1"
-                className="border border-solid rounded-xl p-4"
+                className={isMobile ? 'border border-solid rounded-xl p-4' : ''}
               >
                 <div>
                   <Title level={4}>Payroll Information</Title>
@@ -577,49 +597,55 @@ const EmployeeProfile = () => {
 
               <TabPane tab="Payroll History" key="2">
                 <>
-                  {payPeriodData
-                    ?.filter(
-                      (period: any) =>
-                        mergedPayroll.some(
+                  {payPeriodData ? (
+                    payPeriodData
+                      ?.filter(
+                        (period: any) =>
+                          mergedPayroll.some(
+                            (pay: any) => pay.payPeriodId === period.id,
+                          ), // Filter only periods with merged data
+                      )
+                      .map((period: any, index: any) => {
+                        const activeMergedPayroll = mergedPayroll.find(
                           (pay: any) => pay.payPeriodId === period.id,
-                        ), // Filter only periods with merged data
-                    )
-                    .map((period: any, index: any) => {
-                      const activeMergedPayroll = mergedPayroll.find(
-                        (pay: any) => pay.payPeriodId === period.id,
-                      );
+                        );
 
-                      return (
-                        <Collapse size="large" className="p-4" key={index}>
-                          <Collapse.Panel
-                            key={period.id}
-                            header={`${dayjs(period.startDate).format('MMMM-YYYY')}`}
-                          >
-                            <div className="flex gap-6 w-full m-4">
-                              <div className="flex flex-col gap-4 w-1/3">
-                                <Text className=" text-gray-600">
-                                  Salary Period
-                                </Text>
-                                <Text className=" text-gray-600">Pay Date</Text>
+                        return (
+                          <Collapse size="large" className="p-4" key={index}>
+                            <Collapse.Panel
+                              key={period.id}
+                              header={`${dayjs(period.startDate).format('MMMM-YYYY')}`}
+                            >
+                              <div className="flex gap-6 w-full m-4">
+                                <div className="flex flex-col gap-4 w-1/3">
+                                  <Text className=" text-gray-600">
+                                    Salary Period
+                                  </Text>
+                                  <Text className=" text-gray-600">
+                                    Pay Date
+                                  </Text>
+                                </div>
+                                <div className="flex flex-col gap-4 font-bold">
+                                  <Text>
+                                    {dayjs(period.startDate).format('MMM-YYYY')}
+                                  </Text>
+                                  <Text>
+                                    {dayjs(period.updatedAt).format(
+                                      'MMM-DD-YYYY',
+                                    )}
+                                  </Text>
+                                </div>
                               </div>
-                              <div className="flex flex-col gap-4 font-bold">
-                                <Text>
-                                  {dayjs(period.startDate).format('MMM-YYYY')}
-                                </Text>
-                                <Text>
-                                  {dayjs(period.updatedAt).format(
-                                    'MMM-DD-YYYY',
-                                  )}
-                                </Text>
-                              </div>
-                            </div>
-                            <PayrollDetails
-                              activeMergedPayroll={activeMergedPayroll}
-                            />
-                          </Collapse.Panel>
-                        </Collapse>
-                      );
-                    })}
+                              <PayrollDetails
+                                activeMergedPayroll={activeMergedPayroll}
+                              />
+                            </Collapse.Panel>
+                          </Collapse>
+                        );
+                      })
+                  ) : (
+                    <EmptyImage/>      
+                )}
                 </>
               </TabPane>
               <TabPane tab="Settlement Tracking" key="3">
