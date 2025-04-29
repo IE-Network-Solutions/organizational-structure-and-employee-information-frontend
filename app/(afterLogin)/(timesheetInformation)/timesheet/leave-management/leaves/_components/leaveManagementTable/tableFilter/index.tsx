@@ -8,7 +8,7 @@ import { LeaveRequestStatusOption } from '@/types/timesheet/settings';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useMediaQuery } from 'react-responsive';
-import { IoMdSwitch } from 'react-icons/io';
+import { LuSettings2 } from 'react-icons/lu';
 
 interface LeaveManagementTableFilterProps {
   onChange: (val: CommonObject) => void;
@@ -98,7 +98,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
               allowClear
               suffixIcon={
                 isSmallScreen ? (
-                  <IoMdSwitch size={24} className="text-gray-900" />
+                  <LuSettings2 size={24} className="text-gray-900" />
                 ) : (
                   <MdKeyboardArrowDown size={16} className="text-gray-900" />
                 )

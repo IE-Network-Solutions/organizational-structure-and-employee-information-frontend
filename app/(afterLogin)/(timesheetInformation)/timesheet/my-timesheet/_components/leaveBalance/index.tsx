@@ -10,19 +10,22 @@ import { Button } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const LeaveBalance = () => {
   const { userId } = useAuthenticationStore();
   const [swiper, setSwiper] = useState<SwiperType>();
   const { data } = useGetLeaveBalance(userId, '');
-
+  const { isMobile } = useIsMobile();
   if (!data) {
     return '';
   }
 
   return (
     <>
-      <div className="text-2xl font-bold text-gray-900 mb-2.5">
+      <div
+        className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-gray-900 mb-2.5 p-3`}
+      >
         Leave Balances
       </div>
       <div className="relative">
@@ -38,7 +41,7 @@ const LeaveBalance = () => {
               onClick={() => swiper?.slidePrev()}
             />
           )}
-          <div className="w-full overflow-hidden px-8">
+          <div className="w-full overflow-hidden px-12">
             <Swiper
               className="w-full"
               id="swiperId"
