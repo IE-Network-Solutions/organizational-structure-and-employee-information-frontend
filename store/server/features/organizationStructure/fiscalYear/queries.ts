@@ -3,24 +3,24 @@ import { useQuery } from 'react-query';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { FiscalYear, FiscalYearResponse } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
+import { requestHeader } from '@/helpers/requestHeader';
 
 const getAllFiscalYears = async (pageSize?: number, currentPage?: number) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars?limit=${pageSize ?? 10}&&page=${currentPage ?? 1}`,
     method: 'GET',
-    headers,
+    headers: requestHeader(),
   });
 };
 
 //fetching active calendars
 const getActiveFiscalYear = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/active/calendar`,
     method: 'GET',
@@ -32,7 +32,7 @@ const getFiscalYear = async (id: string) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
     method: 'GET',
-    headers,
+    headers: requestHeader(),
   });
 };
 
@@ -48,3 +48,10 @@ export const useGetFiscalYearById = (id: string) =>
 
 export const useGetActiveFiscalYears = () =>
   useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear);
+
+export const useGetActiveFiscalYearsData = () => {
+  const token = useAuthenticationStore.getState().token;
+  return useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear, {
+    enabled: !!token,
+  });
+};
