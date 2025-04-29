@@ -118,7 +118,7 @@ const Drawer: React.FC = () => {
             style={{
               minHeight: isMobile ? 'auto' : 48,
               overflow: 'auto',
-            }} 
+            }}
           >
             {AllowanceData?.filter(
               (items: any) =>
