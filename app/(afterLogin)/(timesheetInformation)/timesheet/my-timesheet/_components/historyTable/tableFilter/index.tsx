@@ -1,7 +1,8 @@
 import { FC } from 'react';
 import { DatePicker, Form, Select, Row, Col, Button, Drawer } from 'antd';
 import { MdKeyboardArrowDown } from 'react-icons/md';
-import { IoMdSwitch } from 'react-icons/io';
+import { LuSettings2 } from 'react-icons/lu';
+
 import { LeaveRequestStatusOption } from '@/types/timesheet/settings';
 import { formatToOptions } from '@/helpers/formatTo';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
@@ -93,7 +94,7 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
       <div className="md:hidden mb-4">
         <Button
           type="default"
-          icon={<IoMdSwitch size={24} className="text-gray-600" />}
+          icon={<LuSettings2 size={24} className="text-gray-600" />}
           onClick={() => setIsFilterOpen(true)}
           className="flex items-center justify-center w-12 h-12 hover:bg-gray-50 border-gray-200"
         />

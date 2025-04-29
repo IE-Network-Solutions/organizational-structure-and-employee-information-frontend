@@ -15,6 +15,7 @@ import LeaveRequestSidebar from './_components/leaveRequestSidebar';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import ApprovalTable from './_components/approvalTable';
 import LeaveRequestDetail from './_components/leaveRequestDetail';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const MyTimesheet = () => {
   const { setLeaveTypes, setAllowedAreas, setBreakTypes } =
@@ -35,21 +36,24 @@ const MyTimesheet = () => {
     setBreakTypes(breakTypeData?.items ?? []);
   }, [breakTypeData]);
 
+  const { isMobile } = useIsMobile();
   return (
     <>
-      <div className="h-auto w-auto pr-6 pb-6 pl-3 bg-gray-100" >
-        <PageHeader title="My Attendance" description="Manage your Attendance" >
+      <div
+        className={`${isMobile ? 'h-auto' : 'h-full w-auto pr-0 pb-6 pl-3'} bg-gray-100`}
+      >
+        <PageHeader title="My Attendance" description="Manage your Attendance">
           <CheckControl />
         </PageHeader>
         <BlockWrapper className="mt-[-20px]">
           <ApprovalTable />
         </BlockWrapper>
 
-        <div className="mt-4">
+        <div className={`${isMobile ? 'mt-2' : 'mt-4'}`}>
           <LeaveBalance />
         </div>
 
-        <BlockWrapper className="mt-[30px]">
+        <BlockWrapper padding="p-2" className="mt-[30px]">
           <HistoryTable />
         </BlockWrapper>
 

@@ -25,7 +25,6 @@ const AttendanceTable = () => {
   const store = useMyTimesheetStore() as unknown as MyTimesheetStore;
   const { setIsShowViewAttendanceSidebar: isShow, setAttendanceData } = store;
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-
   const [filter, setFilter] = useState<
     Partial<AttendanceRequestBody['filter']>
   >({
@@ -106,12 +105,12 @@ const AttendanceTable = () => {
       width: 80,
       render: (text: string, record: AttendanceRecord) => (
         <div className="py-4">
-        <Button
+          <Button
             type="link"
-          onClick={() => {
+            onClick={() => {
               setAttendanceData(record);
               isShow(true);
-          }}
+            }}
           >
             View
           </Button>
@@ -211,11 +210,11 @@ const AttendanceTable = () => {
   };
 
   return (
-    <>
+    <div className="bg-gray-100">
       <div className="flex items-center justify-between mb-3 pr-2 bg-white rounded-lg p-2 mx-2">
         <div className="text-lg font-semibold text-gray-900">Leave History</div>
         <div className="flex items-center gap-2">
-        <Button
+          <Button
             type="default"
             className="ant-btn css-dev-only-do-not-override-kwtqki ant-btn-default ant-btn-color-default ant-btn-variant-outlined ant-btn-icon-only flex items-center justify-center w-12 h-12 hover:bg-gray-50 border-gray-200 sm:hidden"
             icon={<IoMdSwitch size={24} />}
@@ -270,7 +269,7 @@ const AttendanceTable = () => {
           />
         </div>
       </Drawer>
-    </>
+    </div>
   );
 };
 
