@@ -23,7 +23,7 @@ const RecruitmentPage: React.FC = () => {
   };
 
   return (
-    <div className="p-8 min-h-screen sm:p-6 bg-[#f5f5f5]">
+    <div className="p-4 min-h-screen sm:p-6 bg-[#f5f5f5]">
       <div
         className={`flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-1 ${isTablet ? 'flex-wrap gap-y-4' : ''}`}
       >
