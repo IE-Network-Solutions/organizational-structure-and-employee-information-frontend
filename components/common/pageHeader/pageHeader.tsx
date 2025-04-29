@@ -2,12 +2,14 @@
 import React from 'react';
 import { classNames } from '@/utils/classNames';
 import { useMediaQuery } from 'react-responsive';
+import { Tooltip } from 'antd';
 
 interface PageHeaderProps {
   title: React.ReactNode;
   description?: string;
   children?: React.ReactNode;
   size?: 'small' | 'medium';
+  toolTip?: string;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
@@ -15,6 +17,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   description,
   size = 'medium',
   children,
+  toolTip,
 }) => {
   const isSmallScreen = useMediaQuery({ maxWidth: 768 }); // Detect small screens
 
@@ -22,23 +25,27 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     <div className="flex justify-between flex-wrap items-center">
       <div className="flex-1">
         {isSmallScreen ? (
-          <h2
-            className={classNames('text-gray-900 mt-10', {
-              'text-xl': size === 'medium',
-              'text-lg': size === 'small',
-            })}
-          >
-            {title}
-          </h2>
+          <Tooltip title={toolTip} placement="top">
+            <h2
+              className={classNames('text-gray-900 m-1', {
+                'text-xl': size === 'medium',
+                'text-lg': size === 'small',
+              })}
+            >
+              {title}
+            </h2>
+          </Tooltip>
         ) : (
-          <h2
-            className={classNames('text-gray-900', {
-              'text-2xl': size === 'medium',
-              'text-xl': size === 'small',
-            })}
-          >
-            {title}
-          </h2>
+          <Tooltip title={toolTip} placement="top">
+            <h2
+              className={classNames('text-gray-900', {
+                'text-2xl': size === 'medium',
+                'text-xl': size === 'small',
+              })}
+            >
+              {title}
+            </h2>
+          </Tooltip>
         )}
 
         {description && (

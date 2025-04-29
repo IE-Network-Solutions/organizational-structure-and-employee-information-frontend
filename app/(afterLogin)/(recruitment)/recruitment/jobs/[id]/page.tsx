@@ -11,6 +11,7 @@ import WhatYouNeed from './_components/candidateSearch/whatYouNeed';
 import SearchOptions from './_components/candidateSearch/candidateSearchOptions';
 import { useGetJobsByID } from '@/store/server/features/recruitment/job/queries';
 import { IoIosArrowForward } from 'react-icons/io';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface Params {
   id: string;
@@ -22,6 +23,7 @@ interface CandidateProps {
 const Candidates = ({ params: { id } }: CandidateProps) => {
   const { setCreateJobDrawer } = useCandidateState();
   const { data: jobById } = useGetJobsByID(id);
+  const { isMobile, isTablet } = useIsMobile();
 
   const showDrawer = () => {
     setCreateJobDrawer(true);
@@ -52,7 +54,11 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
             <WhatYouNeed />
           </div>
           <CustomButton
-            title={<span className="hidden sm:inline">Add candidate</span>}
+            title={
+              !(isMobile || isTablet) && (
+                <span className="hidden sm:inline">Add candidate</span>
+              )
+            }
             id="createUserButton"
             icon={<FaPlus className="mr-2" />}
             onClick={showDrawer}
