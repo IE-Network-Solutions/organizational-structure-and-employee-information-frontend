@@ -684,7 +684,7 @@ const Payroll = () => {
           <AccessGuard permissions={[Permissions.PayrollExport]}>
             <Tooltip title="Export">
               <Button
-                className={`text-[#3636F0] bg-[#B2B2FF] border-none p-6 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
+                className={`text-[#3636F0] bg-[#B2B2FF] border-none p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
                 onClick={() => setIsModalOpen(true)}
               >
                 {isMobile ? <PiExportLight size={24} /> : 'Export'}
@@ -757,7 +757,7 @@ const Payroll = () => {
                     <Button
                       type="default"
                       loading={sendingPaySlipLoading}
-                      className="text-white bg-primary border-none p-6 flex flex-col items-start disabled:opacity-50"
+                      className="text-white bg-primary border-none p-5 flex flex-col items-start disabled:opacity-50"
                       disabled={mergedPayroll.length === 0}
                     >
                       <span className="text-base font-semibold">
@@ -769,7 +769,6 @@ const Payroll = () => {
               </Popconfirm>
             </AccessGuard>
           )}
-
           <Popconfirm
             title={
               payroll?.payrolls.length
@@ -796,7 +795,7 @@ const Payroll = () => {
               >
                 <Button
                   type="primary"
-                  className={`p-6 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
+                  className={`p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
                   onClick={() => {
                     handleGeneratePayroll();
                   }}
