@@ -23,7 +23,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       <div className="flex-1">
         {isSmallScreen ? (
           <h2
-            className={classNames('text-gray-900 m-1', {
+            className={classNames('text-gray-900 mt-10', {
               'text-xl': size === 'medium',
               'text-lg': size === 'small',
             })}

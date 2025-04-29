@@ -227,7 +227,7 @@ const HistoryTable = () => {
   };
 
   return (
-    <>
+    <div className="bg-white p-4 rounded-lg ">
       <div className="flex items-center justify-between mb-6">
         <div className="text-2xl font-bold text-gray-900">My Leave</div>
 
@@ -282,7 +282,7 @@ const HistoryTable = () => {
         }}
         scroll={{ x: 'max-content' }}
       />
-    </>
+    </div>
   );
 };
 

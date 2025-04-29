@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { theme } from 'antd';
-import { classNames } from '@/utils/classNames';
+import classNames from 'classnames';
 
 interface BlockWrapperProps {
   children: React.ReactNode;
@@ -18,11 +18,8 @@ const BlockWrapper: React.FC<BlockWrapperProps> = ({
 
   return (
     <div
-      className={classNames('p-6', undefined, [className])}
-      style={{
-        background: colorBgContainer,
-        borderRadius: borderRadiusLG,
-      }}
+      className={classNames('p-6 bg-gray-100', className)}
+      style={{ borderRadius: 11 }}
     >
       {children}
     </div>

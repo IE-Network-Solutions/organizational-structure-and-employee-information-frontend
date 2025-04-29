@@ -37,15 +37,15 @@ const MyTimesheet = () => {
 
   return (
     <>
-      <div className="h-auto w-auto pr-6 pb-6 pl-3">
-        <PageHeader title="My Attendance" description="Manage your Attendance">
+      <div className="h-auto w-auto pr-6 pb-6 pl-3 bg-gray-100" >
+        <PageHeader title="My Attendance" description="Manage your Attendance" >
           <CheckControl />
         </PageHeader>
-        <BlockWrapper className="mt-[30px]">
+        <BlockWrapper className="mt-[-20px]">
           <ApprovalTable />
         </BlockWrapper>
 
-        <div className="mt-6">
+        <div className="mt-4">
           <LeaveBalance />
         </div>
 
