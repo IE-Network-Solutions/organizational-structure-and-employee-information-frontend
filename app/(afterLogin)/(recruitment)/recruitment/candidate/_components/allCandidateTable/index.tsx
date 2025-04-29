@@ -22,6 +22,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import RecruitmentPagination from '../../../_components';
 import { FaLinkedin } from 'react-icons/fa';
 import { SiGmail } from 'react-icons/si';
+import { TableRowSelection } from 'antd/es/table/interface';
 
 const AllCandidateTable: React.FC = () => {
   const { data: statusStage } = useGetStages();
@@ -262,12 +263,12 @@ const AllCandidateTable: React.FC = () => {
     };
   });
 
-  const rowSelection = {
-    onChange: (notused: any, selectedRows: any) => {
+  const rowSelection: TableRowSelection<CandidateData> = {
+    onChange: (_selectedRowKeys, selectedRows) => {
       setSelectedCandidate(
-        candidateList?.items?.filter((item: any) =>
-          selectedRows.some((row: any) => row.id === item.id),
-        ),
+        candidateList?.items?.filter((item: CandidateData) =>
+          selectedRows.some((row: CandidateData) => row.id === item.id),
+        ) || [],
       );
     },
   };
