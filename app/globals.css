@@ -182,7 +182,7 @@ h6 {
 }
 
 .menu-item-label {
-  @apply font-bold text-sm text-gray-900;
+  @apply font-bold text-sm;
 }
 
 .menu-item-icon {
