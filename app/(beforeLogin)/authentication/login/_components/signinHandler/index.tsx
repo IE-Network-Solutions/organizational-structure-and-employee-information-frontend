@@ -69,10 +69,14 @@ export const useHandleSignIn = () => {
         } else if (
           fetchedData?.data?.hasCompany === true &&
           fetchedData?.data?.hasChangedPassword === true &&
-          new Date('2025-03-04') > new Date()
+          activeFiscalYear?.endDate &&
+          new Date(activeFiscalYear?.endDate) > new Date()
         ) {
           router.push('/dashboard');
-        } else if (new Date('2025-03-04') < new Date()) {
+        } else if (
+          activeFiscalYear?.endDate &&
+          new Date(activeFiscalYear.endDate) < new Date()
+        ) {
           router.push('/fiscal-ended');
         }
       }
