@@ -58,6 +58,7 @@ const Drawer: React.FC = () => {
   }, [selectedPayrollData]);
 
   const { isMobile } = useIsMobile();
+
   return (
     <CustomDrawerLayout
       open={isDrawerVisible && selectedPayrollData?.key}

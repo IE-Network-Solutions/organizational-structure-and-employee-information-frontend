@@ -8,7 +8,6 @@ import { FaPlus } from 'react-icons/fa';
 import { Button, Tooltip } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 
-// Define prop types for tabLandingLayout
 interface TabLandingLayoutProps {
   title: string | any;
   subtitle?: string | any;
@@ -51,7 +50,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
                       id={`${id}-createButtonId`}
                       icon={buttonIcon ?? <FaPlus />}
                       onClick={onClickHandler}
-                      className="text-xs bg-blue-600 hover:bg-blue-700 h-10"
+                      className="text-xs bg-blue-600 hover:bg-blue-700 h-14 w-5 sm:w-auto sm:px-5 px-6 py-6"
                     />
                   </AccessGuard>
                 )
