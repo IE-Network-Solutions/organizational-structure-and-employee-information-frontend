@@ -73,877 +73,438 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   }, [token]);
 
   const hasEndedFiscalYear =
-    activeFiscalYear?.isActive &&
-    new Date(activeFiscalYear?.endDate) < new Date();
-
-  const isInFiscalEndedRoute = pathname.startsWith(
-    '/organization/settings/fiscalYear/fiscalYearCard',
-  );
-  const isRestrictedMode = hasEndedFiscalYear && isInFiscalEndedRoute;
+    !!activeFiscalYear?.isActive &&
+    !!activeFiscalYear?.endDate &&
+    new Date(activeFiscalYear?.endDate) <= new Date();
 
   // ===========> Fiscal Year Ended Section <=================
 
-  const treeData: CustomMenuItem[] = isRestrictedMode
-    ? [
+  const treeData: CustomMenuItem[] = [
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12 w-60">
+          <CiSettings
+            size={18}
+            className={
+              expandedKeys.includes('/organization') ? 'text-blue' : ''
+            }
+          />{' '}
+          Organization
+        </span>
+      ),
+      key: '/organization',
+      className: 'font-bold',
+      permissions: ['view_organization'],
+      disabled: hasEndedFiscalYear,
+      children: [
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <CiSettings
-                size={18}
-                className={
-                  expandedKeys.includes('/organization') ? 'text-blue' : ''
-                }
-              />{' '}
-              Organization
-            </span>
-          ),
-          key: '/organization',
-          className: 'font-bold',
-          permissions: ['view_organization'],
+          title: 'Org Structure',
+          key: '/organization/chart',
+          className: 'font-bold h-9',
+          permissions: ['view_organization_chart'],
           disabled: hasEndedFiscalYear,
-          children: [
-            {
-              title: 'Org Structure',
-              key: '/organization/chart',
-              className: 'font-bold h-9',
-              permissions: ['view_organization_chart'],
-              disabled: hasEndedFiscalYear,
-            },
-            {
-              title: 'Settings',
-              key: '/organization/settings',
-              className: 'font-bold h-9',
-              permissions: ['view_organization_settings'],
-            },
-          ],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <LuUsers2
-                size={18}
-                className={
-                  expandedKeys.includes('/employees') ? 'text-blue' : ''
-                }
-              />{' '}
-              Employees
-            </span>
-          ),
-          key: '/employees',
-          className: 'font-bold',
-          permissions: ['view_employees'],
-          disabled: hasEndedFiscalYear,
-          children: [
-            {
-              title: 'Manage Employees',
-              key: '/employees/manage-employees',
-              className: 'font-bold h-9',
-              permissions: ['manage_employees'],
-            },
-            {
-              title: 'Department Request',
-              key: '/employees/departmentRequest',
-              className: 'font-bold h-9',
-              permissions: ['manage_department_requests'],
-            },
-            {
-              title: 'Settings',
-              key: '/employees/settings',
-              className: 'font-bold h-9',
-              permissions: ['manage_employee_settings'],
-            },
-          ],
+          title: 'Settings',
+          key: '/organization/settings',
+          className: 'font-bold h-9',
+          permissions: ['view_organization_settings'],
+        },
+      ],
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12 w-60">
+          <LuUsers2
+            size={18}
+            className={expandedKeys.includes('/employees') ? 'text-blue' : ''}
+          />{' '}
+          Employees
+        </span>
+      ),
+      key: '/employees',
+      className: 'font-bold',
+      permissions: ['view_employees'],
+      disabled: hasEndedFiscalYear,
+      children: [
+        {
+          title: 'Manage Employees',
+          key: '/employees/manage-employees',
+          className: 'font-bold h-9',
+          permissions: ['manage_employees'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <PiSuitcaseSimpleThin
-                size={18}
-                className={
-                  expandedKeys.includes('/recruitment') ? 'text-blue' : ''
-                }
-              />{' '}
-              Talent Acquisition
-            </span>
-          ),
-          key: '/recruitment',
-          className: 'font-bold',
-          permissions: ['view_recruitment'],
-          disabled: hasEndedFiscalYear,
-          children: [
-            {
-              title: 'Jobs',
-              key: '/recruitment/jobs',
-              className: 'font-bold h-9',
-              permissions: ['manage_recruitment_jobs'],
-            },
-            {
-              title: 'Candidates',
-              key: '/recruitment/candidate',
-              className: 'font-bold h-9',
-              permissions: ['manage_recruitment_candidates'],
-            },
-            {
-              title: 'Talent Pool',
-              key: '/recruitment/talent-pool',
-              className: 'font-bold h-9',
-              permissions: ['manage_recruitment_talent_pool'],
-            },
-            {
-              title: 'Settings',
-              key: '/recruitment/settings',
-              className: 'font-bold h-9',
-              permissions: ['manage_recruitment_settings'],
-            },
-          ],
+          title: 'Department Request',
+          key: '/employees/departmentRequest',
+          className: 'font-bold h-9',
+          permissions: ['manage_department_requests'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <CiStar
-                size={18}
-                className={
-                  expandedKeys.includes('/okr-planning') ? 'text-blue' : ''
-                }
-              />{' '}
-              OKR
-            </span>
-          ),
-          key: '/okr-planning',
-          className: 'font-bold',
-          permissions: ['view_okr'],
-          disabled: hasEndedFiscalYear,
-          children: [
-            {
-              title: 'Dashboard',
-              key: '/okr/dashboard',
-              className: 'font-bold h-9',
-              permissions: ['view_okr_dashboard'],
-            },
-            {
-              title: 'OKR',
-              key: '/okr',
-              className: 'font-bold h-8',
-              permissions: ['view_okr_overview'],
-            },
-            {
-              title: 'Planning and Reporting',
-              key: '/planning-and-reporting',
-              className: 'font-bold h-8',
-              permissions: ['manage_planning_reporting'],
-            },
-            {
-              key: '/okr/settings',
-              title: 'Settings',
-              className: 'font-bold h-8',
-              permissions: ['manage_okr_settings'],
-            },
-          ],
+          title: 'Settings',
+          key: '/employees/settings',
+          className: 'font-bold h-9',
+          permissions: ['manage_employee_settings'],
+        },
+      ],
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12 w-60">
+          <PiSuitcaseSimpleThin
+            size={18}
+            className={expandedKeys.includes('/recruitment') ? 'text-blue' : ''}
+          />{' '}
+          Talent Acquisition
+        </span>
+      ),
+      key: '/recruitment',
+      className: 'font-bold',
+      permissions: ['view_recruitment'],
+      disabled: hasEndedFiscalYear,
+      children: [
+        {
+          title: 'Jobs',
+          key: '/recruitment/jobs',
+          className: 'font-bold h-9',
+          permissions: ['manage_recruitment_jobs'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <TbMessage2
-                size={18}
-                className={
-                  expandedKeys.includes('/feedback') ? 'text-blue' : ''
-                }
-              />{' '}
-              CFR
-            </span>
-          ),
-          key: '/feedback',
-          className: 'font-bold',
-          permissions: ['view_feedback'],
-          disabled: hasEndedFiscalYear,
-          children: [
-            {
-              title: 'Conversation',
-              key: '/feedback/conversation',
-              className: 'font-bold h-9',
-              permissions: ['view_feedback_conversation'],
-            },
-            {
-              title: 'Feedback',
-              key: '/feedback/feedback',
-              className: 'font-bold h-9',
-              permissions: ['view_feedback_list'],
-            },
-            {
-              title: 'Recognition',
-              key: '/feedback/recognition',
-              className: 'font-bold h-9',
-              permissions: ['view_feedback_recognition'],
-            },
+          title: 'Candidates',
+          key: '/recruitment/candidate',
+          className: 'font-bold h-9',
+          permissions: ['manage_recruitment_candidates'],
+        },
+        {
+          title: 'Talent Pool',
+          key: '/recruitment/talent-pool',
+          className: 'font-bold h-9',
+          permissions: ['manage_recruitment_talent_pool'],
+        },
+        {
+          title: 'Settings',
+          key: '/recruitment/settings',
+          className: 'font-bold h-9',
+          permissions: ['manage_recruitment_settings'],
+        },
+      ],
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12 w-60">
+          <CiStar
+            size={18}
+            className={
+              expandedKeys.includes('/okr-planning') ? 'text-blue' : ''
+            }
+          />{' '}
+          OKR
+        </span>
+      ),
+      key: '/okr-planning',
+      className: 'font-bold',
+      permissions: ['view_okr'],
+      disabled: hasEndedFiscalYear,
+      children: [
+        {
+          title: 'Dashboard',
+          key: '/okr/dashboard',
+          className: 'font-bold h-9',
+          permissions: ['view_okr_dashboard'],
+        },
+        {
+          title: 'OKR',
+          key: '/okr',
+          className: 'font-bold h-8',
+          permissions: ['view_okr_overview'],
+        },
+        {
+          title: 'Planning and Reporting',
+          key: '/planning-and-reporting',
+          className: 'font-bold h-8',
+          permissions: ['manage_planning_reporting'],
+        },
+        {
+          key: '/okr/settings',
+          title: 'Settings',
+          className: 'font-bold h-8',
+          permissions: ['manage_okr_settings'],
+        },
+      ],
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12 w-60">
+          <TbMessage2
+            size={18}
+            className={expandedKeys.includes('/feedback') ? 'text-blue' : ''}
+          />{' '}
+          CFR
+        </span>
+      ),
+      key: '/feedback',
+      className: 'font-bold',
+      permissions: ['view_feedback'],
+      disabled: hasEndedFiscalYear,
+      children: [
+        {
+          title: 'Conversation',
+          key: '/feedback/conversation',
+          className: 'font-bold h-9',
+          permissions: ['view_feedback_conversation'],
+        },
+        {
+          title: 'Feedback',
+          key: '/feedback/feedback',
+          className: 'font-bold h-9',
+          permissions: ['view_feedback_list'],
+        },
+        {
+          title: 'Recognition',
+          key: '/feedback/recognition',
+          className: 'font-bold h-9',
+          permissions: ['view_feedback_recognition'],
+        },
 
-            {
-              title: 'Settings',
-              key: '/feedback/settings',
-              className: 'font-bold h-9',
-              permissions: ['manage_feedback_settings'],
-            },
-          ],
+        {
+          title: 'Settings',
+          key: '/feedback/settings',
+          className: 'font-bold h-9',
+          permissions: ['manage_feedback_settings'],
+        },
+      ],
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12 w-60">
+          <CiBookmark
+            size={18}
+            className={expandedKeys.includes('/tna') ? 'text-blue' : ''}
+          />{' '}
+          Learning & Growth
+        </span>
+      ),
+      key: '/tna',
+      className: 'font-bold',
+      permissions: ['view_learning_growth'],
+      disabled: hasEndedFiscalYear,
+      children: [
+        {
+          title: 'My-TNA',
+          key: '/tna/my-training',
+          className: 'font-bold h-9',
+          permissions: ['view_my_training'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <CiBookmark
-                size={18}
-                className={expandedKeys.includes('/tna') ? 'text-blue' : ''}
-              />{' '}
-              Learning & Growth
-            </span>
-          ),
-          key: '/tna',
-          className: 'font-bold',
-          permissions: ['view_learning_growth'],
-          disabled: hasEndedFiscalYear,
-          children: [
-            {
-              title: 'My-TNA',
-              key: '/tna/my-training',
-              className: 'font-bold h-9',
-              permissions: ['view_my_training'],
-            },
-            {
-              title: 'Training Management',
-              key: '/tna/management',
-              className: 'font-bold h-9',
-              permissions: ['manage_training'],
-            },
-            {
-              title: 'TNA',
-              key: '/tna/review',
-              className: 'font-bold h-9',
-              permissions: ['view_tna_review'],
-            },
-            {
-              title: 'Settings',
-              key: '/tna/settings/course-category',
-              className: 'font-bold h-9',
-              permissions: ['manage_tna_settings'],
-            },
-          ],
+          title: 'Training Management',
+          key: '/tna/management',
+          className: 'font-bold h-9',
+          permissions: ['manage_training'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <AiOutlineDollarCircle
-                size={18}
-                className={expandedKeys.includes('/payroll') ? 'text-blue' : ''}
-              />{' '}
-              Payroll
-            </span>
-          ),
-          key: 'payroll',
-          className: 'font-bold',
-          disabled: hasEndedFiscalYear,
-          children: [
-            {
-              title: 'Employee Information',
-              key: '/employee-information',
-              className: 'font-bold h-9',
-              permissions: ['view_employee_information'],
-            },
-            {
-              title: 'Payroll',
-              key: '/payroll',
-              className: 'font-bold h-9',
-              permissions: ['view_payroll_overview'],
-            },
-            {
-              title: 'My Payroll',
-              key: '/myPayroll',
-              className: 'font-bold h-9',
-              permissions: ['view_my_payroll'],
-            },
-            {
-              title: 'Settings',
-              key: '/settings',
-              className: 'font-bold h-9',
-              permissions: ['manage_payroll_settings'],
-            },
-          ],
+          title: 'TNA',
+          key: '/tna/review',
+          className: 'font-bold h-9',
+          permissions: ['view_tna_review'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <CiCalendar
-                size={18}
-                className={
-                  expandedKeys.includes('/timesheet') ? 'text-blue' : ''
-                }
-              />{' '}
-              Time & Attendance
-            </span>
-          ),
-          key: '/timesheet',
-          className: 'font-bold',
-          permissions: ['view_timesheet'],
-          disabled: hasEndedFiscalYear,
-          children: [
-            {
-              title: 'My Timesheet',
-              key: '/timesheet/my-timesheet',
-              className: 'font-bold h-9',
-              permissions: ['view_my_timesheet'],
-            },
-            {
-              title: 'Employee Attendance',
-              key: '/timesheet/employee-attendance',
-              className: 'font-bold h-9',
-              permissions: ['view_employee_attendance'],
-            },
-            {
-              title: 'Leave Management',
-              key: '/timesheet/leave-management/leaves',
-              className: 'font-bold h-9',
-              permissions: ['manage_leave_management'],
-            },
-            {
-              title: 'Settings',
-              key: '/timesheet/settings/closed-date',
-              className: 'font-bold h-9',
-              permissions: ['manage_timesheet_settings'],
-            },
-          ],
+          title: 'Settings',
+          key: '/tna/settings/course-category',
+          className: 'font-bold h-9',
+          permissions: ['manage_tna_settings'],
+        },
+      ],
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12 w-60">
+          <AiOutlineDollarCircle
+            size={18}
+            className={expandedKeys.includes('/payroll') ? 'text-blue' : ''}
+          />{' '}
+          Payroll
+        </span>
+      ),
+      key: 'payroll',
+      className: 'font-bold',
+      disabled: hasEndedFiscalYear,
+      children: [
+        {
+          title: 'Employee Information',
+          key: '/employee-information',
+          className: 'font-bold h-9',
+          permissions: ['view_employee_information'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <PiMoneyLight
-                size={18}
-                className={
-                  expandedKeys.includes('/compensation') ? 'text-blue' : ''
-                }
-              />{' '}
-              Compensation & Benefit
-            </span>
-          ),
-          key: '/compensation',
-          className: 'font-bold',
-          permissions: ['view_compensation'],
-          disabled: hasEndedFiscalYear,
-          children: [
-            {
-              title: 'Allowance',
-              key: '/allowance',
-              className: 'font-bold h-9',
-              permissions: ['view_allowance'],
-            },
-            {
-              title: 'Benefit',
-              key: '/benefit',
-              className: 'font-bold h-9',
-              permissions: ['view_benefit'],
-            },
-            {
-              title: 'Deduction',
-              key: '/deduction',
-              className: 'font-bold h-9',
-              permissions: ['view_deduction'],
-            },
-            {
-              title: 'Settings',
-              key: '/compensationSetting',
-              className: 'font-bold h-9',
-              permissions: ['manage_compensation_settings'],
-            },
-          ],
+          title: 'Payroll',
+          key: '/payroll',
+          className: 'font-bold h-9',
+          permissions: ['view_payroll_overview'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <LuCircleDollarSign
-                size={18}
-                className={
-                  expandedKeys.includes('/incentive') ? 'text-blue' : ''
-                }
-              />{' '}
-              Incentives
-            </span>
-          ),
-          key: '/incentive',
-          className: 'font-bold',
-          permissions: ['view_incentive'],
-          disabled: hasEndedFiscalYear,
-          children: [
-            {
-              key: '/incentives',
-              title: 'Incentive',
-              className: 'font-bold h-9',
-              permissions: ['view_incentive_page'],
-            },
-            {
-              title: 'Variable Pay',
-              key: '/variable-pay',
-              className: 'font-bold h-9',
-              permissions: ['view_variable_pay'],
-            },
-            {
-              title: 'Settings',
-              key: '/incentives/settings',
-              className: 'font-bold h-9',
-              permissions: ['manage_incentive_settings'],
-            },
-          ],
+          title: 'My Payroll',
+          key: '/myPayroll',
+          className: 'font-bold h-9',
+          permissions: ['view_my_payroll'],
         },
         {
-          key: '/admin',
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <CiSettings size={18} /> Admin
-            </span>
-          ),
-          className: 'font-bold',
-          permissions: ['view_admin_configuration'],
-          disabled: hasEndedFiscalYear,
-          children: [
-            {
-              key: '/admin/dashboard',
-              title: 'Dashboard',
-              className: 'font-bold h-9',
-              permissions: ['view_admin_dashboard'],
-            },
-            {
-              key: '/admin/billing',
-              title: 'Billing and Invoice',
-              className: 'font-bold h-9',
-              permissions: ['view_admin_billing'],
-            },
-            {
-              key: '/admin/profile',
-              title: 'Update Profile',
-              className: 'font-bold h-9',
-              permissions: ['view_admin_profile'],
-            },
-          ],
+          title: 'Settings',
+          key: '/settings',
+          className: 'font-bold h-9',
+          permissions: ['manage_payroll_settings'],
         },
-      ]
-    : [
+      ],
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12 w-60">
+          <CiCalendar
+            size={18}
+            className={expandedKeys.includes('/timesheet') ? 'text-blue' : ''}
+          />{' '}
+          Time & Attendance
+        </span>
+      ),
+      key: '/timesheet',
+      className: 'font-bold',
+      permissions: ['view_timesheet'],
+      disabled: hasEndedFiscalYear,
+      children: [
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <CiSettings
-                size={18}
-                className={
-                  expandedKeys.includes('/organization') ? 'text-blue' : ''
-                }
-              />{' '}
-              Organization
-            </span>
-          ),
-          key: '/organization',
-          className: 'font-bold',
-          permissions: ['view_organization'],
-          children: [
-            {
-              title: 'Org Structure',
-              key: '/organization/chart',
-              className: 'font-bold h-9',
-              permissions: ['view_organization_chart'],
-            },
-            {
-              title: 'Settings',
-              key: '/organization/settings',
-              className: 'font-bold h-9',
-              permissions: ['view_organization_settings'],
-            },
-          ],
+          title: 'My Timesheet',
+          key: '/timesheet/my-timesheet',
+          className: 'font-bold h-9',
+          permissions: ['view_my_timesheet'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <LuUsers2
-                size={18}
-                className={
-                  expandedKeys.includes('/employees') ? 'text-blue' : ''
-                }
-              />{' '}
-              Employees
-            </span>
-          ),
-          key: '/employees',
-          className: 'font-bold',
-          permissions: ['view_employees'],
-          children: [
-            {
-              title: 'Manage Employees',
-              key: '/employees/manage-employees',
-              className: 'font-bold h-9',
-              permissions: ['manage_employees'],
-            },
-            {
-              title: 'Department Request',
-              key: '/employees/departmentRequest',
-              className: 'font-bold h-9',
-              permissions: ['manage_department_requests'],
-            },
-            {
-              title: 'Settings',
-              key: '/employees/settings',
-              className: 'font-bold h-9',
-              permissions: ['manage_employee_settings'],
-            },
-          ],
+          title: 'Employee Attendance',
+          key: '/timesheet/employee-attendance',
+          className: 'font-bold h-9',
+          permissions: ['view_employee_attendance'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <PiSuitcaseSimpleThin
-                size={18}
-                className={
-                  expandedKeys.includes('/recruitment') ? 'text-blue' : ''
-                }
-              />{' '}
-              Talent Acquisition
-            </span>
-          ),
-          key: '/recruitment',
-          className: 'font-bold',
-          permissions: ['view_recruitment'],
-          children: [
-            {
-              title: 'Jobs',
-              key: '/recruitment/jobs',
-              className: 'font-bold h-9',
-              permissions: ['manage_recruitment_jobs'],
-            },
-            {
-              title: 'Candidates',
-              key: '/recruitment/candidate',
-              className: 'font-bold h-9',
-              permissions: ['manage_recruitment_candidates'],
-            },
-            {
-              title: 'Talent Pool',
-              key: '/recruitment/talent-pool',
-              className: 'font-bold h-9',
-              permissions: ['manage_recruitment_talent_pool'],
-            },
-            {
-              title: 'Settings',
-              key: '/recruitment/settings',
-              className: 'font-bold h-9',
-              permissions: ['manage_recruitment_settings'],
-            },
-          ],
+          title: 'Leave Management',
+          key: '/timesheet/leave-management/leaves',
+          className: 'font-bold h-9',
+          permissions: ['manage_leave_management'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <CiStar
-                size={18}
-                className={
-                  expandedKeys.includes('/okr-planning') ? 'text-blue' : ''
-                }
-              />{' '}
-              OKR
-            </span>
-          ),
-          key: '/okr-planning',
-          className: 'font-bold',
-          permissions: ['view_okr'],
-          children: [
-            {
-              title: 'Dashboard',
-              key: '/okr/dashboard',
-              className: 'font-bold h-9',
-              permissions: ['view_okr_dashboard'],
-            },
-            {
-              title: 'OKR',
-              key: '/okr',
-              className: 'font-bold h-8',
-              permissions: ['view_okr_overview'],
-            },
-            {
-              title: 'Planning and Reporting',
-              key: '/planning-and-reporting',
-              className: 'font-bold h-8',
-              permissions: ['manage_planning_reporting'],
-            },
-            {
-              key: '/okr/settings',
-              title: 'Settings',
-              className: 'font-bold h-8',
-              permissions: ['manage_okr_settings'],
-            },
-          ],
+          title: 'Settings',
+          key: '/timesheet/settings/closed-date',
+          className: 'font-bold h-9',
+          permissions: ['manage_timesheet_settings'],
+        },
+      ],
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12 w-60">
+          <PiMoneyLight
+            size={18}
+            className={
+              expandedKeys.includes('/compensation') ? 'text-blue' : ''
+            }
+          />{' '}
+          Compensation & Benefit
+        </span>
+      ),
+      key: '/compensation',
+      className: 'font-bold',
+      permissions: ['view_compensation'],
+      disabled: hasEndedFiscalYear,
+      children: [
+        {
+          title: 'Allowance',
+          key: '/allowance',
+          className: 'font-bold h-9',
+          permissions: ['view_allowance'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <TbMessage2
-                size={18}
-                className={
-                  expandedKeys.includes('/feedback') ? 'text-blue' : ''
-                }
-              />{' '}
-              CFR
-            </span>
-          ),
-          key: '/feedback',
-          className: 'font-bold',
-          permissions: ['view_feedback'],
-          children: [
-            {
-              title: 'Conversation',
-              key: '/feedback/conversation',
-              className: 'font-bold h-9',
-              permissions: ['view_feedback_conversation'],
-            },
-            {
-              title: 'Feedback',
-              key: '/feedback/feedback',
-              className: 'font-bold h-9',
-              permissions: ['view_feedback_list'],
-            },
-            {
-              title: 'Recognition',
-              key: '/feedback/recognition',
-              className: 'font-bold h-9',
-              permissions: ['view_feedback_recognition'],
-            },
-
-            {
-              title: 'Settings',
-              key: '/feedback/settings',
-              className: 'font-bold h-9',
-              permissions: ['manage_feedback_settings'],
-            },
-          ],
+          title: 'Benefit',
+          key: '/benefit',
+          className: 'font-bold h-9',
+          permissions: ['view_benefit'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <CiBookmark
-                size={18}
-                className={expandedKeys.includes('/tna') ? 'text-blue' : ''}
-              />{' '}
-              Learning & Growth
-            </span>
-          ),
-          key: '/tna',
-          className: 'font-bold',
-          permissions: ['view_learning_growth'],
-          children: [
-            {
-              title: 'My-TNA',
-              key: '/tna/my-training',
-              className: 'font-bold h-9',
-              permissions: ['view_my_training'],
-            },
-            {
-              title: 'Training Management',
-              key: '/tna/management',
-              className: 'font-bold h-9',
-              permissions: ['manage_training'],
-            },
-            {
-              title: 'TNA',
-              key: '/tna/review',
-              className: 'font-bold h-9',
-              permissions: ['view_tna_review'],
-            },
-            {
-              title: 'Settings',
-              key: '/tna/settings/course-category',
-              className: 'font-bold h-9',
-              permissions: ['manage_tna_settings'],
-            },
-          ],
+          title: 'Deduction',
+          key: '/deduction',
+          className: 'font-bold h-9',
+          permissions: ['view_deduction'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <AiOutlineDollarCircle
-                size={18}
-                className={expandedKeys.includes('/payroll') ? 'text-blue' : ''}
-              />{' '}
-              Payroll
-            </span>
-          ),
-          key: 'payroll',
-          className: 'font-bold',
-          children: [
-            {
-              title: 'Employee Information',
-              key: '/employee-information',
-              className: 'font-bold h-9',
-              permissions: ['view_employee_information'],
-            },
-            {
-              title: 'Payroll',
-              key: '/payroll',
-              className: 'font-bold h-9',
-              permissions: ['view_payroll_overview'],
-            },
-            {
-              title: 'My Payroll',
-              key: '/myPayroll',
-              className: 'font-bold h-9',
-              permissions: ['view_my_payroll'],
-            },
-            {
-              title: 'Settings',
-              key: '/settings',
-              className: 'font-bold h-9',
-              permissions: ['manage_payroll_settings'],
-            },
-          ],
+          title: 'Settings',
+          key: '/compensationSetting',
+          className: 'font-bold h-9',
+          permissions: ['manage_compensation_settings'],
+        },
+      ],
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12 w-60">
+          <LuCircleDollarSign
+            size={18}
+            className={expandedKeys.includes('/incentive') ? 'text-blue' : ''}
+          />{' '}
+          Incentives
+        </span>
+      ),
+      key: '/incentive',
+      className: 'font-bold',
+      permissions: ['view_incentive'],
+      disabled: hasEndedFiscalYear,
+      children: [
+        {
+          key: '/incentives',
+          title: 'Incentive',
+          className: 'font-bold h-9',
+          permissions: ['view_incentive_page'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <CiCalendar
-                size={18}
-                className={
-                  expandedKeys.includes('/timesheet') ? 'text-blue' : ''
-                }
-              />{' '}
-              Time & Attendance
-            </span>
-          ),
-          key: '/timesheet',
-          className: 'font-bold',
-          permissions: ['view_timesheet'],
-          children: [
-            {
-              title: 'My Timesheet',
-              key: '/timesheet/my-timesheet',
-              className: 'font-bold h-9',
-              permissions: ['view_my_timesheet'],
-            },
-            {
-              title: 'Employee Attendance',
-              key: '/timesheet/employee-attendance',
-              className: 'font-bold h-9',
-              permissions: ['view_employee_attendance'],
-            },
-            {
-              title: 'Leave Management',
-              key: '/timesheet/leave-management/leaves',
-              className: 'font-bold h-9',
-              permissions: ['manage_leave_management'],
-            },
-            {
-              title: 'Settings',
-              key: '/timesheet/settings/closed-date',
-              className: 'font-bold h-9',
-              permissions: ['manage_timesheet_settings'],
-            },
-          ],
+          title: 'Variable Pay',
+          key: '/variable-pay',
+          className: 'font-bold h-9',
+          permissions: ['view_variable_pay'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <PiMoneyLight
-                size={18}
-                className={
-                  expandedKeys.includes('/compensation') ? 'text-blue' : ''
-                }
-              />{' '}
-              Compensation & Benefit
-            </span>
-          ),
-          key: '/compensation',
-          className: 'font-bold',
-          permissions: ['view_compensation'],
-          children: [
-            {
-              title: 'Allowance',
-              key: '/allowance',
-              className: 'font-bold h-9',
-              permissions: ['view_allowance'],
-            },
-            {
-              title: 'Benefit',
-              key: '/benefit',
-              className: 'font-bold h-9',
-              permissions: ['view_benefit'],
-            },
-            {
-              title: 'Deduction',
-              key: '/deduction',
-              className: 'font-bold h-9',
-              permissions: ['view_deduction'],
-            },
-            {
-              title: 'Settings',
-              key: '/compensationSetting',
-              className: 'font-bold h-9',
-              permissions: ['manage_compensation_settings'],
-            },
-          ],
+          title: 'Settings',
+          key: '/incentives/settings',
+          className: 'font-bold h-9',
+          permissions: ['manage_incentive_settings'],
+        },
+      ],
+    },
+    {
+      key: '/admin',
+      title: (
+        <span className="flex items-center gap-2 h-12 w-60">
+          <CiSettings size={18} /> Admin
+        </span>
+      ),
+      className: 'font-bold',
+      permissions: ['view_admin_configuration'],
+      disabled: hasEndedFiscalYear,
+      children: [
+        {
+          key: '/admin/dashboard',
+          title: 'Dashboard',
+          className: 'font-bold h-9',
+          permissions: ['view_admin_dashboard'],
         },
         {
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <LuCircleDollarSign
-                size={18}
-                className={
-                  expandedKeys.includes('/incentive') ? 'text-blue' : ''
-                }
-              />{' '}
-              Incentives
-            </span>
-          ),
-          key: '/incentive',
-          className: 'font-bold',
-          permissions: ['view_incentive'],
-          children: [
-            {
-              key: '/incentives',
-              title: 'Incentive',
-              className: 'font-bold h-9',
-              permissions: ['view_incentive_page'],
-            },
-            {
-              title: 'Variable Pay',
-              key: '/variable-pay',
-              className: 'font-bold h-9',
-              permissions: ['view_variable_pay'],
-            },
-            {
-              title: 'Settings',
-              key: '/incentives/settings',
-              className: 'font-bold h-9',
-              permissions: ['manage_incentive_settings'],
-            },
-          ],
+          key: '/admin/billing',
+          title: 'Billing and Invoice',
+          className: 'font-bold h-9',
+          permissions: ['view_admin_billing'],
         },
         {
-          key: '/admin',
-          title: (
-            <span className="flex items-center gap-2 h-12 w-60">
-              <CiSettings size={18} /> Admin
-            </span>
-          ),
-          className: 'font-bold',
-          permissions: ['view_admin_configuration'],
-          children: [
-            {
-              key: '/admin/dashboard',
-              title: 'Dashboard',
-              className: 'font-bold h-9',
-              permissions: ['view_admin_dashboard'],
-            },
-            {
-              key: '/admin/billing',
-              title: 'Billing and Invoice',
-              className: 'font-bold h-9',
-              permissions: ['view_admin_billing'],
-            },
-            {
-              key: '/admin/profile',
-              title: 'Update Profile',
-              className: 'font-bold h-9',
-              permissions: ['view_admin_profile'],
-            },
-          ],
+          key: '/admin/profile',
+          title: 'Update Profile',
+          className: 'font-bold h-9',
+          permissions: ['view_admin_profile'],
         },
-      ];
+      ],
+    },
+  ];
 
   const handleSelect = (keys: (string | number | bigint)[], info: any) => {
     const selectedKey = info?.node?.key;

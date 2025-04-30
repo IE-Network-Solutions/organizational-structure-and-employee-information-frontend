@@ -27,8 +27,9 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   }, [token]);
 
   const hasEndedFiscalYear =
-    activeFiscalYear?.isActive &&
-    new Date(activeFiscalYear?.endDate) < new Date();
+    !!activeFiscalYear?.isActive &&
+    !!activeFiscalYear?.endDate &&
+    new Date(activeFiscalYear.endDate) <= new Date();
 
   const menuItems = new SidebarMenuItem([
     {

@@ -56,26 +56,32 @@ export const useHandleSignIn = () => {
         setUserData(fetchedData?.data);
         message.success('Welcome!');
         message.loading({ content: 'Redirecting...', key: 'redirect' });
-        // const redirectPath =
-        //   sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
-        // sessionStorage.removeItem('redirectAfterLogin');
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        sessionStorage.removeItem('redirectAfterLogin');
 
         if (fetchedData?.data?.hasCompany === false) {
           router.push('/onboarding');
-        }
-        // else if (redirectPath) {
-        //   router.push(redirectPath);
-        // }
-        else if (fetchedData?.data?.hasChangedPassword === false) {
+        } else if (fetchedData?.data?.hasChangedPassword === false) {
           router.push('/authentication/new-password');
         } else if (
           fetchedData?.data?.hasCompany === true &&
           fetchedData?.data?.hasChangedPassword === true &&
-          new Date(activeFiscalYear!.endDate) > new Date()
+          activeFiscalYear?.endDate &&
+          new Date(activeFiscalYear?.endDate) > new Date()
         ) {
           router.push('/dashboard');
-        } else if (new Date(activeFiscalYear!.endDate) < new Date()) {
+        } else if (
+          activeFiscalYear?.endDate &&
+          new Date(activeFiscalYear?.endDate) < new Date()
+        ) {
           router.push('/organization/settings/fiscalYear/fiscalYearCard');
+          message.warning(
+            'Your active fiscal year has ended. Please set a new one.',
+          );
+        } else if (redirectPath) {
+          router.push(redirectPath);
+        } else {
+          router.push('/dashboard');
         }
       }
     } catch (err: any) {
