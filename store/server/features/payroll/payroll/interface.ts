@@ -4,7 +4,7 @@ export interface PaySlipData {
   employeeId: string;
 }
 
-export interface payPeriod {
+export interface PayPeriod {
   id: string;
   startDate: string;
   endDate: string;

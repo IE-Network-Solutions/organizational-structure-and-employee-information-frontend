@@ -35,7 +35,7 @@ import SettlementDetail from './_components/settlementDetail';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { FaArrowLeft } from 'react-icons/fa';
 import { EmptyImage } from '@/components/emptyIndicator';
-import { payPeriod } from '@/store/server/features/payroll/payroll/interface';
+import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -86,7 +86,7 @@ const EmployeeProfile = () => {
   useEffect(() => {
     if (payPeriodData && activeMergedPayroll?.payPeriodId) {
       const currentPayPeriod = payPeriodData.find(
-        (payPeriod: payPeriod) =>
+        (payPeriod: PayPeriod) =>
           payPeriod.id === activeMergedPayroll.payPeriodId,
       );
       setActivePayPeriod(currentPayPeriod);
@@ -603,7 +603,7 @@ const EmployeeProfile = () => {
                   {payPeriodData ? (
                     payPeriodData
                       ?.filter(
-                        (period: payPeriod) =>
+                        (period: PayPeriod) =>
                           payrollHistory.some(
                             (pay: any) => pay.payPeriodId === period.id,
                           ), // Filter only periods with merged data
