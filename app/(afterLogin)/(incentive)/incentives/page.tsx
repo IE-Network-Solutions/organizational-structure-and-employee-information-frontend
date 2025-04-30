@@ -1,6 +1,6 @@
 'use client';
 import { useParentRecognition } from '@/store/server/features/incentive/other/queries';
-import { Button, Skeleton, Tabs } from 'antd';
+import { Skeleton, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import PayRoleView from './payroll-detail';
 import { useEffect, useMemo } from 'react';
@@ -8,8 +8,9 @@ import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive'
 import AllIncentives from './compensation/all/page';
 import DynamicIncentive from './compensation/dynamicRecoginition';
 import ExportModal from './compensation/all/export';
-import { Eye, FileDown, FileUp, FolderInput } from 'lucide-react';
-import { useMediaQuery } from 'react-responsive';
+import { Eye, FileDown, FileUp } from 'lucide-react';
+import CustomButton from '@/components/common/buttons/customButton';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const Page = () => {
   const {
@@ -28,6 +29,7 @@ const Page = () => {
 
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
+  const { isMobile, isTablet } = useIsMobile();
 
   useEffect(() => {
     setParentResponseIsLoading(parentResponseLoading);
@@ -36,8 +38,6 @@ const Page = () => {
   const handleExportClick = () => {
     setIsOpen(true);
   };
-
-  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
   const items: TabsProps['items'] = parentResponseLoading
     ? [{ key: 'loading', label: <Skeleton active />, children: null }]
@@ -73,67 +73,82 @@ const Page = () => {
       return (
         <div className="flex items-center justify-center gap-3">
           {isPayrollView ? (
-            <Button
+            <CustomButton
+              title={
+                !(isMobile || isTablet) && (
+                  <span className="hidden sm:inline">Generate</span>
+                )
+              }
+              id="createUserButton"
+              icon={<FileDown className="md:mr-0 ml-2" size={18} />}
               onClick={() => setShowGenerateModal(!showGenerateModal)}
-              className={`bg-[#3636F0] border-none text-md font-md text-white px-4 ${
-                isSmallScreen ? 'w-[60px] py-6' : 'w-auto'
-              }`}
-            >
-              {isSmallScreen ? <FolderInput /> : <span>Generate</span>}
-            </Button>
+              textClassName="!text-sm !font-medium"
+              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+            />
           ) : (
-            <Button
+            <CustomButton
+              title={
+                !(isMobile || isTablet) && (
+                  <span className="hidden sm:inline">Export</span>
+                )
+              }
+              id="createUserButton"
+              icon={<FileDown className="md:mr-0 ml-2" size={18} />}
               onClick={() => handleExportClick()}
-              className={`bg-[#3636F0] border-none text-md font-md text-white px-4 ${
-                isSmallScreen ? 'w-[60px] py-6' : 'w-auto'
-              }`}
-            >
-              {isSmallScreen ? <FileUp /> : <span>Export</span>}
-            </Button>
+              textClassName="!text-sm !font-medium"
+              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+            />
           )}
 
-          <Button
+          <CustomButton
+            title={
+              !(isMobile || isTablet) && (
+                <span className="hidden sm:inline">
+                  {isPayrollView ? 'Session View' : 'Payroll View'}
+                </span>
+              )
+            }
+            id="createUserButton"
+            icon={<Eye className="md:mr-0 ml-2" size={18} />}
             onClick={() => setIsPayrollView(!isPayrollView)}
-            className={`bg-[#3636F0] border-none text-md font-md text-white px-4 ${
-              isSmallScreen ? 'w-[60px] py-6' : 'w-auto'
-            }`}
-            icon={isSmallScreen && <Eye />}
-          >
-            {!isSmallScreen &&
-              (isPayrollView ? 'Session View' : 'Payroll View')}
-          </Button>
+            textClassName="!text-sm !font-medium"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+          />
         </div>
       );
     } else {
       // Show Import & Generate for all other tabs
       return (
         <div className="flex items-center justify-center gap-3">
-          <Button
+          <CustomButton
+            title={
+              !(isMobile || isTablet) && (
+                <span className="hidden sm:inline">Export</span>
+              )
+            }
+            id="createUserButton"
+            icon={<FileUp className="md:mr-0 ml-2" size={18} />}
             onClick={() => handleExportClick()}
-            className={`bg-[#3636F0] border-none text-md font-md text-white px-4 ${
-              isSmallScreen ? 'w-[60px] py-6' : 'w-auto'
-            }`}
-          >
-            {isSmallScreen ? <FileUp /> : <span>Export</span>}
-          </Button>
-          <Button
+            textClassName="!text-sm !font-medium"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+          />
+
+          <CustomButton
+            title={
+              !(isMobile || isTablet) && (
+                <span className="hidden sm:inline">Import Data</span>
+              )
+            }
+            id="createUserButton"
+            icon={<FileDown className="md:mr-0 ml-2" size={18} />}
             onClick={() => setProjectDrawer(true)}
-            className={`bg-[#3636F0] border-none text-md font-md text-white px-4 ${
-              isSmallScreen ? 'w-[60px] py-6' : 'w-auto'
-            }`}
-          >
-            {isSmallScreen ? <FileDown /> : <span>Import Data</span>}
-          </Button>
+            textClassName="!text-sm !font-medium"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+          />
         </div>
       );
     }
-  }, [
-    activeKey,
-    isPayrollView,
-    setProjectDrawer,
-    setIsPayrollView,
-    isSmallScreen,
-  ]);
+  }, [activeKey, isPayrollView, setProjectDrawer, setIsPayrollView, isMobile]);
 
   const handleTabChange = (key: string) => {
     setActiveKey(key);
@@ -153,7 +168,7 @@ const Page = () => {
   };
 
   return (
-    <div className="m-1">
+    <div className="!pt-12 sm:pt-2 !mt:5 sm:m-1 ">
       <div>
         {isPayrollView && <PayRoleView operationSlot={OperationsSlot} />}
       </div>

@@ -11,6 +11,7 @@ import {
   Switch,
   Select,
   Tooltip,
+  Avatar,
 } from 'antd';
 import { Workbook } from 'exceljs';
 import Filters from './_components/filters';
@@ -36,11 +37,11 @@ import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
 import { useExportData } from './_components/excel';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { IoMdSwitch } from 'react-icons/io';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { PiExportLight } from 'react-icons/pi';
+import {LuSettings2 } from 'react-icons/lu';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
-import { CiCirclePlus } from 'react-icons/ci';
+import { TbFileExport } from 'react-icons/tb';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -514,8 +515,17 @@ const Payroll = () => {
       dataIndex: 'employeeId',
       key: 'employeeId',
       minWidth: 200,
-      render: (notused: any, record: any) =>
-        `${record.employeeInfo?.firstName || ''} ${record.employeeInfo?.lastName || ''}`,
+      render: (notused: any, record: any) => (
+        <div className="flex items-center gap-2">
+          <Avatar 
+            src={record.employeeInfo?.profileImage} 
+            size={32}
+          />
+          <span>
+            {`${record.employeeInfo?.firstName || ''} ${record.employeeInfo?.lastName || ''}`}
+          </span>
+        </div>
+      ),
     },
     {
       title: 'Basic Salary',
@@ -664,15 +674,9 @@ const Payroll = () => {
     })) || [];
 
   return (
-    <div
-      className="mt-10"
-      style={{
-        padding: isMobile ? '3px' : '20px',
-        marginLeft: isMobile ? '-10px' : '0px',
-      }}
-    >
-      <div className="flex justify-between items-center gap-4 scrollbar-none">
-        <h2 className="text-3xl mb-7">Payroll</h2>
+    <div className={ isMobile ? "pt-[16px] bg-gray-100" : "pt-[16px] bg-white" } style={{ padding: isMobile ? '3px' : '20px' }}>
+      <div className={`flex justify-between items-center scrollbar-none ${isMobile ? "bg-gray-100" : "bg-white"} pt-6 ${isMobile ? "-mx-1" : "" }`}>
+        <h2 className="text-2xl mb-7">Payroll</h2>
         <h2 hidden style={{ marginBottom: '20px' }}>
           {payPeriodQuery}
         </h2>
@@ -798,7 +802,7 @@ const Payroll = () => {
                   loading={isCreatingPayroll || loading || deleteLoading}
                 >
                   {isMobile ? (
-                    <CiCirclePlus size={30} className="text-white font-bold" />
+                    <TbFileExport size={24} />
                   ) : payroll?.payrolls.length > 0 ? (
                     'Regenerate'
                   ) : (
@@ -810,7 +814,7 @@ const Payroll = () => {
           </Popconfirm>
         </div>
       </div>
-
+   <div className={isMobile ? 'pl-2 pr-1 pt-2 bg-white mr-2' : 'pl-2 pr-1 pt-2 bg-white'}>
       {!isMobile ? (
         <Filters onSearch={handleSearch} oneRow={true} />
       ) : (
@@ -832,9 +836,9 @@ const Payroll = () => {
             options={options}
           />
           <Button
-            className="p-6 text-gray-500 border border-gray-300"
+            className="p-6 mr-2"
             onClick={() => setIsFilterModalOpen(true)}
-            icon={<IoMdSwitch size={20} className="text-gray-700" />}
+            icon={<LuSettings2 size={20} />}
           />
         </div>
       )}
@@ -843,11 +847,22 @@ const Payroll = () => {
           title="Filters"
           open={isFilterModalOpen}
           onCancel={() => setIsFilterModalOpen(false)}
-          footer={[
-            <Button key="cancel" onClick={() => setIsFilterModalOpen(false)}>
-              Close
-            </Button>,
-          ]}
+          footer={
+            <div className="flex justify-center gap-4">
+              <Button key="cancel" onClick={() =>{setSearchQuery(''); setIsFilterModalOpen(false)}}>
+                Cancel
+              </Button>
+              <Button
+                key="filter"
+                type="primary"
+                onClick={() => setIsFilterModalOpen(false)}
+                className="text-white bg-blue border-none"
+                loading={loading}
+              >
+                Filter
+              </Button>
+            </div>
+          }
           width={isMobile ? '90%' : '50%'}
         >
           <Filters onSearch={handleSearch} oneRow={false} disable={['name']} />
@@ -892,6 +907,8 @@ const Payroll = () => {
             current: currentPage,
             pageSize: 6,
             onChange: setCurrentPage,
+            simple: isMobile,
+            position: isMobile ? ['bottomCenter'] : ['bottomRight'],
           }}
         />
       </div>
@@ -899,21 +916,23 @@ const Payroll = () => {
         title="Export for Bank"
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setIsModalOpen(false)}>
-            Cancel
-          </Button>,
-          <Button
-            key="export"
-            type="primary"
-            onClick={handleExportAll}
-            className="text-white bg-blue border-none"
-            disabled={!bankLetter || loading}
-            loading={loading}
-          >
-            Export
-          </Button>,
-        ]}
+        footer={
+          <div className="flex justify-center gap-4">
+            <Button key="cancel" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              key="export"
+              type="primary"
+              onClick={handleExportAll}
+              className="text-white bg-blue border-none"
+              disabled={!bankLetter || loading}
+              loading={loading}
+            >
+              Export
+            </Button>
+          </div>
+        }
       >
         <div className="flex flex-col gap-5 m-6">
           <div className="flex flex-col justify-between items-start gap-2 ">
@@ -949,6 +968,7 @@ const Payroll = () => {
           </div>
         </div>
       </Modal>
+    </div>
     </div>
   );
 };
