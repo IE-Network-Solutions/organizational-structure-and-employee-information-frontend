@@ -9,6 +9,7 @@ export interface CandidateData {
   createdAt: string;
   stages: string;
   action: string;
+  id?: string;
 }
 
 interface SearchParams {

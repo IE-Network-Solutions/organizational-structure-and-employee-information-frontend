@@ -118,9 +118,11 @@ const JobCard: React.FC = () => {
                   <>
                     <div className="font-medium text-sm flex justify-center items-start sm:items-center gap-4 mb-3">
                       <div className="w-full text-left">
-                        <span className="font-bold text-xl text-gray-700">
-                          {job?.jobTitle}
-                        </span>
+                        <Tooltip title={job?.jobTitle}>
+                          <span className="font-bold text-xl sm:text-xl text-[12px] text-gray-700 block sm:max-w-none max-w-[140px] truncate whitespace-nowrap overflow-hidden">
+                            {job?.jobTitle}
+                          </span>
+                        </Tooltip>
                       </div>
                       <div className="sm:mt-2 ">
                         {jobStatus == 'Closed' ? (

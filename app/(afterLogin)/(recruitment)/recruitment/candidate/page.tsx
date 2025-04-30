@@ -10,6 +10,8 @@ import SearchOptions from '../jobs/[id]/_components/candidateSearch/candidateSea
 import AllCandidateTable from './_components/allCandidateTable';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { IoIosShareAlt } from 'react-icons/io';
 
 const AllCandidates: React.FC = () => {
   const {
@@ -18,6 +20,8 @@ const AllCandidates: React.FC = () => {
     setMoveToTalentPoolModal,
     setCreateJobDrawer,
   } = useCandidateState();
+
+  const { isMobile, isTablet } = useIsMobile();
 
   const showDrawer = () => {
     setCreateJobDrawer(true);
@@ -40,16 +44,29 @@ const AllCandidates: React.FC = () => {
           </div>
 
           {selectedCandidate?.length > 0 && (
-            <CustomButton
-              title="Move to Talent Pool"
-              id="createUserButton"
-              onClick={handleMoveToTalentsPool}
-              className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
-            />
+            <div className="mr-4">
+              <CustomButton
+                title={
+                  !(isMobile || isTablet) && (
+                    <span className="hidden sm:inline">
+                      Move to Talent Pool
+                    </span>
+                  )
+                }
+                id="createUserButton"
+                icon={<IoIosShareAlt className="md:mr-0 ml-2" size={20} />}
+                onClick={handleMoveToTalentsPool}
+                className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
+              />
+            </div>
           )}
           <AccessGuard permissions={[Permissions.CreateCandidate]}>
             <CustomButton
-              title={<span className="hidden sm:inline">Add candidate</span>}
+              title={
+                !(isMobile || isTablet) && (
+                  <span className="hidden sm:inline">Add candidate</span>
+                )
+              }
               id="createUserButton"
               icon={<FaPlus className="md:mr-0 ml-2" />}
               onClick={showDrawer}
