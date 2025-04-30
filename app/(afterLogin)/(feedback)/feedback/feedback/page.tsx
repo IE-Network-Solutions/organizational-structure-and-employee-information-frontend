@@ -425,12 +425,12 @@ const Page = () => {
         />
       </div>
 
-      <div className="-mx-12 -mt-10">
+      <div className="-mx-6 -mt-10">
         <TabLandingLayout
           buttonTitle={
             <div className="text-sm hidden sm:block">{variantType}</div>
           }
-          buttonIcon={<PiPlus className="text-lg" />}
+          buttonIcon={<PiPlus className="text-2xl font-bold ml-2" />} // making the icon bold
           id="conversationLayoutId"
           onClickHandler={() => setOpen(true)}
           disabledMessage="Please select a feedback type"

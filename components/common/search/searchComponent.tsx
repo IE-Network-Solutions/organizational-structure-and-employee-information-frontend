@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { Select, DatePicker, Modal, Button } from 'antd';
-import { IoMdSwitch } from 'react-icons/io';
 import { useFilterStore } from '@/store/uistate/features/feedback/modal';
+import { LuSettings2 } from 'react-icons/lu';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -48,7 +48,7 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
                 {/* Show modal button on small screens */}
                 <div className="block md:hidden">
                   <Button
-                    icon={<IoMdSwitch className="text-gray-400 text-xl" />}
+                    icon={<LuSettings2 className="text-gray-400 text-xl" />}
                     className="w-full h-14 border border-gray-200"
                     onClick={() => setModalVisible(true)}
                   />

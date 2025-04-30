@@ -644,8 +644,8 @@ const EmployeeProfile = () => {
                         );
                       })
                   ) : (
-                    <EmptyImage/>      
-                )}
+                    <EmptyImage />
+                  )}
                 </>
               </TabPane>
               <TabPane tab="Settlement Tracking" key="3">
