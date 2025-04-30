@@ -68,6 +68,7 @@ const EmployeeAttendance = () => {
       setExportType(type);
       setIsExportLoading(true);
       if (!data?.items?.length) {
+        setIsExportLoading(false);
         return;
       }
 
@@ -94,33 +95,51 @@ const EmployeeAttendance = () => {
       // Set the request
       setBodyRequest(exportRequest);
 
-      // Wait for the state to update and get the response
-      const response = await new Promise<{ file: string }>((resolve) => {
-        const checkData = () => {
-          if (data?.file) {
-            resolve({ file: data.file });
-          } else {
-            setTimeout(checkData, 100);
+      // Wait for the data to be updated
+      const checkFile = () => {
+        if (data?.file) {
+          const url = new URL(TIME_AND_ATTENDANCE_URL!);
+          const fileUrl = `${url.origin}/${data.file}`;
+
+          // Create a temporary link to trigger the download
+          const link = document.createElement('a');
+          link.href = fileUrl;
+          link.download = `attendance_${type.toLowerCase()}_${new Date().toISOString().split('T')[0]}.${type.toLowerCase()}`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          // Reset states immediately after triggering download
+          setIsExportLoading(false);
+          setExportType(null);
+          setBodyRequest((prev) => ({
+            ...prev,
+            exportType: undefined,
+          }));
+          return true; // Indicate successful download
+        }
+        return false; // File not ready yet
+      };
+
+      // Start checking for file with a maximum of 10 attempts
+      let attempts = 0;
+      const maxAttempts = 10;
+      const checkInterval = setInterval(() => {
+        attempts++;
+        if (checkFile() || attempts >= maxAttempts) {
+          clearInterval(checkInterval);
+          if (attempts >= maxAttempts) {
+            // Reset states if max attempts reached
+            setIsExportLoading(false);
+            setExportType(null);
+            setBodyRequest((prev) => ({
+              ...prev,
+              exportType: undefined,
+            }));
           }
-        };
-        checkData();
-      });
-
-      if (response?.file) {
-        const url = new URL(TIME_AND_ATTENDANCE_URL!);
-        const fileUrl = `${url.origin}/${response.file}`;
-
-        // Create a temporary link to trigger the download
-        const link = document.createElement('a');
-        link.href = fileUrl;
-        link.download = `attendance_${type.toLowerCase()}_${new Date().toISOString().split('T')[0]}.${type.toLowerCase()}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-      }
+        }
+      }, 500);
     } catch (error) {
-    } finally {
       setIsExportLoading(false);
       setExportType(null);
       setBodyRequest((prev) => ({
