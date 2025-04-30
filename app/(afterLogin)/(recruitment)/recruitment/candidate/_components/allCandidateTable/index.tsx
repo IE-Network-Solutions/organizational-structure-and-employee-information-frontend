@@ -22,6 +22,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import RecruitmentPagination from '../../../_components';
 import { FaLinkedin } from 'react-icons/fa';
 import { SiGmail } from 'react-icons/si';
+import { TableRowSelection } from 'antd/es/table/interface';
 
 const AllCandidateTable: React.FC = () => {
   const { data: statusStage } = useGetStages();
@@ -262,6 +263,16 @@ const AllCandidateTable: React.FC = () => {
     };
   });
 
+  const rowSelection: TableRowSelection<CandidateData> = {
+    onChange: (nonused, selectedRows) => {
+      setSelectedCandidate(
+        candidateList?.items?.filter((item: CandidateData) =>
+          selectedRows.some((row: CandidateData) => row.id === item.id),
+        ) || [],
+      );
+    },
+  };
+
   return (
     <div>
       <Table
@@ -270,6 +281,7 @@ const AllCandidateTable: React.FC = () => {
         dataSource={data}
         loading={isResponseLoading}
         scroll={{ x: 1000 }}
+        rowSelection={rowSelection} // Enable selection
       />
       <RecruitmentPagination
         current={currentPage}
