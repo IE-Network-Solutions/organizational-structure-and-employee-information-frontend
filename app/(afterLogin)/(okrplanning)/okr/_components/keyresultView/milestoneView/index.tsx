@@ -20,6 +20,7 @@ import {
   useDeleteKeyResult,
   useDeleteMilestone,
 } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const MilestoneView: React.FC<OKRProps> = ({
   keyValue,
@@ -253,22 +254,25 @@ const MilestoneView: React.FC<OKRProps> = ({
 
   const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
   const totalMilestoneWeight = keyValue?.milestones?.reduce(
-    (sum: number, milestone: Milestone) => sum + milestone.weight,
+    (sum: number, milestone: Milestone) =>
+      Number(sum) + Number(milestone.weight),
     0,
   );
+  const { isMobile } = useIsMobile();
   return (
     <div
       className="py-4  border-b-[1px] border-gray-300"
       id={`key-result-${index}`}
     >
       <Form form={form} layout="vertical" className="space-y-1">
-        <div className="flex gap-3 items-center mb-4">
+        <div
+          className={`flex ${isMobile ? 'gap-1 mb-1' : 'gap-3 mb-4'} items-center `}
+        >
           {!keyValue.id && (
             <div className="rounded-lg border-gray-200 border bg-gray-300 w-10 h-8 flex justify-center items-center mt-2">
               {index + 1}
             </div>
           )}
-          <div></div>
           <Form.Item
             label={
               (keyValue.key_type === 'Milestone' && 'Milestone') ||
@@ -356,12 +360,11 @@ const MilestoneView: React.FC<OKRProps> = ({
             </Popconfirm>
           </div>
         </div>
-        <div className="flex gap-10 items-center mb-10">
-          <Form.Item
-            layout="horizontal"
-            className="w-full h-5 font-bold "
-            label="Deadline"
-          >
+        <div
+          className={`flex ${isMobile ? 'gap-1 mb-1' : 'gap-3 mb-4'} items-center `}
+        >
+          <Form.Item layout="horizontal" className="w-full h-5 font-bold">
+            <span className="text-sm font-bold">Deadline</span>
             <DatePicker
               id={`key-result-deadline-${index}`}
               value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -387,11 +390,13 @@ const MilestoneView: React.FC<OKRProps> = ({
             )}
           </Form.Item>
 
-          <div className="text-end w-full">
-            {keyValue.milestones?.length != 0 &&
-              keyValue.milestones &&
-              `You have ${keyValue.milestones?.length} milestones under this key result`}
-          </div>
+          {!isMobile && (
+            <div className="text-end w-full">
+              {keyValue.milestones?.length != 0 &&
+                keyValue.milestones &&
+                `You have ${keyValue.milestones?.length} milestones under this key result`}
+            </div>
+          )}
         </div>
 
         {keyValue?.milestones?.length != 0 && keyValue?.milestones && (

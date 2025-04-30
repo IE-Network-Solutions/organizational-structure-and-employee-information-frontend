@@ -17,11 +17,11 @@ function CreatePlan() {
     setOpen,
     weights,
     totalWeight,
-    activePlanPeriod,
     isEditing,
     setWeight,
     mkAsATask,
     setMKAsATask,
+    activePlanPeriodId,
     resetWeights,
   } = PlanningAndReportingStore();
   const { userId } = useAuthenticationStore();
@@ -35,8 +35,11 @@ function CreatePlan() {
   const { mutate: createTask, isLoading } = useCreatePlanTasks();
   const { data: objective } = useFetchObjectives(userId);
   const { data: planningPeriods } = AllPlanningPeriods();
-  const planningPeriodId =
-    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
+  // const planningPeriodId =
+  //   planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
+
+  const planningPeriodId = activePlanPeriodId;
+
   const {
     data: planningPeriodHierarchy,
     isLoading: loadingPlanningPeriodHierarchy,

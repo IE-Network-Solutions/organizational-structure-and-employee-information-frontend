@@ -58,6 +58,7 @@ function Planning() {
     pageSize,
     setPageSize,
     activeTab,
+    activePlanPeriodId,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
 
@@ -76,14 +77,24 @@ function Planning() {
   //   ],
   // });
 
-  const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
+  const getPlanningPeriodDetail = (id: string) => {
+    const planningPeriodDetail = planningPeriods?.items?.find(
+      (period: any) => period?.id === id,
+    );
+    return planningPeriodDetail || {}; // Return an empty object if planningPeriodDetail is undefined
+  };
+  // const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
 
   // const { mutate: handleDeletePlan, isLoading: loadingDeletePlan } =
   //   useDeletePlanById();
   const { data: objective } = useFetchObjectives(userId);
-  const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
-  const userPlanningPeriodId =
-    userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
+  // const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId =
+    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+  // const userPlanningPeriodId =userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
+  const userPlanningPeriodId = userPlanningPeriods?.find(
+    (item) => item?.planningPeriodId === planningPeriodId,
+  )?.planningPeriodId;
 
   const { data: allPlanning, isLoading: getPlanningLoading } = useGetPlanning({
     userId: selectedUser,
@@ -97,7 +108,7 @@ function Planning() {
   );
 
   const transformedData = groupPlanTasksByKeyResultAndMilestone(
-    allPlanning?.items,
+    allPlanning?.items ?? [],
   );
 
   const handleApproveHandler = (id: string, value: boolean) => {
@@ -107,7 +118,9 @@ function Planning() {
     };
     approvalPlanningPeriod(data);
   };
-  const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
+  // const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
+  const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
+
   const getEmployeeData = (id: string) => {
     const employeeDataDetail = employeeData?.items?.find(
       (emp: any) => emp?.id === id,
