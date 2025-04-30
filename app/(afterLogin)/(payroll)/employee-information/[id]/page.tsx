@@ -17,6 +17,7 @@ import { useEffect, useRef } from 'react';
 import {
   useGetActivePayroll,
   useGetPayPeriod,
+  useGetPayrollHistory,
 } from '@/store/server/features/payroll/payroll/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useParams, useRouter } from 'next/navigation';
@@ -51,6 +52,9 @@ const EmployeeProfile = () => {
 
   const { data: employee, isLoading } = useGetEmployee(empId);
   const { data: payroll } = useGetActivePayroll();
+  const { data: payrollHistory } = useGetPayrollHistory(empId);
+
+  console.log('----payrollHistory-----', payrollHistory);
 
   const {
     mergedPayroll,

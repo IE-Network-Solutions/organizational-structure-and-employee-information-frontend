@@ -51,6 +51,24 @@ export const useGetActivePayroll = (searchParams = '') =>
     enabled: true,
   });
 
+
+  const getPayrollHistory = async (id = '') => {
+    const token = useAuthenticationStore.getState().token;
+    const tenantId = useAuthenticationStore.getState().tenantId;
+    return crudRequest({
+      url: `${PAYROLL_URL}by-employee/${id}`,
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+  };
+  export const useGetPayrollHistory = (id = '') =>
+    useQuery(['payroll-history', id], () => getPayrollHistory(id), {
+      enabled: true,
+    });
+
 const getPayPeroid = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
