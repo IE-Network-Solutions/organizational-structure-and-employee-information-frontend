@@ -6,7 +6,6 @@ import { CiDollar } from 'react-icons/ci';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   const {
@@ -35,7 +34,7 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   }
 
   const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
-  const { isMobile } = useIsMobile();
+
   return (
     <div
       className="py-4 border-b-[1px] border-gray-300"
@@ -172,10 +171,9 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           <Form.Item
             layout="horizontal"
             className="w-full font-bold"
-            label={isMobile ? undefined : 'Deadline'}
+            label="Deadline"
             id={`deadline-${index}`}
           >
-            {isMobile && <span className="text-sm font-bold">Deadline</span>}
             <DatePicker
               value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
               onChange={(dateString) => {

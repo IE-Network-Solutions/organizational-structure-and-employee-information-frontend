@@ -8,8 +8,6 @@ import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive'
 import AllIncentives from './compensation/all/page';
 import DynamicIncentive from './compensation/dynamicRecoginition';
 import ExportModal from './compensation/all/export';
-import { Eye, FileDown, FileUp, FolderInput } from 'lucide-react';
-import { useMediaQuery } from 'react-responsive';
 
 const Page = () => {
   const {
@@ -36,8 +34,6 @@ const Page = () => {
   const handleExportClick = () => {
     setIsOpen(true);
   };
-
-  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
   const items: TabsProps['items'] = parentResponseLoading
     ? [{ key: 'loading', label: <Skeleton active />, children: null }]
@@ -75,32 +71,24 @@ const Page = () => {
           {isPayrollView ? (
             <Button
               onClick={() => setShowGenerateModal(!showGenerateModal)}
-              className={`bg-[#3636F0] border-none text-md font-md text-white px-4 ${
-                isSmallScreen ? 'w-[60px] py-6' : 'w-auto'
-              }`}
+              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
             >
-              {isSmallScreen ? <FolderInput /> : <span>Generate</span>}
+              Generate
             </Button>
           ) : (
             <Button
               onClick={() => handleExportClick()}
-              className={`bg-[#3636F0] border-none text-md font-md text-white px-4 ${
-                isSmallScreen ? 'w-[60px] py-6' : 'w-auto'
-              }`}
+              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
             >
-              {isSmallScreen ? <FileUp /> : <span>Export</span>}
+              Export
             </Button>
           )}
 
           <Button
             onClick={() => setIsPayrollView(!isPayrollView)}
-            className={`bg-[#3636F0] border-none text-md font-md text-white px-4 ${
-              isSmallScreen ? 'w-[60px] py-6' : 'w-auto'
-            }`}
-            icon={isSmallScreen && <Eye />}
+            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
           >
-            {!isSmallScreen &&
-              (isPayrollView ? 'Session View' : 'Payroll View')}
+            {isPayrollView ? 'Session View' : 'Payroll View'}
           </Button>
         </div>
       );
@@ -110,30 +98,20 @@ const Page = () => {
         <div className="flex items-center justify-center gap-3">
           <Button
             onClick={() => handleExportClick()}
-            className={`bg-[#3636F0] border-none text-md font-md text-white px-4 ${
-              isSmallScreen ? 'w-[60px] py-6' : 'w-auto'
-            }`}
+            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
           >
-            {isSmallScreen ? <FileUp /> : <span>Export</span>}
+            Export
           </Button>
           <Button
             onClick={() => setProjectDrawer(true)}
-            className={`bg-[#3636F0] border-none text-md font-md text-white px-4 ${
-              isSmallScreen ? 'w-[60px] py-6' : 'w-auto'
-            }`}
+            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
           >
-            {isSmallScreen ? <FileDown /> : <span>Import Data</span>}
+            Import Data
           </Button>
         </div>
       );
     }
-  }, [
-    activeKey,
-    isPayrollView,
-    setProjectDrawer,
-    setIsPayrollView,
-    isSmallScreen,
-  ]);
+  }, [activeKey, isPayrollView, setProjectDrawer, setIsPayrollView]);
 
   const handleTabChange = (key: string) => {
     setActiveKey(key);

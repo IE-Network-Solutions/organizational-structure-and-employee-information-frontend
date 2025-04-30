@@ -32,7 +32,7 @@ const WhatYouNeed: React.FC = () => {
         onChange={(e) => handleSearchInput(e.target.value, 'whatYouNeed')}
         className="w-full h-14"
         allowClear
-        suffix={<AiOutlineSearch className="text-gray-400" />}
+        prefix={<AiOutlineSearch className="text-gray-400" />}
       />
     </div>
   );

@@ -61,24 +61,24 @@ const TnaManagementPage = () => {
   }, 500);
 
   return (
-    <div className="page-wrap bg-[#f5f5f5] mt-4 ">
+    <div className="page-wrap bg-[#f5f5f5] ">
       <PageHeader
         title="Training & Learning"
         description="Training and Learning module"
       >
-        <Flex gap={16} className="pt-4">
+        <Flex gap={16}>
           <CourseFilter onChange={onFilterChange} />
           <AccessGuard permissions={[Permissions.CreateCourse]}>
             <Button
               id="tnaAddCourseActionButtonId"
               size="large"
               type="primary"
-              className="h-[50px]"
+              className="h-[54px]"
               icon={<LuPlus size={16} />}
               loading={isFetching}
               onClick={() => setIsShowCourseSidebar(true)}
             >
-              <span className="hidden sm:block">Add Course</span>
+              Add Course
             </Button>
           </AccessGuard>
         </Flex>

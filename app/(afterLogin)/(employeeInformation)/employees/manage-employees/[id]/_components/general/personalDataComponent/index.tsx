@@ -56,7 +56,7 @@ function PersonalDataComponent({
         }
         className="my-6 mt-0"
       >
-        <Row gutter={16}>
+        <Row gutter={[16, 24]}>
           {edit.general ? (
             <>
               <Row>

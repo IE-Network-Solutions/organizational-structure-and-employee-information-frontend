@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Card, Button, List, Dropdown, Menu, Form } from 'antd';
+import { Card, Button, List, Dropdown, Menu } from 'antd';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 import {
@@ -21,9 +21,9 @@ const Branches = () => {
   const { mutate: createBranch, isLoading: createLoading } = useCreateBranch();
   const { mutate: updateBranch, isLoading: updateLoading } = useUpdateBranch();
   const { mutate: deleteBranch, isLoading: deleteLoading } = useDeleteBranch();
-  const [form] = Form.useForm();
 
   const {
+    formOpen,
     editingBranch,
     deleteModalVisible,
     branchToDelete,
@@ -78,7 +78,6 @@ const Branches = () => {
       </AccessGuard>
     </Menu>
   );
-
   return (
     <div className="flex-1 rounded-lg  items-center w-full h-full">
       <div className="bg-white p-3 rounded-lg h-full w-full">
@@ -140,13 +139,11 @@ const Branches = () => {
       </div>
 
       <BranchForm
-        form={form}
         loading={editingBranch ? updateLoading : createLoading}
-        onClose={() => {
-          form.resetFields();
-          setFormOpen(false);
-        }}
+        onClose={() => setFormOpen(false)}
+        open={formOpen}
         submitAction={handleFormSubmit}
+        branchData={editingBranch || undefined}
         title={editingBranch ? 'Edit Branch' : 'Create Branch'}
       />
       <DeleteModal

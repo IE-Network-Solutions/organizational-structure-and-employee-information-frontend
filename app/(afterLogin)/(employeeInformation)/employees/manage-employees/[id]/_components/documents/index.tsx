@@ -101,7 +101,7 @@ const Documents = ({ id }: { id: string }) => {
         columns={columns}
         dataSource={employeeDocument?.map((doc: any, index: any) => ({
           ...doc,
-          key: index,
+          key: index, // Add key for each row
         }))}
         pagination={false}
       />
@@ -168,8 +168,8 @@ const Documents = ({ id }: { id: string }) => {
                   accept="*/*"
                 >
                   <div className="flex justify-between items-center text-xl font-semibold text-gray-950">
-                    <p>Document Uploads</p>
-                    {/* <div className="flex py-3 px-6 my-4 items-center">
+                    <p>Documents Upload</p>
+                    <div className="flex py-3 px-6 my-4 items-center">
                       <Button
                         className="ant-upload-text font-semibold text-white  text-sm  bg-blue-500 hover:bg-blue-600"
                         type="primary"
@@ -177,7 +177,7 @@ const Documents = ({ id }: { id: string }) => {
                         <MdOutlineUploadFile className="text-white text-xl mr-2" />
                         Request Documents
                       </Button>
-                    </div> */}
+                    </div>
                   </div>
                   <p className="ant-upload-drag-icon">
                     <Image

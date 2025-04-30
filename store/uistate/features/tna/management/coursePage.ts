@@ -10,7 +10,6 @@ type TnaManagementCoursePageState = {
   isShowLessonMaterial: boolean;
   lesson: CourseLesson | null;
   lessonMaterial: CourseLessonMaterial | null;
-  activeKey: string | string[] | undefined;
 };
 
 type TnaManagementCoursePageAction = {
@@ -22,7 +21,6 @@ type TnaManagementCoursePageAction = {
   setIsShowLessonMaterial: (isShowLessonMaterial: boolean) => void;
   setLesson: (lesson: CourseLesson | null) => void;
   setLessonMaterial: (lessonMaterial: CourseLessonMaterial | null) => void;
-  setActiveKey: (activeKey: string | string[] | undefined) => void; // ✅ should be a function
 };
 
 const tnaManagementCoursePageSlice: StateCreator<
@@ -61,11 +59,6 @@ const tnaManagementCoursePageSlice: StateCreator<
   lessonMaterial: null,
   setLessonMaterial: (lessonMaterial: CourseLessonMaterial | null) => {
     set({ lessonMaterial });
-  },
-
-  activeKey: undefined,
-  setActiveKey: (activeKey: string | string[] | undefined) => {
-    set({ activeKey });
   },
 });
 

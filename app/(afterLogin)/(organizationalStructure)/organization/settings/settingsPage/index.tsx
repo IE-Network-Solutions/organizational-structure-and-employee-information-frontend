@@ -11,7 +11,7 @@ import Branches from '@/app/(afterLogin)/(onboarding)/onboarding/_components/ste
 import CustomWorFiscalYearDrawer from '../_components/fiscalYear/customDrawer';
 import CustomWorkingScheduleDrawer from '../_components/workSchedule/customDrawer';
 import CustomDeleteWorkingSchduel from '../_components/workSchedule/deleteModal';
-import CustomDeleteFiscalYears from '../fiscalYear/deleteModal';
+import CustomDeleteFiscalYear from '../_components/fiscalYear/deleteModal';
 
 function SettingsPage() {
   const [tabPosition, setTabPosition] = useState<'left' | 'top'>('left');
@@ -90,7 +90,7 @@ function SettingsPage() {
         handleNextStep={handleStepChange}
       />
       <CustomDeleteWorkingSchduel />
-      <CustomDeleteFiscalYears />
+      <CustomDeleteFiscalYear />
     </>
   );
 }

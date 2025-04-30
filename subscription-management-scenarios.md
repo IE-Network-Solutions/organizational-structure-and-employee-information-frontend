@@ -243,11 +243,11 @@ Process (initiated through admin panel):
 
    **}**
 
-   **current*plan_cost_for_period = current_slot_price * subscription.slotTotal \_ current_planPeriod.periodMultiplier**
+   **current_plan_cost_for_period = current_slot_price _ subscription.slotTotal _ current_planPeriod.periodMultiplier**
 
    **current_cost_for_remaining_days = current_plan_cost_for_period \* period_share**
 
-   **new*plan_cost_for_full_period = new_slot_price * subscription.slotTotal \_ new_planPeriod.periodMultiplier**
+   **new_plan_cost_for_full_period = new_slot_price _ subscription.slotTotal _ new_planPeriod.periodMultiplier**
 
    **new_cost_for_remaining_days = new_plan_cost_for_full_period \* period_share**
 
@@ -388,7 +388,7 @@ Process (initiated through admin panel):
 
    **}**
 
-   **additional*slots_cost = slot_price * number*of_additional_slots * period_share**
+   **additional_slots_cost = slot_price _ number_of_additional_slots _ period_share**
 
 4. System creates preliminary record in `subscription_module.subscriptionSlotTransactions`:
 
@@ -771,7 +771,7 @@ Process is essentially the same as for updating
 
      **}**
 
-     **extension*cost = slot_price * number*of_slots * new_planPeriod.periodMultiplier**
+     **extension_cost = slot_price _ number_of_slots _ new_planPeriod.periodMultiplier**
 
    - If no planned plan change:
      **plan = get_plan(current_subscription.planId)**
@@ -812,7 +812,7 @@ Process is essentially the same as for updating
 
      **}**
 
-     **extension*cost = slot_price * current*subscription.slotTotal * planPeriod.periodMultiplier**
+     **extension_cost = slot_price _ current_subscription.slotTotal _ planPeriod.periodMultiplier**
 
 4. System creates invoice for extension:
    - `tenantId` = client ID

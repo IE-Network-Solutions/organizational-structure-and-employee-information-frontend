@@ -30,15 +30,6 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
         ?.fieldValidation ?? null
     );
   };
-  const titleMap: Record<string, string> = {
-    firstName: 'First Name',
-    middleName: 'Middle Name',
-    lastName: 'Last Name',
-    phoneNumber: 'Phone Number',
-    gender: 'Gender',
-    nationality: 'Nationality',
-  };
-
   return (
     <Card
       loading={isLoading}
@@ -168,8 +159,7 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                   ? nationalities?.items?.find((item) => item.id === val)
                       ?.name || '-'
                   : val?.toString() || '-';
-              const title = titleMap[key] || key;
-              return <InfoLine key={key} title={title} value={displayValue} />;
+              return <InfoLine key={key} title={key} value={displayValue} />;
             })}
           </Col>
         </Row>

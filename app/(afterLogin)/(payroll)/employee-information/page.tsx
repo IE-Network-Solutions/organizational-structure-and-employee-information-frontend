@@ -1,6 +1,6 @@
 'use client';
-import { Table, Tag, Button, Space, Spin, Avatar } from 'antd';
-import { EditOutlined, UserOutlined } from '@ant-design/icons';
+import { Table, Tag, Button, Space, Spin } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
 import Filters from './_components/filters';
 import { useRouter } from 'next/navigation';
 import Drawer from './_components/drawer';
@@ -10,7 +10,6 @@ import { useGetAllowance } from '@/store/server/features/payroll/employeeInforma
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 
 interface Employee {
   id: string;
@@ -29,13 +28,11 @@ interface Employee {
       accountNumber?: string;
     };
   };
-  profileImage?: string;
 }
 
 interface DataSource {
   key: string;
   name: string;
-  profileImage?: string;
   job: string;
   salary: string;
   allowances: string[];
@@ -128,7 +125,6 @@ const EmployeeInformation = () => {
       return {
         key: employee.id,
         name: `${employee?.firstName} ${employee?.middleName || ''} ${employee?.lastName}`.trim(),
-        profileImage: employee.profileImage,
         job: `${position}`,
         salary: `${activeSalary} ETB`,
         allowances: allowanceMap?.[employee?.id] || ['Not Specified'],
@@ -146,12 +142,6 @@ const EmployeeInformation = () => {
       title: 'Employee',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: any) => (
-        <Space>
-          <Avatar size={32} src={record.profileImage} icon={<UserOutlined />} />
-          <span>{text}</span>
-        </Space>
-      ),
     },
     {
       title: 'Job Information',
@@ -169,9 +159,9 @@ const EmployeeInformation = () => {
       key: 'allowances',
       render: (allowances: any) =>
         allowances.map((item: any) => {
-          const color = item === 'Not Entitled' ? 'red' : 'gray-300';
+          const color = item === 'Not Entitled' ? 'red' : 'blue';
           return (
-            <Tag className={`${color} text-sm text-black`} key={item}>
+            <Tag color={color} key={item}>
               {item.name}
             </Tag>
           );
@@ -233,16 +223,10 @@ const EmployeeInformation = () => {
     refetch();
   };
 
-  const { isMobile } = useIsMobile();
   return (
-    <div className={isMobile ? 'p-1' : 'p-5'}>
-      <div className="flex justify-start items-center bg-gray-100 -mx-1">
-        <span className="py-4 my-4 px-2 text-lg font-bold">
-          Employees Payroll Information
-        </span>
-      </div>
+    <div className="p-5">
+      <h2 className="py-4">Employees Payroll Information</h2>
       <Filters onSearch={handleSearch} />
-
       <Spin spinning={responseLoading || Loading}>
         <Table
           dataSource={dataSource.filter((item) =>
@@ -254,14 +238,10 @@ const EmployeeInformation = () => {
             style: { cursor: 'pointer' },
           })}
           pagination={{
-            position: ['bottomCenter'],
-            pageSize: isMobile ? 7 : 10,
-            showSizeChanger: false,
-            showQuickJumper: false,
-            showTotal: () => null, // Hide AntD's total display
-            simple: true, // Only prev / next / current
+            pageSize: 5,
+            showSizeChanger: true,
+            showQuickJumper: true,
           }}
-          scroll={{ x: 'max-content' }}
         />
       </Spin>
       <Drawer />

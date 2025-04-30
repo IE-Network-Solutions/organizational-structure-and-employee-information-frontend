@@ -5,9 +5,8 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useDebounce } from '@/utils/useDebounce';
-import { Button, Col, Input, Row, Select } from 'antd';
-import { IoMdSwitch } from 'react-icons/io';
-import { Modal } from 'antd';
+import { Col, Input, Row, Select } from 'antd';
+import React from 'react';
 
 const { Option } = Select;
 
@@ -26,8 +25,6 @@ const EmployeeSearch: React.FC = () => {
 
   const { data: EmployeeBranches } = useEmployeeBranches();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
-  const { isMobileFilterVisible, setIsMobileFilterVisible } =
-    useEmployeeManagementStore();
 
   const handleSearchEmployee = async (
     value: string | boolean,
@@ -69,35 +66,22 @@ const EmployeeSearch: React.FC = () => {
 
   return (
     <div>
-      <Row
-        gutter={[16, 24]}
-        justify="space-between"
-        align="middle"
-        className="mb-5"
-      >
-        <Col xs={24} sm={24} lg={10}>
-          <Row gutter={8} align="middle">
-            <Col flex="auto">
-              <Input
-                id={`inputEmployeeNames${searchParams.employee_name}`}
-                placeholder="Search employee"
-                onChange={(e) =>
-                  handleSearchInput(e.target.value, 'employee_name')
-                }
-                className="w-full h-10"
-                allowClear
-              />
-            </Col>
-            <Col className="block lg:hidden">
-              <IoMdSwitch
-                className="cursor-pointer w-10 h-10 rounded-md border-gray-100 border-2"
-                onClick={() => setIsMobileFilterVisible(!isMobileFilterVisible)}
-              />
-            </Col>
-          </Row>
+      <Row gutter={[16, 24]} justify="space-between">
+        <Col lg={10} sm={24} xs={24}>
+          <div className="w-full">
+            <Input
+              id={`inputEmployeeNames${searchParams.employee_name}`}
+              placeholder="Search employee"
+              onChange={(e) =>
+                handleSearchInput(e.target.value, 'employee_name')
+              }
+              className="w-full h-14"
+              allowClear
+            />
+          </div>
         </Col>
 
-        <Col lg={11} className="hidden lg:block ">
+        <Col lg={11} sm={24} xs={24}>
           <Row gutter={[8, 16]}>
             <Col lg={8} sm={12} xs={24}>
               <Select
@@ -105,7 +89,7 @@ const EmployeeSearch: React.FC = () => {
                 placeholder="All Offices"
                 onChange={handleBranchChange}
                 allowClear
-                className="w-full h-10"
+                className="w-full h-14"
               >
                 {EmployeeBranches?.items?.map((item: any) => (
                   <Option key={item?.id} value={item?.id}>
@@ -120,7 +104,7 @@ const EmployeeSearch: React.FC = () => {
                 placeholder="All Departments"
                 onChange={handleDepartmentChange}
                 allowClear
-                className=" w-full h-10"
+                className=" w-full h-14"
               >
                 {EmployeeDepartment?.map((item: any) => (
                   <Option key={item?.id} value={item?.id}>
@@ -135,7 +119,7 @@ const EmployeeSearch: React.FC = () => {
                 placeholder="Active"
                 onChange={handleStatusChange}
                 allowClear
-                className="w-full h-10"
+                className="w-full h-14"
               >
                 <Option
                   key="active"
@@ -168,71 +152,6 @@ const EmployeeSearch: React.FC = () => {
           </Row>
         </Col>
       </Row>
-
-      <Modal
-        centered
-        title="Filter Employees"
-        open={isMobileFilterVisible}
-        onCancel={() => setIsMobileFilterVisible(false)}
-        width="85%"
-        footer={
-          <div className="flex justify-center items-center space-x-4">
-            <Button
-              type="default"
-              className="px-3"
-              onClick={() => setIsMobileFilterVisible(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => setIsMobileFilterVisible(false)}
-              type="primary"
-              className="px-3"
-            >
-              Filter
-            </Button>
-          </div>
-        }
-      >
-        <Select
-          id={`selectBranches${searchParams.allOffices}`}
-          placeholder="All Offices"
-          onChange={handleBranchChange}
-          allowClear
-          className="w-full mb-4"
-        >
-          {EmployeeBranches?.items?.map((item: any) => (
-            <Option key={item?.id} value={item?.id}>
-              {item?.name}
-            </Option>
-          ))}
-        </Select>
-
-        <Select
-          id={`selectDepartment${searchParams.allJobs}`}
-          placeholder="All Departments"
-          onChange={handleDepartmentChange}
-          allowClear
-          className="w-full mb-4"
-        >
-          {EmployeeDepartment?.map((item: any) => (
-            <Option key={item?.id} value={item?.id}>
-              {item?.name}
-            </Option>
-          ))}
-        </Select>
-
-        <Select
-          id={`selectStatus${searchParams.allStatus}`}
-          placeholder="Active"
-          onChange={handleStatusChange}
-          allowClear
-          className="w-full"
-        >
-          <Option value={activeStatusValue}>Active</Option>
-          <Option value={inactiveStatusValue}>Inactive</Option>
-        </Select>
-      </Modal>
     </div>
   );
 };

@@ -65,6 +65,7 @@ const FiscalYearListCard: React.FC = () => {
       setDeleteMode(true);
     }
   };
+
   if (fiscalYearsFetchLoading) {
     return <Skeleton active paragraph={{ rows: 4 }} />;
   }

@@ -269,8 +269,6 @@ type IncentiveState = {
   generateAll: boolean;
   filteredSessions: any[];
   selectedFiscalYear: string | null;
-  showMobileFilter: boolean;
-  selectedYear: string | null;
 };
 
 type IncentiveActions = {
@@ -304,8 +302,6 @@ type IncentiveActions = {
   setGenerateAll: (value: boolean) => void;
   setFilteredSessions: (sessions: any[]) => void;
   setSelectedFiscalYear: (year: string | null) => void;
-  setShowMobileFilter: (value: boolean) => void;
-  setSelectedYear: (value: string | null) => void;
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -412,12 +408,6 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
 
   selectedFiscalYear: null,
   setSelectedFiscalYear: (year) => set({ selectedFiscalYear: year }),
-
-  showMobileFilter: false,
-  setShowMobileFilter: (value) => set({ showMobileFilter: value }),
-
-  selectedYear: null,
-  setSelectedYear: (value) => set({ selectedYear: value }),
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(

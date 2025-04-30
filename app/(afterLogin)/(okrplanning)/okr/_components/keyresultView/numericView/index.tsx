@@ -5,7 +5,6 @@ import { VscClose } from 'react-icons/vsc';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   const {
@@ -33,7 +32,6 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     });
   }
 
-  const { isMobile } = useIsMobile();
   const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
 
   return (
@@ -41,7 +39,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
       className="py-4  border-b-[1px] border-gray-300"
       id={`numeric-view-${index}`}
     >
-      <Form layout={isMobile ? 'vertical' : 'horizontal'} className="space-y-1">
+      <Form layout="vertical" className="space-y-1">
         {/* Key Result Input */}
         <div className="flex gap-3 items-center">
           <div
@@ -173,10 +171,9 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           <Form.Item
             layout="horizontal"
             className="w-full font-bold"
-            label={isMobile ? undefined : 'Deadline'}
+            label="Deadline"
             id={`deadline-picker-${index}`}
           >
-            {isMobile && <span className="text-sm font-bold">Deadline</span>}
             <DatePicker
               value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
               onChange={(dateString) => {

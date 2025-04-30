@@ -1,19 +1,29 @@
-import { Spin, Table } from 'antd';
+import React, { useState } from 'react';
+import { Select, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { Button } from 'antd';
+import { LuPlus } from 'react-icons/lu';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 import AllowanceEntitlementSideBar from './allowanceEntitlementSidebar';
 import { useFetchAllowanceEntitlements } from '@/store/server/features/compensation/allowance/queries';
 import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 
 const AllowanceEntitlementTable = () => {
-  const { currentPage, pageSize, setCurrentPage, searchQuery, setPageSize } =
-    useAllowanceEntitlementStore();
+  const {
+    setIsAllowanceEntitlementSidebarOpen,
+    isAllowanceGlobal,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+  } = useAllowanceEntitlementStore();
   const { mutate: deleteAllowanceEntitlement } =
     useDeleteAllowanceEntitlement();
   const { id } = useParams();
@@ -21,6 +31,8 @@ const AllowanceEntitlementTable = () => {
     data: allowanceEntitlementData,
     isLoading: fiscalActiveYearFetchLoading,
   } = useFetchAllowanceEntitlements(id);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { data: employeeData } = useGetAllUsers();
   const EmployeeBasicSalary = ({
     id,
     amount,
@@ -112,6 +124,16 @@ const AllowanceEntitlementTable = () => {
     },
   ];
 
+  const handleSearchChange = (value: any) => {
+    setSearchQuery(value);
+  };
+  const options =
+    employeeData?.items?.map((emp: any) => ({
+      value: emp.id,
+      label: `${emp.firstName || ''}  ${emp?.middleName} ${emp.lastName}`, // Full name as label
+      employeeData: emp,
+    })) || [];
+
   const filteredDataSource = searchQuery
     ? transformedData.filter(
         (employee: any) =>
@@ -121,6 +143,43 @@ const AllowanceEntitlementTable = () => {
 
   return (
     <Spin spinning={fiscalActiveYearFetchLoading}>
+      <Space
+        direction="horizontal"
+        size="large"
+        style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
+      >
+        <Select
+          showSearch
+          allowClear
+          className="min-h-12"
+          placeholder="Search by name"
+          onChange={handleSearchChange}
+          filterOption={(input, option) => {
+            const label = option?.label;
+            return (
+              typeof label === 'string' &&
+              label.toLowerCase().includes(input.toLowerCase())
+            );
+          }}
+          options={options}
+          style={{ width: 300 }} // Set a width for better UX
+        />{' '}
+        <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
+          <Button
+            size="large"
+            type="primary"
+            className="min-h-12"
+            id="createNewClosedHolidayFieldId"
+            icon={<LuPlus size={18} />}
+            onClick={() => {
+              setIsAllowanceEntitlementSidebarOpen(true);
+            }}
+            disabled={isAllowanceGlobal}
+          >
+            Employees
+          </Button>
+        </AccessGuard>
+      </Space>
       <Table
         className="mt-6"
         columns={columns}

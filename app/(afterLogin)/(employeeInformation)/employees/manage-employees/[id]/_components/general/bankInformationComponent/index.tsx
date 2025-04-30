@@ -29,11 +29,6 @@ const BankInformationComponent = ({
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
   };
-  const titleMap: Record<string, string> = {
-    bankName: 'Bank Name',
-    accountNumber: 'Account Number',
-  };
-
   return (
     <Card
       loading={isLoading}
@@ -133,11 +128,7 @@ const BankInformationComponent = ({
             {Object.entries(
               employeeData?.employeeInformation?.bankInformation || {},
             ).map(([key, val]) => (
-              <InfoLine
-                key={key}
-                title={titleMap[key] || key}
-                value={val?.toString() || '-'}
-              />
+              <InfoLine key={key} title={key} value={val?.toString() || '-'} />
             ))}
           </Col>
         </Row>

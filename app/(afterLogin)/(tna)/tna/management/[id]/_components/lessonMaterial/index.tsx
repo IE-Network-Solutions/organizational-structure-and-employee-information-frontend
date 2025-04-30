@@ -136,13 +136,9 @@ const CourseLessonMaterial = () => {
       onClose={() => onClose()}
       modalHeader={
         <CustomDrawerHeader className="flex justify-center">
-          <div className="flex flex-wrap px-2 text-gray-900">
-            <span className="whitespace-normal break-words">
-              {lessonMaterial ? 'Update' : 'Add'}&nbsp;
-              <span className="text-primary">{lesson?.title}</span>&nbsp; Course
-              Material
-            </span>
-          </div>
+          {lessonMaterial ? 'Update' : 'Add'}
+          <span className="text-primary">&nbsp;{lesson?.title}&nbsp;</span>
+          Course Material
         </CustomDrawerHeader>
       }
       footer={

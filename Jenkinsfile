@@ -33,13 +33,14 @@ pipeline {
             }
         }
 
-        stage('Fetch Environment Variables') {
+    stage('Fetch Environment Variables') {
             steps {
                 script {
                     sshagent([env.SSH_CREDENTIALS_ID_1]) {
-                        def secretsPath = env.SECRETS_PATH
+                        
+                                def secretsPath = env.SECRETS_PATH
                         env.REPO_URL = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep REPO_URL ${secretsPath} | cut -d= -f2 | tr -d \"\\r\"'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep REPO_URL ${secretsPath}  | cut -d= -f2 | tr -d \"\\r\"'",
                             returnStdout: true
                         ).trim()
 
@@ -49,7 +50,7 @@ pipeline {
                         ).trim()
 
                         env.REPO_DIR = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep REPO_DIR ${secretsPath} | cut -d= -f2 | tr -d \"\\r\"'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep REPO_DIR ${secretsPath}  | cut -d= -f2 | tr -d \"\\r\"'",
                             returnStdout: true
                         ).trim()
                     }
@@ -88,17 +89,17 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                script {
+                                        script {
                     def envPath = env.FRONTEND_ENV_PATH
-
-                    sshagent([env.SSH_CREDENTIALS_ID_1]) {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
-                            ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm install'
-                        """
-                    }
+                                            
+                sshagent([env.SSH_CREDENTIALS_ID_1]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm install'
+                    """
                 }
             }
+        }
         }
 
         stage('Format Repo') {
@@ -111,55 +112,52 @@ pipeline {
             }
         }
 
-        stage('Build App') {
+stage('Run Next.js App') {
+    parallel {
+        stage('Deploy to Develop/Production') {
+            when {
+                expression { env.BRANCH_NAME.contains('develop') || env.BRANCH_NAME.contains('production') }
+            }
             steps {
-                sshagent([env.SSH_CREDENTIALS_ID_1]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run build'
-                    """
-                }
-            }
-        }
-
-        stage('Run Next.js App') {
-            parallel {
-                stage('Deploy to Develop/Production') {
-                    when {
-                        expression { env.BRANCH_NAME.contains('develop') || env.BRANCH_NAME.contains('production') }
-                    }
-                    steps {
-                        script {
-                            sshagent([env.SSH_CREDENTIALS_ID_1]) {
-                                sh """
-                                    ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
-                                        sudo pm2 delete osei-front-app || true &&
-                                        sudo pm2 start ecosystem.config.js --env production
-                                    '
-                                """
-                            }
-                        }
-                    }
-                }
-
-                stage('Deploy to Staging') {
-                    when {
-                        expression { env.BRANCH_NAME.contains('staging') }
-                    }
-                    steps {
-                        script {
-                            sshagent([env.SSH_CREDENTIALS_ID_1]) {
-                                sh """
-                                    ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
-                                        sudo pm2 delete osei-front-app-staging || true &&
-                                        sudo pm2 start stage-ecosystem.config.js --env production
-                                    '
-                                """
-                            }
-                        }
+                script {
+                    sshagent([env.SSH_CREDENTIALS_ID_1]) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
+                                cd ~/$REPO_DIR &&
+                                npm run build &&
+                                sudo pm2 delete osei-front-app || true &&
+                                sudo pm2 start ecosystem.config.js --env production
+                            '
+                        """
                     }
                 }
             }
         }
+        stage('Deploy to Staging') {
+            when {
+                expression { env.BRANCH_NAME.contains('staging') }
+            }
+            steps {
+                script {
+                    sshagent([env.SSH_CREDENTIALS_ID_1]) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
+                                cd ~/$REPO_DIR &&
+                                npm run build &&
+                                sudo pm2 delete osei-front-app-staging || true &&
+                                sudo pm2 start stage-ecosystem.config.js --env production
+                            '
+                        """
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
     }
 
     post {

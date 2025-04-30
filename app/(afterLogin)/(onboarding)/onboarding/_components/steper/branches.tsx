@@ -22,6 +22,7 @@ const Branches = () => {
   const { mutate: deleteBranch, isLoading: deleteLoading } = useDeleteBranch();
 
   const {
+    formOpen,
     editingBranch,
     deleteModalVisible,
     branchToDelete,
@@ -139,7 +140,9 @@ const Branches = () => {
       <BranchForm
         loading={editingBranch ? updateLoading : createLoading}
         onClose={() => setFormOpen(false)}
+        open={formOpen}
         submitAction={handleFormSubmit}
+        branchData={editingBranch || undefined}
         title={editingBranch ? 'Edit Branch' : 'Create Branch'}
       />
       <DeleteModal

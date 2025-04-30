@@ -24,7 +24,7 @@ export function FeedbackCard({
 }: FeedbackCardProps) {
   return (
     <div>
-      <Card>
+      <Card className="bg-gray-100">
         <div className="flex justify-between">
           <Avatar
             className={`${type === 'appreciation' ? 'text-green-800 bg-gray-300' : 'text-red-400: bg-[#FF782D33]'} -mt-2`}

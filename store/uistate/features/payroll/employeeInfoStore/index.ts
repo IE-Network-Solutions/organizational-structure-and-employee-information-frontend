@@ -220,17 +220,9 @@ interface PayrollState {
   setActiveMergedPayroll: (payroll: ActiveMergedPayroll) => void;
   setMergedPayroll: (payroll: ActiveMergedPayroll[]) => void;
   setActivePayPeriod: (payPeriod: PayPeriod) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  isFilterModalOpen: boolean;
-  setIsFilterModalOpen: (open: boolean) => void;
 }
 
 const useEmployeeStore = create<PayrollState>((set) => ({
-  searchQuery: '',
-  setSearchQuery: (query) => set({ searchQuery: query }),
-  isFilterModalOpen: false,
-  setIsFilterModalOpen: (open) => set({ isFilterModalOpen: open }),
   activeMergedPayroll: null,
   mergedPayroll: [],
   activePayPeriod: null,

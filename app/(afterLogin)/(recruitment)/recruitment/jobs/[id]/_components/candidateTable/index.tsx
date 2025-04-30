@@ -20,7 +20,6 @@ import DeleteCandidate from '../../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../../_components/modals/editCandidate';
 import MoveToTalentPool from '../../../../_components/modals/moveToTalentPool';
 import RecruitmentPagination from '../../../../_components';
-import { TableRowSelection } from 'antd/es/table/interface';
 
 interface TableProps {
   jobId: string;
@@ -234,17 +233,6 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       ),
     };
   });
-
-  const rowSelection: TableRowSelection<CandidateData> = {
-    onChange: (nonused, selectedRows) => {
-      setSelectedCandidate(
-        candidateList?.items?.filter((item: CandidateData) =>
-          selectedRows.some((row: CandidateData) => row.id === item.id),
-        ) || [],
-      );
-    },
-  };
-
   return (
     <div>
       <Table
@@ -253,7 +241,6 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         dataSource={data}
         loading={isResponseLoading}
         scroll={{ x: 1000 }}
-        rowSelection={rowSelection}
       />
       <RecruitmentPagination
         current={currentPage}

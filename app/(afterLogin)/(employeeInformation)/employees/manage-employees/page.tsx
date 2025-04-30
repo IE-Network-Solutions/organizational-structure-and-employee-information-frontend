@@ -1,5 +1,6 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import CustomButton from '@/components/common/buttons/customButton';
 import React from 'react';
 import UserSidebar from './_components/userSidebar';
 import { FaPlus } from 'react-icons/fa';
@@ -9,7 +10,6 @@ import EmployeeSearch from './_components/userSearch';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { Button } from 'antd';
 
 const ManageEmployees: React.FC<any> = () => {
   const { setOpen } = useEmployeeManagementStore();
@@ -22,7 +22,7 @@ const ManageEmployees: React.FC<any> = () => {
   };
 
   return (
-    <div className="h-auto w-full">
+    <div className="h-auto w-full p-4">
       <BlockWrapper>
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb
@@ -31,15 +31,13 @@ const ManageEmployees: React.FC<any> = () => {
           />
           <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
             <AccessGuard permissions={[Permissions.RegisterNewEmployee]}>
-              <Button
-                type="primary"
-                size="large"
+              <CustomButton
+                title="Create user"
                 id="createUserButton"
-                icon={<FaPlus />}
+                icon={<FaPlus className="mr-2" />}
                 onClick={showDrawer}
-              >
-                <span className="hidden sm:inline">Create user</span>
-              </Button>
+                className="bg-blue-600 hover:bg-blue-700"
+              />
             </AccessGuard>
             <UserSidebar onClose={onClose} />
           </div>

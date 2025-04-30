@@ -33,10 +33,6 @@ const AddressComponent = ({
     );
   };
 
-  const titleMap: Record<string, string> = {
-    phoneNumber: 'Phone Number',
-  };
-
   return (
     <Card
       loading={isLoading}
@@ -130,7 +126,7 @@ const AddressComponent = ({
             ).map(([key, val]) => (
               <InfoLine
                 key={key}
-                title={(titleMap[key] || key).replace('address', '')}
+                title={key.replace('address', '')}
                 value={val?.toString() || '-'}
               />
             ))}

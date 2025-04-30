@@ -10,85 +10,68 @@ import { Button } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const LeaveBalance = () => {
   const { userId } = useAuthenticationStore();
   const [swiper, setSwiper] = useState<SwiperType>();
   const { data } = useGetLeaveBalance(userId, '');
-  const { isMobile } = useIsMobile();
+
   if (!data) {
     return '';
   }
 
   return (
     <>
-      <div
-        className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-gray-900 mb-2.5 p-3`}
-      >
+      <div className="text-2xl font-bold text-gray-900 mb-2.5">
         Leave Balances
       </div>
-      <div className="relative">
-        <div className="flex items-center">
-          {data.items.length > 1 && (
+      <div className="flex items-center">
+        {data.items.length > 4 && (
+          <div className="w-10 flex flex-col justify-center">
             <Button
-              className="absolute left-0 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
+              className="w-6 h-6"
               type="text"
               id="leaveBalanceCardLeftId"
-              icon={
-                <LeftOutlined className="text-gray-600 text-xl hover:text-primary transition-colors" />
-              }
+              icon={<LeftOutlined size={16} className="text-black font-bold" />}
               onClick={() => swiper?.slidePrev()}
             />
-          )}
-          <div className="w-full overflow-hidden px-12">
-            <Swiper
-              className="w-full"
-              id="swiperId"
-              slidesPerView="auto"
-              spaceBetween={16}
-              modules={[Navigation]}
-              breakpoints={{
-                0: {
-                  slidesPerView: 1.2,
-                },
-                480: {
-                  slidesPerView: 2.2,
-                },
-                768: {
-                  slidesPerView: 3.2,
-                },
-                1024: {
-                  slidesPerView: 4,
-                },
-              }}
-              onInit={(swiper) => {
-                setSwiper(swiper);
-              }}
-            >
-              {data.items
-                .filter((item) => item.leaveType)
-                .map((item) => (
-                  <SwiperSlide key={item.id}>
-                    <LeaveBalanceCard
-                      title={item?.leaveType?.title ?? ''}
-                      duration={item.totalBalance}
-                    />
-                  </SwiperSlide>
-                ))}
-            </Swiper>
           </div>
-          {data.items.length > 1 && (
+        )}
+        <Swiper
+          className="flex-1"
+          id="swiperId"
+          slidesPerView={4}
+          spaceBetween={16}
+          modules={[Navigation]}
+          loop={true}
+          onInit={(swiper) => {
+            setSwiper(swiper);
+          }}
+        >
+          {data.items
+            .filter((item) => item.leaveType)
+            .map((item) => (
+              <SwiperSlide key={item.id}>
+                <LeaveBalanceCard
+                  title={item?.leaveType?.title ?? ''}
+                  duration={item.totalBalance}
+                />
+              </SwiperSlide>
+            ))}
+        </Swiper>
+
+        {data.items.length > 4 && (
+          <div className="w-10 h-full flex flex-col justify-center items-end">
             <Button
-              className="absolute right-0 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
+              className="w-6 h-6"
               type="text"
               icon={
-                <RightOutlined className="text-gray-600 text-xl hover:text-primary transition-colors" />
+                <RightOutlined size={16} className="text-black font-bold" />
               }
               onClick={() => swiper?.slideNext()}
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </>
   );

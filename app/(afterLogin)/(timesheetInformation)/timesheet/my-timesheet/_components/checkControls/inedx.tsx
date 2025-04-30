@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from 'react';
 import { Button, Space } from 'antd';
 import { GoClock } from 'react-icons/go';
-import { IoLocationOutline } from 'react-icons/io5';
 import {
   CheckStatus,
   useMyTimesheetStore,
 } from '@/store/uistate/features/timesheet/myTimesheet';
 import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
-import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
+import { useEffect, useState } from 'react';
 import {
   calculateAttendanceRecordToTotalWorkTime,
   timeToHour,
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
+import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
@@ -84,16 +83,11 @@ const CheckControl = () => {
       return (
         <AccessGuard permissions={[Permissions.CheckInRemotely]}>
           <Button
-            className="h-12 sm:h-14 text-base w-full sm:w-auto"
+            className="h-14 text-base"
             id="buttonCheckin"
             size="large"
             type="primary"
-            icon={
-              <>
-                <IoLocationOutline className="block sm:hidden" size={20} />
-                <GoClock className="hidden sm:block" size={20} />
-              </>
-            }
+            icon={<GoClock size={20} />}
             loading={isLoading || isFetching}
             onClick={() => {
               setAttendance(true);
@@ -105,18 +99,13 @@ const CheckControl = () => {
       );
     case CheckStatus.started:
       return (
-        <Space className="w-full sm:w-auto" direction="vertical" size="middle">
+        <Space>
           <AccessGuard permissions={[Permissions.CheckOutRemotely]}>
             <Button
-              className="h-12 sm:h-14 text-base w-full sm:w-auto"
+              className="h-14 text-base px-2"
               size="large"
               id="buttonBreakCheckOut"
-              icon={
-                <>
-                  <IoLocationOutline className="block sm:hidden" size={20} />
-                  <GoClock className="hidden sm:block" size={20} />
-                </>
-              }
+              icon={<GoClock size={20} />}
               loading={isLoading || isFetching}
               onClick={() => {
                 getCoords(() => {
@@ -127,15 +116,10 @@ const CheckControl = () => {
               Break Check Out
             </Button>
             <Button
-              className="h-12 sm:h-14 text-base w-full sm:w-auto"
+              className="h-14 text-base"
               size="large"
               id="buttonCheckOut"
-              icon={
-                <>
-                  <IoLocationOutline className="block sm:hidden" size={20} />
-                  <GoClock className="hidden sm:block" size={20} />
-                </>
-              }
+              icon={<GoClock size={20} />}
               loading={isLoading || isFetching}
               onClick={() => {
                 setAttendance(false);
@@ -148,23 +132,18 @@ const CheckControl = () => {
       );
     case CheckStatus.breaking:
       return (
-        <Space className="w-full sm:w-auto" direction="vertical" size="middle">
+        <Space size={32}>
           {workTime && (
-            <div className="text-[24px] sm:text-[28px] text-primary font-bold text-center sm:text-left">
+            <div className="text-[28px] text-primary font-bold">
               {workTime} hrs
             </div>
           )}
           <AccessGuard permissions={[Permissions.CheckInRemotely]}>
             <Button
-              className="h-12 sm:h-14 text-base w-full sm:w-auto"
+              className="h-14 text-base"
               size="large"
               id="checkInButton"
-              icon={
-                <>
-                  <IoLocationOutline className="block sm:hidden" size={20} />
-                  <GoClock className="hidden sm:block" size={20} />
-                </>
-              }
+              icon={<GoClock size={20} />}
               loading={isLoading || isFetching}
               onClick={() => {
                 setAttendance(true);

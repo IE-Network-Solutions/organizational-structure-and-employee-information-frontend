@@ -1,33 +1,33 @@
 'use client';
 import React, { useEffect } from 'react';
-import { Form, Input, Button, Space, Modal, FormInstance } from 'antd';
+import { Form, Input, Button, Space, Modal } from 'antd';
 import { Branch } from '@/store/server/features/organizationStructure/branchs/interface';
 import { showValidationErrors } from '@/utils/showValidationErrors';
-import { useBranchStore } from '@/store/uistate/features/organizationStructure/branchStore';
 
 const BranchForm: React.FC<{
   onClose: () => void;
+  open: boolean;
   submitAction: (values: Branch) => void;
+  branchData?: Branch;
   title: string;
   loading: boolean;
-  form?: FormInstance<Branch>;
-}> = ({ onClose, submitAction, title, loading, form }) => {
-  const { formOpen, editingBranch, setEditingBranch, setSelectedBranch } =
-    useBranchStore();
+}> = ({ onClose, open, submitAction, branchData, title, loading }) => {
+  const [form] = Form.useForm();
+
   useEffect(() => {
-    if (editingBranch?.id) {
-      form?.setFieldsValue({
-        ...editingBranch,
+    if (branchData) {
+      form.setFieldsValue({
+        ...branchData,
       });
     } else {
-      form?.resetFields();
+      form.resetFields();
     }
-  }, [editingBranch, form]);
+  }, [branchData, form]);
 
   const handleSubmit = () => {
     form
-      ?.validateFields()
-      .then((values: Branch) => {
+      .validateFields()
+      .then((values) => {
         submitAction(values);
         onClose();
         form.resetFields();
@@ -41,44 +41,34 @@ const BranchForm: React.FC<{
     <Modal
       title={title}
       width={520}
-      onCancel={() => {
-        setEditingBranch(null);
-        setSelectedBranch(null);
-        form?.resetFields();
-        onClose();
-      }}
-      open={formOpen}
+      onCancel={onClose}
+      open={open}
       footer={
         <div style={{ textAlign: 'right' }}>
           <Space>
             <Button
               id={
-                editingBranch
+                branchData
                   ? 'cancelUpdateBranchButton'
                   : 'cancelCreateBranchButton'
               }
-              onClick={() => {
-                setEditingBranch(null);
-                setSelectedBranch(null); // <- Clear the selected branch data
-                form?.resetFields();
-                onClose();
-              }}
+              onClick={onClose}
             >
               Cancel
             </Button>
             <Button
               loading={loading}
               type="primary"
-              id={editingBranch ? 'updateBranchButton' : 'createBranchButton'}
+              id={branchData ? 'updateBranchButton' : 'createBranchButton'}
               onClick={handleSubmit}
             >
-              {editingBranch ? 'Update' : 'Create'}
+              {branchData ? 'Update' : 'Create'}
             </Button>
           </Space>
         </div>
       }
     >
-      <Form layout="vertical" form={form}>
+      <Form layout="vertical" form={form} initialValues={branchData || {}}>
         <Form.Item
           name="name"
           label="Branch Name"

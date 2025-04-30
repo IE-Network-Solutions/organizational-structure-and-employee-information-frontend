@@ -1,9 +1,12 @@
 import React from 'react';
-import { Spin, Table } from 'antd';
+import { Input, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { SearchOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
+import { LuPlus } from 'react-icons/lu';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 import DeductionEntitlementSideBar from './deductionEntitlementSidebar';
 import { useFetchAllowanceEntitlements } from '@/store/server/features/compensation/allowance/queries';
@@ -12,8 +15,14 @@ import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensat
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 
 const AllowanceEntitlementTable = () => {
-  const { currentPage, pageSize, setCurrentPage, setPageSize } =
-    useAllowanceEntitlementStore();
+  const {
+    setIsAllowanceEntitlementSidebarOpen,
+    isAllowanceGlobal,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+  } = useAllowanceEntitlementStore();
   const { mutate: deleteAllowanceEntitlement } =
     useDeleteAllowanceEntitlement();
   const { id } = useParams();
@@ -86,7 +95,7 @@ const AllowanceEntitlementTable = () => {
 
   return (
     <Spin spinning={fiscalActiveYearFetchLoading}>
-      {/* <Space
+      <Space
         direction="horizontal"
         size="large"
         style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
@@ -106,7 +115,7 @@ const AllowanceEntitlementTable = () => {
             Employees
           </Button>
         </AccessGuard>
-      </Space> */}
+      </Space>
       <Table
         className="mt-6"
         columns={columns}

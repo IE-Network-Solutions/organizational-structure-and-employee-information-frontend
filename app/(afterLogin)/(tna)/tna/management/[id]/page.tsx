@@ -28,7 +28,7 @@ const CoursePage = () => {
         <h3 className="text-[32px] leading-normal text-gray-900 flex-1">
           {course.title}
         </h3>
-        <div className="h-[265px] w-[435px] rounded-2xl overflow-hidden hidden sm:block  ">
+        <div className="h-[265px] w-[435px] rounded-2xl overflow-hidden  ">
           <img
             src={course.thumbnail ?? ''}
             alt={course.title}
@@ -38,10 +38,11 @@ const CoursePage = () => {
       </div>
 
       <Tabs
-        className="mt-4 flex justify-center"
+        className="max-w-[830px] mx-auto mt-4"
         items={tabItems}
         centered
         defaultActiveKey="overview"
+        tabBarStyle={{ width: '750px', margin: '8px auto' }}
       />
     </>
   ) : null;

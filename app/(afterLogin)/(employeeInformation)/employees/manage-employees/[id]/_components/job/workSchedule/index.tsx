@@ -109,7 +109,29 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
       key: 'time',
     },
   ];
+  const dataValue = (workScheduleDetail: any) => {
+    return (workScheduleDetail || []).map((schedule: any, index: number) => {
+      // Convert decimal hours to HH:mm
+      const decimalHour = schedule.duration || 0;
+      const hours = Math.floor(decimalHour);
+      const minutes = Math.round((decimalHour % 1) * 60);
+      const timeValue = dayjs()
+        .startOf('day')
+        .add(hours, 'hour')
+        .add(minutes, 'minute');
 
+      return {
+        key: index.toString(),
+        workingDay: (
+          <div className="flex space-x-2 justify-start">
+            <Switch checked={schedule?.workDay} disabled />
+            <span>{schedule.day}</span>
+          </div>
+        ),
+        time: <TimePicker value={timeValue} format="HH:mm" disabled />,
+      };
+    });
+  };
   useEffect(() => {
     const employeeDataInfo = {
       ...employeeData,
@@ -117,22 +139,10 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
         (e: any) => e.isPositionActive === true,
       )?.workScheduleId,
     };
-    setWorkSchedule(employeeDataInfo?.workScheduleId);
-
-    form.setFieldsValue(employeeDataInfo);
+    setWorkSchedule(employeeDataInfo?.workScheduleId); // Set workScheduleId in state
+    // Convert dateRange to dayjs object if it exist
+    form.setFieldsValue(employeeDataInfo); // Set form fields with converted values
   }, [form, employeeData]);
-
-  const schedule = workSchedules?.items[0];
-
-  const totalWorkingHours = schedule?.detail.reduce((total, day) => {
-    return total + day.hours || 0;
-  }, 0);
-
-  const workingHours: { day: string; hours: number }[] =
-    workSchedules?.items[0]?.detail?.map((day) => ({
-      day: day.dayOfWeek || '',
-      hours: day.hours || 0,
-    })) || [];
   return (
     <Card
       loading={isLoading}
@@ -151,37 +161,25 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
         <Row gutter={[16, 24]}>
           <Col lg={16}>
             <InfoLine
-              title="Current schedule"
+              title=""
               value={
                 employeeData?.employeeJobInformation?.find(
                   (e: any) => e.isPositionActive === true,
                 )?.workSchedule?.name || ''
               }
             />
-            <InfoLine
-              title="Total working hours/week"
-              value={totalWorkingHours}
-            />
-            <InfoLine
-              title="Daily working hours"
-              value={
-                <div className="flex gap-10">
-                  <div className="flex flex-col space-y-1">
-                    {workingHours?.map((item) => (
-                      <div key={`${item?.day}-label`}>{item?.day}</div>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-col space-y-1">
-                    {workingHours?.map((item) => (
-                      <div key={`${item?.day}-value`} className="font-light">
-                        {item?.hours} hours
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              }
-            />
+            <Row gutter={16}>
+              <Col xs={24} sm={24}>
+                <Table
+                  columns={workScheduleColumns}
+                  dataSource={dataValue(
+                    employeeData?.employeeJobInformation[0]?.workSchedule
+                      ?.detail,
+                  )}
+                  pagination={false}
+                />
+              </Col>
+            </Row>
           </Col>
         </Row>
       ) : (

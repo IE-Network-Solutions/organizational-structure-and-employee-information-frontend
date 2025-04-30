@@ -1,25 +1,34 @@
-import { Spin, Table } from 'antd';
+import React, { useState } from 'react';
+import { Select, Space, Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { Button } from 'antd';
+import { LuPlus } from 'react-icons/lu';
 import BenefitEntitlementSideBar from './benefitEntitlementSidebar';
 import { useFetchBenefitEntitlement } from '@/store/server/features/compensation/benefit/queries';
 import { useParams } from 'next/navigation';
 import { useDeleteBenefitEntitlement } from '@/store/server/features/compensation/benefit/mutations';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
-import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const BenefitEntitlementTable = () => {
-  const { currentPage, pageSize, setCurrentPage, setPageSize } =
-    useBenefitEntitlementStore();
+  const {
+    setIsBenefitEntitlementSidebarOpen,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    BenefitApplicableTo,
+  } = useBenefitEntitlementStore();
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
   const { id } = useParams();
   const { data: benefitEntitlementsData, isLoading } =
     useFetchBenefitEntitlement(id);
-
-  const { searchQuery } = useAllowanceEntitlementStore();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { data: employeeData } = useGetAllUsers();
 
   const transformedData = Array.isArray(benefitEntitlementsData)
     ? benefitEntitlementsData.map((item: any) => ({
@@ -31,6 +40,10 @@ const BenefitEntitlementTable = () => {
         mode: item.compensationItem.mode,
       }))
     : [];
+
+  const handleBenefitEntitlementAdd = () => {
+    setIsBenefitEntitlementSidebarOpen(true);
+  };
 
   const handleDelete = (id: string) => {
     deleteBenefitEntitlement(id);
@@ -115,6 +128,16 @@ const BenefitEntitlementTable = () => {
     setPageSize(pagination.pageSize);
   };
 
+  const handleSearchChange = (value: any) => {
+    setSearchQuery(value);
+  };
+  const options =
+    employeeData?.items?.map((emp: any) => ({
+      value: emp.id,
+      label: `${emp?.firstName || ''} ${emp?.middleName} ${emp?.lastName}`, // Full name as label
+      employeeData: emp,
+    })) || [];
+
   const filteredDataSource = searchQuery
     ? transformedData.filter(
         (employee: any) =>
@@ -124,7 +147,7 @@ const BenefitEntitlementTable = () => {
 
   return (
     <Spin spinning={isLoading}>
-      {/* <Space
+      <Space
         direction="horizontal"
         size="large"
         style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
@@ -158,7 +181,7 @@ const BenefitEntitlementTable = () => {
             Employees
           </Button>
         </AccessGuard>
-      </Space> */}
+      </Space>
       <Table
         className="mt-6"
         columns={columns}

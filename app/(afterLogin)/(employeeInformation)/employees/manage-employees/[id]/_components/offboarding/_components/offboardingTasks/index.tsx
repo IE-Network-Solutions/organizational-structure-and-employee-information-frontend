@@ -105,7 +105,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
   if (error) return <div>Error loading tasks</div>;
 
   return (
-    <div className="p-2 max-h-[418px] overflow-y-scroll">
+    <div className="p-4 max-h-[418px] overflow-y-scroll">
       <Card
         title="Offboarding Tasks"
         extra={
@@ -117,7 +117,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                 onClick={handleAddTaskClick}
                 disabled={!offboardingTermination}
               >
-                <span className="hidden sm:inline">Add Task</span>
+                Add Task
               </Button>
             </AccessGuard>
             <div id="offboarding-template-tasks">
@@ -131,7 +131,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                   disabled={!offboardingTermination}
                 >
                   <Button className="flex items-center">
-                    <SettingOutlined className="mr-2 hidden sm:inline" />
+                    <SettingOutlined className="mr-2" />
                     <DownOutlined />
                   </Button>
                 </Dropdown>
@@ -165,6 +165,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
           ))
         ) : (
           <div className="flex justify-center items-center">
+            {' '}
             <Empty description={'data not found'} image={<EmptyImage />} />
           </div>
         )}
