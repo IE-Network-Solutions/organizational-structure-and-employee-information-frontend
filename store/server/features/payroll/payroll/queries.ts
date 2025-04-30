@@ -56,7 +56,7 @@ export const useGetActivePayroll = (searchParams = '') =>
     const token = useAuthenticationStore.getState().token;
     const tenantId = useAuthenticationStore.getState().tenantId;
     return crudRequest({
-      url: `${PAYROLL_URL}by-employee/${id}`,
+      url: `${PAYROLL_URL}/payroll/by-employee/${id}`,
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,

@@ -35,6 +35,7 @@ import SettlementDetail from './_components/settlementDetail';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { FaArrowLeft } from 'react-icons/fa';
 import { EmptyImage } from '@/components/emptyIndicator';
+import { payPeriod } from '@/store/server/features/payroll/payroll/interface';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -54,10 +55,7 @@ const EmployeeProfile = () => {
   const { data: payroll } = useGetActivePayroll();
   const { data: payrollHistory } = useGetPayrollHistory(empId);
 
-  console.log('----payrollHistory-----', payrollHistory);
-
   const {
-    mergedPayroll,
     activeMergedPayroll,
     activePayPeriod,
     setMergedPayroll,
@@ -88,7 +86,8 @@ const EmployeeProfile = () => {
   useEffect(() => {
     if (payPeriodData && activeMergedPayroll?.payPeriodId) {
       const currentPayPeriod = payPeriodData.find(
-        (payPeriod: any) => payPeriod.id === activeMergedPayroll.payPeriodId,
+        (payPeriod: payPeriod) =>
+          payPeriod.id === activeMergedPayroll.payPeriodId,
       );
       setActivePayPeriod(currentPayPeriod);
     }
@@ -604,18 +603,22 @@ const EmployeeProfile = () => {
                   {payPeriodData ? (
                     payPeriodData
                       ?.filter(
-                        (period: any) =>
-                          mergedPayroll.some(
+                        (period: payPeriod) =>
+                          payrollHistory.some(
                             (pay: any) => pay.payPeriodId === period.id,
                           ), // Filter only periods with merged data
                       )
                       .map((period: any, index: any) => {
-                        const activeMergedPayroll = mergedPayroll.find(
+                        const activeMergedPayroll = payrollHistory.find(
                           (pay: any) => pay.payPeriodId === period.id,
                         );
 
                         return (
-                          <Collapse size="large" className="p-4" key={index}>
+                          <Collapse
+                            size="large"
+                            className="p-4 m-2"
+                            key={index}
+                          >
                             <Collapse.Panel
                               key={period.id}
                               header={`${dayjs(period.startDate).format('MMMM-YYYY')}`}
