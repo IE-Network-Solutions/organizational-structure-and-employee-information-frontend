@@ -67,6 +67,12 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
                 item?.courseCategory?.title || ''
               )}
             </div>
+            {item?.tenantId === null && (
+              <div className="absolute top-5 right-5 z-10 py-2 px-3 rounded-lg bg-green-500 text-white text-sm font-semibold">
+                system course
+              </div>
+            )}
+
             <Meta
               title={
                 <div className="flex items-center gap-1">
@@ -76,10 +82,13 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
                 </div>
               }
               description={
-                <div className="text-base text-gray-600">{item?.overview}</div>
+                <div className="text-base text-gray-600 line-clamp-2">
+                  {item?.overview}
+                </div>
               }
             />
           </div>
+
           <div className="action-buttons mt-2  gap-2">
             <AccessGuard
               permissions={[Permissions.UpdateCourse, Permissions.DeleteCourse]}

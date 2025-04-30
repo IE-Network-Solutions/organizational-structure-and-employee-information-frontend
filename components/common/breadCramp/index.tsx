@@ -4,7 +4,6 @@ import { BreadcrumbProps } from 'antd/lib/breadcrumb';
 
 interface CustomBreadcrumbProps extends BreadcrumbProps {
   title: JSX.Element | string;
-  // title: string;
   subtitle: JSX.Element | string;
 }
 

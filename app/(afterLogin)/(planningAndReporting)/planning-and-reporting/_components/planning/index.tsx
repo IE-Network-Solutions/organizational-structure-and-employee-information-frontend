@@ -108,7 +108,7 @@ function Planning() {
   );
 
   const transformedData = groupPlanTasksByKeyResultAndMilestone(
-    allPlanning?.items,
+    allPlanning?.items ?? [],
   );
 
   const handleApproveHandler = (id: string, value: boolean) => {
@@ -255,6 +255,7 @@ function Planning() {
             </div>
           </Tooltip>
         </div>
+
         <EmployeeSearch
           optionArray1={employeeData?.items}
           optionArray2={PlanningType}

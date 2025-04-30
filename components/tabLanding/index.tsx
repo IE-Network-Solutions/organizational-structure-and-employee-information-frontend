@@ -8,7 +8,6 @@ import { FaPlus } from 'react-icons/fa';
 import { Button, Tooltip } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 
-// Define prop types for tabLandingLayout
 interface TabLandingLayoutProps {
   title: string | any;
   subtitle?: string | any;
@@ -38,8 +37,8 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   permissionsData = [],
 }) => {
   return (
-    <div className="min-h-screen h-auto w-full p-4">
-      <BlockWrapper>
+    <div className="min-h-screen h-auto w-full bg-gray-100">
+      <BlockWrapper className="bg-gray-100 ">
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb title={title} subtitle={subtitle ?? ''} />
           <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
@@ -51,7 +50,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
                       id={`${id}-createButtonId`}
                       icon={buttonIcon ?? <FaPlus />}
                       onClick={onClickHandler}
-                      className="text-xs bg-blue-600 hover:bg-blue-700 h-4"
+                      className="text-xs bg-blue-600 hover:bg-blue-700 h-14 w-5 sm:w-auto sm:px-5 px-6 py-6"
                     />
                   </AccessGuard>
                 )
