@@ -82,10 +82,13 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
                 </div>
               }
               description={
-                <div className="text-base text-gray-600">{item?.overview}</div>
+                <div className="text-base text-gray-600 line-clamp-2">
+                  {item?.overview}
+                </div>
               }
             />
           </div>
+
           <div className="action-buttons mt-2  gap-2">
             <AccessGuard
               permissions={[Permissions.UpdateCourse, Permissions.DeleteCourse]}

@@ -5,6 +5,7 @@ import CustomButton from '@/components/common/buttons/customButton';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import { useUpdateAllowance } from '@/store/server/features/payroll/employeeInformation/mutation';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
@@ -56,6 +57,7 @@ const Drawer: React.FC = () => {
     }
   }, [selectedPayrollData]);
 
+  const { isMobile } = useIsMobile();
   return (
     <CustomDrawerLayout
       open={isDrawerVisible && selectedPayrollData?.key}
@@ -112,7 +114,11 @@ const Drawer: React.FC = () => {
           <Select
             mode="multiple"
             placeholder="Select allowanace type"
-            className="w-full h-12"
+            className="w-full"
+            style={{
+              minHeight: isMobile ? 'auto' : 48,
+              overflow: 'auto',
+            }}
           >
             {AllowanceData?.filter(
               (items: any) =>
@@ -124,6 +130,7 @@ const Drawer: React.FC = () => {
             ))}
           </Select>
         </Form.Item>
+
         <Form.Item label="Bank Information" name="bank_information">
           <Input
             disabled

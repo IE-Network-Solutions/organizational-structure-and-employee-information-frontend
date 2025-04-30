@@ -1,6 +1,7 @@
 import { Button } from 'antd';
 import { ButtonProps } from 'antd/lib/button';
 import type { ConfigProviderProps } from 'antd';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 type SizeType = ConfigProviderProps['componentSize'];
 
@@ -20,19 +21,20 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   onClick,
   type = 'primary',
   isTitleHidden = false,
-  size = 'default',
+  size = 'default' as SizeType,
   ...rest
-
 }) => {
+  const { isMobile } = useIsMobile();
   const baseClassName = 'rounded-lg flex items-center justify-center';
-  return (
+
+  return isMobile ? (
     <Button
       type={type}
       onClick={onClick}
       id={`${title}CustomButtonId`}
       icon={icon}
-      size={size as SizeType}
-      className={`${baseClassName} ${className}`}
+      size={size}
+      className={`${baseClassName} ${className || ''}`}
       {...rest}
     >
       {!isTitleHidden && (
@@ -41,8 +43,20 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         </div>
       )}
     </Button>
+  ) : (
+    <Button
+      type={type}
+      onClick={onClick}
+      id={`${title}CustomButtonId`}
+      icon={icon}
+      className={`h-14 px-6 py-6 rounded-lg flex items-center justify-start gap-2 ${className || ''}`}
+      {...rest}
+    >
+      <div className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight">
+        {title}
+      </div>
+    </Button>
   );
 };
-
 
 export default CustomButton;

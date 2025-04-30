@@ -10,6 +10,7 @@ import { useGetAllowance } from '@/store/server/features/payroll/employeeInforma
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 
 interface Employee {
   id: string;
@@ -223,10 +224,16 @@ const EmployeeInformation = () => {
     refetch();
   };
 
+  const { isMobile } = useIsMobile();
   return (
-    <div className="p-5">
-      <h2 className="py-4">Employees Payroll Information</h2>
+    <div className={isMobile ? 'p-1' : 'p-5'}>
+      <div className="flex justify-start items-center">
+        <span className="py-4 my-4 px-2 text-lg font-bold">
+          Employees Payroll Information
+        </span>
+      </div>
       <Filters onSearch={handleSearch} />
+
       <Spin spinning={responseLoading || Loading}>
         <Table
           dataSource={dataSource.filter((item) =>
@@ -242,6 +249,7 @@ const EmployeeInformation = () => {
             showSizeChanger: true,
             showQuickJumper: true,
           }}
+          scroll={{ x: 'max-content' }}
         />
       </Spin>
       <Drawer />
