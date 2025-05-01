@@ -235,22 +235,24 @@ const Payroll = () => {
       const allowanceData: any[] = [];
       const meritData: any[] = [];
 
+      const formatAmount = (amount: number | undefined | null) => {
+        return Number(amount || 0).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      };
+
       const exportColumns = [
         { type: 'Basic Salary', key: 'basicSalary' },
         { type: 'Transport Allowance', key: 'transportAllowance' },
         { type: 'Taxable Transport', key: 'taxableTransport' },
-        // { type: 'Total Allowance', key: 'totalAllowance' },
         { type: 'Total Award', key: 'totalBenefits' },
         { type: 'Gross Salary', key: 'grossIncome' },
         { type: 'Taxable Income', key: 'taxableIncome' },
-
         { type: 'Tax', key: 'tax' },
         { type: 'Total Deduction', key: 'totalDeduction' },
         { type: 'Employee Pension', key: 'employeePension' },
         { type: 'Company Pension', key: 'companyPesnion' },
-        // { type: 'Total Deduction', key: 'totalDeduction' },
-        // { type: 'Variable Pay', key: 'variablePay' },
-        // { type: 'Gross Income', key: 'grossIncome' },
         { type: 'Net Income', key: 'netIncome' },
       ];
       const columnHeaderMap = new Map<string, string>(
@@ -276,10 +278,6 @@ const Payroll = () => {
         const basicSalary =
           item.employeeInfo?.basicSalaries?.find((bs: any) => bs.status)
             ?.basicSalary || 0;
-        const tax = item.breakdown?.tax?.amount
-          ? item.breakdown.tax.amount.toFixed(2)
-          : '0.0';
-
         const deductions = item.breakdown?.totalDeductionWithPension || [];
         const allowances = item.breakdown?.allowances || [];
         const merits = item.breakdown?.merits || [];
@@ -293,65 +291,55 @@ const Payroll = () => {
 
         const payrollRowData: any = {
           fullName,
-          basicSalary: Number(basicSalary).toFixed(2),
-          transportAllowance: Number(transportAllowance).toFixed(2),
-          taxableTransport: Number(taxableTransport).toFixed(2),
-          totalBenefits: Number(totalBenefits || 0).toFixed(2),
-          grossIncome: Number(item.grossSalary || 0).toFixed(2),
-
-          taxableIncome: Number(item.grossSalary - 600 || 0).toFixed(2),
-          tax,
-          totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
-          employeePension: Number(
+          basicSalary: formatAmount(basicSalary),
+          transportAllowance: formatAmount(transportAllowance),
+          taxableTransport: formatAmount(taxableTransport),
+          totalBenefits: formatAmount(totalBenefits || 0),
+          grossIncome: formatAmount(item.grossSalary || 0),
+          taxableIncome: formatAmount(item.grossSalary - 600 || 0),
+          tax: formatAmount(item.breakdown?.tax?.amount),
+          totalDeduction: formatAmount(item.totalDeductions || 0),
+          employeePension: formatAmount(
             item.breakdown?.pension?.find((i: any) => i.type == 'Pension')
               ?.amount || 0,
-          ).toFixed(2),
-          companyPesnion: Number(
+          ),
+          companyPesnion: formatAmount(
             item.breakdown?.pension?.find(
               (i: any) => i.type == 'CompanyContribution',
             )?.amount || 0,
-          ).toFixed(2),
-
-          // totalAllowance: Number(item.totalAllowance || 0).toFixed(2),
-          // variablePay: Number(item.breakdown?.variablePay?.amount || 0).toFixed(
-          //   2,
-          // ),
-          netIncome: Number(item.netPay || 0).toFixed(2),
+          ),
+          netIncome: formatAmount(item.netPay || 0),
         };
 
         const deductionRow: any = {
           fullName,
-          totalDeductions: payrollRowData.totalDeduction,
+          totalDeductions: formatAmount(payrollRowData.totalDeduction),
         };
         const allowanceRow: any = {
           fullName,
-          totalAllowances: payrollRowData.totalAllowance,
+          totalAllowances: formatAmount(payrollRowData.totalAllowance),
         };
         const meritRow: any = {
           fullName,
-          totalMerits: payrollRowData.totalBenefits,
+          totalMerits: formatAmount(payrollRowData.totalBenefits),
         };
 
         // **Ensure every row has all expected unique columns**
         uniqueDeductionTypes.forEach((type: any) => {
           const deduction = deductions.find((d: any) => d.type === type);
-          deductionRow[type] = deduction
-            ? Number(deduction.amount).toFixed(2)
-            : '0.00';
+          deductionRow[type] = formatAmount(deduction?.amount);
         });
 
         uniqueAllowanceTypes.forEach((type) => {
           const allowance = allowances.find((a: any) => a.type === type);
-          allowanceRow[type] = allowance
-            ? Number(allowance.amount).toFixed(2)
-            : '0.00';
+          allowanceRow[type] = formatAmount(allowance?.amount);
         });
 
         uniqueMeritTypes.forEach((type) => {
           const merit = merits.find((m: any) => m.type === type);
-          meritRow[type.replace(/\s+/g, '').toLowerCase()] = merit
-            ? Number(merit.amount).toFixed(2)
-            : '0.00';
+          meritRow[type.replace(/\s+/g, '').toLowerCase()] = formatAmount(
+            merit?.amount,
+          );
         });
 
         payrollData.push(payrollRowData);
@@ -452,6 +440,13 @@ const Payroll = () => {
     }
     setLoading(true);
     try {
+      const formatAmount = (amount: number | undefined | null) => {
+        return Number(amount || 0).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      };
+
       const flatData = employeeInfo.map((employee: any) => {
         const payroll = mergedPayroll.find(
           (p: any) => p.employeeId === employee.id,
@@ -465,7 +460,7 @@ const Payroll = () => {
             '--',
           bankName:
             employee.employeeInformation?.bankInformation?.bankName || '--',
-          netPay: payroll?.netPay ?? '--', // Ensure a fallback value
+          netPay: formatAmount(payroll?.netPay),
         };
       });
 
