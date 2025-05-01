@@ -7,6 +7,10 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { IoIosMore } from 'react-icons/io';
 import { useUpdateObjectiveNestedDelete } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { HiOutlineHashtag } from 'react-icons/hi';
+import { AiOutlineDollar, AiOutlinePercentage } from 'react-icons/ai';
+import { GiAchievement } from 'react-icons/gi';
+import { BsSortNumericUpAlt } from 'react-icons/bs';
 
 interface KPIMetricsProps {
   keyResult: any;
@@ -73,6 +77,22 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
       objectiveId,
     });
   }
+  function getMetricName(metricType: string) {
+    switch (metricType) {
+      case 'Milestone':
+        return <HiOutlineHashtag />;
+      case 'Achieve':
+        return <GiAchievement />;
+      case 'Percentage':
+        return <AiOutlinePercentage />;
+      case 'Numeric':
+        return <BsSortNumericUpAlt />;
+      case 'Currency':
+        return <AiOutlineDollar />;
+      default:
+        return null; // Or <span>{metricType}</span> if you want to show the string
+    }
+  }
   return (
     <div
       className={`${isMobile ? 'py-2 px-3' : 'py-3 px-4 sm:px-8'} bg-white shadow-sm rounded-lg border relative`}
@@ -83,8 +103,15 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
           size={isMobile ? 20 : 24}
           className="text-blue text-xl w-8 sm:w-10"
         />
-        <h2 className={`${isMobile ? 'text-xs' : 'text-sm'} font-normal`}>
+        <h2
+          className={`flex items-center gap-1 ${isMobile ? 'text-xs' : 'text-sm'} font-normal`}
+        >
           {keyResult?.title}
+          {isMobile && keyResult?.metricType?.name && (
+            <span className="inline-flex items-center -mt-3">
+              {getMetricName(keyResult.metricType.name)}
+            </span>
+          )}
         </h2>
         {keyResult?.isClosed === false && Number(keyResult?.progress) === 0 && (
           <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
@@ -97,21 +124,23 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
       <div className="flex flex-wrap gap-2">
         {/* Metric and Weight */}
         <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-1">
-            <div
-              className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[6px] p-1' : 'text-xs p-2'} flex items-center rounded-lg`}
-            >
-              {keyResult?.metricType?.name}
-            </div>
+          {!isMobile && (
             <div className="flex items-center gap-1">
-              <div className="text-[#3636f0] text-xl">&#x2022;</div>
               <div
-                className={`text-[#687588] mt-1 ${isMobile ? 'text-[6px]' : 'text-xs'} flex items-center rounded-lg`}
+                className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[6px] p-1' : 'text-xs p-2'} flex items-center rounded-lg`}
               >
-                Metric
+                {keyResult?.metricType?.name}
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="text-[#3636f0] text-xl">&#x2022;</div>
+                <div
+                  className={`text-[#687588] mt-1 ${isMobile ? 'text-[6px]' : 'text-xs'} flex items-center rounded-lg`}
+                >
+                  Metric
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="flex items-center gap-1">
             <div
