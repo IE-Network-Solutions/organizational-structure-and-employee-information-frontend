@@ -302,6 +302,8 @@ const Payroll = () => {
           taxableIncome: Number(item.grossSalary - 600 || 0).toFixed(2),
           tax,
           totalDeduction: Number(item.totalDeductions || 0).toFixed(2),
+          totalIncentive: Number(item.totalIncentives || 0).toFixed(2),
+
           employeePension: Number(
             item.breakdown?.pension?.find((i: any) => i.type == 'Pension')
               ?.amount || 0,
@@ -517,10 +519,7 @@ const Payroll = () => {
       minWidth: 200,
       render: (notused: any, record: any) => (
         <div className="flex items-center gap-2">
-          <Avatar 
-            src={record.employeeInfo?.profileImage} 
-            size={32}
-          />
+          <Avatar src={record.employeeInfo?.profileImage} size={32} />
           <span>
             {`${record.employeeInfo?.firstName || ''} ${record.employeeInfo?.lastName || ''}`}
           </span>
@@ -623,6 +622,13 @@ const Payroll = () => {
       title: 'Total Deduction',
       dataIndex: 'totalDeductions',
       key: 'totalDeductions',
+      minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
+    },
+    {
+      title: 'Total Incentive',
+      dataIndex: 'totalIncentive',
+      key: 'totalIncentive',
       minWidth: 150,
       render: (key: string) => Number(key)?.toLocaleString(),
     },

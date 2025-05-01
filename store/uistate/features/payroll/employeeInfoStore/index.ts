@@ -8,6 +8,10 @@ interface VariablePay {
   amount: string;
   type: 'VP';
 }
+interface Incentives {
+  amount: string;
+  type: 'Incentive';
+}
 
 export interface Allowances {
   amount: string;
@@ -32,6 +36,7 @@ interface Breakdown {
   merits: Merits[];
   pension: Pension[];
   variablePay: VariablePay;
+  incentives: Incentives;
   tax: any;
   employeeId: string;
   employeeInfo: EmployeeInfo;
