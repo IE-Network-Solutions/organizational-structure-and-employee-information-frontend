@@ -604,12 +604,12 @@ const EmployeeProfile = () => {
                     payPeriodData
                       ?.filter(
                         (period: PayPeriod) =>
-                          payrollHistory.some(
+                          payrollHistory?.some(
                             (pay: any) => pay.payPeriodId === period.id,
                           ), // Filter only periods with merged data
                       )
                       .map((period: any, index: any) => {
-                        const activeMergedPayroll = payrollHistory.find(
+                        const activeMergedPayroll = payrollHistory?.find(
                           (pay: any) => pay.payPeriodId === period.id,
                         );
 
