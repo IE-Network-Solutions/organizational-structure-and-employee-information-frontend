@@ -8,7 +8,6 @@ import { Avatar, Table, TableColumnsType, Tooltip } from 'antd';
 import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useRouter } from 'next/navigation';
 
 const columns: TableColumnsType<any> = [
   {
@@ -43,9 +42,23 @@ const columns: TableColumnsType<any> = [
   },
 ];
 const AllIncentiveTable: React.FC = () => {
-  const router = useRouter();
-  const { searchParams, currentPage, pageSize, setCurrentPage, setPageSize } =
-    useIncentiveStore();
+  const {
+    searchParams,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    selectedRowKeys,
+    setSelectedRowKeys,
+  } = useIncentiveStore();
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (selectedRowKeys: any) => {
+      setSelectedRowKeys(selectedRowKeys);
+    },
+  };
+
   const { data: incentiveData, isLoading: responseLoading } =
     useGetAllIncentiveData(
       searchParams?.employee_name || '',
@@ -120,6 +133,8 @@ const AllIncentiveTable: React.FC = () => {
   return (
     <div className="m-1">
       <Table
+        rowSelection={{ type: 'checkbox', ...rowSelection }}
+        rowKey="id"
         className="w-full cursor-pointer"
         columns={columns}
         dataSource={allIncentiveTableData}
@@ -133,11 +148,11 @@ const AllIncentiveTable: React.FC = () => {
         }}
         loading={responseLoading}
         scroll={{ x: 1000 }}
-        onRow={(record) => ({
-          onClick: () => {
-            router.push(`/incentives/detail/${record?.id}`);
-          },
-        })}
+        // onRow={(record) => ({
+        //   onClick: () => {
+        //     router.push(`/incentives/detail/${record?.id}`);
+        //   },
+        // })}
       />
     </div>
   );

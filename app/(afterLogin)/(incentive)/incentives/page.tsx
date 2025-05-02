@@ -1,6 +1,6 @@
 'use client';
 import { useParentRecognition } from '@/store/server/features/incentive/other/queries';
-import { Button, Skeleton, Tabs } from 'antd';
+import { Button, Skeleton, Tabs, Tooltip } from 'antd';
 import { TabsProps } from 'antd/lib';
 import PayRoleView from './payroll-detail';
 import { useEffect, useMemo } from 'react';
@@ -8,6 +8,8 @@ import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive'
 import AllIncentives from './compensation/all/page';
 import DynamicIncentive from './compensation/dynamicRecoginition';
 import ExportModal from './compensation/all/export';
+import ConfirmModal from '@/components/common/confirmModal';
+import { useSendIncentiveToPayroll } from '@/store/server/features/incentive/all/mutation';
 
 const Page = () => {
   const {
@@ -22,11 +24,16 @@ const Page = () => {
     selectedRecognition,
     setParentResponseIsLoading,
     setIsOpen,
+    selectedRowKeys,
+    setSelectedRowKeys,
+    confirmationModal,
+    setConfirmationModal,
   } = useIncentiveStore();
 
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
-
+  const { mutate: sendIncentiveToPayroll, isLoading } =
+    useSendIncentiveToPayroll();
   useEffect(() => {
     setParentResponseIsLoading(parentResponseLoading);
   }, [parentResponseLoading]);
@@ -34,7 +41,22 @@ const Page = () => {
   const handleExportClick = () => {
     setIsOpen(true);
   };
-
+  const handleSendToPayrollClick = () => {
+    setConfirmationModal(true);
+  };
+  const handleYesSendToPayroll = () => {
+    setConfirmationModal(false);
+    setShowGenerateModal(true);
+    sendIncentiveToPayroll(
+      { data: selectedRowKeys },
+      {
+        onSuccess: () => {
+          setShowGenerateModal(false);
+          setSelectedRowKeys([]);
+        },
+      },
+    );
+  };
   const items: TabsProps['items'] = parentResponseLoading
     ? [{ key: 'loading', label: <Skeleton active />, children: null }]
     : [
@@ -63,11 +85,28 @@ const Page = () => {
           ),
         })),
       ];
-
+  useEffect(() => {
+    setSelectedRowKeys([]);
+  }, [activeKey]);
   const OperationsSlot = useMemo(() => {
     if (activeKey === '1') {
       return (
         <div className="flex items-center justify-center gap-3">
+          <Tooltip
+            title={
+              selectedRowKeys.length == 0
+                ? 'Please Select At Least One User'
+                : ''
+            }
+          >
+            <Button
+              onClick={() => handleSendToPayrollClick()}
+              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
+              disabled={selectedRowKeys.length == 0 ? true : false}
+            >
+              {'Send to Payroll'}
+            </Button>
+          </Tooltip>
           {isPayrollView ? (
             <Button
               onClick={() => setShowGenerateModal(!showGenerateModal)}
@@ -96,6 +135,21 @@ const Page = () => {
       // Show Import & Generate for all other tabs
       return (
         <div className="flex items-center justify-center gap-3">
+          <Tooltip
+            title={
+              selectedRowKeys.length == 0
+                ? 'Please Select At Least One User'
+                : ''
+            }
+          >
+            <Button
+              onClick={() => handleSendToPayrollClick()}
+              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
+              disabled={selectedRowKeys.length != 0 ? true : false}
+            >
+              {'Send to Payroll'}
+            </Button>
+          </Tooltip>
           <Button
             onClick={() => handleExportClick()}
             className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
@@ -111,7 +165,13 @@ const Page = () => {
         </div>
       );
     }
-  }, [activeKey, isPayrollView, setProjectDrawer, setIsPayrollView]);
+  }, [
+    activeKey,
+    isPayrollView,
+    setProjectDrawer,
+    setIsPayrollView,
+    selectedRowKeys,
+  ]);
 
   const handleTabChange = (key: string) => {
     setActiveKey(key);
@@ -156,6 +216,19 @@ const Page = () => {
         </>
       )}
       <ExportModal selectedRecognition={selectedRecognition?.id} />
+
+      <ConfirmModal
+        open={confirmationModal}
+        onConfirm={handleYesSendToPayroll}
+        onCancel={() => setConfirmationModal(false)}
+        loading={isLoading}
+        description={'You want to send to payroll'}
+      />
+      {/* <DeleteModal 
+        open={confirmationModal}
+        description="Are you sure you want to send this recognition to payroll?"
+        onYes={handleYesSendToPayroll}
+        onNo={() => setConfirmationModal(false)}/> */}
     </div>
   );
 };
