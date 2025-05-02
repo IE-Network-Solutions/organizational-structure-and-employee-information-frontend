@@ -32,7 +32,7 @@ const exportData = async (data: any) => {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     const disposition = response.headers['content-disposition'];
-    let fileName = 'Employee okr score export.xlsx';
+    let fileName = 'Incentive Data Export.xlsx';
     if (disposition && disposition.includes('filename=')) {
       fileName = disposition.split('filename=')[1].replace(/"/g, '');
     }
