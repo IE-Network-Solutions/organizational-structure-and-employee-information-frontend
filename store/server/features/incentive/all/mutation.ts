@@ -17,8 +17,8 @@ const importData = async (data: any) => {
 const exportData = async (data: any) => {
   try {
     const response = await axios.post(
-`${INCENTIVE_URL}/incentives/export/incentive-data`,     
- data,
+      `${INCENTIVE_URL}/incentives/export/incentive-data`,
+      data,
       {
         headers: {
           ...requestHeader(),
@@ -57,7 +57,7 @@ const exportData = async (data: any) => {
 // };
 
 export const useExportIncentiveData = () => {
-  const queryClient = useQueryClient(); 
+  const queryClient = useQueryClient();
   return useMutation(exportData, {
     onSuccess: () => {
       queryClient.invalidateQueries('exportData');

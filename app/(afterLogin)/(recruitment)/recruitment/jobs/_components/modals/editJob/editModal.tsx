@@ -1,6 +1,5 @@
 import React from 'react';
-import { Modal, Button, Form, Input, Select,   DatePicker,
-} from 'antd';
+import { Modal, Button, Form, Input, Select, DatePicker } from 'antd';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { useUpdateJobs } from '@/store/server/features/recruitment/job/mutation';
 import { LocationType } from '@/types/enumTypes';

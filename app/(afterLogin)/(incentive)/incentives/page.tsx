@@ -25,26 +25,19 @@ const Page = () => {
     setSelectedRecognition,
     selectedRecognition,
     setParentResponseIsLoading,
-    setIsOpen,
   } = useIncentiveStore();
-  const {
-    mutate: exportIncentiveData,
-    isLoading: submitPending,
-    reset,
-  } = useExportIncentiveData();
-  
+  const { mutate: exportIncentiveData } = useExportIncentiveData();
 
-  const { searchParams, currentPage, pageSize, setCurrentPage, setPageSize } =
-    useIncentiveStore();
-  const handleExport = (values: any,generateAll:boolean) => {
+  const { searchParams } = useIncentiveStore();
+  const handleExport = (values: any, generateAll: boolean) => {
     const formattedValues = {
       parentRecognitionTypeId: selectedRecognition?.id || '',
-      generateAll:generateAll,
+      generateAll: generateAll,
       sessionId: values?.bySession || [],
-      userId:values?.employee_name || '',
-      monthId:values?.byMonth || ''
+      userId: values?.employee_name || '',
+      monthId: values?.byMonth || '',
     };
-    exportIncentiveData(formattedValues)
+    exportIncentiveData(formattedValues);
   };
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
@@ -53,10 +46,6 @@ const Page = () => {
   useEffect(() => {
     setParentResponseIsLoading(parentResponseLoading);
   }, [parentResponseLoading]);
-
-  const handleExportClick = () => {
-    setIsOpen(true);
-  };
 
   const items: TabsProps['items'] = parentResponseLoading
     ? [{ key: 'loading', label: <Skeleton active />, children: null }]
@@ -113,8 +102,8 @@ const Page = () => {
               }
               id="createUserButton"
               icon={<FileDown className="md:mr-0 ml-2" size={18} />}
-              onClick={() => handleExport(searchParams,true)}         
-             textClassName="!text-sm !font-medium"
+              onClick={() => handleExport(searchParams, true)}
+              textClassName="!text-sm !font-medium"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
             />
           )}
@@ -147,7 +136,7 @@ const Page = () => {
             }
             id="createUserButton"
             icon={<FileUp className="md:mr-0 ml-2" size={18} />}
-            onClick={() => handleExport(searchParams,false)}         
+            onClick={() => handleExport(searchParams, false)}
             textClassName="!text-sm !font-medium"
             className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
           />
