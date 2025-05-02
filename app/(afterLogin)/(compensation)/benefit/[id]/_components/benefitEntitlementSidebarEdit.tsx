@@ -11,7 +11,7 @@ import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchBenefit } from '@/store/server/features/compensation/benefit/queries';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
 import dayjs from 'dayjs';
@@ -25,23 +25,23 @@ type BenefitEntitlementProps = {
   title: string;
 };
 
-const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
+const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
   const {
     departmentUsers,
     setDepartmentUsers,
     benefitMode,
-    isBenefitEntitlementSidebarOpen,
+    isBenefitEntitlementSidebarUpdateOpen,
     selectedDepartment,
     setSelectedDepartment,
     resetStore,
     benefitDefaultAmount,
     benefitData,
+    setIsBenefitEntitlementSidebarUpdateOpen
   } = useBenefitEntitlementStore();
 
   const { mutate: createBenefitEntitlement, isLoading: createBenefitLoading } =
     useCreateBenefitEntitlement();
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
-  const { data: departments, isLoading } = useGetDepartmentsWithUsers();
   const { id } = useParams();
   const [form] = Form.useForm();
 
@@ -54,7 +54,8 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
   const onClose = () => {
     form.resetFields();
-    resetStore();
+    setData([])
+    setIsBenefitEntitlementSidebarUpdateOpen(false);
   };
 
   const onFormSubmit = (formValues: any) => {
@@ -78,16 +79,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
       // },
   };
 
-  const handleDepartmentChange = (value: string) => {
-    setSelectedDepartment(value);
-    const department = departments.find((dept: any) => dept.name === value);
-    if (department) {
-      setDepartmentUsers(department.users);
-      form.setFieldsValue({
-        employees: department.users.map((user: any) => user.id),
-      });
-    }
-  };
+ 
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -99,7 +91,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
       onClick: () => onClose(),
     },
     {
-      label: <span>Create</span>,
+      label: <span>Update</span>,
       key: 'create',
       className: 'h-14',
       type: 'primary',
@@ -108,7 +100,21 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
       onClick: () => form.submit(),
     },
   ];
-
+  useEffect(() => {
+    if (benefitData) {
+      form.setFieldsValue({
+        amount: benefitData?.Amount ? Number(benefitData.Amount) : undefined,
+        mode: benefitData?.mode || undefined,
+        userId:benefitData.userId
+        // Add more fields if needed
+      });
+  
+      // Optionally update local state too:
+      if (!benefitData?.isRate) {
+        setTotalAmount(Number(benefitData.Amount) || 0);
+      }
+    }
+  }, [benefitData, form]);
   useEffect(() => {
     if (!payPeriods?.length) return;
 
@@ -125,7 +131,8 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
         end.isSame(nextMonth, 'month')
       );
     });
-
+    
+      
     const amountPerPeriod =
       totalAmount && settlementPeriod ? totalAmount / settlementPeriod : 0;
 
@@ -149,7 +156,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     setData(newData);
     form.setFieldsValue({ payments: newData });
   }, [totalAmount, settlementPeriod, payPeriods]);
-
+  console.log(benefitData,"benefitData")
   const columns = [
     {
       dataIndex: 'amount',
@@ -197,13 +204,13 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   ];
 
   return (
-    isBenefitEntitlementSidebarOpen && (
+    isBenefitEntitlementSidebarUpdateOpen && (
       <CustomDrawerLayout
-        open={isBenefitEntitlementSidebarOpen}
+        open={isBenefitEntitlementSidebarUpdateOpen}
         onClose={onClose}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            <span>{title}</span>
+            <span>Update {title}</span>
           </CustomDrawerHeader>
         }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
@@ -242,34 +249,15 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 pagination={false}
               />
             )}
-
             <Form.Item
-              name="department"
-              label="Select Department"
-              rules={[{ required: true, message: 'Department is required!' }]}
-              className="form-item min-h-10"
-            >
-              <Select
-                placeholder="Select a department"
-                onChange={handleDepartmentChange}
-              >
-                {departments?.map((department: any) => (
-                  <Select.Option key={department.id} value={department.name}>
-                    {department.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="employees"
+              name="userId"
               label="Select Employees"
               rules={[{ required: true, message: 'Please select employees' }]}
             >
              <Select
+             disabled
                 showSearch
                 placeholder="Select a person"
-                mode="multiple"
                 className="w-full min-h-10"
                 allowClear
                 filterOption={(input: any, option: any) =>
@@ -292,4 +280,4 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   );
 };
 
-export default BenefitEntitlementSideBar;
+export default BenefitEntitlementSideBarEdit;

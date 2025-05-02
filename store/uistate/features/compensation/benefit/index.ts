@@ -8,16 +8,20 @@ interface SearchParams {
 
 interface BenefitEntitlementTypes {
   isBenefitEntitlementSidebarOpen: boolean;
+  isBenefitEntitlementSidebarUpdateOpen: boolean;
   selectedDepartment: string | null;
   departmentUsers: any[];
   benefitMode: string;
   BenefitApplicableTo: string;
   benefitDefaultAmount: number;
-
+  benefitData:any
+  employeeBenefitData:any
+  
   currentPage: number;
   pageSize: number;
 
   setIsBenefitEntitlementSidebarOpen: (value: boolean) => void;
+  setIsBenefitEntitlementSidebarUpdateOpen: (value: boolean) => void;
   setSelectedDepartment: (value: string | null) => void;
   setDepartmentUsers: (value: any[]) => void;
   setBenefitMode: (value: string) => void;
@@ -25,7 +29,8 @@ interface BenefitEntitlementTypes {
   setPageSize: (value: number) => void;
   setBenefitDefaultAmount: (value: number) => void;
   setBenefitApplicableTo: (value: string) => void;
-
+  setEditBenefitData: (value: any) => void
+  setEmployeeBenefitData: (value: any) => void
   resetStore: () => void;
 }
 
@@ -68,9 +73,14 @@ const variablePayInitialState = {
 export const useBenefitEntitlementStore = create<BenefitEntitlementTypes>(
   (set) => ({
     ...benefitEntitlementInitialState,
-
+    isBenefitEntitlementSidebarUpdateOpen: false, 
     setIsBenefitEntitlementSidebarOpen: (value) =>
       set({ isBenefitEntitlementSidebarOpen: value }),
+    employeeBenefitData: null,
+    setEmployeeBenefitData: (value) =>
+      set({ employeeBenefitData: value }),
+    setIsBenefitEntitlementSidebarUpdateOpen: (value) =>
+      set({ isBenefitEntitlementSidebarUpdateOpen: value }),
     setSelectedDepartment: (value) => set({ selectedDepartment: value }),
     setDepartmentUsers: (value) => set({ departmentUsers: value }),
     setBenefitMode: (value) => set({ benefitMode: value }),
@@ -79,7 +89,8 @@ export const useBenefitEntitlementStore = create<BenefitEntitlementTypes>(
 
     setCurrentPage: (value) => set({ currentPage: value }),
     setPageSize: (value) => set({ pageSize: value }),
-
+    benefitData: null,
+    setEditBenefitData: (value) => set({ benefitData: value }),
     resetStore: () => {
       set((state) => {
         const { benefitDefaultAmount, benefitMode } = state;

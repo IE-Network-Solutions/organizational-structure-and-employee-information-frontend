@@ -13,15 +13,22 @@ import { useDeleteBenefitEntitlement } from '@/store/server/features/compensatio
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-
-const BenefitEntitlementTable = () => {
+import BenefitEntitlementSideBarEdit from './benefitEntitlementSidebarEdit';
+import BenefitTracking from './benefitTracker';
+ type BenefitPropTypes = {
+  title: string;
+};
+const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
   const {
     setIsBenefitEntitlementSidebarOpen,
+    setIsBenefitEntitlementSidebarUpdateOpen,
     currentPage,
     pageSize,
     setCurrentPage,
     setPageSize,
     BenefitApplicableTo,
+  
+setEditBenefitData
   } = useBenefitEntitlementStore();
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
   const { id } = useParams();
@@ -29,7 +36,10 @@ const BenefitEntitlementTable = () => {
     useFetchBenefitEntitlement(id);
   const [searchQuery, setSearchQuery] = useState('');
   const { data: employeeData } = useGetAllUsers();
-
+ const {
+        employeeBenefitData,
+        setEmployeeBenefitData,
+      } = useBenefitEntitlementStore();
   const transformedData = Array.isArray(benefitEntitlementsData)
     ? benefitEntitlementsData.map((item: any) => ({
         id: item.id,
@@ -47,15 +57,23 @@ const BenefitEntitlementTable = () => {
 
   const handleDelete = (id: string) => {
     deleteBenefitEntitlement(id);
+    
   };
-
+  const handleEdit= (record: any) => {
+    setEditBenefitData(record);
+    setIsBenefitEntitlementSidebarUpdateOpen(true)
+  };
+ const handleEmployeeData =(data:any)=>{
+setEmployeeBenefitData(data)
+ }
   const columns: TableColumnsType<any> = [
     {
       title: 'Employee',
       dataIndex: 'userId',
       key: 'userId',
       sorter: true,
-      render: (userId: string) => <EmployeeDetails empId={userId} />,
+      
+      render: (rule: any, record: any) => <div onClick={()=>handleEmployeeData(record)}> <EmployeeDetails empId={record?.userId} /></div>,
     },
     {
       title: 'Type',
@@ -114,8 +132,8 @@ const BenefitEntitlementTable = () => {
         >
           <ActionButtons
             id={record?.id ?? null}
-            disableEdit
-            onEdit={() => {}}
+            disableEdit={false}
+            onEdit={() => handleEdit(record)}
             onDelete={() => handleDelete(record.id)}
           />
         </AccessGuard>
@@ -144,9 +162,11 @@ const BenefitEntitlementTable = () => {
           employee.userId?.toLowerCase() === searchQuery?.toLowerCase(),
       )
     : transformedData;
-
+ console.log('employeeBenefitData', employeeBenefitData);
   return (
     <Spin spinning={isLoading}>
+      {employeeBenefitData==null?
+      <>
       <Space
         direction="horizontal"
         size="large"
@@ -182,6 +202,7 @@ const BenefitEntitlementTable = () => {
           </Button>
         </AccessGuard>
       </Space>
+   
       <Table
         className="mt-6"
         columns={columns}
@@ -194,7 +215,10 @@ const BenefitEntitlementTable = () => {
         }}
         onChange={handleTableChange}
       />
-      <BenefitEntitlementSideBar />
+      </>
+      :<BenefitTracking/>}
+      <BenefitEntitlementSideBar title={title} />
+      <BenefitEntitlementSideBarEdit title={title} />
     </Spin>
   );
 };
