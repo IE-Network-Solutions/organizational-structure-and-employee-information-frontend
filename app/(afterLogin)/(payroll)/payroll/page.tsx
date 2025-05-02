@@ -80,8 +80,6 @@ const Payroll = () => {
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
 
-  console.log('-----------mergedPayroll-------------', mergedPayroll);
-
   useEffect(() => {
     if (payroll?.payrolls && allEmployees?.items) {
       const mergedData = payroll?.payrolls.map((pay: any) => {
