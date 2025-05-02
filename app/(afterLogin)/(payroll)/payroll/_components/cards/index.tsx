@@ -20,7 +20,14 @@ const PayrollCard: React.FC<PayrollCardProps> = ({ title, value, growth }) => {
       lg={24}
       className={`${isMobile ? 'w-full px-3' : 'max-w-[25%]'} flex-shrink-0`}
     >
-      <Card bordered={false} className="bg-[#FAFAFA] my-2 h-full">
+      <Card
+        bordered={false}
+        className={
+          isMobile
+            ? 'bg-[#FAFAFA] my-2 h-full -mr-8 pr-2'
+            : 'bg-[#FAFAFA] my-2 h-full'
+        }
+      >
         <h3 className="text-2xl font-bold mb-2">
           {value ? Number(value).toFixed(2) : '--'}
         </h3>

@@ -112,6 +112,8 @@ const AllCandidateTable: React.FC = () => {
     setEditCandidate,
     setDeleteCandidateId,
     setDeleteCandidateModal,
+    selectedRowKeys,
+    setSelectedRowKeys,
   } = useCandidateState();
 
   const { data: candidateList, isLoading: isResponseLoading } =
@@ -264,7 +266,9 @@ const AllCandidateTable: React.FC = () => {
   });
 
   const rowSelection: TableRowSelection<CandidateData> = {
-    onChange: (nonused, selectedRows) => {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(newSelectedRowKeys);
       setSelectedCandidate(
         candidateList?.items?.filter((item: CandidateData) =>
           selectedRows.some((row: CandidateData) => row.id === item.id),
