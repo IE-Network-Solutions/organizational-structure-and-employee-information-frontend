@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import useDrawerStore from '@/store/uistate/features/drawer';
 import { Button, Drawer } from 'antd';
 import React, { useEffect } from 'react';
@@ -34,33 +35,26 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
     setPlacement,
   } = useDrawerStore();
 
+  const { isMobile } = useIsMobile();
+
   useEffect(() => {
     setIsClient(true);
+
     if (window.innerWidth <= 768 && placement !== 'bottom') {
       setPlacement?.('bottom');
     } else if (window.innerWidth > 768 && placement !== 'right') {
       setPlacement?.('right');
     }
+
     const updateWidth = () => {
-      // if (window.innerWidth <= 768) {
-      //   setCurrentWidth('90%');
-      // } else {
-      //   setCurrentWidth(width || '70%');
-      // }
       setCurrentWidth(window.innerWidth <= 768 ? '100%' : width || '40%');
     };
 
-    // Run the width update once on mount
-    updateWidth();
+    updateWidth(); // run once on mount
 
-    // Add the resize event listener
     window.addEventListener('resize', updateWidth);
-
-    // Cleanup the event listener on unmount
-    return () => {
-      window.removeEventListener('resize', updateWidth);
-    };
-  }, [width, currentWidth, setCurrentWidth]);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, [width, setCurrentWidth, placement, setPlacement, setIsClient]);
 
   // Render the component only on the client side
   if (!isClient) return null;
@@ -100,9 +94,9 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         styles={{
           header: { borderBottom: 'none' },
           footer: { borderTop: 'none' },
-          body: { padding: '0 36px' },
+          body: { padding: isMobile ? '0 12px' : '0 36px' },
         }}
-        height={400}
+        height={isMobile ? 600 : 400}
         placement={placement}
       >
         {children}

@@ -42,7 +42,7 @@ const EmployeeAttendance = () => {
     isSuccess,
   } = useAttendanceImport();
 
-  const { setIsShowBreakAttendanceImportSidebar } =
+  const { setIsShowBreakAttendanceImportSidebar, filter } =
     useEmployeeAttendanceStore();
 
   useEffect(() => {
@@ -74,41 +74,38 @@ const EmployeeAttendance = () => {
       // Create a new request object with export type and filter
       const exportRequest: AttendanceRequestBody = {
         exportType: type,
-        filter: {
-          attendanceRecordIds: data.items.map((item) => item.id),
-          userIds: data.items.map((item) => item.userId),
-          date: {
-            from: data.items[0].createdAt,
-            to: data.items[data.items.length - 1].createdAt,
-          },
-          type: data.items.some((item) => item.isAbsent)
-            ? 'absent'
-            : data.items.some((item) => item.lateByMinutes > 0)
-              ? 'late'
-              : data.items.some((item) => item.earlyByMinutes > 0)
-                ? 'early'
-                : 'present',
-        },
+        filter: filter,
       };
-
       // Set the request
       setBodyRequest(exportRequest);
 
       // Wait for the state to update and get the response
-      const response = await new Promise<{ file: string }>((resolve) => {
-        const checkData = () => {
-          if (data?.file) {
-            resolve({ file: data.file });
-          } else {
-            setTimeout(checkData, 100);
-          }
-        };
-        checkData();
-      });
+      const response = await new Promise<{ file: string }>(
+        (resolve, reject) => {
+          let attempts = 0;
+          const maxAttempts = 10; // Maximum number of attempts
+          const checkData = () => {
+            if (data?.file) {
+              resolve({ file: data.file });
+            } else if (attempts >= maxAttempts) {
+              reject(new Error('Export timed out'));
+            } else {
+              attempts++;
+              setTimeout(checkData, 500); // Check every 500ms
+            }
+          };
+          checkData();
+        },
+      );
 
       if (response?.file) {
+        // Ensure the file path is properly formatted
+        const filePath = response.file.startsWith('/')
+          ? response.file
+          : `/${response.file}`;
+
         const url = new URL(TIME_AND_ATTENDANCE_URL!);
-        const fileUrl = `${url.origin}/${response.file}`;
+        const fileUrl = `${url.origin}${filePath}`;
 
         // Create a temporary link to trigger the download
         const link = document.createElement('a');
@@ -117,9 +114,16 @@ const EmployeeAttendance = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      } else {
+
+        // Clean up the file after download
+        setTimeout(() => {
+          fetch(fileUrl, { method: 'DELETE' }).catch(() => {
+            // Ignore cleanup errors
+          });
+        }, 1000);
       }
     } catch (error) {
+      // You might want to show an error message to the user here
     } finally {
       setIsExportLoading(false);
       setExportType(null);
