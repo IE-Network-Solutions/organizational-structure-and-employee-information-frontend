@@ -22,7 +22,6 @@ import { useGetAttendances } from '@/store/server/features/timesheet/attendance/
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 
 // Utils
-import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import usePagination from '@/utils/usePagination';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import { AttendanceRecordTypeBadgeTheme } from '@/types/timesheet/attendance';
@@ -292,13 +291,15 @@ const AttendanceTable = () => {
               );
             }
             if (type === 'page') {
-              if (window.innerWidth < 640) { // Mobile view
+              if (window.innerWidth < 640) {
+                // Mobile view
                 return page === current ? (
                   <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50">
                     <span className="text-gray-900">{page}</span>
                   </div>
                 ) : null;
-              } else { // Desktop view
+              } else {
+                // Desktop view
                 return page === current ? (
                   <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50">
                     <span className="text-gray-900">{page}</span>
@@ -311,7 +312,7 @@ const AttendanceTable = () => {
               }
             }
             return null;
-          }
+          },
         }}
         onChange={handleTableChange}
         scroll={{ x: 'min-content' }}
