@@ -42,7 +42,7 @@ const EmployeeAttendance = () => {
     isSuccess,
   } = useAttendanceImport();
 
-  const { setIsShowBreakAttendanceImportSidebar,filter } =
+  const { setIsShowBreakAttendanceImportSidebar, filter } =
     useEmployeeAttendanceStore();
 
   useEffect(() => {
@@ -74,9 +74,8 @@ const EmployeeAttendance = () => {
       // Create a new request object with export type and filter
       const exportRequest: AttendanceRequestBody = {
         exportType: type,
-        filter:filter
+        filter: filter,
       };
-  console.log(exportRequest,"exportRequest");
       // Set the request
       setBodyRequest(exportRequest);
 

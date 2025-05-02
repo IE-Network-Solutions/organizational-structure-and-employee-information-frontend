@@ -57,7 +57,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setIsShowEmployeeAttendanceSidebar,
     setEmployeeAttendanceId,
   } = useEmployeeAttendanceStore();
-  const {filter, setFilter} =useEmployeeAttendanceStore();
+  const { filter, setFilter } = useEmployeeAttendanceStore();
   const { data, isFetching, refetch } = useGetAttendances(
     { page, limit, orderBy, orderDirection },
     { filter },
@@ -246,9 +246,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       ...prev,
       filter: nFilter,
     }));
-  }; 
-
-  console.log(filter,"filterhh");
+  };
 
   return (
     <>
