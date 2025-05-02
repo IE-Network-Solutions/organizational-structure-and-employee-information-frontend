@@ -18,7 +18,7 @@ export interface CompensationSettingTypes {
   expandedCards: {
     [key: string]: boolean;
   };
-  setExpandedCards: (expandedCards: { [key: string]: boolean }) => void;  
+  setExpandedCards: (expandedCards: { [key: string]: boolean }) => void;
 
   selectedDepartementArray: string[];
   setSelectedDepartementArray: (selectedDepartementArray: string[]) => void;

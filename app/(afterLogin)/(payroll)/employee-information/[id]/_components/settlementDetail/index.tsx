@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Avatar, Typography, Tag, Card, Table, Space } from 'antd';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import { useGetSettlementTracking } from '@/store/server/features/payroll/settlementTracking/queries';
@@ -26,7 +26,6 @@ const SettlementDetail = () => {
 
   const { expandedCards, setExpandedCards } = useCompensationSettingStore();
   // Add state to track which cards are expanded
-
 
   // Toggle card expansion
   const toggleCard = (compensationId: string) => {
