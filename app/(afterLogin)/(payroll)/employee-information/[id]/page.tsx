@@ -33,8 +33,8 @@ import { HiOutlineMail } from 'react-icons/hi';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import SettlementDetail from './_components/settlementDetail';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
-import { FaArrowLeft } from 'react-icons/fa';
 import { EmptyImage } from '@/components/emptyIndicator';
+import { IoChevronBackSharp } from 'react-icons/io5';
 import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
 
 const { Title, Text } = Typography;
@@ -149,7 +149,7 @@ const EmployeeProfile = () => {
               onClick={() => router.back()}
               className="flex items-center gap-2 cursor-pointer"
             >
-              <FaArrowLeft />
+              <IoChevronBackSharp />
               <span className="text-lg font-bold">Detail Employee</span>
             </span>
           )
@@ -246,33 +246,47 @@ const EmployeeProfile = () => {
               >
                 <div>
                   <Title level={4}>Payroll Information</Title>
-                  <div className="flex gap-6 w-full">
-                    <div className="flex flex-col gap-4 w-1/3">
-                      <Text>Base Salary:</Text>
-                      <Text>Bank Information:</Text>
-                      <Text>Branch:</Text>
-                      <Text>Account Number:</Text>
-                    </div>
-                    <div className="flex flex-col gap-4 font-bold">
-                      <Text>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 16,
+                    }}
+                  >
+                    {/* Base Salary Row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <Text className="min-w-[120px]">Base Salary:</Text>
+                      <Text strong>
                         {
                           activeMergedPayroll?.employeeInfo?.basicSalaries[0]
                             ?.basicSalary
                         }
                       </Text>
-                      <Text>
+                    </div>
+                    {/* Bank Information Row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <Text className="min-w-[120px]">Bank Information:</Text>
+                      <Text strong>
                         {
                           activeMergedPayroll?.employeeInfo?.employeeInformation
                             ?.bankInformation?.bankName
                         }
                       </Text>
-                      <Text>
+                    </div>
+                    {/* Branch Row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <Text className="min-w-[120px]">Branch:</Text>
+                      <Text strong>
                         {
                           activeMergedPayroll?.employeeInfo
                             ?.employeeJobInformation[0]?.branch?.name
                         }
                       </Text>
-                      <Text>
+                    </div>
+                    {/* Account Number Row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <Text className="min-w-[120px]">Account Number:</Text>
+                      <Text strong>
                         {
                           activeMergedPayroll?.employeeInfo?.employeeInformation
                             ?.bankInformation?.accountNumber
@@ -428,7 +442,9 @@ const EmployeeProfile = () => {
                         </div>
 
                         <div className=" pl-4 flex justify-between  items-center my-2 pr-10">
-                          <Text className="text-purple">Total Allowance:</Text>
+                          <Text className="text-purple">
+                            Entitled Allowance:
+                          </Text>
                           <Text className="text-purple">
                             {totalAmount(
                               activeMergedPayroll?.breakdown?.allowances || [],
@@ -481,7 +497,9 @@ const EmployeeProfile = () => {
                         </div>
 
                         <div className=" pl-4 flex justify-between  items-center my-2">
-                          <Text className="text-purple ">Total Benefit:</Text>
+                          <Text className="text-purple ">
+                            Entitled Benefit:
+                          </Text>
                           <Text className="text-purple pr-10">
                             {totalAmount([
                               ...(activeMergedPayroll?.breakdown?.merits || []),
@@ -561,7 +579,6 @@ const EmployeeProfile = () => {
                     </div>
 
                     <Divider className="my-2" />
-                    {/* Gross Earning & Net Pay */}
                     <header className=" border-b pb-2 mb-2">
                       <h2 className="text-xl font-semibold">
                         Employee Bank Information
