@@ -25,6 +25,7 @@ export const formatToOptions = <T extends CommonObject>(
 export const formatToAttendanceStatuses = (
   item: AttendanceRecord,
 ): { status: AttendanceRecordType; text: string }[] => {
+  if (!item) return [];
   if (item.isAbsent) {
     return [{ status: AttendanceRecordType.ABSENT, text: '' }];
   }

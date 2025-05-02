@@ -11,7 +11,7 @@ import { useAllChildrenRecognition } from '@/store/server/features/incentive/oth
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { CiCalendarDate } from 'react-icons/ci';
 import { Skeleton } from 'antd';
-import { useMediaQuery } from 'react-responsive';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface IncentiveSettingsLayoutProps {
   children: ReactNode;
@@ -25,7 +25,8 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
     useIncentiveStore();
   const { data: recognitionData, isLoading: responseLoading } =
     useAllChildrenRecognition();
-  const isMobile = useMediaQuery({ maxWidth: 1024 });
+
+  const { isMobile } = useIsMobile();
 
   useEffect(() => {
     if (recognitionData && recognitionData?.length > 0) {
@@ -45,6 +46,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
               }
             />
           ) : null,
+
           label: (
             <p className="menu-item-label">
               {firstItem?.name ?? 'Default Incentive '}

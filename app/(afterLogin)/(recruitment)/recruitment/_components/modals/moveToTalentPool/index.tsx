@@ -18,6 +18,7 @@ const MoveToTalentPool: React.FC = () => {
     setMoveToTalentPoolModal,
     selectedCandidate,
     setSelectedCandidate,
+    setSelectedRowKeys,
   } = useCandidateState();
 
   const createdBy = useAuthenticationStore.getState().userId;
@@ -49,6 +50,9 @@ const MoveToTalentPool: React.FC = () => {
 
     moveToTalentPool(formattedValues, {
       onSuccess: () => {
+        form.resetFields();
+        setSelectedCandidate([]);
+        setSelectedRowKeys([]); // Clear table selection
         setMoveToTalentPoolModal(false);
       },
     });
