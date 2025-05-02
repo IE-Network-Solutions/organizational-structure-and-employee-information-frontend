@@ -241,39 +241,57 @@ const EmployeeProfile = () => {
                 key="1"
                 className={isMobile ? 'border border-solid rounded-xl p-4' : ''}
               >
-              <div>
-                <Title level={4}>Payroll Information</Title>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  {/* Base Salary Row */}
-                  <div className="flex flex-col md:flex-row gap-2">
-                    <Text className="min-w-[120px]">Base Salary:</Text>
-                    <Text strong>
-                      {activeMergedPayroll?.employeeInfo?.basicSalaries[0]?.basicSalary}
-                    </Text>
-                  </div>
-                  {/* Bank Information Row */}
-                  <div className="flex flex-col md:flex-row gap-2">
-                    <Text className="min-w-[120px]">Bank Information:</Text>
-                    <Text strong>
-                      {activeMergedPayroll?.employeeInfo?.employeeInformation?.bankInformation?.bankName}
-                    </Text>
-                  </div>
-                  {/* Branch Row */}
-                  <div className="flex flex-col md:flex-row gap-2">
-                    <Text className="min-w-[120px]">Branch:</Text>
-                    <Text strong>
-                      {activeMergedPayroll?.employeeInfo?.employeeJobInformation[0]?.branch?.name}
-                    </Text>
-                  </div>
-                  {/* Account Number Row */}
-                  <div className="flex flex-col md:flex-row gap-2">
-                    <Text className="min-w-[120px]">Account Number:</Text>
-                    <Text strong>
-                      {activeMergedPayroll?.employeeInfo?.employeeInformation?.bankInformation?.accountNumber}
-                    </Text>
+                <div>
+                  <Title level={4}>Payroll Information</Title>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 16,
+                    }}
+                  >
+                    {/* Base Salary Row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <Text className="min-w-[120px]">Base Salary:</Text>
+                      <Text strong>
+                        {
+                          activeMergedPayroll?.employeeInfo?.basicSalaries[0]
+                            ?.basicSalary
+                        }
+                      </Text>
+                    </div>
+                    {/* Bank Information Row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <Text className="min-w-[120px]">Bank Information:</Text>
+                      <Text strong>
+                        {
+                          activeMergedPayroll?.employeeInfo?.employeeInformation
+                            ?.bankInformation?.bankName
+                        }
+                      </Text>
+                    </div>
+                    {/* Branch Row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <Text className="min-w-[120px]">Branch:</Text>
+                      <Text strong>
+                        {
+                          activeMergedPayroll?.employeeInfo
+                            ?.employeeJobInformation[0]?.branch?.name
+                        }
+                      </Text>
+                    </div>
+                    {/* Account Number Row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <Text className="min-w-[120px]">Account Number:</Text>
+                      <Text strong>
+                        {
+                          activeMergedPayroll?.employeeInfo?.employeeInformation
+                            ?.bankInformation?.accountNumber
+                        }
+                      </Text>
+                    </div>
                   </div>
                 </div>
-              </div>
                 <Divider />
                 <div className="flex justify-between">
                   <Title level={4}>
@@ -421,7 +439,9 @@ const EmployeeProfile = () => {
                         </div>
 
                         <div className=" pl-4 flex justify-between  items-center my-2 pr-10">
-                          <Text className="text-purple">Entitled Allowance:</Text>
+                          <Text className="text-purple">
+                            Entitled Allowance:
+                          </Text>
                           <Text className="text-purple">
                             {totalAmount(
                               activeMergedPayroll?.breakdown?.allowances || [],
@@ -474,7 +494,9 @@ const EmployeeProfile = () => {
                         </div>
 
                         <div className=" pl-4 flex justify-between  items-center my-2">
-                          <Text className="text-purple ">Entitled Benefit:</Text>
+                          <Text className="text-purple ">
+                            Entitled Benefit:
+                          </Text>
                           <Text className="text-purple pr-10">
                             {totalAmount([
                               ...(activeMergedPayroll?.breakdown?.merits || []),

@@ -10,7 +10,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useParams } from 'next/navigation';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const SettlementDetail = () => {
   const params = useParams();
@@ -24,13 +24,15 @@ const SettlementDetail = () => {
   const { data: employeeData } = useGetAllUsers();
 
   // Add state to track which cards are expanded
-  const [expandedCards, setExpandedCards] = useState<{ [key: string]: boolean }>({});
+  const [expandedCards, setExpandedCards] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   // Toggle card expansion
   const toggleCard = (compensationId: string) => {
-    setExpandedCards(prev => ({
+    setExpandedCards((prev) => ({
       ...prev,
-      [compensationId]: !prev[compensationId]
+      [compensationId]: !prev[compensationId],
     }));
   };
 
@@ -95,7 +97,7 @@ const SettlementDetail = () => {
           style={{
             background: status === 'paid' ? '#E8FFF3' : '#EEF6FF',
             color: status === 'paid' ? '#039855' : '#2E90FA',
-            border: 'none'
+            border: 'none',
           }}
         >
           {status}
@@ -105,70 +107,81 @@ const SettlementDetail = () => {
   ];
 
   const renderCompensationCard = (compensationId: string, items: any[]) => {
-    const totalAmount = items.reduce((acc, item) => acc + (Number(item.amount) || 0), 0);
+    const totalAmount = items.reduce(
+      (acc, item) => acc + (Number(item.amount) || 0),
+      0,
+    );
     const paidAmount = items
-      .filter(item => item.isPaid)
+      .filter((item) => item.isPaid)
       .reduce((acc, item) => acc + (Number(item.amount) || 0), 0);
     const remainingAmount = totalAmount - paidAmount;
     const isExpanded = expandedCards[compensationId];
 
     return (
-      <Card 
-        key={compensationId} 
-        className={isMobile ? "mb-2 shadow-sm" : "mb-4 shadow-sm"}
+      <Card
+        key={compensationId}
+        className={isMobile ? 'mb-2 shadow-sm' : 'mb-4 shadow-sm'}
         bodyStyle={{ padding: isMobile ? '12px ' : '24px' }}
         headStyle={{ backgroundColor: '#F5F5F5' }}
-
         title={
-        <div 
-          className="flex items-center justify-between cursor-pointer p-4 rounded-md" 
-          onClick={() => toggleCard(compensationId)}
-          style={{ backgroundColor: '#F5F5F5' }}
-        >
-          <Text strong className="text-lg">
-            {getCompensationName(compensationId)}
-          </Text>
-          {isExpanded ? <UpOutlined /> : <DownOutlined />}
-        </div>
+          <div
+            className="flex items-center justify-between cursor-pointer p-4 rounded-md"
+            onClick={() => toggleCard(compensationId)}
+            style={{ backgroundColor: '#F5F5F5' }}
+          >
+            <Text strong className="text-lg">
+              {getCompensationName(compensationId)}
+            </Text>
+            {isExpanded ? <UpOutlined /> : <DownOutlined />}
+          </div>
         }
       >
-       {isExpanded && (
-        <div className="space-y-6">
-          <div className="space-y-4">
-                      
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <Text className="text-gray-500">Total Amount</Text>
-                <Text strong>{totalAmount} ETB</Text>
-              </div>
-              <div className="flex justify-between items-center">
-                <Text className="text-gray-500">Pay Period</Text>
-                <Text>{getPayPeriodName(items[0]?.payPeriodId)}</Text>
-              </div>
-              <div className="flex justify-between items-center">
-                <Text className="text-gray-500">Total Paid</Text>
-                <Text className="text-green-600" strong>{paidAmount} ETB</Text>
-              </div>
-              <div className="flex justify-between items-center">
-                <Text className="text-gray-500">Remaining</Text>
-                <Text className="text-red-500" strong>{remainingAmount} ETB</Text>
-              </div>
-              <div className="flex justify-between items-center">
-                <Text className="text-gray-500">Created By</Text>
-                <Space>
-                  <Avatar 
-                    size="small" 
-                    src={getEmployeeName(items[0]?.createdBy)?.profilePicture}
-                  />
-                  <Text>{getEmployeeName(items[0]?.compensationItemEntitlement?.employeeId)?.name}</Text>
-                </Space>
+        {isExpanded && (
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Text className="text-gray-500">Total Amount</Text>
+                  <Text strong>{totalAmount} ETB</Text>
+                </div>
+                <div className="flex justify-between items-center">
+                  <Text className="text-gray-500">Pay Period</Text>
+                  <Text>{getPayPeriodName(items[0]?.payPeriodId)}</Text>
+                </div>
+                <div className="flex justify-between items-center">
+                  <Text className="text-gray-500">Total Paid</Text>
+                  <Text className="text-green-600" strong>
+                    {paidAmount} ETB
+                  </Text>
+                </div>
+                <div className="flex justify-between items-center">
+                  <Text className="text-gray-500">Remaining</Text>
+                  <Text className="text-red-500" strong>
+                    {remainingAmount} ETB
+                  </Text>
+                </div>
+                <div className="flex justify-between items-center">
+                  <Text className="text-gray-500">Created By</Text>
+                  <Space>
+                    <Avatar
+                      size="small"
+                      src={getEmployeeName(items[0]?.createdBy)?.profilePicture}
+                    />
+                    <Text>
+                      {
+                        getEmployeeName(
+                          items[0]?.compensationItemEntitlement?.employeeId,
+                        )?.name
+                      }
+                    </Text>
+                  </Space>
+                </div>
               </div>
             </div>
-          </div>
 
             <Table
               columns={columns}
-              dataSource={items.map(item => ({
+              dataSource={items.map((item) => ({
                 key: item.id,
                 date: getPayPeriodName(item.payPeriodId),
                 amount: item.amount,
@@ -177,13 +190,13 @@ const SettlementDetail = () => {
               pagination={false}
               size="small"
             />
-        </div>
-       )}
+          </div>
+        )}
       </Card>
     );
   };
 
-  const {isMobile} = useIsMobile();
+  const { isMobile } = useIsMobile();
   const getEmployeeName = (employeeId: any) => {
     const employee = employeeData?.items?.find(
       (item: any) => item.id === employeeId,
@@ -194,31 +207,15 @@ const SettlementDetail = () => {
       email: employee?.email,
     };
   };
-  const periods =
-    payPeriodData?.filter((item: any) =>
-      settlementTrackingData
-        ?.map((st: any) => st.payPeriodId)
-        .includes(item.id),
-    ) ?? [];
-
-  const startDates = periods.map((p: any) => new Date(p.startDate).getTime());
-  const endDates = periods.map((p: any) => new Date(p.endDate).getTime());
-
-  const earliestStart = startDates.length
-    ? new Date(Math.min(...startDates)).toLocaleDateString()
-    : '';
-  const latestEnd = endDates.length
-    ? new Date(Math.max(...endDates)).toLocaleDateString()
-    : '';
-
-  console.log(settlementTrackingData, 'settlementTrackingData');
-
-  
   return (
-    <div className={isMobile ? "bg-gray-50 min-h-screen" : "p-2 bg-white min-h-screen"}>
-      <Card className={isMobile ? "p-0" : "max-w-5xl mx-auto"}>
+    <div
+      className={
+        isMobile ? 'bg-gray-50 min-h-screen' : 'p-2 bg-white min-h-screen'
+      }
+    >
+      <Card className={isMobile ? 'p-0' : 'max-w-5xl mx-auto'}>
         {Object.entries(groupedByCompensation).map(([compensationId, items]) =>
-          renderCompensationCard(compensationId, items as any[])
+          renderCompensationCard(compensationId, items as any[]),
         )}
       </Card>
     </div>
