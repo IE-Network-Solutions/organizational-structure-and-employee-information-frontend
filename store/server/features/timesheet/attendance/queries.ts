@@ -19,14 +19,6 @@ const getAttendances = async (
 ) => {
   const requestData = {
     ...data,
-    filter: {
-      ...data.filter,
-
-      date: {
-        from: data.filter?.date?.from,
-        to: data.filter?.date?.to,
-      },
-    },
   };
 
   return await crudRequest({
