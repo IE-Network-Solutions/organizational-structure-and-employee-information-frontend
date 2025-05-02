@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Button, message } from 'antd';
 import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBalance';
 import { useGetAllLeaveBalanceWithFilter } from '@/store/server/features/timesheet/leaveBalance/queries';
 
 const DownloadLeaveBalance: React.FC = () => {
-  const { userId, leaveTypeId,isDownloading, setIsDownloading } = useLeaveBalanceStore();
+  const { userId, leaveTypeId, isDownloading, setIsDownloading } =
+    useLeaveBalanceStore();
   const buttonClass = 'text-xs font-bold h-[54px] w-full';
 
   const { data: allFilteredLeaveBalanceData, refetch: refetchFiltered } =
@@ -12,7 +13,7 @@ const DownloadLeaveBalance: React.FC = () => {
 
   useEffect(() => {
     const prefetchData = async () => {
-        await refetchFiltered();
+      await refetchFiltered();
     };
 
     prefetchData();
