@@ -56,6 +56,8 @@ const Payroll = () => {
     setSearchQuery,
     isFilterModalOpen,
     setIsFilterModalOpen,
+    isPayrollModalOpen,
+    setIsPayrollModalOpen,
   } = useEmployeeStore();
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
   const [payPeriodId, setPayPeriodId] = useState('');
@@ -65,7 +67,6 @@ const Payroll = () => {
   const { data: allEmployees } = useGetAllUsersData();
   const { data: employeeData } = useGetAllUsers();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
-  const [isPayrollModalOpen, setIsPayrollModalOpen] = useState(false);
 
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();

@@ -229,6 +229,9 @@ interface PayrollState {
   setSearchQuery: (query: string) => void;
   isFilterModalOpen: boolean;
   setIsFilterModalOpen: (open: boolean) => void;
+
+  isPayrollModalOpen: boolean;
+  setIsPayrollModalOpen: (open: boolean) => void;
 }
 
 const useEmployeeStore = create<PayrollState>((set) => ({
@@ -246,6 +249,9 @@ const useEmployeeStore = create<PayrollState>((set) => ({
     set({ mergedPayroll: data }),
   setActivePayPeriod: (data: PayPeriod | null) =>
     set({ activePayPeriod: data }),
+
+  isPayrollModalOpen: false,
+  setIsPayrollModalOpen: (open) => set({ isPayrollModalOpen: open }),
 }));
 
 export default useEmployeeStore;
