@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import HistoryTableFilter from './tableFilter/inedx';
+import HistoryTableFilter from './tableFilter';
 import { TableColumnsType } from '@/types/table/table';
 import { Button, Table } from 'antd';
 import { TbFileDownload } from 'react-icons/tb';
@@ -19,8 +19,6 @@ import { DATE_FORMAT } from '@/utils/constants';
 import dayjs from 'dayjs';
 import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
-import { AiOutlineReload } from 'react-icons/ai';
-import { LuPlus } from 'react-icons/lu';
 import usePagination from '@/utils/usePagination';
 import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
@@ -57,7 +55,7 @@ const HistoryTable = () => {
   } = usePagination(1, 10);
   const [filter, setFilter] =
     useState<Partial<LeaveRequestBody['filter']>>(userFilter);
-  const { data, isFetching, refetch } = useGetLeaveRequest(
+  const { data, isFetching } = useGetLeaveRequest(
     { page, limit, orderBy, orderDirection },
     { filter },
   );
@@ -104,93 +102,106 @@ const HistoryTable = () => {
       dataIndex: 'startAt',
       key: 'startAt',
       sorter: true,
-      render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
+      render: (date: string) => (
+        <div className="text-sm text-gray-900 py-4">
+          {dayjs(date).format(DATE_FORMAT)}
+        </div>
+      ),
     },
     {
       title: 'To',
       dataIndex: 'endAt',
       key: 'endAt',
       sorter: true,
-      render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
+      render: (date: string) => (
+        <div className="text-sm text-gray-900 py-4">
+          {dayjs(date).format(DATE_FORMAT)}
+        </div>
+      ),
     },
     {
       title: 'Total',
       dataIndex: 'days',
       key: 'days',
       sorter: true,
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div className="text-sm text-gray-900 py-4">{text} Days</div>
+      ),
     },
     {
       title: 'Type',
       dataIndex: 'leaveType',
       key: 'leaveType',
       sorter: true,
-      render: (text: string) => <div>{text}</div>,
+      responsive: ['sm'],
+      render: (text: string) => (
+        <div className="text-sm text-gray-900 py-4">{text}</div>
+      ),
     },
     {
       title: 'Attachment',
       dataIndex: 'justificationDocument',
       key: 'justificationDocument',
       sorter: true,
+      responsive: ['sm'],
       render: (link: string) =>
         link ? (
           <a
             href={link}
             target="_blank"
-            className="flex justify-between items-center text-gray-900"
+            className="flex justify-between items-center text-gray-900 py-4"
           >
             <div>{formatLinkToUploadFile(link).name}</div>
             <TbFileDownload size={14} />
           </a>
         ) : (
-          '-'
+          <div className="py-4">-</div>
         ),
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+      responsive: ['sm'],
       render: (text: LeaveRequestStatus) => (
-        <StatusBadge theme={LeaveRequestStatusBadgeTheme[text]}>
-          {text}
-        </StatusBadge>
+        <div className="py-4">
+          <StatusBadge theme={LeaveRequestStatusBadgeTheme[text]}>
+            {text}
+          </StatusBadge>
+        </div>
       ),
     },
     {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
+      width: 80,
       render: (item: LeaveRequest) => (
-        // <AccessGuard
-        //   permissions={[
-        //     Permissions.UpdateLeaveRequest,
-        //     Permissions.DeleteLeaveRequest,
-        //   ]}
-        // >
-        <ActionButtons
-          id={item?.id ?? null}
-          disableDelete={
-            item.status === LeaveRequestStatus.APPROVED ||
-            item.status === LeaveRequestStatus.DECLINED
-          }
-          disableEdit={
-            item.status === LeaveRequestStatus.APPROVED ||
-            item.status === LeaveRequestStatus.DECLINED
-          }
-          onEdit={() => {
-            setLeaveRequestSidebarData(item.id);
-            setIsLoading(true);
-          }}
-          onDelete={() => {
-            deleteLeaveRequest(item.id);
-          }}
-          onDetail={() => {
-            isShowDetail(true);
-            setLeaveRequestSidebarData(item.id);
-            setLeaveRequestSidebarWorkflowData(item.approvalWorkflowId);
-          }}
-        />
-        // </AccessGuard>
+        <div className="py-4">
+          <ActionButtons
+            id={item?.id ?? null}
+            disableDelete={
+              item.status === LeaveRequestStatus.APPROVED ||
+              item.status === LeaveRequestStatus.DECLINED
+            }
+            disableEdit={
+              item.status === LeaveRequestStatus.APPROVED ||
+              item.status === LeaveRequestStatus.DECLINED
+            }
+            onEdit={() => {
+              setLeaveRequestSidebarData(item.id);
+              setIsLoading(true);
+            }}
+            onDelete={() => {
+              deleteLeaveRequest(item.id);
+            }}
+            onDetail={() => {
+              isShowDetail(true);
+              setLeaveRequestSidebarData(item.id);
+              setLeaveRequestSidebarWorkflowData(item.approvalWorkflowId);
+            }}
+          />
+        </div>
       ),
     },
   ];
@@ -216,34 +227,51 @@ const HistoryTable = () => {
   };
 
   return (
-    <>
-      <div className="flex items-center mb-6">
-        <div className="flex-1 flex items-center gap-0.5">
-          <div className="text-2xl font-bold text-gray-900">My Leave</div>
-          <Button
-            type="text"
-            size="small"
-            icon={<AiOutlineReload size={14} className="text-gray-600" />}
-            onClick={() => {
-              refetch();
-            }}
-          ></Button>
+    <div className="bg-white p-4 pr-6 rounded-lg">
+      <div className="flex items-center justify-between mb-6">
+        <div className="text-2xl font-bold text-gray-900">My Leave</div>
+
+        <div className="flex items-center">
+          {/* Mobile View Icons */}
+          <div className="sm:hidden flex items-center">
+            <div className="h-12 flex items-center">
+              <HistoryTableFilter onChange={onFilterChange} />
+            </div>
+            <div className="-mt-8">
+              <AccessGuard permissions={[Permissions.SubmitLeaveRequest]}>
+                <Button
+                  size="large"
+                  type="primary"
+                  className="h-12 w-12 flex items-center justify-center ml-3 mt-4"
+                  onClick={() => isShow(true)}
+                >
+                  <span className="text-xl font-medium text-white">+</span>
+                </Button>
+              </AccessGuard>
+            </div>
+          </div>
+
+          {/* Desktop View */}
+          <div className="hidden sm:block">
+            <AccessGuard permissions={[Permissions.SubmitLeaveRequest]}>
+              <Button
+                size="large"
+                type="primary"
+                className="h-12 w-auto px-0 min-w-[48px] flex items-center justify-center"
+                onClick={() => isShow(true)}
+              >
+                <span className="text-xl font-medium text-white">+</span>
+                <span className="ml-2">Add New Request</span>
+              </Button>
+            </AccessGuard>
+          </div>
         </div>
-        <AccessGuard permissions={[Permissions.SubmitLeaveRequest]}>
-          <Button
-            size="large"
-            type="primary"
-            icon={<LuPlus size={16} />}
-            className="h-12"
-            onClick={() => isShow(true)}
-          >
-            Add New Request
-          </Button>
-        </AccessGuard>
       </div>
-      <HistoryTableFilter onChange={onFilterChange} />
+      <div className="hidden sm:block">
+        <HistoryTableFilter onChange={onFilterChange} />
+      </div>
       <Table
-        className="mt-6"
+        className="mt-6 leave-table"
         columns={columns}
         loading={isFetching}
         dataSource={tableData}
@@ -254,9 +282,9 @@ const HistoryTable = () => {
           setOrderDirection(sorter['order']);
           setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
         }}
-        scroll={{ x: 'min-content' }}
+        scroll={{ x: 'max-content' }}
       />
-    </>
+    </div>
   );
 };
 

@@ -8,32 +8,17 @@ import EmploymentStats from './_components/employee-status';
 import JobSummary from './_components/job-summary';
 import { Applicants } from './_components/applicants';
 import AccessGuard from '@/utils/permissionGuard';
-import { useEffect } from 'react';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { useRouter } from 'next/navigation';
-import { CreateEmployeeJobInformation } from '../(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { Skeleton } from 'antd';
+
 export default function Home() {
-  const router = useRouter();
-  const { userId } = useAuthenticationStore.getState();
-  const { data: departments } = useGetDepartments();
-  const { data: employeeData } = useGetEmployee(userId);
-  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
-    useEmployeeManagementStore();
-  useEffect(() => {
-    if (departments?.length < 1) {
-      router.push('/onboarding');
-    } else if (
-      employeeData &&
-      employeeData?.employeeJobInformation?.length < 1
-    ) {
-      setIsAddEmployeeJobInfoModalVisible(true);
-      setEmployeeJobInfoModalWidth('100%');
-    }
-  }, [employeeData, departments, setIsAddEmployeeJobInfoModalVisible]);
-  return (
+  const { data: activeCalender, isLoading: isResponseLoading } =
+    useGetActiveFiscalYears();
+
+  const hasEndedFiscalYear =
+    activeCalender?.isActive && new Date(activeCalender?.endDate) < new Date();
+
+  const mainLayout = (
     <div className="min-h-screen bg-gray-100 p-4">
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -66,11 +51,9 @@ export default function Home() {
 
             {/* Course Permitted and Applicants */}
             <div className="col-span-12 xl:col-span-4">
-              <div className="flex-col sm:flex-row gap-3 mb-3">
-                <AccessGuard roles={['user']}>
-                  <CoursePermitted />
-                </AccessGuard>
-              </div>
+              <AccessGuard roles={['user']}>
+                <CoursePermitted />
+              </AccessGuard>
               <AccessGuard roles={['admin', 'owner']}>
                 <Applicants />
               </AccessGuard>
@@ -78,7 +61,23 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <CreateEmployeeJobInformation id={userId} />
     </div>
+  );
+
+  return (
+    <>
+      {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }} />}
+      {hasEndedFiscalYear && (
+        <div className="bg-[#323B49] p-2 rounded-lg my-2 h-12 flex items-center justify-start text-lg">
+          <span className="text-[#FFDE65] px-2">
+            Your fiscal year has ended
+          </span>
+          <span className="text-white">
+            Please contact your system admin for more information
+          </span>
+        </div>
+      )}
+      {mainLayout}
+    </>
   );
 }

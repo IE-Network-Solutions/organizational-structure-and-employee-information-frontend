@@ -10,6 +10,7 @@ export function middleware(req: NextRequest) {
     // TODO: Uncomment and restore token validation and redirects
 
     const token = getCookie('token', req);
+
     const excludedPath = [
       '/authentication/login',
       '/authentication/forget-password',

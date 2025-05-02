@@ -42,7 +42,7 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
       <div className="mx-3 my-2">
         <Row gutter={[16, 16]}>
           {cardResponseLoading ? (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
               {[...Array(3)].map(
                 /* eslint-disable-next-line @typescript-eslint/naming-convention */
                 (_, index) => (
@@ -51,7 +51,7 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
                     <Skeleton
                       active
                       paragraph={{ rows: 4 }}
-                      style={{ width: '200px', height: '40px' }}
+                      style={{ width: '100%', height: '40px' }}
                     />
                   </Card>
                 ),
