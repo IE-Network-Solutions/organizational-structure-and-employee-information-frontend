@@ -101,14 +101,22 @@ export default function OkrTab() {
   }, []);
 
   useEffect(() => {
-    userRefetch();
-  }, [pageSize, currentPage]);
+    if (isMounted) {
+      userRefetch();
+    }
+  }, [pageSize, currentPage, isMounted]);
+
   useEffect(() => {
-    refetch();
-  }, [teamPageSize, teamCurrentPage]);
+    if (isMounted) {
+      refetch();
+    }
+  }, [teamPageSize, teamCurrentPage, isMounted]);
+
   useEffect(() => {
-    CompanyRefetch();
-  }, [companyPageSize, companyCurrentPage]);
+    if (isMounted) {
+      CompanyRefetch();
+    }
+  }, [companyPageSize, companyCurrentPage, isMounted]);
 
   // Return null or loading state during SSR
   if (!isMounted) {
@@ -142,11 +150,11 @@ export default function OkrTab() {
                   <div>
                     {userObjectives?.items?.map((obj: any) => (
                       <ObjectiveCard
-                              key={obj.id}
-                              myOkr={false}
-                              objective={obj}
-                            />
-                          ))}
+                        key={obj.id}
+                        myOkr={true}
+                        objective={obj}
+                      />
+                    ))}
                     <CustomPagination
                       current={userObjectives?.meta?.currentPage || 1}
                       total={userObjectives?.meta?.totalItems || 1}
