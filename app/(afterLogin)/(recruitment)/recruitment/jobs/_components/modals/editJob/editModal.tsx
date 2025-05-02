@@ -1,9 +1,11 @@
 import React from 'react';
-import { Modal, Button, Form, Input, Select } from 'antd';
+import { Modal, Button, Form, Input, Select,   DatePicker,
+} from 'antd';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { useUpdateJobs } from '@/store/server/features/recruitment/job/mutation';
 import { LocationType } from '@/types/enumTypes';
 import TextArea from 'antd/es/input/TextArea';
+import dayjs from 'dayjs';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const EditJob: React.FC = () => {
@@ -27,6 +29,7 @@ const EditJob: React.FC = () => {
       jobTitle: formValues?.jobTitle,
       description: formValues?.description,
       jobLocation: formValues?.jobLocation,
+      jobDeadline: formValues?.jobDeadline,
     };
     updateJob({ data: updatedFormValues, id: selectedJobId });
     setEditModalVisible(false);
@@ -42,6 +45,7 @@ const EditJob: React.FC = () => {
         jobTitle: selectedJob.jobTitle,
         jobLocation: selectedJob.jobLocation,
         description: selectedJob.description,
+        jobDeadline: dayjs(selectedJob.jobDeadline),
       });
     }
   }, [form, selectedJob]);
@@ -58,7 +62,7 @@ const EditJob: React.FC = () => {
           form={form}
           onFinish={handleUpdateJob}
           layout="vertical"
-          initialValues={selectedJob}
+          // initialValues={selectedJob}
         >
           <Form.Item
             id="jobTitle"
@@ -104,6 +108,36 @@ const EditJob: React.FC = () => {
               ))}
             </Select>
           </Form.Item>
+
+          <Form.Item
+            name="jobDeadline"
+            label={
+              <span className="text-md my-2 font-semibold text-gray-700">
+                Expected Closing Date
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please input the expected closing date!',
+              },
+              {
+                validator({}, value) {
+                  if (!value || value.isAfter(dayjs(), 'day')) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error(
+                      'Expected end date cannot be before the current date!',
+                    ),
+                  );
+                },
+              },
+            ]}
+          >
+            <DatePicker id="jobDeadline" className="text-sm w-full h-10" />
+          </Form.Item>
+
           <Form.Item
             name="description"
             label={

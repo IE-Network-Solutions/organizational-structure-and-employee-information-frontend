@@ -39,31 +39,22 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
 
   useEffect(() => {
     setIsClient(true);
+
     if (window.innerWidth <= 768 && placement !== 'bottom') {
       setPlacement?.('bottom');
     } else if (window.innerWidth > 768 && placement !== 'right') {
       setPlacement?.('right');
     }
+
     const updateWidth = () => {
-      // if (window.innerWidth <= 768) {
-      //   setCurrentWidth('90%');
-      // } else {
-      //   setCurrentWidth(width || '70%');
-      // }
       setCurrentWidth(window.innerWidth <= 768 ? '100%' : width || '40%');
     };
 
-    // Run the width update once on mount
-    updateWidth();
+    updateWidth(); // run once on mount
 
-    // Add the resize event listener
     window.addEventListener('resize', updateWidth);
-
-    // Cleanup the event listener on unmount
-    return () => {
-      window.removeEventListener('resize', updateWidth);
-    };
-  }, [width, currentWidth, setCurrentWidth]);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, [width, setCurrentWidth, placement, setPlacement, setIsClient]);
 
   // Render the component only on the client side
   if (!isClient) return null;
