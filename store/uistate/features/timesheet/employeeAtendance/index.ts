@@ -18,11 +18,15 @@ type EmployeeAttendanceStateAction = {
   setIsShowBreakAttendanceImportSidebar: (
     isShowBreakAttendanceImportSidebar: boolean,
   ) => void;
+  filter:any;
+  setFilter: (filter: any) => void;
 };
 
 const employeeAttendanceSlice: StateCreator<
   EmployeeAttendanceState & EmployeeAttendanceStateAction
 > = (set) => ({
+   filter:null,
+   setFilter: (filter: any) => set({ filter }),
   isShowEmployeeAttendanceSidebar: false,
   setIsShowEmployeeAttendanceSidebar: (
     isShowEmployeeAttendanceSidebar: boolean,
