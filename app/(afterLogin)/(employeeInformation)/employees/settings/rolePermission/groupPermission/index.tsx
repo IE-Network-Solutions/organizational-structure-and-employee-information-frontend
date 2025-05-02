@@ -27,7 +27,7 @@ const GroupPermissionComponent = () => {
   };
 
   return (
-    <Card className="border-none">
+    <Card bodyStyle={{ padding: 0 }} className="border-none">
       <div className="flex justify-center items-center">
         {groupPermissionData?.items?.length === 0 && groupPermissionLoading && (
           <Spin size="large" />
@@ -35,7 +35,7 @@ const GroupPermissionComponent = () => {
       </div>
       {groupPermissionData && groupPermissionData.items?.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-2 lg:gap-4">
+          <div className="grid grid-cols-2 w-auto md:grid-cols-2 lg:grid-cols-3 gap-4">
             {groupPermissionData?.items?.map((item: any, index: number) => (
               <div key={index}>
                 <GroupPermissionCard

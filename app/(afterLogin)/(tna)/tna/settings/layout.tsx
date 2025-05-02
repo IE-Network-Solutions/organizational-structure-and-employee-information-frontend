@@ -61,7 +61,9 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
         <div className="flex flex-col lg:flex-row gap-6 mt-8">
           <SidebarMenu menuItems={menuItems} />
 
-          <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+          <BlockWrapper className="flex-1 h-max overflow-x-auto">
+            {children}
+          </BlockWrapper>
         </div>
       </div>
     </div>
