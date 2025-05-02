@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Button, Select, Switch } from 'antd';
+import { Modal, Button, Switch } from 'antd';
 
 interface Props {
   onClose: () => void;
