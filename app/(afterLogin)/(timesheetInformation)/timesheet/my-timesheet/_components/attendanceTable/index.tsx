@@ -303,7 +303,6 @@ const AttendanceTable = () => {
         <div className="p-4">
           <AttendanceTableFilter 
             onChange={onFilterChange}
-            onClose={() => setIsFilterOpen(false)}
           />
         </div>
       </Drawer>
