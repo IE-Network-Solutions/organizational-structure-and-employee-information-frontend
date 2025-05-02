@@ -4,22 +4,17 @@ import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBa
 import { useGetAllLeaveBalanceWithFilter } from '@/store/server/features/timesheet/leaveBalance/queries';
 
 const DownloadLeaveBalance: React.FC = () => {
-  const { userId, leaveTypeId } = useLeaveBalanceStore();
-  const [isDownloading, setIsDownloading] = useState(false);
+  const { userId, leaveTypeId,isDownloading, setIsDownloading } = useLeaveBalanceStore();
   const buttonClass = 'text-xs font-bold h-[54px] w-full';
 
-  const { data: allFilteredLeaveBalanceData, refetch: refetchFiltered } = 
+  const { data: allFilteredLeaveBalanceData, refetch: refetchFiltered } =
     useGetAllLeaveBalanceWithFilter(userId, leaveTypeId);
 
   useEffect(() => {
     const prefetchData = async () => {
-      try {
         await refetchFiltered();
-      } catch (error) {
-        console.error('Error prefetching leave balance data:', error);
-      }
     };
-    
+
     prefetchData();
   }, [userId, leaveTypeId, refetchFiltered]);
 
@@ -30,18 +25,17 @@ const DownloadLeaveBalance: React.FC = () => {
     }
 
     setIsDownloading(true);
-    
+
     try {
       // Ensure we have the latest data
       await refetchFiltered();
-      
+
       const { file: fileUrl } = allFilteredLeaveBalanceData;
       const filename = extractFilenameFromUrl(fileUrl) || 'leave-balance.xlsx';
-      
+
       downloadFile(fileUrl, filename);
       message.success('Download started successfully');
     } catch (error) {
-      console.error('Error downloading leave balance:', error);
       message.error('Failed to download leave balance');
     } finally {
       setIsDownloading(false);
@@ -61,10 +55,10 @@ const DownloadLeaveBalance: React.FC = () => {
     link.href = url;
     link.download = filename;
     link.style.display = 'none';
-    
+
     document.body.appendChild(link);
     link.click();
-    
+
     // Cleanup
     setTimeout(() => {
       document.body.removeChild(link);
