@@ -1,21 +1,76 @@
-import { useGetAllLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
-import { Button } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Button, message } from 'antd';
+import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBalance';
+import { useGetAllLeaveBalanceWithFilter } from '@/store/server/features/timesheet/leaveBalance/queries';
 
-const DownloadLeaveBalance = () => {
+const DownloadLeaveBalance: React.FC = () => {
+  const { userId, leaveTypeId } = useLeaveBalanceStore();
+  const [isDownloading, setIsDownloading] = useState(false);
   const buttonClass = 'text-xs font-bold h-[54px] w-full';
-  const { data: allLeaveBalanceData, refetch } = useGetAllLeaveBalance();
 
-  const onExport = () => {
-    if (!allLeaveBalanceData?.file) return;
+  const { data: allFilteredLeaveBalanceData, refetch: refetchFiltered } = 
+    useGetAllLeaveBalanceWithFilter(userId, leaveTypeId);
+
+  useEffect(() => {
+    const prefetchData = async () => {
+      try {
+        await refetchFiltered();
+      } catch (error) {
+        console.error('Error prefetching leave balance data:', error);
+      }
+    };
     
-    // Create a temporary anchor element
+    prefetchData();
+  }, [userId, leaveTypeId, refetchFiltered]);
+
+  const handleDownload = async () => {
+    if (!allFilteredLeaveBalanceData?.file) {
+      message.warning('No leave balance data available for download');
+      return;
+    }
+
+    setIsDownloading(true);
+    
+    try {
+      // Ensure we have the latest data
+      await refetchFiltered();
+      
+      const { file: fileUrl } = allFilteredLeaveBalanceData;
+      const filename = extractFilenameFromUrl(fileUrl) || 'leave-balance.xlsx';
+      
+      downloadFile(fileUrl, filename);
+      message.success('Download started successfully');
+    } catch (error) {
+      console.error('Error downloading leave balance:', error);
+      message.error('Failed to download leave balance');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const extractFilenameFromUrl = (url: string): string => {
+    try {
+      return new URL(url).pathname.split('/').pop() || '';
+    } catch {
+      return '';
+    }
+  };
+
+  const downloadFile = (url: string, filename: string) => {
     const link = document.createElement('a');
-    link.href = allLeaveBalanceData.file;
-    link.download = 'leave-balance.xlsx'; // You can customize the filename
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    
+    // Cleanup
+    setTimeout(() => {
+      document.body.removeChild(link);
+      // Note: Only revoke object URLs created with URL.createObjectURL()
+      // For regular URLs, this isn't needed and might cause errors
+    }, 100);
   };
 
   return (
@@ -24,9 +79,11 @@ const DownloadLeaveBalance = () => {
       id="excelFileTypeToExportId"
       className={buttonClass}
       type="primary"
-      onClick={onExport}
+      onClick={handleDownload}
+      loading={isDownloading || !allFilteredLeaveBalanceData}
+      disabled={!allFilteredLeaveBalanceData}
     >
-      Download
+      {isDownloading ? 'Preparing Download...' : 'Download'}
     </Button>
   );
 };
