@@ -15,6 +15,11 @@ export interface CompensationSettingTypes {
   selectedBenefitRecord: any | null;
   selectedDepartment: string | null;
 
+  expandedCards: {
+    [key: string]: boolean;
+  };
+  setExpandedCards: (expandedCards: { [key: string]: boolean }) => void;  
+
   selectedDepartementArray: string[];
   setSelectedDepartementArray: (selectedDepartementArray: string[]) => void;
   departmentUsers: any[];
@@ -103,6 +108,10 @@ export const useCompensationSettingStore = create<CompensationSettingTypes>(
     selectedDeductionRecord: null,
     setSelectedDeductionRecord: (selectedDeductionRecord: any) =>
       set({ selectedDeductionRecord }),
+
+    expandedCards: {},
+    setExpandedCards: (expandedCards: { [key: string]: boolean }) =>
+      set({ expandedCards }),
 
     selectedDepartementArray: [],
     setSelectedDepartementArray: (selectedDepartementArray: string[]) =>

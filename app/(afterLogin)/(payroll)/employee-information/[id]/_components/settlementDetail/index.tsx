@@ -9,6 +9,7 @@ import { useGetAllowance } from '@/store/server/features/payroll/employeeInforma
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useParams } from 'next/navigation';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 
 const { Text } = Typography;
 
@@ -23,17 +24,15 @@ const SettlementDetail = () => {
   const { data: compensationDatas } = useGetAllowance();
   const { data: employeeData } = useGetAllUsers();
 
+  const { expandedCards, setExpandedCards } = useCompensationSettingStore();
   // Add state to track which cards are expanded
-  const [expandedCards, setExpandedCards] = useState<{
-    [key: string]: boolean;
-  }>({});
+
 
   // Toggle card expansion
   const toggleCard = (compensationId: string) => {
-    setExpandedCards((prev) => ({
-      ...prev,
-      [compensationId]: !prev[compensationId],
-    }));
+    const newExpandedCards = { ...expandedCards };
+    newExpandedCards[compensationId] = !newExpandedCards[compensationId];
+    setExpandedCards(newExpandedCards);
   };
 
   const getCompensationName = (compensationId: any) => {
