@@ -11,6 +11,7 @@ import ExportModal from './compensation/all/export';
 import { Eye, FileDown, FileUp } from 'lucide-react';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useExportIncentiveData } from '@/store/server/features/incentive/all/mutation';
 
 const Page = () => {
   const {
@@ -26,7 +27,25 @@ const Page = () => {
     setParentResponseIsLoading,
     setIsOpen,
   } = useIncentiveStore();
+  const {
+    mutate: exportIncentiveData,
+    isLoading: submitPending,
+    reset,
+  } = useExportIncentiveData();
+  
 
+  const { searchParams, currentPage, pageSize, setCurrentPage, setPageSize } =
+    useIncentiveStore();
+  const handleExport = (values: any,generateAll:boolean) => {
+    const formattedValues = {
+      parentRecognitionTypeId: selectedRecognition?.id || '',
+      generateAll:generateAll,
+      sessionId: values?.bySession || [],
+      userId:values?.employee_name || '',
+      monthId:values?.byMonth || ''
+    };
+    exportIncentiveData(formattedValues)
+  };
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
   const { isMobile, isTablet } = useIsMobile();
@@ -94,8 +113,8 @@ const Page = () => {
               }
               id="createUserButton"
               icon={<FileDown className="md:mr-0 ml-2" size={18} />}
-              onClick={() => handleExportClick()}
-              textClassName="!text-sm !font-medium"
+              onClick={() => handleExport(searchParams,true)}         
+             textClassName="!text-sm !font-medium"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
             />
           )}
@@ -128,7 +147,7 @@ const Page = () => {
             }
             id="createUserButton"
             icon={<FileUp className="md:mr-0 ml-2" size={18} />}
-            onClick={() => handleExportClick()}
+            onClick={() => handleExport(searchParams,false)}         
             textClassName="!text-sm !font-medium"
             className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
           />
