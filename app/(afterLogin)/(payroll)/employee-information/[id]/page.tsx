@@ -17,6 +17,7 @@ import { useEffect, useRef } from 'react';
 import {
   useGetActivePayroll,
   useGetPayPeriod,
+  useGetPayrollHistory,
 } from '@/store/server/features/payroll/payroll/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useParams, useRouter } from 'next/navigation';
@@ -34,6 +35,7 @@ import SettlementDetail from './_components/settlementDetail';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { IoChevronBackSharp } from 'react-icons/io5';
+import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -51,9 +53,9 @@ const EmployeeProfile = () => {
 
   const { data: employee, isLoading } = useGetEmployee(empId);
   const { data: payroll } = useGetActivePayroll();
+  const { data: payrollHistory } = useGetPayrollHistory(empId);
 
   const {
-    mergedPayroll,
     activeMergedPayroll,
     activePayPeriod,
     setMergedPayroll,
@@ -84,7 +86,8 @@ const EmployeeProfile = () => {
   useEffect(() => {
     if (payPeriodData && activeMergedPayroll?.payPeriodId) {
       const currentPayPeriod = payPeriodData.find(
-        (payPeriod: any) => payPeriod.id === activeMergedPayroll.payPeriodId,
+        (payPeriod: PayPeriod) =>
+          payPeriod.id === activeMergedPayroll.payPeriodId,
       );
       setActivePayPeriod(currentPayPeriod);
     }
@@ -617,18 +620,22 @@ const EmployeeProfile = () => {
                   {payPeriodData ? (
                     payPeriodData
                       ?.filter(
-                        (period: any) =>
-                          mergedPayroll.some(
+                        (period: PayPeriod) =>
+                          payrollHistory?.some(
                             (pay: any) => pay.payPeriodId === period.id,
                           ), // Filter only periods with merged data
                       )
                       .map((period: any, index: any) => {
-                        const activeMergedPayroll = mergedPayroll.find(
+                        const activeMergedPayroll = payrollHistory?.find(
                           (pay: any) => pay.payPeriodId === period.id,
                         );
 
                         return (
-                          <Collapse size="large" className="p-4" key={index}>
+                          <Collapse
+                            size="large"
+                            className="p-4 m-2"
+                            key={index}
+                          >
                             <Collapse.Panel
                               key={period.id}
                               header={`${dayjs(period.startDate).format('MMMM-YYYY')}`}

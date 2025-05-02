@@ -20,7 +20,7 @@ const IncentiveUserInfo: React.FC<IncentiveUserInfoProps> = ({ detailId }) => {
 
   const userInfo = getEmployeeInformation(userDetail?.userId);
   return (
-    <Card className="text-center rounded-xl shadow-md p-4 ml-4">
+    <Card className="text-center rounded-xl shadow-md p-2 sm:p-4 ml-4">
       <Avatar
         size={80}
         src={userInfo?.profileImage || undefined}
