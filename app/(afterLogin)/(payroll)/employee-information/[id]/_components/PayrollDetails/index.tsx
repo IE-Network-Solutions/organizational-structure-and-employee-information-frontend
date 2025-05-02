@@ -65,9 +65,17 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
               ...(activeMergedPayroll?.breakdown?.variablePay
                 ? [
                     {
-                      type: 'VP', // Adding a type to match Allowances structure
+                      type: 'VP',
                       amount:
                         activeMergedPayroll?.breakdown?.variablePay.amount,
+                    },
+                  ]
+                : []),
+              ...(activeMergedPayroll?.breakdown?.incentives
+                ? [
+                    {
+                      type: 'Incentive',
+                      amount: activeMergedPayroll?.breakdown?.incentives.amount,
                     },
                   ]
                 : []),
