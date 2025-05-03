@@ -50,8 +50,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
 
   const { data: jobList } = useGetJobs(
     searchParams?.whatYouNeed || '',
-    pageSize,
     currentPage,
+    pageSize,
   );
 
   const isInternalApplicant = useAuthenticationStore.getState().userId;

@@ -1,4 +1,5 @@
 'use client';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGrantObjectiveEditAccess } from '@/store/server/features/okrplanning/okr/editAccess/mutation';
 import { useGetAllObjective } from '@/store/server/features/okrplanning/okr/editAccess/queries';
@@ -37,7 +38,7 @@ const EditAccessTable: React.FC = () => {
 
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
   const { data: allUser, isLoading: responseLoading } = useGetAllUsersData();
-  const { mutate: grantEditAccess } = useGrantObjectiveEditAccess();
+  const { mutate: grantEditAccess, isLoading } = useGrantObjectiveEditAccess();
 
   const { data: allUserObjective } = useGetAllObjective();
 
@@ -87,7 +88,14 @@ const EditAccessTable: React.FC = () => {
       userId,
     };
 
-    grantEditAccess(formattedValue);
+    grantEditAccess(formattedValue, {
+      onSuccess: () => {
+        NotificationMessage.success({
+          message: 'Success',
+          description: 'Edit Access Granted Successfully',
+        });
+      },
+    });
 
     setSwitchStates((prev) => ({
       ...prev,
@@ -117,6 +125,7 @@ const EditAccessTable: React.FC = () => {
       ),
       grant_access: (
         <Switch
+          loading={isLoading}
           checked={switchStates[item?.id] ?? false}
           onChange={(isChecked) => handleToggleAccess(item?.id, isChecked)}
         />
@@ -131,7 +140,6 @@ const EditAccessTable: React.FC = () => {
           .includes((searchParams?.employee_name as string)?.toLowerCase()),
       )
     : data;
-
   return (
     <div className="mt-5">
       <Table

@@ -22,7 +22,7 @@ export interface DrawerState {
   setCurrentPage: (currentPage: number) => void;
   setPageSize: (value: number) => void;
   setCalendarType: (value: string) => void;
-  setDeleteMode: (isDelete: boolean) => void;
+  setDeleteMode: (isDeleteMode: boolean) => void;
   toggleFiscalYearDrawer: () => void;
   closeFiscalYearDrawer: () => void;
   openDrawer: () => void;

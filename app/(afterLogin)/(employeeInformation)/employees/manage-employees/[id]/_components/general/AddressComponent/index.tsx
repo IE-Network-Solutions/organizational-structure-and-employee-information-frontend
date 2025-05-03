@@ -33,6 +33,10 @@ const AddressComponent = ({
     );
   };
 
+  const titleMap: Record<string, string> = {
+    phoneNumber: 'Phone Number',
+  };
+
   return (
     <Card
       loading={isLoading}
@@ -79,10 +83,16 @@ const AddressComponent = ({
                         let fieldValidation = getFieldValidation(key);
 
                         switch (key) {
-                          case 'country':
-                          case 'city':
-                            fieldValidation = 'text';
+                          case 'phoneNumber':
+                            fieldValidation = 'number';
                             break;
+                          case 'firstName':
+                          case 'middleName':
+                          case 'lastName':
+                          case 'subCity':
+                            fieldValidation = 'any';
+                            break;
+
                           default:
                             fieldValidation = getFieldValidation(key);
                         }
@@ -120,7 +130,7 @@ const AddressComponent = ({
             ).map(([key, val]) => (
               <InfoLine
                 key={key}
-                title={key.replace('address', '')}
+                title={(titleMap[key] || key).replace('address', '')}
                 value={val?.toString() || '-'}
               />
             ))}

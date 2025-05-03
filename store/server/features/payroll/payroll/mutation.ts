@@ -10,6 +10,7 @@ const createPayroll = async (values: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
+
   try {
     await crudRequest({
       url: `${PAYROLL_URL}/payroll`,
@@ -18,6 +19,7 @@ const createPayroll = async (values: any) => {
       headers: {
         Authorization: `Bearer ${token}`,
         tenantId: tenantId,
+        withIncentives: values.includeIncentive,
       },
     });
 
