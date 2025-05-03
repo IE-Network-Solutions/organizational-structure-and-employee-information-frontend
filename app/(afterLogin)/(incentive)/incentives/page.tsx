@@ -1,6 +1,6 @@
 'use client';
 import { useParentRecognition } from '@/store/server/features/incentive/other/queries';
-import { Button, Skeleton, Tabs, Tooltip } from 'antd';
+import { Button, Skeleton, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import PayRoleView from './payroll-detail';
 import { useEffect, useMemo } from 'react';
@@ -101,21 +101,14 @@ const Page = () => {
     if (activeKey === '1') {
       return (
         <div className="flex items-center justify-center gap-3">
-          <Tooltip
-            title={
-              selectedRowKeys.length == 0
-                ? 'Please Select At Least One User'
-                : ''
-            }
-          >
+         
             <Button
               onClick={() => handleSendToPayrollClick()}
               className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-              disabled={selectedRowKeys.length == 0 ? true : false}
             >
               {'Send to Payroll'}
             </Button>
-          </Tooltip>
+      
           {isPayrollView ? (
             <CustomButton
               title={
@@ -164,21 +157,14 @@ const Page = () => {
       // Show Import & Generate for all other tabs
       return (
         <div className="flex items-center justify-center gap-3">
-          <Tooltip
-            title={
-              selectedRowKeys.length == 0
-                ? 'Please Select At Least One User'
-                : ''
-            }
-          >
+         
             <Button
               onClick={() => handleSendToPayrollClick()}
               className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-              disabled={selectedRowKeys.length != 0 ? true : false}
             >
               {'Send to Payroll'}
             </Button>
-          </Tooltip>
+         
        
           <CustomButton
             title={
@@ -263,11 +249,7 @@ const Page = () => {
         loading={isLoading}
         description={'You want to send to payroll'}
       />
-      {/* <DeleteModal 
-        open={confirmationModal}
-        description="Are you sure you want to send this recognition to payroll?"
-        onYes={handleYesSendToPayroll}
-        onNo={() => setConfirmationModal(false)}/> */}
+    
     </div>
   );
 };
