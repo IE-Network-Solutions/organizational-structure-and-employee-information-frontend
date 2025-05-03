@@ -99,7 +99,6 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
       setSelectedRowKeys(selectedRowKeys);
     },
   };
-
   const IncentiveByRecognitionTypeTableData =
     responseLoading || dynamicRecognitionData?.items?.length < 0
       ? []

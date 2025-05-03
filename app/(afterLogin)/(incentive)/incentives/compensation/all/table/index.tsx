@@ -6,6 +6,7 @@ import {
 } from '@/store/uistate/features/incentive/incentive';
 import { Avatar, Table, TableColumnsType, Tooltip } from 'antd';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { UserOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
@@ -81,6 +82,7 @@ const AllIncentiveTable: React.FC = () => {
       setPageSize(pageSize);
     }
   };
+  const router = useRouter();
 
   const allIncentiveTableData =
     responseLoading || incentiveData?.items?.length < 0
@@ -148,11 +150,11 @@ const AllIncentiveTable: React.FC = () => {
         }}
         loading={responseLoading}
         scroll={{ x: 1000 }}
-        // onRow={(record) => ({
-        //   onClick: () => {
-        //     router.push(`/incentives/detail/${record?.id}`);
-        //   },
-        // })}
+        onRow={(record) => ({
+          onClick: () => {
+            router.push(`/incentives/detail/${record?.id}`);
+          },
+        })}
       />
     </div>
   );
