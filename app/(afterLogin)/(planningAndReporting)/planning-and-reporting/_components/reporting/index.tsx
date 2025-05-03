@@ -11,7 +11,6 @@ import {
   Row,
   Spin,
   Tooltip,
-  Typography,
 } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
@@ -43,8 +42,6 @@ import KeyResultTasks from '../planning/KeyResultTasks';
 import { FiCheckCircle } from 'react-icons/fi';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-
-const { Title } = Typography;
 
 function Reporting() {
   const {

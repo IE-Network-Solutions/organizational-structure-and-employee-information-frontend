@@ -3,6 +3,7 @@ import { MdCancel } from 'react-icons/md';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { NAME } from '@/types/enumTypes';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
+import CustomButton from '@/components/common/buttons/customButton';
 
 interface DefaultCardInterface {
   kId: string;
@@ -50,7 +51,7 @@ function DefaultCardForm({
   };
   return (
     <Form.List name={name}>
-      {(fields, { remove }, { errors }) => (
+      {(fields, { add, remove }, { errors }) => (
         <>
           {fields.map((field) => (
             <Form.Item required={false} key={field.key}>
@@ -126,7 +127,18 @@ function DefaultCardForm({
               >
                 <Input type="hidden" value={userId} />
               </Form.Item>
-
+              <Row gutter={[8, 16]}>
+                <Col xs={24} sm={24} md={16} lg={16} xl={16}>
+                  <span className="mx-10 py-4 text-[13px] font-semibold">
+                    Weekly Plan
+                  </span>
+                </Col>
+                <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                  <span className="mx-10 py-4 text-[13px] font-semibold">
+                    Points
+                  </span>
+                </Col>
+              </Row>
               <Row gutter={8}>
                 <Col lg={12} sm={24}>
                   <Form.Item
@@ -141,22 +153,22 @@ function DefaultCardForm({
                           'Please input a task name or delete this field.',
                       },
                     ]}
-                    label={<div className="text-xs">Task</div>}
                     key={`${field.key}-task`} // Unique key for task
                   >
                     <Input
-                      className={`text-xs ${form.getFieldValue(name)[field.name].achieveMK}`}
+                      className={`text-xs mx-5 h-10 rounded-md  ${form.getFieldValue(name)[field.name].achieveMK}`}
                       disabled={form.getFieldValue(name)[field.name].achieveMK} // Disable if milestoneId exists
                       placeholder="Task name"
+                      size="large"
                     />
                   </Form.Item>
                 </Col>
                 <Col lg={12} sm={24}>
-                  <Space>
+                  <Space className="items-center mx-10">
                     <Form.Item
                       {...field}
                       name={[field.name, 'priority']}
-                      label={<div className="text-xs">Priority</div>}
+                      // label={<div className="text-xs">Priority</div>}
                       validateTrigger={['onChange', 'onBlur']}
                       rules={[
                         {
@@ -167,22 +179,32 @@ function DefaultCardForm({
                       key={`${field.key}-priority`} // Unique key for priority
                     >
                       <Select
-                        className="w-32 h-7 text-xs"
+                        className="w-32 text-xs h-10 rounded-md"
+                        optionLabelProp="label"
                         options={[
                           {
-                            label: 'High',
                             value: 'high',
-                            className: 'text-error text-xs',
+                            label: (
+                              <div className="text-xs bg-[#FFEDEC] text-[#E03137] px-2 py-1 rounded text-center">
+                                High
+                              </div>
+                            ),
                           },
                           {
-                            label: 'Medium',
                             value: 'medium',
-                            className: 'text-warning text-xs',
+                            label: (
+                              <div className="text-xs bg-[#FFDE6533] text-[#E6BB20] px-2 py-1 rounded text-center">
+                                Medium
+                              </div>
+                            ),
                           },
                           {
-                            label: 'Low',
                             value: 'low',
-                            className: 'text-success text-xs',
+                            label: (
+                              <div className="text-xs bg-[#55C79033] text-[#0BA259] px-2 py-1 rounded text-center">
+                                Low
+                              </div>
+                            ),
                           },
                         ]}
                       />
@@ -190,7 +212,7 @@ function DefaultCardForm({
 
                     <Form.Item
                       {...field}
-                      label={<div className="text-xs">Weight</div>}
+                      // label={<div className="text-xs">Weight</div>}
                       name={[field.name, 'weight']}
                       validateTrigger={['onChange', 'onBlur']}
                       rules={[
@@ -203,7 +225,7 @@ function DefaultCardForm({
                     >
                       <InputNumber
                         placeholder="0"
-                        className="w-32 text-xs"
+                        className="w-32 text-xs h-10 rounded-md text-center"
                         onChange={() => {
                           const fieldValue = form.getFieldValue(name) || [];
                           const totalWeight = fieldValue.reduce(
@@ -219,7 +241,7 @@ function DefaultCardForm({
                     </Form.Item>
 
                     <MdCancel
-                      className="text-primary cursor-pointer mt-2"
+                      className="text-primary cursor-pointer"
                       size={20}
                       onClick={() => {
                         setClickStatus(milestoneId + '', false);
@@ -241,7 +263,7 @@ function DefaultCardForm({
                 !parentPlanId && (
                   <Form.Item
                     className="mb-4"
-                    label={<div className="text-xs">Target</div>}
+                    // label={<div className="text-xs">Target</div>}
                     {...field}
                     name={[field.name, 'targetValue']}
                     hidden={hasTargetValue}
@@ -321,6 +343,60 @@ function DefaultCardForm({
               )} */}
             </Form.Item>
           ))}
+
+          <Form.Item className="flex items-center justify-end space-x-2 mx-4">
+            {/* <button
+              type="button"
+              onClick={() =>
+                add({
+                  milestoneId,
+                  planId,
+                  parentPlanId: planTaskId,
+                  planningUserId,
+                  planningPeriodId,
+                  keyResultId: kId,
+                  userId,
+                })
+              }
+              className="text-xs text-white bg-primary px-4 py-2 rounded hover:bg-primary-dark"
+            >
+              + Add Task
+            </button> */}
+
+            <CustomButton
+              // id={`plan-as-task_${kr?.id ?? ''}${ml?.id ?? ''}`}
+              title="Add Task"
+              // onClick={() => {
+              //   setMKAsATask(null);
+              //   handleAddBoard(kr?.id + ml?.id);
+              // }}
+              onClick={() =>
+                add({
+                  milestoneId,
+                  planId,
+                  parentPlanId: planTaskId,
+                  planningUserId,
+                  planningPeriodId,
+                  keyResultId: kId,
+                  userId,
+                })
+              }
+              className="bg-blue-600 hover:bg-blue-700 "
+              // disabled={ml?.status === 'Completed'}
+              titleClassName="!text-xs !font-medium"
+            />
+            <CustomButton
+              title="Cancel"
+              id="cancelPlanTask"
+              // onClick={() => {
+              //   setMKAsATask(null);
+              //   handleAddBoard(kr?.id + ml?.id);
+              // }}
+              className="bg-blue-600 hover:bg-blue-700 !text-xs border-gray-100 "
+              type="default"
+              titleClassName="!text-xs !font-medium text-gray-600 hover:text-gray-800"
+            />
+          </Form.Item>
 
           <Form.Item>
             <Form.ErrorList errors={errors} />

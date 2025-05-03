@@ -11,7 +11,6 @@ import {
   Row,
   Spin,
   Tooltip,
-  Typography,
 } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
@@ -43,8 +42,6 @@ import { UserOutlined } from '@ant-design/icons';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { FiCheckCircle } from 'react-icons/fi';
 import KeyResultTasks from './KeyResultTasks';
-
-const { Title } = Typography;
 
 function Planning() {
   const {

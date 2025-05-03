@@ -11,6 +11,7 @@ interface CustomButtonProps extends ButtonProps {
   onClick?: () => void;
   isTitleHidden?: boolean;
   size?: SizeType;
+  titleClassName?: string;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -21,9 +22,13 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   type = 'primary',
   isTitleHidden = false,
   size = 'default',
+  titleClassName = '',
   ...rest
 }) => {
   const baseClassName = 'rounded-lg flex items-center justify-center';
+  const baseTitleClassName =
+    'text-center text-base font-bold font-["Manrope"] leading-normal tracking-tight';
+
   return (
     <Button
       type={type}
@@ -35,9 +40,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       {...rest}
     >
       {!isTitleHidden && (
-        <div className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight">
-          {title}
-        </div>
+        <div className={`${baseTitleClassName} ${titleClassName}`}>{title}</div>
       )}
     </Button>
   );

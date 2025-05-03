@@ -1,11 +1,11 @@
 import React from 'react';
-import { Collapse, Button, Divider, Tooltip } from 'antd';
-import { BiPlus } from 'react-icons/bi';
-import { FaPlus } from 'react-icons/fa';
+import { Divider } from 'antd';
 import DefaultCardForm from '../planForms/defaultForm';
 import BoardCardForm from '../planForms/boardFormView';
 import { NAME } from '@/types/enumTypes';
-import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
+import { BsKey } from 'react-icons/bs';
+import { GoDotFill } from 'react-icons/go';
+import CustomButton from '@/components/common/buttons/customButton';
 
 interface Milestone {
   id: number;
@@ -21,6 +21,7 @@ interface KeyResult {
   };
   progress?: string;
   milestones?: Milestone[];
+  weight?: number;
 }
 
 interface Objective {
@@ -55,21 +56,22 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
   handleAddBoard,
   handleAddName,
   handleRemoveBoard,
-  weights,
 }) => {
-  const { statuses, setClickStatus } = useClickStatus();
-
   return (
-    <Collapse defaultActiveKey={0}>
+    <div>
       {objective?.items?.map((e, panelIndex) => (
-        <Collapse.Panel
-          forceRender={true}
-          header={
-            <div>
-              <strong>Objective:</strong> {e.title}
-            </div>
-          }
+        // <Collapse.Panel
+        //   forceRender={true}
+        //   header={
+        //     <div>
+        //       <strong>Objective:</strong> {e.title}
+        //     </div>
+        //   }
+        //   key={panelIndex}
+        // >
+        <div
           key={panelIndex}
+          className="rounded-lg border-gray-200 border my-2"
         >
           {e?.keyResults?.map((kr, resultIndex) => {
             const hasMilestone = (kr?.milestones?.length ?? 0) > 0;
@@ -80,63 +82,31 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
             return (
               <div className="flex flex-col justify-between" key={resultIndex}>
                 {/* Key Result and Weight display */}
-                <div className="flex justify-between">
-                  <span className="font-bold">Key Result: {kr?.title} </span>
-                  <span className="font-bold">Weight</span>
-                </div>
-                <div className="flex justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-lg border-gray-200 border bg-gray-300 w-6 h-6 text-[12px] flex items-center justify-center">
-                      {resultIndex + 1}
+                <div className="flex justify-between m-3">
+                  <div className="font-bold flex items-center justify-center space-x-2">
+                    <span>
+                      <BsKey size={18} className="text-[#3636F0]" />
                     </span>
-                    <span className="text-[12px] font-semibold">
-                      {kr?.title}
+                    <span> {kr?.title} </span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-2">
+                    <span className=" flex items-center justify-center">
+                      {' '}
+                      <GoDotFill className="text-[#4E4EF1] mx-1" />
+                      <span className="text-xs font-light text-[#687588]">
+                        Weight
+                      </span>
+                    </span>
+                    <span className="bg-[#E7E7FF] p-1 rounded-lg text-[#3636F0] font-semibold text-xs">
+                      {' '}
+                      {kr?.weight}
                     </span>
                   </div>
-
-                  {/* Plan Task and Weight Handling */}
-                  {!hasMilestone && (
-                    <div className="flex gap-3 items-center">
-                      <Button
-                        id={`plan-as-task_${kr?.id ?? ''}`}
-                        onClick={() => handleAddBoard(kr?.id)}
-                        type="link"
-                        icon={<BiPlus />}
-                        className="text-[10px]"
-                        disabled={
-                          Number(kr?.progress) == 100 ||
-                          form?.getFieldValue(`names-${kr?.id}`)?.[resultIndex]
-                            ?.achieveMK
-                        }
-                      >
-                        Add Plan Task
-                      </Button>
-
-                      {/* Add Achieve MK as a Task */}
-                      {kr?.metricType?.name === NAME.ACHIEVE && (
-                        <Tooltip title="Plan keyResult as a Task ">
-                          <Button
-                            id="plan-key-result-as-task"
-                            size="small"
-                            className="text-[10px] text-primary"
-                            icon={<FaPlus />}
-                            disabled={
-                              Number(kr?.progress) == 100 ||
-                              form?.getFieldValue(`names-${kr?.id}`)?.[0]
-                                ?.achieveMK
-                            }
-                            onClick={() => {
-                              setMKAsATask({ title: kr?.title, mid: kr?.id });
-                              handleAddBoard(kr?.id);
-                            }}
-                          />
-                        </Tooltip>
-                      )}
-                      <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
-                        {weights[`names-${kr?.id}`] || 0}%
-                      </div>
-                    </div>
-                  )}
+                </div>
+                <Divider className="mt-0 mb-2" />
+                <div className="flex items-center justify-between mx-10 my-2 text-xs font-semibold">
+                  <span>Weekly Plan</span>
+                  <span>Points</span>
                 </div>
 
                 {/* Milestone handling */}
@@ -144,25 +114,31 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                   <>
                     {kr?.milestones?.map((ml) => (
                       <div key={ml?.id}>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs">{ml?.title}</span>
-                          <div className="flex gap-2 items-center">
-                            <Button
-                              id={`plan-as-task_${kr?.id ?? ''}${ml?.id ?? ''}`}
-                              onClick={() => {
-                                setMKAsATask(null);
-                                handleAddBoard(kr?.id + ml?.id);
-                              }}
-                              type="link"
-                              icon={<BiPlus size={14} />}
-                              className="text-[10px]"
-                              disabled={ml?.status === 'Completed'}
-                            >
-                              Add Plan Task
-                            </Button>
+                        <div className="flex items-center justify-end space-x-2 mx-4">
+                          <CustomButton
+                            id={`plan-as-task_${kr?.id ?? ''}${ml?.id ?? ''}`}
+                            title="Add Task"
+                            onClick={() => {
+                              setMKAsATask(null);
+                              handleAddBoard(kr?.id + ml?.id);
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700 "
+                            disabled={ml?.status === 'Completed'}
+                            titleClassName="!text-xs !font-medium"
+                          />
+                          <CustomButton
+                            title="Cancel"
+                            id="cancelPlanTask"
+                            onClick={() => {
+                              setMKAsATask(null);
+                              handleAddBoard(kr?.id + ml?.id);
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700 !text-xs border-gray-100 "
+                            type="default"
+                            titleClassName="!text-xs !font-medium text-gray-600 hover:text-gray-800"
+                          />
 
-                            {/* Plan Milestone as Task */}
-                            {kr?.metricType?.name === NAME.MILESTONE && (
+                          {/* {kr?.metricType?.name === NAME.MILESTONE && (
                               <Tooltip title="Plan Milestone as a Task">
                                 <Button
                                   id="plan-milestone-as-task"
@@ -188,15 +164,14 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                   }}
                                 />
                               </Tooltip>
-                            )}
+                            )} */}
 
-                            <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
+                          {/* <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
                               {weights[`names-${kr?.id + ml?.id}`] || 0}%
-                            </div>
-                          </div>
+                            </div> */}
                         </div>
 
-                        <Divider className="my-2" />
+                        {/* <Divider className="my-2" /> */}
 
                         {/* Forms for Key Result and Milestone */}
                         {planningPeriodId && planningUserId && (
@@ -232,7 +207,6 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                     ))}
                   </>
                 )}
-
                 {/* Form for Key Result without Milestones */}
                 {!hasMilestone && (
                   <>
@@ -267,9 +241,10 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
               </div>
             );
           })}
-        </Collapse.Panel>
+        </div>
+        //{/* </Collapse.Panel> */}
       ))}
-    </Collapse>
+    </div>
   );
 };
 
