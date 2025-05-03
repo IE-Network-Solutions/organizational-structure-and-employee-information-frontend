@@ -114,6 +114,13 @@ const EmployeeAttendance = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        // Clean up the file after download
+        setTimeout(() => {
+          fetch(fileUrl, { method: 'DELETE' }).catch(() => {
+            // Ignore cleanup errors
+          });
+        }, 1000);
       }
     } catch (error) {
       // You might want to show an error message to the user here
