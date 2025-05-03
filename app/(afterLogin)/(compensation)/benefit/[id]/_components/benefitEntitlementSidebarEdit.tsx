@@ -4,7 +4,15 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { DatePicker, Form, Input, InputNumber, Select, Spin, Table } from 'antd';
+import {
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Spin,
+  Table,
+} from 'antd';
 import { useCreateBenefitEntitlement } from '@/store/server/features/compensation/benefit/mutations';
 import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
@@ -36,7 +44,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
     resetStore,
     benefitDefaultAmount,
     benefitData,
-    setIsBenefitEntitlementSidebarUpdateOpen
+    setIsBenefitEntitlementSidebarUpdateOpen,
   } = useBenefitEntitlementStore();
 
   const { mutate: createBenefitEntitlement, isLoading: createBenefitLoading } =
@@ -54,32 +62,30 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
 
   const onClose = () => {
     form.resetFields();
-    setData([])
+    setData([]);
     setIsBenefitEntitlementSidebarUpdateOpen(false);
   };
 
   const onFormSubmit = (formValues: any) => {
     console.log('formValues', formValues),
-    createBenefitEntitlement({
-      compensationItemId: id,
-      employeeIds: formValues.employees,
-      totalAmount:
-        benefitMode === 'CREDIT'
-          ? Number(benefitDefaultAmount)
-          : Number(formValues.amount),
-      settlementPeriod: Number(formValues.settlementPeriod),
-      isRate: benefitDatas?.isRate,
-    });
-   
-      // {
-      //   onSuccess: () => {
-      //     form.resetFields();
-      //     onClose();
-      //   },
-      // },
-  };
+      createBenefitEntitlement({
+        compensationItemId: id,
+        employeeIds: formValues.employees,
+        totalAmount:
+          benefitMode === 'CREDIT'
+            ? Number(benefitDefaultAmount)
+            : Number(formValues.amount),
+        settlementPeriod: Number(formValues.settlementPeriod),
+        isRate: benefitDatas?.isRate,
+      });
 
- 
+    // {
+    //   onSuccess: () => {
+    //     form.resetFields();
+    //     onClose();
+    //   },
+    // },
+  };
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -105,10 +111,10 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
       form.setFieldsValue({
         amount: benefitData?.Amount ? Number(benefitData.Amount) : undefined,
         mode: benefitData?.mode || undefined,
-        userId:benefitData.userId
+        userId: benefitData.userId,
         // Add more fields if needed
       });
-  
+
       // Optionally update local state too:
       if (!benefitData?.isRate) {
         setTotalAmount(Number(benefitData.Amount) || 0);
@@ -131,49 +137,50 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
         end.isSame(nextMonth, 'month')
       );
     });
-    
-      
+
     const amountPerPeriod =
       totalAmount && settlementPeriod ? totalAmount / settlementPeriod : 0;
 
-      const newData = Array.from({ length: settlementPeriod }, (_, i) => {
-        const paymentDate = dayjs().add(i, 'month');
-      
-        const matchedPeriod = validPayPeriods.find((period: any) => {
-          const start = dayjs(period.startDate);
-          const end = dayjs(period.endDate);
-          return dayjs(paymentDate).isBetween(start, end, 'day', '[]'); // FIX HERE
-        });
-      
-        return {
-          key: i,
-          amount: Number(amountPerPeriod).toFixed(2),
-          payPeriodId: matchedPeriod?.id ?? null,
-        };
+    const newData = Array.from({ length: settlementPeriod }, (_, i) => {
+      const paymentDate = dayjs().add(i, 'month');
+
+      const matchedPeriod = validPayPeriods.find((period: any) => {
+        const start = dayjs(period.startDate);
+        const end = dayjs(period.endDate);
+        return dayjs(paymentDate).isBetween(start, end, 'day', '[]'); // FIX HERE
       });
-      
+
+      return {
+        key: i,
+        amount: Number(amountPerPeriod).toFixed(2),
+        payPeriodId: matchedPeriod?.id ?? null,
+      };
+    });
 
     setData(newData);
     form.setFieldsValue({ payments: newData });
   }, [totalAmount, settlementPeriod, payPeriods]);
-  console.log(benefitData,"benefitData")
+  console.log(benefitData, 'benefitData');
   const columns = [
     {
       dataIndex: 'amount',
       key: 'amount',
       render: (_: any, __: any, index: number) => (
-        <Form.Item label={"Amount"} name={['payments', index, 'amount']} className="mb-0">
+        <Form.Item
+          label={'Amount'}
+          name={['payments', index, 'amount']}
+          className="mb-0"
+        >
           <InputNumber className="w-full" disabled />
         </Form.Item>
       ),
     },
     {
-      
       dataIndex: 'payPeriodId',
       key: 'payPeriodId',
       render: (_: any, __: any, index: number) => (
         <Form.Item
-        label={'Pay Period'}
+          label={'Pay Period'}
           required
           name={['payments', index, 'payPeriodId']}
           className="mb-0"
@@ -254,8 +261,8 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
               label="Select Employees"
               rules={[{ required: true, message: 'Please select employees' }]}
             >
-             <Select
-             disabled
+              <Select
+                disabled
                 showSearch
                 placeholder="Select a person"
                 className="w-full min-h-10"

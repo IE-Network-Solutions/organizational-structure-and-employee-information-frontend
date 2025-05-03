@@ -15,7 +15,7 @@ import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import BenefitEntitlementSideBarEdit from './benefitEntitlementSidebarEdit';
 import BenefitTracking from './benefitTracker';
- type BenefitPropTypes = {
+type BenefitPropTypes = {
   title: string;
 };
 const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
@@ -27,8 +27,8 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
     setCurrentPage,
     setPageSize,
     BenefitApplicableTo,
-  
-setEditBenefitData
+
+    setEditBenefitData,
   } = useBenefitEntitlementStore();
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
   const { id } = useParams();
@@ -36,10 +36,8 @@ setEditBenefitData
     useFetchBenefitEntitlement(id);
   const [searchQuery, setSearchQuery] = useState('');
   const { data: employeeData } = useGetAllUsers();
- const {
-        employeeBenefitData,
-        setEmployeeBenefitData,
-      } = useBenefitEntitlementStore();
+  const { employeeBenefitData, setEmployeeBenefitData } =
+    useBenefitEntitlementStore();
   const transformedData = Array.isArray(benefitEntitlementsData)
     ? benefitEntitlementsData.map((item: any) => ({
         id: item.id,
@@ -57,23 +55,27 @@ setEditBenefitData
 
   const handleDelete = (id: string) => {
     deleteBenefitEntitlement(id);
-    
   };
-  const handleEdit= (record: any) => {
+  const handleEdit = (record: any) => {
     setEditBenefitData(record);
-    setIsBenefitEntitlementSidebarUpdateOpen(true)
+    setIsBenefitEntitlementSidebarUpdateOpen(true);
   };
- const handleEmployeeData =(data:any)=>{
-setEmployeeBenefitData(data)
- }
+  const handleEmployeeData = (data: any) => {
+    setEmployeeBenefitData(data);
+  };
   const columns: TableColumnsType<any> = [
     {
       title: 'Employee',
       dataIndex: 'userId',
       key: 'userId',
       sorter: true,
-      
-      render: (rule: any, record: any) => <div onClick={()=>handleEmployeeData(record)}> <EmployeeDetails empId={record?.userId} /></div>,
+
+      render: (rule: any, record: any) => (
+        <div onClick={() => handleEmployeeData(record)}>
+          {' '}
+          <EmployeeDetails empId={record?.userId} />
+        </div>
+      ),
     },
     {
       title: 'Type',
@@ -162,61 +164,63 @@ setEmployeeBenefitData(data)
           employee.userId?.toLowerCase() === searchQuery?.toLowerCase(),
       )
     : transformedData;
- console.log('employeeBenefitData', employeeBenefitData);
+  console.log('employeeBenefitData', employeeBenefitData);
   return (
     <Spin spinning={isLoading}>
-      {employeeBenefitData==null?
-      <>
-      <Space
-        direction="horizontal"
-        size="large"
-        style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
-      >
-        <Select
-          showSearch
-          allowClear
-          className="min-h-12"
-          placeholder="Search by name"
-          onChange={handleSearchChange}
-          filterOption={(input, option) => {
-            const label = option?.label;
-            return (
-              typeof label === 'string' &&
-              label.toLowerCase().includes(input.toLowerCase())
-            );
-          }}
-          options={options}
-          style={{ width: 300 }} // Set a width for better UX
-        />{' '}
-        <AccessGuard permissions={[Permissions.CreateBenefitEntitlement]}>
-          <Button
+      {employeeBenefitData == null ? (
+        <>
+          <Space
+            direction="horizontal"
             size="large"
-            type="primary"
-            className="min-h-12"
-            id="createNewClosedHolidayFieldId"
-            icon={<LuPlus size={18} />}
-            onClick={handleBenefitEntitlementAdd}
-            disabled={BenefitApplicableTo == 'GLOBAL'}
+            style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
           >
-            Employees
-          </Button>
-        </AccessGuard>
-      </Space>
-   
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={filteredDataSource}
-        pagination={{
-          current: currentPage,
-          pageSize,
-          total: transformedData.length,
-          showSizeChanger: true,
-        }}
-        onChange={handleTableChange}
-      />
-      </>
-      :<BenefitTracking/>}
+            <Select
+              showSearch
+              allowClear
+              className="min-h-12"
+              placeholder="Search by name"
+              onChange={handleSearchChange}
+              filterOption={(input, option) => {
+                const label = option?.label;
+                return (
+                  typeof label === 'string' &&
+                  label.toLowerCase().includes(input.toLowerCase())
+                );
+              }}
+              options={options}
+              style={{ width: 300 }} // Set a width for better UX
+            />{' '}
+            <AccessGuard permissions={[Permissions.CreateBenefitEntitlement]}>
+              <Button
+                size="large"
+                type="primary"
+                className="min-h-12"
+                id="createNewClosedHolidayFieldId"
+                icon={<LuPlus size={18} />}
+                onClick={handleBenefitEntitlementAdd}
+                disabled={BenefitApplicableTo == 'GLOBAL'}
+              >
+                Employees
+              </Button>
+            </AccessGuard>
+          </Space>
+
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={filteredDataSource}
+            pagination={{
+              current: currentPage,
+              pageSize,
+              total: transformedData.length,
+              showSizeChanger: true,
+            }}
+            onChange={handleTableChange}
+          />
+        </>
+      ) : (
+        <BenefitTracking />
+      )}
       <BenefitEntitlementSideBar title={title} />
       <BenefitEntitlementSideBarEdit title={title} />
     </Spin>

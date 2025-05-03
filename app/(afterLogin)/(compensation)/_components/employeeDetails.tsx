@@ -23,12 +23,11 @@ export const EmployeeDetails = ({
   const userName =
     `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
     '-';
-  const profileImage = userDetails?.profileImage
+  const profileImage = userDetails?.profileImage;
 
   return (
     <Space size="small">
-      <Avatar src={profileImage} icon={<UserOutlined/>
-      } />
+      <Avatar src={profileImage} icon={<UserOutlined />} />
       {userName}
     </Space>
   );

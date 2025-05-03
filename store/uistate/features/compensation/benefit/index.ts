@@ -14,12 +14,13 @@ interface BenefitEntitlementTypes {
   benefitMode: string;
   BenefitApplicableTo: string;
   benefitDefaultAmount: number;
-  benefitData:any
-  employeeBenefitData:any
-  
+  benefitData: any;
+  employeeBenefitData: any;
+  employeeSettlementData: any;
   currentPage: number;
   pageSize: number;
 
+  setEmployeeSettlementData: (value: any) => void;
   setIsBenefitEntitlementSidebarOpen: (value: boolean) => void;
   setIsBenefitEntitlementSidebarUpdateOpen: (value: boolean) => void;
   setSelectedDepartment: (value: string | null) => void;
@@ -29,8 +30,8 @@ interface BenefitEntitlementTypes {
   setPageSize: (value: number) => void;
   setBenefitDefaultAmount: (value: number) => void;
   setBenefitApplicableTo: (value: string) => void;
-  setEditBenefitData: (value: any) => void
-  setEmployeeBenefitData: (value: any) => void
+  setEditBenefitData: (value: any) => void;
+  setEmployeeBenefitData: (value: any) => void;
   resetStore: () => void;
 }
 
@@ -73,12 +74,14 @@ const variablePayInitialState = {
 export const useBenefitEntitlementStore = create<BenefitEntitlementTypes>(
   (set) => ({
     ...benefitEntitlementInitialState,
-    isBenefitEntitlementSidebarUpdateOpen: false, 
+    isBenefitEntitlementSidebarUpdateOpen: false,
     setIsBenefitEntitlementSidebarOpen: (value) =>
       set({ isBenefitEntitlementSidebarOpen: value }),
     employeeBenefitData: null,
-    setEmployeeBenefitData: (value) =>
-      set({ employeeBenefitData: value }),
+    employeeSettlementData: null,
+    setEmployeeSettlementData: (value) =>
+      set({ employeeSettlementData: value }),
+    setEmployeeBenefitData: (value) => set({ employeeBenefitData: value }),
     setIsBenefitEntitlementSidebarUpdateOpen: (value) =>
       set({ isBenefitEntitlementSidebarUpdateOpen: value }),
     setSelectedDepartment: (value) => set({ selectedDepartment: value }),

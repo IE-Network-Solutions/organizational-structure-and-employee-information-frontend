@@ -26,7 +26,9 @@ const BenefitEntitlemetPage = () => {
         title={benefitData?.name ? benefitData?.name : ''}
         size="small"
       ></PageHeader>
-      <BenefitEntitlementTable         title={benefitData?.name ? benefitData?.name : ''} />
+      <BenefitEntitlementTable
+        title={benefitData?.name ? benefitData?.name : ''}
+      />
     </>
   );
 };
