@@ -5,20 +5,20 @@ export const groupTasksByKeyResultAndMilestone = (reportTasks: any) => {
     // Initialize the keyResult entry if it doesn't exist
     if (!acc[keyResultId]) {
       acc[keyResultId] = {
-        ...task.planTask.keyResult,
+        ...task?.planTask?.keyResult,
         tasks: [],
         milestones: [],
       };
     }
 
-    const { milestone } = task.planTask;
+    const { milestone } = task?.planTask || {};
 
     const taskObject = {
-      taskId: task.planTaskId,
-      taskName: task.planTask.task,
-      priority: task.planTask.priority,
-      status: task.status,
-      actualValue: task.actualValue || 0,
+      taskId: task?.planTaskId,
+      taskName: task.planTask?.task,
+      priority: task?.planTask?.priority,
+      status: task?.status,
+      actualValue: task?.actualValue || 0,
       targetValue: task?.planTask?.targetValue || 0,
       keyResult: task?.planTask?.keyResult,
       isAchieved: task.isAchieved,

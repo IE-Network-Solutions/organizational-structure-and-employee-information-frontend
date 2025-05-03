@@ -10,6 +10,10 @@ import DynamicIncentive from './compensation/dynamicRecoginition';
 import ExportModal from './compensation/all/export';
 import ConfirmModal from '@/components/common/confirmModal';
 import { useSendIncentiveToPayroll } from '@/store/server/features/incentive/all/mutation';
+import { Eye, FileDown, FileUp } from 'lucide-react';
+import CustomButton from '@/components/common/buttons/customButton';
+import { useIsMobile } from '@/hooks/useIsMobile';
+
 
 const Page = () => {
   const {
@@ -32,8 +36,13 @@ const Page = () => {
 
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
+
   const { mutate: sendIncentiveToPayroll, isLoading } =
     useSendIncentiveToPayroll();
+
+  const { isMobile, isTablet } = useIsMobile();
+
+
   useEffect(() => {
     setParentResponseIsLoading(parentResponseLoading);
   }, [parentResponseLoading]);
@@ -108,27 +117,47 @@ const Page = () => {
             </Button>
           </Tooltip>
           {isPayrollView ? (
-            <Button
+            <CustomButton
+              title={
+                !(isMobile || isTablet) && (
+                  <span className="hidden sm:inline">Generate</span>
+                )
+              }
+              id="createUserButton"
+              icon={<FileDown className="md:mr-0 ml-2" size={18} />}
               onClick={() => setShowGenerateModal(!showGenerateModal)}
-              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-            >
-              Generate
-            </Button>
+              textClassName="!text-sm !font-medium"
+              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+            />
           ) : (
-            <Button
+            <CustomButton
+              title={
+                !(isMobile || isTablet) && (
+                  <span className="hidden sm:inline">Export</span>
+                )
+              }
+              id="createUserButton"
+              icon={<FileDown className="md:mr-0 ml-2" size={18} />}
               onClick={() => handleExportClick()}
-              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-            >
-              Export
-            </Button>
+              textClassName="!text-sm !font-medium"
+              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+            />
           )}
 
-          <Button
+          <CustomButton
+            title={
+              !(isMobile || isTablet) && (
+                <span className="hidden sm:inline">
+                  {isPayrollView ? 'Session View' : 'Payroll View'}
+                </span>
+              )
+            }
+            id="createUserButton"
+            icon={<Eye className="md:mr-0 ml-2" size={18} />}
             onClick={() => setIsPayrollView(!isPayrollView)}
-            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-          >
-            {isPayrollView ? 'Session View' : 'Payroll View'}
-          </Button>
+            textClassName="!text-sm !font-medium"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+          />
         </div>
       );
     } else {
@@ -150,28 +179,38 @@ const Page = () => {
               {'Send to Payroll'}
             </Button>
           </Tooltip>
-          <Button
+       
+          <CustomButton
+            title={
+              !(isMobile || isTablet) && (
+                <span className="hidden sm:inline">Export</span>
+              )
+            }
+            id="createUserButton"
+            icon={<FileUp className="md:mr-0 ml-2" size={18} />}
             onClick={() => handleExportClick()}
-            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-          >
-            Export
-          </Button>
-          <Button
+            textClassName="!text-sm !font-medium"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+          />
+
+          <CustomButton
+            title={
+              !(isMobile || isTablet) && (
+                <span className="hidden sm:inline">Import Data</span>
+              )
+            }
+            id="createUserButton"
+            icon={<FileDown className="md:mr-0 ml-2" size={18} />}
             onClick={() => setProjectDrawer(true)}
-            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-          >
-            Import Data
-          </Button>
+            textClassName="!text-sm !font-medium"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+          />
         </div>
       );
     }
-  }, [
-    activeKey,
-    isPayrollView,
-    setProjectDrawer,
-    setIsPayrollView,
-    selectedRowKeys,
-  ]);
+
+  }, [activeKey, isPayrollView, setProjectDrawer, setIsPayrollView,selectedRowKeys, isMobile]);
+
 
   const handleTabChange = (key: string) => {
     setActiveKey(key);
@@ -191,7 +230,7 @@ const Page = () => {
   };
 
   return (
-    <div className="m-1">
+    <div className="!pt-12 sm:pt-2 !mt:5 sm:m-1 ">
       <div>
         {isPayrollView && <PayRoleView operationSlot={OperationsSlot} />}
       </div>

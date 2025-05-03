@@ -270,6 +270,9 @@ type IncentiveState = {
   filteredSessions: any[];
   selectedFiscalYear: string | null;
   selectedRowKeys: string[];
+  showMobileFilter: boolean;
+  selectedYear: string | null;
+
 };
 
 type IncentiveActions = {
@@ -306,6 +309,10 @@ type IncentiveActions = {
   setSelectedRowKeys: (selectedRowKeys: string[]) => void;
   confirmationModal: boolean;
   setConfirmationModal: (value: boolean) => void;
+
+  setShowMobileFilter: (value: boolean) => void;
+  setSelectedYear: (value: string | null) => void;
+
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -413,10 +420,16 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   selectedFiscalYear: null,
   setSelectedFiscalYear: (year) => set({ selectedFiscalYear: year }),
 
+
   selectedRowKeys: [],
   setSelectedRowKeys: (selectedRowKeys) => set({ selectedRowKeys }),
   confirmationModal: false,
   setConfirmationModal: (value) => set({ confirmationModal: value }),
+  showMobileFilter: false,
+  setShowMobileFilter: (value) => set({ showMobileFilter: value }),
+  selectedYear: null,
+  setSelectedYear: (value) => set({ selectedYear: value }),
+
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(

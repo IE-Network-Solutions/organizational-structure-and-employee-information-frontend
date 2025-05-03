@@ -54,7 +54,8 @@ const LessonPage = () => {
         </div>
 
         {lessonMaterial.article && (
-          <div className="lesson-material-article px-12 mt-6">
+          <div className="lesson-material-article mt-6">
+            <div className="my-4 text-lg font-bold text-gray-900">Details</div>
             <div className="ql-container ql-snow">
               <div
                 className="ql-editor p-0"

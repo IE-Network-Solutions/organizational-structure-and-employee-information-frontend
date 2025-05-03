@@ -95,11 +95,6 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
           <Input.TextArea placeholder="Reason for adding candidate" />
         </Form.Item>
       </Form>
-      <div className="flex justify-center  items-center">
-        <Button className="w-[90px] h-11" type="primary" onClick={onSubmit}>
-          Submit
-        </Button>
-      </div>
     </CustomDrawerLayout>
   );
 };
