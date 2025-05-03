@@ -1,6 +1,6 @@
 'use client';
 import { useParentRecognition } from '@/store/server/features/incentive/other/queries';
-import { Button, Skeleton, Tabs, Tooltip } from 'antd';
+import { Button, Skeleton, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import PayRoleView from './payroll-detail';
 import { useEffect, useMemo } from 'react';
@@ -92,13 +92,12 @@ const Page = () => {
     if (activeKey === '1') {
       return (
         <div className="flex items-center justify-center gap-3">
-        
-            <Button
-              onClick={() => handleSendToPayrollClick()}
-              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-            >
-              {'Send to Payroll'}
-            </Button>
+          <Button
+            onClick={() => handleSendToPayrollClick()}
+            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
+          >
+            {'Send to Payroll'}
+          </Button>
           {isPayrollView ? (
             <Button
               onClick={() => setShowGenerateModal(!showGenerateModal)}
@@ -127,14 +126,13 @@ const Page = () => {
       // Show Import & Generate for all other tabs
       return (
         <div className="flex items-center justify-center gap-3">
-          
-            <Button
-              onClick={() => handleSendToPayrollClick()}
-              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-            >
-              {'Send to Payroll'}
-            </Button>
-          
+          <Button
+            onClick={() => handleSendToPayrollClick()}
+            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
+          >
+            {'Send to Payroll'}
+          </Button>
+
           <Button
             onClick={() => handleExportClick()}
             className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
@@ -209,7 +207,6 @@ const Page = () => {
         loading={isLoading}
         description={'You want to send to payroll'}
       />
-     
     </div>
   );
 };
