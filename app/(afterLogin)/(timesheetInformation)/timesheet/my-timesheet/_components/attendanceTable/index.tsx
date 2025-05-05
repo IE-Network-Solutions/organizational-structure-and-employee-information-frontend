@@ -15,15 +15,12 @@ import { Button } from 'antd';
 import { IoMdSwitch } from 'react-icons/io';
 import { SorterResult, FilterValue } from 'antd/es/table/interface';
 
-interface MyTimesheetStore {
-  setIsShowViewAttendanceSidebar: (show: boolean) => void;
-  setAttendanceData: (data: AttendanceRecord) => void;
-}
+
 
 const AttendanceTable = () => {
   const { userId } = useAuthenticationStore();
-  const store = useMyTimesheetStore() as unknown as MyTimesheetStore;
-  const { setIsShowViewAttendanceSidebar: isShow, setAttendanceData } = store;
+  const store = useMyTimesheetStore()
+  const { setIsShowViewSidebar: isShow, setViewAttendanceId } =  useMyTimesheetStore();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [filter, setFilter] = useState<
@@ -109,7 +106,7 @@ const AttendanceTable = () => {
           <Button
             type="link"
             onClick={() => {
-              setAttendanceData(record);
+              setViewAttendanceId(record.id);
               isShow(true);
             }}
           >
@@ -213,7 +210,7 @@ const AttendanceTable = () => {
   return (
     <>
       <div className="flex items-center justify-between mb-3 pr-2 bg-white rounded-lg p-2 mx-2">
-        <div className="text-lg font-semibold text-gray-900">Leave History</div>
+        <div className="text-lg font-semibold text-gray-900">Attendance History</div>
         <div className="flex items-center gap-2">
           <Button
             type="default"
