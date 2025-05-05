@@ -6,9 +6,9 @@ import { useDebounce } from '@/utils/useDebounce';
 import { Button, Col, DatePicker, Modal, Row, Select } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';
-import { IoMdSwitch } from 'react-icons/io';
-import { useMediaQuery } from 'react-responsive';
 import WhatYouNeed from '../whatYouNeed';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { LuSettings2 } from 'react-icons/lu';
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -26,7 +26,8 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
     showMobileFilter,
     setShowMobileFilter,
   } = useCandidateState();
-  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+
+  const { isMobile, isTablet } = useIsMobile();
 
   const { data: EmployeeDepartment } = useEmployeeDepartments();
   const { data: jobList } = useGetJobs(
@@ -138,12 +139,12 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
   );
   return (
     <div className="my-3">
-      {isSmallScreen ? (
+      {isMobile || isTablet ? (
         <>
           <div className="flex justify-end m-2 space-x-4">
             <WhatYouNeed />
             <div className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3">
-              <IoMdSwitch
+              <LuSettings2
                 onClick={() => setShowMobileFilter(true)}
                 className="text-xl cursor-pointer"
               />

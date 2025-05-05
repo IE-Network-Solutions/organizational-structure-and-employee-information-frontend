@@ -31,7 +31,7 @@ const TalentPoolDrawer: React.FC = () => {
             id: selectedTalentPool?.id || '',
             category: {
               ...values,
-              name: values?.title,
+              updatedBy: userId,
             },
           },
           {

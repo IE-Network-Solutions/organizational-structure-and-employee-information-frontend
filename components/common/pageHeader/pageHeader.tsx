@@ -1,9 +1,8 @@
 'use client';
 import React from 'react';
 import { classNames } from '@/utils/classNames';
-import { useMediaQuery } from 'react-responsive';
 import { Tooltip } from 'antd';
-
+import { useIsMobile } from '../hooks/useIsMobile';
 interface PageHeaderProps {
   title: React.ReactNode;
   description?: string;
@@ -19,15 +18,14 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   children,
   toolTip,
 }) => {
-  const isSmallScreen = useMediaQuery({ maxWidth: 768 }); // Detect small screens
-
+  const { isMobile } = useIsMobile();
   return (
     <div className="flex justify-between flex-wrap items-center">
       <div className="flex-1">
-        {isSmallScreen ? (
+        {isMobile ? (
           <Tooltip title={toolTip} placement="top">
             <h2
-              className={classNames('text-gray-900 m-1', {
+              className={classNames('text-gray-900 mt-10', {
                 'text-xl': size === 'medium',
                 'text-lg': size === 'small',
               })}
@@ -38,7 +36,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         ) : (
           <Tooltip title={toolTip} placement="top">
             <h2
-              className={classNames('text-gray-900', {
+              className={classNames('text-gray-900 mt-10', {
                 'text-2xl': size === 'medium',
                 'text-xl': size === 'small',
               })}

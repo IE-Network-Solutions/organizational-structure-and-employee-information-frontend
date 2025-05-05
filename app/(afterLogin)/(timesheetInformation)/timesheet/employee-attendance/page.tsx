@@ -42,7 +42,7 @@ const EmployeeAttendance = () => {
     isSuccess,
   } = useAttendanceImport();
 
-  const { setIsShowBreakAttendanceImportSidebar } =
+  const { setIsShowBreakAttendanceImportSidebar, filter } =
     useEmployeeAttendanceStore();
 
   useEffect(() => {
@@ -74,23 +74,8 @@ const EmployeeAttendance = () => {
       // Create a new request object with export type and filter
       const exportRequest: AttendanceRequestBody = {
         exportType: type,
-        filter: {
-          attendanceRecordIds: data.items.map((item) => item.id),
-          userIds: data.items.map((item) => item.userId),
-          date: {
-            from: data.items[0].createdAt,
-            to: data.items[data.items.length - 1].createdAt,
-          },
-          type: data.items.some((item) => item.isAbsent)
-            ? 'absent'
-            : data.items.some((item) => item.lateByMinutes > 0)
-              ? 'late'
-              : data.items.some((item) => item.earlyByMinutes > 0)
-                ? 'early'
-                : 'present',
-        },
+        filter: filter,
       };
-
       // Set the request
       setBodyRequest(exportRequest);
 
@@ -129,6 +114,13 @@ const EmployeeAttendance = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        // Clean up the file after download
+        setTimeout(() => {
+          fetch(fileUrl, { method: 'DELETE' }).catch(() => {
+            // Ignore cleanup errors
+          });
+        }, 1000);
       }
     } catch (error) {
       // You might want to show an error message to the user here
