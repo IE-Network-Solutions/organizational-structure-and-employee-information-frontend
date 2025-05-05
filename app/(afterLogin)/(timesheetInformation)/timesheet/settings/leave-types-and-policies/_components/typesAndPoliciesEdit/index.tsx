@@ -245,9 +245,9 @@ const TypesAndPoliciesEdit = () => {
                     <Popover
                       content={
                         <div className="w-72">
-                          Deductible leaves reduce an employee's leave balance
-                          when taken (like vacation days), while non-deductible
-                          leaves don't affect the balance.
+                          Deductible leaves reduce an employee&apos;s leave
+                          balance when taken (like vacation days), while
+                          non-deductible leaves do not affect the balance.
                         </div>
                       }
                     >
