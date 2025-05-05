@@ -30,7 +30,7 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
         {/* Total Allowance */}
         <div>
           <div className="my-6 text-xl text-gray-600">
-            Total Allowance{' '}
+            Entitled Allowance{' '}
             {totalAmount(activeMergedPayroll?.breakdown?.allowances)}
           </div>
           <div className="flex gap-6 w-full">
@@ -59,15 +59,23 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
         {/* Total Benefits */}
         <div>
           <div className="my-6 text-xl text-gray-600">
-            Total Benefits{' '}
+            Entitled Benefits{' '}
             {totalAmount([
               ...(activeMergedPayroll?.breakdown?.merits || []),
               ...(activeMergedPayroll?.breakdown?.variablePay
                 ? [
                     {
-                      type: 'VP', // Adding a type to match Allowances structure
+                      type: 'VP',
                       amount:
                         activeMergedPayroll?.breakdown?.variablePay.amount,
+                    },
+                  ]
+                : []),
+              ...(activeMergedPayroll?.breakdown?.incentives
+                ? [
+                    {
+                      type: 'Incentive',
+                      amount: activeMergedPayroll?.breakdown?.incentives.amount,
                     },
                   ]
                 : []),
@@ -111,7 +119,7 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
         {/* Total Deduction */}
         <div>
           <div className="my-6 text-xl text-gray-600">
-            Total Deduction{' '}
+            Entitled Deduction{' '}
             {totalAmount([
               ...(activeMergedPayroll?.breakdown?.totalDeductionWithPension ||
                 []),

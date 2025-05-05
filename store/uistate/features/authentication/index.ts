@@ -19,6 +19,10 @@ interface StoreState {
   setError: (error: string | null) => void;
   hostname: string | null;
   setHostName: (error: string | null) => void;
+  activeCalendar: string | number | Date | undefined;
+  setActiveCalendar: (
+    activeCalendar: string | number | Date | undefined,
+  ) => void;
 }
 export const useAuthenticationStore = create<StoreState>()(
   devtools(
@@ -49,8 +53,17 @@ export const useAuthenticationStore = create<StoreState>()(
         setLoading: (loading: boolean) => set({ loading }),
         error: null, // Non-persistent state
         setError: (error: string | null) => set({ error }),
+
         hostname: null, // Non-persistent state
         setHostName: (hostname: string | null) => set({ hostname }),
+
+        activeCalendar: '',
+        setActiveCalendar: (
+          activeCalendar: string | number | Date | undefined,
+        ) => {
+          setCookie('activeCalendar', activeCalendar, 30);
+          set({ activeCalendar });
+        },
       }),
       {
         name: 'authentications-storage', // Unique name for the storage
@@ -61,6 +74,7 @@ export const useAuthenticationStore = create<StoreState>()(
           localId: state.localId,
           userId: state.userId,
           userData: state.userData,
+          activeCalendar: state.activeCalendar,
         }),
         // getStorage: () => ({
         //   getItem: async (key: string) => {

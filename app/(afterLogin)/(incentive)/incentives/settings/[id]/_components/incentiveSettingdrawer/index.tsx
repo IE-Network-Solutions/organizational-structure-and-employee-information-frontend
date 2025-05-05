@@ -235,7 +235,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
 
             <div className="my-5">
               <Row gutter={[16, 10]}>
-                <Col xs={24} sm={24} md={13} lg={13} xl={13}>
+                <Col xs={12} sm={12} md={13} lg={13} xl={13}>
                   <div className="flex flex-col gap-1">
                     <span className="font-bold">
                       Criteria<span className="text-red-500">*</span>
@@ -272,7 +272,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
                     </span>
                   </div>
                 </Col>
-                <Col xs={24} sm={24} md={10} lg={10} xl={10}>
+                <Col xs={12} sm={12} md={10} lg={10} xl={10}>
                   <div className="flex flex-col gap-1">
                     <span className="font-bold">
                       Operands<span className="text-red-500">*</span>

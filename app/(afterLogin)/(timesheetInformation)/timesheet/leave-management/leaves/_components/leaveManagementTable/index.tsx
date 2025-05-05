@@ -132,6 +132,10 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       render: (text: string) => <div>{text}</div>,
     },
     {
+      title: 'Requested At',
+      dataIndex: 'createdAt',
+    },
+    {
       title: 'Attachment',
       dataIndex: 'attachment',
       key: 'attachment',
@@ -201,6 +205,10 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           startAt: item.startAt,
           endAt: item.endAt,
           days: item.days,
+          createdAt: item?.createdAt
+          ? dayjs(item?.createdAt)?.format('YYYY-MM-DD')
+          : '-',
+
           leaveType: item.leaveType
             ? typeof item.leaveType === 'string'
               ? ''
