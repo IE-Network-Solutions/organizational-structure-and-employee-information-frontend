@@ -4,6 +4,7 @@ import {
   Form,
   Input,
   InputNumber,
+  Popover,
   Radio,
   Row,
   Select,
@@ -18,7 +19,11 @@ import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import {
+  CheckOutlined,
+  CloseOutlined,
+  InfoCircleOutlined,
+} from '@ant-design/icons';
 import { useCreateLeaveType } from '@/store/server/features/timesheet/leaveType/mutation';
 import { useGetCarryOverRules } from '@/store/server/features/timesheet/carryOverRule/queries';
 import { useGetAccrualRules } from '@/store/server/features/timesheet/accrualRule/queries';
@@ -30,6 +35,8 @@ const TypesAndPoliciesSidebar = () => {
   const {
     isShowTypeAndPoliciesSidebar: isShow,
     setIsShowTypeAndPoliciesSidebar: setIsShow,
+    setIsFixed,
+    isFixed,
   } = useTimesheetSettingsStore();
 
   const { data: carryOverData } = useGetCarryOverRules();
@@ -95,12 +102,15 @@ const TypesAndPoliciesSidebar = () => {
       isPaid: value.plan === 'paid',
       entitledDaysPerYear: value.entitled,
       isDeductible: !!value.isDeductible,
+      isIncremental: !!value.isIncremental,
+      isFixed: !!value.isFixed,
       minimumNotifyingDays: value.min,
       maximumAllowedConsecutiveDays: value.max,
       accrualRule: value.accrualRule,
       carryOverRule: value.carryOverRule,
       description: value.description,
     });
+    setIsFixed(false);
   };
 
   const onFinishFailed = () => {
@@ -177,22 +187,94 @@ const TypesAndPoliciesSidebar = () => {
               />
             </Form.Item>
 
-            <div className="h-[54px] w-full flex items-center gap-2.5 border rounded-[10px] pl-[11px]">
-              <Form.Item
-                id={`TypesAndPoliciesIsDeductableFieldId`}
-                name="isDeductible"
-                className="m-0"
-              >
-                <Switch
-                  checkedChildren={<CheckOutlined />}
-                  unCheckedChildren={<CloseOutlined />}
-                />
-              </Form.Item>
-              <span className="text-sm text-gray-900 font-medium">
-                Is deductible ?
-              </span>
+            <div className="flex justify-between gap-2">
+              <div className="h-[54px] w-full flex items-center gap-1">
+                <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
+                  <Popover
+                    content={
+                      <div className="w-72">
+                        Fixed leaves are granted upfront or as needed without
+                        accumulation, while non-fixed leaves build up over time.
+                      </div>
+                    }
+                  >
+                    <InfoCircleOutlined className="text-gray-500" />
+                  </Popover>
+                  Fixed
+                </span>
+                <Form.Item
+                  id={`TypesAndPoliciesIsDeductableFieldId`}
+                  name="isFixed"
+                  className="m-0"
+                >
+                  <Switch
+                    size="small"
+                    checkedChildren={<CheckOutlined />}
+                    unCheckedChildren={<CloseOutlined />}
+                    onChange={(checked) => {
+                      setIsFixed(checked);
+                    }}
+                  />
+                </Form.Item>
+              </div>
+              <div className="h-[54px] w-full flex items-center gap-1">
+                <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
+                  <Popover
+                    content={
+                      <div className="w-72">
+                        Deductible leaves reduce an employee&apos;s leave
+                        balance when taken (like vacation days), while
+                        non-deductible leaves do not affect the balance.
+                      </div>
+                    }
+                  >
+                    <InfoCircleOutlined className="text-gray-500" />
+                  </Popover>
+                  Deductable
+                </span>
+                <Form.Item
+                  id={`TypesAndPoliciesIsDeductableFieldId`}
+                  name="isDeductible"
+                  className="m-0"
+                >
+                  <Switch
+                    size="small"
+                    checkedChildren={<CheckOutlined />}
+                    unCheckedChildren={<CloseOutlined />}
+                  />
+                </Form.Item>
+              </div>
+              <div className="h-[54px] w-full flex items-center gap-1">
+                <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
+                  <Popover
+                    content={
+                      <div className="w-72">
+                        Annual Leave can be calculated increamentally per year.
+                        for example per <span className="font-bold">2</span>{' '}
+                        years of employement,{' '}
+                        <span className="font-bold">1</span> more day of leave
+                        is added.
+                      </div>
+                    }
+                  >
+                    <InfoCircleOutlined className="text-gray-500" />
+                  </Popover>
+                  Incremental
+                </span>
+                <Form.Item
+                  id={`TypesAndPoliciesIsDeductableFieldId`}
+                  name="isIncremental"
+                  className="m-0"
+                >
+                  <Switch
+                    size="small"
+                    disabled={isFixed}
+                    checkedChildren={<CheckOutlined />}
+                    unCheckedChildren={<CloseOutlined />}
+                  />
+                </Form.Item>
+              </div>
             </div>
-
             <Form.Item
               id={`TypesAndPoliciesMinAllowedDaysFieldId`}
               label="Minimum notifying period(days)"
@@ -220,10 +302,16 @@ const TypesAndPoliciesSidebar = () => {
             <Form.Item
               label="Accrual Rule"
               id={`TypesAndPoliciesActualRuleFieldId`}
-              rules={[{ required: true, message: 'Required' }]}
+              rules={[
+                {
+                  required: !isFixed,
+                  message: 'Required',
+                },
+              ]}
               name="accrualRule"
             >
               <Select
+                disabled={!!isFixed}
                 className={controlClass}
                 suffixIcon={
                   <MdKeyboardArrowDown size={16} className="text-gray-900" />
@@ -234,10 +322,16 @@ const TypesAndPoliciesSidebar = () => {
             <Form.Item
               label="Carry-Over Rule"
               id={`TypesAndPoliciesRuleCarryOverFieldldId`}
-              rules={[{ required: true, message: 'Required' }]}
+              rules={[
+                {
+                  required: !isFixed,
+                  message: 'Required',
+                },
+              ]}
               name="carryOverRule"
             >
               <Select
+                disabled={!!isFixed}
                 className={controlClass}
                 options={carryOverRuleOptions()}
                 suffixIcon={
