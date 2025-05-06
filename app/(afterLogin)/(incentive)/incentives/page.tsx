@@ -14,7 +14,6 @@ import { Eye, FileDown, FileUp } from 'lucide-react';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
-
 const Page = () => {
   const {
     activeKey,
@@ -41,7 +40,6 @@ const Page = () => {
     useSendIncentiveToPayroll();
 
   const { isMobile, isTablet } = useIsMobile();
-
 
   useEffect(() => {
     setParentResponseIsLoading(parentResponseLoading);
@@ -101,14 +99,13 @@ const Page = () => {
     if (activeKey === '1') {
       return (
         <div className="flex items-center justify-center gap-3">
-         
-            <Button
-              onClick={() => handleSendToPayrollClick()}
-              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-            >
-              {'Send to Payroll'}
-            </Button>
-      
+          <Button
+            onClick={() => handleSendToPayrollClick()}
+            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
+          >
+            {'Send to Payroll'}
+          </Button>
+
           {isPayrollView ? (
             <CustomButton
               title={
@@ -157,15 +154,13 @@ const Page = () => {
       // Show Import & Generate for all other tabs
       return (
         <div className="flex items-center justify-center gap-3">
-         
-            <Button
-              onClick={() => handleSendToPayrollClick()}
-              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-            >
-              {'Send to Payroll'}
-            </Button>
-         
-       
+          <Button
+            onClick={() => handleSendToPayrollClick()}
+            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
+          >
+            {'Send to Payroll'}
+          </Button>
+
           <CustomButton
             title={
               !(isMobile || isTablet) && (
@@ -194,9 +189,14 @@ const Page = () => {
         </div>
       );
     }
-
-  }, [activeKey, isPayrollView, setProjectDrawer, setIsPayrollView,selectedRowKeys, isMobile]);
-
+  }, [
+    activeKey,
+    isPayrollView,
+    setProjectDrawer,
+    setIsPayrollView,
+    selectedRowKeys,
+    isMobile,
+  ]);
 
   const handleTabChange = (key: string) => {
     setActiveKey(key);
@@ -249,7 +249,6 @@ const Page = () => {
         loading={isLoading}
         description={'You want to send to payroll'}
       />
-    
     </div>
   );
 };

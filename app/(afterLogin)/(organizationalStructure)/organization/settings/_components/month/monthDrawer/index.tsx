@@ -67,7 +67,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
 
   const groupedMonths = classifyMonths(startMonth, endMonth, calendarType);
 
-  const generateMonthName = (section: number, index: number) => {
+  const generateMonthName = (section: number, index: number): string => {
     if (calendarType === 'Quarter') {
       return `Month ${index + 1} (Q${section})`;
     } else if (calendarType === 'Semester') {
@@ -201,7 +201,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                       <Input
                         size="large"
                         className="w-full text-sm"
-                        placeholder={`Enter name for ${generateMonthName(Number(section), index).split(' (')[0]}`}
+                        placeholder={`Enter name for ${generateMonthName(Number(section), index).split(' (')[0]} || 'Month'}`}
                       />
                     </Form.Item>
 
@@ -248,7 +248,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                       label={<span className="font-medium">Description</span>}
                     >
                       <TextArea
-                        placeholder={`Enter description for ${generateMonthName(Number(section), index).split(' (')[0]}`}
+                        placeholder={`Enter description for ${generateMonthName(Number(section), index).split(' (')[0]} || 'Month'`}
                         className={'h-32 font-normal text-sm mt-2'}
                         size="large"
                       />
