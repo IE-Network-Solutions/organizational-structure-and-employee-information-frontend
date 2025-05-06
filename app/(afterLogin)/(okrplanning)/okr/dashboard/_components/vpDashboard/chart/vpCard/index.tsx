@@ -22,7 +22,7 @@ const VPPayCard: React.FC<PayCardInterface> = ({ id }) => {
     isLoading: isUpdatedLoading,
     refetch,
     isRefetching,
-  } = useGetVpScoreCalculate(userId, false);
+  } = useGetVpScoreCalculate(identifier, false);
 
   const achievedPercentage =
     (parseInt(vpScore?.score, 10) / vpScore?.maxScore) * 100;
@@ -30,7 +30,7 @@ const VPPayCard: React.FC<PayCardInterface> = ({ id }) => {
   return (
     <Card size="default" bordered={false} className="border-none shadow-none">
       {isResponseLoading ? (
-        <Skeleton active />
+        <Skeleton active paragraph={{ rows: 0 }} />
       ) : (
         <>
           <div className="">

@@ -22,7 +22,7 @@ function Page({ params: { dataId } }: IncentiveTableDetailsProps) {
   };
 
   return (
-    <div className="my-[72px] mx-10">
+    <div className="my-[72px] mx-4 sm:mx-10">
       <div
         onClick={handleGoBack}
         className="flex items-center justify-start space-x-2 mb-4 text-gray-800 "
@@ -31,10 +31,10 @@ function Page({ params: { dataId } }: IncentiveTableDetailsProps) {
         <span className="text-2xl font-bold">Detail</span>
       </div>
       <Row gutter={[10, 10]} justify="space-between">
-        <Col xs={24} sm={24} md={5} lg={5} xl={5}>
+        <Col xs={24} sm={24} md={24} lg={24} xl={5}>
           <IncentiveUserInfo detailId={dataId} />
         </Col>
-        <Col xs={24} sm={24} md={17} lg={17} xl={17}>
+        <Col xs={24} sm={24} md={24} lg={24} xl={17}>
           <IncentiveDetail detailId={dataId} />
         </Col>
       </Row>

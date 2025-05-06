@@ -7,8 +7,8 @@ import { AttendanceNotificationType } from '@/types/timesheet/attendance';
 
 const getAttendanceNotificationTypes = async () => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-type`,
-    method: 'PUT',
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-type/type`,
+    method: 'GET',
     headers: requestHeader(),
   });
 };
