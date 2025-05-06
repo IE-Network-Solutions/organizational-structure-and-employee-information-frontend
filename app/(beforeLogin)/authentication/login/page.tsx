@@ -22,9 +22,7 @@ type FieldType = {
 
 const Login: FC = () => {
   const { loading } = useAuthenticationStore();
-
   const { handleSignIn } = useHandleSignIn();
-
   const handleEmailPasswordSignIn: FormProps<FieldType>['onFinish'] = async (
     values,
   ) => {
@@ -40,7 +38,6 @@ const Login: FC = () => {
   const handleMicrosoftSignIn = async () => {
     await handleSignIn(() => signInWithPopup(auth, microsoftProvider));
   };
-
   return (
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"

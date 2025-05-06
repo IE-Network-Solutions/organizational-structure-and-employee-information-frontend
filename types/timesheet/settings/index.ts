@@ -136,6 +136,8 @@ export interface LeaveType extends DateInfo {
   minimumNotifyingDays: number;
   entitledDaysPerYear: number;
   isDeductible: boolean;
+  isFixed: boolean;
+  isIncremental: boolean;
   isActive: boolean;
 }
 

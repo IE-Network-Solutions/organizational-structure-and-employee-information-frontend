@@ -17,6 +17,8 @@ interface StoreState {
   setLoading: (loading: boolean) => void;
   error: string | null;
   setError: (error: string | null) => void;
+  hostname: string | null;
+  setHostName: (error: string | null) => void;
   activeCalendar: string | number | Date | undefined;
   setActiveCalendar: (
     activeCalendar: string | number | Date | undefined,
@@ -51,6 +53,9 @@ export const useAuthenticationStore = create<StoreState>()(
         setLoading: (loading: boolean) => set({ loading }),
         error: null, // Non-persistent state
         setError: (error: string | null) => set({ error }),
+
+        hostname: null, // Non-persistent state
+        setHostName: (hostname: string | null) => set({ hostname }),
 
         activeCalendar: '',
         setActiveCalendar: (

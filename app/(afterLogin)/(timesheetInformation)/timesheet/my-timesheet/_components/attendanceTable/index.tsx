@@ -20,7 +20,6 @@ import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesh
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
-
 // Utils
 import usePagination from '@/utils/usePagination';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
@@ -34,6 +33,7 @@ import {
 const AttendanceTable = () => {
   // Store hooks
   const { userId } = useAuthenticationStore();
+
   const {
     setIsShowViewSidebar,
     setViewAttendanceId,
@@ -223,6 +223,7 @@ const AttendanceTable = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-0.5">
           <div className="text-2xl font-bold text-gray-900">My Attendance</div>
+
           <Button
             type="text"
             size="small"

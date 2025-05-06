@@ -89,7 +89,10 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
             />
           </div>
 
-          <div className="action-buttons mt-2  gap-2">
+          <div
+            className="action-buttons mt-2  gap-2"
+            onClick={(e) => e.stopPropagation()}
+          >
             <AccessGuard
               permissions={[Permissions.UpdateCourse, Permissions.DeleteCourse]}
             >

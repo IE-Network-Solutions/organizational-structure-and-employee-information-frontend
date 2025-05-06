@@ -42,6 +42,7 @@ import { PiExportLight } from 'react-icons/pi';
 import { LuSettings2 } from 'react-icons/lu';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { TbFileExport } from 'react-icons/tb';
+import GeneratePayrollModal, { Incentive } from './_components/modal';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,6 +56,8 @@ const Payroll = () => {
     setSearchQuery,
     isFilterModalOpen,
     setIsFilterModalOpen,
+    isPayrollModalOpen,
+    setIsPayrollModalOpen,
   } = useEmployeeStore();
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
   const [payPeriodId, setPayPeriodId] = useState('');
@@ -164,7 +167,7 @@ const Payroll = () => {
     refetch();
   };
 
-  const handleGeneratePayroll = async () => {
+  const handleGeneratePayroll = async (data: Incentive) => {
     if (!allActiveSalary || allActiveSalary.length === 0) {
       notification.error({
         message: 'No Active Salaries',
@@ -173,15 +176,27 @@ const Payroll = () => {
       });
       return;
     }
+
     setLoading(true);
+
     try {
       const payRollData = {
         payrollItems: allActiveSalary.map((item: any) => ({
           ...item,
           basicSalary: parseInt(item.basicSalary, 10),
         })),
+        includeIncentive: data.includeIncentive,
       };
-      createPayroll({ values: payRollData });
+
+      createPayroll(
+        { values: payRollData },
+        {
+          onSuccess: () => {
+            setIsPayrollModalOpen(false);
+          },
+        },
+      );
+      setIsPayrollModalOpen(false);
     } catch (error) {
       notification.error({
         message: 'Error Generating Payroll',
@@ -619,6 +634,14 @@ const Payroll = () => {
       render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
+      title: 'Total Incentive',
+      dataIndex: 'incentives',
+      key: 'incentives',
+      minWidth: 150,
+      render: (notused: any, record: any) =>
+        Number(record.breakdown?.incentives?.amount)?.toLocaleString(),
+    },
+    {
       title: 'Variable Pay',
       dataIndex: 'variablePay',
       key: 'variablePay',
@@ -793,9 +816,7 @@ const Payroll = () => {
                 <Button
                   type="primary"
                   className={`p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
-                  onClick={() => {
-                    handleGeneratePayroll();
-                  }}
+                  onClick={() => setIsPayrollModalOpen(true)}
                   loading={isCreatingPayroll || loading || deleteLoading}
                 >
                   {isMobile ? (
@@ -806,6 +827,13 @@ const Payroll = () => {
                     'Generate'
                   )}
                 </Button>
+
+                {isPayrollModalOpen && (
+                  <GeneratePayrollModal
+                    onGenerate={handleGeneratePayroll}
+                    onClose={() => setIsPayrollModalOpen(false)}
+                  />
+                )}
               </Tooltip>
             </AccessGuard>
           </Popconfirm>
