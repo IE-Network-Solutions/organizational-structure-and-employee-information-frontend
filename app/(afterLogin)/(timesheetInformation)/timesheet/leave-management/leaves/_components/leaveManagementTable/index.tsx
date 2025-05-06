@@ -206,8 +206,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           endAt: item.endAt,
           days: item.days,
           createdAt: item?.createdAt
-          ? dayjs(item?.createdAt)?.format('YYYY-MM-DD')
-          : '-',
+            ? dayjs(item?.createdAt)?.format('YYYY-MM-DD')
+            : '-',
 
           leaveType: item.leaveType
             ? typeof item.leaveType === 'string'

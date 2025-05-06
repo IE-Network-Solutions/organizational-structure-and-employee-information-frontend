@@ -1,6 +1,6 @@
 'use client';
 import { useParentRecognition } from '@/store/server/features/incentive/other/queries';
-import { Button, Skeleton, Tabs } from 'antd';
+import { Skeleton, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import PayRoleView from './payroll-detail';
 import { useEffect, useMemo } from 'react';
@@ -13,7 +13,7 @@ import { useSendIncentiveToPayroll } from '@/store/server/features/incentive/all
 import { Eye, FileDown, FileUp } from 'lucide-react';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
-
+import { IoMdSend } from 'react-icons/io';
 
 const Page = () => {
   const {
@@ -41,7 +41,6 @@ const Page = () => {
     useSendIncentiveToPayroll();
 
   const { isMobile, isTablet } = useIsMobile();
-
 
   useEffect(() => {
     setParentResponseIsLoading(parentResponseLoading);
@@ -101,14 +100,19 @@ const Page = () => {
     if (activeKey === '1') {
       return (
         <div className="flex items-center justify-center gap-3">
-         
-            <Button
-              onClick={() => handleSendToPayrollClick()}
-              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-            >
-              {'Send to Payroll'}
-            </Button>
-      
+          <CustomButton
+            title={
+              !(isMobile || isTablet) && (
+                <span className="hidden sm:inline">Send to Payroll</span>
+              )
+            }
+            id="createUserButton"
+            icon={<IoMdSend className="md:mr-0 ml-2" size={18} />}
+            onClick={() => handleSendToPayrollClick()}
+            textClassName="!text-sm !font-lg"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
+          />
+
           {isPayrollView ? (
             <CustomButton
               title={
@@ -119,8 +123,8 @@ const Page = () => {
               id="createUserButton"
               icon={<FileDown className="md:mr-0 ml-2" size={18} />}
               onClick={() => setShowGenerateModal(!showGenerateModal)}
-              textClassName="!text-sm !font-medium"
-              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+              textClassName="!text-sm !font-lg"
+              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
             />
           ) : (
             <CustomButton
@@ -132,8 +136,8 @@ const Page = () => {
               id="createUserButton"
               icon={<FileDown className="md:mr-0 ml-2" size={18} />}
               onClick={() => handleExportClick()}
-              textClassName="!text-sm !font-medium"
-              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+              textClassName="!text-sm !font-lg"
+              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
             />
           )}
 
@@ -148,8 +152,8 @@ const Page = () => {
             id="createUserButton"
             icon={<Eye className="md:mr-0 ml-2" size={18} />}
             onClick={() => setIsPayrollView(!isPayrollView)}
-            textClassName="!text-sm !font-medium"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+            textClassName="!text-sm !font-lg"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
           />
         </div>
       );
@@ -157,15 +161,19 @@ const Page = () => {
       // Show Import & Generate for all other tabs
       return (
         <div className="flex items-center justify-center gap-3">
-         
-            <Button
-              onClick={() => handleSendToPayrollClick()}
-              className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-            >
-              {'Send to Payroll'}
-            </Button>
-         
-       
+          <CustomButton
+            title={
+              !(isMobile || isTablet) && (
+                <span className="hidden sm:inline">Send to Payroll</span>
+              )
+            }
+            id="createUserButton"
+            icon={<IoMdSend className="md:mr-0 ml-2" size={18} />}
+            onClick={() => handleSendToPayrollClick()}
+            textClassName="!text-sm !font-lg"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
+          />
+
           <CustomButton
             title={
               !(isMobile || isTablet) && (
@@ -175,8 +183,8 @@ const Page = () => {
             id="createUserButton"
             icon={<FileUp className="md:mr-0 ml-2" size={18} />}
             onClick={() => handleExportClick()}
-            textClassName="!text-sm !font-medium"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+            textClassName="!text-sm !font-lg"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
           />
 
           <CustomButton
@@ -188,15 +196,20 @@ const Page = () => {
             id="createUserButton"
             icon={<FileDown className="md:mr-0 ml-2" size={18} />}
             onClick={() => setProjectDrawer(true)}
-            textClassName="!text-sm !font-medium"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+            textClassName="!text-sm !font-lg"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
           />
         </div>
       );
     }
-
-  }, [activeKey, isPayrollView, setProjectDrawer, setIsPayrollView,selectedRowKeys, isMobile]);
-
+  }, [
+    activeKey,
+    isPayrollView,
+    setProjectDrawer,
+    setIsPayrollView,
+    selectedRowKeys,
+    isMobile,
+  ]);
 
   const handleTabChange = (key: string) => {
     setActiveKey(key);
@@ -249,7 +262,6 @@ const Page = () => {
         loading={isLoading}
         description={'You want to send to payroll'}
       />
-    
     </div>
   );
 };
