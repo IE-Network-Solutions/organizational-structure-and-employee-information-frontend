@@ -10,7 +10,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useParams } from 'next/navigation';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
-import DownloadSettlement from './_components/Download';
+// import DownloadSettlement from './_components/Download';
 
 const { Text } = Typography;
 
@@ -213,9 +213,9 @@ const SettlementDetail = () => {
       }
     >
       <Card className={isMobile ? 'p-0' : 'max-w-5xl mx-auto'}>
-        <div className="pb-4">
+        {/* <div className="pb-4">
           <DownloadSettlement />
-        </div>
+        </div> */}
         {Object.entries(groupedByCompensation).map(([compensationId, items]) =>
           renderCompensationCard(compensationId, items as any[]),
         )}
