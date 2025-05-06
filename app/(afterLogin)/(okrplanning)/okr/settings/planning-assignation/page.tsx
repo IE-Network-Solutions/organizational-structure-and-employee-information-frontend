@@ -1,5 +1,5 @@
 'use client';
-import { Table, Button, Popconfirm, Form, Select, Spin } from 'antd';
+import { Table, Button, Popconfirm, Form, Select, Spin, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
 import PlanningAssignationDrawer from './_components/planning-assignation-drawer';
@@ -21,6 +21,8 @@ import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSett
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { FaPlus } from 'react-icons/fa';
+import Image from 'next/image';
+import Avatar from '@/public/gender_neutral_avatar.jpg';
 
 // Define columns with correct type
 
@@ -42,6 +44,7 @@ const PlanAssignment: React.FC = () => {
   const { data: getAllPlanningPeriod } = useGetAllPlanningPeriods();
   const { data: employeeData, isLoading: employeeDataLoading } =
     useGetAllUsers();
+
   const userToPlanning = allUserWithPlanningPeriod?.items.reduce(
     (acc: GroupedUser[], item: PlanningPeriodUser) => {
       let group = acc.find((group) => group.userId === item.userId);
@@ -119,7 +122,39 @@ const PlanAssignment: React.FC = () => {
 
     return {
       id: index + 1,
-      name: getEmployeeData(item?.userId),
+      // name: getEmployeeData(item?.userId),
+      name: (
+        <Tooltip title={getEmployeeData(item?.userId)}>
+          <div className="flex items-center flex-wrap sm:flex-row justify-start gap-2">
+            <div className="relative w-6 h-6 rounded-full overflow-hidden">
+              <Image
+                src={
+                  item?.profileImage && typeof item?.profileImage === 'string'
+                    ? (() => {
+                        try {
+                          const parsed = JSON.parse(item.profileImage);
+                          return parsed.url && parsed.url.startsWith('http')
+                            ? parsed.url
+                            : Avatar;
+                        } catch {
+                          return item.profileImage.startsWith('http')
+                            ? item.profileImage
+                            : Avatar;
+                        }
+                      })()
+                    : Avatar
+                }
+                alt="Description of image"
+                layout="fill"
+                className="object-cover"
+              />
+            </div>
+            <div className="flex flex-wrap flex-col justify-center">
+              <p>{getEmployeeData(item?.userId)}</p>
+            </div>
+          </div>
+        </Tooltip>
+      ),
       plans: item?.items
         ?.map((plan: any) => getPlanningPeriod(plan.planningPeriodId))
         .join(', '),
@@ -162,10 +197,10 @@ const PlanAssignment: React.FC = () => {
       key: 'actions',
       // eslint-disable-next-line
       render: (_: any, record: any) => (
-        <div>
+        <div className="flex items-center space-x-1">
           <AccessGuard permissions={[Permissions.UpdateAssignedPlanningPeriod]}>
             <button
-              className="bg-green-700 font-bold text-white rounded px-2 py-1 text-xs"
+              className="bg-[#2F78EE] font-bold text-white rounded px-2 py-1 text-xs"
               onClick={() => record.actions.edit()}
               style={{ marginRight: 8 }}
             >
@@ -189,14 +224,14 @@ const PlanAssignment: React.FC = () => {
     },
   ];
   return (
-    <div className="p-10 rounded-2xl shadow-md bg-white h-full">
+    <div className="p-5 rounded-2xl shadow-md bg-white h-full">
       <div className="flex justify-between mb-4">
         <h2 className="text-lg font-semibold">Plan Assignation</h2>
         <AccessGuard permissions={[Permissions.AssignPlanningPeriod]}>
           <Button
             icon={<FaPlus />}
             onClick={showDrawer}
-            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
+            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 h-10"
             type="primary"
           >
             <span className="hidden lg:block">Assign</span>

@@ -52,13 +52,13 @@ const DefineOkrRule = () => {
   }
   const { data: OkrRules, isLoading } = useGetOkrRule();
   return (
-    <div className="p-10 rounded-2xl bg-white h-full">
+    <div className="p-5 rounded-2xl bg-white h-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">OKR Rule</h2>
         <AccessGuard permissions={[Permissions.CreateOkrRule]}>
           <Button
             type="primary"
-            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
+            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 h-10"
             icon={<FaPlus className="text-xs" />}
             onClick={showDrawer}
           >
@@ -72,25 +72,38 @@ const DefineOkrRule = () => {
         loading={isLoading}
         bordered={false}
         renderItem={(item) => (
-          <List.Item className="flex justify-between items-center py-4 px-4 rounded-xl my-3 border border-gray-300 ">
-            <span className="">{item?.title || 'Unknown title'}</span>
-            <div>
-              <AccessGuard permissions={[Permissions.UpdateOkrRule]}>
-                <Button
-                  icon={<EditOutlined />}
-                  className="mr-2 bg-blue text-white border-none"
-                  shape="circle"
-                  onClick={() => handleEditModal(item)}
-                />
-              </AccessGuard>
-              <AccessGuard permissions={[Permissions.DeleteOkrRule]}>
-                <Button
-                  icon={<DeleteOutlined />}
-                  className="mr-2 bg-red-500 text-white border-none"
-                  shape="circle"
-                  onClick={() => showDeleteModal(item?.id as string)}
-                />
-              </AccessGuard>
+          <List.Item
+            className="flex justify-between items-center py-3 px-4 rounded-xl my-3"
+            style={{
+              border: '1px solid #d1d5db',
+              borderRadius: '0.75rem',
+              margin: '0.75rem 0',
+              padding: '1rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div className="w-full flex flex-row items-center justify-between gap-4 ">
+              <span>{item?.title || 'Unknown title'}</span>
+              <div className="flex items-center gap-2">
+                <AccessGuard permissions={[Permissions.UpdateOkrRule]}>
+                  <Button
+                    icon={<EditOutlined />}
+                    className="mr-2 bg-blue text-white border-none"
+                    shape="circle"
+                    onClick={() => handleEditModal(item)}
+                  />
+                </AccessGuard>
+                <AccessGuard permissions={[Permissions.DeleteOkrRule]}>
+                  <Button
+                    icon={<DeleteOutlined />}
+                    className="mr-2 bg-red-500 text-white border-none"
+                    shape="circle"
+                    onClick={() => showDeleteModal(item?.id as string)}
+                  />
+                </AccessGuard>
+              </div>
             </div>
           </List.Item>
         )}
