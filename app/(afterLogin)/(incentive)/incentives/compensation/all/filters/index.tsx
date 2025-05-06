@@ -53,7 +53,7 @@ const IncentiveFilter: React.FC = () => {
     value: string,
     keyValue: keyof typeof searchParams,
   ) => {
-    const trimmedValue = value.trim();
+    const trimmedValue = value?.trim();
     onSearchChange(trimmedValue, keyValue);
   };
 
