@@ -1,27 +1,34 @@
 import { GlobalStateStore } from '@/store/uistate/features/global';
 import { useEffect } from 'react';
 
-export const useIsMobile = (): Record<string, boolean> => {
+interface DeviceSizes {
+  isMobile: boolean;
+  isTablet: boolean;
+}
+
+export const useIsMobile = (): DeviceSizes => {
   const { setIsMobile, isMobile, setIsTablet, isTablet } = GlobalStateStore();
+
   useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+    if (typeof window === 'undefined') return;
+
+    const updateDeviceSizes = () => {
+      const width = window.innerWidth;
+      setIsMobile(width <= 768);
+      setIsTablet(width <= 1024);
     };
 
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
+    // Initial check
+    updateDeviceSizes();
 
-    const checkIsTablet = () => {
-      setIsTablet(window.innerWidth <= 1024);
-    };
+    // Add event listener
+    window.addEventListener('resize', updateDeviceSizes);
 
-    checkIsTablet();
-    window.addEventListener('resize', checkIsTablet);
+    // Cleanup
     return () => {
-      window.removeEventListener('resize', checkIsMobile);
-      window.removeEventListener('resize', checkIsTablet);
+      window.removeEventListener('resize', updateDeviceSizes);
     };
-  }, []);
+  }, []); // Empty dependency array since we only want to set up the effect once
 
   return { isMobile, isTablet };
 };
