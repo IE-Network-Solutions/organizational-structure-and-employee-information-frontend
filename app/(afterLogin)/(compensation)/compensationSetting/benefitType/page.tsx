@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -13,13 +12,15 @@ const BenefitTypePage = () => {
   const { setIsBenefitOpen } = useCompensationSettingStore();
 
   return (
-    <>
-      <PageHeader title="Benefit Types" size="small">
+    <div className="p-5 rounded-2xl bg-white ">
+      <div className="flex justify-between mb-4">
+        <h1 className="text-lg font-bold">Benefit Types</h1>
         <AccessGuard permissions={[Permissions.CreateBenefitType]}>
           <Button
             type="primary"
             id="createNewClosedHolidayFieldId"
             icon={<FaPlus />}
+            className="h-10"
             onClick={() => {
               setIsBenefitOpen(true);
             }}
@@ -27,12 +28,12 @@ const BenefitTypePage = () => {
             <span className="hidden lg:inline"> New Benefit Type</span>
           </Button>
         </AccessGuard>
-      </PageHeader>
+      </div>
       <div className="flex overflow-x-auto scrollbar-none w-full ">
         <BenefitTypeTable />
       </div>
       <BenefitypeSideBar />
-    </>
+    </div>
   );
 };
 

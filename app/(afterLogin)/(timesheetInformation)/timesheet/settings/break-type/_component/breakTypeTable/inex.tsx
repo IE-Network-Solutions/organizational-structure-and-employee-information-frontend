@@ -55,7 +55,7 @@ const BreakTypeTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (rule: any, record: any) => (
-        <>
+        <div className="flex items-center space-x-2">
           <AccessGuard permissions={[Permissions.UpdateBreakType]}>
             <ActionButtons
               id={record?.id ?? null}
@@ -68,7 +68,7 @@ const BreakTypeTable = () => {
               onDelete={() => handleDelete(record)}
             />
           </AccessGuard>
-        </>
+        </div>
       ),
     },
   ];

@@ -13,6 +13,7 @@ import { useSendIncentiveToPayroll } from '@/store/server/features/incentive/all
 import { Eye, FileDown, FileUp } from 'lucide-react';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useExportIncentiveData } from '@/store/server/features/incentive/all/mutation';
 import { IoMdSend } from 'react-icons/io';
 
 const Page = () => {
@@ -27,13 +28,24 @@ const Page = () => {
     setSelectedRecognition,
     selectedRecognition,
     setParentResponseIsLoading,
-    setIsOpen,
     selectedRowKeys,
     setSelectedRowKeys,
     confirmationModal,
     setConfirmationModal,
   } = useIncentiveStore();
+  const { mutate: exportIncentiveData } = useExportIncentiveData();
 
+  const { searchParams } = useIncentiveStore();
+  const handleExport = (values: any, generateAll: boolean) => {
+    const formattedValues = {
+      parentRecognitionTypeId: selectedRecognition?.id || '',
+      generateAll: generateAll,
+      sessionId: values?.bySession || [],
+      userId: values?.employee_name || '',
+      monthId: values?.byMonth || '',
+    };
+    exportIncentiveData(formattedValues);
+  };
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
 
@@ -46,9 +58,6 @@ const Page = () => {
     setParentResponseIsLoading(parentResponseLoading);
   }, [parentResponseLoading]);
 
-  const handleExportClick = () => {
-    setIsOpen(true);
-  };
   const handleSendToPayrollClick = () => {
     setConfirmationModal(true);
   };
