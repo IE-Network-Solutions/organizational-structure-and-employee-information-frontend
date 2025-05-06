@@ -59,14 +59,16 @@ const EmployeeAttendance = () => {
       const url = TIME_AND_ATTENDANCE_URL?.replace('/api/v1', '');
 
       const fileUrl = `${url}${filePath}`;
+      // Open the file in a new window
+      window.open(fileUrl, '_blank');
 
       // Create a temporary link to trigger the download
-      const link = document.createElement('a');
-      link.href = fileUrl;
-      link.download = `attendance_${new Date().toISOString().split('T')[0]}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // const link = document.createElement('a');
+      // link.href = fileUrl;
+      // link.download = `attendance_${new Date().toISOString().split('T')[0]}`;
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
 
 
       setIsExportLoading(false);
