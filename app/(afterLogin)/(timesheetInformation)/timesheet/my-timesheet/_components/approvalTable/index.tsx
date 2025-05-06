@@ -96,7 +96,9 @@ const ApprovalTable = () => {
   const allFilterData = data?.items?.map((item: any, index: number) => {
     return {
       key: index,
-      createdAt: item?.createdAt ? dayjs(item?.createdAt).format('YYYY-MM-DD') : '-',
+      createdAt: item?.createdAt
+        ? dayjs(item?.createdAt).format('YYYY-MM-DD')
+        : '-',
       userId: item?.userId,
       startAt: item?.startAt,
       endAt: item?.endAt,

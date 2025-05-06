@@ -32,4 +32,3 @@ export const useIsMobile = (): DeviceSizes => {
 
   return { isMobile, isTablet };
 };
-
