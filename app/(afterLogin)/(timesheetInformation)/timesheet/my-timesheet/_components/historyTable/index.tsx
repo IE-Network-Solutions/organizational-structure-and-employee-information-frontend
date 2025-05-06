@@ -83,6 +83,10 @@ const HistoryTable = () => {
           startAt: item.startAt,
           endAt: item.endAt,
           days: item.days,
+          createdAt: item?.createdAt
+            ? dayjs(item?.createdAt).format('YYYY-MM-DD')
+            : '-',
+
           leaveType: item.leaveType
             ? typeof item.leaveType === 'string'
               ? ''
@@ -137,6 +141,10 @@ const HistoryTable = () => {
       render: (text: string) => (
         <div className="text-sm text-gray-900 py-4">{text}</div>
       ),
+    },
+    {
+      title: 'Requested At',
+      dataIndex: 'createdAt',
     },
     {
       title: 'Attachment',

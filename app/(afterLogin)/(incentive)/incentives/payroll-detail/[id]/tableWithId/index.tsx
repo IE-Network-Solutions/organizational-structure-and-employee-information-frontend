@@ -57,8 +57,15 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
 }) => {
   const router = useRouter();
 
-  const { searchParams, currentPage, pageSize, setCurrentPage, setPageSize } =
-    useIncentiveStore();
+  const {
+    searchParams,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    selectedRowKeys,
+    setSelectedRowKeys,
+  } = useIncentiveStore();
 
   const recognitionsTypeId = id;
 
@@ -85,6 +92,12 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
   const getEmployeeInformation = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user;
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (selectedRowKeys: any) => {
+      setSelectedRowKeys(selectedRowKeys);
+    },
   };
 
   const IncentiveByRecognitionTypeTableData =
@@ -138,6 +151,8 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
   return (
     <div>
       <Table
+        rowSelection={{ type: 'checkbox', ...rowSelection }}
+        rowKey="id"
         className="w-full cursor-pointer"
         columns={columns}
         dataSource={IncentiveByRecognitionTypeTableData}

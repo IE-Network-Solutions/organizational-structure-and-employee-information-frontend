@@ -48,6 +48,32 @@ const exportData = async (data: any) => {
   }
 };
 
+const sendIncentiveToPayroll = async (data: string[]) => {
+  return await crudRequest({
+    method: 'POST',
+    url: `${INCENTIVE_URL}/incentives/send-to-payroll/incentive/data`,
+    headers: requestHeader(),
+    data: { incentiveId: data },
+  });
+};
+
+export const useSendIncentiveToPayroll = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ data }: { data: string[] }) => sendIncentiveToPayroll(data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('sendToPayroll');
+        NotificationMessage.success({
+          message: 'Incentive sent to payroll successfully!',
+          description: 'Incentive data has been successfully sent to payroll',
+        });
+      },
+    },
+  );
+};
+
 export const useExportIncentiveData = () => {
   const queryClient = useQueryClient();
   return useMutation(exportData, {
