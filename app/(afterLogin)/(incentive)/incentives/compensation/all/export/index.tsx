@@ -1,5 +1,5 @@
 import { Modal, Checkbox, Button, Form, Select } from 'antd';
-import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
+import { IncentiveExportFilter, useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { useExportIncentiveData } from '@/store/server/features/incentive/all/mutation';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import React from 'react';
@@ -38,7 +38,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ selectedRecognition }) => {
     form.setFieldsValue({ sessionId: [] });
   };
 
-  const handleExport = (values: any) => {
+  const handleExport = (values: IncentiveExportFilter) => {
     const formattedValues = {
       ...values,
       parentRecognitionTypeId: selectedRecognition || '',

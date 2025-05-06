@@ -47,14 +47,6 @@ const exportData = async (data: any) => {
     throw error;
   }
 };
-// const exportData = async (data: any) => {
-//   return await crudRequest({
-//     url: `${INCENTIVE_URL}/incentives/export/incentive-data/selam`,
-//     method: 'POST',
-//     headers: requestHeader(),
-//     data,
-//   });
-// };
 
 export const useExportIncentiveData = () => {
   const queryClient = useQueryClient();

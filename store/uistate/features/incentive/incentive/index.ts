@@ -160,6 +160,16 @@ export type CertificateDetails = {
   details: string;
   title: string;
 };
+export type IncentiveExportFilter = {
+
+  parentRecognitionTypeId?: string;
+
+  sessionId: string[];
+  generateAll: boolean;
+  userId?: string;
+
+  monthId?: string;
+};
 
 export interface Criteria {
   id: string;
