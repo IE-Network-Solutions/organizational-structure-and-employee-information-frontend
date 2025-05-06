@@ -56,8 +56,9 @@ const EmployeeAttendance = () => {
     if (data && data.file) {
       const filePath = data.file.startsWith('/') ? data.file : `/${data.file}`;
 
-      const url = new URL(TIME_AND_ATTENDANCE_URL!);
-      const fileUrl = `${url.origin}${filePath}`;
+      const url = TIME_AND_ATTENDANCE_URL?.replace('/api/v1', '');
+
+      const fileUrl = `${url}${filePath}`;
 
       // Create a temporary link to trigger the download
       const link = document.createElement('a');
@@ -67,12 +68,6 @@ const EmployeeAttendance = () => {
       link.click();
       document.body.removeChild(link);
 
-      // Clean up the file after download
-      setTimeout(() => {
-        fetch(fileUrl, { method: 'DELETE' }).catch(() => {
-          // Ignore cleanup errors
-        });
-      }, 1000);
 
       setIsExportLoading(false);
       setExportType(null);
@@ -266,7 +261,7 @@ const EmployeeAttendance = () => {
                   content={
                     <div className="pt-4">
                       <Row gutter={20}>
-                        <Col span={12}>
+                        <Col span={24}>
                           <Button
                             size="small"
                             className="w-full"
