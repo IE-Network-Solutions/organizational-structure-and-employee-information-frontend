@@ -234,8 +234,11 @@ const TypesAndPoliciesEdit = () => {
                       unCheckedChildren={<CloseOutlined />}
                       onChange={(checked) => {
                         setIsFixed(checked);
-                        form.setFieldValue('accrualRule', null);
-                        form.setFieldValue('carryOverRule', null);
+                        form.setFieldsValue({
+                          accrualRule: undefined,
+                          carryOverRule: undefined,
+                          isIncremental: false,
+                        });
                       }}
                     />
                   </Form.Item>
