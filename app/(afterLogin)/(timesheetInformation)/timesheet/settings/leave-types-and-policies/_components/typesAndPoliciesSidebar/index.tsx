@@ -29,6 +29,7 @@ import { useGetCarryOverRules } from '@/store/server/features/timesheet/carryOve
 import { useGetAccrualRules } from '@/store/server/features/timesheet/accrualRule/queries';
 import { formatToOptions } from '@/helpers/formatTo';
 import { MdKeyboardArrowDown } from 'react-icons/md';
+import { isIP } from 'net';
 
 const TypesAndPoliciesSidebar = () => {
   const [isErrorPlan, setIsErrorPlan] = useState(false);
@@ -213,6 +214,11 @@ const TypesAndPoliciesSidebar = () => {
                     unCheckedChildren={<CloseOutlined />}
                     onChange={(checked) => {
                       setIsFixed(checked);
+                      form.setFieldsValue({
+                        accrualRule: undefined,
+                        carryOverRule: undefined,
+                        isIncremental: false,
+                      });
                     }}
                   />
                 </Form.Item>
