@@ -27,12 +27,10 @@ const Page = () => {
     setSelectedRecognition,
     selectedRecognition,
     setParentResponseIsLoading,
-    setIsOpen,
     selectedRowKeys,
     setSelectedRowKeys,
     confirmationModal,
     setConfirmationModal,
-
   } = useIncentiveStore();
   const { mutate: exportIncentiveData } = useExportIncentiveData();
 
@@ -59,9 +57,6 @@ const Page = () => {
     setParentResponseIsLoading(parentResponseLoading);
   }, [parentResponseLoading]);
 
-  const handleExportClick = () => {
-    setIsOpen(true);
-  };
   const handleSendToPayrollClick = () => {
     setConfirmationModal(true);
   };

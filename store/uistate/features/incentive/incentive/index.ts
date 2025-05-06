@@ -161,7 +161,6 @@ export type CertificateDetails = {
   title: string;
 };
 export type IncentiveExportFilter = {
-
   parentRecognitionTypeId?: string;
 
   sessionId: string[];
