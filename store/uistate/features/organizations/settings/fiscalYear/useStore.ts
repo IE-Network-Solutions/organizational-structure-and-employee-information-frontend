@@ -26,7 +26,7 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   toggleFiscalYearDrawer: () =>
     set((state) => ({ isFiscalYearOpen: !state.isFiscalYearOpen })),
   closeFiscalYearDrawer: () => set({ isFiscalYearOpen: false }),
-  openDrawer: () => set({ isFiscalYearOpen: true }),
+  openFiscalYearDrawer: () => set({ isFiscalYearOpen: true }),
   setWorkingHour: (hours) => set({ workingHour: hours }),
   setEditMode: (isEdit: any) => set({ isEditMode: isEdit }),
   setSelectedFiscalYear: (fiscalYear: any) =>
@@ -44,32 +44,40 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   setFiscalYearStart: (value: Dayjs) => set({ fiscalYearStart: value }),
   clearFormData: () => set({ formData: {} }),
 
-  isOpenfiscalYearDrawer: false,
-  setIsOpenFiscalYearDrawer: (isOpenfiscalYearDrawer: boolean) =>
-    set({ isOpenfiscalYearDrawer }),
-
   sessionData: [],
   setSessionData: (value: any[]) => set({ sessionData: value }),
 
   fiscalYearFormValues: {},
   setFiscalYearFormValues: (newData) => set({ fiscalYearFormValues: newData }),
 
-  monthRangeValues: [],
-  // setMonthRangeFormValues: (newData) =>
-  //   set((state) =>
-  //     JSON.stringify(state.monthRangeValues) !== JSON.stringify(newData)
-  //       ? { monthRangeValues: newData }
-  //       : state,
-  //   ),
+  formValidation: {
+    fiscalYearName: '',
+    fiscalYearStartDate: null,
+    fiscalYearEndDate: null,
+  },
+  setFormValidation: (newData) =>
+    set((state) => ({
+      formValidation: { ...state.formValidation, ...newData },
+    })),
+  isFormValid: false,
+  setIsFormValid: (isValid: boolean) => set({ isFormValid: isValid }),
 
+  resetFormState: () =>
+    set(() => ({
+      formValidation: {
+        fiscalYearName: '',
+        fiscalYearStartDate: null,
+        fiscalYearEndDate: null,
+      },
+      isFormValid: false,
+      fiscalYearFormValues: {},
+    })),
+
+  monthRangeValues: [],
   setMonthRangeFormValues: (newData) =>
     set((state) =>
       !shallowEqual(state.monthRangeValues, newData)
         ? { monthRangeValues: newData }
         : state,
     ),
-
-  openfiscalYearDrawer: false,
-  setOpenFiscalYearDrawer: (value: boolean) =>
-    set({ openfiscalYearDrawer: value }),
 }));
