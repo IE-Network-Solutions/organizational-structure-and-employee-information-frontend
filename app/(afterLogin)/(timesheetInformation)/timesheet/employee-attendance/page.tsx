@@ -68,7 +68,6 @@ const EmployeeAttendance = () => {
       link.click();
       document.body.removeChild(link);
 
-
       setIsExportLoading(false);
       setExportType(null);
       setBodyRequest((prev) => ({

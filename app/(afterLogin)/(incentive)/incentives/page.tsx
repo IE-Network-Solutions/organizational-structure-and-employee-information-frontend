@@ -14,7 +14,7 @@ import { Eye, FileDown, FileUp } from 'lucide-react';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useExportIncentiveData } from '@/store/server/features/incentive/all/mutation';
-import { IoMdSend } from 'react-icons/io';
+import { MdOutlineSend } from 'react-icons/md';
 
 const Page = () => {
   const {
@@ -116,10 +116,10 @@ const Page = () => {
               )
             }
             id="createUserButton"
-            icon={<IoMdSend className="md:mr-0 ml-2" size={18} />}
+            icon={<MdOutlineSend className="md:mr-0 ml-2" size={18} />}
             onClick={() => handleSendToPayrollClick()}
             textClassName="!text-sm !font-lg"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
           />
 
           {isPayrollView ? (
@@ -133,7 +133,7 @@ const Page = () => {
               icon={<FileDown className="md:mr-0 ml-2" size={18} />}
               onClick={() => setShowGenerateModal(!showGenerateModal)}
               textClassName="!text-sm !font-lg"
-              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
+              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
             />
           ) : (
             <CustomButton
@@ -144,9 +144,9 @@ const Page = () => {
               }
               id="createUserButton"
               icon={<FileDown className="md:mr-0 ml-2" size={18} />}
-              onClick={() => handleExportClick()}
+              onClick={() => handleExport(searchParams, true)}
               textClassName="!text-sm !font-lg"
-              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
+              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
             />
           )}
 
@@ -162,7 +162,7 @@ const Page = () => {
             icon={<Eye className="md:mr-0 ml-2" size={18} />}
             onClick={() => setIsPayrollView(!isPayrollView)}
             textClassName="!text-sm !font-lg"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
           />
         </div>
       );
@@ -177,10 +177,10 @@ const Page = () => {
               )
             }
             id="createUserButton"
-            icon={<IoMdSend className="md:mr-0 ml-2" size={18} />}
+            icon={<MdOutlineSend className="md:mr-0 ml-2" size={18} />}
             onClick={() => handleSendToPayrollClick()}
             textClassName="!text-sm !font-lg"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
           />
 
           <CustomButton
@@ -191,9 +191,9 @@ const Page = () => {
             }
             id="createUserButton"
             icon={<FileUp className="md:mr-0 ml-2" size={18} />}
-            onClick={() => handleExportClick()}
+            onClick={() => handleExport(searchParams, false)}
             textClassName="!text-sm !font-lg"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
           />
 
           <CustomButton
@@ -206,7 +206,7 @@ const Page = () => {
             icon={<FileDown className="md:mr-0 ml-2" size={18} />}
             onClick={() => setProjectDrawer(true)}
             textClassName="!text-sm !font-lg"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-4 !py-4 sm:h-6 sm:px-5 px-4 "
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
           />
         </div>
       );
