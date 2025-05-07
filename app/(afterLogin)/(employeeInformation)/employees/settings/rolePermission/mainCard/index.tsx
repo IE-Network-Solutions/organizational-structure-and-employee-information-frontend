@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Button, Card, Tabs } from 'antd';
+import { Button, Tabs } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import GroupPermissionComponent from '../groupPermission';
 import RoleComponent from '../role';
@@ -46,45 +46,34 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
     }
   };
   return (
-    <div className="flex gap-2">
-      <Card className="w-full bg-white top-0 border-none">
-        <div className="flex justify-between">
-          <CustomBreadcrumb
-            title={tabButton}
-            subtitle=""
-            items={[
-              { title: 'Home', href: '/' },
-              { title: 'Tenants', href: '/tenant-management/tenants' },
-            ]}
-          />
-          {tabButton !== 'Permission' && (
-            <AccessGuard permissions={[Permissions.CreateGroupPermission]}>
-              {/* <CustomButton
-                onClick={handleClickNewButton}
-                title={`New ${tabButton}`}
-                icon={<FaPlus />}
-                className=" text-xs mt-4 md:mt-0 "
-              /> */}
-
-              <Button
-                type="primary"
-                icon={<FaPlus />}
-                onClick={handleClickNewButton}
-              >
-                <span className="hidden lg:inline">{`New ${tabButton}`} </span>
-              </Button>
-            </AccessGuard>
-          )}
-        </div>
-        <footer>
-          <Tabs
-            defaultActiveKey="1"
-            items={items}
-            onChange={props?.onChange}
-            className="font-semibold"
-          />
-        </footer>
-      </Card>
+    <div className="w-full bg-white  border-none">
+      <div className="flex justify-between items-center">
+        <CustomBreadcrumb
+          title={tabButton}
+          subtitle=""
+          items={[
+            { title: 'Home', href: '/' },
+            { title: 'Tenants', href: '/tenant-management/tenants' },
+          ]}
+        />
+        {tabButton !== 'Permission' && (
+          <AccessGuard permissions={[Permissions.CreateGroupPermission]}>
+            <Button
+              type="primary"
+              icon={<FaPlus />}
+              onClick={handleClickNewButton}
+            >
+              <span className="hidden lg:inline">{`New ${tabButton}`} </span>
+            </Button>
+          </AccessGuard>
+        )}
+      </div>
+      <Tabs
+        defaultActiveKey="1"
+        items={items}
+        onChange={props?.onChange}
+        size="small"
+      />
     </div>
   );
 };

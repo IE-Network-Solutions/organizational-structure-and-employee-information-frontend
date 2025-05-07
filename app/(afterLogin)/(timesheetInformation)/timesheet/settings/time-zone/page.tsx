@@ -1,5 +1,4 @@
 'use client';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { useUpdateTimeZone } from '@/store/server/features/timesheet/timeZone/mutation';
 import { useGetTimeZone } from '@/store/server/features/timesheet/timeZone/queries';
 import AccessGuard from '@/utils/permissionGuard';
@@ -43,8 +42,9 @@ const TimezoneSelect = () => {
     }
   };
   return (
-    <>
-      <PageHeader title="Time Zone" size="small"></PageHeader>
+    <div className="p-5 rounded-2xl bg-white h-full">
+      {/* <PageHeader title="Time Zone" size="small"></PageHeader> */}
+      <h1 className="text-lg text-bold">Time Zone</h1>
 
       <div className="mt-4">
         <div>Update your timezone</div>
@@ -73,11 +73,11 @@ const TimezoneSelect = () => {
         </Form>
         <hr />
         <div className="text-xl">
-          Your Current Timezone:{' '}
+          Your Current Timezone:
           <span className="font-extrabold">{data?.timezone} GMT</span>{' '}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 export default TimezoneSelect;

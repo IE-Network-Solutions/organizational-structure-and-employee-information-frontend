@@ -160,6 +160,15 @@ export type CertificateDetails = {
   details: string;
   title: string;
 };
+export type IncentiveExportFilter = {
+  parentRecognitionTypeId?: string;
+
+  sessionId: string[];
+  generateAll: boolean;
+  userId?: string;
+
+  monthId?: string;
+};
 
 export interface Criteria {
   id: string;
@@ -272,7 +281,6 @@ type IncentiveState = {
   selectedRowKeys: string[];
   showMobileFilter: boolean;
   selectedYear: string | null;
-
 };
 
 type IncentiveActions = {
@@ -312,7 +320,6 @@ type IncentiveActions = {
 
   setShowMobileFilter: (value: boolean) => void;
   setSelectedYear: (value: string | null) => void;
-
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -420,7 +427,6 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   selectedFiscalYear: null,
   setSelectedFiscalYear: (year) => set({ selectedFiscalYear: year }),
 
-
   selectedRowKeys: [],
   setSelectedRowKeys: (selectedRowKeys) => set({ selectedRowKeys }),
   confirmationModal: false,
@@ -429,7 +435,6 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   setShowMobileFilter: (value) => set({ showMobileFilter: value }),
   selectedYear: null,
   setSelectedYear: (value) => set({ selectedYear: value }),
-
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(

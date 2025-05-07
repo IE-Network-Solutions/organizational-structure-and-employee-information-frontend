@@ -30,7 +30,6 @@ import {
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
 
-
 const AttendanceTable = () => {
   // Store hooks
   const { userId } = useAuthenticationStore();
