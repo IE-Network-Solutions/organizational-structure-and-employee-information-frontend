@@ -18,6 +18,7 @@ const createPayroll = async (values: any) => {
       headers: {
         Authorization: `Bearer ${token}`,
         tenantId: tenantId,
+        withIncentives: values.includeIncentive,
       },
     });
 

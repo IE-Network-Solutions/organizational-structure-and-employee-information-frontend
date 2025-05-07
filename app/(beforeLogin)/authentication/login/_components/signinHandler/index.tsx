@@ -4,6 +4,9 @@ import { useRouter } from 'next/navigation';
 import { useGetTenantId } from '@/store/server/features/employees/authentication/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { handleFirebaseSignInError } from '@/utils/showErrorResponse';
+import { useTenantChecker } from '../tenantChecker';
+import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useEffect } from 'react';
 
 export const useHandleSignIn = () => {
   const {
@@ -11,13 +14,22 @@ export const useHandleSignIn = () => {
     setLoading,
     setToken,
     setUserId,
+    token,
     setLocalId,
     setTenantId,
     setUserData,
+    setActiveCalendar,
   } = useAuthenticationStore();
 
   const { refetch: fetchTenantId } = useGetTenantId();
+  const { data: activeFiscalYear, refetch } = useGetActiveFiscalYearsData();
+
   const router = useRouter();
+  const { tenant } = useTenantChecker();
+
+  useEffect(() => {
+    refetch();
+  }, [token]);
 
   const handleSignIn = async (signInMethod: () => Promise<any>) => {
     setLoading(true);
@@ -31,6 +43,9 @@ export const useHandleSignIn = () => {
       setToken(token);
       setLocalId(uid);
 
+      if (activeFiscalYear) {
+        setActiveCalendar(activeFiscalYear?.endDate);
+      }
       const fetchedData = await fetchTenantId();
 
       if (fetchedData.isError) {
@@ -38,6 +53,14 @@ export const useHandleSignIn = () => {
         setToken('');
         setLocalId('');
       } else {
+        if (tenant?.id !== fetchedData?.data?.tenantId) {
+          message.error(
+            'This user does not belong to this tenant. Please contact your administrator.',
+          );
+          setToken('');
+          setLocalId('');
+          return;
+        }
         setTenantId(fetchedData?.data?.tenantId);
         setUserId(fetchedData?.data?.id);
         setUserData(fetchedData?.data);
@@ -55,9 +78,16 @@ export const useHandleSignIn = () => {
           router.push('/authentication/new-password');
         } else if (
           fetchedData?.data?.hasCompany === true &&
-          fetchedData?.data?.hasChangedPassword === true
+          fetchedData?.data?.hasChangedPassword === true &&
+          activeFiscalYear?.endDate &&
+          new Date(activeFiscalYear?.endDate) > new Date()
         ) {
           router.push('/dashboard');
+        } else if (
+          activeFiscalYear?.endDate &&
+          new Date(activeFiscalYear.endDate) < new Date()
+        ) {
+          router.push('/fiscal-ended');
         }
       }
     } catch (err: any) {

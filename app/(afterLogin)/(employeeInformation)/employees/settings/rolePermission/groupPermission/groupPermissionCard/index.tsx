@@ -30,11 +30,18 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
   };
 
   return (
-    <Card className="cursor-pointer relative" key={props?.item?.id}>
+    <Card
+      bodyStyle={{
+        paddingTop: '10px',
+        paddingBottom: '10px',
+        paddingLeft: '2px',
+        paddingRight: '2px',
+      }}
+      className="cursor-pointer relative md:p-3"
+      key={props?.item?.id}
+    >
       <div className="flex flex-row md:flex-row justify-between">
-        <p className="font-bold truncate w-full md:w-auto">
-          {props?.item?.name}
-        </p>
+        <p className="font-bold truncate text-xs">{props?.item?.name}</p>
 
         {props?.item?.tenantId && (
           <div className="mt-2 md:mt-0">

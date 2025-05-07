@@ -112,13 +112,15 @@ function Page() {
   const handleTypeChange = (value: string) => setSelectedType(value);
 
   return (
-    <div className="p-10 rounded-2xl bg-white h-full">
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold md:text-lg  ">Target Assignment</h1>
+    <div className="p-5 rounded-2xl bg-white h-full">
+      {/* Desktop layout: visible from md and up */}
+
+      <div className="hidden md:flex justify-between mb-6">
+        <h1 className="text-2xl font-bold md:text-lg">Target Assignment</h1>
         <AccessGuard permissions={[Permissions.AssignVpTargets]}>
           <Button
             type="primary"
-            className=" "
+            className=""
             icon={<FaPlus />}
             onClick={() => openDrawer()}
           >
@@ -126,19 +128,44 @@ function Page() {
           </Button>
         </AccessGuard>
       </div>
-
-      <TargetFilters
-        onSearchChange={setSearchText}
-        onTypeChange={handleTypeChange}
-        targetNames={['All Types', ...criteriaTypes]}
-      />
-      <div className="flex  overflow-x-auto scrollbar-none  w-full">
-        <Table
-          dataSource={dataSource}
-          columns={columns}
-          pagination={{ pageSize: 5 }}
-          loading={targetAssignmentLoading}
+      <div className="hidden md:block w-full">
+        <TargetFilters
+          onSearchChange={setSearchText}
+          onTypeChange={handleTypeChange}
+          targetNames={['All Types', ...criteriaTypes]}
         />
+      </div>
+      {/* Mobile layout: visible on small screens */}
+      <div className="md:hidden">
+        <h1 className="text-2xl font-bold md:text-lg">Target Assignment</h1>
+        <div className="mt-4 flex justify-between gap-4">
+          <TargetFilters
+            onSearchChange={setSearchText}
+            onTypeChange={handleTypeChange}
+            targetNames={['All Types', ...criteriaTypes]}
+          />
+          <AccessGuard permissions={[Permissions.AssignVpTargets]}>
+            <Button
+              type="primary"
+              className="h-10"
+              icon={<FaPlus />}
+              onClick={() => openDrawer()}
+            >
+              <span className="hidden lg:block"> Assign Target</span>
+            </Button>
+          </AccessGuard>
+        </div>
+      </div>
+
+      <div className="flex  overflow-x-auto scrollbar-none  w-full">
+        <div className="w-full">
+          <Table
+            dataSource={dataSource}
+            columns={columns}
+            pagination={{ pageSize: 5 }}
+            loading={targetAssignmentLoading}
+          />
+        </div>
       </div>
 
       <AssignTargetDrawer />

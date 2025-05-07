@@ -50,6 +50,15 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       },
       link: '/feedback/settings/recognition',
     },
+    {
+      item: {
+        key: 'target-achievement',
+        icon: <CiCalendarDate className="hidden lg:block" />,
+        label: <p className="menu-item-label">Target Achievement</p>,
+        className: 'px-1',
+      },
+      link: '/feedback/settings/target-achievement',
+    },
   ]);
 
   return (
