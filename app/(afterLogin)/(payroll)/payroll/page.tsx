@@ -266,6 +266,7 @@ const Payroll = () => {
         { type: 'Taxable Income', key: 'taxableIncome' },
         { type: 'Tax', key: 'tax' },
         { type: 'Total Deduction', key: 'totalDeduction' },
+        { type: 'Total Incentive', key: 'totalIncentive' },
         { type: 'Employee Pension', key: 'employeePension' },
         { type: 'Company Pension', key: 'companyPesnion' },
         { type: 'Net Income', key: 'netIncome' },
@@ -294,6 +295,8 @@ const Payroll = () => {
           item.employeeInfo?.basicSalaries?.find((bs: any) => bs.status)
             ?.basicSalary || 0;
         const deductions = item.breakdown?.totalDeductionWithPension || [];
+        const totalIncentive = item.breakdown?.incentives?.amount || 0;
+
         const allowances = item.breakdown?.allowances || [];
         const merits = item.breakdown?.merits || [];
         const transportAllowance = allowances
@@ -314,6 +317,7 @@ const Payroll = () => {
           taxableIncome: formatAmount(item.grossSalary - 600 || 0),
           tax: formatAmount(item.breakdown?.tax?.amount),
           totalDeduction: formatAmount(item.totalDeductions || 0),
+          totalIncentive: formatAmount(totalIncentive || 0),
           employeePension: formatAmount(
             item.breakdown?.pension?.find((i: any) => i.type == 'Pension')
               ?.amount || 0,
