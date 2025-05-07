@@ -23,7 +23,7 @@ export const EmployeeDetails = ({
   const userName =
     `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
     '-';
-  const profileImage = userDetails?.profileImage;
+  const profileImage = userDetails?.profileImage || fallbackProfileImage;
 
   return (
     <Space size="small">

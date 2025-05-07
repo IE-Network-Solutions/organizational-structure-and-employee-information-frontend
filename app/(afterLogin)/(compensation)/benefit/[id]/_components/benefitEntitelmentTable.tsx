@@ -164,7 +164,6 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
           employee.userId?.toLowerCase() === searchQuery?.toLowerCase(),
       )
     : transformedData;
-  console.log('employeeBenefitData', employeeBenefitData);
   return (
     <Spin spinning={isLoading}>
       {employeeBenefitData == null ? (

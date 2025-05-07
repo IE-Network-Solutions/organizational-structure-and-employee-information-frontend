@@ -19,7 +19,16 @@ interface BenefitEntitlementTypes {
   employeeSettlementData: any;
   currentPage: number;
   pageSize: number;
-
+  totalAmount: number;
+  setTotalAmount: (value: number) => void;
+  settlementPeriod: number;
+  setSettlementPeriod: (value: number) => void;
+  data: any[];
+  setData: (value: any[]) => void;
+  detailCurrentPage: number;
+  setDetailCurrentPage: (value: number) => void;
+  detailPageSize: number;
+  setDetailPageSize: (value: number) => void;
   setEmployeeSettlementData: (value: any) => void;
   setIsBenefitEntitlementSidebarOpen: (value: boolean) => void;
   setIsBenefitEntitlementSidebarUpdateOpen: (value: boolean) => void;
@@ -94,6 +103,16 @@ export const useBenefitEntitlementStore = create<BenefitEntitlementTypes>(
     setPageSize: (value) => set({ pageSize: value }),
     benefitData: null,
     setEditBenefitData: (value) => set({ benefitData: value }),
+    data: [],
+    setData: (value) => set({ data: value }),
+    totalAmount: 0,
+    setTotalAmount: (value) => set({ totalAmount: value }),
+    settlementPeriod: 0,
+    setSettlementPeriod: (value) => set({ settlementPeriod: value }),
+    detailCurrentPage: 1,
+    setDetailCurrentPage: (value) => set({ detailCurrentPage: value }),
+    detailPageSize: 5,
+    setDetailPageSize: (value) => set({ detailPageSize: value }),
     resetStore: () => {
       set((state) => {
         const { benefitDefaultAmount, benefitMode } = state;

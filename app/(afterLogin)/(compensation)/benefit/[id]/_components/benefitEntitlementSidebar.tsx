@@ -4,16 +4,8 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import {
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Select,
-  Spin,
-  Table,
-} from 'antd';
-import { useCreateBenefitEntitlement } from '@/store/server/features/compensation/benefit/mutations';
+import { Form, InputNumber, Select, Spin, Table } from 'antd';
+import { useCreateBenefitEntitlementSettlement } from '@/store/server/features/compensation/benefit/mutations';
 import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
@@ -24,6 +16,7 @@ import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/em
 import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 dayjs.extend(isBetween);
 
@@ -35,21 +28,16 @@ type BenefitEntitlementProps = {
 
 const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   const {
-    departmentUsers,
     setDepartmentUsers,
-    benefitMode,
     isBenefitEntitlementSidebarOpen,
-    selectedDepartment,
     setSelectedDepartment,
     resetStore,
-    benefitDefaultAmount,
-    benefitData,
   } = useBenefitEntitlementStore();
 
   const { mutate: createBenefitEntitlement, isLoading: createBenefitLoading } =
-    useCreateBenefitEntitlement();
+    useCreateBenefitEntitlementSettlement();
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
-  const { data: departments, isLoading } = useGetDepartmentsWithUsers();
+  const { data: departments } = useGetDepartmentsWithUsers();
   const { id } = useParams();
   const [form] = Form.useForm();
 
@@ -66,24 +54,34 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   };
 
   const onFormSubmit = (formValues: any) => {
-    console.log('formValues', formValues),
-      createBenefitEntitlement({
-        compensationItemId: id,
-        employeeIds: formValues.employees,
-        totalAmount:
-          benefitMode === 'CREDIT'
-            ? Number(benefitDefaultAmount)
-            : Number(formValues.amount),
-        settlementPeriod: Number(formValues.settlementPeriod),
-        isRate: benefitDatas?.isRate,
+    const paymentAmount = formValues.payments.reduce(
+      (acc: number, item: { amount?: number }) =>
+        acc + Number(item.amount || 0),
+      0,
+    );
+    const totalAmountChecker = totalAmount == paymentAmount;
+    if (totalAmountChecker == false) {
+      NotificationMessage.warning({
+        message: `Total Amount should be equal to the sum of all payments. total amount ${totalAmount} and payment amount ${paymentAmount}`,
       });
-
-    // {
-    //   onSuccess: () => {
-    //     form.resetFields();
-    //     onClose();
-    //   },
-    // },
+    } else {
+      createBenefitEntitlement(
+        {
+          ...formValues,
+          compensationItemId: id,
+          employeeIds: formValues.employeeIds,
+          totalAmount: formValues.totalAmount,
+          settlementPeriod: Number(formValues.settlementPeriod),
+          isRate: benefitDatas?.isRate,
+        },
+        {
+          onSuccess: () => {
+            form.resetFields();
+            onClose();
+          },
+        },
+      );
+    }
   };
 
   const handleDepartmentChange = (value: string) => {
@@ -92,7 +90,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     if (department) {
       setDepartmentUsers(department.users);
       form.setFieldsValue({
-        employees: department.users.map((user: any) => user.id),
+        employeeIds: department.users.map((user: any) => user.id),
       });
     }
   };
@@ -137,7 +135,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     const amountPerPeriod =
       totalAmount && settlementPeriod ? totalAmount / settlementPeriod : 0;
 
-    const newData = Array.from({ length: settlementPeriod }, (_, i) => {
+    const newData = Array.from({ length: settlementPeriod }, (notused, i) => {
       const paymentDate = dayjs().add(i, 'month');
 
       const matchedPeriod = validPayPeriods.find((period: any) => {
@@ -156,25 +154,24 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     setData(newData);
     form.setFieldsValue({ payments: newData });
   }, [totalAmount, settlementPeriod, payPeriods]);
-
   const columns = [
     {
       dataIndex: 'amount',
       key: 'amount',
-      render: (_: any, __: any, index: number) => (
+      render: (notused: any, notuseds: any, index: number) => (
         <Form.Item
           label={'Amount'}
           name={['payments', index, 'amount']}
           className="mb-0"
         >
-          <InputNumber className="w-full" disabled />
+          <InputNumber className="w-full" />
         </Form.Item>
       ),
     },
     {
       dataIndex: 'payPeriodId',
       key: 'payPeriodId',
-      render: (_: any, __: any, index: number) => (
+      render: (notused: any, notuseds: any, index: number) => (
         <Form.Item
           label={'Pay Period'}
           required
@@ -227,14 +224,18 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
             requiredMark={CustomLabel}
           >
             <div className="grid grid-cols-2 gap-4 mb-1">
-              <Form.Item label="Total Amount">
+              <Form.Item required name="totalAmount" label="Total Amount">
                 <InputNumber
                   className="w-full h-10"
                   value={totalAmount}
                   onChange={(value) => setTotalAmount(value || 0)}
                 />
               </Form.Item>
-              <Form.Item label="Settlement Period">
+              <Form.Item
+                required
+                name="settlementPeriod"
+                label="Settlement Period"
+              >
                 <InputNumber
                   className="w-full h-10"
                   value={settlementPeriod}
@@ -256,7 +257,6 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
             <Form.Item
               name="department"
               label="Select Department"
-              rules={[{ required: true, message: 'Department is required!' }]}
               className="form-item min-h-10"
             >
               <Select
@@ -272,7 +272,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
             </Form.Item>
 
             <Form.Item
-              name="employees"
+              name="employeeIds"
               label="Select Employees"
               rules={[{ required: true, message: 'Please select employees' }]}
             >
