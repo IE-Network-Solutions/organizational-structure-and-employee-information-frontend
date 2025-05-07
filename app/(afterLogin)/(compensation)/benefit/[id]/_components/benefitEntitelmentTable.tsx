@@ -1,41 +1,35 @@
-import React, { useState } from 'react';
-import { Select, Space, Spin, Table } from 'antd';
+import React from 'react';
+import { Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { Button } from 'antd';
-import { LuPlus } from 'react-icons/lu';
 import BenefitEntitlementSideBar from './benefitEntitlementSidebar';
 import { useFetchBenefitEntitlement } from '@/store/server/features/compensation/benefit/queries';
 import { useParams } from 'next/navigation';
 import { useDeleteBenefitEntitlement } from '@/store/server/features/compensation/benefit/mutations';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import BenefitEntitlementSideBarEdit from './benefitEntitlementSidebarEdit';
 import BenefitTracking from './benefitTracker';
+import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 type BenefitPropTypes = {
   title: string;
 };
 const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
   const {
-    setIsBenefitEntitlementSidebarOpen,
     setIsBenefitEntitlementSidebarUpdateOpen,
     currentPage,
     pageSize,
     setCurrentPage,
     setPageSize,
-    BenefitApplicableTo,
-
     setEditBenefitData,
   } = useBenefitEntitlementStore();
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
   const { id } = useParams();
   const { data: benefitEntitlementsData, isLoading } =
     useFetchBenefitEntitlement(id);
-  const [searchQuery, setSearchQuery] = useState('');
-  const { data: employeeData } = useGetAllUsers();
+  const { searchQuery } = useAllowanceEntitlementStore();
   const { employeeBenefitData, setEmployeeBenefitData } =
     useBenefitEntitlementStore();
   const transformedData = Array.isArray(benefitEntitlementsData)
@@ -48,11 +42,6 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
         mode: item.compensationItem.mode,
       }))
     : [];
-
-  const handleBenefitEntitlementAdd = () => {
-    setIsBenefitEntitlementSidebarOpen(true);
-  };
-
   const handleDelete = (id: string) => {
     deleteBenefitEntitlement(id);
   };
@@ -147,63 +136,13 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
     setCurrentPage(pagination.current);
     setPageSize(pagination.pageSize);
   };
-
-  const handleSearchChange = (value: any) => {
-    setSearchQuery(value);
-  };
-  const options =
-    employeeData?.items?.map((emp: any) => ({
-      value: emp.id,
-      label: `${emp?.firstName || ''} ${emp?.middleName} ${emp?.lastName}`, // Full name as label
-      employeeData: emp,
-    })) || [];
-
   const filteredDataSource = searchQuery
-    ? transformedData.filter(
-        (employee: any) =>
-          employee.userId?.toLowerCase() === searchQuery?.toLowerCase(),
-      )
+    ? transformedData.filter((employee: any) => employee.userId === searchQuery)
     : transformedData;
   return (
     <Spin spinning={isLoading}>
       {employeeBenefitData == null ? (
         <>
-          <Space
-            direction="horizontal"
-            size="large"
-            style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
-          >
-            <Select
-              showSearch
-              allowClear
-              className="min-h-12"
-              placeholder="Search by name"
-              onChange={handleSearchChange}
-              filterOption={(input, option) => {
-                const label = option?.label;
-                return (
-                  typeof label === 'string' &&
-                  label.toLowerCase().includes(input.toLowerCase())
-                );
-              }}
-              options={options}
-              style={{ width: 300 }} // Set a width for better UX
-            />{' '}
-            <AccessGuard permissions={[Permissions.CreateBenefitEntitlement]}>
-              <Button
-                size="large"
-                type="primary"
-                className="min-h-12"
-                id="createNewClosedHolidayFieldId"
-                icon={<LuPlus size={18} />}
-                onClick={handleBenefitEntitlementAdd}
-                disabled={BenefitApplicableTo == 'GLOBAL'}
-              >
-                Employees
-              </Button>
-            </AccessGuard>
-          </Space>
-
           <Table
             className="mt-6"
             columns={columns}
