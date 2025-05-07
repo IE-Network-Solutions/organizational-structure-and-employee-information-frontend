@@ -36,7 +36,7 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
 
   return (
     <Spin spinning={isLoading || isDeleteLoading}>
-      <div className="rounded-lg border border-gray-200 p-6 mt-6">
+      <div className="rounded-lg border border-gray-200 p-1 sm:p-6 mt-4 w-full">
         <div className="flex items-center gap-2.5 mb-4">
           <div className="flex-1 flex items-center text-lg text-gray-900 gap-2">
             <span className="font-semibold">{item.title}</span>
@@ -88,7 +88,9 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
           <div className="flex text-sm text-gray-900 gap-4 even:justify-end">
             <span className="font-bold">Accrual Rule-</span>
             <span>
-              {typeof item.accrualRule !== 'string' && item.accrualRule.title}
+              {item.accrualRule &&
+                typeof item.accrualRule !== 'string' &&
+                item.accrualRule.title}
             </span>
           </div>
           <div className="flex text-sm text-gray-900 gap-4 col-span-2">

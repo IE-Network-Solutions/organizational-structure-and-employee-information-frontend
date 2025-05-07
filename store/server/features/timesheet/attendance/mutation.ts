@@ -62,6 +62,13 @@ export const useAttendanceImport = () => {
           .getState()
           .showModal(error.response.data.errors || []);
       }
+
+      if (error?.response?.data?.message) {
+        NotificationMessage.error({
+          message: 'Error',
+          description: error.response.data.message,
+        });
+      }
     },
   });
 };
@@ -85,6 +92,12 @@ export const useBreakAttendanceImport = () => {
           useAttendanceImportErrorModalStore
             .getState()
             .showModal(error.response.data.errors || []);
+        }
+        if (error?.response?.data?.message) {
+          NotificationMessage.error({
+            message: 'Error',
+            description: error.response.data.message,
+          });
         }
       },
     },

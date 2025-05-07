@@ -1,4 +1,4 @@
-import { Col, Row, Select } from 'antd';
+import { Col, Modal, Row, Select } from 'antd';
 import React from 'react';
 import { useDebounce } from '@/utils/useDebounce';
 import {
@@ -11,6 +11,8 @@ import {
   useGetActiveFiscalYears,
   useGetAllFiscalYears,
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useMediaQuery } from 'react-responsive';
+import { IoMdSwitch } from 'react-icons/io';
 
 const IncentiveFilter: React.FC = () => {
   const {
@@ -20,9 +22,13 @@ const IncentiveFilter: React.FC = () => {
     setSelectedSessions,
     currentPage,
     pageSize,
+    selectedYear,
+    setSelectedYear,
+    showMobileFilter,
+    setShowMobileFilter,
   } = useIncentiveStore();
 
-  const [selectedYear, setSelectedYear] = React.useState<string | null>(null);
+  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
   const { data: employeeData } = useGetAllUsers();
   const { data: allSessions } = useFetchIncentiveSessions();
@@ -47,7 +53,7 @@ const IncentiveFilter: React.FC = () => {
     value: string,
     keyValue: keyof typeof searchParams,
   ) => {
-    const trimmedValue = value.trim();
+    const trimmedValue = value?.trim();
     onSearchChange(trimmedValue, keyValue);
   };
 
@@ -98,31 +104,33 @@ const IncentiveFilter: React.FC = () => {
     }
   }, [activeCalender]);
 
-  return (
-    <div className="my-7 mx-1">
+  const Filters = (
+    <>
       <Row gutter={[16, 10]} justify="space-between">
-        <Col xs={24} sm={24} md={24} lg={10} xl={10}>
-          <Select
-            onChange={(value) => handleSearchInput(value, 'employee_name')}
-            placeholder="Search Employee"
-            allowClear
-            showSearch
-            className="w-full h-14"
-            optionFilterProp="children"
-            filterOption={(input: any, option: any) =>
-              option?.children
-                ?.toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-          >
-            {employeeData?.items?.map((items: any) => (
-              <Select.Option key={items?.id} value={items?.id}>
-                {items?.firstName + ' ' + items?.middleName}
-              </Select.Option>
-            ))}
-          </Select>
-        </Col>
+        {!isSmallScreen && (
+          <Col xs={24} sm={24} md={24} lg={10} xl={10}>
+            <Select
+              onChange={(value) => handleSearchInput(value, 'employee_name')}
+              placeholder="Search Employee"
+              allowClear
+              showSearch
+              className="w-full h-14"
+              optionFilterProp="children"
+              filterOption={(input: any, option: any) =>
+                option?.children
+                  ?.toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+            >
+              {employeeData?.items?.map((items: any) => (
+                <Select.Option key={items?.id} value={items?.id}>
+                  {items?.firstName + ' ' + items?.middleName}
+                </Select.Option>
+              ))}
+            </Select>
+          </Col>
+        )}
         <Col xs={24} sm={24} md={24} lg={14} xl={14}>
           <Row gutter={[8, 16]}>
             <Col xs={24} sm={24} md={24} lg={8} xl={8}>
@@ -178,6 +186,57 @@ const IncentiveFilter: React.FC = () => {
           </Row>
         </Col>
       </Row>
+    </>
+  );
+
+  return (
+    <div className="my-7 mx-1">
+      {isSmallScreen ? (
+        <div className="flex justify-end m-2 space-x-4">
+          <Select
+            onChange={(value) => handleSearchInput(value, 'employee_name')}
+            placeholder="Search Employee"
+            allowClear
+            showSearch
+            className="w-full h-14"
+            optionFilterProp="children"
+            filterOption={(input: any, option: any) =>
+              option?.children
+                ?.toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+          >
+            {employeeData?.items?.map((items: any) => (
+              <Select.Option key={items?.id} value={items?.id}>
+                {items?.firstName + ' ' + items?.middleName}
+              </Select.Option>
+            ))}
+          </Select>
+          <div className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3">
+            <IoMdSwitch
+              onClick={() => setShowMobileFilter(true)}
+              className="text-xl cursor-pointer"
+            />
+          </div>
+          <Modal
+            centered
+            title="Filter"
+            open={showMobileFilter}
+            onCancel={() => setShowMobileFilter(false)}
+            modalRender={(modal) => (
+              <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                {modal}
+              </div>
+            )}
+            footer={null}
+          >
+            {Filters}
+          </Modal>
+        </div>
+      ) : (
+        Filters
+      )}
     </div>
   );
 };

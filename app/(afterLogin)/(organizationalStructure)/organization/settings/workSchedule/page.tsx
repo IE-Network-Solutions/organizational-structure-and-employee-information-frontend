@@ -77,14 +77,14 @@ function WorkScheduleTab() {
 
   return (
     <>
-      <div className="p-6">
+      <div className="p-5 bg-white rounded-2xl h-full">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Work Schedule</h2>
+          <h1 className="text-lg text-bold">Work Schedule</h1>
           <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
             <Space>
               <Button
                 type="primary"
-                className="h-12"
+                className="h-10"
                 icon={<FaPlus />}
                 onClick={openDrawer}
               >
@@ -98,16 +98,16 @@ function WorkScheduleTab() {
           accordion
           defaultActiveKey={['1']}
           className="bg-white shadow-sm rounded-lg"
+          expandIconPosition="end"
         >
           <Panel
             header={
               <div className="flex justify-between items-center ">
-                <span className="flex justify-start items-center gap-4 ">
-                  {' '}
-                  <p className="text-xl font-semibold">
+                <span className="flex justify-start items-center gap-2 sm:gap-4 ">
+                  <p className="text-xs sm:text-base font-semibold ">
                     Full-time Schedule
-                  </p>{' '}
-                  <span className="px-2 py-1 bg-blue text-white rounded-lg text-sm font-semibold">
+                  </p>
+                  <span className="px-2 py-1 bg-blue text-white rounded-lg text-xs">
                     Working-Hour
                   </span>
                 </span>
@@ -115,7 +115,7 @@ function WorkScheduleTab() {
             }
             key="1"
             extra={
-              <span className="text-blue-500 bg-blue-100 py-1 px-2 rounded text-xs font-medium">
+              <span className="hidden sm:inline text-blue-500 bg-blue-100 py-1 px-2 rounded text-xs font-medium">
                 Working-hours
               </span>
             }

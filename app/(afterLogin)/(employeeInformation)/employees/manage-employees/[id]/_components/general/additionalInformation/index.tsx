@@ -55,24 +55,27 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
               .join(' ')}
             rules={[
               {
-                validator: (notUsed: any, value: any) => {
+                /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+                validator: (_rule: any, value: any) => {
+                  /*  eslint-enable-next-line @typescript-eslint/naming-convention */
                   let fieldValidation = getFieldValidation(key);
 
-                  switch (key) {
-                    case 'phoneNumber':
-                      fieldValidation = 'number';
-                      break;
-                    case 'firstName':
-                    case 'middleName':
-                    case 'lastName':
-                    case 'gender':
-                      fieldValidation = 'text';
-                      break;
-                    case 'nationality':
-                      fieldValidation = 'any';
-                      break;
-                    default:
-                      fieldValidation = getFieldValidation(key);
+                  if (key.toLowerCase().includes('number')) {
+                    fieldValidation = 'number';
+                  } else {
+                    switch (key) {
+                      case 'firstName':
+                      case 'middleName':
+                      case 'lastName':
+                      case 'gender':
+                        fieldValidation = 'text';
+                        break;
+                      case 'nationality':
+                        fieldValidation = 'any'; // You can change to 'text' if stricter validation is needed
+                        break;
+                      default:
+                        fieldValidation = 'any'; // fallback function
+                    }
                   }
 
                   const validationError = validateField(
@@ -140,6 +143,13 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
     );
   };
 
+  const titleMap: Record<string, string> = {
+    educationalStatusDegree: 'Educational Status',
+    educationalStatusMaster: 'Educational Status Master',
+    pensionNumber: 'Pension Number',
+    tinNumber: 'TIN',
+  };
+
   return (
     <Card
       loading={isLoading}
@@ -171,7 +181,8 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                   ? nationalities?.items?.find((item) => item.id === val)
                       ?.name || '-'
                   : val?.toString() || '-';
-              return <InfoLine key={key} title={key} value={displayValue} />;
+              const title = titleMap[key] || key;
+              return <InfoLine key={key} title={title} value={displayValue} />;
             })}
           </Col>
         </Row>

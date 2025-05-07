@@ -51,11 +51,14 @@ const benefitEntitlementInitialState = {
   benefitMode: '',
   BenefitApplicableTo: '',
   benefitDefaultAmount: 0,
-
   currentPage: 1,
   pageSize: 6,
 };
 
+type Month = {
+  id: string;
+  name: string;
+};
 interface VariablePayTypes {
   currentPage: number;
   pageSize: number;
@@ -73,6 +76,9 @@ interface VariablePayTypes {
 
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
+
+  sessionMonths: Month[];
+  setSessionMonths: (months: Month[]) => void;
 }
 
 const variablePayInitialState = {
@@ -154,4 +160,6 @@ export const useVariablePayStore = create<VariablePayTypes>((set) => ({
       searchParams: { ...state.searchParams, [key]: stringValue },
     }));
   },
+  sessionMonths: [],
+  setSessionMonths: (months) => set({ sessionMonths: months }),
 }));
