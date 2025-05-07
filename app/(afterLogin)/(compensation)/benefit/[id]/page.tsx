@@ -121,9 +121,9 @@ const BenefitEntitlemetPage = () => {
 
         {/* Table Section */}
         <div className="overflow-x-auto mt-4">
-        <BenefitEntitlementTable
-        title={benefitData?.name ? benefitData?.name : ''}
-      />
+          <BenefitEntitlementTable
+            title={benefitData?.name ? benefitData?.name : ''}
+          />
         </div>
       </div>
     </>
