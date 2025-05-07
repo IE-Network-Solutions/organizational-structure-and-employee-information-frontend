@@ -18,16 +18,6 @@ const SettlementDetail = () => {
   });
   const { data: compensationDatas, isLoading: comLoading } = useGetAllowance();
 
-  const { expandedCards, setExpandedCards } = useCompensationSettingStore();
-  // Add state to track which cards are expanded
-
-  // Toggle card expansion
-  const toggleCard = (compensationId: string) => {
-    const newExpandedCards = { ...expandedCards };
-    newExpandedCards[compensationId] = !newExpandedCards[compensationId];
-    setExpandedCards(newExpandedCards);
-  };
-
   const getCompensationName = (compensationId: any) => {
     if (comLoading)
       return (
