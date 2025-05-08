@@ -5,6 +5,7 @@ import { shallowEqual } from '@/utils/shallowEqual';
 
 export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   isFiscalYearOpen: false,
+  openfiscalYearDrawer: false,
   workingHour: '40',
   isEditMode: false,
   selectedFiscalYear: null,
@@ -27,6 +28,8 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
     set((state) => ({ isFiscalYearOpen: !state.isFiscalYearOpen })),
   closeFiscalYearDrawer: () => set({ isFiscalYearOpen: false }),
   openFiscalYearDrawer: () => set({ isFiscalYearOpen: true }),
+  setOpenFiscalYearDrawer: (isOpen: boolean) =>
+    set({ openfiscalYearDrawer: isOpen }),
   setWorkingHour: (hours) => set({ workingHour: hours }),
   setEditMode: (isEdit: any) => set({ isEditMode: isEdit }),
   setSelectedFiscalYear: (fiscalYear: any) =>
@@ -80,4 +83,7 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
         ? { monthRangeValues: newData }
         : state,
     ),
+  openDrawer: () => set({ openfiscalYearDrawer: true }),
+  setIsOpenFiscalYearDrawer: (isOpen: boolean) =>
+    set({ openfiscalYearDrawer: isOpen }),
 }));

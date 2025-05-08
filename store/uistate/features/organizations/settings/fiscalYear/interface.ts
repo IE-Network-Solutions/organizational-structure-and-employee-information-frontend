@@ -36,6 +36,8 @@ export interface DrawerState {
   setSelectedFiscalYear: (fiscalYear: any) => void;
   setEditMode: (isEdit: boolean) => void;
   setCurrent: (current: number) => void;
+  openfiscalYearDrawer: boolean;
+  setOpenFiscalYearDrawer: (isOpen: boolean) => void;
 
   sessionData: any[];
   setSessionData: (data: any) => void;
@@ -54,4 +56,7 @@ export interface DrawerState {
   isFormValid: boolean;
   setIsFormValid: (isValid: boolean) => void;
   resetFormState: () => void;
+
+  openDrawer: () => void;
+  setIsOpenFiscalYearDrawer: (isOpen: boolean) => void;
 }
