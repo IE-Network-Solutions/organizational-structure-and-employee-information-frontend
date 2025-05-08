@@ -152,28 +152,38 @@ export const useGetAllCalculatedVpScore = (
     {
       keepPreviousData: true,
       enabled,
-      onSuccess: (emp) => {
+      onSuccess: async (emp) => {
         const currentVp = queryClient.getQueryData(['variablePay']) as any;
+
+        if (!currentVp) {
+          await queryClient.invalidateQueries(['variablePay']);
+          await queryClient.refetchQueries(['variablePay']);
+          return;
+        }
+
         const tempItemArray = [...currentVp.items];
+
         const latestDataArray = tempItemArray.map((td: any) => ({
           ...td,
           VpInPercentile:
-            emp?.find((employee: any) => employee.userId === td.name)
+            emp.find((employee: any) => employee.userId === td.name)
               ?.vpInPercentile || td.VpInPercentile,
           VpInBirr:
-            emp?.find((employee: any) => employee.userId === td.name)
+            emp.find((employee: any) => employee.userId === td.name)
               ?.vpInBirr || td.VpInBirr,
           Benefit:
-            emp?.find((employee: any) => employee.userId === td.name)
-              ?.benefit || td.Benefit,
+            emp.find((employee: any) => employee.userId === td.name)?.benefit ||
+            td.Benefit,
           VpScore:
-            emp?.find((employee: any) => employee.userId === td.name)
-              ?.vpScore || td.VpScore,
+            emp.find((employee: any) => employee.userId === td.name)?.vpScore ||
+            td.VpScore,
         }));
+
         const updatedVariablePayData = {
           ...currentVp,
           items: latestDataArray,
         };
+
         queryClient.setQueryData(['variablePay'], updatedVariablePayData);
       },
     },

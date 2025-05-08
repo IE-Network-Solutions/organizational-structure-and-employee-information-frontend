@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useGetTenantId } from '@/store/server/features/employees/authentication/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { handleFirebaseSignInError } from '@/utils/showErrorResponse';
+import { useTenantChecker } from '../tenantChecker';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useEffect } from 'react';
 
@@ -25,6 +26,7 @@ export const useHandleSignIn = () => {
   const { refetch: refetchFiscalYear } = useGetActiveFiscalYearsData();
 
   const router = useRouter();
+  const { tenant } = useTenantChecker();
 
   useEffect(() => {
     refetchFiscalYear();
@@ -49,6 +51,14 @@ export const useHandleSignIn = () => {
         setToken('');
         setLocalId('');
       } else {
+        if (tenant?.id !== fetchedData?.data?.tenantId) {
+          message.error(
+            'This user does not belong to this tenant. Please contact your administrator.',
+          );
+          setToken('');
+          setLocalId('');
+          return;
+        }
         setTenantId(fetchedData?.data?.tenantId);
         setUserId(fetchedData?.data?.id);
         setUserData(fetchedData?.data);

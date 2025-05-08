@@ -53,16 +53,16 @@ const SearchEmployee: React.FC = () => {
   return (
     <div>
       <Row gutter={[16, 24]} justify="space-between">
-        <Col xl={14} md={14} lg={14} sm={24} xs={24}>
+        <Col xl={14} md={14} lg={14} sm={16} xs={16}>
           <Input
             id={`inputEmployeeNames${searchParams.employee_name}`}
             placeholder="Search employee"
             onChange={(e) => handleSearchInput(e.target.value, 'employee_name')}
-            className="w-full h-14"
+            className="w-full h-10"
             allowClear
           />
         </Col>
-        <Col xl={6} md={6} lg={6} sm={24} xs={24}>
+        <Col xl={6} md={6} lg={6} sm={8} xs={8}>
           {/* {checked === false ? (
             <AccessGuard permissions={[Permissions.GrantAllOKRAccess]}>
               <Button
@@ -94,18 +94,19 @@ const SearchEmployee: React.FC = () => {
           )} */}
 
           <AccessGuard permissions={[Permissions.GrantAllOKRAccess]}>
-            <div className="w-full h-14 flex items-center justify-between">
+            <div className="w-full h-10 flex justify-between">
               <span className="text-base font-medium hidden lg:inline">
                 {checked ? 'Revoke all access' : 'Grant all access'}
               </span>
               <Switch
                 checked={checked}
+                className="mt-2"
                 onChange={(checked) => {
                   setChecked(checked);
                   handleSubmit();
                 }}
-                checkedChildren={<IoCheckmarkOutline size={18} />}
-                unCheckedChildren={<MdOutlineCancel size={18} />}
+                checkedChildren={<IoCheckmarkOutline size={20} />}
+                unCheckedChildren={<MdOutlineCancel size={20} />}
               />
             </div>
           </AccessGuard>

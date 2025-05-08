@@ -1,6 +1,6 @@
 'use client';
 import { useParentRecognition } from '@/store/server/features/incentive/other/queries';
-import { Skeleton, Tabs } from 'antd';
+import { Button, Skeleton, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import PayRoleView from './payroll-detail';
 import { useEffect, useMemo } from 'react';
@@ -8,9 +8,12 @@ import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive'
 import AllIncentives from './compensation/all/page';
 import DynamicIncentive from './compensation/dynamicRecoginition';
 import ExportModal from './compensation/all/export';
+import ConfirmModal from '@/components/common/confirmModal';
+import { useSendIncentiveToPayroll } from '@/store/server/features/incentive/all/mutation';
 import { Eye, FileDown, FileUp } from 'lucide-react';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useExportIncentiveData } from '@/store/server/features/incentive/all/mutation';
 
 const Page = () => {
   const {
@@ -24,21 +27,52 @@ const Page = () => {
     setSelectedRecognition,
     selectedRecognition,
     setParentResponseIsLoading,
-    setIsOpen,
+    selectedRowKeys,
+    setSelectedRowKeys,
+    confirmationModal,
+    setConfirmationModal,
   } = useIncentiveStore();
+  const { mutate: exportIncentiveData } = useExportIncentiveData();
 
+  const { searchParams } = useIncentiveStore();
+  const handleExport = (values: any, generateAll: boolean) => {
+    const formattedValues = {
+      parentRecognitionTypeId: selectedRecognition?.id || '',
+      generateAll: generateAll,
+      sessionId: values?.bySession || [],
+      userId: values?.employee_name || '',
+      monthId: values?.byMonth || '',
+    };
+    exportIncentiveData(formattedValues);
+  };
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
+
+  const { mutate: sendIncentiveToPayroll, isLoading } =
+    useSendIncentiveToPayroll();
+
   const { isMobile, isTablet } = useIsMobile();
 
   useEffect(() => {
     setParentResponseIsLoading(parentResponseLoading);
   }, [parentResponseLoading]);
 
-  const handleExportClick = () => {
-    setIsOpen(true);
+  const handleSendToPayrollClick = () => {
+    setConfirmationModal(true);
   };
-
+  const handleYesSendToPayroll = () => {
+    setConfirmationModal(false);
+    setShowGenerateModal(true);
+    sendIncentiveToPayroll(
+      { data: selectedRowKeys },
+      {
+        onSuccess: () => {
+          setShowGenerateModal(false);
+          setSelectedRowKeys([]);
+        },
+      },
+    );
+  };
   const items: TabsProps['items'] = parentResponseLoading
     ? [{ key: 'loading', label: <Skeleton active />, children: null }]
     : [
@@ -67,11 +101,20 @@ const Page = () => {
           ),
         })),
       ];
-
+  useEffect(() => {
+    setSelectedRowKeys([]);
+  }, [activeKey]);
   const OperationsSlot = useMemo(() => {
     if (activeKey === '1') {
       return (
         <div className="flex items-center justify-center gap-3">
+          <Button
+            onClick={() => handleSendToPayrollClick()}
+            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
+          >
+            {'Send to Payroll'}
+          </Button>
+
           {isPayrollView ? (
             <CustomButton
               title={
@@ -94,7 +137,7 @@ const Page = () => {
               }
               id="createUserButton"
               icon={<FileDown className="md:mr-0 ml-2" size={18} />}
-              onClick={() => handleExportClick()}
+              onClick={() => handleExport(searchParams, true)}
               textClassName="!text-sm !font-medium"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
             />
@@ -120,6 +163,13 @@ const Page = () => {
       // Show Import & Generate for all other tabs
       return (
         <div className="flex items-center justify-center gap-3">
+          <Button
+            onClick={() => handleSendToPayrollClick()}
+            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
+          >
+            {'Send to Payroll'}
+          </Button>
+
           <CustomButton
             title={
               !(isMobile || isTablet) && (
@@ -128,7 +178,7 @@ const Page = () => {
             }
             id="createUserButton"
             icon={<FileUp className="md:mr-0 ml-2" size={18} />}
-            onClick={() => handleExportClick()}
+            onClick={() => handleExport(searchParams, false)}
             textClassName="!text-sm !font-medium"
             className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
           />
@@ -148,7 +198,14 @@ const Page = () => {
         </div>
       );
     }
-  }, [activeKey, isPayrollView, setProjectDrawer, setIsPayrollView, isMobile]);
+  }, [
+    activeKey,
+    isPayrollView,
+    setProjectDrawer,
+    setIsPayrollView,
+    selectedRowKeys,
+    isMobile,
+  ]);
 
   const handleTabChange = (key: string) => {
     setActiveKey(key);
@@ -193,6 +250,14 @@ const Page = () => {
         </>
       )}
       <ExportModal selectedRecognition={selectedRecognition?.id} />
+
+      <ConfirmModal
+        open={confirmationModal}
+        onConfirm={handleYesSendToPayroll}
+        onCancel={() => setConfirmationModal(false)}
+        loading={isLoading}
+        description={'You want to send to payroll'}
+      />
     </div>
   );
 };
