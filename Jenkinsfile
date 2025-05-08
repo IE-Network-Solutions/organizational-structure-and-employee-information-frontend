@@ -31,7 +31,7 @@ pipeline {
                         } else if (branchName.contains('preview')) {
                             env.REMOTE_SERVER_2 = REMOTE_SERVER_PROD2
                             env.SECRETS_PATH = '/home/ubuntu/preview-secrets/.osei-front-env'
-                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/preview-env'
+                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/preview'
                         }
                     }
                 }
