@@ -20,6 +20,7 @@ const Page = () => {
         <AccessGuard permissions={[Permissions.CreateAllowedArea]}>
           <Button
             icon={<FaPlus />}
+            className="h-10 w-10 sm:w-auto"
             type="primary"
             id="newLocationCreateButtonId"
             onClick={() => setIsShowLocationSidebar(true)}

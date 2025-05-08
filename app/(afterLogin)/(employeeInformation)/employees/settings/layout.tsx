@@ -56,7 +56,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   // };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] ">
+    <div className="min-h-screen bg-[#fafafa] p-3 ">
       <div className="h-auto w-auto">
         <PageHeader
           title="Settings"
@@ -65,7 +65,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
 
         <div className="flex  flex-col lg:flex-row gap-6 mt-3">
           <SidebarMenu menuItems={menuItems} />
-          <BlockWrapper className="bg-[#fafafa] flex-1 h-max overflow-x-auto">
+          <BlockWrapper className="bg-[#fafafa] flex-1 h-max overflow-x-auto p-0">
             {children}
           </BlockWrapper>
         </div>

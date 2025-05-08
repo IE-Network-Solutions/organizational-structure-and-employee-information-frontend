@@ -39,13 +39,13 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   ]);
 
   return (
-    <div className="min-h-screen bg-[#fafafa] ">
+    <div className="min-h-screen bg-[#fafafa] p-3 ">
       <div className="h-auto w-auto ">
         <PageHeader title="Settings" description="Recruitment settings " />
 
-        <div className="flex flex-col lg:flex-row  gap-6 mt-8">
+        <div className="flex flex-col lg:flex-row  gap-6 mt-3">
           <SidebarMenu menuItems={menuItems} />
-          <BlockWrapper className="flex-1 h-max bg-[#fafafa] overflow-x-auto ">
+          <BlockWrapper className="flex-1 h-max bg-[#fafafa] overflow-x-auto p-0 ">
             {children}
           </BlockWrapper>
         </div>

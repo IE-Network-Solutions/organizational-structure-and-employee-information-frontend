@@ -42,7 +42,7 @@ const Page = () => {
   );
 
   return (
-    <div>
+    <div className="p-5 rounded-2xl bg-white h-full">
       <div className="flex justify-between">
         <span className="font-bold text-lg">Questions</span>
         <AccessGuard permissions={[Permissions.createConversationSet]}>
