@@ -34,6 +34,7 @@ const FiscalYearForm: React.FC = () => {
     fiscalYearFormValues,
     resetFormState,
     calendarType,
+    setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
 
   const { data: activeCalendar } = useGetActiveFiscalYears();
@@ -92,6 +93,7 @@ const FiscalYearForm: React.FC = () => {
   const handleClose = () => {
     try {
       setSelectedFiscalYear(null);
+      setOpenFiscalYearDrawer(false);
       setCalendarType('');
       resetFormState();
     } catch (error) {
@@ -184,7 +186,8 @@ const FiscalYearForm: React.FC = () => {
         const isValid = Boolean(
           formValidation.fiscalYearName &&
             formValidation.fiscalYearStartDate &&
-            formValidation.fiscalYearEndDate,
+            formValidation.fiscalYearEndDate &&
+            calendarType,
         );
         setIsFormValid(isValid);
       };
@@ -193,7 +196,7 @@ const FiscalYearForm: React.FC = () => {
     } catch (error) {
       message.error('Failed to validate form. Please refresh the page.');
     }
-  }, [formValidation, setIsFormValid]);
+  }, [formValidation, setIsFormValid, calendarType]);
 
   return (
     <Form
@@ -277,6 +280,7 @@ const FiscalYearForm: React.FC = () => {
         name="fiscalYearCalenderId"
         label={<span className="font-medium">Fiscal Year Calendar</span>}
         initialValue={calendarType}
+        rules={[{ required: true, message: 'Please select a calendar type!' }]}
       >
         <Select
           placeholder="Select Calendar"
@@ -295,7 +299,7 @@ const FiscalYearForm: React.FC = () => {
           {departments?.length > 0 && (
             <Button
               onClick={handleClose}
-              className="text-sm font-medium bg-white border-gray-300"
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
             >
               Cancel
             </Button>
@@ -303,7 +307,7 @@ const FiscalYearForm: React.FC = () => {
           <Tooltip
             title={
               !isFormValid
-                ? 'Please fill in all required fields (Fiscal Year Name, Start Date, and End Date) to continue'
+                ? 'Please fill in all required fields (Fiscal Year Name, Start Date, End Date, and Calendar Type) to continue'
                 : ''
             }
             placement="top"
@@ -311,7 +315,7 @@ const FiscalYearForm: React.FC = () => {
             <Button
               onClick={handleNext}
               disabled={!isFormValid}
-              className="text-sm font-medium text-white bg-primary border-none"
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
             >
               Next
             </Button>
