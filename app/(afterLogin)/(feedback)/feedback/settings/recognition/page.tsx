@@ -11,8 +11,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
 
 const Page = () => {
-  const { setOpen, setOpenRecognitionType, openRecognitionType } =
-    ConversationStore();
+  const { setOpen, setOpenRecognitionType } = ConversationStore();
 
   // const { data: recognitionType } = useGetAllRecognitionType();
   const { data: recognitionType, isLoading } =
