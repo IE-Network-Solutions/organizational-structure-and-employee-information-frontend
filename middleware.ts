@@ -11,6 +11,7 @@ export function middleware(req: NextRequest) {
 
     const token = getCookie('token', req);
     const calendarCookie = getCookie('activeCalendar', req);
+    const loggedUserRole = getCookie('loggedUserRole', req);
 
     let hasEndedFiscalYear = false;
 
@@ -56,6 +57,18 @@ export function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       } else {
         return NextResponse.redirect(new URL('/authentication/login', req.url));
+      }
+    }
+
+    // Protect fiscal year settings routes
+    if (
+      pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
+    ) {
+      if (
+        !loggedUserRole ||
+        (loggedUserRole !== 'owner' && loggedUserRole !== 'admin')
+      ) {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
       }
     }
 

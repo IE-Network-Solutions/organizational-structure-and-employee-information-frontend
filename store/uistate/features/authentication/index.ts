@@ -21,6 +21,8 @@ interface StoreState {
   setActiveCalendar: (
     activeCalendar: string | number | Date | undefined,
   ) => void;
+  loggedUserRole: string;
+  setLoggedUserRole: (loggedUserRole: string) => void;
 }
 export const useAuthenticationStore = create<StoreState>()(
   devtools(
@@ -46,6 +48,11 @@ export const useAuthenticationStore = create<StoreState>()(
         userData: {},
         setUserData: (userData: Record<string, any>) => {
           set({ userData });
+        },
+        loggedUserRole: '',
+        setLoggedUserRole: (loggedUserRole: string) => {
+          setCookie('loggedUserRole', loggedUserRole, 30);
+          set({ loggedUserRole });
         },
         loading: false, // Non-persistent state
         setLoading: (loading: boolean) => set({ loading }),
