@@ -160,13 +160,14 @@ function WorkScheduleTab() {
                       value={
                         <div>
                           {scheduleItem.detail
-                            ?.filter((i) => Number(i.hours) !== 0)
+                            ?.filter((i) => Number(i.hours ?? i.duration) !== 0)
                             .reduce(
-                              (total, i) => total + Number(i.hours || 0),
+                              (total, i) =>
+                                total + Number((i.hours ?? i.duration) || 0),
                               0,
                             ) /
                             scheduleItem.detail.filter(
-                              (i) => Number(i.hours) !== 0,
+                              (i) => Number(i.hours ?? i.duration) !== 0,
                             ).length || 0}
                           h 00m
                         </div>
