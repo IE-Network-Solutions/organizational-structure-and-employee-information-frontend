@@ -288,7 +288,7 @@ pipeline {
                         script {
                              withCredentials([string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')]) {
                                 sh """
-                                    ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} '
+                                     sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} '
                                         cd ~/$REPO_DIR &&
                                         sudo pm2 delete osei-front-app-preview || true &&
                                         sudo pm2 start preview-ecosystem.config.js --env production
