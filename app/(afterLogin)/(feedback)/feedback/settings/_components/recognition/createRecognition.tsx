@@ -8,7 +8,6 @@ import {
 import { AggregateOperator, ConditionOperator } from '@/types/enumTypes';
 import {
   useAddRecognitionType,
-  useUpdateRecognitionType,
   useUpdateRecognitionWithCriteria,
 } from '@/store/server/features/CFR/recognition/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
@@ -158,7 +157,7 @@ const RecognitionForm: React.FC<PropsData> = ({
   );
   const onFinish = (values: RecognitionFormValues) => {
     const { parentTypeId, ...rest } = values;
-    // Check if parentTypeId is defined and not an empty string
+
     const filteredObj = Object.fromEntries(
       Object.entries(rest).filter(([key]) => key !== 'criteria'),
     );
@@ -177,7 +176,6 @@ const RecognitionForm: React.FC<PropsData> = ({
       setSelectedCriteria([]);
       setTotalWeight(0);
     };
-
 
     if (selectedRecognitionType === '') {
       createRecognitionType(finalValues, {
@@ -223,8 +221,6 @@ const RecognitionForm: React.FC<PropsData> = ({
       departmentId: recognitionTypeById.departmentId || null,
     });
   }, [recognitionTypeById]);
-
-
 
   return (
     <CustomDrawerLayout

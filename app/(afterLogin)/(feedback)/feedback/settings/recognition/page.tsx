@@ -3,7 +3,6 @@ import { Button, Spin, Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import { FaPlus } from 'react-icons/fa';
 import AllRecognition from '../_components/recognition/allRecognition';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 
 import RecognitionForm from '../_components/recognition/createRecognition';
@@ -12,7 +11,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
 
 const Page = () => {
-  const { open, setOpen, setOpenRecognitionType, openRecognitionType } =
+  const { setOpen, setOpenRecognitionType, openRecognitionType } =
     ConversationStore();
 
   // const { data: recognitionType } = useGetAllRecognitionType();
@@ -20,12 +19,6 @@ const Page = () => {
     useGetAllRecognitionWithRelations();
 
   const onChange = () => {};
-
-  const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {openRecognitionType ? 'Update Recognition' : 'Add New Recognition'}
-    </div>
-  );
 
   const items: TabsProps['items'] = [
     {
@@ -72,9 +65,7 @@ const Page = () => {
         </div>
       </Spin>
 
-
       <RecognitionForm onClose={() => setOpen(false)} />
-
     </div>
   );
 };
