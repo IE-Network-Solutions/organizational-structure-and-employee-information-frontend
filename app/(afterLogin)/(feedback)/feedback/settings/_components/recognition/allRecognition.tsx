@@ -97,11 +97,6 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
   const handleDeleteRecognitionType = (id: string) => {
     deleteRecognitionType(id);
   };
-  const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {selectedRecognitionType ? 'Update Recognition' : 'Add New Recognition'}
-    </div>
-  );
 
   const recognitionShow = (item: any) => {
     return (
@@ -189,16 +184,6 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
         </React.Fragment>
       ))}
 
-      <div>
-        <CustomDrawerLayout
-          open={selectedRecognitionType !== ''}
-          onClose={() => setSelectedRecognitionType('')}
-          modalHeader={modalHeader}
-          width="50%"
-        >
-          <RecognitionForm />
-        </CustomDrawerLayout>
-      </div>
     </div>
   );
 };

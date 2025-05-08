@@ -14,6 +14,7 @@ import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/r
 const Page = () => {
   const { open, setOpen, setOpenRecognitionType, openRecognitionType } =
     ConversationStore();
+
   // const { data: recognitionType } = useGetAllRecognitionType();
   const { data: recognitionType, isLoading } =
     useGetAllRecognitionWithRelations();
@@ -71,25 +72,9 @@ const Page = () => {
         </div>
       </Spin>
 
-      <CustomDrawerLayout
-        open={open}
-        onClose={() => setOpen(false)}
-        modalHeader={modalHeader}
-        width="50%"
-      >
-        <RecognitionForm onClose={() => setOpen(false)} />
-      </CustomDrawerLayout>
-      {/* <Drawer
-        width={600} // Adjust the width as needed
-        title={modalHeader}
-        onClose={() => setOpenRecognitionType(false)}
-        open={openRecognitionType}
-      > */}
-      <RecognitionForm
-        createCategory={true}
-        onClose={() => setOpenRecognitionType(false)}
-      />
-      {/* </Drawer> */}
+
+      <RecognitionForm onClose={() => setOpen(false)} />
+
     </div>
   );
 };

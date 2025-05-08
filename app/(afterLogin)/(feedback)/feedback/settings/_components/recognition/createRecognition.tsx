@@ -8,6 +8,7 @@ import {
 import { AggregateOperator, ConditionOperator } from '@/types/enumTypes';
 import {
   useAddRecognitionType,
+  useUpdateRecognitionType,
   useUpdateRecognitionWithCriteria,
 } from '@/store/server/features/CFR/recognition/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
@@ -57,6 +58,9 @@ const RecognitionForm: React.FC<PropsData> = ({
     selectedRecognitionType,
     setTotalWeight,
     totalWeight,
+    setOpen,
+    open: openModal,
+    setParentRecognitionTypeId,
   } = ConversationStore();
 
   const { data: allDepartmentWithData } = useGetDepartmentsWithUsers();
@@ -79,7 +83,9 @@ const RecognitionForm: React.FC<PropsData> = ({
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {openRecognitionType ? 'Update Recognition' : 'Add New Recognition'}
+      {openRecognitionType || openModal
+        ? 'Add New Recognition'
+        : 'Update Recognition'}
     </div>
   );
 
@@ -159,17 +165,24 @@ const RecognitionForm: React.FC<PropsData> = ({
     const finalValues = {
       ...filteredObj,
       parentTypeId:
-        parentTypeId && parentTypeId.length !== 0 ? parentTypeId : undefined,
+        parentRecognitionTypeId && parentRecognitionTypeId.length !== 0
+          ? parentRecognitionTypeId
+          : undefined,
     };
+
+    const handleClose = () => {
+      form.resetFields();
+      onClose();
+      setOpenRecognitionType(false);
+      setSelectedCriteria([]);
+      setTotalWeight(0);
+    };
+
 
     if (selectedRecognitionType === '') {
       createRecognitionType(finalValues, {
         onSuccess: () => {
-          form.resetFields();
-          onClose();
-          setOpenRecognitionType(false);
-          setSelectedCriteria([]);
-          setTotalWeight(0);
+          handleClose();
         },
       });
     } else {
@@ -178,11 +191,7 @@ const RecognitionForm: React.FC<PropsData> = ({
         { ...updatedValues, id: selectedRecognitionType },
         {
           onSuccess: () => {
-            form.resetFields();
-            setSelectedRecognitionType('');
-            setOpenRecognitionType(false);
-            setSelectedCriteria([]);
-            setTotalWeight(0);
+            handleClose();
           },
         },
       );
@@ -215,11 +224,24 @@ const RecognitionForm: React.FC<PropsData> = ({
     });
   }, [recognitionTypeById]);
 
+
+
   return (
     <CustomDrawerLayout
       modalHeader={modalHeader}
-      onClose={() => setOpenRecognitionType(false)}
-      open={openRecognitionType}
+      onClose={() => {
+        form.resetFields();
+        setOpenRecognitionType(false);
+        setOpen(false);
+        setParentRecognitionTypeId('');
+        setSelectedRecognitionType('');
+      }}
+      open={
+        openRecognitionType ||
+        openModal ||
+        parentRecognitionTypeId !== '' ||
+        selectedRecognitionType !== ''
+      }
       width="40%"
       footer={
         <Form.Item>
@@ -228,6 +250,8 @@ const RecognitionForm: React.FC<PropsData> = ({
               title="Are you sure you want to cancel?"
               onConfirm={() => {
                 form.resetFields();
+                setOpen(false);
+                setParentRecognitionTypeId('');
                 setSelectedRecognitionType('');
                 setOpenRecognitionType(false);
               }}
