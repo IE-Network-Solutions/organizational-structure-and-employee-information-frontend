@@ -25,9 +25,9 @@ function Page({ params: { dataId } }: IncentiveTableDetailsProps) {
     <div className="my-[72px] mx-4 sm:mx-10">
       <div
         onClick={handleGoBack}
-        className="flex items-center justify-start space-x-2 mb-4 text-gray-800 "
+        className="flex items-center justify-start space-x-1 mb-4 text-gray-800 "
       >
-        <IoChevronBackOutline />
+        <IoChevronBackOutline className="text-xl text-gray-500" />
         <span className="text-2xl font-bold">Detail</span>
       </div>
       <Row gutter={[10, 10]} justify="space-between">
