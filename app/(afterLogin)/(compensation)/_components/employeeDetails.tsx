@@ -1,6 +1,6 @@
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { Avatar, Space } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
 
 export const EmployeeDetails = ({
   empId,
@@ -23,11 +23,11 @@ export const EmployeeDetails = ({
   const userName =
     `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
     '-';
-  const profileImage = fallbackProfileImage;
+  const profileImage = userDetails?.profileImage || fallbackProfileImage;
 
   return (
     <Space size="small">
-      <Avatar src={profileImage} />
+      <Avatar src={profileImage} icon={<UserOutlined />} />
       {userName}
     </Space>
   );
