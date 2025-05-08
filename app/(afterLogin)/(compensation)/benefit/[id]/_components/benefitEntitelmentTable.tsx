@@ -1,3 +1,4 @@
+import React from 'react';
 import { Spin, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
@@ -9,18 +10,28 @@ import { useParams } from 'next/navigation';
 import { useDeleteBenefitEntitlement } from '@/store/server/features/compensation/benefit/mutations';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
+import BenefitEntitlementSideBarEdit from './benefitEntitlementSidebarEdit';
+import BenefitTracking from './benefitTracker';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
-
-const BenefitEntitlementTable = () => {
-  const { currentPage, pageSize, setCurrentPage, setPageSize } =
-    useBenefitEntitlementStore();
+type BenefitPropTypes = {
+  title: string;
+};
+const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
+  const {
+    setIsBenefitEntitlementSidebarUpdateOpen,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    setEditBenefitData,
+  } = useBenefitEntitlementStore();
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
   const { id } = useParams();
   const { data: benefitEntitlementsData, isLoading } =
     useFetchBenefitEntitlement(id);
-
   const { searchQuery } = useAllowanceEntitlementStore();
-
+  const { employeeBenefitData, setEmployeeBenefitData } =
+    useBenefitEntitlementStore();
   const transformedData = Array.isArray(benefitEntitlementsData)
     ? benefitEntitlementsData.map((item: any) => ({
         id: item.id,
@@ -31,18 +42,29 @@ const BenefitEntitlementTable = () => {
         mode: item.compensationItem.mode,
       }))
     : [];
-
   const handleDelete = (id: string) => {
     deleteBenefitEntitlement(id);
   };
-
+  const handleEdit = (record: any) => {
+    setEditBenefitData(record);
+    setIsBenefitEntitlementSidebarUpdateOpen(true);
+  };
+  const handleEmployeeData = (data: any) => {
+    setEmployeeBenefitData(data);
+  };
   const columns: TableColumnsType<any> = [
     {
       title: 'Employee',
       dataIndex: 'userId',
       key: 'userId',
       sorter: true,
-      render: (userId: string) => <EmployeeDetails empId={userId} />,
+
+      render: (rule: any, record: any) => (
+        <div onClick={() => handleEmployeeData(record)}>
+          {' '}
+          <EmployeeDetails empId={record?.userId} />
+        </div>
+      ),
     },
     {
       title: 'Type',
@@ -101,8 +123,8 @@ const BenefitEntitlementTable = () => {
         >
           <ActionButtons
             id={record?.id ?? null}
-            disableEdit
-            onEdit={() => {}}
+            disableEdit={false}
+            onEdit={() => handleEdit(record)}
             onDelete={() => handleDelete(record.id)}
           />
         </AccessGuard>
@@ -114,64 +136,31 @@ const BenefitEntitlementTable = () => {
     setCurrentPage(pagination.current);
     setPageSize(pagination.pageSize);
   };
-
   const filteredDataSource = searchQuery
-    ? transformedData.filter(
-        (employee: any) =>
-          employee.userId?.toLowerCase() === searchQuery?.toLowerCase(),
-      )
+    ? transformedData.filter((employee: any) => employee.userId === searchQuery)
     : transformedData;
-
   return (
     <Spin spinning={isLoading}>
-      {/* <Space
-        direction="horizontal"
-        size="large"
-        style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
-      >
-        <Select
-          showSearch
-          allowClear
-          className="min-h-12"
-          placeholder="Search by name"
-          onChange={handleSearchChange}
-          filterOption={(input, option) => {
-            const label = option?.label;
-            return (
-              typeof label === 'string' &&
-              label.toLowerCase().includes(input.toLowerCase())
-            );
-          }}
-          options={options}
-          style={{ width: 300 }} // Set a width for better UX
-        />{' '}
-        <AccessGuard permissions={[Permissions.CreateBenefitEntitlement]}>
-          <Button
-            size="large"
-            type="primary"
-            className="min-h-12"
-            id="createNewClosedHolidayFieldId"
-            icon={<LuPlus size={18} />}
-            onClick={handleBenefitEntitlementAdd}
-            disabled={BenefitApplicableTo == 'GLOBAL'}
-          >
-            Employees
-          </Button>
-        </AccessGuard>
-      </Space> */}
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={filteredDataSource}
-        pagination={{
-          current: currentPage,
-          pageSize,
-          total: transformedData.length,
-          showSizeChanger: true,
-        }}
-        onChange={handleTableChange}
-      />
-      <BenefitEntitlementSideBar />
+      {employeeBenefitData == null ? (
+        <>
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={filteredDataSource}
+            pagination={{
+              current: currentPage,
+              pageSize,
+              total: transformedData.length,
+              showSizeChanger: true,
+            }}
+            onChange={handleTableChange}
+          />
+        </>
+      ) : (
+        <BenefitTracking />
+      )}
+      <BenefitEntitlementSideBar title={title} />
+      <BenefitEntitlementSideBarEdit title={title} />
     </Spin>
   );
 };

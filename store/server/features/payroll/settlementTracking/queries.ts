@@ -159,3 +159,37 @@ export const useCheckSettlementTrackingExists = (
     },
   );
 };
+
+export const useEmployeeSettlementTracking = (
+  entitlementId: string,
+  employeeId: string,
+) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return useQuery(
+    ['settlement-tracking-exists', employeeId, entitlementId],
+    async () => {
+      const response = await fetch(
+        `${PAYROLL_URL}/compensation-item-entitlement/get-employee-settlement-tracking/entitlement/${entitlementId}/employee/${employeeId}`,
+        {
+          headers: {
+            ...requestHeader,
+            Authorization: `Bearer ${token}`,
+            tenantId: tenantId,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to check settlement tracking existence');
+      }
+
+      return response.json();
+    },
+    {
+      enabled: !!employeeId && !!entitlementId, // Only run query if both params are provided
+      staleTime: 0, // Always fetch fresh data for this query
+    },
+  );
+};
