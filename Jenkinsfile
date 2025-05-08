@@ -31,7 +31,7 @@ pipeline {
                         } else if (branchName.contains('preview')) {
                             env.REMOTE_SERVER_2 = REMOTE_SERVER_PROD2
                             env.SECRETS_PATH = '/home/ubuntu/preview-secrets/.osei-front-env'
-                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/preview'
+                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/preview-env'
                         }
                     }
                 }
@@ -286,7 +286,7 @@ pipeline {
                     }
                     steps {
                         script {
-                            sshagent(['pepproduction2']) {
+                             withCredentials([string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')]) {
                                 sh """
                                     ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} '
                                         cd ~/$REPO_DIR &&
