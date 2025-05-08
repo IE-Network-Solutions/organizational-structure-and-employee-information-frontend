@@ -11,6 +11,40 @@ import CustomWorkingScheduleDrawer from '../_components/workSchedule/customDrawe
 import CustomDeleteWorkingSchduel from '../_components/workSchedule/deleteModal';
 import { InfoLine } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/common/infoLine';
 
+interface ScheduleDetail {
+  id: string;
+  day: string;
+  dayOfWeek?: string;
+  startTime?: string | null;
+  endTime?: string | null;
+  duration?: string;
+  hours?: string;
+  workDay: boolean;
+}
+
+interface WorkingHours {
+  day: string;
+  hours: number;
+  endTime: number;
+  startTime: number;
+}
+
+interface ScheduleItem {
+  id?: string;
+  name: string;
+  standardHours: number;
+  detail: ScheduleDetail[];
+}
+
+interface UpdatedDetails {
+  id: string;
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  hours: number;
+  status: boolean;
+}
+
 function WorkScheduleTab() {
   const handleMenuClick = () => {};
   const { data: workScheudleData } = useFetchSchedule();
@@ -26,17 +60,19 @@ function WorkScheduleTab() {
     setDeleteMode,
   } = useScheduleStore();
 
-  const handleEditSchedule = (data: any) => {
+  const handleEditSchedule = (data: ScheduleItem) => {
     setScheduleName(data.name);
-    setId(data.id);
-    let updatedDetails = {};
-    data.detail.forEach((dayData: any) => {
+    if (data.id) {
+      setId(data.id);
+    }
+    let updatedDetails: UpdatedDetails;
+    data.detail.forEach((dayData: ScheduleDetail) => {
       updatedDetails = {
         id: dayData.id,
         dayOfWeek: dayData.day,
-        hours: dayData.duration,
-        startTime: dayData.startTime,
-        endTime: dayData.endTime,
+        hours: dayData.duration ? parseFloat(dayData.duration) : 0,
+        startTime: dayData.startTime || '',
+        endTime: dayData.endTime || '',
         status: dayData.workDay,
       };
       setDetail(dayData.day, updatedDetails);
@@ -48,12 +84,14 @@ function WorkScheduleTab() {
     setEditMode(true);
   };
 
-  const handleDeleteSchedule = (data: any) => {
-    setId(data.id);
+  const handleDeleteSchedule = (data: ScheduleItem) => {
+    if (data.id) {
+      setId(data.id);
+    }
     setDeleteMode(true);
   };
 
-  const renderMenu = (scheduleItem: any) => (
+  const renderMenu = (scheduleItem: ScheduleItem) => (
     <Menu onClick={handleMenuClick}>
       <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
         <Menu.Item
@@ -76,22 +114,23 @@ function WorkScheduleTab() {
     </Menu>
   );
 
-  const workingHours: {
-    day: string;
-    hours: number;
-    endTime: number;
-    startTime: number;
-  }[] =
-    workScheudleData?.items?.[1]?.detail?.map((day: any) => ({
+  const workingHours: WorkingHours[] =
+    workScheudleData?.items?.[1]?.detail?.map((day: ScheduleDetail) => ({
       day: day.dayOfWeek || '',
-      hours: day.hours || day.duration || 0,
-      startTime: day.startTime || 0,
-      endTime: day.endTime || 0,
+      hours: day.hours
+        ? parseFloat(day.hours)
+        : day.duration
+          ? parseFloat(day.duration)
+          : 0,
+      startTime: day.startTime ? parseFloat(day.startTime) : 0,
+      endTime: day.endTime ? parseFloat(day.endTime) : 0,
     })) || [];
 
-  const getTotslWorkingHours = (details: any) => {
-    return details.reduce((total: number, day: any) => {
-      return total + (day?.hours || day?.duration || 0);
+  const getTotalWorkingHours = (details: ScheduleDetail[]): number => {
+    return details.reduce((total: number, day: ScheduleDetail) => {
+      const hours = day?.hours ? parseFloat(day.hours) : 0;
+      const duration = day?.duration ? parseFloat(day.duration) : 0;
+      return total + (hours || duration || 0);
     }, 0);
   };
   return (
@@ -175,7 +214,7 @@ function WorkScheduleTab() {
                     />
                     <InfoLine
                       title="Total working hours/week"
-                      value={getTotslWorkingHours(scheduleItem?.detail || [])}
+                      value={getTotalWorkingHours(scheduleItem?.detail || [])}
                     />
                     <InfoLine
                       title="Daily working hours"
