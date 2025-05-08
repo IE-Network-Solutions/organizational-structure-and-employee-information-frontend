@@ -167,11 +167,11 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
             className="w-60"
           >
             {payPeriods?.map((period: any) => (
-                <Option key={period.id} value={period.id}>
-                  {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
-                  {dayjs(period.endDate).format('MMM DD, YYYY')}
-                </Option>
-              ))}
+              <Option key={period.id} value={period.id}>
+                {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
+                {dayjs(period.endDate).format('MMM DD, YYYY')}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
       ),

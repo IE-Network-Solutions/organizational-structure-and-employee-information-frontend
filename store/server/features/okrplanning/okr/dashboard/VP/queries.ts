@@ -179,15 +179,13 @@ export const useGetAllCalculatedVpScore = (
             td.VpScore,
         }));
 
-
         const updatedVariablePayData = {
           ...currentVp,
           items: latestDataArray,
         };
 
         queryClient.setQueryData(['variablePay'], updatedVariablePayData);
-      }
-      
+      },
     },
   );
 };
