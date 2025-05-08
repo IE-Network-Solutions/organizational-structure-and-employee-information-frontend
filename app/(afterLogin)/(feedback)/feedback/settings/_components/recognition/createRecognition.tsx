@@ -156,7 +156,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     <span className="text-black text-xs font-semibold">{text}</span>
   );
   const onFinish = (values: RecognitionFormValues) => {
-    const { parentTypeId, ...rest } = values;
+    const { ...rest } = values;
 
     const filteredObj = Object.fromEntries(
       Object.entries(rest).filter(([key]) => key !== 'criteria'),
