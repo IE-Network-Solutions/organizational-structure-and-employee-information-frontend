@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Tag, Card } from 'antd';
+import { Tag, Card, Empty } from 'antd';
 import { useGetSettlementTracking } from '@/store/server/features/payroll/settlementTracking/queries';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
 import { useParams } from 'next/navigation';
@@ -53,6 +53,13 @@ const SettlementDetail = () => {
   };
   // Render tables for each compensation group
   const renderCompensationTables = () => {
+    if (Object.keys(groupedByCompensation).length === 0) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <Empty description="No data available" />
+        </div>
+      );
+    }
     return Object.entries(groupedByCompensation).map(
       ([compensationId, items]: [any, any]) => (
         <div key={compensationId} className="mb-8">
@@ -70,14 +77,14 @@ const SettlementDetail = () => {
               <Tag
                 color={
                   statusColors[
-                    items?.some((item: any) => item.isPaid === true)
+                    items?.every((item: any) => item.isPaid === true)
                       ? 'Paid'
                       : 'In progress'
                   ]
                 }
                 className="rounded-md px-3 py-1 text-xs"
               >
-                {items?.some((item: any) => item.isPaid === true)
+                {items?.every((item: any) => item.isPaid === true)
                   ? 'Paid'
                   : 'In progress'}
               </Tag>
