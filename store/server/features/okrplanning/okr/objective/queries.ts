@@ -48,7 +48,7 @@ const getObjectiveByUser = async (
 const getObjectiveByTeam = async (
   pageSize: number,
   currentPage: number,
-  users: number[],
+  users: string[],
   userId: string,
   metricTypeId: string,
 ) => {
@@ -168,7 +168,7 @@ export const useGetUserObjective = (
 export const useGetTeamObjective = (
   pageSize: number,
   currentPage: number,
-  users: number[],
+  users: string[],
   userId: string,
   metricTypeId: string,
 ) =>
